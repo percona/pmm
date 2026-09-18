@@ -495,11 +495,14 @@ func (c *Client) processSetStates(ctx context.Context, setStates <-chan *agentv1
 		select {
 		case state := <-setStates:
 			// Both cases can be ready at once, and a state whose connection is already
-			// gone is superseded by the one the next connection starts with.
+			// gone is superseded by the one the next connection starts with. ctx goes
+			// to SetState as well: this goroutine is deliberately not covered by the
+			// WaitGroup that gates Done(), so the next connection can be up and its own
+			// state applied while this call is still waiting for the Supervisor's lock.
 			if ctx.Err() != nil {
 				return
 			}
-			c.supervisor.SetState(state)
+			c.supervisor.SetState(ctx, state)
 		case <-ctx.Done():
 			return
 		}

@@ -76,7 +76,7 @@ func TestSupervisor(t *testing.T) {
 	t.Run("Start13", func(t *testing.T) {
 		require.Empty(t, s.AgentsList())
 
-		s.SetState(&agentv1.SetStateRequest{
+		s.SetState(t.Context(), &agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
 				"sleep1": {Type: typeTestSleep, Args: []string{"10"}},
 			},
@@ -117,7 +117,7 @@ func TestSupervisor(t *testing.T) {
 		}
 		require.ElementsMatch(t, expectedList, s.AgentsList())
 
-		s.SetState(&agentv1.SetStateRequest{
+		s.SetState(t.Context(), &agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
 				"sleep1": {Type: typeTestSleep, Args: []string{"20"}},
 				"sleep2": {Type: typeTestSleep, Args: []string{"10"}},
@@ -157,7 +157,7 @@ func TestSupervisor(t *testing.T) {
 		}
 		require.ElementsMatch(t, expectedList, s.AgentsList())
 
-		s.SetState(&agentv1.SetStateRequest{
+		s.SetState(t.Context(), &agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
 				"sleep1": {Type: typeTestSleep, Args: []string{"20"}},
 				"sleep2": {Type: typeTestSleep, Args: []string{"10"}},
@@ -201,7 +201,7 @@ func TestSupervisor(t *testing.T) {
 		}
 		require.ElementsMatch(t, expectedList, s.AgentsList())
 
-		s.SetState(&agentv1.SetStateRequest{
+		s.SetState(t.Context(), &agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
 				"sleep2": {Type: typeTestSleep, Args: []string{"10"}},
 			},
@@ -233,7 +233,7 @@ func TestSupervisor(t *testing.T) {
 		}
 		require.ElementsMatch(t, expectedList, s.AgentsList())
 
-		s.SetState(&agentv1.SetStateRequest{
+		s.SetState(t.Context(), &agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
 				"sleep2": {Type: typeTestSleep, Args: []string{"10"}},
 			},
@@ -485,7 +485,7 @@ func TestStopKeepsPortOfRunningAgent(t *testing.T) {
 	s := NewSupervisor(t.Context(), nil, cfgStorage)
 	s.agentsStopTimeout = 200 * time.Millisecond
 
-	s.SetState(&agentv1.SetStateRequest{
+	s.SetState(t.Context(), &agentv1.SetStateRequest{
 		AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
 			"sleep1": {Type: typeTestSleep, Args: []string{"100"}},
 		},
@@ -498,7 +498,7 @@ func TestStopKeepsPortOfRunningAgent(t *testing.T) {
 	// Nobody drains Changes(), so the wait for the stopping Agent below gives up on it.
 	fillChanges(s)
 
-	s.SetState(&agentv1.SetStateRequest{})
+	s.SetState(t.Context(), &agentv1.SetStateRequest{})
 
 	reserved := func() bool {
 		s.portsRegistry.m.Lock()
@@ -548,7 +548,7 @@ func TestStopAll(t *testing.T) {
 		t.Parallel()
 
 		s := newSupervisor(t, 65300, 65399)
-		s.SetState(sleeper)
+		s.SetState(t.Context(), sleeper)
 
 		// Drained throughout, so every forwarder finishes and the channels can be closed.
 		drained := make(chan struct{})
@@ -571,7 +571,7 @@ func TestStopAll(t *testing.T) {
 		t.Parallel()
 
 		s := newSupervisor(t, 65400, 65499)
-		s.SetState(sleeper)
+		s.SetState(t.Context(), sleeper)
 
 		// Nobody drains Changes(), so the forwarder's next send blocks and the bounded wait
 		// in stopAll gives up on it. Closing the channels then would panic the forwarder on
@@ -609,7 +609,7 @@ func TestStopAll(t *testing.T) {
 		})
 		s := NewSupervisor(ctx, nil, cfgStorage)
 		s.agentsStopTimeout = 200 * time.Millisecond
-		s.SetState(sleeper)
+		s.SetState(t.Context(), sleeper)
 
 		fillChanges(s)
 
@@ -686,7 +686,7 @@ func TestStartProcessFail(t *testing.T) {
 	t.Run("Start", func(t *testing.T) {
 		require.Empty(t, s.AgentsList())
 
-		s.SetState(&agentv1.SetStateRequest{
+		s.SetState(t.Context(), &agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
 				"sleep1": {Type: typeTestSleep, Args: []string{"wrong format"}},
 			},

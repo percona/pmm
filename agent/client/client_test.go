@@ -366,14 +366,14 @@ func TestSetStateDoesNotBlockRequestLoop(t *testing.T) {
 	s.On("RTARequests").Return(make(<-chan *rtav1.CollectRequest))
 	s.On("AgentsList").Return([]*agentlocal.AgentInfo{})
 	s.On("ClearChangesChannel").Return()
-	s.On("SetState", mock.Anything).Run(func(mock.Arguments) {
+	s.On("SetState", mock.Anything, mock.Anything).Run(func(mock.Arguments) {
 		close(applyingState)
 		<-releaseState
 	}).Return()
 
 	r := runner.New(cfgStorage.Get().RunnerCapacity, cfgStorage.Get().RunnerMaxConnectionsPerService)
 	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
-	require.NoError(t, client.Run(context.Background()))
+	require.NoError(t, client.Run(t.Context()))
 	<-releaseState
 	s.AssertExpectations(t)
 }
@@ -445,7 +445,7 @@ func TestActualStatusesDoNotBlockPings(t *testing.T) {
 
 	r := runner.New(cfgStorage.Get().RunnerCapacity, cfgStorage.Get().RunnerMaxConnectionsPerService)
 	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
-	require.NoError(t, client.Run(context.Background()))
+	require.NoError(t, client.Run(t.Context()))
 	<-release
 	s.AssertExpectations(t)
 }
@@ -500,7 +500,7 @@ func TestDoneClosesAfterCancel(t *testing.T) {
 	r := runner.New(cfgStorage.Get().RunnerCapacity, cfgStorage.Get().RunnerMaxConnectionsPerService)
 	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	runErr := make(chan error, 1)
 	go func() { runErr <- client.Run(ctx) }()
 

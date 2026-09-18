@@ -264,7 +264,15 @@ func (s *Supervisor) RTARequests() <-chan *rtav1.CollectRequest {
 }
 
 // SetState starts or updates all agents placed in args and stops all agents not placed in args, but already run.
-func (s *Supervisor) SetState(state *agentv1.SetStateRequest) {
+//
+// The ctx is the connection the state came from, and only says whether that connection is still
+// there: waiting for the lock below can take as long as the Agents being replaced take to stop,
+// and by then the state the next connection opens with supersedes this one. A sync.Mutex lets a
+// later caller barge ahead of one already queued, so without that check a dead connection's state
+// could be applied last and leave the Agents configured from it until the server happens to push
+// another. What the Agents themselves get is s.ctx, which outlives any one connection.
+// See PMM-15431.
+func (s *Supervisor) SetState(ctx context.Context, state *agentv1.SetStateRequest) {
 	// do not process SetState requests concurrently for internal state consistency and implementation simplicity
 	s.rw.Lock()
 	defer s.rw.Unlock()
@@ -276,9 +284,22 @@ func (s *Supervisor) SetState(state *agentv1.SetStateRequest) {
 		return
 	}
 
-	deadline := time.Now().Add(s.agentsStopTimeout)
-	s.setAgentProcesses(state.AgentProcesses, deadline)
-	s.setBuiltinAgents(state.BuiltinAgents, deadline)
+	err = ctx.Err()
+	if err != nil {
+		s.l.Warnf("Ignoring SetState from a connection that is gone: %s.", err)
+		return
+	}
+
+	// A budget per phase, not one shared by both: a single hung exporter would otherwise spend
+	// the whole of it in setAgentProcesses and leave setBuiltinAgents waiting against an already
+	// expired deadline, abandoning built-in Agents that would have stopped in milliseconds.
+	// That is the same "no budget at all" failure the comment in setAgentProcesses describes,
+	// across phases rather than within one. See PMM-15431.
+	//
+	// Deliberately not ctx below: an Agent started here must outlive the connection that
+	// asked for it, so what reaches startProcess and startBuiltin is s.ctx.
+	s.setAgentProcesses(state.AgentProcesses, time.Now().Add(s.agentsStopTimeout)) //nolint:contextcheck
+	s.setBuiltinAgents(state.BuiltinAgents, time.Now().Add(s.agentsStopTimeout))   //nolint:contextcheck
 }
 
 // RestartAgents restarts all existing agents.
@@ -286,7 +307,8 @@ func (s *Supervisor) RestartAgents() {
 	s.rw.Lock()
 	defer s.rw.Unlock()
 
-	deadline := time.Now().Add(s.agentsStopTimeout)
+	// A budget per phase, not one shared by both - see SetState.
+	processDeadline := time.Now().Add(s.agentsStopTimeout)
 
 	// Iterate a snapshot of the keys: the give-up branch below deletes the entry and
 	// tryStartProcess re-inserts the same key, and an entry created during a range may be
@@ -304,7 +326,7 @@ func (s *Supervisor) RestartAgents() {
 	for _, id := range ids {
 		agent := s.agentProcesses[id]
 		port := agent.listenPort
-		if !s.waitAgentStopped(id, agent.done, deadline) {
+		if !s.waitAgentStopped(id, agent.done, processDeadline) {
 			// See the same branch in setAgentProcesses.
 			delete(s.agentProcesses, id)
 			s.releaseAgentResources(id, agent.done, port, "")
@@ -321,8 +343,9 @@ func (s *Supervisor) RestartAgents() {
 		agent.cancel()
 	}
 
+	builtinDeadline := time.Now().Add(s.agentsStopTimeout)
 	for id, agent := range s.builtinAgents {
-		s.waitAgentStopped(id, agent.done, deadline)
+		s.waitAgentStopped(id, agent.done, builtinDeadline)
 
 		err := s.startBuiltin(id, agent.requestedState)
 		if err != nil {
@@ -356,6 +379,27 @@ func (s *Supervisor) waitAgentStopped(agentID string, done <-chan struct{}, dead
 	}
 }
 
+// waitForwarderDrained waits for a canceled Agent's status forwarder to deliver what it has left
+// and exit, until forwarderDrainTimeout. Unlike waitAgentStopped this is not about reusing the
+// Agent's resources but about not making its remaining statuses stale, so giving up is only worth
+// a debug line - the statuses that are then dropped log themselves.
+func (s *Supervisor) waitForwarderDrained(agentID string, done <-chan struct{}) {
+	select {
+	case <-done:
+		return
+	default:
+	}
+
+	t := time.NewTimer(forwarderDrainTimeout)
+	defer t.Stop()
+
+	select {
+	case <-done:
+	case <-t.C:
+		s.l.Debugf("Agent %s is still reporting after %s, not waiting for it.", agentID, forwarderDrainTimeout)
+	}
+}
+
 // releaseAgentResources gives back what an Agent owned: its port reservation, and its temporary
 // directory unless agentTmp is empty. A built-in Agent has no port, hence port 0.
 //
@@ -371,6 +415,15 @@ func (s *Supervisor) releaseAgentResources(agentID string, done <-chan struct{},
 	case <-done:
 		s.releasePortAndTempDir(agentID, port, agentTmp)
 	default:
+		if port == 0 {
+			// Nothing a wait could give back: a built-in Agent has no port, and the
+			// temporary directory is deliberately kept - see below. It is removed on the
+			// next pmm-agent start (cleanupTmp), and reused as-is if the ID comes back
+			// before that.
+			s.l.Warnf("Agent %s is still running; its temporary directory stays until the next pmm-agent start.", agentID)
+			return
+		}
+
 		s.l.Warnf("Agent %s is still running, freeing what it owns once it stops.", agentID)
 		go func() {
 			select {
@@ -439,6 +492,20 @@ func (s *Supervisor) startInstance(agentID string) uint64 {
 	return s.nextInstance
 }
 
+// retireInstance forgets instance if it is still the current one for agentID.
+//
+// A forwarder exiting is what ends an instance; a DONE status is not, and retiring on one dropped
+// every status an Agent had left to send after it: handleNomadAgent reports DONE for an Agent whose
+// forwarder is still live and still tracked in s.agentProcesses. See PMM-15431.
+func (s *Supervisor) retireInstance(agentID string, instance uint64) {
+	s.arw.Lock()
+	defer s.arw.Unlock()
+
+	if s.instances[agentID] == instance {
+		delete(s.instances, agentID)
+	}
+}
+
 // storeLastStatus records status against agentID and reports whether it did. It does not, and the
 // caller must report nothing either, once instance is no longer the current one for that ID: the
 // checking and the storing share a lock precisely so that a replacement cannot slip in between.
@@ -452,7 +519,6 @@ func (s *Supervisor) storeLastStatus(agentID string, instance uint64, status inv
 
 	if status == inventoryv1.AgentStatus_AGENT_STATUS_DONE {
 		delete(s.lastStatuses, agentID)
-		delete(s.instances, agentID)
 
 		return true
 	}
@@ -638,6 +704,10 @@ const (
 	typeTestNoop        inventoryv1.AgentType = 999 // built-in
 	processRetryCount   int                   = 3
 	startProcessWaiting                       = 2 * time.Second
+
+	// How long a failed start waits for its own status forwarder to finish before retrying.
+	// See waitForwarderDrained.
+	forwarderDrainTimeout = 3 * time.Second
 )
 
 func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16) error {
@@ -696,6 +766,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 		defer func() {
 			// Before done, so that an observed done implies this forwarder is out of
 			// the count. Deferred so that giving up below still accounts for it.
+			s.retireInstance(agentID, instance)
 			s.forwarders.Add(-1)
 			close(done)
 		}()
@@ -737,7 +808,15 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 				s.handleNomadAgent(agentID, instance, processInfo, l)
 				return nil
 			}
-			defer cancel()
+			cancel()
+
+			// Before returning to tryStartProcess, which retries: its next attempt
+			// calls startInstance, and from that moment this attempt's forwarder is
+			// the stale one and storeLastStatus drops the INITIALIZATION_ERROR and
+			// DONE it still has to send. Bounded, because forward parks on a full
+			// s.changes and this runs with s.rw held. See PMM-15431.
+			s.waitForwarderDrained(agentID, done)
+
 			return processWrapper.GetError()
 		}
 	case <-t.C:
@@ -903,6 +982,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 		defer func() {
 			// Before done, so that an observed done implies this forwarder is out of
 			// the count. Deferred so that giving up below still accounts for it.
+			s.retireInstance(agentID, instance)
 			s.forwarders.Add(-1)
 			close(done)
 		}()
@@ -910,11 +990,11 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 		rtaBucketLastCollectTime := timestamppb.New(time.Now()).AsTime()
 
 		for change := range agent.Changes() {
-			if change.Status != inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED {
-				if !s.storeLastStatus(agentID, instance, change.Status) {
-					// Abandoned: a replacement owns this ID now.
-					continue
-				}
+			// A Change is a status change and/or collected data, so an abandoned Agent -
+			// one whose ID a replacement owns now - has its status muted while the
+			// buckets it collected before that are still forwarded.
+			if change.Status != inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED &&
+				s.storeLastStatus(agentID, instance, change.Status) {
 				l.Infof("Sending status: %s.", change.Status)
 				if !forward(s.ctx, s.changes, &agentv1.StateChangedRequest{
 					AgentId: agentID,

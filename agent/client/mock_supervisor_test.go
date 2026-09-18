@@ -3,6 +3,8 @@
 package client
 
 import (
+	context "context"
+
 	prometheus "github.com/prometheus/client_golang/prometheus"
 	mock "github.com/stretchr/testify/mock"
 
@@ -146,9 +148,9 @@ func (_m *mockSupervisor) RestartAgents() {
 	_m.Called()
 }
 
-// SetState provides a mock function with given fields: _a0
-func (_m *mockSupervisor) SetState(_a0 *agentv1.SetStateRequest) {
-	_m.Called(_a0)
+// SetState provides a mock function with given fields: _a0, _a1
+func (_m *mockSupervisor) SetState(_a0 context.Context, _a1 *agentv1.SetStateRequest) {
+	_m.Called(_a0, _a1)
 }
 
 // newMockSupervisor creates a new instance of mockSupervisor. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

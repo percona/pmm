@@ -152,9 +152,16 @@ func (c *Channel) close(err error) {
 		// started yet gives up instead of racing past this.
 		close(c.closeWait)
 
-		c.sendM.Lock()
-		_ = c.s.CloseSend()
-		c.sendM.Unlock()
+		// In a goroutine so that close never blocks its caller. runReceiver calls close on
+		// the path that gives up on a connection whose sender is parked in c.s.Send holding
+		// sendM - the very situation this timeout exists for - and waiting for sendM there
+		// would keep runReceiver from closing Requests() and Pings(), which is what makes
+		// the client notice the dead connection and reconnect. See PMM-15431.
+		go func() {
+			c.sendM.Lock()
+			_ = c.s.CloseSend()
+			c.sendM.Unlock()
+		}()
 	})
 }
 
@@ -203,7 +210,11 @@ func (c *Channel) SendAndWaitResponse(ctx context.Context, payload agentv1.Agent
 	id := c.lastSentRequestID.Add(1)
 	ch := c.subscribe(id)
 
-	c.send(&agentv1.AgentMessage{
+	// In a goroutine so that ctx bounds the send too: c.send holds sendM across the blocking
+	// c.s.Send, which parks forever on a wedged connection, and a caller with a deadline of its
+	// own - the dial handshake, pmm-admin status --network-info - would never reach the select
+	// below. The goroutine ends with the connection. See PMM-15431.
+	go c.send(&agentv1.AgentMessage{
 		Id:      id,
 		Payload: payload.AgentMessageRequestPayload(),
 	})
@@ -268,6 +279,12 @@ func (c *Channel) runReceiver() {
 		close(c.pings)
 		c.l.Debug("Exiting receiver goroutine.")
 	}()
+
+	// One timer for the whole loop: time.After in the select below allocated a
+	// requestQueueStuckTimeout timer for every received request, almost always to be thrown
+	// away unused. See where it is reset.
+	stuck := time.NewTimer(requestQueueStuckTimeout)
+	defer stuck.Stop()
 
 	for {
 		msg, err := c.s.Recv()
@@ -334,13 +351,19 @@ func (c *Channel) runReceiver() {
 			c.publish(msg.Id, msg.Status, p.ActionResult)
 
 		default:
-			c.cancel(msg.Id, fmt.Errorf("unimplemented: failed to handle received message %s", msg))
 			if msg.Status != nil && grpcstatus.FromProto(msg.Status).Code() == codes.Unimplemented {
-				// This means pmm-managed does not know the message payload type we just sent.
-				// We continue here to stop endless cycle of Unimplemented messages between pmm-agent and pmm-managed.
+				// This means pmm-managed does not know the message payload type we just sent,
+				// so the ID is one of ours and a sender may be waiting on it. We continue here
+				// to stop endless cycle of Unimplemented messages between pmm-agent and pmm-managed.
+				c.cancel(msg.Id, fmt.Errorf("unimplemented: failed to handle received message %s", msg))
 				c.l.Warnf("pmm-managed was not able to process message with id: %d, handling of that payload type is unimplemented", msg.Id)
 				continue
 			}
+
+			// A server request whose payload type this agent does not implement - a newer
+			// pmm-managed talking to an older pmm-agent. The ID is the server's, so there is
+			// no subscription to cancel and doing so would log an error for every such message.
+			c.l.Warnf("Unimplemented: failed to handle received message %s.", logger.RedactMessage(msg))
 			c.Send(&AgentResponse{
 				ID:     msg.Id,
 				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type sent, it is not implemented"),
@@ -359,11 +382,17 @@ func (c *Channel) runReceiver() {
 		// the reconnect happen - it waits on client.Done() - so a handler that ignores that
 		// cancellation holds the agent off the fresh connection for as long as it runs. See
 		// "the request loop must never block indefinitely" in agent/AGENTS.md (PMM-15431).
+		//
+		// One timer reset per request rather than the timer time.After allocated for every
+		// one of them. Go 1.23+: Stop/Reset on a timer that may have fired needs no draining.
+		stuck.Stop()
+		stuck.Reset(requestQueueStuckTimeout)
+
 		select {
 		case c.requests <- req:
 		case <-c.closeWait:
 			return
-		case <-time.After(requestQueueStuckTimeout):
+		case <-stuck.C:
 			// Loudly: this is a monitoring outage that recovers itself, and the whole
 			// point of PMM-15431 is that it used to be invisible. Closing on its own is
 			// only reported at debug level.
