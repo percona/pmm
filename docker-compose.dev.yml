@@ -46,16 +46,30 @@ services:
       - go-modules:/root/go/pkg/mod
       - go-cache:/root/.cache
       - pmm-data:/srv
-      # Credentials PMM-15316 provisions for SEP (SECRET_KEY, the three
-      # per-service *__DATABASE__PASSWORD files). A dedicated volume, not a
-      # subpath of pmm-data - see docker-compose.yml's identical comment.
-      - pmm-sep:/srv/sep
+      # No separate pmm-sep volume here, unlike docker-compose.yml: this
+      # entrypoint runs entirely as uid 1000 from the start (see "Running as
+      # UID 1000" in its very first log line), so it can never chown a fresh,
+      # root-owned named volume the way the production image's root-then-drop
+      # entrypoint can - sep-secrets' own ownership check FATALs on it. A
+      # plain subdirectory of the already-1000-owned pmm-data volume avoids
+      # that; isolating it from the rest of /srv does not matter here anyway,
+      # since this dev-loop runs SEP natively and never mounts anything from
+      # PMM's /srv into it.
       # custom advisor files
       - ./managed/data/advisors/:/usr/local/percona/advisors/
       - ./managed/data/checks/:/usr/local/percona/checks/
       - ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/
       # nginx config overrides
       - ./build/ansible/roles/nginx/files/conf.d/pmm.conf:/etc/nginx/conf.d/pmm.conf:ro
+      # PMM-15316's sep-secrets helper: this devcontainer's base image predates
+      # the still-unmerged PMM-15205-sep-fb line that added the sep ansible
+      # role entirely, so /opt/ansible/roles/sep does not exist in it - without
+      # this mount, entrypoint.sh's unconditional `bash
+      # /opt/ansible/roles/sep/files/sep-secrets` call (gated on PMM_ENABLE_SEP,
+      # which ./om env always sets) fails the container outright with "No such
+      # file or directory". Remove once a devcontainer image built after that
+      # PR merges is in use.
+      - ./build/ansible/roles/sep:/opt/ansible/roles/sep:ro
       # peak-ui: mount your local checkout, then use file: protocol to reference it from the package.json
       # - ../peak-ui:/root/go/src/github.com/percona/peak-ui
       # grafana
@@ -90,7 +104,5 @@ volumes:
     name: go-cache
   pmm-data:
     name: pmm-data
-  pmm-sep:
-    name: pmm-sep
   node-modules:
     name: node-modules
