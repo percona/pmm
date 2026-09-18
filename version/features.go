@@ -25,8 +25,6 @@ var (
 	MysqlExporterPluginCollector  FeatureVersion = MustParse("2.36.0-0")
 	NomadAgentSupportVersion      FeatureVersion = MustParse("3.2.0-0")
 	MongoDBRtaAgentSupportVersion FeatureVersion = MustParse("3.7.0-0")
-	// TODO: placeholder — pin to the actual release once #409 ships in pmm-client,
-	// and update the versions in managed/services/agents/mysql_test.go to match.
 	MysqlExporterTimeZone FeatureVersion = MustParse("3.10.0-0")
 )
 
