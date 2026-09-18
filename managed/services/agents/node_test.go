@@ -16,8 +16,11 @@
 package agents
 
 import (
+	"slices"
+	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -213,7 +216,7 @@ func TestNodeExporterConfig(t *testing.T) {
 			AgentID:   "agent-id",
 			AgentType: models.NodeExporterType,
 			ExporterOptions: models.ExporterOptions{
-				DisabledCollectors: []string{"cpu", "netstat", "netstat.fields", "vmstat", "meminfo"},
+				DisabledCollectors: []string{"cpu", "diskstats", "netstat", "netstat.fields", "vmstat", "meminfo"},
 			},
 		}
 		agentVersion := version.MustParse("2.15.1")
@@ -228,7 +231,6 @@ func TestNodeExporterConfig(t *testing.T) {
 			Args: []string{
 				"--collector.bonding",
 				"--collector.buddyinfo",
-				"--collector.diskstats",
 				"--collector.entropy",
 				"--collector.filefd",
 				"--collector.filesystem",
@@ -255,6 +257,8 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--no-collector.arp",
 				"--no-collector.bcache",
 				"--no-collector.conntrack",
+				"--no-collector.cpu",
+				"--no-collector.diskstats",
 				"--no-collector.drbd",
 				"--no-collector.edac",
 				"--no-collector.infiniband",
@@ -263,8 +267,10 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--no-collector.ksmd",
 				"--no-collector.logind",
 				"--no-collector.mdadm",
+				"--no-collector.meminfo",
 				"--no-collector.mountstats",
 				"--no-collector.netclass",
+				"--no-collector.netstat",
 				"--no-collector.nfs",
 				"--no-collector.nfsd",
 				"--no-collector.ntp",
@@ -275,6 +281,7 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--no-collector.systemd",
 				"--no-collector.tcpstat",
 				"--no-collector.timex",
+				"--no-collector.vmstat",
 				"--no-collector.wifi",
 				"--no-collector.xfs",
 				"--no-collector.zfs",
@@ -289,6 +296,160 @@ func TestNodeExporterConfig(t *testing.T) {
 		require.Equal(t, expected.Args, actual.Args)
 		require.Equal(t, expected.Env, actual.Env)
 		require.Equal(t, expected, actual)
+	})
+
+	t.Run("LinuxDisabledCollectorsNotDefaultEnabled", func(t *testing.T) {
+		t.Parallel()
+		disabled := []string{"processes", "buddyinfo", "meminfo_numa", "no_such_collector"}
+		node := &models.Node{}
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
+			ExporterOptions: models.ExporterOptions{
+				DisabledCollectors: disabled,
+			},
+		}
+		agentVersion := version.MustParse("2.15.1")
+
+		actual, err := nodeExporterConfig(node, exporter, agentVersion)
+		require.NoError(t, err, "Unable to build node exporter config")
+
+		requireNoDuplicateFlags(t, actual.Args)
+		for _, collector := range disabled {
+			assert.NotContains(t, actual.Args, "--collector."+collector)
+			assert.NotContains(t, actual.Args, "--no-collector."+collector)
+		}
+	})
+
+	t.Run("LinuxAllDefaultCollectorsDisabled", func(t *testing.T) {
+		t.Parallel()
+		node := &models.Node{}
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
+			ExporterOptions: models.ExporterOptions{
+				// Cloned: this subtest runs in parallel with the others, and handing the
+				// production slice to code that may one day sort or filter it in place would
+				// reorder it for every other subtest and for the running server.
+				DisabledCollectors: slices.Clone(defaultNodeExporterCollectors),
+			},
+		}
+		agentVersion := version.MustParse("2.15.1")
+
+		actual, err := nodeExporterConfig(node, exporter, agentVersion)
+		require.NoError(t, err, "Unable to build node exporter config")
+
+		requireNoDuplicateFlags(t, actual.Args)
+		for _, collector := range defaultNodeExporterCollectors {
+			assert.Contains(t, actual.Args, "--no-collector."+collector)
+			assert.NotContains(t, actual.Args, "--collector."+collector)
+		}
+
+		enabled, err := nodeExporterConfig(node, &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
+		}, agentVersion)
+		require.NoError(t, err, "Unable to build node exporter config")
+
+		for _, collector := range defaultNodeExporterCollectors {
+			assert.Contains(t, enabled.Args, "--collector."+collector,
+				"%q may only be listed if node_exporter is also told to enable it", collector)
+		}
+	})
+
+	t.Run("LinuxDuplicateDisabledCollectors", func(t *testing.T) {
+		t.Parallel()
+		node := &models.Node{}
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
+			ExporterOptions: models.ExporterOptions{
+				// "diskstats" repeated by the user, and "arp", which the static
+				// --no-collector.* block already covers. Both must still yield a single flag:
+				// node_exporter exits on a repeated flag with
+				// "flag 'collector.diskstats' cannot be repeated".
+				DisabledCollectors: []string{"diskstats", "diskstats", "cpu", "arp"},
+			},
+		}
+		agentVersion := version.MustParse("2.15.1")
+
+		actual, err := nodeExporterConfig(node, exporter, agentVersion)
+		require.NoError(t, err, "Unable to build node exporter config")
+
+		requireNoDuplicateFlags(t, actual.Args)
+		for _, collector := range []string{"diskstats", "cpu", "arp"} {
+			assert.Contains(t, actual.Args, "--no-collector."+collector)
+			assert.NotContains(t, actual.Args, "--collector."+collector)
+		}
+	})
+
+	t.Run("LinuxDefaultOnCollectorsAreListed", func(t *testing.T) {
+		t.Parallel()
+		// The converse of LinuxAllDefaultCollectorsDisabled. Every collector nodeExporterConfig
+		// enables must either be default-off in node_exporter, and so listed below, or appear in
+		// defaultNodeExporterCollectors. Without this, adding a default-on --collector.<name> --
+		// or bumping node_exporter so an existing one flips to default-on -- silently makes
+		// --disable-collectors=<name> a no-op again, which is the bug this ticket fixes.
+		defaultOff := map[string]struct{}{
+			"buddyinfo":        {}, // registered as default-disabled in percona/node_exporter
+			"meminfo_numa":     {},
+			"processes":        {},
+			"standard.go":      {}, // isDefaultEnabled=false
+			"standard.process": {},
+			"textfile.hr":      {}, // PMM's per-resolution textfile collectors
+			"textfile.lr":      {},
+			"textfile.mr":      {},
+		}
+
+		actual, err := nodeExporterConfig(&models.Node{}, &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
+		}, version.MustParse("2.15.1"))
+		require.NoError(t, err, "Unable to build node exporter config")
+
+		for _, arg := range actual.Args {
+			name, ok := strings.CutPrefix(arg, "--collector.")
+			if !ok || strings.Contains(name, "=") { // a flag carrying a value, not a collector toggle
+				continue
+			}
+			if _, off := defaultOff[name]; off {
+				continue
+			}
+			assert.Containsf(t, defaultNodeExporterCollectors, name,
+				"%[1]q is enabled here and node_exporter enables it by default, so it must be listed "+
+					"in defaultNodeExporterCollectors or --disable-collectors=%[1]s is a no-op", name)
+		}
+	})
+
+	t.Run("MacOSDisabledCollectors", func(t *testing.T) {
+		t.Parallel()
+		node := &models.Node{
+			Distro: "darwin",
+		}
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
+			ExporterOptions: models.ExporterOptions{
+				DisabledCollectors: []string{"cpu", "diskstats", "hwmon", "meminfo"},
+			},
+		}
+		agentVersion := version.MustParse("2.15.1")
+
+		actual, err := nodeExporterConfig(node, exporter, agentVersion)
+		require.NoError(t, err, "Unable to build node exporter config")
+
+		requireNoDuplicateFlags(t, actual.Args)
+		// TODO: --disable-collectors is still a no-op on darwin. nodeExporterConfig passes no
+		// --collector.<name> there, so FilterOutCollectors has nothing to strip and no negation
+		// is emitted, and the collector keeps running on the monitored host. Closing that means
+		// emitting negations for the darwin collectors PMM scrapes (cpu, diskstats, filesystem,
+		// loadavg, meminfo, netdev, time -- see scrapeConfigsForNodeExporter). Assert only that
+		// the Linux-only collectors are never negated here, so that fix does not look like a
+		// regression in this test.
+		for _, collector := range []string{"bonding", "entropy", "filefd", "hwmon", "netstat", "stat", "vmstat"} {
+			assert.NotContains(t, actual.Args, "--no-collector."+collector,
+				"%q does not exist in darwin node_exporter", collector)
+		}
 	})
 
 	t.Run("MacOS", func(t *testing.T) {
