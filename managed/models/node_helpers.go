@@ -349,6 +349,14 @@ func removeNode(q *reform.Querier, id string, mode RemoveMode, allowPMMServerNod
 		}
 	}
 
+	// Threshold overrides carry no foreign key - their target column is polymorphic, and
+	// a cluster target has no referent table to point at - so they are removed here, in
+	// the same transaction, rather than by a cascade.
+	err = DeleteThresholdOverridesForTarget(q, ThresholdScopeNode, id)
+	if err != nil {
+		return err
+	}
+
 	err = q.Delete(n)
 	if err != nil {
 		return fmt.Errorf("failed to delete Node: %w", err)
