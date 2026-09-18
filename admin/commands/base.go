@@ -182,11 +182,18 @@ func ParseDisableCollectors(collectors []string) []string {
 	var disableCollectors []string
 
 	if len(collectors) != 0 {
+		seen := make(map[string]struct{}, len(collectors))
 		for _, v := range collectors {
 			disableCollector := strings.TrimSpace(v)
 			if disableCollector == "" {
 				continue
 			}
+			// The server normalises the list as well; dropping repeats here keeps the change
+			// pmm-admin reports identical to the value that ends up stored.
+			if _, ok := seen[disableCollector]; ok {
+				continue
+			}
+			seen[disableCollector] = struct{}{}
 
 			disableCollectors = append(disableCollectors, disableCollector)
 		}

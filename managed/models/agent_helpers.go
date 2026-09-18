@@ -692,6 +692,38 @@ func CreatePMMAgent(q *reform.Querier, runsOnNodeID string, customLabels map[str
 	return createPMMAgentWithID(q, id, runsOnNodeID, customLabels)
 }
 
+// normalizeDisabledCollectors trims surrounding whitespace from collector names and drops
+// empty and repeated ones, preserving the order the caller gave.
+//
+// Normalising here rather than in pmm-admin covers the UI and a direct API call too: an
+// untrimmed name matches no collector and is silently a no-op, and a repeated one makes the
+// exporter emit the same flag twice, which node_exporter rejects with
+// "flag 'collector.<name>' cannot be repeated" and refuses to start.
+//
+// A nil slice stays nil so that ChangeExporterOptions keeps its "nil = no change,
+// empty = clear" contract.
+func normalizeDisabledCollectors(collectors []string) []string {
+	if collectors == nil {
+		return nil
+	}
+
+	seen := make(map[string]struct{}, len(collectors))
+	normalized := make([]string, 0, len(collectors))
+	for _, collector := range collectors {
+		collector = strings.TrimSpace(collector)
+		if collector == "" {
+			continue
+		}
+		if _, ok := seen[collector]; ok {
+			continue
+		}
+		seen[collector] = struct{}{}
+		normalized = append(normalized, collector)
+	}
+
+	return normalized
+}
+
 // CreateNodeExporter creates NodeExporter.
 //
 //nolint:unparam
@@ -725,7 +757,7 @@ func CreateNodeExporter(q *reform.Querier,
 		ExporterOptions: ExporterOptions{
 			ExposeExporter:     exposeExporter,
 			PushMetrics:        pushMetrics,
-			DisabledCollectors: disableCollectors,
+			DisabledCollectors: normalizeDisabledCollectors(disableCollectors),
 		},
 		LogLevel: pointer.ToStringOrNil(logLevel),
 	}
@@ -980,6 +1012,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	if pointer.Get(exporterOptions.ConnectionTimeout) == 0 {
 		exporterOptions.ConnectionTimeout = nil
 	}
+	exporterOptions.DisabledCollectors = normalizeDisabledCollectors(exporterOptions.DisabledCollectors)
 
 	row := &Agent{
 		AgentID:           id,
@@ -1266,7 +1299,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 			}
 		}
 		if params.ExporterOptions.DisabledCollectors != nil {
-			row.ExporterOptions.DisabledCollectors = params.ExporterOptions.DisabledCollectors
+			row.ExporterOptions.DisabledCollectors = normalizeDisabledCollectors(params.ExporterOptions.DisabledCollectors)
 		}
 		if params.ExporterOptions.ExposeExporter != nil {
 			row.ExporterOptions.ExposeExporter = *params.ExporterOptions.ExposeExporter

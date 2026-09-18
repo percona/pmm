@@ -98,7 +98,7 @@ func TestNodeExporterChangeAgent(t *testing.T) {
 		})
 	})
 
-	t.Run("DisableCollectorsAreTrimmed", func(t *testing.T) {
+	t.Run("DisableCollectorsAreTrimmedAndDeduplicated", func(t *testing.T) {
 		var capturedRequestBody string
 		mockResponse := `{
 			"node_exporter": {
@@ -113,7 +113,7 @@ func TestNodeExporterChangeAgent(t *testing.T) {
 		var cmd ChangeAgentNodeExporterCommand
 		parser := kong.Must(&cmd)
 
-		_, err := parser.Parse([]string{"test-agent-trim", "--disable-collectors=cpu, meminfo, ,diskstats"})
+		_, err := parser.Parse([]string{"test-agent-trim", "--disable-collectors=cpu, meminfo, ,diskstats, cpu ,meminfo"})
 		require.NoError(t, err)
 
 		result, err := cmd.RunCmd()
