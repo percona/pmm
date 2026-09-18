@@ -31,7 +31,7 @@ import (
 //nolint:goconst
 func (s *Service) GetFilteredMetricsNames(ctx context.Context, in *qanpb.GetFilteredMetricsNamesRequest) (*qanpb.GetFilteredMetricsNamesResponse, error) {
 	if in.PeriodStartFrom == nil || in.PeriodStartTo == nil {
-		return nil, fmt.Errorf("from-date: %v or to-date: %v cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
+		return nil, status.Errorf(codes.InvalidArgument, "from-date: %v or to-date: %v cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
 	}
 
 	periodStartFromSec := in.PeriodStartFrom.Seconds

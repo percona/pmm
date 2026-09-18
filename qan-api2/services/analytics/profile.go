@@ -31,7 +31,7 @@ import (
 // GetReport implements rpc to get report for given filtering.
 func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*qanpb.GetReportResponse, error) { //nolint:gocognit
 	if in.PeriodStartFrom == nil || in.PeriodStartTo == nil {
-		return nil, fmt.Errorf("from-date: %v or to-date: %v cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
+		return nil, status.Errorf(codes.InvalidArgument, "from-date: %v or to-date: %v cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
 	}
 
 	periodStartFromSec := in.PeriodStartFrom.Seconds
@@ -39,16 +39,10 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 	if periodStartFromSec > periodStartToSec {
 		return nil, status.Errorf(codes.InvalidArgument, "from-date %v cannot be later then to-date %v", in.PeriodStartFrom, in.PeriodStartTo)
 	}
-	// A report may be requested for a single instant, where every per-second rate below
-	// -- and the SQL that divides by this duration -- would otherwise divide by zero and
-	// yield +Inf, which the generated API clients cannot decode into their float fields.
-	// One second is the smallest floor that leaves every real duration untouched; note it
-	// makes these rates disagree with the sparkline, which reports such a period as one
-	// whole minute.
-	periodDurationSec := max(periodStartToSec-periodStartFromSec, 1)
+	periodDurationSec := models.PeriodDuration(periodStartFromSec, periodStartToSec)
 
 	if _, ok := standartDimensions[in.GroupBy]; !ok {
-		return nil, fmt.Errorf("unknown group dimension: %#q", in.GroupBy)
+		return nil, status.Errorf(codes.InvalidArgument, "unknown group dimension: '%s'", in.GroupBy)
 	}
 	group := in.GroupBy
 
@@ -119,7 +113,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 
 	order, orderCol := getOrderBy(in.OrderBy, uniqColumns[0])
 	if _, ok := uniqColumnsMap[orderCol]; !ok {
-		return nil, fmt.Errorf("order column %#q not in selected columns: [%s]", orderCol, strings.Join(uniqColumns, ", "))
+		return nil, status.Errorf(codes.InvalidArgument, "order column '%s' not in selected columns: [%s]", orderCol, strings.Join(uniqColumns, ", "))
 	}
 
 	resp := &qanpb.GetReportResponse{}
