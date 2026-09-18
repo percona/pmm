@@ -245,27 +245,74 @@ func disabledCollectorsUnion(current, next []string) []string {
 // agents.Handler.stateChanged (PMM-14267). The set is a superset of what the running exporter has
 // disabled and of what it will have disabled after the restart, so the resulting collect[] names
 // only collectors that both processes know.
-func (as *AgentsService) widenDisabledCollectors(ctx context.Context, agentID string, disabledCollectors []string) error {
-	params := &models.ChangeAgentParams{
-		ExporterOptions: &models.ChangeExporterOptions{
-			DisabledCollectors: disabledCollectors,
-		},
+//
+// It returns the set the agent had before, which the caller restores if the change it makes next
+// fails, or nil when next disables nothing new and no widening was needed.
+//
+// The read of the stored set and the write of the union share a transaction, so two concurrent
+// changes to the same agent cannot both widen from the same snapshot. They are still not
+// serialized against each other end to end: the union is committed before the rebuild reads it,
+// so a change that starts after this one commits and finishes before it applies the requested list
+// can still widen from a set that is about to be replaced. Full serialization is deferred to the
+// follow-up that serializes ForceConfigurationUpdate against victoriametrics.Service.reloadCh.
+//
+// The union is committed rather than staged, and it has to be - ForceConfigurationUpdate reads the
+// inventory through its own querier, so nothing uncommitted reaches the rebuild. That makes the
+// intermediate state durable rather than transient: if pmm-managed dies between this commit and
+// the caller's own change, or is killed during the forced rebuild, the agent keeps the union
+// - collectors the user never asked to disable stay disabled - until the next ChangeNodeExporter
+// call for that agent. Reconciling it on startup is deferred to the same follow-up.
+func (as *AgentsService) widenDisabledCollectors(ctx context.Context, agentID string, next []string) ([]string, error) {
+	var widenedFrom []string
+
+	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		widenedFrom = nil
+
+		current, err := models.FindAgentByID(tx.Querier, agentID)
+		if err != nil {
+			return err
+		}
+
+		// empty but non-nil, so that restoring it reads as "nothing disabled" rather than as
+		// "no change" in models.ChangeExporterOptions
+		previous := append([]string{}, current.ExporterOptions.DisabledCollectors...)
+		if !hasNewDisabledCollectors(previous, next) {
+			// nothing leaves the scrape config, so the asynchronous update keeps the right order
+			return nil
+		}
+
+		params := &models.ChangeAgentParams{
+			ExporterOptions: &models.ChangeExporterOptions{
+				DisabledCollectors: disabledCollectorsUnion(previous, next),
+			},
+		}
+
+		_, err = models.ChangeAgent(tx.Querier, agentID, params)
+		if err != nil {
+			return err
+		}
+
+		widenedFrom = previous
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	_, err := models.ChangeAgent(as.db.Querier, agentID, params)
-	if err != nil {
-		return err
+	if widenedFrom == nil {
+		return nil, nil
 	}
 
 	err = as.vmdb.ForceConfigurationUpdate(ctx)
 	if err != nil {
-		// The requested list is applied right below, so the asynchronous update still converges on it;
-		// scrapes may answer with HTTP 400 until it does.
+		// The requested list is applied by the caller, so the asynchronous update still converges on
+		// it; scrapes may answer with HTTP 400 until it does.
 		logger.Get(ctx).Warnf("Failed to force VictoriaMetrics configuration update: %s.", err)
 		as.vmdb.RequestConfigurationUpdate()
 	}
 
-	return nil
+	return widenedFrom, nil
 }
 
 // ChangeNodeExporter updates node_exporter Agent with given parameters.
@@ -296,28 +343,21 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 	// the asynchronous update that agents.Handler.stateChanged triggers once the exporter is back up.
 	var widenedFrom []string
 	if p.DisableCollectors != nil {
-		current, err := models.FindAgentByID(as.db.Querier, agentID)
+		var err error
+
+		widenedFrom, err = as.widenDisabledCollectors(ctx, agentID, p.DisableCollectors)
 		if err != nil {
 			return nil, err
-		}
-
-		// empty but non-nil, so that restoring it below reads as "nothing disabled" rather than as
-		// "no change" in models.ChangeExporterOptions
-		previous := append([]string{}, current.ExporterOptions.DisabledCollectors...)
-		if hasNewDisabledCollectors(previous, p.DisableCollectors) {
-			err = as.widenDisabledCollectors(ctx, agentID, disabledCollectorsUnion(previous, p.DisableCollectors))
-			if err != nil {
-				return nil, err
-			}
-
-			widenedFrom = previous
 		}
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		if widenedFrom != nil {
-			// the widened set is already committed, so put the agent back the way the caller found it
+			// The widened set is already committed, so put the agent back the way the caller found it.
+			// This is best-effort: the error the caller gets is the one from the change it asked for,
+			// and a failed restore leaves the agent on the union - the same state a crash here would
+			// leave behind, and one that the next successful change of this agent clears.
 			restore := &models.ChangeAgentParams{
 				ExporterOptions: &models.ChangeExporterOptions{
 					DisabledCollectors: widenedFrom,

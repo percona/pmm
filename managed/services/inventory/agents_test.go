@@ -245,6 +245,35 @@ func TestAgents(t *testing.T) {
 			require.NoError(t, err)
 		})
 
+		// The widened set is committed before the requested change is applied, so a change that fails
+		// afterwards has to put the agent back where it was instead of leaving it on the union.
+		t.Run("ChangeNodeExporterRestoresWidenedCollectorsOnFailure", func(t *testing.T) {
+			vmdb := as.vmdb.(*mockPrometheusService)
+			agentID := "00000000-0000-4000-8000-000000000006"
+
+			vmdb.On("ForceConfigurationUpdate", ctx).Return(nil).Once()
+			forcedBefore := countCalls(vmdb, "ForceConfigurationUpdate")
+			requestsBefore := countCalls(vmdb, "RequestConfigurationUpdate")
+
+			// the widen succeeds, then models.ChangeAgent rejects the label name and rolls the
+			// requested change back
+			_, err := as.ChangeNodeExporter(ctx, agentID, &inventoryv1.ChangeNodeExporterParams{
+				DisableCollectors: []string{"diskstats"},
+				CustomLabels:      &common.StringMap{Values: map[string]string{"invalid-label": "value"}},
+			})
+			require.Error(t, err)
+			assert.Equal(t, codes.InvalidArgument, status.Code(err))
+
+			assert.Equal(t, forcedBefore+1, countCalls(vmdb, "ForceConfigurationUpdate"))
+
+			agent, err := models.FindAgentByID(as.db.Querier, agentID)
+			require.NoError(t, err)
+			assert.Empty(t, agent.ExporterOptions.DisabledCollectors)
+
+			// the union reached the scrape config, so it has to be rebuilt from the restored set
+			assert.Equal(t, requestsBefore+1, countCalls(vmdb, "RequestConfigurationUpdate"))
+		})
+
 		t.Run("AddMySQLExporter", func(t *testing.T) {
 			var err error
 			ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
