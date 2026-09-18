@@ -38,6 +38,7 @@ import {
 import { INLINE_HELP_MAX_LENGTH } from './fieldHelp';
 import { evaluatePredicate, isPresent } from './utils/predicateEvaluator';
 import { resetSchemaWarnings } from './utils/schemaWarnings';
+import { toDatetimeLocalValue } from '../../utils/datetimeLocal';
 import type { FormSection, RenderFieldOverride } from './types';
 
 const useAlertConfigMock = vi.fn();
@@ -214,6 +215,19 @@ describe('coerceFormValues', () => {
     expect(out.hostId).toBe('nomad-1');
     expect(out.empty).toBeUndefined();
   });
+
+  it('converts datetime-local wall-clock to UTC ISO and clears empties', () => {
+    const iso = '2024-06-15T12:00:00.000Z';
+    const local = toDatetimeLocalValue(iso);
+    const out = coerceFormValues({ when: local, empty: '', blank: '   ' }, [
+      { type: 'datetime', name: 'when', label: 'When' },
+      { type: 'datetime', name: 'empty', label: 'Empty' },
+      { type: 'datetime', name: 'blank', label: 'Blank' },
+    ]);
+    expect(out.when).toBe(iso);
+    expect(out.empty).toBeUndefined();
+    expect(out.blank).toBeUndefined();
+  });
 });
 
 describe('SchemaFormRenderer — field rendering', () => {
@@ -374,6 +388,105 @@ describe('SchemaFormRenderer — field rendering', () => {
 
     // A field with no description gets neither.
     expect(document.querySelectorAll('[data-help-for="Code"]')).toHaveLength(0);
+  });
+
+  it('omits help when the description only restates the label', () => {
+    const echoSections: FormSection[] = [
+      {
+        title: 'Basics',
+        fields: [
+          {
+            type: 'string',
+            name: 'samples',
+            label: 'Save samples',
+            description: 'Save samples',
+          },
+        ],
+      },
+    ];
+    renderWithProviders(
+      <SchemaFormRenderer sections={echoSections} onSubmit={() => {}} />
+    );
+
+    expect(screen.getByTestId('text-input-samples')).toBeInTheDocument();
+    // MUI paints the label in both <label> and the notched <legend>, so
+    // getByText cannot guard uniqueness here — assert the helper and icon
+    // slots stay empty instead.
+    expect(
+      document.querySelectorAll('[data-help-for="Save samples"]')
+    ).toHaveLength(0);
+    expect(
+      screen.queryByText((_content, element) => {
+        return (
+          element?.tagName.toLowerCase() === 'p' &&
+          element.className.includes('MuiFormHelperText') &&
+          element.textContent === 'Save samples'
+        );
+      })
+    ).toBeNull();
+  });
+
+  it('ghosts placeholders and seeds required numbers without inventing text values', () => {
+    const sections: FormSection[] = [
+      {
+        title: 'Basics',
+        fields: [
+          {
+            type: 'string',
+            name: 'path',
+            label: 'Log file path',
+            placeholder: '/var/log/mysql/error.log',
+          },
+          {
+            type: 'integer',
+            name: 'minutes',
+            label: 'Minutes',
+            required: true,
+          },
+        ],
+      },
+    ];
+    renderWithProviders(
+      <SchemaFormRenderer sections={sections} onSubmit={() => {}} />
+    );
+
+    const path = screen.getByTestId('text-input-path') as HTMLInputElement;
+    expect(path).toHaveValue('');
+    expect(path).toHaveAttribute('placeholder', '/var/log/mysql/error.log');
+
+    const minutes = screen.getByTestId(
+      'text-input-minutes'
+    ) as HTMLInputElement;
+    expect(minutes).toHaveValue(1);
+  });
+
+  it('seeds an ISO datetime default into a datetime-local picker and submits UTC ISO', async () => {
+    const iso = '2024-06-15T12:00:00.000Z';
+    const onSubmit = vi.fn();
+    const sections: FormSection[] = [
+      {
+        title: 'Basics',
+        fields: [
+          {
+            type: 'datetime',
+            name: 'when',
+            label: 'When',
+            default: iso,
+          },
+        ],
+      },
+    ];
+    renderWithProviders(
+      <SchemaFormRenderer sections={sections} onSubmit={onSubmit} />
+    );
+
+    const input = screen.getByTestId('text-input-when') as HTMLInputElement;
+    expect(input).toHaveAttribute('type', 'datetime-local');
+    expect(input).toHaveValue(toDatetimeLocalValue(iso));
+
+    await userEvent.click(screen.getByRole('button', { name: /Run/ }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    expect(onSubmit.mock.calls[0][0]).toEqual({ when: iso });
   });
 
   it('does not render section.description prose', () => {

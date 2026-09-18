@@ -20,6 +20,7 @@ import { TextInput } from '@percona/peak-ui';
 import { FieldLabelWithHelp } from '../FieldLabelWithHelp';
 import { fieldHelp } from '../fieldHelp';
 import type { YamlField as YamlFieldType } from '../types';
+import { fieldPlaceholder } from '../utils/fieldDefault';
 import { buildValidationRules } from '../utils/validationMapper';
 
 interface YamlFieldProps {
@@ -42,7 +43,7 @@ export function YamlField({ field }: YamlFieldProps) {
         multiline: true,
         rows: field.rows ?? 8,
         helperText: help.inline,
-        placeholder: field.placeholder,
+        placeholder: fieldPlaceholder(field),
         fullWidth: true,
         inputProps: {
           style: { fontFamily: "'Roboto Mono', monospace", fontSize: 13 },

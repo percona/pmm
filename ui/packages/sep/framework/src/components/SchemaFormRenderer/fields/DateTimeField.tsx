@@ -26,6 +26,13 @@ interface DateTimeFieldProps {
   field: DateTimeFieldType;
 }
 
+/**
+ * Schema datetime widget.
+ *
+ * Form state holds a `datetime-local` wall-clock string; {@link fieldDefault} /
+ * `buildFormDefaults` convert UTC ISO seeds on mount, and `coerceFormValues`
+ * converts back to UTC ISO on submit.
+ */
 export function DateTimeField({ field }: DateTimeFieldProps) {
   const { control } = useFormContext();
   const help = fieldHelp(field);

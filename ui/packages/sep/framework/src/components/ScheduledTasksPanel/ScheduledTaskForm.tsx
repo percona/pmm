@@ -121,7 +121,6 @@ function startTimeToSubmit(
   }
   return utcInputToIso(fieldValue);
 }
-
 function cronToExpression(c: CrontabSchedule): string {
   return `${c.minute} ${c.hour} ${c.day_of_month} ${c.month_of_year} ${c.day_of_week}`;
 }

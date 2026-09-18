@@ -74,6 +74,7 @@ import {
   isOneOfGroup,
 } from './utils/flattenSectionFields';
 import type { FormSection, PluginField, RenderFieldOverride } from './types';
+import { toDatetimeLocalValue } from '../../utils/datetimeLocal';
 
 function flattenFields(sections: FormSection[]): PluginField[] {
   return flattenSectionFields(sections);
@@ -110,7 +111,13 @@ function buildFormDefaults(
     const seed = defaultValues
       ? getAtPath(defaultValues, field.name)
       : undefined;
-    setAtPath(defaults, field.name, seed ?? fieldDefault(field));
+    const raw = seed ?? fieldDefault(field);
+    // Edit / parent seeds may still be UTC ISO; the picker needs local wall-clock.
+    setAtPath(
+      defaults,
+      field.name,
+      field.type === 'datetime' ? toDatetimeLocalValue(raw) : raw
+    );
   }
   for (const group of collectOneOfGroups(sections)) {
     const seed = defaultValues
