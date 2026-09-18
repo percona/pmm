@@ -45,6 +45,28 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 
 	args = append(args, "--redis.addr="+exporter.DSN(service, dsnParams, nil, pmmAgentVersion))
 	args = append(args, "--connection-timeout="+connectionTimeout.String())
+
+	// The rediss:// scheme alone is not enough: valkey_exporter only takes its TLS
+	// dial path when the client-certificate flags are also present, otherwise it
+	// treats the scheme as a network and fails with "unknown network rediss".
+	if exporter.TLS {
+		for k := range exporter.Files() {
+			switch k {
+			case "tlsCa":
+				args = append(args, "--tls-ca-cert-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
+			case "tlsCert":
+				args = append(args, "--tls-client-cert-file="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
+			case "tlsKey":
+				args = append(args, "--tls-client-key-file="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
+			default:
+				continue
+			}
+		}
+		if exporter.TLSSkipVerify {
+			args = append(args, "--skip-tls-verification")
+		}
+	}
+
 	// valkey_exporter parses flags with the stdlib flag package, which rejects --log.level
 	// and has no fatal level (PMM-15201).
 	args = withLogLevelFlag(args, "--log-level", exporter.LogLevel, pmmAgentVersion, false)
