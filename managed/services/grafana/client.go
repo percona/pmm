@@ -573,7 +573,8 @@ type serviceAccountSearch struct {
 func (c *Client) getServiceAccountIDFromName(ctx context.Context, nodeName string, authHeaders http.Header) (int, error) {
 	var res serviceAccountSearch
 	serviceAccountName := grafana.SanitizeSAName(fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName))
-	err := c.do(ctx, http.MethodGet, "/api/serviceaccounts/search", "query="+serviceAccountName, authHeaders, nil, &res)
+	query := url.Values{"query": []string{serviceAccountName}}.Encode()
+	err := c.do(ctx, http.MethodGet, "/api/serviceaccounts/search", query, authHeaders, nil, &res)
 	if err != nil {
 		return 0, err
 	}
@@ -584,7 +585,7 @@ func (c *Client) getServiceAccountIDFromName(ctx context.Context, nodeName strin
 		return serviceAccount.ID, nil
 	}
 
-	return 0, fmt.Errorf("service account %s not found", serviceAccountName)
+	return 0, fmt.Errorf("%w: %s", services.ErrServiceAccountNotFound, serviceAccountName)
 }
 
 func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, nodeName string) (int, error) {
@@ -696,7 +697,7 @@ func (c *Client) DeleteServiceAccount(ctx context.Context, nodeName string, forc
 	}
 
 	if !force && customsTokensCount > 0 {
-		warning = "Service account wont be deleted, because there are more not PMM agent related service tokens."
+		warning = "The service account was not deleted, because it holds service tokens pmm-agent did not create."
 		err = c.deletePMMAgentServiceToken(ctx, serviceAccountID, nodeName, authHeaders)
 	} else {
 		err = c.deleteServiceAccount(ctx, serviceAccountID, authHeaders)

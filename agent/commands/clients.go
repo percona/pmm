@@ -27,13 +27,18 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
 
 	"github.com/percona/pmm/agent/config"
 	agentlocalClient "github.com/percona/pmm/api/agentlocal/v1/json/client"
+	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
+	aservice "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	nservice "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 	"github.com/percona/pmm/utils/tlsconfig"
@@ -135,6 +140,143 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	}
 
 	managementClient.Default.SetTransport(transport)
+	inventoryClient.Default.SetTransport(transport)
+}
+
+// errAgentNotFound reports that PMM Server has no Agent with the given ID.
+var errAgentNotFound = errors.New("agent not found")
+
+// errCredentialsRejected reports that PMM Server did not accept the credentials of the request.
+var errCredentialsRejected = errors.New("credentials rejected")
+
+// serverNode describes the Node which PMM Server has an Agent registered on.
+type serverNode struct {
+	Name    string
+	Type    string
+	Address string
+}
+
+// registrationCheckTimeout bounds the registration check as a whole. The check asks PMM Server twice,
+// and the per-request default would let an unresponsive server hold the setup for twice as long as the
+// one request an operator would expect to wait for. A variable so that tests can shorten it.
+var registrationCheckTimeout = 30 * time.Second
+
+// serverNodeOfAgent returns the Node which PMM Server has the Agent registered on.
+// The errors errAgentNotFound and errCredentialsRejected mean that the Node has to be registered again. Any other
+// error means that PMM Server could not be asked, so that the caller can tell "the registration is gone"
+// apart from "the answer is unknown".
+//
+// This method is not thread-safe.
+func serverNodeOfAgent(agentID string) (serverNode, error) {
+	// One deadline for both requests, so that the setup gives up on an unresponsive PMM Server after
+	// registrationCheckTimeout rather than after that much per request.
+	ctx, cancel := context.WithTimeout(context.Background(), registrationCheckTimeout)
+	defer cancel()
+
+	agent, err := inventoryClient.Default.AgentsService.GetAgent(
+		aservice.NewGetAgentParams().WithAgentID(agentID).WithContext(ctx),
+	)
+	if err != nil {
+		return serverNode{}, lookupError(err)
+	}
+	if agent.Payload.PMMAgent == nil {
+		// The ID belongs to another kind of Agent, so it is not a registration of this pmm-agent.
+		return serverNode{}, errAgentNotFound
+	}
+
+	node, err := inventoryClient.Default.NodesService.GetNode(
+		nservice.NewGetNodeParams().WithNodeID(agent.Payload.PMMAgent.RunsOnNodeID).WithContext(ctx),
+	)
+	if err != nil {
+		return serverNode{}, lookupError(err)
+	}
+
+	return nodeOf(node.Payload)
+}
+
+// serverCode returns the gRPC code PMM Server put in the body of a failed inventory request, or codes.OK
+// when the answer carries none. It is the only thing which identifies the answer as PMM Server's own.
+func serverCode(err error) codes.Code {
+	var code int32
+	switch e := err.(type) { //nolint:errorlint
+	case *aservice.GetAgentDefault:
+		if e.Payload != nil {
+			code = e.Payload.Code
+		}
+	case *nservice.GetNodeDefault:
+		if e.Payload != nil {
+			code = e.Payload.Code
+		}
+	}
+	if code < 0 {
+		return codes.OK
+	}
+
+	return codes.Code(code)
+}
+
+// serverStatus returns the HTTP status PMM Server answered a failed inventory request with, or 0 when
+// the error is not such an answer.
+func serverStatus(err error) int {
+	switch e := err.(type) { //nolint:errorlint
+	case *aservice.GetAgentDefault:
+		return e.Code()
+	case *nservice.GetNodeDefault:
+		return e.Code()
+	}
+
+	return 0
+}
+
+// serverRefused reports whether PMM Server did not accept the credentials of the lookup. It answers 401
+// for a failure of its own as much as for a credential it rejected, and only the credentials it names
+// invalid carry codes.Unauthenticated, which lookupError has already taken. What is left is grounds for
+// asking again with other credentials, and for nothing else: it says nothing about the registration.
+func serverRefused(err error) bool {
+	return serverStatus(err) == http.StatusUnauthorized
+}
+
+// lookupError maps a failed inventory lookup to what it says about the registration. Only PMM Server's
+// own answer says anything: a proxy whose path rules predate this call answers 404 just the same, and
+// PMM Server maps a failure of its own to 401 exactly as it does a credential it rejected. The gRPC code
+// in the body is what tells those apart, so an answer carrying none is no answer at all.
+func lookupError(err error) error {
+	switch serverCode(err) {
+	// An ID which PMM Server does not know, or rejects as invalid, cannot be registered there either.
+	case codes.NotFound, codes.InvalidArgument:
+		return errAgentNotFound
+	// The credentials the Agent runs with are gone, so registering either succeeds with the ones given to
+	// setup or reports a credentials problem with an actionable message. codes.PermissionDenied is
+	// deliberately not here: a service account below the admin role still holds valid credentials, it
+	// just cannot read the inventory, and registering the Node again over that would only add a second.
+	case codes.Unauthenticated:
+		return errCredentialsRejected
+	default:
+		return err
+	}
+}
+
+// nodeOf returns the Node in the GetNode response. A Node type this pmm-agent does not know is not one
+// it can compare a name with, and a newer PMM Server may well answer with one.
+func nodeOf(node *nservice.GetNodeOKBody) (serverNode, error) {
+	switch {
+	case node.Generic != nil:
+		return serverNode{Name: node.Generic.NodeName, Type: "generic", Address: node.Generic.Address}, nil
+	case node.Container != nil:
+		return serverNode{Name: node.Container.NodeName, Type: "container", Address: node.Container.Address}, nil
+	case node.Remote != nil:
+		return serverNode{Name: node.Remote.NodeName, Type: "remote", Address: node.Remote.Address}, nil
+	case node.RemoteRDS != nil:
+		return serverNode{Name: node.RemoteRDS.NodeName, Type: "remote_rds", Address: node.RemoteRDS.Address}, nil
+	case node.RemoteAzureDatabase != nil:
+		return serverNode{
+			Name:    node.RemoteAzureDatabase.NodeName,
+			Type:    "remote_azure_database",
+			Address: node.RemoteAzureDatabase.Address,
+		}, nil
+	default:
+		return serverNode{}, errors.New("PMM Server answered with a Node type this pmm-agent does not know")
+	}
 }
 
 // ParseKeyValuePair parses --custom-labels flag value.

@@ -41,6 +41,13 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+// boundedCtx matches the context of the Grafana cleanup, which has to carry a deadline of its own
+// rather than the cancellation of the request.
+var boundedCtx = mock.MatchedBy(func(ctx context.Context) bool {
+	_, ok := ctx.Deadline()
+	return ok
+})
+
 func TestNodeService(t *testing.T) {
 	t.Run("NodeRegistration", func(t *testing.T) {
 		getTestNodeName := func() string {
@@ -192,12 +199,15 @@ func TestNodeService(t *testing.T) {
 			serviceAccountID := int(0)
 			nodeName := getTestNodeName()
 			reregister := true
-			force := true
+			// The request below is forced, but --force says to unregister the Node with everything on it,
+			// not to delete service tokens pmm-agent never created, so it must not reach Grafana as its own
+			// force.
+			const deleteForeignTokens = false
 
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
 			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
-			authProvider.On("DeleteServiceAccount", ctx, nodeName, force).Return("", nil)
+			authProvider.On("DeleteServiceAccount", boundedCtx, nodeName, deleteForeignTokens).Return("", nil)
 			s.grafanaClient = authProvider
 
 			state := &mockAgentsStateUpdater{}
