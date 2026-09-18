@@ -354,9 +354,12 @@ func (s *Supervisor) RestartAgents() {
 	}
 }
 
-// waitAgentStopped waits for a canceled Agent's status forwarder to finish, until deadline. It
-// reports whether the Agent stopped; an abandoned one is still running, so everything that assumes
-// it is gone has to wait for it instead - see releaseAgentResources.
+// waitAgentStopped waits for a canceled Agent's status forwarder to finish, until deadline.
+//
+// It reports whether that forwarder finished, which is the most that can be observed from here: the
+// Agent's process may already be gone while its forwarder is still parked on a status nothing is
+// draining. So a false means only "not known to be gone", and everything that assumes the Agent is
+// gone has to wait for the forwarder instead - see releaseAgentResources.
 func (s *Supervisor) waitAgentStopped(agentID string, done <-chan struct{}, deadline time.Time) bool {
 	// Take the answer if it is already there. Once the budget is spent both cases below are
 	// ready, and select would pick between them at random - reporting a timeout for every
@@ -841,8 +844,12 @@ func (s *Supervisor) handleNomadAgent(
 	s.storeLastStatus(agentID, instance, status)
 	l.Warn("Cannot start Nomad Agent: cgroups are not writable.")
 	l.Infof("Sending status: %s (port %d).", status, processInfo.listenPort)
-	// Bounded: this runs with s.rw held for writing, so parking on a full channel would
-	// block every later SetState, AgentsList and stopAll for good. See PMM-15431.
+	// Never waits: this runs with s.rw held for writing, so parking here would block every
+	// later SetState, AgentsList and stopAll - including the Agent list pmm-admin status and
+	// the Agent's own /metrics ask for - until pmm-agent exits. s.changes is only drained by
+	// a live connection, so on a wedged one it stays full. Dropping the status is the cheap
+	// failure: SendActualStatuses reports the actual state on the next connection, which is
+	// the same reason ClearChangesChannel may throw buffered changes away. See PMM-15431.
 	select {
 	case s.changes <- &agentv1.StateChangedRequest{
 		AgentId:         agentID,
@@ -850,7 +857,8 @@ func (s *Supervisor) handleNomadAgent(
 		ListenPort:      uint32(processInfo.listenPort),
 		ProcessExecPath: processInfo.processExecPath,
 	}:
-	case <-s.ctx.Done():
+	default:
+		l.Warnf("Dropping status %s: nothing is draining the status channel.", status)
 	}
 
 	close(done)
@@ -1195,9 +1203,9 @@ func (s *Supervisor) stopAll() {
 	s.rw.Lock()
 	defer s.rw.Unlock()
 
-	deadline := time.Now().Add(s.agentsStopTimeout)
-	s.setAgentProcesses(nil, deadline)
-	s.setBuiltinAgents(nil, deadline)
+	// A budget per phase, not one shared by both - see SetState.
+	s.setAgentProcesses(nil, time.Now().Add(s.agentsStopTimeout))
+	s.setBuiltinAgents(nil, time.Now().Add(s.agentsStopTimeout))
 
 	s.l.Infof("Done.")
 

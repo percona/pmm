@@ -50,6 +50,11 @@ const (
 // waiting fixes - see runReceiver. Overridden in tests.
 var requestQueueStuckTimeout = 2 * time.Minute
 
+// How long a caller whose own deadline has expired still waits for the send lock before dropping
+// its message. Long enough that a sender on a healthy connection is never mistaken for a wedged
+// one, short enough to keep the give-up bounded. See acquireSendLock.
+var sendLockGrace = time.Second
+
 // ServerRequest represents a request from server.
 // It is similar to agentv1.ServerMessage except it can contain only requests,
 // and the payload is already unwrapped (XXX instead of ServerMessage_XXX).
@@ -266,29 +271,56 @@ func (c *Channel) send(msg *agentv1.AgentMessage) {
 }
 
 // sendWithDeadline is send for a caller that has a deadline of its own. The deadline bounds only
-// the wait for a send lock that is already held, and never whether msg goes out: a free lock is
-// always taken, so a message that could be sent immediately is sent even for a caller that has
-// already given up. Dropping it instead would lose the QAN buckets and final statuses that a
-// connection being torn down still has to deliver.
-//
-// The lock can be held for arbitrarily long because c.s.Send cannot be interrupted - whoever is in
-// it stays until the stream is torn down. Giving up on it is what keeps that to one sender per
-// connection instead of one per call. See PMM-15431.
+// how long it waits for the send lock, and msg is dropped only if the lock is still held when it
+// expires - see acquireSendLock. See PMM-15431.
 func (c *Channel) sendWithDeadline(ctx context.Context, msg *agentv1.AgentMessage) {
-	select {
-	case c.sendM <- struct{}{}:
-	default:
-		// Held, which on a wedged connection means held until it is torn down.
-		select {
-		case c.sendM <- struct{}{}:
-		case <-ctx.Done():
-			return
-		case <-c.closeWait:
-			return
-		}
+	if !c.acquireSendLock(ctx) {
+		return
 	}
 
 	c.transmit(msg)
+}
+
+// acquireSendLock takes the send lock for a caller bounded by ctx, and reports whether it got it.
+//
+// The lock can be held for arbitrarily long because c.s.Send cannot be interrupted: whoever is in
+// it stays until the stream is torn down. Giving up on it is what keeps a wedged connection to one
+// parked sender instead of one per call.
+//
+// Giving up only ever costs a message that could not be sent anyway. A free lock is taken without
+// consulting ctx at all, and an expired ctx is not by itself a reason to drop - a last-gasp QAN
+// bucket or status reaches here with its connection's ctx already canceled, and a lock held for
+// the moment by another sender on a healthy connection must not cost it.
+func (c *Channel) acquireSendLock(ctx context.Context) bool {
+	select {
+	case c.sendM <- struct{}{}:
+		return true
+	default:
+	}
+
+	select {
+	case c.sendM <- struct{}{}:
+		return true
+	case <-c.closeWait:
+		return false
+	case <-ctx.Done():
+	}
+
+	// ctx went first, which says nothing about whether the lock is still held, so give it a
+	// grace period rather than dropping on the spot: a sender on a healthy connection releases
+	// in microseconds, and one on a wedged connection never will. That is what separates the
+	// two here, and the grace is what keeps the give-up bounded either way.
+	t := time.NewTimer(sendLockGrace)
+	defer t.Stop()
+
+	select {
+	case c.sendM <- struct{}{}:
+		return true
+	case <-c.closeWait:
+		return false
+	case <-t.C:
+		return false
+	}
 }
 
 // transmit sends msg and releases the send lock. It must be called holding it.

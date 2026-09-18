@@ -475,6 +475,33 @@ func TestSendAndWaitResponseCanceled(t *testing.T) {
 // otherwise repeating pmm-admin status --network-info on such a connection retains a goroutine per
 // invocation. That a free lock is always taken, even by a caller that has already given up, is
 // covered end to end by TestSendAndWaitResponseCanceled. See PMM-15431.
+// TestSendTakesALockFreedDuringTheGrace covers the other half of the bound: an expired deadline is
+// not by itself a reason to drop, because a last-gasp QAN bucket or status reaches sendWithDeadline
+// with its connection's ctx already canceled. Only a lock still held after the grace - a sender
+// parked in the uninterruptible c.s.Send - costs the message. See PMM-15431.
+func TestSendTakesALockFreedDuringTheGrace(t *testing.T) {
+	t.Parallel()
+
+	// Only sendM, closeWait and l are reached; the stream is never touched. See TestAbandon.
+	c := &Channel{
+		sendM:     make(chan struct{}, 1),
+		closeWait: make(chan struct{}),
+		l:         logrus.WithField("test", t.Name()),
+	}
+
+	// Another sender on a healthy connection, about to finish.
+	c.sendM <- struct{}{}
+	go func() {
+		time.Sleep(50 * time.Millisecond)
+		<-c.sendM
+	}()
+
+	ctx, cancel := context.WithCancel(t.Context())
+	cancel()
+
+	assert.True(t, c.acquireSendLock(ctx), "gave up on a lock that was released within the grace")
+}
+
 func TestSendDoesNotQueueBehindAParkedSender(t *testing.T) {
 	t.Parallel()
 
@@ -500,7 +527,7 @@ func TestSendDoesNotQueueBehindAParkedSender(t *testing.T) {
 
 	select {
 	case <-returned:
-	case <-time.After(3 * time.Second):
+	case <-time.After(sendLockGrace + 3*time.Second):
 		t.Fatal("send queued behind a parked sender instead of giving up")
 	}
 

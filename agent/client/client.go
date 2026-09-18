@@ -259,14 +259,19 @@ func (c *Client) Run(ctx context.Context) error {
 
 // runProcessors starts the goroutines that serve the connection and blocks until the first of them
 // exits - that is how Run reports the connection is finished. Done() closes once they have all
-// exited. Their ctx is cancelled only by Run's caller, after Run has returned.
+// exited.
+//
+// Their ctx is the connection's. Run's caller cancels it after Run has returned, but so does a
+// signal, or the supervisor, runner or local server finishing (see agent/commands/run.go) - any of
+// which can happen while Run is still here.
 //
 //  1. processActionResults and processJobsResults send action and job results from the runner to
 //     the channel. They exit when the runner is stopped by cancelling ctx.
 //
 //  2. processSupervisorRequests reports the actual statuses and then sends status changes, QAN and
-//     RTA data from the supervisor to the channel. It exits when the caller stops the supervisor,
-//     which it does once Run has returned and the gRPC connection is closed.
+//     RTA data from the supervisor to the channel. Its forwarding loops exit on ctx, but reporting
+//     the actual statuses takes the supervisor's lock first, and acquiring a lock cannot be
+//     cancelled - so this one can outlive a cancelled ctx for as long as a SetState holds it.
 //
 //  3. processChannelRequests reads requests from the channel and processes them; processPings
 //     answers Ping from a queue of its own. Both exit when the channel is closed.
