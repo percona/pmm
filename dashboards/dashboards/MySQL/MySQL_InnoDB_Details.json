@@ -265,7 +265,7 @@
             "type": "stat"
         },
         {
-            "description": "Total InnoDB redo log capacity. Read from Innodb_redo_log_capacity_resized on MySQL 8.0.30 and newer, which reports the capacity actually in use whichever variable configured it, and from innodb_log_files_in_group * innodb_log_file_size on older servers.",
+            "description": "Total InnoDB redo log capacity. Read from Innodb_redo_log_capacity_resized on MySQL 8.0.30 and newer, which reports the capacity actually in use whichever variable configured it, and from innodb_log_files_in_group * innodb_log_file_size on older servers, or from innodb_log_file_size alone on MariaDB 10.5 and newer, which dropped the file count.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -12331,7 +12331,7 @@
             "type": "row"
         },
         {
-            "description": "Total InnoDB redo log capacity. Read from Innodb_redo_log_capacity_resized on MySQL 8.0.30 and newer, which reports the capacity actually in use whichever variable configured it, and from innodb_log_files_in_group * innodb_log_file_size on older servers.",
+            "description": "Total InnoDB redo log capacity. Read from Innodb_redo_log_capacity_resized on MySQL 8.0.30 and newer, which reports the capacity actually in use whichever variable configured it, and from innodb_log_files_in_group * innodb_log_file_size on older servers, or from innodb_log_file_size alone on MariaDB 10.5 and newer, which dropped the file count.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
