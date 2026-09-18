@@ -200,8 +200,7 @@ While MkDocs will automatically replace certain strings with symbols, it's prefe
 We have attempted to eschew traditional terminology used in software manuals. Some examples:
 
 - "Setting up" instead of "installation and configuration"
-
-This no longer holds for "Before you start" over "Prerequisites". The reworked chapters settled on "Prerequisites", which now leads across the docs by 29 headings to 12.
+- "Before you start" instead of "Prerequisites"
 
 There are no "introduction" or "overview" sections. These texts are just there under the title.
 

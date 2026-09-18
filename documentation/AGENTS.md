@@ -5,7 +5,7 @@
 
 This file is the single source of documentation rules. Two human-facing files keep the parts they own and this guide links to them instead of restating: [`WRITERS-NOTES.md`](WRITERS-NOTES.md) for the admonition colour table, the icon list and symbols, and [`CONTRIBUTING.md`](CONTRIBUTING.md) for the external-contributor workflow. When this guide and an older note disagree, this guide wins — the older note is corrected, never forked.
 
-Every rule below was checked against the published pages under `docs/` rather than carried over on faith. Where a plausible-sounding rule turned out to be absent from the corpus, it is listed in [Rules that are not rules](#rules-that-are-not-rules) rather than silently dropped.
+Every rule below was checked against the published pages under `docs/` rather than carried over on faith. Where a rule deliberately departs from what is published today, it says so and tells you not to sweep the old pages.
 
 The counts quoted throughout come from one sweep of `docs/` in September 2026. They are here to show how one-sided a call was, not to track the corpus — re-measure before overturning a rule, and don't bother refreshing them in passing.
 
@@ -69,7 +69,7 @@ Pages carry **no YAML front matter** — not one does. Start the file with its `
 - Open with one or two sentences saying what the page covers. There is no "Introduction" or "Overview" heading — the text sits directly under the title.
 - Section titles are short and sentence case: capitalize the first word and proper nouns only. Task sections take the imperative ("Configure the client"), reference and concept sections take a noun phrase ("Connection timeout settings").
 - Never stack two headings with no text between them.
-- `## Prerequisites` is the current heading for what the reader needs first (29 uses against 12 for "Before you start", and 22 of them in the reworked `install-pmm` chapter). `## Next steps` closes a task page with links to what follows.
+- `## Before you start` is the heading for what the reader needs first — the docs deliberately avoid manual-speak like "Prerequisites". Plenty of existing pages still say Prerequisites; change them on a page you are already editing, don't sweep them. `## Next steps` closes a task page with links to what follows.
 
 ### Markdown conventions
 
@@ -116,7 +116,7 @@ Types in use: `note`, `caution`, `warning`, `hint`, `tip`, `seealso`, `danger`, 
 
 **Images** live in `docs/images/` and are embedded with plain `![alt](../images/name.png)` — no sizing attributes are used anywhere in the corpus. Delete the image when you delete its last reference.
 
-**Do not hard-wrap.** One paragraph is one line; 4310 lines in the corpus are over 120 characters. Editors soft-wrap, and a hard wrap makes every later diff touch the whole paragraph.
+**Do not hard-wrap** — not at 80 columns, not at any width. One paragraph is one line; 4310 lines in the corpus are over 120 characters. Editors soft-wrap, and a hard wrap makes every later diff touch the whole paragraph.
 
 **Variables** come from `variables.yml` through `mkdocs-macros`: `{{release}}`, `{{version}}`, `{{release_date}}`. Where a Jinja-like construct in a code block collides with the macro plugin, wrap it in `{% raw %}` / `{% endraw %}`.
 
@@ -129,8 +129,11 @@ Types in use: `note`, `caution`, `warning`, `hint`, `tip`, `seealso`, `danger`, 
 | enables you to, lets you | allows you to |
 | deprecated | legacy, old |
 | removed | dropped |
-| Prerequisites | Before you start |
+| Before you start | Prerequisites |
 | metadata, timestamp, filesystem | meta data, time stamp, file system |
+| the following table, the previous example | the table below, the example above |
+
+Point at content by its place in the reading order, not by where it lands on screen — "below" and "above" stop being true in the PDF, in a narrow viewport, and to a screen reader. Existing pages are full of them: fix the ones on a page you are already editing, don't open a PR to sweep them.
 
 For the version a change landed in, write "Starting with PMM X.Y.Z" — it leads "As of PMM X.Y.Z" 12 to 3, and neither "As of version X" nor "Starting from version X" appears at all.
 
@@ -176,21 +179,6 @@ make doc-check-images
 # PDF — Percona staff only; bump the version in mkdocs-base.yml first
 make doc-build-pdf
 ```
-
-## Rules that are not rules
-
-These come up repeatedly — from general technical-writing advice and from the draft skill in [percona/pmm#5334](https://github.com/percona/pmm/pull/5334) — and the published corpus contradicts them. Don't apply them, and don't reintroduce them in another copy of the style guide.
-
-| Claimed rule | Why not |
-|--------------|---------|
-| Hard-wrap at 80 characters | The corpus does not wrap at all. Applying it would rewrite every paragraph you touch. |
-| Say "the following table", never "above" or "below" | "table below" outnumbers "the following table" 8 to 2, and "above"/"below" appear 170+ times. Not worth a mass rewrite. |
-| Release-note bug entries read `- Fixed an issue where … ([PMM-XXXXX](url))` | Published entries open with the linked key: `- [PMM-XXXXX](url): …`. |
-| Use "Before you start", not "Prerequisites" | Reversed since [`WRITERS-NOTES.md`](WRITERS-NOTES.md) was written; `Prerequisites` now leads 29 to 12. |
-| Check the Percona Software Support Lifecycle page on every change | Zero pages reference it. It is an external percona.com page, and only a platform-support change touches it. |
-| Scaffold a release-notes page as part of writing docs | Owned by the `pmm-rn-create` skill and the release branch. |
-| Add `alert alert-*` classes to admonitions | Inert — no stylesheet in this repo defines them. |
-| Read a `doc-style-guide/` sibling repo before writing | No such repo is checked out or referenced by this one. This guide is the style guide. |
 
 ## Key Files to Reference
 
