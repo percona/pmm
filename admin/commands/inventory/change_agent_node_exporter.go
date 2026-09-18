@@ -76,6 +76,19 @@ type ChangeAgentNodeExporterCommand struct {
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
 
+// parseChangeDisableCollectors trims the collector names the same way
+// commands.ParseDisableCollectors does - Kong splits "--disable-collectors=cpu, meminfo" into
+// "cpu" and " meminfo", and an untrimmed name matches no collector at all - while keeping the
+// distinction the change API relies on: nil leaves the stored list untouched, an empty slice
+// clears it.
+func parseChangeDisableCollectors(collectors []string) []string {
+	if collectors == nil {
+		return nil
+	}
+
+	return append([]string{}, commands.ParseDisableCollectors(collectors)...)
+}
+
 // RunCmd executes the ChangeAgentNodeExporterCommand and returns the result.
 func (cmd *ChangeAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 	var changes []string
@@ -86,7 +99,7 @@ func (cmd *ChangeAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 	body := &agents.ChangeAgentParamsBodyNodeExporter{
 		Enable:            cmd.Enable,
 		EnablePushMetrics: cmd.PushMetrics,
-		DisableCollectors: cmd.DisableCollectors,
+		DisableCollectors: parseChangeDisableCollectors(cmd.DisableCollectors),
 		ExposeExporter:    cmd.ExposeExporter,
 		LogLevel:          convertLogLevelPtr(cmd.LogLevel),
 	}

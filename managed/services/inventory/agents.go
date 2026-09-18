@@ -19,6 +19,7 @@ package inventory
 import (
 	"context"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -215,6 +216,105 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 	return res, nil
 }
 
+// hasNewDisabledCollectors reports whether next disables a collector that current does not.
+func hasNewDisabledCollectors(current, next []string) bool {
+	for _, collector := range next {
+		if !slices.Contains(current, collector) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// disabledCollectorsUnion returns, without duplicates, every collector disabled either before or
+// after the change.
+func disabledCollectorsUnion(current, next []string) []string {
+	union := make([]string, 0, len(current)+len(next))
+	for _, collector := range slices.Concat(current, next) {
+		if !slices.Contains(union, collector) {
+			union = append(union, collector)
+		}
+	}
+
+	return union
+}
+
+// widenDisabledCollectors stores an intermediate disabled-collector set and rebuilds the
+// VictoriaMetrics configuration from it synchronously, the same way port changes are handled in
+// agents.Handler.stateChanged (PMM-14267). The set is a superset of what the running exporter has
+// disabled and of what it will have disabled after the restart, so the resulting collect[] names
+// only collectors that both processes know.
+//
+// It returns the set the agent had before, which the caller restores if the change it makes next
+// fails, or nil when next disables nothing new and no widening was needed.
+//
+// The read of the stored set and the write of the union share a transaction, so two concurrent
+// changes to the same agent cannot both widen from the same snapshot. They are still not
+// serialized against each other end to end: the union is committed before the rebuild reads it,
+// so a change that starts after this one commits and finishes before it applies the requested list
+// can still widen from a set that is about to be replaced. Full serialization is deferred to the
+// follow-up that serializes ForceConfigurationUpdate against victoriametrics.Service.reloadCh.
+//
+// The union is committed rather than staged, and it has to be - ForceConfigurationUpdate reads the
+// inventory through its own querier, so nothing uncommitted reaches the rebuild. That makes the
+// intermediate state durable rather than transient: if pmm-managed dies between this commit and
+// the caller's own change, or is killed during the forced rebuild, the agent keeps the union
+// - collectors the user never asked to disable stay disabled - until the next ChangeNodeExporter
+// call for that agent. Reconciling it on startup is deferred to the same follow-up.
+func (as *AgentsService) widenDisabledCollectors(ctx context.Context, agentID string, next []string) ([]string, error) {
+	var widenedFrom []string
+
+	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		widenedFrom = nil
+
+		current, err := models.FindAgentByID(tx.Querier, agentID)
+		if err != nil {
+			return err
+		}
+
+		// empty but non-nil, so that restoring it reads as "nothing disabled" rather than as
+		// "no change" in models.ChangeExporterOptions
+		previous := append([]string{}, current.ExporterOptions.DisabledCollectors...)
+		if !hasNewDisabledCollectors(previous, next) {
+			// nothing leaves the scrape config, so the asynchronous update keeps the right order
+			return nil
+		}
+
+		params := &models.ChangeAgentParams{
+			ExporterOptions: &models.ChangeExporterOptions{
+				DisabledCollectors: disabledCollectorsUnion(previous, next),
+			},
+		}
+
+		_, err = models.ChangeAgent(tx.Querier, agentID, params)
+		if err != nil {
+			return err
+		}
+
+		widenedFrom = previous
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if widenedFrom == nil {
+		return nil, nil
+	}
+
+	err = as.vmdb.ForceConfigurationUpdate(ctx)
+	if err != nil {
+		// The requested list is applied by the caller, so the asynchronous update still converges on
+		// it; scrapes may answer with HTTP 400 until it does.
+		logger.Get(ctx).Warnf("Failed to force VictoriaMetrics configuration update: %s.", err)
+		as.vmdb.RequestConfigurationUpdate()
+	}
+
+	return widenedFrom, nil
+}
+
 // ChangeNodeExporter updates node_exporter Agent with given parameters.
 func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeNodeExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
@@ -234,8 +334,44 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
+	// node_exporter answers the whole resolution endpoint with HTTP 400 when collect[] names a
+	// collector it does not know, so a collector being disabled has to leave the scrape config before
+	// the exporter restarts without it, while a collector being re-enabled may only enter the config
+	// after that restart. A single request can do both at once, so the configuration is first rebuilt
+	// from the union of the two sets - the collectors that stay enabled whichever process answers the
+	// scrape - and the requested list is applied afterwards. What the union holds back is picked up by
+	// the asynchronous update that agents.Handler.stateChanged triggers once the exporter is back up.
+	var widenedFrom []string
+	if p.DisableCollectors != nil {
+		var err error
+
+		widenedFrom, err = as.widenDisabledCollectors(ctx, agentID, p.DisableCollectors)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
+		if widenedFrom != nil {
+			// The widened set is already committed, so put the agent back the way the caller found it.
+			// This is best-effort: the error the caller gets is the one from the change it asked for,
+			// and a failed restore leaves the agent on the union - the same state a crash here would
+			// leave behind, and one that the next successful change of this agent clears.
+			restore := &models.ChangeAgentParams{
+				ExporterOptions: &models.ChangeExporterOptions{
+					DisabledCollectors: widenedFrom,
+				},
+			}
+
+			_, restoreErr := models.ChangeAgent(as.db.Querier, agentID, restore)
+			if restoreErr != nil {
+				logger.Get(ctx).Errorf("Failed to restore disabled collectors of agent %s: %s.", agentID, restoreErr)
+			}
+
+			as.vmdb.RequestConfigurationUpdate()
+		}
+
 		return nil, err
 	}
 
@@ -243,6 +379,7 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 	if !ok {
 		return nil, unexpectedAgentTypeError(agent)
 	}
+
 	as.state.RequestStateUpdate(ctx, nodeExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
