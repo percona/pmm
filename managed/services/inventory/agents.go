@@ -243,6 +243,21 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 	if !ok {
 		return nil, unexpectedAgentTypeError(agent)
 	}
+
+	// Regenerate the scrape config before the exporter is restarted. VictoriaMetrics names the
+	// collectors it wants in collect[], and node_exporter answers HTTP 400 for the whole scrape
+	// when it is asked for a collector that is now disabled, so every metric for this node gaps
+	// until the asynchronous update triggered by StateChanged lands. Dropping a name from
+	// collect[] ahead of the restart is harmless in comparison.
+	if p.DisableCollectors != nil {
+		err = as.vmdb.ForceConfigurationUpdate(ctx)
+		if err != nil {
+			// The agent change is already committed and StateChanged requests the update
+			// anyway, so a failure here only costs the few scrapes it was meant to save.
+			logger.Get(ctx).Warnf("Failed to force VictoriaMetrics configuration update: %s", err)
+		}
+	}
+
 	as.state.RequestStateUpdate(ctx, nodeExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
