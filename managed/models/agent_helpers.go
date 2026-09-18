@@ -18,6 +18,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -38,6 +39,13 @@ const (
 	pushMetricsFalse = "(NOT (exporter_options ? 'push_metrics') OR (exporter_options->>'push_metrics')::boolean = false)"
 )
 
+// timeZoneRegexp bounds the time_zone DSN parameter to characters valid in a
+// MySQL time zone (numeric offsets like '+07:00', named zones like
+// 'Europe/Helsinki', or SYSTEM), optionally wrapped in single quotes. The
+// value is issued verbatim as SET time_zone=<value> by the exporter, so
+// anything outside this set is rejected to keep it from altering the command.
+var timeZoneRegexp = regexp.MustCompile(`^'?[A-Za-z0-9_/+:-]+'?$`)
+
 // MySQLOptionsParams contains methods to create MySQLOptions object.
 type MySQLOptionsParams interface { //nolint:iface
 	GetTlsCa() string
@@ -51,9 +59,14 @@ func MySQLOptionsFromRequest(params MySQLOptionsParams) (MySQLOptions, error) {
 	if params.GetExtraDsnParams() != nil {
 		// keep a list of "supported" parameters and fail early if there are unsupported ones.
 		// this prevents unsupported parameters from being passed to the mysql config.
-		for k := range params.GetExtraDsnParams() {
+		for k, v := range params.GetExtraDsnParams() {
 			switch k {
 			case "allowCleartextPasswords":
+				continue
+			case "time_zone":
+				if !timeZoneRegexp.MatchString(v) {
+					return MySQLOptions{}, status.Errorf(codes.InvalidArgument, "Invalid time_zone value: %s", v)
+				}
 				continue
 			default:
 				return MySQLOptions{}, status.Errorf(codes.InvalidArgument, "Unsupported DSN parameter: %s", k)

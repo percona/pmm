@@ -1743,3 +1743,46 @@ func TestChangeAgentParamsAffectsConnection(t *testing.T) {
 		})
 	}
 }
+
+type mysqlOptionsParamsStub struct {
+	extraDSNParams map[string]string
+}
+
+func (p mysqlOptionsParamsStub) GetTlsCa() string                     { return "" }
+func (p mysqlOptionsParamsStub) GetTlsCert() string                   { return "" }
+func (p mysqlOptionsParamsStub) GetTlsKey() string                    { return "" }
+func (p mysqlOptionsParamsStub) GetExtraDsnParams() map[string]string { return p.extraDSNParams }
+
+func TestMySQLOptionsFromRequestExtraDSNParams(t *testing.T) {
+	t.Run("time_zone is supported", func(t *testing.T) {
+		opts, err := models.MySQLOptionsFromRequest(mysqlOptionsParamsStub{
+			extraDSNParams: map[string]string{"time_zone": "'+00:00'"},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "'+00:00'", opts.ExtraDSNParams["time_zone"])
+	})
+
+	t.Run("named time_zone is supported", func(t *testing.T) {
+		opts, err := models.MySQLOptionsFromRequest(mysqlOptionsParamsStub{
+			extraDSNParams: map[string]string{"time_zone": "'Europe/Helsinki'"},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "'Europe/Helsinki'", opts.ExtraDSNParams["time_zone"])
+	})
+
+	t.Run("time_zone with injection is rejected", func(t *testing.T) {
+		_, err := models.MySQLOptionsFromRequest(mysqlOptionsParamsStub{
+			extraDSNParams: map[string]string{"time_zone": "'+00:00'; DROP TABLE agents"},
+		})
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+	})
+
+	t.Run("unsupported param is rejected", func(t *testing.T) {
+		_, err := models.MySQLOptionsFromRequest(mysqlOptionsParamsStub{
+			extraDSNParams: map[string]string{"someUnknownParam": "1"},
+		})
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+	})
+}
