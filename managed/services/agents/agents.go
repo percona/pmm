@@ -118,8 +118,16 @@ func redactWords(agent *models.Agent) []string {
 	if s := agent.PostgreSQLOptions.SSLKey; s != "" {
 		words = append(words, s)
 	}
+	if s := agent.ValkeyOptions.SSLKey; s != "" {
+		words = append(words, s)
+	}
 
 	return words
+}
+
+// textFileRef returns the template expression pmm-agent expands to the on-disk path of a shipped text file.
+func textFileRef(tdp *models.DelimiterPair, name string) string {
+	return tdp.Left + " .TextFiles." + name + " " + tdp.Right
 }
 
 // pathsBase returns paths base and in case of unsupported PMM client a hardcoded value.

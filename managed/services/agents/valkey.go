@@ -18,6 +18,8 @@ package agents
 import (
 	"sort"
 
+	"github.com/sirupsen/logrus"
+
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -26,7 +28,7 @@ import (
 
 // valkeyExporterConfig returns the desired configuration of the valkey_exporter process.
 func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
-	pmmAgentVersion *version.Parsed,
+	pmmAgentVersion *version.Parsed, l *logrus.Entry,
 ) *agentv1.SetStateRequest_AgentProcess {
 	listenAddress := getExporterListenAddress(node, exporter)
 	tdp := exporter.TemplateDelimiters(service)
@@ -40,13 +42,41 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
+	textFiles := exporter.Files()
+	if exporter.TLS {
+		if exporter.TLSSkipVerify {
+			args = append(args, "--skip-tls-verification")
+		}
+
+		// The flag names come from oliver006/redis_exporter, shipped as valkey_exporter;
+		// all four have been stable since v1.72.1, the build the first Valkey release used.
+		if _, ok := textFiles[models.TLSCaFileName]; ok {
+			args = append(args, "--tls-ca-cert-file="+textFileRef(tdp, models.TLSCaFileName))
+		}
+
+		// Files() ships the client key pair only as a unit, so one lookup covers both flags.
+		if _, ok := textFiles[models.TLSCertFileName]; ok {
+			args = append(args,
+				"--tls-client-cert-file="+textFileRef(tdp, models.TLSCertFileName),
+				"--tls-client-key-file="+textFileRef(tdp, models.TLSKeyFileName))
+		}
+
+		// Half a pair would make the exporter's validateTLSClientConfig call log.Fatal and
+		// crash-loop the process, so the connection silently degrades to server authentication.
+		// Make that visible to the operator.
+		if exporter.ValkeyClientKeyPairIncomplete() {
+			l.WithField("agent_id", exporter.AgentID).
+				Warn("Valkey exporter has only one half of the TLS client key pair; connecting without a client certificate.")
+		}
+	}
+
 	dsnParams := models.DSNParams{}
 	connectionTimeout := exporter.EffectiveDialTimeout()
 
-	args = append(args, "--redis.addr="+exporter.DSN(service, dsnParams, nil, pmmAgentVersion))
+	args = append(args, "--redis.addr="+exporter.DSN(service, dsnParams, tdp, pmmAgentVersion))
 	args = append(args, "--connection-timeout="+connectionTimeout.String())
 	// valkey_exporter parses flags with the stdlib flag package, which rejects --log.level
-	// and has no fatal level (PMM-15201).
+	// and has no fatal level.
 	args = withLogLevelFlag(args, "--log-level", exporter.LogLevel, pmmAgentVersion, false)
 	sort.Strings(args)
 
@@ -55,7 +85,7 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
-		TextFiles:          exporter.Files(),
+		TextFiles:          textFiles,
 	}
 	if redactMode != exposeSecrets {
 		res.RedactWords = redactWords(exporter)

@@ -85,8 +85,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         pmm-admin add valkey \
           Valkey-Primary \
           localhost:6379 \
-          --environment=production \
-          Valkey-Primary
+          --environment=production
         ```
     
     === "With authentication"
@@ -94,12 +93,11 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         Add a Valkey instance with authentication:
         ```sh
         pmm-admin add valkey \
-          Valkey-Primary \
+          Valkey-Secure \
           localhost:6379 \
           --username=pmm \
           --password=StrongPassword123! \
-          --environment=production \
-          Valkey-Secure
+          --environment=production
         ```
     
     === "With remote monitoring"
@@ -107,11 +105,11 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         Add a remote Valkey instance:
         ```sh
         pmm-admin add valkey \
-          --address=valkey-server.example.com:6379 \
+          Remote-Valkey \
+          valkey-server.example.com:6379 \
           --username=pmm \
           --password=StrongPassword123! \
-          --environment=production \
-          Remote-Valkey
+          --environment=production
         ```
     
     === "With custom labels"
@@ -124,8 +122,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
           --username=pmm \
           --password=StrongPassword123! \
           --environment=production \
-          --custom-labels="role=primary,datacenter=east" \
-          Valkey-Primary
+          --custom-labels="role=primary,datacenter=east"
         ```
     
     === "With TLS connection"
@@ -133,13 +130,33 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         Add an instance with TLS security:
         ```sh
         pmm-admin add valkey \
-          --address=valkey-server.example.com:6379 \
+          Valkey-TLS \
+          valkey-server.example.com:6379 \
+          --username=pmm \
+          --password=StrongPassword123! \
+          --tls \
+          --tls-ca=/path/to/ca.pem
+        ```
+
+    === "With mutual TLS"
+
+        Add an instance that requires client certificate authentication:
+        ```sh
+        pmm-admin add valkey \
+          Valkey-mTLS \
+          valkey-server.example.com:6379 \
           --username=pmm \
           --password=StrongPassword123! \
           --tls \
           --tls-ca=/path/to/ca.pem \
-          Valkey-TLS
+          --tls-cert=/path/to/client-cert.pem \
+          --tls-key=/path/to/client-key.pem
         ```
+
+        `--tls-ca` already supplies the trust anchor, so a self-signed certificate does not need `--tls-skip-verify`. Add that flag only when a validation failure cannot be corrected — a SAN mismatch, for example — and only in development or testing: it disables server authentication entirely.
+
+    !!! note alert alert-primary "Connection check with TLS"
+        The connection check that runs when you add the service uses PMM Client code that requires the CA, client certificate and client key together, and applies `--tls-skip-verify` only when certificates are supplied. For a CA-only setup, or for `--tls-skip-verify` without certificates, add `--skip-connection-check`: the service is registered, the exporter connects with the TLS material you supplied, and metrics flow. **Check connection** in Inventory reports an error for these services for the same reason.
 
 === ":material-cog: Via inventory commands (Advanced)"
     PMM also provides inventory commands for more granular control:
@@ -147,17 +164,18 @@ You can add your Valkey or Redis service to PMM either through the user interfac
     === ":material-database-plus: Add Valkey service via inventory"
         ```sh
         pmm-admin inventory add service valkey \
-        --address=localhost:6379 \
-        --username=pmm \
-        --password=StrongPassword123! \
-        Valkey-Service
+        Valkey-Service \
+        <node-id> \
+        localhost \
+        6379
         ```
 
     === ":material-robot: Add Valkey exporter agent"
         ```sh
-        pmm-admin inventory add agent valkey_exporter \
-        --address=localhost:6379 \
-        --username=pmm \
+        pmm-admin inventory add agent valkey-exporter \
+        <pmm-agent-id> \
+        <service-id> \
+        pmm \
         --password=StrongPassword123!
         ```
 

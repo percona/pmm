@@ -118,12 +118,12 @@ func mysqldExporterConfig(
 	if textFiles != nil && !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
 		for k := range textFiles {
 			switch k {
-			case "tlsCa":
-				args = append(args, "--mysql.ssl-ca-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
-			case "tlsCert":
-				args = append(args, "--mysql.ssl-cert-file="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
-			case "tlsKey":
-				args = append(args, "--mysql.ssl-key-file="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
+			case models.TLSCaFileName:
+				args = append(args, "--mysql.ssl-ca-file="+textFileRef(tdp, models.TLSCaFileName))
+			case models.TLSCertFileName:
+				args = append(args, "--mysql.ssl-cert-file="+textFileRef(tdp, models.TLSCertFileName))
+			case models.TLSKeyFileName:
+				args = append(args, "--mysql.ssl-key-file="+textFileRef(tdp, models.TLSKeyFileName))
 			default:
 				continue
 			}
@@ -275,14 +275,14 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 		ConnectTimeout: max(1, int(connectTimeout.Seconds())),
 	}
 
-	if files["tlsCa"] != "" {
-		myCnfParams.CaFile = tdp.Left + " .TextFiles.tlsCa " + tdp.Right
+	if files[models.TLSCaFileName] != "" {
+		myCnfParams.CaFile = textFileRef(tdp, models.TLSCaFileName)
 	}
-	if files["tlsCert"] != "" {
-		myCnfParams.CertFile = tdp.Left + " .TextFiles.tlsCert " + tdp.Right
+	if files[models.TLSCertFileName] != "" {
+		myCnfParams.CertFile = textFileRef(tdp, models.TLSCertFileName)
 	}
-	if files["tlsKey"] != "" {
-		myCnfParams.KeyFile = tdp.Left + " .TextFiles.tlsKey " + tdp.Right
+	if files[models.TLSKeyFileName] != "" {
+		myCnfParams.KeyFile = textFileRef(tdp, models.TLSKeyFileName)
 	}
 
 	if service.Socket != nil {

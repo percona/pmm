@@ -286,7 +286,11 @@ func TestPostgresAgentTLS(t *testing.T) {
 }
 
 func TestValkey(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Redis DSN", func(t *testing.T) {
+		t.Parallel()
+
 		agent := &models.Agent{
 			Username:        new("username"),
 			Password:        new("s3cur3 p@$$w0r4."),
@@ -305,6 +309,8 @@ func TestValkey(t *testing.T) {
 	})
 
 	t.Run("Valkey DSN with TLS", func(t *testing.T) {
+		t.Parallel()
+
 		agent := &models.Agent{
 			Username:        new("username"),
 			Password:        new("s3cur3 p@$$w0r4."),
@@ -325,6 +331,76 @@ func TestValkey(t *testing.T) {
 		expected := "rediss://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345"
 
 		require.Equal(t, expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
+	})
+
+	t.Run("Files", func(t *testing.T) {
+		t.Parallel()
+
+		all := models.ValkeyOptions{SSLCa: "aa", SSLCert: "bb", SSLKey: "cc"}
+
+		for name, tc := range map[string]struct {
+			tls      bool
+			options  models.ValkeyOptions
+			expected map[string]string
+		}{
+			"all":              {true, all, map[string]string{"tlsCa": "aa", "tlsCert": "bb", "tlsKey": "cc"}},
+			"ca":               {true, models.ValkeyOptions{SSLCa: "aa"}, map[string]string{"tlsCa": "aa"}},
+			"pair":             {true, models.ValkeyOptions{SSLCert: "bb", SSLKey: "cc"}, map[string]string{"tlsCert": "bb", "tlsKey": "cc"}},
+			"cert without key": {true, models.ValkeyOptions{SSLCa: "aa", SSLCert: "bb"}, map[string]string{"tlsCa": "aa"}},
+			"key without cert": {true, models.ValkeyOptions{SSLKey: "cc"}, nil},
+			"none":             {true, models.ValkeyOptions{}, nil},
+			"tls disabled":     {false, all, nil},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				agent := models.Agent{AgentType: models.ValkeyExporterType, TLS: tc.tls, ValkeyOptions: tc.options}
+
+				require.Equal(t, tc.expected, agent.Files())
+			})
+		}
+	})
+
+	t.Run("ValkeyClientKeyPairIncomplete", func(t *testing.T) {
+		t.Parallel()
+
+		for name, tc := range map[string]struct {
+			options  models.ValkeyOptions
+			expected bool
+		}{
+			"pair":      {models.ValkeyOptions{SSLCert: "bb", SSLKey: "cc"}, false},
+			"none":      {models.ValkeyOptions{SSLCa: "aa"}, false},
+			"cert only": {models.ValkeyOptions{SSLCert: "bb"}, true},
+			"key only":  {models.ValkeyOptions{SSLKey: "cc"}, true},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				agent := models.Agent{AgentType: models.ValkeyExporterType, ValkeyOptions: tc.options}
+
+				require.Equal(t, tc.expected, agent.ValkeyClientKeyPairIncomplete())
+			})
+		}
+	})
+
+	t.Run("TemplateDelimiters avoid certificate content", func(t *testing.T) {
+		t.Parallel()
+
+		service := &models.Service{ServiceType: models.ValkeyServiceType, Address: new("1.2.3.4")}
+
+		for name, options := range map[string]models.ValkeyOptions{
+			"ca":   {SSLCa: "aa {{ bb"},
+			"cert": {SSLCert: "aa {{ bb"},
+			"key":  {SSLKey: "aa {{ bb"},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				agent := models.Agent{AgentType: models.ValkeyExporterType, ValkeyOptions: options}
+
+				require.Equal(t, &models.DelimiterPair{Left: "[[", Right: "]]"}, agent.TemplateDelimiters(service))
+			})
+		}
 	})
 }
 
