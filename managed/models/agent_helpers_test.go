@@ -1754,7 +1754,7 @@ func (p mysqlOptionsParamsStub) GetTlsKey() string                    { return "
 func (p mysqlOptionsParamsStub) GetExtraDsnParams() map[string]string { return p.extraDSNParams }
 
 func TestMySQLOptionsFromRequestExtraDSNParams(t *testing.T) {
-	t.Run("time_zone is supported", func(t *testing.T) {
+	t.Run("quoted offset is preserved", func(t *testing.T) {
 		opts, err := models.MySQLOptionsFromRequest(mysqlOptionsParamsStub{
 			extraDSNParams: map[string]string{"time_zone": "'+00:00'"},
 		})
@@ -1762,7 +1762,23 @@ func TestMySQLOptionsFromRequestExtraDSNParams(t *testing.T) {
 		assert.Equal(t, "'+00:00'", opts.ExtraDSNParams["time_zone"])
 	})
 
-	t.Run("named time_zone is supported", func(t *testing.T) {
+	t.Run("bare offset is normalized to single-quoted", func(t *testing.T) {
+		opts, err := models.MySQLOptionsFromRequest(mysqlOptionsParamsStub{
+			extraDSNParams: map[string]string{"time_zone": "+00:00"},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "'+00:00'", opts.ExtraDSNParams["time_zone"])
+	})
+
+	t.Run("bare named zone is normalized to single-quoted", func(t *testing.T) {
+		opts, err := models.MySQLOptionsFromRequest(mysqlOptionsParamsStub{
+			extraDSNParams: map[string]string{"time_zone": "UTC"},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "'UTC'", opts.ExtraDSNParams["time_zone"])
+	})
+
+	t.Run("quoted named zone is preserved", func(t *testing.T) {
 		opts, err := models.MySQLOptionsFromRequest(mysqlOptionsParamsStub{
 			extraDSNParams: map[string]string{"time_zone": "'Europe/Helsinki'"},
 		})
