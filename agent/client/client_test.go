@@ -308,6 +308,11 @@ func TestSetStateDoesNotBlockRequestLoop(t *testing.T) {
 	releaseState := make(chan struct{})
 
 	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		// Deferred: the assertions below run on the server's goroutine, and a failing
+		// require there would otherwise leave the mock parked on releaseState and this
+		// test's own wait for it hanging the whole package until -timeout.
+		defer close(releaseState)
+
 		// establish the connection
 		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 		require.NoError(t, err)
@@ -346,7 +351,6 @@ func TestSetStateDoesNotBlockRequestLoop(t *testing.T) {
 		assert.EqualValues(t, 4243, msg.Id)
 		require.NotNil(t, msg.GetPong())
 
-		close(releaseState)
 		return nil
 	}
 	port, teardown := setup(t, connect)
@@ -391,6 +395,11 @@ func TestActualStatusesDoNotBlockPings(t *testing.T) {
 	release := make(chan struct{})
 
 	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		// Deferred: the assertions below run on the server's goroutine, and a failing
+		// require there would otherwise leave the mock parked on release and this
+		// test's own wait for it hanging the whole package until -timeout.
+		defer close(release)
+
 		// establish the connection
 		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 		require.NoError(t, err)
@@ -418,7 +427,6 @@ func TestActualStatusesDoNotBlockPings(t *testing.T) {
 		assert.EqualValues(t, 4242, msg.Id)
 		require.NotNil(t, msg.GetPong())
 
-		close(release)
 		return nil
 	}
 	port, teardown := setup(t, connect)
