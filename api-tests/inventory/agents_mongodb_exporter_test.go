@@ -438,6 +438,9 @@ func TestMongoDBExporter(t *testing.T) {
 					AgentPassword:  new("new-agent-password"),
 					LogLevel:       new(agents.ChangeAgentParamsBodyMongodbExporterLogLevelLOGLEVELDEBUG),
 					ExposeExporter: new(true),
+					EnvironmentVariableNames: &agents.ChangeAgentParamsBodyMongodbExporterEnvironmentVariableNames{
+						Values: []string{"KRB5_KTNAME", "KRB5_CONFIG"},
+					},
 
 					// Metrics configuration
 					MetricsResolutions: &agents.ChangeAgentParamsBodyMongodbExporterMetricsResolutions{
@@ -479,6 +482,7 @@ func TestMongoDBExporter(t *testing.T) {
 		assert.Equal(t, new("LOG_LEVEL_DEBUG"), mongodbExporter.LogLevel)
 		assert.True(t, mongodbExporter.ExposeExporter)
 		assert.True(t, mongodbExporter.PushMetricsEnabled)
+		assert.Equal(t, []string{"KRB5_KTNAME", "KRB5_CONFIG"}, mongodbExporter.EnvironmentVariableNames)
 
 		// Metrics configuration
 		assert.Equal(t, "5s", mongodbExporter.MetricsResolutions.Hr)
@@ -486,6 +490,85 @@ func TestMongoDBExporter(t *testing.T) {
 		assert.Equal(t, "60s", mongodbExporter.MetricsResolutions.Lr)
 
 		// Note: TLS cert/key, agent_password, and authentication fields are not returned in GetAgent for security reasons
+	})
+
+	t.Run("ChangeEnvironmentVariableNames", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for mongodb exporter")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
+
+		service := pmmapitests.AddService(t, services.AddServiceBody{
+			Mongodb: &services.AddServiceParamsBodyMongodb{
+				NodeID:      genericNodeID,
+				Address:     pmmapitests.TestString(t, "localhost"),
+				Port:        27017,
+				ServiceName: pmmapitests.TestString(t, "MongoDB Service for EnvironmentVariableNames test"),
+			},
+		})
+		serviceID := service.Mongodb.ServiceID
+
+		mongoDBExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
+				ServiceID:                serviceID,
+				Username:                 "username",
+				Password:                 "password",
+				PMMAgentID:               pmmAgentID,
+				EnvironmentVariableNames: []string{"KRB5_KTNAME"},
+				SkipConnectionCheck:      true,
+			},
+		})
+		agentID := mongoDBExporter.MongodbExporter.AgentID
+		assert.Equal(t, []string{"KRB5_KTNAME"}, mongoDBExporter.MongodbExporter.EnvironmentVariableNames)
+
+		// Replace the environment variable names.
+		changeRes, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
+			Body: agents.ChangeAgentBody{
+				MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
+					EnvironmentVariableNames: &agents.ChangeAgentParamsBodyMongodbExporterEnvironmentVariableNames{
+						Values: []string{"KRB5_CONFIG", "KRB5CCNAME"},
+					},
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"KRB5_CONFIG", "KRB5CCNAME"}, changeRes.Payload.MongodbExporter.EnvironmentVariableNames)
+
+		// Changing another field must leave the environment variable names untouched.
+		changeRes, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
+			Body: agents.ChangeAgentBody{
+				MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
+					ExposeExporter: new(true),
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"KRB5_CONFIG", "KRB5CCNAME"}, changeRes.Payload.MongodbExporter.EnvironmentVariableNames)
+
+		// An empty array removes all of them.
+		changeRes, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
+			Body: agents.ChangeAgentBody{
+				MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
+					EnvironmentVariableNames: &agents.ChangeAgentParamsBodyMongodbExporterEnvironmentVariableNames{},
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.Empty(t, changeRes.Payload.MongodbExporter.EnvironmentVariableNames)
+
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
+			AgentID: agentID,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.Empty(t, getAgentRes.Payload.MongodbExporter.EnvironmentVariableNames)
 	})
 
 	t.Run("ChangeEnableAllCollectors", func(t *testing.T) {
