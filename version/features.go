@@ -25,6 +25,7 @@ var (
 	MysqlExporterPluginCollector  FeatureVersion = MustParse("2.36.0-0")
 	NomadAgentSupportVersion      FeatureVersion = MustParse("3.2.0-0")
 	MongoDBRtaAgentSupportVersion FeatureVersion = MustParse("3.7.0-0")
+	MysqlExporterTimeZone FeatureVersion = MustParse("3.10.0-0")
 )
 
 // IsFeatureSupported checks if the feature is supported by the version.

@@ -159,7 +159,7 @@ func mysqldExporterConfig(
 		}
 		res.TextFiles = textFiles
 
-		cfg, err := buildMyCnfConfig(service, exporter, textFiles, connectionTimeout)
+		cfg, err := buildMyCnfConfig(service, exporter, textFiles, connectionTimeout, pmmAgentVersion)
 		if err != nil {
 			return nil, err
 		}
@@ -248,7 +248,7 @@ const myCnfTemplate = `[client]
 `
 
 // buildMyCnfConfig builds my.cnf configuration for MySQL connection.
-func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[string]string, connectTimeout time.Duration) (string, error) {
+func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[string]string, connectTimeout time.Duration, pmmAgentVersion *version.Parsed) (string, error) {
 	tmpl, err := template.New("myCnf").Parse(myCnfTemplate)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse myCnf template: %w", err)
@@ -295,7 +295,10 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 		if val, ok := agent.MySQLOptions.ExtraDSNParams["allowCleartextPasswords"]; ok && (val == "1" || val == "true") {
 			myCnfParams.EnableClearTextPassword = true
 		}
-		if tz, ok := agent.MySQLOptions.ExtraDSNParams["time_zone"]; ok && tz != "" {
+		if tz, ok := agent.MySQLOptions.ExtraDSNParams["time_zone"]; ok && tz != "" &&
+			pmmAgentVersion.IsFeatureSupported(version.MysqlExporterTimeZone) {
+			// Only emit the key for exporters that recognize it; older ones on the
+			// my.cnf path drop it silently (go-ini), so writing it would be a no-op.
 			// Double-quote the value so the exporter's go-ini my.cnf parser
 			// strips only the outer quotes and keeps the inner ones the
 			// driver needs for SET time_zone='...'.
