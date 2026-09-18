@@ -291,9 +291,9 @@ func tableTemplates(_ map[string]alert.Template) (string, error) {
 	// (ab)use tabwriter to generate Confluence markup or Markdown tableChecks
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.Debug)
-	_, _ = fmt.Fprintf(w, "\tName\tTiers\tDescription\t\n")
+	_, _ = fmt.Fprintf(w, "\tName\tCategory\tDescription\t\n")
 
-	_, _ = fmt.Fprintf(w, "\t----\t-----\t-----------\t\n")
+	_, _ = fmt.Fprintf(w, "\t----\t--------\t-----------\t\n")
 	err := w.Flush()
 	if err != nil {
 		return "", err

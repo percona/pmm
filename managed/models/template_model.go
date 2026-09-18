@@ -41,6 +41,7 @@ type Template struct {
 	Labels      []byte                     `reform:"labels"`
 	Annotations []byte                     `reform:"annotations"`
 	Source      Source                     `reform:"source"`
+	Category    TemplateCategory           `reform:"category"`
 	Yaml        string                     `reform:"yaml"`
 
 	CreatedAt time.Time `reform:"created_at"`
@@ -188,6 +189,23 @@ const (
 	SAASSource     = Source("saas")
 	UserFileSource = Source("user_file")
 	UserAPISource  = Source("user_api")
+)
+
+// TemplateCategory represents the technology an alert template applies to.
+type TemplateCategory string
+
+// Available template categories. Values must stay in sync with the alert.CategoryXxx
+// constants in managed/pi/alert/category.go.
+const (
+	UnknownCategory    = TemplateCategory("unknown")
+	PMMCategory        = TemplateCategory("pmm")
+	MongoDBCategory    = TemplateCategory("mongodb")
+	MySQLCategory      = TemplateCategory("mysql")
+	NodeCategory       = TemplateCategory("node")
+	PostgreSQLCategory = TemplateCategory("postgresql")
+	ProxySQLCategory   = TemplateCategory("proxysql")
+	ValkeyCategory     = TemplateCategory("valkey")
+	HAProxyCategory    = TemplateCategory("haproxy")
 )
 
 // check interfaces.

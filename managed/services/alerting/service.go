@@ -218,18 +218,9 @@ func (s *Service) loadBuiltinTemplates() ([]*models.Template, error) {
 
 		t := templates[0]
 
-		filename := filepath.Base(file)
-		if strings.HasPrefix(filename, "pmm_") {
-			return nil, fmt.Errorf("%q file name should not start with 'pmm_' prefix", file)
-		}
-		if !strings.HasPrefix(t.Name, "pmm_") {
-			return nil, fmt.Errorf("%s %q: template name should start with 'pmm_' prefix", file, t.Name)
-		}
-		if expected := strings.TrimPrefix(t.Name, "pmm_") + ".yml"; filename != expected {
-			return nil, fmt.Errorf("template file name %q should be %q", filename, expected)
-		}
-		if len(t.Annotations) != 2 || t.Annotations["summary"] == "" || t.Annotations["description"] == "" {
-			return nil, fmt.Errorf("%s %q: template should contain exactly two annotations: summary and description", file, t.Name)
+		err = validateBuiltinTemplate(file, &t)
+		if err != nil {
+			return nil, err
 		}
 
 		tm, err := models.ConvertTemplate(&t, models.BuiltInSource)
@@ -240,6 +231,34 @@ func (s *Service) loadBuiltinTemplates() ([]*models.Template, error) {
 	}
 
 	return res, nil
+}
+
+// validateBuiltinTemplate applies the extra rules that only built-in templates must
+// follow. It is kept separate from loadBuiltinTemplates so tests can run it against
+// the shipped templates in managed/data/alerting-templates: builtinTemplatesDir is an
+// absolute path that does not exist in a dev checkout, so loadBuiltinTemplates finds
+// no files there and would pass vacuously.
+func validateBuiltinTemplate(file string, t *alert.Template) error {
+	filename := filepath.Base(file)
+	if strings.HasPrefix(filename, "pmm_") {
+		return fmt.Errorf("%q file name should not start with 'pmm_' prefix", file)
+	}
+	if !strings.HasPrefix(t.Name, "pmm_") {
+		return fmt.Errorf("%s %q: template name should start with 'pmm_' prefix", file, t.Name)
+	}
+	if expected := strings.TrimPrefix(t.Name, "pmm_") + ".yml"; filename != expected {
+		return fmt.Errorf("template file name %q should be %q", filename, expected)
+	}
+	if len(t.Annotations) != 2 || t.Annotations["summary"] == "" || t.Annotations["description"] == "" {
+		return fmt.Errorf("%s %q: template should contain exactly two annotations: summary and description", file, t.Name)
+	}
+	// Unlike user templates, a built-in must state its category explicitly: silently
+	// defaulting to unknown would drop it out of the UI's category filter unnoticed.
+	if t.Category == "" {
+		return fmt.Errorf("%s %q: built-in template should declare a category", file, t.Name)
+	}
+
+	return nil
 }
 
 // loadTemplatesFromUserFiles loads user's alerting rule templates from /srv/alerting/templates.
@@ -367,6 +386,33 @@ func convertSource(source models.Source) alerting.TemplateSource {
 	default:
 		return alerting.TemplateSource_TEMPLATE_SOURCE_UNSPECIFIED
 	}
+}
+
+func convertCategory(c models.TemplateCategory) alerting.TemplateCategory {
+	switch c {
+	case models.UnknownCategory:
+		return alerting.TemplateCategory_TEMPLATE_CATEGORY_UNSPECIFIED
+	case models.PMMCategory:
+		return alerting.TemplateCategory_TEMPLATE_CATEGORY_PMM
+	case models.MongoDBCategory:
+		return alerting.TemplateCategory_TEMPLATE_CATEGORY_MONGODB
+	case models.MySQLCategory:
+		return alerting.TemplateCategory_TEMPLATE_CATEGORY_MYSQL
+	case models.NodeCategory:
+		return alerting.TemplateCategory_TEMPLATE_CATEGORY_NODE
+	case models.PostgreSQLCategory:
+		return alerting.TemplateCategory_TEMPLATE_CATEGORY_POSTGRESQL
+	case models.ProxySQLCategory:
+		return alerting.TemplateCategory_TEMPLATE_CATEGORY_PROXYSQL
+	case models.ValkeyCategory:
+		return alerting.TemplateCategory_TEMPLATE_CATEGORY_VALKEY
+	case models.HAProxyCategory:
+		return alerting.TemplateCategory_TEMPLATE_CATEGORY_HAPROXY
+	}
+
+	// do not add `default:` to make exhaustive linter do its job
+
+	return alerting.TemplateCategory_TEMPLATE_CATEGORY_UNSPECIFIED
 }
 
 func convertParamType(t models.ParamType) alerting.ParamType {
@@ -594,6 +640,7 @@ func convertTemplate(l *logrus.Entry, template models.Template, at *alert.Templa
 		Labels:      labels,
 		Annotations: annotations,
 		Source:      convertSource(template.Source),
+		Category:    convertCategory(template.Category),
 		Yaml:        template.Yaml,
 	}
 

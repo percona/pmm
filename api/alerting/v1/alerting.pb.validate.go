@@ -1037,6 +1037,8 @@ func (m *Template) validate(all bool) error {
 
 	// no validation rules for Condition
 
+	// no validation rules for Category
+
 	if len(errors) > 0 {
 		return TemplateMultiError(errors)
 	}
