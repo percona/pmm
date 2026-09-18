@@ -18,6 +18,7 @@ package models_test
 import (
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"path/filepath"
 	"testing"
@@ -88,6 +89,61 @@ func TestDefaultAgentEncryptionColumnsRoundTrip(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, original, readAgentSecrets(ctx, t, sqlDB))
+}
+
+// TestEncryptDecryptAgentRoundTrip covers the happy path and the invariant that the caller's
+// Agent is left untouched: the *string fields are shared with the caller, so the handlers must
+// replace the pointers instead of writing through them.
+func TestEncryptDecryptAgentRoundTrip(t *testing.T) {
+	agent := models.Agent{
+		AgentID:  "/agent_id/1",
+		Username: new("username"),
+		Password: new("password"),
+		MySQLOptions: models.MySQLOptions{
+			TLSCert: "mysql-tls-cert",
+			TLSKey:  "mysql-tls-key",
+		},
+	}
+
+	encrypted, err := models.EncryptAgent(agent)
+	require.NoError(t, err)
+	require.NotNil(t, encrypted.Username)
+	assert.NotEqual(t, "username", *encrypted.Username)
+	assert.NotEqual(t, "mysql-tls-cert", encrypted.MySQLOptions.TLSCert)
+
+	require.NotNil(t, agent.Username)
+	assert.Equal(t, "username", *agent.Username, "input agent must not be mutated")
+
+	decrypted, err := models.DecryptAgent(encrypted)
+	require.NoError(t, err)
+	require.NotNil(t, decrypted.Username)
+	require.NotNil(t, decrypted.Password)
+	assert.Equal(t, "username", *decrypted.Username)
+	assert.Equal(t, "password", *decrypted.Password)
+	assert.Equal(t, "mysql-tls-cert", decrypted.MySQLOptions.TLSCert)
+	assert.Equal(t, "mysql-tls-key", decrypted.MySQLOptions.TLSKey)
+}
+
+// TestDecryptAgentDoesNotReturnCiphertext guards the fix for
+// https://perconadev.atlassian.net/browse/PMM-14979: a value that this node's key cannot decrypt
+// must surface as an error, and the ciphertext must not be handed back to the caller as if it
+// were the decrypted value.
+func TestDecryptAgentDoesNotReturnCiphertext(t *testing.T) {
+	// Valid base64 but not ciphertext produced by this node's key, which is what an HA
+	// follower reads when the row was encrypted with another node's key.
+	foreignCiphertext := base64.StdEncoding.EncodeToString([]byte("encrypted-with-another-key"))
+
+	agent := models.Agent{
+		AgentID:  "/agent_id/1",
+		Username: new(foreignCiphertext),
+		Password: new(foreignCiphertext),
+	}
+
+	decrypted, err := models.DecryptAgent(agent)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "/agent_id/1", "error should identify the agent")
+	assert.Contains(t, err.Error(), "username", "error should identify the field")
+	assert.Nil(t, decrypted.Username, "ciphertext must not be returned as the decrypted value")
 }
 
 //nolint:dupword

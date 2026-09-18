@@ -16,6 +16,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -24,6 +25,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/clickhouse"
 	"github.com/percona/pmm/managed/services/supervisord"
+	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/utils/logger"
@@ -74,11 +76,38 @@ func main() {
 	isHAEnabled, _ := strconv.ParseBool(os.Getenv("PMM_HA_ENABLE"))
 	if isHAEnabled {
 		pmmConfigParams["AgentConfigFilePath"] = "/srv/pmm-agent/config/pmm-agent.yaml"
+
+		err = checkHAEncryptionKey()
+		if err != nil {
+			logrus.Errorf("Configuration error: %s", err)
+			os.Exit(1)
+		}
 	}
 
 	err = supervisord.SavePMMConfig(pmmConfigParams)
 	if err != nil {
 		logrus.Errorf("PMM Server configuration error: %s.", err)
 		os.Exit(1)
+	}
+}
+
+// checkHAEncryptionKey refuses to start an HA node that has no encryption key yet.
+//
+// All nodes of an HA cluster share one PostgreSQL database but keep their own key file, so
+// letting a node generate its own key leaves it unable to decrypt rows written by the others.
+func checkHAEncryptionKey() error {
+	path := encryption.KeyPath()
+
+	_, err := os.Stat(path)
+	switch {
+	case err == nil:
+		return nil
+	case os.IsNotExist(err):
+		return fmt.Errorf("encryption key %s not found. In HA mode all PMM Server nodes must share "+
+			"one encryption key, so it is never generated automatically. Generate it once with "+
+			"`pmm-encryption-rotation --generate-key`, place the output at %s on every node, then start them",
+			path, path)
+	default:
+		return fmt.Errorf("cannot read encryption key %s: %w", path, err)
 	}
 }
