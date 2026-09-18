@@ -3,6 +3,7 @@ syntax = "proto3";
 package server.v1;
 
 import "common/common.proto";
+import "extensions/v1/redact.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
@@ -98,6 +99,25 @@ message ListChangeLogsResponse {
 
   // Last check time.
   google.protobuf.Timestamp last_check = 2;
+}
+
+message UpdateStatusRequest {
+  // Authentication token. Accepted from pre-3.9 clients.
+  string auth_token = 1 [
+    deprecated = true,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
+  // Progress log offset. Accepted from pre-3.9 clients but ignored.
+  uint32 log_offset = 2 [deprecated = true];
+}
+
+message UpdateStatusResponse {
+  // Progress log lines. Always empty, kept so pre-3.9 clients can parse the response.
+  repeated string log_lines = 1 [deprecated = true];
+  // Progress log offset for the next request. Always zero, kept so pre-3.9 clients can parse the response.
+  uint32 log_offset = 2 [deprecated = true];
+  // True once PMM Server has finished initializing.
+  bool done = 3;
 }
 
 // MetricsResolutions represents Prometheus exporters metrics resolutions.
@@ -264,6 +284,20 @@ service ServerService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get the changelog"
       description: "Display a changelog comparing the installed version to the latest available version."
+    };
+  }
+  // UpdateStatus returns PMM Server initialization status.
+  //
+  // It exists for pre-3.9 clients, which poll it after triggering an update to learn when the
+  // freshly started PMM Server has finished initializing. Only the "done" field is meaningful.
+  rpc UpdateStatus(UpdateStatusRequest) returns (UpdateStatusResponse) {
+    option (google.api.http) = {
+      post: "/v1/server/updates:getStatus"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update status"
+      description: "Returns PMM Server initialization status."
     };
   }
   // GetSettings returns current PMM Server settings.
