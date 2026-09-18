@@ -30,10 +30,18 @@ func TestTarget_Copy(t1 *testing.T) {
 		ServiceID:   "service_id",
 		ServiceName: "service_name",
 		ServiceType: models.MySQLServiceType,
+		NodeID:      "node_id",
 		NodeName:    "node_name",
-		Labels:      map[string]string{"label": "value"},
-		DSN:         "dsn",
-		Files:       map[string]string{"file": "test"},
+		// the per-database PostgreSQL path runs checks against copies, so every
+		// field a copy drops is a field missing from that target's insights
+		Environment:    "prod",
+		Cluster:        "cluster_1",
+		ReplicationSet: "rs_1",
+		Region:         "us-east-1",
+		AZ:             "us-east-1f",
+		Labels:         map[string]string{"label": "value"},
+		DSN:            "dsn",
+		Files:          map[string]string{"file": "test"},
 		TDP: &models.DelimiterPair{
 			Left:  "[",
 			Right: "]",

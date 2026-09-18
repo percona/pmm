@@ -2,12 +2,12 @@
 checks:
   - version: 2
     name: mysql_require_secure_transport
-    summary: MySQL configuration check
-    description: Checks mysql_secure_transport_only.
+    summary: Secure transport is not required
+    description: Checks if require_secure_transport is enabled.
     interval: standard
-    family: MYSQL
-    advisor: security_configuration
-    #author:tibi/the grinch
+    technology: MYSQL
+    category: Security
+    # author: tibi/the grinch
     queries:
       - type: MYSQL_SHOW
         query: VARIABLES

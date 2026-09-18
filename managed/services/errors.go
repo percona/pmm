@@ -21,6 +21,11 @@ var (
 	// ErrAdvisorsDisabled means that advisors checks are disabled and can't be called.
 	ErrAdvisorsDisabled = errors.New("advisor checks are disabled")
 
+	// ErrSMTPNotConfigured means PMM Server has no usable SMTP configuration, so no email can be
+	// sent. The settings are inherited from Grafana's environment and cannot be changed from the
+	// PMM UI, so callers surface it as a precondition failure naming the variable to set.
+	ErrSMTPNotConfigured = errors.New("SMTP is not configured in PMM Server")
+
 	// ErrLocationFolderPairAlreadyUsed returned when location-folder pair already in use and cannot be used for backup.
 	ErrLocationFolderPairAlreadyUsed = errors.New("location-folder pair already used")
 

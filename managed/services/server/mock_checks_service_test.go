@@ -14,27 +14,37 @@ type mockChecksService struct {
 	mock.Mock
 }
 
-// CleanupAlerts provides a mock function with no fields
-func (_m *mockChecksService) CleanupAlerts() {
+// CleanupCheckResults provides a mock function with no fields
+func (_m *mockChecksService) CleanupCheckResults() {
 	_m.Called()
 }
 
-// StartChecks provides a mock function with given fields: checkNames
-func (_m *mockChecksService) StartChecks(checkNames []string) error {
-	ret := _m.Called(checkNames)
+// StartChecks provides a mock function with given fields: checkNames, serviceIDs
+func (_m *mockChecksService) StartChecks(checkNames []string, serviceIDs []string) (string, error) {
+	ret := _m.Called(checkNames, serviceIDs)
 
 	if len(ret) == 0 {
 		panic("no return value specified for StartChecks")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func([]string) error); ok {
-		r0 = rf(checkNames)
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func([]string, []string) (string, error)); ok {
+		return rf(checkNames, serviceIDs)
+	}
+	if rf, ok := ret.Get(0).(func([]string, []string) string); ok {
+		r0 = rf(checkNames, serviceIDs)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(string)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func([]string, []string) error); ok {
+		r1 = rf(checkNames, serviceIDs)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // UpdateAdvisorsList provides a mock function with given fields: ctx

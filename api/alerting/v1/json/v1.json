@@ -409,7 +409,7 @@
                         "x-order": 7
                       },
                       "source": {
-                        "description": "TemplateSource defines template source.\n\n - TEMPLATE_SOURCE_BUILT_IN: Template that is shipped with PMM Server releases.\n - TEMPLATE_SOURCE_SAAS: Template that is downloaded from check.percona.com.\n - TEMPLATE_SOURCE_USER_FILE: Templated loaded from user-suplied file.\n - TEMPLATE_SOURCE_USER_API: Templated created via API.",
+                        "description": "TemplateSource defines template source.\n\n - TEMPLATE_SOURCE_BUILT_IN: Template that is shipped with PMM Server releases.\n - TEMPLATE_SOURCE_SAAS: Template that is downloaded from check.percona.com. Deprecated.\n - TEMPLATE_SOURCE_USER_FILE: Templated loaded from user-suplied file.\n - TEMPLATE_SOURCE_USER_API: Templated created via API.",
                         "type": "string",
                         "default": "TEMPLATE_SOURCE_UNSPECIFIED",
                         "enum": [

@@ -28,7 +28,6 @@ import {
 import { SettingsFieldLabel } from '../settings-field-label';
 import { SettingsSubmitButton } from '../settings-submit-button';
 import { formControlClasses } from '@mui/material/FormControl';
-import { helperTextTestId } from 'utils/mui.utils';
 
 export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
   settings,
@@ -144,7 +143,6 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
               sx: { minWidth: 80, maxWidth: 120 },
               size: 'small',
             }}
-            formHelperTextProps={helperTextTestId('lr-field-error-message')}
           />
           <TextInput
             name="mr"
@@ -162,7 +160,6 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
               sx: { minWidth: 80, maxWidth: 120 },
               size: 'small',
             }}
-            formHelperTextProps={helperTextTestId('mr-field-error-message')}
           />
           <TextInput
             name="hr"
@@ -180,7 +177,6 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
               sx: { minWidth: 80, maxWidth: 120 },
               size: 'small',
             }}
-            formHelperTextProps={helperTextTestId('hr-field-error-message')}
           />
         </Stack>
         <SettingsSubmitButton testId="metrics-resolution-button" />

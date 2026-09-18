@@ -1,1 +1,5 @@
-export type TabValue = 'ssh-key' | 'metrics-resolution' | 'advanced-settings';
+export type TabValue =
+  | 'ssh-key'
+  | 'metrics-resolution'
+  | 'advanced-settings'
+  | 'advisors';

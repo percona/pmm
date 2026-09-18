@@ -17,6 +17,7 @@ package models_test
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -24,6 +25,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
@@ -43,8 +45,9 @@ func TestSettings(t *testing.T) {
 				MR: 10 * time.Second,
 				LR: time.Minute,
 			},
-			DataRetention: 30 * 24 * time.Hour,
-			AWSPartitions: []string{"aws"},
+			DataRetention:           30 * 24 * time.Hour,
+			AdvisorHistoryRetention: 30 * 24 * time.Hour,
+			AWSPartitions:           []string{"aws"},
 			SaaS: models.Advisors{
 				AdvisorRunIntervals: models.AdvisorsRunIntervals{
 					StandardInterval: 24 * time.Hour,
@@ -55,6 +58,7 @@ func TestSettings(t *testing.T) {
 			DefaultRoleID:  1,
 			EncryptedItems: actual.EncryptedItems,
 		}
+		expected.AdvisorNotifications.SeverityThreshold = models.AdvisorNotificationSeverityDefault
 		assert.Equal(t, expected, actual)
 	})
 
@@ -68,8 +72,9 @@ func TestSettings(t *testing.T) {
 				MR: 10 * time.Second,
 				LR: time.Minute,
 			},
-			DataRetention: 30 * 24 * time.Hour,
-			AWSPartitions: []string{"aws"},
+			DataRetention:           30 * 24 * time.Hour,
+			AdvisorHistoryRetention: 30 * 24 * time.Hour,
+			AWSPartitions:           []string{"aws"},
 			SaaS: models.Advisors{
 				AdvisorRunIntervals: models.AdvisorsRunIntervals{
 					StandardInterval: 24 * time.Hour,
@@ -78,7 +83,66 @@ func TestSettings(t *testing.T) {
 				},
 			},
 		}
+		expected.AdvisorNotifications.SeverityThreshold = models.AdvisorNotificationSeverityDefault
 		assert.Equal(t, expected, s)
+	})
+
+	t.Run("AdvisorNotifications", func(t *testing.T) {
+		settings, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			EnableAdvisorNotifications:           new(true),
+			AdvisorNotificationSeverityThreshold: common.Warning,
+			AdvisorHistoryRetention:              48 * time.Hour,
+		})
+		require.NoError(t, err)
+		assert.True(t, settings.IsAdvisorNotificationsEnabled())
+		assert.Equal(t, common.Warning, settings.AdvisorNotifications.SeverityThreshold)
+		assert.Equal(t, 48*time.Hour, settings.AdvisorHistoryRetention)
+
+		// An out-of-range severity threshold is rejected.
+		_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationSeverityThreshold: common.Severity(42),
+		})
+		require.ErrorContains(t, err, "advisor_notification_severity_threshold")
+	})
+
+	t.Run("AdvisorNotificationEmailAddresses", func(t *testing.T) {
+		settings, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationEmailAddresses: []string{"a@example.com", "b@example.com", "a@example.com"},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"a@example.com", "b@example.com"}, settings.AdvisorNotifications.EmailAddresses)
+
+		// Nil leaves the stored recipients alone.
+		settings, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"a@example.com", "b@example.com"}, settings.AdvisorNotifications.EmailAddresses)
+
+		// An empty non-nil slice clears them.
+		settings, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationEmailAddresses: []string{},
+		})
+		require.NoError(t, err)
+		assert.Empty(t, settings.AdvisorNotifications.EmailAddresses)
+
+		_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationEmailAddresses: []string{"not-an-email"},
+		})
+		require.ErrorContains(t, err, "invalid address 'not-an-email'")
+
+		// A display name would make the stored list ambiguous for the sender.
+		_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationEmailAddresses: []string{"DBA <dba@example.com>"},
+		})
+		require.ErrorContains(t, err, "expected a bare email address")
+
+		tooMany := make([]string, 21)
+		for i := range tooMany {
+			tooMany[i] = fmt.Sprintf("a%d@example.com", i)
+		}
+		_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationEmailAddresses: tooMany,
+		})
+		require.ErrorContains(t, err, "at most 20 addresses are allowed")
 	})
 
 	t.Run("Validation", func(t *testing.T) {
@@ -246,27 +310,6 @@ func TestSettings(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.Empty(t, ns.Telemetry.UUID)
-		})
-
-		t.Run("disable checks", func(t *testing.T) {
-			disChecks := []string{"one", "two", "three"}
-
-			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				DisableAdvisorChecks: disChecks,
-			})
-			require.NoError(t, err)
-			assert.ElementsMatch(t, ns.SaaS.DisabledAdvisors, disChecks)
-		})
-
-		t.Run("enable checks", func(t *testing.T) {
-			disChecks := []string{"one", "two", "three"}
-
-			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{DisableAdvisorChecks: disChecks})
-			require.NoError(t, err)
-
-			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAdvisorChecks: []string{"two"}})
-			require.NoError(t, err)
-			assert.ElementsMatch(t, ns.SaaS.DisabledAdvisors, []string{"one", "three"})
 		})
 
 		t.Run("enable azure discover", func(t *testing.T) {

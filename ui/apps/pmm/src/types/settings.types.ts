@@ -1,3 +1,5 @@
+import { Severity } from './severity.types';
+
 export interface ReadonlySettings {
   updatesEnabled: boolean;
   telemetryEnabled: boolean;
@@ -21,6 +23,11 @@ export interface AdvisorRunIntervals {
   frequentInterval: string;
 }
 
+/** common.StringArray — lets the API tell an unset list from one cleared to empty. */
+export interface StringArray {
+  values: string[];
+}
+
 export interface GetReadonlySettingsResponse {
   settings: ReadonlySettings;
 }
@@ -31,6 +38,10 @@ export interface Settings extends ReadonlySettings {
   sshKey?: string;
   awsPartitions?: string[];
   advisorRunIntervals?: AdvisorRunIntervals;
+  advisorHistoryRetention?: string;
+  advisorNotificationsEnabled?: boolean;
+  advisorNotificationSeverityThreshold?: Severity;
+  advisorNotificationEmailAddresses?: string[];
   telemetrySummaries?: string[];
   enableInternalPgQan?: boolean;
   defaultRoleId?: number;
@@ -46,6 +57,10 @@ export interface UpdateSettingsPayload {
   enableAlerting?: boolean;
   enableAdvisor?: boolean;
   advisorRunIntervals?: AdvisorRunIntervals;
+  advisorHistoryRetention?: string;
+  enableAdvisorNotifications?: boolean;
+  advisorNotificationSeverityThreshold?: Severity;
+  advisorNotificationEmailAddresses?: StringArray;
   enableBackupManagement?: boolean;
   enableAzurediscover?: boolean;
   enableUpdates?: boolean;

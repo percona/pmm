@@ -4,8 +4,8 @@ checks:
     name: mongodb_auth
     summary: MongoDB authentication
     description: Warns if MongoDB authentication is disabled.
-    family: MONGODB
-    advisor: security_authentication
+    technology: MONGODB
+    category: Security
     interval: standard
     queries:
       - type: MONGODB_GETCMDLINEOPTS
@@ -17,7 +17,7 @@ checks:
 
           rows = docs[0]
           if len(rows) != 1:
-              return "Unexpected number of documents"
+              return "unexpected number of documents: {}".format(len(rows))
 
           results = []
 

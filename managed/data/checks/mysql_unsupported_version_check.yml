@@ -4,9 +4,9 @@ checks:
     name: mysql_unsupported_version_check
     summary: Checks mysql version for support
     description: This check warns against an unsupported mysql version
-    family: MYSQL
-    #author: Kedar Vaijanapurkar
-    advisor: configuration_version
+    technology: MYSQL
+    # author: Kedar Vaijanapurkar
+    category: Versions
     interval: standard
     queries:
       - type: MYSQL_SELECT
@@ -49,7 +49,7 @@ checks:
                    return {
                      "summary": "Unsupported Version Check",
                      "description": "You are running a server version({}) that is EOL. It is strongly recommended to upgrade to latest version.".format(version),
-                     "severity": "Error",
+                     "severity": "error",
                      "read_more_url": read_url.format("mysql_unsupported_version_check"),
                      "labels": {
                         "mysql_version": "{}".format(version),

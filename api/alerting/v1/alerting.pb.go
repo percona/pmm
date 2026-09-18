@@ -35,7 +35,7 @@ const (
 	TemplateSource_TEMPLATE_SOURCE_UNSPECIFIED TemplateSource = 0
 	// Template that is shipped with PMM Server releases.
 	TemplateSource_TEMPLATE_SOURCE_BUILT_IN TemplateSource = 1
-	// Template that is downloaded from check.percona.com.
+	// Template that is downloaded from check.percona.com. Deprecated.
 	TemplateSource_TEMPLATE_SOURCE_SAAS TemplateSource = 2
 	// Templated loaded from user-suplied file.
 	TemplateSource_TEMPLATE_SOURCE_USER_FILE TemplateSource = 3
