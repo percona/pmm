@@ -1,0 +1,24 @@
+---
+templates:
+  - name: pmm_clickhouse_down
+    version: 1
+    summary: PMM ClickHouse is down
+    # up is 0 while the target is scraped but not answering, so == bool 0 yields a firing
+    # sample rather than the empty result that NoDataState treats as normal. last_over_time
+    # bounds the metrics database's staleness window so a target that stops being scraped
+    # altogether drops out in 2 minutes instead of five.
+    expr: 'last_over_time(up{job="clickhouse"}[2m]) == bool 0'
+    for: 5m
+    severity: critical
+    annotations:
+      summary: PMM ClickHouse is down on '{{ $labels.instance }}'
+      description: |-
+        The ClickHouse instance '{{ $labels.instance }}' that PMM Server stores Query Analytics data in is not responding.
+        Query Analytics stops collecting and existing QAN data cannot be read while this lasts. Metrics are unaffected.
+
+        Remediation steps:
+          1. Check the ClickHouse process or pod on that node and restart it if it has stopped.
+          2. Check free disk space. ClickHouse refuses writes and can shut down when its data directory fills up.
+          3. Review the ClickHouse logs for startup failures, corrupted parts or out-of-memory kills.
+          4. Confirm PMM Server can reach the configured address in PMM_CLICKHOUSE_ADDR.
+          5. Once it is back, confirm new data is arriving on the Query Analytics page.

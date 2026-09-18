@@ -1,0 +1,27 @@
+---
+templates:
+  - name: pmm_victoriametrics_down
+    version: 1
+    summary: PMM VictoriaMetrics is down
+    # The job selector covers both topologies: a standalone PMM Server scrapes a single
+    # 'victoriametrics' target, while a clustered deployment runs vmselect, vminsert,
+    # vmstorage and vmagent as separate jobs. Where none of them are scraped the expression
+    # returns nothing and this alert stays silent rather than firing falsely.
+    # This alert cannot detect VictoriaMetrics being down completely, because the rule is
+    # evaluated by querying VictoriaMetrics itself. See the coverage limitations in the docs.
+    expr: 'last_over_time(up{job=~"victoriametrics|vmselect|vminsert|vmstorage|vmagent"}[2m]) == bool 0'
+    for: 5m
+    severity: critical
+    annotations:
+      summary: PMM VictoriaMetrics component '{{ $labels.job }}' is down on '{{ $labels.instance }}'
+      description: |-
+        The VictoriaMetrics component '{{ $labels.job }}' on '{{ $labels.instance }}' is not responding.
+        Depending on which component is affected, PMM may stop storing new metrics, stop answering
+        queries, or both. Dashboards and metric-based alerts become unreliable while this lasts.
+
+        Remediation steps:
+          1. Check the process or pod for that component and restart it if it has stopped.
+          2. Check free disk space. VictoriaMetrics stops accepting writes when its storage fills up.
+          3. Review the component's logs for out-of-memory kills, which are the most common cause under load.
+          4. Confirm PMM Server can reach the address configured in PMM_VM_URL.
+          5. Once it is back, confirm metrics are arriving again on any dashboard.
