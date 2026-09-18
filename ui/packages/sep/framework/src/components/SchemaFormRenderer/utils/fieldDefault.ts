@@ -66,11 +66,13 @@ function isTextLike(
  *
  * Order:
  * 1. schema `default` when set
- * 2. for string/textarea/yaml with no default — the `placeholder`, when authors
- *    put the real default there as grey ghost text (PMM-15510)
- * 3. for required integer/float with no default — `ge`, else `1`, so a required
+ * 2. for required integer/float with no default — `ge`, else `1`, so a required
  *    Minutes field is not empty on first paint
- * 4. otherwise {@link emptyFieldValue}
+ * 3. otherwise {@link emptyFieldValue}
+ *
+ * Placeholders stay grey ghost text only. Promoting them into the starting
+ * value would submit example copy (e.g. "e.g. 2026-01-01…") and bypass
+ * required checks; real defaults belong in schema `default` (PMM-15518).
  */
 export function fieldDefault(field: PluginField): unknown {
   if (field.type === 'file') {
@@ -84,9 +86,6 @@ export function fieldDefault(field: PluginField): unknown {
     }
     return field.default;
   }
-  if (isTextLike(field) && field.placeholder) {
-    return field.placeholder;
-  }
   if (field.required && (field.type === 'integer' || field.type === 'float')) {
     return typeof field.ge === 'number' ? field.ge : 1;
   }
@@ -96,16 +95,11 @@ export function fieldDefault(field: PluginField): unknown {
 /**
  * Grey placeholder text for the widget.
  *
- * When the schema left `default` unset and put the real value in `placeholder`,
- * {@link fieldDefault} already seeds that value — returning it here again would
- * only ghost what the input already shows. A distinct `default` leaves the
- * placeholder free to be a format hint.
+ * Always the schema's `placeholder` for text-like fields. Format hints and
+ * examples stay ghost text; they are never submitted.
  */
 export function fieldPlaceholder(field: PluginField): string | undefined {
   if (!isTextLike(field) || !field.placeholder) {
-    return undefined;
-  }
-  if (!hasSchemaDefault(field)) {
     return undefined;
   }
   return field.placeholder;

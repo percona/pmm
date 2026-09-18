@@ -36,14 +36,25 @@ describe('fieldDefault', () => {
     expect(fieldDefault(field)).toBe('/var/log/mysql/error.log');
   });
 
-  it('promotes placeholder to the starting value when default is unset', () => {
+  it('leaves the starting value empty when only a placeholder is set', () => {
     const field: PluginField = {
       type: 'string',
       name: 'path',
       label: 'Log file path',
       placeholder: '/var/log/mysql/error.log',
     };
-    expect(fieldDefault(field)).toBe('/var/log/mysql/error.log');
+    expect(fieldDefault(field)).toBe(emptyFieldValue(field));
+  });
+
+  it('does not submit example placeholder text as a value', () => {
+    const field: PluginField = {
+      type: 'string',
+      name: 'issue_time',
+      label: 'Issue Time',
+      required: true,
+      placeholder: 'e.g. 2026-01-01 00:00:00',
+    };
+    expect(fieldDefault(field)).toBe('');
   });
 
   it('seeds a required integer with ge, else 1', () => {
@@ -124,7 +135,7 @@ describe('fieldDefault', () => {
 });
 
 describe('fieldPlaceholder', () => {
-  it('hides the placeholder when it was promoted into the value', () => {
+  it('ghosts the placeholder when default is unset', () => {
     expect(
       fieldPlaceholder({
         type: 'string',
@@ -132,7 +143,7 @@ describe('fieldPlaceholder', () => {
         label: 'Log file path',
         placeholder: '/var/log/mysql/error.log',
       })
-    ).toBeUndefined();
+    ).toBe('/var/log/mysql/error.log');
   });
 
   it('keeps the placeholder as a hint when a real default is set', () => {

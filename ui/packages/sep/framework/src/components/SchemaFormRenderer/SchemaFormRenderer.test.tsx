@@ -426,7 +426,7 @@ describe('SchemaFormRenderer — field rendering', () => {
     ).toBeNull();
   });
 
-  it('seeds defaults as real values, not grey placeholders', () => {
+  it('ghosts placeholders and seeds required numbers without inventing text values', () => {
     const sections: FormSection[] = [
       {
         title: 'Basics',
@@ -451,8 +451,8 @@ describe('SchemaFormRenderer — field rendering', () => {
     );
 
     const path = screen.getByTestId('text-input-path') as HTMLInputElement;
-    expect(path).toHaveValue('/var/log/mysql/error.log');
-    expect(path).not.toHaveAttribute('placeholder', '/var/log/mysql/error.log');
+    expect(path).toHaveValue('');
+    expect(path).toHaveAttribute('placeholder', '/var/log/mysql/error.log');
 
     const minutes = screen.getByTestId(
       'text-input-minutes'
