@@ -1636,7 +1636,7 @@
                             "calculatedInterval": "10m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "avg by (service_name) (mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_status_innodb_redo_log_capacity_resized{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"})",
+                            "expr": "avg by (service_name) (mysql_global_status_innodb_redo_log_capacity_resized{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"})",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
