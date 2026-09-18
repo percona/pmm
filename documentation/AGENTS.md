@@ -1,7 +1,7 @@
 # PMM Documentation Development Guidelines
 
 > **Parent guide**: [AGENTS.md](../AGENTS.md) — product overview, architecture, domain model, global conventions
-> **Related**: [api/AGENTS.md](../api/AGENTS.md) (protobuf behind the API reference) · [ui/AGENTS.md](../ui/AGENTS.md) (in-product copy, which is not documentation)
+> **Related**: [api/AGENTS.md](../api/AGENTS.md) (protobuf behind the API reference)
 
 This file is the single source of documentation rules. Two human-facing files keep the parts they own and this guide links to them instead of restating: [`WRITERS-NOTES.md`](WRITERS-NOTES.md) for the admonition colour table, the icon list and symbols, and [`docs-contributing.md`](docs-contributing.md) for the external-contributor workflow. When this guide and an older note disagree, this guide wins — the older note is corrected, never forked.
 
