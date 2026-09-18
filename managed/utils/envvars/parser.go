@@ -329,7 +329,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 
 	// Nomad needs the public address to build the URL agents connect back to. Only the
 	// environment is visible here, so this also warns when the address is set in Settings.
-	if pointer.GetBool(envSettings.EnableNomad) && pointer.GetString(envSettings.PMMPublicAddress) == "" {
+	if pointer.Get(envSettings.EnableNomad) && pointer.Get(envSettings.PMMPublicAddress) == "" {
 		warns = append(warns, "PMM_ENABLE_NOMAD is set but PMM_PUBLIC_ADDRESS is not; "+
 			"Nomad will not start unless a public address is configured in PMM settings")
 	}
