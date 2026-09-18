@@ -25,13 +25,9 @@ var (
 	MysqlExporterPluginCollector  FeatureVersion = MustParse("2.36.0-0")
 	NomadAgentSupportVersion      FeatureVersion = MustParse("3.2.0-0")
 	MongoDBRtaAgentSupportVersion FeatureVersion = MustParse("3.7.0-0")
-	// MysqlExporterTimeZone is the first pmm-client release whose mysqld_exporter
-	// recognizes the time_zone key in the generated my.cnf (percona/mysqld_exporter#409).
-	// On the my.cnf path (agent >= MysqlExporterV0_17_2) go-ini silently drops
-	// unknown keys, so older exporters would ignore time_zone with no diagnostic.
 	// TODO: placeholder — pin to the actual release once #409 ships in pmm-client,
 	// and update the versions in managed/services/agents/mysql_test.go to match.
-	MysqlExporterTimeZone FeatureVersion = MustParse("3.99.0-0")
+	MysqlExporterTimeZone FeatureVersion = MustParse("3.10.0-0")
 )
 
 // IsFeatureSupported checks if the feature is supported by the version.

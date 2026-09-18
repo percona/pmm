@@ -154,7 +154,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 	})
 
 	t.Run("with time_zone dsn param, exporter supports it", func(t *testing.T) {
-		pmmAgentVersion = version.MustParse("3.99.0")
+		pmmAgentVersion = version.MustParse("3.10.0")
 		t.Cleanup(func() {
 			pmmAgentVersion = version.MustParse("2.21.0")
 		})
