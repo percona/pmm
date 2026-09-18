@@ -219,6 +219,9 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 	// do not check that machine-id is unique: https://perconadev.atlassian.net/browse/PMM-4196
 
 	if nodeType == RemoteRDSNodeType {
+		if params.InstanceID == "" {
+			return nil, status.Error(codes.InvalidArgument, "Empty DB instance identifier.")
+		}
 		if strings.Contains(params.InstanceID, ".") {
 			return nil, status.Error(codes.InvalidArgument, "DB instance identifier should not contain dots.")
 		}
