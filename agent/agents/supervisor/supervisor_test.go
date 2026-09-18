@@ -385,11 +385,12 @@ func TestReleaseAgentResources(t *testing.T) {
 
 		// An Agent that outlived the stop budget still owns its port and its temporary
 		// directory. Releasing a port it may still be listening on fails and loses the
-		// reservation for good, as the Agent it belonged to is already forgotten. See
-		// PMM-15431.
+		// reservation for good, as the Agent it belonged to is already forgotten, and
+		// clearing the directory takes files out from under an Agent still reading them.
 		//
-		// The port comes back once it stops; the directory never does, because by then
-		// the ID may belong to a replacement whose files those are.
+		// Both come back once it stops - the directory holds rendered TLS certificates and
+		// keys, so it is not left to the next pmm-agent start unless a replacement owns it
+		// by then. See PMM-15431 and the subtest below.
 		s, port, agentTmp := setup(t, 65512, 65523)
 		done := make(chan struct{})
 
@@ -404,7 +405,11 @@ func TestReleaseAgentResources(t *testing.T) {
 			return !reserved(s, port)
 		}, time.Second, 10*time.Millisecond, "port was never released")
 
-		assert.DirExists(t, agentTmp, "temporary directory of a re-created Agent was removed")
+		assert.Eventually(t, func() bool {
+			_, err := os.Stat(agentTmp)
+
+			return os.IsNotExist(err)
+		}, time.Second, 10*time.Millisecond, "temporary directory was never removed")
 	})
 
 	t.Run("StillRunningKeepsDirectoryOfRecreatedAgent", func(t *testing.T) {
@@ -418,6 +423,11 @@ func TestReleaseAgentResources(t *testing.T) {
 		done := make(chan struct{})
 
 		s.releaseAgentResources("recreated", done, port, agentTmp)
+
+		// The replacement, tracked under the same ID and owning that directory now.
+		s.rw.Lock()
+		s.agentProcesses["recreated"] = &agentProcessInfo{}
+		s.rw.Unlock()
 
 		replacement := filepath.Join(agentTmp, "ca.crt")
 		require.NoError(t, os.WriteFile(replacement, []byte("certificate"), 0o600))

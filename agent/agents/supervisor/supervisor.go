@@ -406,44 +406,53 @@ func (s *Supervisor) waitForwarderDrained(agentID string, done <-chan struct{}) 
 // releaseAgentResources gives back what an Agent owned: its port reservation, and its temporary
 // directory unless agentTmp is empty. A built-in Agent has no port, hence port 0.
 //
-// Both need the Agent actually gone, which one that outlived the stop budget is not, so it is
-// waited for in a goroutine of its own instead - off s.rw, and off the call that gave up on it.
-// Releasing a port a live exporter still listens on fails and keeps the reservation for good,
+// Both need the Agent actually gone, which one that outlived the stop budget is not known to be, so
+// it is waited for in a goroutine of its own instead - off s.rw, and off the call that gave up on
+// it. Releasing a port a live exporter still listens on fails and keeps the reservation for good,
 // since the Agent that held it is already forgotten and nothing is left to retry it, and clearing
-// the directory takes files out from under a running Agent. Only the port is given back that way:
-// by then the ID may belong to a replacement, and the directory is the replacement's. See
-// PMM-15431.
+// the directory takes files out from under an Agent still reading it. Both are decided again once
+// the Agent has stopped, because by then the ID may belong to a replacement whose directory that
+// now is - see isAgentRecreated. The directory holds rendered TLS certificates and keys, so leaving
+// it to the next pmm-agent start (cleanupTmp) is the last resort, not the plan. See PMM-15431.
 func (s *Supervisor) releaseAgentResources(agentID string, done <-chan struct{}, port uint16, agentTmp string) {
 	select {
 	case <-done:
 		s.releasePortAndTempDir(agentID, port, agentTmp)
 	default:
-		if port == 0 {
-			// Nothing a wait could give back: a built-in Agent has no port, and the
-			// temporary directory is deliberately kept - see below. It is removed on the
-			// next pmm-agent start (cleanupTmp), and reused as-is if the ID comes back
-			// before that.
-			s.l.Warnf("Agent %s is still running; its temporary directory stays until the next pmm-agent start.", agentID)
-			return
-		}
-
-		s.l.Warnf("Agent %s is still running, freeing what it owns once it stops.", agentID)
+		s.l.Warnf("Agent %s has not stopped yet, freeing what it owns once it does.", agentID)
 		go func() {
 			select {
 			case <-done:
-				// Deliberately not agentTmp: an Agent with this ID may have been
-				// re-created while this one was stopping, and removing it now
-				// would take the replacement's TLS certificates and text files
-				// with it. A directory left behind is cleaned on the next start
-				// (see cleanupTmp), and reused as-is if the ID comes back before
-				// that.
-				s.releasePortAndTempDir(agentID, port, "")
+				if agentTmp != "" && s.isAgentRecreated(agentID) {
+					// Removing it now would take the replacement's TLS
+					// certificates and text files with it. Left behind, it is
+					// cleaned on the next start and reused as-is if the ID
+					// comes back before that.
+					s.l.Warnf("Agent %s was re-created while stopping; keeping '%s' for it.", agentID, agentTmp)
+					agentTmp = ""
+				}
+
+				s.releasePortAndTempDir(agentID, port, agentTmp)
 			case <-s.ctx.Done():
 				// pmm-agent is on its way out: the OS takes the port back, and
 				// the temporary directory is cleaned on the next start.
 			}
 		}()
 	}
+}
+
+// isAgentRecreated reports whether agentID is tracked again, i.e. a replacement was started for it
+// while the Agent that owned it was still stopping.
+func (s *Supervisor) isAgentRecreated(agentID string) bool {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+
+	if _, ok := s.agentProcesses[agentID]; ok {
+		return true
+	}
+	_, ok := s.builtinAgents[agentID]
+
+	return ok
 }
 
 func (s *Supervisor) releasePortAndTempDir(agentID string, port uint16, agentTmp string) {
