@@ -81,6 +81,8 @@ export type {
   UseTaskHistoryFilesOptions,
 } from './useTaskHistoryFiles';
 
+export { useHasDownloadableFiles } from './useHasDownloadableFiles';
+
 export { useTaskFileDownload } from './useTaskFileDownload';
 export type { TaskFileDownloadParams } from './useTaskFileDownload';
 

@@ -15,6 +15,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -48,45 +52,76 @@ function formatGenericDetail(detail: unknown): string {
   }
 }
 
+/**
+ * The run reads as one sentence naming the host, when a host is known — the
+ * technical identifiers behind it (job/evaluation ids, the raw resource the
+ * executor lost track of) are collapsed, since they mean nothing to the person
+ * deciding what to do next and were previously dumped in the open regardless.
+ */
 function ExecutorGoneBlock({ detail }: { detail: ExecutorGoneDetail }) {
   const summary =
     detail.message || 'This run is no longer available on the executor.';
-  const rows: [string, string][] = [];
+  const technicalRows: [string, string][] = [];
   if (detail.resource_type) {
-    rows.push(['Resource type', detail.resource_type]);
+    technicalRows.push(['Resource type', detail.resource_type]);
   }
   if (detail.resource_id) {
-    rows.push(['Resource', detail.resource_id]);
+    technicalRows.push(['Resource', detail.resource_id]);
   }
   if (detail.job_id) {
-    rows.push(['Job ID', detail.job_id]);
+    technicalRows.push(['Job ID', detail.job_id]);
   }
   if (detail.evaluation_id) {
-    rows.push(['Evaluation ID', detail.evaluation_id]);
+    technicalRows.push(['Evaluation ID', detail.evaluation_id]);
   }
-  if (detail.executor_name) {
-    rows.push(['Executor', detail.executor_name]);
-  }
+  const hasTechnicalDetail =
+    technicalRows.length > 0 ||
+    Boolean(detail.detail && detail.detail !== summary);
 
   return (
     <Alert severity="warning" variant="outlined" sx={{ mb: 1 }} role="alert">
-      <Typography variant="body2" sx={{ mb: rows.length ? 1 : 0 }}>
+      <Typography variant="body2" sx={{ mb: detail.executor_name ? 1 : 0 }}>
         {summary}
       </Typography>
-      {rows.length > 0 && (
-        <Box component="ul" sx={{ m: 0, pl: 2 }}>
-          {rows.map(([k, v]) => (
-            <Box component="li" key={k} sx={{ fontSize: '0.85rem' }}>
-              <strong>{k}: </strong>
-              {v}
-            </Box>
-          ))}
-        </Box>
-      )}
-      {detail.detail && detail.detail !== summary && (
-        <Typography variant="caption" component="p" sx={{ mt: 1 }}>
-          {detail.detail}
+      {detail.executor_name && (
+        <Typography variant="body2">
+          Executor: {detail.executor_name}
         </Typography>
+      )}
+      {hasTechnicalDetail && (
+        <Accordion
+          disableGutters
+          variant="outlined"
+          sx={{
+            mt: 1,
+            bgcolor: 'transparent',
+            '&:before': { display: 'none' },
+          }}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            sx={{ minHeight: 32 }}
+          >
+            <Typography variant="caption">Error details</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            {technicalRows.length > 0 && (
+              <Box component="ul" sx={{ m: 0, pl: 2 }}>
+                {technicalRows.map(([k, v]) => (
+                  <Box component="li" key={k} sx={{ fontSize: '0.85rem' }}>
+                    <strong>{k}: </strong>
+                    {v}
+                  </Box>
+                ))}
+              </Box>
+            )}
+            {detail.detail && detail.detail !== summary && (
+              <Typography variant="caption" component="p" sx={{ mt: 1 }}>
+                {detail.detail}
+              </Typography>
+            )}
+          </AccordionDetails>
+        </Accordion>
       )}
     </Alert>
   );

@@ -38,12 +38,26 @@ import {
 import type {
   AtwBatchExecuteResponse,
   AtwBatchExecuteWrite,
+  AtwRerunRequest,
   AtwSnippetSummary,
 } from './types';
 
 export interface CollectPaneProps {
   incidentId: string;
   isClosed?: boolean;
+  /**
+   * Reopen the form for a past execution. Set by the Results pane's "Run
+   * again" / "Edit parameters and run again" actions; a new object (even one
+   * requesting the same snippet) always re-seeds the form, so the caller must
+   * bump `nonce` on every request.
+   */
+  rerunRequest?: AtwRerunRequest | null;
+  /** Called once a batch dispatches successfully, so a caller can remember it. */
+  onDispatched?: (
+    snippets: AtwSnippetSummary[],
+    values: Record<string, unknown>,
+    response: AtwBatchExecuteResponse
+  ) => void;
 }
 
 /** Pause after the last keystroke before the snippet search fires (ms). */
@@ -280,6 +294,8 @@ export function filterSnippetOptions(
 export function CollectPane({
   incidentId,
   isClosed = false,
+  rerunRequest,
+  onDispatched,
 }: CollectPaneProps) {
   const { canMutate } = useAuth();
   const [available, setAvailable] = useState<AtwSnippetSummary[]>([]);
@@ -287,6 +303,34 @@ export function CollectPane({
   const [itemErrors, setItemErrors] = useState<string[]>([]);
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [formDefaults, setFormDefaults] = useState<
+    Record<string, unknown> | undefined
+  >();
+  // Set only while resolving a rerun request that carried no remembered
+  // payload (a reload, or an execution this tab never dispatched): the
+  // snippet is known only by name, so it must be found before it can be
+  // reselected. Cleared once found, or once a new request supersedes it.
+  const [resolvingRerunNonce, setResolvingRerunNonce] = useState<number | null>(
+    null
+  );
+  // Drives a search independent of the visible picker's own input: MUI's
+  // `multiple` Autocomplete resets an unfocused `inputValue` back to '' on its
+  // own, so piggy-backing this lookup on `searchInput` loses the term before
+  // the debounce that reads it ever fires.
+  const [rerunResolveTerm, setRerunResolveTerm] = useState<string | null>(null);
+  // The nonce whose effects (selection, form defaults) have actually been
+  // applied. `formKey` is built from this, not from `rerunRequest.nonce`
+  // directly: the prop changes on the very render the effect below is
+  // scheduled from, one render before `setFormDefaults` commits, so keying
+  // off the prop would remount the form with the *previous* defaults and
+  // never re-render again once the right ones arrived.
+  const [appliedRerunNonce, setAppliedRerunNonce] = useState(0);
+  // The filename a rerun request could not resolve — renamed, removed, or no
+  // longer approved since the tab that dispatched it closed. Cleared by the
+  // next rerun request, or by a match finally resolving.
+  const [rerunResolveFailed, setRerunResolveFailed] = useState<string | null>(
+    null
+  );
 
   const handleSnippetsChange = useCallback((snippets: AtwSnippetSummary[]) => {
     setAvailable(snippets);
@@ -322,6 +366,7 @@ export function CollectPane({
   );
   const batchMutation = useAtwBatchExecute(incidentId);
   const searchQuery = useAtwSnippetSearch(debouncedSearch);
+  const rerunResolveQuery = useAtwSnippetSearch(rerunResolveTerm ?? '');
 
   // A disabled query keeps its previous data, so an emptied box must not leave
   // the last term's hits in the list: read results only while a term is active.
@@ -334,6 +379,70 @@ export function CollectPane({
     () => new Set(searchResults.map((snippet) => snippet.name)),
     [searchResults]
   );
+
+  // A rerun request either carries the exact batch this tab dispatched (host,
+  // sudo, and every parameter) or, lacking that, just the snippet's filename —
+  // reselect it and let the schema's own defaults apply.
+  useEffect(() => {
+    if (!rerunRequest) {
+      return;
+    }
+    setItemErrors([]);
+    setAppliedRerunNonce(rerunRequest.nonce);
+    setRerunResolveFailed(null);
+    if (rerunRequest.remembered) {
+      setSelected(rerunRequest.remembered.snippets);
+      setFormDefaults(rerunRequest.remembered.values);
+      setResolvingRerunNonce(null);
+      setRerunResolveTerm(null);
+      return;
+    }
+    setFormDefaults(undefined);
+    setResolvingRerunNonce(rerunRequest.nonce);
+    setRerunResolveTerm(rerunRequest.snippetFilename);
+  }, [rerunRequest]);
+
+  // Completes the no-remembered-payload branch above once the exact-name
+  // search this effect started resolves: the snippet is known only by
+  // filename, and the picker's options are titles, not filenames. Reports
+  // rather than silently hangs when the search errors or genuinely finds
+  // nothing — a renamed, removed, or no-longer-approved snippet otherwise
+  // left "Edit parameters and run again" looking like it had done nothing.
+  useEffect(() => {
+    if (
+      resolvingRerunNonce === null ||
+      !rerunRequest ||
+      rerunRequest.nonce !== resolvingRerunNonce
+    ) {
+      return;
+    }
+    if (rerunResolveQuery.isError) {
+      setResolvingRerunNonce(null);
+      setRerunResolveTerm(null);
+      setRerunResolveFailed(rerunRequest.snippetFilename);
+      return;
+    }
+    if (!rerunResolveQuery.isSuccess) {
+      return;
+    }
+    const match = (rerunResolveQuery.data.items ?? []).find(
+      (snippet) => snippet.name === rerunRequest.snippetFilename
+    );
+    setResolvingRerunNonce(null);
+    setRerunResolveTerm(null);
+    if (match) {
+      setSelected([match]);
+      setRerunResolveFailed(null);
+    } else {
+      setRerunResolveFailed(rerunRequest.snippetFilename);
+    }
+  }, [
+    rerunResolveQuery.data,
+    rerunResolveQuery.isError,
+    rerunResolveQuery.isSuccess,
+    resolvingRerunNonce,
+    rerunRequest,
+  ]);
 
   const options = useMemo(
     () => mergeSnippetOptions(selected, available, searchResults),
@@ -424,9 +533,11 @@ export function CollectPane({
 
   const handleSubmit = (values: Record<string, unknown>) => {
     setItemErrors([]);
-    batchMutation.mutate(buildBatchPayload(values, selected), {
+    const snippetsAtSubmit = selected;
+    batchMutation.mutate(buildBatchPayload(values, snippetsAtSubmit), {
       onSuccess: (response) => {
         setItemErrors(batchItemErrors(response));
+        onDispatched?.(snippetsAtSubmit, values, response);
       },
     });
   };
@@ -436,8 +547,11 @@ export function CollectPane({
     : null;
 
   // Remount the form when the selection changes so react-hook-form rebuilds its
-  // registered fields and defaults for the new merged schema.
-  const formKey = selectedNames.join('|');
+  // registered fields and defaults for the new merged schema. The rerun nonce
+  // is folded in too: reopening the same snippet set with different
+  // remembered values must still force a remount, or `defaultValues` would
+  // seed a form react-hook-form believes is already up to date.
+  const formKey = `${selectedNames.join('|')}::${appliedRerunNonce}`;
 
   return (
     <Box>
@@ -482,8 +596,12 @@ export function CollectPane({
         value={selected}
         onChange={(_event, value) => {
           setSelected(value);
-          // The stale batch-result banner belongs to the previous selection.
+          // The stale batch-result banner, any values seeded by a rerun
+          // request, and a "could not find it" notice all belong to the
+          // previous selection.
           setItemErrors([]);
+          setFormDefaults(undefined);
+          setRerunResolveFailed(null);
         }}
         inputValue={searchInput}
         onInputChange={(_event, value) => setSearchInput(value)}
@@ -531,6 +649,14 @@ export function CollectPane({
         )}
       />
 
+      {rerunResolveFailed && (
+        <Alert severity="warning" sx={{ mt: 3 }}>
+          Could not find “{rerunResolveFailed}” to reopen it — it may have been
+          renamed, removed, or is no longer approved. Search for it above, or
+          pick a replacement.
+        </Alert>
+      )}
+
       {selected.length === 0 && (
         <Alert severity="info" sx={{ mt: 3 }}>
           Search for a snippet by name or description, or browse a category,
@@ -574,6 +700,7 @@ export function CollectPane({
           <SchemaFormRenderer
             key={formKey}
             sections={sections}
+            defaultValues={formDefaults}
             onSubmit={handleSubmit}
             submitLabel="Execute batch"
             loading={batchMutation.isPending}

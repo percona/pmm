@@ -17,6 +17,7 @@
 
 import { describe, expect, it } from 'vitest';
 import {
+  browserTimezone,
   formatAbsoluteTime,
   formatRelativeTime,
   formatTimestamp,
@@ -84,10 +85,14 @@ describe('formatTimestamp', () => {
   it('always offers the full timestamp for hover, including when absolute', () => {
     const recent = formatTimestamp('2026-06-17T12:00:00Z', NOW);
     expect(recent?.display).toBe('yesterday');
-    expect(recent?.title).toBe(formatAbsoluteTime('2026-06-17T12:00:00Z'));
+    expect(recent?.title).toBe(
+      `${formatAbsoluteTime('2026-06-17T12:00:00Z')} (${browserTimezone()})`
+    );
 
     const old = formatTimestamp('2025-01-02T03:04:00Z', NOW);
-    expect(old?.title).toBe(formatAbsoluteTime('2025-01-02T03:04:00Z'));
+    expect(old?.title).toBe(
+      `${formatAbsoluteTime('2025-01-02T03:04:00Z')} (${browserTimezone()})`
+    );
   });
 
   it('keeps the boundary exclusive: exactly a week out is absolute', () => {
@@ -111,5 +116,17 @@ describe('formatTimestamp', () => {
       display: 'not-a-date',
       title: 'not-a-date',
     });
+  });
+
+  it('names the zone the timestamp is rendered in, so a hover is unambiguous', () => {
+    // The schedule's own zone is stated separately; without this the hover
+    // value could be read as being in that zone (PMM-15454).
+    const formatted = formatTimestamp('2026-06-17T12:00:00Z');
+    expect(formatted?.title).toContain(`(${browserTimezone()})`);
+  });
+
+  it('leaves an unparseable value alone rather than labelling it with a zone', () => {
+    const formatted = formatTimestamp('not-a-date');
+    expect(formatted).toEqual({ display: 'not-a-date', title: 'not-a-date' });
   });
 });

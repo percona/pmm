@@ -30,9 +30,20 @@ vi.mock('../TaskLogViewer', () => ({
       data-task-status={taskStatus ?? ''}
     />
   ),
+  // The drawer's own non-failure terminal note reads this map; it is not part
+  // of what this suite covers about the viewer, so the real one is reused.
+  NON_FAILURE_TERMINAL_NOTES: {
+    stopped: 'This run was stopped before it finished.',
+    lost: 'The executor stopped reporting on this run, so its outcome is unknown.',
+    stale:
+      'This run was skipped because the executor could not place it before the staleness threshold.',
+    unlaunchable:
+      'The executor node could not launch this run, so the payload never executed. This is not a script failure.',
+  },
 }));
 
 import { apiClient } from '@sep/api';
+import { browserTimezone } from '../../utils/formatTimestamp';
 
 const mockedGet = apiClient.get as unknown as ReturnType<typeof vi.fn>;
 
@@ -119,8 +130,8 @@ describe('TaskRunDetailDrawer', () => {
 
         const times = screen.getAllByText('2 hours ago');
         expect(times.map((el) => el.getAttribute('title'))).toEqual([
-          new Date('2026-09-07T10:00:00Z').toLocaleString(),
-          new Date('2026-09-07T10:02:07Z').toLocaleString(),
+          `${new Date('2026-09-07T10:00:00Z').toLocaleString()} (${browserTimezone()})`,
+          `${new Date('2026-09-07T10:02:07Z').toLocaleString()} (${browserTimezone()})`,
         ]);
       } finally {
         vi.useRealTimers();
@@ -172,15 +183,28 @@ describe('TaskRunDetailDrawer', () => {
       expect(screen.queryByTestId('log-viewer')).not.toBeInTheDocument();
     });
 
-    it('says a run was not a script failure when the executor could not launch it', () => {
+    it('leaves the non-failure note to the log viewer when the log is shown', () => {
+      // `has_logs: true` (the default) means the embedded (mocked here)
+      // TaskLogViewer renders — the real one now carries this same sentence
+      // itself (covered in TaskLogViewer's own suite), so the drawer must not
+      // duplicate it.
       renderDrawer({ entry: makeEntry(16, 'unlaunchable') });
+
+      expect(screen.queryByTestId('run-detail-note')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('run-detail-failure')
+      ).not.toBeInTheDocument();
+    });
+
+    it('says a run was not a script failure when there is no log to carry the note', () => {
+      renderDrawer({
+        entry: makeEntry(16, 'unlaunchable', { has_logs: false }),
+      });
 
       expect(screen.getByTestId('run-detail-note')).toHaveTextContent(
         /not a script failure/
       );
-      expect(
-        screen.queryByTestId('run-detail-failure')
-      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId('log-viewer')).not.toBeInTheDocument();
     });
   });
 

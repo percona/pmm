@@ -116,7 +116,7 @@ export { formatDuration } from './utils/formatDuration';
 // `formatRelativeTime` / `formatAbsoluteTime` live here too, but keep their
 // existing public path through `./components/ScheduledTasksPanel` below rather
 // than being re-exported twice under one name.
-export { formatTimestamp } from './utils/formatTimestamp';
+export { browserTimezone, formatTimestamp } from './utils/formatTimestamp';
 export type { FormattedTimestamp } from './utils/formatTimestamp';
 export { applyValueLabel } from './utils/valueLabels';
 export { SnippetExecutionAccordion } from './components/SnippetExecutionAccordion';
@@ -200,6 +200,7 @@ export {
   isRunningStatus,
   RUNNING_STATUSES,
   useTaskHistoryFiles,
+  useHasDownloadableFiles,
   useTaskFileDownload,
 } from './hooks';
 export type {
