@@ -12,6 +12,7 @@ if [ -s ci.yml ]; then
     echo $pmm_branch > apiBranch
     echo $pmm_url > apiURL
     echo $pmm_qa_branch > pmmQABranch
+    echo $qa_integration_branch > QAIntegrationBranch
     echo $pmm_qa_commit > pmmQACommitSha
 else
     # Define variables using git queries, i.e. w/o python
@@ -23,6 +24,8 @@ else
     echo $pmm_url > apiURL
     pmm_qa_branch=$(git config -f .gitmodules submodule.pmm-qa.branch)
     echo $pmm_qa_branch > pmmQABranch
+    qa_integration_branch=$(git config -f .gitmodules submodule.qa-integration.branch)
+    echo $qa_integration_branch > QAIntegrationBranch
     pmm_qa_commit=$(git submodule status | grep 'pmm-qa' | awk -F ' ' '{print $1}')
     echo $pmm_qa_commit > pmmQACommitSha
 fi
