@@ -84,7 +84,11 @@ type Channel struct {
 
 	lastSentRequestID atomic.Uint32
 
-	sendM sync.Mutex
+	// A one-slot channel rather than a sync.Mutex so that waiting for it can be given up on:
+	// the holder is parked in the blocking c.s.Send for as long as a wedged connection's flow
+	// control window stays shut, and a caller with a deadline of its own must not queue behind
+	// it. See send.
+	sendM chan struct{}
 
 	m         sync.Mutex
 	responses map[uint32]chan Response
@@ -121,6 +125,7 @@ func New(stream agentv1.AgentService_ConnectClient) *Channel {
 		requests:  make(chan *ServerRequest, serverRequestsCap),
 		pings:     make(chan *ServerRequest, serverPingsCap),
 
+		sendM:     make(chan struct{}, 1),
 		closeWait: make(chan struct{}),
 	}
 
@@ -157,10 +162,13 @@ func (c *Channel) close(err error) {
 		// sendM - the very situation this timeout exists for - and waiting for sendM there
 		// would keep runReceiver from closing Requests() and Pings(), which is what makes
 		// the client notice the dead connection and reconnect. See PMM-15431.
+		// Still blocking, but in a goroutine: closeWait is closed above, so send lets no
+		// new sender in and this waits only for one already inside c.s.Send - which ends
+		// when the caller of Run closes the gRPC connection.
 		go func() {
-			c.sendM.Lock()
+			c.sendM <- struct{}{}
 			_ = c.s.CloseSend()
-			c.sendM.Unlock()
+			<-c.sendM
 		}()
 	})
 }
@@ -210,11 +218,13 @@ func (c *Channel) SendAndWaitResponse(ctx context.Context, payload agentv1.Agent
 	id := c.lastSentRequestID.Add(1)
 	ch := c.subscribe(id)
 
-	// In a goroutine so that ctx bounds the send too: c.send holds sendM across the blocking
-	// c.s.Send, which parks forever on a wedged connection, and a caller with a deadline of its
-	// own - the dial handshake, pmm-admin status --network-info - would never reach the select
-	// below. The goroutine ends with the connection. See PMM-15431.
-	go c.send(&agentv1.AgentMessage{
+	// In a goroutine because c.s.Send cannot be interrupted: a send that reaches a wedged
+	// connection's exhausted flow control window stays there until the stream is torn down, and
+	// a caller with a deadline of its own - the dial handshake, pmm-admin status
+	// --network-info - would never reach the select below. ctx bounds the queueing behind such
+	// a send, so repeating the call leaves one send in flight per connection rather than one
+	// per invocation, and that one ends with the connection. See PMM-15431.
+	go c.sendWithDeadline(ctx, &agentv1.AgentMessage{
 		Id:      id,
 		Payload: payload.AgentMessageRequestPayload(),
 	})
@@ -243,11 +253,50 @@ func (c *Channel) SendAndWaitResponse(ctx context.Context, payload agentv1.Agent
 	}
 }
 
+// send transmits msg, waiting for the send lock for as long as it takes. For a caller that cannot
+// wait that long, see sendWithDeadline.
 func (c *Channel) send(msg *agentv1.AgentMessage) {
-	c.sendM.Lock()
+	select {
+	case c.sendM <- struct{}{}:
+	case <-c.closeWait:
+		return
+	}
+
+	c.transmit(msg)
+}
+
+// sendWithDeadline is send for a caller that has a deadline of its own. The deadline bounds only
+// the wait for a send lock that is already held, and never whether msg goes out: a free lock is
+// always taken, so a message that could be sent immediately is sent even for a caller that has
+// already given up. Dropping it instead would lose the QAN buckets and final statuses that a
+// connection being torn down still has to deliver.
+//
+// The lock can be held for arbitrarily long because c.s.Send cannot be interrupted - whoever is in
+// it stays until the stream is torn down. Giving up on it is what keeps that to one sender per
+// connection instead of one per call. See PMM-15431.
+func (c *Channel) sendWithDeadline(ctx context.Context, msg *agentv1.AgentMessage) {
+	select {
+	case c.sendM <- struct{}{}:
+	default:
+		// Held, which on a wedged connection means held until it is torn down.
+		select {
+		case c.sendM <- struct{}{}:
+		case <-ctx.Done():
+			return
+		case <-c.closeWait:
+			return
+		}
+	}
+
+	c.transmit(msg)
+}
+
+// transmit sends msg and releases the send lock. It must be called holding it.
+func (c *Channel) transmit(msg *agentv1.AgentMessage) {
+	defer func() { <-c.sendM }()
+
 	select {
 	case <-c.closeWait:
-		c.sendM.Unlock()
 		return
 	default:
 	}
@@ -264,7 +313,6 @@ func (c *Channel) send(msg *agentv1.AgentMessage) {
 	}
 
 	err := c.s.Send(msg)
-	c.sendM.Unlock()
 	if err != nil {
 		c.close(fmt.Errorf("failed to send message: %w", err))
 		return

@@ -469,6 +469,44 @@ func TestSendAndWaitResponseCanceled(t *testing.T) {
 	close(asserted)
 }
 
+// TestSendDoesNotQueueBehindAParkedSender covers the bound on what SendAndWaitResponse detaches:
+// c.s.Send cannot be interrupted, so a sender on a wedged connection stays in it until the stream
+// is torn down, and every later call must give up on the lock rather than pile up behind it -
+// otherwise repeating pmm-admin status --network-info on such a connection retains a goroutine per
+// invocation. That a free lock is always taken, even by a caller that has already given up, is
+// covered end to end by TestSendAndWaitResponseCanceled. See PMM-15431.
+func TestSendDoesNotQueueBehindAParkedSender(t *testing.T) {
+	t.Parallel()
+
+	// Neither path under test transmits, so the stream is never touched; only sendM, closeWait
+	// and l are. Same approach as TestAbandon below.
+	c := &Channel{
+		sendM:     make(chan struct{}, 1),
+		closeWait: make(chan struct{}),
+		l:         logrus.WithField("test", t.Name()),
+	}
+
+	// Stands in for a sender parked in c.s.Send.
+	c.sendM <- struct{}{}
+
+	ctx, cancel := context.WithCancel(t.Context())
+	cancel()
+
+	returned := make(chan struct{})
+	go func() {
+		defer close(returned)
+		c.sendWithDeadline(ctx, &agentv1.AgentMessage{Id: 1})
+	}()
+
+	select {
+	case <-returned:
+	case <-time.After(3 * time.Second):
+		t.Fatal("send queued behind a parked sender instead of giving up")
+	}
+
+	assert.Len(t, c.sendM, 1, "the parked sender must still hold the lock")
+}
+
 func TestAbandon(t *testing.T) {
 	t.Parallel()
 

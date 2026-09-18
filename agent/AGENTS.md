@@ -44,7 +44,8 @@ What keeps it out:
   `Channel.SendAndWaitResponse` takes a ctx, so a caller with its own deadline is bounded. That only
   recovers as far as the blocked handler allows: `run.go` waits on `client.Done()` before redialing,
   and that waits for `processChannelRequests`, so a handler still has to honor the canceled ctx
-- `supervisor` bounds the waits for stopping agents to one budget per call (`agentsStopTimeout`)
+- `supervisor` bounds the waits for stopping agents to one `agentsStopTimeout` budget per phase of
+  a call, so a hung exporter cannot spend what the built-in agents after it need
 
 `CheckConnectionRequest`, `ServiceInfoRequest` and `GetVersionsRequest` still run inline, bounded
 only by the user's own timeouts. They cannot deadlock — they do not wait on the server — but they do
