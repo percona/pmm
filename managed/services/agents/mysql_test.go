@@ -152,6 +152,38 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		require.Contains(t, actual.TextFiles, "myCnf")
 		assert.Contains(t, actual.TextFiles["myCnf"], "enable-cleartext-plugin")
 	})
+
+	t.Run("with time_zone dsn param, exporter supports it", func(t *testing.T) {
+		pmmAgentVersion = version.MustParse("3.10.0")
+		t.Cleanup(func() {
+			pmmAgentVersion = version.MustParse("2.21.0")
+		})
+		exporter.MySQLOptions = models.MySQLOptions{
+			ExtraDSNParams: map[string]string{
+				"time_zone": "'+00:00'",
+			},
+		}
+		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		require.NoError(t, err)
+		require.Contains(t, actual.TextFiles, "myCnf")
+		assert.Contains(t, actual.TextFiles["myCnf"], `time_zone="'+00:00'"`)
+	})
+
+	t.Run("time_zone dsn param omitted when exporter lacks support", func(t *testing.T) {
+		pmmAgentVersion = version.MustParse("3.4.0")
+		t.Cleanup(func() {
+			pmmAgentVersion = version.MustParse("2.21.0")
+		})
+		exporter.MySQLOptions = models.MySQLOptions{
+			ExtraDSNParams: map[string]string{
+				"time_zone": "'+00:00'",
+			},
+		}
+		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		require.NoError(t, err)
+		require.Contains(t, actual.TextFiles, "myCnf")
+		assert.NotContains(t, actual.TextFiles["myCnf"], "time_zone")
+	})
 }
 
 func TestMySQLdExporterConfigTLSSkipVerify(t *testing.T) {
@@ -468,7 +500,7 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 			},
 			RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password", "content-of-tls-key"},
 			TextFiles: map[string]string{
-				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\npassword=s3cur3 p@$$w0r4.\n\nconnect_timeout=2\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n\n",
+				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\npassword=s3cur3 p@$$w0r4.\n\nconnect_timeout=2\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n\n\n",
 				"tlsCa":     "content-of-tls-ca",
 				"tlsCert":   "content-of-tls-certificate-key",
 				"tlsKey":    "content-of-tls-key",
@@ -533,7 +565,7 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 			},
 			RedactWords: []string{"agent-password", "content-of-tls-key"},
 			TextFiles: map[string]string{
-				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\n\n\nconnect_timeout=2\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n\n",
+				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\n\n\nconnect_timeout=2\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n\n\n",
 				"tlsCa":     "content-of-tls-ca",
 				"tlsCert":   "content-of-tls-certificate-key",
 				"tlsKey":    "content-of-tls-key",
@@ -596,7 +628,7 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 				"--web.config.file={{ .TextFiles.webConfig }}",
 			},
 			TextFiles: map[string]string{
-				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\n\npassword=s3cur3 p@$$w0r4.\n\nconnect_timeout=2\n\n\n\n\n",
+				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\n\npassword=s3cur3 p@$$w0r4.\n\nconnect_timeout=2\n\n\n\n\n\n",
 				"webConfig": "basic_auth_users:\n    pmm: agent-password\n",
 			},
 		}
