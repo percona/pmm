@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Alert from '@mui/material/Alert';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
@@ -35,12 +35,21 @@ import {
   type AvailableTask,
   type ChainValue,
 } from '../ChainBuilder';
-import type {
-  CrontabSchedule,
-  IntervalSchedule,
-  PeriodicTaskCreate,
-  PeriodicTaskResponse,
-  PeriodicTaskUpdate,
+import {
+  INTERVAL_TIMEZONE,
+  TIMEZONES,
+  defaultPickerTimezone,
+  utcInputToIso,
+  utcIsoToUtcInput,
+} from './timezones';
+import {
+  useSchedulePreview,
+  type CrontabSchedule,
+  type SchedulePreviewWrite,
+  type IntervalSchedule,
+  type PeriodicTaskCreate,
+  type PeriodicTaskResponse,
+  type PeriodicTaskUpdate,
 } from './hooks';
 
 export type IntervalUnit = 'days' | 'hours' | 'minutes';
@@ -77,41 +86,40 @@ export interface ScheduledTaskFormProps {
 
 const CRON_PATTERN = /^\S+(?:\s+\S+){4}$/;
 
-const TIMEZONES = (() => {
-  type IntlWithTz = typeof Intl & {
-    supportedValuesOf?: (key: string) => string[];
-  };
-  const intl = Intl as IntlWithTz;
-  if (typeof intl.supportedValuesOf === 'function') {
-    try {
-      return intl.supportedValuesOf('timeZone');
-    } catch {
-      return ['UTC'];
-    }
-  }
-  return ['UTC'];
-})();
-
-function detectBrowserTimezone(): string {
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return tz && TIMEZONES.includes(tz) ? tz : 'UTC';
-  } catch {
-    return 'UTC';
-  }
+/**
+ * Hold a value still for `delay` ms.
+ *
+ * Without it the schedule preview is a network call per keystroke, and a
+ * half-typed cron expression is frequently a valid one in its own right — so
+ * the requests would not merely be many, they would each describe a schedule
+ * the user never asked for.
+ */
+function useDebounced<T>(value: T, delay = 400): T {
+  const [held, setHeld] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setHeld(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return held;
 }
 
-// `datetime-local` reads/writes as local wall-clock with no timezone.
-// Backend `start_time` is UTC ISO. Format the UTC instant in the browser's
-// local zone for display; parse the local input back through `Date` (which
-// interprets it as local) before serializing to UTC.
-function utcIsoToLocalInput(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) {
-    return '';
+/**
+ * The `start_time` to send.
+ *
+ * The field carries minutes, so round-tripping a stored value through it drops
+ * any seconds that value had. Send the stored instant back verbatim while the
+ * field still shows it unchanged, so saving an edit to an unrelated field —
+ * the interval, the enable toggle — cannot quietly move a schedule's first fire
+ * by up to a minute (PMM-15454).
+ */
+function startTimeToSubmit(
+  fieldValue: string,
+  stored: string | null | undefined
+): string | null {
+  if (stored && fieldValue === utcIsoToUtcInput(stored)) {
+    return stored;
   }
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return utcInputToIso(fieldValue);
 }
 
 function cronToExpression(c: CrontabSchedule): string {
@@ -153,10 +161,8 @@ function buildDefaults(
       intervalEvery: initial.interval?.every ?? 1,
       intervalPeriod: (initial.interval?.period as IntervalUnit) ?? 'hours',
       cronExpression: initial.crontab ? cronToExpression(initial.crontab) : '',
-      cronTimezone: initial.crontab?.timezone ?? detectBrowserTimezone(),
-      startTime: initial.start_time
-        ? utcIsoToLocalInput(initial.start_time)
-        : '',
+      cronTimezone: initial.crontab?.timezone ?? defaultPickerTimezone(),
+      startTime: initial.start_time ? utcIsoToUtcInput(initial.start_time) : '',
       enabled: initial.enabled,
       chain: {
         chain_task_names: initial.execute_request?.chain_task_names ?? [],
@@ -170,7 +176,7 @@ function buildDefaults(
     intervalEvery: 1,
     intervalPeriod: 'hours',
     cronExpression: '',
-    cronTimezone: detectBrowserTimezone(),
+    cronTimezone: defaultPickerTimezone(),
     startTime: '',
     enabled: true,
     chain: { chain_task_names: [], chain_on_failure: false },
@@ -206,6 +212,14 @@ export function ScheduledTaskForm({
 
   const scheduleMode = watch('scheduleMode');
   const cronExpression = watch('cronExpression');
+  const cronTimezone = watch('cronTimezone');
+  const timezoneOptions = useMemo(
+    () =>
+      cronTimezone && !TIMEZONES.includes(cronTimezone)
+        ? [cronTimezone, ...TIMEZONES]
+        : TIMEZONES,
+    [cronTimezone]
+  );
   const taskName = watch('task');
   const chain = watch('chain');
 
@@ -228,6 +242,65 @@ export function ScheduledTaskForm({
       );
     }
   }, [taskName, chain, setValue]);
+
+  const intervalEvery = watch('intervalEvery');
+  const intervalPeriod = watch('intervalPeriod');
+  const startTime = watch('startTime');
+
+  // What the backend would make of the schedule as currently described. Null
+  // while the form does not describe a valid one, which keeps the query idle.
+  const previewSpec = useMemo<SchedulePreviewWrite | null>(() => {
+    if (scheduleMode === 'cron') {
+      if (!cronExpression || !humanize(cronExpression).valid) {
+        return null;
+      }
+      const crontab = expressionToCron(cronExpression, cronTimezone);
+      return crontab ? { crontab, interval: null, start_time: null } : null;
+    }
+    const every = Number(intervalEvery);
+    if (!Number.isFinite(every) || every < 1) {
+      return null;
+    }
+    return {
+      interval: { every, period: intervalPeriod },
+      crontab: null,
+      start_time: utcInputToIso(startTime),
+    };
+  }, [
+    scheduleMode,
+    cronExpression,
+    cronTimezone,
+    intervalEvery,
+    intervalPeriod,
+    startTime,
+  ]);
+
+  const { data: preview, isError: previewFailed } = useSchedulePreview(
+    useDebounced(previewSpec)
+  );
+
+  // The backend's own answer beats the form's assumption about which zone is in
+  // force; fall back to the assumption until the first preview lands.
+  const zoneInForce =
+    preview?.timezone ??
+    (scheduleMode === 'cron' ? cronTimezone : INTERVAL_TIMEZONE);
+
+  const nextRuns = preview?.next_runs?.slice(0, 3) ?? [];
+
+  // A clock time in the zone the caption above already names — never relative
+  // and never the reader's own zone, since a run in "2 hours" or in the
+  // reader's zone would silently contradict "Runs in {zoneInForce}" above it.
+  const formatNextRun = (value: string): string => {
+    const target = new Date(value);
+    if (Number.isNaN(target.getTime())) {
+      return value;
+    }
+    return target.toLocaleString(undefined, {
+      timeZone: zoneInForce,
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    });
+  };
 
   const cronPreview = useMemo(() => {
     if (scheduleMode !== 'cron' || !cronExpression) {
@@ -268,10 +341,12 @@ export function ScheduledTaskForm({
       ? null
       : { every: everyNum, period: values.intervalPeriod };
 
-    const start_time =
-      !isCron && values.startTime
-        ? new Date(values.startTime).toISOString()
-        : null;
+    // The start-time field is labelled UTC and carries UTC wall clock, so it
+    // reads back as UTC. Cron mode asks no start time; that half of the finding
+    // is parked for a design pass (PMM-15454).
+    const start_time = isCron
+      ? null
+      : startTimeToSubmit(values.startTime, initialValue?.start_time);
 
     const hasChain = values.chain.chain_task_names.length > 0;
     const execute_request = hasChain
@@ -406,7 +481,7 @@ export function ScheduledTaskForm({
                 render={({ field }) => (
                   <Autocomplete
                     size="small"
-                    options={TIMEZONES}
+                    options={timezoneOptions}
                     value={field.value}
                     onChange={(_, v) => field.onChange(v ?? 'UTC')}
                     sx={{ width: 220 }}
@@ -442,8 +517,11 @@ export function ScheduledTaskForm({
           <TextField
             type="datetime-local"
             size="small"
-            label="Start time"
-            slotProps={{ inputLabel: { shrink: true } }}
+            label={`Start time (${INTERVAL_TIMEZONE})`}
+            slotProps={{
+              inputLabel: { shrink: true },
+              htmlInput: { 'data-testid': 'sched-form-start-time' },
+            }}
             {...register('startTime')}
             sx={{ width: 220 }}
           />
@@ -471,6 +549,35 @@ export function ScheduledTaskForm({
           )}
         />
       </Stack>
+
+      <Box sx={{ mb: 1 }}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          data-testid="sched-form-timezone-notice"
+        >
+          {scheduleMode === 'cron'
+            ? `Runs in ${zoneInForce}.`
+            : `Runs in ${zoneInForce} — an interval schedule has no timezone of its own.`}
+        </Typography>
+
+        {previewSpec !== null && (
+          <Typography
+            variant="caption"
+            color={previewFailed ? 'error' : 'text.secondary'}
+            sx={{ display: 'block', mt: 0.5 }}
+            data-testid="sched-form-next-runs"
+          >
+            {previewFailed
+              ? 'Could not work out the next runs for this schedule.'
+              : nextRuns.length > 0
+                ? `Next runs: ${nextRuns.map(formatNextRun).join(', ')}`
+                : preview
+                  ? 'This schedule has no upcoming runs.'
+                  : 'Working out the next runs…'}
+          </Typography>
+        )}
+      </Box>
 
       <Box sx={{ mb: 1 }}>
         <Link
