@@ -17,15 +17,7 @@
 
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  onTestFinished,
-  vi,
-} from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   flushPromises,
   mockStreamFetch,
@@ -101,13 +93,13 @@ describe('TaskLogViewer', () => {
     return handle;
   }
 
-  /** The primary stdout/stderr strip; the per-step strip is a second tablist. */
+  /** The primary stdout/stderr strip; a per-step strip is a second tablist. */
   function getPrimaryTabList() {
     return screen.getAllByRole('tablist')[0];
   }
 
-  function getEventsButton() {
-    return screen.getByRole('button', { name: /execution events/i });
+  function getTechnicalDetailsToggle() {
+    return screen.getByRole('button', { name: /technical details/i });
   }
 
   function getTailSelect() {
@@ -258,7 +250,9 @@ describe('TaskLogViewer', () => {
     await flushPromises();
 
     expect(screen.queryByTestId('log-output')).not.toBeInTheDocument();
-    expect(screen.getByText(/no output yet/i)).toBeInTheDocument();
+    // The run is already terminal (taskStatus="SUCCESS"), so the empty pane
+    // reads as final rather than promising more may still arrive.
+    expect(screen.getByText('No output')).toBeInTheDocument();
   });
 
   it('hides the line cap when a finished log is provably shorter than the smallest option', async () => {
@@ -430,6 +424,74 @@ describe('TaskLogViewer', () => {
     expect(getTailSelect()).toHaveAttribute('aria-disabled', 'true');
   });
 
+  it('opens on stderr when the active step only wrote to stderr', async () => {
+    render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="1" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    const handle = getHandle('1');
+    act(() => {
+      handle.pushMessage({
+        msg: 'boom\n',
+        step: 'setup',
+        type: 'stderr',
+        offset: 1,
+      });
+    });
+
+    await waitFor(() =>
+      expect(screen.getByTestId('log-output').textContent).toBe('boom\n')
+    );
+    expect(screen.getByRole('tab', { name: /stderr/i })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    );
+  });
+
+  it('does not override an explicit tab choice when the other stream gets content', async () => {
+    render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="1" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    const handle = getHandle('1');
+    act(() => {
+      handle.pushMessage({
+        msg: 'out\n',
+        step: 'setup',
+        type: 'stdout',
+        offset: 1,
+      });
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId('log-output').textContent).toBe('out\n')
+    );
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('tab', { name: /stderr/i }));
+    expect(screen.getByText('No output yet.')).toBeInTheDocument();
+
+    // Stdout gaining content must not pull the view back to it.
+    act(() => {
+      handle.pushMessage({
+        msg: 'more\n',
+        step: 'setup',
+        type: 'stdout',
+        offset: 2,
+      });
+    });
+    await flushPromises();
+    expect(screen.getByRole('tab', { name: /stderr/i })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    );
+  });
+
   it('marks the stderr top tab as unread when stderr arrives while on stdout', async () => {
     render(
       <QueryWrapper>
@@ -439,6 +501,21 @@ describe('TaskLogViewer', () => {
     await flushPromises();
 
     const handle = getHandle('1');
+    // Stdout gets content first, so the auto-selected tab stays stdout once
+    // stderr arrives — otherwise the view would follow stderr and never be
+    // "on stdout" when the unread dot is supposed to appear.
+    act(() => {
+      handle.pushMessage({
+        msg: 'out\n',
+        step: 'setup',
+        type: 'stdout',
+        offset: 1,
+      });
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId('log-output').textContent).toBe('out\n')
+    );
+
     act(() => {
       handle.pushMessage({
         msg: 'err\n',
@@ -464,40 +541,6 @@ describe('TaskLogViewer', () => {
     expect(dotAfter?.classList.contains('MuiBadge-invisible')).toBe(true);
   });
 
-  it('opens the execution events panel from the demoted control in one interaction', async () => {
-    render(
-      <QueryWrapper>
-        <TaskLogViewer taskHistoryId="1" taskStatus="RUNNING" />
-      </QueryWrapper>
-    );
-    await flushPromises();
-
-    const handle = getHandle('1');
-    act(() => {
-      handle.pushMessage({
-        msg: 'out\n',
-        step: 'setup',
-        type: 'stdout',
-        offset: 1,
-      });
-    });
-    await waitFor(() =>
-      expect(screen.getByTestId('log-output')).toBeInTheDocument()
-    );
-
-    const user = userEvent.setup();
-    await user.click(getEventsButton());
-
-    expect(screen.queryByTestId('log-output')).not.toBeInTheDocument();
-    expect(screen.getByText(/no execution events yet/i)).toBeInTheDocument();
-    expect(getEventsButton()).toHaveAttribute('aria-current', 'true');
-
-    // Clicking again is a stable no-op; the way back is a primary tab.
-    await user.click(getEventsButton());
-    expect(screen.getByText(/no execution events yet/i)).toBeInTheDocument();
-    expect(getEventsButton()).toHaveAttribute('aria-current', 'true');
-  });
-
   it('renders exactly two primary tabs, stdout and stderr', async () => {
     render(
       <QueryWrapper>
@@ -508,10 +551,9 @@ describe('TaskLogViewer', () => {
 
     const tabs = within(getPrimaryTabList()).getAllByRole('tab');
     expect(tabs.map((tab) => tab.textContent)).toEqual(['stdout', 'stderr']);
-    expect(screen.queryByRole('tab', { name: /execution events/i })).toBeNull();
   });
 
-  it('shows no unread indicator while a running task pushes execution events', async () => {
+  it('shows no unread indicator anywhere while a running task pushes execution events', async () => {
     const { container } = render(
       <QueryWrapper>
         <TaskLogViewer taskHistoryId="31" taskStatus="RUNNING" />
@@ -530,24 +572,18 @@ describe('TaskLogViewer', () => {
     });
     await flushPromises();
 
-    expect(getEventsButton().querySelector('.MuiBadge-dot')).toBeNull();
-    // Nothing anywhere in the console badges while the events view is closed.
+    // Nothing anywhere in the console badges from an execution event.
     expect(
       container.querySelectorAll('.MuiBadge-dot:not(.MuiBadge-invisible)')
     ).toHaveLength(0);
 
-    // The event really did arrive while the view was closed.
+    // The event really did arrive, just collapsed under Technical details.
     const user = userEvent.setup();
-    await user.click(getEventsButton());
+    await user.click(getTechnicalDetailsToggle());
     expect(screen.getByText(/setup started/)).toBeInTheDocument();
   });
 
-  it('leaves the primary tabs unselected for the events view and returns in one click', async () => {
-    const consoleError = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
-    onTestFinished(() => consoleError.mockRestore());
-
+  it('starts with Technical details collapsed', async () => {
     render(
       <QueryWrapper>
         <TaskLogViewer taskHistoryId="32" taskStatus="RUNNING" />
@@ -555,11 +591,32 @@ describe('TaskLogViewer', () => {
     );
     await flushPromises();
 
-    const handle = getHandle('32');
+    expect(getTechnicalDetailsToggle()).toHaveAttribute(
+      'aria-expanded',
+      'false'
+    );
+
+    const user = userEvent.setup();
+    await user.click(getTechnicalDetailsToggle());
+    expect(getTechnicalDetailsToggle()).toHaveAttribute(
+      'aria-expanded',
+      'true'
+    );
+  });
+
+  it('renders the step strip above the log body, hidden for a single step', async () => {
+    render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="34" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    const handle = getHandle('34');
     act(() => {
       handle.pushMessage({
         msg: 'out\n',
-        step: 'setup',
+        step: 'only-step',
         type: 'stdout',
         offset: 1,
       });
@@ -568,31 +625,29 @@ describe('TaskLogViewer', () => {
       expect(screen.getByTestId('log-output')).toBeInTheDocument()
     );
 
-    const user = userEvent.setup();
-    await user.click(getEventsButton());
+    // One step, no execution events: only the primary stdout/stderr strip.
+    expect(screen.getAllByRole('tablist')).toHaveLength(1);
 
-    const tabs = within(getPrimaryTabList()).getAllByRole('tab');
+    act(() => {
+      handle.pushMessage({
+        msg: 'out\n',
+        step: 'second-step',
+        type: 'stdout',
+        offset: 2,
+      });
+    });
+    await waitFor(() => expect(screen.getAllByRole('tablist')).toHaveLength(2));
+
+    const stepTabList = screen.getAllByRole('tablist')[1];
+    const logOutput = screen.getByTestId('log-output');
+    // The step strip's DOM position precedes the log body it controls.
     expect(
-      tabs.every((tab) => tab.getAttribute('aria-selected') === 'false')
-    ).toBe(true);
-    // MUI warns when Tabs `value` is not one of its children; passing false must not.
-    const tabsWarnings = consoleError.mock.calls.filter((call) =>
-      call.some((arg) => typeof arg === 'string' && /Tabs/.test(arg))
-    );
-    expect(tabsWarnings).toEqual([]);
-
-    // An unselected strip must still be reachable by keyboard.
-    expect(screen.getByRole('tab', { name: /stdout/i })).toHaveAttribute(
-      'tabindex',
-      '0'
-    );
-
-    await user.click(screen.getByRole('tab', { name: /stdout/i }));
-    expect(screen.getByTestId('log-output')).toBeInTheDocument();
-    expect(getEventsButton()).not.toHaveAttribute('aria-current');
+      stepTabList.compareDocumentPosition(logOutput) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
   });
 
-  it('keeps events search and per-step grouping from the demoted entry point', async () => {
+  it('keeps execution-events step scoping independent of the log steps', async () => {
     render(
       <QueryWrapper>
         <TaskLogViewer taskHistoryId="33" taskStatus="RUNNING" />
@@ -628,9 +683,10 @@ describe('TaskLogViewer', () => {
     await flushPromises();
 
     const user = userEvent.setup();
-    await user.click(getEventsButton());
+    await user.click(getTechnicalDetailsToggle());
 
-    // The step strip lists the execution-event steps, not the log steps.
+    // The events section lists its own steps — 'setup' and 'build' — even
+    // though the log itself only ever saw 'log-step'.
     await waitFor(() => {
       const stepTabs = within(screen.getAllByRole('tablist')[1]).getAllByRole(
         'tab'
@@ -706,8 +762,39 @@ describe('TaskLogViewer', () => {
     await waitFor(() => expect(screen.getByText('Done')).toBeInTheDocument());
   });
 
+  it('shows "No output" rather than "No output yet." once the caller reports the run finished', async () => {
+    render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="40" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    expect(screen.getByText('No output')).toBeInTheDocument();
+    expect(screen.queryByText('No output yet.')).toBeNull();
+  });
+
+  it('renders a plain-sentence note for a non-failure terminal status', async () => {
+    render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="1" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    const handle = getHandle('1');
+    act(() => {
+      handle.pushNamed('finish', { status: 'unlaunchable' });
+    });
+
+    await waitFor(() =>
+      expect(screen.getByText('Not in executor')).toBeInTheDocument()
+    );
+    expect(screen.getByText(/could not launch this run/i)).toBeInTheDocument();
+  });
+
   it('resets active step and unread state when taskHistoryId changes', async () => {
-    const { rerender } = render(
+    const { rerender, container } = render(
       <QueryWrapper>
         <TaskLogViewer taskHistoryId="1" taskStatus="RUNNING" />
       </QueryWrapper>
@@ -727,6 +814,9 @@ describe('TaskLogViewer', () => {
       expect(screen.getByTestId('log-output').textContent).toBe('a\n')
     );
 
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('tab', { name: /stderr/i }));
+
     rerender(
       <QueryWrapper>
         <TaskLogViewer taskHistoryId="2" taskStatus="RUNNING" />
@@ -737,6 +827,11 @@ describe('TaskLogViewer', () => {
     // Previous step alpha no longer exists; empty state until new data arrives
     expect(screen.queryByTestId('log-output')).not.toBeInTheDocument();
     expect(screen.getByText(/no output yet/i)).toBeInTheDocument();
+    // The manual tab choice from the previous task did not carry over.
+    expect(screen.getByRole('tab', { name: /stdout/i })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    );
 
     const second = getHandle('2');
     act(() => {
@@ -750,9 +845,12 @@ describe('TaskLogViewer', () => {
     await waitFor(() =>
       expect(screen.getByTestId('log-output').textContent).toBe('b\n')
     );
-    // New step auto-selected, no unread dots from the prior task
-    const stepTab = screen.getByRole('tab', { name: /beta/i });
-    expect(within(stepTab).queryByRole('status')).toBeNull();
+    // New step auto-selected, no unread dots leaked from the prior task. A
+    // single step keeps the step strip itself hidden, so this checks the
+    // whole console rather than a tab that is not rendered.
+    expect(
+      container.querySelectorAll('.MuiBadge-dot:not(.MuiBadge-invisible)')
+    ).toHaveLength(0);
   });
 
   it('renders the executor-gone error block for 410', async () => {
@@ -771,8 +869,20 @@ describe('TaskLogViewer', () => {
       });
     });
     await waitFor(() => expect(screen.getByText('gone')).toBeInTheDocument());
-    expect(screen.getByText(/J-1/)).toBeInTheDocument();
+    // The sentence names the host directly, not behind the expand.
     expect(screen.getByText(/nomad-a/)).toBeInTheDocument();
     expect(screen.getByText('Not in executor')).toBeInTheDocument();
+
+    // The job id is technical detail, behind its own (separate) expand from
+    // the page's Execution-events "Technical details" section below.
+    const errorDetailsToggle = screen.getByRole('button', {
+      name: /error details/i,
+    });
+    expect(errorDetailsToggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByText(/J-1/)).toBeInTheDocument();
+
+    const user = userEvent.setup();
+    await user.click(errorDetailsToggle);
+    expect(errorDetailsToggle).toHaveAttribute('aria-expanded', 'true');
   });
 });

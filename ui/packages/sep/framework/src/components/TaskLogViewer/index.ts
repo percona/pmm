@@ -25,3 +25,4 @@ export { ExecutionEventsPanel } from './ExecutionEventsPanel';
 export { StreamErrorBlock } from './StreamErrorBlock';
 export { StatusBadge } from './StatusBadge';
 export type { BadgeStatus } from './StatusBadge';
+export { NON_FAILURE_TERMINAL_NOTES } from './terminalRunNotes';

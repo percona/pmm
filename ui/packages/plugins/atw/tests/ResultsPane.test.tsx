@@ -28,7 +28,7 @@ let mockCanMutate = true;
 
 vi.mock('@sep/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@sep/api')>()),
-  apiClient: { get: vi.fn() },
+  apiClient: { get: vi.fn(), post: vi.fn() },
   useAuth: () => ({ isAdmin: mockCanMutate, canMutate: mockCanMutate }),
 }));
 
@@ -41,7 +41,10 @@ beforeEach(() => {
 // closed throughout — so none of them fires a query.
 
 import { apiClient } from '@sep/api';
-const mockedApi = apiClient as unknown as { get: ReturnType<typeof vi.fn> };
+const mockedApi = apiClient as unknown as {
+  get: ReturnType<typeof vi.fn>;
+  post: ReturnType<typeof vi.fn>;
+};
 
 function paginated<T>(items: T[]) {
   return { data: { items, total: items.length, offset: 0, limit: 50 } };
@@ -1182,5 +1185,322 @@ describe('ResultsPane send-unavailable notice', () => {
     expect(
       screen.queryByRole('button', { name: /Send to support case/i })
     ).not.toBeInTheDocument();
+  });
+});
+
+// ── Files gating and rerun actions ───────────────────────────────────────
+
+const REMEMBERED_EXECUTION = {
+  id: 'exec-10',
+  snippet_filename: 'diag/slow-query.sh',
+  task_history_id: 42,
+  created_at: '2026-07-22T10:00:00Z',
+  task_status: 'success',
+  started_at: null,
+  finished_at: null,
+  has_logs: false,
+};
+
+const SECOND_REMEMBERED_EXECUTION = {
+  id: 'exec-11',
+  snippet_filename: 'diag/dmesg.sh',
+  task_history_id: 43,
+  created_at: '2026-07-22T10:01:00Z',
+  task_status: 'success',
+  started_at: null,
+  finished_at: null,
+  has_logs: false,
+};
+
+/**
+ * Route each GET by URL, like {@link routeGet} above, plus the files probe —
+ * these tests need to control that response precisely rather than let it fall
+ * through to a default that happens to have keys.
+ */
+function routeGetWithFiles(
+  filesById: Record<number, Record<string, { size: number; is_dir: boolean }>>
+) {
+  mockedApi.get.mockImplementation((url: string) => {
+    if (url.includes('/send-jobs/')) {
+      return Promise.resolve({
+        data: { items: [], total: 0, offset: 0, limit: 50 },
+      });
+    }
+    if (url.includes('/executions/')) {
+      return Promise.resolve({
+        data: { items: [REMEMBERED_EXECUTION], total: 1, offset: 0, limit: 20 },
+      });
+    }
+    if (url.includes('/config/')) {
+      return Promise.resolve({ data: { send_disabled_reasons: [] } });
+    }
+    if (url.startsWith('/files/')) {
+      const id = Number(url.replace('/files/', ''));
+      return Promise.resolve({ data: filesById[id] ?? {} });
+    }
+    return Promise.resolve({ data: { id: 'inc-1', case_ref: 'CS0001' } });
+  });
+}
+
+/** Like {@link routeGetWithFiles}, but with two rows, for cross-row cases. */
+function routeGetWithTwoExecutions() {
+  mockedApi.get.mockImplementation((url: string) => {
+    if (url.includes('/send-jobs/')) {
+      return Promise.resolve({
+        data: { items: [], total: 0, offset: 0, limit: 50 },
+      });
+    }
+    if (url.includes('/executions/')) {
+      return Promise.resolve({
+        data: {
+          items: [REMEMBERED_EXECUTION, SECOND_REMEMBERED_EXECUTION],
+          total: 2,
+          offset: 0,
+          limit: 20,
+        },
+      });
+    }
+    if (url.includes('/config/')) {
+      return Promise.resolve({ data: { send_disabled_reasons: [] } });
+    }
+    if (url.startsWith('/files/')) {
+      return Promise.resolve({ data: {} });
+    }
+    return Promise.resolve({ data: { id: 'inc-1', case_ref: 'CS0001' } });
+  });
+}
+
+describe('ResultsPane files gating', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  /** The row's actions live in `AccordionDetails`, unmounted until expanded. */
+  async function expandRow() {
+    await waitFor(() => {
+      expect(screen.getByText('diag/slow-query.sh')).toBeTruthy();
+    });
+    fireEvent.click(screen.getByText('diag/slow-query.sh'));
+  }
+
+  it('shows Files only once a non-empty listing is confirmed', async () => {
+    routeGetWithFiles({ 42: { 'out.log': { size: 10, is_dir: false } } });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+    await expandRow();
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Files' })).toBeTruthy();
+    });
+  });
+
+  it('hides Files when the run has none', async () => {
+    routeGetWithFiles({});
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+    await expandRow();
+
+    // Give the (empty-resolving) probe a tick to settle, via a button that
+    // does mount once expanded, before asserting Files' absence.
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'Edit parameters and run again' })
+      ).toBeTruthy();
+    });
+    expect(screen.queryByRole('button', { name: 'Files' })).toBeNull();
+  });
+});
+
+describe('ResultsPane rerun actions', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    routeGetWithFiles({});
+  });
+
+  /** The row's actions live in `AccordionDetails`, unmounted until expanded. */
+  async function expandRow() {
+    await waitFor(() => {
+      expect(screen.getByText('diag/slow-query.sh')).toBeTruthy();
+    });
+    fireEvent.click(screen.getByText('diag/slow-query.sh'));
+  }
+
+  it('offers "Edit parameters and run again" but withholds "Run again" without a remembered dispatch', async () => {
+    renderPane(<ResultsPane incidentId="inc-1" />);
+    await expandRow();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'Edit parameters and run again' })
+      ).toBeTruthy();
+    });
+    expect(screen.queryByRole('button', { name: 'Run again' })).toBeNull();
+  });
+
+  it('calls onEditParameters with the execution', async () => {
+    const onEditParameters = vi.fn();
+    renderPane(
+      <ResultsPane incidentId="inc-1" onEditParameters={onEditParameters} />
+    );
+    await expandRow();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'Edit parameters and run again' })
+      ).toBeTruthy();
+    });
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Edit parameters and run again' })
+    );
+    expect(onEditParameters).toHaveBeenCalledWith(REMEMBERED_EXECUTION);
+  });
+
+  it('offers "Run again" once this tab remembers the dispatch, and replays it unchanged', async () => {
+    mockedApi.post.mockResolvedValue({
+      data: {
+        items: [
+          { snippet_filename: 'diag/slow-query.sh', task_history_id: 77 },
+        ],
+      },
+    });
+    const onDispatched = vi.fn();
+    const remembered = new Map([
+      [
+        42,
+        {
+          snippets: [
+            {
+              name: 'diag/slow-query.sh',
+              title: 'Slow query',
+              description: '',
+            },
+          ],
+          values: { executor_host: 'node-a', sudo: false },
+        },
+      ],
+    ]);
+
+    renderPane(
+      <ResultsPane
+        incidentId="inc-1"
+        remembered={remembered}
+        onDispatched={onDispatched}
+      />
+    );
+    await expandRow();
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Run again' })).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Run again' }));
+
+    await waitFor(() => {
+      expect(mockedApi.post).toHaveBeenCalledWith(
+        '/apps/atw/incidents/inc-1/executions/',
+        expect.objectContaining({ executor_host: 'node-a', sudo: false })
+      );
+    });
+    await waitFor(() => expect(onDispatched).toHaveBeenCalled());
+  });
+
+  it('reports a failed "Run again" through the shared action-error alert', async () => {
+    mockedApi.post.mockRejectedValue(new Error('dispatch failed'));
+    const remembered = new Map([
+      [
+        42,
+        {
+          snippets: [
+            {
+              name: 'diag/slow-query.sh',
+              title: 'Slow query',
+              description: '',
+            },
+          ],
+          values: {},
+        },
+      ],
+    ]);
+
+    renderPane(<ResultsPane incidentId="inc-1" remembered={remembered} />);
+    await expandRow();
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Run again' })).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Run again' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('dispatch failed')).toBeTruthy();
+    });
+  });
+
+  it('disables every row\'s "Run again" while any one dispatch is in flight', async () => {
+    routeGetWithTwoExecutions();
+    let resolvePost: (value: unknown) => void = () => {};
+    mockedApi.post.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolvePost = resolve;
+        })
+    );
+    const remembered = new Map([
+      [
+        42,
+        {
+          snippets: [
+            {
+              name: 'diag/slow-query.sh',
+              title: 'Slow query',
+              description: '',
+            },
+          ],
+          values: {},
+        },
+      ],
+      [
+        43,
+        {
+          snippets: [
+            { name: 'diag/dmesg.sh', title: 'Dmesg', description: '' },
+          ],
+          values: {},
+        },
+      ],
+    ]);
+
+    renderPane(<ResultsPane incidentId="inc-1" remembered={remembered} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('diag/slow-query.sh')).toBeTruthy();
+    });
+    fireEvent.click(screen.getByText('diag/slow-query.sh'));
+    fireEvent.click(screen.getByText('diag/dmesg.sh'));
+
+    const runAgainButtons = await waitFor(() => {
+      const buttons = screen.getAllByRole('button', { name: 'Run again' });
+      expect(buttons).toHaveLength(2);
+      return buttons;
+    });
+
+    fireEvent.click(runAgainButtons[0]);
+
+    // The pane shares one mutation across every row, so a dispatch in flight
+    // for one row disables the action on the other too — not just the one
+    // clicked.
+    await waitFor(() => {
+      expect(runAgainButtons[1]).toBeDisabled();
+    });
+    expect(runAgainButtons[0]).toBeDisabled();
+
+    resolvePost({
+      data: {
+        items: [
+          { snippet_filename: 'diag/slow-query.sh', task_history_id: 99 },
+        ],
+      },
+    });
+    await waitFor(() => {
+      expect(runAgainButtons[1]).not.toBeDisabled();
+    });
   });
 });

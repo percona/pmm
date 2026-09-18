@@ -15,10 +15,14 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DownloadIcon from '@mui/icons-material/Download';
+import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import Alert from '@mui/material/Alert';
 import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
@@ -45,8 +49,15 @@ import { LogOutputPane } from './LogOutputPane';
 import { LogStepTabs } from './LogStepTabs';
 import { StatusBadge, type BadgeStatus } from './StatusBadge';
 import { StreamErrorBlock } from './StreamErrorBlock';
+import { NON_FAILURE_TERMINAL_NOTES } from './terminalRunNotes';
 
-type TopTab = 'stdout' | 'stderr' | 'events';
+type TopTab = 'stdout' | 'stderr';
+
+/** A tab label wide enough to lose no character of "stdout" or "stderr". */
+const TAB_LABEL_SX = { whiteSpace: 'nowrap' } as const;
+
+/** Execution events carry no unread indicator; a stable empty set for that prop. */
+const NO_UNREAD_STEPS: Set<string> = new Set();
 
 export const DEFAULT_LOG_TAIL_LINES = 1000;
 
@@ -182,6 +193,28 @@ function resolveBadgeStatus(
   return finishStatus;
 }
 
+/**
+ * The stream to open on when nothing has chosen one yet.
+ *
+ * Prefers stdout — most scripts' interesting output goes there — and falls
+ * back to stderr only when the active step's stdout is empty and its stderr
+ * is not, so a script that wrote its failure to stderr does not read "No
+ * output" on a finished run while the real reason sits one tab over.
+ */
+function preferredTopTab(
+  activeStep: string | undefined,
+  textByStep: Record<string, StepText>
+): TopTab {
+  if (!activeStep) {
+    return 'stdout';
+  }
+  const pane = textByStep[activeStep];
+  if (pane && pane.stdout === '' && pane.stderr !== '') {
+    return 'stderr';
+  }
+  return 'stdout';
+}
+
 export function TaskLogViewer({
   taskHistoryId,
   taskStatus,
@@ -201,18 +234,28 @@ export function TaskLogViewer({
     running
   );
 
-  const [topTab, setTopTab] = useState<TopTab>('stdout');
+  // `undefined` means the stream/step choice has not been overridden by a
+  // click, so the effective tab below keeps auto-picking whichever of
+  // stdout/stderr has content. Any explicit click fixes it from then on.
+  const [manualTopTab, setManualTopTab] = useState<TopTab | undefined>();
   const [activeStep, setActiveStep] = useState<string | undefined>();
-  const [wrap, setWrap] = useState(false);
+  const [wrap, setWrap] = useState(true);
 
   const [unreadTypes, setUnreadTypes] = useState<Set<LogType>>(new Set());
   const [unreadSteps, setUnreadSteps] = useState<Set<string>>(new Set());
+
+  // Execution events keep their own step selection, independent of the log
+  // pane's: an event can fire for a step that never wrote a log line, so
+  // sharing one step state would make that step's events unreachable.
+  const [activeEventStep, setActiveEventStep] = useState<string | undefined>();
 
   const prevLogSizesRef = useRef<Record<string, number>>({});
 
   // Reset view state when switching to a different task history
   useEffect(() => {
+    setManualTopTab(undefined);
     setActiveStep(undefined);
+    setActiveEventStep(undefined);
     setUnreadTypes(new Set());
     setUnreadSteps(new Set());
     prevLogSizesRef.current = {};
@@ -223,6 +266,9 @@ export function TaskLogViewer({
       setActiveStep(stepOrder[0]);
     }
   }, [stepOrder, activeStep]);
+
+  const topTab: TopTab =
+    manualTopTab ?? preferredTopTab(activeStep, textByStep);
 
   // Track unread notifications based on accumulated text growth
   useEffect(() => {
@@ -263,13 +309,7 @@ export function TaskLogViewer({
   }, [textByStep, stepOrder, topTab, activeStep]);
 
   const handleTopTab = (value: TopTab) => {
-    setTopTab(value);
-    // Execution events deliberately carry no unread indicator: they arrive over
-    // SSE on every pushed event, and badging them pulled attention away from
-    // stdout and stderr, which are the reason the console is open.
-    if (value === 'events') {
-      return;
-    }
+    setManualTopTab(value);
     setUnreadTypes((prev) => {
       if (!prev.has(value)) {
         return prev;
@@ -292,13 +332,8 @@ export function TaskLogViewer({
     });
   };
 
-  const stepsForTabs = useMemo(
-    () => (topTab === 'events' ? eventStepOrder : stepOrder),
-    [topTab, eventStepOrder, stepOrder]
-  );
-
   const currentPaneText = useMemo(() => {
-    if (topTab === 'events' || !activeStep) {
+    if (!activeStep) {
       return '';
     }
     const pane = textByStep[activeStep];
@@ -310,9 +345,6 @@ export function TaskLogViewer({
 
   const download = useLogDownload();
   const handleDownload = () => {
-    if (topTab === 'events') {
-      return;
-    }
     const filename = `task-${taskHistoryId}-${activeStep ?? 'step'}-${topTab}.log`;
     download(filename, currentPaneText);
   };
@@ -325,6 +357,19 @@ export function TaskLogViewer({
   };
 
   const badgeStatus = resolveBadgeStatus(finishStatus, error);
+
+  // A run is "finished" once the stream itself says so (a `finish` SSE event
+  // carrying a terminal status) or, absent that, once the caller's own status
+  // prop says the run is not running — the case for a viewer just mounted
+  // against an already-terminal history row, before its stream has caught up.
+  // Used only to pick the empty-pane wording: "No output" reads as final,
+  // where "No output yet." promises more may still arrive.
+  const hasFinished =
+    Boolean(finishStatus) || (taskStatus !== undefined && !running);
+
+  const nonFailureNote = finishStatus
+    ? NON_FAILURE_TERMINAL_NOTES[finishStatus]
+    : undefined;
 
   // Hide the line cap once a finished history has streamed a log that is
   // provably complete and short enough that every option would show the same
@@ -350,22 +395,18 @@ export function TaskLogViewer({
       <Stack
         direction="row"
         alignItems="center"
+        flexWrap="wrap"
+        rowGap={1}
         sx={{ px: 1, pt: 1, borderBottom: 1, borderColor: 'divider' }}
       >
         <Tabs
-          // The events view is not one of these tabs, so hand MUI `false`
-          // rather than an out-of-range value: no tab reads as active and no
-          // out-of-range warning is logged.
-          value={topTab === 'events' ? false : topTab}
+          value={topTab}
           onChange={(_, v: LogType) => handleTopTab(v)}
-          sx={{ minHeight: 40 }}
+          sx={{ minHeight: 40, flexShrink: 0 }}
         >
           <Tab
             value="stdout"
-            // MUI gives every tab tabIndex -1 when no tab is selected, which
-            // would strand keyboard users outside the strip while the events
-            // view is open. Keep one entry point; arrow keys move from there.
-            {...(topTab === 'events' ? { tabIndex: 0 } : {})}
+            sx={TAB_LABEL_SX}
             label={
               <Badge
                 color="primary"
@@ -378,6 +419,7 @@ export function TaskLogViewer({
           />
           <Tab
             value="stderr"
+            sx={TAB_LABEL_SX}
             label={
               <Badge
                 color="primary"
@@ -389,23 +431,6 @@ export function TaskLogViewer({
             }
           />
         </Tabs>
-        {/* Subordinate to the primary tabs, but still one click away. */}
-        <Button
-          size="small"
-          color="inherit"
-          onClick={() => handleTopTab('events')}
-          // Not a toggle: a second click is a no-op and the way back is a
-          // primary tab, so mark it as the current view rather than pressed.
-          aria-current={topTab === 'events' ? 'true' : undefined}
-          sx={{
-            ml: 1,
-            textTransform: 'none',
-            color: topTab === 'events' ? 'text.primary' : 'text.secondary',
-            bgcolor: topTab === 'events' ? 'action.selected' : 'transparent',
-          }}
-        >
-          Execution events
-        </Button>
         <Box sx={{ flex: 1 }} />
         <Stack direction="row" alignItems="center" spacing={1} sx={{ pr: 1 }}>
           {badgeStatus && <StatusBadge status={badgeStatus} />}
@@ -469,7 +494,7 @@ export function TaskLogViewer({
               <IconButton
                 size="small"
                 onClick={handleDownload}
-                disabled={topTab === 'events' || !currentPaneText}
+                disabled={!currentPaneText}
                 aria-label="Download log"
               >
                 <DownloadIcon fontSize="small" />
@@ -485,26 +510,54 @@ export function TaskLogViewer({
         </Box>
       )}
 
-      <Box sx={{ flex: 1, minHeight: 0 }}>
-        {topTab === 'events' ? (
-          <ExecutionEventsPanel
-            eventsByStep={eventsByStep}
-            activeStep={activeStep}
-            height={height}
-          />
-        ) : (
-          <LogOutputPane text={currentPaneText} wrap={wrap} height={height} />
-        )}
-      </Box>
+      {!error && nonFailureNote && (
+        <Box sx={{ p: 1 }}>
+          <Alert severity="warning" data-testid="task-log-viewer-note">
+            {nonFailureNote}
+          </Alert>
+        </Box>
+      )}
 
-      <Box sx={{ borderTop: 1, borderColor: 'divider', px: 1 }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 1 }}>
         <LogStepTabs
-          steps={stepsForTabs}
+          steps={stepOrder}
           activeStep={activeStep}
           unreadSteps={unreadSteps}
           onSelect={handleStepSelect}
         />
       </Box>
+
+      <Box sx={{ flex: 1, minHeight: 0 }}>
+        <LogOutputPane
+          text={currentPaneText}
+          wrap={wrap}
+          height={height}
+          emptyLabel={hasFinished ? 'No output' : 'No output yet.'}
+        />
+      </Box>
+
+      <Accordion disableGutters sx={{ '&:before': { display: 'none' } }}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="body2" color="text.secondary">
+            Technical details
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails sx={{ p: 0 }}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 1 }}>
+            <LogStepTabs
+              steps={eventStepOrder}
+              activeStep={activeEventStep}
+              unreadSteps={NO_UNREAD_STEPS}
+              onSelect={setActiveEventStep}
+            />
+          </Box>
+          <ExecutionEventsPanel
+            eventsByStep={eventsByStep}
+            activeStep={activeEventStep}
+            height={240}
+          />
+        </AccordionDetails>
+      </Accordion>
     </Paper>
   );
 }
