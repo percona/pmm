@@ -3,7 +3,7 @@
 > **Parent guide**: [AGENTS.md](../AGENTS.md) — product overview, architecture, domain model, global conventions
 > **Related**: [api/AGENTS.md](../api/AGENTS.md) (protobuf behind the API reference)
 
-This file is the single source of documentation rules. Two human-facing files keep the parts they own and this guide links to them instead of restating: [`WRITERS-NOTES.md`](WRITERS-NOTES.md) for the admonition colour table, the icon list and symbols, and [`docs-contributing.md`](docs-contributing.md) for the external-contributor workflow. When this guide and an older note disagree, this guide wins — the older note is corrected, never forked.
+This file is the single source of documentation rules. Two human-facing files keep the parts they own and this guide links to them instead of restating: [`WRITERS-NOTES.md`](WRITERS-NOTES.md) for the admonition colour table, the icon list and symbols, and [`CONTRIBUTING.md`](CONTRIBUTING.md) for the external-contributor workflow. When this guide and an older note disagree, this guide wins — the older note is corrected, never forked.
 
 Every rule below was checked against the published pages under `docs/` rather than carried over on faith. Where a plausible-sounding rule turned out to be absent from the corpus, it is listed in [Rules that are not rules](#rules-that-are-not-rules) rather than silently dropped.
 
@@ -48,7 +48,7 @@ documentation/
 ├── mkdocs-base.yml          # site config + nav; mkdocs.yml and mkdocs-pdf.yml INHERIT it
 ├── variables.yml            # release variables
 ├── WRITERS-NOTES.md         # admonition colours, icons, symbols
-└── docs-contributing.md     # contributor workflow
+└── CONTRIBUTING.md          # contributor workflow
 ```
 
 Pages carry **no YAML front matter** — not one does. Start the file with its `# H1` and nothing else.
@@ -197,7 +197,7 @@ These come up repeatedly — from general technical-writing advice and from the 
 - `documentation/mkdocs-base.yml` — site config, markdown extensions, plugins, and the `nav:` tree
 - `documentation/variables.yml` — `{{release}}`, `{{version}}`, `{{release_date}}`
 - `documentation/WRITERS-NOTES.md` — admonition colours, icon table, symbols
-- `documentation/docs-contributing.md` — contributor-facing workflow and local preview
+- `documentation/CONTRIBUTING.md` — contributor-facing workflow and local preview
 - `documentation/docs/install-pmm/` — the reworked chapter; the closest thing to a house-style reference
 - `documentation/docs/release-notes/3.9.1.md` — a release notes page in its published shape
 - `documentation/.linkspector.yml` — link checker config, including the ignore list
