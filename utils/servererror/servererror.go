@@ -164,6 +164,11 @@ func (e NginxError) GoString() string {
 // a hostile server answering with an unbounded body cannot be used to exhaust memory.
 const maxNginxBodySize = 64 * 1024
 
+// maxDrainSize bounds how much of an oversized response NginxConsumer reads past
+// maxNginxBodySize to free the connection for reuse. It is the point at which keeping the
+// connection stops being worth the wait.
+const maxDrainSize = 1024 * 1024
+
 // NginxConsumer returns a go-openapi consumer which turns a response body into a NginxError.
 // Both CLIs install it for the content types the PMM Server API never answers with, so that an
 // nginx page surfaces as an error of its own instead of as a JSON decoding failure.
@@ -187,7 +192,12 @@ func NginxConsumer() runtime.ConsumerFunc {
 			// has been read to the end. Abandoning an oversized body mid-read would cost
 			// a fresh handshake for every such response - irrelevant to a one-shot CLI,
 			// but these consumers are installed on the api-tests transport too.
-			_, _ = io.Copy(io.Discard, reader)
+			//
+			// The drain is bounded for the same reason the read above is: an endless or
+			// stalling body would otherwise hold the caller here indefinitely, which is
+			// the cheaper half of the memory exhaustion maxNginxBodySize rules out. A
+			// response past maxDrainSize gives up its connection instead.
+			_, _ = io.CopyN(io.Discard, reader, maxDrainSize)
 		}
 
 		msg := strings.TrimSpace(string(b))

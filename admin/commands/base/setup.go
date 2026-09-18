@@ -19,6 +19,7 @@ import (
 	"errors"
 	"net/url"
 	"regexp"
+	"strings"
 
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
@@ -61,16 +62,25 @@ func normalizeServerURL(u *url.URL) error {
 // recognises userinfo in a properly structured "scheme://user:pass@host" URL. A URL typed
 // without "//" - a missing scheme being exactly the kind of mistake this code has to diagnose -
 // parses as opaque instead, with "user:password" sitting in Opaque, in cleartext, which
-// Redacted does not look at; a URL that fails to parse at all is not touched by it either.
+// Redacted does not look at; one typed with the wrong number of slashes parses with an empty
+// Host and the same cleartext sitting in Path, which Redacted does not look at either; and a
+// URL that fails to parse at all is not touched by it in any form.
 //
 // The match is anchored, and the pattern is deliberately not applied to URLs Redacted already
 // handles: an "@" is legal in a path, and treating a later one as a userinfo terminator
-// mangled the host, port and path of the very URL the caller is being asked to fix.
+// mangled the host, port and path of the very URL the caller is being asked to fix. The scheme
+// prefix therefore accepts any number of slashes - zero through three all occur in the typos
+// this has to cover - but the userinfo itself must still follow it immediately.
 //
 // The password half deliberately allows "/": a scheme prefix such as "https:" would otherwise
 // also satisfy "name:" and swallow it into the match, but the password can legitimately contain
 // a slash, and excluding it let such a password slip through unredacted.
-var credentialPattern = regexp.MustCompile(`^((?:[a-zA-Z][a-zA-Z0-9+.-]*://)?[^/@:\s]+):(?:[^/@\s][^@\s]*)?@`)
+var credentialPattern = regexp.MustCompile(`^((?:[a-zA-Z][a-zA-Z0-9+.-]*:/*)?[^/@:\s]+):(?:[^/@\s][^@\s]*)?@`)
+
+// redactedURLPlaceholder stands in for a URL too malformed for either url.Parse or
+// credentialPattern to say where its credentials end. Both callers print the reason alongside
+// it, so nothing a user needs to act on is lost by withholding the string itself.
+const redactedURLPlaceholder = "(redacted)"
 
 // redactedServerURL returns raw with any password it carries replaced by a placeholder, so a
 // PMM Server URL can be logged without leaking its credentials - however malformed the URL
@@ -78,15 +88,30 @@ var credentialPattern = regexp.MustCompile(`^((?:[a-zA-Z][a-zA-Z0-9+.-]*://)?[^/
 func redactedServerURL(raw string) string {
 	// A URL with a proper authority: Redacted covers its userinfo exactly, and one without
 	// userinfo has nothing to redact. Either way credentialPattern must not run on top, or
-	// an "@" later in the path would be mistaken for a userinfo terminator.
+	// an "@" later in the path would be mistaken for a userinfo terminator. An empty Host
+	// disqualifies a URL from this: "https:/user:pass@host" parses without error, but what
+	// Redacted then has to work with is a path, not an authority.
 	u, err := url.Parse(raw)
-	if err == nil && u.Opaque == "" {
+	if err == nil && u.Opaque == "" && u.Host != "" {
 		return u.Redacted()
 	}
 
-	// Opaque ("user:pass@host", no "//") and unparseable URLs never reach Redacted's
-	// userinfo handling, so any credentials here are still in cleartext.
-	return credentialPattern.ReplaceAllString(raw, "$1:xxxxx@")
+	// Opaque ("user:pass@host", no "//"), authority-less and unparseable URLs never reach
+	// Redacted's userinfo handling, so any credentials here are still in cleartext.
+	if credentialPattern.MatchString(raw) {
+		return credentialPattern.ReplaceAllString(raw, "$1:xxxxx@")
+	}
+
+	// Fail closed. credentialPattern rejects whitespace, so a URL typed with a leading space,
+	// or one whose userinfo contains one, falls through it untouched - and those are exactly
+	// the shapes url.Parse has already refused to make sense of, leaving nothing that can say
+	// whether a remaining "@" terminates a userinfo or sits in a path. A string this
+	// malformed is not worth echoing back at the cost of printing a password.
+	if strings.Contains(raw, "@") {
+		return redactedURLPlaceholder
+	}
+
+	return raw
 }
 
 // sanitizeURLError returns a safe-to-log form of err: url.Parse embeds the exact string it

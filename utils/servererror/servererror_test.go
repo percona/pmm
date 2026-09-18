@@ -287,6 +287,20 @@ func TestNginxConsumer(t *testing.T) {
 		assert.True(t, strings.HasSuffix(string(target), "[truncated]"))
 	})
 
+	t.Run("endless body is drained only up to the drain limit", func(t *testing.T) {
+		t.Parallel()
+
+		// An endless body is what a hostile or misconfigured server answers with. The
+		// consumer drains past maxNginxBodySize to let the connection be reused, and the
+		// point of the test is that the drain stops: unbounded, this call never returns.
+		reader := &endlessReader{}
+		err := NginxConsumer().Consume(reader, nil)
+
+		var target NginxError
+		require.ErrorAs(t, err, &target)
+		assert.LessOrEqual(t, reader.read, int64(maxNginxBodySize)+1+maxDrainSize)
+	})
+
 	t.Run("body at exactly the limit is not marked truncated", func(t *testing.T) {
 		t.Parallel()
 
@@ -297,4 +311,19 @@ func TestNginxConsumer(t *testing.T) {
 		require.ErrorAs(t, err, &target)
 		assert.Equal(t, NginxError(body), target)
 	})
+}
+
+// endlessReader answers every read in full, forever, counting what it has handed out - a
+// stand-in for a server whose response body never ends.
+type endlessReader struct {
+	read int64
+}
+
+func (r *endlessReader) Read(p []byte) (int, error) {
+	for i := range p {
+		p[i] = 'a'
+	}
+	r.read += int64(len(p))
+
+	return len(p), nil
 }

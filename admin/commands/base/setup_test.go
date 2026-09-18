@@ -158,6 +158,37 @@ func TestRedactedServerURL(t *testing.T) {
 			raw:  "https://admin:hunter2@pmm-server:8443/a@b",
 			want: "https://admin:xxxxx@pmm-server:8443/a@b",
 		},
+		"one slash after the scheme, credentials present": {
+			// A single slash parses cleanly, but as a path: the credentials end up in
+			// url.URL.Path with User nil, so Redacted has nothing to redact and returns
+			// the password unchanged.
+			raw:           "https:/admin:hunter2@pmm-server:8443",
+			wantSubstring: "admin:xxxxx@pmm-server:8443",
+		},
+		"three slashes after the scheme, credentials present": {
+			// Same shape as the single-slash typo: an empty authority, and the credentials
+			// sitting in the path where Redacted never looks.
+			raw:           "https:///admin:hunter2@pmm-server:8443",
+			wantSubstring: "admin:xxxxx@pmm-server:8443",
+		},
+		"leading whitespace, credentials present": {
+			// A stray space defeats url.Parse and credentialPattern alike - the first
+			// segment then looks like a path with a colon in it, and the pattern is
+			// anchored - so redaction has to fall closed rather than pass the URL through.
+			raw:  " https://admin:hunter2@pmm-server:8443",
+			want: redactedURLPlaceholder,
+		},
+		"whitespace inside the userinfo": {
+			// url.Parse rejects the userinfo outright, and the pattern excludes whitespace
+			// from the user half, so this is the other shape that has to fail closed.
+			raw:  "https://ad min:hunter2@pmm-server:8443",
+			want: redactedURLPlaceholder,
+		},
+		"whitespace inside the password": {
+			// The password half excludes whitespace too, for the same reason.
+			raw:  "https://admin:hun ter2@pmm-server:8443",
+			want: redactedURLPlaceholder,
+		},
 		"host invalid because of a slash in the password": {
 			// The slash makes url.Parse itself misread the URL ("hunter2" ends up looking like
 			// an invalid port), so this exercises the raw-string fallback path, not Redacted.
@@ -171,6 +202,7 @@ func TestRedactedServerURL(t *testing.T) {
 			got := redactedServerURL(tc.raw)
 
 			assert.NotContains(t, got, "hunter2")
+			assert.NotContains(t, got, "ter2")
 			if tc.want != "" {
 				assert.Equal(t, tc.want, got)
 
