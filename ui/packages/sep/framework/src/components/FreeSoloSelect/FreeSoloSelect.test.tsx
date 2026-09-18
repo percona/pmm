@@ -32,9 +32,11 @@ const labelOf = (o: ReferenceOption) => o.name;
 function Harness({
   defaultValue = '',
   options = OPTIONS,
+  required = false,
 }: {
   defaultValue?: unknown;
   options?: readonly ReferenceOption[];
+  required?: boolean;
 }) {
   const methods = useForm({ defaultValues: { schema: defaultValue } });
   return (
@@ -44,6 +46,7 @@ function Harness({
         label="Schema"
         options={options}
         getOptionLabel={labelOf}
+        required={required}
       />
       <output data-testid="value">
         {JSON.stringify(methods.watch('schema'))}
@@ -55,6 +58,16 @@ function Harness({
 const value = () => screen.getByTestId('value').textContent;
 
 describe('FreeSoloSelect', () => {
+  it('puts the label and required marker outside the outlined input', () => {
+    render(<Harness required />);
+
+    // Peak LabeledContent: sectionHeading above the control with a nested "*".
+    const heading = document.querySelector('.MuiTypography-sectionHeading');
+    expect(heading?.textContent).toBe('Schema*');
+    expect(document.querySelector('.MuiInputLabel-root')).toBeNull();
+    expect(screen.getByLabelText('Schema')).toBeInTheDocument();
+  });
+
   it('commits the inventory id when an option is picked', async () => {
     const user = userEvent.setup();
     render(<Harness />);

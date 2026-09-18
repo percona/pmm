@@ -20,6 +20,7 @@ import { TextInput } from '@percona/peak-ui';
 import { FieldLabelWithHelp } from '../FieldLabelWithHelp';
 import { fieldHelp } from '../fieldHelp';
 import type { StringField as StringFieldType } from '../types';
+import { fieldPlaceholder } from '../utils/fieldDefault';
 import { buildValidationRules } from '../utils/validationMapper';
 
 interface StringFieldProps {
@@ -40,7 +41,7 @@ export function StringField({ field }: StringFieldProps) {
           <FieldLabelWithHelp label={field.label} description={help.tooltip} />
         ),
         helperText: help.inline,
-        placeholder: field.placeholder,
+        placeholder: fieldPlaceholder(field),
         fullWidth: true,
       }}
       controllerProps={{ rules: buildValidationRules(field) }}

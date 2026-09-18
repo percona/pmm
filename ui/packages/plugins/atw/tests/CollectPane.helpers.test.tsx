@@ -21,8 +21,10 @@ import {
   buildBatchPayload,
   fieldDeclaresGate,
   filterSnippetOptions,
+  isCliUsageTrapField,
   mergeSnippetOptions,
   namespaceField,
+  omitCliUsageTrapFields,
   snippetMatchesTerm,
 } from '../src/CollectPane';
 import type { AtwSnippetSummary } from '../src/types';
@@ -272,5 +274,86 @@ describe('fieldDeclaresGate', () => {
       ],
     };
     expect(fieldDeclaresGate(group)).toBe(true);
+  });
+});
+
+describe('isCliUsageTrapField / omitCliUsageTrapFields', () => {
+  it('flags help / show_help / h / usage by name (case-insensitive)', () => {
+    expect(
+      isCliUsageTrapField({ type: 'bool', name: 'help', label: 'Help' })
+    ).toBe(true);
+    expect(
+      isCliUsageTrapField({
+        type: 'bool',
+        name: 'Show_Help',
+        label: 'Show help',
+      })
+    ).toBe(true);
+    expect(isCliUsageTrapField({ type: 'bool', name: 'h', label: '-h' })).toBe(
+      true
+    );
+    expect(
+      isCliUsageTrapField({ type: 'bool', name: 'usage', label: 'Usage' })
+    ).toBe(true);
+    expect(
+      isCliUsageTrapField({
+        type: 'integer',
+        name: 'minutes',
+        label: 'Minutes',
+      })
+    ).toBe(false);
+  });
+
+  it('flags a label that offers to show the help message', () => {
+    expect(
+      isCliUsageTrapField({
+        type: 'bool',
+        name: 'verbose_help',
+        label: 'Show help message',
+      })
+    ).toBe(true);
+  });
+
+  it('matches the bare name after a namespace prefix', () => {
+    expect(
+      isCliUsageTrapField({
+        type: 'bool',
+        name: 'overrides.snip0.help',
+        label: 'Help',
+      })
+    ).toBe(true);
+  });
+
+  it('drops trap fields from a section list and one-of leaves', () => {
+    const fields: SectionField[] = [
+      { type: 'integer', name: 'minutes', label: 'Minutes' },
+      { type: 'bool', name: 'help', label: 'Show help message' },
+      {
+        type: 'one_of',
+        name: 'source',
+        label: 'Source',
+        discriminator: 'source.mode',
+        branches: [
+          {
+            value: 'cli',
+            label: 'CLI',
+            fields: [
+              { type: 'bool', name: 'h', label: '-h' },
+              { type: 'string', name: 'path', label: 'Path' },
+            ],
+          },
+        ],
+      },
+    ];
+
+    const kept = omitCliUsageTrapFields(fields);
+    expect(kept.map((field) => field.name)).toEqual(['minutes', 'source']);
+    const group = kept[1];
+    expect(group.type).toBe('one_of');
+    if (group.type === 'one_of') {
+      expect(group.branches[0].fields.map((leaf) => leaf.name)).toEqual([
+        'path',
+      ]);
+    }
   });
 });

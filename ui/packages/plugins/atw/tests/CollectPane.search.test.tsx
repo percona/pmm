@@ -428,4 +428,126 @@ describe('CollectPane — write access', () => {
       ).toBeGreaterThan(0)
     );
   });
+
+  it('mounts a datetime-local picker when the merged schema declares datetime', async () => {
+    mockedApi.get.mockImplementation((url: string) => {
+      if (url.startsWith('/apps/atw/snippets/')) {
+        return Promise.resolve({
+          data: {
+            items: [SEARCH_ROW],
+            total: 1,
+            offset: 0,
+            limit: 50,
+          },
+        });
+      }
+      if (url.includes('/execution-schema/')) {
+        return Promise.resolve({
+          data: {
+            shared: [],
+            per_snippet: [
+              {
+                snippet_filename: 'ops/pt-summary.sh',
+                fields: [
+                  {
+                    type: 'datetime',
+                    name: 'since',
+                    label: 'Since',
+                    default: '2024-06-15T12:00:00.000Z',
+                  },
+                ],
+              },
+            ],
+          },
+        });
+      }
+      return Promise.resolve({ data: CATEGORY_LISTING });
+    });
+    renderPane(<CollectPane incidentId="inc-1" />);
+    await typeSearch('summary');
+    const option = await screen.findByRole(
+      'option',
+      { name: /PT Summary/ },
+      { timeout: 3000 }
+    );
+    await userEvent.click(option);
+
+    const input = await screen.findByTestId(
+      'text-input-overrides.snip0.since',
+      undefined,
+      { timeout: 3000 }
+    );
+    expect(input).toHaveAttribute('type', 'datetime-local');
+    expect((input as HTMLInputElement).value).toMatch(
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/
+    );
+  });
+
+  it('omits CLI show-help / usage traps from the Collect form', async () => {
+    mockedApi.get.mockImplementation((url: string) => {
+      if (url.startsWith('/apps/atw/snippets/')) {
+        return Promise.resolve({
+          data: {
+            items: [SEARCH_ROW],
+            total: 1,
+            offset: 0,
+            limit: 50,
+          },
+        });
+      }
+      if (url.includes('/execution-schema/')) {
+        return Promise.resolve({
+          data: {
+            shared: [],
+            per_snippet: [
+              {
+                snippet_filename: 'ops/pt-summary.sh',
+                fields: [
+                  {
+                    type: 'integer',
+                    name: 'minutes',
+                    label: 'Minutes',
+                    required: true,
+                  },
+                  {
+                    type: 'bool',
+                    name: 'help',
+                    label: 'Show help message',
+                  },
+                  {
+                    type: 'bool',
+                    name: 'usage',
+                    label: 'Print usage',
+                  },
+                ],
+              },
+            ],
+          },
+        });
+      }
+      return Promise.resolve({ data: CATEGORY_LISTING });
+    });
+    renderPane(<CollectPane incidentId="inc-1" />);
+    await typeSearch('summary');
+    await userEvent.click(
+      await screen.findByRole(
+        'option',
+        { name: /PT Summary/ },
+        { timeout: 3000 }
+      )
+    );
+
+    expect(
+      await screen.findByTestId(
+        'text-input-overrides.snip0.minutes',
+        undefined,
+        {
+          timeout: 3000,
+        }
+      )
+    ).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Show help message/i)).toBeNull();
+    expect(screen.queryByLabelText(/Print usage/i)).toBeNull();
+    expect(screen.queryByTestId('text-input-overrides.snip0.help')).toBeNull();
+  });
 });

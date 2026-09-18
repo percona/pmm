@@ -27,6 +27,7 @@ import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
+import { LabeledContent } from '@percona/peak-ui';
 import {
   toDisplayValue,
   normalizeChange,
@@ -116,85 +117,94 @@ function FreeSoloAutocomplete<T extends ReferenceOption>({
   const commit = (next: FreeSoloDisplayValue<T>) =>
     onChange(normalizeChange<T>(next, options, getOptionLabel));
 
+  // Label + required marker live on LabeledContent above the control, matching
+  // ChoiceField / other Peak-wrapped fields — not as a floating MUI label
+  // inside the outlined box (the Execution Host defect on ATW Collect).
   return (
-    <Autocomplete<T | string, false, false, true>
-      freeSolo
-      options={options as (T | string)[]}
-      value={value}
-      disabled={disabled}
-      loading={loading}
-      forcePopupIcon
-      // Keep freshly-typed text after blur so a custom value survives.
-      clearOnBlur={false}
-      selectOnFocus
-      handleHomeEndKeys
-      getOptionLabel={labelOf}
-      isOptionEqualToValue={isOptionEqualToValue}
-      noOptionsText={noOptionsText}
-      onOpen={onOpen}
-      data-testid={`${field.name}-autocomplete`}
-      filterOptions={(opts, params) => {
-        const filtered = filter(opts, params);
-        const input = params.inputValue.trim();
-        // Offer the typed text as a "create" suggestion unless it already
-        // matches an inventory option's label.
-        const exists = options.some((o) => getOptionLabel(o) === input);
-        if (input !== '' && !exists) {
-          filtered.push(input);
-        }
-        return filtered;
-      }}
-      renderOption={(props, option) => {
-        const { key, ...rest } = props as {
-          key?: string;
-        } & React.HTMLAttributes<HTMLLIElement>;
-        return typeof option === 'string' ? (
-          <Box component="li" key={key} {...rest} sx={{ fontStyle: 'italic' }}>
-            <em>{option}</em>
-          </Box>
-        ) : (
-          <Box component="li" key={key} {...rest}>
-            {getOptionLabel(option)}
-          </Box>
-        );
-      }}
-      onChange={(_event, next) => commit(next)}
-      onInputChange={(_event, input, reason) => {
-        // Live typing → commit as a custom value (or resolve to an id when it
-        // matches an option). 'reset' / 'clear' are selection-driven and handled
-        // by onChange, so ignore them here.
-        if (reason === 'input') {
-          commit(input);
-        }
-      }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          inputRef={field.ref}
-          onBlur={field.onBlur}
-          label={label}
-          required={required}
-          error={error || !!fieldError}
-          helperText={fieldError ? fieldError.message : helperText}
-          size="small"
-          inputProps={{
-            ...params.inputProps,
-            style: isCustomValue ? { fontStyle: 'italic' } : undefined,
-          }}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {loading ? (
-                  <CircularProgress color="inherit" size={20} />
-                ) : null}
-                {params.InputProps.endAdornment}
-              </>
-            ),
-          }}
-        />
-      )}
-    />
+    <LabeledContent label={label} isRequired={required}>
+      <Autocomplete<T | string, false, false, true>
+        freeSolo
+        options={options as (T | string)[]}
+        value={value}
+        disabled={disabled}
+        loading={loading}
+        forcePopupIcon
+        // Keep freshly-typed text after blur so a custom value survives.
+        clearOnBlur={false}
+        selectOnFocus
+        handleHomeEndKeys
+        getOptionLabel={labelOf}
+        isOptionEqualToValue={isOptionEqualToValue}
+        noOptionsText={noOptionsText}
+        onOpen={onOpen}
+        data-testid={`${field.name}-autocomplete`}
+        filterOptions={(opts, params) => {
+          const filtered = filter(opts, params);
+          const input = params.inputValue.trim();
+          // Offer the typed text as a "create" suggestion unless it already
+          // matches an inventory option's label.
+          const exists = options.some((o) => getOptionLabel(o) === input);
+          if (input !== '' && !exists) {
+            filtered.push(input);
+          }
+          return filtered;
+        }}
+        renderOption={(props, option) => {
+          const { key, ...rest } = props as {
+            key?: string;
+          } & React.HTMLAttributes<HTMLLIElement>;
+          return typeof option === 'string' ? (
+            <Box
+              component="li"
+              key={key}
+              {...rest}
+              sx={{ fontStyle: 'italic' }}
+            >
+              <em>{option}</em>
+            </Box>
+          ) : (
+            <Box component="li" key={key} {...rest}>
+              {getOptionLabel(option)}
+            </Box>
+          );
+        }}
+        onChange={(_event, next) => commit(next)}
+        onInputChange={(_event, input, reason) => {
+          // Live typing → commit as a custom value (or resolve to an id when it
+          // matches an option). 'reset' / 'clear' are selection-driven and handled
+          // by onChange, so ignore them here.
+          if (reason === 'input') {
+            commit(input);
+          }
+        }}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            inputRef={field.ref}
+            onBlur={field.onBlur}
+            error={error || !!fieldError}
+            helperText={fieldError ? fieldError.message : helperText}
+            size="small"
+            inputProps={{
+              ...params.inputProps,
+              'aria-label': label,
+              style: isCustomValue ? { fontStyle: 'italic' } : undefined,
+            }}
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {loading ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : null}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            }}
+          />
+        )}
+      />
+    </LabeledContent>
   );
 }
 
