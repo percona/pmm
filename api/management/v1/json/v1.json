@@ -803,6 +803,11 @@
                         "description": "True if this node is a PMM Server node (HA mode).",
                         "type": "boolean",
                         "x-order": 18
+                      },
+                      "is_pmm_internal_node": {
+                        "description": "True if this node belongs to the internal infrastructure of a PMM deployment\n(e.g. the HA persistence layer) and must not host user monitoring workloads.",
+                        "type": "boolean",
+                        "x-order": 19
                       }
                     }
                   },
@@ -1360,6 +1365,11 @@
                       "description": "True if this node is a PMM Server node (HA mode).",
                       "type": "boolean",
                       "x-order": 18
+                    },
+                    "is_pmm_internal_node": {
+                      "description": "True if this node belongs to the internal infrastructure of a PMM deployment\n(e.g. the HA persistence layer) and must not host user monitoring workloads.",
+                      "type": "boolean",
+                      "x-order": 19
                     }
                   },
                   "x-order": 0
@@ -7131,6 +7141,11 @@
                   "description": "Connection timeout for exporter (if set).",
                   "type": "string",
                   "x-order": 25
+                },
+                "pmm_agent_id": {
+                  "description": "The pmm-agent identifier which should run agents. Defaults to the PMM Server's own pmm-agent.",
+                  "type": "string",
+                  "x-order": 26
                 }
               }
             }

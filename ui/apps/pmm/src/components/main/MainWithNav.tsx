@@ -7,6 +7,7 @@ import { GrafanaPage } from 'pages/grafana';
 import { useGrafana } from 'contexts/grafana';
 import { useUser } from 'contexts/user';
 import { UpdateModal } from 'components/main/update-modal';
+import { ReloadPrompt } from 'components/main/reload-prompt';
 import { DelayedRender } from 'components/delayed-render';
 import { SHOW_UPDATE_INFO_DELAY_MS } from 'lib/constants';
 import { isRenderingServer } from '@pmm/shared';
@@ -52,6 +53,7 @@ export const MainWithNav = () => {
       <DelayedRender delay={SHOW_UPDATE_INFO_DELAY_MS}>
         <UpdateModal />
       </DelayedRender>
+      <ReloadPrompt />
     </Stack>
   );
 };
