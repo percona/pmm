@@ -732,6 +732,9 @@ type GetSettingsOKBodySettings struct {
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
 
+	// True if OpenManager is enabled.
+	OMEnabled bool `json:"om_enabled,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *GetSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 

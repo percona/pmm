@@ -406,6 +406,40 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
                 </IconButton>
               </Tooltip>
             </Stack>
+            <Stack
+              direction="row"
+              alignItems="center"
+              data-testid="advanced-open-manager"
+            >
+              <SwitchInput name="openManager" label={m.openManagerLabel} />
+              <Tooltip
+                title={
+                  <Box data-testid="info-tooltip">
+                    <Typography variant="caption">
+                      {m.openManagerTooltip}{' '}
+                      <Link
+                        href={m.openManagerLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        color="inherit"
+                        sx={{ textDecorationColor: 'inherit' }}
+                      >
+                        {Messages.tooltipLinkText}
+                      </Link>
+                    </Typography>
+                  </Box>
+                }
+                arrow
+              >
+                <IconButton
+                  aria-label={m.openManagerLabel}
+                  size="small"
+                  data-testid="info-icon"
+                >
+                  <InfoOutlinedIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Stack>
           </Stack>
         </Stack>
 
