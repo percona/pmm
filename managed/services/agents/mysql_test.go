@@ -153,8 +153,8 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		assert.Contains(t, actual.TextFiles["myCnf"], "enable-cleartext-plugin")
 	})
 
-	t.Run("with time_zone dsn param", func(t *testing.T) {
-		pmmAgentVersion = version.MustParse("3.4.0")
+	t.Run("with time_zone dsn param, exporter supports it", func(t *testing.T) {
+		pmmAgentVersion = version.MustParse("3.99.0")
 		t.Cleanup(func() {
 			pmmAgentVersion = version.MustParse("2.21.0")
 		})
@@ -167,6 +167,22 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		require.NoError(t, err)
 		require.Contains(t, actual.TextFiles, "myCnf")
 		assert.Contains(t, actual.TextFiles["myCnf"], `time_zone="'+00:00'"`)
+	})
+
+	t.Run("time_zone dsn param omitted when exporter lacks support", func(t *testing.T) {
+		pmmAgentVersion = version.MustParse("3.4.0")
+		t.Cleanup(func() {
+			pmmAgentVersion = version.MustParse("2.21.0")
+		})
+		exporter.MySQLOptions = models.MySQLOptions{
+			ExtraDSNParams: map[string]string{
+				"time_zone": "'+00:00'",
+			},
+		}
+		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		require.NoError(t, err)
+		require.Contains(t, actual.TextFiles, "myCnf")
+		assert.NotContains(t, actual.TextFiles["myCnf"], "time_zone")
 	})
 }
 
