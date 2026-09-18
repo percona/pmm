@@ -7,8 +7,6 @@ This file is the single source of documentation rules. Two human-facing files ke
 
 Every rule below was checked against the published pages under `docs/` rather than carried over on faith. Where a rule deliberately departs from what is published today, it says so and tells you not to sweep the old pages.
 
-The counts quoted throughout come from one sweep of `docs/` in September 2026. They are here to show how one-sided a call was, not to track the corpus — re-measure before overturning a rule, and don't bother refreshing them in passing.
-
 ## Scope
 
 | Path | What it is | Who writes it |
@@ -73,7 +71,7 @@ Pages carry **no YAML front matter** — not one does. Start the file with its `
 
 ### Markdown conventions
 
-**Ordered lists** carry `{.power-number}` on its own line between the intro sentence and the list — 294 uses across 128 pages, styled by `docs/css/design.css`. Number the items explicitly (`1.`, `2.`, `3.`), not with repeated `1.`:
+**Ordered lists** carry `{.power-number}` on its own line between the intro sentence and the list. `docs/css/design.css` keys PMM's stepped-list styling off that class, so a list without it renders as a plain `<ol>`. Number the items explicitly (`1.`, `2.`, `3.`), not with repeated `1.`:
 
 ```markdown
 To secure your system:
@@ -83,7 +81,7 @@ To secure your system:
 2. Second step.
 ```
 
-**Admonitions** use the plain Material form. New content does not add the `alert alert-*` classes: nothing in `docs/css/` or `overrides/` styles them, they are a leftover from a pre-Material theme, and the reworked `install-pmm` chapter dropped them (58 of its 75 admonitions are plain). Leave the 95 existing ones alone — both forms render identically.
+**Admonitions** use the plain Material form. New content does not add the `alert alert-*` classes: nothing in `docs/css/` or `overrides/` styles them, they are a leftover from a pre-Material theme, and the reworked `install-pmm` chapter dropped them. Leave the existing ones alone — both forms render identically.
 
 ```markdown
 !!! note ""
@@ -110,13 +108,13 @@ Types in use: `note`, `caution`, `warning`, `hint`, `tip`, `seealso`, `danger`, 
     Indented content.
 ```
 
-**Links** are relative and point at the `.md` file, including the extension — 862 relative links against 71 absolute `docs.percona.com` ones. `use_directory_urls` is `false`, so MkDocs rewrites `../reference/nomad.md#configure` to the published URL. Cross-product links are absolute.
+**Links** between pages are relative and point at the `.md` file, including the extension. `use_directory_urls` is `false`, so MkDocs rewrites `../reference/nomad.md#configure` to the published URL. Only cross-product links are absolute.
 
 **Code, commands, flags, paths, filenames, environment variables** go in backticks. **UI element names** go in bold and match the interface capitalization exactly: `**Query Analytics > Real-Time**`.
 
 **Images** live in `docs/images/` and are embedded with plain `![alt](../images/name.png)` — no sizing attributes are used anywhere in the corpus. Delete the image when you delete its last reference.
 
-**Do not hard-wrap** — not at 80 columns, not at any width. One paragraph is one line; 4310 lines in the corpus are over 120 characters. Editors soft-wrap, and a hard wrap makes every later diff touch the whole paragraph.
+**Do not hard-wrap** — not at 80 columns, not at any width. One paragraph is one line. Editors soft-wrap, and a hard wrap makes every later diff touch the whole paragraph.
 
 **Variables** come from `variables.yml` through `mkdocs-macros`: `{{release}}`, `{{version}}`, `{{release_date}}`. Where a Jinja-like construct in a code block collides with the macro plugin, wrap it in `{% raw %}` / `{% endraw %}`.
 
@@ -135,7 +133,7 @@ Types in use: `note`, `caution`, `warning`, `hint`, `tip`, `seealso`, `danger`, 
 
 Point at content by its place in the reading order, not by where it lands on screen — "below" and "above" stop being true in the PDF, in a narrow viewport, and to a screen reader. Existing pages are full of them: fix the ones on a page you are already editing, don't open a PR to sweep them.
 
-For the version a change landed in, write "Starting with PMM X.Y.Z" — it leads "As of PMM X.Y.Z" 12 to 3, and neither "As of version X" nor "Starting from version X" appears at all.
+For the version a change landed in, write "Starting with PMM X.Y.Z" — not "As of PMM X.Y.Z", "As of version X" or "Starting from version X".
 
 ### Adding a page
 
