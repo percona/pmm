@@ -33,8 +33,13 @@ export type IntervalSchedule = TasksComponents['schemas']['IntervalSchedule'];
 export type CrontabSchedule = TasksComponents['schemas']['CrontabSchedule'];
 export type PeriodicTaskExecuteRequest =
   TasksComponents['schemas']['PeriodicTaskExecuteRequest'];
+export type SchedulePreviewWrite =
+  TasksComponents['schemas']['SchedulePreviewWrite'];
+export type SchedulePreviewResponse =
+  TasksComponents['schemas']['SchedulePreviewResponse'];
 
 const PERIODIC_LIST_KEY = ['periodic'] as const;
+const PREVIEW_PATH = '/sep/periodic-tasks/schedule/preview/';
 const PERIODIC_LIST_PATH = '/sep/periodic-tasks/';
 const POLL_INTERVAL_MS = 30_000;
 
@@ -106,6 +111,34 @@ export function useScheduledTasksForPlugin(
       return periodicQuery.refetch();
     },
   };
+}
+
+/**
+ * Ask the backend what a schedule would do, without saving it.
+ *
+ * The upcoming runs are computed through the scheduler's own schedule objects
+ * (PMM-15480), so the preview and the stored schedule cannot disagree — which
+ * is the whole point of asking rather than re-deriving a cron expression in the
+ * browser. The response also reports the zone the schedule resolves to, which
+ * is the authoritative answer to what the form should be stating.
+ *
+ * Pass `null` while the form does not describe a valid schedule; the query then
+ * stays idle rather than sending something the backend will reject.
+ */
+export function useSchedulePreview(spec: SchedulePreviewWrite | null) {
+  return useQuery<SchedulePreviewResponse, Error>({
+    queryKey: ['periodic:preview', spec],
+    queryFn: async () => {
+      const { data } = await apiClient.post<SchedulePreviewResponse>(
+        PREVIEW_PATH,
+        spec
+      );
+      return data;
+    },
+    enabled: spec !== null,
+    retry: false,
+    staleTime: 30_000,
+  });
 }
 
 interface CreateVars {

@@ -34,6 +34,7 @@ vi.mock('../../hooks/useTaskStats', async () => {
 });
 
 import { StatsCard } from './StatsCard';
+import { browserTimezone } from '../../utils/formatTimestamp';
 
 function makeClient() {
   return new QueryClient({
@@ -226,7 +227,7 @@ describe('StatsCard — Last Finished', () => {
     renderWithClient(<StatsCard taskName="foo" />);
     expect(screen.getByText('1 minute ago')).toHaveAttribute(
       'title',
-      new Date(iso).toLocaleString()
+      `${new Date(iso).toLocaleString()} (${browserTimezone()})`
     );
   });
 

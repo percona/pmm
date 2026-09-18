@@ -82,6 +82,23 @@ export function formatRelativeTime(
   return value;
 }
 
+/**
+ * The zone absolute timestamps are rendered in.
+ *
+ * `formatAbsoluteTime` goes through `toLocaleString()`, so every timestamp the
+ * app shows is the reader's own zone — never the zone a schedule was written
+ * in. Reported as resolved rather than constrained to a picker's option list:
+ * naming a zone the screen is not actually using would be worse than naming
+ * none (PMM-15454).
+ */
+export function browserTimezone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  } catch {
+    return 'UTC';
+  }
+}
+
 /** Format a timestamp as a locale absolute date-time, or `—` when absent. */
 export function formatAbsoluteTime(value: string | null | undefined): string {
   if (!value) {
@@ -96,8 +113,10 @@ export interface FormattedTimestamp {
   /** What the cell shows — relative within a week of now, absolute otherwise. */
   display: string;
   /**
-   * The unabbreviated local date-time, for a `title` attribute. Present even
-   * when `display` is already absolute, so every timestamp answers a hover.
+   * The unabbreviated local date-time, for a `title` attribute, with the zone
+   * it is rendered in. Present even when `display` is already absolute, so
+   * every timestamp answers a hover — including which zone it is answering in,
+   * which a schedule's own zone may well differ from (PMM-15454).
    */
   title: string;
 }
@@ -126,10 +145,12 @@ export function formatTimestamp(
     // date column at the wrong key is visible rather than blank.
     return { display: value, title: value };
   }
-  const title = formatAbsoluteTime(value);
+  // The zone rides on the hover only. Putting it in `display` too would push a
+  // parenthesised zone into every date cell in the app.
+  const absolute = formatAbsoluteTime(value);
   const withinWindow = Math.abs(now - target) < RELATIVE_WINDOW_MS;
   return {
-    display: withinWindow ? formatRelativeTime(value, now) : title,
-    title,
+    display: withinWindow ? formatRelativeTime(value, now) : absolute,
+    title: `${absolute} (${browserTimezone()})`,
   };
 }
