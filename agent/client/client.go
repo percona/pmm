@@ -32,6 +32,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
+
 	// Installing the gzip encoding registers it as an available compressor.
 	// GRPC will automatically negotiate and use gzip if the client supports it.
 	grpc_gzip "google.golang.org/grpc/encoding/gzip"
@@ -738,7 +739,10 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 			return fmt.Errorf("unknown location config: %T", j.MongodbBackup.LocationConfig)
 		}
 
-		dsn, err := c.getMongoDSN(j.MongodbBackup.Dsn, j.MongodbBackup.TextFiles, p.JobId)
+		tempDir := filepath.Join(c.cfg.Get().Paths.TempDir, "mongodb-backup-restore", strings.ReplaceAll(p.JobId, "/", "_"))
+		defer templates.CleanupTempDir(tempDir, c.l)
+
+		dsn, err := c.getMongoDSN(j.MongodbBackup.Dsn, j.MongodbBackup.TextFiles, tempDir)
 		if err != nil {
 			return err
 		}
@@ -770,7 +774,10 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 			return fmt.Errorf("unknown location config: %T", j.MongodbRestoreBackup.LocationConfig)
 		}
 
-		dsn, err := c.getMongoDSN(j.MongodbRestoreBackup.Dsn, j.MongodbRestoreBackup.TextFiles, p.JobId)
+		tempDir := filepath.Join(c.cfg.Get().Paths.TempDir, "mongodb-backup-restore", strings.ReplaceAll(p.JobId, "/", "_"))
+		defer templates.CleanupTempDir(tempDir, c.l)
+
+		dsn, err := c.getMongoDSN(j.MongodbRestoreBackup.Dsn, j.MongodbRestoreBackup.TextFiles, tempDir)
 		if err != nil {
 			return err
 		}
@@ -785,14 +792,11 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 	return c.runner.StartJob(job)
 }
 
-func (c *Client) getMongoDSN(dsn string, files *agentv1.TextFiles, jobID string) (string, error) {
-	tempDir := filepath.Join(c.cfg.Get().Paths.TempDir, "mongodb-backup-restore", strings.ReplaceAll(jobID, "/", "_"))
+func (c *Client) getMongoDSN(dsn string, files *agentv1.TextFiles, tempDir string) (string, error) {
 	res, err := templates.RenderDSN(dsn, files, tempDir)
-	defer templates.CleanupTempDir(tempDir, c.l)
 	if err != nil {
 		return "", err
 	}
-
 	// TODO following line is a quick patch. Come up with something better.
 	res = strings.Replace(res, "directConnection=true", "directConnection=false", 1)
 
