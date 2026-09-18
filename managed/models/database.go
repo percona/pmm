@@ -83,6 +83,15 @@ var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 			{Name: "postgresql_options", CustomEncryptHandler: EncryptPostgreSQLOptionsHandler, CustomDecryptHandler: DecryptPostgreSQLOptionsHandler},
 		},
 	},
+	{
+		Name:        "om_bootstrap_secrets",
+		Identifiers: []string{"run_id"},
+		Columns: []encryption.Column{
+			{Name: "mongodb_username"},
+			{Name: "mongodb_password"},
+			{Name: "key_file"},
+		},
+	},
 }
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
@@ -1221,6 +1230,31 @@ var databaseSchema = [][]string{
 			created_at     TIMESTAMP NOT NULL
 		)`,
 		`CREATE INDEX om_topology_snapshots_generated_at_idx ON om_topology_snapshots (generated_at DESC)`,
+	},
+	120: {
+		// PMM-15347's om_bootstrap stepper's one generated MongoDB user and shared
+		// keyFile for one SEP bootstrap run, encrypted at rest -- see
+		// OmBootstrapSecret's own doc comment for why this survives independently
+		// of SEP's own run state.
+		`CREATE TABLE om_bootstrap_secrets (
+			run_id           VARCHAR PRIMARY KEY,
+			mongodb_username VARCHAR NOT NULL,
+			mongodb_password VARCHAR NOT NULL,
+			key_file         VARCHAR NOT NULL,
+			created_at       TIMESTAMP NOT NULL
+		)`,
+	},
+	121: {
+		// The environment and cluster a bootstrap run was triggered with -- see
+		// OmBootstrapRunConfig's own doc comment for why these live in PMM's own
+		// database rather than round-tripping through SEP, which has no use for
+		// them.
+		`CREATE TABLE om_bootstrap_run_configs (
+			run_id      VARCHAR PRIMARY KEY,
+			environment VARCHAR NOT NULL,
+			cluster     VARCHAR NOT NULL,
+			created_at  TIMESTAMP NOT NULL
+		)`,
 	},
 }
 
