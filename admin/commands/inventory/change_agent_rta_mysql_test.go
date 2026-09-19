@@ -15,6 +15,8 @@
 package inventory
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/alecthomas/kong"
@@ -110,6 +112,52 @@ func TestChangeAgentRTAMySQLAgentCommand(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.JSONEq(t, `{"rta_mysql_agent": {"username": "only-user"}}`, capturedRequestBody)
+	})
+
+	// The three TLS flags take file paths, and the request must carry what is inside each
+	// file rather than the path. Distinct contents catch a pair being swapped, which matching
+	// paths against paths would not.
+	t.Run("TLSFileContentsAreSent", func(t *testing.T) {
+		t.Parallel()
+
+		const agentID = "test-agent-rta-mysql-tls-files"
+		dir := t.TempDir()
+		files := map[string]string{
+			"ca.pem":   "ca-file-contents",
+			"cert.pem": "cert-file-contents",
+			"key.pem":  "key-file-contents",
+		}
+		for name, contents := range files {
+			require.NoError(t, os.WriteFile(filepath.Join(dir, name), []byte(contents), 0o600))
+		}
+
+		var capturedRequestBody string
+		cleanup := setupChangeAgentTestServer(t, agentID,
+			`{"rta_mysql_agent": {"agent_id": "`+agentID+`"}}`, &capturedRequestBody)
+		defer cleanup()
+
+		var cmd ChangeAgentRTAMySQLAgentCommand
+		parser, err := kong.New(&cmd)
+		require.NoError(t, err)
+
+		_, err = parser.Parse([]string{
+			agentID,
+			"--tls-ca-file=" + filepath.Join(dir, "ca.pem"),
+			"--tls-cert-file=" + filepath.Join(dir, "cert.pem"),
+			"--tls-key-file=" + filepath.Join(dir, "key.pem"),
+		})
+		require.NoError(t, err)
+
+		_, err = cmd.RunCmd()
+		require.NoError(t, err)
+
+		assert.JSONEq(t, `{
+			"rta_mysql_agent": {
+				"tls_ca": "ca-file-contents",
+				"tls_cert": "cert-file-contents",
+				"tls_key": "key-file-contents"
+			}
+		}`, capturedRequestBody)
 	})
 
 	t.Run("MissingTLSFileIsReported", func(t *testing.T) {

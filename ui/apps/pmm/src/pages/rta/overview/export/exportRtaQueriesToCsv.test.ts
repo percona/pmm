@@ -96,7 +96,7 @@ describe('exportRtaQueriesToCsv', () => {
       db_instance_address: '127.0.0.1',
       client_address: '127.0.0.1',
       database_name: 'database-name',
-      service: 'Service 2',
+      service: 'Service 3',
       user_name: 'username',
       command: 'Query',
       state: 'Sending data',
@@ -107,7 +107,7 @@ describe('exportRtaQueriesToCsv', () => {
       blocked_status: 'BLOCKED_STATUS_NOT_BLOCKED',
       data_capture_time: '2021-01-01T00:00:00Z',
       raw_query: '{"current_statement": "SELECT * FROM my_table"}',
-      service_id: 'service-2',
+      service_id: 'service-3',
       query_text: 'SELECT * FROM my_table WHERE status = "active"',
     });
   });

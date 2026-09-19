@@ -29,6 +29,10 @@ export const SessionName: FC<Props> = ({ session }) => {
           variant="body2"
           color="text.secondary"
           component="span"
+          // The tooltip carries the only explanation of why this row is not a link, and MUI
+          // opens it when its child takes focus. A span is not focusable on its own, so
+          // without this the reason is available to a mouse and to nobody else.
+          tabIndex={0}
           data-testid={`session-${session.sessionId}-mixed-cluster`}
         >
           {session.sessionName}

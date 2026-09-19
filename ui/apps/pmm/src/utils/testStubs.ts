@@ -190,9 +190,12 @@ export const TEST_MONGO_DB_QUERY_DATA: QueryData = {
   },
 };
 
+// Carries the identity of TEST_REAL_TIME_SESSION_MYSQL on purpose. The overview tests select
+// that session and mock the search to return this query, so a different service id here would
+// let them pass while rendering a query for a service nobody selected.
 export const TEST_MYSQL_QUERY_DATA: QueryData = {
-  serviceId: 'service-2',
-  serviceName: 'Service 2',
+  serviceId: 'service-3',
+  serviceName: 'Service 3',
   queryId: 'query-2',
   queryText: 'SELECT * FROM my_table WHERE status = "active"',
   queryCollectTime: '2021-01-01T00:00:00Z',

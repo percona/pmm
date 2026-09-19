@@ -29,6 +29,10 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  // Which option the keyboard is on. MUI tracks this internally for its own selection, but
+  // does not expose it to the option row, and the cluster toggle lives on the row.
+  const [highlightedOption, setHighlightedOption] =
+    useState<ServiceOption | null>(null);
   const services = 'sessions' in props ? props.sessions : props.services;
   const serviceOptions = useMemo(() => getServiceOptions(services), [services]);
   const selectedServices = useMemo(
@@ -70,6 +74,34 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
     onServiceIdsChange(serviceIds);
   };
 
+  // A cluster row is toggled by ServiceOption's own onClick, which the keyboard never reaches:
+  // MUI keeps focus on the input, so Enter runs the Autocomplete's own selection instead. That
+  // hands the cluster to handleServiceChange, and getServiceIds keeps only options of type
+  // 'service', so the cluster contributes nothing and the selection silently does not change.
+  // Space does not select at all -- it types into the input. Both are handled here so the
+  // keyboard reaches the same toggle the mouse does.
+  const handleKeyDown = (
+    event: React.KeyboardEvent & { defaultMuiPrevented?: boolean }
+  ) => {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+
+    if (
+      !highlightedOption ||
+      highlightedOption.type !== 'cluster' ||
+      isOptionDisabled(highlightedOption)
+    ) {
+      return;
+    }
+
+    // Stops MUI from also running its selection for Enter and from inserting a space.
+    event.defaultMuiPrevented = true;
+    event.preventDefault();
+
+    handleClusterToggle(highlightedOption);
+  };
+
   return (
     <Autocomplete
       multiple
@@ -79,6 +111,8 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
       options={serviceOptions}
       value={selectedServices}
       onChange={handleServiceChange}
+      onHighlightChange={(_event, option) => setHighlightedOption(option)}
+      onKeyDown={handleKeyDown}
       getOptionLabel={(option) => option.label}
       // The option carries its own group: a cluster spanning technologies is
       // listed under each of them and has no serviceType to derive one from.
