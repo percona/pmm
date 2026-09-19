@@ -133,6 +133,7 @@ func (x *ListServicesRequest) GetServiceType() v1.ServiceType {
 type ListServicesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Mongodb       []*v1.MongoDBService   `protobuf:"bytes,1,rep,name=mongodb,proto3" json:"mongodb,omitempty"`
+	Mysql         []*v1.MySQLService     `protobuf:"bytes,2,rep,name=mysql,proto3" json:"mysql,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -174,6 +175,13 @@ func (x *ListServicesResponse) GetMongodb() []*v1.MongoDBService {
 	return nil
 }
 
+func (x *ListServicesResponse) GetMysql() []*v1.MySQLService {
+	if x != nil {
+		return x.Mysql
+	}
+	return nil
+}
+
 // Session represents an active Real-Time Analytics session.
 type Session struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -188,7 +196,10 @@ type Session struct {
 	// Query collect interval.
 	CollectInterval *durationpb.Duration `protobuf:"bytes,5,opt,name=collect_interval,json=collectInterval,proto3" json:"collect_interval,omitempty"`
 	// Current status of the Real-Time Analytics session.
-	Status        SessionStatus `protobuf:"varint,6,opt,name=status,proto3,enum=realtimeanalytics.v1.SessionStatus" json:"status,omitempty"`
+	Status SessionStatus `protobuf:"varint,6,opt,name=status,proto3,enum=realtimeanalytics.v1.SessionStatus" json:"status,omitempty"`
+	// Type of the service the session is running for. Lets clients tell MySQL and
+	// MongoDB sessions apart without a second lookup in the inventory.
+	ServiceType   v1.ServiceType `protobuf:"varint,7,opt,name=service_type,json=serviceType,proto3,enum=inventory.v1.ServiceType" json:"service_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -263,6 +274,13 @@ func (x *Session) GetStatus() SessionStatus {
 		return x.Status
 	}
 	return SessionStatus_SESSION_STATUS_UNSPECIFIED
+}
+
+func (x *Session) GetServiceType() v1.ServiceType {
+	if x != nil {
+		return x.ServiceType
+	}
+	return v1.ServiceType(0)
 }
 
 // ListSessionsRequest contains optional filters for listing active Real-Time Analytics Sessions for a particular cluster.
@@ -638,9 +656,10 @@ const file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc = "" +
 	"\n" +
 	",realtimeanalytics/v1/realtimeanalytics.proto\x12\x14realtimeanalytics.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1binventory/v1/services.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a realtimeanalytics/v1/query.proto\x1a\x17validate/validate.proto\"S\n" +
 	"\x13ListServicesRequest\x12<\n" +
-	"\fservice_type\x18\x01 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\vserviceType\"N\n" +
+	"\fservice_type\x18\x01 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\vserviceType\"\x80\x01\n" +
 	"\x14ListServicesResponse\x126\n" +
-	"\amongodb\x18\x01 \x03(\v2\x1c.inventory.v1.MongoDBServiceR\amongodb\"\xac\x02\n" +
+	"\amongodb\x18\x01 \x03(\v2\x1c.inventory.v1.MongoDBServiceR\amongodb\x120\n" +
+	"\x05mysql\x18\x02 \x03(\v2\x1a.inventory.v1.MySQLServiceR\x05mysql\"\xea\x02\n" +
 	"\aSession\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
@@ -649,7 +668,8 @@ const file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc = "" +
 	"\n" +
 	"start_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x12D\n" +
 	"\x10collect_interval\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\x0fcollectInterval\x12;\n" +
-	"\x06status\x18\x06 \x01(\x0e2#.realtimeanalytics.v1.SessionStatusR\x06status\"8\n" +
+	"\x06status\x18\x06 \x01(\x0e2#.realtimeanalytics.v1.SessionStatusR\x06status\x12<\n" +
+	"\fservice_type\x18\a \x01(\x0e2\x19.inventory.v1.ServiceTypeR\vserviceType\"8\n" +
 	"\x13ListSessionsRequest\x12!\n" +
 	"\fcluster_name\x18\x01 \x01(\tR\vclusterName\"Q\n" +
 	"\x14ListSessionsResponse\x129\n" +
@@ -713,36 +733,39 @@ var (
 		(*SearchQueriesResponse)(nil), // 11: realtimeanalytics.v1.SearchQueriesResponse
 		v1.ServiceType(0),             // 12: inventory.v1.ServiceType
 		(*v1.MongoDBService)(nil),     // 13: inventory.v1.MongoDBService
-		(*timestamppb.Timestamp)(nil), // 14: google.protobuf.Timestamp
-		(*durationpb.Duration)(nil),   // 15: google.protobuf.Duration
-		(*QueryData)(nil),             // 16: realtimeanalytics.v1.QueryData
+		(*v1.MySQLService)(nil),       // 14: inventory.v1.MySQLService
+		(*timestamppb.Timestamp)(nil), // 15: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),   // 16: google.protobuf.Duration
+		(*QueryData)(nil),             // 17: realtimeanalytics.v1.QueryData
 	}
 )
 
 var file_realtimeanalytics_v1_realtimeanalytics_proto_depIdxs = []int32{
 	12, // 0: realtimeanalytics.v1.ListServicesRequest.service_type:type_name -> inventory.v1.ServiceType
 	13, // 1: realtimeanalytics.v1.ListServicesResponse.mongodb:type_name -> inventory.v1.MongoDBService
-	14, // 2: realtimeanalytics.v1.Session.start_time:type_name -> google.protobuf.Timestamp
-	15, // 3: realtimeanalytics.v1.Session.collect_interval:type_name -> google.protobuf.Duration
-	0,  // 4: realtimeanalytics.v1.Session.status:type_name -> realtimeanalytics.v1.SessionStatus
-	3,  // 5: realtimeanalytics.v1.ListSessionsResponse.sessions:type_name -> realtimeanalytics.v1.Session
-	3,  // 6: realtimeanalytics.v1.StartSessionResponse.session:type_name -> realtimeanalytics.v1.Session
-	16, // 7: realtimeanalytics.v1.SearchQueriesResponse.queries:type_name -> realtimeanalytics.v1.QueryData
-	1,  // 8: realtimeanalytics.v1.RealtimeAnalyticsService.ListServices:input_type -> realtimeanalytics.v1.ListServicesRequest
-	4,  // 9: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:input_type -> realtimeanalytics.v1.ListSessionsRequest
-	6,  // 10: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:input_type -> realtimeanalytics.v1.StartSessionRequest
-	8,  // 11: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:input_type -> realtimeanalytics.v1.StopSessionRequest
-	10, // 12: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:input_type -> realtimeanalytics.v1.SearchQueriesRequest
-	2,  // 13: realtimeanalytics.v1.RealtimeAnalyticsService.ListServices:output_type -> realtimeanalytics.v1.ListServicesResponse
-	5,  // 14: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:output_type -> realtimeanalytics.v1.ListSessionsResponse
-	7,  // 15: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:output_type -> realtimeanalytics.v1.StartSessionResponse
-	9,  // 16: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:output_type -> realtimeanalytics.v1.StopSessionResponse
-	11, // 17: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:output_type -> realtimeanalytics.v1.SearchQueriesResponse
-	13, // [13:18] is the sub-list for method output_type
-	8,  // [8:13] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	14, // 2: realtimeanalytics.v1.ListServicesResponse.mysql:type_name -> inventory.v1.MySQLService
+	15, // 3: realtimeanalytics.v1.Session.start_time:type_name -> google.protobuf.Timestamp
+	16, // 4: realtimeanalytics.v1.Session.collect_interval:type_name -> google.protobuf.Duration
+	0,  // 5: realtimeanalytics.v1.Session.status:type_name -> realtimeanalytics.v1.SessionStatus
+	12, // 6: realtimeanalytics.v1.Session.service_type:type_name -> inventory.v1.ServiceType
+	3,  // 7: realtimeanalytics.v1.ListSessionsResponse.sessions:type_name -> realtimeanalytics.v1.Session
+	3,  // 8: realtimeanalytics.v1.StartSessionResponse.session:type_name -> realtimeanalytics.v1.Session
+	17, // 9: realtimeanalytics.v1.SearchQueriesResponse.queries:type_name -> realtimeanalytics.v1.QueryData
+	1,  // 10: realtimeanalytics.v1.RealtimeAnalyticsService.ListServices:input_type -> realtimeanalytics.v1.ListServicesRequest
+	4,  // 11: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:input_type -> realtimeanalytics.v1.ListSessionsRequest
+	6,  // 12: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:input_type -> realtimeanalytics.v1.StartSessionRequest
+	8,  // 13: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:input_type -> realtimeanalytics.v1.StopSessionRequest
+	10, // 14: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:input_type -> realtimeanalytics.v1.SearchQueriesRequest
+	2,  // 15: realtimeanalytics.v1.RealtimeAnalyticsService.ListServices:output_type -> realtimeanalytics.v1.ListServicesResponse
+	5,  // 16: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:output_type -> realtimeanalytics.v1.ListSessionsResponse
+	7,  // 17: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:output_type -> realtimeanalytics.v1.StartSessionResponse
+	9,  // 18: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:output_type -> realtimeanalytics.v1.StopSessionResponse
+	11, // 19: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:output_type -> realtimeanalytics.v1.SearchQueriesResponse
+	15, // [15:20] is the sub-list for method output_type
+	10, // [10:15] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_realtimeanalytics_v1_realtimeanalytics_proto_init() }

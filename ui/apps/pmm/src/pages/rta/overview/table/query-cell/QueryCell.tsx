@@ -1,9 +1,12 @@
 import Box from '@mui/material/Box';
 import { CodeBlock } from '@percona/peak-ui';
 import { FC } from 'react';
+import { CodeLanguage } from 'types/util.types';
+import { codeBlockLanguage } from '../OverviewTable.utils';
 
 export interface Props {
   query: string;
+  language?: CodeLanguage;
 }
 
 // Fade the clipped text out toward the right edge as a cut-off affordance.
@@ -14,14 +17,14 @@ const fadeMask =
 
 // Full-width container + hidden overflow so the block's frame and border
 // always render inside the cell instead of getting cut off by it
-const QueryCell: FC<Props> = ({ query }) => (
+const QueryCell: FC<Props> = ({ query, language = 'mongodb' }) => (
   <Box sx={{ width: '100%', minWidth: 0 }}>
     <CodeBlock
       content={query
         .replace(/[\n\r\t]/g, '')
         .replace(/\s{2,}/g, ' ')
         .trim()}
-      language="javascript"
+      language={codeBlockLanguage(language)}
       sx={{
         overflow: 'hidden',
         '& > code': {

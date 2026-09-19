@@ -13,9 +13,17 @@ export const Messages = {
     dataCaptureTime: 'Data capture time',
     clientAddress: 'Client address',
     service: 'Service',
+    command: 'Command',
+    state: 'State',
+    programName: 'Program name',
+    rowsExamined: 'Rows examined',
+    rowsSent: 'Rows sent',
+    fullScan: 'Full scan',
   },
   tooltips: {
     operationId: "The database's internal identifier for this operation.",
+    operationIdMySql:
+      'The MySQL connection id running this statement. MySQL identifies connections, not individual statements, so consecutive statements on the same connection share this value.',
     elapsedExecTime: 'How long this operation has been running for.',
     planSummary:
       'High-level summary of how the database is executing this query. For example, using an index or scanning the full collection.',
@@ -35,5 +43,15 @@ export const Messages = {
       'When PMM took this snapshot. Compare with Operation start time to calculate how long the operation has been running so far.',
     dbInstanceAddress:
       'The server hostname and port where this operation is running.',
+    command:
+      'The type of command the connection is executing, such as Query or Execute.',
+    state: 'The current state of the thread executing this statement.',
+    programName:
+      'The client program connected to MySQL that started this statement.',
+    rowsExamined:
+      'The number of rows the statement has examined so far. A high value relative to rows sent can indicate an inefficient query.',
+    rowsSent: 'The number of rows the statement has returned so far.',
+    fullScan:
+      'Whether the statement performed a full table scan instead of using an index.',
   },
 };
