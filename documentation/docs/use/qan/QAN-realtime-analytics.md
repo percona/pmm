@@ -1,7 +1,7 @@
 # Real-time Query Analytics for MongoDB
 
-!!! warning "MongoDB only"
-    Real-time Query Analytics (RTA) currently supports **MongoDB only**. Support for **MySQL** and **PostgreSQL** is planned for future releases.
+!!! note alert alert-primary ""
+    This page covers RTA for MongoDB. For MySQL, Percona Server for MySQL and MariaDB, see [Real-time Query Analytics for MySQL](QAN-realtime-analytics-mysql.md). Support for **PostgreSQL** is planned for a future release.
 
 While [Query Analytics (QAN) Stored metrics](../qan/QAN-stored-metrics.md) capture queries after they complete so you can analyze and optimize past performance, Real-time Query Analytics (RTA) displays queries as they execute. This allows you to identify problematic operations immediately and take action before they affect users.
 
