@@ -245,6 +245,111 @@ describe('RealtimeOverview', () => {
     expect(toggle.querySelector('input[type="checkbox"]')).toBeDisabled();
   });
 
+  it('keeps undecided rows when only one lock source answered', async () => {
+    // A stock MariaDB reads row locks but not metadata locks, so one row has a verdict and the
+    // others do not. Filtering to the confirmed row would hide the statements queued behind a
+    // DDL: stuck, and dropped from the one view meant to show them.
+    const blocked = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '411',
+      queryText: 'UPDATE accounts SET balance=999 WHERE id=1',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.blocked,
+        blockedBy: [
+          {
+            blockingConnId: '409',
+            blockingQuery: 'SELECT 1 FOR UPDATE',
+            blockingCommand: 'Sleep',
+            blockingUsername: 'u@h',
+            root: true,
+          },
+        ],
+      },
+    };
+    const undecided = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '412',
+      queryText: 'ALTER TABLE accounts ENGINE=InnoDB',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.unspecified,
+      },
+    };
+    getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+    searchQueries.mockResolvedValue({ queries: [blocked, undecided] });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    const toggle = await screen.findByTestId(
+      'overview-table-blocked-only-toggle'
+    );
+    // Not "Blocked unknown": one row was judged, so the control still works.
+    expect(toggle).toHaveTextContent('Blocked only (1)');
+    expect(toggle.querySelector('input[type="checkbox"]')).not.toBeDisabled();
+
+    fireEvent.click(toggle.querySelector('input[type="checkbox"]')!);
+
+    // The confirmed row stays, and so does the one nobody could judge.
+    await waitFor(() =>
+      expect(screen.getByTestId('query-411-host-cell')).toBeInTheDocument()
+    );
+    expect(screen.getByTestId('query-412-host-cell')).toBeInTheDocument();
+  });
+
+  it('drops decided non-blocked rows while keeping undecided ones', async () => {
+    // The undecided row is kept because it may be waiting; the row known not to be waiting is
+    // not, or the filter would stop filtering.
+    const blocked = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '411',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.blocked,
+        blockedBy: [{ blockingConnId: '409', root: true }],
+      },
+    };
+    const undecided = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '412',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.unspecified,
+      },
+    };
+    const notBlocked = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '413',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.notBlocked,
+      },
+    };
+    getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+    searchQueries.mockResolvedValue({
+      queries: [blocked, undecided, notBlocked],
+    });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    const toggle = await screen.findByTestId(
+      'overview-table-blocked-only-toggle'
+    );
+    fireEvent.click(toggle.querySelector('input[type="checkbox"]')!);
+
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('query-413-host-cell')
+      ).not.toBeInTheDocument()
+    );
+    expect(screen.getByTestId('query-411-host-cell')).toBeInTheDocument();
+    expect(screen.getByTestId('query-412-host-cell')).toBeInTheDocument();
+  });
+
   it('should chip the blocked row and filter to it when the toggle is on', async () => {
     const blocked = {
       ...TEST_RAW_MYSQL_QUERY_DATA,

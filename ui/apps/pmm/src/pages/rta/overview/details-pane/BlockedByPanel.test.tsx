@@ -122,6 +122,29 @@ describe('BlockedByPanel', () => {
     );
   });
 
+  it('does not call cycle participants queued transactions', () => {
+    // In a cycle nothing is merely queued in front and nothing clears on its own -- InnoDB
+    // breaks it by rolling one participant back. Labelling them "ahead" told the reader they
+    // would resolve themselves, contradicting the hint directly below, which says none of
+    // them can be singled out.
+    renderPanel([
+      { ...MIDDLE_OF_CHAIN, root: false },
+      { ...IDLE_ROOT, root: false },
+    ]);
+
+    expect(screen.getByText(/in the cycle/)).toBeInTheDocument();
+    expect(screen.queryByText(/transaction ahead/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/transactions ahead/)).not.toBeInTheDocument();
+  });
+
+  it('still calls a non-root blocker queued when a root exists', () => {
+    // With a head to the chain the label is correct and must stay: that transaction really is
+    // only queued in front, and really does clear once the root is resolved.
+    renderPanel([IDLE_ROOT, MIDDLE_OF_CHAIN]);
+
+    expect(screen.queryByText(/in the cycle/)).not.toBeInTheDocument();
+  });
+
   it('declines to name a lone blocker that is itself waiting', () => {
     // root=false means the agent saw that connection waiting too, so resolving it is not
     // guaranteed to free this statement. The pane must agree with the chip and the CSV,

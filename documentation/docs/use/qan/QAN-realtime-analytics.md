@@ -70,7 +70,7 @@ To export data:
 3. Apply any filters or sort order you want reflected in the export.
 4. Click **Export** to download the file.
 
-The export includes all records across all pages, respects active filters and sort order, and is saved as `mongodb_rta_export_{timestamp}.csv`.
+The export includes all records across all pages, respects active filters and sort order, and is saved as `rta_export_{timestamp}.csv`.
 
 #### Exported fields
 

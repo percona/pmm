@@ -40,6 +40,13 @@ export const Messages = {
     count === 1
       ? '1 more transaction holding it independently'
       : `${count} more transactions holding it independently`,
+  // Participants in a cycle. Not "ahead": in a cycle nothing clears on its own, so calling
+  // these queued contradicted resolveHintCycle, which says none of them can be singled out.
+  // InnoDB breaks the deadlock by rolling one of them back.
+  cycleParticipants: (count: number) =>
+    count === 1
+      ? '1 more transaction in the cycle'
+      : `${count} more transactions in the cycle`,
   root: 'Root',
   // Shown when the statement is flagged as waiting but the holder was not in the same
   // snapshot — the lock graph and the statement list are read milliseconds apart.

@@ -95,18 +95,40 @@ const RealtimeOverviewPage: FC = () => {
       ? allQueries.filter((query) => !isTransactionControl(query))
       : allQueries;
   }, [queries, hideTransactionControl]);
-  const blockedQueries = useMemo(
-    () => visibleQueries.filter(isBlocked),
-    [visibleQueries]
-  );
-  // The agent could not read the lock graph, so nothing is known about waiting. Reporting
-  // "Blocked only (0)" here would present a monitoring gap as a verified healthy server, which
-  // is the one thing this must not do during an incident.
+  // The agent could not read the lock graph at all, so nothing is known about waiting.
+  // Reporting "Blocked only (0)" here would present a monitoring gap as a verified healthy
+  // server, which is the one thing this must not do during an incident.
   const blockingUnknown = useMemo(
     () => visibleQueries.length > 0 && visibleQueries.every(isBlockingUnknown),
     [visibleQueries]
   );
-  const tableQueries = showBlockedOnly ? blockedQueries : visibleQueries;
+  // One of the two lock sources answered and the other did not, so some rows have a verdict
+  // and some do not. This is the normal state on a stock MariaDB, where the metadata-lock
+  // instrument ships disabled while row locks are readable. Filtering to the known blocked
+  // rows would then hide the statements queued behind a DDL -- stuck, and silently dropped
+  // from the one view meant to show them.
+  const blockingPartial = useMemo(
+    () => !blockingUnknown && visibleQueries.some(isBlockingUnknown),
+    [blockingUnknown, visibleQueries]
+  );
+  // Confirmed blocked, which is what the label counts: a row nobody could judge is not
+  // evidence of waiting and must not inflate the number.
+  const blockedQueries = useMemo(
+    () => visibleQueries.filter(isBlocked),
+    [visibleQueries]
+  );
+  // What the filter shows. With a partial graph the undecided rows stay visible, so the
+  // filter never hides a statement that may be waiting.
+  const filteredQueries = useMemo(
+    () =>
+      blockingPartial
+        ? visibleQueries.filter(
+            (query) => isBlocked(query) || isBlockingUnknown(query)
+          )
+        : blockedQueries,
+    [blockingPartial, visibleQueries, blockedQueries]
+  );
+  const tableQueries = showBlockedOnly ? filteredQueries : visibleQueries;
   const blockedCount = blockedQueries.length;
 
   const handleQuerySelected = (query: QueryData) => {
@@ -288,7 +310,9 @@ const RealtimeOverviewPage: FC = () => {
                     title={
                       blockingUnknown
                         ? Messages.blockedUnknownTooltip
-                        : Messages.blockedOnlyTooltip
+                        : blockingPartial
+                          ? Messages.blockedPartialTooltip
+                          : Messages.blockedOnlyTooltip
                     }
                     arrow
                   >

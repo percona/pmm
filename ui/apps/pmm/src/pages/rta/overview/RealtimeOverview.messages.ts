@@ -14,5 +14,9 @@ export const Messages = {
   blockedUnknown: 'Blocked unknown',
   blockedUnknownTooltip:
     'PMM could not read the lock information from this instance, so it cannot tell which statements are waiting. Check that the monitoring user can read performance_schema; the agent log says why.',
+  // Shown when only one of the two lock sources answered. The filter still works, but it
+  // keeps the undecided rows rather than dropping statements that may well be waiting.
+  blockedPartialTooltip:
+    'Show statements waiting for a lock. PMM could not read every kind of lock on this instance, so statements it could not judge are shown as well rather than hidden; the count is of those it could confirm. The agent log says which lock information is missing.',
   export: 'Export',
 };

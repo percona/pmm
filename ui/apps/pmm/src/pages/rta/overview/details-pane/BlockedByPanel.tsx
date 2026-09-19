@@ -143,7 +143,12 @@ const BlockedByPanel: FC<Props> = ({
   // Calling both "ahead" contradicted the hint below, which counts the roots.
   const others = blockers.filter((blocker) => blocker !== primary);
   const otherRoots = others.filter((blocker) => blocker.root);
-  const queuedAhead = others.filter((blocker) => !blocker.root);
+  // With no root at all, every transaction in the graph is itself waiting: a cycle, or a graph
+  // the agent could only read in part. Nothing here is merely queued in front and nothing
+  // clears on its own, so these are listed as cycle participants rather than as "ahead".
+  const isCycle = roots.length === 0;
+  const queuedAhead = isCycle ? [] : others.filter((blocker) => !blocker.root);
+  const cycleParticipants = isCycle ? others : [];
 
   if (!primary) {
     return (
@@ -283,6 +288,12 @@ const BlockedByPanel: FC<Props> = ({
                 <BlockerList
                   title={Messages.otherRootBlockers(otherRoots.length)}
                   blockers={otherRoots}
+                />
+              )}
+              {cycleParticipants.length > 0 && (
+                <BlockerList
+                  title={Messages.cycleParticipants(cycleParticipants.length)}
+                  blockers={cycleParticipants}
                 />
               )}
               {queuedAhead.length > 0 && (
