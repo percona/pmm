@@ -101,12 +101,16 @@ message QueryMySQLData {
   string state = 5;
   // MySQL user name associated with the query.
   string username = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
-  // Number of rows examined by the statement so far.
-  int64 rows_examined = 7;
-  // Number of rows sent by the statement so far.
-  int64 rows_sent = 8;
-  // Indicates whether the statement performed a full table scan.
-  bool full_scan = 9;
+  // Number of rows examined by the statement so far. Unset when the server did not measure it,
+  // which is not the same as zero: these come from events_statements_current, whose consumer is
+  // disabled by default on MariaDB, and a statement that has examined no rows must not be
+  // indistinguishable from one nobody counted.
+  optional int64 rows_examined = 7;
+  // Number of rows sent by the statement so far. Unset when the server did not measure it.
+  optional int64 rows_sent = 8;
+  // Indicates whether the statement performed a full table scan. Unset when the server did not
+  // measure it; absent means unknown, not "no full scan".
+  optional bool full_scan = 9;
   // Whether the statement is waiting for a lock; lock_type says which kind. UNSPECIFIED means
   // the agent could not read the lock graph at all (missing privilege, unsupported server, or a
   // graph too large to return in full), which is not the same as having checked and found

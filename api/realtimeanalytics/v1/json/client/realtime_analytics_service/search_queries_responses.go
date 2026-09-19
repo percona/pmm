@@ -871,14 +871,18 @@ type SearchQueriesOKBodyQueriesItems0MySQLPayload struct {
 	// MySQL user name associated with the query.
 	Username string `json:"username,omitempty"`
 
-	// Number of rows examined by the statement so far.
-	RowsExamined string `json:"rows_examined,omitempty"`
+	// Number of rows examined by the statement so far. Unset when the server did not measure it,
+	// which is not the same as zero: these come from events_statements_current, whose consumer is
+	// disabled by default on MariaDB, and a statement that has examined no rows must not be
+	// indistinguishable from one nobody counted.
+	RowsExamined *string `json:"rows_examined,omitempty"`
 
-	// Number of rows sent by the statement so far.
-	RowsSent string `json:"rows_sent,omitempty"`
+	// Number of rows sent by the statement so far. Unset when the server did not measure it.
+	RowsSent *string `json:"rows_sent,omitempty"`
 
-	// Indicates whether the statement performed a full table scan.
-	FullScan bool `json:"full_scan,omitempty"`
+	// Indicates whether the statement performed a full table scan. Unset when the server did not
+	// measure it; absent means unknown, not "no full scan".
+	FullScan *bool `json:"full_scan,omitempty"`
 
 	// BlockedStatus says whether a statement is waiting for a lock, keeping "we could not
 	// find out" distinct from "we checked and it is not waiting". Collapsing the two would let a

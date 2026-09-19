@@ -386,12 +386,6 @@ func (m *QueryMySQLData) validate(all bool) error {
 
 	// no validation rules for Username
 
-	// no validation rules for RowsExamined
-
-	// no validation rules for RowsSent
-
-	// no validation rules for FullScan
-
 	// no validation rules for BlockedStatus
 
 	for idx, item := range m.GetBlockedBy() {
@@ -435,6 +429,18 @@ func (m *QueryMySQLData) validate(all bool) error {
 	// no validation rules for LockType
 
 	// no validation rules for RequestedLockMode
+
+	if m.RowsExamined != nil {
+		// no validation rules for RowsExamined
+	}
+
+	if m.RowsSent != nil {
+		// no validation rules for RowsSent
+	}
+
+	if m.FullScan != nil {
+		// no validation rules for FullScan
+	}
 
 	if len(errors) > 0 {
 		return QueryMySQLDataMultiError(errors)

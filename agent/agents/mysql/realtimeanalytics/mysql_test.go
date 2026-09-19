@@ -15,10 +15,12 @@
 package realtimeanalytics
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -119,9 +121,9 @@ func TestBuildQueryData(t *testing.T) {
 	assert.Equal(t, "Query", p.Command)
 	assert.Equal(t, "executing", p.State)
 	assert.Equal(t, "sbtest@localhost", p.Username)
-	assert.Equal(t, int64(200), p.RowsExamined)
-	assert.Equal(t, int64(100), p.RowsSent)
-	assert.True(t, p.FullScan)
+	assert.Equal(t, int64(200), p.GetRowsExamined())
+	assert.Equal(t, int64(100), p.GetRowsSent())
+	assert.True(t, p.GetFullScan())
 	assert.Equal(t, "mysql", p.ProgramName)
 
 	// Raw payload is pretty-printed (multi-line) and preserves the whole row, NULLs included.
@@ -146,7 +148,7 @@ func TestBuildQueryDataFullScanAndMissing(t *testing.T) {
 		"full_scan":         "NO",
 	}, &blockingGraph{complete: true})
 	require.NotNil(t, qd)
-	assert.False(t, qd.GetMySqlPayload().FullScan)
+	assert.False(t, qd.GetMySqlPayload().GetFullScan())
 	assert.Equal(t, time.Duration(0), qd.QueryExecutionDuration.AsDuration())
 	assert.Equal(t, rtav1.BlockedStatus_BLOCKED_STATUS_NOT_BLOCKED, qd.GetMySqlPayload().BlockedStatus)
 	assert.Empty(t, qd.GetMySqlPayload().BlockedBy)
@@ -304,7 +306,7 @@ func readRowLocks(t *testing.T, m *MySQLRTA) (*blockingGraph, error) {
 	graph := newBlockingGraph()
 	waiting := make(map[int64]struct{})
 
-	found, err := m.readLockEdges(t.Context(), rowLockSource)
+	found, err := m.readLockEdges(t.Context(), dataLockWaitsSource)
 	if err != nil {
 		return graph, err
 	}
@@ -321,14 +323,23 @@ func expectNoMetadataLocks(mock sqlmock.Sqlmock) {
 	mock.ExpectQuery("metadata_locks").WillReturnRows(metadataRows())
 }
 
+// newMockedRTA builds an agent on a mocked connection, already past the startup probe that
+// picks a row-lock source. It defaults to the performance_schema source so the tests that came
+// before MariaDB support keep describing MySQL 8.0; newMockedRTAWithSource takes the other one.
 func newMockedRTA(t *testing.T) (*MySQLRTA, sqlmock.Sqlmock) {
+	t.Helper()
+
+	return newMockedRTAWithSource(t, dataLockWaitsSource)
+}
+
+func newMockedRTAWithSource(t *testing.T, source lockSource) (*MySQLRTA, sqlmock.Sqlmock) {
 	t.Helper()
 
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = db.Close() })
 
-	return &MySQLRTA{db: db, l: logrus.NewEntry(logrus.New())}, mock
+	return &MySQLRTA{db: db, l: logrus.NewEntry(logrus.New()), rowLockSource: source}, mock
 }
 
 func TestCollectBlockingTransactionsDeduplicates(t *testing.T) {
@@ -768,9 +779,16 @@ func TestCurrentQueriesSQLIsBounded(t *testing.T) {
 	require.Positive(t, selAt, "the bound belongs to a derived table")
 	assert.Less(t, limitAt, selAt, "the limit must sit inside the derived table, not after the whole query")
 	assert.Equal(t, 1, strings.Count(query, "LIMIT "), "exactly one limit, and it is the derived table's")
-	// Ordered by statement latency, not PROCESSLIST_TIME: whole seconds tie in a pile-up and
-	// which rows survived truncation would flip between collections.
-	assert.Contains(t, query, "ORDER BY COALESCE(s.TIMER_WAIT, 0) DESC, t.PROCESSLIST_ID")
+	// Ordered by statement latency first -- picosecond-grained, so rows rarely tie and which of
+	// them survived truncation stays stable between collections.
+	//
+	// PROCESSLIST_TIME breaks the tie before the connection id, and that ordering is the whole
+	// point: statement latency is NULL for every row when events_statements_current is off,
+	// which is MariaDB's default. Drop this key and the sort collapses onto the connection id,
+	// so truncation keeps the oldest connections and discards the newest -- exactly the ones a
+	// sudden pile-up creates, which is the incident this feature exists for.
+	assert.Contains(t, query,
+		"ORDER BY COALESCE(s.TIMER_WAIT, 0) DESC, COALESCE(t.PROCESSLIST_TIME, 0) DESC, t.PROCESSLIST_ID")
 	// The outer query repeats the filter, so a statement finishing between the two reads cannot
 	// come back as a row with no query text.
 	assert.Contains(t, query, "WHERE pps.PROCESSLIST_INFO IS NOT NULL")
@@ -819,7 +837,7 @@ func TestLockSourceRowLimitsMatchTheirQueries(t *testing.T) {
 
 	// Truncation is detected by counting rows against this number, so a LIMIT edited in the SQL
 	// without the constant would silently stop the detection working.
-	for _, source := range []lockSource{rowLockSource, metadataLockSource} {
+	for _, source := range []lockSource{dataLockWaitsSource, innodbLockWaitsSource, metadataLockSource} {
 		assert.Equal(t, lockGraphRowLimit, source.rowLimit, "%s rowLimit", source.name)
 		assert.Contains(t, source.sql, fmt.Sprintf("LIMIT %d", lockGraphRowLimit), "%s SQL", source.name)
 	}
@@ -967,4 +985,411 @@ func TestPermanentBlockingError(t *testing.T) {
 	for _, number := range []uint16{2006, 1205, 0} {
 		assert.False(t, permanentBlockingError(number), "error %d must stay retryable", number)
 	}
+}
+
+// readRowLocksFrom reads one named row-lock source into a fresh graph, so the MariaDB source
+// can be put through the same parsing assertions as the performance_schema one.
+func readRowLocksFrom(t *testing.T, m *MySQLRTA, source lockSource) (*blockingGraph, error) {
+	t.Helper()
+
+	graph := newBlockingGraph()
+	waiting := make(map[int64]struct{})
+
+	found, err := m.readLockEdges(t.Context(), source)
+	if err != nil {
+		return graph, err
+	}
+
+	graph.merge(found, waiting)
+	markRootBlockers(graph.blockers, waiting)
+
+	return graph, nil
+}
+
+// selectListAliases returns the column aliases a query's SELECT list assigns, in order.
+func selectListAliases(query string) []string {
+	selectList, _, _ := strings.Cut(query, "\nFROM ")
+
+	return regexp.MustCompile(`AS (\w+)`).FindAllString(selectList, -1)
+}
+
+func TestRowLockSourcesReturnTheSameColumns(t *testing.T) {
+	t.Parallel()
+
+	// Both row-lock queries are read by scanRowLockEdge, which scans by position. A column
+	// added to one and not the other, or the same columns in a different order, would not fail
+	// to compile and would not fail to run -- it would quietly put the wrong value in every
+	// field, so the shapes are pinned to each other here.
+	assert.Equal(t,
+		selectListAliases(blockingTransactionsSQL),
+		selectListAliases(innodbLockWaitsSQL),
+		"the two row-lock queries share one scanner, so their SELECT lists must match")
+}
+
+func TestInnodbLockWaitsSourceParsesTheSameEdges(t *testing.T) {
+	t.Parallel()
+
+	m, mock := newMockedRTAWithSource(t, innodbLockWaitsSource)
+	// MariaDB reports a plain lock mode where performance_schema distinguishes the gap from
+	// the record, and lock_table arrives quoted -- the query strips the backticks, so what
+	// reaches the scanner is the same "db.t" the other source produces.
+	mock.ExpectQuery("INNODB_LOCK_WAITS").WillReturnRows(blockingRows().
+		AddRow(411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "UPDATE t SET v=1", "db.t", "PRIMARY", "X", "X"))
+
+	graph, err := readRowLocksFrom(t, m, innodbLockWaitsSource)
+	require.NoError(t, err)
+	require.Len(t, graph.blockers["411"], 1)
+	assert.Equal(t, int64(409), graph.blockers["411"][0].BlockingConnId)
+	assert.Equal(t, "UPDATE t SET v=1", graph.blockers["411"][0].BlockingQuery)
+	assert.Equal(t, "db.t", graph.waiters["411"].lockedTable)
+	assert.Equal(t, "PRIMARY", graph.waiters["411"].lockedIndex)
+	// The lock type must still say ROW: the graph is the same graph, read from another table.
+	assert.Equal(t, rtav1.LockType_LOCK_TYPE_ROW, innodbLockWaitsSource.lockType)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+// expectRowLockProbe queues the two information_schema lookups selectRowLockSource makes, with
+// the given answers, in the order it makes them.
+func expectRowLockProbe(mock sqlmock.Sqlmock, dataLockWaits, innodbLockWaits int) {
+	mock.ExpectQuery("information_schema.TABLES").
+		WithArgs("performance_schema", "data_lock_waits").
+		WillReturnRows(sqlmock.NewRows([]string{"c"}).AddRow(dataLockWaits))
+
+	if dataLockWaits > 0 {
+		return
+	}
+
+	mock.ExpectQuery("information_schema.TABLES").
+		WithArgs("information_schema", "INNODB_LOCK_WAITS").
+		WillReturnRows(sqlmock.NewRows([]string{"c"}).AddRow(innodbLockWaits))
+}
+
+func TestSelectRowLockSourcePrefersPerformanceSchema(t *testing.T) {
+	t.Parallel()
+
+	// data_locks carries the gap/record distinction information_schema drops, so a server that
+	// has both must be read through performance_schema -- and the second probe must not even
+	// be made, which sqlmock enforces by failing on an unexpected query.
+	m, mock := newMockedRTAWithSource(t, lockSource{})
+	expectRowLockProbe(mock, 1, 0)
+
+	m.selectRowLockSource(t.Context())
+
+	assert.Equal(t, blockingTransactionsSQL, m.rowLockSource.sql)
+	assert.False(t, m.rowLocks.unsupported)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestSelectRowLockSourceFallsBackToInformationSchema(t *testing.T) {
+	t.Parallel()
+
+	// MariaDB, and any MySQL before 8.0: no data_lock_waits, but the information_schema tables
+	// the performance_schema ones replaced are still there.
+	m, mock := newMockedRTAWithSource(t, lockSource{})
+	expectRowLockProbe(mock, 0, 1)
+
+	m.selectRowLockSource(t.Context())
+
+	assert.Equal(t, innodbLockWaitsSQL, m.rowLockSource.sql)
+	assert.False(t, m.rowLocks.unsupported, "a server with the information_schema tables can report row locks")
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestSelectRowLockSourceWithNeitherTableDisablesRowLocks(t *testing.T) {
+	t.Parallel()
+
+	// With no source at all the row-lock half must be marked unsupported rather than left to
+	// run an empty query every interval: an empty result would read as "nothing is blocked",
+	// which is the claim this feature must never make without evidence.
+	m, mock := newMockedRTAWithSource(t, lockSource{})
+	expectRowLockProbe(mock, 0, 0)
+
+	m.selectRowLockSource(t.Context())
+
+	assert.True(t, m.rowLocks.unsupported)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestSelectRowLockSourceTreatsAProbeFailureAsAbsent(t *testing.T) {
+	t.Parallel()
+
+	// A monitoring user that cannot read one entry of information_schema.TABLES must still end
+	// up with the source it can read, rather than losing row locks over a failed probe.
+	m, mock := newMockedRTAWithSource(t, lockSource{})
+	mock.ExpectQuery("information_schema.TABLES").
+		WithArgs("performance_schema", "data_lock_waits").
+		WillReturnError(errors.New("probe failed"))
+	mock.ExpectQuery("information_schema.TABLES").
+		WithArgs("information_schema", "INNODB_LOCK_WAITS").
+		WillReturnRows(sqlmock.NewRows([]string{"c"}).AddRow(1))
+
+	m.selectRowLockSource(t.Context())
+
+	assert.Equal(t, innodbLockWaitsSQL, m.rowLockSource.sql)
+	assert.False(t, m.rowLocks.unsupported)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+// expectStatementConsumerProbes queues the consumer lookups checkStatementConsumers makes, in
+// order, each answering with the given ENABLED value.
+func expectStatementConsumerProbes(mock sqlmock.Sqlmock, enabled string) {
+	for _, consumer := range statementConsumers {
+		mock.ExpectQuery("setup_consumers").
+			WithArgs(consumer.name).
+			WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow(enabled))
+	}
+}
+
+func TestStatementConsumersDisabledDoNotStopCollection(t *testing.T) {
+	t.Parallel()
+
+	// MariaDB ships both consumers off, so this is the state a stock MariaDB is in. The
+	// statement columns are lost, but query text, user, database, command, state and elapsed
+	// time come from performance_schema.threads and are unaffected -- so the session must warn
+	// and carry on rather than refuse to start and show nothing at all.
+	m, mock := newMockedRTA(t)
+	expectStatementConsumerProbes(mock, "NO")
+
+	m.checkStatementConsumers(t.Context())
+
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestStatementConsumersSurviveAnUnreadableSetupTable(t *testing.T) {
+	t.Parallel()
+
+	// Reading setup_consumers is a narrower grant than the statement query itself needs, so
+	// failing to read it says nothing about whether collection will work and must not stop it.
+	m, mock := newMockedRTA(t)
+	for _, consumer := range statementConsumers {
+		mock.ExpectQuery("setup_consumers").
+			WithArgs(consumer.name).
+			WillReturnError(errors.New("access denied"))
+	}
+
+	m.checkStatementConsumers(t.Context())
+
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestStatementConsumersAreAllProbed(t *testing.T) {
+	t.Parallel()
+
+	// Both consumers feed columns the statement query selects unconditionally, so both have to
+	// be reported. sqlmock fails on an unexpected or unmet expectation, which pins the set.
+	m, mock := newMockedRTA(t)
+	expectStatementConsumerProbes(mock, "YES")
+
+	m.checkStatementConsumers(t.Context())
+
+	assert.Len(t, statementConsumers, 2)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestElapsedTimeFallsBackToProcesslistTime(t *testing.T) {
+	t.Parallel()
+
+	m := &MySQLRTA{serviceID: "svc", serviceName: "svc"}
+
+	// A stock MariaDB: events_statements_current is off, so statement_latency is absent while
+	// PROCESSLIST_TIME still counts. Reporting zero here would say a statement that has been
+	// running for 42 seconds just started.
+	qd := m.buildQueryData(map[string]any{
+		"conn_id":           int64(7),
+		"current_statement": "SELECT 1",
+		"time":              int64(42),
+	}, &blockingGraph{})
+	require.NotNil(t, qd)
+	assert.Equal(t, 42*time.Second, qd.QueryExecutionDuration.AsDuration())
+}
+
+func TestStatementLatencyWinsOverProcesslistTime(t *testing.T) {
+	t.Parallel()
+
+	m := &MySQLRTA{serviceID: "svc", serviceName: "svc"}
+
+	// With the consumer on, the picosecond value is the accurate one and PROCESSLIST_TIME --
+	// which truncates to whole seconds -- must not displace it.
+	qd := m.buildQueryData(map[string]any{
+		"conn_id":           int64(7),
+		"current_statement": "SELECT 1",
+		"statement_latency": int64(2_500_000_000), // 2.5ms in picoseconds
+		"time":              int64(42),
+	}, &blockingGraph{})
+	require.NotNil(t, qd)
+	assert.Equal(t, 2500*time.Microsecond, qd.QueryExecutionDuration.AsDuration())
+}
+
+func TestStatementCountsAreUnsetWhenNotMeasured(t *testing.T) {
+	t.Parallel()
+
+	m := &MySQLRTA{serviceID: "svc", serviceName: "svc"}
+
+	// A stock MariaDB: events_statements_current is off, so the counts come back NULL and the
+	// full-scan expression -- IF(NULL > 0 OR NULL > 0, 'YES', 'NO') -- yields 'NO'. Publishing
+	// 0/0/false here would describe a statement nobody measured as a cheap, well-indexed one.
+	qd := m.buildQueryData(map[string]any{
+		"conn_id":           int64(7),
+		"current_statement": "SELECT 1",
+		"rows_examined":     nil,
+		"rows_sent":         nil,
+		"full_scan":         nil,
+		"time":              int64(9),
+	}, &blockingGraph{})
+	require.NotNil(t, qd)
+
+	p := qd.GetMySqlPayload()
+	require.NotNil(t, p)
+	assert.Nil(t, p.RowsExamined, "an unmeasured count must be absent, not zero")
+	assert.Nil(t, p.RowsSent, "an unmeasured count must be absent, not zero")
+	assert.Nil(t, p.FullScan, "an unmeasured flag must be absent, not a clean bill of health")
+}
+
+func TestFullScanSQLYieldsNullWhenNothingWasMeasured(t *testing.T) {
+	t.Parallel()
+
+	// The Go side can only forward what the query hands it, and the query used to collapse two
+	// NULL counters into the literal 'NO'. Leaving that in place would have made the presence
+	// the payload now carries meaningless for this field -- it would always be present, always
+	// false, on exactly the servers that measured nothing. Verified live against a stock
+	// MariaDB before this expression was changed.
+	assert.Contains(t, currentQueriesSQLTemplate,
+		"WHEN sel.NO_GOOD_INDEX_USED IS NULL AND sel.NO_INDEX_USED IS NULL THEN NULL",
+		"the query must preserve NULL rather than reporting 'NO' for an unmeasured statement")
+	assert.NotContains(t, currentQueriesSQLTemplate,
+		"IF(sel.NO_GOOD_INDEX_USED > 0 OR sel.NO_INDEX_USED > 0, 'YES', 'NO')",
+		"the old expression fabricated 'NO' from NULLs")
+}
+
+func TestFullScanIsUnsetWhenTheServerDidNotSayEither(t *testing.T) {
+	t.Parallel()
+
+	m := &MySQLRTA{serviceID: "svc", serviceName: "svc"}
+
+	// A column that is absent or NULL rather than 'YES'/'NO' is not an answer, and "absent" is
+	// what the UI renders as unavailable instead of "No".
+	for _, value := range []any{nil, ""} {
+		qd := m.buildQueryData(map[string]any{
+			"conn_id":           int64(7),
+			"current_statement": "SELECT 1",
+			"full_scan":         value,
+		}, &blockingGraph{})
+		require.NotNil(t, qd)
+		assert.Nil(t, qd.GetMySqlPayload().FullScan, "full_scan %v must be reported as unknown", value)
+	}
+
+	// And a real answer still comes through.
+	qd := m.buildQueryData(map[string]any{
+		"conn_id":           int64(7),
+		"current_statement": "SELECT 1",
+		"full_scan":         "YES",
+		"rows_examined":     int64(500),
+	}, &blockingGraph{})
+	require.NotNil(t, qd.GetMySqlPayload().FullScan)
+	assert.True(t, *qd.GetMySqlPayload().FullScan)
+	assert.Equal(t, int64(500), qd.GetMySqlPayload().GetRowsExamined())
+}
+
+func TestSelectRowLockSourceDoesNotDisableOnProbeFailure(t *testing.T) {
+	t.Parallel()
+
+	// Every prerequisite check shares one deadline, so a slow server can time out both probes.
+	// That says nothing about which tables exist, and must not cost row-lock detection for the
+	// life of the agent the way a genuine "neither table is here" does.
+	m, mock := newMockedRTAWithSource(t, lockSource{})
+	for range rowLockSources {
+		mock.ExpectQuery("information_schema.TABLES").WillReturnError(context.DeadlineExceeded)
+	}
+
+	assert.False(t, m.selectRowLockSource(t.Context()), "no source could be chosen")
+	assert.False(t, m.rowLocks.unsupported, "a failed probe is not evidence the table is absent")
+	assert.Empty(t, m.rowLockSource.sql)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestCollectBlockingTransactionsRetriesSourceSelection(t *testing.T) {
+	t.Parallel()
+
+	// Having left the source unchosen, the next collection must ask again rather than run
+	// blind. Here the retry succeeds and the row-lock graph is read on that same cycle.
+	m, mock := newMockedRTAWithSource(t, lockSource{})
+	expectRowLockProbe(mock, 0, 1)
+	mock.ExpectQuery("INNODB_LOCK_WAITS").WillReturnRows(blockingRows().
+		AddRow(411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "UPDATE t SET v=1", "db.t", "PRIMARY", "X", "X"))
+	expectNoMetadataLocks(mock)
+
+	graph := m.collectBlockingTransactionsOrWarn(t.Context())
+
+	require.NotNil(t, graph)
+	assert.Equal(t, innodbLockWaitsSQL, m.rowLockSource.sql, "the retry settled on a source")
+	require.Len(t, graph.blockers["411"], 1)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestCollectBlockingTransactionsDoesNotRetryASettledVerdict(t *testing.T) {
+	t.Parallel()
+
+	// A server that answered "neither table is here" is settled. Probing it again every two
+	// seconds for the life of the agent would be thousands of pointless round trips a day, so
+	// only the unanswered case is retried. sqlmock fails on an unexpected query, which is what
+	// pins that no probe is issued here.
+	m, mock := newMockedRTAWithSource(t, lockSource{})
+	m.rowLocks.unsupported = true
+	expectNoMetadataLocks(mock)
+
+	m.collectBlockingTransactionsOrWarn(t.Context())
+
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestStatementConsumerNeedsItsInstrumentToo(t *testing.T) {
+	t.Parallel()
+
+	// events_transactions_current is gated by the transaction instrument as well as by its
+	// consumer, and MariaDB ships both off. Warning about only the consumer sends the operator
+	// to fix half the switch, after which the warning disappears and the columns stay NULL.
+	m, mock := newMockedRTA(t)
+	mock.ExpectQuery("setup_consumers").WithArgs("events_statements_current").
+		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("YES"))
+	mock.ExpectQuery("setup_consumers").WithArgs("events_transactions_current").
+		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("YES"))
+	mock.ExpectQuery("setup_instruments").WithArgs("transaction").
+		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("NO"))
+
+	m.checkStatementConsumers(t.Context())
+
+	// The instrument is only consulted for a consumer that declares one, and it must be
+	// consulted: sqlmock fails on an unmet expectation.
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestStatementConsumerInstrumentIsOnlyCheckedWhenDeclared(t *testing.T) {
+	t.Parallel()
+
+	// A consumer with no gating instrument must not probe setup_instruments at all, and a
+	// consumer that is already off must not either -- there is nothing further to learn.
+	for _, consumer := range statementConsumers {
+		if consumer.name == "events_statements_current" {
+			assert.Empty(t, consumer.instrument, "the statement instruments are on by default everywhere")
+		}
+	}
+
+	m, mock := newMockedRTA(t)
+	expectStatementConsumerProbes(mock, "NO")
+
+	m.checkStatementConsumers(t.Context())
+
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestDescribeDisabledNamesTheHalfThatIsOff(t *testing.T) {
+	t.Parallel()
+
+	m := &MySQLRTA{l: logrus.NewEntry(logrus.New())}
+
+	assert.Contains(t, m.describeDisabled("c", false, "i", true), "The c consumer is disabled")
+	assert.Contains(t, m.describeDisabled("c", true, "i", false), "The i instrument is disabled")
+	both := m.describeDisabled("c", false, "i", false)
+	assert.Contains(t, both, "c consumer")
+	assert.Contains(t, both, "i instrument")
 }

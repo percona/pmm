@@ -32278,20 +32278,23 @@
                             "x-order": 5
                           },
                           "rows_examined": {
-                            "description": "Number of rows examined by the statement so far.",
+                            "description": "Number of rows examined by the statement so far. Unset when the server did not measure it,\nwhich is not the same as zero: these come from events_statements_current, whose consumer is\ndisabled by default on MariaDB, and a statement that has examined no rows must not be\nindistinguishable from one nobody counted.",
                             "type": "string",
                             "format": "int64",
+                            "x-nullable": true,
                             "x-order": 6
                           },
                           "rows_sent": {
-                            "description": "Number of rows sent by the statement so far.",
+                            "description": "Number of rows sent by the statement so far. Unset when the server did not measure it.",
                             "type": "string",
                             "format": "int64",
+                            "x-nullable": true,
                             "x-order": 7
                           },
                           "full_scan": {
-                            "description": "Indicates whether the statement performed a full table scan.",
+                            "description": "Indicates whether the statement performed a full table scan. Unset when the server did not\nmeasure it; absent means unknown, not \"no full scan\".",
                             "type": "boolean",
+                            "x-nullable": true,
                             "x-order": 8
                           },
                           "blocked_status": {

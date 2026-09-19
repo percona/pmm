@@ -386,12 +386,16 @@ type QueryMySQLData struct {
 	State string `protobuf:"bytes,5,opt,name=state,proto3" json:"state,omitempty"`
 	// MySQL user name associated with the query.
 	Username string `protobuf:"bytes,6,opt,name=username,proto3" json:"username,omitempty"`
-	// Number of rows examined by the statement so far.
-	RowsExamined int64 `protobuf:"varint,7,opt,name=rows_examined,json=rowsExamined,proto3" json:"rows_examined,omitempty"`
-	// Number of rows sent by the statement so far.
-	RowsSent int64 `protobuf:"varint,8,opt,name=rows_sent,json=rowsSent,proto3" json:"rows_sent,omitempty"`
-	// Indicates whether the statement performed a full table scan.
-	FullScan bool `protobuf:"varint,9,opt,name=full_scan,json=fullScan,proto3" json:"full_scan,omitempty"`
+	// Number of rows examined by the statement so far. Unset when the server did not measure it,
+	// which is not the same as zero: these come from events_statements_current, whose consumer is
+	// disabled by default on MariaDB, and a statement that has examined no rows must not be
+	// indistinguishable from one nobody counted.
+	RowsExamined *int64 `protobuf:"varint,7,opt,name=rows_examined,json=rowsExamined,proto3,oneof" json:"rows_examined,omitempty"`
+	// Number of rows sent by the statement so far. Unset when the server did not measure it.
+	RowsSent *int64 `protobuf:"varint,8,opt,name=rows_sent,json=rowsSent,proto3,oneof" json:"rows_sent,omitempty"`
+	// Indicates whether the statement performed a full table scan. Unset when the server did not
+	// measure it; absent means unknown, not "no full scan".
+	FullScan *bool `protobuf:"varint,9,opt,name=full_scan,json=fullScan,proto3,oneof" json:"full_scan,omitempty"`
 	// Whether the statement is waiting for a lock; lock_type says which kind. UNSPECIFIED means
 	// the agent could not read the lock graph at all (missing privilege, unsupported server, or a
 	// graph too large to return in full), which is not the same as having checked and found
@@ -491,22 +495,22 @@ func (x *QueryMySQLData) GetUsername() string {
 }
 
 func (x *QueryMySQLData) GetRowsExamined() int64 {
-	if x != nil {
-		return x.RowsExamined
+	if x != nil && x.RowsExamined != nil {
+		return *x.RowsExamined
 	}
 	return 0
 }
 
 func (x *QueryMySQLData) GetRowsSent() int64 {
-	if x != nil {
-		return x.RowsSent
+	if x != nil && x.RowsSent != nil {
+		return *x.RowsSent
 	}
 	return 0
 }
 
 func (x *QueryMySQLData) GetFullScan() bool {
-	if x != nil {
-		return x.FullScan
+	if x != nil && x.FullScan != nil {
+		return *x.FullScan
 	}
 	return false
 }
@@ -737,17 +741,17 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\rwait_duration\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\fwaitDuration\x12[\n" +
 	"\x1cblocker_transaction_duration\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\x1ablockerTransactionDuration\x12\x12\n" +
 	"\x04root\x18\a \x01(\bR\x04root\x12,\n" +
-	"\x12blocking_lock_mode\x18\b \x01(\tR\x10blockingLockMode\"\x82\x05\n" +
+	"\x12blocking_lock_mode\x18\b \x01(\tR\x10blockingLockMode\"\xbf\x05\n" +
 	"\x0eQueryMySQLData\x12.\n" +
 	"\x13db_instance_address\x18\x01 \x01(\tR\x11dbInstanceAddress\x12!\n" +
 	"\fprogram_name\x18\x02 \x01(\tR\vprogramName\x12#\n" +
 	"\rdatabase_name\x18\x03 \x01(\tR\fdatabaseName\x12\x18\n" +
 	"\acommand\x18\x04 \x01(\tR\acommand\x12\x14\n" +
 	"\x05state\x18\x05 \x01(\tR\x05state\x12 \n" +
-	"\busername\x18\x06 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12#\n" +
-	"\rrows_examined\x18\a \x01(\x03R\frowsExamined\x12\x1b\n" +
-	"\trows_sent\x18\b \x01(\x03R\browsSent\x12\x1b\n" +
-	"\tfull_scan\x18\t \x01(\bR\bfullScan\x12J\n" +
+	"\busername\x18\x06 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12(\n" +
+	"\rrows_examined\x18\a \x01(\x03H\x00R\frowsExamined\x88\x01\x01\x12 \n" +
+	"\trows_sent\x18\b \x01(\x03H\x01R\browsSent\x88\x01\x01\x12 \n" +
+	"\tfull_scan\x18\t \x01(\bH\x02R\bfullScan\x88\x01\x01\x12J\n" +
 	"\x0eblocked_status\x18\n" +
 	" \x01(\x0e2#.realtimeanalytics.v1.BlockedStatusR\rblockedStatus\x12H\n" +
 	"\n" +
@@ -755,7 +759,12 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\flocked_table\x18\f \x01(\tR\vlockedTable\x12!\n" +
 	"\flocked_index\x18\r \x01(\tR\vlockedIndex\x12;\n" +
 	"\tlock_type\x18\x0e \x01(\x0e2\x1e.realtimeanalytics.v1.LockTypeR\blockType\x12.\n" +
-	"\x13requested_lock_mode\x18\x0f \x01(\tR\x11requestedLockMode\"\xa0\x04\n" +
+	"\x13requested_lock_mode\x18\x0f \x01(\tR\x11requestedLockModeB\x10\n" +
+	"\x0e_rows_examinedB\f\n" +
+	"\n" +
+	"_rows_sentB\f\n" +
+	"\n" +
+	"_full_scan\"\xa0\x04\n" +
 	"\tQueryData\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
@@ -832,6 +841,7 @@ func file_realtimeanalytics_v1_query_proto_init() {
 	if File_realtimeanalytics_v1_query_proto != nil {
 		return
 	}
+	file_realtimeanalytics_v1_query_proto_msgTypes[2].OneofWrappers = []any{}
 	file_realtimeanalytics_v1_query_proto_msgTypes[3].OneofWrappers = []any{
 		(*QueryData_MongoDbPayload)(nil),
 		(*QueryData_MySqlPayload)(nil),

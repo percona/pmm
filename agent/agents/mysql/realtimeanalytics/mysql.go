@@ -36,7 +36,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/agents"
-	mysqlversion "github.com/percona/pmm/agent/utils/version"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
@@ -102,11 +101,17 @@ const (
 // carries the statement columns, which keeps events_statements_current to one lookup per row
 // instead of two: it has to be joined inside for the sort key either way.
 //
-// Ordering is by statement latency, not PROCESSLIST_TIME. That column counts whole seconds, so in
-// a pile-up hundreds of rows tie on the same value and which of them survived truncation would
-// flip between collections; TIMER_WAIT is picosecond-grained and is what the UI already shows as
-// elapsed time. The connection id breaks any remaining tie so repeated collections of an
-// unchanged server agree with one another.
+// Ordering is by statement latency first. That column counts picoseconds and is what the UI
+// shows as elapsed time, so in a pile-up hundreds of rows do not tie on it and which of them
+// survived truncation stays stable between collections.
+//
+// PROCESSLIST_TIME breaks the tie before the connection id, because statement latency comes from
+// events_statements_current and is NULL for every row when that consumer is off -- the default on
+// MariaDB. Without this the sort key would be constant there, collapsing the order onto the
+// connection id and truncating away the newest connections: exactly the ones a sudden pile-up
+// creates. It counts whole seconds, so it only orders rows the first key could not, and the
+// connection id still breaks any remaining tie so repeated collections of an unchanged server
+// agree with one another.
 //
 // The outer query repeats the PROCESSLIST_INFO filter. The derived table and the join read
 // threads at slightly different moments, so a statement that finishes in between would otherwise
@@ -133,7 +138,11 @@ SELECT
     sel.ROWS_AFFECTED AS rows_affected,
     sel.CREATED_TMP_TABLES AS tmp_tables,
     sel.CREATED_TMP_DISK_TABLES AS tmp_disk_tables,
-    IF(sel.NO_GOOD_INDEX_USED > 0 OR sel.NO_INDEX_USED > 0, 'YES', 'NO') AS full_scan,
+    CASE
+        WHEN sel.NO_GOOD_INDEX_USED IS NULL AND sel.NO_INDEX_USED IS NULL THEN NULL
+        WHEN sel.NO_GOOD_INDEX_USED > 0 OR sel.NO_INDEX_USED > 0 THEN 'YES'
+        ELSE 'NO'
+    END AS full_scan,
     IF(sel.END_EVENT_ID IS NOT NULL, sel.SQL_TEXT, NULL) AS last_statement,
     IF(sel.END_EVENT_ID IS NOT NULL, sel.TIMER_WAIT, NULL) AS last_statement_latency,
     etc.TIMER_WAIT AS trx_latency,
@@ -151,7 +160,7 @@ FROM (
       AND t.PROCESSLIST_ID <> CONNECTION_ID()
       AND t.PROCESSLIST_INFO IS NOT NULL
       AND t.PROCESSLIST_COMMAND NOT IN ('Sleep', 'Daemon')
-    ORDER BY COALESCE(s.TIMER_WAIT, 0) DESC, t.PROCESSLIST_ID
+    ORDER BY COALESCE(s.TIMER_WAIT, 0) DESC, COALESCE(t.PROCESSLIST_TIME, 0) DESC, t.PROCESSLIST_ID
     LIMIT {{limit}}
 ) sel
 JOIN performance_schema.threads pps ON pps.THREAD_ID = sel.THREAD_ID
@@ -295,6 +304,57 @@ LEFT JOIN performance_schema.events_statements_current bs ON bs.THREAD_ID = bt.T
 ORDER BY waiting_conn_id, locked_index IS NULL, locked_index, blocking_conn_id
 LIMIT 5000`
 
+// innodbLockWaitsSQL reads the same InnoDB lock-wait graph as blockingTransactionsSQL from the
+// information_schema tables that predate performance_schema.data_locks. MySQL removed those
+// tables in 8.0 and MariaDB never gained the replacements, so between them the two queries
+// cover every server that can report row-lock waits at all.
+//
+// The shape of the result is identical to blockingTransactionsSQL's -- same eleven columns in
+// the same order -- so both sources share one scan function and everything downstream is
+// unaware of which one produced an edge.
+//
+// What is lost against the performance_schema form is lock-mode detail. Where data_locks
+// reports "X,REC_NOT_GAP" and "S,GAP", INNODB_LOCKS reports plain "X" and "S", so a wait on a
+// row cannot be told from a wait on the gap before it. That distinction is what makes an
+// apparently impossible deadlock explicable, and there is no way to recover it here: the column
+// simply does not carry it.
+//
+// The lock_table column arrives quoted ("`db`.`tbl`") while the performance_schema form
+// concatenates two bare identifiers, so the backticks are stripped to keep one representation
+// downstream.
+//
+// STRAIGHT_JOIN carries the same weight as in blockingTransactionsSQL: INNODB_LOCK_WAITS is
+// empty whenever nothing is blocked, and driving from it lets the rest of the join be skipped
+// entirely rather than materializing the transaction list first.
+//
+// Both lock lookups are joins rather than one, matching the other query: the requested lock
+// gives the contended table and index, and the blocking lock gives the mode that is holding
+// everything up.
+const innodbLockWaitsSQL = `
+SELECT STRAIGHT_JOIN
+    r.trx_mysql_thread_id AS waiting_conn_id,
+    b.trx_mysql_thread_id AS blocking_conn_id,
+    TIMESTAMPDIFF(MICROSECOND, r.trx_wait_started, NOW(6)) AS wait_micros,
+    TIMESTAMPDIFF(MICROSECOND, b.trx_started, NOW(6)) AS blocker_trx_micros,
+    bt.PROCESSLIST_COMMAND AS blocking_command,
+    IF(bt.PROCESSLIST_USER IS NULL,
+       REPLACE(bt.NAME, 'thread/', ''),
+       CONCAT(bt.PROCESSLIST_USER, '@', CONVERT(bt.PROCESSLIST_HOST USING utf8mb4))) AS blocking_user,
+    COALESCE(bt.PROCESSLIST_INFO, bs.SQL_TEXT) AS blocking_query,
+    REPLACE(rl.lock_table, '` + "`" + `', '') AS locked_table,
+    rl.lock_index AS locked_index,
+    rl.lock_mode AS requested_mode,
+    bl.lock_mode AS blocking_mode
+FROM information_schema.INNODB_LOCK_WAITS w
+JOIN information_schema.INNODB_TRX r ON r.trx_id = w.requesting_trx_id
+JOIN information_schema.INNODB_TRX b ON b.trx_id = w.blocking_trx_id
+JOIN information_schema.INNODB_LOCKS rl ON rl.lock_id = w.requested_lock_id
+JOIN information_schema.INNODB_LOCKS bl ON bl.lock_id = w.blocking_lock_id
+LEFT JOIN performance_schema.threads bt ON bt.PROCESSLIST_ID = b.trx_mysql_thread_id
+LEFT JOIN performance_schema.events_statements_current bs ON bs.THREAD_ID = bt.THREAD_ID
+ORDER BY waiting_conn_id, locked_index IS NULL, locked_index, blocking_conn_id
+LIMIT 5000`
+
 // metadataLockWaitsSQL reads the metadata-lock (MDL) wait graph. Metadata locks are a wholly
 // separate mechanism from InnoDB row locks -- different tables, different lifetimes, different
 // remedies -- and a statement waiting on one shows up nowhere in data_lock_waits. Without this
@@ -403,6 +463,10 @@ type MySQLRTA struct {
 	// goes back to 5.7, so a server that can never serve one may serve the other perfectly.
 	rowLocks      lockSourceState
 	metadataLocks lockSourceState
+	// rowLockSource is the row-lock query this server can actually answer. Which one that is
+	// depends on the tables it has rather than on its version string, and it cannot change
+	// while the agent is connected, so it is chosen once at startup.
+	rowLockSource lockSource
 }
 
 // lockSourceState remembers why one lock source stopped answering, so a permanent problem is
@@ -504,8 +568,8 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 	m.db = db
 	m.dbInstanceAddress = addr
 
-	// Verify the instance can actually serve RTA (not MariaDB, performance_schema on,
-	// the performance_schema processlist readable) before reporting RUNNING.
+	// Verify the instance can actually serve RTA (performance_schema on, the
+	// performance_schema processlist readable) before reporting RUNNING.
 	err = m.checkPrerequisites(ctx)
 	if err != nil {
 		// A shutdown during initialization is a normal stop, not an initialization failure.
@@ -569,30 +633,30 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 }
 
 // checkPrerequisites verifies that the target instance can serve Real-Time Analytics:
-//   - it must be Oracle MySQL or Percona Server. MariaDB's performance_schema differs and is
-//     not supported.
 //   - performance_schema must be enabled.
 //   - the statement query must run, which needs SELECT on the performance_schema tables it
 //     reads. It is assembled first, for the columns this server actually has, and then run.
+//   - the statement consumers that fill the latency and row-count columns must be on, or the
+//     session says so rather than publishing every one of those columns as empty.
+//   - a row-lock source must be picked, since MySQL and MariaDB record row-lock waits in
+//     different tables.
 //   - the metadata lock instrument must be on, or that lock source is disabled rather than
 //     left to report an empty table as a healthy server.
 //
-// It returns a descriptive error otherwise, so the session reports a clear status
-// instead of silently collecting nothing every cycle.
+// Every check asks the server what it has rather than what it is. Vendors and forks report
+// versions inconsistently -- and the same version string can be built with different features
+// -- while a table, a column or a consumer either is there or is not. That is what lets one
+// agent serve Oracle MySQL, Percona Server and MariaDB without a version gate to maintain.
+//
+// It returns a descriptive error when RTA cannot run at all, so the session reports a clear
+// status instead of silently collecting nothing every cycle. Checks that only narrow what can
+// be collected warn instead, leaving a server that can answer less than another still useful.
 func (m *MySQLRTA) checkPrerequisites(ctx context.Context) error {
 	checkCtx, cancel := context.WithTimeout(ctx, mysqlQueryTimeout)
 	defer cancel()
 
-	_, vendor, err := mysqlversion.GetMySQLVersion(checkCtx, m.db)
-	if err != nil {
-		return fmt.Errorf("failed to detect MySQL version: %w", err)
-	}
-	if vendor == mysqlversion.MariaDBVendor {
-		return errors.New("MariaDB is not supported by MySQL Real-Time Analytics")
-	}
-
 	var performanceSchema sql.NullInt64
-	err = m.db.QueryRowContext(checkCtx, "SELECT @@performance_schema").Scan(&performanceSchema)
+	err := m.db.QueryRowContext(checkCtx, "SELECT @@performance_schema").Scan(&performanceSchema)
 	if err != nil {
 		return fmt.Errorf("failed to read @@performance_schema: %w", err)
 	}
@@ -612,12 +676,196 @@ func (m *MySQLRTA) checkPrerequisites(ctx context.Context) error {
 		return err
 	}
 
-	// Checked last, and it returns nothing: everything it can conclude disables one lock source
-	// rather than the agent, so a server that cannot report metadata locks still collects
-	// statements and row locks.
+	// The rest return nothing: everything they can conclude narrows what is collected rather
+	// than stopping the agent, so a server that cannot report locks or statement latencies
+	// still publishes the running statements this feature exists to show.
+	m.checkStatementConsumers(checkCtx)
+	m.selectRowLockSource(checkCtx)
 	m.checkMetadataLockInstrument(checkCtx)
 
 	return nil
+}
+
+// statementConsumers are the performance_schema consumers that fill the statement columns. The
+// statement query joins events_statements_current and events_transactions_current directly, and
+// a disabled consumer does not make that join fail -- it makes the table empty, so the query
+// succeeds and every latency, row count and transaction column comes back NULL.
+//
+// MySQL 8.0 enables both by default. MariaDB ships both off, so on a stock MariaDB this is the
+// normal state rather than an edge case, and without a word in the log the session looks healthy
+// while publishing a fraction of what it should.
+var statementConsumers = []struct {
+	name string
+	// instrument is the setup_instruments row that has to be on as well, empty when the
+	// consumer alone decides. A consumer is only half the switch: it says the table may be
+	// written, while the instrument decides whether anything is measured to write. Turning on
+	// events_transactions_current with the transaction instrument off leaves the table empty
+	// exactly as if the consumer were still off -- and MariaDB ships both off, so an operator
+	// who fixes only what the warning names would see the warning go away and the columns stay
+	// NULL.
+	instrument string
+	// lost names what goes missing, so the warning says what the operator is trading away
+	// rather than only which switch is off.
+	lost string
+}{
+	{
+		name: "events_statements_current",
+		// The statement instruments (statement/sql/%) are enabled by default everywhere this
+		// agent runs, MariaDB included, so the consumer alone decides here.
+		lost: "statement latency, lock time, row counts, temporary table counts and full-scan detection",
+	},
+	{
+		name:       "events_transactions_current",
+		instrument: "transaction",
+		lost:       "transaction state, duration and autocommit",
+	},
+}
+
+// checkStatementConsumers warns about the statement consumers that are off. It never fails the
+// agent: the columns those consumers feed are detail on top of the running statement, and the
+// query text, user, database, command, state and elapsed time that make RTA worth opening all
+// come from performance_schema.threads, which no consumer gates. A server with both consumers
+// off is still worth watching -- it just says less -- so this reports the gap and collects.
+//
+// Read once at startup, like the checks around it: turning a consumer on is a deliberate
+// operator action, and the log says what to change and that a restart picks it up.
+func (m *MySQLRTA) checkStatementConsumers(ctx context.Context) {
+	for _, consumer := range statementConsumers {
+		consumerOn, known := m.switchEnabled(ctx,
+			"SELECT ENABLED FROM performance_schema.setup_consumers WHERE NAME = ?",
+			consumer.name, "consumer", consumer.lost)
+		if !known {
+			continue
+		}
+
+		instrumentOn := true
+		if consumer.instrument != "" {
+			instrumentOn, known = m.switchEnabled(ctx,
+				"SELECT ENABLED FROM performance_schema.setup_instruments WHERE NAME = ?",
+				consumer.instrument, "instrument", consumer.lost)
+			if !known {
+				continue
+			}
+		}
+
+		if consumerOn && instrumentOn {
+			continue
+		}
+
+		// Both halves are named whenever either is off, because enabling one and leaving the
+		// other is the state that produces no data and no warning.
+		remedy := fmt.Sprintf("UPDATE performance_schema.setup_consumers SET ENABLED='YES' WHERE NAME='%s'",
+			consumer.name)
+		config := fmt.Sprintf("performance_schema_consumer_%s=ON", consumer.name)
+		if consumer.instrument != "" {
+			remedy += fmt.Sprintf("; UPDATE performance_schema.setup_instruments SET ENABLED='YES', TIMED='YES' WHERE NAME='%s'",
+				consumer.instrument)
+			config += fmt.Sprintf(" and performance_schema_instrument='%s=ON'", consumer.instrument)
+		}
+
+		m.l.Warnf("%s, so %s are not collected. Enable it (%s, or %s in the config) and restart the agent",
+			m.describeDisabled(consumer.name, consumerOn, consumer.instrument, instrumentOn), consumer.lost, remedy, config)
+	}
+}
+
+// describeDisabled names whichever half of the switch is off, so the warning points at the one
+// the operator still has to change rather than at the pair every time.
+func (m *MySQLRTA) describeDisabled(consumer string, consumerOn bool, instrument string, instrumentOn bool) string {
+	switch {
+	case !consumerOn && !instrumentOn:
+		return fmt.Sprintf("The %s consumer and the %s instrument are disabled", consumer, instrument)
+	case !consumerOn:
+		return fmt.Sprintf("The %s consumer is disabled", consumer)
+	default:
+		return fmt.Sprintf("The %s instrument is disabled and the %s consumer therefore records nothing",
+			instrument, consumer)
+	}
+}
+
+// switchEnabled reads one performance_schema switch. The second return reports whether the
+// answer is usable at all: a row that is not there, or a table the monitoring user cannot read,
+// leaves nothing to conclude, and that is warned about once here rather than turned into a claim
+// about what is being collected.
+func (m *MySQLRTA) switchEnabled(ctx context.Context, query, name, kind, lost string) (bool, bool) {
+	var enabled string
+	err := m.db.QueryRowContext(ctx, query, name).Scan(&enabled)
+	if errors.Is(err, sql.ErrNoRows) {
+		m.l.Warnf("This server has no %s %s, so %s are not collected", name, kind, lost)
+
+		return false, false
+	}
+	if err != nil {
+		// Reading the setup tables is a narrower grant than the statement query itself needs,
+		// so failing here says nothing about whether collection will work.
+		m.l.Warnf("Could not read the %s %s state: %v", name, kind, err)
+
+		return false, false
+	}
+
+	return strings.EqualFold(enabled, "YES"), true
+}
+
+// selectRowLockSource picks the row-lock query this server can answer, because MySQL and
+// MariaDB record the same waits in different places: MySQL 8.0 moved them into
+// performance_schema.data_lock_waits and dropped the information_schema tables, while MariaDB
+// kept the information_schema form and never added the performance_schema one.
+//
+// The choice is made by asking which tables exist rather than by reading the version string,
+// for the reason given on optionalProcesslistColumns: forks and distributions report versions
+// inconsistently, and a server that gains or loses these tables in some future release is
+// handled by this without a change here.
+//
+// Probing costs two information_schema lookups at startup and saves a doomed query every
+// collect interval on whichever source this server does not have.
+//
+// It never fails the agent. A server with neither source -- one where the InnoDB plugin's
+// information_schema tables are unavailable, say -- still collects running statements and
+// metadata-lock waits, and row locks are reported as unknown rather than as absent.
+//
+// It distinguishes a probe that answered "no such table" from one that could not answer at all.
+// Only the first is a property of the server and disables row locks for good; a probe that
+// errored -- the startup deadline expiring under load, most plausibly, since every prerequisite
+// check shares one -- says nothing about what the server has, so no source is chosen and the
+// caller retries on the next collection instead of going blind for the life of the agent.
+//
+// It reports whether a source was chosen, so the retry can tell "settled" from "ask again".
+func (m *MySQLRTA) selectRowLockSource(ctx context.Context) bool {
+	probeFailed := false
+
+	for _, candidate := range rowLockSources {
+		var present int
+		err := m.db.QueryRowContext(ctx,
+			"SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?",
+			candidate.schema, candidate.table).Scan(&present)
+		if err != nil {
+			// Not evidence of absence: try the next source, but remember that this one was
+			// never really answered so the result is not mistaken for a verdict.
+			probeFailed = true
+			m.l.Warnf("Could not check for %s.%s: %v", candidate.schema, candidate.table, err)
+
+			continue
+		}
+
+		if present > 0 {
+			m.rowLockSource = candidate.source
+			m.l.Debugf("Reading row-lock waits from %s.%s", candidate.schema, candidate.table)
+
+			return true
+		}
+	}
+
+	if probeFailed {
+		// Nothing is concluded and nothing is disabled. The next collection probes again.
+		m.l.Warn("Could not determine where this server records InnoDB row-lock waits; will try again")
+
+		return false
+	}
+
+	m.rowLocks.unsupported = true
+	m.l.Warn("This server records InnoDB row-lock waits in neither performance_schema.data_lock_waits " +
+		"nor information_schema.INNODB_LOCK_WAITS, so row-lock waits cannot be detected")
+
+	return false
 }
 
 // probeCurrentQueries runs the statement query once so missing schema or privileges fail at
@@ -910,37 +1158,65 @@ type lockSource struct {
 	scan func(*sql.Rows) (*lockEdge, error)
 }
 
-// rowLockSource reads InnoDB row-lock waits: a transaction holding a row the waiter needs.
-var rowLockSource = lockSource{
+// dataLockWaitsSource reads InnoDB row-lock waits -- a transaction holding a row the waiter
+// needs -- from performance_schema, where MySQL 8.0 and later record them.
+var dataLockWaitsSource = lockSource{
 	name:     "row lock",
 	lockType: rtav1.LockType_LOCK_TYPE_ROW,
 	sql:      blockingTransactionsSQL,
 	rowLimit: lockGraphRowLimit,
-	scan: func(rows *sql.Rows) (*lockEdge, error) {
-		var edge lockEdge
-		var waitMicros, blockerTrxMicros sql.NullInt64
-		var blockingCommand, blockingUser, blockingQuery sql.NullString
-		var lockedTable, lockedIndex, requestedMode, blockingMode sql.NullString
+	scan:     scanRowLockEdge,
+}
 
-		err := rows.Scan(&edge.waitingConnID, &edge.blockingConnID, &waitMicros, &blockerTrxMicros,
-			&blockingCommand, &blockingUser, &blockingQuery, &lockedTable, &lockedIndex,
-			&requestedMode, &blockingMode)
-		if err != nil {
-			return nil, err
-		}
+// innodbLockWaitsSource reads the same waits from information_schema, where MariaDB and
+// pre-8.0 MySQL record them. It returns the identical column shape, so it shares the scan.
+var innodbLockWaitsSource = lockSource{
+	name:     "row lock",
+	lockType: rtav1.LockType_LOCK_TYPE_ROW,
+	sql:      innodbLockWaitsSQL,
+	rowLimit: lockGraphRowLimit,
+	scan:     scanRowLockEdge,
+}
 
-		edge.waitDuration = microsToDuration(waitMicros)
-		edge.blockerTrxDuration = microsToDuration(blockerTrxMicros)
-		edge.blockingCommand = blockingCommand.String
-		edge.blockingUser = blockingUser.String
-		edge.blockingQuery = blockingQuery.String
-		edge.lockedTable = lockedTable.String
-		edge.lockedIndex = lockedIndex.String
-		edge.requestedMode = requestedMode.String
-		edge.blockingMode = blockingMode.String
+// rowLockSources are the ways a server can report InnoDB row-lock waits, each paired with the
+// wait table whose presence says whether this server has it. They are probed in order, and
+// performance_schema comes first because it carries the gap/record lock distinction that
+// information_schema drops; a server is expected to have exactly one of the two.
+var rowLockSources = []struct {
+	source lockSource
+	schema string
+	table  string
+}{
+	{dataLockWaitsSource, "performance_schema", "data_lock_waits"},
+	{innodbLockWaitsSource, "information_schema", "INNODB_LOCK_WAITS"},
+}
 
-		return &edge, nil
-	},
+// scanRowLockEdge reads one row-lock edge, from either source: the two queries are written to
+// return the same eleven columns in the same order precisely so this can be shared.
+func scanRowLockEdge(rows *sql.Rows) (*lockEdge, error) {
+	var edge lockEdge
+	var waitMicros, blockerTrxMicros sql.NullInt64
+	var blockingCommand, blockingUser, blockingQuery sql.NullString
+	var lockedTable, lockedIndex, requestedMode, blockingMode sql.NullString
+
+	err := rows.Scan(&edge.waitingConnID, &edge.blockingConnID, &waitMicros, &blockerTrxMicros,
+		&blockingCommand, &blockingUser, &blockingQuery, &lockedTable, &lockedIndex,
+		&requestedMode, &blockingMode)
+	if err != nil {
+		return nil, err
+	}
+
+	edge.waitDuration = microsToDuration(waitMicros)
+	edge.blockerTrxDuration = microsToDuration(blockerTrxMicros)
+	edge.blockingCommand = blockingCommand.String
+	edge.blockingUser = blockingUser.String
+	edge.blockingQuery = blockingQuery.String
+	edge.lockedTable = lockedTable.String
+	edge.lockedIndex = lockedIndex.String
+	edge.requestedMode = requestedMode.String
+	edge.blockingMode = blockingMode.String
+
+	return &edge, nil
 }
 
 // metadataLockSource reads table metadata-lock waits: the DDL-behind-an-open-transaction stall,
@@ -987,7 +1263,15 @@ func (m *MySQLRTA) collectBlockingTransactionsOrWarn(ctx context.Context) *block
 	// so this has to be shared rather than computed per source.
 	waiting := make(map[int64]struct{})
 
-	rowOK := m.readLockSource(ctx, rowLockSource, &m.rowLocks, graph, waiting)
+	// A startup probe that could not answer leaves no source chosen. Ask again here rather than
+	// at startup only: the server is reachable now, and one unlucky moment during initialization
+	// must not cost row-lock detection for the life of the agent.
+	if m.rowLockSource.sql == "" && !m.rowLocks.unsupported {
+		m.selectRowLockSource(ctx)
+	}
+
+	rowOK := m.rowLockSource.sql != "" &&
+		m.readLockSource(ctx, m.rowLockSource, &m.rowLocks, graph, waiting)
 	metadataOK := m.readLockSource(ctx, metadataLockSource, &m.metadataLocks, graph, waiting)
 
 	if !rowOK && !metadataOK {
@@ -1307,7 +1591,17 @@ func coerceValue(b sql.RawBytes) any {
 // The complete row is preserved in QueryRawJson; a curated subset is exposed
 // via the MySQL payload for the details view.
 func (m *MySQLRTA) buildQueryData(row map[string]any, graph *blockingGraph) *rtav1.QueryData {
+	// statement_latency is picosecond-grained and is the right answer whenever it is there.
+	// It comes from events_statements_current, though, whose consumer MariaDB ships disabled,
+	// and with that off the column is NULL on every row -- which would put 0.000s in the
+	// elapsed-time column the overview leads with, for a statement that has been running for
+	// minutes. PROCESSLIST_TIME needs no consumer and is always populated, so it stands in:
+	// whole seconds where the other is picoseconds, which is coarse but true, and a statement
+	// younger than a second still reports zero either way.
 	execDuration := picosToDuration(sql.NullInt64{Int64: int64(mapFloat(row, "statement_latency")), Valid: true})
+	if execDuration.AsDuration() == 0 {
+		execDuration = durationpb.New(time.Duration(mapInt(row, "time")) * time.Second)
+	}
 
 	connID := mapString(row, "conn_id")
 
@@ -1346,9 +1640,9 @@ func (m *MySQLRTA) buildQueryData(row map[string]any, graph *blockingGraph) *rta
 		Command:           mapString(row, "command"),
 		State:             mapString(row, "state"),
 		Username:          mapString(row, "user"),
-		RowsExamined:      mapInt(row, "rows_examined"),
-		RowsSent:          mapInt(row, "rows_sent"),
-		FullScan:          strings.EqualFold(mapString(row, "full_scan"), "YES"),
+		RowsExamined:      mapOptionalInt(row, "rows_examined"),
+		RowsSent:          mapOptionalInt(row, "rows_sent"),
+		FullScan:          mapOptionalFullScan(row),
 		BlockedStatus:     blockedStatus,
 		BlockedBy:         blockedBy,
 		LockedTable:       lockedTable,
@@ -1386,6 +1680,39 @@ func mapString(row map[string]any, key string) string {
 		return strconv.FormatFloat(v, 'f', -1, 64)
 	default:
 		return ""
+	}
+}
+
+// mapOptionalInt reads a count the server may not have measured. A NULL column is left unset
+// rather than reported as zero: these counts come from events_statements_current, whose consumer
+// MariaDB ships disabled, and a statement that examined no rows is a very different thing from
+// one nobody counted. The payload field carries presence so the UI can leave the cell blank.
+func mapOptionalInt(row map[string]any, key string) *int64 {
+	if row[key] == nil {
+		return nil
+	}
+
+	value := mapInt(row, key)
+
+	return &value
+}
+
+// mapOptionalFullScan reads the full-scan flag the same way. The query returns NULL when the
+// server measured neither index counter, rather than letting the comparison fall through to
+// 'NO' and hand back a clean bill of health for a statement nothing looked at. Only 'YES' and
+// 'NO' are answers; anything else is unknown.
+func mapOptionalFullScan(row map[string]any) *bool {
+	switch value := mapString(row, "full_scan"); {
+	case strings.EqualFold(value, "YES"):
+		yes := true
+
+		return &yes
+	case strings.EqualFold(value, "NO"):
+		no := false
+
+		return &no
+	default:
+		return nil
 	}
 }
 
