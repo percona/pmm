@@ -262,13 +262,34 @@ func unappliedCredentials(cfg, fileCfg *config.Config) []string {
 	return []string{"--server-username", "--server-password"}
 }
 
-// storesConfig reports whether the configuration `pmm-agent setup` assembled is the one to store. It
-// holds what the configuration file has only when setup loaded that file, and `pmm-admin config` runs
-// setup without --config-file: there the configuration is the flags and the defaults alone, missing
-// every setting the file holds beyond them, from the ports range to the /proc/mounts path. Registering
-// replaces the file by design, but keeping a registration must leave those settings alone.
-func storesConfig(registered, loadedFromFile bool, fileCfg *config.Config) bool {
-	return registered || loadedFromFile || fileCfg == nil
+// configToStore returns the configuration `pmm-agent setup` is to write.
+//
+// The configuration it assembled holds what the file has only when setup loaded that file, and
+// `pmm-admin config` runs setup without --config-file: there it is the flags and the defaults alone,
+// missing every setting the file holds beyond them, from the ports range to the /proc/mounts path.
+// Registering replaces the file by design, and so does a run which loaded it, but keeping a registration
+// must not: the flags are merged onto the file the Agent runs with instead, so that what was given is
+// applied and what only the file carries survives.
+func configToStore(cfg, fileCfg *config.Config, registered, loadedFromFile bool, args []string, l *logrus.Entry) (*config.Config, error) {
+	if registered || loadedFromFile || fileCfg == nil {
+		return cfg, nil
+	}
+
+	merged := *fileCfg
+	err := config.MergeFlags(&merged, args, l)
+	if err != nil {
+		return nil, err
+	}
+
+	// The credentials the Agent runs with, which keepRegistration settled: those given to setup only serve
+	// to register, and nothing was registered here. The ID is the one whose registration was just checked.
+	merged.Server = cfg.Server
+	merged.ID = cfg.ID
+	if cfg.ProcMountsPath != "" {
+		merged.ProcMountsPath = cfg.ProcMountsPath
+	}
+
+	return &merged, nil
 }
 
 // unappliedSetupFlags lists the given `pmm-agent setup` flags which describe the Node on PMM Server.
@@ -385,14 +406,15 @@ func Setup() {
 		}
 	}
 
-	if !storesConfig(registered, loadedFilepath != "", fileCfg) {
-		fmt.Printf("Configuration file %s is left unchanged.\n", configFilepath)
-		return
-	}
-
 	cfg.ProcMountsPath = cfg.Setup.ProcMountsPath
 
-	err = config.SaveToFile(configFilepath, cfg, "Updated by `pmm-agent setup`.")
+	stored, err := configToStore(cfg, fileCfg, registered, loadedFilepath != "", os.Args[1:], l)
+	if err != nil {
+		fmt.Printf("Failed to apply the given settings to the configuration file %s: %s.\n", configFilepath, err)
+		os.Exit(1)
+	}
+
+	err = config.SaveToFile(configFilepath, stored, "Updated by `pmm-agent setup`.")
 	if err != nil {
 		fmt.Printf("Failed to write configuration file %s: %s.\n", configFilepath, err)
 		os.Exit(1)

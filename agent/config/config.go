@@ -214,137 +214,142 @@ func getFromCmdLine(cfg *Config, l *logrus.Entry) (string, error) {
 	return get(os.Args[1:], cfg, l)
 }
 
+// applyDefaults fills in the values which are derived rather than given: the defaults of settings no
+// flag, variable or file carried, and the paths and the address built out of them. Get runs it on every
+// return point, and MergeFlags on the configuration it merged into, so that both reach the same result.
+func applyDefaults(cfg *Config, l *logrus.Entry) {
+	if cfg == nil {
+		return
+	}
+
+	// set default values
+	if strings.HasPrefix(cfg.ID, agentPrefix) {
+		l.Warnf("The agent ID '%s' contains a legacy prefix '%s'. It will be used without it.", cfg.ID, agentPrefix)
+		cfg.ID, _ = strings.CutPrefix(cfg.ID, agentPrefix)
+	}
+	if cfg.ListenAddress == "" {
+		cfg.ListenAddress = "127.0.0.1"
+	}
+	if cfg.ListenPort == 0 {
+		cfg.ListenPort = 7777
+	}
+	if cfg.Ports.Min == 0 {
+		cfg.Ports.Min = 42000 // for minimal compatibility with PMM Client 1.x firewall rules and documentation
+	}
+	if cfg.Ports.Max == 0 {
+		cfg.Ports.Max = 51999
+	}
+	if cfg.WindowConnectedTime == 0 {
+		cfg.WindowConnectedTime = time.Hour
+	}
+	// kingpin fires no action for a value which came from the environment, and both `pmm-agent setup`
+	// and `pmm-admin config` always pass the name on, so "the operator asked for this Node" is "the
+	// name is not the one it falls back to".
+	cfg.Setup.NodeNameGiven = cfg.Setup.NodeName != "" && cfg.Setup.NodeName != nodeNameDefault()
+	if cfg.PerfschemaRefreshRate == 0 {
+		cfg.PerfschemaRefreshRate = 5
+	}
+
+	for sp, v := range map[*string]string{
+		&cfg.Paths.NodeExporter:     "node_exporter",
+		&cfg.Paths.MySQLdExporter:   "mysqld_exporter",
+		&cfg.Paths.MongoDBExporter:  "mongodb_exporter",
+		&cfg.Paths.PostgresExporter: "postgres_exporter",
+		&cfg.Paths.ValkeyExporter:   "valkey_exporter",
+		&cfg.Paths.ProxySQLExporter: "proxysql_exporter",
+		&cfg.Paths.RDSExporter:      "rds_exporter",
+		&cfg.Paths.AzureExporter:    "azure_exporter",
+		&cfg.Paths.VMAgent:          "vmagent",
+		&cfg.Paths.PTSummary:        "tools/pt-summary",
+		&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
+		&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
+		&cfg.Paths.PTMySQLSummary:   "tools/pt-mysql-summary",
+		&cfg.Paths.Nomad:            "tools/nomad",
+	} {
+		if *sp == "" {
+			*sp = v
+		}
+	}
+
+	if cfg.Paths.PathsBase == "" {
+		cfg.Paths.PathsBase = pathBaseDefault
+	}
+	if cfg.Paths.ExportersBase == "" {
+		cfg.Paths.ExportersBase = filepath.Join(cfg.Paths.PathsBase, "exporters")
+	}
+
+	if abs, _ := filepath.Abs(cfg.Paths.PathsBase); abs != "" {
+		cfg.Paths.PathsBase = abs
+	}
+	if abs, _ := filepath.Abs(cfg.Paths.ExportersBase); abs != "" {
+		cfg.Paths.ExportersBase = abs
+	}
+
+	if cfg.Paths.TempDir == "" {
+		cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, agentTmpPath)
+		l.Infof("Temporary directory will default to %s", cfg.Paths.TempDir)
+	}
+
+	if cfg.Paths.NomadDataDir == "" {
+		cfg.Paths.NomadDataDir = filepath.Join(cfg.Paths.PathsBase, agentDataPath, "nomad")
+		l.Infof("Nomad data directory will default to %s", cfg.Paths.NomadDataDir)
+	}
+
+	if !filepath.IsAbs(cfg.Paths.TempDir) {
+		cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.TempDir)
+		l.Debugf("Temporary directory is configured as %s", cfg.Paths.TempDir)
+	}
+
+	for n, sp := range map[string]*string{
+		"Percona Toolkit pt-summary":         &cfg.Paths.PTSummary,
+		"Percona Toolkit pt-pg-summary":      &cfg.Paths.PTPGSummary,
+		"Percona Toolkit pt-mongodb-summary": &cfg.Paths.PTMongoDBSummary,
+		"Percona Toolkit pt-mysql-summary":   &cfg.Paths.PTMySQLSummary,
+		"Nomad binary":                       &cfg.Paths.Nomad,
+	} {
+		if !filepath.IsAbs(*sp) {
+			*sp = filepath.Join(cfg.Paths.PathsBase, *sp)
+			l.Infof("Using %s as a path to %s", *sp, n)
+		}
+	}
+
+	for n, sp := range map[string]*string{
+		"node_exporter":     &cfg.Paths.NodeExporter,
+		"mysqld_exporter":   &cfg.Paths.MySQLdExporter,
+		"mongodb_exporter":  &cfg.Paths.MongoDBExporter,
+		"postgres_exporter": &cfg.Paths.PostgresExporter,
+		"valkey_exporter":   &cfg.Paths.ValkeyExporter,
+		"proxysql_exporter": &cfg.Paths.ProxySQLExporter,
+		"rds_exporter":      &cfg.Paths.RDSExporter,
+		"azure_exporter":    &cfg.Paths.AzureExporter,
+		"vmagent":           &cfg.Paths.VMAgent,
+	} {
+		if cfg.Paths.ExportersBase != "" && !filepath.IsAbs(*sp) {
+			*sp = filepath.Join(cfg.Paths.ExportersBase, *sp)
+		}
+		l.Infof("Using %s as a path to %s", *sp, n)
+	}
+
+	if address := cfg.Server.NormalizedAddress(); address != cfg.Server.Address {
+		l.Infof("Updating PMM Server address from %s to %s.", cfg.Server.Address, address)
+		cfg.Server.Address = address
+	}
+
+	// enabled cross-component PMM_DEBUG and PMM_TRACE take priority
+	if b, _ := strconv.ParseBool(os.Getenv("PMM_DEBUG")); b {
+		cfg.Debug = true
+	}
+	if b, _ := strconv.ParseBool(os.Getenv("PMM_TRACE")); b {
+		cfg.Trace = true
+	}
+}
+
 // get is Get for unit tests: it parses args instead of command-line.
-func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint:gocognit,cyclop
+func get(args []string, cfg *Config, l *logrus.Entry) (string, error) {
 	var configFileF string
 	var err error
 	// tweak configuration on exit to cover all return points
-	defer func() {
-		if cfg == nil {
-			return
-		}
-
-		// set default values
-		if strings.HasPrefix(cfg.ID, agentPrefix) {
-			l.Warnf("The agent ID '%s' contains a legacy prefix '%s'. It will be used without it.", cfg.ID, agentPrefix)
-			cfg.ID, _ = strings.CutPrefix(cfg.ID, agentPrefix)
-		}
-		if cfg.ListenAddress == "" {
-			cfg.ListenAddress = "127.0.0.1"
-		}
-		if cfg.ListenPort == 0 {
-			cfg.ListenPort = 7777
-		}
-		if cfg.Ports.Min == 0 {
-			cfg.Ports.Min = 42000 // for minimal compatibility with PMM Client 1.x firewall rules and documentation
-		}
-		if cfg.Ports.Max == 0 {
-			cfg.Ports.Max = 51999
-		}
-		if cfg.WindowConnectedTime == 0 {
-			cfg.WindowConnectedTime = time.Hour
-		}
-		// kingpin fires no action for a value which came from the environment, and both `pmm-agent setup`
-		// and `pmm-admin config` always pass the name on, so "the operator asked for this Node" is "the
-		// name is not the one it falls back to".
-		cfg.Setup.NodeNameGiven = cfg.Setup.NodeName != "" && cfg.Setup.NodeName != nodeNameDefault()
-		if cfg.PerfschemaRefreshRate == 0 {
-			cfg.PerfschemaRefreshRate = 5
-		}
-
-		for sp, v := range map[*string]string{
-			&cfg.Paths.NodeExporter:     "node_exporter",
-			&cfg.Paths.MySQLdExporter:   "mysqld_exporter",
-			&cfg.Paths.MongoDBExporter:  "mongodb_exporter",
-			&cfg.Paths.PostgresExporter: "postgres_exporter",
-			&cfg.Paths.ValkeyExporter:   "valkey_exporter",
-			&cfg.Paths.ProxySQLExporter: "proxysql_exporter",
-			&cfg.Paths.RDSExporter:      "rds_exporter",
-			&cfg.Paths.AzureExporter:    "azure_exporter",
-			&cfg.Paths.VMAgent:          "vmagent",
-			&cfg.Paths.PTSummary:        "tools/pt-summary",
-			&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
-			&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
-			&cfg.Paths.PTMySQLSummary:   "tools/pt-mysql-summary",
-			&cfg.Paths.Nomad:            "tools/nomad",
-		} {
-			if *sp == "" {
-				*sp = v
-			}
-		}
-
-		if cfg.Paths.PathsBase == "" {
-			cfg.Paths.PathsBase = pathBaseDefault
-		}
-		if cfg.Paths.ExportersBase == "" {
-			cfg.Paths.ExportersBase = filepath.Join(cfg.Paths.PathsBase, "exporters")
-		}
-
-		if abs, _ := filepath.Abs(cfg.Paths.PathsBase); abs != "" {
-			cfg.Paths.PathsBase = abs
-		}
-		if abs, _ := filepath.Abs(cfg.Paths.ExportersBase); abs != "" {
-			cfg.Paths.ExportersBase = abs
-		}
-
-		if cfg.Paths.TempDir == "" {
-			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, agentTmpPath)
-			l.Infof("Temporary directory will default to %s", cfg.Paths.TempDir)
-		}
-
-		if cfg.Paths.NomadDataDir == "" {
-			cfg.Paths.NomadDataDir = filepath.Join(cfg.Paths.PathsBase, agentDataPath, "nomad")
-			l.Infof("Nomad data directory will default to %s", cfg.Paths.NomadDataDir)
-		}
-
-		if !filepath.IsAbs(cfg.Paths.TempDir) {
-			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.TempDir)
-			l.Debugf("Temporary directory is configured as %s", cfg.Paths.TempDir)
-		}
-
-		for n, sp := range map[string]*string{
-			"Percona Toolkit pt-summary":         &cfg.Paths.PTSummary,
-			"Percona Toolkit pt-pg-summary":      &cfg.Paths.PTPGSummary,
-			"Percona Toolkit pt-mongodb-summary": &cfg.Paths.PTMongoDBSummary,
-			"Percona Toolkit pt-mysql-summary":   &cfg.Paths.PTMySQLSummary,
-			"Nomad binary":                       &cfg.Paths.Nomad,
-		} {
-			if !filepath.IsAbs(*sp) {
-				*sp = filepath.Join(cfg.Paths.PathsBase, *sp)
-				l.Infof("Using %s as a path to %s", *sp, n)
-			}
-		}
-
-		for n, sp := range map[string]*string{
-			"node_exporter":     &cfg.Paths.NodeExporter,
-			"mysqld_exporter":   &cfg.Paths.MySQLdExporter,
-			"mongodb_exporter":  &cfg.Paths.MongoDBExporter,
-			"postgres_exporter": &cfg.Paths.PostgresExporter,
-			"valkey_exporter":   &cfg.Paths.ValkeyExporter,
-			"proxysql_exporter": &cfg.Paths.ProxySQLExporter,
-			"rds_exporter":      &cfg.Paths.RDSExporter,
-			"azure_exporter":    &cfg.Paths.AzureExporter,
-			"vmagent":           &cfg.Paths.VMAgent,
-		} {
-			if cfg.Paths.ExportersBase != "" && !filepath.IsAbs(*sp) {
-				*sp = filepath.Join(cfg.Paths.ExportersBase, *sp)
-			}
-			l.Infof("Using %s as a path to %s", *sp, n)
-		}
-
-		if address := cfg.Server.NormalizedAddress(); address != cfg.Server.Address {
-			l.Infof("Updating PMM Server address from %s to %s.", cfg.Server.Address, address)
-			cfg.Server.Address = address
-		}
-
-		// enabled cross-component PMM_DEBUG and PMM_TRACE take priority
-		if b, _ := strconv.ParseBool(os.Getenv("PMM_DEBUG")); b {
-			cfg.Debug = true
-		}
-		if b, _ := strconv.ParseBool(os.Getenv("PMM_TRACE")); b {
-			cfg.Trace = true
-		}
-	}()
+	defer applyDefaults(cfg, l)
 
 	// parse command-line flags and environment variables
 	app, cfgFileF := Application(cfg)
@@ -375,6 +380,24 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 
 	*cfg = *fileCfg
 	return configFileF, nil
+}
+
+// MergeFlags parses args over a configuration which was loaded from a file, so that the flags given win
+// while everything the file alone holds - the ports range and the /proc/mounts path among them - survives.
+//
+// It is the merge Get performs for --config-file, for a caller which learns the path of the file only
+// from the running pmm-agent and so cannot pass that flag: `pmm-admin config` runs `pmm-agent setup`
+// without it. Settings which carry a flag default are reset to it, exactly as they are on the
+// --config-file path.
+func MergeFlags(fileCfg *Config, args []string, l *logrus.Entry) error {
+	app, _ := Application(fileCfg)
+	_, err := app.Parse(args)
+	if err != nil {
+		return err
+	}
+	applyDefaults(fileCfg, l)
+
+	return nil
 }
 
 // nodeNameDefault returns the Node name `pmm-agent setup` falls back to when it is given none.

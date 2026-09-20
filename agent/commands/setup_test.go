@@ -398,45 +398,107 @@ func TestRegisteredConfig(t *testing.T) {
 	})
 }
 
-func TestStoresConfig(t *testing.T) {
+func TestConfigToStore(t *testing.T) {
 	t.Parallel()
 
-	fileCfg := &config.Config{ID: testAgentID}
+	l := logrus.WithField("test", t.Name())
 
-	for _, tc := range []struct {
-		name           string
-		registered     bool
-		loadedFromFile bool
-		fileCfg        *config.Config
-		stores         bool
-	}{
-		{
-			name:       "registering replaces the configuration file",
-			registered: true,
-			fileCfg:    fileCfg,
-			stores:     true,
-		},
-		{
-			name:           "a configuration file setup loaded is written back",
-			loadedFromFile: true,
-			fileCfg:        fileCfg,
-			stores:         true,
-		},
-		{
-			name:   "the first configuration file is written without being loaded",
-			stores: true,
-		},
-		{
-			name:    "keeping the registration leaves a file setup did not load alone",
-			fileCfg: fileCfg,
-		},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			assert.Equal(t, tc.stores, storesConfig(tc.registered, tc.loadedFromFile, tc.fileCfg))
-		})
+	// The configuration the Agent runs with: a firewalled ports range and a /proc/mounts path which no
+	// flag carries, plus the service token registering left behind.
+	running := func() *config.Config {
+		return &config.Config{
+			ID:             testAgentID,
+			ListenPort:     7777,
+			Ports:          config.Ports{Min: 30000, Max: 30100},
+			ProcMountsPath: "/host/proc/mounts",
+			Paths:          config.Paths{PathsBase: "/opt/pmm"},
+			Server: config.Server{
+				Address:  testServerAddress,
+				Username: "service_token",
+				Password: "stored-token",
+			},
+		}
 	}
+
+	// What `pmm-admin config --log-level=debug <addr> generic` assembles: the flags and the defaults, with
+	// the credentials keepRegistration settled onto it.
+	assembled := func() *config.Config {
+		return &config.Config{
+			ID:       testAgentID,
+			LogLevel: "debug",
+			Server: config.Server{
+				Address:  testServerAddress,
+				Username: "service_token",
+				Password: "stored-token",
+			},
+		}
+	}
+
+	t.Run("registering replaces the configuration file", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := assembled()
+		stored, err := configToStore(cfg, running(), true, false, nil, l)
+		require.NoError(t, err)
+		assert.Same(t, cfg, stored)
+	})
+
+	t.Run("a configuration file setup loaded is written back", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := assembled()
+		stored, err := configToStore(cfg, running(), false, true, nil, l)
+		require.NoError(t, err)
+		assert.Same(t, cfg, stored)
+	})
+
+	t.Run("the first configuration file is written without being loaded", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := assembled()
+		stored, err := configToStore(cfg, nil, false, false, nil, l)
+		require.NoError(t, err)
+		assert.Same(t, cfg, stored)
+	})
+
+	t.Run("keeping the registration merges the flags onto the file", func(t *testing.T) {
+		t.Parallel()
+
+		args := []string{"--log-level=debug", "--paths-base=/opt/other", "setup", "1.2.3.4", "generic"}
+		stored, err := configToStore(assembled(), running(), false, false, args, l)
+		require.NoError(t, err)
+
+		// Given, so applied.
+		assert.Equal(t, "debug", stored.LogLevel)
+		assert.Equal(t, "/opt/other", stored.Paths.PathsBase)
+
+		// Carried by the file alone: dropping these restarted the Agent onto blocked ports and lost the
+		// path the filesystem collector reads.
+		assert.Equal(t, config.Ports{Min: 30000, Max: 30100}, stored.Ports)
+		assert.Equal(t, "/host/proc/mounts", stored.ProcMountsPath)
+		assert.Equal(t, uint16(7777), stored.ListenPort)
+
+		// The credentials the Agent runs with, not the ones given to setup.
+		assert.Equal(t, "service_token", stored.Server.Username)
+		assert.Equal(t, "stored-token", stored.Server.Password)
+		assert.Equal(t, testAgentID, stored.ID)
+	})
+
+	t.Run("the file the Agent runs with is not modified in place", func(t *testing.T) {
+		t.Parallel()
+
+		fileCfg := running()
+		_, err := configToStore(assembled(), fileCfg, false, false, []string{"--log-level=debug"}, l)
+		require.NoError(t, err)
+		assert.Empty(t, fileCfg.LogLevel)
+	})
+
+	t.Run("flags which do not parse are reported", func(t *testing.T) {
+		t.Parallel()
+
+		_, err := configToStore(assembled(), running(), false, false, []string{"--no-such-flag"}, l)
+		require.Error(t, err)
+	})
 }
 
 func TestKeepRegistration(t *testing.T) {
