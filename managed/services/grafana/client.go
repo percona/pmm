@@ -670,7 +670,7 @@ func (c *Client) CreateServiceAccount(ctx context.Context, nodeName string, rere
 		return 0, "", err
 	}
 
-	_, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName, reregister, authHeaders)
+	_, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName, authHeaders)
 	if err != nil {
 		return 0, "", err
 	}
@@ -891,11 +891,20 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 
 	var m map[string]any
 	err = c.do(ctx, "POST", "/api/serviceaccounts", "", authHeaders, b, &m)
-	if err != nil {
-		return 0, err
+	serviceAccountID := 0
+	if err == nil {
+		serviceAccountID = int(m["id"].(float64)) //nolint:forcetypeassert
+	} else {
+		// A registration which failed after creating the account leaves it behind, and Grafana refuses to
+		// create the same account twice. The Node it is named after holds no registration - the caller has
+		// just taken that name - so the account is that leftover, and taking it over is what carries the
+		// next attempt through. Where there is none to take over, the failure to create one is the answer.
+		id, lookupErr := c.getServiceAccountIDFromName(ctx, nodeName, authHeaders)
+		if lookupErr != nil {
+			return 0, err
+		}
+		serviceAccountID = id
 	}
-
-	serviceAccountID := int(m["id"].(float64)) //nolint:forcetypeassert
 
 	// orgId is ignored during creating service account and default is -1
 	// orgId should be set to 1
@@ -907,14 +916,17 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 	return serviceAccountID, nil
 }
 
-func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, nodeName string, reregister bool, authHeaders http.Header) (int, string, error) {
+func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, nodeName string, authHeaders http.Header) (int, string, error) {
 	serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
 	exists, err := c.serviceTokenExists(ctx, serviceAccountID, nodeName, authHeaders)
 	if err != nil {
 		return 0, "", err
 	}
-	if exists && reregister {
-		err := c.deletePMMAgentServiceToken(ctx, serviceAccountID, nodeName, authHeaders)
+	// The token this replaces is the one of a registration which is being replaced, whether the Node is
+	// being registered again or the account is a leftover taken over above. Grafana refuses a second
+	// token under the same name, so keeping it would only fail the registration it belongs to.
+	if exists {
+		err = c.deletePMMAgentServiceToken(ctx, serviceAccountID, nodeName, authHeaders)
 		if err != nil {
 			return 0, "", err
 		}

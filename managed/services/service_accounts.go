@@ -26,13 +26,31 @@ import (
 // failure leaves a live token behind and is, so the two must not look alike to the caller.
 var ErrServiceAccountNotFound = errors.New("service account not found")
 
-// serviceAccountCleanupTimeout bounds the Grafana calls of RemoveNodeServiceAccount, so that an
-// unresponsive Grafana holds neither the caller nor a transaction the caller runs this in.
-const serviceAccountCleanupTimeout = 10 * time.Second
+// serviceAccountTimeout bounds the Grafana calls of this file, so that an unresponsive Grafana holds
+// neither the caller nor a transaction the caller runs this in.
+const serviceAccountTimeout = 10 * time.Second
 
 // ServiceAccountRemover deletes the Grafana service account of a Node.
 type ServiceAccountRemover interface {
 	DeleteServiceAccount(ctx context.Context, nodeName string, force bool) (string, error)
+}
+
+// ServiceAccountCreator creates the Grafana service account of a Node.
+type ServiceAccountCreator interface {
+	CreateServiceAccount(ctx context.Context, nodeName string, reregister bool) (int, string, error)
+}
+
+// CreateNodeServiceAccount creates the Grafana service account named after a Node being registered,
+// together with the token its pmm-agent then authenticates with.
+//
+// The caller runs this inside the transaction which creates the Node, so that a registration Grafana
+// cannot complete registers nothing: a Node left behind without its account holds the name every later
+// attempt needs, and pmm-agent, which stores nothing until the registration succeeds, has no way back.
+func CreateNodeServiceAccount(ctx context.Context, c ServiceAccountCreator, nodeName string, reregister bool) (int, string, error) {
+	createCtx, cancel := context.WithTimeout(ctx, serviceAccountTimeout)
+	defer cancel()
+
+	return c.CreateServiceAccount(createCtx, nodeName, reregister)
 }
 
 // RemoveNodeServiceAccount deletes the Grafana service account named after a Node being removed, so that
@@ -44,7 +62,7 @@ type ServiceAccountRemover interface {
 // has already committed passes context.WithoutCancel(ctx), because by then the Node is gone and leaving
 // the account behind is the worse outcome; deriving from ctx keeps the auth headers Grafana needs.
 func RemoveNodeServiceAccount(ctx context.Context, c ServiceAccountRemover, nodeName string, force bool) (string, error) {
-	cleanupCtx, cancel := context.WithTimeout(ctx, serviceAccountCleanupTimeout)
+	cleanupCtx, cancel := context.WithTimeout(ctx, serviceAccountTimeout)
 	defer cancel()
 
 	return c.DeleteServiceAccount(cleanupCtx, nodeName, force)

@@ -31,6 +31,50 @@ func (f removerFunc) DeleteServiceAccount(ctx context.Context, nodeName string, 
 	return f(ctx, nodeName, force)
 }
 
+// creatorFunc adapts a function to ServiceAccountCreator.
+type creatorFunc func(ctx context.Context, nodeName string, reregister bool) (int, string, error)
+
+func (f creatorFunc) CreateServiceAccount(ctx context.Context, nodeName string, reregister bool) (int, string, error) {
+	return f(ctx, nodeName, reregister)
+}
+
+func TestCreateNodeServiceAccount(t *testing.T) {
+	t.Parallel()
+
+	t.Run("the account carries a deadline", func(t *testing.T) {
+		t.Parallel()
+
+		// The caller runs this inside the transaction which creates the Node, so an unresponsive Grafana
+		// must not hold that transaction open for as long as it stays unresponsive.
+		called := false
+		id, token, err := CreateNodeServiceAccount(t.Context(), creatorFunc(func(ctx context.Context, nodeName string, reregister bool) (int, string, error) {
+			called = true
+			_, ok := ctx.Deadline()
+			assert.True(t, ok, "the registration has to give up on an unresponsive Grafana")
+			assert.Equal(t, "test-node", nodeName)
+			assert.True(t, reregister)
+
+			return 7, "test-token", nil
+		}), "test-node", true)
+
+		require.NoError(t, err)
+		assert.True(t, called)
+		assert.Equal(t, 7, id)
+		assert.Equal(t, "test-token", token)
+	})
+
+	t.Run("the failure of Grafana is reported", func(t *testing.T) {
+		t.Parallel()
+
+		errGrafana := errors.New("connection refused")
+		_, _, err := CreateNodeServiceAccount(t.Context(), creatorFunc(func(context.Context, string, bool) (int, string, error) {
+			return 0, "", errGrafana
+		}), "test-node", false)
+
+		assert.ErrorIs(t, err, errGrafana)
+	})
+}
+
 func TestRemoveNodeServiceAccount(t *testing.T) {
 	t.Parallel()
 

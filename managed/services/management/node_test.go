@@ -17,6 +17,7 @@ package management
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -41,8 +42,8 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
-// boundedCtx matches the context of the Grafana cleanup, which has to carry a deadline of its own
-// rather than the cancellation of the request.
+// boundedCtx matches the context of a Grafana call made for a Node, which has to carry a deadline of
+// its own rather than the cancellation of the request.
 var boundedCtx = mock.MatchedBy(func(ctx context.Context) bool {
 	_, ok := ctx.Deadline()
 	return ok
@@ -77,7 +78,7 @@ func TestNodeService(t *testing.T) {
 
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+			authProvider.On("CreateServiceAccount", boundedCtx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
 
 			vmClient := &mockVictoriaMetricsClient{}
 			vmClient.Test(t)
@@ -146,7 +147,7 @@ func TestNodeService(t *testing.T) {
 
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+			authProvider.On("CreateServiceAccount", boundedCtx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
 			s.grafanaClient = authProvider
 
 			_, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
@@ -167,7 +168,7 @@ func TestNodeService(t *testing.T) {
 
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+			authProvider.On("CreateServiceAccount", boundedCtx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
 			s.grafanaClient = authProvider
 
 			res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
@@ -206,7 +207,7 @@ func TestNodeService(t *testing.T) {
 
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+			authProvider.On("CreateServiceAccount", boundedCtx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
 			authProvider.On("DeleteServiceAccount", boundedCtx, nodeName, deleteForeignTokens).Return("", nil)
 			s.grafanaClient = authProvider
 
@@ -238,6 +239,30 @@ func TestNodeService(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.Empty(t, res.Warning)
+		})
+
+		t.Run("Grafana-failure", func(t *testing.T) {
+			// A Node which keeps the name while its service account was never created is one nothing can
+			// take back: pmm-agent stores no ID until the registration succeeds, so it registers again on
+			// every start, and every attempt meets the name the failed one left behind.
+			nodeName := "test-node-grafana-down"
+			errGrafana := errors.New("connection refused")
+
+			authProvider := &mockGrafanaClient{}
+			authProvider.Test(t)
+			authProvider.On("CreateServiceAccount", boundedCtx, nodeName, false).Return(0, "", errGrafana)
+			s.grafanaClient = authProvider
+			defer authProvider.AssertExpectations(t)
+
+			_, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeName: nodeName,
+				Address:  "grafana.down.org",
+			})
+			require.ErrorIs(t, err, errGrafana)
+
+			_, err = models.FindNodeByName(s.db.Querier, nodeName)
+			tests.AssertGRPCError(t, status.Newf(codes.NotFound, "Node with name %q not found.", nodeName), err)
 		})
 	})
 

@@ -478,6 +478,83 @@ func TestCurrentUserHTTPResponse(t *testing.T) {
 	}
 }
 
+func TestCreateServiceAccount(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	const nodeName = "test-node"
+
+	// grafana answers the calls createServiceAccount makes: POST creates the account, and the search finds
+	// the one a registration left behind. leftover is the account the search holds, none for a Grafana
+	// which has no account for this Node.
+	grafana := func(t *testing.T, createStatus int, leftover string) (*Client, *int) {
+		t.Helper()
+
+		patched := 0
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			switch {
+			case r.Method == http.MethodPost && r.URL.Path == "/api/serviceaccounts":
+				w.WriteHeader(createStatus)
+				if createStatus == http.StatusOK {
+					_, _ = fmt.Fprint(w, `{"id": 7}`)
+					return
+				}
+				_, _ = fmt.Fprint(w, `{"message": "Failed to create service account"}`)
+			case r.Method == http.MethodGet && r.URL.Path == "/api/serviceaccounts/search":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprintf(w, `{"totalCount":1,"serviceAccounts":[%s]}`, leftover)
+			case r.Method == http.MethodPatch:
+				patched++
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		t.Cleanup(ts.Close)
+
+		return NewClient(strings.TrimPrefix(ts.URL, "http://")), &patched
+	}
+
+	t.Run("creates the account of a Node being registered", func(t *testing.T) {
+		t.Parallel()
+
+		c, patched := grafana(t, http.StatusOK, "")
+
+		id, err := c.createServiceAccount(ctx, admin, nodeName, false, http.Header{})
+		require.NoError(t, err)
+		assert.Equal(t, 7, id)
+		assert.Equal(t, 1, *patched, "the account has to be moved to the default org")
+	})
+
+	t.Run("takes over the account a failed registration left behind", func(t *testing.T) {
+		t.Parallel()
+
+		// Grafana refuses to create it a second time, and the Node holds no registration - the caller has
+		// just taken its name - so the leftover is this Node's and the registration goes on with it.
+		leftover := fmt.Sprintf(`{"id":42,"name":"%s-%s"}`, pmmServiceAccountName, nodeName)
+		c, patched := grafana(t, http.StatusInternalServerError, leftover)
+
+		id, err := c.createServiceAccount(ctx, admin, nodeName, false, http.Header{})
+		require.NoError(t, err)
+		assert.Equal(t, 42, id)
+		assert.Equal(t, 1, *patched)
+	})
+
+	t.Run("reports the failure to create where there is nothing to take over", func(t *testing.T) {
+		t.Parallel()
+
+		c, patched := grafana(t, http.StatusInternalServerError, `{"id":42,"name":"pmm-agent-sa-another-node"}`)
+
+		_, err := c.createServiceAccount(ctx, admin, nodeName, false, http.Header{})
+		// The failure to create is the answer, not the lookup which found no account of this Node.
+		require.ErrorContains(t, err, "Failed to create service account")
+		require.NotErrorIs(t, err, services.ErrServiceAccountNotFound)
+		assert.Equal(t, 0, *patched)
+	})
+}
+
 func TestGetServiceAccountIDFromName(t *testing.T) {
 	t.Parallel()
 
@@ -626,7 +703,7 @@ func TestClient(t *testing.T) {
 					require.NoError(t, err)
 				}()
 
-				serviceTokenID, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName, true, authHeaders)
+				serviceTokenID, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName, authHeaders)
 				require.NoError(t, err)
 				require.NotZero(t, serviceTokenID)
 				require.NotEmpty(t, serviceToken)

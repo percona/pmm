@@ -117,21 +117,24 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 		if err != nil {
 			return err
 		}
+
+		// Inside the transaction, so that a registration Grafana cannot complete registers nothing. A Node
+		// which keeps the name while the account its pmm-agent authenticates with was never created is one
+		// nothing can take back: pmm-agent stores no ID until the registration succeeds, so it registers
+		// again on every start, and every attempt meets the name the failed one left behind.
+		authHeaders, _ := auth.GetHeadersFromContext(ctx)
+		token := auth.GetTokenFromHeaders(authHeaders)
+		if token != "" {
+			res.Token = token
+			return nil
+		}
+
+		_, res.Token, err = services.CreateNodeServiceAccount(ctx, s.grafanaClient, req.NodeName, req.Reregister)
+
 		return err
 	})
 	if e != nil {
 		return nil, e
-	}
-
-	authHeaders, _ := auth.GetHeadersFromContext(ctx)
-	token := auth.GetTokenFromHeaders(authHeaders)
-	if token != "" {
-		res.Token = token
-	} else {
-		_, res.Token, e = s.grafanaClient.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
-		if e != nil {
-			return nil, e
-		}
 	}
 
 	return res, nil
