@@ -1,0 +1,32 @@
+# Sourced by build-server-binaries.
+
+key() {
+    echo ${pmm_version}-$(get_shortcommit pmm)
+}
+
+build() {
+    run_in_container $1 pmm <<EOF
+export PMM_RELEASE_VERSION=${full_pmm_version}
+export PMM_RELEASE_FULLCOMMIT=$(get_commit pmm)
+export PMM_RELEASE_BRANCH=""
+
+cd ${build_dir}
+make -C managed release
+
+install -d ${rootfs}/usr/sbin
+install -p -m 0755 bin/pmm-managed ${rootfs}/usr/sbin/pmm-managed
+install -p -m 0755 bin/pmm-encryption-rotation ${rootfs}/usr/sbin/pmm-encryption-rotation
+install -p -m 0755 bin/pmm-managed-init ${rootfs}/usr/sbin/pmm-managed-init
+install -p -m 0755 bin/pmm-managed-starlark ${rootfs}/usr/sbin/pmm-managed-starlark
+
+install -d ${rootfs}/usr/share/pmm-managed
+cp -pa api/swagger ${rootfs}/usr/share/pmm-managed/
+
+install -d ${rootfs}/usr/local/percona/advisors ${rootfs}/usr/local/percona/checks ${rootfs}/usr/local/percona/alerting-templates
+install -p -m 0644 managed/data/advisors/*.yml ${rootfs}/usr/local/percona/advisors/
+install -p -m 0644 managed/data/checks/*.yml ${rootfs}/usr/local/percona/checks/
+install -p -m 0644 managed/data/alerting-templates/*.yml ${rootfs}/usr/local/percona/alerting-templates/
+EOF
+}
+
+# vim: expandtab shiftwidth=4 tabstop=4

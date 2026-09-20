@@ -1,0 +1,21 @@
+# Sourced by build-server-binaries.
+
+key() {
+    echo ${pmm_version}-$(get_shortcommit pmm ui)
+}
+
+build() {
+    run_in_container $1 pmm <<EOF
+cd ${build_dir}
+node -v
+make -C ui release
+
+install -d ${rootfs}/usr/share/pmm-ui
+cp -pa ui/apps/pmm/dist/. ${rootfs}/usr/share/pmm-ui/
+
+install -d ${rootfs}/usr/share/percona-dashboards/panels/pmm-compat-app
+cp -pa ui/apps/pmm-compat/dist/. ${rootfs}/usr/share/percona-dashboards/panels/pmm-compat-app/
+EOF
+}
+
+# vim: expandtab shiftwidth=4 tabstop=4

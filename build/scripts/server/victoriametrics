@@ -1,0 +1,30 @@
+# Sourced by build-server-binaries.
+
+# https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.149.0
+victoriametrics_tag=pmm-6401-v1.149.0
+
+key() {
+    echo ${victoriametrics_tag}
+}
+
+build() {
+    download \
+        https://github.com/VictoriaMetrics/VictoriaMetrics/archive/${victoriametrics_tag}.tar.gz \
+        victoriametrics-${victoriametrics_tag}.tar.gz
+
+    run_in_container $1 "" <<EOF
+mkdir -p /home/builder/victoriametrics
+tar -C /home/builder/victoriametrics --strip-components=1 -zxpf /home/builder/downloads/victoriametrics-${victoriametrics_tag}.tar.gz
+cd /home/builder/victoriametrics
+
+export PKG_TAG=${victoriametrics_tag}
+export BUILDINFO_TAG=${victoriametrics_tag}
+export USER=builder
+make victoria-metrics-pure vmalert-pure
+
+install -D -p -m 0755 bin/victoria-metrics-pure ${rootfs}/usr/sbin/victoriametrics
+install -D -p -m 0755 bin/vmalert-pure ${rootfs}/usr/sbin/vmalert
+EOF
+}
+
+# vim: expandtab shiftwidth=4 tabstop=4
