@@ -15,6 +15,7 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -181,8 +182,8 @@ func TestServerNodeOfAgent(t *testing.T) {
 			unknowable: true,
 		},
 		{
-			// The check as a whole gives up, not each of its two requests on its own.
-			name:        "PMM Server hangs for longer than the check is allowed",
+			// One lookup, two requests: the deadline the caller sets covers both, not each on its own.
+			name:        "PMM Server hangs for longer than the lookup is allowed",
 			hangs:       true,
 			boundedOnce: true,
 			unknowable:  true,
@@ -196,8 +197,8 @@ func TestServerNodeOfAgent(t *testing.T) {
 				t.Cleanup(func() { httptransport.DefaultTimeout = defaultTimeout })
 			}
 			if tc.boundedOnce {
-				// Leave the per-request timeout long, so that only the bound on the whole check can end
-				// this. Without it the two requests would run to the per-request timeout one after another.
+				// Leave the per-request timeout long, so that only the deadline on the lookup can end this.
+				// Without it the two requests would run to the per-request timeout one after another.
 				httptransport.DefaultTimeout = time.Minute
 				checkTimeout := registrationCheckTimeout
 				registrationCheckTimeout = 100 * time.Millisecond
@@ -275,7 +276,11 @@ func TestServerNodeOfAgent(t *testing.T) {
 			require.NoError(t, err)
 			setServerTransport(u, true, logrus.WithField("test", t.Name()))
 
-			node, err := serverNodeOfAgent(agentID)
+			// The caller owns the deadline, so the test supplies the one checkRegistrationOnServer would.
+			ctx, cancel := context.WithTimeout(t.Context(), registrationCheckTimeout)
+			defer cancel()
+
+			node, err := serverNodeOfAgent(ctx, agentID)
 			switch {
 			case tc.err != nil:
 				require.ErrorIs(t, err, tc.err)

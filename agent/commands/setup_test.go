@@ -15,15 +15,23 @@
 package commands
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
+	"sync/atomic"
 	"testing"
+	"time"
 
+	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
 
 	"github.com/percona/pmm/agent/config"
 	aservice "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
@@ -53,12 +61,12 @@ func notAsked(t *testing.T) registrationCheck {
 
 // found makes PMM Server answer the Agent lookup with the given Node.
 func found(node serverNode) agentLookup {
-	return func(string) (serverNode, error) { return node, nil }
+	return func(context.Context, string) (serverNode, error) { return node, nil }
 }
 
 // failed makes the Agent lookup fail with the given error.
 func failed(err error) agentLookup {
-	return func(string) (serverNode, error) { return serverNode{}, err }
+	return func(context.Context, string) (serverNode, error) { return serverNode{}, err }
 }
 
 func TestCheckRegistration(t *testing.T) {
@@ -140,7 +148,7 @@ func TestCheckRegistration(t *testing.T) {
 					Address:       testNodeAddress,
 				},
 			}
-			assert.Equal(t, tc.want, checkRegistration(cfg, tc.lookup))
+			assert.Equal(t, tc.want, checkRegistration(t.Context(), cfg, tc.lookup))
 		})
 	}
 }
@@ -178,17 +186,17 @@ func TestWithGivenCredentials(t *testing.T) {
 	refused := aservice.NewGetAgentDefault(http.StatusUnauthorized)
 
 	// answers replies to consecutive lookups, and fails the test on a lookup it has no answer for.
-	answers := func(t *testing.T, results ...func(string) (serverNode, error)) (agentLookup, *int) {
+	answers := func(t *testing.T, results ...agentLookup) (agentLookup, *int) {
 		t.Helper()
 
 		calls := 0
-		return func(agentID string) (serverNode, error) {
+		return func(ctx context.Context, agentID string) (serverNode, error) {
 			calls++
 			if calls > len(results) {
 				t.Errorf("PMM Server was asked %d times, expected %d", calls, len(results))
 				return serverNode{}, errors.New("asked too many times")
 			}
-			return results[calls-1](agentID)
+			return results[calls-1](ctx, agentID)
 		}, &calls
 	}
 
@@ -196,53 +204,53 @@ func TestWithGivenCredentials(t *testing.T) {
 		name string
 		// given holds the credentials setup was given, defaulting to those of a full command line
 		given   *config.Config
-		results []func(string) (serverNode, error)
+		results []agentLookup
 		calls   int
 		node    serverNode
 		err     error
 	}{
 		{
 			name:    "an answer PMM Server gave is the answer",
-			results: []func(string) (serverNode, error){found(registeredNode)},
+			results: []agentLookup{found(registeredNode)},
 			calls:   1,
 			node:    registeredNode,
 		},
 		{
 			name:    "a Node PMM Server does not know is not asked about twice",
-			results: []func(string) (serverNode, error){failed(errAgentNotFound)},
+			results: []agentLookup{failed(errAgentNotFound)},
 			calls:   1,
 			err:     errAgentNotFound,
 		},
 		{
 			name:    "a refused token is asked about again, and the Node is gone",
-			results: []func(string) (serverNode, error){failed(refused), failed(errAgentNotFound)},
+			results: []agentLookup{failed(refused), failed(errAgentNotFound)},
 			calls:   2,
 			err:     errAgentNotFound,
 		},
 		{
 			// Registering again would remove that Node together with every Service on it.
 			name:    "a refused token does not register a Node which is still there",
-			results: []func(string) (serverNode, error){failed(refused), found(registeredNode)},
+			results: []agentLookup{failed(refused), found(registeredNode)},
 			calls:   2,
 			err:     refused,
 		},
 		{
 			name:    "a refusal is kept when the credentials given to setup answer no better",
-			results: []func(string) (serverNode, error){failed(refused), failed(refused)},
+			results: []agentLookup{failed(refused), failed(refused)},
 			calls:   2,
 			err:     refused,
 		},
 		{
 			name:    "the credentials the Agent runs with are not tried twice",
 			given:   &config.Config{Server: config.Server{Address: testServerAddress, Username: "service_token", Password: "glsa_token"}},
-			results: []func(string) (serverNode, error){failed(refused)},
+			results: []agentLookup{failed(refused)},
 			calls:   1,
 			err:     refused,
 		},
 		{
 			name:    "there is nothing to ask again without a PMM Server address",
 			given:   &config.Config{Server: config.Server{Username: "admin", Password: "admin"}},
-			results: []func(string) (serverNode, error){failed(refused)},
+			results: []agentLookup{failed(refused)},
 			calls:   1,
 			err:     refused,
 		},
@@ -261,7 +269,7 @@ func TestWithGivenCredentials(t *testing.T) {
 			}
 
 			lookup, calls := answers(t, tc.results...)
-			node, err := withGivenCredentials(lookup, running, given, logrus.WithField("test", t.Name()))(testAgentID)
+			node, err := withGivenCredentials(lookup, running, given, logrus.WithField("test", t.Name()))(t.Context(), testAgentID)
 			assert.Equal(t, tc.calls, *calls)
 			assert.Equal(t, tc.node, node)
 			if tc.err == nil {
@@ -550,6 +558,16 @@ func TestKeepRegistration(t *testing.T) {
 		cfg := &config.Config{ID: testAgentID, Server: stored}
 		assert.Empty(t, unappliedCredentials(cfg, &config.Config{ID: testAgentID, Server: stored}))
 	})
+
+	t.Run("a username which was not used is reported on its own", func(t *testing.T) {
+		t.Parallel()
+
+		// keepRegistration restores both fields, so a username given beside the password the Agent already
+		// runs with is discarded just the same. Comparing passwords alone let it pass for an accepted one.
+		cfg := &config.Config{ID: testAgentID, Server: config.Server{Username: "admin", Password: "glsa_token"}}
+		fileCfg := &config.Config{ID: testAgentID, Server: config.Server{Username: "service_token", Password: "glsa_token"}}
+		assert.Equal(t, []string{"--server-username", "--server-password"}, unappliedCredentials(cfg, fileCfg))
+	})
 }
 
 func TestUnappliedSetupFlags(t *testing.T) {
@@ -562,4 +580,59 @@ func TestUnappliedSetupFlags(t *testing.T) {
 	// These describe the Node on PMM Server just as the rest do, and are only applied by registering.
 	assert.Equal(t, []string{"--container-id", "--container-name"},
 		unappliedSetupFlags(&config.Setup{ContainerID: "abc123", ContainerName: "mysql"}))
+}
+
+// The subtest configures the package level API clients, so it cannot run in parallel.
+func TestCheckRegistrationSharesOneDeadline(t *testing.T) {
+	// The check asks PMM Server again when it refuses the credentials the Agent runs with. Both lookups
+	// draw on one deadline, so an unresponsive server costs the operator the wait they were promised
+	// rather than one per attempt.
+	const budget = 600 * time.Millisecond
+
+	defaultTimeout, checkTimeout := httptransport.DefaultTimeout, registrationCheckTimeout
+	httptransport.DefaultTimeout = time.Minute
+	registrationCheckTimeout = budget
+	t.Cleanup(func() {
+		httptransport.DefaultTimeout = defaultTimeout
+		registrationCheckTimeout = checkTimeout
+	})
+
+	var calls atomic.Int32
+	// TLS, because Server.URL() always builds https and the retry would otherwise die in the handshake
+	// before reaching the handler - which is how this regression hides.
+	server := httptest.NewTLSServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		rw.Header().Set("Content-Type", "application/json")
+		if calls.Add(1) > 1 {
+			<-req.Context().Done()
+			return
+		}
+		// Most of the budget spent, then a 401 which is PMM Server's own failure rather than a credential
+		// it named invalid: grounds for asking again with the credentials given to setup.
+		time.Sleep(budget * 5 / 6)
+		rw.WriteHeader(http.StatusUnauthorized)
+		_, _ = fmt.Fprintf(rw, `{"code": %d, "message": "grafana is restarting"}`, codes.Internal)
+	}))
+	t.Cleanup(server.Close)
+
+	u, err := url.Parse(server.URL)
+	require.NoError(t, err)
+
+	running := &config.Config{
+		ID:     testAgentID,
+		Server: config.Server{Address: u.Host, Username: "service_token", Password: "glsa_token", InsecureTLS: true},
+	}
+	given := &config.Config{
+		ID:     testAgentID,
+		Server: config.Server{Address: u.Host, Username: "admin", Password: "admin", InsecureTLS: true},
+	}
+
+	started := time.Now()
+	state := checkRegistrationOnServer(running, given, logrus.WithField("test", t.Name()))
+	elapsed := time.Since(started)
+
+	assert.Equal(t, int32(2), calls.Load(), "the refused credentials have to be followed by a retry")
+	assert.Less(t, elapsed, budget*3/2,
+		"both lookups have to draw on one deadline, not one each")
+	// Nothing was learned about the registration, so it is kept.
+	assert.Equal(t, registrationUnverified, state)
 }

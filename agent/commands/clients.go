@@ -169,9 +169,11 @@ type serverNode struct {
 	Address string
 }
 
-// registrationCheckTimeout bounds the registration check as a whole. The check asks PMM Server twice,
-// and the per-request default would let an unresponsive server hold the setup for twice as long as the
-// one request an operator would expect to wait for. A variable so that tests can shorten it.
+// registrationCheckTimeout bounds the registration check as a whole: the two requests a lookup makes, and
+// the second lookup made when PMM Server refuses the credentials the Agent runs with. An unresponsive
+// server must not hold the setup for one full wait per request, nor for one per attempt - the operator
+// waits for a check, not for however many calls it takes. The caller owns the deadline for that reason.
+// A variable so that tests can shorten it.
 var registrationCheckTimeout = 30 * time.Second
 
 // serverNodeOfAgent returns the Node which PMM Server has the Agent registered on.
@@ -180,12 +182,7 @@ var registrationCheckTimeout = 30 * time.Second
 // apart from "the answer is unknown".
 //
 // This method is not thread-safe.
-func serverNodeOfAgent(agentID string) (serverNode, error) {
-	// One deadline for both requests, so that the setup gives up on an unresponsive PMM Server after
-	// registrationCheckTimeout rather than after that much per request.
-	ctx, cancel := context.WithTimeout(context.Background(), registrationCheckTimeout)
-	defer cancel()
-
+func serverNodeOfAgent(ctx context.Context, agentID string) (serverNode, error) {
 	agent, err := inventoryClient.Default.AgentsService.GetAgent(
 		aservice.NewGetAgentParams().WithAgentID(agentID).WithContext(ctx),
 	)

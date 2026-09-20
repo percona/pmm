@@ -16,6 +16,7 @@
 package commands
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -54,8 +55,9 @@ const (
 // accept them.
 type registrationCheck func(running, given *config.Config, l *logrus.Entry) registrationState
 
-// agentLookup returns the Node which PMM Server has the given Agent registered on.
-type agentLookup func(agentID string) (serverNode, error)
+// agentLookup returns the Node which PMM Server has the given Agent registered on. The caller owns the
+// deadline, so that a check which asks twice still costs one wait rather than two.
+type agentLookup func(ctx context.Context, agentID string) (serverNode, error)
 
 // checkRegistrationOnServer asks PMM Server whether it knows this Agent on this Node.
 func checkRegistrationOnServer(running, given *config.Config, l *logrus.Entry) registrationState {
@@ -66,7 +68,13 @@ func checkRegistrationOnServer(running, given *config.Config, l *logrus.Entry) r
 	}
 	setServerTransport(u, running.Server.InsecureTLS, l)
 
-	return checkRegistration(running, withGivenCredentials(serverNodeOfAgent, running, given, l))
+	// One deadline for the check as a whole. It may ask PMM Server twice - once with the credentials the
+	// Agent runs with, and again with those given to setup when the first are refused - and an operator
+	// waits for a check, not for however many lookups it takes.
+	ctx, cancel := context.WithTimeout(context.Background(), registrationCheckTimeout)
+	defer cancel()
+
+	return checkRegistration(ctx, running, withGivenCredentials(serverNodeOfAgent, running, given, l))
 }
 
 // withGivenCredentials asks PMM Server again with the credentials given to setup when it does not accept
@@ -82,8 +90,8 @@ func checkRegistrationOnServer(running, given *config.Config, l *logrus.Entry) r
 //
 // This method is not thread-safe.
 func withGivenCredentials(lookup agentLookup, running, given *config.Config, l *logrus.Entry) agentLookup {
-	return func(agentID string) (serverNode, error) {
-		node, err := lookup(agentID)
+	return func(ctx context.Context, agentID string) (serverNode, error) {
+		node, err := lookup(ctx, agentID)
 		if !serverRefused(err) || sameCredentials(running, given) {
 			return node, err
 		}
@@ -97,7 +105,7 @@ func withGivenCredentials(lookup agentLookup, running, given *config.Config, l *
 			" checking the registration with the credentials given to setup.\n", given.Server.Address, agentID)
 		setServerTransport(u, given.Server.InsecureTLS, l)
 
-		_, e := lookup(agentID)
+		_, e := lookup(ctx, agentID)
 		if errors.Is(e, errAgentNotFound) {
 			return serverNode{}, e
 		}
@@ -116,8 +124,8 @@ func sameCredentials(a, b *config.Config) bool {
 // leaving the Agent with an ID nothing recognizes. Anything short of a clear answer is not an answer: an
 // Agent has to be able to start while PMM Server has no leader yet, and a reply this pmm-agent cannot
 // interpret says as little as no reply at all, so the registration is kept in both cases.
-func checkRegistration(cfg *config.Config, lookup agentLookup) registrationState {
-	node, err := lookup(cfg.ID)
+func checkRegistration(ctx context.Context, cfg *config.Config, lookup agentLookup) registrationState {
+	node, err := lookup(ctx, cfg.ID)
 	switch {
 	case errors.Is(err, errAgentNotFound):
 		fmt.Printf("PMM Server at %s does not know pmm-agent %s, registering the Node again.\n", cfg.Server.Address, cfg.ID)
@@ -255,7 +263,13 @@ func keepRegistration(cfg, fileCfg *config.Config) {
 // the service token it already holds is what reaches PMM Server. Keeping them is right, and saying so is
 // what stops a mistyped password from passing for an accepted one.
 func unappliedCredentials(cfg, fileCfg *config.Config) []string {
-	if fileCfg.Server.Password == "" || cfg.Server.Password == "" || cfg.Server.Password == fileCfg.Server.Password {
+	if fileCfg.Server.Password == "" || cfg.Server.Password == "" {
+		return nil
+	}
+	// Both fields, because keepRegistration restores both: a username given with the password the Agent
+	// already runs with is discarded just the same, and saying nothing about it is what lets it pass for
+	// an accepted one.
+	if cfg.Server.Username == fileCfg.Server.Username && cfg.Server.Password == fileCfg.Server.Password {
 		return nil
 	}
 
