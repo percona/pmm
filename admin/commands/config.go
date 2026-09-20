@@ -56,6 +56,11 @@ type ConfigCommand struct {
 	CustomLabels      string   `placeholder:"KEY=VALUE,KEY=VALUE,..." help:"Custom user-assigned labels"`
 	BasePath          string   `name:"paths-base" help:"Base path where all binaries, tools and collectors of PMM client are located"`
 	LogLinesCount     uint     `help:"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents" default:"1024"`
+
+	// Forwarded to `pmm-agent setup`, which has to read the configuration file to tell whether this Node
+	// is already registered. Without the key an encrypted file reads exactly like a damaged one.
+	ConfigFileKeyFile     string `help:"Path to the key file used to encrypt/decrypt the pmm-agent configuration file" env:"PMM_AGENT_CONFIG_FILE_KEY_FILE"`
+	ConfigFileKeyPassword string `help:"Password for the key file (if required)" env:"PMM_AGENT_CONFIG_FILE_KEY_PASSWORD"`
 }
 
 func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
@@ -103,6 +108,14 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 
 	if cmd.LogLinesCount > 0 {
 		res = append(res, fmt.Sprintf("--log-lines-count=%d", cmd.LogLinesCount))
+	}
+
+	// Before `setup`: these are pmm-agent's own flags, not the subcommand's.
+	if cmd.ConfigFileKeyFile != "" {
+		res = append(res, "--config-file-key-file="+cmd.ConfigFileKeyFile)
+	}
+	if cmd.ConfigFileKeyPassword != "" {
+		res = append(res, "--config-file-key-password="+cmd.ConfigFileKeyPassword)
 	}
 
 	res = append(res, "setup")

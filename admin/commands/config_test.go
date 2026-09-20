@@ -119,4 +119,31 @@ func TestConfigCommandArgs(t *testing.T) {
 		assert.Equal(t, expected, args)
 		assert.True(t, switchedToTLS)
 	})
+
+	t.Run("ConfigFileKey", func(t *testing.T) {
+		// `pmm-agent setup` reads the configuration file to tell whether this Node is already registered,
+		// and without the key an encrypted file reads exactly like a damaged one. The flags belong to
+		// pmm-agent rather than to its setup subcommand, so they go before `setup`.
+		cmd := &ConfigCommand{
+			NodeAddress:           "1.2.3.4",
+			NodeType:              "generic",
+			NodeName:              "node1",
+			ConfigFileKeyFile:     "/etc/percona/pmm/encryption.key",
+			ConfigFileKeyPassword: "keypass",
+		}
+
+		u, err := url.Parse("https://admin:admin@127.0.0.1:443")
+		require.NoError(t, err)
+		args, switchedToTLS := cmd.args(&flags.GlobalFlags{ServerURL: u})
+		expected := []string{
+			"--server-address=127.0.0.1:443",
+			"--server-username=admin",
+			"--server-password=admin",
+			"--config-file-key-file=/etc/percona/pmm/encryption.key",
+			"--config-file-key-password=keypass",
+			"setup", "1.2.3.4", "generic", "node1",
+		}
+		assert.Equal(t, expected, args)
+		assert.False(t, switchedToTLS)
+	})
 }
