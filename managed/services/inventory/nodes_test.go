@@ -204,7 +204,7 @@ func TestNodes(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID)), err)
 	})
 
-	t.Run("RemoveRefusedWhenServiceAccountCannotBeDeleted", func(t *testing.T) {
+	t.Run("RemoveReportsAServiceAccountWhichCouldNotBeDeleted", func(t *testing.T) {
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -216,16 +216,39 @@ func TestNodes(t *testing.T) {
 		require.NoError(t, err)
 		nodeID := addNodeResponse.GetGeneric().NodeId
 
-		// Removing the Node while its account survives would leave a live Admin credential for a host
-		// which no longer exists, so the removal goes back rather than half through.
+		// The account is deleted after the removal is committed, because deleting it is not reversible
+		// while the removal still is. A Grafana which cannot be reached is therefore reported, not
+		// returned as an error: the Node is gone either way, and an error would say it is not.
 		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-bm", false).
 			Return("", errors.New("connection refused"))
-		_, err = ns.Remove(ctx, nodeID, false)
-		tests.AssertGRPCErrorRE(t, codes.Unavailable, "Node test-bm was not removed", err)
-
-		// The Node is still there, so the operator can remove it again once Grafana is up.
-		_, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID})
+		warning, err := ns.Remove(ctx, nodeID, false)
 		require.NoError(t, err)
+		assert.Contains(t, warning, "connection refused")
+		assert.Contains(t, warning, "still live")
+
+		_, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID)), err)
+	})
+
+	t.Run("RemoveDoesNotAskGrafanaAboutANodeWhichCannotHaveAnAccount", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		addNodeResponse, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
+			Node: &inventoryv1.AddNodeRequest_Remote{
+				Remote: &inventoryv1.AddRemoteNodeParams{NodeName: "test-remote"},
+			},
+		})
+		require.NoError(t, err)
+		nodeID := addNodeResponse.GetRemote().NodeId
+
+		// Only RegisterNode creates an account, and it takes Generic and Container alone, so a remote Node
+		// never has one. Its removal must not depend on Grafana being up to delete what cannot exist - the
+		// mock has no expectation, so any call fails the test.
+		warning, err := ns.Remove(ctx, nodeID, false)
+		require.NoError(t, err)
+		assert.Empty(t, warning)
+		ns.grafanaClient.(*mockGrafanaClient).AssertNotCalled(t, "DeleteServiceAccount")
 	})
 
 	t.Run("RemoveKeepsForeignServiceAccountTokens", func(t *testing.T) {
