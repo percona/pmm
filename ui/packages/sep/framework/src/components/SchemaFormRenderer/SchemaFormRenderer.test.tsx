@@ -630,6 +630,66 @@ describe('SchemaFormRenderer — validation + submission', () => {
     );
   });
 
+  // The schema fidelity the backend publishes for a `StrippedNonEmptyStr` field:
+  // a whitespace-only entry is refused here instead of at the server, while a value
+  // whose interior whitespace the server accepts still submits.
+  const whitespacePatternSections: FormSection[] = [
+    {
+      title: 'Main',
+      fields: [
+        {
+          type: 'string',
+          name: 'backup_dir',
+          label: 'Backup directory',
+          required: true,
+          min_length: 1,
+          pattern: '\\S',
+        },
+      ],
+    },
+  ];
+
+  it('blocks submission of a whitespace-only entry in a non-whitespace field', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={whitespacePatternSections}
+        onSubmit={onSubmit}
+      />
+    );
+
+    await user.type(screen.getByLabelText(/Backup directory/), '   ');
+    await user.click(screen.getByRole('button', { name: /Run/ }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(
+      await screen.findByText(/Backup directory cannot be only whitespace/)
+    ).toBeInTheDocument();
+  });
+
+  it('submits an entry whose whitespace is interior in a non-whitespace field', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={whitespacePatternSections}
+        onSubmit={onSubmit}
+      />
+    );
+
+    await user.type(
+      screen.getByLabelText(/Backup directory/),
+      '/var/my backups'
+    );
+    await user.click(screen.getByRole('button', { name: /Run/ }));
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ backup_dir: '/var/my backups' })
+    );
+  });
+
   it('renders the server submitError banner when provided', () => {
     renderWithProviders(
       <SchemaFormRenderer

@@ -100,8 +100,19 @@
         "type": "object"
       },
       "HostSystemObservationResponse": {
-        "description": "Define the response model for host system observation data.\n\n:param id: The primary key of the observation record.\n:type id: int | None\n:param created_at: When the record was created.\n:type created_at: UTCDatetime\n:param updated_at: When the record was last updated.\n:type updated_at: UTCDatetime | None\n:param node_id: The unique identifier of the observed node.\n:type node_id: int\n:param os_version: The observed operating system version.\n:type os_version: str | None\n:param installed_packages: Snapshot of installed packages.\n:param config: Snapshot of host configuration.\n:param observed_at: When this observation was collected.\n:type observed_at: UTCDatetime",
+        "description": "Define the response model for host system observation data.\n\n:param id: The primary key of the observation record.\n:param created_at: When the record was created.\n:param updated_at: When the record was last updated.\n:param node_id: The unique identifier of the observed node.\n:param os_version: The observed operating system version.\n:param installed_packages: Snapshot of installed packages.\n:param config: Snapshot of host configuration.\n:param can_elevate: Whether a ``sudo``-prefixed command can start on this\n    node, if observed.\n:param observed_at: When this observation was collected.",
         "properties": {
+          "can_elevate": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Can Elevate"
+          },
           "config": {
             "anyOf": [
               {
@@ -182,9 +193,48 @@
         "title": "HostSystemObservationResponse",
         "type": "object"
       },
-      "HostSystemObservationWrite": {
-        "description": "Define the model for writing host system observation data to the inventory.\n\n:param node_id: The foreign key referencing the node. Defaults to None.\n:type node_id: int | None\n:param os_version: The observed operating system version. Defaults to None.\n:type os_version: str | None\n:param installed_packages: Snapshot of installed packages. Defaults to None.\n:param config: Snapshot of host configuration. Defaults to None.\n:param observed_at: When this observation was collected.\n:type observed_at: UTCDatetime",
+      "HostSystemObservationSummaryResponse": {
+        "description": "Project a host observation onto the fields a capability lookup needs.\n\nDeliberately excludes ``installed_packages`` and ``config``. The first runs to\nhundreds of rows per node, which is what makes the full response unsuitable for\na fleet-wide fetch; the second is small but has no consumer here.\n\n:param node_id: The unique identifier of the observed node.\n:param can_elevate: Whether a ``sudo``-prefixed command can start on this\n    node, if observed.\n:param observed_at: When this observation was collected.",
         "properties": {
+          "can_elevate": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Can Elevate"
+          },
+          "node_id": {
+            "title": "Node Id",
+            "type": "integer"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "title": "Observed At",
+            "type": "string"
+          }
+        },
+        "required": ["node_id", "observed_at"],
+        "title": "HostSystemObservationSummaryResponse",
+        "type": "object"
+      },
+      "HostSystemObservationWrite": {
+        "description": "Define the model for writing host system observation data to the inventory.\n\n:param node_id: The foreign key referencing the node. Defaults to None.\n:param os_version: The observed operating system version. Defaults to None.\n:param installed_packages: Snapshot of installed packages. Defaults to None.\n:param config: Snapshot of host configuration. Defaults to None.\n:param can_elevate: Whether a ``sudo``-prefixed command can start on this\n    node. Defaults to ``None``.\n:param observed_at: When this observation was collected.",
+        "properties": {
+          "can_elevate": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Can Elevate"
+          },
           "config": {
             "anyOf": [
               {
@@ -647,6 +697,32 @@
         },
         "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[ExternalIdentityAliasResponse]",
+        "type": "object"
+      },
+      "PaginatedResponse_HostSystemObservationSummaryResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/HostSystemObservationSummaryResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": ["items", "total", "offset", "limit"],
+        "title": "PaginatedResponse[HostSystemObservationSummaryResponse]",
         "type": "object"
       },
       "PaginatedResponse_NodeIdentityCandidateResponse_": {
@@ -3160,6 +3236,66 @@
           }
         ],
         "summary": "List Node Identity Candidates",
+        "tags": ["nodes"]
+      }
+    },
+    "/nodes/system-observations": {
+      "get": {
+        "description": "List host system observations across every node.\n\nDeclared above ``GET /{node_id}`` for the reason\n:func:`list_node_identity_candidates` gives: FastAPI matches path operations in\ndeclaration order, so the parameterized route would claim this path and answer\n422 rather than 404.\n\nThe narrow ``response_model`` drops the two JSON blobs only after they have been\nfetched and deserialized, so ``load_only`` keeps them out of the query itself.\nWithout it a fleet-wide page carries every node's full package list, which is\nthe cost this route exists to avoid.\n\n:param session: The async database session.\n:param pagination: Validated offset/limit query parameters.\n:return: A paginated response of observation summaries.",
+        "operationId": "nodes_list_host_system_observations_nodes_system_observations_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_HostSystemObservationSummaryResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Host System Observations",
         "tags": ["nodes"]
       }
     },

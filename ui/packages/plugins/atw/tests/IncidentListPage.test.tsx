@@ -53,6 +53,8 @@ const incident: AtwIncident = {
   created_at: '2026-07-22T10:00:00Z',
   updated_at: null,
   closed_at: null,
+  run_count: 0,
+  failed_run_count: 0,
 };
 
 function paginated<T>(items: T[]) {
