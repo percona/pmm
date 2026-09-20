@@ -70,6 +70,7 @@ function makeEntry(
       meta: {},
       tracking: {},
     } as TaskHistoryEntry['execution_request'],
+    unreadable_request_leaves: [],
     ...overrides,
   };
 }
