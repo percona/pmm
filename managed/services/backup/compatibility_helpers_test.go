@@ -101,6 +101,18 @@ func TestMysqlAndXtrabackupCompatible(t *testing.T) {
 		{"8.4.6", "8.4.0-4"},
 		{"8.4.6", "8.4.0-5"},
 		{"8.4.6", "8.4.1"},
+
+		// MySQL 8.5 and newer innovation releases, PXB from the same minor series.
+		// Percona XtraBackup 9.7 supports MySQL 9.7 only, so the series must match.
+		// https://docs.percona.com/percona-xtrabackup/9.7/index.html
+		{"9.7.1", "9.7.1"},
+		{"9.7.1-1", "9.7.1-rc1"},
+		{"9.7.0", "9.7.9"},
+		{"9.7.9", "9.7.0"},
+		{"10.0.0", "10.0.3"},
+		// Same series, differing patch levels: still the same minor, so compatible.
+		{"8.99.99", "8.99.98"},
+		{"9.0", "9.0"},
 	}
 
 	incompatible := []mysqlAndPXBVersions{
@@ -213,14 +225,18 @@ func TestMysqlAndXtrabackupCompatible(t *testing.T) {
 		{"8.4.6", "8.5.0"},
 		{"8.4.6", "9.0"},
 		//
-		{"8.99.99", "8.99.98"},
 		{"8.99.99", "9.0"},
 		//
 		{"9.0", "8.0.21"},
 		{"9.0", "8.0.22"},
 		{"9.0", "8.0.30"},
 		{"9.0", "8.99.99"},
-		{"9.0", "9.0"},
+		// A PXB from a different minor series is refused in both directions.
+		{"9.7.1", "8.4.0"},
+		{"9.7.1", "9.6.0"},
+		{"9.7.1", "9.8.0"},
+		{"8.4.6", "9.7.1"},
+		{"9.8.0", "9.7.1"},
 	}
 
 	for _, ver := range compatible {
@@ -317,10 +333,10 @@ func TestMysqlAndXtrabackupCompatibilityError(t *testing.T) {
 			errMessage: "install a Percona XtraBackup version supported for this MySQL version",
 		},
 		{
-			name:       "unsupported mysql",
-			mysql:      "9.0",
-			pxb:        "9.0",
-			errMessage: "PMM does not support Percona XtraBackup",
+			name:       "innovation release rejects a different pxb series",
+			mysql:      "9.7.1-1",
+			pxb:        "8.4.0-4",
+			errMessage: "use Percona XtraBackup 9.7.x for MySQL 9.7.x",
 		},
 	}
 
