@@ -1,0 +1,35 @@
+# Sourced by build-server-binaries.
+
+key() {
+    echo $(get_shortcommit grafana)
+}
+
+build() {
+    run_in_container $1 grafana <<EOF
+cd ${build_dir}
+
+rm -rf Godeps
+sudo npm install -g grunt-cli
+sudo dnf install -y fontconfig
+
+make build-go
+make deps-js
+make build-js
+
+install -d ${rootfs}/usr/share/grafana
+cp -rpa conf public tools ${rootfs}/usr/share/grafana/
+
+install -d ${rootfs}/usr/sbin ${rootfs}/usr/bin
+install -p -m 0755 bin/linux/${go_arch}/grafana ${rootfs}/usr/sbin/grafana
+install -p -m 0755 bin/linux/${go_arch}/grafana-server ${rootfs}/usr/sbin/grafana-server
+install -p -m 0755 bin/linux/${go_arch}/grafana-cli ${rootfs}/usr/bin/grafana-cli
+
+install -d ${rootfs}/etc/grafana
+cp -p conf/sample.ini ${rootfs}/etc/grafana/grafana.ini
+cp -p conf/ldap.toml ${rootfs}/etc/grafana/ldap.toml
+
+install -d ${rootfs}/var/lib/grafana
+EOF
+}
+
+# vim: expandtab shiftwidth=4 tabstop=4

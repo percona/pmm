@@ -1,0 +1,36 @@
+# Sourced by build-server-binaries.
+
+# https://github.com/grafana/clickhouse-datasource/releases/tag/v4.20.0
+clickhouse_datasource_version=4.20.0
+# https://github.com/grafana/grafana-polystat-panel/releases/tag/v2.1.16
+polystat_panel_version=2.1.16
+
+key() {
+    echo ${pmm_version}-$(get_shortcommit pmm dashboards)
+}
+
+build() {
+    download \
+        https://github.com/grafana/clickhouse-datasource/releases/download/v${clickhouse_datasource_version}/grafana-clickhouse-datasource-${clickhouse_datasource_version}.${plugin_platform}.zip \
+        grafana-clickhouse-datasource-${clickhouse_datasource_version}.${plugin_platform}.zip
+    download \
+        https://github.com/grafana/grafana-polystat-panel/releases/download/v${polystat_panel_version}/grafana-polystat-panel-${polystat_panel_version}.zip \
+        grafana-polystat-panel-${polystat_panel_version}.zip
+
+    run_in_container $1 pmm <<EOF
+sudo dnf install -y unzip
+
+cd ${build_dir}
+node -v
+npm version
+make -C dashboards release
+
+install -d ${rootfs}/usr/share/percona-dashboards/panels/pmm-app
+cp -pa dashboards/pmm-app/dist ${rootfs}/usr/share/percona-dashboards/panels/pmm-app/
+unzip -q /home/builder/downloads/grafana-clickhouse-datasource-${clickhouse_datasource_version}.${plugin_platform}.zip -d ${rootfs}/usr/share/percona-dashboards/panels
+unzip -q /home/builder/downloads/grafana-polystat-panel-${polystat_panel_version}.zip -d ${rootfs}/usr/share/percona-dashboards/panels
+echo ${pmm_version} > ${rootfs}/usr/share/percona-dashboards/VERSION
+EOF
+}
+
+# vim: expandtab shiftwidth=4 tabstop=4

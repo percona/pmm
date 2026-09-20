@@ -87,7 +87,8 @@ make rpmbuild-el9         # Build RPM build environment image
 - Don't hardcode versions in Dockerfiles — use build args
 - Don't modify Ansible roles without testing the full image build
 - Don't add secrets or credentials to build scripts or Dockerfiles
-- Don't change install paths in `scripts/build-server-binaries` — supervisord, nginx and the entrypoint expect them at runtime
+- Don't change install paths in `scripts/server/*` — supervisord, nginx and the entrypoint expect them at runtime
+- Keep a server component's version pins in its own `scripts/server/<component>` recipe — they are part of its build cache key
 
 ## Key Files to Reference
 
@@ -95,6 +96,7 @@ make rpmbuild-el9         # Build RPM build environment image
 - `build/docker/server/entrypoint.sh` — Server container entrypoint
 - `build/ansible/pmm-docker/main.yml` — Docker provisioning playbook
 - `build/ansible/roles/` — All Ansible roles for server components
-- `build/scripts/build-server-binaries` — Server component binary builds
+- `build/scripts/build-server-binaries` — Server component binary builds (driver: container, S3 cache)
+- `build/scripts/server/` — One build recipe per server component, replacing the old spec files
 - `build/packer/pmm.json` — Machine image definitions
 - `build/scripts/` — Build scripts for all artifact types
