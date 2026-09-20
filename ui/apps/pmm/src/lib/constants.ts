@@ -35,6 +35,8 @@ export const PERCONA_SUPPORT_CONTACT_URL = 'https://per.co.na/support';
 export const INTERVALS_MS = {
   // 5 mins
   SERVICE_TYPES: 300000,
+  // 1 min
+  SERVER_VERSION: 60000,
 };
 
 export const ADVISOR_FAMILY: Record<AdvisorFamily, string> = {

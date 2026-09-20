@@ -12,6 +12,7 @@ import { SnackbarProvider, SnackbarProviderProps } from 'notistack';
 import { render } from '@testing-library/react';
 import { Page } from 'components/page';
 import { TestWrapper } from './testWrapper';
+import { VersionContext, VersionContextProps } from 'contexts/version';
 
 export const wrapWithUpdatesProvider = (
   children: ReactElement,
@@ -190,3 +191,20 @@ export const measurePageSurface = (surface: 'default' | 'paper') =>
       }
     )
   );
+
+export const wrapWithVersion = (
+  children: ReactElement,
+  props: Partial<VersionContextProps> = {}
+) => (
+  <VersionContext.Provider
+    value={{
+      isOutdated: false,
+      serverVersion: '3.0.0',
+      serverBuild: 'build-3.0.0',
+      reload: () => {},
+      ...props,
+    }}
+  >
+    {children}
+  </VersionContext.Provider>
+);
