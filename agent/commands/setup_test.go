@@ -434,20 +434,11 @@ func TestConfigToStore(t *testing.T) {
 		}
 	}
 
-	t.Run("registering replaces the configuration file", func(t *testing.T) {
-		t.Parallel()
-
-		cfg := assembled()
-		stored, err := configToStore(cfg, running(), true, false, nil, l)
-		require.NoError(t, err)
-		assert.Same(t, cfg, stored)
-	})
-
 	t.Run("a configuration file setup loaded is written back", func(t *testing.T) {
 		t.Parallel()
 
 		cfg := assembled()
-		stored, err := configToStore(cfg, running(), false, true, nil, l)
+		stored, err := configToStore(cfg, running(), true, nil, l)
 		require.NoError(t, err)
 		assert.Same(t, cfg, stored)
 	})
@@ -456,16 +447,35 @@ func TestConfigToStore(t *testing.T) {
 		t.Parallel()
 
 		cfg := assembled()
-		stored, err := configToStore(cfg, nil, false, false, nil, l)
+		stored, err := configToStore(cfg, nil, false, nil, l)
 		require.NoError(t, err)
 		assert.Same(t, cfg, stored)
+	})
+
+	t.Run("registering keeps what describes this host's installation", func(t *testing.T) {
+		t.Parallel()
+
+		// --force registers the Node again; it does not ask for the Agent to be reconfigured from
+		// defaults. The ID and the token are the ones registering just returned.
+		registered := assembled()
+		registered.ID = "44444444-4444-4444-4444-444444444444"
+		registered.Server.Password = "fresh-token"
+
+		args := []string{"setup", "--force", "1.2.3.4", "generic"}
+		stored, err := configToStore(registered, running(), false, args, l)
+		require.NoError(t, err)
+
+		assert.Equal(t, config.Ports{Min: 30000, Max: 30100}, stored.Ports)
+		assert.Equal(t, "/host/proc/mounts", stored.ProcMountsPath)
+		assert.Equal(t, "44444444-4444-4444-4444-444444444444", stored.ID)
+		assert.Equal(t, "fresh-token", stored.Server.Password)
 	})
 
 	t.Run("keeping the registration merges the flags onto the file", func(t *testing.T) {
 		t.Parallel()
 
 		args := []string{"--log-level=debug", "--paths-base=/opt/other", "setup", "1.2.3.4", "generic"}
-		stored, err := configToStore(assembled(), running(), false, false, args, l)
+		stored, err := configToStore(assembled(), running(), false, args, l)
 		require.NoError(t, err)
 
 		// Given, so applied.
@@ -488,7 +498,7 @@ func TestConfigToStore(t *testing.T) {
 		t.Parallel()
 
 		fileCfg := running()
-		_, err := configToStore(assembled(), fileCfg, false, false, []string{"--log-level=debug"}, l)
+		_, err := configToStore(assembled(), fileCfg, false, []string{"--log-level=debug"}, l)
 		require.NoError(t, err)
 		assert.Empty(t, fileCfg.LogLevel)
 	})
@@ -496,7 +506,7 @@ func TestConfigToStore(t *testing.T) {
 	t.Run("flags which do not parse are reported", func(t *testing.T) {
 		t.Parallel()
 
-		_, err := configToStore(assembled(), running(), false, false, []string{"--no-such-flag"}, l)
+		_, err := configToStore(assembled(), running(), false, []string{"--no-such-flag"}, l)
 		require.Error(t, err)
 	})
 }

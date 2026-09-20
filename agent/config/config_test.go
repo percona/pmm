@@ -611,3 +611,63 @@ func TestNodeNameGivenFromEnvironment(t *testing.T) {
 	assert.Equal(t, "db-prod-1", cfg.Setup.NodeName)
 	assert.True(t, cfg.Setup.NodeNameGiven)
 }
+
+func TestMergeFlags(t *testing.T) {
+	l := logrus.WithField("test", t.Name())
+
+	// The configuration file the Agent runs with: a firewalled ports range and a log line count which no
+	// flag carries.
+	running := func() *Config {
+		return &Config{
+			ID:            "file-id",
+			ListenPort:    7777,
+			Ports:         Ports{Min: 30000, Max: 30100},
+			LogLevel:      "warn",
+			LogLinesCount: 512,
+			Paths:         Paths{PathsBase: "/opt/pmm", SlowLogFilePrefix: "keepme"},
+		}
+	}
+
+	t.Run("the flags given win and the rest of the file survives", func(t *testing.T) {
+		cfg := running()
+		require.NoError(t, MergeFlags(cfg, []string{"--log-level=debug", "setup", "1.2.3.4", "generic"}, l))
+
+		assert.Equal(t, "debug", cfg.LogLevel)
+		assert.Equal(t, Ports{Min: 30000, Max: 30100}, cfg.Ports)
+		assert.Equal(t, uint16(7777), cfg.ListenPort)
+		assert.Equal(t, "keepme", cfg.Paths.SlowLogFilePrefix)
+	})
+
+	t.Run("a log line count no flag carries is kept", func(t *testing.T) {
+		// --log-lines-count is the only stored setting whose flag has a default, so it is the only one
+		// kingpin would put that default over.
+		cfg := running()
+		require.NoError(t, MergeFlags(cfg, []string{"setup", "1.2.3.4", "generic"}, l))
+
+		assert.Equal(t, uint(512), cfg.LogLinesCount)
+	})
+
+	t.Run("a log line count given is applied", func(t *testing.T) {
+		cfg := running()
+		require.NoError(t, MergeFlags(cfg, []string{"--log-lines-count=256", "setup", "1.2.3.4", "generic"}, l))
+
+		assert.Equal(t, uint(256), cfg.LogLinesCount)
+	})
+
+	t.Run("a log line count set by the variable is applied", func(t *testing.T) {
+		t.Setenv("PMM_AGENT_LOG_LINES_COUNT", "128")
+
+		cfg := running()
+		require.NoError(t, MergeFlags(cfg, []string{"setup", "1.2.3.4", "generic"}, l))
+
+		assert.Equal(t, uint(128), cfg.LogLinesCount)
+	})
+
+	t.Run("a file which holds no log line count keeps the default", func(t *testing.T) {
+		cfg := running()
+		cfg.LogLinesCount = 0
+		require.NoError(t, MergeFlags(cfg, []string{"setup", "1.2.3.4", "generic"}, l))
+
+		assert.Equal(t, uint(1024), cfg.LogLinesCount)
+	})
+}

@@ -266,12 +266,18 @@ func unappliedCredentials(cfg, fileCfg *config.Config) []string {
 //
 // The configuration it assembled holds what the file has only when setup loaded that file, and
 // `pmm-admin config` runs setup without --config-file: there it is the flags and the defaults alone,
-// missing every setting the file holds beyond them, from the ports range to the /proc/mounts path.
-// Registering replaces the file by design, and so does a run which loaded it, but keeping a registration
-// must not: the flags are merged onto the file the Agent runs with instead, so that what was given is
-// applied and what only the file carries survives.
-func configToStore(cfg, fileCfg *config.Config, registered, loadedFromFile bool, args []string, l *logrus.Entry) (*config.Config, error) {
-	if registered || loadedFromFile || fileCfg == nil {
+// missing every setting the file holds beyond them, from the ports range to the /proc/mounts path. The
+// flags are merged onto the file the Agent runs with instead, so that what was given is applied and what
+// only the file carries survives.
+//
+// Registering does not change that. The ports range, the paths and the listening port describe this
+// host's installation rather than the Node on PMM Server, so they outlive a registration being replaced:
+// --force asks for the Node to be registered again, not for the Agent to be reconfigured from defaults.
+// What registering does settle is the ID and the credentials, which are taken from the assembled
+// configuration either way - after a registration they are the ones it just returned, and without one
+// they are the ones keepRegistration kept.
+func configToStore(cfg, fileCfg *config.Config, loadedFromFile bool, args []string, l *logrus.Entry) (*config.Config, error) {
+	if loadedFromFile || fileCfg == nil {
 		return cfg, nil
 	}
 
@@ -281,8 +287,6 @@ func configToStore(cfg, fileCfg *config.Config, registered, loadedFromFile bool,
 		return nil, err
 	}
 
-	// The credentials the Agent runs with, which keepRegistration settled: those given to setup only serve
-	// to register, and nothing was registered here. The ID is the one whose registration was just checked.
 	merged.Server = cfg.Server
 	merged.ID = cfg.ID
 	if cfg.ProcMountsPath != "" {
@@ -380,12 +384,10 @@ func Setup() {
 		os.Exit(1)
 	}
 
-	registered := false
 	if !cfg.Setup.SkipRegistration {
 		switch registrationOf(cfg, fileCfg, checkRegistrationOnServer, l) {
 		case registrationMissing:
 			register(cfg, l)
-			registered = true
 		case registrationConfirmed:
 			fmt.Printf("Node is already registered with %s, pmm-agent ID is %s. Use --force to register it again.\n",
 				cfg.Server.Address, cfg.ID)
@@ -408,7 +410,7 @@ func Setup() {
 
 	cfg.ProcMountsPath = cfg.Setup.ProcMountsPath
 
-	stored, err := configToStore(cfg, fileCfg, registered, loadedFilepath != "", os.Args[1:], l)
+	stored, err := configToStore(cfg, fileCfg, loadedFilepath != "", os.Args[1:], l)
 	if err != nil {
 		fmt.Printf("Failed to apply the given settings to the configuration file %s: %s.\n", configFilepath, err)
 		os.Exit(1)

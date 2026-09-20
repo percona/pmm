@@ -187,7 +187,12 @@ type Config struct {
 	Debug    bool   `yaml:"debug"`
 	Trace    bool   `yaml:"trace"`
 
-	LogLinesCount         uint   `json:"log-lines-count"`
+	LogLinesCount uint `json:"log-lines-count"`
+	// LogLinesCountGiven reports whether --log-lines-count or its variable set LogLinesCount, rather than
+	// the flag default standing in for it. It is the only stored setting whose flag carries a default, so
+	// it is the only one kingpin would put that default over on a merge - which is the one thing MergeFlags
+	// exists to avoid.
+	LogLinesCountGiven    bool   `yaml:"-"`
 	PerfschemaRefreshRate uint16 `yaml:"perfschema-refresh-rate,omitempty"`
 
 	WindowConnectedTime time.Duration `yaml:"window-connected-time"`
@@ -246,6 +251,11 @@ func applyDefaults(cfg *Config, l *logrus.Entry) {
 	// and `pmm-admin config` always pass the name on, so "the operator asked for this Node" is "the
 	// name is not the one it falls back to".
 	cfg.Setup.NodeNameGiven = cfg.Setup.NodeName != "" && cfg.Setup.NodeName != nodeNameDefault()
+	// No action fires for this one either, and unlike the Node name it has no default worth comparing
+	// against: a variable which set it to 1024 is the flag default read back.
+	if os.Getenv("PMM_AGENT_LOG_LINES_COUNT") != "" {
+		cfg.LogLinesCountGiven = true
+	}
 	if cfg.PerfschemaRefreshRate == 0 {
 		cfg.PerfschemaRefreshRate = 5
 	}
@@ -390,12 +400,20 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) {
 // without it. Settings which carry a flag default are reset to it, exactly as they are on the
 // --config-file path.
 func MergeFlags(fileCfg *Config, args []string, l *logrus.Entry) error {
+	// --log-lines-count is the only stored setting whose flag carries a default, so it is the only one
+	// kingpin would put that default over. A file which holds none keeps the default it is given.
+	logLinesCount := fileCfg.LogLinesCount
+
 	app, _ := Application(fileCfg)
 	_, err := app.Parse(args)
 	if err != nil {
 		return err
 	}
 	applyDefaults(fileCfg, l)
+
+	if !fileCfg.LogLinesCountGiven && logLinesCount != 0 {
+		fileCfg.LogLinesCount = logLinesCount
+	}
 
 	return nil
 }
@@ -497,7 +515,12 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_TRACE").BoolVar(&cfg.Trace)
 	app.Flag("log-lines-count",
 		"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents [PMM_AGENT_LOG_LINES_COUNT]").
-		Envar("PMM_AGENT_LOG_LINES_COUNT").Default("1024").UintVar(&cfg.LogLinesCount)
+		Envar("PMM_AGENT_LOG_LINES_COUNT").Default("1024").
+		Action(func(*kingpin.ParseContext) error {
+			cfg.LogLinesCountGiven = true
+
+			return nil
+		}).UintVar(&cfg.LogLinesCount)
 	app.Flag("perfschema-refresh-rate",
 		"Change how often PMM scrapes data from Performance Schema (in seconds) [PMM_AGENT_PERFSCHEMA_REFRESH_RATE]").
 		Envar("PMM_AGENT_PERFSCHEMA_REFRESH_RATE").Uint16Var(&cfg.PerfschemaRefreshRate)
