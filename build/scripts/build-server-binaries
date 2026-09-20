@@ -21,8 +21,8 @@ rootfs=/home/builder/rootfs
 build_dir=/home/builder/build
 
 case ${arch} in
-    x86_64)  plugin_platform=linux_amd64 ;;
-    aarch64) plugin_platform=linux_arm64 ;;
+    x86_64)  go_arch=amd64; plugin_platform=linux_amd64 ;;
+    aarch64) go_arch=arm64; plugin_platform=linux_arm64 ;;
     *)       echo "Unsupported architecture: ${arch}" >&2; exit 1 ;;
 esac
 
@@ -87,6 +87,7 @@ run_in_container() {
         -v ${downloads_dir}:/home/builder/downloads \
         -v pmm-dnf:/var/cache/dnf \
         -v pmm-yarn:/home/builder/.cache/yarn \
+        -v pmm-pnpm:/home/builder/.local/share/pnpm \
         -v pmm-gomod:/home/builder/go/pkg/mod \
         -v pmm-gobuild:/home/builder/.cache/go-build \
         ${rpmbuild_docker_image} sh -c "
@@ -138,7 +139,6 @@ export PMM_RELEASE_BRANCH=""
 
 cd ${build_dir}
 make -C managed release
-make -C ui release
 
 install -d ${rootfs}/usr/sbin
 install -p -m 0755 bin/pmm-managed ${rootfs}/usr/sbin/pmm-managed
@@ -149,16 +149,24 @@ install -p -m 0755 bin/pmm-managed-starlark ${rootfs}/usr/sbin/pmm-managed-starl
 install -d ${rootfs}/usr/share/pmm-managed
 cp -pa api/swagger ${rootfs}/usr/share/pmm-managed/
 
+install -d ${rootfs}/usr/local/percona/advisors ${rootfs}/usr/local/percona/checks ${rootfs}/usr/local/percona/alerting-templates
+install -p -m 0644 managed/data/advisors/*.yml ${rootfs}/usr/local/percona/advisors/
+install -p -m 0644 managed/data/checks/*.yml ${rootfs}/usr/local/percona/checks/
+install -p -m 0644 managed/data/alerting-templates/*.yml ${rootfs}/usr/local/percona/alerting-templates/
+EOF
+}
+
+build_pmm_ui() {
+    run_in_container $1 pmm <<EOF
+cd ${build_dir}
+node -v
+make -C ui release
+
 install -d ${rootfs}/usr/share/pmm-ui
 cp -pa ui/apps/pmm/dist/. ${rootfs}/usr/share/pmm-ui/
 
 install -d ${rootfs}/usr/share/percona-dashboards/panels/pmm-compat-app
 cp -pa ui/apps/pmm-compat/dist/. ${rootfs}/usr/share/percona-dashboards/panels/pmm-compat-app/
-
-install -d ${rootfs}/usr/local/percona/advisors ${rootfs}/usr/local/percona/checks ${rootfs}/usr/local/percona/alerting-templates
-install -p -m 0644 managed/data/advisors/*.yml ${rootfs}/usr/local/percona/advisors/
-install -p -m 0644 managed/data/checks/*.yml ${rootfs}/usr/local/percona/checks/
-install -p -m 0644 managed/data/alerting-templates/*.yml ${rootfs}/usr/local/percona/alerting-templates/
 EOF
 }
 
@@ -236,9 +244,9 @@ install -d ${rootfs}/usr/share/grafana
 cp -rpa conf public tools ${rootfs}/usr/share/grafana/
 
 install -d ${rootfs}/usr/sbin ${rootfs}/usr/bin
-install -p -m 0755 bin/linux/amd64/grafana ${rootfs}/usr/sbin/grafana
-install -p -m 0755 bin/linux/amd64/grafana-server ${rootfs}/usr/sbin/grafana-server
-install -p -m 0755 bin/linux/amd64/grafana-cli ${rootfs}/usr/bin/grafana-cli
+install -p -m 0755 bin/linux/${go_arch}/grafana ${rootfs}/usr/sbin/grafana
+install -p -m 0755 bin/linux/${go_arch}/grafana-server ${rootfs}/usr/sbin/grafana-server
+install -p -m 0755 bin/linux/${go_arch}/grafana-cli ${rootfs}/usr/bin/grafana-cli
 
 install -d ${rootfs}/etc/grafana
 cp -p conf/sample.ini ${rootfs}/etc/grafana/grafana.ini
@@ -276,14 +284,14 @@ main() {
     local components="$@"
 
     if [ $# -eq 0 ]; then
-        components="percona-dashboards pmm-managed percona-qan-api2 pmm-dump vmproxy victoriametrics grafana"
+        components="percona-dashboards pmm-managed pmm-ui percona-qan-api2 pmm-dump vmproxy victoriametrics grafana"
         rm -rf ${binaries_dir}
     fi
     mkdir -p ${binaries_dir}
 
     for component in ${components}; do
         case ${component} in
-            pmm-managed | percona-qan-api2 | vmproxy | percona-dashboards)
+            pmm-managed | pmm-ui | percona-qan-api2 | vmproxy | percona-dashboards)
                 cached_build ${component} ${pmm_version}-$(get_shortcommit pmm)
                 ;;
             pmm-dump)
