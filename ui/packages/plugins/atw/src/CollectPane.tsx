@@ -137,10 +137,7 @@ function bareFieldName(name: string): string {
  * True when a field is a CLI-only help/usage control that should not appear in
  * the PMM Collect form (PMM-15510).
  */
-export function isCliUsageTrapField(field: {
-  name: string;
-  label?: string;
-}): boolean {
+export function isCliUsageTrapField(field: SectionField): boolean {
   if (CLI_USAGE_TRAP_NAMES.has(bareFieldName(field.name).toLowerCase())) {
     return true;
   }
