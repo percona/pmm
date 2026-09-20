@@ -119,8 +119,21 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
 
 	// set error handlers for nginx responses if pmm-managed is down
-	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ any) error {
+	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data any) error {
 		b, _ := io.ReadAll(reader)
+		// Returning an error here makes go-swagger drop the response it was reading it into, and with it
+		// the HTTP status - the only thing which says a proxy in front of PMM Server demanded credentials
+		// of its own. The registration lookups need that status, so they take the body as the message and
+		// keep the typed answer, whose gRPC code stays zero because nothing PMM Server sent set one.
+		switch p := data.(type) {
+		case *aservice.GetAgentDefaultBody:
+			p.Message = string(b)
+			return nil
+		case *nservice.GetNodeDefaultBody:
+			p.Message = string(b)
+			return nil
+		}
+
 		return nginxError(string(b))
 	})
 	transport.Consumers = map[string]runtime.Consumer{

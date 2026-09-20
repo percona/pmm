@@ -47,6 +47,10 @@ func TestServerNodeOfAgent(t *testing.T) {
 		nodeStatus  int
 		nodeCode    codes.Code
 		nodeBody    string
+		// contentType is what the answer is served as. Empty means PMM Server's own application/json;
+		// anything else stands for a proxy answering with a page of its own, which is the case the
+		// consumers of setServerTransport handle apart.
+		contentType string
 		hangs       bool
 		boundedOnce bool
 		node        serverNode
@@ -103,16 +107,30 @@ func TestServerNodeOfAgent(t *testing.T) {
 			refused:     true,
 		},
 		{
-			// A proxy in front of PMM Server demanding credentials of its own answers this.
+			// A proxy in front of PMM Server demanding credentials of its own answers this, as an HTML
+			// page rather than as the JSON PMM Server sends. Served as JSON the case proves nothing:
+			// no proxy sets that on its own error page.
 			name:        "the 401 is not PMM Server's",
 			agentStatus: http.StatusUnauthorized,
+			contentType: "text/html",
 			unknowable:  true,
 			refused:     true,
+		},
+		{
+			// A Content-Type which is absent rather than another type falls to the JSON consumer, where
+			// the HTML fails to parse and the answer is lost with the status it carried. Go sets one by
+			// sniffing and nginx sends text/html, so this takes something deliberate to produce - it is
+			// here to say that the status survives a proxy's page, not every answer without a type.
+			name:        "the 401 carries no content type",
+			agentStatus: http.StatusUnauthorized,
+			contentType: "none",
+			unknowable:  true,
 		},
 		{
 			// A proxy whose path rules predate this call answers the same status with a body of its own.
 			name:        "the 404 is not PMM Server's",
 			agentStatus: http.StatusNotFound,
+			contentType: "text/html",
 			unknowable:  true,
 		},
 		{
@@ -198,10 +216,23 @@ func TestServerNodeOfAgent(t *testing.T) {
 					<-req.Context().Done()
 					return
 				}
-				rw.Header().Set("Content-Type", "application/json")
+				switch tc.contentType {
+				case "":
+					rw.Header().Set("Content-Type", "application/json")
+				case "none":
+					// Left unset, so Go does not sniff one either.
+					rw.Header()["Content-Type"] = nil
+				default:
+					rw.Header().Set("Content-Type", tc.contentType)
+				}
 				// A failure of PMM Server's own carries the gRPC code, which is what the client reads.
-				// codes.OK stands for an answer from something else on the path, which carries none.
+				// codes.OK stands for an answer from something else on the path, which carries none -
+				// and something else on the path does not answer in JSON either.
 				failure := func(code codes.Code) {
+					if tc.contentType != "" {
+						_, _ = fmt.Fprintf(rw, "<html><body><h1>%s</h1></body></html>", tc.name)
+						return
+					}
 					if code == codes.OK {
 						_, _ = rw.Write([]byte(`{"message": "` + tc.name + `"}`))
 						return
