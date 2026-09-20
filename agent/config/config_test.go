@@ -553,3 +553,61 @@ func TestFilteredURL(t *testing.T) {
 		})
 	}
 }
+
+func TestNodeNameGiven(t *testing.T) {
+	hostname, err := os.Hostname()
+	require.NoError(t, err)
+	require.NotEmpty(t, hostname, "the test needs a hostname to stand in for the default")
+
+	for _, tc := range []struct {
+		name  string
+		args  []string
+		want  bool
+		named string
+	}{
+		{
+			// `pmm-admin config <addr> generic` forwards the name it defaulted to the hostname, so a
+			// registered Node under another name must not read as one the operator asked for.
+			name:  "the name falls back to the hostname",
+			args:  []string{"setup", "1.2.3.4", "generic"},
+			want:  false,
+			named: hostname,
+		},
+		{
+			name:  "the operator named a Node",
+			args:  []string{"setup", "1.2.3.4", "generic", "db-prod-1"},
+			want:  true,
+			named: "db-prod-1",
+		},
+		{
+			// Indistinguishable in intent from taking the default, and harmless: it is the name the Node
+			// would be registered under either way.
+			name:  "the name given is this host's",
+			args:  []string{"setup", "1.2.3.4", "generic", hostname},
+			want:  false,
+			named: hostname,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var cfg Config
+			_, err := get(tc.args, &cfg, logrus.WithField("test", t.Name()))
+			require.NoError(t, err)
+
+			assert.Equal(t, tc.named, cfg.Setup.NodeName)
+			assert.Equal(t, tc.want, cfg.Setup.NodeNameGiven)
+		})
+	}
+}
+
+func TestNodeNameGivenFromEnvironment(t *testing.T) {
+	// kingpin fires no action for a value which came from the environment, which is how a container names
+	// its Node, so the name has to be classified after parsing rather than while it happens.
+	t.Setenv("PMM_AGENT_SETUP_NODE_NAME", "db-prod-1")
+
+	var cfg Config
+	_, err := get([]string{"setup", "1.2.3.4", "generic"}, &cfg, logrus.WithField("test", t.Name()))
+	require.NoError(t, err)
+
+	assert.Equal(t, "db-prod-1", cfg.Setup.NodeName)
+	assert.True(t, cfg.Setup.NodeNameGiven)
+}

@@ -129,7 +129,11 @@ func checkRegistration(cfg *config.Config, lookup agentLookup) registrationState
 	case err != nil:
 		fmt.Printf("Failed to check the registration of pmm-agent %s with %s: %s.\n", cfg.ID, cfg.Server.Address, err)
 		return registrationUnverified
-	case cfg.Setup.NodeName != "" && node.Name != cfg.Setup.NodeName:
+	// Only a name the operator asked for is a conflict: both `pmm-agent setup` and `pmm-admin config`
+	// fall the name back to the hostname and always pass it on, so a name which is only this host's
+	// says nothing about which Node was meant. Taking it for an answer failed every re-run on a Node
+	// registered under another name, a container with a persisted configuration among them.
+	case cfg.Setup.NodeNameGiven && node.Name != cfg.Setup.NodeName:
 		// Registering would not replace that Node. Without --region the address is not checked for
 		// uniqueness, so PMM Server would create a second Node under the given name and leave the
 		// registered one behind with every Service on it, monitored by nothing. A configuration file
@@ -147,9 +151,20 @@ func checkRegistration(cfg *config.Config, lookup agentLookup) registrationState
 }
 
 // reportRegisteredNode reports what PMM Server holds about the Node where it no longer matches what
-// setup was given. Both the address and the type of a Node are only set when it is registered, and
+// setup was given. The name, the address and the type of a Node are only set when it is registered, and
 // nothing updates them afterwards, so a difference is kept rather than applied.
 func reportRegisteredNode(cfg *config.Config, node serverNode) {
+	// Only reached for a name setup was not given, since a name it was given is a conflict rather than a
+	// difference to report. Saying nothing would leave the Node on PMM Server named something the operator
+	// never sees, and --force is what turns this into the new Node the name suggests.
+	if node.Name != "" && cfg.Setup.NodeName != "" && node.Name != cfg.Setup.NodeName {
+		fmt.Printf("Node %s is registered under that name, not %s, which is only this host's name."+
+			" The registered name is kept.\n"+
+			"Use --force to register %s as a new Node, which leaves Node %s and its Services on PMM Server,"+
+			" monitored by nothing.\n",
+			node.Name, cfg.Setup.NodeName, cfg.Setup.NodeName, node.Name)
+	}
+
 	// The address is what PMM Server keeps scraping in pull metrics mode.
 	if node.Address != "" && cfg.Setup.Address != "" && node.Address != cfg.Setup.Address {
 		fmt.Printf("Node %s is registered with address %s, not %s. The registered address is kept;"+

@@ -67,10 +67,13 @@ func TestCheckRegistration(t *testing.T) {
 	registeredNode := serverNode{Name: testNodeName, Address: testNodeAddress}
 
 	for _, tc := range []struct {
-		name     string
-		nodeName string
-		lookup   agentLookup
-		want     registrationState
+		name string
+		// nodeName is the name setup was given; nameGiven marks it as one the operator asked for rather
+		// than the hostname it falls back to.
+		nodeName  string
+		nameGiven bool
+		lookup    agentLookup
+		want      registrationState
 	}{
 		{
 			name:     "PMM Server knows the Agent on this Node",
@@ -90,10 +93,21 @@ func TestCheckRegistration(t *testing.T) {
 			want:   registrationConfirmed,
 		},
 		{
-			name:     "PMM Server has the Agent on another Node",
-			nodeName: "another-node",
+			name:      "PMM Server has the Agent on another Node",
+			nodeName:  "another-node",
+			nameGiven: true,
+			lookup:    found(registeredNode),
+			want:      registrationConflict,
+		},
+		{
+			// `pmm-admin config <addr> generic` on a host whose name is not the Node's: the operator named
+			// no Node, so there is nothing to resolve and the registration stands. Failing here refused
+			// every re-run on a Node registered under a name which is not the hostname, and took down any
+			// container which runs setup on start.
+			name:     "the Node is registered under a name which is not this host's",
+			nodeName: "the-hostname",
 			lookup:   found(registeredNode),
-			want:     registrationConflict,
+			want:     registrationConfirmed,
 		},
 		{
 			name:     "PMM Server does not know the Agent",
@@ -120,7 +134,11 @@ func TestCheckRegistration(t *testing.T) {
 			cfg := &config.Config{
 				ID:     testAgentID,
 				Server: config.Server{Address: testServerAddress},
-				Setup:  config.Setup{NodeName: tc.nodeName, Address: testNodeAddress},
+				Setup: config.Setup{
+					NodeName:      tc.nodeName,
+					NodeNameGiven: tc.nameGiven,
+					Address:       testNodeAddress,
+				},
 			}
 			assert.Equal(t, tc.want, checkRegistration(cfg, tc.lookup))
 		})

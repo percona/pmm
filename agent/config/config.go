@@ -143,8 +143,12 @@ type Ports struct {
 // Setup contains `pmm-agent setup` flag and argument values.
 // It is never stored in configuration file.
 type Setup struct {
-	NodeType          string
-	NodeName          string
+	NodeType string
+	NodeName string
+	// NodeNameGiven reports whether NodeName names a Node the operator asked for, rather than carrying the
+	// hostname it falls back to. `pmm-agent setup` needs to tell the two apart, and the name is never
+	// stored, so there is nothing else to compare a registered Node against.
+	NodeNameGiven     bool
 	MachineID         string
 	Distro            string
 	ContainerID       string
@@ -240,6 +244,10 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		if cfg.WindowConnectedTime == 0 {
 			cfg.WindowConnectedTime = time.Hour
 		}
+		// kingpin fires no action for a value which came from the environment, and both `pmm-agent setup`
+		// and `pmm-admin config` always pass the name on, so "the operator asked for this Node" is "the
+		// name is not the one it falls back to".
+		cfg.Setup.NodeNameGiven = cfg.Setup.NodeName != "" && cfg.Setup.NodeName != nodeNameDefault()
 		if cfg.PerfschemaRefreshRate == 0 {
 			cfg.PerfschemaRefreshRate = 5
 		}
@@ -367,6 +375,13 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 
 	*cfg = *fileCfg
 	return configFileF, nil
+}
+
+// nodeNameDefault returns the Node name `pmm-agent setup` falls back to when it is given none.
+func nodeNameDefault() string {
+	hostname, _ := os.Hostname()
+
+	return hostname
 }
 
 // Application returns kingpin application that will parse command-line flags and environment variables
@@ -502,7 +517,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	setupCmd.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).
 		Envar("PMM_AGENT_SETUP_NODE_TYPE").EnumVar(&cfg.Setup.NodeType, nodeTypeKeys...)
 
-	hostname, _ := os.Hostname()
+	hostname := nodeNameDefault()
 	nodeNameHelp := fmt.Sprintf("Node name (autodetected default: %s) [PMM_AGENT_SETUP_NODE_NAME]", hostname)
 	setupCmd.Arg("node-name", nodeNameHelp).Default(hostname).
 		Envar("PMM_AGENT_SETUP_NODE_NAME").StringVar(&cfg.Setup.NodeName)
