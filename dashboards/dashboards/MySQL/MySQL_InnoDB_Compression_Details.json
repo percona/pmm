@@ -1483,7 +1483,7 @@
                             "step": 300
                         }
                     ],
-                    "title": "Buffer Pool Size ",
+                    "title": "Buffer Pool Size",
                     "type": "stat"
                 },
                 {
