@@ -4327,7 +4327,7 @@
                             "refId": "A"
                         }
                     ],
-                    "title": " Duration of Active Transactions",
+                    "title": "Duration of Active Transactions",
                     "type": "grafana-polystat-panel"
                 },
                 {
