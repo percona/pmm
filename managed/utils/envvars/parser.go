@@ -445,11 +445,18 @@ func VMAgentRemoteWriteAuthFromEnv(env map[string]string) VMAgentRemoteWriteAuth
 	hasUsername := envHasAny(env, remoteWriteUsernameEnvs)
 	hasPassword := envHasAny(env, remoteWritePasswordEnvs)
 
+	// The order of the cases is the point. An exclusive method sits above the half-a-pair branch
+	// because it legitimately takes the place of a pair, but an additive method sits below it: it
+	// composes with a pair instead of replacing one, so it must not report a lone half as complete.
+	// VMAgentRemoteWriteReplacesBasicAuth calls that lone half a replacement and withholds PMM's
+	// own credential either way, and this is what reports it.
 	switch {
-	case hasUsername && hasPassword, envHasAny(env, remoteWriteExclusiveAuthEnvs), envHasAny(env, remoteWriteAdditiveAuthEnvs):
+	case hasUsername && hasPassword, envHasAny(env, remoteWriteExclusiveAuthEnvs):
 		return VMAgentRemoteWriteAuthComplete
 	case hasUsername || hasPassword:
 		return VMAgentRemoteWriteAuthPartial
+	case envHasAny(env, remoteWriteAdditiveAuthEnvs):
+		return VMAgentRemoteWriteAuthComplete
 	}
 
 	return VMAgentRemoteWriteAuthNone

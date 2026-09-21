@@ -95,6 +95,19 @@ func TestHARemoteWriteWarning(t *testing.T) {
 		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))
 	})
 
+	t.Run("an additive method does not let half an injected pair satisfy a credential-less URL", func(t *testing.T) {
+		// The additive method composes with the pair rather than replacing it, so the lone half
+		// stays incomplete and PMM still withholds its own credential for it.
+		t.Setenv(envRemoteWriteUsername, "victoriametrics_pmm")
+		t.Setenv("VMAGENT_remoteWrite_headers", "AccountID: 1")
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)), "carries no credentials")
+	})
+
+	t.Run("an additive method alone satisfies a credential-less URL", func(t *testing.T) {
+		t.Setenv("VMAGENT_remoteWrite_headers", "AccountID: 1")
+		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))
+	})
+
 	t.Run("an injected write URL with its own credentials takes PMM_VM_URL out of the write path", func(t *testing.T) {
 		t.Setenv(envRemoteWriteURL, "https://collector:secret@collector.example.com/api/v1/write")
 		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))

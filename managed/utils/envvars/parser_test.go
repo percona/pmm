@@ -365,6 +365,38 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Contains(t, gotWarns[0], "only one half")
 	})
 
+	t.Run("half a basic-auth pair warns alongside an additive method", func(t *testing.T) {
+		t.Parallel()
+
+		// An additive method composes with a pair rather than replacing one, so it must not make
+		// a lone half look complete: PMM still withholds its own credential for that half, and
+		// vmagent would send the username with no password.
+		for _, additive := range []string{
+			"VMAGENT_remoteWrite_headers=AccountID: 1",
+			"VMAGENT_remoteWrite_tlsCertFile=/run/secrets/client.pem",
+		} {
+			envs := []string{"VMAGENT_remoteWrite_basicAuth_username=collector", additive}
+			_, gotErrs, gotWarns := ParseEnvVars(envs)
+			assert.Nil(t, gotErrs, additive)
+			require.Len(t, gotWarns, 1, additive)
+			assert.Contains(t, gotWarns[0], "only one half", additive)
+		}
+	})
+
+	t.Run("an additive method with a whole basic-auth pair does not warn", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"VMAGENT_remoteWrite_basicAuth_username=collector",
+			"VMAGENT_remoteWrite_basicAuth_password=secret",
+			"VMAGENT_remoteWrite_headers=AccountID: 1",
+		}
+
+		_, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
 	t.Run("VMAGENT_remoteWrite_url that does not parse is an error that never echoes it", func(t *testing.T) {
 		t.Parallel()
 
@@ -542,6 +574,18 @@ func TestVMAgentRemoteWriteReplacesBasicAuth(t *testing.T) {
 		{name: "custom headers compose", env: map[string]string{"VMAGENT_remoteWrite_headers": "X-Scope-OrgID:1"}},
 		{name: "client certificate composes", env: map[string]string{"VMAGENT_remoteWrite_tlsCertFile": "/run/secrets/c"}},
 		{name: "upper-cased names are inert", env: map[string]string{"VMAGENT_REMOTEWRITE_BEARERTOKEN": "t"}},
+		// The pair with VMAgentRemoteWriteAuthFromEnv: an additive method alongside half a pair
+		// still replaces PMM's credential, so that half must still be reported as incomplete.
+		{
+			name: "custom headers alongside half a pair still replace",
+			env:  map[string]string{EnvVMAgentRemoteWriteUsername: "u", "VMAGENT_remoteWrite_headers": "X-Scope-OrgID:1"},
+			want: true,
+		},
+		{
+			name: "a client certificate alongside half a pair still replaces",
+			env:  map[string]string{EnvVMAgentRemoteWritePassword: "p", "VMAGENT_remoteWrite_tlsCertFile": "/run/secrets/c"},
+			want: true,
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -570,6 +614,30 @@ func TestVMAgentRemoteWriteAuthFromEnv(t *testing.T) {
 		{name: "username and password files", env: map[string]string{"VMAGENT_remoteWrite_basicAuth_usernameFile": "/run/secrets/u", "VMAGENT_remoteWrite_basicAuth_passwordFile": "/run/secrets/p"}, want: VMAgentRemoteWriteAuthComplete},
 		{name: "bearer token", env: map[string]string{"VMAGENT_remoteWrite_bearerToken": "t"}, want: VMAgentRemoteWriteAuthComplete},
 		{name: "custom headers", env: map[string]string{"VMAGENT_remoteWrite_headers": "X-Auth: t"}, want: VMAgentRemoteWriteAuthComplete},
+		{name: "client certificate", env: map[string]string{"VMAGENT_remoteWrite_tlsCertFile": "/run/secrets/c"}, want: VMAgentRemoteWriteAuthComplete},
+		// An additive method composes with a pair instead of replacing one, so it must not report
+		// a lone half as complete: PMM withholds its own credential for that half either way.
+		{
+			name: "custom headers do not complete half a pair",
+			env:  map[string]string{EnvVMAgentRemoteWriteUsername: "u", "VMAGENT_remoteWrite_headers": "X-Auth: t"},
+			want: VMAgentRemoteWriteAuthPartial,
+		},
+		{
+			name: "a client certificate does not complete half a pair",
+			env:  map[string]string{EnvVMAgentRemoteWritePassword: "p", "VMAGENT_remoteWrite_tlsCertFile": "/run/secrets/c"},
+			want: VMAgentRemoteWriteAuthPartial,
+		},
+		{
+			name: "custom headers compose with a whole pair",
+			env:  map[string]string{EnvVMAgentRemoteWriteUsername: "u", EnvVMAgentRemoteWritePassword: "p", "VMAGENT_remoteWrite_headers": "X-Auth: t"},
+			want: VMAgentRemoteWriteAuthComplete,
+		},
+		// An exclusive method stays above the half-a-pair branch: it takes the place of a pair.
+		{
+			name: "a bearer token outranks half a pair",
+			env:  map[string]string{EnvVMAgentRemoteWriteUsername: "u", "VMAGENT_remoteWrite_bearerToken": "t"},
+			want: VMAgentRemoteWriteAuthComplete,
+		},
 		{name: "upper-cased names are inert", env: map[string]string{"VMAGENT_REMOTEWRITE_BASICAUTH_USERNAME": "u", "VMAGENT_REMOTEWRITE_BASICAUTH_PASSWORD": "p"}, want: VMAgentRemoteWriteAuthNone},
 	}
 	for _, tc := range testCases {
