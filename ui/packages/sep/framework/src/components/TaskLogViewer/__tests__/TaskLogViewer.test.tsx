@@ -197,6 +197,45 @@ describe('TaskLogViewer', () => {
     expect(screen.getByTestId('log-output').textContent).toBe('line-1\n');
   });
 
+  it('does not carry a completed live log over to the next history', async () => {
+    const { rerender } = render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    act(() => {
+      getHandle('7').pushNamed('finish', { status: 'success' });
+    });
+    await waitFor(() => expect(screen.getByText('Done')).toBeInTheDocument());
+
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="9" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="9" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    expect(logFetchUrls()).toEqual([
+      '/sep/stream-logs/7',
+      '/sep/stream-logs/9',
+      '/sep/stream-logs/9?tail=1000',
+    ]);
+  });
+
   it('reloads a live log whose finish carried a non-terminal status', async () => {
     const { rerender } = render(
       <QueryWrapper>

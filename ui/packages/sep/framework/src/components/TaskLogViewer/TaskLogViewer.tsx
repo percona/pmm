@@ -256,7 +256,14 @@ export function TaskLogViewer({
   const { textByStep, stepOrder, streamStatus, finishStatus, error } =
     useTaskLogs(taskHistoryId, effectiveTailLines);
 
+  const finishStatusHistoryIdRef = useRef(taskHistoryId);
   useEffect(() => {
+    // On the render that switches histories, `finishStatus` still belongs to
+    // the previous stream: useTaskLogs only clears it in this same commit.
+    if (finishStatusHistoryIdRef.current !== taskHistoryId) {
+      finishStatusHistoryIdRef.current = taskHistoryId;
+      return;
+    }
     if (
       finishStatus &&
       Object.prototype.hasOwnProperty.call(
