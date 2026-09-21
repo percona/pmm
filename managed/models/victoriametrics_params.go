@@ -74,19 +74,62 @@ func ParseVictoriaMetricsURL(vmURL string) (*url.URL, error) {
 // takes for a remote-write URL, and each element is redacted on its own: parsing the list as a
 // single URL leaves everything after the first comma in the path, where the userinfo of the
 // remaining elements survives untouched.
+//
+// A comma is also legal inside userinfo, so the split alone cannot tell a list of URLs from one
+// URL whose password contains a comma. The split is therefore only trusted for a value that is a
+// list of URLs throughout; anything else is redacted as the single URL it is, and is redacted
+// whole when even that cannot be parsed or leaves an '@' behind.
 func RedactURLCredentials(value string) string {
 	elements := strings.Split(value, ",")
-	for i, element := range elements {
-		elements[i] = redactURLElementCredentials(element)
+	if len(elements) > 1 && everyElementHasScheme(elements) {
+		for i, element := range elements {
+			redacted, ok := redactURLElementCredentials(element)
+			if !ok && strings.Contains(element, "@") {
+				redacted = "<redacted>"
+			}
+			elements[i] = redacted
+		}
+
+		return strings.Join(elements, ",")
 	}
 
-	return strings.Join(elements, ",")
+	// Not a list, so any comma belongs to this one URL and it is redacted as one. Splitting first
+	// would hand the text before the comma to an element of its own, where the front of a password
+	// no longer looks like a credential and would be printed verbatim.
+	redacted, ok := redactURLElementCredentials(value)
+	if !ok && strings.Contains(value, "@") {
+		return "<redacted>"
+	}
+	// An '@' left after a comma means this was a list after all, malformed enough that parsing it
+	// as a single URL left a later element's userinfo in the path untouched.
+	comma := strings.Index(redacted, ",")
+	if comma >= 0 && strings.Contains(redacted[comma:], "@") {
+		return "<redacted>"
+	}
+
+	return redacted
 }
 
-// redactURLElementCredentials redacts one URL. A scheme-less user:pass@host parses as an opaque
-// URL with no userinfo to drop, so it is parsed as an authority instead. A value that does not
-// parse cannot be split, so it is redacted whole when it might carry credentials.
-func redactURLElementCredentials(value string) string {
+// everyElementHasScheme reports whether each element carries a scheme, which is what vmagent
+// requires of a remote-write URL and what makes the comma that separated them a list separator
+// rather than part of a credential. An element that carries a scheme but does not parse still
+// belongs to the list and is redacted on its own; an empty element carries nothing and does not
+// disqualify the list.
+func everyElementHasScheme(elements []string) bool {
+	for _, element := range elements {
+		if element != "" && !strings.Contains(element, "://") {
+			return false
+		}
+	}
+
+	return true
+}
+
+// redactURLElementCredentials redacts one URL and reports whether it could be parsed at all. A
+// scheme-less user:pass@host parses as an opaque URL with no userinfo to drop, so it is parsed as
+// an authority instead. A value that does not parse cannot be split, and the caller redacts it
+// rather than guess what the unparsed text holds.
+func redactURLElementCredentials(value string) (string, bool) {
 	schemeless := !strings.Contains(value, "://")
 	raw := value
 	if schemeless {
@@ -94,25 +137,22 @@ func redactURLElementCredentials(value string) string {
 	}
 	u, err := url.Parse(raw)
 	if err != nil {
-		if strings.Contains(value, "@") {
-			return "<redacted>"
-		}
-		return value
+		return value, false
 	}
 	if u.User == nil {
-		return value
+		return value, true
 	}
 	u.User = nil
 	stripped := u.String()
 	if schemeless {
-		return "<redacted>@" + strings.TrimPrefix(stripped, "//")
+		return "<redacted>@" + strings.TrimPrefix(stripped, "//"), true
 	}
 	scheme := strings.Index(stripped, "://")
 	if scheme >= 0 {
-		return stripped[:scheme+3] + "<redacted>@" + stripped[scheme+3:]
+		return stripped[:scheme+3] + "<redacted>@" + stripped[scheme+3:], true
 	}
 
-	return stripped
+	return stripped, true
 }
 
 // NewVictoriaMetricsParams - returns configuration params for VictoriaMetrics.

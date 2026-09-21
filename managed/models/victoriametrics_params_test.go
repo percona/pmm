@@ -162,6 +162,48 @@ func TestRedactURLCredentials(t *testing.T) {
 			value: "https://u1:s1@vm1.example.com/write,https://u2:s2@[::1",
 			want:  "https://<redacted>@vm1.example.com/write,<redacted>",
 		},
+		// A comma is legal inside userinfo, so a password that carries one must not be split into
+		// elements: the part in front of the comma stops looking like a credential and would be
+		// printed as it stands. The third case is the one that hides best, because "user:1234"
+		// parses as a host and a port all by itself.
+		{
+			name:  "a comma in the password does not split the URL",
+			value: "http://user:pa,ss@vmauth:8427/",
+			want:  "http://<redacted>@vmauth:8427/",
+		},
+		{
+			name:  "several commas in the password do not split the URL",
+			value: "http://user:p,a,s,s@vmauth:8427/",
+			want:  "http://<redacted>@vmauth:8427/",
+		},
+		{
+			name:  "a password whose first segment parses as a port",
+			value: "http://user:1234,5678@host:8427/",
+			want:  "http://<redacted>@host:8427/",
+		},
+		{
+			name:  "a comma in the password of a scheme-less value",
+			value: "user:pa,ss@vmauth:8427",
+			want:  "<redacted>@vmauth:8427",
+		},
+		// A comma outside the userinfo is not a reason to lose the rest of the message.
+		{
+			name:  "a comma in the query keeps the URL readable",
+			value: "http://u:p@vm.example.com/api/v1/write?tags=a,b",
+			want:  "http://<redacted>@vm.example.com/api/v1/write?tags=a,b",
+		},
+		{
+			name:  "an at sign in the path is not userinfo",
+			value: "https://cdn.example.com/logo@2x.png",
+			want:  "https://cdn.example.com/logo@2x.png",
+		},
+		// Neither a list nor one URL: an element without a scheme is not something vmagent would
+		// accept, and parsing the whole as one URL leaves the second userinfo in the path.
+		{
+			name:  "a list whose second element has no scheme is redacted whole",
+			value: "http://a:1@h1/write,b:2@h2",
+			want:  "<redacted>",
+		},
 		{
 			name:  "an unparseable element without credentials is left alone",
 			value: "http://[::1",
