@@ -259,7 +259,10 @@ export function TaskLogViewer({
   useEffect(() => {
     if (
       finishStatus &&
-      Object.hasOwn(TERMINAL_FINISH_STATUS, finishStatus) &&
+      Object.prototype.hasOwnProperty.call(
+        TERMINAL_FINISH_STATUS,
+        finishStatus
+      ) &&
       effectiveTailLines === undefined
     ) {
       setCompleteLiveLogId(taskHistoryId);
