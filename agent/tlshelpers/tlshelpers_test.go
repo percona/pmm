@@ -195,6 +195,29 @@ func TestGetValkeyTLSConfig(t *testing.T) {
 		assert.Len(t, opts, 3)
 	})
 
+	t.Run("ca only returns dial options", func(t *testing.T) {
+		t.Parallel()
+		cert, _ := generateCertPair(t)
+		files := &agentv1.TextFiles{Files: map[string]string{
+			"tlsCa": cert,
+		}}
+		opts, err := GetValkeyTLSConfig(files, true, false)
+		require.NoError(t, err)
+		assert.Len(t, opts, 3)
+	})
+
+	t.Run("client key pair without ca returns dial options", func(t *testing.T) {
+		t.Parallel()
+		cert, key := generateCertPair(t)
+		files := &agentv1.TextFiles{Files: map[string]string{
+			"tlsCert": cert,
+			"tlsKey":  key,
+		}}
+		opts, err := GetValkeyTLSConfig(files, true, false)
+		require.NoError(t, err)
+		assert.Len(t, opts, 3)
+	})
+
 	t.Run("invalid cert/key pair returns error", func(t *testing.T) {
 		t.Parallel()
 		files := &agentv1.TextFiles{Files: map[string]string{

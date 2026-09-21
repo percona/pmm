@@ -26,28 +26,40 @@ import (
 
 // GetValkeyTLSConfig returns TLS config for Valkey connections.
 func GetValkeyTLSConfig(files *agentv1.TextFiles, useTLS, tlsSkipVerify bool) ([]redis.DialOption, error) {
-	var opts []redis.DialOption
+	if isEmptyTLSFiles(files) {
+		return nil, nil
+	}
 
-	if !isEmptyTLSFiles(files) {
-		ca := x509.NewCertPool()
-		cert, err := tls.X509KeyPair([]byte(files.Files["tlsCert"]), []byte(files.Files["tlsKey"]))
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: tlsSkipVerify, //nolint:gosec
+	}
+
+	// Server-auth-only and pinned-certificate setups are both valid, so each piece of the
+	// material is applied only when it is actually present rather than assumed complete.
+	if certPEM, keyPEM := files.Files["tlsCert"], files.Files["tlsKey"]; certPEM != "" && keyPEM != "" {
+		cert, err := tls.X509KeyPair([]byte(certPEM), []byte(keyPEM))
 		if err != nil {
 			return nil, err
 		}
-		ok := ca.AppendCertsFromPEM([]byte(files.Files["tlsCa"]))
-		if !ok {
+
+		tlsConfig.Certificates = []tls.Certificate{cert}
+	}
+
+	if caPEM := files.Files["tlsCa"]; caPEM != "" {
+		ca := x509.NewCertPool()
+		if !ca.AppendCertsFromPEM([]byte(caPEM)) {
 			return nil, errors.New("failed to append certs from PEM")
 		}
-		tlsConfig := &tls.Config{
-			InsecureSkipVerify: tlsSkipVerify, //nolint:gosec
-			Certificates:       []tls.Certificate{cert},
-			RootCAs:            ca,
-		}
 
-		opts = append(opts, redis.DialUseTLS(useTLS))
-		opts = append(opts, redis.DialTLSSkipVerify(tlsSkipVerify))
-		opts = append(opts, redis.DialTLSConfig(tlsConfig))
+		tlsConfig.RootCAs = ca
 	}
+
+	opts := []redis.DialOption{
+		redis.DialUseTLS(useTLS),
+		redis.DialTLSSkipVerify(tlsSkipVerify),
+		redis.DialTLSConfig(tlsConfig),
+	}
+
 	return opts, nil
 }
 
