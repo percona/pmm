@@ -33,7 +33,6 @@ import (
 	"github.com/lib/pq"
 	"gopkg.in/reform.v1"
 
-	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
 	"github.com/percona/pmm/version"
 )
@@ -44,13 +43,13 @@ import (
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
 type AgentType string
 
-// Text file names carrying TLS material to pmm-agent, aliased here so the managed side has
-// one spelling of a name that is really part of the agent wire protocol, and is therefore
-// defined alongside the message that carries it.
+// Text file names carrying TLS material to pmm-agent. They are part of the agent wire
+// protocol and are declared canonically in api/agent/v1, which models must not import;
+// TestTLSFileNamesMatchAgentAPI in managed/services/agents keeps the two copies in step.
 const (
-	TLSCaFileName   = agentv1.TLSCaFileName
-	TLSCertFileName = agentv1.TLSCertFileName
-	TLSKeyFileName  = agentv1.TLSKeyFileName
+	TLSCaFileName   = "tlsCa"
+	TLSCertFileName = "tlsCert"
+	TLSKeyFileName  = "tlsKey"
 )
 
 const (
