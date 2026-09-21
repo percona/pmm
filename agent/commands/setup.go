@@ -207,21 +207,23 @@ func registrationOf(cfg, fileCfg *config.Config, check registrationCheck, l *log
 		return registrationMissing
 	}
 
-	return check(runningCredentials(cfg, fileCfg), cfg, l)
+	return check(runningServer(cfg, fileCfg), cfg, l)
 }
 
-// runningCredentials returns cfg holding the credentials the Agent runs with, so that the registration
-// is checked with the stored service token rather than with the credentials given to setup. Only then
-// does a confirmed registration mean that the Agent can still reach PMM Server on its own: a token the
-// server no longer accepts registers the Node again, with the credentials given to setup.
-func runningCredentials(cfg, fileCfg *config.Config) *config.Config {
-	if fileCfg.Server.Password == "" {
-		return cfg
-	}
-
+// runningServer returns cfg holding the settings the Agent reaches PMM Server with, so that the
+// registration is checked the way the Agent itself would reach the server rather than the way setup was
+// told to. Only then does a confirmed registration mean that the Agent can still reach PMM Server on its
+// own: a token the server no longer accepts registers the Node again, with the credentials given to setup.
+func runningServer(cfg, fileCfg *config.Config) *config.Config {
 	c := *cfg
-	c.Server.Username = fileCfg.Server.Username
-	c.Server.Password = fileCfg.Server.Password
+	// PMM Server ships a self-signed certificate, so an Agent which runs with the check skipped has to be
+	// asked with it skipped: verifying the certificate would fail the lookup on such an installation and
+	// leave a registration which is there unverified. A flag which asks to skip it stands either way.
+	c.Server.InsecureTLS = cfg.Server.InsecureTLS || fileCfg.Server.InsecureTLS
+	if fileCfg.Server.Password != "" {
+		c.Server.Username = fileCfg.Server.Username
+		c.Server.Password = fileCfg.Server.Password
+	}
 
 	return &c
 }

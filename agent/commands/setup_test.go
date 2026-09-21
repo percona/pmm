@@ -153,7 +153,7 @@ func TestCheckRegistration(t *testing.T) {
 	}
 }
 
-func TestRunningCredentials(t *testing.T) {
+func TestRunningServer(t *testing.T) {
 	t.Parallel()
 
 	t.Run("the registration is checked with the credentials the Agent runs with", func(t *testing.T) {
@@ -162,7 +162,7 @@ func TestRunningCredentials(t *testing.T) {
 		cfg := &config.Config{ID: testAgentID, Server: config.Server{Username: "admin", Password: "admin"}}
 		fileCfg := &config.Config{ID: testAgentID, Server: config.Server{Username: "service_token", Password: "glsa_token"}}
 
-		check := runningCredentials(cfg, fileCfg)
+		check := runningServer(cfg, fileCfg)
 		assert.Equal(t, "service_token", check.Server.Username)
 		assert.Equal(t, "glsa_token", check.Server.Password)
 		// The credentials given to setup are still the ones to register with.
@@ -174,7 +174,30 @@ func TestRunningCredentials(t *testing.T) {
 		t.Parallel()
 
 		cfg := &config.Config{ID: testAgentID, Server: config.Server{Username: "admin", Password: "admin"}}
-		assert.Same(t, cfg, runningCredentials(cfg, &config.Config{ID: testAgentID}))
+
+		check := runningServer(cfg, &config.Config{ID: testAgentID})
+		assert.Equal(t, "admin", check.Server.Username)
+		assert.Equal(t, "admin", check.Server.Password)
+	})
+
+	// PMM Server ships a self-signed certificate: checking it here failed the lookup on every such
+	// installation, leaving a registration which is there unverified.
+	t.Run("the registration is checked the way the Agent reaches PMM Server", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := &config.Config{ID: testAgentID, Server: config.Server{Username: "admin", Password: "admin"}}
+		fileCfg := &config.Config{ID: testAgentID, Server: config.Server{InsecureTLS: true}}
+
+		assert.True(t, runningServer(cfg, fileCfg).Server.InsecureTLS)
+		assert.False(t, cfg.Server.InsecureTLS)
+	})
+
+	t.Run("a flag which skips the certificate check stands over the file", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := &config.Config{ID: testAgentID, Server: config.Server{Username: "admin", Password: "admin", InsecureTLS: true}}
+
+		assert.True(t, runningServer(cfg, &config.Config{ID: testAgentID}).Server.InsecureTLS)
 	})
 }
 
