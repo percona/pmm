@@ -412,27 +412,45 @@ func (s *Supervisor) waitForwarderDrained(agentID string, done <-chan struct{}) 
 // since the Agent that held it is already forgotten and nothing is left to retry it, and clearing
 // the directory takes files out from under an Agent still reading it. Both are decided again once
 // the Agent has stopped, because by then the ID may belong to a replacement whose directory that
-// now is - see isAgentRecreated. The directory holds rendered TLS certificates and keys, so leaving
-// it to the next pmm-agent start (cleanupTmp) is the last resort, not the plan. See PMM-15431.
+// now is. The directory holds rendered TLS certificates and keys, so leaving it to the next
+// pmm-agent start (cleanupTmp) is the last resort, not the plan. See PMM-15431.
+//
+// Must be called with s.rw held for writing, which is what makes the immediate case below safe to
+// decide inline.
 func (s *Supervisor) releaseAgentResources(agentID string, done <-chan struct{}, port uint16, agentTmp string) {
 	select {
 	case <-done:
-		s.releasePortAndTempDir(agentID, port, agentTmp)
+		s.releasePort(agentID, port)
+		s.removeAgentTempDir(agentID, agentTmp)
 	default:
 		s.l.Warnf("Agent %s has not stopped yet, freeing what it owns once it does.", agentID)
 		go func() {
 			select {
 			case <-done:
-				if agentTmp != "" && s.isAgentRecreated(agentID) {
-					// Removing it now would take the replacement's TLS
-					// certificates and text files with it. Left behind, it is
-					// cleaned on the next start and reused as-is if the ID
-					// comes back before that.
-					s.l.Warnf("Agent %s was re-created while stopping; keeping '%s' for it.", agentID, agentTmp)
-					agentTmp = ""
+				// Off the lock: giving the port back needs no agreement about
+				// who owns the ID.
+				s.releasePort(agentID, port)
+
+				if agentTmp == "" {
+					return
 				}
 
-				s.releasePortAndTempDir(agentID, port, agentTmp)
+				// Deciding and removing under one hold of s.rw. A replacement
+				// can only be started while s.rw is held for writing, so this
+				// is what keeps a SetState from rendering its TLS certificates
+				// and text files into this very directory between the two -
+				// the removal would take them with it.
+				s.rw.RLock()
+				defer s.rw.RUnlock()
+
+				if s.isAgentTrackedLocked(agentID) {
+					// Left behind, it is cleaned on the next pmm-agent
+					// start and reused as-is if the ID comes back first.
+					s.l.Warnf("Agent %s was re-created while stopping; keeping '%s' for it.", agentID, agentTmp)
+					return
+				}
+
+				s.removeAgentTempDir(agentID, agentTmp)
 			case <-s.ctx.Done():
 				// pmm-agent is on its way out: the OS takes the port back, and
 				// the temporary directory is cleaned on the next start.
@@ -441,12 +459,12 @@ func (s *Supervisor) releaseAgentResources(agentID string, done <-chan struct{},
 	}
 }
 
-// isAgentRecreated reports whether agentID is tracked again, i.e. a replacement was started for it
+// isAgentTrackedLocked reports whether agentID is tracked, i.e. a replacement was started for it
 // while the Agent that owned it was still stopping.
-func (s *Supervisor) isAgentRecreated(agentID string) bool {
-	s.rw.RLock()
-	defer s.rw.RUnlock()
-
+//
+// Must be called with s.rw held, and the caller must keep holding it for as long as the answer has
+// to stay true - a replacement can appear the moment it is released.
+func (s *Supervisor) isAgentTrackedLocked(agentID string) bool {
 	if _, ok := s.agentProcesses[agentID]; ok {
 		return true
 	}
@@ -455,21 +473,31 @@ func (s *Supervisor) isAgentRecreated(agentID string) bool {
 	return ok
 }
 
-func (s *Supervisor) releasePortAndTempDir(agentID string, port uint16, agentTmp string) {
-	if port != 0 {
-		err := s.portsRegistry.Release(port)
-		if err != nil {
-			s.l.Errorf("Failed to release port %d of Agent %s: %s.", port, agentID, err)
-		}
+// releasePort gives back a port reservation. A built-in Agent has no port, hence port 0.
+func (s *Supervisor) releasePort(agentID string, port uint16) {
+	if port == 0 {
+		return
 	}
 
+	err := s.portsRegistry.Release(port)
+	if err != nil {
+		s.l.Errorf("Failed to release port %d of Agent %s: %s.", port, agentID, err)
+	}
+}
+
+// removeAgentTempDir removes an Agent's temporary directory, and does nothing for an empty
+// agentTmp - the callers that must not touch the directory say so that way.
+//
+// The caller must have established that the directory is not a live Agent's, and must hold whatever
+// keeps that true - see releaseAgentResources.
+func (s *Supervisor) removeAgentTempDir(agentID string, agentTmp string) {
 	if agentTmp == "" {
 		return
 	}
 
 	err := os.RemoveAll(agentTmp)
 	if err != nil {
-		s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
+		s.l.Warnf("Failed to cleanup directory '%s' of Agent %s: %s", agentTmp, agentID, err.Error())
 	}
 }
 

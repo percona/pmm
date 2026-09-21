@@ -412,6 +412,47 @@ func TestReleaseAgentResources(t *testing.T) {
 		}, time.Second, 10*time.Millisecond, "temporary directory was never removed")
 	})
 
+	t.Run("StillRunningTakesTheLockBeforeDecidingOnTheDirectory", func(t *testing.T) {
+		t.Parallel()
+
+		// A replacement registered while the release goroutine waits for s.rw is honored,
+		// which is the observable half of why deciding and removing happen under one hold
+		// of it: a replacement is started with s.rw held for writing and renders its TLS
+		// certificates and text files into the directory of the same name.
+		//
+		// The other half - a decision taken before that replacement and a removal after
+		// it - has no deterministic test, because forcing that interleaving needs a seam
+		// between the two, and the goroutine blocks on the lock here either way. So this
+		// guards the lock discipline, not the atomicity. See PMM-15431.
+		//
+		// Port 0 - a built-in Agent's shape - so that nothing here depends on the OS's
+		// view of a port.
+		s, _, agentTmp := setup(t, 65476, 65487)
+		done := make(chan struct{})
+
+		s.releaseAgentResources("racing", done, 0, agentTmp)
+
+		// Held across the Agent stopping, so the goroutine above cannot decide anything
+		// until the replacement below is in place.
+		s.rw.Lock()
+		close(done)
+
+		// Only sharpens the test: it gives the goroutine time to reach the lock, and the
+		// assertion below holds either way.
+		time.Sleep(50 * time.Millisecond)
+
+		replacement := filepath.Join(agentTmp, "ca.crt")
+		require.NoError(t, os.WriteFile(replacement, []byte("certificate"), 0o600))
+		s.agentProcesses["racing"] = &agentProcessInfo{}
+		s.rw.Unlock()
+
+		assert.Never(t, func() bool {
+			_, err := os.Stat(replacement)
+
+			return os.IsNotExist(err)
+		}, 500*time.Millisecond, 10*time.Millisecond, "replacement Agent's files were removed")
+	})
+
 	t.Run("StillRunningKeepsDirectoryOfRecreatedAgent", func(t *testing.T) {
 		t.Parallel()
 
