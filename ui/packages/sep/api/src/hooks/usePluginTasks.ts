@@ -351,6 +351,14 @@ export function usePluginTasks<T extends Record<string, unknown>>(
   });
 }
 
+/**
+ * One plugin task by name.
+ *
+ * Polls while the task's own status is running, on the same rule and cadence
+ * as the list, so a run started from the detail page reaches its terminal
+ * status in the page header without a reload. A task at rest issues no repeat
+ * requests.
+ */
 export function usePluginTask<T extends Record<string, unknown>>(
   pluginName: string,
   taskId: string | undefined,
@@ -379,6 +387,12 @@ export function usePluginTask<T extends Record<string, unknown>>(
         throw error;
       }
     },
+    refetchInterval: (query) =>
+      taskListRefetchInterval(
+        query.state.data ? [query.state.data] : undefined,
+        DEFAULT_TASK_POLLING_INTERVAL_MS,
+        false
+      ),
   });
 }
 

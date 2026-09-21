@@ -368,9 +368,14 @@ export function useStopTaskHistory() {
  * The request is routed through the SEP-level plugin gateway
  * (``POST /api/apps/{pluginName}/{taskName}/execute``) — the FE must not
  * call ``/api/tasks/*`` directly, as the Tasks sub-app is not exposed to the
- * browser in a production deployment. The plugin-task detail query is also
- * refreshed so the status chip on the detail page updates immediately after
- * execution.
+ * browser in a production deployment. The plugin-task queries — the list and
+ * every task detail under it — are invalidated, which refetches the mounted
+ * ones in place, so the detail page's status chip picks up the new run.
+ *
+ * The detail query must not be removed here instead: removal cancels the
+ * refetch that invalidation just started and leaves the page's observer on a
+ * query no longer in the cache, so the chip keeps its pre-run status until the
+ * page remounts.
  */
 export function useExecuteTask(pluginName: string) {
   const queryClient = useQueryClient();
@@ -392,9 +397,6 @@ export function useExecuteTask(pluginName: string) {
       queryClient.invalidateQueries({ queryKey: ['task-history', taskName] });
       queryClient.invalidateQueries({
         queryKey: ['plugins', pluginName, 'tasks'],
-      });
-      queryClient.removeQueries({
-        queryKey: ['plugins', pluginName, 'tasks', taskName],
       });
     },
   });
