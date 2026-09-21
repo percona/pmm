@@ -87,6 +87,24 @@ export type AtwBatchExecuteItemResponse =
  * dispatched, has nothing remembered for it, and the caller falls back to
  * reselecting the snippet with no parameter values.
  */
+/**
+ * Which pane started a batch.
+ *
+ * The workspace reacts to a dispatch by bringing the new executions into view,
+ * which is only a move for a reader who is looking at the Collect form —
+ * scrolling the Results pane to itself under someone who just pressed a button
+ * inside it moves the ground they are standing on.
+ */
+export type AtwDispatchSource = 'collect' | 'results';
+
+/** Called once a batch dispatches successfully, so a caller can remember it. */
+export type AtwDispatchHandler = (
+  snippets: AtwSnippetSummary[],
+  values: Record<string, unknown>,
+  response: AtwBatchExecuteResponse,
+  source: AtwDispatchSource
+) => void;
+
 export interface AtwRememberedDispatch {
   /** The batch's snippets, in the order the form rendered them. */
   snippets: AtwSnippetSummary[];

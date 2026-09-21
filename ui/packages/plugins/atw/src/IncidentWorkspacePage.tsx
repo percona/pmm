@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Box,
@@ -30,6 +30,7 @@ import {
 import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 import { useAuth } from '@sep/api';
 import { ReadOnlyNotice } from '@sep/framework';
 import { CollectPane } from './CollectPane';
@@ -37,11 +38,15 @@ import { ResultsPane } from './ResultsPane';
 import { useAtwIncident, useAtwIncidentLifecycle } from './hooks';
 import type {
   AtwBatchExecuteResponse,
+  AtwDispatchSource,
   AtwIncidentExecution,
   AtwRememberedDispatch,
   AtwRerunRequest,
   AtwSnippetSummary,
 } from './types';
+
+/** How long a just-started execution stays marked out in the Results list. */
+const NEW_EXECUTION_HIGHLIGHT_MS = 8000;
 
 /**
  * Incident workspace rendered at ``/atw/:incidentId``. Two side-by-side panes —
@@ -74,13 +79,35 @@ export function IncidentWorkspacePage() {
   );
   const rerunNonceRef = useRef(0);
   const collectSectionRef = useRef<HTMLDivElement>(null);
+  const resultsSectionRef = useRef<HTMLDivElement>(null);
+  const { enqueueSnackbar } = useSnackbar();
+
+  // The executions this tab has just started, marked out in the Results list
+  // so the reader can find them among the incident's older runs. Cleared on a
+  // timer rather than on the next poll: the mark is about what the reader just
+  // did, not about the execution's own state.
+  const [highlightedTaskIds, setHighlightedTaskIds] = useState<Set<number>>(
+    () => new Set()
+  );
+  const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (highlightTimerRef.current !== null) {
+        clearTimeout(highlightTimerRef.current);
+      }
+    },
+    []
+  );
 
   const handleDispatched = useCallback(
     (
       snippets: AtwSnippetSummary[],
       values: Record<string, unknown>,
-      response: AtwBatchExecuteResponse
+      response: AtwBatchExecuteResponse,
+      source: AtwDispatchSource
     ) => {
+      const startedIds: number[] = [];
       setRemembered((previous) => {
         const next = new Map(previous);
         for (const item of response.items) {
@@ -88,13 +115,45 @@ export function IncidentWorkspacePage() {
             item.task_history_id !== null &&
             item.task_history_id !== undefined
           ) {
+            startedIds.push(item.task_history_id);
             next.set(item.task_history_id, { snippets, values });
           }
         }
         return next;
       });
+
+      if (startedIds.length === 0) {
+        return;
+      }
+
+      enqueueSnackbar(
+        `Started ${startedIds.length} ${startedIds.length === 1 ? 'script' : 'scripts'}`,
+        { variant: 'success' }
+      );
+
+      setHighlightedTaskIds(new Set(startedIds));
+      if (highlightTimerRef.current !== null) {
+        clearTimeout(highlightTimerRef.current);
+      }
+      highlightTimerRef.current = setTimeout(() => {
+        setHighlightedTaskIds(new Set());
+        highlightTimerRef.current = null;
+      }, NEW_EXECUTION_HIGHLIGHT_MS);
+
+      // Only for a run started from the Collect form. A run started from a
+      // Results row is already where its result will appear, and scrolling
+      // that pane to its own top under the reader moves the row they pressed.
+      if (source !== 'collect') {
+        return;
+      }
+      const target = resultsSectionRef.current;
+      // jsdom (and some embeds) do not implement this API at all — the same
+      // guard the rerun scroll below uses.
+      if (target && typeof target.scrollIntoView === 'function') {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     },
-    []
+    [enqueueSnackbar]
   );
 
   const handleEditParameters = useCallback(
@@ -213,6 +272,15 @@ export function IncidentWorkspacePage() {
         </Box>
       )}
 
+      {/*
+        Two columns above `md`, decided on PMM-15511 against stacking Collect
+        over Results at the standard content width. The complaint stacking
+        answered was that Collect ran past two screen heights, which is fixed
+        at the source — script sections open collapsed and the run button is
+        pinned — and side by side is the only arrangement where a reader
+        watches a run while the form that started it is still there. Stacking
+        would put Results below the fold permanently, for every run.
+      */}
       <Box
         sx={{
           mt: 1,
@@ -236,10 +304,11 @@ export function IncidentWorkspacePage() {
             />
           </Paper>
         )}
-        <Paper variant="outlined" sx={{ p: 2 }}>
+        <Paper variant="outlined" sx={{ p: 2 }} ref={resultsSectionRef}>
           <ResultsPane
             incidentId={incidentId}
             remembered={remembered}
+            highlightedTaskIds={highlightedTaskIds}
             onDispatched={handleDispatched}
             onEditParameters={handleEditParameters}
           />

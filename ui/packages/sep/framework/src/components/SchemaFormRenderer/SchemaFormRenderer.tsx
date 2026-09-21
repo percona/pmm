@@ -30,6 +30,7 @@ import {
   get,
   useForm,
   useFormContext,
+  useWatch,
   type FieldErrors,
   type SubmitHandler,
 } from 'react-hook-form';
@@ -66,6 +67,7 @@ import { useCardinalityRules } from './hooks/useCardinalityRules';
 import { useFailRules } from './hooks/useFailRules';
 import { useUnsavedChangesGuard } from './hooks/useUnsavedChangesGuard';
 import { coerceFormValues } from './utils/validationMapper';
+import { summariseSectionValues } from './utils/sectionValueSummary';
 import { fieldDefault } from './utils/fieldDefault';
 import { getAtPath, setAtPath } from './utils/fieldPath';
 import {
@@ -233,6 +235,44 @@ interface SectionRendererProps {
    * reader can still collapse it again afterwards.
    */
   forceExpanded?: boolean;
+  /** Name the section's current values on one line while it is collapsed. */
+  showValueSummary?: boolean;
+}
+
+/**
+ * One line under a collapsed section's title naming what it currently holds.
+ *
+ * Watches the whole form rather than this section's own names: react-hook-form
+ * collapses a single watched name to a bare value, which a one-field section
+ * holding an array is indistinguishable from. The cost is that every collapsed
+ * summary recomputes on any keystroke in the form, which is one string join per
+ * closed shell.
+ */
+function SectionValueSummary({ fields }: { fields: PluginField[] }) {
+  const all = useWatch() as Record<string, unknown>;
+  const summary = useMemo(
+    () =>
+      summariseSectionValues(
+        fields,
+        fields.map((field) => getAtPath(all, field.name))
+      ),
+    [all, fields]
+  );
+
+  if (fields.length === 0) {
+    return null;
+  }
+
+  return (
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      noWrap
+      sx={{ display: 'block' }}
+    >
+      {summary}
+    </Typography>
+  );
 }
 
 const SectionRenderer = memo(function SectionRenderer({
@@ -242,6 +282,7 @@ const SectionRenderer = memo(function SectionRenderer({
   violations,
   renderField,
   forceExpanded = false,
+  showValueSummary = false,
 }: SectionRendererProps) {
   const [expanded, setExpanded] = useState(
     !section.collapsed_by_default || forceExpanded
@@ -261,6 +302,13 @@ const SectionRenderer = memo(function SectionRenderer({
   // exception; and a field carrying a default is not blank-optional but
   // pre-filled, so "(optional)" would suggest a choice that has been made for
   // the reader already.
+  // Flattened once here rather than per render of the summary: the shell keeps
+  // rendering while the reader types in a sibling section.
+  const summaryFields = useMemo(
+    () => flattenSectionFields([section]),
+    [section]
+  );
+
   const optionalNames = useMemo(() => {
     const leaves = section.fields.filter((f) => !isOneOfGroup(f));
     const required = leaves.filter((f) => f.required);
@@ -327,16 +375,26 @@ const SectionRenderer = memo(function SectionRenderer({
               pl: 2,
               pr: 1,
               minHeight: 48,
-              '& .MuiAccordionSummary-content': { my: 1 },
+              '& .MuiAccordionSummary-content': { my: 1, minWidth: 0 },
             }}
           >
-            <Typography
-              component="legend"
-              variant="subtitle1"
-              sx={{ fontWeight: 600 }}
-            >
-              {section.title}
-            </Typography>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography
+                component="legend"
+                variant="subtitle1"
+                sx={{ fontWeight: 600 }}
+              >
+                {section.title}
+              </Typography>
+              {/*
+                Only while collapsed: an open section already shows every value
+                it holds, and repeating them in the header reads as a second,
+                staler copy of the fields right below it.
+              */}
+              {showValueSummary && !expanded && (
+                <SectionValueSummary fields={summaryFields} />
+              )}
+            </Box>
           </AccordionSummary>
           <AccordionDetails sx={{ pl: 2, pr: 2 }}>
             {sectionContent}
@@ -409,6 +467,30 @@ export interface SchemaFormRendererProps {
    * See {@link RenderFieldOverride}.
    */
   renderField?: RenderFieldOverride;
+  /**
+   * Where the submit control sits.
+   *
+   * `inline` (the default) closes the form with it. `sticky-top` pins it above
+   * the sections and keeps it against the top of the viewport for as long as
+   * any part of the form is on screen — for a form that is taller than a
+   * screen whatever the reader does, where a button at the end is a button
+   * they have to go looking for.
+   */
+  submitPlacement?: 'inline' | 'sticky-top';
+  /**
+   * CSS `top` the `sticky-top` submit row pins at, as an sx value (a number of
+   * pixels, a length, or a breakpoint map).
+   *
+   * Defaults to 0, which is right only when nothing of the host's own chrome
+   * is pinned there: an app that renders a sticky header must pass its height,
+   * or the row scrolls underneath it.
+   */
+  stickySubmitOffset?: number | string | Record<string, number | string>;
+  /**
+   * Give every collapsed collapsible section a one-line summary of the values
+   * it holds, so a form can open collapsed without hiding what it will send.
+   */
+  sectionValueSummary?: boolean;
 }
 
 /**
@@ -465,6 +547,9 @@ function SchemaFormBody({
   capabilities,
   itemName,
   renderField,
+  submitPlacement = 'inline',
+  stickySubmitOffset = 0,
+  sectionValueSummary = false,
 }: SchemaFormRendererProps) {
   const { handleSubmit, formState, setError, clearErrors, getFieldState } =
     useFormContext<Record<string, unknown>>();
@@ -587,6 +672,7 @@ function SchemaFormBody({
       forceExpanded={
         seededAdvanced.has(entry.index) || erroredAdvanced.has(entry.index)
       }
+      showValueSummary={sectionValueSummary}
     />
   );
 
@@ -637,6 +723,42 @@ function SchemaFormBody({
     })(event);
   };
 
+  const isSticky = submitPlacement === 'sticky-top';
+
+  // Built once and placed by `submitPlacement`, so the button itself — and the
+  // `type="submit"` that carries the whole form — cannot drift between the two
+  // arrangements.
+  const submitRow = (
+    <Box
+      sx={[
+        { mt: 1 },
+        isSticky && {
+          position: 'sticky',
+          top: stickySubmitOffset,
+          // Above the sections it floats over, and far below MUI's own app-bar
+          // layer so a host's chrome still wins.
+          zIndex: 2,
+          mt: 0,
+          mb: 2,
+          py: 1,
+          bgcolor: 'background.paper',
+          borderBottom: 1,
+          borderColor: 'divider',
+        },
+      ]}
+    >
+      <Button
+        type="submit"
+        variant="contained"
+        size="large"
+        loading={loading}
+        loadingPosition="start"
+      >
+        {submitLabel}
+      </Button>
+    </Box>
+  );
+
   return (
     <FormFieldsProvider value={allFields}>
       {inDataRouter && <UnsavedChangesBlocker isGuarded={isGuarded} />}
@@ -647,6 +769,13 @@ function SchemaFormBody({
         noValidate
         sx={{ maxWidth: 800 }}
       >
+        {/*
+          First in the form, not merely pinned: a sticky element can only stay
+          within its own box, so a row declared after the sections would unstick
+          the moment the last one scrolled past.
+        */}
+        {isSticky && submitRow}
+
         {submitError && (
           <Alert severity="error" sx={{ mb: 2, whiteSpace: 'pre-line' }}>
             {submitError}
@@ -677,16 +806,7 @@ function SchemaFormBody({
           </Box>
         )}
 
-        <Button
-          type="submit"
-          variant="contained"
-          size="large"
-          loading={loading}
-          loadingPosition="start"
-          sx={{ mt: 1 }}
-        >
-          {submitLabel}
-        </Button>
+        {!isSticky && submitRow}
 
         {afterSubmitEntries.length > 0 ? (
           <Box sx={{ mt: 3 }}>
