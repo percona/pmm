@@ -243,6 +243,10 @@ describe('TaskLogViewer', () => {
       </QueryWrapper>
     );
     await flushPromises();
+    act(() => {
+      getHandle('9').close();
+    });
+    await flushPromises();
     rerender(
       <QueryWrapper>
         <TaskLogViewer taskHistoryId="9" taskStatus="SUCCESS" />
@@ -324,7 +328,56 @@ describe('TaskLogViewer', () => {
     ]);
   });
 
-  it('reloads a live log that never finished when the run turns terminal', async () => {
+  it('keeps a live log streaming when the run turns terminal before its finish', async () => {
+    const { rerender } = render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    const handle = getHandle('7');
+    act(() => {
+      handle.pushMessage({
+        msg: 'line-1\n',
+        step: 'setup',
+        type: 'stdout',
+        offset: 1,
+      });
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId('log-output').textContent).toBe('line-1\n')
+    );
+
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    expect(logFetchUrls()).toEqual(['/sep/stream-logs/7']);
+    expect(screen.getByTestId('log-output').textContent).toBe('line-1\n');
+
+    act(() => {
+      handle.pushMessage({
+        msg: 'line-2\n',
+        step: 'setup',
+        type: 'stdout',
+        offset: 2,
+      });
+      handle.pushNamed('finish', { status: 'success' });
+    });
+    await waitFor(() => expect(screen.getByText('Done')).toBeInTheDocument());
+    await flushPromises();
+
+    expect(logFetchUrls()).toEqual(['/sep/stream-logs/7']);
+    expect(screen.getByTestId('log-output').textContent).toBe(
+      'line-1\nline-2\n'
+    );
+  });
+
+  it('reloads a live log whose stream closes without a finish once the run is terminal', async () => {
     const { rerender } = render(
       <QueryWrapper>
         <TaskLogViewer taskHistoryId="7" taskStatus="RUNNING" />
@@ -347,11 +400,16 @@ describe('TaskLogViewer', () => {
       </QueryWrapper>
     );
     await flushPromises();
+    act(() => {
+      getHandle('7').close();
+    });
 
-    expect(logFetchUrls()).toEqual([
-      '/sep/stream-logs/7',
-      '/sep/stream-logs/7?tail=1000',
-    ]);
+    await waitFor(() =>
+      expect(logFetchUrls()).toEqual([
+        '/sep/stream-logs/7',
+        '/sep/stream-logs/7?tail=1000',
+      ])
+    );
   });
 
   it('requests tail=1000 by default for finished tasks', async () => {
