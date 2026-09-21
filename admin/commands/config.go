@@ -16,6 +16,7 @@ package commands
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -110,12 +111,10 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 		res = append(res, fmt.Sprintf("--log-lines-count=%d", cmd.LogLinesCount))
 	}
 
-	// Before `setup`: these are pmm-agent's own flags, not the subcommand's.
+	// Before `setup`: this is pmm-agent's own flag, not the subcommand's. The key file password is not
+	// passed here - RunCmd hands it over in the environment, out of the argv every local user can read.
 	if cmd.ConfigFileKeyFile != "" {
 		res = append(res, "--config-file-key-file="+cmd.ConfigFileKeyFile)
-	}
-	if cmd.ConfigFileKeyPassword != "" {
-		res = append(res, "--config-file-key-password="+cmd.ConfigFileKeyPassword)
 	}
 
 	res = append(res, "setup")
@@ -161,6 +160,10 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 func (cmd *ConfigCommand) RunCmd(globals *flags.GlobalFlags) (Result, error) {
 	args, switchedToTLS := cmd.args(globals)
 	c := exec.Command("pmm-agent", args...) //nolint:gosec
+	// The environment, rather than the argv `ps` shows to every local user and the line below logs.
+	if cmd.ConfigFileKeyPassword != "" {
+		c.Env = append(os.Environ(), "PMM_AGENT_CONFIG_FILE_KEY_PASSWORD="+cmd.ConfigFileKeyPassword)
+	}
 	logrus.Debugf("Running: %s", strings.Join(c.Args, " "))
 	b, err := c.Output() // hide pmm-agent's stderr logging
 	res := &configResult{

@@ -16,6 +16,7 @@ package commands
 
 import (
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -122,8 +123,10 @@ func TestConfigCommandArgs(t *testing.T) {
 
 	t.Run("ConfigFileKey", func(t *testing.T) {
 		// `pmm-agent setup` reads the configuration file to tell whether this Node is already registered,
-		// and without the key an encrypted file reads exactly like a damaged one. The flags belong to
-		// pmm-agent rather than to its setup subcommand, so they go before `setup`.
+		// and without the key an encrypted file reads exactly like a damaged one. The flag belongs to
+		// pmm-agent rather than to its setup subcommand, so it goes before `setup`. The key file password
+		// is not passed here: an argv is readable by every local user, and RunCmd hands it to the child
+		// in the environment instead.
 		cmd := &ConfigCommand{
 			NodeAddress:           "1.2.3.4",
 			NodeType:              "generic",
@@ -140,10 +143,10 @@ func TestConfigCommandArgs(t *testing.T) {
 			"--server-username=admin",
 			"--server-password=admin",
 			"--config-file-key-file=/etc/percona/pmm/encryption.key",
-			"--config-file-key-password=keypass",
 			"setup", "1.2.3.4", "generic", "node1",
 		}
 		assert.Equal(t, expected, args)
 		assert.False(t, switchedToTLS)
+		assert.NotContains(t, strings.Join(args, " "), "keypass")
 	})
 }
