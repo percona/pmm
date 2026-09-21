@@ -129,6 +129,12 @@ export interface TaskExecuteAction {
    * behavior for destructive operations like restore.
    */
   confirmContent?: ReactNode;
+  /**
+   * The action cannot be undone — a restore over live data, say. The confirm
+   * button then takes the error colour, so the dialog does not read like an
+   * ordinary run.
+   */
+  destructive?: boolean;
   executeBody?: TaskExecuteBody;
 }
 
@@ -146,7 +152,7 @@ export interface PluginDetailPageProps {
   /** Replace the default single Execute button with plugin-specific execute targets. */
   getTaskExecuteActions?: (
     task: Record<string, unknown>,
-    context: { pluginName: string }
+    context: { pluginName: string; schema: PluginSchema }
   ) => TaskExecuteAction[] | undefined;
   /** Task names whose execution history should appear on the Execution History tab. */
   getTaskHistoryNames?: (task: Record<string, unknown>) => string[] | undefined;
@@ -1254,6 +1260,7 @@ function ActionBar({
           <Button
             onClick={handleExecute}
             variant="contained"
+            color={pendingExecute?.destructive ? 'error' : 'primary'}
             disabled={executeTask.isPending}
             data-testid="plugin-task-execute-confirm"
           >
@@ -1592,7 +1599,7 @@ export function PluginDetailPage({
   const detailBase = `${routeBase}/task/${encodeURIComponent(id)}`;
   const taskExecuteActions = getTaskExecuteActions?.(
     task as Record<string, unknown>,
-    { pluginName }
+    { pluginName, schema }
   );
   const taskHistoryNames =
     getTaskHistoryNames?.(task as Record<string, unknown>) ??
