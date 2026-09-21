@@ -1069,7 +1069,7 @@
                     "step": 20
                 }
             ],
-            "title": "$service_name - Cursors ",
+            "title": "$service_name - Cursors",
             "type": "timeseries"
         },
         {

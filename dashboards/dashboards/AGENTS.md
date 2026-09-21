@@ -39,6 +39,7 @@ dashboards/dashboards/*.json
 ### Do
 - Design dashboards in the Grafana UI, then export the JSON
 - Use `misc/cleanup-dash.py` to normalize exported JSON before committing
+- Run `python3 -m unittest discover -s dashboards/misc -p 'test_*.py'` from the repo root after changing a dashboard or the cleanup script; it re-checks every dashboard in the tree
 - Follow the existing directory structure when adding dashboards for a new domain
 - Keep one dashboard per JSON file, named to match the dashboard title
 - Register new dashboards in `pmm-app/src/plugin.json` under the `includes` array
