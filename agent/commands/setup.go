@@ -417,10 +417,11 @@ func Setup() {
 			keepRegistration(cfg, fileCfg)
 		case registrationUnverified:
 			// Deliberately still a success: an Agent has to be able to set itself up while PMM Server has
-			// no leader yet, and failing here would take an installation down with the outage. It goes to
-			// stderr, and says what was not done, so that it does not read as a confirmed registration to
-			// whoever is watching the output.
-			fmt.Fprintf(os.Stderr, "WARNING: PMM Server at %s did not confirm that pmm-agent %s is registered."+
+			// no leader yet, and failing here would take an installation down with the outage. It says
+			// what was not done, so that it does not read as a confirmed registration to whoever is
+			// watching the output - and it goes to stdout, because `pmm-admin config` runs setup with
+			// c.Output(), which keeps stdout and drops stderr for a command that exits 0.
+			fmt.Printf("WARNING: PMM Server at %s did not confirm that pmm-agent %s is registered."+
 				" Nothing was verified and nothing was changed; the existing registration is kept."+
 				" Re-run once PMM Server answers, or use --force to register the Node again.\n",
 				cfg.Server.Address, cfg.ID)
