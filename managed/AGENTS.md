@@ -114,7 +114,8 @@ type Node struct {
 | `services/alerting` | Alert template management |
 | `services/victoriametrics` | VictoriaMetrics scrape config generation from agent/service inventory |
 | `services/vmalert` | VMAlert alerting rules generation |
-| `services/grafana` | Grafana API client (users, dashboards, annotations) |
+| `services/grafana` | Grafana API client (users, dashboards, annotations), nginx `auth_request` rules |
+| `services/mcp` | Model Context Protocol endpoint (`/mcp`): read-only tools that call PMM's own REST API through the nginx loopback with the caller's credentials — never internal services or databases directly |
 | `services/supervisord` | Supervisord config file generation and process control |
 | `services/ha` | Raft consensus, gossip protocol, leader election |
 | `services/telemetry` | Telemetry data collection and reporting to Percona |

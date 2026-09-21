@@ -65,6 +65,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - PMM_DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
 //   - PMM_ENABLE_ACCESS_CONTROL enables Access control;
+//   - PMM_ENABLE_MCP enables the MCP endpoint; PMM_MCP_RAW_SQL and PMM_MCP_ACTION_TIMEOUT tune it;
 //   - the environment variables prefixed with GF_ are related to Grafana.
 //   - the environment variables related to proxies
 //   - the environment variable set by podman
@@ -243,6 +244,40 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case pkgenv.PlatformAPITimeout:
 			// This variable is not part of the settings and is parsed separately.
 			continue
+
+		case pkgenv.MCPLoopbackURL:
+			// Development only; read at startup by pmm-managed, not persisted.
+			continue
+
+		case pkgenv.EnableMCP:
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, err)
+				continue
+			}
+
+			envSettings.EnableMCP = &b
+
+		case pkgenv.MCPRawSQL:
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, err)
+				continue
+			}
+
+			envSettings.EnableMCPRawSQL = &b
+
+		case pkgenv.MCPActionTimeout:
+			d, err := time.ParseDuration(v)
+			if err != nil || d <= 0 {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, err)
+				continue
+			}
+
+			envSettings.MCPActionTimeout = d
 
 		case pkgenv.PlatformAddress:
 			// This variable is not part of the settings and is parsed separately.

@@ -2283,6 +2283,8 @@ func (m *Settings) validate(all bool) error {
 
 	// no validation rules for EnableInternalPgQan
 
+	// no validation rules for EnableMcp
+
 	if len(errors) > 0 {
 		return SettingsMultiError(errors)
 	}
@@ -2398,6 +2400,8 @@ func (m *ReadOnlySettings) validate(all bool) error {
 	// no validation rules for AzurediscoverEnabled
 
 	// no validation rules for EnableAccessControl
+
+	// no validation rules for EnableMcp
 
 	if len(errors) > 0 {
 		return ReadOnlySettingsMultiError(errors)
@@ -3127,6 +3131,10 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 
 	if m.EnableInternalPgQan != nil {
 		// no validation rules for EnableInternalPgQan
+	}
+
+	if m.EnableMcp != nil {
+		// no validation rules for EnableMcp
 	}
 
 	if len(errors) > 0 {

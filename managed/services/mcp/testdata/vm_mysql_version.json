@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {"__name__": "mysql_version_info", "service_name": "shop-mysql", "version": "8.0.46-37", "version_comment": "Percona Server (GPL), Release 37, Revision"},
+        "value": [1782379897, "1"]
+      }
+    ]
+  }
+}
