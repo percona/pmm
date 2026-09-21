@@ -268,10 +268,10 @@ func (c *Client) Run(ctx context.Context) error {
 //  1. processActionResults and processJobsResults send action and job results from the runner to
 //     the channel. They exit when the runner is stopped by cancelling ctx.
 //
-//  2. processSupervisorRequests reports the actual statuses and then sends status changes, QAN and
-//     RTA data from the supervisor to the channel. Its forwarding loops exit on ctx, but reporting
-//     the actual statuses takes the supervisor's lock first, and acquiring a lock cannot be
-//     cancelled - so this one can outlive a cancelled ctx for as long as a SetState holds it.
+//  2. processSupervisorRequests sends status changes, QAN and RTA data from the supervisor to the
+//     channel. Its loops exit on ctx. Reporting the actual statuses is a goroutine of its own,
+//     outside this accounting, because it takes the supervisor's lock and acquiring a lock cannot
+//     be cancelled; the status forwarding waits for it, or for ctx.
 //
 //  3. processChannelRequests reads requests from the channel and processes them; processPings
 //     answers Ping from a queue of its own. Both exit when the channel is closed.
@@ -279,8 +279,8 @@ func (c *Client) Run(ctx context.Context) error {
 // TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
 // https://jira.percona.com/browse/PMM-4245
 func (c *Client) runProcessors(ctx context.Context) {
-	// The statuses those buffered changes describe are reported by processSupervisorRequests
-	// from the actual state instead, which is why they can be dropped here.
+	// The statuses those buffered changes describe are reported from the actual state below
+	// instead, which is why they can be dropped here.
 	c.supervisor.ClearChangesChannel()
 
 	// Kept out of the accounting below as well as off the request loop: applying a state can
@@ -290,6 +290,24 @@ func (c *Client) runProcessors(ctx context.Context) {
 	go func() {
 		c.processSetStates(ctx, setStates)
 		c.l.Debug("processSetStates is finished")
+	}()
+
+	// Out for the same reason, and it is the same lock: reporting the actual statuses starts by
+	// asking the supervisor for its Agents list, and a SetState from the connection before this
+	// one can still be holding s.rw. Acquiring a lock cannot be cancelled, so under the
+	// accounting below this would keep Done() - and the reconnect waiting on it - past the
+	// cancellation of ctx. The channel is captured here rather than read inside, so that a
+	// snapshot outliving its connection sends on its own closed channel, where it is a no-op,
+	// instead of on the one the next connection installs. See PMM-15431.
+	c.rw.RLock()
+	channel := c.channel
+	c.rw.RUnlock()
+
+	reported := make(chan struct{})
+	go func() {
+		defer close(reported)
+		c.SendActualStatuses(ctx, channel)
+		c.l.Debug("SendActualStatuses is finished")
 	}()
 
 	var wg sync.WaitGroup
@@ -307,7 +325,9 @@ func (c *Client) runProcessors(ctx context.Context) {
 
 	start("processActionResults", c.processActionResults)
 	start("processJobsResults", c.processJobsResults)
-	start("processSupervisorRequests", c.processSupervisorRequests)
+	start("processSupervisorRequests", func(ctx context.Context) {
+		c.processSupervisorRequests(ctx, reported)
+	})
 	start("processPings", c.processPings)
 	start("processChannelRequests", func(ctx context.Context) {
 		c.processChannelRequests(ctx, setStates)
@@ -321,11 +341,18 @@ func (c *Client) runProcessors(ctx context.Context) {
 	}()
 }
 
-// SendActualStatuses sends status of running agents to server.
-func (c *Client) SendActualStatuses(ctx context.Context) {
+// SendActualStatuses sends status of running agents to server over channel.
+//
+// The channel is a parameter rather than c.channel because this can outlive the connection it
+// belongs to - see runProcessors - and c.channel is by then the next connection's.
+func (c *Client) SendActualStatuses(ctx context.Context, channel *channel.Channel) {
+	if channel == nil {
+		return
+	}
+
 	for _, agent := range c.supervisor.AgentsList() {
 		c.l.Infof("Sending status: %s (port %d).", agent.Status, agent.ListenPort)
-		resp, err := c.channel.SendAndWaitResponse(
+		resp, err := channel.SendAndWaitResponse(
 			ctx,
 			&agentv1.StateChangedRequest{
 				AgentId:         agent.AgentId,
@@ -389,18 +416,24 @@ func (c *Client) processJobsResults(ctx context.Context) {
 	}
 }
 
-func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocognit
-	// Here rather than in runProcessors, which would hold up every processor below: asking the
-	// supervisor for its Agents list takes its lock, and a SetState from the connection before
-	// this one can still be holding it for as long as the Agents it is replacing take to stop.
-	// The request loop and pings have to be answering by then, or the server sees a connection
-	// that says nothing at all and drops it as stale. Before the forwarding below so that a
-	// change the supervisor reports next is not overtaken by this snapshot. See PMM-15431.
-	c.SendActualStatuses(ctx)
-
+// processSupervisorRequests forwards what the supervisor reports to the channel.
+//
+// The reported channel closes once the actual statuses have been sent, which the forwarding waits
+// for: a change the supervisor reports next must not be overtaken by that snapshot. It is waited
+// for here rather than in runProcessors, which would hold up the request loop and pings too - by
+// then they have to be answering, or the server sees a connection that says nothing at all and
+// drops it as stale - and on ctx as well, because the snapshot takes a lock and so cannot be
+// relied on to finish. See PMM-15431.
+func (c *Client) processSupervisorRequests(ctx context.Context, reported <-chan struct{}) { //nolint:gocognit
 	var wg sync.WaitGroup
 
 	wg.Go(func() {
+		select {
+		case <-reported:
+		case <-ctx.Done():
+			return
+		}
+
 		for {
 			select {
 			case state := <-c.supervisor.Changes():

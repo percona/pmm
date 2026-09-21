@@ -461,6 +461,92 @@ func TestActualStatusesDoNotBlockPings(t *testing.T) {
 // TestDoneClosesAfterCancel covers the handshake pmm-agent's reconnect depends on: run.go cancels
 // the client context and then waits on Done() before redialing, so a processor that does not exit
 // leaves the agent connected to nothing for good - which is how PMM-15431 presented.
+// TestDoneClosesWhileActualStatusesAreBlocked covers the reconnect path when reporting the actual
+// statuses cannot finish: it starts by asking the supervisor for its Agents list, and a SetState
+// from the connection before this one can still be holding that lock for as long as the Agents it
+// replaces take to stop. Acquiring a lock cannot be cancelled, so counting that goroutine towards
+// Done() would leave run.go waiting on it - no redial and no shutdown - which is the PMM-15431
+// outage in a new place. See runProcessors.
+func TestDoneClosesWhileActualStatusesAreBlocked(t *testing.T) {
+	serverMD := &agentv1.ServerConnectMetadata{
+		ServerVersion: t.Name(),
+	}
+
+	listing := make(chan struct{})
+	release := make(chan struct{})
+	// Released unconditionally, so a failing assertion below is reported instead of leaving the
+	// mock parked and hanging the package. See TestSetStateDoesNotBlockRequestLoop.
+	defer close(release)
+
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
+		require.NoError(t, err)
+		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		err = agentv1.SendServerConnectMetadata(stream, serverMD)
+		require.NoError(t, err)
+		msg, err := stream.Recv()
+		require.NoError(t, err)
+		require.NotNil(t, msg.GetPing())
+		err = stream.Send(&agentv1.ServerMessage{
+			Id:      msg.Id,
+			Payload: (&agentv1.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
+		})
+		require.NoError(t, err)
+
+		// Idle, with the stream healthy, until the client tears it down itself.
+		_, err = stream.Recv()
+		require.Error(t, err)
+
+		return nil
+	}
+	port, teardown := setup(t, connect)
+	defer teardown()
+
+	cfgStorage := config.NewStorage(&config.Config{
+		ID: "agent_id",
+		Server: config.Server{
+			Address:    fmt.Sprintf("127.0.0.1:%d", port),
+			WithoutTLS: true,
+		},
+	})
+
+	s := &mockSupervisor{}
+	s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
+	s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
+	s.On("RTARequests").Return(make(<-chan *rtav1.CollectRequest))
+	s.On("ClearChangesChannel").Return()
+
+	// Stands in for the supervisor lock a previous connection's SetState is holding.
+	listed := sync.OnceFunc(func() { close(listing) })
+	s.On("AgentsList").Run(func(mock.Arguments) {
+		listed()
+		<-release
+	}).Return([]*agentlocal.AgentInfo{})
+
+	r := runner.New(cfgStorage.Get().RunnerCapacity, cfgStorage.Get().RunnerMaxConnectionsPerService)
+	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+
+	ctx, cancel := context.WithCancel(t.Context())
+	runErr := make(chan error, 1)
+	go func() { runErr <- client.Run(ctx) }()
+
+	<-listing
+	cancel()
+
+	select {
+	case err := <-runErr:
+		require.NoError(t, err)
+	case <-time.After(10 * time.Second):
+		t.Fatal("Run did not return while the Agents list was blocked")
+	}
+
+	select {
+	case <-client.Done():
+	case <-time.After(10 * time.Second):
+		t.Fatal("Done() waited for the Agents list: pmm-agent would never reconnect")
+	}
+}
+
 func TestDoneClosesAfterCancel(t *testing.T) {
 	serverMD := &agentv1.ServerConnectMetadata{
 		ServerVersion: t.Name(),
