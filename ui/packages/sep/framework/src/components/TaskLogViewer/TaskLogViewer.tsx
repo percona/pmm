@@ -243,10 +243,10 @@ export function TaskLogViewer({
   const [logTailChoice, setLogTailChoice] = useState<LogTailLineChoice>(
     readStoredLogTailChoice
   );
-  // A live stream that reached its `finish` frame already holds the whole log.
-  // Re-fetching it capped when the polled status turns terminal only blanks
-  // the pane and loses the scroll position, so the uncapped stream is kept. A
-  // stream cut short never sees `finish`, and that one is still reloaded.
+  // A live stream that ended with a terminal `finish` already holds the whole
+  // log. Re-fetching it capped when the polled status turns terminal only
+  // blanks the pane and loses the scroll position, so it is kept. A stream cut
+  // short, or whose `finish` is non-terminal, is still reloaded.
   const [completeLiveLogId, setCompleteLiveLogId] = useState<
     TaskLogViewerProps['taskHistoryId'] | null
   >(null);
