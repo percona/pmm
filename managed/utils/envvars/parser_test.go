@@ -546,6 +546,16 @@ func TestRedactSecretEnvVar(t *testing.T) {
 		{key: "PMM_VM_URL", value: "user:secret@victoriametrics:8428", expected: "<redacted>@victoriametrics:8428"},
 		{key: "PMM_VM_URL", value: "user:secret@victoriametrics:8428/path", expected: "<redacted>@victoriametrics:8428/path"},
 		{key: "PMM_VM_URL", value: "victoriametrics:8428", expected: "victoriametrics:8428"},
+		{
+			key:      "VMAGENT_remoteWrite_url",
+			value:    "https://u1:s1@vm1.example.com/api/v1/write,https://u2:s2@vm2.example.com/api/v1/write",
+			expected: "https://<redacted>@vm1.example.com/api/v1/write,https://<redacted>@vm2.example.com/api/v1/write",
+		},
+		{
+			key:      "VMAGENT_remoteWrite_url",
+			value:    "https://vm1.example.com/api/v1/write,https://u2:s2@vm2.example.com/api/v1/write",
+			expected: "https://vm1.example.com/api/v1/write,https://<redacted>@vm2.example.com/api/v1/write",
+		},
 		{key: "PMM_PUBLIC_ADDRESS", value: "pmm.example.com", expected: "pmm.example.com"},
 	}
 	for _, tt := range tests {

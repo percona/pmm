@@ -356,35 +356,8 @@ func redactSecretEnvVar(key, value string) string {
 	}
 
 	// A URL with userinfo (PMM_VM_URL, VMAGENT_remoteWrite_url): keep scheme and host, drop the
-	// credentials. A scheme-less user:pass@host parses as an opaque URL with no userinfo, so it is
-	// parsed as an authority instead. A value that does not parse cannot be split, so it is
-	// redacted whole when it might carry credentials.
-	schemeless := !strings.Contains(value, "://")
-	raw := value
-	if schemeless {
-		raw = "//" + value
-	}
-	u, err := url.Parse(raw)
-	if err != nil {
-		if strings.Contains(value, "@") {
-			return "<redacted>"
-		}
-		return value
-	}
-	if u.User == nil {
-		return value
-	}
-	u.User = nil
-	stripped := u.String()
-	if schemeless {
-		return "<redacted>@" + strings.TrimPrefix(stripped, "//")
-	}
-	scheme := strings.Index(stripped, "://")
-	if scheme >= 0 {
-		return stripped[:scheme+3] + "<redacted>@" + stripped[scheme+3:]
-	}
-
-	return stripped
+	// credentials.
+	return models.RedactURLCredentials(value)
 }
 
 // Names of the vmagent remote-write variables PMM Server sets by default. An operator may inject

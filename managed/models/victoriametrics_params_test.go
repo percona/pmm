@@ -108,5 +108,74 @@ func TestParseVictoriaMetricsURL(t *testing.T) {
 		require.Error(t, err)
 		assert.NotContains(t, err.Error(), "secret")
 		assert.NotContains(t, err.Error(), "vmadmin")
+
+		// A missing scheme is the likeliest way to get this variable wrong, and it is the one
+		// shape url.Parse leaves in Opaque, where there is no URL.User to clear.
+		_, err = ParseVictoriaMetricsURL("vmadmin:secret@vm.example.com/prometheus")
+		require.Error(t, err)
+		assert.NotContains(t, err.Error(), "secret")
+		assert.NotContains(t, err.Error(), "vmadmin")
+		assert.Contains(t, err.Error(), "vm.example.com")
 	})
+}
+
+func TestRedactURLCredentials(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name  string
+		value string
+		want  string
+	}{
+		{
+			name:  "no credentials is left alone",
+			value: "https://vm.example.com/api/v1/write",
+			want:  "https://vm.example.com/api/v1/write",
+		},
+		{
+			name:  "userinfo is replaced",
+			value: "https://user:secret@vm.example.com/api/v1/write",
+			want:  "https://<redacted>@vm.example.com/api/v1/write",
+		},
+		{
+			name:  "a username alone is replaced",
+			value: "https://user@vm.example.com/api/v1/write",
+			want:  "https://<redacted>@vm.example.com/api/v1/write",
+		},
+		{
+			name:  "a scheme-less value is parsed as an authority",
+			value: "user:secret@vm.example.com/prometheus",
+			want:  "<redacted>@vm.example.com/prometheus",
+		},
+		{
+			name:  "every element of a list is redacted",
+			value: "https://u1:s1@vm1.example.com/api/v1/write,https://u2:s2@vm2.example.com/api/v1/write",
+			want:  "https://<redacted>@vm1.example.com/api/v1/write,https://<redacted>@vm2.example.com/api/v1/write",
+		},
+		{
+			name:  "a list redacts the elements that carry credentials",
+			value: "https://vm1.example.com/api/v1/write,https://u2:s2@vm2.example.com/api/v1/write",
+			want:  "https://vm1.example.com/api/v1/write,https://<redacted>@vm2.example.com/api/v1/write",
+		},
+		{
+			name:  "an element that cannot be parsed is redacted whole",
+			value: "https://u1:s1@vm1.example.com/write,https://u2:s2@[::1",
+			want:  "https://<redacted>@vm1.example.com/write,<redacted>",
+		},
+		{
+			name:  "an unparseable element without credentials is left alone",
+			value: "http://[::1",
+			want:  "http://[::1",
+		},
+		{
+			name:  "an empty value stays empty",
+			value: "",
+			want:  "",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, RedactURLCredentials(tc.value))
+		})
+	}
 }

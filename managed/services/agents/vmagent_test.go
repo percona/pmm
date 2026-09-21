@@ -44,6 +44,12 @@ const (
 	testVMAuthUsernameOnly = "http://victoriametrics_pmm@pmm-ha-vmauth.pmm.svc.cluster.local:8427/"
 	testVMAuthWrite        = "http://pmm-ha-vmauth.pmm.svc.cluster.local:8427/api/v1/write"
 	testInjectedURL        = "https://collector.example.com/api/v1/write"
+	// A comma-separated list of remote-write URLs, the shape vmagent takes, where every element
+	// carries its own credentials.
+	testInjectedURLList = "https://collector:secret@collector.example.com/api/v1/write," +
+		"https://mirror:other-secret@mirror.example.com/api/v1/write"
+	testInjectedURLListRedacted = "https://<redacted>@collector.example.com/api/v1/write," +
+		"https://<redacted>@mirror.example.com/api/v1/write"
 )
 
 func testLogger() *logrus.Entry {
@@ -196,10 +202,22 @@ func TestVMAgentConfigDebugLog(t *testing.T) {
 		vmAgentConfig(l, "", newVMParams(t, models.VMBaseURL), vmAgentDeployment{})
 		entry := hook.LastEntry()
 		assert.Equal(t, credentialNone, entry.Data["credential_source"])
-		assert.Equal(t, testInjectedURL, entry.Data["remote_write_url"])
+		assert.Equal(t, "https://<redacted>@collector.example.com/api/v1/write", entry.Data["remote_write_url"])
 		line, err := entry.String()
 		require.NoError(t, err)
 		assert.NotContains(t, line, "secret")
+	})
+
+	t.Run("every element of an injected URL list is logged without its userinfo", func(t *testing.T) {
+		hook.Reset()
+		t.Setenv(envRemoteWriteURL, testInjectedURLList)
+		vmAgentConfig(l, "", newVMParams(t, models.VMBaseURL), vmAgentDeployment{})
+		entry := hook.LastEntry()
+		assert.Equal(t, testInjectedURLListRedacted, entry.Data["remote_write_url"])
+		line, err := entry.String()
+		require.NoError(t, err)
+		assert.NotContains(t, line, "secret")
+		assert.NotContains(t, line, "other-secret")
 	})
 
 	t.Run("injected credentials are reported as the source", func(t *testing.T) {

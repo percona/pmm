@@ -25,6 +25,7 @@ import (
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
 )
 
@@ -229,13 +230,10 @@ func buildVMAgentProcess(l *logrus.Entry, scrapeCfg string, rw remoteWrite) *age
 	}
 	remoteWriteURL := rw.url
 	if urlInjected {
-		// The injected URL may carry userinfo; log it without.
-		remoteWriteURL = "injected"
-		u, err := url.Parse(injectedURL)
-		if err == nil {
-			u.User = nil
-			remoteWriteURL = u.String()
-		}
+		// The injected URL may carry userinfo, and may be the comma-separated list vmagent
+		// accepts; log every element without its credentials. rw.url never carries any, because
+		// vmRemoteWrite moves them into the pair.
+		remoteWriteURL = models.RedactURLCredentials(injectedURL)
 	}
 	l.WithFields(logrus.Fields{
 		"remote_write_url":  remoteWriteURL,

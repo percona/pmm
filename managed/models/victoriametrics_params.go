@@ -61,13 +61,58 @@ func ParseVictoriaMetricsURL(vmURL string) (*url.URL, error) {
 		return nil, fmt.Errorf("invalid VictoriaMetrics URL: %w", err)
 	}
 	if (URL.Scheme != "http" && URL.Scheme != "https") || URL.Host == "" || URL.Opaque != "" {
-		// Redacted keeps the username, so drop the whole userinfo on a copy before naming the value.
-		sanitized := *URL
-		sanitized.User = nil
-		return nil, fmt.Errorf("invalid VictoriaMetrics URL '%s': expected http(s)://host[:port][/path]", sanitized.String())
+		// A scheme-less value is exactly the shape that lands here, and url.Parse leaves its
+		// credentials in Opaque, where clearing URL.User would not reach them.
+		return nil, fmt.Errorf("invalid VictoriaMetrics URL '%s': expected http(s)://host[:port][/path]", RedactURLCredentials(vmURL))
 	}
 
 	return URL, nil
+}
+
+// RedactURLCredentials replaces the userinfo of every URL in value with <redacted>, for URLs that
+// reach a log line or an error message. The value may be a comma-separated list, the shape vmagent
+// takes for a remote-write URL, and each element is redacted on its own: parsing the list as a
+// single URL leaves everything after the first comma in the path, where the userinfo of the
+// remaining elements survives untouched.
+func RedactURLCredentials(value string) string {
+	elements := strings.Split(value, ",")
+	for i, element := range elements {
+		elements[i] = redactURLElementCredentials(element)
+	}
+
+	return strings.Join(elements, ",")
+}
+
+// redactURLElementCredentials redacts one URL. A scheme-less user:pass@host parses as an opaque
+// URL with no userinfo to drop, so it is parsed as an authority instead. A value that does not
+// parse cannot be split, so it is redacted whole when it might carry credentials.
+func redactURLElementCredentials(value string) string {
+	schemeless := !strings.Contains(value, "://")
+	raw := value
+	if schemeless {
+		raw = "//" + value
+	}
+	u, err := url.Parse(raw)
+	if err != nil {
+		if strings.Contains(value, "@") {
+			return "<redacted>"
+		}
+		return value
+	}
+	if u.User == nil {
+		return value
+	}
+	u.User = nil
+	stripped := u.String()
+	if schemeless {
+		return "<redacted>@" + strings.TrimPrefix(stripped, "//")
+	}
+	scheme := strings.Index(stripped, "://")
+	if scheme >= 0 {
+		return stripped[:scheme+3] + "<redacted>@" + stripped[scheme+3:]
+	}
+
+	return stripped
 }
 
 // NewVictoriaMetricsParams - returns configuration params for VictoriaMetrics.
