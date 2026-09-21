@@ -226,7 +226,7 @@ func (pf *ProfilerFingerprinter) fingerprintCommand(fp fingerprinter.Fingerprint
 // fingerprints - and the query IDs derived from them - identical across Go
 // versions, and matches the extended JSON produced by the MongoDB driver.
 func marshalJSON(v any) []byte {
-	b, _ := json.Marshal(v) //nolint:errchkjson // values are masked maps of JSON-safe types
+	b, _ := json.Marshal(v) //nolint:errchkjson
 	if !bytes.ContainsRune(b, utf8.RuneError) {
 		return b
 	}
