@@ -44,6 +44,7 @@ import {
   TaskHistoryStatusBadge,
   TaskLogViewer,
   formatTimestamp,
+  isRunningStatus,
   isTaskHistoryStatus,
   useActionError,
   useHasDownloadableFiles,
@@ -636,6 +637,11 @@ function ExecutionRow({
   // Probed only once the run is finished: a running task's file listing is
   // not yet meaningful, and the endpoint's answer for it is not stable.
   const hasFiles = useHasDownloadableFiles(task_history_id, selectable);
+  // `has_logs` reports only the log SEP has already captured, which trails a
+  // running execution — sometimes by its whole length — so while it runs the
+  // viewer's own stream is what shows the output.
+  const logsUnavailable =
+    has_logs === false && !(task_status && isRunningStatus(task_status));
 
   return (
     <Accordion
@@ -760,7 +766,7 @@ function ExecutionRow({
 
         <Divider sx={{ mb: 2 }} />
 
-        {has_logs === false ? (
+        {logsUnavailable ? (
           <Typography variant="body2" color="text.secondary">
             No logs available for this execution.
           </Typography>
