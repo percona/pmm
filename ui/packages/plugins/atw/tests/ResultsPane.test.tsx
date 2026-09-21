@@ -15,7 +15,13 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
@@ -177,7 +183,7 @@ describe('ResultsPane recorded arguments', () => {
     vi.clearAllMocks();
   });
 
-  it('renders the masked arguments in the collapsed summary', async () => {
+  it('keeps the command line out of the collapsed row', async () => {
     mockedApi.get.mockResolvedValue(
       paginated([executionWithArgs({ masked_args: MASKED_ARGS })])
     );
@@ -185,11 +191,14 @@ describe('ResultsPane recorded arguments', () => {
     renderPane(<ResultsPane incidentId="inc-1" />);
 
     await waitFor(() => {
-      expect(screen.getByText(MASKED_ARGS)).toBeTruthy();
+      expect(screen.getByText('diag/mongo.sh')).toBeTruthy();
     });
+    // The filename is the row's fallback label here (this fixture carries no
+    // title), but the command line has no business in a list of runs at all.
+    expect(screen.queryByText(MASKED_ARGS)).not.toBeInTheDocument();
   });
 
-  it('renders the arguments in the expanded body as well as the summary', async () => {
+  it('renders the arguments once, behind the expand', async () => {
     mockedApi.get.mockResolvedValue(
       paginated([executionWithArgs({ masked_args: MASKED_ARGS })])
     );
@@ -202,11 +211,11 @@ describe('ResultsPane recorded arguments', () => {
     fireEvent.click(screen.getByText('diag/mongo.sh'));
 
     await waitFor(() => {
-      expect(screen.getAllByText(MASKED_ARGS)).toHaveLength(2);
+      expect(screen.getAllByText(MASKED_ARGS)).toHaveLength(1);
     });
   });
 
-  it('wraps the arguments in the body while the summary keeps them on one line', async () => {
+  it('wraps a long command line rather than clipping it', async () => {
     const longArgs = `--dest /var/tmp/${'long-path-segment/'.repeat(12)} --password ***`;
     mockedApi.get.mockResolvedValue(
       paginated([executionWithArgs({ masked_args: longArgs })])
@@ -220,11 +229,9 @@ describe('ResultsPane recorded arguments', () => {
     fireEvent.click(screen.getByText('diag/mongo.sh'));
 
     await waitFor(() => {
-      expect(screen.getAllByText(longArgs)).toHaveLength(2);
+      expect(screen.getAllByText(longArgs)).toHaveLength(1);
     });
-    const [summaryLine, bodyLine] = screen.getAllByText(longArgs);
-    expect(getComputedStyle(summaryLine).whiteSpace).toBe('nowrap');
-    expect(getComputedStyle(summaryLine).textOverflow).toBe('ellipsis');
+    const [bodyLine] = screen.getAllByText(longArgs);
     expect(getComputedStyle(bodyLine).whiteSpace).toBe('pre-wrap');
   });
 
@@ -1505,5 +1512,167 @@ describe('ResultsPane rerun actions', () => {
     await waitFor(() => {
       expect(runAgainButtons[1]).not.toBeDisabled();
     });
+  });
+});
+
+// ── The row as a report entry, not a filename (PMM-15512) ────────────────
+
+describe('ResultsPane execution rows', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  /** A finished run with everything the row is meant to name. */
+  const NAMED_EXECUTION = {
+    id: 'exec-named',
+    snippet_filename: 'pt-mysql-summary.sh',
+    snippet_title: 'MySQL Summary',
+    executor_host: 'db-node-1',
+    task_history_id: 31,
+    created_at: '2026-07-22T09:59:00Z',
+    started_at: '2026-07-22T10:00:00Z',
+    finished_at: '2026-07-22T10:00:42Z',
+    task_status: 'success',
+    has_logs: false,
+    masked_args: '--host db-node-1 --password ***',
+    args_withheld: false,
+  };
+
+  it('names the run by its title, host, start and duration', async () => {
+    routeGet({
+      executions: {
+        items: [NAMED_EXECUTION],
+        total: 1,
+        offset: 0,
+        limit: 20,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('MySQL Summary')).toBeTruthy();
+    });
+    expect(screen.getByText('db-node-1')).toBeTruthy();
+    // 10:00:00 to 10:00:42, held by the wire and not by a ticking clock.
+    expect(screen.getByText('42.0s')).toBeTruthy();
+    expect(
+      screen.getByTitle(
+        `${new Date('2026-07-22T10:00:00Z').toLocaleString()} (${browserTimezone()})`
+      )
+    ).toBeTruthy();
+    // The script's filename identifies the script, not the run — it belongs
+    // behind the expand, and the pane opened with every row collapsed.
+    expect(screen.queryByText('pt-mysql-summary.sh')).not.toBeInTheDocument();
+  });
+
+  it('falls back to the filename until the title is served', async () => {
+    routeGet({
+      executions: {
+        items: [{ ...NAMED_EXECUTION, snippet_title: null }],
+        total: 1,
+        offset: 0,
+        limit: 20,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('pt-mysql-summary.sh')).toBeTruthy();
+    });
+  });
+
+  it('counts up while a run is still going', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(new Date('2026-07-22T10:00:05Z'));
+    routeGet({
+      executions: {
+        items: [
+          {
+            ...NAMED_EXECUTION,
+            id: 'exec-live',
+            task_status: 'running',
+            finished_at: null,
+          },
+        ],
+        total: 1,
+        offset: 0,
+        limit: 20,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('5.0s')).toBeTruthy();
+    });
+
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+    expect(screen.getByText('8.0s')).toBeTruthy();
+    vi.useRealTimers();
+  });
+
+  it('says a run is only queued rather than inventing a start time', async () => {
+    routeGet({
+      executions: {
+        items: [
+          {
+            ...NAMED_EXECUTION,
+            id: 'exec-queued',
+            task_status: 'pending',
+            started_at: null,
+            finished_at: null,
+          },
+        ],
+        total: 1,
+        offset: 0,
+        limit: 20,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/^Queued /)).toBeTruthy();
+    });
+    // No start means no elapsed time to report, and `0s` would be a lie.
+    expect(screen.getByText('—')).toBeTruthy();
+  });
+
+  it('names every condition holding the send action back, not just one', async () => {
+    routeGet({
+      executions: {
+        items: [NAMED_EXECUTION],
+        total: 1,
+        offset: 0,
+        limit: 20,
+      },
+      config: {
+        send_disabled_reasons: ['Diagnostics delivery is not configured.'],
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /Send to support case/i })
+      ).toBeTruthy();
+    });
+
+    fireEvent.mouseOver(
+      screen.getByRole('button', { name: /Send to support case/i })
+    );
+
+    // Both are true at once on a fresh pane, and fixing only the one named
+    // leaves the button just as grey.
+    const tip = await screen.findByRole('tooltip');
+    expect(tip.textContent).toContain(
+      'Diagnostics delivery is not configured.'
+    );
+    expect(tip.textContent).toContain('Select one or more finished executions');
   });
 });

@@ -26,10 +26,27 @@ import {
 import { QueryWrapper } from '../../../../tests/queryWrapper';
 import { TaskLogViewer } from '../TaskLogViewer';
 
-// Stub the log-viewer lib: real one depends on DOM APIs jsdom lacks.
+// Stub the log-viewer lib: real one depends on DOM APIs jsdom lacks. The props
+// the viewer drives are mirrored onto data attributes so they can be asserted
+// on — `follow` in particular decides whether a report opens at its top or at
+// its tail, which is not otherwise observable through this stub.
 vi.mock('@melloware/react-logviewer', () => ({
-  LazyLog: ({ text }: { text: string }) => (
-    <pre data-testid="log-output">{text}</pre>
+  LazyLog: ({
+    text,
+    follow,
+    wrapLines,
+  }: {
+    text: string;
+    follow?: boolean;
+    wrapLines?: boolean;
+  }) => (
+    <pre
+      data-testid="log-output"
+      data-follow={String(Boolean(follow))}
+      data-wrap={String(Boolean(wrapLines))}
+    >
+      {text}
+    </pre>
   ),
 }));
 
@@ -63,6 +80,12 @@ describe('TaskLogViewer', () => {
     vi.unstubAllGlobals();
     vi.clearAllMocks();
     globalThis.localStorage.clear();
+    // The copy cases redefine this; leaving one test's stub in place would let
+    // a later one assert against a clipboard it never installed.
+    Object.defineProperty(navigator, 'clipboard', {
+      value: undefined,
+      configurable: true,
+    });
   });
 
   function streamUrlFor(id: string): string {
@@ -884,5 +907,205 @@ describe('TaskLogViewer', () => {
     const user = userEvent.setup();
     await user.click(errorDetailsToggle);
     expect(errorDetailsToggle).toHaveAttribute('aria-expanded', 'true');
+  });
+  // ── Reading a report rather than tailing a log (PMM-15512) ─────────────
+
+  /** Mount a viewer for `id` and push one stdout line into its stream. */
+  async function renderWithOutput(
+    id: string,
+    taskStatus: string,
+    text = 'line-1\n'
+  ) {
+    render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId={id} taskStatus={taskStatus} />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    const handle = getHandle(id);
+    act(() => {
+      handle.pushMessage({
+        msg: text,
+        step: 'run',
+        type: 'stdout',
+        offset: 1,
+      });
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId('log-output')).toBeInTheDocument()
+    );
+    return handle;
+  }
+
+  it('opens a finished report at the top and only tails a live run', async () => {
+    await renderWithOutput('501', 'SUCCESS');
+    expect(screen.getByTestId('log-output')).toHaveAttribute(
+      'data-follow',
+      'false'
+    );
+    // Wrapping is what makes a 137-line summary readable without a horizontal
+    // scrollbar, so it is on from the first paint, not after a toggle.
+    expect(screen.getByTestId('log-output')).toHaveAttribute(
+      'data-wrap',
+      'true'
+    );
+  });
+
+  it('follows the tail while the run is still going', async () => {
+    await renderWithOutput('502', 'RUNNING');
+    expect(screen.getByTestId('log-output')).toHaveAttribute(
+      'data-follow',
+      'true'
+    );
+  });
+
+  it('stops following once the stream reports the run finished', async () => {
+    const handle = await renderWithOutput('509', 'RUNNING');
+    expect(screen.getByTestId('log-output')).toHaveAttribute(
+      'data-follow',
+      'true'
+    );
+
+    // The caller's `taskStatus` prop is frozen at whatever it last rendered, so
+    // the stream's own `finish` event is what releases the tail.
+    act(() => {
+      handle.pushNamed('finish', { status: 'success' });
+    });
+
+    await waitFor(() =>
+      expect(screen.getByTestId('log-output')).toHaveAttribute(
+        'data-follow',
+        'false'
+      )
+    );
+  });
+
+  it('still tails a run whose caller declared no status', async () => {
+    // `SnippetExecutionAccordion` mounts the viewer against a task it has just
+    // launched and passes no `taskStatus`. Gating the tail on that prop alone
+    // would leave a live log sitting still while its output arrived off-screen.
+    render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="510" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    const handle = getHandle('510');
+    act(() => {
+      handle.pushMessage({
+        msg: 'live output\n',
+        step: 'run',
+        type: 'stdout',
+        offset: 1,
+      });
+    });
+
+    await waitFor(() =>
+      expect(screen.getByTestId('log-output')).toHaveAttribute(
+        'data-follow',
+        'true'
+      )
+    );
+  });
+
+  it('names the line-cap control instead of leaving "Last 1000" bare', async () => {
+    await renderWithOutput('503', 'SUCCESS', lines(2000));
+    expect(
+      screen.getByRole('combobox', { name: /lines loaded/i })
+    ).toHaveTextContent('Last 1000');
+  });
+
+  it('offers expand only once the output outgrows the pane', async () => {
+    await renderWithOutput('504', 'SUCCESS', 'one line\n');
+    expect(
+      screen.getByRole('button', { name: /expand output/i })
+    ).toBeDisabled();
+  });
+
+  it('expands a long report and collapses it again', async () => {
+    // Comfortably past the default 480px ceiling at 19px a row.
+    await renderWithOutput('505', 'SUCCESS', lines(200));
+
+    const user = userEvent.setup();
+    const expand = screen.getByRole('button', { name: /expand output/i });
+    expect(expand).toBeEnabled();
+    await user.click(expand);
+
+    const collapse = await screen.findByRole('button', {
+      name: /collapse output/i,
+    });
+    await user.click(collapse);
+    expect(
+      screen.getByRole('button', { name: /expand output/i })
+    ).toBeInTheDocument();
+  });
+
+  it('takes the whole viewer full screen and back', async () => {
+    await renderWithOutput('506', 'SUCCESS', 'payload\n');
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: /^full screen$/i }));
+
+    const dialog = await screen.findByRole('dialog');
+    // The viewer itself moved, so the log and its toolbar are inside — not a
+    // second copy of the pane overlaid on the first.
+    expect(within(dialog).getByTestId('log-output')).toHaveTextContent(
+      'payload'
+    );
+    expect(screen.getAllByTestId('log-output')).toHaveLength(1);
+
+    await user.click(
+      within(dialog).getByRole('button', { name: /exit full screen/i })
+    );
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(screen.getByTestId('log-output')).toHaveTextContent('payload');
+  });
+
+  it('copies the visible output without a download', async () => {
+    vi.stubGlobal('isSecureContext', true);
+    await renderWithOutput('507', 'SUCCESS', 'report body\n');
+
+    // `userEvent.setup()` installs a clipboard stub of its own, so the spy goes
+    // on afterwards or it is the one that gets replaced.
+    const user = userEvent.setup();
+    const writeText = vi.fn(async () => {});
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText },
+      configurable: true,
+    });
+
+    await user.click(screen.getByRole('button', { name: /copy log/i }));
+
+    // The button reports the copy landed, so nobody clicks it twice wondering.
+    expect(
+      await screen.findByRole('button', { name: /^copied$/i })
+    ).toBeInTheDocument();
+    expect(writeText).toHaveBeenCalledWith('report body\n');
+  });
+
+  it('keeps Copy usable when the clipboard is refused', async () => {
+    // What an operator on a plain-HTTP PMM Server hits: no secure context, so
+    // no `navigator.clipboard`, and jsdom has no `execCommand` either.
+    vi.stubGlobal('isSecureContext', false);
+    await renderWithOutput('508', 'SUCCESS', 'report body\n');
+
+    const user = userEvent.setup();
+    Object.defineProperty(navigator, 'clipboard', {
+      value: undefined,
+      configurable: true,
+    });
+
+    await user.click(screen.getByRole('button', { name: /copy log/i }));
+
+    // No crash, no false "Copied", and Download is still there to fall back on.
+    expect(
+      screen.getByRole('button', { name: /copy log/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /download log/i })
+    ).toBeInTheDocument();
   });
 });

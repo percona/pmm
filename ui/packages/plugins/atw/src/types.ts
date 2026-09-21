@@ -105,7 +105,25 @@ export interface AtwRerunRequest {
 
 // ── Incident execution history ───────────────────────────────────────────
 
-export type AtwIncidentExecution = Schemas['atw__ATWIncidentExecutionResponse'];
+/**
+ * One recorded execution, as the Results pane renders it.
+ *
+ * `snippet_title` and `executor_host` are widened onto the generated schema
+ * rather than waiting for it: the side-car adds both under PMM-15520, and
+ * neither can be reached from this pane any other way. The title lives on a
+ * different resource, and no endpoint that serves titles yields a complete
+ * filename-to-title map — the category listing is filtered by a presentation
+ * tag and the search endpoint is paginated, so an execution can name a snippet
+ * neither returns. The host is recorded on the batch, not the execution, and
+ * `/api/sep/task-history/` filters only by task name and status. So both are
+ * optional, and every reader falls back: the title to the filename, the host to
+ * showing nothing. Drop these two once the regenerated spec carries them.
+ */
+export type AtwIncidentExecution =
+  Schemas['atw__ATWIncidentExecutionResponse'] & {
+    snippet_title?: string | null;
+    executor_host?: string | null;
+  };
 
 // ── Diagnostics send ─────────────────────────────────────────────────────
 

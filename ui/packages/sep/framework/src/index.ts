@@ -191,6 +191,7 @@ export {
   useTaskLogs,
   useExecutionEvents,
   useLogDownload,
+  useCopyToClipboard,
   useTaskHistory,
   useTaskHistoryByName,
   useTaskHistoryByNames,

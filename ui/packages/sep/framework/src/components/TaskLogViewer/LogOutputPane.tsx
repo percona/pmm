@@ -19,12 +19,39 @@ import { LazyLog } from '@melloware/react-logviewer';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
+/**
+ * Keep LazyLog's search bar from announcing a result count nobody asked for.
+ *
+ * The bar always renders `0 matches`, before a single character is typed — the
+ * library offers no prop to suppress it and no hook to tell "not searched yet"
+ * from "searched, found nothing". The input's own emptiness is the signal, and
+ * `:placeholder-shown` is the only way to read it from CSS.
+ *
+ * `visibility` rather than `display`, so the bar's controls do not shift
+ * sideways the moment a search begins. A genuine zero-result search still
+ * reports itself: once the box holds text, the count reappears.
+ *
+ * A single typed character is still "before a search" to the library, whose
+ * `searchMinCharacters` is 2 — that case keeps showing `0 matches`. CSS cannot
+ * count characters, and the state lasts one keystroke.
+ */
+const HIDE_UNSEARCHED_MATCH_COUNT = {
+  '& .react-lazylog-searchbar:has(.react-lazylog-searchbar-input:placeholder-shown) .react-lazylog-searchbar-matches':
+    { visibility: 'hidden' },
+} as const;
+
 export interface LogOutputPaneProps {
   text: string;
   wrap: boolean;
   enableSearch?: boolean;
   height?: number | string;
   emptyLabel?: string;
+  /**
+   * Whether the pane sticks to the last line as text arrives. Off by default:
+   * a finished report is read from the top, and only a run still producing
+   * output wants tailing.
+   */
+  follow?: boolean;
 }
 
 export function LogOutputPane({
@@ -33,6 +60,7 @@ export function LogOutputPane({
   enableSearch = true,
   height = 400,
   emptyLabel = 'No output yet.',
+  follow = false,
 }: LogOutputPaneProps) {
   if (!text) {
     return (
@@ -43,13 +71,13 @@ export function LogOutputPane({
   }
 
   return (
-    <Box sx={{ height, width: '100%' }}>
+    <Box sx={{ height, width: '100%', ...HIDE_UNSEARCHED_MATCH_COUNT }}>
       <LazyLog
         text={text}
         extraLines={1}
         enableSearch={enableSearch}
         wrapLines={wrap}
-        follow
+        follow={follow}
         selectableLines
         caseInsensitive
       />
