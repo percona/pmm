@@ -3,6 +3,7 @@ templates:
   - name: pmm_postgresql_high_transaction_rollbacks
     version: 1
     summary: PostgreSQL high rate of transaction rollbacks
+    category: postgresql
     queries:
       - ref_id: A
         expr: |-

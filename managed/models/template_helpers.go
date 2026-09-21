@@ -132,41 +132,23 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template: %v.", err)
 	}
 
-	yaml, err := alert.ToYAML([]alert.Template{*template})
+	// Reuse ConvertTemplate rather than mapping every field again: a second copy of
+	// the mapping silently drops any field added to only one of them.
+	updated, err := ConvertTemplate(template, row.Source)
 	if err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.InvalidArgument, "Failed to convert template: %v.", err)
 	}
 
-	p, err := ConvertParamsDefinitions(params.Template.Params)
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template parameters: %v.", err)
-	}
+	// CreatedAt is not part of the incoming template, so keep the stored value.
+	// UpdatedAt is set by BeforeUpdate.
+	updated.CreatedAt = row.CreatedAt
 
-	row.Name = template.Name
-	row.Version = template.Version
-	row.Summary = template.Summary
-	row.Expr = template.StoredExpr()
-	row.Params = p
-	row.For = time.Duration(template.For)
-	row.Severity = Severity(template.Severity)
-	row.Yaml = yaml
-
-	err = row.SetLabels(template.Labels)
-	if err != nil {
-		return nil, err
-	}
-
-	err = row.SetAnnotations(template.Annotations)
-	if err != nil {
-		return nil, err
-	}
-
-	err = q.Update(row)
+	err = q.Update(updated)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update rule template: %w", err)
 	}
 
-	return row, nil
+	return updated, nil
 }
 
 // RemoveTemplate removes rule template with specified name.
@@ -204,6 +186,7 @@ func ConvertTemplate(template *alert.Template, source Source) (*Template, error)
 		For:      time.Duration(template.For),
 		Severity: Severity(template.Severity),
 		Source:   source,
+		Category: TemplateCategory(template.Category.OrDefault()),
 		Yaml:     yaml,
 	}
 

@@ -3,6 +3,7 @@ templates:
   - name: pmm_mongodb_down
     version: 1
     summary: MongoDB down
+    category: mongodb
     expr: |
       (
         # enabled exporters we should be watching (from inventory — always present)

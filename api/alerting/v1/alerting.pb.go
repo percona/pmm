@@ -88,6 +88,76 @@ func (TemplateSource) EnumDescriptor() ([]byte, []int) {
 	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{0}
 }
 
+// TemplateCategory defines the technology an alert template applies to.
+type TemplateCategory int32
+
+const (
+	// Invalid, unknown or absent.
+	TemplateCategory_TEMPLATE_CATEGORY_UNSPECIFIED TemplateCategory = 0
+	// PMM's own components, such as agents and backups.
+	TemplateCategory_TEMPLATE_CATEGORY_PMM        TemplateCategory = 1
+	TemplateCategory_TEMPLATE_CATEGORY_MONGODB    TemplateCategory = 2
+	TemplateCategory_TEMPLATE_CATEGORY_MYSQL      TemplateCategory = 3
+	TemplateCategory_TEMPLATE_CATEGORY_NODE       TemplateCategory = 4
+	TemplateCategory_TEMPLATE_CATEGORY_POSTGRESQL TemplateCategory = 5
+	TemplateCategory_TEMPLATE_CATEGORY_PROXYSQL   TemplateCategory = 6
+	TemplateCategory_TEMPLATE_CATEGORY_VALKEY     TemplateCategory = 7
+	TemplateCategory_TEMPLATE_CATEGORY_HAPROXY    TemplateCategory = 8
+)
+
+// Enum value maps for TemplateCategory.
+var (
+	TemplateCategory_name = map[int32]string{
+		0: "TEMPLATE_CATEGORY_UNSPECIFIED",
+		1: "TEMPLATE_CATEGORY_PMM",
+		2: "TEMPLATE_CATEGORY_MONGODB",
+		3: "TEMPLATE_CATEGORY_MYSQL",
+		4: "TEMPLATE_CATEGORY_NODE",
+		5: "TEMPLATE_CATEGORY_POSTGRESQL",
+		6: "TEMPLATE_CATEGORY_PROXYSQL",
+		7: "TEMPLATE_CATEGORY_VALKEY",
+		8: "TEMPLATE_CATEGORY_HAPROXY",
+	}
+	TemplateCategory_value = map[string]int32{
+		"TEMPLATE_CATEGORY_UNSPECIFIED": 0,
+		"TEMPLATE_CATEGORY_PMM":         1,
+		"TEMPLATE_CATEGORY_MONGODB":     2,
+		"TEMPLATE_CATEGORY_MYSQL":       3,
+		"TEMPLATE_CATEGORY_NODE":        4,
+		"TEMPLATE_CATEGORY_POSTGRESQL":  5,
+		"TEMPLATE_CATEGORY_PROXYSQL":    6,
+		"TEMPLATE_CATEGORY_VALKEY":      7,
+		"TEMPLATE_CATEGORY_HAPROXY":     8,
+	}
+)
+
+func (x TemplateCategory) Enum() *TemplateCategory {
+	p := new(TemplateCategory)
+	*p = x
+	return p
+}
+
+func (x TemplateCategory) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (TemplateCategory) Descriptor() protoreflect.EnumDescriptor {
+	return file_alerting_v1_alerting_proto_enumTypes[1].Descriptor()
+}
+
+func (TemplateCategory) Type() protoreflect.EnumType {
+	return &file_alerting_v1_alerting_proto_enumTypes[1]
+}
+
+func (x TemplateCategory) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use TemplateCategory.Descriptor instead.
+func (TemplateCategory) EnumDescriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{1}
+}
+
 // FilterType represents filter matching type.
 type FilterType int32
 
@@ -122,11 +192,11 @@ func (x FilterType) String() string {
 }
 
 func (FilterType) Descriptor() protoreflect.EnumDescriptor {
-	return file_alerting_v1_alerting_proto_enumTypes[1].Descriptor()
+	return file_alerting_v1_alerting_proto_enumTypes[2].Descriptor()
 }
 
 func (FilterType) Type() protoreflect.EnumType {
-	return &file_alerting_v1_alerting_proto_enumTypes[1]
+	return &file_alerting_v1_alerting_proto_enumTypes[2]
 }
 
 func (x FilterType) Number() protoreflect.EnumNumber {
@@ -135,7 +205,7 @@ func (x FilterType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use FilterType.Descriptor instead.
 func (FilterType) EnumDescriptor() ([]byte, []int) {
-	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{1}
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{2}
 }
 
 // BoolParamDefinition represents boolean parameter's default value.
@@ -582,7 +652,9 @@ type Template struct {
 	// Server-side expression steps for multi-query templates. Empty for single-expression templates.
 	Expressions []*TemplateExpression `protobuf:"bytes,13,rep,name=expressions,proto3" json:"expressions,omitempty"`
 	// Reference ID of the step used as the alert condition (e.g. "C"). Empty for single-expression templates.
-	Condition     string `protobuf:"bytes,14,opt,name=condition,proto3" json:"condition,omitempty"`
+	Condition string `protobuf:"bytes,14,opt,name=condition,proto3" json:"condition,omitempty"`
+	// Technology the template applies to. TEMPLATE_CATEGORY_UNSPECIFIED when the template declares no category.
+	Category      TemplateCategory `protobuf:"varint,15,opt,name=category,proto3,enum=alerting.v1.TemplateCategory" json:"category,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -713,6 +785,13 @@ func (x *Template) GetCondition() string {
 		return x.Condition
 	}
 	return ""
+}
+
+func (x *Template) GetCategory() TemplateCategory {
+	if x != nil {
+		return x.Category
+	}
+	return TemplateCategory_TEMPLATE_CATEGORY_UNSPECIFIED
 }
 
 type ListTemplatesRequest struct {
@@ -1475,7 +1554,7 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x1e\n" +
 	"\n" +
 	"expression\x18\x03 \x01(\tR\n" +
-	"expression\"\xff\x05\n" +
+	"expression\"\xba\x06\n" +
 	"\bTemplate\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\asummary\x18\x02 \x01(\tR\asummary\x12\x12\n" +
@@ -1492,7 +1571,8 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	"\x04yaml\x18\v \x01(\tR\x04yaml\x124\n" +
 	"\aqueries\x18\f \x03(\v2\x1a.alerting.v1.TemplateQueryR\aqueries\x12A\n" +
 	"\vexpressions\x18\r \x03(\v2\x1f.alerting.v1.TemplateExpressionR\vexpressions\x12\x1c\n" +
-	"\tcondition\x18\x0e \x01(\tR\tcondition\x1a9\n" +
+	"\tcondition\x18\x0e \x01(\tR\tcondition\x129\n" +
+	"\bcategory\x18\x0f \x01(\x0e2\x1d.alerting.v1.TemplateCategoryR\bcategory\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +
@@ -1557,7 +1637,17 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	"\x18TEMPLATE_SOURCE_BUILT_IN\x10\x01\x12\x18\n" +
 	"\x14TEMPLATE_SOURCE_SAAS\x10\x02\x12\x1d\n" +
 	"\x19TEMPLATE_SOURCE_USER_FILE\x10\x03\x12\x1c\n" +
-	"\x18TEMPLATE_SOURCE_USER_API\x10\x04*Z\n" +
+	"\x18TEMPLATE_SOURCE_USER_API\x10\x04*\xa7\x02\n" +
+	"\x10TemplateCategory\x12!\n" +
+	"\x1dTEMPLATE_CATEGORY_UNSPECIFIED\x10\x00\x12\x19\n" +
+	"\x15TEMPLATE_CATEGORY_PMM\x10\x01\x12\x1d\n" +
+	"\x19TEMPLATE_CATEGORY_MONGODB\x10\x02\x12\x1b\n" +
+	"\x17TEMPLATE_CATEGORY_MYSQL\x10\x03\x12\x1a\n" +
+	"\x16TEMPLATE_CATEGORY_NODE\x10\x04\x12 \n" +
+	"\x1cTEMPLATE_CATEGORY_POSTGRESQL\x10\x05\x12\x1e\n" +
+	"\x1aTEMPLATE_CATEGORY_PROXYSQL\x10\x06\x12\x1c\n" +
+	"\x18TEMPLATE_CATEGORY_VALKEY\x10\a\x12\x1d\n" +
+	"\x19TEMPLATE_CATEGORY_HAPROXY\x10\b*Z\n" +
 	"\n" +
 	"FilterType\x12\x1b\n" +
 	"\x17FILTER_TYPE_UNSPECIFIED\x10\x00\x12\x15\n" +
@@ -1585,80 +1675,82 @@ func file_alerting_v1_alerting_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_alerting_v1_alerting_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+	file_alerting_v1_alerting_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 	file_alerting_v1_alerting_proto_msgTypes  = make([]protoimpl.MessageInfo, 22)
 	file_alerting_v1_alerting_proto_goTypes   = []any{
 		TemplateSource(0),              // 0: alerting.v1.TemplateSource
-		FilterType(0),                  // 1: alerting.v1.FilterType
-		(*BoolParamDefinition)(nil),    // 2: alerting.v1.BoolParamDefinition
-		(*FloatParamDefinition)(nil),   // 3: alerting.v1.FloatParamDefinition
-		(*StringParamDefinition)(nil),  // 4: alerting.v1.StringParamDefinition
-		(*ParamDefinition)(nil),        // 5: alerting.v1.ParamDefinition
-		(*TemplateQuery)(nil),          // 6: alerting.v1.TemplateQuery
-		(*TemplateExpression)(nil),     // 7: alerting.v1.TemplateExpression
-		(*Template)(nil),               // 8: alerting.v1.Template
-		(*ListTemplatesRequest)(nil),   // 9: alerting.v1.ListTemplatesRequest
-		(*ListTemplatesResponse)(nil),  // 10: alerting.v1.ListTemplatesResponse
-		(*CreateTemplateRequest)(nil),  // 11: alerting.v1.CreateTemplateRequest
-		(*CreateTemplateResponse)(nil), // 12: alerting.v1.CreateTemplateResponse
-		(*UpdateTemplateRequest)(nil),  // 13: alerting.v1.UpdateTemplateRequest
-		(*UpdateTemplateResponse)(nil), // 14: alerting.v1.UpdateTemplateResponse
-		(*DeleteTemplateRequest)(nil),  // 15: alerting.v1.DeleteTemplateRequest
-		(*DeleteTemplateResponse)(nil), // 16: alerting.v1.DeleteTemplateResponse
-		(*Filter)(nil),                 // 17: alerting.v1.Filter
-		(*ParamValue)(nil),             // 18: alerting.v1.ParamValue
-		(*CreateRuleRequest)(nil),      // 19: alerting.v1.CreateRuleRequest
-		(*CreateRuleResponse)(nil),     // 20: alerting.v1.CreateRuleResponse
-		nil,                            // 21: alerting.v1.Template.LabelsEntry
-		nil,                            // 22: alerting.v1.Template.AnnotationsEntry
-		nil,                            // 23: alerting.v1.CreateRuleRequest.CustomLabelsEntry
-		ParamUnit(0),                   // 24: alerting.v1.ParamUnit
-		ParamType(0),                   // 25: alerting.v1.ParamType
-		(*durationpb.Duration)(nil),    // 26: google.protobuf.Duration
-		v1.Severity(0),                 // 27: management.v1.Severity
-		(*timestamppb.Timestamp)(nil),  // 28: google.protobuf.Timestamp
+		TemplateCategory(0),            // 1: alerting.v1.TemplateCategory
+		FilterType(0),                  // 2: alerting.v1.FilterType
+		(*BoolParamDefinition)(nil),    // 3: alerting.v1.BoolParamDefinition
+		(*FloatParamDefinition)(nil),   // 4: alerting.v1.FloatParamDefinition
+		(*StringParamDefinition)(nil),  // 5: alerting.v1.StringParamDefinition
+		(*ParamDefinition)(nil),        // 6: alerting.v1.ParamDefinition
+		(*TemplateQuery)(nil),          // 7: alerting.v1.TemplateQuery
+		(*TemplateExpression)(nil),     // 8: alerting.v1.TemplateExpression
+		(*Template)(nil),               // 9: alerting.v1.Template
+		(*ListTemplatesRequest)(nil),   // 10: alerting.v1.ListTemplatesRequest
+		(*ListTemplatesResponse)(nil),  // 11: alerting.v1.ListTemplatesResponse
+		(*CreateTemplateRequest)(nil),  // 12: alerting.v1.CreateTemplateRequest
+		(*CreateTemplateResponse)(nil), // 13: alerting.v1.CreateTemplateResponse
+		(*UpdateTemplateRequest)(nil),  // 14: alerting.v1.UpdateTemplateRequest
+		(*UpdateTemplateResponse)(nil), // 15: alerting.v1.UpdateTemplateResponse
+		(*DeleteTemplateRequest)(nil),  // 16: alerting.v1.DeleteTemplateRequest
+		(*DeleteTemplateResponse)(nil), // 17: alerting.v1.DeleteTemplateResponse
+		(*Filter)(nil),                 // 18: alerting.v1.Filter
+		(*ParamValue)(nil),             // 19: alerting.v1.ParamValue
+		(*CreateRuleRequest)(nil),      // 20: alerting.v1.CreateRuleRequest
+		(*CreateRuleResponse)(nil),     // 21: alerting.v1.CreateRuleResponse
+		nil,                            // 22: alerting.v1.Template.LabelsEntry
+		nil,                            // 23: alerting.v1.Template.AnnotationsEntry
+		nil,                            // 24: alerting.v1.CreateRuleRequest.CustomLabelsEntry
+		ParamUnit(0),                   // 25: alerting.v1.ParamUnit
+		ParamType(0),                   // 26: alerting.v1.ParamType
+		(*durationpb.Duration)(nil),    // 27: google.protobuf.Duration
+		v1.Severity(0),                 // 28: management.v1.Severity
+		(*timestamppb.Timestamp)(nil),  // 29: google.protobuf.Timestamp
 	}
 )
 
 var file_alerting_v1_alerting_proto_depIdxs = []int32{
-	24, // 0: alerting.v1.ParamDefinition.unit:type_name -> alerting.v1.ParamUnit
-	25, // 1: alerting.v1.ParamDefinition.type:type_name -> alerting.v1.ParamType
-	2,  // 2: alerting.v1.ParamDefinition.bool:type_name -> alerting.v1.BoolParamDefinition
-	3,  // 3: alerting.v1.ParamDefinition.float:type_name -> alerting.v1.FloatParamDefinition
-	4,  // 4: alerting.v1.ParamDefinition.string:type_name -> alerting.v1.StringParamDefinition
-	5,  // 5: alerting.v1.Template.params:type_name -> alerting.v1.ParamDefinition
-	26, // 6: alerting.v1.Template.for:type_name -> google.protobuf.Duration
-	27, // 7: alerting.v1.Template.severity:type_name -> management.v1.Severity
-	21, // 8: alerting.v1.Template.labels:type_name -> alerting.v1.Template.LabelsEntry
-	22, // 9: alerting.v1.Template.annotations:type_name -> alerting.v1.Template.AnnotationsEntry
+	25, // 0: alerting.v1.ParamDefinition.unit:type_name -> alerting.v1.ParamUnit
+	26, // 1: alerting.v1.ParamDefinition.type:type_name -> alerting.v1.ParamType
+	3,  // 2: alerting.v1.ParamDefinition.bool:type_name -> alerting.v1.BoolParamDefinition
+	4,  // 3: alerting.v1.ParamDefinition.float:type_name -> alerting.v1.FloatParamDefinition
+	5,  // 4: alerting.v1.ParamDefinition.string:type_name -> alerting.v1.StringParamDefinition
+	6,  // 5: alerting.v1.Template.params:type_name -> alerting.v1.ParamDefinition
+	27, // 6: alerting.v1.Template.for:type_name -> google.protobuf.Duration
+	28, // 7: alerting.v1.Template.severity:type_name -> management.v1.Severity
+	22, // 8: alerting.v1.Template.labels:type_name -> alerting.v1.Template.LabelsEntry
+	23, // 9: alerting.v1.Template.annotations:type_name -> alerting.v1.Template.AnnotationsEntry
 	0,  // 10: alerting.v1.Template.source:type_name -> alerting.v1.TemplateSource
-	28, // 11: alerting.v1.Template.created_at:type_name -> google.protobuf.Timestamp
-	6,  // 12: alerting.v1.Template.queries:type_name -> alerting.v1.TemplateQuery
-	7,  // 13: alerting.v1.Template.expressions:type_name -> alerting.v1.TemplateExpression
-	8,  // 14: alerting.v1.ListTemplatesResponse.templates:type_name -> alerting.v1.Template
-	1,  // 15: alerting.v1.Filter.type:type_name -> alerting.v1.FilterType
-	25, // 16: alerting.v1.ParamValue.type:type_name -> alerting.v1.ParamType
-	18, // 17: alerting.v1.CreateRuleRequest.params:type_name -> alerting.v1.ParamValue
-	26, // 18: alerting.v1.CreateRuleRequest.for:type_name -> google.protobuf.Duration
-	27, // 19: alerting.v1.CreateRuleRequest.severity:type_name -> management.v1.Severity
-	23, // 20: alerting.v1.CreateRuleRequest.custom_labels:type_name -> alerting.v1.CreateRuleRequest.CustomLabelsEntry
-	17, // 21: alerting.v1.CreateRuleRequest.filters:type_name -> alerting.v1.Filter
-	26, // 22: alerting.v1.CreateRuleRequest.interval:type_name -> google.protobuf.Duration
-	9,  // 23: alerting.v1.AlertingService.ListTemplates:input_type -> alerting.v1.ListTemplatesRequest
-	11, // 24: alerting.v1.AlertingService.CreateTemplate:input_type -> alerting.v1.CreateTemplateRequest
-	13, // 25: alerting.v1.AlertingService.UpdateTemplate:input_type -> alerting.v1.UpdateTemplateRequest
-	15, // 26: alerting.v1.AlertingService.DeleteTemplate:input_type -> alerting.v1.DeleteTemplateRequest
-	19, // 27: alerting.v1.AlertingService.CreateRule:input_type -> alerting.v1.CreateRuleRequest
-	10, // 28: alerting.v1.AlertingService.ListTemplates:output_type -> alerting.v1.ListTemplatesResponse
-	12, // 29: alerting.v1.AlertingService.CreateTemplate:output_type -> alerting.v1.CreateTemplateResponse
-	14, // 30: alerting.v1.AlertingService.UpdateTemplate:output_type -> alerting.v1.UpdateTemplateResponse
-	16, // 31: alerting.v1.AlertingService.DeleteTemplate:output_type -> alerting.v1.DeleteTemplateResponse
-	20, // 32: alerting.v1.AlertingService.CreateRule:output_type -> alerting.v1.CreateRuleResponse
-	28, // [28:33] is the sub-list for method output_type
-	23, // [23:28] is the sub-list for method input_type
-	23, // [23:23] is the sub-list for extension type_name
-	23, // [23:23] is the sub-list for extension extendee
-	0,  // [0:23] is the sub-list for field type_name
+	29, // 11: alerting.v1.Template.created_at:type_name -> google.protobuf.Timestamp
+	7,  // 12: alerting.v1.Template.queries:type_name -> alerting.v1.TemplateQuery
+	8,  // 13: alerting.v1.Template.expressions:type_name -> alerting.v1.TemplateExpression
+	1,  // 14: alerting.v1.Template.category:type_name -> alerting.v1.TemplateCategory
+	9,  // 15: alerting.v1.ListTemplatesResponse.templates:type_name -> alerting.v1.Template
+	2,  // 16: alerting.v1.Filter.type:type_name -> alerting.v1.FilterType
+	26, // 17: alerting.v1.ParamValue.type:type_name -> alerting.v1.ParamType
+	19, // 18: alerting.v1.CreateRuleRequest.params:type_name -> alerting.v1.ParamValue
+	27, // 19: alerting.v1.CreateRuleRequest.for:type_name -> google.protobuf.Duration
+	28, // 20: alerting.v1.CreateRuleRequest.severity:type_name -> management.v1.Severity
+	24, // 21: alerting.v1.CreateRuleRequest.custom_labels:type_name -> alerting.v1.CreateRuleRequest.CustomLabelsEntry
+	18, // 22: alerting.v1.CreateRuleRequest.filters:type_name -> alerting.v1.Filter
+	27, // 23: alerting.v1.CreateRuleRequest.interval:type_name -> google.protobuf.Duration
+	10, // 24: alerting.v1.AlertingService.ListTemplates:input_type -> alerting.v1.ListTemplatesRequest
+	12, // 25: alerting.v1.AlertingService.CreateTemplate:input_type -> alerting.v1.CreateTemplateRequest
+	14, // 26: alerting.v1.AlertingService.UpdateTemplate:input_type -> alerting.v1.UpdateTemplateRequest
+	16, // 27: alerting.v1.AlertingService.DeleteTemplate:input_type -> alerting.v1.DeleteTemplateRequest
+	20, // 28: alerting.v1.AlertingService.CreateRule:input_type -> alerting.v1.CreateRuleRequest
+	11, // 29: alerting.v1.AlertingService.ListTemplates:output_type -> alerting.v1.ListTemplatesResponse
+	13, // 30: alerting.v1.AlertingService.CreateTemplate:output_type -> alerting.v1.CreateTemplateResponse
+	15, // 31: alerting.v1.AlertingService.UpdateTemplate:output_type -> alerting.v1.UpdateTemplateResponse
+	17, // 32: alerting.v1.AlertingService.DeleteTemplate:output_type -> alerting.v1.DeleteTemplateResponse
+	21, // 33: alerting.v1.AlertingService.CreateRule:output_type -> alerting.v1.CreateRuleResponse
+	29, // [29:34] is the sub-list for method output_type
+	24, // [24:29] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_alerting_v1_alerting_proto_init() }
@@ -1686,7 +1778,7 @@ func file_alerting_v1_alerting_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_alerting_v1_alerting_proto_rawDesc), len(file_alerting_v1_alerting_proto_rawDesc)),
-			NumEnums:      2,
+			NumEnums:      3,
 			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,

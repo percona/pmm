@@ -3,6 +3,7 @@ templates:
   - name: pmm_node_low_free_memory
     version: 1
     summary: Memory available less than a threshold
+    category: node
     expr: |-
       node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes
       * 100

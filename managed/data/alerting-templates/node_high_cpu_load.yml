@@ -3,6 +3,7 @@ templates:
   - name: pmm_node_high_cpu_load
     version: 1
     summary: Node high CPU load
+    category: node
     queries:
       - ref_id: A
         expr: |-
