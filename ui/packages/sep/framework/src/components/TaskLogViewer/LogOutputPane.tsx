@@ -18,6 +18,7 @@
 import { LazyLog } from '@melloware/react-logviewer';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { useLayoutEffect, useRef, useState } from 'react';
 
 export interface LogOutputPaneProps {
   text: string;
@@ -44,14 +45,81 @@ export function LogOutputPane({
 
   return (
     <Box sx={{ height, width: '100%' }}>
-      <LazyLog
-        text={text}
-        enableSearch={enableSearch}
-        wrapLines={wrap}
-        follow
-        selectableLines
-        caseInsensitive
-      />
+      <AppendingLog text={text} wrap={wrap} enableSearch={enableSearch} />
     </Box>
+  );
+}
+
+interface AppendedText {
+  log: LazyLog | null;
+  text: string;
+  endsMidLine: boolean;
+}
+
+/**
+ * Hands `text` to the log by appending what is new rather than replacing it.
+ *
+ * LazyLog clears and re-parses its whole buffer whenever its `text` prop
+ * changes, and that cleared list paints (blank, then scrolled to the first
+ * line) before `follow` brings it back to the end, so a streaming log
+ * flickered on every chunk. Its external mode keeps the lines already shown.
+ * Every append ends the log's last line, so text that stops mid-line is shown
+ * as a whole line, and if more of that line arrives the log is rebuilt from
+ * the full text.
+ */
+function AppendingLog({
+  text,
+  wrap,
+  enableSearch,
+}: Pick<LogOutputPaneProps, 'text' | 'wrap' | 'enableSearch'>) {
+  const logRef = useRef<LazyLog>(null);
+  const appendedRef = useRef<AppendedText>({
+    log: null,
+    text: '',
+    endsMidLine: false,
+  });
+  const [generation, setGeneration] = useState(0);
+
+  useLayoutEffect(() => {
+    const log = logRef.current;
+    if (!log) {
+      return;
+    }
+    const appended =
+      appendedRef.current.log === log
+        ? appendedRef.current
+        : { log, text: '', endsMidLine: false };
+    if (!text.startsWith(appended.text)) {
+      setGeneration((value) => value + 1);
+      return;
+    }
+    let added = text.slice(appended.text.length);
+    let { endsMidLine } = appended;
+    if (endsMidLine && added) {
+      if (!added.startsWith('\n')) {
+        setGeneration((value) => value + 1);
+        return;
+      }
+      added = added.slice(1);
+      endsMidLine = false;
+    }
+    if (added) {
+      log.appendLines([added]);
+      endsMidLine = !added.endsWith('\n');
+    }
+    appendedRef.current = { log, text, endsMidLine };
+  }, [text, generation]);
+
+  return (
+    <LazyLog
+      key={generation}
+      ref={logRef}
+      external
+      enableSearch={enableSearch}
+      wrapLines={wrap}
+      follow
+      selectableLines
+      caseInsensitive
+    />
   );
 }

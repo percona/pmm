@@ -26,12 +26,33 @@ import {
 import { QueryWrapper } from '../../../../tests/queryWrapper';
 import { TaskLogViewer } from '../TaskLogViewer';
 
-// Stub the log-viewer lib: real one depends on DOM APIs jsdom lacks.
-vi.mock('@melloware/react-logviewer', () => ({
-  LazyLog: ({ text }: { text: string }) => (
-    <pre data-testid="log-output">{text}</pre>
-  ),
-}));
+// Stub the log-viewer lib: real one depends on DOM APIs jsdom lacks. The pane
+// drives it in external mode, so the stub keeps what `appendLines` hands it
+// and, like the real one, ends every append with a newline.
+vi.mock('@melloware/react-logviewer', async () => {
+  const { forwardRef, useImperativeHandle, useState } = await import('react');
+  return {
+    LazyLog: forwardRef<{ appendLines(lines: string[]): void }>(
+      function LazyLog(_props, ref) {
+        const [text, setText] = useState('');
+        useImperativeHandle(
+          ref,
+          () => ({
+            appendLines(lines: string[]) {
+              const content = lines.join('\n');
+              setText(
+                (previous) =>
+                  previous + (content.endsWith('\n') ? content : `${content}\n`)
+              );
+            },
+          }),
+          []
+        );
+        return <pre data-testid="log-output">{text}</pre>;
+      }
+    ),
+  };
+});
 
 // Manual mock keeps axios out of the resolution graph.
 let _tokenProvider: () => string | null = () => null;

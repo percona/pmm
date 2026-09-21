@@ -136,4 +136,84 @@ describe('LogOutputPane with the real log renderer', () => {
       await waitFor(() => expect(renderedLines(container)).toEqual(liveLines));
     }
   );
+
+  it('keeps the rendered lines while the log grows', async () => {
+    const { container, rerender } = render(
+      <LogOutputPane text={'first\nsecond\n'} wrap={false} />
+    );
+    await waitFor(() =>
+      expect(renderedLines(container)).toEqual(['first', 'second'])
+    );
+    const firstLine = container.querySelector('.log-content');
+
+    rerender(<LogOutputPane text={'first\nsecond\nthird\n'} wrap={false} />);
+    await waitFor(() =>
+      expect(renderedLines(container)).toEqual(['first', 'second', 'third'])
+    );
+
+    expect(container.querySelector('.log-content')).toBe(firstLine);
+  });
+
+  it('rebuilds the log when a later chunk continues its last line', async () => {
+    const { container, rerender } = render(
+      <LogOutputPane text={'first\nsec'} wrap={false} />
+    );
+    await waitFor(() =>
+      expect(renderedLines(container)).toEqual(['first', 'sec'])
+    );
+
+    rerender(<LogOutputPane text={'first\nsecond\nthird'} wrap={false} />);
+
+    await waitFor(() =>
+      expect(renderedLines(container)).toEqual(['first', 'second', 'third'])
+    );
+  });
+
+  it('ends a line held open by an earlier chunk without rebuilding', async () => {
+    const { container, rerender } = render(
+      <LogOutputPane text={'first\nsecond'} wrap={false} />
+    );
+    await waitFor(() =>
+      expect(renderedLines(container)).toEqual(['first', 'second'])
+    );
+    const firstLine = container.querySelector('.log-content');
+
+    rerender(<LogOutputPane text={'first\nsecond\n\nthird\n'} wrap={false} />);
+
+    await waitFor(() =>
+      expect(renderedLines(container)).toEqual(['first', 'second', '', 'third'])
+    );
+    expect(container.querySelector('.log-content')).toBe(firstLine);
+  });
+
+  it('appends normally once a newline alone ends a held-open line', async () => {
+    const { container, rerender } = render(
+      <LogOutputPane text={'first\nsecond'} wrap={false} />
+    );
+    await waitFor(() =>
+      expect(renderedLines(container)).toEqual(['first', 'second'])
+    );
+    const firstLine = container.querySelector('.log-content');
+
+    rerender(<LogOutputPane text={'first\nsecond\n'} wrap={false} />);
+    rerender(<LogOutputPane text={'first\nsecond\nthird\n'} wrap={false} />);
+
+    await waitFor(() =>
+      expect(renderedLines(container)).toEqual(['first', 'second', 'third'])
+    );
+    expect(container.querySelector('.log-content')).toBe(firstLine);
+  });
+
+  it('starts over when the text is replaced rather than extended', async () => {
+    const { container, rerender } = render(
+      <LogOutputPane text={'stdout-1\nstdout-2\n'} wrap={false} />
+    );
+    await waitFor(() =>
+      expect(renderedLines(container)).toEqual(['stdout-1', 'stdout-2'])
+    );
+
+    rerender(<LogOutputPane text={'stderr-1\n'} wrap={false} />);
+
+    await waitFor(() => expect(renderedLines(container)).toEqual(['stderr-1']));
+  });
 });
