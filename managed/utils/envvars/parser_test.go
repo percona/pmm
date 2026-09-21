@@ -408,6 +408,17 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotWarns)
 	})
 
+	t.Run("an empty PMM_VM_URL is ignored, not rejected", func(t *testing.T) {
+		t.Parallel()
+
+		// A template that renders an unset value produces this, and it started PMM Server before
+		// PMM_VM_URL was validated. kingpin falls back to its default for it either way.
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"PMM_VM_URL="})
+		assert.Nil(t, gotErrs)
+		assert.Len(t, gotWarns, 1)
+		assert.Contains(t, gotWarns[0], "PMM_VM_URL is set but empty")
+	})
+
 	t.Run("Parse Platform API Timeout", func(t *testing.T) {
 		t.Parallel()
 

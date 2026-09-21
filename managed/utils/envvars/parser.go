@@ -222,6 +222,13 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			envSettings.PMMPublicAddress = new(v)
 
 		case "PMM_VM_URL":
+			// An empty value is ignored rather than rejected: kingpin falls back to its default
+			// for a variable that is set but empty, so this is the address PMM Server uses
+			// anyway, and a template that renders an unset value has always started.
+			if v == "" {
+				warns = append(warns, "PMM_VM_URL is set but empty and is ignored: the built-in VictoriaMetrics address is used")
+				continue
+			}
 			_, err := models.ParseVictoriaMetricsURL(v)
 			if err != nil {
 				errs = append(errs, fmt.Errorf("invalid value for environment variable %s: %w", k, err))
