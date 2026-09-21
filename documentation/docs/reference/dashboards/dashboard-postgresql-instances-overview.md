@@ -26,12 +26,16 @@ Shows average query execution time trends for your PostgreSQL services over time
 Watch for services with increasing execution times. Rising trends indicate performance degradation that needs investigation and optimization.
 
 ## Top slow queries
-Shows the slowest queries across all your PostgreSQL services, ranked by average execution time. Each row is a single query aggregated over the whole selected time range, rather than one row per time interval, so the table stays short enough to scan.
 
-Alongside the query text, the table shows:
+Shows the slowest-performing queries across all your PostgreSQL services, ranked by average execution time. Each row represents a single query aggregated over the selected time range rather than one row per collection interval, so the table stays short enough to scan.
 
-- **Slowest at** — when that query was at its slowest within the time range, which helps you correlate a spike with a deployment or a load event.
-- **Calls** — how many times the query ran. This separates a one-off outlier from sustained load: a query with a high average and a single call is usually less urgent than a slightly faster one that runs thousands of times.
-- **Execution Time** — the average time per call, weighted by the number of calls.
+Use this to identify queries that need optimization. Focus on queries with the highest execution times, then use **Calls** to prioritize by actual workload impact, since a query with a high average but a single call is usually less urgent than one running thousands of times.
 
-Focus optimization efforts on queries with the highest execution times, then use **Calls** to judge which of them actually affect your workload. This cross-service view helps you identify the most impactful slow queries across your entire infrastructure.
+For each query, you can see:
+
+- **Slowest at**: when the query reached its peak execution time within the time range. Use this to correlate a spike with a deployment or a load event.
+- **Service**: the PostgreSQL service the query ran on.
+- **Username**: the database user that executed the query.
+- **Query**: the query fingerprint. Click to expand the full query text.
+- **Calls**: how many times the query ran during the time range.
+- **Execution Time**: average execution time per call.
