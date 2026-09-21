@@ -46,7 +46,6 @@ export function LogOutputPane({
     <Box sx={{ height, width: '100%' }}>
       <LazyLog
         text={text}
-        extraLines={1}
         enableSearch={enableSearch}
         wrapLines={wrap}
         follow
