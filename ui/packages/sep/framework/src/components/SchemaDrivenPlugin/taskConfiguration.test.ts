@@ -465,4 +465,65 @@ describe('selectConfiguredSettings', () => {
 
     expect(task.settings[0].type).toBe('datetime');
   });
+
+  describe('inventory references', () => {
+    const referenceSections: FormSection[] = [
+      {
+        title: 'Task',
+        fields: [
+          { name: 'hostname', label: 'Execution Host', type: 'host' },
+          {
+            name: 'service_id',
+            label: 'Database Host',
+            type: 'service',
+            service_types: ['mysql'],
+          },
+          {
+            name: 'schema_id',
+            label: 'Target database',
+            type: 'schema',
+            depends_on: 'service_id',
+          },
+          {
+            name: 'table_id',
+            label: 'Table',
+            type: 'table',
+            depends_on: 'schema_id',
+          },
+          { name: 'backup_dir', label: 'Backup Directory', type: 'string' },
+        ],
+      },
+    ];
+
+    function referencesOf(storedForm: Record<string, unknown>) {
+      const [task] = selectConfiguredSettings(referenceSections, storedForm);
+      return Object.fromEntries(
+        task.settings.map((setting) => [setting.name, setting.reference])
+      );
+    }
+
+    it('marks each reference with what looking it up needs', () => {
+      expect(
+        referencesOf({
+          hostname: 'node-1',
+          service_id: '1',
+          schema_id: 5,
+          table_id: 9,
+          backup_dir: '/backups',
+        })
+      ).toEqual({
+        hostname: { kind: 'host' },
+        service_id: { kind: 'service', serviceTypes: ['mysql'] },
+        schema_id: { kind: 'schema', serviceId: 1 },
+        table_id: { kind: 'table', schemaId: 5 },
+        backup_dir: undefined,
+      });
+    });
+
+    it('has no parent to look a schema up under when its service was typed in', () => {
+      expect(
+        referencesOf({ service_id: 'db.example.com', schema_id: 5 }).schema_id
+      ).toEqual({ kind: 'schema', serviceId: null });
+    });
+  });
 });

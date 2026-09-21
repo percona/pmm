@@ -29,6 +29,7 @@ import {
   flattenSectionFields,
   isOneOfGroup,
 } from '../SchemaFormRenderer/utils/flattenSectionFields';
+import { extractId } from '../../utils/extractId';
 
 /**
  * Turn a task's stored create-form body into the settings a reader needs to see.
@@ -47,6 +48,21 @@ import {
  * is detail-page rendering.
  */
 
+/**
+ * What an inventory-reference setting points at, and what looking it up needs.
+ *
+ * The stored form keeps what the form submitted — an inventory id for a
+ * service, schema or table, an executor node id for a host — not the name its
+ * selector displayed, so showing that name takes the lookup the selector made.
+ * A schema is listed under its service and a table under its schema, so those
+ * carry their parent's stored id, or `null` when the parent holds none.
+ */
+export type SettingReference =
+  | { kind: 'service'; serviceTypes: readonly string[] }
+  | { kind: 'host' }
+  | { kind: 'schema'; serviceId: number | null }
+  | { kind: 'table'; schemaId: number | null };
+
 /** One configured setting, ready to render. */
 export interface ConfiguredSetting {
   /** Form field name; stable key for React. */
@@ -59,6 +75,8 @@ export interface ConfiguredSetting {
   value: unknown;
   /** The field's display-label map, when it declares one. */
   valueLabels?: Record<string, string>;
+  /** Set when the value is an inventory reference to resolve to a name. */
+  reference?: SettingReference;
 }
 
 /** Settings that differ from default, grouped as the form grouped them. */
@@ -268,6 +286,7 @@ export function selectConfiguredSettings(
           type: field.type,
           value,
           valueLabels: fieldValueLabels(field),
+          reference: fieldReference(field, values),
         });
       }
     }
@@ -278,6 +297,31 @@ export function selectConfiguredSettings(
   }
 
   return result;
+}
+
+/** The inventory lookup an inventory-aware field's stored value needs. */
+function fieldReference(
+  field: PluginField,
+  values: Record<string, unknown>
+): SettingReference | undefined {
+  switch (field.type) {
+    case 'service':
+      return { kind: 'service', serviceTypes: field.service_types };
+    case 'host':
+      return { kind: 'host' };
+    case 'schema':
+      return {
+        kind: 'schema',
+        serviceId: extractId(getAtPath(values, field.depends_on)),
+      };
+    case 'table':
+      return {
+        kind: 'table',
+        schemaId: extractId(getAtPath(values, field.depends_on)),
+      };
+    default:
+      return undefined;
+  }
 }
 
 /**

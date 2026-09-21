@@ -17,11 +17,11 @@
 
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
-import { ApiError, type PluginSchema } from '@sep/api';
+import { ApiError, apiClient, type PluginSchema } from '@sep/api';
 import {
   PluginDetailPage,
   resolveTabFromSplat,
@@ -543,6 +543,120 @@ describe('PluginDetailPage — detail_view sections', () => {
         await screen.findByTestId('detail-syntax-highlighter')
       ).toBeInTheDocument();
       expect(screen.queryByTestId('raw-configuration-toggle')).toBeNull();
+    });
+
+    describe('inventory references', () => {
+      /** The reference fields of the mysql_backups restore form. */
+      function referenceSchema(): PluginSchema {
+        return {
+          ...configSchema(),
+          forms: [
+            {
+              title: 'Task',
+              fields: [
+                {
+                  name: 'hostname',
+                  label: 'Execution Host',
+                  type: 'host',
+                  target_service: 'service_id',
+                },
+                {
+                  name: 'service_id',
+                  label: 'Destination Database Service',
+                  type: 'service',
+                  service_types: ['mysql'],
+                  allow_custom: true,
+                },
+                {
+                  name: 'schema_id',
+                  label: 'Target database',
+                  type: 'schema',
+                  depends_on: 'service_id',
+                  allow_custom: true,
+                },
+              ],
+            },
+          ],
+        } as unknown as PluginSchema;
+      }
+
+      beforeEach(() => {
+        vi.mocked(apiClient.get).mockImplementation(async (url: string) => {
+          if (url === '/sep/services/') {
+            return {
+              data: {
+                items: [{ id: 1, name: 'sep-mysql', type: 'mysql' }],
+                total: 1,
+                offset: 0,
+                limit: 200,
+              },
+            };
+          }
+          if (url === '/sep/hosts/') {
+            return {
+              data: [
+                { id: 'node-7', name: 'db-host-7', address: '172.28.9.40' },
+              ],
+            };
+          }
+          if (url === '/sep/services/1/schemas') {
+            return { data: [{ id: 5, name: 'sakila' }] };
+          }
+          throw new Error(`unexpected GET ${url}`);
+        });
+      });
+
+      afterEach(() => {
+        vi.mocked(apiClient.get).mockReset();
+      });
+
+      it('names the records a setting refers to, as the form showed them', async () => {
+        mockUsePluginTask.mockReturnValue({
+          // The restore app stores the service id as a string.
+          data: taskWithForm({
+            hostname: 'node-7',
+            service_id: '1',
+            schema_id: 5,
+          }),
+          isLoading: false,
+        });
+
+        renderWithSchema(referenceSchema());
+
+        expect(
+          await screen.findByText('sep-mysql (mysql)')
+        ).toBeInTheDocument();
+        expect(await screen.findByText('sakila')).toBeInTheDocument();
+        expect(await screen.findByText('db-host-7')).toBeInTheDocument();
+        expect(screen.queryByText('1')).toBeNull();
+        expect(screen.queryByText('5')).toBeNull();
+      });
+
+      it('says a reference no longer resolves rather than printing its id', async () => {
+        mockUsePluginTask.mockReturnValue({
+          data: taskWithForm({ service_id: 9 }),
+          isLoading: false,
+        });
+
+        renderWithSchema(referenceSchema());
+
+        expect(
+          await screen.findByText('Unknown (inventory ID 9)')
+        ).toBeInTheDocument();
+      });
+
+      it('shows a value typed in by hand as it was typed', async () => {
+        mockUsePluginTask.mockReturnValue({
+          data: taskWithForm({ service_id: 'db.example.com:3306' }),
+          isLoading: false,
+        });
+
+        renderWithSchema(referenceSchema());
+
+        expect(
+          await screen.findByText('db.example.com:3306')
+        ).toBeInTheDocument();
+      });
     });
   });
 

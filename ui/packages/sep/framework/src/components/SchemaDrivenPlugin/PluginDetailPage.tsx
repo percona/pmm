@@ -102,7 +102,9 @@ import { getStoredForm } from './storedForm';
 import {
   selectConfiguredSettings,
   type ConfiguredSection,
+  type SettingReference,
 } from './taskConfiguration';
+import { useReferenceLabel } from './useReferenceLabel';
 import { StatsCard } from './StatsCard';
 import { capitalize } from '@sep/shared';
 import {
@@ -395,6 +397,20 @@ interface OverviewTabProps {
   children?: ReactNode;
 }
 
+/** A setting holding an inventory reference, shown under the name it stands for. */
+function ReferenceSettingField({
+  label,
+  reference,
+  value,
+}: {
+  label: string;
+  reference: SettingReference;
+  value: unknown;
+}) {
+  const name = useReferenceLabel(reference, value);
+  return <TaskOverviewDetailField label={label} value={name} />;
+}
+
 /**
  * The settings this task configured, under the create form's own labels.
  *
@@ -415,6 +431,16 @@ function TaskConfigurationCard({
         <SectionCard key={section.title} title={section.title}>
           <Grid container spacing={2}>
             {section.settings.map((setting) => {
+              if (setting.reference) {
+                return (
+                  <ReferenceSettingField
+                    key={setting.name}
+                    label={setting.label}
+                    reference={setting.reference}
+                    value={setting.value}
+                  />
+                );
+              }
               const timestamp =
                 setting.type === 'datetime' && typeof setting.value === 'string'
                   ? formatTimestamp(setting.value)
