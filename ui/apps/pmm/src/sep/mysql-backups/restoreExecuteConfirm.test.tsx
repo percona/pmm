@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import type { PluginSchema } from '@sep/api';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   getMysqlBackupsTaskExecuteActions,
@@ -6,6 +7,7 @@ import {
   isMysqlRestorePluginName,
   isMysqlRestoreTask,
   MysqlRestoreConfirmContent,
+  type MysqlRestoreConfirmDetails,
 } from './restoreExecuteConfirm';
 
 const { mockUseSchemas } = vi.hoisted(() => ({ mockUseSchemas: vi.fn() }));
@@ -17,6 +19,213 @@ vi.mock('@sep/framework', async (importOriginal) => ({
 
 beforeEach(() => {
   mockUseSchemas.mockReset();
+});
+
+/** The restore schema's destructive marks, verbatim from the side-car. */
+const OVERWRITE_CONSEQUENCE =
+  'Existing tables in the target database are dropped before the backup is loaded. Rows written since the backup was taken are lost.';
+const OVERWRITE_DESCRIPTION =
+  'Let the load replace tables that already exist in the target database. Without it the load fails on the first table that is already there.';
+const DATADIR_CONSEQUENCE =
+  'The data directory is emptied before the backup is restored into it. Whatever it holds now, including a live dataset, is lost.';
+const MYCNF_CONSEQUENCE =
+  'Each configuration file saved in the backup is written over the live file at its original path, outside the data directory. No copy of what those files held is kept, so hand-tuned settings are lost.';
+
+const restoreSchema = {
+  name: 'mysql_backups_restores',
+  display_name: 'MySQL Restores',
+  item_display_name: 'restore',
+  item_display_name_plural: 'restores',
+  forms: [
+    {
+      title: 'Mydumper',
+      fields: [
+        {
+          name: 'overwrite_tables',
+          label: 'Overwrite tables',
+          type: 'bool',
+          description: OVERWRITE_DESCRIPTION,
+          destructive: OVERWRITE_CONSEQUENCE,
+        },
+      ],
+    },
+    {
+      title: 'XtraBackup',
+      fields: [
+        {
+          name: 'datadir',
+          label: 'Data directory',
+          type: 'string',
+          destructive: DATADIR_CONSEQUENCE,
+        },
+        {
+          name: 'restore_mycnf',
+          label: 'Restore my.cnf',
+          type: 'bool',
+          destructive: MYCNF_CONSEQUENCE,
+        },
+      ],
+    },
+  ],
+} as PluginSchema;
+
+const mydumperDetails: MysqlRestoreConfirmDetails = {
+  source: '/tmp/sep-backups/mydumper/172.28.9.40/20260920',
+  backupType: 'M',
+  serviceName: 'sep-mysql',
+  executorHost: 'sep-mysql',
+  targetHost: '172.28.9.40:3306',
+  targetDatabase: 'Same databases as in the backup',
+  overwriteTables: false,
+  restoreMycnf: undefined,
+};
+
+describe('warning that a restore writes into live data', () => {
+  it('names the destination service in a destructive alert', () => {
+    render(<MysqlRestoreConfirmContent details={mydumperDetails} />);
+
+    const alert = screen.getByTestId('mysql-restore-live-data-alert');
+    expect(alert).toHaveClass('MuiAlert-colorError');
+    expect(alert).toHaveTextContent('This restore writes into live data');
+    expect(alert).toHaveTextContent(
+      'into the live database service sep-mysql (172.28.9.40:3306)'
+    );
+    expect(alert).toHaveTextContent('cannot be undone');
+    expect(
+      screen.getByTestId('mysql-restore-execute-confirm')
+    ).not.toHaveTextContent('You are about to run this restore');
+  });
+
+  it.each([
+    ['a Mydumper restore that overwrites tables', { overwriteTables: true }],
+    [
+      'a Mydumper restore whose overwrite setting is unknown',
+      { overwriteTables: undefined },
+    ],
+    ['an XtraBackup restore', { backupType: 'X' as const }],
+    ['a Binlog restore', { backupType: 'B' as const }],
+  ])('warns that existing data can be lost for %s', (_, overrides) => {
+    render(
+      <MysqlRestoreConfirmContent
+        details={{ ...mydumperDetails, ...overrides }}
+      />
+    );
+
+    expect(
+      screen.getByTestId('mysql-restore-live-data-alert')
+    ).toHaveTextContent('Data already there can be overwritten or lost.');
+  });
+
+  it('does not claim a load that refuses existing tables destroys them', () => {
+    render(<MysqlRestoreConfirmContent details={mydumperDetails} />);
+
+    expect(
+      screen.getByTestId('mysql-restore-live-data-alert')
+    ).not.toHaveTextContent('can be overwritten or lost');
+  });
+
+  it('falls back to the destination address when the service name is unknown', () => {
+    render(
+      <MysqlRestoreConfirmContent
+        details={{ ...mydumperDetails, serviceName: undefined }}
+      />
+    );
+
+    expect(
+      screen.getByTestId('mysql-restore-live-data-alert')
+    ).toHaveTextContent('into the live database service at 172.28.9.40:3306');
+  });
+
+  it('names the executor host for a restore that runs there', () => {
+    render(
+      <MysqlRestoreConfirmContent
+        details={{
+          ...mydumperDetails,
+          backupType: 'X',
+          serviceName: undefined,
+          executorHost: 'db-node-1',
+        }}
+      />
+    );
+
+    const alert = screen.getByTestId('mysql-restore-live-data-alert');
+    expect(alert).toHaveClass('MuiAlert-colorError');
+    expect(alert).toHaveTextContent('into the live MySQL server on db-node-1');
+  });
+
+  it("explains what Overwrite tables off controls, in the schema's words", () => {
+    render(
+      <MysqlRestoreConfirmContent
+        details={mydumperDetails}
+        schema={restoreSchema}
+      />
+    );
+
+    expect(
+      screen.getByTestId('mysql-restore-overwrite-explanation')
+    ).toHaveTextContent(OVERWRITE_DESCRIPTION);
+  });
+
+  it('explains Overwrite tables off without a schema to quote', () => {
+    render(<MysqlRestoreConfirmContent details={mydumperDetails} />);
+
+    expect(
+      screen.getByTestId('mysql-restore-overwrite-explanation')
+    ).toHaveTextContent(/tables that already exist/i);
+  });
+
+  it("quotes the schema's consequence for overwriting tables", () => {
+    render(
+      <MysqlRestoreConfirmContent
+        details={{ ...mydumperDetails, overwriteTables: true }}
+        schema={restoreSchema}
+      />
+    );
+
+    expect(
+      screen.getByTestId('mysql-restore-overwrite-alert')
+    ).toHaveTextContent(OVERWRITE_CONSEQUENCE);
+    expect(
+      screen.queryByTestId('mysql-restore-overwrite-explanation')
+    ).not.toBeInTheDocument();
+  });
+
+  it("quotes the schema's consequences for an XtraBackup restore", () => {
+    render(
+      <MysqlRestoreConfirmContent
+        details={{
+          ...mydumperDetails,
+          backupType: 'X',
+          restoreMycnf: true,
+        }}
+        schema={restoreSchema}
+      />
+    );
+
+    expect(screen.getByTestId('mysql-restore-datadir-alert')).toHaveTextContent(
+      DATADIR_CONSEQUENCE
+    );
+    expect(screen.getByTestId('mysql-restore-mycnf-alert')).toHaveTextContent(
+      MYCNF_CONSEQUENCE
+    );
+  });
+
+  it('leaves out the my.cnf consequence when my.cnf is not restored', () => {
+    render(
+      <MysqlRestoreConfirmContent
+        details={{
+          ...mydumperDetails,
+          backupType: 'X',
+          restoreMycnf: false,
+        }}
+        schema={restoreSchema}
+      />
+    );
+
+    expect(
+      screen.queryByTestId('mysql-restore-mycnf-alert')
+    ).not.toBeInTheDocument();
+  });
 });
 
 describe('isMysqlRestorePluginName', () => {
@@ -186,6 +395,38 @@ describe('getMysqlRestoreConfirmDetails', () => {
       overwriteTables: undefined,
     });
   });
+  it('reads the destination service name the side-car stamps into meta', () => {
+    const details = getMysqlRestoreConfirmDetails({
+      name: 'smoke-restore-01',
+      backup_type: 'M',
+      hostname: 'sep-mysql',
+      host: '172.28.9.40',
+      port: 3306,
+      data: {
+        task: 'run-python',
+        meta: { target: 'sep-mysql', _service_name: 'sep-mysql' },
+        _form: {
+          service_id: '1',
+          backup_source: '/tmp/sep-backups/mydumper/172.28.9.40/20260920',
+          overwrite_tables: false,
+          restore_mycnf: false,
+        },
+      },
+    });
+    expect(details.serviceName).toBe('sep-mysql');
+    expect(details.targetHost).toBe('172.28.9.40:3306');
+    expect(details.restoreMycnf).toBe(false);
+  });
+
+  it('leaves the service name unset when meta carries none', () => {
+    expect(
+      getMysqlRestoreConfirmDetails({
+        name: 'r1',
+        data: { meta: {}, _form: { backup_source: '/b' } },
+      }).serviceName
+    ).toBeUndefined();
+  });
+
   it('reads the backup type and the executor host off the response', () => {
     const details = getMysqlRestoreConfirmDetails({
       name: 'r1',
@@ -248,6 +489,24 @@ describe('getMysqlBackupsTaskExecuteActions', () => {
       testId: 'mysql-restore-execute',
     });
     expect(actions?.[0].confirmContent).toBeTruthy();
+  });
+
+  it('marks a restore as destructive and quotes the schema it was given', () => {
+    const actions = getMysqlBackupsTaskExecuteActions(
+      {
+        name: 'r1',
+        host: 'db.example',
+        port: 3306,
+        data: { _form: { backup_source: '/b', overwrite_tables: true } },
+      },
+      { pluginName: 'mysql_backups/restore', schema: restoreSchema }
+    );
+
+    expect(actions?.[0].destructive).toBe(true);
+    render(<>{actions?.[0].confirmContent}</>);
+    expect(
+      screen.getByTestId('mysql-restore-overwrite-alert')
+    ).toHaveTextContent(OVERWRITE_CONSEQUENCE);
   });
 });
 

@@ -1,7 +1,9 @@
 import { ReactNode } from 'react';
 import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import type { PluginField, PluginSchema } from '@sep/api';
 import {
   getStoredForm,
   useSchemas,
@@ -41,6 +43,19 @@ function asBackupType(value: unknown): BackupType | undefined {
   return value === 'M' || value === 'X' || value === 'B' ? value : undefined;
 }
 
+/** The destination service name the side-car stamps into the task's meta. */
+function getServiceName(task: Record<string, unknown>): string | undefined {
+  const data = task.data;
+  if (typeof data !== 'object' || data === null) {
+    return undefined;
+  }
+  const meta = (data as { meta?: unknown }).meta;
+  if (typeof meta !== 'object' || meta === null) {
+    return undefined;
+  }
+  return asDisplayString((meta as Record<string, unknown>)._service_name);
+}
+
 function asInventoryId(value: unknown): number | undefined {
   const id =
     typeof value === 'number'
@@ -73,11 +88,13 @@ export function isMysqlRestoreTask(
 export interface MysqlRestoreConfirmDetails {
   source: string;
   backupType?: BackupType;
+  serviceName?: string;
   executorHost: string;
   targetHost: string;
   targetDatabase: string;
   targetSchema?: { serviceId: number; schemaId: number };
   overwriteTables: boolean | undefined;
+  restoreMycnf?: boolean;
 }
 
 function resolveTargetDatabase(
@@ -131,11 +148,80 @@ export function getMysqlRestoreConfirmDetails(
   return {
     source,
     backupType,
+    serviceName: getServiceName(task),
     executorHost,
     targetHost,
     ...resolveTargetDatabase(form),
     overwriteTables,
+    restoreMycnf: asOptionalBoolean(form?.restore_mycnf),
   };
+}
+
+function schemaField(
+  schema: PluginSchema | undefined,
+  name: string
+): PluginField | undefined {
+  for (const section of schema?.forms ?? []) {
+    for (const field of section.fields) {
+      if (field.type !== 'one_of' && field.name === name) {
+        return field;
+      }
+    }
+  }
+  return undefined;
+}
+
+/**
+ * The consequence text the restore schema attaches to a field it marks
+ * destructive. Quoted rather than paraphrased, so the dialog cannot drift from
+ * what the side-car says that field destroys.
+ */
+function schemaConsequence(
+  schema: PluginSchema | undefined,
+  name: string
+): string | undefined {
+  return schemaField(schema, name)?.destructive || undefined;
+}
+
+function restoresOnExecutor(backupType: BackupType | undefined): boolean {
+  return backupType === 'X' || backupType === 'B';
+}
+
+function liveTarget(details: MysqlRestoreConfirmDetails): string {
+  if (restoresOnExecutor(details.backupType)) {
+    return details.executorHost === UNKNOWN
+      ? 'the live MySQL server on the execution host'
+      : `the live MySQL server on ${details.executorHost}`;
+  }
+  const address =
+    details.targetHost === UNKNOWN ? undefined : details.targetHost;
+  if (details.serviceName) {
+    return address
+      ? `the live database service ${details.serviceName} (${address})`
+      : `the live database service ${details.serviceName}`;
+  }
+  return address
+    ? `the live database service at ${address}`
+    : 'the live destination database service';
+}
+
+function LiveDataAlert({ details }: { details: MysqlRestoreConfirmDetails }) {
+  // With Overwrite tables off, myloader refuses a table that already exists
+  // instead of dropping it, so claiming existing data is lost would contradict
+  // the schema's own description of that option, shown beneath it.
+  const keepsExistingTables =
+    !restoresOnExecutor(details.backupType) &&
+    details.overwriteTables === false;
+  return (
+    <Alert severity="error" data-testid="mysql-restore-live-data-alert">
+      <AlertTitle>This restore writes into live data</AlertTitle>
+      It restores the backup into {liveTarget(details)}, and a restore cannot be
+      undone.
+      {keepsExistingTables
+        ? null
+        : ' Data already there can be overwritten or lost.'}
+    </Alert>
+  );
 }
 
 function ConfirmRow({ label, value }: { label: string; value: ReactNode }) {
@@ -176,8 +262,10 @@ function overwriteLabel(overwriteTables: boolean | undefined): string {
 
 function MydumperTargetRows({
   details,
+  schema,
 }: {
   details: MysqlRestoreConfirmDetails;
+  schema?: PluginSchema;
 }) {
   return (
     <>
@@ -200,19 +288,32 @@ function MydumperTargetRows({
         label="Overwrite tables"
         value={overwriteLabel(details.overwriteTables)}
       />
+      {details.overwriteTables === false ? (
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          data-testid="mysql-restore-overwrite-explanation"
+        >
+          {schemaField(schema, 'overwrite_tables')?.description ??
+            'This only decides whether tables that already exist are replaced. The restore writes into the live database either way.'}
+        </Typography>
+      ) : null}
     </>
   );
 }
 
 function MydumperWarnings({
   overwriteTables,
+  schema,
 }: {
   overwriteTables: boolean | undefined;
+  schema?: PluginSchema;
 }) {
   if (overwriteTables === true) {
     return (
       <Alert severity="warning" data-testid="mysql-restore-overwrite-alert">
-        Existing tables on the target database will be overwritten.
+        {schemaConsequence(schema, 'overwrite_tables') ??
+          'Existing tables on the target database will be overwritten.'}
       </Alert>
     );
   }
@@ -230,32 +331,42 @@ function MydumperWarnings({
   return null;
 }
 
-/** Rich confirm body naming source, target, and overwrite behaviour. */
+/**
+ * Rich confirm body: a destructive warning naming the live target, then the
+ * source, target and overwrite facts, then the schema's own consequence text
+ * for each destructive option this restore turns on.
+ */
 export function MysqlRestoreConfirmContent({
   details,
+  schema,
 }: {
   details: MysqlRestoreConfirmDetails;
+  schema?: PluginSchema;
 }): ReactNode {
-  const restoresOnExecutor =
-    details.backupType === 'X' || details.backupType === 'B';
+  const onExecutor = restoresOnExecutor(details.backupType);
 
   return (
     <Stack spacing={1.5} data-testid="mysql-restore-execute-confirm">
-      <Typography variant="body2">
-        You are about to run this restore. Confirm the target before continuing.
-      </Typography>
+      <LiveDataAlert details={details} />
       <Stack spacing={0.5}>
         <ConfirmRow label="Source backup" value={details.source} />
-        {restoresOnExecutor ? (
+        {onExecutor ? (
           <ConfirmRow label="Target host" value={details.executorHost} />
         ) : (
-          <MydumperTargetRows details={details} />
+          <MydumperTargetRows details={details} schema={schema} />
         )}
       </Stack>
       {details.backupType === 'X' ? (
         <Alert severity="warning" data-testid="mysql-restore-datadir-alert">
-          MySQL on the target host is stopped and its data directory is replaced
-          with the backup. Every database on that server is overwritten.
+          MySQL on the target host is stopped during the restore.{' '}
+          {schemaConsequence(schema, 'datadir') ??
+            'Its data directory is replaced with the backup, so every database on that server is overwritten.'}
+        </Alert>
+      ) : null}
+      {details.backupType === 'X' && details.restoreMycnf === true ? (
+        <Alert severity="warning" data-testid="mysql-restore-mycnf-alert">
+          {schemaConsequence(schema, 'restore_mycnf') ??
+            'The configuration files saved in the backup are written over the live ones.'}
         </Alert>
       ) : null}
       {details.backupType === 'B' ? (
@@ -264,8 +375,11 @@ export function MysqlRestoreConfirmContent({
           the target host.
         </Alert>
       ) : null}
-      {restoresOnExecutor ? null : (
-        <MydumperWarnings overwriteTables={details.overwriteTables} />
+      {onExecutor ? null : (
+        <MydumperWarnings
+          overwriteTables={details.overwriteTables}
+          schema={schema}
+        />
       )}
     </Stack>
   );
@@ -273,12 +387,13 @@ export function MysqlRestoreConfirmContent({
 
 /**
  * Custom execute actions for MySQL Backups / Restores.
- * Restores get a confirmation that names source, target, and overwrite;
- * backup tasks fall through to the framework default Execute button.
+ * Restores get a destructive confirmation that names the live target and
+ * quotes the schema's consequence text; backup tasks fall through to the
+ * framework default Execute button.
  */
 export function getMysqlBackupsTaskExecuteActions(
   task: Record<string, unknown>,
-  context?: { pluginName: string }
+  context?: { pluginName: string; schema?: PluginSchema }
 ): TaskExecuteAction[] | undefined {
   if (!isMysqlRestoreTask(task, context?.pluginName)) {
     return undefined;
@@ -292,7 +407,13 @@ export function getMysqlBackupsTaskExecuteActions(
       label: 'Execute',
       taskName,
       testId: 'mysql-restore-execute',
-      confirmContent: <MysqlRestoreConfirmContent details={details} />,
+      destructive: true,
+      confirmContent: (
+        <MysqlRestoreConfirmContent
+          details={details}
+          schema={context?.schema}
+        />
+      ),
     },
   ];
 }

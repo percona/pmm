@@ -986,6 +986,87 @@ describe('PluginDetailPage execute flow', () => {
     expect(content).toHaveTextContent('Overwrite: Yes');
   });
 
+  function renderWithExecuteActions(
+    getTaskExecuteActions: (
+      task: Record<string, unknown>,
+      context: { pluginName: string; schema: PluginSchema }
+    ) => TaskExecuteAction[] | undefined
+  ) {
+    mockUsePluginTask.mockReturnValue({
+      data: { id: 1, name: 'restore-task', status: null },
+      isLoading: false,
+    });
+    return render(
+      <QueryClientProvider client={makeClient()}>
+        <SnackbarProvider>
+          <MemoryRouter
+            initialEntries={['/apps/mysql_backups_restore/task/restore-task']}
+          >
+            <Routes>
+              <Route
+                path="/apps/:plugin/task/:id/*"
+                element={
+                  <PluginDetailPage
+                    schema={schema}
+                    pluginName="mysql_backups_restore"
+                    getTaskExecuteActions={getTaskExecuteActions}
+                  />
+                }
+              />
+            </Routes>
+          </MemoryRouter>
+        </SnackbarProvider>
+      </QueryClientProvider>
+    );
+  }
+
+  it('hands the execute-action builder the schema it can read consequences from', async () => {
+    const getTaskExecuteActions = vi.fn(() => undefined);
+
+    renderWithExecuteActions(getTaskExecuteActions);
+
+    await screen.findByTestId('plugin-task-execute');
+    expect(getTaskExecuteActions).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'restore-task' }),
+      { pluginName: 'mysql_backups_restore', schema }
+    );
+  });
+
+  it('styles the confirm button as irreversible for a destructive action', async () => {
+    renderWithExecuteActions((task) => [
+      {
+        label: 'Execute',
+        taskName: String(task.name),
+        testId: 'restore-execute',
+        destructive: true,
+      },
+    ]);
+
+    await userEvent.click(screen.getByTestId('restore-execute'));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(
+      within(dialog).getByTestId('plugin-task-execute-confirm')
+    ).toHaveClass('MuiButton-colorError');
+  });
+
+  it('keeps the ordinary confirm colour for an action not marked destructive', async () => {
+    renderWithExecuteActions((task) => [
+      {
+        label: 'Execute',
+        taskName: String(task.name),
+        testId: 'restore-execute',
+      },
+    ]);
+
+    await userEvent.click(screen.getByTestId('restore-execute'));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(
+      within(dialog).getByTestId('plugin-task-execute-confirm')
+    ).not.toHaveClass('MuiButton-colorError');
+  });
+
   it('forwards executeBody from custom execute actions to the mutation', async () => {
     mockExecuteMutate.mockReset();
     mockExecuteMutate.mockResolvedValue({ id: 99 });
