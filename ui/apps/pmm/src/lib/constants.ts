@@ -19,6 +19,8 @@ export const PMM_NEW_NAV_HOME_URL = `${PMM_NEW_NAV_PATH}/graph/d/pmm-home`;
 export const INTERVALS_MS = {
   // 5 mins
   SERVICE_TYPES: 300000,
+  // 1 min
+  SERVER_VERSION: 60000,
 };
 
 export const ADVISOR_FAMILY: Record<AdvisorFamily, string> = {
