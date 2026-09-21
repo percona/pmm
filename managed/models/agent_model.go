@@ -33,6 +33,7 @@ import (
 	"github.com/lib/pq"
 	"gopkg.in/reform.v1"
 
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
 	"github.com/percona/pmm/version"
 )
@@ -43,12 +44,13 @@ import (
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
 type AgentType string
 
-// Text file names carrying TLS material to pmm-agent. Exporter arguments reference them
-// as {{ .TextFiles.<name> }}, so renaming one is a change to the agent wire protocol.
+// Text file names carrying TLS material to pmm-agent, aliased here so the managed side has
+// one spelling of a name that is really part of the agent wire protocol, and is therefore
+// defined alongside the message that carries it.
 const (
-	TLSCaFileName   = "tlsCa"
-	TLSCertFileName = "tlsCert"
-	TLSKeyFileName  = "tlsKey"
+	TLSCaFileName   = agentv1.TLSCaFileName
+	TLSCertFileName = agentv1.TLSCertFileName
+	TLSKeyFileName  = agentv1.TLSKeyFileName
 )
 
 const (
@@ -320,6 +322,11 @@ func (c ValkeyOptions) IsEmpty() bool {
 	return c.SSLCa == "" &&
 		c.SSLCert == "" &&
 		c.SSLKey == ""
+}
+
+// clientKeyPairIncomplete reports whether only one half of the TLS client key pair is set.
+func (c ValkeyOptions) clientKeyPairIncomplete() bool {
+	return (c.SSLCert == "") != (c.SSLKey == "")
 }
 
 // RTAOptions represents structure for Real-Time Analytics options.
@@ -972,7 +979,8 @@ func (a Agent) Files() map[string]string { //nolint:gocognit
 			files[TLSCaFileName] = a.ValkeyOptions.SSLCa
 		}
 		// valkey_exporter calls log.Fatal on half a client key pair and the connection
-		// check cannot use one either, so the pair only ships as a unit.
+		// check cannot use one either, so the pair only ships as a unit. Registration rejects
+		// a half pair, so this only guards rows written before that validation existed.
 		if a.ValkeyOptions.SSLCert != "" && a.ValkeyOptions.SSLKey != "" {
 			files[TLSCertFileName] = a.ValkeyOptions.SSLCert
 			files[TLSKeyFileName] = a.ValkeyOptions.SSLKey
@@ -986,11 +994,6 @@ func (a Agent) Files() map[string]string { //nolint:gocognit
 	default:
 		panic(fmt.Errorf("unhandled AgentType %q", a.AgentType))
 	}
-}
-
-// ValkeyClientKeyPairIncomplete reports whether only one half of the Valkey TLS client key pair is stored.
-func (a Agent) ValkeyClientKeyPairIncomplete() bool {
-	return (a.ValkeyOptions.SSLCert != "") != (a.ValkeyOptions.SSLKey != "")
 }
 
 // TemplateDelimiters returns a pair of safe template delimiters that are not present in agent parameters.

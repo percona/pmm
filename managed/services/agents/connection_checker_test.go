@@ -234,3 +234,19 @@ func TestConnectionRequestValkeyForwardsTLSSettings(t *testing.T) {
 	assert.Equal(t, map[string]string{"tlsCa": "ca-pem"}, request.TextFiles.Files)
 	require.NoError(t, f.mock.ExpectationsWereMet())
 }
+
+// Skip-verify is the one setting that has to survive with no TLS material at all, since
+// that is exactly the self-signed case it exists for.
+func TestConnectionRequestValkeyForwardsSkipVerifyWithoutCertificates(t *testing.T) {
+	t.Parallel()
+	f := newValkeyTLSRequestFixture(t)
+	f.agent.ValkeyOptions = models.ValkeyOptions{}
+
+	request, err := connectionRequest(f.db.Querier, f.service, f.agent)
+	require.NoError(t, err)
+
+	assert.True(t, request.Tls)
+	assert.True(t, request.TlsSkipVerify)
+	assert.Empty(t, request.TextFiles.GetFiles())
+	require.NoError(t, f.mock.ExpectationsWereMet())
+}

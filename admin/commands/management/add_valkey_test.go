@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
@@ -38,5 +39,18 @@ Service ID  : uuid-valkey
 Service name: myhost-valkey
 `)
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))
+	})
+
+	t.Run("IncompleteClientKeyPair", func(t *testing.T) {
+		for name, cmd := range map[string]*AddValkeyCommand{
+			"cert without key": {TLS: true, TLSCertFile: "/path/to/cert.pem"},
+			"key without cert": {TLS: true, TLSKeyFile: "/path/to/key.pem"},
+		} {
+			t.Run(name, func(t *testing.T) {
+				_, err := cmd.RunCmd()
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), "--tls-cert and --tls-key must be specified together")
+			})
+		}
 	})
 }

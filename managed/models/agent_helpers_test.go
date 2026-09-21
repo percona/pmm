@@ -658,6 +658,39 @@ func TestAgentHelpers(t *testing.T) {
 		assert.Equal(t, "A9", agents[2].AgentID)
 	})
 
+	t.Run("CreateAgentRejectsIncompleteValkeyKeyPair", func(t *testing.T) {
+		for name, options := range map[string]models.ValkeyOptions{
+			"cert without key": {SSLCert: "cert-pem"},
+			"key without cert": {SSLKey: "key-pem"},
+		} {
+			t.Run(name, func(t *testing.T) {
+				q, teardown := setup(t)
+				defer teardown(t)
+
+				agent, err := models.CreateAgent(q, models.ValkeyExporterType, &models.CreateAgentParams{
+					PMMAgentID:    "A1",
+					TLS:           true,
+					ValkeyOptions: options,
+				})
+				tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "TLS certificate and key must both be provided."), err)
+				require.Nil(t, agent)
+			})
+		}
+	})
+
+	// The merged row is what gets stored, so supplying one half on its own is rejected even
+	// though the parameters alone say nothing about the other half.
+	t.Run("ChangeAgentRejectsIncompleteValkeyKeyPair", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		agent, err := models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
+			ValkeyOptions: &models.ChangeValkeyOptions{SSLCert: new("cert-pem")},
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "TLS certificate and key must both be provided."), err)
+		require.Nil(t, agent)
+	})
+
 	t.Run("ChangeAgent", func(t *testing.T) {
 		t.Run("ChangeBasicFields", func(t *testing.T) {
 			q, teardown := setup(t)

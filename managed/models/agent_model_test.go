@@ -24,6 +24,8 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -361,24 +363,30 @@ func TestValkey(t *testing.T) {
 		}
 	})
 
-	t.Run("ValkeyClientKeyPairIncomplete", func(t *testing.T) {
+	t.Run("Validate", func(t *testing.T) {
 		t.Parallel()
 
 		for name, tc := range map[string]struct {
-			options  models.ValkeyOptions
-			expected bool
+			options models.ValkeyOptions
+			valid   bool
 		}{
-			"pair":      {models.ValkeyOptions{SSLCert: "bb", SSLKey: "cc"}, false},
-			"none":      {models.ValkeyOptions{SSLCa: "aa"}, false},
-			"cert only": {models.ValkeyOptions{SSLCert: "bb"}, true},
-			"key only":  {models.ValkeyOptions{SSLKey: "cc"}, true},
+			"no material":   {models.ValkeyOptions{}, true},
+			"ca only":       {models.ValkeyOptions{SSLCa: "aa"}, true},
+			"complete pair": {models.ValkeyOptions{SSLCert: "bb", SSLKey: "cc"}, true},
+			"cert only":     {models.ValkeyOptions{SSLCert: "bb"}, false},
+			"key only":      {models.ValkeyOptions{SSLKey: "cc"}, false},
 		} {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				agent := models.Agent{AgentType: models.ValkeyExporterType, ValkeyOptions: tc.options}
+				err := tc.options.Validate()
+				if tc.valid {
+					require.NoError(t, err)
+					return
+				}
 
-				require.Equal(t, tc.expected, agent.ValkeyClientKeyPairIncomplete())
+				require.Error(t, err)
+				require.Equal(t, codes.InvalidArgument, status.Code(err))
 			})
 		}
 	})

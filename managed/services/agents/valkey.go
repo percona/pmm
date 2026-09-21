@@ -18,8 +18,6 @@ package agents
 import (
 	"sort"
 
-	"github.com/sirupsen/logrus"
-
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -28,7 +26,7 @@ import (
 
 // valkeyExporterConfig returns the desired configuration of the valkey_exporter process.
 func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
-	pmmAgentVersion *version.Parsed, l *logrus.Entry,
+	pmmAgentVersion *version.Parsed,
 ) *agentv1.SetStateRequest_AgentProcess {
 	listenAddress := getExporterListenAddress(node, exporter)
 	tdp := exporter.TemplateDelimiters(service)
@@ -54,19 +52,15 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 			args = append(args, "--tls-ca-cert-file="+textFileRef(tdp, models.TLSCaFileName))
 		}
 
-		// Files() ships the client key pair only as a unit, so one lookup covers both flags.
-		if _, ok := textFiles[models.TLSCertFileName]; ok {
+		// The exporter's validateTLSClientConfig calls log.Fatal on half a pair, so neither
+		// flag is emitted unless both files were actually shipped.
+		_, hasCert := textFiles[models.TLSCertFileName]
+		_, hasKey := textFiles[models.TLSKeyFileName]
+
+		if hasCert && hasKey {
 			args = append(args,
 				"--tls-client-cert-file="+textFileRef(tdp, models.TLSCertFileName),
 				"--tls-client-key-file="+textFileRef(tdp, models.TLSKeyFileName))
-		}
-
-		// Half a pair would make the exporter's validateTLSClientConfig call log.Fatal and
-		// crash-loop the process, so the connection silently degrades to server authentication.
-		// Make that visible to the operator.
-		if exporter.ValkeyClientKeyPairIncomplete() {
-			l.WithField("agent_id", exporter.AgentID).
-				Warn("Valkey exporter has only one half of the TLS client key pair; connecting without a client certificate.")
 		}
 	}
 
