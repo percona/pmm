@@ -65,10 +65,11 @@ func TestHealthCheckRulesMatchTheProto(t *testing.T) {
 			require.NotNil(t, m, "%s is missing from ServerService", method)
 
 			// A descriptor that stopped carrying the annotation is itself the drift worth
-			// catching, so this fails rather than skipping.
-			rule, ok := proto.GetExtension(m.Options(), annotations.E_Http).(*annotations.HttpRule)
-			require.True(t, ok, "%s has no google.api.http annotation", method)
-			require.NotNil(t, rule)
+			// catching, so this fails rather than skipping. The type assertion is not what
+			// catches it: an absent message extension reads back as a typed nil, so it
+			// always succeeds. The nil check is the one that fires.
+			rule, _ := proto.GetExtension(m.Options(), annotations.E_Http).(*annotations.HttpRule)
+			require.NotNil(t, rule, "%s has no google.api.http annotation", method)
 
 			path := rule.GetGet()
 			require.NotEmpty(t, path, "%s is no longer a GET route", method)

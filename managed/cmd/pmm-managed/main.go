@@ -561,17 +561,6 @@ type setupDeps struct {
 	l           *logrus.Entry
 }
 
-// updateSupervisordConfig renders supervisord's configuration from the stored settings. It takes
-// no context: supervisorctl runs to completion, so a canceled request cannot leave a half-applied
-// configuration behind.
-func updateSupervisordConfig(q reform.DBTX, svc *supervisord.Service) error {
-	settings, err := models.GetSettings(q)
-	if err != nil {
-		return fmt.Errorf("failed to get settings: %w", err)
-	}
-	return svc.UpdateConfiguration(settings)
-}
-
 // setup performs setup tasks that depend on database.
 func setup(ctx context.Context, deps *setupDeps) bool {
 	l := reform.NewPrintfLogger(deps.l.Debugf)
@@ -593,7 +582,12 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	}
 
 	deps.l.Infof("Updating supervisord configuration...")
-	err := updateSupervisordConfig(db.Querier, deps.supervisord) //nolint:contextcheck // supervisorctl runs to completion
+	settings, err := models.GetSettings(db.Querier)
+	if err != nil {
+		deps.l.Warnf("Failed to get settings: %s.", err)
+		return false
+	}
+	err = deps.supervisord.UpdateConfiguration(settings)
 	if err != nil {
 		deps.l.Warnf("Failed to update supervisord configuration: %s.", err)
 		return false

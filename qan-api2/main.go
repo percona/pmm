@@ -69,11 +69,12 @@ const (
 	maxOpenConns    = 10
 )
 
-// Variables rather than constants so that tests can shrink them. Only ever read.
-var (
+const (
+	// How often retention runs when it is working.
 	defaultDropOldPartitionInterval = 24 * time.Hour
-	// How soon to try again after a pass that failed. Short, so that a transient ClickHouse
-	// problem costs minutes rather than a whole day of retention.
+	// How soon to try again after the first pass that failed. Short, so that a transient
+	// ClickHouse problem costs minutes rather than a whole day of retention. It doubles with
+	// each consecutive failure, up to defaultDropOldPartitionInterval.
 	retentionRetryInterval = 5 * time.Minute
 )
 
@@ -286,24 +287,23 @@ func seedRetentionCounters() {
 	}
 }
 
-// runRetentionLoop calls drop for partitions older than the retention period once a day,
-// until ctx is canceled.
+// runRetentionLoop calls drop for partitions older than the retention period every interval,
+// until ctx is canceled. A pass that failed is retried after retry instead, which doubles with
+// each consecutive failure up to interval.
 //
 // Every replica runs one of these against the same ClickHouse, all with the same retention
 // period: it is fixed at start-up, so they cannot disagree about which partitions are old.
 // DROP PARTITION is a no-op once the partition is gone, so the repeated work is harmless.
 //
 // Nothing here can fail loudly on its own: a node that never applies retention shows up much
-// later as a full disk. So every pass records its outcome in mRetentionPasses, and a failed drop
-// is retried in minutes rather than waited out for a day.
-func runRetentionLoop(ctx context.Context, drop func(context.Context) error) {
+// later as a full disk. So every pass records its outcome in mRetentionPasses, and the first
+// failures are retried in minutes rather than waited out for a day.
+func runRetentionLoop(ctx context.Context, interval, retry time.Duration, drop func(context.Context) error) {
 	l := logrus.WithField("component", "retention")
+	backoff := retry
 
 	for {
-		// Measured from the start of the iteration, so the cadence does not slip by however
-		// long the drop took.
 		start := time.Now()
-		delay := defaultDropOldPartitionInterval
 		result := retentionApplied
 
 		err := drop(ctx)
@@ -313,14 +313,29 @@ func runRetentionLoop(ctx context.Context, drop func(context.Context) error) {
 			// retry" would be a lie: the loop is about to return.
 			return
 		}
+
+		// Measured from the start of the iteration, so the cadence does not slip by however
+		// long the drop took.
+		deadline := start.Add(interval)
 		if err != nil {
 			result = retentionFailed
-			l.Errorf("Failed to apply data retention, will retry: %s.", err)
-			delay = retentionRetryInterval
+			l.Errorf("Failed to apply data retention, will retry in %s: %s.", backoff, err)
+			// The retry is measured from the end of the failed pass instead. A drop that
+			// took longer to fail than the retry interval would otherwise be retried with
+			// no delay at all, turning a degraded ClickHouse into a tight retry loop.
+			deadline = time.Now().Add(backoff)
+			// Nothing here can tell a transient failure from a permanent one, and a
+			// partition that can never be dropped would otherwise keep a once-a-day task
+			// running every few minutes for good, on every replica. Growing the delay back
+			// towards the normal interval keeps the short retry for the transient case and
+			// lets a stuck one settle, with the failed counter still carrying the signal.
+			backoff = min(backoff+backoff, interval)
+		} else {
+			backoff = retry
 		}
 		mRetentionPasses.WithLabelValues(result).Inc()
 
-		t := time.NewTimer(time.Until(start.Add(delay)))
+		t := time.NewTimer(time.Until(deadline))
 		select {
 		case <-ctx.Done():
 			t.Stop()
@@ -427,7 +442,7 @@ func main() {
 	})
 
 	wg.Go(func() {
-		runRetentionLoop(ctx, func(ctx context.Context) error {
+		runRetentionLoop(ctx, defaultDropOldPartitionInterval, retentionRetryInterval, func(ctx context.Context) error {
 			return DropOldPartition(ctx, db, *clickhouseDatabaseF, *dataRetentionF)
 		})
 	})

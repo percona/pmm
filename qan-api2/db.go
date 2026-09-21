@@ -198,10 +198,19 @@ func DropOldPartition(ctx context.Context, db *sqlx.DB, dbName string, days uint
 		dropped++
 	}
 
+	// A pass that dropped nothing because every statement failed must not leave the same
+	// evidence as a healthy one: an operator grepping for the line below to confirm retention
+	// works would find it on a node that has deleted nothing for weeks. The counts travel with
+	// the error instead, which the caller reports at error level.
+	if len(errs) != 0 {
+		return fmt.Errorf("dropped %d of %d partitions of %s.metrics older than %d days: %w",
+			dropped, len(partitions), dbName, days, errors.Join(errs...))
+	}
+
 	// Logged even when nothing was old enough, so a healthy deployment leaves evidence that
 	// retention is running at all.
 	l.Infof("Data retention applied to %s.metrics: dropped %d of %d partitions older than %d days.",
 		dbName, dropped, len(partitions), days)
 
-	return errors.Join(errs...)
+	return nil
 }

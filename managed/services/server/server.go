@@ -566,7 +566,9 @@ func (s *Server) validateDataRetention(ctx context.Context, req *serverv1.Change
 	// and shortening retention deletes data that cannot be brought back.
 	settings, err := models.GetSettings(s.db.WithContext(ctx))
 	if err != nil {
-		return fmt.Errorf("failed to get settings: %w", err)
+		s.l.Errorf("Failed to read the stored settings while validating data retention: %s.", err)
+
+		return status.Error(codes.Internal, "Failed to read the stored data retention.")
 	}
 
 	if req.DataRetention.AsDuration() == settings.DataRetention {

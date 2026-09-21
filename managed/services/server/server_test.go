@@ -288,11 +288,11 @@ func TestServer(t *testing.T) {
 			stored, err := models.GetSettings(s.db)
 			require.NoError(t, err)
 
-			ctx, cancel := context.WithCancel(context.Background())
+			ctx, cancel := context.WithCancel(t.Context())
 			cancel()
 
 			err = s.validateChangeSettingsRequest(ctx, retention(stored.DataRetention+24*time.Hour))
-			require.Error(t, err, "a settings read that failed must not be read as permission to proceed")
+			tests.AssertGRPCErrorRE(t, codes.Internal, "Failed to read the stored data retention.", err)
 		})
 
 		t.Run("nothing is refused when HA is disabled", func(t *testing.T) {
