@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   fireEvent,
   render,
@@ -926,7 +926,9 @@ describe('ScheduledTasksPanel — write access', () => {
         {},
         { timeout: 3000 }
       );
-      await waitFor(() => expect(runs).toHaveTextContent(/Next runs:/));
+      await waitFor(() =>
+        expect(runs).toHaveTextContent(/Next runs \(Europe\/Lisbon\):/)
+      );
       // Three, not the four the backend offered, rendered as a clock time in
       // the schedule's own zone rather than the reader's or a relative phrase.
       for (const iso of runIsos.slice(0, 3)) {
@@ -946,6 +948,98 @@ describe('ScheduledTasksPanel — write access', () => {
         })
       );
       expect(runs.textContent).not.toMatch(/in \d+ (hours?|days?)|tomorrow/);
+    });
+
+    describe('for a reader outside the schedule zone', () => {
+      // In a UTC runner the panel header and an interval preview name the same
+      // zone, so the disagreement these tests guard against never shows up.
+      beforeEach(() => {
+        vi.stubEnv('TZ', 'America/Sao_Paulo');
+      });
+      afterEach(() => {
+        vi.unstubAllEnvs();
+      });
+
+      const utcClock = (iso: string) =>
+        new Date(iso).toLocaleString(undefined, {
+          timeZone: 'UTC',
+          dateStyle: 'medium',
+          timeStyle: 'short',
+        });
+
+      it('names the zone of an interval preview the header does not cover', async () => {
+        setup([]);
+        const runIsos = [
+          '2026-09-20T06:13:00Z',
+          '2026-09-20T07:13:00Z',
+          '2026-09-20T08:13:00Z',
+        ];
+        apiMock.post.mockResolvedValue({
+          data: {
+            timezone: 'UTC',
+            next_run_at: runIsos[0],
+            next_runs: runIsos,
+          },
+        });
+
+        renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+        const user = userEvent.setup();
+        await user.click(await screen.findByTestId('scheduled-tasks-add'));
+        const form = await screen.findByTestId('scheduled-task-form');
+
+        expect(
+          screen.getByTestId('scheduled-tasks-display-timezone')
+        ).toHaveTextContent('Times shown in America/Sao_Paulo');
+
+        const runs = await within(form).findByTestId(
+          'sched-form-next-runs',
+          {},
+          { timeout: 3000 }
+        );
+        await waitFor(() => expect(runs).toHaveTextContent(/^Next runs/));
+        expect(runs).toHaveTextContent(
+          `Next runs (UTC): ${runIsos.map(utcClock).join(', ')}`
+        );
+      });
+
+      it('names the zone of a cron preview written in another zone', async () => {
+        setup([
+          makePeriodic({
+            id: 70,
+            interval: null,
+            timezone: 'Europe/Lisbon',
+            crontab: {
+              minute: '0',
+              hour: '3',
+              day_of_month: '*',
+              month_of_year: '*',
+              day_of_week: '*',
+              timezone: 'Europe/Lisbon',
+            },
+            period: '0 3 * * *',
+          }),
+        ]);
+        apiMock.post.mockResolvedValue({
+          data: {
+            timezone: 'Europe/Lisbon',
+            next_run_at: '2026-09-21T02:00:00Z',
+            next_runs: ['2026-09-21T02:00:00Z'],
+          },
+        });
+
+        renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+        const user = userEvent.setup();
+        await user.click(await screen.findByTestId('scheduled-task-edit-70'));
+        const form = await screen.findByTestId('scheduled-task-form');
+
+        await waitFor(
+          () =>
+            expect(
+              within(form).getByTestId('sched-form-next-runs')
+            ).toHaveTextContent('Next runs (Europe/Lisbon): '),
+          { timeout: 3000 }
+        );
+      });
     });
 
     it('states the zone the backend resolved, not the one the form assumed', async () => {

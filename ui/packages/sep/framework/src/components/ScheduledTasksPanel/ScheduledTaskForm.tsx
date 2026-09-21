@@ -286,9 +286,10 @@ export function ScheduledTaskForm({
 
   const nextRuns = preview?.next_runs?.slice(0, 3) ?? [];
 
-  // A clock time in the zone the caption above already names — never relative
-  // and never the reader's own zone, since a run in "2 hours" or in the
-  // reader's zone would silently contradict "Runs in {zoneInForce}" above it.
+  // A clock time in the schedule's own zone — never relative and never the
+  // reader's — so it can be checked against the start time or cron expression
+  // it came from. The panel header names the reader's zone for the rest of the
+  // card, hence the zone label on the preview line itself.
   const formatNextRun = (value: string): string => {
     const target = new Date(value);
     if (Number.isNaN(target.getTime())) {
@@ -570,7 +571,7 @@ export function ScheduledTaskForm({
             {previewFailed
               ? 'Could not work out the next runs for this schedule.'
               : nextRuns.length > 0
-                ? `Next runs: ${nextRuns.map(formatNextRun).join(', ')}`
+                ? `Next runs (${zoneInForce}): ${nextRuns.map(formatNextRun).join(', ')}`
                 : preview
                   ? 'This schedule has no upcoming runs.'
                   : 'Working out the next runs…'}
