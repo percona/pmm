@@ -502,6 +502,36 @@ func TestConfigToStore(t *testing.T) {
 		assert.Equal(t, testAgentID, stored.ID)
 	})
 
+	// Taking the whole Server struct from the assembled configuration rewrote a file which alone holds
+	// `insecure-tls: true` with it off, leaving the Agent unable to reach a self-signed PMM Server.
+	t.Run("keeping the registration keeps what the file says about PMM Server", func(t *testing.T) {
+		t.Parallel()
+
+		fileCfg := running()
+		fileCfg.Server.InsecureTLS = true
+		fileCfg.Server.WithoutTLS = true
+
+		args := []string{"setup", "1.2.3.4", "generic"}
+		stored, err := configToStore(assembled(), fileCfg, false, args, l)
+		require.NoError(t, err)
+
+		assert.True(t, stored.Server.InsecureTLS)
+		assert.True(t, stored.Server.WithoutTLS)
+		// The credentials are still the ones setup settled.
+		assert.Equal(t, "service_token", stored.Server.Username)
+		assert.Equal(t, "stored-token", stored.Server.Password)
+	})
+
+	t.Run("a certificate check skipped by a flag is applied", func(t *testing.T) {
+		t.Parallel()
+
+		args := []string{"--server-insecure-tls", "setup", "1.2.3.4", "generic"}
+		stored, err := configToStore(assembled(), running(), false, args, l)
+		require.NoError(t, err)
+
+		assert.True(t, stored.Server.InsecureTLS)
+	})
+
 	// The file holds every path, derived or not, so a base which only moved itself left the Agent running
 	// the exporters of the base it came from.
 	t.Run("a base given moves the paths the old base derived", func(t *testing.T) {

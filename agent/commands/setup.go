@@ -301,8 +301,15 @@ func configToStore(cfg, fileCfg *config.Config, loadedFromFile bool, args []stri
 		return nil, err
 	}
 
-	merged.Server = cfg.Server
+	// Only the ID and the credentials. The address and the TLS settings are the ones the merge applied,
+	// and taking the whole struct from the assembled configuration put back what the merge exists to
+	// avoid: a file which alone holds `insecure-tls: true` was rewritten with it off, leaving the Agent
+	// unable to reach a PMM Server with a self-signed certificate.
 	merged.ID = cfg.ID
+	if cfg.Server.Password != "" {
+		merged.Server.Username = cfg.Server.Username
+		merged.Server.Password = cfg.Server.Password
+	}
 	if cfg.ProcMountsPath != "" {
 		merged.ProcMountsPath = cfg.ProcMountsPath
 	}
