@@ -86,7 +86,7 @@ interface SchemaDrivenPluginProps {
   /** Replace the default Execute button on single-task detail pages. */
   getTaskExecuteActions?: (
     task: Record<string, unknown>,
-    context: { pluginName: string }
+    context: { pluginName: string; schema: PluginSchema }
   ) => TaskExecuteAction[] | undefined;
   /**
    * Force-hide scheduling UI and the `/schedule` route even when the live

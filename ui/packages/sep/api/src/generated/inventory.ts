@@ -255,6 +255,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/nodes/system-observations': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Host System Observations
+     * @description List host system observations across every node.
+     *
+     *     Declared above ``GET /{node_id}`` for the reason
+     *     :func:`list_node_identity_candidates` gives: FastAPI matches path operations in
+     *     declaration order, so the parameterized route would claim this path and answer
+     *     422 rather than 404.
+     *
+     *     The narrow ``response_model`` drops the two JSON blobs only after they have been
+     *     fetched and deserialized, so ``load_only`` keeps them out of the query itself.
+     *     Without it a fleet-wide page carries every node's full package list, which is
+     *     the cost this route exists to avoid.
+     *
+     *     :param session: The async database session.
+     *     :param pagination: Validated offset/limit query parameters.
+     *     :return: A paginated response of observation summaries.
+     */
+    get: operations['nodes_list_host_system_observations_nodes_system_observations_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/nodes/{node_id}': {
     parameters: {
       query?: never;
@@ -1060,21 +1094,19 @@ export interface components {
      * @description Define the response model for host system observation data.
      *
      *     :param id: The primary key of the observation record.
-     *     :type id: int | None
      *     :param created_at: When the record was created.
-     *     :type created_at: UTCDatetime
      *     :param updated_at: When the record was last updated.
-     *     :type updated_at: UTCDatetime | None
      *     :param node_id: The unique identifier of the observed node.
-     *     :type node_id: int
      *     :param os_version: The observed operating system version.
-     *     :type os_version: str | None
      *     :param installed_packages: Snapshot of installed packages.
      *     :param config: Snapshot of host configuration.
+     *     :param can_elevate: Whether a ``sudo``-prefixed command can start on this
+     *         node, if observed.
      *     :param observed_at: When this observation was collected.
-     *     :type observed_at: UTCDatetime
      */
     HostSystemObservationResponse: {
+      /** Can Elevate */
+      can_elevate?: boolean | null;
       /** Config */
       config?: {
         [key: string]: unknown;
@@ -1105,19 +1137,44 @@ export interface components {
       updated_at?: string | null;
     };
     /**
+     * HostSystemObservationSummaryResponse
+     * @description Project a host observation onto the fields a capability lookup needs.
+     *
+     *     Deliberately excludes ``installed_packages`` and ``config``. The first runs to
+     *     hundreds of rows per node, which is what makes the full response unsuitable for
+     *     a fleet-wide fetch; the second is small but has no consumer here.
+     *
+     *     :param node_id: The unique identifier of the observed node.
+     *     :param can_elevate: Whether a ``sudo``-prefixed command can start on this
+     *         node, if observed.
+     *     :param observed_at: When this observation was collected.
+     */
+    HostSystemObservationSummaryResponse: {
+      /** Can Elevate */
+      can_elevate?: boolean | null;
+      /** Node Id */
+      node_id: number;
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+    };
+    /**
      * HostSystemObservationWrite
      * @description Define the model for writing host system observation data to the inventory.
      *
      *     :param node_id: The foreign key referencing the node. Defaults to None.
-     *     :type node_id: int | None
      *     :param os_version: The observed operating system version. Defaults to None.
-     *     :type os_version: str | None
      *     :param installed_packages: Snapshot of installed packages. Defaults to None.
      *     :param config: Snapshot of host configuration. Defaults to None.
+     *     :param can_elevate: Whether a ``sudo``-prefixed command can start on this
+     *         node. Defaults to ``None``.
      *     :param observed_at: When this observation was collected.
-     *     :type observed_at: UTCDatetime
      */
     HostSystemObservationWrite: {
+      /** Can Elevate */
+      can_elevate?: boolean | null;
       /** Config */
       config?: {
         [key: string]: unknown;
@@ -1413,6 +1470,17 @@ export interface components {
     PaginatedResponse_ExternalIdentityAliasResponse_: {
       /** Items */
       items: components['schemas']['ExternalIdentityAliasResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /** PaginatedResponse[HostSystemObservationSummaryResponse] */
+    PaginatedResponse_HostSystemObservationSummaryResponse_: {
+      /** Items */
+      items: components['schemas']['HostSystemObservationSummaryResponse'][];
       /** Limit */
       limit: number;
       /** Offset */
@@ -2761,6 +2829,38 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['PaginatedResponse_NodeIdentityCandidateResponse_'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  nodes_list_host_system_observations_nodes_system_observations_get: {
+    parameters: {
+      query?: {
+        offset?: number;
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedResponse_HostSystemObservationSummaryResponse_'];
         };
       };
       /** @description Validation Error */

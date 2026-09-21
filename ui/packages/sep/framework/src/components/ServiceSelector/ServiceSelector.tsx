@@ -55,7 +55,7 @@ const getOptionLabel = (opt: ServiceOption | string) =>
 // typed-text-to-id resolution only fires if the user types that exact form;
 // in practice a free-typed service almost always commits as a custom string,
 // while inventory picks resolve to an id through the option-click path.
-const getServiceOptionLabel = (opt: ServiceOption) =>
+export const getServiceOptionLabel = (opt: ServiceOption) =>
   `${opt.name} (${opt.type})`;
 
 const isOptionEqualToValue = (a: ServiceOption, b: ServiceOption) =>

@@ -743,6 +743,12 @@ function ExecutionRow({
   // Probed only once the run is finished: a running task's file listing is
   // not yet meaningful, and the endpoint's answer for it is not stable.
   const hasFiles = useHasDownloadableFiles(task_history_id, selectable);
+  // `has_logs` reports only the log SEP has already captured, which trails a
+  // running execution — sometimes by its whole length — so while it runs the
+  // viewer's own stream is what shows the output. Not while it is pending: the
+  // log route refuses a pending run, and the viewer does not reconnect once it
+  // starts, so it mounts when the polled status reaches `running`.
+  const logsUnavailable = has_logs === false && task_status !== 'running';
 
   // The name the user picked in the Collect pane, which is what they are
   // looking for here. The filename is the fallback, not the label: it is the
@@ -937,7 +943,7 @@ function ExecutionRow({
 
         <Divider sx={{ mb: 2 }} />
 
-        {has_logs === false ? (
+        {logsUnavailable ? (
           <Typography variant="body2" color="text.secondary">
             No logs available for this execution.
           </Typography>

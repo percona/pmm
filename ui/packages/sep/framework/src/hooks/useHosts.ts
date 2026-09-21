@@ -26,6 +26,12 @@ export interface HostOption {
   name: string;
   /** Network address reported by the executor. */
   address: string;
+  /**
+   * Whether a `sudo`-prefixed command can start on this host: `false` is a
+   * measurement that it cannot, while `null` or absent means it was never
+   * observed and says nothing either way.
+   */
+  can_elevate?: boolean | null;
 }
 
 export interface UseHostsOptions {

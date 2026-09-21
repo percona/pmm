@@ -25,8 +25,10 @@ import {
   Typography,
 } from '@mui/material';
 import {
+  HostElevationWarning,
   SchemaFormRenderer,
   SNIPPET_FORM_RESERVED_FIELD_NAMES,
+  type RenderFieldOverride,
 } from '@sep/framework';
 import { useAuth, type FormSection, type SectionField } from '@sep/api';
 import { CategoryBrowser } from './CategoryBrowser';
@@ -137,10 +139,7 @@ function bareFieldName(name: string): string {
  * True when a field is a CLI-only help/usage control that should not appear in
  * the PMM Collect form (PMM-15510).
  */
-export function isCliUsageTrapField(field: {
-  name: string;
-  label?: string;
-}): boolean {
+export function isCliUsageTrapField(field: SectionField): boolean {
   if (CLI_USAGE_TRAP_NAMES.has(bareFieldName(field.name).toLowerCase())) {
     return true;
   }
@@ -531,6 +530,21 @@ export function CollectPane({
       .map((snippet) => snippet.title);
   }, [schemaQuery.data, selected]);
 
+  const renderField = useCallback<RenderFieldOverride>(
+    ({ field, renderDefault }) =>
+      field.name === 'executor_host' ? (
+        <>
+          {renderDefault()}
+          <HostElevationWarning
+            name="executor_host"
+            sudoName="sudo"
+            snippets={selected}
+          />
+        </>
+      ) : null,
+    [selected]
+  );
+
   const handleSubmit = (values: Record<string, unknown>) => {
     setItemErrors([]);
     const snippetsAtSubmit = selected;
@@ -702,6 +716,7 @@ export function CollectPane({
             sections={sections}
             defaultValues={formDefaults}
             onSubmit={handleSubmit}
+            renderField={renderField}
             submitLabel="Execute batch"
             loading={batchMutation.isPending}
             submitError={submitError}

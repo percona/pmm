@@ -451,11 +451,22 @@
         "type": "object"
       },
       "HostResponse": {
-        "description": "Represent a single executor target enriched with an inventory display name.\n\n:param id: The executor (Nomad / Celery) node name. This is the value\n    consumed by dispatch payloads as ``executor_host``.\n:type id: str\n:param name: Human-readable label sourced from inventory when available;\n    falls back to ``id`` if the host has no inventory match.\n:type name: str\n:param address: The network address reported by the executor.\n:type address: str",
+        "description": "Represent a single executor target enriched with an inventory display name.\n\n:param id: The executor (Nomad / Celery) node name. This is the value\n    consumed by dispatch payloads as ``executor_host``.\n:param name: Human-readable label sourced from inventory when available;\n    falls back to ``id`` if the host has no inventory match.\n:param address: The network address reported by the executor.\n:param can_elevate: Whether a ``sudo``-prefixed command can start on this\n    host: ``True`` when the task user is uid 0 or a bare ``sudo`` resolves,\n    ``False`` when neither holds, ``None`` when never observed. A ``True``\n    does not promise the task user is in sudoers, only that the launch check\n    lets the command through. ``None`` is permanent, not transient, for an\n    executor host with no inventory match.",
         "properties": {
           "address": {
             "title": "Address",
             "type": "string"
+          },
+          "can_elevate": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Can Elevate"
           },
           "id": {
             "title": "Id",
@@ -829,7 +840,7 @@
         "type": "object"
       },
       "SepTaskHistoryResponse": {
-        "description": "Represent a task-history row as SEP serves it, with actors resolved.\n\n:param task: The task this execution belongs to, carrying resolved actors.\n:param executed_by: Display name for the actor that ran the task, or\n    ``None`` when none was recorded.",
+        "description": "Represent a task-history row as SEP serves it, with actors resolved.\n\n:param task: The task this execution belongs to, carrying resolved actors.\n:param executed_by: Display name for the actor that ran the task: the\n    provider's username when resolvable, a system label for\n    system-initiated work, otherwise the stored identifier. ``None`` when\n    none was recorded.",
         "properties": {
           "anonymize_mask": {
             "anyOf": [
@@ -848,7 +859,7 @@
             "type": "string"
           },
           "display_name": {
-            "description": "Return a user-meaningful display label for this task history row.\n\nFor normal tasks, returns ``task.name``. For generic executor templates\n(``run-python``, ``exec-artifact``, ``exec-python-artifact``), builds a\n``\"<source>/<filename> on <target>\"`` label so otherwise-identical rows\nare distinguishable: the filename comes from the snippet metadata or the\n``file://`` payload basename, the source directory from whichever of those\ncarries one, and the target from the execution request. Falls back to\n``\"<task> on <target>\"`` when no filename is available.\n\n:return: The display label for the task history entry.",
+            "description": "Return a user-meaningful display label for this task history row.\n\nFor normal tasks, returns ``task.name``. For generic executor templates\n(``run-python``, ``exec-artifact``, ``exec-python-artifact``), builds a\n``\"<source>/<filename> on <target>\"`` label so otherwise-identical rows\nare distinguishable: the filename comes from the snippet metadata or the\n``file://`` payload basename, the source directory from whichever of those\ncarries one, and the target from the execution request. Falls back to\n``\"<task> on <target>\"`` when no filename is available.\n\nA ``PROXY`` task that leaves the payload to each dispatch is classified by the\nroot it names, not by its own name, because history binds to the\n*dispatched* task: an app wrapping a generic executor to attach its own hooks\nwould otherwise collapse every one of its runs onto the wrapper's single\nname. A proxy carrying its own ``payload`` is left alone, because\n``prepare_task_history`` substitutes that payload into every run: it is a\nconfigured job, and its own name is the meaningful label. That is the shape\nof every proxy the framework builds over ``run-python``. Only the\nclassification uses the root — a proxy over a non-generic task still reports\nits own name.\n\n:return: The display label for the task history entry.",
             "readOnly": true,
             "title": "Display Name",
             "type": "string"
@@ -943,6 +954,14 @@
           "task": {
             "$ref": "#/components/schemas/SepTaskResponse"
           },
+          "unreadable_request_leaves": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Unreadable Request Leaves",
+            "type": "array"
+          },
           "updated_at": {
             "anyOf": [
               {
@@ -967,7 +986,7 @@
         "type": "object"
       },
       "SepTaskResponse": {
-        "description": "Represent a task definition as SEP serves it, with actors resolved.\n\nDiffer from :class:`~app.tasks.models.TaskResponse` only in what the two\nactor fields carry.\n\n:param created_by: Display name for the task's creator, or ``None`` when\n    none was recorded.\n:param last_updated_by: Display name for the user who last modified the\n    task, or ``None`` when none was recorded.",
+        "description": "Represent a task definition as SEP serves it, with actors resolved.\n\nDiffer from :class:`~app.tasks.models.TaskResponse` only in what the two\nactor fields carry.\n\n:param created_by: Display name for the task's creator: the provider's\n    username when resolvable, a system label for system-initiated work,\n    otherwise the stored identifier. ``None`` when none was recorded.\n:param last_updated_by: Display name for the user who last modified the\n    task, resolved on the same terms as ``created_by``. ``None`` when none\n    was recorded.",
         "properties": {
           "alert_detail_builder": {
             "anyOf": [
@@ -1571,7 +1590,7 @@
         "type": "object"
       },
       "SnippetResponse": {
-        "description": "Represent a snippet entity as exposed by the JSON API.\n\n:param filename: The snippet's filename on disk; doubles as its\n    identifier in the API.\n:type filename: NonEmptyStr\n:param title: The display title for the snippet (snippet metadata's\n    ``title`` field, falling back to ``filename`` when unset).\n:type title: NonEmptyStr\n:param description: The snippet's free-text description, or an empty\n    string when no description is set in metadata.\n:type description: str\n:param service_type: The snippet's free-form service type\n    (``service_type`` metadata field, for example ``\"mysql\"`` or\n    ``\"mongodb\"``), or ``None`` when the snippet declares no service\n    type. Distinct from the inventory ``ServiceTypeEnum``.\n:type service_type: str | None\n:param size: Snippet file size in bytes.\n:type size: int\n:param md5_digest: 32-character MD5 hex digest of the snippet file.\n:type md5_digest: str\n:param is_approved: Whether the snippet has been approved for execution.\n:type is_approved: bool\n:param approved_at: When the snippet was last approved, or ``None`` if\n    unapproved.\n:type approved_at: datetime | None\n:param updated_by: User id that last toggled the approval state, or\n    ``None`` if no toggle has occurred.\n:type updated_by: str | None\n:param reason: Free-form reason recorded the last time the snippet's\n    approval state changed.\n:type reason: str\n:param requires_sudo: Whether the snippet requires sudo for execution\n    (either always-sudo or sudo is user-toggleable).\n:type requires_sudo: bool\n:param sudo_optional: Whether the user can toggle sudo at execution\n    time.\n:type sudo_optional: bool\n:param sudo_default: Default value for the sudo toggle when\n    ``sudo_optional`` is ``True``.\n:type sudo_default: bool\n:param interpreter: The shell/interpreter command used to execute the\n    snippet (for example, ``\"bash\"`` or ``\"python3\"``); ``None`` when\n    no interpreter mapping resolves.\n:type interpreter: str | None\n:param created_at: When the snippet row was first inserted.\n:type created_at: datetime\n:param updated_at: When the snippet row was last updated, or ``None``\n    if never updated since insert.\n:type updated_at: datetime | None",
+        "description": "Represent a snippet entity as exposed by the JSON API.\n\n:param filename: The snippet's filename on disk; doubles as its\n    identifier in the API.\n:param title: The display title for the snippet (snippet metadata's\n    ``title`` field, falling back to ``filename`` when unset).\n:param description: The snippet's free-text description, or an empty\n    string when no description is set in metadata.\n:param service_type: The snippet's free-form service type\n    (``service_type`` metadata field, for example ``\"mysql\"`` or\n    ``\"mongodb\"``), or ``None`` when the snippet declares no service\n    type. Distinct from the inventory ``ServiceTypeEnum``.\n:param size: Snippet file size in bytes.\n:param md5_digest: 32-character MD5 hex digest of the snippet file.\n:param is_approved: Whether the snippet has been approved for execution.\n:param approved_at: When the snippet was last approved, or ``None`` if\n    unapproved.\n:param updated_by: User id that last toggled the approval state, or\n    ``None`` if no toggle has occurred.\n:param reason: Free-form reason recorded the last time the snippet's\n    approval state changed.\n:param requires_sudo: Whether the snippet requires sudo for execution\n    (either always-sudo or sudo is user-toggleable).\n:param sudo_optional: Whether the user can toggle sudo at execution\n    time.\n:param sudo_default: Default value for the sudo toggle when\n    ``sudo_optional`` is ``True``.\n:param interpreter: The shell/interpreter command used to execute the\n    snippet (for example, ``\"bash\"`` or ``\"python3\"``); ``None`` when\n    no interpreter mapping resolves.\n:param created_at: When the snippet row was first inserted.\n:param updated_at: When the snippet row was last updated, or ``None``\n    if never updated since insert.",
         "properties": {
           "approved_at": {
             "anyOf": [
@@ -1712,6 +1731,12 @@
         "required": ["service_types", "has_uncategorized"],
         "title": "SnippetServiceTypesResponse",
         "type": "object"
+      },
+      "SnippetSudoRequirement": {
+        "description": "Name the three elevation states a snippet's metadata distinguishes.",
+        "enum": ["never", "optional", "always"],
+        "title": "SnippetSudoRequirement",
+        "type": "string"
       },
       "SnippetsCapabilitiesResponse": {
         "description": "Represent per-deployment capability flags for the Snippets plugin.\n\nExposes flags that gate the visibility of admin-only UI affordances\n(currently the manual refresh button) so the React shell can decide\nwhether to render those controls without probing the gated endpoints.\n\nDistinct from :class:`~app.sep.apps.framework.schema.Capabilities`,\nwhich describes static UI feature flags on\n:attr:`~app.sep.apps.framework.schema.AppSchema.capabilities`\n(chaining, scheduling, alert_on_fail). This model is the per-\ndeployment runtime counterpart returned by ``GET /capabilities``.\n\n:param manual_sync_enabled: Whether manual snippet refresh is enabled\n    in this deployment (mirrors ``snippets_settings.ENABLE_MANUAL_SYNC``).\n:type manual_sync_enabled: bool",
@@ -2418,6 +2443,7 @@
               },
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               }
             ],
@@ -2430,6 +2456,7 @@
               },
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               }
             ],
@@ -3314,7 +3341,7 @@
         "type": "object"
       },
       "atw__ATWIncidentExecutionResponse": {
-        "description": "Represent one recorded incident execution, hydrated with live task status.\n\nThe hydrated fields are ``None`` when the Tasks API could not be reached for\nthat row; the locally-recorded fields are always present.\n\n:param id: The execution row's UUID primary key.\n:param snippet_filename: The executed snippet's filename.\n:param task_history_id: The tasks-service execution this row references.\n:param created_at: When the execution was recorded.\n:param task_status: The upstream execution status.\n:param started_at: When the upstream execution started.\n:param finished_at: When the upstream execution finished.\n:param has_logs: Whether the upstream execution has readable logs.\n:param masked_args: The command line the snippet ran with, credential values\n    replaced by a fixed-width mask. ``None`` together with\n    ``args_withheld=False`` means the execution recorded no arguments.\n    Defaults to ``None``.\n:param args_withheld: Whether the arguments were suppressed because they\n    could not be masked safely -- distinguishing that from an execution that\n    genuinely ran with none. Defaults to ``False``.",
+        "description": "Represent one recorded incident execution with live task status and snippet title.\n\nThe task-status fields are ``None`` when the Tasks API could not be reached\nfor that row; the locally-recorded fields are always present.\n\n:param id: The execution row's UUID primary key.\n:param snippet_filename: The executed snippet's filename.\n:param snippet_title: The snippet's current display title, falling back to its\n    filename when its metadata title is missing or blank. ``None`` when the\n    snippet cannot be resolved. Defaults to ``None``.\n:param task_history_id: The tasks-service execution this row references.\n:param created_at: When the execution was recorded.\n:param task_status: The upstream execution status.\n:param failure_reason: The upstream failure reason, carried verbatim.\n    ``None`` when the run did not fail or the reason is unknown.\n    Defaults to ``None``.\n:param started_at: When the upstream execution started.\n:param finished_at: When the upstream execution finished.\n:param has_logs: Whether the upstream execution has readable logs.\n:param masked_args: The command line the snippet ran with, credential values\n    replaced by a fixed-width mask. ``None`` together with\n    ``args_withheld=False`` means the execution recorded no arguments.\n    Defaults to ``None``.\n:param args_withheld: Whether the arguments were suppressed because they\n    could not be masked safely, distinguishing that from an execution that\n    genuinely ran with none. Defaults to ``False``.",
         "properties": {
           "args_withheld": {
             "default": false,
@@ -3325,6 +3352,17 @@
             "format": "date-time",
             "title": "Created At",
             "type": "string"
+          },
+          "failure_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Reason"
           },
           "finished_at": {
             "anyOf": [
@@ -3368,6 +3406,17 @@
           "snippet_filename": {
             "title": "Snippet Filename",
             "type": "string"
+          },
+          "snippet_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Snippet Title"
           },
           "started_at": {
             "anyOf": [
@@ -3623,7 +3672,7 @@
         "type": "object"
       },
       "atw__ATWSnippetSummary": {
-        "description": "Represent one snippet entry under an ATW category.\n\n:param name: The snippet filename, used as its API identifier.\n:type name: str\n:param title: The snippet display title.\n:type title: str\n:param description: The snippet free-text description.\n:type description: str",
+        "description": "Represent one snippet entry under an ATW category.\n\n:param name: The snippet filename, used as its API identifier.\n:param title: The snippet display title.\n:param description: The snippet free-text description.\n:param sudo: Whether the snippet's elevation is never wanted, optional, or\n    mandatory, letting a client warn before dispatching it to a host that\n    cannot elevate. Nullable only so the field is additive on an already\n    released model: every response this version builds populates it, and a\n    ``None`` means the server predates the field.",
         "properties": {
           "description": {
             "title": "Description",
@@ -3632,6 +3681,16 @@
           "name": {
             "title": "Name",
             "type": "string"
+          },
+          "sudo": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SnippetSudoRequirement"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "title": {
             "title": "Title",
@@ -3698,7 +3757,7 @@
         "type": "object"
       },
       "atw__AtwIncidentResponse": {
-        "description": "Represent a persisted diagnostic incident.\n\nEvery field is always present on a stored incident, so — unlike returning\nthe :class:`AtwIncident` table model directly — the generated client types\nthem as required rather than optional.\n\n:param id: The incident's UUID primary key.\n:param name: Human-readable incident label.\n:param case_ref: Support-case reference, if set.\n:param created_by: Username of the support engineer who created the incident.\n:param created_at: When the incident was created.\n:param updated_at: When the incident was last updated, if ever.\n:param closed_at: When the incident was closed, if ever; ``None`` means open.",
+        "description": "Represent a persisted diagnostic incident.\n\nEvery stored field is always present, so — unlike returning the\n:class:`AtwIncident` table model directly — the generated client types them as\nrequired rather than optional.\n\nThe three run-aggregate fields are defaulted instead, which keeps them out of\nthe published ``required`` set so a client generated against the previous\npayload still validates a response carrying them. Every route populates all\nthree, ``last_activity_at`` included, so the defaults are never served on a\nreal response; the generated client types that one as optional anyway, because\na nullable field emits no schema default to mark it required.\n\n:param id: The incident's UUID primary key.\n:param name: Human-readable incident label.\n:param case_ref: Support-case reference, if set.\n:param created_by: Username of the support engineer who created the incident.\n:param created_at: When the incident was created.\n:param updated_at: When the incident was last updated, if ever.\n:param closed_at: When the incident was closed, if ever; ``None`` means open.\n:param run_count: How many snippet executions are grouped under the incident.\n:param failed_run_count: How many of those runs reached a failed outcome. A\n    run whose outcome is not yet known counts towards neither.\n:param last_activity_at: The most recent of the incident's own timestamps and\n    its executions' dispatch or completion times.",
         "properties": {
           "case_ref": {
             "anyOf": [
@@ -3732,15 +3791,39 @@
             "title": "Created By",
             "type": "string"
           },
+          "failed_run_count": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Failed Run Count",
+            "type": "integer"
+          },
           "id": {
             "format": "uuid4",
             "title": "Id",
             "type": "string"
           },
+          "last_activity_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Activity At"
+          },
           "name": {
             "minLength": 1,
             "title": "Name",
             "type": "string"
+          },
+          "run_count": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Run Count",
+            "type": "integer"
           },
           "updated_at": {
             "anyOf": [
@@ -4524,6 +4607,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -4536,6 +4620,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -4559,6 +4644,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -4571,6 +4657,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -6267,7 +6354,7 @@
       },
       "framework__AppSchema": {
         "additionalProperties": false,
-        "description": "Represent a plugin's complete schema: form sections, list view, capabilities.\n\n:param name: The plugin identifier; must match Python identifier rules,\n    optionally with internal hyphens.\n:param display_name: The human-readable plugin title displayed in the UI.\n:param item_display_name: What **one** record this plugin's create form\n    produces is called (for example ``backup``), as opposed to\n    ``display_name``, which names the plugin. Stored in mid-sentence form —\n    lowercase unless it opens with a proper noun — so a consumer composing a\n    label capitalises the first character itself. Defaults to\n    ``display_name``, and is never inferred from\n    ``item_display_name_plural``. Unlike the optional UI hints on this\n    model, both record names are required and non-nullable so the generated\n    client types them as ``string`` and no consumer needs a fallback.\n:param item_display_name_plural: What **several** of those records are\n    called (for example ``backups``). An independent declaration under the\n    same mid-sentence convention; nothing derives it from\n    ``item_display_name``. Defaults to ``display_name``.\n:param description: Optional helper text describing the plugin's\n    purpose. Defaults to ``None``.\n:param task_type: Optional task-type identifier used when creating tasks\n    via the shared task API. Defaults to ``None``.\n:param forms: Form sections for single-entity / task plugins. When\n    ``entities`` is non-empty, root ``forms`` must be empty (declare\n    forms on each entity instead); non-empty root ``forms`` are rejected\n    at construction. Defaults to an empty list.\n:param capabilities: Optional plugin-level feature flags. Defaults to\n    ``None``.\n:param list_view: List-view configuration when ``entities`` is unset\n    (single-entity / task plugins). Ignored when ``entities`` is set.\n:param detail_view: Optional declarative layout for the task detail page's\n    section cards (task-style plugins only; ignored when ``entities`` is\n    set). Optional at the model layer for backwards compatibility. A\n    forward-looking guard refuses to load a plugin that sets\n    ``task_type`` without declaring ``detail_view``. Defaults to ``None``.\n:param entities: Optional list of CRUD entities for multi-resource plugins.\n    When non-empty, the React shell renders one list/create/detail flow\n    per entity. Defaults to ``None`` (legacy single-entity mode).\n:param cardinality_rules: Optional plugin-wide cross-field cardinality\n    constraints (task-style plugins only). Rejected at construction when\n    ``entities`` is non-empty — declare rules on each entity instead.\n    Defaults to ``None``.\n:param fail_when: Optional plugin-wide predicate-only invariants (task-style\n    plugins only). Rejected at construction when ``entities`` is non-empty —\n    declare rules on each entity instead. Defaults to ``None``.\n:param derived: Optional declarative specs for sibling tasks derived from\n    the parent task on cascade. Consumed by\n    :mod:`app.sep.apps.framework.cascade` to drive POST/PUT/DELETE\n    across the parent and N derived siblings. Defaults to ``None``.\n:param predecessors: Optional declarative specs for tasks that must run\n    before the parent. Consumed by\n    :mod:`app.sep.apps.framework.cascade` to drive POST/PUT/DELETE\n    across the predecessors and the parent, including the chain wiring\n    applied at execute time. Defaults to ``None``.\n:param related_apps: Optional separately registered apps the React shell\n    surfaces as sibling tabs (for example a restore app nested under a\n    backups parent). Defaults to ``None``.\n:param task_statuses: The task-status vocabulary a client polls against,\n    declaring per status value whether it ends a run. Server-authored, so a\n    supplied value is replaced rather than honoured. Withheld (``None``) for\n    a plugin declaring ``entities``, whose records are not task runs.",
+        "description": "Represent a plugin's complete schema: form sections, list view, capabilities.\n\n:param name: The plugin identifier; must match Python identifier rules,\n    optionally with internal hyphens.\n:param display_name: The human-readable plugin title displayed in the UI.\n:param item_display_name: What **one** record this plugin's create form\n    produces is called (for example ``backup``), as opposed to\n    ``display_name``, which names the plugin. Stored in mid-sentence form —\n    lowercase unless it opens with a proper noun — so a consumer composing a\n    label capitalises the first character itself. Defaults to\n    ``display_name``, and is never inferred from\n    ``item_display_name_plural``. Unlike the optional UI hints on this\n    model, both record names are required and non-nullable so the generated\n    client types them as ``string`` and no consumer needs a fallback.\n:param item_display_name_plural: What **several** of those records are\n    called (for example ``backups``). An independent declaration under the\n    same mid-sentence convention; nothing derives it from\n    ``item_display_name``. Defaults to ``display_name``.\n:param description: Optional helper text describing the plugin's\n    purpose. Defaults to ``None``.\n:param task_type: Optional task-type identifier used when creating tasks\n    via the shared task API. Defaults to ``None``.\n:param forms: Form sections for single-entity / task plugins. When\n    ``entities`` is non-empty, root ``forms`` must be empty (declare\n    forms on each entity instead); non-empty root ``forms`` are rejected\n    at construction. Defaults to an empty list.\n:param capabilities: Optional plugin-level feature flags. Defaults to\n    ``None``.\n:param list_view: List-view configuration when ``entities`` is unset\n    (single-entity / task plugins). Ignored when ``entities`` is set.\n:param detail_view: Optional declarative layout for the task detail page's\n    section cards (task-style plugins only; ignored when ``entities`` is\n    set). Optional at the model layer for backwards compatibility. A\n    forward-looking guard refuses to load a plugin that sets\n    ``task_type`` without declaring ``detail_view``. Defaults to ``None``.\n:param entities: Optional list of CRUD entities for multi-resource plugins.\n    When non-empty, the React shell renders one list/create/detail flow\n    per entity. Defaults to ``None`` (legacy single-entity mode).\n:param cardinality_rules: Optional plugin-wide cross-field cardinality\n    constraints (task-style plugins only). Rejected at construction when\n    ``entities`` is non-empty — declare rules on each entity instead.\n    Defaults to ``None``.\n:param fail_when: Optional plugin-wide predicate-only invariants (task-style\n    plugins only). Rejected at construction when ``entities`` is non-empty —\n    declare rules on each entity instead. Defaults to ``None``.\n:param derived: Optional declarative specs for sibling tasks derived from\n    the parent task on cascade. Consumed by\n    :mod:`app.sep.apps.framework.cascade` to drive POST/PUT/DELETE\n    across the parent and N derived siblings. Defaults to ``None``.\n:param predecessors: Optional declarative specs for tasks that must run\n    before the parent. Consumed by\n    :mod:`app.sep.apps.framework.cascade` to drive POST/PUT/DELETE\n    across the predecessors and the parent, including the chain wiring\n    applied at execute time. Defaults to ``None``.\n:param related_apps: Optional separately registered apps the React shell\n    surfaces as sibling tabs (for example a restore app nested under a\n    backups parent). Defaults to ``None``.\n:param task_statuses: The task-status vocabulary a client polls against,\n    declaring per status value both run terminality and whether output\n    retrieval is meaningful. Server-authored, so a supplied value is\n    replaced rather than honoured. Withheld (``None``) for a plugin\n    declaring ``entities``, whose records are not task runs.",
         "properties": {
           "capabilities": {
             "anyOf": [
@@ -6641,7 +6728,7 @@
         "type": "object"
       },
       "framework__BaseTaskResponse": {
-        "description": "Represent the universal task-response surface for standard task apps.\n\nCarry the fields shared by every standard ``TaskExecutionApp`` response:\nthe task identity, the resolved execution status, the stored configuration,\nand the audit/anonymization metadata. A standard app whose response has no\napp-specific fields uses this model directly; an app with extras subclasses\nit. The model is parametrized by the task ``owner``, which drives the\n``anonymized_entities`` default-entity lookup but is excluded from the\nserialized detail/list payload (as is ``service_type``).\n\n:param name: The task name.\n:param owner: The task-category owner (for example ``BACKUPS``). Kept\n    as a model attribute for ``anonymized_entities`` and server-side\n    filtering; excluded from the serialized detail/list payload.\n:param service_type: The database service type, stamped by the builder;\n    ``None`` for an app without a fixed service type. Excluded from the\n    serialized detail/list payload.\n:param status: The latest known execution status; ``None`` until the task\n    runs.\n:param last_executed_at: The most recent time the task finished executing\n    (``max`` ``finished_at`` across its history). Reported even while a\n    re-run is in progress (showing the prior completion); ``None`` until the\n    task has finished at least once.\n:param id: The task's unique identifier.\n:param backend: The backend worker/engine executing the task.\n:param data: The raw configuration and parameters used for execution. Tasks\n    created through the JSON schema-driven path also carry a reserved additive\n    ``_form`` key holding the verbatim, validated create-form body for\n    prefilling an edit form; it is absent for tasks created through a legacy\n    form, so consumers must treat it as optional.\n:param protected: Whether the task is protected from deletion or modification.\n:param alert_on_fail: Whether a notification is sent on task failure.\n:param anonymize_mask: Bitmask of PII entities to anonymize; ``None`` falls\n    back to the owner's configured defaults.\n:param created_at: The timestamp when the task was first created.\n:param updated_at: The timestamp of the last modification to the task.\n:param created_by: Display name for the user who initiated the task (Casdoor\n    username when resolvable, otherwise the stored user id).\n:param last_updated_by: Display name for the user who last modified the task\n    record (Casdoor username when resolvable, otherwise the stored user id).\n:param connectivity_warning: A warning surfaced when the post-creation\n    database connectivity check fails. ``None`` when the check passes, is\n    opted out, or the task meta lacks the connectivity keys.\n:param anonymized_entities: Sorted PII entity names derived from\n    ``anonymize_mask`` (or from the owner's configured defaults when the mask\n    is ``None``). Read-only; computed on serialisation.",
+        "description": "Represent the universal task-response surface for standard task apps.\n\nCarry the fields shared by every standard ``TaskExecutionApp`` response:\nthe task identity, the resolved execution status, the stored configuration,\nand the audit/anonymization metadata. A standard app whose response has no\napp-specific fields uses this model directly; an app with extras subclasses\nit. The model is parametrized by the task ``owner``, which drives the\n``anonymized_entities`` default-entity lookup but is excluded from the\nserialized detail/list payload (as is ``service_type``).\n\n:param name: The task name.\n:param owner: The task-category owner (for example ``BACKUPS``). Kept\n    as a model attribute for ``anonymized_entities`` and server-side\n    filtering; excluded from the serialized detail/list payload.\n:param service_type: The database service type, stamped by the builder;\n    ``None`` for an app without a fixed service type. Excluded from the\n    serialized detail/list payload.\n:param status: The latest known execution status; ``None`` until the task\n    runs.\n:param last_executed_at: The most recent time the task finished executing\n    (``max`` ``finished_at`` across its history). Reported even while a\n    re-run is in progress (showing the prior completion); ``None`` until the\n    task has finished at least once.\n:param id: The task's unique identifier.\n:param backend: The backend worker/engine executing the task.\n:param data: The raw configuration and parameters used for execution. Tasks\n    created through the JSON schema-driven path also carry a reserved additive\n    ``_form`` key holding the verbatim, validated create-form body for\n    prefilling an edit form; it is absent for tasks created through a legacy\n    form, so consumers must treat it as optional.\n:param protected: Whether the task is protected from deletion or modification.\n:param alert_on_fail: Whether a notification is sent on task failure.\n:param anonymize_mask: Bitmask of PII entities to anonymize; ``None`` falls\n    back to the owner's configured defaults.\n:param created_at: The timestamp when the task was first created.\n:param updated_at: The timestamp of the last modification to the task.\n:param created_by: Display name for the user who initiated the task (system\n    label or provider username when resolvable, otherwise the stored user id).\n:param last_updated_by: Display name for the user who last modified the task\n    record (system label or provider username when resolvable, otherwise the\n    stored user id).\n:param connectivity_warning: A warning surfaced when the post-creation\n    database connectivity check fails. ``None`` when the check passes, is\n    opted out, or the task meta lacks the connectivity keys.\n:param anonymized_entities: Sorted PII entity names derived from\n    ``anonymize_mask`` (or from the owner's configured defaults when the mask\n    is ``None``). Read-only; computed on serialisation.",
         "properties": {
           "alert_on_fail": {
             "title": "Alert On Fail",
@@ -6813,6 +6900,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -6835,6 +6923,16 @@
             ],
             "title": "Forbidden"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -6845,6 +6943,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "required": {
             "default": false,
@@ -7076,6 +7187,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -7098,6 +7210,16 @@
             ],
             "title": "Forbidden"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -7108,6 +7230,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "required": {
             "default": false,
@@ -7264,6 +7399,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -7286,6 +7422,16 @@
             ],
             "title": "Forbidden"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -7296,6 +7442,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "required": {
             "default": false,
@@ -7577,6 +7736,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -7599,6 +7759,16 @@
             ],
             "title": "Forbidden"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -7609,6 +7779,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "required": {
             "default": false,
@@ -7670,6 +7853,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -7703,6 +7887,16 @@
             ],
             "title": "Ge"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -7724,6 +7918,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "required": {
             "default": false,
@@ -7769,8 +7976,13 @@
       },
       "framework__FormSection": {
         "additionalProperties": false,
-        "description": "Represent a labelled group of related fields rendered as one fieldset.\n\n:param title: The section heading displayed above the grouped fields.\n:type title: NonEmptyStr\n:param description: Optional helper text rendered beneath the section\n    heading. Defaults to ``None``.\n:type description: NonEmptyStr | None\n:param fields: The list of fields belonging to this section. May include\n    :class:`OneOfGroup` containers alongside leaf fields.\n:type fields: list[AnyField]\n:param cardinality_rules: Optional cross-field cardinality constraints\n    scoped to the fields in this section. Defaults to ``None``.\n:type cardinality_rules: list[CardinalityRule] | None\n:param fail_when: Optional predicate-only invariants scoped to this\n    section. Defaults to ``None``.\n:type fail_when: list[FailRule] | None\n:param collapsible: Whether the renderer may collapse this section behind\n    a toggle. Defaults to ``False``.\n:type collapsible: bool\n:param collapsed_by_default: Whether a collapsible section should start\n    collapsed. Ignored when ``collapsible`` is ``False``. Defaults to\n    ``False``.\n:type collapsed_by_default: bool\n:param render_after_submit: Whether this section should render after the\n    submit button instead of before it. Defaults to ``False``.\n:type render_after_submit: bool\n:param forbidden: Optional gates that hide the entire section when any\n    of them fires. The schema-driven React renderer skips the section\n    and unregisters every child field from the form so stale values\n    do not ship in the submission payload. Gates may reference any\n    field declared in the plugin schema (including fields in other\n    sections). Defaults to ``None`` — sections render unconditionally.\n    Backend ``fail_when`` and conditional-rule validation on hidden\n    sections still applies: hidden-section children arrive in the\n    submitted payload as **absent** (not zeroed or defaulted), so\n    ``truthy``/``present`` predicates silently pass while\n    ``falsy``/``absent`` predicates see the children as missing.\n    Author ``fail_when`` rules accordingly.\n:type forbidden: list[FieldGate] | None",
+        "description": "Represent a labelled group of related fields rendered as one fieldset.\n\n:param title: The section heading displayed above the grouped fields.\n:param description: Optional helper text for the section. SEP's\n    renderer shows it beneath the section heading, but a renderer may\n    omit it, so do not put guidance here that a user must see. Defaults\n    to ``None``.\n:param fields: The list of fields belonging to this section. May include\n    :class:`OneOfGroup` containers alongside leaf fields.\n:param cardinality_rules: Optional cross-field cardinality constraints\n    scoped to the fields in this section. Defaults to ``None``.\n:param fail_when: Optional predicate-only invariants scoped to this\n    section. Defaults to ``None``.\n:param advanced: Whether the section holds expert options rather than the\n    common case. The renderer withholds advanced sections behind a single\n    \"Show advanced options\" control placed after the ordinary ones and\n    reveals them as ordinary top-level sections, so several expert sections\n    cost one row at rest instead of one each. Membership needs no\n    adjacency. Defaults to ``False``.\n:param collapsible: Whether the renderer may collapse this section behind\n    a toggle. Defaults to ``False``.\n:param collapsed_by_default: Whether a collapsible section should start\n    collapsed. Ignored when ``collapsible`` is ``False``. Defaults to\n    ``False``.\n:param render_after_submit: Whether this section should render after the\n    submit button instead of before it. Defaults to ``False``.\n:param forbidden: Optional gates that hide the entire section when any\n    of them fires. The schema-driven React renderer skips the section\n    and unregisters every child field from the form so stale values\n    do not ship in the submission payload. Gates may reference any\n    field declared in the plugin schema (including fields in other\n    sections). Defaults to ``None`` — sections render unconditionally.\n    Backend ``fail_when`` and conditional-rule validation on hidden\n    sections still applies: hidden-section children arrive in the\n    submitted payload as **absent** (not zeroed or defaulted), so\n    ``truthy``/``present`` predicates silently pass while\n    ``falsy``/``absent`` predicates see the children as missing.\n    Author ``fail_when`` rules accordingly.",
         "properties": {
+          "advanced": {
+            "default": false,
+            "title": "Advanced",
+            "type": "boolean"
+          },
           "cardinality_rules": {
             "anyOf": [
               {
@@ -7921,6 +8133,12 @@
         "title": "FormSection",
         "type": "object"
       },
+      "framework__HelpPlacement": {
+        "description": "Say where a field's ``description`` is shown, overriding the default.\n\nThe renderer otherwise places help by length — a description that fits\nroughly one line sits under the input, a longer one goes behind a help icon\nbeside the label. Setting this is for the cases where that reads wrong: a\nterse note that is still secondary, or a long one someone needs in front of\nthem while they type.",
+        "enum": ["tooltip", "inline"],
+        "title": "HelpPlacement",
+        "type": "string"
+      },
       "framework__HostField": {
         "additionalProperties": false,
         "description": "Represent an executor-target (Nomad / Celery) selector field.\n\nThe React renderer loads options from ``GET /api/sep/hosts/`` (an SEP\nproxy endpoint that internally calls Tasks ``/hosts/`` and merges\nInventory display names server-side). When ``depends_on`` is set (typically\na ``ServiceField``), the renderer may auto-select an executor from the\nupstream service; when omitted every available executor is listed and no\ncascade runs.\n\n:param field_type: The discriminator literal; always ``\"host\"`` for this\n    class. Serialised as the JSON key ``\"type\"``.\n:param depends_on: Optional name of the field whose value drives the\n    default executor selection. ``None`` (the default) omits the key from\n    the wire so plugins that do not opt in stay byte-identical.\n:param target_service: Optional service field for a non-blocking\n    co-location warning. Independent of ``depends_on`` (see\n    :class:`~app.sep.apps.framework.form_dsl.markers.HostRef`).\n    ``None`` (the default) omits the key from the wire.\n:param allow_custom: When ``True``, the selector also accepts a free-typed\n    value alongside the inventory options. ``None`` (the default) omits the\n    key from the wire so plugins that do not opt in stay byte-identical.",
@@ -7973,6 +8191,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -7995,6 +8214,16 @@
             ],
             "title": "Forbidden"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -8005,6 +8234,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "required": {
             "default": false,
@@ -8078,6 +8320,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -8111,6 +8354,16 @@
             ],
             "title": "Ge"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -8132,6 +8385,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "required": {
             "default": false,
@@ -8201,6 +8467,7 @@
           "overview_hidden_fields": {
             "items": {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             "title": "Overview Hidden Fields",
@@ -8259,6 +8526,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -8281,6 +8549,16 @@
             ],
             "title": "Forbidden"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -8291,6 +8569,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "required": {
             "default": false,
@@ -8375,6 +8666,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -8397,6 +8689,16 @@
             ],
             "title": "Forbidden"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -8407,6 +8709,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "required": {
             "default": false,
@@ -8496,6 +8811,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -8518,6 +8834,16 @@
             ],
             "title": "Forbidden"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -8528,6 +8854,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "required": {
             "default": false,
@@ -8600,6 +8939,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -8622,6 +8962,16 @@
             ],
             "title": "Forbidden"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -8632,6 +8982,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "required": {
             "default": false,
@@ -8716,6 +9079,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -8738,6 +9102,16 @@
             ],
             "title": "Forbidden"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -8748,6 +9122,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "required": {
             "default": false,
@@ -9225,6 +9612,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -9252,6 +9640,16 @@
             ],
             "title": "Forbidden"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -9262,6 +9660,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "required": {
             "default": false,
@@ -9339,6 +9750,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -9361,6 +9773,16 @@
             ],
             "title": "Forbidden"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -9371,6 +9793,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "required": {
             "default": false,
@@ -9493,6 +9928,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -9520,6 +9956,16 @@
             ],
             "title": "Forbidden"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -9542,6 +9988,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "required": {
             "default": false,
@@ -9634,6 +10093,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -9656,6 +10116,16 @@
             ],
             "title": "Forbidden"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -9666,6 +10136,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "required": {
             "default": false,
@@ -9734,6 +10217,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -9755,6 +10239,16 @@
               }
             ],
             "title": "Forbidden"
+          },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "label": {
             "minLength": 1,
@@ -9790,6 +10284,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "pattern": {
             "anyOf": [
@@ -9891,6 +10398,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -9913,6 +10421,16 @@
             ],
             "title": "Forbidden"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -9923,6 +10441,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "required": {
             "default": false,
@@ -10032,8 +10563,12 @@
       },
       "framework__TaskStatusDescriptor": {
         "additionalProperties": false,
-        "description": "Declare one task-status value and whether it ends a run.\n\n:param value: The status as it appears on a task-history payload.\n:param terminal: Whether a run in this status will not transition again, so\n    a client polling for completion can stop re-reading on it.",
+        "description": "Declare one task-status value and its run terminality/output predicates.\n\n:param value: The status as it appears on a task-history payload.\n:param terminal: Whether a run in this status will not transition again, so\n    a client polling for completion can stop re-reading on it.\n:param output_available: Whether the run reached an observed outcome, so its\n    output may be requested and may legitimately be empty, as for ``stale``\n    and ``unlaunchable``. ``lost`` is excluded because its outcome was never\n    observed.",
         "properties": {
+          "output_available": {
+            "title": "Output Available",
+            "type": "boolean"
+          },
           "terminal": {
             "title": "Terminal",
             "type": "boolean"
@@ -10042,7 +10577,7 @@
             "$ref": "#/components/schemas/TaskHistoryStatusEnum"
           }
         },
-        "required": ["value", "terminal"],
+        "required": ["value", "terminal", "output_available"],
         "title": "TaskStatusDescriptor",
         "type": "object"
       },
@@ -10075,6 +10610,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -10097,6 +10633,16 @@
             ],
             "title": "Forbidden"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -10107,6 +10653,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "placeholder": {
             "anyOf": [
@@ -10192,6 +10751,7 @@
             "anyOf": [
               {
                 "minLength": 1,
+                "pattern": "\\S",
                 "type": "string"
               },
               {
@@ -10214,6 +10774,16 @@
             ],
             "title": "Forbidden"
           },
+          "help_placement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/framework__HelpPlacement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "label": {
             "minLength": 1,
             "title": "Label",
@@ -10224,6 +10794,19 @@
             "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
             "title": "Name",
             "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "^[A-Za-z_](?:[\\w.-]*\\w)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
           },
           "placeholder": {
             "anyOf": [
@@ -10402,7 +10985,7 @@
         "type": "object"
       },
       "mysql_backups__BackupCreate": {
-        "description": "Declare the model-first create/update body and ``GET /schema`` source for MySQL Backups.\n\nDeclares each form field once, in section order (Task, General, Mydumper,\nXtraBackup, Binlog, Encryption, Upload), with the DSL markers driving the\nderived schema. Field declaration order is load-bearing: the derived section\norder follows each section's first field, and the within-section order follows\ndeclaration order, so the derived section and field order matches the\nhand-written schema. The conditional gating that the legacy ``schema.py`` declared\n(per-mode ``forbidden`` gates, the upload-provider ``Contains`` gates, the\nencryption gates — ``encryption_format`` selects which encryption runs and the\nrest of the section parameterises it: the key file is required by the\nAES-bearing formats and forbidden outside them, a GPG-bearing format needs one\nof the two independent timings (``encrypt`` in place, ``post_run_encrypt``\nafter), ``encrypt_using_tmpdir`` requires ``encrypt`` and is forbidden\nalongside ``post_run_encrypt`` so post-run takes precedence (matching the\nbackend at ``mydumper_payload``), and ``encryption_recipient`` is required iff\neither timing is on — and the per-mode and encryption-format bool\n``FailRule``s in\n:attr:`__form_rules__`) now lives on the model; ``AppFormModel`` extracts it\ninto the conditional-rule plan at class definition, so no\n``@apply_conditional_rules`` decorator is needed. The config sub-models\n(:class:`BackupConfigAll` and friends) stay the serialization target the\npayload builder populates, not this model's base class.\n\n:cvar __form_rules__: The bool fail rules — a truthy mode-owned bool outside\n    its mode, or a GPG timing outside a GPG ``encryption_format``, fails\n    validation with a per-field message, as does a GPG format with no timing.",
+        "description": "Declare the model-first create/update body and ``GET /schema`` source for MySQL Backups.\n\nDeclares each form field once, in section order (Task, General, Mydumper,\nXtraBackup, Binlog, Encryption, Upload), with the DSL markers driving the\nderived schema. Field declaration order is load-bearing: the derived section\norder follows each section's first field, and the within-section order follows\ndeclaration order, so the derived section and field order matches the\nhand-written schema. The conditional gating that the legacy ``schema.py`` declared\n(per-mode ``forbidden`` gates, the upload-provider ``Contains`` gates, the\nencryption gates — ``encryption_format`` selects which encryption runs and the\nrest of the section parameterises it: the key file is required by the\nAES-bearing formats and forbidden outside them, a GPG-bearing format needs one\nof the two independent timings (``encrypt`` in place, ``post_run_encrypt``\nafter), ``encrypt_using_tmpdir`` requires ``encrypt`` and is forbidden\nalongside ``post_run_encrypt`` so post-run takes precedence (matching the\nbackend at ``mydumper_payload``), and ``encryption_recipient`` is required iff\neither timing is on — and the per-mode and encryption-format bool\n``FailRule``s in\n:attr:`__form_rules__`) now lives on the model; ``AppFormModel`` extracts it\ninto the conditional-rule plan at class definition, so no\n``@apply_conditional_rules`` decorator is needed. The config sub-models\n(:class:`BackupConfigAll` and friends) stay the serialization target the\npayload builder populates, not this model's base class.\n\n:cvar __form_rules__: The bool fail rules — a truthy mode-owned bool outside\n    its mode, or a GPG timing outside a GPG ``encryption_format``, fails\n    validation with a per-field message, as does a GPG format with no timing\n    and, for the pure ``gpg`` format only, a GPG timing no backup script\n    would reach without an upload target. Those are app-scoped, so they\n    surface only on submit. The binary/compression rules, which reject an\n    XtraBackup compression algorithm the selected (or defaulted)\n    ``xtrabackup_bin_cmd`` cannot run, are scoped to the section owning\n    ``compression_algorithm``, so they also evaluate as the operator types.",
         "properties": {
           "alert_on_fail": {
             "default": false,
@@ -10435,6 +11018,7 @@
           },
           "backup_dir": {
             "minLength": 1,
+            "pattern": "\\S",
             "title": "Backup Dir",
             "type": "string"
           },
@@ -10768,8 +11352,7 @@
           "xtrabackup_bin_cmd": {
             "anyOf": [
               {
-                "enum": ["xtrabackup", "mariadb-backup", "innobackupex"],
-                "type": "string"
+                "$ref": "#/components/schemas/mysql_backups__XtraBackupTool"
               },
               {
                 "type": "null"
@@ -11333,7 +11916,7 @@
         "type": "object"
       },
       "mysql_backups__RestoreCreate": {
-        "description": "Declare the model-first create/update body and ``GET /schema`` source for Restores.\n\nDeclares every restore form field once, in section order (Task, General,\nMydumper, XtraBackup, Binlog), with the DSL markers driving the derived\nschema. The previously-inherited config models (:class:`RestoreConfigAll` and\n:class:`BaseRestoreConfigServer`) stay the YAML-serialization targets the\npayload builder populates via ``extract_model_from_instance``; this model\nre-declares their fields directly so it can also carry presentation metadata.\n\nThe per-``backup_type`` section visibility is expressed in the view layout\n(``restore/views.py``), not as field-level gates: several mode-specific config\nfields carry non-``None`` defaults (``myloader_threads``, ``xb_parallel``,\n``master_port``), so a field-level ``Forbidden`` gate would reject those\ndefaults on a cross-mode restore. Keeping the model permissive preserves the\nlegacy payload contract byte-for-byte.\n\nThe transport and decryption fields are the exception, and they pay that\nprice deliberately: ``source_transport`` and ``source_encryption`` declare\nwhere the backup lives and how it was encrypted, and the five fields those\ndeclarations govern are gated on them. Because a field-level ``Forbidden``\nrejects a field that is merely *present*, ``ssh_user`` / ``ssh_port`` /\n``s3_tool`` had to give up their defaults; :class:`RestoreConfigAll` still\ndeclares them and ``build_restore_spec`` applies them from there, so the\nemitted config is unchanged.\n\n``service_id`` / ``schema_id`` keep their str-accepting annotation (carrying\nthe ``\"-1\"`` ``UNKNOWN_SERVICE_SENTINEL``); their ``ServiceRef`` / ``SchemaRef``\nmarkers drive only the ``GET /schema`` widgets, while the conditional,\n404-tolerant resolution lives in ``deps.resolve_restore_entities``.",
+        "description": "Declare the model-first create/update body and ``GET /schema`` source for Restores.\n\nDeclares every restore form field once, in section order (Task, General,\nMydumper, XtraBackup, Binlog), with the DSL markers driving the derived\nschema. The previously-inherited config models (:class:`RestoreConfigAll` and\n:class:`BaseRestoreConfigServer`) stay the YAML-serialization targets the\npayload builder populates via ``extract_model_from_instance``; this model\nre-declares their fields directly so it can also carry presentation metadata.\n\nThe per-``backup_type`` section visibility is expressed in the view layout\n(``restore/views.py``), not as field-level gates: several mode-specific config\nfields carry non-``None`` defaults (``myloader_threads``, ``xb_parallel``,\n``master_port``), so a field-level ``Forbidden`` gate would reject those\ndefaults on a cross-mode restore. Keeping the model permissive preserves the\nlegacy payload contract byte-for-byte.\n\nThe transport and decryption fields are the exception, and they pay that\nprice deliberately: ``source_transport`` and ``source_encryption`` declare\nwhere the backup lives and how it was encrypted, and the five fields those\ndeclarations govern are gated on them. Because a field-level ``Forbidden``\nrejects a field that is merely *present*, ``ssh_user`` / ``ssh_port`` /\n``s3_tool`` had to give up their defaults; :class:`RestoreConfigAll` still\ndeclares them and ``build_restore_spec`` applies them from there, so the\nemitted config is unchanged.\n\n``service_id`` / ``schema_id`` keep their str-accepting annotation (carrying\nthe ``\"-1\"`` ``UNKNOWN_SERVICE_SENTINEL``); their ``ServiceRef`` / ``SchemaRef``\nmarkers drive only the ``GET /schema`` widgets, while the conditional,\n404-tolerant resolution lives in ``deps.resolve_restore_entities``.\n\n``service_id`` is declared first because ``backup_source`` and ``schema_id``\ncascade from it. Its ``Requires`` gate checks only *presence*, so a Mydumper\nbody naming no service is rejected at body validation; deciding the value is\na resolvable service rather than a typed name or the placeholder stays in\n``deps.resolve_restore_entities``.",
         "properties": {
           "alert_on_fail": {
             "default": false,
@@ -11998,7 +12581,7 @@
         "type": "object"
       },
       "mysql_backups__S3Tool": {
-        "description": "Allowed tools to interact with S3-compatible services.",
+        "description": "Enumerate the clients that can download a backup from S3-compatible storage.",
         "enum": ["s3cmd", "awscli"],
         "title": "S3Tool",
         "type": "string"
@@ -12016,7 +12599,7 @@
         "type": "string"
       },
       "mysql_backups__XtraBackupTool": {
-        "description": "Allowed commands for XtraBackup-style restores.",
+        "description": "Represent the XtraBackup-family binaries a backup or restore can run.",
         "enum": ["innobackupex", "xtrabackup", "mariadb-backup"],
         "title": "XtraBackupTool",
         "type": "string"
@@ -14200,7 +14783,7 @@
     },
     "/api/apps/alerts/push": {
       "post": {
-        "description": "Push selected alert templates to PMM as rules.\n\nMirror :func:`app.sep.apps.alerts.routes.alerts_push` over JSON.\nPreserve the conflict-retry path: on ``create_rule`` collision call\n:func:`app.sep.apps.alerts.restore.delete_conflicting_rules` and\nretry once.\n\n:param payload: Push request body listing template names to push.\n:type payload: PushRequest\n:param pmm_api: The PMM API client. Raises 503 if PMM is not configured.\n:type pmm_api: PMMRemoteAPI\n:param alert_templates: Local alert templates grouped by service type.\n:type alert_templates: AlertTemplatesDep\n:param folder: The PMM alert folder. Raises 502 if unreachable.\n:type folder: Folder\n:param present_names: Template names already present in PMM, or ``None`` if\n    PMM is unreachable for the listing call.\n:type present_names: set[str] | None\n:return: A ``PushResponse`` with one :class:`PushItemResult` per template.\n:rtype: PushResponse",
+        "description": "Push selected alert templates to PMM as rules.\n\nMirror :func:`app.sep.apps.alerts.routes.alerts_push` over JSON.\nWhen the template is already present in PMM, report ``success`` if\n``create_rule`` recreates a missing rule, ``skipped`` on a rule-title\ncollision, and ``error`` for any other failure. When the template is not\npresent, preserve the conflict-retry path: on ``create_rule`` collision\ncall :func:`app.sep.apps.alerts.restore.delete_conflicting_rules` and\nretry once.\n\n:param payload: Push request body listing template names to push.\n:type payload: PushRequest\n:param pmm_api: The PMM API client. Raises 503 if PMM is not configured.\n:type pmm_api: PMMRemoteAPI\n:param alert_templates: Local alert templates grouped by service type.\n:type alert_templates: AlertTemplatesDep\n:param folder: The PMM alert folder. Raises 502 if unreachable.\n:type folder: Folder\n:param present_names: Template names already present in PMM, or ``None`` if\n    PMM is unreachable for the listing call.\n:type present_names: set[str] | None\n:return: A ``PushResponse`` with one :class:`PushItemResult` per template.\n:rtype: PushResponse",
         "operationId": "alerts_alerts_api_push_api_apps_alerts_push_post",
         "requestBody": {
           "content": {
@@ -14974,6 +15557,7 @@
               "description": "The support case reference or title fragment to match.",
               "maxLength": 128,
               "minLength": 1,
+              "pattern": "\\S",
               "title": "Term",
               "type": "string"
             }
@@ -15075,7 +15659,7 @@
     },
     "/api/apps/atw/incidents/": {
       "get": {
-        "description": "List diagnostic incidents, newest first.\n\n:param session: The database session.\n:param pagination: The offset/limit window for the page.\n:return: A paginated page of incidents, newest first.",
+        "description": "List diagnostic incidents, newest first, with each one's run totals.\n\nThe totals come from one grouped query over the whole page, so rendering it\nissues no per-row task-history request however many runs an incident holds.\n\n:param session: The database session.\n:param pagination: The offset/limit window for the page.\n:return: A paginated page of incidents, newest first.",
         "operationId": "atw_atw_list_incidents_api_apps_atw_incidents__get",
         "parameters": [
           {
@@ -15201,7 +15785,7 @@
         "tags": ["atw"]
       },
       "get": {
-        "description": "Retrieve a single diagnostic incident by id.\n\n:param incident: The incident resolved from the ``incident_id`` path parameter.\n:return: The matching incident.",
+        "description": "Retrieve a single diagnostic incident by id.\n\n:param session: The database session.\n:param incident: The incident resolved from the ``incident_id`` path parameter.\n:return: The matching incident.",
         "operationId": "atw_atw_get_incident_api_apps_atw_incidents__incident_id__get",
         "parameters": [
           {
@@ -15398,7 +15982,7 @@
         "tags": ["atw"]
       },
       "post": {
-        "description": "Execute several snippets against one incident, reporting each item separately.\n\nA malformed selection fails the whole request up front: ``resolve_snippets``\nruns the traversal guard over every filename before dispatch, so an unsafe\nfilename raises before any item runs. Past that guard, one failing item never\nblocks the rest: each is dispatched and recorded inside its own guard, and the\nresponse always carries an entry per requested item — an unresolved filename\nbecomes that item's error. A failed attempt produces no task-history row to\nreference, so it is reported here rather than persisted.\n\nThe row-write guard rolls the shared session back before the loop continues,\nor one failed write would leave the transaction aborted and doom every later\nitem on PostgreSQL; the dispatch guard rolls back defensively, having written\nnothing itself. ``incident.id`` is read once up front because both a commit and\na rollback expire the instance, and re-reading it would trigger a lazy load.\n\n:param session: The database session.\n:param incident: The incident resolved from the ``incident_id`` path parameter.\n:param body: The batch payload.\n:param tasks_api: The authenticated Tasks API client.\n:return: One outcome entry per requested item, in request order.\n:raises HTTPBadRequestException: When any filename is unsafe or malformed,\n    failing the whole request before any item is dispatched.",
+        "description": "Execute several snippets against one incident, reporting each item separately.\n\nA malformed selection fails the whole request up front: ``resolve_snippets``\nruns the traversal guard over every filename before dispatch, so an unsafe\nfilename raises before any item runs. Past that guard, one failing item never\nblocks the rest: each is dispatched and recorded inside its own guard, and the\nresponse always carries an entry per requested item — an unresolved filename\nbecomes that item's error. A failed attempt produces no task-history row to\nreference, so it is reported here rather than persisted.\n\nThe row-write guard rolls the shared session back before the loop continues,\nor one failed write would leave the transaction aborted and doom every later\nitem on PostgreSQL; the dispatch guard rolls back defensively, having written\nnothing itself. ``incident.id`` is read once up front because both a commit and\na rollback expire the instance, and re-reading it would trigger a lazy load.\n\nATW's proxy is resolved once per distinct interpreter before the loop, so a batch\nof twenty items costs the same upstream traffic as one item. That resolution has\nits own guard: it cannot fail for one item and not another, so a failure degrades\nthe whole batch to unwrapped dispatch instead of failing a request whose\ndispatches may still succeed.\n\n:param session: The database session.\n:param incident: The incident resolved from the ``incident_id`` path parameter.\n:param body: The batch payload.\n:param tasks_api: The authenticated Tasks API client.\n:return: One outcome entry per requested item, in request order.\n:raises HTTPBadRequestException: When any filename is unsafe or malformed,\n    failing the whole request before any item is dispatched.",
         "operationId": "atw_atw_batch_execute_api_apps_atw_incidents__incident_id__executions__post",
         "parameters": [
           {
@@ -15679,7 +16263,7 @@
     },
     "/api/apps/atw/snippets/": {
       "get": {
-        "description": "Search approved snippets by free text, independent of the ATW taxonomy.\n\nServed from ATW's own router over the snippets library, so the capability does\nnot depend on the Snippet Manager app being activated. The ``atw`` metadata tag\nis a presentation filter on the category listing and is deliberately not\napplied here, so search reaches snippets that listing never exposes.\n\n:param session: The database session.\n:param list_query: The vetted sort and search selections, pinned to approved.\n:param pagination: The offset/limit window for the page.\n:return: A paginated page of approved snippet summaries.\n:raises sqlalchemy.exc.SQLAlchemyError: When the count or data query fails to\n    execute.",
+        "description": "Search approved snippets by free text, independent of the ATW taxonomy.\n\nServed from ATW's own router over the snippets library, so the capability does\nnot depend on the Snippet Manager app being activated. The\n``diagnostic_categories`` metadata key is a presentation filter on the category\nlisting and is deliberately not applied here, so search reaches snippets that\nlisting never exposes.\n\n:param session: The database session.\n:param list_query: The vetted sort and search selections, pinned to approved.\n:param pagination: The offset/limit window for the page.\n:return: A paginated page of approved snippet summaries.\n:raises sqlalchemy.exc.SQLAlchemyError: When the count or data query fails to\n    execute.",
         "operationId": "atw_atw_snippet_search_api_apps_atw_snippets__get",
         "parameters": [
           {
@@ -19609,7 +20193,7 @@
     },
     "/api/sep/hosts/": {
       "get": {
-        "description": "Return executor hosts merged with inventory display names.\n\nCall ``tasks_api.get('/hosts/')`` for executor targets and the Inventory\nAPI for display-name enrichment. The two upstream calls degrade\ndifferently: Inventory failures cause hosts without a match to keep the\nraw executor node name (the response still returns ``200``), but a\nTasks-API failure (HTTP or connection error) is re-raised as\n:class:`~app.core.exceptions.HTTPBadGatewayException` so the SEP exception\nhandler emits a ``502`` JSON body ``{\"detail\": \"<upstream detail>\"}`` that\nthe React frontend surfaces through its React Query error slot.\n\n:param tasks_api: The Tasks API client used to fetch executor hosts.\n:type tasks_api: TaskAPI\n:param inventory_api: The Inventory API client used to enrich the hosts\n    with their display names.\n:type inventory_api: InventoryAPI\n:return: Sorted list of hosts, each with executor id, friendly name,\n    and network address.\n:rtype: list[HostResponse]\n:raises HTTPBadGatewayException: If the Tasks API call fails with an\n    ``HTTPException`` (e.g. an upstream non-2xx response) or an\n    ``OSError`` (e.g. a connection failure).",
+        "description": "Return executor hosts merged with inventory display names.\n\nCall ``tasks_api.get('/hosts/')`` for executor targets and the Inventory\nAPI for display-name and capability enrichment. The Tasks and Inventory\ncalls degrade differently: Inventory failures cause hosts without a match\nto keep the raw executor node name (the response still returns ``200``),\nbut a Tasks-API failure (HTTP or connection error) is re-raised as\n:class:`~app.core.exceptions.HTTPBadGatewayException` so the SEP exception\nhandler emits a ``502`` JSON body ``{\"detail\": \"<upstream detail>\"}`` that\nthe React frontend surfaces through its React Query error slot.\n\nThe two Inventory enrichments degrade **independently**, and on the same\nterms. The capability is the newer of them, and an Inventory old enough to\nanswer 422 on its route — or failing it for any other reason — must not cost\nthe host selector the display names it has always had. Both blocks also\nadmit a malformed page, which fails envelope validation rather than raising\na transport error: every way an Inventory read can fail leaves this route\nanswering ``200`` with whatever it still resolved.\n\nThe display name and the elevation capability are joined on **different\nkeys** — address and executor name respectively — and may resolve to\ndifferent inventory nodes. They answer different questions: the display name\nasks what inventory calls this address, the capability asks which executor\nwas measured. Collapsing them into one index misattributes the measurement.\n\n:param tasks_api: The Tasks API client used to fetch executor hosts.\n:param inventory_api: The Inventory API client used to enrich the hosts\n    with their display names and measured capabilities.\n:return: Sorted list of hosts, each with executor id, friendly name,\n    network address, and elevation capability.\n:raises HTTPBadGatewayException: If the Tasks API call fails with an\n    ``HTTPException`` (e.g. an upstream non-2xx response) or an\n    ``OSError`` (e.g. a connection failure).",
         "operationId": "sep_list_hosts_api_sep_hosts__get",
         "responses": {
           "200": {
@@ -19828,7 +20412,7 @@
         "tags": ["tasks"]
       },
       "put": {
-        "description": "Dispatch a full-replacement update of a periodic task to the Tasks API.\n\n:param periodic_task_id: The id of the periodic task to update.\n:param tasks_api: The Tasks API client used to update the periodic task.\n:param body: The ``PeriodicTaskUpdate`` JSON body, forwarded verbatim.\n:return: The updated periodic task as returned by the Tasks API.\n:raises HTTPException: Re-raised unchanged for an upstream client error\n    (status < 500).\n:raises HTTPBadGatewayException: For an upstream server error (status >= 500)\n    or a connection-level ``OSError``.",
+        "description": "Dispatch a full-replacement update of a periodic task to the Tasks API.\n\n:param periodic_task_id: The id of the periodic task to update.\n:param tasks_api: The Tasks API client used to update the periodic task.\n:param body: The ``PeriodicTaskUpdate`` JSON body, forwarded verbatim.\n:return: The updated periodic task as returned by the Tasks API.\n:raises HTTPUnprocessableEntityException: If the body's ``task`` is present\n    and not a string, or if the resolved name is not a single plain URL path\n    segment.\n:raises HTTPBadRequestException: If no installed app offers scheduling for the\n    task the schedule would run.\n:raises HTTPException: Re-raised unchanged for an upstream client error\n    (status < 500).\n:raises HTTPBadGatewayException: If the stored schedule carries no task name,\n    and for an upstream server error (status >= 500) or a connection-level\n    ``OSError``.",
         "operationId": "tasks_update_periodic_task_api_sep_periodic_tasks__periodic_task_id__put",
         "parameters": [
           {
@@ -19866,6 +20450,22 @@
             },
             "description": "Successful Response"
           },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "detail": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["detail"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The schedule would run a task no installed app offers scheduling for."
+          },
           "422": {
             "content": {
               "application/json": {
@@ -19899,7 +20499,7 @@
     },
     "/api/sep/periodic-tasks/{task_name}/": {
       "post": {
-        "description": "Dispatch creation of a periodic task for ``task_name`` to the Tasks API.\n\n:param task_name: The task name the new periodic schedule runs.\n:param tasks_api: The Tasks API client used to create the periodic task.\n:param body: The ``PeriodicTaskCreate`` JSON body, forwarded verbatim.\n:return: The created periodic task as returned by the Tasks API.\n:raises HTTPException: Re-raised unchanged for an upstream client error\n    (status < 500).\n:raises HTTPBadGatewayException: For an upstream server error (status >= 500)\n    or a connection-level ``OSError``.",
+        "description": "Dispatch creation of a periodic task for ``task_name`` to the Tasks API.\n\n:param task_name: The task name the new periodic schedule runs.\n:param tasks_api: The Tasks API client used to create the periodic task.\n:param body: The ``PeriodicTaskCreate`` JSON body, forwarded verbatim.\n:return: The created periodic task as returned by the Tasks API.\n:raises HTTPUnprocessableEntityException: If ``task_name`` is not a single\n    plain URL path segment.\n:raises HTTPBadRequestException: If no installed app offers scheduling for the\n    task.\n:raises HTTPException: Re-raised unchanged for an upstream client error\n    (status < 500).\n:raises HTTPBadGatewayException: For an upstream server error (status >= 500)\n    or a connection-level ``OSError``.",
         "operationId": "tasks_create_periodic_task_api_sep_periodic_tasks__task_name___post",
         "parameters": [
           {
@@ -19936,6 +20536,22 @@
               }
             },
             "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "detail": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["detail"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The schedule would run a task no installed app offers scheduling for."
           },
           "422": {
             "content": {
@@ -20487,7 +21103,7 @@
     },
     "/files/{task_history_id}/download": {
       "get": {
-        "description": "Stream a task history's archived file as a binary download.",
+        "description": "Stream a task history's archived file as a binary download.\n\nUpstream errors raised while priming the stream surface as the real status\nbefore any response is committed, rather than as a misleading 200 with an\nempty body.\n\n:param request: Incoming download request; ``path`` selects the archived\n    file.\n:param user: Authenticated viewer whose access token authorizes the stream.\n:param task_history: Task history whose archived file is downloaded.\n:param tasks_client: Tasks API client used to list metadata and stream\n    bytes.\n:return: Streaming response of the archived file as\n    ``application/octet-stream``.",
         "operationId": "tasks_download_task_history_file_files__task_history_id__download_get",
         "parameters": [
           {

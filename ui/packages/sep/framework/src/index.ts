@@ -72,10 +72,17 @@ export type { TableSelectorProps } from './components/TableSelector';
 export { FreeSoloSelect } from './components/FreeSoloSelect';
 export type { FreeSoloSelectProps } from './components/FreeSoloSelect';
 export {
+  HostElevationWarning,
   HostSelector,
   StandaloneHostSelector,
+  snippetsLaunchedWithSudo,
 } from './components/HostSelector';
-export type { StandaloneHostSelectorProps } from './components/HostSelector';
+export type {
+  HostElevationWarningProps,
+  SnippetElevation,
+  SnippetSudoRequirement,
+  StandaloneHostSelectorProps,
+} from './components/HostSelector';
 export {
   TaskLogViewer,
   LogStepTabs,

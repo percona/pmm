@@ -102,7 +102,9 @@ import { getStoredForm } from './storedForm';
 import {
   selectConfiguredSettings,
   type ConfiguredSection,
+  type SettingReference,
 } from './taskConfiguration';
+import { useReferenceLabel } from './useReferenceLabel';
 import { StatsCard } from './StatsCard';
 import { capitalize } from '@sep/shared';
 import {
@@ -127,6 +129,12 @@ export interface TaskExecuteAction {
    * behavior for destructive operations like restore.
    */
   confirmContent?: ReactNode;
+  /**
+   * The action cannot be undone — a restore over live data, say. The confirm
+   * button then takes the error colour, so the dialog does not read like an
+   * ordinary run.
+   */
+  destructive?: boolean;
   executeBody?: TaskExecuteBody;
 }
 
@@ -144,7 +152,7 @@ export interface PluginDetailPageProps {
   /** Replace the default single Execute button with plugin-specific execute targets. */
   getTaskExecuteActions?: (
     task: Record<string, unknown>,
-    context: { pluginName: string }
+    context: { pluginName: string; schema: PluginSchema }
   ) => TaskExecuteAction[] | undefined;
   /** Task names whose execution history should appear on the Execution History tab. */
   getTaskHistoryNames?: (task: Record<string, unknown>) => string[] | undefined;
@@ -395,6 +403,20 @@ interface OverviewTabProps {
   children?: ReactNode;
 }
 
+/** A setting holding an inventory reference, shown under the name it stands for. */
+function ReferenceSettingField({
+  label,
+  reference,
+  value,
+}: {
+  label: string;
+  reference: SettingReference;
+  value: unknown;
+}) {
+  const name = useReferenceLabel(reference, value);
+  return <TaskOverviewDetailField label={label} value={name} />;
+}
+
 /**
  * The settings this task configured, under the create form's own labels.
  *
@@ -415,6 +437,16 @@ function TaskConfigurationCard({
         <SectionCard key={section.title} title={section.title}>
           <Grid container spacing={2}>
             {section.settings.map((setting) => {
+              if (setting.reference) {
+                return (
+                  <ReferenceSettingField
+                    key={setting.name}
+                    label={setting.label}
+                    reference={setting.reference}
+                    value={setting.value}
+                  />
+                );
+              }
               const timestamp =
                 setting.type === 'datetime' && typeof setting.value === 'string'
                   ? formatTimestamp(setting.value)
@@ -1228,6 +1260,7 @@ function ActionBar({
           <Button
             onClick={handleExecute}
             variant="contained"
+            color={pendingExecute?.destructive ? 'error' : 'primary'}
             disabled={executeTask.isPending}
             data-testid="plugin-task-execute-confirm"
           >
@@ -1566,7 +1599,7 @@ export function PluginDetailPage({
   const detailBase = `${routeBase}/task/${encodeURIComponent(id)}`;
   const taskExecuteActions = getTaskExecuteActions?.(
     task as Record<string, unknown>,
-    { pluginName }
+    { pluginName, schema }
   );
   const taskHistoryNames =
     getTaskHistoryNames?.(task as Record<string, unknown>) ??
