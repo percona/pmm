@@ -44,6 +44,8 @@ A non-zero value may indicate connectivity issues or a misconfiguration. Expand 
 
 Shows the up/down state of each VMAgent instance per node as a timeline. Green means the agent is up, red means it is down.
 
+The panel shows 8 nodes per page. When you select more nodes than that, page controls appear at the bottom of the panel. Nodes that are down are listed first, so problem nodes stay on the first page.
+
 Use this to spot agents that are down or that have restarted recently.
 
 ### Scraped Samples
