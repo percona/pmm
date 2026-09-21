@@ -25,8 +25,10 @@ import {
   Typography,
 } from '@mui/material';
 import {
+  HostElevationWarning,
   SchemaFormRenderer,
   SNIPPET_FORM_RESERVED_FIELD_NAMES,
+  type RenderFieldOverride,
 } from '@sep/framework';
 import { useAuth, type FormSection, type SectionField } from '@sep/api';
 import { CategoryBrowser } from './CategoryBrowser';
@@ -528,6 +530,21 @@ export function CollectPane({
       .map((snippet) => snippet.title);
   }, [schemaQuery.data, selected]);
 
+  const renderField = useCallback<RenderFieldOverride>(
+    ({ field, renderDefault }) =>
+      field.name === 'executor_host' ? (
+        <>
+          {renderDefault()}
+          <HostElevationWarning
+            name="executor_host"
+            sudoName="sudo"
+            snippets={selected}
+          />
+        </>
+      ) : null,
+    [selected]
+  );
+
   const handleSubmit = (values: Record<string, unknown>) => {
     setItemErrors([]);
     const snippetsAtSubmit = selected;
@@ -699,6 +716,7 @@ export function CollectPane({
             sections={sections}
             defaultValues={formDefaults}
             onSubmit={handleSubmit}
+            renderField={renderField}
             submitLabel="Execute batch"
             loading={batchMutation.isPending}
             submitError={submitError}

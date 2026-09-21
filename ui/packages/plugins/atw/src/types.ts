@@ -26,6 +26,11 @@ export interface AtwSnippetSummary {
   name: string;
   title: string;
   description: string;
+  /**
+   * Whether the snippet never, optionally, or always runs with `sudo`. `null`
+   * or absent means the server predates the field.
+   */
+  sudo?: Schemas['atw__ATWSnippetSummary']['sudo'];
 }
 
 export interface AtwCategoryListing {
