@@ -225,10 +225,24 @@ export function TaskLogViewer({
   const [logTailChoice, setLogTailChoice] = useState<LogTailLineChoice>(
     readStoredLogTailChoice
   );
+  // A live stream that reached its `finish` frame already holds the whole log.
+  // Re-fetching it capped when the polled status turns terminal only blanks
+  // the pane and loses the scroll position, so the uncapped stream is kept. A
+  // stream cut short never sees `finish`, and that one is still reloaded.
+  const [completeLiveLogId, setCompleteLiveLogId] = useState<
+    TaskLogViewerProps['taskHistoryId'] | null
+  >(null);
+  const liveLogComplete = completeLiveLogId === taskHistoryId;
   const tailLines = logTailChoiceToParam(logTailChoice);
-  const effectiveTailLines = running ? undefined : tailLines;
+  const effectiveTailLines = running || liveLogComplete ? undefined : tailLines;
   const { textByStep, stepOrder, streamStatus, finishStatus, error } =
     useTaskLogs(taskHistoryId, effectiveTailLines);
+
+  useEffect(() => {
+    if (finishStatus && effectiveTailLines === undefined) {
+      setCompleteLiveLogId(taskHistoryId);
+    }
+  }, [finishStatus, effectiveTailLines, taskHistoryId]);
   const { eventsByStep, stepOrder: eventStepOrder } = useExecutionEvents(
     taskHistoryId,
     running
@@ -350,6 +364,7 @@ export function TaskLogViewer({
   };
 
   const handleLogTailChange = (choice: LogTailLineChoice) => {
+    setCompleteLiveLogId(null);
     setLogTailChoice(choice);
     if (globalThis.localStorage !== undefined) {
       globalThis.localStorage.setItem(LOG_TAIL_STORAGE_KEY, choice);
