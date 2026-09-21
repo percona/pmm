@@ -53,6 +53,33 @@ func (s *testServer) Connect(stream agentv1.AgentService_ConnectServer) error {
 
 var _ agentv1.AgentServiceServer = (*testServer)(nil)
 
+// awaitClosed waits for ch to be closed, and fails instead of hanging.
+//
+// The tests below park a mock on a channel the server handler closes, or the other way round, and
+// every assertion in that handler runs on gRPC's goroutine - where a failing require calls Goexit,
+// so the close it was heading for never happens. Waiting unbounded on that turns one reported
+// failure into a package-wide -timeout panic covering every test in the file.
+func awaitClosed(t *testing.T, ch <-chan struct{}, what string) {
+	t.Helper()
+
+	select {
+	case <-ch:
+	case <-time.After(20 * time.Second):
+		t.Fatalf("timed out waiting for %s", what)
+	}
+}
+
+// awaitClosedInHandler is awaitClosed for the server handler's goroutine, which must not call
+// t.Fatalf: it ends the stream with an error instead, which unblocks the client and the test.
+func awaitClosedInHandler(ch <-chan struct{}, what string) error {
+	select {
+	case <-ch:
+		return nil
+	case <-time.After(20 * time.Second):
+		return fmt.Errorf("timed out waiting for %s", what)
+	}
+}
+
 func setup(t *testing.T, connect func(server agentv1.AgentService_ConnectServer) error) (port uint16, teardown func()) {
 	t.Helper()
 
@@ -340,7 +367,10 @@ func TestSetStateDoesNotBlockRequestLoop(t *testing.T) {
 		require.NotNil(t, msg.GetSetState())
 
 		// and while it is being applied, everything else is answered too
-		<-applyingState
+		err = awaitClosedInHandler(applyingState, "SetState to start being applied")
+		if err != nil {
+			return err
+		}
 		err = stream.Send(&agentv1.ServerMessage{
 			Id:      4243,
 			Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
@@ -378,7 +408,7 @@ func TestSetStateDoesNotBlockRequestLoop(t *testing.T) {
 	r := runner.New(cfgStorage.Get().RunnerCapacity, cfgStorage.Get().RunnerMaxConnectionsPerService)
 	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 	require.NoError(t, client.Run(t.Context()))
-	<-releaseState
+	awaitClosed(t, releaseState, "the server handler to finish")
 	s.AssertExpectations(t)
 }
 
@@ -416,7 +446,10 @@ func TestActualStatusesDoNotBlockPings(t *testing.T) {
 		require.NoError(t, err)
 
 		// while the supervisor cannot even be asked what it is running
-		<-listing
+		err = awaitClosedInHandler(listing, "the Agents list to be asked for")
+		if err != nil {
+			return err
+		}
 		err = stream.Send(&agentv1.ServerMessage{
 			Id:      4242,
 			Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
@@ -454,7 +487,7 @@ func TestActualStatusesDoNotBlockPings(t *testing.T) {
 	r := runner.New(cfgStorage.Get().RunnerCapacity, cfgStorage.Get().RunnerMaxConnectionsPerService)
 	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 	require.NoError(t, client.Run(t.Context()))
-	<-release
+	awaitClosed(t, release, "the server handler to finish")
 	s.AssertExpectations(t)
 }
 
@@ -530,7 +563,7 @@ func TestDoneClosesWhileActualStatusesAreBlocked(t *testing.T) {
 	runErr := make(chan error, 1)
 	go func() { runErr <- client.Run(ctx) }()
 
-	<-listing
+	awaitClosed(t, listing, "the Agents list to be asked for")
 	cancel()
 
 	select {
