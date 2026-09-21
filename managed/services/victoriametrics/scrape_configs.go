@@ -371,6 +371,7 @@ func scrapeConfigsForMySQLdExporter(params *scrapeConfigParams) ([]*config.Scrap
 		"info_schema.clientstats",
 		"info_schema.userstats",
 		"perf_schema.eventsstatements",
+		"perf_schema.memory_events",
 		"perf_schema.file_instances",
 		"custom_query.lr",
 		"plugins",
