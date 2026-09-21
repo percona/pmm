@@ -398,11 +398,37 @@ var remoteWriteExclusiveAuthEnvs = []string{
 	"VMAGENT_remoteWrite_oauth2_clientID",
 }
 
-// remoteWriteAdditiveAuthEnvs are the vmagent authentication methods that compose with a
-// basic-auth pair, such as a tenant header or a client TLS certificate.
-var remoteWriteAdditiveAuthEnvs = []string{
-	"VMAGENT_remoteWrite_headers",
-	"VMAGENT_remoteWrite_tlsCertFile",
+// The vmagent authentication methods that compose with a basic-auth pair instead of replacing
+// one. Neither ever displaces PMM's own credential; whether either authenticates a request on its
+// own is the separate question VMAgentRemoteWriteAuthFromEnv answers.
+const (
+	// The HTTP headers vmagent sends with each remote-write request, as "Header:value", several
+	// of them delimited by "^^".
+	remoteWriteHeadersEnv = "VMAGENT_remoteWrite_headers"
+	// The client certificate vmagent presents, which authenticates the request by itself.
+	remoteWriteTLSCertFileEnv = "VMAGENT_remoteWrite_tlsCertFile"
+)
+
+// The headers, lower-cased, that authenticate a request by themselves. Anything else an operator
+// sends, a tenant identifier being the common one, does not.
+var remoteWriteAuthenticatingHeaders = []string{"authorization", "proxy-authorization"}
+
+// remoteWriteHeadersAuthenticate reports whether the value of VMAGENT_remoteWrite_headers carries
+// a header that authenticates the request. Treating any header as a credential silences the
+// warning for an operator who only set a tenant identifier, and treating none as one warns at
+// every deployment that authenticates with a bearer token, so the value decides.
+func remoteWriteHeadersAuthenticate(value string) bool {
+	for header := range strings.SplitSeq(value, "^^") {
+		name, headerValue, found := strings.Cut(header, ":")
+		if !found || strings.TrimSpace(headerValue) == "" {
+			continue
+		}
+		if slices.Contains(remoteWriteAuthenticatingHeaders, strings.ToLower(strings.TrimSpace(name))) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func envHasAny(env map[string]string, names []string) bool {
@@ -417,18 +443,24 @@ func envHasAny(env map[string]string, names []string) bool {
 func VMAgentRemoteWriteAuthFromEnv(env map[string]string) VMAgentRemoteWriteAuth {
 	hasUsername := envHasAny(env, remoteWriteUsernameEnvs)
 	hasPassword := envHasAny(env, remoteWritePasswordEnvs)
+	_, hasClientCert := env[remoteWriteTLSCertFileEnv]
 
 	// The order of the cases is the point. An exclusive method sits above the half-a-pair branch
 	// because it legitimately takes the place of a pair, but an additive method sits below it: it
 	// composes with a pair instead of replacing one, so it must not report a lone half as complete.
 	// VMAgentRemoteWriteReplacesBasicAuth calls that lone half a replacement and withholds PMM's
 	// own credential either way, and this is what reports it.
+	//
+	// Of the additive methods only a client certificate authenticates whatever it is set with. A
+	// header does so when it is the one carrying the credential, which is why its value is read
+	// rather than its presence: reporting a tenant header as a complete credential would silence
+	// the warning for the deployment that has none.
 	switch {
 	case hasUsername && hasPassword, envHasAny(env, remoteWriteExclusiveAuthEnvs):
 		return VMAgentRemoteWriteAuthComplete
 	case hasUsername || hasPassword:
 		return VMAgentRemoteWriteAuthPartial
-	case envHasAny(env, remoteWriteAdditiveAuthEnvs):
+	case hasClientCert, remoteWriteHeadersAuthenticate(env[remoteWriteHeadersEnv]):
 		return VMAgentRemoteWriteAuthComplete
 	}
 

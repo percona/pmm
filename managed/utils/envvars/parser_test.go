@@ -233,6 +233,35 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Contains(t, gotWarns[0], "VMAGENT_remoteWrite_url redirects the metric writes")
 	})
 
+	t.Run("VMAGENT_remoteWrite_url with a header that authenticates nothing still warns", func(t *testing.T) {
+		t.Parallel()
+
+		// PMM withholds its own credential because the URL is injected, and a tenant header does
+		// not replace it, so the writes reach the endpoint unauthenticated and must be reported.
+		envs := []string{
+			"VMAGENT_remoteWrite_url=https://collector.example.com/api/v1/write",
+			"VMAGENT_remoteWrite_headers=X-Scope-OrgID:tenant1",
+		}
+
+		_, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		require.Len(t, gotWarns, 1)
+		assert.Contains(t, gotWarns[0], "VMAGENT_remoteWrite_url redirects the metric writes")
+	})
+
+	t.Run("VMAGENT_remoteWrite_url with an Authorization header does not warn", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"VMAGENT_remoteWrite_url=https://collector.example.com/api/v1/write",
+			"VMAGENT_remoteWrite_headers=Authorization:Bearer token",
+		}
+
+		_, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
 	t.Run("VMAGENT_remoteWrite_url with credentials does not warn", func(t *testing.T) {
 		t.Parallel()
 
@@ -623,13 +652,31 @@ func TestVMAgentRemoteWriteAuthFromEnv(t *testing.T) {
 		{name: "username file with a password", env: map[string]string{"VMAGENT_remoteWrite_basicAuth_usernameFile": "/run/secrets/u", EnvVMAgentRemoteWritePassword: "p"}, want: VMAgentRemoteWriteAuthComplete},
 		{name: "username and password files", env: map[string]string{"VMAGENT_remoteWrite_basicAuth_usernameFile": "/run/secrets/u", "VMAGENT_remoteWrite_basicAuth_passwordFile": "/run/secrets/p"}, want: VMAgentRemoteWriteAuthComplete},
 		{name: "bearer token", env: map[string]string{"VMAGENT_remoteWrite_bearerToken": "t"}, want: VMAgentRemoteWriteAuthComplete},
-		{name: "custom headers", env: map[string]string{"VMAGENT_remoteWrite_headers": "X-Auth: t"}, want: VMAgentRemoteWriteAuthComplete},
+		// A header is classified by what it carries. A tenant identifier authenticates nothing, so
+		// reporting it as a complete credential would silence the warning for a deployment that
+		// has none; an Authorization header is the credential itself.
+		{name: "a custom header does not authenticate", env: map[string]string{"VMAGENT_remoteWrite_headers": "X-Scope-OrgID:tenant1"}, want: VMAgentRemoteWriteAuthNone},
+		{name: "an Authorization header authenticates", env: map[string]string{"VMAGENT_remoteWrite_headers": "Authorization:Bearer t"}, want: VMAgentRemoteWriteAuthComplete},
+		{name: "a Proxy-Authorization header authenticates", env: map[string]string{"VMAGENT_remoteWrite_headers": "Proxy-Authorization:Basic dTpw"}, want: VMAgentRemoteWriteAuthComplete},
+		{name: "a header name is matched case-insensitively", env: map[string]string{"VMAGENT_remoteWrite_headers": "AUTHORIZATION:Bearer t"}, want: VMAgentRemoteWriteAuthComplete},
+		{name: "a header name is matched past its whitespace", env: map[string]string{"VMAGENT_remoteWrite_headers": " Authorization : Bearer t"}, want: VMAgentRemoteWriteAuthComplete},
+		{name: "an Authorization header among several is found", env: map[string]string{"VMAGENT_remoteWrite_headers": "X-Scope-OrgID:t^^Authorization:Bearer t"}, want: VMAgentRemoteWriteAuthComplete},
+		{name: "several headers that all authenticate nothing", env: map[string]string{"VMAGENT_remoteWrite_headers": "X-Scope-OrgID:t^^X-Trace:1"}, want: VMAgentRemoteWriteAuthNone},
+		{name: "a header without a colon is not a credential", env: map[string]string{"VMAGENT_remoteWrite_headers": "Authorization"}, want: VMAgentRemoteWriteAuthNone},
+		{name: "a header whose value mentions authorization is not one", env: map[string]string{"VMAGENT_remoteWrite_headers": "X-Note:authorization"}, want: VMAgentRemoteWriteAuthNone},
+		{name: "an Authorization header with no value is not a credential", env: map[string]string{"VMAGENT_remoteWrite_headers": "Authorization:"}, want: VMAgentRemoteWriteAuthNone},
+		{name: "an Authorization header with blank value is not a credential", env: map[string]string{"VMAGENT_remoteWrite_headers": "Authorization:   "}, want: VMAgentRemoteWriteAuthNone},
 		{name: "client certificate", env: map[string]string{"VMAGENT_remoteWrite_tlsCertFile": "/run/secrets/c"}, want: VMAgentRemoteWriteAuthComplete},
 		// An additive method composes with a pair instead of replacing one, so it must not report
 		// a lone half as complete: PMM withholds its own credential for that half either way.
 		{
 			name: "custom headers do not complete half a pair",
-			env:  map[string]string{EnvVMAgentRemoteWriteUsername: "u", "VMAGENT_remoteWrite_headers": "X-Auth: t"},
+			env:  map[string]string{EnvVMAgentRemoteWriteUsername: "u", "VMAGENT_remoteWrite_headers": "X-Scope-OrgID:tenant1"},
+			want: VMAgentRemoteWriteAuthPartial,
+		},
+		{
+			name: "an Authorization header does not complete half a pair either",
+			env:  map[string]string{EnvVMAgentRemoteWriteUsername: "u", "VMAGENT_remoteWrite_headers": "Authorization:Bearer t"},
 			want: VMAgentRemoteWriteAuthPartial,
 		},
 		{
@@ -639,7 +686,7 @@ func TestVMAgentRemoteWriteAuthFromEnv(t *testing.T) {
 		},
 		{
 			name: "custom headers compose with a whole pair",
-			env:  map[string]string{EnvVMAgentRemoteWriteUsername: "u", EnvVMAgentRemoteWritePassword: "p", "VMAGENT_remoteWrite_headers": "X-Auth: t"},
+			env:  map[string]string{EnvVMAgentRemoteWriteUsername: "u", EnvVMAgentRemoteWritePassword: "p", "VMAGENT_remoteWrite_headers": "X-Scope-OrgID:tenant1"},
 			want: VMAgentRemoteWriteAuthComplete,
 		},
 		// An exclusive method stays above the half-a-pair branch: it takes the place of a pair.

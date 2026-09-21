@@ -103,8 +103,26 @@ func TestHARemoteWriteWarning(t *testing.T) {
 		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)), "carries no credentials")
 	})
 
-	t.Run("an additive method alone satisfies a credential-less URL", func(t *testing.T) {
+	t.Run("a header that authenticates nothing does not satisfy a credential-less URL", func(t *testing.T) {
+		// The shape the warning exists for: the operator sets a tenant identifier, nothing
+		// authenticates the writes, and reporting the header as a credential would leave them
+		// with no warning and no metrics.
 		t.Setenv("VMAGENT_remoteWrite_headers", "AccountID: 1")
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)), "carries no credentials")
+	})
+
+	t.Run("a header that authenticates nothing still reports half a credential", func(t *testing.T) {
+		t.Setenv("VMAGENT_remoteWrite_headers", "AccountID: 1")
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, testVMAuthUsernameOnly)), "only half a credential")
+	})
+
+	t.Run("an Authorization header satisfies a credential-less URL", func(t *testing.T) {
+		t.Setenv("VMAGENT_remoteWrite_headers", "Authorization: Bearer token")
+		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))
+	})
+
+	t.Run("a client certificate satisfies a credential-less URL", func(t *testing.T) {
+		t.Setenv("VMAGENT_remoteWrite_tlsCertFile", "/run/secrets/client.pem")
 		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))
 	})
 
