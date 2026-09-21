@@ -41,6 +41,7 @@ import { useExecutionEvents } from '../../hooks/useExecutionEvents';
 import { useLogDownload } from '../../hooks/useLogDownload';
 import {
   useTaskLogs,
+  type FinishStatus,
   type LogType,
   type StepText,
 } from '../../hooks/useTaskLogs';
@@ -116,6 +117,23 @@ export interface TaskLogViewerProps {
   /** Mid-sentence singular noun for one record (e.g. `backup`). */
   itemName?: string;
 }
+
+/**
+ * The terminal statuses a `finish` frame is supposed to carry. The frame is
+ * parsed without validation, and the backend does send `finish` with a
+ * non-terminal status (e.g. `running`) when it reconciles a run whose
+ * allocation is placed but no step has started, so a live log is only treated
+ * as complete when its status is one of these. Keyed on the union so a new
+ * member cannot be added without deciding it here.
+ */
+const TERMINAL_FINISH_STATUS: Record<FinishStatus, true> = {
+  success: true,
+  failed: true,
+  stopped: true,
+  lost: true,
+  stale: true,
+  unlaunchable: true,
+};
 
 /**
  * Whether a loosely-typed status means the run is still going.
@@ -239,7 +257,11 @@ export function TaskLogViewer({
     useTaskLogs(taskHistoryId, effectiveTailLines);
 
   useEffect(() => {
-    if (finishStatus && effectiveTailLines === undefined) {
+    if (
+      finishStatus &&
+      Object.hasOwn(TERMINAL_FINISH_STATUS, finishStatus) &&
+      effectiveTailLines === undefined
+    ) {
       setCompleteLiveLogId(taskHistoryId);
     }
   }, [finishStatus, effectiveTailLines, taskHistoryId]);
