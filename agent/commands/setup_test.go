@@ -502,6 +502,24 @@ func TestConfigToStore(t *testing.T) {
 		assert.Equal(t, testAgentID, stored.ID)
 	})
 
+	// The file holds every path, derived or not, so a base which only moved itself left the Agent running
+	// the exporters of the base it came from.
+	t.Run("a base given moves the paths the old base derived", func(t *testing.T) {
+		t.Parallel()
+
+		fileCfg := running()
+		require.NoError(t, config.MergeFlags(fileCfg, nil, l))
+		require.Equal(t, "/opt/pmm/exporters/node_exporter", fileCfg.Paths.NodeExporter)
+
+		args := []string{"--paths-base=/opt/other", "setup", "1.2.3.4", "generic"}
+		stored, err := configToStore(assembled(), fileCfg, false, args, l)
+		require.NoError(t, err)
+
+		assert.Equal(t, "/opt/other", stored.Paths.PathsBase)
+		assert.Equal(t, "/opt/other/exporters/node_exporter", stored.Paths.NodeExporter)
+		assert.Equal(t, "/opt/other/tmp", stored.Paths.TempDir)
+	})
+
 	t.Run("the file the Agent runs with is not modified in place", func(t *testing.T) {
 		t.Parallel()
 

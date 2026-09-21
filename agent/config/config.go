@@ -18,6 +18,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"net"
 	"net/url"
@@ -403,11 +404,16 @@ func MergeFlags(fileCfg *Config, args []string, l *logrus.Entry) error {
 	// --log-lines-count is the only stored setting whose flag carries a default, so it is the only one
 	// kingpin would put that default over. A file which holds none keeps the default it is given.
 	logLinesCount := fileCfg.LogLinesCount
+	pathsBase := fileCfg.Paths.PathsBase
 
 	app, _ := Application(fileCfg)
 	_, err := app.Parse(args)
 	if err != nil {
 		return err
+	}
+
+	if fileCfg.Paths.PathsBase != pathsBase {
+		clearDerivedPaths(&fileCfg.Paths, pathsBase)
 	}
 	applyDefaults(fileCfg, l)
 
@@ -416,6 +422,48 @@ func MergeFlags(fileCfg *Config, args []string, l *logrus.Entry) error {
 	}
 
 	return nil
+}
+
+// clearDerivedPaths empties the paths which are the ones base derived, so that applyDefaults derives
+// them again from the base the flags gave. Every path is stored, derived or not, so moving the base
+// would otherwise move nothing else: the Agent kept running the exporters of the base it came from.
+//
+// A stored path is either the one the old base derived or one an operator set, and only the first is the
+// base's to move. Which is which is not recorded, so they are told apart by deriving the old base again
+// and keeping whatever does not match.
+func clearDerivedPaths(paths *Paths, base string) {
+	if base == "" {
+		return
+	}
+
+	quiet := logrus.New()
+	quiet.SetOutput(io.Discard)
+	old := &Config{Paths: Paths{PathsBase: base}}
+	applyDefaults(old, logrus.NewEntry(quiet))
+
+	for p, derived := range map[*string]string{
+		&paths.ExportersBase:    old.Paths.ExportersBase,
+		&paths.NodeExporter:     old.Paths.NodeExporter,
+		&paths.MySQLdExporter:   old.Paths.MySQLdExporter,
+		&paths.MongoDBExporter:  old.Paths.MongoDBExporter,
+		&paths.PostgresExporter: old.Paths.PostgresExporter,
+		&paths.ProxySQLExporter: old.Paths.ProxySQLExporter,
+		&paths.RDSExporter:      old.Paths.RDSExporter,
+		&paths.AzureExporter:    old.Paths.AzureExporter,
+		&paths.ValkeyExporter:   old.Paths.ValkeyExporter,
+		&paths.VMAgent:          old.Paths.VMAgent,
+		&paths.Nomad:            old.Paths.Nomad,
+		&paths.TempDir:          old.Paths.TempDir,
+		&paths.NomadDataDir:     old.Paths.NomadDataDir,
+		&paths.PTSummary:        old.Paths.PTSummary,
+		&paths.PTPGSummary:      old.Paths.PTPGSummary,
+		&paths.PTMySQLSummary:   old.Paths.PTMySQLSummary,
+		&paths.PTMongoDBSummary: old.Paths.PTMongoDBSummary,
+	} {
+		if *p == derived {
+			*p = ""
+		}
+	}
 }
 
 // nodeNameDefault returns the Node name `pmm-agent setup` falls back to when it is given none.

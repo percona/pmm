@@ -670,4 +670,46 @@ func TestMergeFlags(t *testing.T) {
 
 		assert.Equal(t, uint(1024), cfg.LogLinesCount)
 	})
+
+	// The file holds every path, derived or not, so a base which only moved itself left the Agent running
+	// the exporters and writing the temporary files of the base it came from.
+	t.Run("a base given moves the paths the old base derived", func(t *testing.T) {
+		cfg := running()
+		require.NoError(t, MergeFlags(cfg, nil, l))
+		require.Equal(t, "/opt/pmm/exporters/node_exporter", cfg.Paths.NodeExporter)
+
+		require.NoError(t, MergeFlags(cfg, []string{"--paths-base=/opt/other", "setup", "1.2.3.4", "generic"}, l))
+
+		assert.Equal(t, "/opt/other", cfg.Paths.PathsBase)
+		assert.Equal(t, "/opt/other/exporters", cfg.Paths.ExportersBase)
+		assert.Equal(t, "/opt/other/exporters/node_exporter", cfg.Paths.NodeExporter)
+		assert.Equal(t, "/opt/other/exporters/vmagent", cfg.Paths.VMAgent)
+		assert.Equal(t, "/opt/other/tmp", cfg.Paths.TempDir)
+		assert.Equal(t, "/opt/other/data/nomad", cfg.Paths.NomadDataDir)
+		assert.Equal(t, "/opt/other/tools/pt-summary", cfg.Paths.PTSummary)
+		assert.Equal(t, "/opt/other/tools/nomad", cfg.Paths.Nomad)
+	})
+
+	t.Run("a path the old base did not derive is left where it is", func(t *testing.T) {
+		cfg := running()
+		require.NoError(t, MergeFlags(cfg, nil, l))
+		cfg.Paths.TempDir = "/var/tmp/pmm"
+		cfg.Paths.VMAgent = "/usr/bin/vmagent"
+
+		require.NoError(t, MergeFlags(cfg, []string{"--paths-base=/opt/other", "setup", "1.2.3.4", "generic"}, l))
+
+		assert.Equal(t, "/var/tmp/pmm", cfg.Paths.TempDir)
+		assert.Equal(t, "/usr/bin/vmagent", cfg.Paths.VMAgent)
+		assert.Equal(t, "/opt/other/exporters/node_exporter", cfg.Paths.NodeExporter)
+	})
+
+	t.Run("a base which does not change leaves the paths alone", func(t *testing.T) {
+		cfg := running()
+		require.NoError(t, MergeFlags(cfg, nil, l))
+
+		require.NoError(t, MergeFlags(cfg, []string{"--paths-base=/opt/pmm", "setup", "1.2.3.4", "generic"}, l))
+
+		assert.Equal(t, "/opt/pmm/exporters/node_exporter", cfg.Paths.NodeExporter)
+		assert.Equal(t, "/opt/pmm/tmp", cfg.Paths.TempDir)
+	})
 }
