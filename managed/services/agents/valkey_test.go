@@ -324,13 +324,33 @@ func TestValkeyExporterConfig(t *testing.T) {
 			require.Contains(t, actual.Args, "--tls-client-key-file={{ .TextFiles.tlsKey }}")
 		})
 
+		// The redaction list itself travels to the agent host, so the key may only appear
+		// there when it is already being shipped as a text file.
 		t.Run("PrivateKeyIsRedacted", func(t *testing.T) {
 			t.Parallel()
 
-			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{tls: true, valkey: allCertificates}), redactSecrets, pmmAgentVersion, l)
-			require.Contains(t, actual.RedactWords, "key-pem")
-			require.NotContains(t, actual.RedactWords, "ca-pem")
-			require.NotContains(t, actual.RedactWords, "cert-pem")
+			for name, tc := range map[string]struct {
+				fixture  exporterFixture
+				redacted bool
+			}{
+				"MutualTLS":                    {exporterFixture{tls: true, valkey: allCertificates}, true},
+				"TLSDisabled":                  {exporterFixture{valkey: allCertificates}, false},
+				"PrivateKeyWithoutCertificate": {exporterFixture{tls: true, valkey: models.ValkeyOptions{SSLCa: "ca-pem", SSLKey: "key-pem"}}, false},
+				"ClientCertificateWithoutKey":  {exporterFixture{tls: true, valkey: models.ValkeyOptions{SSLCa: "ca-pem", SSLCert: "cert-pem"}}, false},
+			} {
+				t.Run(name, func(t *testing.T) {
+					t.Parallel()
+
+					actual := valkeyExporterConfig(node, service, newExporter(tc.fixture), redactSecrets, pmmAgentVersion, l)
+					if tc.redacted {
+						require.Contains(t, actual.RedactWords, "key-pem")
+					} else {
+						require.NotContains(t, actual.RedactWords, "key-pem")
+					}
+					require.NotContains(t, actual.RedactWords, "ca-pem")
+					require.NotContains(t, actual.RedactWords, "cert-pem")
+				})
+			}
 		})
 
 		// Exposing secrets drops the redaction list only; the exporter still needs the material.

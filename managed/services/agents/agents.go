@@ -118,8 +118,10 @@ func redactWords(agent *models.Agent) []string {
 	if s := agent.PostgreSQLOptions.SSLKey; s != "" {
 		words = append(words, s)
 	}
-	if s := agent.ValkeyOptions.SSLKey; s != "" {
-		words = append(words, s)
+	// The key only reaches the agent host as part of a complete pair over TLS, matching
+	// Agent.Files, so redacting it unconditionally would ship it in RedactWords instead.
+	if v := agent.ValkeyOptions; agent.TLS && v.SSLCert != "" && v.SSLKey != "" {
+		words = append(words, v.SSLKey)
 	}
 
 	return words
