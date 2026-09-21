@@ -91,13 +91,6 @@ interface ResendContext {
   caseRef: string;
 }
 
-/**
- * Task statuses whose execution is finished and therefore sendable.
- *
- * Mirrors the backend's own `TaskHistoryStatusEnum.is_finished()`; typing it
- * against the generated status union keeps a renamed or added status a compile
- * error rather than a silently unselectable row.
- */
 /** How often a running row's elapsed time is repainted, in milliseconds. */
 const ELAPSED_TICK_MS = 1000;
 
@@ -113,6 +106,13 @@ const ROW_COLUMN_WIDTHS = {
   duration: 84,
 } as const;
 
+/**
+ * Task statuses whose execution is finished and therefore sendable.
+ *
+ * Mirrors the backend's own `TaskHistoryStatusEnum.is_finished()`; typing it
+ * against the generated status union keeps a renamed or added status a compile
+ * error rather than a silently unselectable row.
+ */
 const FINISHED_TASK_STATUSES: ReadonlySet<
   NonNullable<AtwIncidentExecution['task_status']>
 > = new Set(['success', 'failed', 'stopped', 'stale', 'unlaunchable']);
