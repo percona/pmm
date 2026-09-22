@@ -26,29 +26,45 @@ import {
 import { QueryWrapper } from '../../../../tests/queryWrapper';
 import { TaskLogViewer } from '../TaskLogViewer';
 
-// Stub the log-viewer lib: real one depends on DOM APIs jsdom lacks. The props
-// the viewer drives are mirrored onto data attributes so they can be asserted
-// on — `follow` in particular decides whether a report opens at its top or at
-// its tail, which is not otherwise observable through this stub.
-vi.mock('@melloware/react-logviewer', () => ({
-  LazyLog: ({
-    text,
-    follow,
-    wrapLines,
-  }: {
-    text: string;
-    follow?: boolean;
-    wrapLines?: boolean;
-  }) => (
-    <pre
-      data-testid="log-output"
-      data-follow={String(Boolean(follow))}
-      data-wrap={String(Boolean(wrapLines))}
-    >
-      {text}
-    </pre>
-  ),
-}));
+// Stub the log-viewer lib: real one depends on DOM APIs jsdom lacks. The pane
+// drives it in external mode, so the stub keeps what `appendLines` hands it
+// and, like the real one, ends every append with a newline. The props the
+// viewer sets are mirrored onto data attributes so they can be asserted on —
+// `follow` in particular decides whether a report opens at its top or at its
+// tail, which is not otherwise observable through this stub.
+vi.mock('@melloware/react-logviewer', async () => {
+  const { forwardRef, useImperativeHandle, useState } = await import('react');
+  return {
+    LazyLog: forwardRef<
+      { appendLines(lines: string[]): void },
+      { follow?: boolean; wrapLines?: boolean }
+    >(function LazyLog({ follow, wrapLines }, ref) {
+      const [text, setText] = useState('');
+      useImperativeHandle(
+        ref,
+        () => ({
+          appendLines(lines: string[]) {
+            const content = lines.join('\n');
+            setText(
+              (previous) =>
+                previous + (content.endsWith('\n') ? content : `${content}\n`)
+            );
+          },
+        }),
+        []
+      );
+      return (
+        <pre
+          data-testid="log-output"
+          data-follow={String(Boolean(follow))}
+          data-wrap={String(Boolean(wrapLines))}
+        >
+          {text}
+        </pre>
+      );
+    }),
+  };
+});
 
 // Manual mock keeps axios out of the resolution graph.
 let _tokenProvider: () => string | null = () => null;
@@ -182,6 +198,350 @@ describe('TaskLogViewer', () => {
     expect(logFetchUrls()[0]).toBe('/sep/stream-logs/7');
     expect(getTailSelect()).toHaveTextContent('Last 1000');
     expect(getTailSelect()).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('keeps a live log that finished cleanly when the run turns terminal', async () => {
+    const { rerender } = render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    const handle = getHandle('7');
+    act(() => {
+      handle.pushMessage({
+        msg: 'line-1\n',
+        step: 'setup',
+        type: 'stdout',
+        offset: 1,
+      });
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId('log-output').textContent).toBe('line-1\n')
+    );
+    act(() => {
+      handle.pushNamed('finish', { status: 'success' });
+    });
+    await waitFor(() => expect(screen.getByText('Done')).toBeInTheDocument());
+
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    expect(logFetchUrls()).toEqual(['/sep/stream-logs/7']);
+    expect(screen.getByTestId('log-output').textContent).toBe('line-1\n');
+  });
+
+  it('does not carry a completed live log over to the next history', async () => {
+    const { rerender } = render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    act(() => {
+      getHandle('7').pushNamed('finish', { status: 'success' });
+    });
+    await waitFor(() => expect(screen.getByText('Done')).toBeInTheDocument());
+
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="9" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+    act(() => {
+      getHandle('9').close();
+    });
+    await flushPromises();
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="9" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    expect(logFetchUrls()).toEqual([
+      '/sep/stream-logs/7',
+      '/sep/stream-logs/9',
+      '/sep/stream-logs/9?tail=1000',
+    ]);
+  });
+
+  it('forgets a completed live log once it switches to another history', async () => {
+    const { rerender } = render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    act(() => {
+      getHandle('7').pushNamed('finish', { status: 'success' });
+    });
+    await waitFor(() => expect(screen.getByText('Done')).toBeInTheDocument());
+
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="9" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    expect(logFetchUrls()).toEqual([
+      '/sep/stream-logs/7',
+      '/sep/stream-logs/9?tail=1000',
+      '/sep/stream-logs/7?tail=1000',
+    ]);
+  });
+
+  it('reloads a live log whose finish carried a non-terminal status', async () => {
+    const { rerender } = render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    act(() => {
+      getHandle('7').pushNamed('finish', { status: 'running' });
+    });
+    await waitFor(() =>
+      expect(screen.getByText('running')).toBeInTheDocument()
+    );
+
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    expect(logFetchUrls()).toEqual([
+      '/sep/stream-logs/7',
+      '/sep/stream-logs/7?tail=1000',
+    ]);
+  });
+
+  it('keeps a live log streaming when the run turns terminal before its finish', async () => {
+    const { rerender } = render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    const handle = getHandle('7');
+    act(() => {
+      handle.pushMessage({
+        msg: 'line-1\n',
+        step: 'setup',
+        type: 'stdout',
+        offset: 1,
+      });
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId('log-output').textContent).toBe('line-1\n')
+    );
+
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    expect(logFetchUrls()).toEqual(['/sep/stream-logs/7']);
+    expect(screen.getByTestId('log-output').textContent).toBe('line-1\n');
+
+    act(() => {
+      handle.pushMessage({
+        msg: 'line-2\n',
+        step: 'setup',
+        type: 'stdout',
+        offset: 2,
+      });
+      handle.pushNamed('finish', { status: 'success' });
+    });
+    await waitFor(() => expect(screen.getByText('Done')).toBeInTheDocument());
+    await flushPromises();
+
+    expect(logFetchUrls()).toEqual(['/sep/stream-logs/7']);
+    expect(screen.getByTestId('log-output').textContent).toBe(
+      'line-1\nline-2\n'
+    );
+  });
+
+  it('reloads a live log whose stream closes without a finish once the run is terminal', async () => {
+    const { rerender } = render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    act(() => {
+      getHandle('7').pushMessage({
+        msg: 'line-1\n',
+        step: 'setup',
+        type: 'stdout',
+        offset: 1,
+      });
+    });
+
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+    act(() => {
+      getHandle('7').close();
+    });
+
+    await waitFor(() =>
+      expect(logFetchUrls()).toEqual([
+        '/sep/stream-logs/7',
+        '/sep/stream-logs/7?tail=1000',
+      ])
+    );
+  });
+
+  it('reloads an ended live log uncapped when the line cap is All', async () => {
+    globalThis.localStorage.setItem('sep.taskLogViewer.tail', 'all');
+    const { rerender } = render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    act(() => {
+      getHandle('7').pushMessage({
+        msg: 'line-1\n',
+        step: 'setup',
+        type: 'stdout',
+        offset: 1,
+      });
+    });
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+    act(() => {
+      getHandle('7').close();
+    });
+
+    await waitFor(() =>
+      expect(logFetchUrls()).toEqual([
+        '/sep/stream-logs/7',
+        '/sep/stream-logs/7',
+      ])
+    );
+  });
+
+  it('reloads an ended live log only once, whatever its reload does', async () => {
+    globalThis.localStorage.setItem('sep.taskLogViewer.tail', 'all');
+    const { rerender } = render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+    act(() => {
+      getHandle('7', 0).close();
+    });
+    await waitFor(() => expect(logFetchUrls()).toHaveLength(2));
+
+    act(() => {
+      getHandle('7', 1).pushMessage({
+        msg: 'line-1\n',
+        step: 'setup',
+        type: 'stdout',
+        offset: 1,
+      });
+      getHandle('7', 1).pushNamed('finish', { status: 'success' });
+    });
+    await waitFor(() => expect(screen.getByText('Done')).toBeInTheDocument());
+    await flushPromises();
+
+    expect(logFetchUrls()).toEqual([
+      '/sep/stream-logs/7',
+      '/sep/stream-logs/7',
+    ]);
+    expect(screen.getByTestId('log-output').textContent).toBe('line-1\n');
+  });
+
+  it('reloads a kept live log that ends without a finish after All lines is chosen', async () => {
+    const { rerender } = render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    act(() => {
+      getHandle('7').pushMessage({
+        msg: 'line-1\n',
+        step: 'setup',
+        type: 'stdout',
+        offset: 1,
+      });
+    });
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    const user = userEvent.setup();
+    await user.click(getTailSelect());
+    await user.click(screen.getByRole('option', { name: /all lines/i }));
+    await flushPromises();
+    expect(logFetchUrls()).toEqual(['/sep/stream-logs/7']);
+    act(() => {
+      getHandle('7').close();
+    });
+
+    await waitFor(() =>
+      expect(logFetchUrls()).toEqual([
+        '/sep/stream-logs/7',
+        '/sep/stream-logs/7',
+      ])
+    );
   });
 
   it('requests tail=1000 by default for finished tasks', async () => {
