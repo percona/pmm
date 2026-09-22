@@ -254,16 +254,20 @@ export function TaskLogViewer({
   // position, and that status can arrive before the stream's own `finish`, so
   // the stream is kept until it ends. Ending with a terminal `finish` means it
   // already holds the whole log and is kept for good; a stream cut short, or
-  // whose `finish` is non-terminal, gives way to the capped reload.
+  // whose `finish` is non-terminal, is reloaded once the run is over. Under
+  // the "All" cap that reload has the same history and tail as the live
+  // stream, so it is requested explicitly rather than through the tail.
   const [liveLog, setLiveLog] = useState<LiveLog | null>(null);
-  const keepLiveLog =
-    liveLog !== null &&
-    liveLog.historyId === taskHistoryId &&
-    liveLog.state !== 'ended';
+  const liveLogState =
+    liveLog !== null && liveLog.historyId === taskHistoryId
+      ? liveLog.state
+      : undefined;
+  const keepLiveLog = liveLogState === 'open' || liveLogState === 'complete';
+  const reloadLiveLog = liveLogState === 'ended' && !running;
   const tailLines = logTailChoiceToParam(logTailChoice);
   const effectiveTailLines = running || keepLiveLog ? undefined : tailLines;
   const { textByStep, stepOrder, streamStatus, finishStatus, error } =
-    useTaskLogs(taskHistoryId, effectiveTailLines);
+    useTaskLogs(taskHistoryId, effectiveTailLines, reloadLiveLog ? 1 : 0);
 
   const liveLogHistoryIdRef = useRef(taskHistoryId);
   useEffect(() => {
@@ -274,33 +278,27 @@ export function TaskLogViewer({
       setLiveLog(running ? { historyId: taskHistoryId, state: 'open' } : null);
       return;
     }
-    if (effectiveTailLines !== undefined) {
-      return;
-    }
-    let state: LiveLog['state'] | undefined;
+    // Only the stream opened while running is tracked, and it settles once:
+    // the reload that follows an `ended` stream must not be taken for it.
     if (streamStatus === 'finished' || streamStatus === 'error') {
-      state =
+      if (liveLogState !== 'open') {
+        return;
+      }
+      const complete =
         streamStatus === 'finished' &&
         finishStatus !== undefined &&
         Object.prototype.hasOwnProperty.call(
           TERMINAL_FINISH_STATUS,
           finishStatus
-        )
-          ? 'complete'
-          : 'ended';
-    } else if (running) {
-      state = 'open';
+        );
+      setLiveLog({
+        historyId: taskHistoryId,
+        state: complete ? 'complete' : 'ended',
+      });
+    } else if (running && liveLogState === undefined) {
+      setLiveLog({ historyId: taskHistoryId, state: 'open' });
     }
-    if (state === undefined) {
-      return;
-    }
-    const next = state;
-    setLiveLog((previous) =>
-      previous?.historyId === taskHistoryId && previous.state === next
-        ? previous
-        : { historyId: taskHistoryId, state: next }
-    );
-  }, [running, streamStatus, finishStatus, effectiveTailLines, taskHistoryId]);
+  }, [running, streamStatus, finishStatus, taskHistoryId, liveLogState]);
   const { eventsByStep, stepOrder: eventStepOrder } = useExecutionEvents(
     taskHistoryId,
     running

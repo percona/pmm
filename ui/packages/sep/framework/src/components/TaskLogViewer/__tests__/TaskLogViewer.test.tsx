@@ -412,6 +412,80 @@ describe('TaskLogViewer', () => {
     );
   });
 
+  it('reloads an ended live log uncapped when the line cap is All', async () => {
+    globalThis.localStorage.setItem('sep.taskLogViewer.tail', 'all');
+    const { rerender } = render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    act(() => {
+      getHandle('7').pushMessage({
+        msg: 'line-1\n',
+        step: 'setup',
+        type: 'stdout',
+        offset: 1,
+      });
+    });
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+    act(() => {
+      getHandle('7').close();
+    });
+
+    await waitFor(() =>
+      expect(logFetchUrls()).toEqual([
+        '/sep/stream-logs/7',
+        '/sep/stream-logs/7',
+      ])
+    );
+  });
+
+  it('reloads an ended live log only once, whatever its reload does', async () => {
+    globalThis.localStorage.setItem('sep.taskLogViewer.tail', 'all');
+    const { rerender } = render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+    act(() => {
+      getHandle('7', 0).close();
+    });
+    await waitFor(() => expect(logFetchUrls()).toHaveLength(2));
+
+    act(() => {
+      getHandle('7', 1).pushMessage({
+        msg: 'line-1\n',
+        step: 'setup',
+        type: 'stdout',
+        offset: 1,
+      });
+      getHandle('7', 1).pushNamed('finish', { status: 'success' });
+    });
+    await waitFor(() => expect(screen.getByText('Done')).toBeInTheDocument());
+    await flushPromises();
+
+    expect(logFetchUrls()).toEqual([
+      '/sep/stream-logs/7',
+      '/sep/stream-logs/7',
+    ]);
+    expect(screen.getByTestId('log-output').textContent).toBe('line-1\n');
+  });
+
   it('requests tail=1000 by default for finished tasks', async () => {
     render(
       <QueryWrapper>
