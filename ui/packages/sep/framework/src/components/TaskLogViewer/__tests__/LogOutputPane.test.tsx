@@ -216,4 +216,40 @@ describe('LogOutputPane with the real log renderer', () => {
 
     await waitFor(() => expect(renderedLines(container)).toEqual(['stderr-1']));
   });
+
+  it.each([
+    ['progress lines ending in carriage returns', ['45%\r', '45%\r46%\r']],
+    ['an open line ended by CRLF', ['abc', 'abc\r\ndef\n']],
+    ['an open line ended by a bare carriage return', ['abc', 'abc\rdef']],
+    [
+      'an open line ended by a carriage return, then its newline',
+      ['abc', 'abc\r', 'abc\r\n', 'abc\r\ndef\n'],
+    ],
+    ['a blank line between two carriage returns', ['a\r', 'a\r\rb\n']],
+    ['a CRLF split across chunks', ['a\r', 'a\r\nb\n']],
+  ])('appends %s like the full text, without rebuilding', async (_, chunks) => {
+    const fullText = chunks[chunks.length - 1] ?? '';
+    const whole = render(<LogOutputPane text={fullText} wrap={false} />);
+    await waitFor(() =>
+      expect(whole.container.querySelector('.log-content')).not.toBeNull()
+    );
+    const expectedLines = renderedLines(whole.container);
+    whole.unmount();
+
+    const { container, rerender } = render(
+      <LogOutputPane text={chunks[0] ?? ''} wrap={false} />
+    );
+    await waitFor(() =>
+      expect(container.querySelector('.log-content')).not.toBeNull()
+    );
+    const firstLine = container.querySelector('.log-content');
+    for (const chunk of chunks.slice(1)) {
+      rerender(<LogOutputPane text={chunk} wrap={false} />);
+    }
+
+    await waitFor(() =>
+      expect(renderedLines(container)).toEqual(expectedLines)
+    );
+    expect(container.querySelector('.log-content')).toBe(firstLine);
+  });
 });
