@@ -691,6 +691,39 @@ func TestAgentHelpers(t *testing.T) {
 		require.Nil(t, agent)
 	})
 
+	// Rows stored before this validation existed may hold half a pair, and ChangeValkeyExporter
+	// always sends ValkeyOptions, so a change that leaves the pair alone must still go through -
+	// otherwise such an agent could never be disabled, relabeled, or repaired.
+	t.Run("ChangeAgentKeepsStoredIncompleteValkeyKeyPairEditable", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		legacy := models.Agent{
+			AgentID:       "A13",
+			AgentType:     models.ValkeyExporterType,
+			PMMAgentID:    new("A1"),
+			ServiceID:     new("S1"),
+			ListenPort:    new(uint16(8200)),
+			TLS:           true,
+			ValkeyOptions: models.ValkeyOptions{SSLCert: "cert-pem"},
+		}
+		require.NoError(t, q.Insert(new(models.EncryptAgent(legacy))))
+
+		agent, err := models.ChangeAgent(q, "A13", &models.ChangeAgentParams{
+			Enabled:       new(false),
+			ValkeyOptions: &models.ChangeValkeyOptions{},
+		})
+		require.NoError(t, err)
+		assert.True(t, agent.Disabled)
+		assert.Equal(t, "cert-pem", agent.ValkeyOptions.SSLCert)
+
+		agent, err = models.ChangeAgent(q, "A13", &models.ChangeAgentParams{
+			ValkeyOptions: &models.ChangeValkeyOptions{SSLKey: new("key-pem")},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "key-pem", agent.ValkeyOptions.SSLKey)
+	})
+
 	t.Run("ChangeAgent", func(t *testing.T) {
 		t.Run("ChangeBasicFields", func(t *testing.T) {
 			q, teardown := setup(t)

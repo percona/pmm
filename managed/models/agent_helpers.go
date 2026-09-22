@@ -1325,9 +1325,14 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 			row.ValkeyOptions.SSLKey = *params.ValkeyOptions.SSLKey
 		}
 
-		err = row.ValkeyOptions.Validate()
-		if err != nil {
-			return nil, err
+		// Only the change that touches the key pair is validated: rows stored before this
+		// validation existed may already hold half a pair, and validating the merged row on
+		// every call would make them permanently un-editable, including back into a valid shape.
+		if params.ValkeyOptions.SSLCert != nil || params.ValkeyOptions.SSLKey != nil {
+			err = row.ValkeyOptions.Validate()
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
