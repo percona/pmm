@@ -66,7 +66,6 @@ func TestAlertRuleRegistry(t *testing.T) {
 		q := tx.Querier
 
 		rule := createTestAlertRule(t, q)
-		assert.Nil(t, rule.GrafanaRuleUID)
 
 		found, err := models.FindAlertRuleByID(q, rule.RuleID)
 		require.NoError(t, err)
@@ -85,21 +84,6 @@ func TestAlertRuleRegistry(t *testing.T) {
 		_, err = models.FindAlertRuleByID(tx.Querier, uuid.New().String())
 		require.Error(t, err)
 		assert.Equal(t, codes.NotFound, status.Code(err))
-	})
-
-	t.Run("grafana rule uid is set after the fact", func(t *testing.T) {
-		tx, err := db.Begin()
-		require.NoError(t, err)
-		defer func() {
-			require.NoError(t, tx.Rollback())
-		}()
-		q := tx.Querier
-
-		rule := createTestAlertRule(t, q)
-		updated, err := models.ChangeAlertRuleGrafanaUID(q, rule.RuleID, "grafana-uid-1")
-		require.NoError(t, err)
-		require.NotNil(t, updated.GrafanaRuleUID)
-		assert.Equal(t, "grafana-uid-1", *updated.GrafanaRuleUID)
 	})
 }
 

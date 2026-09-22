@@ -29,7 +29,6 @@ func (v *alertRuleTableType) Name() string {
 func (v *alertRuleTableType) Columns() []string {
 	return []string{
 		"rule_id",
-		"grafana_rule_uid",
 		"params",
 		"created_at",
 		"updated_at",
@@ -58,7 +57,6 @@ var AlertRuleTable = &alertRuleTableType{
 		SQLName: "alert_rules",
 		Fields: []parse.FieldInfo{
 			{Name: "RuleID", Type: "string", Column: "rule_id"},
-			{Name: "GrafanaRuleUID", Type: "*string", Column: "grafana_rule_uid"},
 			{Name: "Params", Type: "AlertRuleParams", Column: "params"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
@@ -70,12 +68,11 @@ var AlertRuleTable = &alertRuleTableType{
 
 // String returns a string representation of this struct or record.
 func (s AlertRule) String() string {
-	res := make([]string, 5)
+	res := make([]string, 4)
 	res[0] = "RuleID: " + reform.Inspect(s.RuleID, true)
-	res[1] = "GrafanaRuleUID: " + reform.Inspect(s.GrafanaRuleUID, true)
-	res[2] = "Params: " + reform.Inspect(s.Params, true)
-	res[3] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[4] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[1] = "Params: " + reform.Inspect(s.Params, true)
+	res[2] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[3] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -84,7 +81,6 @@ func (s AlertRule) String() string {
 func (s *AlertRule) Values() []interface{} {
 	return []interface{}{
 		s.RuleID,
-		s.GrafanaRuleUID,
 		s.Params,
 		s.CreatedAt,
 		s.UpdatedAt,
@@ -96,7 +92,6 @@ func (s *AlertRule) Values() []interface{} {
 func (s *AlertRule) Pointers() []interface{} {
 	return []interface{}{
 		&s.RuleID,
-		&s.GrafanaRuleUID,
 		&s.Params,
 		&s.CreatedAt,
 		&s.UpdatedAt,

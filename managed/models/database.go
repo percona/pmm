@@ -1190,14 +1190,12 @@ var databaseSchema = [][]string{
 	},
 	119: {
 		`CREATE TABLE alert_rules (
-			rule_id VARCHAR NOT NULL,
-			grafana_rule_uid VARCHAR CHECK (grafana_rule_uid <> ''),
+			rule_id VARCHAR NOT NULL CHECK (rule_id <> ''),
 			params JSONB NOT NULL,
 			created_at TIMESTAMP NOT NULL,
 			updated_at TIMESTAMP NOT NULL,
 
-			PRIMARY KEY (rule_id),
-			UNIQUE (grafana_rule_uid)
+			PRIMARY KEY (rule_id)
 		)`,
 
 		// target is polymorphic - a node_id, a service_id, or a cluster label value -
@@ -1209,8 +1207,11 @@ var databaseSchema = [][]string{
 			param_name VARCHAR NOT NULL CHECK (param_name <> ''),
 			scope VARCHAR NOT NULL CHECK (scope <> ''),
 			target VARCHAR NOT NULL CHECK (target <> ''),
+			-- PostgreSQL defines NaN as equal to itself, so an equality check would pass
+			-- it through; inequality against NaN is what actually rejects it. The
+			-- infinities need their own bounds because NaN sorts above every other value.
 			value DOUBLE PRECISION NOT NULL
-				CHECK (value = value AND value > '-Infinity'::float8 AND value < 'Infinity'::float8),
+				CHECK (value <> 'NaN'::float8 AND value > '-Infinity'::float8 AND value < 'Infinity'::float8),
 			cleared_at TIMESTAMP,
 			created_at TIMESTAMP NOT NULL,
 			updated_at TIMESTAMP NOT NULL,
@@ -1222,11 +1223,6 @@ var databaseSchema = [][]string{
 
 		`CREATE INDEX alert_rule_threshold_overrides_target_idx
 			ON alert_rule_threshold_overrides (scope, target)`,
-
-		// The foreign key above does not imply an index in PostgreSQL, and the
-		// collector reads by rule_id on every scrape.
-		`CREATE INDEX alert_rule_threshold_overrides_rule_idx
-			ON alert_rule_threshold_overrides (rule_id)`,
 	},
 }
 

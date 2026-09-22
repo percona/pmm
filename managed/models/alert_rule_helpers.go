@@ -179,28 +179,6 @@ func CreateAlertRule(q *reform.Querier, params *CreateAlertRuleParams) (*AlertRu
 	return rule, nil
 }
 
-// ChangeAlertRuleGrafanaUID stores the Grafana rule UID for an already-registered rule.
-// The UID is a cached handle, not the identity, so it is set after Grafana has accepted
-// the rule rather than being required up front.
-func ChangeAlertRuleGrafanaUID(q *reform.Querier, ruleID, grafanaRuleUID string) (*AlertRule, error) {
-	rule, err := FindAlertRuleByID(q, ruleID)
-	if err != nil {
-		return nil, err
-	}
-
-	if grafanaRuleUID == "" {
-		return nil, status.Error(codes.InvalidArgument, "Empty Grafana rule UID.")
-	}
-
-	rule.GrafanaRuleUID = &grafanaRuleUID
-	err = q.Update(rule)
-	if err != nil {
-		return nil, fmt.Errorf("failed to update alert rule: %w", err)
-	}
-
-	return rule, nil
-}
-
 // UpsertThresholdOverride sets the override for one parameter of one rule at one target,
 // creating the row if it does not exist. Writing to a tombstoned row revives it.
 func UpsertThresholdOverride(

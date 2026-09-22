@@ -53,13 +53,10 @@ func (p *AlertRuleParams) Scan(src any) error { return jsonScan(p, src) }
 //
 //reform:alert_rules
 type AlertRule struct {
-	RuleID string `reform:"rule_id,pk"`
-	// GrafanaRuleUID is a cached handle for the rule in Grafana, never the identity.
-	// It is nil until the rule has been created there.
-	GrafanaRuleUID *string         `reform:"grafana_rule_uid"`
-	Params         AlertRuleParams `reform:"params"`
-	CreatedAt      time.Time       `reform:"created_at"`
-	UpdatedAt      time.Time       `reform:"updated_at"`
+	RuleID    string          `reform:"rule_id,pk"`
+	Params    AlertRuleParams `reform:"params"`
+	CreatedAt time.Time       `reform:"created_at"`
+	UpdatedAt time.Time       `reform:"updated_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
