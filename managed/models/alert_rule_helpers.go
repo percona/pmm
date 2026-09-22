@@ -193,37 +193,46 @@ func UpsertThresholdOverride(
 		return nil, err
 	}
 
-	override, err := findThresholdOverride(q, ruleID, paramName, scope, target)
-	switch {
-	case err == nil:
-		override.Value = value
-		override.ClearedAt = nil
-		err = q.Update(override)
-		if err != nil {
-			return nil, fmt.Errorf("failed to update threshold override: %w", err)
-		}
-
-		return override, nil
-
-	case errors.Is(err, reform.ErrNoRows):
-		override = &AlertRuleThresholdOverride{
-			ID:        uuid.New().String(),
-			RuleID:    ruleID,
-			ParamName: paramName,
-			Scope:     scope,
-			Target:    target,
-			Value:     value,
-		}
-		err = q.Insert(override)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create threshold override: %w", err)
-		}
-
-		return override, nil
-
-	default:
-		return nil, fmt.Errorf("failed to look up threshold override: %w", err)
+	columns := AlertRuleThresholdOverrideTable.Columns()
+	placeholders := make([]string, len(columns))
+	for i := range columns {
+		placeholders[i] = q.Placeholder(i + 1)
 	}
+
+	now := Now()
+	override := &AlertRuleThresholdOverride{}
+
+	// created_at is deliberately absent from the update list, so reviving a tombstone keeps
+	// the row's original creation time. The hand-written statement also bypasses the
+	// BeforeInsert/BeforeUpdate hooks, hence the explicit timestamps.
+	query := fmt.Sprintf(
+		`
+		INSERT INTO %s (%s)
+		VALUES (%s)
+		ON CONFLICT (rule_id, param_name, scope, target) DO UPDATE
+			SET value = EXCLUDED.value, cleared_at = NULL, updated_at = EXCLUDED.updated_at
+		RETURNING %s`,
+		AlertRuleThresholdOverrideTable.Name(),
+		strings.Join(columns, ", "),
+		strings.Join(placeholders, ", "),
+		strings.Join(columns, ", "),
+	)
+
+	err = q.QueryRow(
+		query,
+		uuid.New().String(), ruleID, paramName, string(scope), target, value, nil, now, now,
+	).Scan(override.Pointers()...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to upsert threshold override: %w", err)
+	}
+
+	// Raw SQL skips reform's hooks, so normalise the way AfterFind would have.
+	err = override.AfterFind()
+	if err != nil {
+		return nil, err
+	}
+
+	return override, nil
 }
 
 // ClearThresholdOverride tombstones an override instead of deleting it, so the emitted
