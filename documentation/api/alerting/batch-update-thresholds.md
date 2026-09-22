@@ -64,3 +64,7 @@ clears returns three thresholds.
 At least one update is required. Validation is the same as for
 [Set Alert Threshold](ref:setthreshold), applied to every entry; one invalid entry rolls the
 whole batch back and nothing is written.
+
+> 🚧 Only clear what is actually overridden
+>
+> Clearing a parameter that has no override for that target returns `404`, and inside a batch that rolls back every other entry with it. A form that submits all of its rows must omit the ones the user left at the default, or a single untouched row discards the whole submission.

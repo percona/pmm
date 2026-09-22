@@ -48,9 +48,12 @@ curl --insecure -X GET \
 }
 ```
 
-`scope` and `target` in the response describe where the **effective** value came from, which
-is not necessarily the target you asked about — a node can inherit a cluster-scoped override.
-Both fields are absent when `is_overridden` is false.
+`scope` and `target` in the response describe where the **effective** value came from. Today
+that is always the target you asked about, since node is the only scope that resolves. They
+are reported separately because they will not always agree: once service and cluster scopes
+are enabled, a node can inherit an override set on a cluster. Read them from the entry rather
+than assuming the target you passed, and both are zero-valued — `THRESHOLD_SCOPE_UNSPECIFIED`
+and `""` — when `is_overridden` is false.
 
 ### Across all targets
 
@@ -81,7 +84,9 @@ curl --insecure -X GET \
 
 ### Reading zero values
 
-The API omits zero-valued fields, as JSON mapping for Protocol Buffers requires. A threshold
-of `0` arrives with `default_value` or `effective_value` **absent**, not set to `0`, and an
-entry that is not overridden has no `is_overridden` field at all. Treat an absent numeric
-field as `0` rather than as unknown.
+Zero-valued fields **are** present. The gateway marshals with `EmitUnpopulated`, so a
+threshold of `0` arrives as `"default_value": 0` rather than being omitted, and an entry that
+is not overridden carries `"is_overridden": false`, `"scope": "THRESHOLD_SCOPE_UNSPECIFIED"`
+and `"target": ""`. This is not the proto3 default of dropping zero values, so a client
+written against that assumption will still work, but it need not treat an absent field as
+`0`.

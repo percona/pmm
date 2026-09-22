@@ -17,6 +17,9 @@ A rule whose template marks a parameter as overridable is registered with an ide
 you create it, returned as `rule_id` in the [Create Alert Rule](ref:createrule) response. That
 identifier is what the threshold endpoints address.
 
+A rule created from a template with no overridable parameters gets an empty `rule_id`, since
+there is nothing for a threshold to be keyed on.
+
 ### The model
 
 An **override** is a value set for one parameter of one rule on one target. A target is
