@@ -48,7 +48,7 @@ func thresholdScopeFromAPI(scope alerting.ThresholdScope) (models.ThresholdScope
 
 	// do not add `default:` to make exhaustive linter do its job
 
-	return "", status.Errorf(codes.InvalidArgument, "Unknown threshold scope %q.", scope.String())
+	return "", status.Errorf(codes.InvalidArgument, "Unknown threshold scope '%s'.", scope.String())
 }
 
 func thresholdScopeToAPI(scope models.ThresholdScope) alerting.ThresholdScope {
@@ -110,12 +110,12 @@ func resolveThresholdRequest(
 	param, ok := rule.Params[paramName]
 	if !ok {
 		return zero, status.Errorf(codes.NotFound,
-			"Rule %q has no overridable parameter %q.", ruleID, paramName)
+			"Rule '%s' has no overridable parameter '%s'.", ruleID, paramName)
 	}
 
 	if !slices.Contains(param.Scopes, string(scope)) {
 		return zero, status.Errorf(codes.InvalidArgument,
-			"Parameter %q cannot be overridden at %q scope.", paramName, scope)
+			"Parameter '%s' cannot be overridden at '%s' scope.", paramName, scope)
 	}
 
 	if value != nil {
@@ -138,17 +138,17 @@ func resolveThresholdRequest(
 // internal error rather than a bad request.
 func checkThresholdValue(paramName string, param models.AlertRuleParam, value float64) error {
 	if math.IsNaN(value) || math.IsInf(value, 0) {
-		return status.Errorf(codes.InvalidArgument, "Threshold for %q must be a finite number.", paramName)
+		return status.Errorf(codes.InvalidArgument, "Threshold for '%s' must be a finite number.", paramName)
 	}
 
 	if param.Min != nil && value < *param.Min {
 		return status.Errorf(codes.InvalidArgument,
-			"Threshold for %q must be at least %v.", paramName, *param.Min)
+			"Threshold for '%s' must be at least %v.", paramName, *param.Min)
 	}
 
 	if param.Max != nil && value > *param.Max {
 		return status.Errorf(codes.InvalidArgument,
-			"Threshold for %q must be at most %v.", paramName, *param.Max)
+			"Threshold for '%s' must be at most %v.", paramName, *param.Max)
 	}
 
 	return nil

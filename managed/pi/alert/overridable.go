@@ -130,7 +130,7 @@ func SplitSingleExpr(expr, paramName string) (SingleExprSplit, error) {
 
 	token := ParamTokenRegexp(paramName).FindString(expr)
 	if token == "" {
-		return zero, fmt.Errorf("parameter %q is not referenced in the expression", paramName)
+		return zero, fmt.Errorf("parameter '%s' is not referenced in the expression", paramName)
 	}
 
 	// "0" padded with spaces to the token's exact byte length: parseable, and leaves every
@@ -202,7 +202,7 @@ func (r *Template) validateOverridableParams() error {
 
 		_, err := SplitSingleExpr(r.Expr, param.Name)
 		if err != nil {
-			return fmt.Errorf("overridable parameter %q: %w", param.Name, err)
+			return fmt.Errorf("overridable parameter '%s': %w", param.Name, err)
 		}
 	}
 

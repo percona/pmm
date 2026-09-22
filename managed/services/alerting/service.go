@@ -905,12 +905,12 @@ func collectOverridableParams(template *alert.Template, values AlertExprParamsVa
 	for _, param := range overridable {
 		joinLabel, err := joinLabelForParam(param)
 		if err != nil {
-			return nil, fmt.Errorf("parameter %q: %w", param.Name, err)
+			return nil, fmt.Errorf("parameter '%s': %w", param.Name, err)
 		}
 
 		supplied, ok := byName[param.Name]
 		if !ok {
-			return nil, fmt.Errorf("no value supplied for overridable parameter %q", param.Name)
+			return nil, fmt.Errorf("no value supplied for overridable parameter '%s'", param.Name)
 		}
 
 		snapshot := models.AlertRuleParam{
@@ -924,7 +924,7 @@ func collectOverridableParams(template *alert.Template, values AlertExprParamsVa
 		if len(param.Range) != 0 {
 			pMin, pMax, err := param.GetRangeForFloat()
 			if err != nil {
-				return nil, fmt.Errorf("parameter %q: failed to parse range: %w", param.Name, err)
+				return nil, fmt.Errorf("parameter '%s': failed to parse range: %w", param.Name, err)
 			}
 
 			snapshot.Min, snapshot.Max = new(pMin), new(pMax)

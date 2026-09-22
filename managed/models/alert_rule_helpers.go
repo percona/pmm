@@ -72,7 +72,7 @@ func FindAlertRuleByID(q *reform.Querier, ruleID string) (*AlertRule, error) {
 	err := q.Reload(rule)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return nil, status.Errorf(codes.NotFound, "Alert rule with ID %q not found.", ruleID)
+			return nil, status.Errorf(codes.NotFound, "Alert rule with ID '%s' not found.", ruleID)
 		}
 
 		return nil, err
@@ -247,7 +247,7 @@ func ClearThresholdOverride(q *reform.Querier, ruleID, paramName string, scope T
 	override, err := findThresholdOverride(q, ruleID, paramName, scope, target)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return status.Errorf(codes.NotFound, "Threshold override for rule %q parameter %q not found.", ruleID, paramName)
+			return status.Errorf(codes.NotFound, "Threshold override for rule '%s' parameter '%s' not found.", ruleID, paramName)
 		}
 
 		return fmt.Errorf("failed to look up threshold override: %w", err)

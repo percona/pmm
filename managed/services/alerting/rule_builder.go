@@ -116,17 +116,17 @@ func buildDesugaredRuleData(
 ) ([]services.Data, string, map[string]string, error) {
 	split, err := alert.SplitSingleExpr(template.Expr, param.Name)
 	if err != nil {
-		return nil, "", nil, fmt.Errorf("failed to split expression for parameter %q: %w", param.Name, err)
+		return nil, "", nil, fmt.Errorf("failed to split expression for parameter '%s': %w", param.Name, err)
 	}
 
 	joinLabel, err := joinLabelForParam(param)
 	if err != nil {
-		return nil, "", nil, fmt.Errorf("parameter %q: %w", param.Name, err)
+		return nil, "", nil, fmt.Errorf("parameter '%s': %w", param.Name, err)
 	}
 
 	defaultValue, ok := params[param.Name]
 	if !ok {
-		return nil, "", nil, fmt.Errorf("no value supplied for overridable parameter %q", param.Name)
+		return nil, "", nil, fmt.Errorf("no value supplied for overridable parameter '%s'", param.Name)
 	}
 
 	// The observed query carries the alert's filters; the threshold deliberately does not,
@@ -355,7 +355,7 @@ func planThresholdInjections(template *alert.Template, ruleID string, params map
 	for _, param := range overridable {
 		joinLabel, err := joinLabelForParam(param)
 		if err != nil {
-			return nil, fmt.Errorf("parameter %q: %w", param.Name, err)
+			return nil, fmt.Errorf("parameter '%s': %w", param.Name, err)
 		}
 
 		observed, err := template.ObservedQueryForParam(param.Name)
@@ -368,12 +368,12 @@ func planThresholdInjections(template *alert.Template, ruleID string, params map
 		// excludes with no threshold at all.
 		observedExpr, err := fillExprWithParams(observed.Expr, params)
 		if err != nil {
-			return nil, fmt.Errorf("failed to fill query %s for parameter %q: %w", observed.RefID, param.Name, err)
+			return nil, fmt.Errorf("failed to fill query %s for parameter '%s': %w", observed.RefID, param.Name, err)
 		}
 
 		defaultValue, ok := params[param.Name]
 		if !ok {
-			return nil, fmt.Errorf("no value supplied for overridable parameter %q", param.Name)
+			return nil, fmt.Errorf("no value supplied for overridable parameter '%s'", param.Name)
 		}
 
 		refID := allocateThresholdRefID(param.Name, taken)

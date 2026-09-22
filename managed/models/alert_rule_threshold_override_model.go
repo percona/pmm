@@ -48,7 +48,7 @@ func (s ThresholdScope) Validate() error {
 	case ThresholdScopeService:
 	case ThresholdScopeCluster:
 	default:
-		return status.Errorf(codes.InvalidArgument, "Invalid threshold scope %q.", string(s))
+		return status.Errorf(codes.InvalidArgument, "Invalid threshold scope '%s'.", string(s))
 	}
 
 	return nil
