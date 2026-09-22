@@ -53,6 +53,7 @@ func mysqldExporterConfig(
 		"--collect.info_schema.clientstats",
 		"--collect.info_schema.userstats",
 		"--collect.perf_schema.eventsstatements",
+		"--collect.perf_schema.memory_events",
 		"--collect.custom_query.lr",
 
 		// MR
