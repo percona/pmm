@@ -107,17 +107,17 @@ export function IncidentWorkspacePage() {
       response: AtwBatchExecuteResponse,
       source: AtwDispatchSource
     ) => {
-      const startedIds: number[] = [];
+      // Derived before the updater, not inside it: React may run an updater
+      // late or more than once — StrictMode always runs it twice — and a list
+      // built in there is read here either empty or doubled.
+      const startedIds = response.items
+        .map((item) => item.task_history_id)
+        .filter((id): id is number => id !== null && id !== undefined);
+
       setRemembered((previous) => {
         const next = new Map(previous);
-        for (const item of response.items) {
-          if (
-            item.task_history_id !== null &&
-            item.task_history_id !== undefined
-          ) {
-            startedIds.push(item.task_history_id);
-            next.set(item.task_history_id, { snippets, values });
-          }
+        for (const id of startedIds) {
+          next.set(id, { snippets, values });
         }
         return next;
       });
