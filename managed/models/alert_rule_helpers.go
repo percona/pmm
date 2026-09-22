@@ -193,18 +193,22 @@ func UpsertThresholdOverride(
 		return nil, err
 	}
 
-	columns := AlertRuleThresholdOverrideTable.Columns()
-	placeholders := make([]string, len(columns))
-	for i := range columns {
-		placeholders[i] = q.Placeholder(i + 1)
+	override := &AlertRuleThresholdOverride{
+		ID:        uuid.New().String(),
+		RuleID:    ruleID,
+		ParamName: paramName,
+		Scope:     scope,
+		Target:    target,
+		Value:     value,
 	}
 
-	now := Now()
-	override := &AlertRuleThresholdOverride{}
+	err = override.BeforeInsert()
+	if err != nil {
+		return nil, err
+	}
 
-	// created_at is deliberately absent from the update list, so reviving a tombstone keeps
-	// the row's original creation time. The hand-written statement also bypasses the
-	// BeforeInsert/BeforeUpdate hooks, hence the explicit timestamps.
+	columns := AlertRuleThresholdOverrideTable.Columns()
+	// created_at stays out of the update list so reviving a tombstone keeps its creation time.
 	query := fmt.Sprintf(
 		`
 		INSERT INTO %s (%s)
@@ -214,19 +218,16 @@ func UpsertThresholdOverride(
 		RETURNING %s`,
 		AlertRuleThresholdOverrideTable.Name(),
 		strings.Join(columns, ", "),
-		strings.Join(placeholders, ", "),
+		strings.Join(q.Placeholders(1, len(columns)), ", "),
 		strings.Join(columns, ", "),
 	)
 
-	err = q.QueryRow(
-		query,
-		uuid.New().String(), ruleID, paramName, string(scope), target, value, nil, now, now,
-	).Scan(override.Pointers()...)
+	err = q.QueryRow(query, override.Values()...).Scan(override.Pointers()...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to upsert threshold override: %w", err)
 	}
 
-	// Raw SQL skips reform's hooks, so normalise the way AfterFind would have.
+	// Raw SQL skips reform's hooks.
 	err = override.AfterFind()
 	if err != nil {
 		return nil, err

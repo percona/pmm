@@ -78,15 +78,6 @@ func TestParamTokenRegexpQuotesName(t *testing.T) {
 	assert.False(t, re.MatchString("[[ .axb ]]"))
 }
 
-func TestParamReferencedInExpressions(t *testing.T) {
-	t.Parallel()
-
-	template := overridableTemplate()
-
-	assert.True(t, template.ParamReferencedInExpressions("threshold"))
-	assert.False(t, template.ParamReferencedInExpressions("missing"))
-}
-
 func TestGetOverrideScopesDefaultsToNode(t *testing.T) {
 	t.Parallel()
 

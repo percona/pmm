@@ -19,7 +19,4 @@ export const Messages = {
   success: {
     updated: 'Alert thresholds updated',
   },
-  error: {
-    update: 'Could not update alert thresholds',
-  },
 };

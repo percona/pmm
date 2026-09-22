@@ -202,7 +202,17 @@ func groupThresholdOverrides(overrides []*models.AlertRuleThresholdOverride) []t
 func loadThresholdInventory(q *reform.Querier, overrides []*models.AlertRuleThresholdOverride) (models.ThresholdInventory, error) {
 	var nodeIDs, serviceIDs []string
 
+	// One row per rule and parameter can name the same target, so dedupe before building
+	// the IN lists - lib/pq caps a statement at 65535 bind parameters.
+	seen := make(map[string]struct{}, len(overrides))
+
 	for _, override := range overrides {
+		if _, dup := seen[string(override.Scope)+"\x00"+override.Target]; dup {
+			continue
+		}
+
+		seen[string(override.Scope)+"\x00"+override.Target] = struct{}{}
+
 		switch override.Scope {
 		case models.ThresholdScopeNode:
 			nodeIDs = append(nodeIDs, override.Target)

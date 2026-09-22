@@ -17,6 +17,7 @@ package models
 
 import (
 	"database/sql/driver"
+	"slices"
 	"time"
 
 	"gopkg.in/reform.v1"
@@ -36,6 +37,12 @@ type AlertRuleParam struct {
 	Summary   string   `json:"summary,omitempty"`
 	Min       *float64 `json:"min,omitempty"`
 	Max       *float64 `json:"max,omitempty"`
+}
+
+// OverridableAt reports whether this parameter may be overridden at the given scope. It is
+// the one bridge between alert.OverrideScope*, which fills Scopes, and ThresholdScope.
+func (p AlertRuleParam) OverridableAt(scope ThresholdScope) bool {
+	return slices.Contains(p.Scopes, string(scope))
 }
 
 // AlertRuleParams maps a parameter name to its snapshot.

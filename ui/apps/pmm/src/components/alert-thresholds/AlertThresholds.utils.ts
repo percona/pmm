@@ -9,7 +9,7 @@ import type {
   AlertThresholdsFormValues,
 } from './AlertThresholds.types';
 
-export const UNIT_SYMBOLS: Record<string, string> = {
+const UNIT_SYMBOLS: Record<string, string> = {
   PARAM_UNIT_PERCENTAGE: '%',
   PARAM_UNIT_SECONDS: 's',
 };
@@ -51,7 +51,6 @@ export const getRows = (
 ) =>
   (data?.thresholds ?? []).map((t, index) => ({
     ...t,
-    // proto3 omits zero values, so absent means 0 rather than unknown.
     defaultValue: t.defaultValue ?? 0,
     effectiveValue: t.effectiveValue ?? 0,
     isOverridden: t.isOverridden ?? false,
@@ -102,10 +101,8 @@ export const buildThresholdUpdates = (
     };
 
     if (cleared || parsed === row.defaultValue) {
-      const ownOverride =
-        row.isOverridden && row.scope === scope && row.target === target;
-
-      if (ownOverride) {
+      // Only a row's own override can be cleared here; an inherited one lives elsewhere.
+      if (row.isOverridden && row.scope === scope && row.target === target) {
         updates.push(base);
       }
       continue;

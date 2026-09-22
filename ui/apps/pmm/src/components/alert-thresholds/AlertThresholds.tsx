@@ -124,10 +124,7 @@ const AlertThresholds = () => {
         // One transactional call: either every row lands or none does.
         await applyThresholds(updates);
       } catch {
-        // Nothing was applied, so the modal stays open with the operator's edits intact
-        // rather than closing as though the changes had been saved.
-        enqueueSnackbar(Messages.error.update, { variant: 'error' });
-
+        // The axios interceptor reports the reason; keep the modal open with the edits.
         return;
       }
 

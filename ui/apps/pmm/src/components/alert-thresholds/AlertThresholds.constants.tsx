@@ -67,7 +67,6 @@ export const ALERT_THRESHOLDS_COLUMNS: MRT_ColumnDef<AlertThresholdRow>[] = [
         },
       },
     },
-    Cell: ({ row: { original } }) => formatUnit(original.unit),
   },
   {
     id: 'reset',

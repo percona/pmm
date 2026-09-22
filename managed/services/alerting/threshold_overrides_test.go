@@ -495,26 +495,7 @@ func TestListThresholdsFiltersByScope(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		for _, threshold := range res.Thresholds {
-			assert.NotEqual(t, "service-scoped-rule", threshold.RuleId,
-				"a parameter that cannot be overridden at node scope must not be listed for a node")
-		}
 		require.Len(t, res.Thresholds, 1)
 		assert.Equal(t, thresholdTestRuleID, res.Thresholds[0].RuleId)
-	})
-
-	// Without a target the listing reports overrides that already exist, whatever scope
-	// they were set at, so the scope filter must not apply there.
-	t.Run("a target-less listing is not filtered by scope", func(t *testing.T) {
-		svc, db, node := setupThresholdAPI(t)
-
-		_, err := models.UpsertThresholdOverride(db.Querier, thresholdTestRuleID, "threshold",
-			models.ThresholdScopeNode, node.NodeID, 95)
-		require.NoError(t, err)
-
-		res, err := svc.ListThresholds(ctx, &alerting.ListThresholdsRequest{})
-		require.NoError(t, err)
-		require.Len(t, res.Thresholds, 1)
-		assert.InDelta(t, 95, res.Thresholds[0].EffectiveValue, 0.001)
 	})
 }

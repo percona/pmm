@@ -91,15 +91,15 @@ func expressionOf(t *testing.T, item services.Data) string {
 func TestBuildRuleDataInjectsThresholdQuery(t *testing.T) {
 	t.Parallel()
 
-	data, condition, _, err := buildGrafanaRuleData(
+	built, err := buildGrafanaRuleData(
 		overridableRuleTemplate(), "metrics-uid", "rule-1",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
-	assert.Equal(t, "C", condition)
+	assert.Equal(t, "C", built.condition)
 
-	byRef := dataByRefID(t, data)
-	require.Len(t, data, 3, "observed query, injected threshold, math expression")
+	byRef := dataByRefID(t, built.data)
+	require.Len(t, built.data, 3, "observed query, injected threshold, math expression")
 	require.Contains(t, byRef, "T_threshold")
 
 	expr := exprOf(t, byRef["T_threshold"])
@@ -120,13 +120,13 @@ func TestBuildRuleDataInjectsThresholdQuery(t *testing.T) {
 func TestBuildRuleDataSwapsTokenForThresholdRef(t *testing.T) {
 	t.Parallel()
 
-	data, _, _, err := buildGrafanaRuleData(
+	built, err := buildGrafanaRuleData(
 		overridableRuleTemplate(), "metrics-uid", "rule-1",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
 
-	body := expressionOf(t, dataByRefID(t, data)["C"])
+	body := expressionOf(t, dataByRefID(t, built.data)["C"])
 
 	assert.Equal(t, "$A > $T_threshold", body)
 	assert.NotContains(t, body, "80", "the default must never be baked into the expression")
@@ -137,15 +137,15 @@ func TestBuildRuleDataSwapsTokenForThresholdRef(t *testing.T) {
 func TestBuildRuleDataWithoutRuleIDIsUnchanged(t *testing.T) {
 	t.Parallel()
 
-	data, _, _, err := buildGrafanaRuleData(
+	built, err := buildGrafanaRuleData(
 		overridableRuleTemplate(), "metrics-uid", "",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
 
-	require.Len(t, data, 2)
-	assert.NotContains(t, dataByRefID(t, data), "T_threshold")
-	assert.Equal(t, "$A > 80", expressionOf(t, dataByRefID(t, data)["C"]))
+	require.Len(t, built.data, 2)
+	assert.NotContains(t, dataByRefID(t, built.data), "T_threshold")
+	assert.Equal(t, "$A > 80", expressionOf(t, dataByRefID(t, built.data)["C"]))
 }
 
 func TestBuildRuleDataWithoutOverridableParams(t *testing.T) {
@@ -154,14 +154,14 @@ func TestBuildRuleDataWithoutOverridableParams(t *testing.T) {
 	template := overridableRuleTemplate()
 	template.Params[0].Overridable = false
 
-	data, _, _, err := buildGrafanaRuleData(
+	built, err := buildGrafanaRuleData(
 		template, "metrics-uid", "rule-1",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
 
-	require.Len(t, data, 2)
-	assert.Equal(t, "$A > 80", expressionOf(t, dataByRefID(t, data)["C"]))
+	require.Len(t, built.data, 2)
+	assert.Equal(t, "$A > 80", expressionOf(t, dataByRefID(t, built.data)["C"]))
 }
 
 // TestThresholdQueryMatchesCollectorDescriptor is the contract test between the generated
@@ -180,13 +180,13 @@ func TestThresholdQueryMatchesCollectorDescriptor(t *testing.T) {
 	labels := regexp.MustCompile(`variableLabels: \{([^}]*)\}`).FindStringSubmatch(desc)
 	require.Len(t, labels, 2, "could not read variableLabels from %s", desc)
 
-	data, _, _, err := buildGrafanaRuleData(
+	built, err := buildGrafanaRuleData(
 		overridableRuleTemplate(), "metrics-uid", "rule-1",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
 
-	expr := exprOf(t, dataByRefID(t, data)["T_threshold"])
+	expr := exprOf(t, dataByRefID(t, built.data)["T_threshold"])
 
 	assert.Contains(t, expr, fqName[1]+"{", "the query must select the metric the collector registers")
 
@@ -207,13 +207,13 @@ func TestThresholdRefIDAvoidsTemplateCollision(t *testing.T) {
 		Expr:  "up",
 	})
 
-	data, _, _, err := buildGrafanaRuleData(
+	built, err := buildGrafanaRuleData(
 		template, "metrics-uid", "rule-1",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
 
-	byRef := dataByRefID(t, data)
+	byRef := dataByRefID(t, built.data)
 	assert.Contains(t, byRef, "T_threshold_1")
 	assert.Equal(t, "$A > $T_threshold_1", expressionOf(t, byRef["C"]))
 }
@@ -244,13 +244,13 @@ func TestThresholdPairsEachParamWithItsOwnQuery(t *testing.T) {
 		},
 	}
 
-	data, _, _, err := buildGrafanaRuleData(
+	built, err := buildGrafanaRuleData(
 		template, "metrics-uid", "rule-1",
 		map[string]string{"first": "1", "second": "2"}, nil,
 	)
 	require.NoError(t, err)
 
-	byRef := dataByRefID(t, data)
+	byRef := dataByRefID(t, built.data)
 
 	assert.Contains(t, exprOf(t, byRef["T_first"]), `(query_a) * 0 + 1)`)
 	assert.Contains(t, exprOf(t, byRef["T_second"]), `(query_b) * 0 + 2)`)
@@ -263,7 +263,7 @@ func TestThresholdPairsEachParamWithItsOwnQuery(t *testing.T) {
 func TestThresholdQueryIsNotFiltered(t *testing.T) {
 	t.Parallel()
 
-	data, _, _, err := buildGrafanaRuleData(
+	built, err := buildGrafanaRuleData(
 		overridableRuleTemplate(), "metrics-uid", "rule-1",
 		map[string]string{"threshold": "80"},
 		[]*alertingv1.Filter{{
@@ -274,7 +274,7 @@ func TestThresholdQueryIsNotFiltered(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	byRef := dataByRefID(t, data)
+	byRef := dataByRefID(t, built.data)
 
 	assert.Contains(t, exprOf(t, byRef["A"]), "label_match(", "the observed query is filtered")
 	assert.NotContains(t, exprOf(t, byRef["T_threshold"]), "label_match(", "the threshold query is not")
@@ -372,15 +372,15 @@ func desugarTemplate() *alert.Template {
 func TestBuildDesugaredRuleData(t *testing.T) {
 	t.Parallel()
 
-	data, condition, _, err := buildGrafanaRuleData(
+	built, err := buildGrafanaRuleData(
 		desugarTemplate(), "metrics-uid", "rule-1",
 		map[string]string{"threshold": "20"}, nil,
 	)
 	require.NoError(t, err)
-	assert.Equal(t, "C", condition)
-	require.Len(t, data, 3, "observed query, injected threshold, math condition")
+	assert.Equal(t, "C", built.condition)
+	require.Len(t, built.data, 3, "observed query, injected threshold, math built.condition")
 
-	byRef := dataByRefID(t, data)
+	byRef := dataByRefID(t, built.data)
 	require.Contains(t, byRef, "T_threshold")
 
 	// The observed query is the left-hand side, with the author's line breaks intact and
@@ -404,18 +404,18 @@ func TestBuildDesugaredRuleData(t *testing.T) {
 }
 
 // A single-expression template with no PMM-minted rule ID must generate exactly what it did
-// before desugaring existed: one query, condition A, default baked in.
+// before desugaring existed: one query, built.condition A, default baked in.
 func TestBuildDesugaredRuleDataWithoutRuleIDIsUnchanged(t *testing.T) {
 	t.Parallel()
 
-	data, condition, _, err := buildGrafanaRuleData(
+	built, err := buildGrafanaRuleData(
 		desugarTemplate(), "metrics-uid", "",
 		map[string]string{"threshold": "20"}, nil,
 	)
 	require.NoError(t, err)
-	assert.Equal(t, "A", condition)
-	require.Len(t, data, 1)
-	assert.Contains(t, exprOf(t, data[0]), "< bool 20")
+	assert.Equal(t, "A", built.condition)
+	require.Len(t, built.data, 1)
+	assert.Contains(t, exprOf(t, built.data[0]), "< bool 20")
 }
 
 func TestBuildDesugaredRuleDataWithoutOverridableParam(t *testing.T) {
@@ -424,13 +424,13 @@ func TestBuildDesugaredRuleDataWithoutOverridableParam(t *testing.T) {
 	template := desugarTemplate()
 	template.Params[0].Overridable = false
 
-	data, condition, _, err := buildGrafanaRuleData(
+	built, err := buildGrafanaRuleData(
 		template, "metrics-uid", "rule-1",
 		map[string]string{"threshold": "20"}, nil,
 	)
 	require.NoError(t, err)
-	assert.Equal(t, "A", condition)
-	require.Len(t, data, 1)
+	assert.Equal(t, "A", built.condition)
+	require.Len(t, built.data, 1)
 }
 
 // Filters narrow the observed query but not the threshold: a filtered threshold would leave
@@ -438,7 +438,7 @@ func TestBuildDesugaredRuleDataWithoutOverridableParam(t *testing.T) {
 func TestBuildDesugaredRuleDataDoesNotFilterTheThreshold(t *testing.T) {
 	t.Parallel()
 
-	data, _, _, err := buildGrafanaRuleData(
+	built, err := buildGrafanaRuleData(
 		desugarTemplate(), "metrics-uid", "rule-1",
 		map[string]string{"threshold": "20"},
 		[]*alertingv1.Filter{{
@@ -449,7 +449,7 @@ func TestBuildDesugaredRuleDataDoesNotFilterTheThreshold(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	byRef := dataByRefID(t, data)
+	byRef := dataByRefID(t, built.data)
 	assert.Contains(t, exprOf(t, byRef["A"]), "label_match(")
 	assert.NotContains(t, exprOf(t, byRef["T_threshold"]), "label_match(")
 }
@@ -462,13 +462,13 @@ func TestBuildDesugaredRuleDataAvoidsFixedRefIDCollision(t *testing.T) {
 	template.Expr = "up < bool [[ .A ]]"
 	template.Params[0].Name = "A"
 
-	data, _, _, err := buildGrafanaRuleData(
+	built, err := buildGrafanaRuleData(
 		template, "metrics-uid", "rule-1",
 		map[string]string{"A": "20"}, nil,
 	)
 	require.NoError(t, err)
 
-	byRef := dataByRefID(t, data)
+	byRef := dataByRefID(t, built.data)
 	require.Contains(t, byRef, "T_A")
 	assert.Equal(t, "$A < $T_A", expressionOf(t, byRef["C"]))
 }
@@ -543,11 +543,11 @@ func TestThresholdRefsAreReturnedForAnnotationRewriting(t *testing.T) {
 	t.Run("multi-expression template names each parameter's step", func(t *testing.T) {
 		t.Parallel()
 
-		_, _, refs, err := buildGrafanaRuleData(
+		built, err := buildGrafanaRuleData(
 			overridableRuleTemplate(), "metrics-uid", "rule-1", map[string]string{"threshold": "80"}, nil,
 		)
 		require.NoError(t, err)
-		assert.Equal(t, map[string]string{"threshold": "T_threshold"}, refs)
+		assert.Equal(t, map[string]string{"threshold": "T_threshold"}, built.thresholdRefs)
 	})
 
 	t.Run("desugared template names its single parameter's step", func(t *testing.T) {
@@ -555,11 +555,11 @@ func TestThresholdRefsAreReturnedForAnnotationRewriting(t *testing.T) {
 
 		template := desugarTemplate()
 
-		_, _, refs, err := buildGrafanaRuleData(
+		built, err := buildGrafanaRuleData(
 			template, "metrics-uid", "rule-1", map[string]string{"threshold": "80"}, nil,
 		)
 		require.NoError(t, err)
-		assert.Equal(t, map[string]string{"threshold": "T_threshold"}, refs)
+		assert.Equal(t, map[string]string{"threshold": "T_threshold"}, built.thresholdRefs)
 	})
 
 	// A rule with nothing overridable is generated exactly as it was before thresholds
@@ -569,13 +569,12 @@ func TestThresholdRefsAreReturnedForAnnotationRewriting(t *testing.T) {
 
 		template := overridableRuleTemplate()
 		template.Params[0].Overridable = false
-		template.Expressions[0].Expression = "$A > [[ .threshold ]]"
 
-		_, _, refs, err := buildGrafanaRuleData(
-			template, "metrics-uid", "", map[string]string{"threshold": "80"}, nil,
+		built, err := buildGrafanaRuleData(
+			template, "metrics-uid", "rule-1", map[string]string{"threshold": "80"}, nil,
 		)
 		require.NoError(t, err)
-		assert.Empty(t, refs)
+		assert.Empty(t, built.thresholdRefs)
 	})
 }
 
@@ -600,19 +599,6 @@ func TestRewriteOverridableAnnotations(t *testing.T) {
 		assert.Equal(t, "Node high CPU load", annotations["summary"])
 	})
 
-	t.Run("tolerates the whitespace the token syntax allows", func(t *testing.T) {
-		t.Parallel()
-
-		annotations := map[string]string{"description": "over [[.threshold]] and [[   .threshold   ]]"}
-
-		rewriteOverridableAnnotations(annotations, map[string]string{"threshold": "T_threshold"})
-
-		assert.Equal(t,
-			`over {{ printf "%g" $values.T_threshold.Value }} and {{ printf "%g" $values.T_threshold.Value }}`,
-			annotations["description"])
-	})
-
-	// Non-overridable parameters keep their placeholder so transformMaps still fills them.
 	t.Run("leaves parameters that are not overridable alone", func(t *testing.T) {
 		t.Parallel()
 

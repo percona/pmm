@@ -1207,9 +1207,7 @@ var databaseSchema = [][]string{
 			param_name VARCHAR NOT NULL CHECK (param_name <> ''),
 			scope VARCHAR NOT NULL CHECK (scope <> ''),
 			target VARCHAR NOT NULL CHECK (target <> ''),
-			-- PostgreSQL defines NaN as equal to itself, so an equality check would pass
-			-- it through; inequality against NaN is what actually rejects it. The
-			-- infinities need their own bounds because NaN sorts above every other value.
+			-- NaN equals itself in PostgreSQL, so <> 'NaN' is the check that rejects it.
 			value DOUBLE PRECISION NOT NULL
 				CHECK (value <> 'NaN'::float8 AND value > '-Infinity'::float8 AND value < 'Infinity'::float8),
 			cleared_at TIMESTAMP,

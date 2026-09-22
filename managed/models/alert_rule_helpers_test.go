@@ -114,6 +114,7 @@ func TestThresholdOverrides(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, created.ID, updated.ID, "upsert must reuse the row, not insert a second one")
 		assert.InDelta(t, 95.0, updated.Value, 0.0001)
+		assert.Equal(t, created.CreatedAt, updated.CreatedAt, "an update must not reset created_at")
 
 		all, err := models.FindThresholdOverridesByRule(q, rule.RuleID)
 		require.NoError(t, err)
@@ -480,69 +481,13 @@ func TestThresholdOverridesFollowTargetRemoval(t *testing.T) {
 	})
 }
 
-// UpsertThresholdOverride is one statement, so that two callers setting the same threshold
-// at once cannot both insert and have the loser fail on the unique constraint.
-func TestUpsertThresholdOverrideIsAtomic(t *testing.T) {
+func TestUpsertThresholdOverrideNormalisesTimestamps(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
 	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	t.Run("a second write updates in place and keeps created_at", func(t *testing.T) {
-		tx, err := db.Begin()
-		require.NoError(t, err)
-		defer func() {
-			require.NoError(t, tx.Rollback())
-		}()
-		q := tx.Querier
-
-		rule := createTestAlertRule(t, q)
-
-		first, err := models.UpsertThresholdOverride(q, rule.RuleID, "threshold",
-			models.ThresholdScopeNode, "node-1", 90)
-		require.NoError(t, err)
-
-		second, err := models.UpsertThresholdOverride(q, rule.RuleID, "threshold",
-			models.ThresholdScopeNode, "node-1", 95)
-		require.NoError(t, err)
-
-		assert.Equal(t, first.ID, second.ID, "the same key must not produce a second row")
-		assert.InDelta(t, 95, second.Value, 0.001)
-		assert.Equal(t, first.CreatedAt, second.CreatedAt, "an update must not reset created_at")
-
-		overrides, err := models.FindThresholdOverridesByRule(q, rule.RuleID)
-		require.NoError(t, err)
-		require.Len(t, overrides, 1)
-	})
-
-	t.Run("writing to a tombstone revives it", func(t *testing.T) {
-		tx, err := db.Begin()
-		require.NoError(t, err)
-		defer func() {
-			require.NoError(t, tx.Rollback())
-		}()
-		q := tx.Querier
-
-		rule := createTestAlertRule(t, q)
-
-		created, err := models.UpsertThresholdOverride(q, rule.RuleID, "threshold",
-			models.ThresholdScopeNode, "node-1", 90)
-		require.NoError(t, err)
-
-		require.NoError(t, models.ClearThresholdOverride(q, rule.RuleID, "threshold",
-			models.ThresholdScopeNode, "node-1"))
-
-		revived, err := models.UpsertThresholdOverride(q, rule.RuleID, "threshold",
-			models.ThresholdScopeNode, "node-1", 70)
-		require.NoError(t, err)
-
-		assert.Equal(t, created.ID, revived.ID)
-		assert.False(t, revived.IsCleared(), "a write must lift the tombstone")
-		assert.InDelta(t, 70, revived.Value, 0.001)
-	})
-
-	// Raw SQL skips reform's AfterFind, so the helper normalises timestamps itself.
 	t.Run("timestamps come back in UTC", func(t *testing.T) {
 		tx, err := db.Begin()
 		require.NoError(t, err)

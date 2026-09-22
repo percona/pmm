@@ -755,7 +755,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		}
 	}
 
-	ruleData, condition, thresholdRefs, err := buildGrafanaRuleData(alertTemplate, metricsDatasourceUID, ruleID, paramsValues.AsStringMap(), req.Filters)
+	built, err := buildGrafanaRuleData(alertTemplate, metricsDatasourceUID, ruleID, paramsValues.AsStringMap(), req.Filters)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build alert rule data: %w", err)
 	}
@@ -765,7 +765,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, fmt.Errorf("failed to get template annotations: %w", err)
 	}
 
-	rewriteOverridableAnnotations(ta, thresholdRefs)
+	rewriteOverridableAnnotations(ta, built.thresholdRefs)
 
 	// Copy annotations form template
 	annotations := make(map[string]string)
@@ -817,10 +817,10 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	rule := services.Rule{
 		GrafanaAlert: services.GrafanaAlert{
 			Title:        req.Name,
-			Condition:    condition,
+			Condition:    built.condition,
 			NoDataState:  "OK",
 			ExecErrState: "Alerting",
-			Data:         ruleData,
+			Data:         built.data,
 		},
 		For:         forDuration.String(),
 		Annotations: annotations,
@@ -852,13 +852,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 
 	err = s.grafanaClient.CreateAlertRule(ctx, req.FolderUid, req.Group, interval, &rule)
 	if err != nil {
-		// Best effort: a POST that Grafana honoured but whose response was lost lands here
-		// too, and this then drops the registry row of a rule that does exist. That rule
-		// keeps firing at its default, since the injected threshold step's `or` falls
-		// through to it; it just cannot be overridden any more, and recreating it from the
-		// template is the fix. Confirming against Grafana first is not worth the round
-		// trip: no override can exist yet, because the rule ID is only returned on success,
-		// so nothing a user configured is at risk.
+		// Best effort: a lost response drops the registry row of a rule that exists.
 		s.deleteRuleRegistration(ruleID)
 
 		return nil, err

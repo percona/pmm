@@ -19,8 +19,6 @@ const rulesResponse = (
     data: { groups: [{ rules }] },
   }) as PrometheusAlertRulesResponse;
 
-// The API reports scope/target alongside an override, naming where the effective value
-// came from, so a row standing in for one carries them too.
 const row = (over: Partial<AlertThresholdRow> = {}): AlertThresholdRow => ({
   id: 'rule-1:threshold:0',
   ruleId: 'rule-1',

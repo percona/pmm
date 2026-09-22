@@ -31,18 +31,6 @@ func ParamTokenRegexp(name string) *regexp.Regexp {
 	return regexp.MustCompile(`\[\[\s*\.` + regexp.QuoteMeta(name) + `\s*\]\]`)
 }
 
-// ParamReferencedInExpressions reports whether any expression step references the parameter.
-func (r *Template) ParamReferencedInExpressions(name string) bool {
-	re := ParamTokenRegexp(name)
-	for _, expression := range r.Expressions {
-		if re.MatchString(expression.Expression) {
-			return true
-		}
-	}
-
-	return false
-}
-
 // OverridableParams returns the template's overridable parameters, in declaration order.
 func (r *Template) OverridableParams() []Parameter {
 	var params []Parameter
@@ -59,9 +47,6 @@ func (r *Template) OverridableParams() []Parameter {
 // the default clause fans out over. It is the nearest query reference to the left of the
 // parameter's token, so a template comparing several queries in one expression -
 // `$A > [[ .a ]] && $B > [[ .b ]]` - pairs each parameter with its own query.
-//
-// Template validation calls this too, so a template whose parameter resolves to no query is
-// rejected when it is uploaded rather than on every attempt to create a rule from it.
 func (r *Template) ObservedQueryForParam(paramName string) (TemplateQuery, error) {
 	token := ParamTokenRegexp(paramName)
 
@@ -178,11 +163,7 @@ func (r *Template) validateOverridableParams() error {
 
 	for _, param := range overridable {
 		if r.UsesMultipleExpressions() {
-			// The threshold is injected as a separate query step and the expression
-			// compares it against a query, so it is not enough that some expression
-			// mentions the parameter: one must compare it against a query the builder can
-			// fan the default out over. Checking only the mention would accept a template
-			// that fails at every CreateRule instead of at upload.
+			// Must resolve to a query, not merely be mentioned.
 			_, err := r.ObservedQueryForParam(param.Name)
 			if err != nil {
 				return err

@@ -18,7 +18,6 @@ package alerting
 import (
 	"context"
 	"math"
-	"slices"
 	"sort"
 
 	"google.golang.org/grpc/codes"
@@ -113,7 +112,7 @@ func resolveThresholdRequest(
 			"Rule '%s' has no overridable parameter '%s'.", ruleID, paramName)
 	}
 
-	if !slices.Contains(param.Scopes, string(scope)) {
+	if !param.OverridableAt(scope) {
 		return zero, status.Errorf(codes.InvalidArgument,
 			"Parameter '%s' cannot be overridden at '%s' scope.", paramName, scope)
 	}
@@ -225,7 +224,7 @@ func (s *Service) ListThresholds(ctx context.Context, req *alerting.ListThreshol
 
 		for _, rule := range rules {
 			thresholds = append(thresholds,
-				thresholdsForRule(rule, byRule[rule.RuleID], inv, targetName, scope, req.Target)...)
+				thresholdsForRule(rule, byRule[rule.RuleID], inv, targetName, scope)...)
 		}
 
 		return nil
@@ -241,8 +240,7 @@ func (s *Service) ListThresholds(ctx context.Context, req *alerting.ListThreshol
 	return &alerting.ListThresholdsResponse{Thresholds: thresholds}, nil
 }
 
-// thresholdOverridesFor loads the override rows a listing needs: one rule's when the
-// request names a rule, every rule's otherwise. One query either way.
+// thresholdOverridesFor loads one rule's override rows, or every rule's when none is named.
 func thresholdOverridesFor(q *reform.Querier, ruleID string) ([]*models.AlertRuleThresholdOverride, error) {
 	if ruleID != "" {
 		return models.FindThresholdOverridesByRule(q, ruleID)
@@ -255,24 +253,19 @@ func thresholdOverridesFor(q *reform.Querier, ruleID string) ([]*models.AlertRul
 // what has actually been overridden; with a target it reports every parameter of the rule
 // that can be overridden at the requested scope, falling back to that rule's own default
 // where nothing overrides it.
-//
-// Takes its overrides, inventory and resolved target name from the caller so a listing
-// spanning many rules loads them once.
 func thresholdsForRule(
 	rule *models.AlertRule,
 	overrides []*models.AlertRuleThresholdOverride,
 	inv models.ThresholdInventory,
 	targetName string,
 	scope models.ThresholdScope,
-	target string,
 ) []*alerting.Threshold {
 	var thresholds []*alerting.Threshold
 
 	for paramName, param := range rule.Params {
-		// A parameter that cannot be overridden at this scope has no row to offer for
-		// this target. Listing it anyway puts a field in the UI that the write path
-		// rejects, and one rejected row rolls back every other edit in the same batch.
-		if target != "" && !slices.Contains(param.Scopes, string(scope)) {
+		// Listing a parameter the write path rejects puts a field in the UI that cannot
+		// be saved, and one rejected row rolls back the whole batch.
+		if targetName != "" && !param.OverridableAt(scope) {
 			continue
 		}
 
@@ -280,7 +273,7 @@ func thresholdsForRule(
 			filterOverridesByParam(overrides, paramName), param.Default, inv,
 		)
 
-		if target == "" {
+		if targetName == "" {
 			// With no target there is no bounded set of targets to enumerate, so
 			// only what has actually been overridden is reported.
 			for _, entry := range resolved {
