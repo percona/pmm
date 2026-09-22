@@ -135,6 +135,12 @@ const TERMINAL_FINISH_STATUS: Record<FinishStatus, true> = {
   unlaunchable: true,
 };
 
+/** Where the uncapped stream a running history opened stands. */
+interface LiveLog {
+  historyId: TaskLogViewerProps['taskHistoryId'];
+  state: 'open' | 'complete' | 'ended';
+}
+
 /**
  * Whether a loosely-typed status means the run is still going.
  *
@@ -243,31 +249,56 @@ export function TaskLogViewer({
   const [logTailChoice, setLogTailChoice] = useState<LogTailLineChoice>(
     readStoredLogTailChoice
   );
-  // A live stream that reached its `finish` frame already holds the whole log.
-  // Re-fetching it capped when the polled status turns terminal only blanks
-  // the pane and loses the scroll position, so the uncapped stream is kept. A
-  // stream cut short never sees `finish`, and that one is still reloaded.
-  const [completeLiveLogId, setCompleteLiveLogId] = useState<
-    TaskLogViewerProps['taskHistoryId'] | null
-  >(null);
-  const liveLogComplete = completeLiveLogId === taskHistoryId;
+  // The uncapped stream a running history opened. Re-fetching it capped once
+  // the polled status turns terminal only blanks the pane and loses the scroll
+  // position, and that status can arrive before the stream's own `finish`, so
+  // the stream is kept until it ends. Ending with a terminal `finish` means it
+  // already holds the whole log and is kept for good; a stream cut short, or
+  // whose `finish` is non-terminal, is reloaded once the run is over. Under
+  // the "All" cap that reload has the same history and tail as the live
+  // stream, so it is requested explicitly rather than through the tail.
+  const [liveLog, setLiveLog] = useState<LiveLog | null>(null);
+  const liveLogState =
+    liveLog !== null && liveLog.historyId === taskHistoryId
+      ? liveLog.state
+      : undefined;
+  const keepLiveLog = liveLogState === 'open' || liveLogState === 'complete';
+  const reloadLiveLog = liveLogState === 'ended' && !running;
   const tailLines = logTailChoiceToParam(logTailChoice);
-  const effectiveTailLines = running || liveLogComplete ? undefined : tailLines;
+  const effectiveTailLines = running || keepLiveLog ? undefined : tailLines;
   const { textByStep, stepOrder, streamStatus, finishStatus, error } =
-    useTaskLogs(taskHistoryId, effectiveTailLines);
+    useTaskLogs(taskHistoryId, effectiveTailLines, reloadLiveLog ? 1 : 0);
 
+  const liveLogHistoryIdRef = useRef(taskHistoryId);
   useEffect(() => {
-    if (
-      finishStatus &&
-      Object.prototype.hasOwnProperty.call(
-        TERMINAL_FINISH_STATUS,
-        finishStatus
-      ) &&
-      effectiveTailLines === undefined
-    ) {
-      setCompleteLiveLogId(taskHistoryId);
+    // On the render that switches histories, the stream state still belongs
+    // to the previous stream: useTaskLogs only resets it in this same commit.
+    if (liveLogHistoryIdRef.current !== taskHistoryId) {
+      liveLogHistoryIdRef.current = taskHistoryId;
+      setLiveLog(running ? { historyId: taskHistoryId, state: 'open' } : null);
+      return;
     }
-  }, [finishStatus, effectiveTailLines, taskHistoryId]);
+    // Only the stream opened while running is tracked, and it settles once:
+    // the reload that follows an `ended` stream must not be taken for it.
+    if (streamStatus === 'finished' || streamStatus === 'error') {
+      if (liveLogState !== 'open') {
+        return;
+      }
+      const complete =
+        streamStatus === 'finished' &&
+        finishStatus !== undefined &&
+        Object.prototype.hasOwnProperty.call(
+          TERMINAL_FINISH_STATUS,
+          finishStatus
+        );
+      setLiveLog({
+        historyId: taskHistoryId,
+        state: complete ? 'complete' : 'ended',
+      });
+    } else if (running && liveLogState === undefined) {
+      setLiveLog({ historyId: taskHistoryId, state: 'open' });
+    }
+  }, [running, streamStatus, finishStatus, taskHistoryId, liveLogState]);
   const { eventsByStep, stepOrder: eventStepOrder } = useExecutionEvents(
     taskHistoryId,
     running
@@ -389,7 +420,12 @@ export function TaskLogViewer({
   };
 
   const handleLogTailChange = (choice: LogTailLineChoice) => {
-    setCompleteLiveLogId(null);
+    // Only a cap has to clear the live-log record to be fetched again. "All"
+    // keeps it tracked, so a stream still open after the run ends is reloaded
+    // if it ends cut short.
+    if (logTailChoiceToParam(choice) !== undefined) {
+      setLiveLog(null);
+    }
     setLogTailChoice(choice);
     if (globalThis.localStorage !== undefined) {
       globalThis.localStorage.setItem(LOG_TAIL_STORAGE_KEY, choice);

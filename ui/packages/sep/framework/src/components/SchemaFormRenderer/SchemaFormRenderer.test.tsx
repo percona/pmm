@@ -1546,6 +1546,52 @@ describe('isPresent', () => {
 // ── Cardinality rules ──────────────────────────────────────────────────────
 
 describe('SchemaFormRenderer — cardinality_rules', () => {
+  it.each([false, true])(
+    'reveals and keeps a violated collapsed section expanded (advanced=%s)',
+    async (advanced) => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn();
+      renderWithProviders(
+        <SchemaFormRenderer
+          sections={[
+            {
+              title: 'Options',
+              advanced,
+              collapsible: true,
+              collapsed_by_default: true,
+              cardinality_rules: [
+                { fields: ['option'], min: 1, message: 'Choose an option.' },
+              ],
+              fields: [{ type: 'string', name: 'option', label: 'Option' }],
+            },
+          ]}
+          onSubmit={onSubmit}
+        />
+      );
+
+      const summary = screen.getByRole('button', { name: 'Options' });
+      expect(summary).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByRole('alert')).toHaveTextContent('Choose an option.');
+      expect(
+        screen.queryByTestId('show-advanced-options')
+      ).not.toBeInTheDocument();
+      await user.click(summary);
+      await user.click(screen.getByRole('button', { name: 'Run' }));
+      expect(onSubmit).not.toHaveBeenCalled();
+      expect(summary).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByRole('alert')).toHaveTextContent('Choose an option.');
+
+      await user.type(
+        screen.getByRole('textbox', { name: 'Option' }),
+        'selected'
+      );
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(summary).toHaveAttribute('aria-expanded', 'true');
+      await user.click(screen.getByRole('button', { name: 'Run' }));
+      await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    }
+  );
+
   it('shows a violation banner when neither required field is filled', async () => {
     renderWithProviders(
       <SchemaFormRenderer
@@ -1834,9 +1880,16 @@ describe('SchemaFormRenderer — fail_when', () => {
 
     // flip flag → predicate fires → banner appears
     await user.click(screen.getByLabelText('Flag'));
-    expect(
-      await screen.findByText('Flag must not be set.')
-    ).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Flag must not be set.'
+    );
+    expect(screen.getByLabelText('Flag')).toHaveAttribute(
+      'aria-invalid',
+      'true'
+    );
+    expect(screen.getByLabelText('Flag')).toHaveAccessibleDescription(
+      'Flag must not be set.'
+    );
   });
 
   it('clears the banner when the predicate stops firing', async () => {
@@ -1861,9 +1914,9 @@ describe('SchemaFormRenderer — fail_when', () => {
     );
 
     await user.click(screen.getByLabelText('Flag'));
-    expect(
-      await screen.findByText('Flag must not be set.')
-    ).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Flag must not be set.'
+    );
 
     // flip back → predicate inactive → banner gone
     await user.click(screen.getByLabelText('Flag'));
@@ -1871,6 +1924,10 @@ describe('SchemaFormRenderer — fail_when', () => {
       expect(
         screen.queryByText('Flag must not be set.')
       ).not.toBeInTheDocument()
+    );
+    expect(screen.getByLabelText('Flag')).toHaveAttribute(
+      'aria-invalid',
+      'false'
     );
   });
 
@@ -1959,7 +2016,13 @@ describe('SchemaFormRenderer — fail_when', () => {
     await waitFor(() =>
       expect(screen.queryByText('Need at least one.')).not.toBeInTheDocument()
     );
-    expect(await screen.findByText('Cannot have both.')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('Cannot have both.');
+    expect(screen.getByLabelText('A')).toHaveAccessibleDescription(
+      'Cannot have both.'
+    );
+    expect(screen.getByLabelText('B')).toHaveAccessibleDescription(
+      'Cannot have both.'
+    );
   });
 });
 

@@ -94,10 +94,13 @@ class StreamFatalError extends Error {}
  *
  * @param taskHistoryId - Task history to stream logs for.
  * @param tail - When set, request only the last N lines per stream from the server.
+ * @param attempt - Changing it starts the stream over, even for the same
+ *   history and tail.
  */
 export function useTaskLogs(
   taskHistoryId: number | string | undefined,
-  tail?: number
+  tail?: number,
+  attempt = 0
 ): TaskLogsState {
   const [textByStep, setTextByStep] = useState<Record<string, StepText>>({});
   const [stepOrder, setStepOrder] = useState<string[]>([]);
@@ -118,7 +121,7 @@ export function useTaskLogs(
       return;
     }
 
-    // Reset state on id or tail change
+    // Reset state on id, tail or attempt change
     offsetsRef.current = {};
     setTextByStep({});
     setStepOrder([]);
@@ -328,7 +331,7 @@ export function useTaskLogs(
       disposed = true;
       ctrl.abort();
     };
-  }, [taskHistoryId, tail]);
+  }, [taskHistoryId, tail, attempt]);
 
   return { textByStep, stepOrder, streamStatus, finishStatus, error };
 }

@@ -24,12 +24,14 @@ import {
   useRef,
   useState,
   type FormEvent,
+  type ReactNode,
 } from 'react';
 import {
   FormProvider,
   get,
   useForm,
   useFormContext,
+  useFormState,
   useWatch,
   type FieldErrors,
   type SubmitHandler,
@@ -222,6 +224,52 @@ function sectionHasError(
   );
 }
 
+/**
+ * Mirror an active fail rule's message onto one field as a react-hook-form
+ * error, and remove it once no rule names the field any more.
+ *
+ * It only ever owns a `failRule`-typed error: a native or backend error already
+ * on the field wins and is neither overwritten nor cleared here. Its own error
+ * is also dropped on unmount, since an error left on a field with no mounted
+ * input is one nothing can clear, and `handleSubmit` refuses to step past it.
+ */
+function FailRuleFieldError({
+  name,
+  message,
+  children,
+}: {
+  name: string;
+  message?: string;
+  children: ReactNode;
+}) {
+  const { control, setError, clearErrors, getFieldState } = useFormContext();
+  const { errors } = useFormState({ control, name, exact: true });
+  const error = get(errors, name);
+
+  useEffect(() => {
+    // RHF retains unmounted registrations. Custom widgets may not register a
+    // field at all, so never create an orphan error for either case.
+    if (message !== undefined && get(control._fields, name)?._f?.mount) {
+      if (!error || (error.type === 'failRule' && error.message !== message)) {
+        setError(name, { type: 'failRule', message });
+      }
+    } else if (error?.type === 'failRule') {
+      clearErrors(name);
+    }
+  }, [name, message, error, control, setError, clearErrors]);
+
+  useEffect(
+    () => () => {
+      if (getFieldState(name).error?.type === 'failRule') {
+        clearErrors(name);
+      }
+    },
+    [name, getFieldState, clearErrors]
+  );
+
+  return children;
+}
+
 interface SectionRendererProps {
   section: FormSection;
   idx: number;
@@ -232,7 +280,7 @@ interface SectionRendererProps {
    * Open a collapsible section that would otherwise start collapsed, because
    * it holds something the reader needs to see. Raising this later — when a
    * submit puts an error inside a collapsed section — opens it then; the
-   * reader can still collapse it again afterwards.
+   * reader can still collapse it afterwards unless a section violation is active.
    */
   forceExpanded?: boolean;
   /** Name the section's current values on one line while it is collapsed. */
@@ -294,6 +342,13 @@ const SectionRenderer = memo(function SectionRenderer({
     }
   }, [forceExpanded]);
 
+  // Flattened once here rather than per render of the summary: the shell keeps
+  // rendering while the reader types in a sibling section.
+  const summaryFields = useMemo(
+    () => flattenSectionFields([section]),
+    [section]
+  );
+
   // Mark the odd optional field out in a section that is otherwise required —
   // the absence of an asterisk is easy to miss when every neighbour has one.
   //
@@ -302,13 +357,6 @@ const SectionRenderer = memo(function SectionRenderer({
   // exception; and a field carrying a default is not blank-optional but
   // pre-filled, so "(optional)" would suggest a choice that has been made for
   // the reader already.
-  // Flattened once here rather than per render of the summary: the shell keeps
-  // rendering while the reader types in a sibling section.
-  const summaryFields = useMemo(
-    () => flattenSectionFields([section]),
-    [section]
-  );
-
   const optionalNames = useMemo(() => {
     const leaves = section.fields.filter((f) => !isOneOfGroup(f));
     const required = leaves.filter((f) => f.required);
@@ -364,8 +412,10 @@ const SectionRenderer = memo(function SectionRenderer({
       {showDivider && <Divider sx={{ mb: 2 }} />}
       {section.collapsible ? (
         <Accordion
-          expanded={expanded}
-          onChange={(_, isExpanded) => setExpanded(isExpanded)}
+          expanded={expanded || violations.length > 0}
+          onChange={(_, isExpanded) =>
+            setExpanded(isExpanded || violations.length > 0)
+          }
           disableGutters
           slotProps={{ transition: { unmountOnExit: true } }}
         >
@@ -628,16 +678,41 @@ function SchemaFormBody({
     [advancedEntries, formState.errors]
   );
   const [advancedRevealed, setAdvancedRevealed] = useState(false);
-  // Reveal, never re-hide: a submit that puts an error in an advanced section
-  // has to show it, and pulling the section back once the reader fixes it
-  // would move the ground under them.
-  const showAdvanced =
-    advancedRevealed || seededAdvanced.size > 0 || erroredAdvanced.size > 0;
   const visibleAdvanced = advancedEntries.filter(
     ({ index }) => !(hiddenSections[index] ?? false)
   );
   const cardinalityViolations = useCardinalityRules(sections);
   const failViolations = useFailRules(sections);
+
+  const failFieldMessages = useMemo(() => {
+    const messages = new Map<string, string>();
+    for (const violations of failViolations) {
+      for (const { error_fields, message } of violations) {
+        for (const path of error_fields) {
+          if (!messages.has(path)) {
+            messages.set(path, message);
+          }
+        }
+      }
+    }
+    return messages;
+  }, [failViolations]);
+
+  const hasFailRules = useMemo(
+    () => sections.some((section) => section.fail_when?.length),
+    [sections]
+  );
+  const renderFieldWithFailError: RenderFieldOverride = useCallback(
+    (props) => (
+      <FailRuleFieldError
+        name={props.field.name}
+        message={failFieldMessages.get(props.field.name)}
+      >
+        {renderField?.(props) ?? props.renderDefault()}
+      </FailRuleFieldError>
+    ),
+    [renderField, failFieldMessages]
+  );
 
   // Merge cardinality and fail violations per section into a flat list for SectionRenderer.
   const violationsBySection = useMemo(() => {
@@ -650,6 +725,40 @@ function SchemaFormBody({
     });
     return map;
   }, [sections, cardinalityViolations, failViolations]);
+
+  // A rule's error_fields may name a field in any section, not only its own; the
+  // section holding that field has to open too, or the field never mounts to
+  // show its error.
+  const sectionsWithFailTargets = useMemo(() => {
+    const set = new Set<FormSection>();
+    for (const section of sections) {
+      if (
+        flattenSectionFields([section]).some((field) =>
+          failFieldMessages.has(field.name)
+        )
+      ) {
+        set.add(section);
+      }
+    }
+    return set;
+  }, [sections, failFieldMessages]);
+
+  const sectionNeedsReveal = (section: FormSection) =>
+    (violationsBySection.get(section)?.length ?? 0) > 0 ||
+    sectionsWithFailTargets.has(section);
+
+  // Reveal, never re-hide: pulling the section back once the reader fixes it
+  // would move the ground under them.
+  const showAdvanced =
+    advancedRevealed ||
+    seededAdvanced.size > 0 ||
+    erroredAdvanced.size > 0 ||
+    advancedEntries.some(({ section }) => sectionNeedsReveal(section));
+  useEffect(() => {
+    if (showAdvanced) {
+      setAdvancedRevealed(true);
+    }
+  }, [showAdvanced]);
 
   const hasSectionViolations = useMemo(
     () => [...violationsBySection.values()].some((vs) => vs.length > 0),
@@ -668,9 +777,11 @@ function SchemaFormBody({
       idx={idx}
       isHidden={hiddenSections[entry.index] ?? false}
       violations={violationsBySection.get(entry.section) ?? []}
-      renderField={renderField}
+      renderField={hasFailRules ? renderFieldWithFailError : renderField}
       forceExpanded={
-        seededAdvanced.has(entry.index) || erroredAdvanced.has(entry.index)
+        seededAdvanced.has(entry.index) ||
+        erroredAdvanced.has(entry.index) ||
+        sectionNeedsReveal(entry.section)
       }
       showValueSummary={sectionValueSummary}
     />
