@@ -13,7 +13,8 @@ Use the filters at the top to select the service and time range.
 If panels are missing data, try the following:
 
 - Run `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client to enable InnoDB metrics collection.
-- For empty panels in the **InnoDB Logging** section on older MySQL versions, verify that the `mysqld_exporte`r` is up to date.
+- Most panels on this dashboard read `INFORMATION_SCHEMA.INNODB_METRICS` rows that are disabled by default, which is what the setting above enables.
+- Panels in the **InnoDB Logging** section read redo log status variables instead and do not need that setting. If they are empty, see [InnoDB Logging](#innodb-logging).
 
 ## InnoDB Activity
 
@@ -486,7 +487,9 @@ InnoDB IO Capacity to use when falling behind and need to catch up with Flushing
 
 ## InnoDB Logging
 
-Redo log panels work correctly across MySQL 5.7 through 9.x. If redo log panels are empty on older versions, verify that the mysqld_exporter is up to date.
+Redo log panels render on MySQL 5.7 through 9.x, Percona Server and MariaDB. On MySQL 8.0.30 and newer they read `innodb_redo_log_capacity`; on older servers they fall back to `innodb_log_file_size` and `innodb_log_files_in_group`.
+
+Before PMM 3.10.0, **Total Log Space**, **InnoDB Logging Performance**, **InnoDB Log File Usage Hourly**, **InnoDB Log File Size** and **InnoDB Log Files** were always empty on MySQL 5.7, Percona Server 5.7 and MariaDB. Upgrading PMM fixes this; no exporter or server change is needed.
 
 ### Total Log Space
 

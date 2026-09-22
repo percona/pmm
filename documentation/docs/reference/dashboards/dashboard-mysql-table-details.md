@@ -24,6 +24,8 @@ Most Fragmented Tables by Freeable Size
 
 On Community MySQL, these panels use `performance_schema.table_io_waits_summary_by_table`. On [Percona Server](https://www.percona.com/doc/percona-server/5.6/diagnostics/user_stats.html) and [MariaDB](https://mariadb.com/docs/server/ha-and-performance/optimization-and-tuning/query-optimizations/statistics-for-optimizing-queries/user-statistics), they use user statistics. To enable user statistics, set `userstat=ON`.
 
+Both sources require per-table statistics collection, which PMM disables for services with more tables than the configured table statistics limit. Where that limit is exceeded, these panels show no data.
+
 ## Rows read
 
 The number of rows read from the table, shown for the top 5 tables.
