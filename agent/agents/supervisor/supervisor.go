@@ -753,6 +753,9 @@ const (
 func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16) error {
 	var err error
 	for range processRetryCount {
+		// Only a port reserved here is given back below. One passed in belongs to the
+		// caller's Agent entry, which goes on referring to it if every attempt fails.
+		var reserved bool
 		if port == 0 {
 			var _port uint16
 			_port, err = s.portsRegistry.Reserve()
@@ -761,6 +764,7 @@ func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetSt
 				continue
 			}
 			port = _port
+			reserved = true
 		}
 
 		err = s.startProcess(agentID, agentProcess, port)
@@ -768,8 +772,16 @@ func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetSt
 			return nil
 		}
 
+		// The next attempt reserves a port of its own, so without this the failed
+		// attempt's reservation is lost for good: clearing port is the last reference to
+		// it, and portsRegistry only forgets a port on Release. The Agent never started,
+		// so nothing of ours is listening on it and the release succeeds.
+		if reserved {
+			s.releasePort(agentID, port)
+		}
 		port = 0
 	}
+
 	return err
 }
 

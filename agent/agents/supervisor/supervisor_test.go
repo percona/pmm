@@ -1157,3 +1157,89 @@ plugin "raw_exec" {
 		assert.Equal(t, expected, actual)
 	})
 }
+
+// TestFailedStartAndPorts covers what a failed start attempt does with its port.
+//
+// Unlike TestReleaseAgentResources this does assert that a port was given back, because the
+// reasons that made it flaky there do not apply: the Agent never started, so nothing of ours is
+// listening on the port, and the range is above net.ipv4.ip_local_port_range, so the kernel does
+// not hand one of these out to a foreign connection either.
+func TestFailedStartAndPorts(t *testing.T) {
+	t.Parallel()
+
+	// "wrong format" fails the Agent on every attempt, so all processRetryCount of them run.
+	failing := &agentv1.SetStateRequest_AgentProcess{Type: typeTestSleep, Args: []string{"wrong format"}}
+
+	setup := func(t *testing.T, minPort, maxPort uint16) (*Supervisor, func(uint16) bool) {
+		t.Helper()
+
+		ctx := t.Context()
+		cfgStorage := config.NewStorage(&config.Config{
+			Paths:         config.Paths{TempDir: t.TempDir()},
+			Ports:         config.Ports{Min: minPort, Max: maxPort},
+			Server:        config.Server{Address: "localhost:443"},
+			LogLinesCount: 1,
+		})
+		s := NewSupervisor(ctx, nil, cfgStorage)
+		go s.Run(ctx)
+
+		reserved := func(port uint16) bool {
+			s.portsRegistry.m.Lock()
+			defer s.portsRegistry.m.Unlock()
+			_, ok := s.portsRegistry.reserved[port]
+
+			return ok
+		}
+
+		return s, reserved
+	}
+
+	t.Run("ReleasesAPortItReserved", func(t *testing.T) {
+		t.Parallel()
+
+		s, reserved := setup(t, 65200, 65299)
+
+		s.SetState(t.Context(), &agentv1.SetStateRequest{
+			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{"sleep1": failing},
+		})
+		require.Empty(t, s.AgentsList())
+
+		// Each attempt reports STARTING, INITIALIZATION_ERROR and DONE, and startProcess
+		// waits for its forwarder before returning, so they are all buffered by now.
+		// Collecting the ports they were reported on is what keeps the assertion below
+		// from passing vacuously - it has to be these three that were reserved.
+		var ports []uint16
+		for range processRetryCount * 3 {
+			change := <-s.Changes()
+			if change.Status == inventoryv1.AgentStatus_AGENT_STATUS_STARTING {
+				ports = append(ports, uint16(change.ListenPort))
+			}
+		}
+		require.Equal(t, []uint16{65200, 65201, 65202}, ports)
+
+		for _, port := range ports {
+			assert.False(t, reserved(port), "port %d of a failed start attempt was not released", port)
+		}
+	})
+
+	t.Run("KeepsAPortItWasGiven", func(t *testing.T) {
+		t.Parallel()
+
+		s, reserved := setup(t, 65300, 65399)
+
+		// The restart path hands tryStartProcess the port of the Agent being replaced.
+		// That one belongs to the caller's Agent entry, which goes on referring to it when
+		// every attempt fails, so releasing it would leave the entry pointing at a port
+		// the registry has forgotten and can hand to somebody else.
+		port, err := s.portsRegistry.Reserve()
+		require.NoError(t, err)
+		require.Equal(t, uint16(65300), port)
+
+		s.rw.Lock()
+		err = s.tryStartProcess("sleep1", failing, port)
+		s.rw.Unlock()
+		require.Error(t, err)
+
+		assert.True(t, reserved(port), "port %d the caller still refers to was released", port)
+	})
+}
