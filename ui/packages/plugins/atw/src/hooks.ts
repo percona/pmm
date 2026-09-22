@@ -423,10 +423,17 @@ export function useAtwIncidentExecutions(
  * carry the reasons it is unavailable. Returns no reasons on any error: a
  * transient config blip should not silently withhold the action, and the POST's
  * own 503 gate remains the real guard.
+ *
+ * Cached forever while mounted so a polling Results pane does not re-hit the
+ * endpoint every few seconds; `refetchOnMount: 'always'` still reloads when the
+ * operator returns from Settings after fixing ServiceNow (PMM-15515). Delivery
+ * setting writes also invalidate {@link ATW_CONFIG_QUERY_KEY}.
  */
+export const ATW_CONFIG_QUERY_KEY = ['atw', 'config'] as const;
+
 export function useAtwConfig() {
   return useQuery<AtwConfig>({
-    queryKey: ['atw', 'config'],
+    queryKey: ATW_CONFIG_QUERY_KEY,
     queryFn: async () => {
       try {
         const { data } = await apiClient.get<AtwConfig>(`${ATW_BASE}/config/`);
@@ -436,6 +443,7 @@ export function useAtwConfig() {
       }
     },
     staleTime: Infinity,
+    refetchOnMount: 'always',
     retry: false,
   });
 }

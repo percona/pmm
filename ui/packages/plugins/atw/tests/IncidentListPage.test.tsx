@@ -171,6 +171,21 @@ describe('IncidentListPage', () => {
     ).toHaveLength(1);
   });
 
+  it('does not flash the empty state when the current page has no rows but total is not zero', async () => {
+    routeGet({
+      incidentsPage: { items: [], total: 21, offset: 20, limit: 20 },
+    });
+
+    renderPage(<IncidentListPage />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /New incident/i })
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId('atw-incidents-empty')).not.toBeInTheDocument();
+  });
+
   it('withholds the create button when the list request failed', async () => {
     routeGet({ incidents: 'reject' });
 

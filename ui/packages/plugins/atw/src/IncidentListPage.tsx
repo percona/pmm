@@ -67,6 +67,9 @@ export function IncidentListPage() {
   const { data, isLoading, error } = useAtwIncidents(page);
   const { data: config } = useAtwConfig();
   const incidents = data?.items;
+  // Prefer total over the current page's items so deleting the last row on a
+  // later page does not flash the empty state while the list jumps back.
+  const isEmpty = data?.total === 0;
   const hasIncidents = Boolean(incidents && incidents.length > 0);
   const sendDisabledReasons = config?.send_disabled_reasons ?? [];
   const createMutation = useCreateAtwIncident();
@@ -147,7 +150,7 @@ export function IncidentListPage() {
           on top of one the user cannot act on. Also withheld when empty — the
           primary CTA lives inside the empty state instead (PMM-15515).
         */}
-        {!error && canMutate && (isLoading || hasIncidents) && (
+        {!error && canMutate && (isLoading || !isEmpty) && (
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -158,7 +161,7 @@ export function IncidentListPage() {
           </Button>
         )}
       </Stack>
-      {(isLoading || hasIncidents || error) && (
+      {(isLoading || !isEmpty || error) && (
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
           Open an incident to run diagnostic snippets and review their results
           in one place.
@@ -185,7 +188,7 @@ export function IncidentListPage() {
 
       {canMutate && sendDisabledReasons.length > 0 && <SendUnavailableNotice />}
 
-      {!isLoading && !error && !hasIncidents && (
+      {!isLoading && !error && isEmpty && (
         <IncidentsEmptyState
           canMutate={canMutate}
           onCreate={canMutate ? openCreateDialog : undefined}
