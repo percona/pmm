@@ -1,5 +1,4 @@
-import { TextInput } from '@percona/peak-ui';
-import type { MRT_ColumnDef } from '@percona/peak-ui';
+import { TextInput, type MRT_ColumnDef } from '@percona/peak-ui';
 import type { AlertThresholdRow } from './AlertThresholds.types';
 import ResetValueCell from './reset-value-cell';
 import { Messages } from './AlertThresholds.messages';
