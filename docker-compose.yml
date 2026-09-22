@@ -9,6 +9,8 @@
 #     docker compose -f docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
 #  3. Full suite + external clickhouse (server, client, postgres, mongo, mysql + sysbench, external ClickHouse):
 #     docker compose -f docker-compose.yml -f qan-api2/docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
+#  4. Any of the above + SEP (set PMM_ENABLE_SEP=1 and PMM_ENABLE_NOMAD=1 in .env first):
+#     docker compose -f docker-compose.yml --profile pmm --profile sep up -d
 #
 # Configuration: copy .env.example to .env and adjust variables (image tag, ports, credentials, AWS keys, etc.).
 #  Docker Compose loads .env automatically — no extra flags needed.
@@ -25,10 +27,16 @@ services:
     container_name: pmm-server
     hostname: pmm-server
     restart: always
+    # The image's own start period is shorter than a cold first start, so services that wait
+    # for pmm-server to be healthy would abort instead of waiting. Only the start period is
+    # overridden; the probe itself stays whatever the image ships.
+    healthcheck:
+      start_period: 300s
     environment:
       - GF_SECURITY_ADMIN_USER
       - GF_SECURITY_ADMIN_PASSWORD
       - PMM_ENABLE_ACCESS_CONTROL
+      - PMM_ENABLE_NOMAD
       - PMM_PUBLIC_ADDRESS=${PMM_PUBLIC_ADDRESS:-localhost}
       - PMM_ENABLE_INTERNAL_PG_QAN
       - PMM_DEBUG
@@ -164,8 +172,41 @@ services:
     volumes:
       - ./dev/sysbench-ps.sh:/sysbench-ps.sh
 
+  # SEP side-car. The service name is where PMM routes /sep/ by default (PMM_SEP_ADDRESS=sep:9000),
+  # and SEP reaches PMM, its database and Nomad at pmm-server by default, so neither side needs
+  # addresses configured. Requires PMM_ENABLE_SEP=1 and PMM_ENABLE_NOMAD=1 on pmm-server.
+  sep:
+    profiles:
+      - sep
+    image: ${SEP_IMAGE:-percona/percona-sep:3.10.0}
+    platform: linux/amd64
+    container_name: sep
+    restart: always
+    # SEP reads the secrets PMM writes at startup, so it must not start before PMM is healthy.
+    depends_on:
+      pmm-server:
+        condition: service_healthy
+    # PMM writes the secrets as group 0; the image's own user reads them through this group.
+    group_add:
+      - "0"
+    environment:
+      SECRETS_DIR: /run/secrets/sep
+      # Used to create SEP's own service-account token in PMM whenever it holds no valid one.
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
+      # Where task executors download scripts from. The default is reachable only from this
+      # Compose network; see SEP_BASE_URL in .env.example.
+      BASE_URL: ${SEP_BASE_URL:-http://sep:9000/sep}
+    volumes:
+      - pmm-sep:/run/secrets/sep:ro
+      - sep-state:/home/sep/state
+
 volumes:
   pmm-data:
     name: pmm-data
   pmm-sep:
     name: pmm-sep
+  # Holds SEP's service-account token and the key that encrypts its stored settings. Losing it
+  # makes those settings unreadable, so back it up alongside pmm-data.
+  sep-state:
+    name: sep-state
