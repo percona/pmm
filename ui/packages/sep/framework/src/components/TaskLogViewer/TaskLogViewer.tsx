@@ -420,7 +420,11 @@ export function TaskLogViewer({
   };
 
   const handleLogTailChange = (choice: LogTailLineChoice) => {
-    setLiveLog(null);
+    // Only a cap needs a fresh fetch. "All" keeps the live log tracked, so a
+    // stream still open after the run ends is reloaded if it ends cut short.
+    if (logTailChoiceToParam(choice) !== undefined) {
+      setLiveLog(null);
+    }
     setLogTailChoice(choice);
     if (globalThis.localStorage !== undefined) {
       globalThis.localStorage.setItem(LOG_TAIL_STORAGE_KEY, choice);

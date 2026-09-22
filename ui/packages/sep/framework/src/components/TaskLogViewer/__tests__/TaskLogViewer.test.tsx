@@ -486,6 +486,46 @@ describe('TaskLogViewer', () => {
     expect(screen.getByTestId('log-output').textContent).toBe('line-1\n');
   });
 
+  it('reloads a kept live log that ends without a finish after All lines is chosen', async () => {
+    const { rerender } = render(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="RUNNING" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    act(() => {
+      getHandle('7').pushMessage({
+        msg: 'line-1\n',
+        step: 'setup',
+        type: 'stdout',
+        offset: 1,
+      });
+    });
+    rerender(
+      <QueryWrapper>
+        <TaskLogViewer taskHistoryId="7" taskStatus="SUCCESS" />
+      </QueryWrapper>
+    );
+    await flushPromises();
+
+    const user = userEvent.setup();
+    await user.click(getTailSelect());
+    await user.click(screen.getByRole('option', { name: /all lines/i }));
+    await flushPromises();
+    expect(logFetchUrls()).toEqual(['/sep/stream-logs/7']);
+    act(() => {
+      getHandle('7').close();
+    });
+
+    await waitFor(() =>
+      expect(logFetchUrls()).toEqual([
+        '/sep/stream-logs/7',
+        '/sep/stream-logs/7',
+      ])
+    );
+  });
+
   it('requests tail=1000 by default for finished tasks', async () => {
     render(
       <QueryWrapper>
