@@ -250,3 +250,44 @@ func TestConnectionRequestValkeyForwardsSkipVerifyWithoutCertificates(t *testing
 	assert.Empty(t, request.TextFiles.GetFiles())
 	require.NoError(t, f.mock.ExpectationsWereMet())
 }
+
+// The check has to authenticate the same way the exporter will, so a row holding half a pair
+// reaches pmm-agent with the certificate authority alone rather than with material it cannot use.
+func TestConnectionRequestValkeyShipsIncompleteKeyPairAsCertificateAuthorityOnly(t *testing.T) {
+	t.Parallel()
+
+	for name, options := range map[string]models.ValkeyOptions{
+		"cert without key": {SSLCa: "ca-pem", SSLCert: "cert-pem"},
+		"key without cert": {SSLCa: "ca-pem", SSLKey: "key-pem"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			f := newValkeyTLSRequestFixture(t)
+			f.agent.ValkeyOptions = options
+
+			request, err := connectionRequest(f.db.Querier, f.service, f.agent)
+			require.NoError(t, err)
+
+			assert.Equal(t, map[string]string{"tlsCa": "ca-pem"}, request.TextFiles.Files)
+			require.NoError(t, f.mock.ExpectationsWereMet())
+		})
+	}
+}
+
+// Certificates supplied without TLS are ignored rather than applied, and the check must agree
+// with the exporter on that or it would pass against a link the exporter cannot reproduce.
+func TestConnectionRequestValkeyIgnoresCertificatesWithoutTLS(t *testing.T) {
+	t.Parallel()
+	f := newValkeyTLSRequestFixture(t)
+	f.agent.TLS = false
+	f.agent.ValkeyOptions = models.ValkeyOptions{SSLCa: "ca-pem", SSLCert: "cert-pem", SSLKey: "key-pem"}
+
+	request, err := connectionRequest(f.db.Querier, f.service, f.agent)
+	require.NoError(t, err)
+
+	assert.False(t, request.Tls)
+	assert.Contains(t, request.Dsn, "redis://")
+	assert.NotContains(t, request.Dsn, "rediss://")
+	assert.Empty(t, request.TextFiles.GetFiles())
+	require.NoError(t, f.mock.ExpectationsWereMet())
+}

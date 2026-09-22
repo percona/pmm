@@ -206,6 +206,36 @@ func serverTLSConfig(t *testing.T, certPEM, keyPEM string) *tls.Config {
 	return &tls.Config{Certificates: []tls.Certificate{cert}} //nolint:exhaustruct
 }
 
+// mutualTLSServerConfig returns a server config that also demands a client certificate signed
+// by the same PEM.
+func mutualTLSServerConfig(t *testing.T, certPEM, keyPEM string) *tls.Config {
+	t.Helper()
+
+	clientCAs := x509.NewCertPool()
+	require.True(t, clientCAs.AppendCertsFromPEM([]byte(certPEM)))
+
+	cfg := serverTLSConfig(t, certPEM, keyPEM)
+	cfg.ClientAuth = tls.RequireAndVerifyClientCert
+	cfg.ClientCAs = clientCAs
+
+	return cfg
+}
+
+// mutualTLSServerConfigTLS12 caps mutualTLSServerConfig at TLS 1.2 so that a client the server
+// refuses learns about it from the dial. Under TLS 1.3 the client completes its side of the
+// handshake first and the alert only arrives on the following read; against a real Valkey that
+// is a failed command rather than a failed dial, leaving redis_up at 0 either way, but this stub
+// closes the connection once the handshake is done and so cannot tell that apart from any other
+// end of file.
+func mutualTLSServerConfigTLS12(t *testing.T, certPEM, keyPEM string) *tls.Config {
+	t.Helper()
+
+	cfg := mutualTLSServerConfig(t, certPEM, keyPEM)
+	cfg.MaxVersion = tls.VersionTLS12
+
+	return cfg
+}
+
 // dialValkey dials the address over the options GetValkeyTLSConfig produced for the given inputs.
 func dialValkey(t *testing.T, addr string, files *agentv1.TextFiles, tlsSkipVerify bool) error {
 	t.Helper()
@@ -364,14 +394,7 @@ func TestGetValkeyTLSConfigHandshake(t *testing.T) {
 	t.Run("client key pair satisfies a server requiring mutual TLS", func(t *testing.T) {
 		t.Parallel()
 		cert, key := generateCertPair(t)
-
-		clientCAs := x509.NewCertPool()
-		require.True(t, clientCAs.AppendCertsFromPEM([]byte(cert)))
-
-		cfg := serverTLSConfig(t, cert, key)
-		cfg.ClientAuth = tls.RequireAndVerifyClientCert
-		cfg.ClientCAs = clientCAs
-		addr := startValkeyTLSServer(t, cfg)
+		addr := startValkeyTLSServer(t, mutualTLSServerConfig(t, cert, key))
 
 		files := &agentv1.TextFiles{Files: map[string]string{
 			agentv1.TLSCertFileName: cert,
@@ -379,5 +402,70 @@ func TestGetValkeyTLSConfigHandshake(t *testing.T) {
 			agentv1.TLSCaFileName:   cert,
 		}}
 		require.NoError(t, dialValkey(t, addr, files, false))
+	})
+
+	// The helper applies the client pair only as a unit, so half of one is dropped. pmm-managed
+	// refuses to store that shape, but a server older than the validation can still send it, and
+	// what the user gets then is a failed connection rather than a silently weaker one.
+	t.Run("half a client key pair does not satisfy mutual TLS", func(t *testing.T) {
+		t.Parallel()
+		cert, key := generateCertPair(t)
+
+		for name, files := range map[string]map[string]string{
+			"cert without key": {agentv1.TLSCaFileName: cert, agentv1.TLSCertFileName: cert},
+			"key without cert": {agentv1.TLSCaFileName: cert, agentv1.TLSKeyFileName: key},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+				addr := startValkeyTLSServer(t, mutualTLSServerConfigTLS12(t, cert, key))
+
+				err := dialValkey(t, addr, &agentv1.TextFiles{Files: files}, false)
+				require.Error(t, err)
+				// An alert from the server, rather than a local verification failure, is what
+				// separates a dropped client pair from a server this client cannot trust.
+				assert.Contains(t, err.Error(), "remote error")
+			})
+		}
+	})
+
+	// Skip-verify waives server authentication, not the server's demand for a client certificate.
+	t.Run("skip verify does not present a client certificate", func(t *testing.T) {
+		t.Parallel()
+		cert, key := generateCertPair(t)
+		addr := startValkeyTLSServer(t, mutualTLSServerConfigTLS12(t, cert, key))
+
+		err := dialValkey(t, addr, nil, true)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "remote error")
+	})
+
+	// Supplying a client pair says nothing about which servers to trust, so the server is still
+	// verified against the system pool and an untrusted one is refused.
+	t.Run("client key pair without a certificate authority still verifies the server", func(t *testing.T) {
+		t.Parallel()
+		cert, key := generateCertPair(t)
+		addr := startValkeyTLSServer(t, serverTLSConfig(t, cert, key))
+
+		files := &agentv1.TextFiles{Files: map[string]string{
+			agentv1.TLSCertFileName: cert,
+			agentv1.TLSKeyFileName:  key,
+		}}
+		err := dialValkey(t, addr, files, false)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "certificate")
+	})
+
+	// Material for a different authority fails even though the server certificate is otherwise
+	// well formed, so a wrong --tls-ca file is refused rather than silently ignored.
+	t.Run("an unrelated certificate authority rejects the server", func(t *testing.T) {
+		t.Parallel()
+		cert, key := generateCertPair(t)
+		other, _ := generateCertPair(t)
+		addr := startValkeyTLSServer(t, serverTLSConfig(t, cert, key))
+
+		files := &agentv1.TextFiles{Files: map[string]string{agentv1.TLSCaFileName: other}}
+		err := dialValkey(t, addr, files, false)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "certificate")
 	})
 }
