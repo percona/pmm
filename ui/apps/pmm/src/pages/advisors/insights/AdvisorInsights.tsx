@@ -415,8 +415,7 @@ const AdvisorInsights: FC = () => {
   return (
     <Page
       title={Messages.title}
-      fullWidth
-      wide
+      maxWidth="full"
       fillViewport
       footer={null}
       roles={[OrgRole.Editor, OrgRole.Admin]}

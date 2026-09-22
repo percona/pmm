@@ -12,6 +12,7 @@ const TEST_SETTINGS: Settings = {
   backupManagementEnabled: false,
   azurediscoverEnabled: false,
   enableAccessControl: false,
+  sepEnabled: false,
   dataRetention: '2592000s',
   advisorHistoryRetention: '1209600s',
   advisorNotificationsEnabled: true,

@@ -733,8 +733,9 @@ type GetSettingsOKBodySettings struct {
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
 
-	// Advisor check results history retention.
-	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
+	// True if the SEP integration is enabled. Read-only: it reports how this PMM
+	// Server process was started, and cannot be changed through ChangeSettings.
+	SepEnabled bool `json:"sep_enabled,omitempty"`
 
 	// True if Advisor email notifications are enabled.
 	AdvisorNotificationsEnabled bool `json:"advisor_notifications_enabled,omitempty"`
@@ -745,6 +746,9 @@ type GetSettingsOKBodySettings struct {
 
 	// Email addresses Advisor notifications are sent to.
 	AdvisorNotificationEmailAddresses []string `json:"advisor_notification_email_addresses"`
+
+	// Advisor check results history retention.
+	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *GetSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`

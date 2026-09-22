@@ -1014,16 +1014,19 @@ type Settings struct {
 	DefaultRoleId uint32 `protobuf:"varint,18,opt,name=default_role_id,json=defaultRoleId,proto3" json:"default_role_id,omitempty"`
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQan bool `protobuf:"varint,19,opt,name=enable_internal_pg_qan,json=enableInternalPgQan,proto3" json:"enable_internal_pg_qan,omitempty"`
-	// Advisor check results history retention.
-	AdvisorHistoryRetention *durationpb.Duration `protobuf:"bytes,21,opt,name=advisor_history_retention,json=advisorHistoryRetention,proto3" json:"advisor_history_retention,omitempty"`
+	// True if the SEP integration is enabled. Read-only: it reports how this PMM
+	// Server process was started, and cannot be changed through ChangeSettings.
+	SepEnabled bool `protobuf:"varint,21,opt,name=sep_enabled,json=sepEnabled,proto3" json:"sep_enabled,omitempty"`
 	// True if Advisor email notifications are enabled.
 	AdvisorNotificationsEnabled bool `protobuf:"varint,22,opt,name=advisor_notifications_enabled,json=advisorNotificationsEnabled,proto3" json:"advisor_notifications_enabled,omitempty"`
 	// Least-severe level that triggers an Advisor notification.
 	AdvisorNotificationSeverityThreshold v1.Severity `protobuf:"varint,23,opt,name=advisor_notification_severity_threshold,json=advisorNotificationSeverityThreshold,proto3,enum=management.v1.Severity" json:"advisor_notification_severity_threshold,omitempty"`
 	// Email addresses Advisor notifications are sent to.
 	AdvisorNotificationEmailAddresses []string `protobuf:"bytes,24,rep,name=advisor_notification_email_addresses,json=advisorNotificationEmailAddresses,proto3" json:"advisor_notification_email_addresses,omitempty"`
-	unknownFields                     protoimpl.UnknownFields
-	sizeCache                         protoimpl.SizeCache
+	// Advisor check results history retention.
+	AdvisorHistoryRetention *durationpb.Duration `protobuf:"bytes,25,opt,name=advisor_history_retention,json=advisorHistoryRetention,proto3" json:"advisor_history_retention,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *Settings) Reset() {
@@ -1184,11 +1187,11 @@ func (x *Settings) GetEnableInternalPgQan() bool {
 	return false
 }
 
-func (x *Settings) GetAdvisorHistoryRetention() *durationpb.Duration {
+func (x *Settings) GetSepEnabled() bool {
 	if x != nil {
-		return x.AdvisorHistoryRetention
+		return x.SepEnabled
 	}
-	return nil
+	return false
 }
 
 func (x *Settings) GetAdvisorNotificationsEnabled() bool {
@@ -1212,6 +1215,13 @@ func (x *Settings) GetAdvisorNotificationEmailAddresses() []string {
 	return nil
 }
 
+func (x *Settings) GetAdvisorHistoryRetention() *durationpb.Duration {
+	if x != nil {
+		return x.AdvisorHistoryRetention
+	}
+	return nil
+}
+
 // ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
 type ReadOnlySettings struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1231,8 +1241,10 @@ type ReadOnlySettings struct {
 	AzurediscoverEnabled bool `protobuf:"varint,7,opt,name=azurediscover_enabled,json=azurediscoverEnabled,proto3" json:"azurediscover_enabled,omitempty"`
 	// True if Access Control is enabled.
 	EnableAccessControl bool `protobuf:"varint,8,opt,name=enable_access_control,json=enableAccessControl,proto3" json:"enable_access_control,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// True if the SEP integration is enabled.
+	SepEnabled    bool `protobuf:"varint,9,opt,name=sep_enabled,json=sepEnabled,proto3" json:"sep_enabled,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ReadOnlySettings) Reset() {
@@ -1317,6 +1329,13 @@ func (x *ReadOnlySettings) GetAzurediscoverEnabled() bool {
 func (x *ReadOnlySettings) GetEnableAccessControl() bool {
 	if x != nil {
 		return x.EnableAccessControl
+	}
+	return false
+}
+
+func (x *ReadOnlySettings) GetSepEnabled() bool {
+	if x != nil {
+		return x.SepEnabled
 	}
 	return false
 }
@@ -1777,7 +1796,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13AdvisorRunIntervals\x12F\n" +
 	"\x11standard_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x10standardInterval\x12>\n" +
 	"\rrare_interval\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\frareInterval\x12F\n" +
-	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\x98\n" +
+	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xb9\n" +
 	"\n" +
 	"\bSettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
@@ -1798,11 +1817,13 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13telemetry_summaries\x18\x10 \x03(\tR\x12telemetrySummaries\x122\n" +
 	"\x15enable_access_control\x18\x11 \x01(\bR\x13enableAccessControl\x12&\n" +
 	"\x0fdefault_role_id\x18\x12 \x01(\rR\rdefaultRoleId\x123\n" +
-	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQan\x12U\n" +
-	"\x19advisor_history_retention\x18\x15 \x01(\v2\x19.google.protobuf.DurationR\x17advisorHistoryRetention\x12B\n" +
+	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQan\x12\x1f\n" +
+	"\vsep_enabled\x18\x15 \x01(\bR\n" +
+	"sepEnabled\x12B\n" +
 	"\x1dadvisor_notifications_enabled\x18\x16 \x01(\bR\x1badvisorNotificationsEnabled\x12n\n" +
 	"'advisor_notification_severity_threshold\x18\x17 \x01(\x0e2\x17.management.v1.SeverityR$advisorNotificationSeverityThreshold\x12O\n" +
-	"$advisor_notification_email_addresses\x18\x18 \x03(\tR!advisorNotificationEmailAddressesJ\x04\b\x14\x10\x15R\x16update_snooze_duration\"\x8f\x03\n" +
+	"$advisor_notification_email_addresses\x18\x18 \x03(\tR!advisorNotificationEmailAddresses\x12U\n" +
+	"\x19advisor_history_retention\x18\x19 \x01(\v2\x19.google.protobuf.DurationR\x17advisorHistoryRetentionJ\x04\b\x14\x10\x15R\x16update_snooze_duration\"\xb0\x03\n" +
 	"\x10ReadOnlySettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12'\n" +
@@ -1811,7 +1832,9 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x12pmm_public_address\x18\x05 \x01(\tR\x10pmmPublicAddress\x12:\n" +
 	"\x19backup_management_enabled\x18\x06 \x01(\bR\x17backupManagementEnabled\x123\n" +
 	"\x15azurediscover_enabled\x18\a \x01(\bR\x14azurediscoverEnabled\x122\n" +
-	"\x15enable_access_control\x18\b \x01(\bR\x13enableAccessControl\"\x14\n" +
+	"\x15enable_access_control\x18\b \x01(\bR\x13enableAccessControl\x12\x1f\n" +
+	"\vsep_enabled\x18\t \x01(\bR\n" +
+	"sepEnabled\"\x14\n" +
 	"\x12GetSettingsRequest\"\x1c\n" +
 	"\x1aGetReadOnlySettingsRequest\"F\n" +
 	"\x13GetSettingsResponse\x12/\n" +
@@ -1943,8 +1966,8 @@ var file_server_v1_server_proto_depIdxs = []int32{
 	15, // 16: server.v1.Settings.metrics_resolutions:type_name -> server.v1.MetricsResolutions
 	26, // 17: server.v1.Settings.data_retention:type_name -> google.protobuf.Duration
 	16, // 18: server.v1.Settings.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
-	26, // 19: server.v1.Settings.advisor_history_retention:type_name -> google.protobuf.Duration
-	27, // 20: server.v1.Settings.advisor_notification_severity_threshold:type_name -> management.v1.Severity
+	27, // 19: server.v1.Settings.advisor_notification_severity_threshold:type_name -> management.v1.Severity
+	26, // 20: server.v1.Settings.advisor_history_retention:type_name -> google.protobuf.Duration
 	17, // 21: server.v1.GetSettingsResponse.settings:type_name -> server.v1.Settings
 	18, // 22: server.v1.GetReadOnlySettingsResponse.settings:type_name -> server.v1.ReadOnlySettings
 	15, // 23: server.v1.ChangeSettingsRequest.metrics_resolutions:type_name -> server.v1.MetricsResolutions

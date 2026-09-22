@@ -2287,6 +2287,12 @@ func (m *Settings) validate(all bool) error {
 
 	// no validation rules for EnableInternalPgQan
 
+	// no validation rules for SepEnabled
+
+	// no validation rules for AdvisorNotificationsEnabled
+
+	// no validation rules for AdvisorNotificationSeverityThreshold
+
 	if all {
 		switch v := interface{}(m.GetAdvisorHistoryRetention()).(type) {
 		case interface{ ValidateAll() error }:
@@ -2315,10 +2321,6 @@ func (m *Settings) validate(all bool) error {
 			}
 		}
 	}
-
-	// no validation rules for AdvisorNotificationsEnabled
-
-	// no validation rules for AdvisorNotificationSeverityThreshold
 
 	if len(errors) > 0 {
 		return SettingsMultiError(errors)
@@ -2435,6 +2437,8 @@ func (m *ReadOnlySettings) validate(all bool) error {
 	// no validation rules for AzurediscoverEnabled
 
 	// no validation rules for EnableAccessControl
+
+	// no validation rules for SepEnabled
 
 	if len(errors) > 0 {
 		return ReadOnlySettingsMultiError(errors)

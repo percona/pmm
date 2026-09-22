@@ -8,11 +8,9 @@ import {
   pmmThemeOptions,
 } from '@percona/peak-ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { addApiErrorInterceptor, removeApiErrorInterceptor } from 'api/api';
 import { ThemeClass } from 'components/theme-class';
 import { CustomContentProps, SnackbarProvider } from 'notistack';
 import type { ComponentType } from 'react';
-import { useEffect } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import router from './router';
 
@@ -50,13 +48,6 @@ const themeOptions = (mode: PaletteMode): ThemeOptions => {
 };
 
 const App = () => {
-  useEffect(() => {
-    addApiErrorInterceptor();
-    return () => {
-      removeApiErrorInterceptor();
-    };
-  }, []);
-
   return (
     <ThemeContextProvider themeOptions={themeOptions}>
       <ThemeClass />

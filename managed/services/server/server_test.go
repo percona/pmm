@@ -17,6 +17,7 @@ package server
 
 import (
 	"math"
+	"os"
 	"testing"
 	"time"
 
@@ -34,6 +35,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
+	pkgenv "github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 )
@@ -400,5 +402,22 @@ func TestUpdateStatus(t *testing.T) {
 		assert.True(t, res.Done, "an unverifiable auth token must still be accepted")
 		assert.Empty(t, res.LogLines, "the progress log is no longer served") //nolint:staticcheck
 		assert.Zero(t, res.LogOffset)                                         //nolint:staticcheck
+	})
+}
+
+func TestConvertReadOnlySettings(t *testing.T) {
+	s := &Server{}
+
+	t.Run("reports SEP as enabled when the process was started with it", func(t *testing.T) {
+		t.Setenv(pkgenv.EnableSEP, "1")
+
+		assert.True(t, s.convertReadOnlySettings(&models.Settings{}).SepEnabled)
+	})
+
+	t.Run("reports SEP as disabled when the variable is absent", func(t *testing.T) {
+		t.Setenv(pkgenv.EnableSEP, "")
+		os.Unsetenv(pkgenv.EnableSEP)
+
+		assert.False(t, s.convertReadOnlySettings(&models.Settings{}).SepEnabled)
 	})
 }
