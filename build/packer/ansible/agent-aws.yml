@@ -3,7 +3,6 @@
   hosts: default
   become: true
   vars:
-    docker_compose_version: "2.26.1"
     kubectl_version: "1.35.3"
     doctl_version: "1.155.0"
     node_version: "22.x"
@@ -102,13 +101,6 @@
 
     - name: Install bats
       shell: "npm install -g bats"
-
-    # TODO: remove once we refactor percona/pmm-qa and percona-lab/qa-integration
-    - name: Install docker-compose
-      get_url:
-        url: "https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-linux-{{ ansible_architecture }}"
-        dest: /usr/local/bin/docker-compose
-        mode: "u+x,g+x,o+x"
 
     - name: Install kubectl
       get_url:
@@ -331,7 +323,7 @@
         name: net.ipv4.ip_local_port_range
         value: 10240 65535
 
-    - name: Change TCP Congestion Control Algorithm (net.ipv4.tcp_congestion_control)
+    - name: Change TCP Congestion Control Algorithm
       sysctl:
         name: net.ipv4.tcp_congestion_control
         value: bbr
