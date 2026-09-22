@@ -79,6 +79,23 @@ Follow these steps to upgrade the PMM Server image in your PMM HA release:
 
 The rolling update changes which replica is the active leader. After the upgrade completes, confirm a leader is elected and identify it in the UI or through the Inventory page—see [Identify the leader node](../install-pmm/install-HA-clustered.md#identify-the-leader-node).
 
+## Upgrade the underlying databases
+
+The steps above upgrade the PMM Server application only. PMM HA's three data stores—PostgreSQL (Grafana metadata), ClickHouse (Query Analytics), and VictoriaMetrics (metrics)—are deployed and versioned separately by their own Kubernetes operators (installed via the `pmm-ha-dependencies` chart), and `helm upgrade pmm-ha` does not touch them. Their versions are pinned in `pmm-ha`'s `values.yaml` precisely so that an operator upgrade can't silently move a database version out from under you.
+
+!!! info "Upgrading an operator never upgrades its database"
+    This holds for all three data stores, but for a different reason each time: PostgreSQL and ClickHouse image tags are explicit chart values with no operator-side default to fall back to. VictoriaMetrics is different—its operator ships a built-in default version and *will* move the data plane if the chart's `victoriaMetrics.version` pin is ever removed. Don't remove it.
+
+Only upgrade a data store version when you have a specific reason to (a supported-version deadline, a feature you need); otherwise leave the pins as the chart sets them. When you do:
+
+| Data store | Manual upgrade required | Downtime | Start here |
+|---|---|---|---|
+| PostgreSQL | Yes—driven by a `PerconaPGUpgrade` CR for major versions | **Yes**, full cluster stop for a major version upgrade (minor versions roll) | [Major version upgrade](https://docs.percona.com/percona-operator-for-postgresql/latest/update-db-major.html), [minor version upgrade](https://docs.percona.com/percona-operator-for-postgresql/latest/update-database.html), [certified image tags](https://docs.percona.com/percona-operator-for-postgresql/latest/images.html) |
+| ClickHouse | Yes—an image tag change on the `ClickHouseInstallation` | No, rolls one host at a time | [Update the ClickHouse version](https://github.com/Altinity/clickhouse-operator/blob/master/docs/chi_update_clickhouse_version.md) ([operator upgrade](https://docs.altinity.com/altinitykubernetesoperator/upgrade/) is a separate, narrower step and does not change the server version) |
+| VictoriaMetrics | Yes—an image tag/version change in the chart's `victoriaMetrics.version` | No, rolls (vmstorage as a StatefulSet restart) | [Operator configuration](https://docs.victoriametrics.com/operator/configuration/) (default-version mechanism), [Operator API reference](https://docs.victoriametrics.com/operator/api/) (which CRD field each component uses) |
+
+A PostgreSQL major version upgrade is not reversible and stops the whole cluster for its duration—plan it as its own maintenance window, independent of a PMM Server `helm upgrade`. Take a full backup first regardless of which data store you're upgrading.
+
 ## Roll back a failed upgrade
 
 `helm rollback` reverts the Helm release (chart values and the resulting Kubernetes manifests) to a previous revision, but it does **not** undo a PMM Server data migration that already ran against the shared databases. Because downgrades aren't supported, treat a rollback as a way to restore your previous *configuration* only, and restore your database backups if the new version already wrote incompatible data:
