@@ -58,7 +58,6 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -399,15 +398,11 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	l.Infof("Starting server on http://%s/ ...", http1Addr)
 
 	marshaller := &grpc_gateway.JSONPb{
-		MarshalOptions: protojson.MarshalOptions{
-			UseEnumNumbers:  false,
-			EmitUnpopulated: true,
-			UseProtoNames:   true,
-			Indent:          "  ",
-		},
-		UnmarshalOptions: protojson.UnmarshalOptions{
-			DiscardUnknown: true,
-		},
+		UseEnumNumbers:  false,
+		EmitUnpopulated: true,
+		UseProtoNames:   true,
+		Indent:          "  ",
+		DiscardUnknown:  true,
 	}
 
 	proxyMux := grpc_gateway.NewServeMux(
@@ -671,32 +666,30 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 			l.Infof("Database migration completed.")
 			return
 		}
+		if errors.Is(err, models.ErrEncryptionKeyMismatch) {
+			// Only returned in HA: a standalone server migrates anyway and reports it later.
+			l.Fatalf("%s. Every PMM Server node in an HA cluster must use the same encryption key: "+
+				"copy %s from a node that works and restart this one.", err, encryption.KeyPath())
+		}
 
 		l.Warnf("Failed to migrate database: %s.", err)
 		time.Sleep(time.Second)
 	}
 }
 
-// verifyEncryptionKey checks that this node holds the encryption key the database was encrypted
-// with.
-//
-// A mismatch is fatal in HA, where the node would otherwise write rows its peers cannot read. A
-// standalone node only logs it, so that an upgrade cannot turn an installation whose key went
-// missing into one that no longer boots.
-func verifyEncryptionKey(l *logrus.Entry, db *reform.DB, haEnabled bool) {
-	err := models.VerifyEncryptionKey(db)
+// checkEncryptionKey reports a standalone server whose encryption key does not match the
+// database. It keeps running, so that an upgrade cannot turn an installation whose key went
+// missing into one that no longer boots; HA nodes are stopped by migrateDB instead.
+func checkEncryptionKey(l *logrus.Entry, db *reform.DB) {
+	err := models.CheckEncryptionKey(db)
 	if err == nil {
 		return
 	}
 	if !errors.Is(err, models.ErrEncryptionKeyMismatch) {
-		l.Panicf("Failed to verify encryption key: %+v", err)
+		l.Panicf("Failed to check encryption key: %+v", err)
 	}
 
 	mEncryptionKeyMismatch.Set(1)
-	if haEnabled {
-		l.Fatalf("%s. Every PMM Server node in an HA cluster must use the same encryption key: "+
-			"copy %s from a node that works and restart this one.", err, encryption.KeyPath())
-	}
 	l.Errorf("%s. Stored credentials cannot be decrypted, so monitoring will not work until the "+
 		"matching key is restored to %s.", err, encryption.KeyPath())
 }
@@ -955,7 +948,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 
 	prom.MustRegister(mEncryptionKeyMismatch)
-	verifyEncryptionKey(l, db, *haEnabled)
+	checkEncryptionKey(l, db)
 
 	// Generate unique PMM Server ID if it's not already.
 	err = models.SetPMMServerID(db)

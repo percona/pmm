@@ -32,6 +32,10 @@ func KeyPath() string {
 		return customKeyPath
 	}
 
+	if isTest() {
+		return "./encryption.key"
+	}
+
 	return DefaultEncryptionKeyPath
 }
 

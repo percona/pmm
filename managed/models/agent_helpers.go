@@ -39,7 +39,7 @@ const (
 )
 
 // MySQLOptionsParams contains methods to create MySQLOptions object.
-type MySQLOptionsParams interface { //nolint:iface
+type MySQLOptionsParams interface {
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
@@ -69,7 +69,7 @@ func MySQLOptionsFromRequest(params MySQLOptionsParams) (MySQLOptions, error) {
 }
 
 // PostgreSQLOptionsParams contains methods to create PostgreSQLOptions object.
-type PostgreSQLOptionsParams interface { //nolint:iface
+type PostgreSQLOptionsParams interface {
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
@@ -238,17 +238,13 @@ type AgentFilters struct {
 }
 
 // decryptAgents decrypts Agent rows as returned by reform.
-func decryptAgents(structs []reform.Struct) ([]*Agent, error) {
+func decryptAgents(structs []reform.Struct) []*Agent {
 	agents := make([]*Agent, len(structs))
 	for i, s := range structs {
-		decryptedAgent, err := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		if err != nil {
-			return nil, err
-		}
-		agents[i] = &decryptedAgent
+		agents[i] = new(DecryptAgent(*s.(*Agent))) //nolint:forcetypeassert
 	}
 
-	return agents, nil
+	return agents
 }
 
 // insertAgent encrypts the Agent, inserts it and returns it decrypted again.
@@ -263,12 +259,7 @@ func insertAgent(q *reform.Querier, agent Agent) (*Agent, error) {
 		return nil, err
 	}
 
-	decryptedAgent, err := DecryptAgent(encryptedAgent)
-	if err != nil {
-		return nil, err
-	}
-
-	return &decryptedAgent, nil
+	return new(DecryptAgent(encryptedAgent)), nil
 }
 
 // FindAgents returns Agents by filters.
@@ -356,7 +347,7 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		return nil, err
 	}
 
-	return decryptAgents(structs)
+	return decryptAgents(structs), nil
 }
 
 // FindAgentByID finds Agent by ID.
@@ -373,13 +364,7 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 		}
 		return nil, err
 	}
-
-	decryptedAgent, err := DecryptAgent(*agent)
-	if err != nil {
-		return nil, err
-	}
-
-	return new(decryptedAgent), nil
+	return new(DecryptAgent(*agent)), nil
 }
 
 // FindAgentsByIDs finds Agents by IDs.
@@ -399,7 +384,7 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 		return nil, err
 	}
 
-	return decryptAgents(structs)
+	return decryptAgents(structs), nil
 }
 
 // FindDBConfigForService find DB config from agents running on service specified by serviceID.
@@ -447,10 +432,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 		return nil, err
 	}
 
-	res, err := decryptAgents(structs)
-	if err != nil {
-		return nil, err
-	}
+	res := decryptAgents(structs)
 
 	if len(res) == 0 {
 		return nil, status.Error(codes.FailedPrecondition, "No agents available.")
@@ -474,7 +456,7 @@ func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, err
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get agents by runs_on_node_id, %s", nodeID)
 	}
 
-	return decryptAgents(structs)
+	return decryptAgents(structs), nil
 }
 
 // FindPMMAgentsForService gets pmm-agents for service.
@@ -513,7 +495,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get pmm-agents for service %s", serviceID)
 	}
-	return decryptAgents(pmmAgentRecords)
+	return decryptAgents(pmmAgentRecords), nil
 }
 
 // FindPMMAgentsForServicesOnNode gets pmm-agents for Services running on Node.
@@ -589,7 +571,7 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 		return nil, err
 	}
 
-	return decryptAgents(allAgents)
+	return decryptAgents(allAgents), nil
 }
 
 // FindAllPMMAgentsIDs returns pmm-agents-ids with agents.
@@ -1471,12 +1453,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		return nil, err
 	}
 
-	decryptedAgent, err := DecryptAgent(*row)
-	if err != nil {
-		return nil, err
-	}
-
-	return new(decryptedAgent), nil
+	return new(DecryptAgent(*row)), nil
 }
 
 // RemoveAgent removes Agent by ID.

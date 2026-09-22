@@ -70,18 +70,46 @@ func TestVerifyEncryptionKey(t *testing.T) {
 			WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settingsJSON(t, s)))
 	}
 
-	t.Run("matching fingerprint is accepted and not rewritten", func(t *testing.T) {
+	verify := func(db *reform.DB) error {
+		return db.InTransaction(VerifyEncryptionKey)
+	}
+
+	expectLock := func(mock sqlmock.Sqlmock) {
+		mock.ExpectBegin()
+		mock.ExpectExec("SELECT pg_advisory_xact_lock").
+			WithArgs(encryptionKeyLockID).
+			WillReturnResult(sqlmock.NewResult(0, 0))
+	}
+
+	expectSave := func(mock sqlmock.Sqlmock) {
+		mock.ExpectExec("UPDATE settings SET settings").
+			WithArgs(sqlmock.AnyArg()).
+			WillReturnResult(sqlmock.NewResult(0, 1))
+	}
+
+	encryptedCredentials := []string{"pmm-managed.agents.username", "pmm-managed.agents.password"}
+
+	t.Run("matching fingerprint is accepted", func(t *testing.T) {
 		db, mock := newMock(t)
 		expectSettings(t, mock, Settings{EncryptionKeyFingerprint: localFingerprint})
 
-		assert.NoError(t, VerifyEncryptionKey(db))
+		assert.NoError(t, CheckEncryptionKey(db))
+	})
+
+	t.Run("matching fingerprint is not rewritten", func(t *testing.T) {
+		db, mock := newMock(t)
+		expectLock(mock)
+		expectSettings(t, mock, Settings{EncryptionKeyFingerprint: localFingerprint})
+		mock.ExpectCommit()
+
+		assert.NoError(t, verify(db))
 	})
 
 	t.Run("foreign fingerprint is reported as a mismatch", func(t *testing.T) {
 		db, mock := newMock(t)
 		expectSettings(t, mock, Settings{EncryptionKeyFingerprint: "0123456789abcdef"})
 
-		err := VerifyEncryptionKey(db)
+		err := CheckEncryptionKey(db)
 		require.ErrorIs(t, err, ErrEncryptionKeyMismatch)
 		assert.Contains(t, err.Error(), localFingerprint)
 		assert.Contains(t, err.Error(), "0123456789abcdef")
@@ -89,34 +117,64 @@ func TestVerifyEncryptionKey(t *testing.T) {
 
 	t.Run("fingerprint is recorded when nothing is encrypted yet", func(t *testing.T) {
 		db, mock := newMock(t)
+		expectLock(mock)
 		expectSettings(t, mock, Settings{})
-		mock.ExpectExec("UPDATE settings SET settings").
-			WithArgs(sqlmock.AnyArg()).
-			WillReturnResult(sqlmock.NewResult(0, 1))
+		expectSave(mock)
+		mock.ExpectCommit()
 
-		assert.NoError(t, VerifyEncryptionKey(db))
+		assert.NoError(t, verify(db))
 	})
 
-	t.Run("fingerprint is adopted when stored data decrypts", func(t *testing.T) {
+	t.Run("fingerprint is adopted when all stored credentials decrypt", func(t *testing.T) {
 		db, mock := newMock(t)
-		expectSettings(t, mock, Settings{EncryptedItems: []string{"pmm-managed.agents.username"}})
+		expectLock(mock)
+		expectSettings(t, mock, Settings{EncryptedItems: encryptedCredentials})
 		mock.ExpectQuery("SELECT username FROM agents").
-			WillReturnRows(sqlmock.NewRows([]string{"username"}).AddRow(readableCiphertext))
-		mock.ExpectExec("UPDATE settings SET settings").
-			WithArgs(sqlmock.AnyArg()).
-			WillReturnResult(sqlmock.NewResult(0, 1))
+			WillReturnRows(sqlmock.NewRows([]string{"username"}).AddRow(readableCiphertext).AddRow(readableCiphertext))
+		mock.ExpectQuery("SELECT password FROM agents").
+			WillReturnRows(sqlmock.NewRows([]string{"password"}).AddRow(readableCiphertext))
+		expectSave(mock)
+		mock.ExpectCommit()
 
-		assert.NoError(t, VerifyEncryptionKey(db))
+		assert.NoError(t, verify(db))
 	})
 
 	// The upgrade path for the reported cluster: a follower with its own key, against a database
 	// whose rows were encrypted by another node and which carries no fingerprint yet.
-	t.Run("fingerprint is not adopted when stored data cannot be decrypted", func(t *testing.T) {
+	t.Run("fingerprint is not adopted when stored credentials cannot be decrypted", func(t *testing.T) {
 		db, mock := newMock(t)
-		expectSettings(t, mock, Settings{EncryptedItems: []string{"pmm-managed.agents.username"}})
+		expectLock(mock)
+		expectSettings(t, mock, Settings{EncryptedItems: encryptedCredentials})
 		mock.ExpectQuery("SELECT username FROM agents").
 			WillReturnRows(sqlmock.NewRows([]string{"username"}).AddRow(foreignCiphertext))
+		mock.ExpectQuery("SELECT password FROM agents").
+			WillReturnRows(sqlmock.NewRows([]string{"password"}))
+		mock.ExpectRollback()
 
-		require.ErrorIs(t, VerifyEncryptionKey(db), ErrEncryptionKeyMismatch)
+		require.ErrorIs(t, verify(db), ErrEncryptionKeyMismatch)
+	})
+
+	// Rows written by several nodes with different keys: whichever row the database returns first
+	// must not decide the outcome.
+	t.Run("fingerprint is not adopted when any stored credential cannot be decrypted", func(t *testing.T) {
+		db, mock := newMock(t)
+		expectLock(mock)
+		expectSettings(t, mock, Settings{EncryptedItems: encryptedCredentials})
+		mock.ExpectQuery("SELECT username FROM agents").
+			WillReturnRows(sqlmock.NewRows([]string{"username"}).AddRow(readableCiphertext).AddRow(foreignCiphertext))
+		mock.ExpectQuery("SELECT password FROM agents").
+			WillReturnRows(sqlmock.NewRows([]string{"password"}).AddRow(readableCiphertext))
+		mock.ExpectRollback()
+
+		err := verify(db)
+		require.ErrorIs(t, err, ErrEncryptionKeyMismatch)
+		assert.Contains(t, err.Error(), "1 of 3")
+	})
+
+	t.Run("plaintext columns are not probed", func(t *testing.T) {
+		db, mock := newMock(t)
+		expectSettings(t, mock, Settings{EncryptedItems: []string{"pmm-managed.agents.aws_options"}})
+
+		assert.NoError(t, CheckEncryptionKey(db))
 	})
 }

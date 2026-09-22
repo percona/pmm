@@ -24,6 +24,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -1356,23 +1357,34 @@ func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 		return nil
 	}
 
+	fingerprint, err := encryption.Fingerprint()
+	if err != nil {
+		return err
+	}
+	if settings.EncryptionKeyFingerprint != "" && settings.EncryptionKeyFingerprint != fingerprint {
+		return keyMismatchError(fingerprint, settings.EncryptionKeyFingerprint)
+	}
+
 	err = encryptionHandler(tx, tables)
 	if err != nil {
 		return err
 	}
 
+	encryptedItems := []string{}
+	for _, item := range settings.EncryptedItems {
+		if !slices.Contains(prepared, item) {
+			encryptedItems = append(encryptedItems, item)
+		}
+	}
+	if expectedState {
+		encryptedItems = append(encryptedItems, prepared...)
+	}
+
 	// The fingerprint is recorded in the same transaction as the encrypted column list, so a
 	// concurrently starting node cannot observe encrypted data with no fingerprint to check its
 	// own key against.
-	encryptedItems := []string{}
-	fingerprint := ""
-	if expectedState {
-		encryptedItems = prepared
-
-		fingerprint, err = encryption.Fingerprint()
-		if err != nil {
-			return err
-		}
+	if len(encryptedItems) == 0 {
+		fingerprint = ""
 	}
 
 	_, err = UpdateSettings(tx, &ChangeSettingsParams{
@@ -1507,7 +1519,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return nil
 		}
 
-		err := EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
+		err := encryptOnMigration(tx, params)
 		if err != nil {
 			return err
 		}
@@ -1533,6 +1545,23 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 
 		return nil
 	})
+}
+
+// encryptOnMigration encrypts the columns that are not encrypted yet. It runs before anything else
+// in migrateDB encrypts or writes Agents, so that a node with a foreign key leaves the shared
+// database untouched.
+func encryptOnMigration(tx *reform.TX, params SetupDBParams) error {
+	err := VerifyEncryptionKey(tx)
+	switch {
+	case err == nil:
+		return EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
+	case errors.Is(err, ErrEncryptionKeyMismatch) && params.HANodeID == "":
+		// A standalone server keeps booting and reports the mismatch once started. Columns not
+		// encrypted yet are left for the first start with the matching key.
+		return nil
+	default:
+		return err
+	}
 }
 
 // removeStaleHANodes drops the Inventory Nodes of HA replicas that were scaled away. Those rows are

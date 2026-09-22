@@ -37,6 +37,25 @@ func TestCheckHAEncryptionKey(t *testing.T) {
 		assert.Contains(t, err.Error(), "--generate-key")
 	})
 
+	t.Run("empty key is rejected", func(t *testing.T) {
+		path := filepath.Join(t.TempDir(), "pmm-encryption.key")
+		require.NoError(t, os.WriteFile(path, nil, 0o600))
+		t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, path)
+
+		err := checkHAEncryptionKey()
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "empty or not a regular file")
+	})
+
+	t.Run("directory is rejected", func(t *testing.T) {
+		path := t.TempDir()
+		t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, path)
+
+		err := checkHAEncryptionKey()
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "empty or not a regular file")
+	})
+
 	t.Run("existing key is accepted", func(t *testing.T) {
 		path := filepath.Join(t.TempDir(), "pmm-encryption.key")
 		require.NoError(t, os.WriteFile(path, []byte("key"), 0o600))

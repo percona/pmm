@@ -315,7 +315,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 				return fmt.Errorf("failed to find agent: %w", err)
 			}
 			a.IsConnected = true
-			err = tx.Update(a)
+			err = tx.UpdateColumns(a, "is_connected", "updated_at")
 			if err != nil {
 				return fmt.Errorf("failed to update agent: %w", err)
 			}
@@ -374,7 +374,7 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 	}
 
 	agent.Version = &md.Version
-	err = q.Update(agent)
+	err = q.UpdateColumns(agent, "version", "updated_at")
 	if err != nil {
 		return nil, fmt.Errorf("failed to update agent: %w", err)
 	}
@@ -428,7 +428,7 @@ func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason 
 				return fmt.Errorf("failed to find agent: %w", err)
 			}
 			a.IsConnected = false
-			err = tx.Update(a)
+			err = tx.UpdateColumns(a, "is_connected", "updated_at")
 			if err != nil {
 				return fmt.Errorf("failed to update agent: %w", err)
 			}

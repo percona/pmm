@@ -114,8 +114,7 @@ func TestEncryptDecryptAgentRoundTrip(t *testing.T) {
 	require.NotNil(t, agent.Username)
 	assert.Equal(t, "username", *agent.Username, "input agent must not be mutated")
 
-	decrypted, err := models.DecryptAgent(encrypted)
-	require.NoError(t, err)
+	decrypted := models.DecryptAgent(encrypted)
 	require.NotNil(t, decrypted.Username)
 	require.NotNil(t, decrypted.Password)
 	assert.Equal(t, "username", *decrypted.Username)
@@ -124,26 +123,242 @@ func TestEncryptDecryptAgentRoundTrip(t *testing.T) {
 	assert.Equal(t, "mysql-tls-key", decrypted.MySQLOptions.TLSKey)
 }
 
-// TestDecryptAgentDoesNotReturnCiphertext guards the fix for
-// https://perconadev.atlassian.net/browse/PMM-14979: a value that this node's key cannot decrypt
-// must surface as an error, and the ciphertext must not be handed back to the caller as if it
-// were the decrypted value.
-func TestDecryptAgentDoesNotReturnCiphertext(t *testing.T) {
-	// Valid base64 but not ciphertext produced by this node's key, which is what an HA
-	// follower reads when the row was encrypted with another node's key.
+// TestDecryptAgentUnreadableFields guards the handling of values this node's key cannot decrypt,
+// which is what an HA node reads when a row was encrypted with another node's key
+// (https://perconadev.atlassian.net/browse/PMM-14979). The ciphertext must not be handed back as
+// if it were the decrypted value, and writing the Agent back must neither lose it nor encrypt it
+// a second time.
+func TestDecryptAgentUnreadableFields(t *testing.T) {
 	foreignCiphertext := base64.StdEncoding.EncodeToString([]byte("encrypted-with-another-key"))
 
 	agent := models.Agent{
 		AgentID:  "/agent_id/1",
 		Username: new(foreignCiphertext),
 		Password: new(foreignCiphertext),
+		MySQLOptions: models.MySQLOptions{
+			TLSKey: foreignCiphertext,
+		},
 	}
 
-	decrypted, err := models.DecryptAgent(agent)
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "/agent_id/1", "error should identify the agent")
-	assert.Contains(t, err.Error(), "username", "error should identify the field")
-	assert.Nil(t, decrypted.Username, "ciphertext must not be returned as the decrypted value")
+	decrypted := models.DecryptAgent(agent)
+	require.NotNil(t, decrypted.Username)
+	require.NotNil(t, decrypted.Password)
+	assert.Empty(t, *decrypted.Username, "ciphertext must not be returned as the decrypted value")
+	assert.Empty(t, *decrypted.Password)
+	assert.Empty(t, decrypted.MySQLOptions.TLSKey)
+	assert.Equal(t, foreignCiphertext, *agent.Username, "input agent must not be mutated")
+
+	t.Run("unchanged fields are written back as stored", func(t *testing.T) {
+		encrypted, err := models.EncryptAgent(decrypted)
+		require.NoError(t, err)
+		assert.Equal(t, foreignCiphertext, *encrypted.Username)
+		assert.Equal(t, foreignCiphertext, *encrypted.Password)
+		assert.Equal(t, foreignCiphertext, encrypted.MySQLOptions.TLSKey)
+	})
+
+	t.Run("a new value replaces the stored one", func(t *testing.T) {
+		changed := decrypted
+		changed.Password = new("new-password")
+
+		encrypted, err := models.EncryptAgent(changed)
+		require.NoError(t, err)
+		assert.Equal(t, foreignCiphertext, *encrypted.Username)
+
+		password, err := encryption.Decrypt(*encrypted.Password)
+		require.NoError(t, err)
+		assert.Equal(t, "new-password", password)
+	})
+}
+
+// TestEncryptionKeyInDatabase covers the parts of https://perconadev.atlassian.net/browse/PMM-14979
+// that depend on PostgreSQL: the checks run while migrating, the lock between nodes, and how
+// encrypted columns are recorded.
+func TestEncryptionKeyInDatabase(t *testing.T) {
+	// Initialize this node's key before the test switches the key path, so that it stays the
+	// default key.
+	_, err := encryption.Fingerprint()
+	require.NoError(t, err)
+
+	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, filepath.Join(t.TempDir(), "foreign.key"))
+	foreign := encryption.New()
+	foreignFingerprint, err := foreign.Fingerprint()
+	require.NoError(t, err)
+
+	const dbName = "pmm-managed-dev"
+
+	setup := func(t *testing.T, sqlDB *sql.DB, haNodeID string) error {
+		t.Helper()
+		_, err := models.SetupDB(t.Context(), sqlDB, models.SetupDBParams{
+			Address:       models.DefaultPostgreSQLAddr,
+			Name:          dbName,
+			Username:      "postgres",
+			SetupFixtures: models.SetupFixtures,
+			HANodeID:      haNodeID,
+		})
+
+		return err
+	}
+
+	setFingerprint := func(t *testing.T, db *reform.DB, fingerprint string) {
+		t.Helper()
+		_, err := models.UpdateSettings(db, &models.ChangeSettingsParams{EncryptionKeyFingerprint: &fingerprint})
+		require.NoError(t, err)
+	}
+
+	countAgents := func(t *testing.T, db *reform.DB) int {
+		t.Helper()
+		var n int
+		require.NoError(t, db.QueryRow("SELECT COUNT(*) FROM agents").Scan(&n))
+
+		return n
+	}
+
+	t.Run("HA node with a foreign key writes nothing", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+		setFingerprint(t, db, foreignFingerprint)
+
+		err := setup(t, sqlDB, "pmm-test-0")
+		require.ErrorIs(t, err, models.ErrEncryptionKeyMismatch)
+
+		settings, err := models.GetSettings(db)
+		require.NoError(t, err)
+		assert.Empty(t, settings.EncryptedItems)
+		assert.Equal(t, foreignFingerprint, settings.EncryptionKeyFingerprint)
+		assert.Zero(t, countAgents(t, db))
+	})
+
+	t.Run("standalone server with a foreign key boots without encrypting", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+		setFingerprint(t, db, foreignFingerprint)
+
+		require.NoError(t, setup(t, sqlDB, ""))
+
+		settings, err := models.GetSettings(db)
+		require.NoError(t, err)
+		assert.Empty(t, settings.EncryptedItems, "columns must not be encrypted with the wrong key")
+		assert.Equal(t, foreignFingerprint, settings.EncryptionKeyFingerprint)
+		require.ErrorIs(t, models.CheckEncryptionKey(db), models.ErrEncryptionKeyMismatch)
+	})
+
+	t.Run("columns are not encrypted with a foreign key", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+		setFingerprint(t, db, foreignFingerprint)
+
+		err := db.InTransaction(func(tx *reform.TX) error {
+			return models.EncryptDB(tx, dbName, models.DefaultAgentEncryptionColumnsV3)
+		})
+		require.ErrorIs(t, err, models.ErrEncryptionKeyMismatch)
+	})
+
+	t.Run("a node checking the key waits for the node that holds the lock", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		require.NoError(t, models.VerifyEncryptionKey(tx))
+		// Stands in for the first node having recorded a different key.
+		_, err = models.UpdateSettings(tx, &models.ChangeSettingsParams{EncryptionKeyFingerprint: &foreignFingerprint})
+		require.NoError(t, err)
+
+		res := make(chan error, 1)
+		go func() {
+			res <- db.InTransaction(models.VerifyEncryptionKey)
+		}()
+
+		select {
+		case err := <-res:
+			require.FailNow(t, "the key was checked while another node held the lock", "error: %v", err)
+		case <-time.After(500 * time.Millisecond):
+		}
+
+		require.NoError(t, tx.Commit())
+		require.ErrorIs(t, <-res, models.ErrEncryptionKeyMismatch)
+	})
+
+	t.Run("unreadable credentials do not fail agent queries", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+		agents, err := models.FindAgents(db.Querier, models.AgentFilters{AgentType: new(models.PostgresExporterType)})
+		require.NoError(t, err)
+		require.Len(t, agents, 1)
+		agentID := agents[0].AgentID
+
+		foreignCiphertext, err := foreign.Encrypt("postgres")
+		require.NoError(t, err)
+		_, err = db.Exec("UPDATE agents SET username = $1 WHERE agent_id = $2", foreignCiphertext, agentID)
+		require.NoError(t, err)
+
+		all, err := models.FindAgents(db.Querier, models.AgentFilters{})
+		require.NoError(t, err)
+		assert.Greater(t, len(all), 1)
+
+		agent, err := models.FindAgentByID(db.Querier, agentID)
+		require.NoError(t, err)
+		require.NotNil(t, agent.Username)
+		assert.Empty(t, *agent.Username)
+
+		agent.Disabled = true
+		require.NoError(t, models.UpdateAgent(db.Querier, agent))
+
+		var stored string
+		require.NoError(t, db.QueryRow("SELECT username FROM agents WHERE agent_id = $1", agentID).Scan(&stored))
+		assert.Equal(t, foreignCiphertext, stored, "writing the agent back must keep the stored credentials")
+	})
+
+	// Before the fix, the list was replaced by the columns of the last call only, so the next
+	// start encrypted the rest a second time.
+	t.Run("encrypted columns are added to the recorded ones", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		require.NoError(t, setup(t, sqlDB, ""))
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+		settings, err := models.GetSettings(db)
+		require.NoError(t, err)
+		all := settings.EncryptedItems
+		require.Contains(t, all, dbName+".agents.username")
+		require.Contains(t, all, dbName+".agents.password")
+
+		usernameOnly := []encryption.Table{{
+			Name:        "agents",
+			Identifiers: []string{"agent_id"},
+			Columns:     []encryption.Column{{Name: "username"}},
+		}}
+		require.NoError(t, db.InTransaction(func(tx *reform.TX) error {
+			return models.DecryptDB(tx, dbName, usernameOnly)
+		}))
+
+		settings, err = models.GetSettings(db)
+		require.NoError(t, err)
+		assert.NotContains(t, settings.EncryptedItems, dbName+".agents.username")
+		assert.Contains(t, settings.EncryptedItems, dbName+".agents.password")
+		assert.NotEmpty(t, settings.EncryptionKeyFingerprint, "other columns are still encrypted")
+
+		require.NoError(t, setup(t, sqlDB, ""))
+
+		settings, err = models.GetSettings(db)
+		require.NoError(t, err)
+		assert.ElementsMatch(t, all, settings.EncryptedItems)
+
+		agents, err := models.FindAgents(db.Querier, models.AgentFilters{AgentType: new(models.PostgresExporterType)})
+		require.NoError(t, err)
+		require.Len(t, agents, 1)
+		require.NotNil(t, agents[0].Username)
+		assert.Equal(t, "postgres", *agents[0].Username, "username must be encrypted exactly once")
+
+		require.NoError(t, db.InTransaction(func(tx *reform.TX) error {
+			return models.DecryptDB(tx, dbName, models.DefaultAgentEncryptionColumnsV3)
+		}))
+
+		settings, err = models.GetSettings(db)
+		require.NoError(t, err)
+		assert.Empty(t, settings.EncryptedItems)
+		assert.Empty(t, settings.EncryptionKeyFingerprint)
+	})
 }
 
 //nolint:dupword

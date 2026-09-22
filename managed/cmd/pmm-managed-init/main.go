@@ -16,7 +16,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"strconv"
 
@@ -98,16 +100,19 @@ func main() {
 func checkHAEncryptionKey() error {
 	path := encryption.KeyPath()
 
-	_, err := os.Stat(path)
+	info, err := os.Stat(path)
 	switch {
-	case err == nil:
-		return nil
-	case os.IsNotExist(err):
+	case errors.Is(err, fs.ErrNotExist):
 		return fmt.Errorf("encryption key %s not found. In HA mode all PMM Server nodes must share "+
 			"one encryption key, so it is never generated automatically. Generate it once with "+
 			"`pmm-encryption-rotation --generate-key`, place the output at %s on every node, then start them",
 			path, path)
-	default:
+	case err != nil:
 		return fmt.Errorf("cannot read encryption key %s: %w", path, err)
+	case !info.Mode().IsRegular() || info.Size() == 0:
+		return fmt.Errorf("encryption key %s is empty or not a regular file. Place the key shared by "+
+			"all PMM Server nodes there, generated once with `pmm-encryption-rotation --generate-key`", path)
+	default:
+		return nil
 	}
 }

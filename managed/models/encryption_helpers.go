@@ -22,167 +22,241 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+	"sync"
 
+	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/encryption"
 )
 
-// EncryptAgent encrypt agent.
-func EncryptAgent(agent Agent) (Agent, error) {
-	return agentEncryption(agent, encryption.Encrypt)
-}
-
-// DecryptAgent decrypt agent.
-// On error the returned Agent is only partially decrypted and must not be used: its remaining
-// fields still hold ciphertext.
-func DecryptAgent(agent Agent) (Agent, error) {
-	return agentEncryption(agent, encryption.Decrypt)
-}
-
 // ErrEncryptionKeyMismatch is returned when this node's encryption key is not the key the data
 // in the database was encrypted with.
 var ErrEncryptionKeyMismatch = errors.New("encryption key does not match the database")
 
-// VerifyEncryptionKey reports whether this node holds the encryption key the database was
-// encrypted with, and records the key's fingerprint when none is stored yet.
+// encryptionKeyLockID is the PostgreSQL advisory lock that serializes the encryption key check
+// between PMM Server nodes starting against the same database.
+const encryptionKeyLockID = 14979
+
+// undecryptableWarned holds the Agent fields already warned about, since Agents are read many
+// times per second.
+var undecryptableWarned sync.Map
+
+// EncryptAgent encrypt agent.
+// A field DecryptAgent could not decrypt is written back with its stored ciphertext, unless the
+// caller has set a new value in the meantime.
+func EncryptAgent(agent Agent) (Agent, error) {
+	undecrypted := agent.undecrypted
+	agent.undecrypted = nil
+
+	for _, s := range agentSecrets(&agent) {
+		stored, ok := undecrypted[s.name]
+		if ok && *s.val == "" {
+			*s.val = stored
+			continue
+		}
+
+		res, err := encryption.Encrypt(*s.val)
+		if err != nil {
+			return agent, fmt.Errorf("agent %s: %s: %w", agent.AgentID, s.name, err)
+		}
+		*s.val = res
+	}
+
+	return agent, nil
+}
+
+// DecryptAgent decrypt agent.
+// A field this node's key cannot decrypt is logged and left empty, so that one unreadable row
+// does not fail every query over Agents.
+func DecryptAgent(agent Agent) Agent {
+	var undecrypted map[string]string
+	for _, s := range agentSecrets(&agent) {
+		res, err := encryption.Decrypt(*s.val)
+		if err != nil {
+			l := logrus.WithFields(logrus.Fields{"agent_id": agent.AgentID, "field": s.name})
+			_, warned := undecryptableWarned.LoadOrStore(agent.AgentID+" "+s.name, struct{}{})
+			if warned {
+				l.Debugf("Cannot decrypt agent credentials: %s.", err)
+			} else {
+				l.Warnf("Cannot decrypt agent credentials: %s.", err)
+			}
+
+			if undecrypted == nil {
+				undecrypted = make(map[string]string)
+			}
+			undecrypted[s.name] = *s.val
+		}
+		*s.val = res
+	}
+	agent.undecrypted = undecrypted
+
+	return agent
+}
+
+type agentSecret struct {
+	name string
+	val  *string
+}
+
+// agentSecrets returns the encrypted fields of the Agent. Its *string fields are shared with the
+// Agent it was copied from, so they are replaced with copies that can be written through.
+func agentSecrets(agent *Agent) []agentSecret {
+	secrets := []agentSecret{
+		{"aws_options.access_key", &agent.AWSOptions.AWSAccessKey},
+		{"aws_options.secret_key", &agent.AWSOptions.AWSSecretKey},
+		{"azure_options.client_id", &agent.AzureOptions.ClientID},
+		{"azure_options.client_secret", &agent.AzureOptions.ClientSecret},
+		{"azure_options.subscription_id", &agent.AzureOptions.SubscriptionID},
+		{"azure_options.tenant_id", &agent.AzureOptions.TenantID},
+		{"mongo_options.tls_certificate_key", &agent.MongoDBOptions.TLSCertificateKey},
+		{"mongo_options.tls_certificate_key_file_password", &agent.MongoDBOptions.TLSCertificateKeyFilePassword},
+		{"mysql_options.tls_cert", &agent.MySQLOptions.TLSCert},
+		{"mysql_options.tls_key", &agent.MySQLOptions.TLSKey},
+		{"postgresql_options.ssl_cert", &agent.PostgreSQLOptions.SSLCert},
+		{"postgresql_options.ssl_key", &agent.PostgreSQLOptions.SSLKey},
+	}
+
+	for _, f := range []struct {
+		name string
+		val  **string
+	}{
+		{"username", &agent.Username},
+		{"password", &agent.Password},
+		{"agent_password", &agent.AgentPassword},
+	} {
+		if *f.val == nil {
+			continue
+		}
+
+		*f.val = new(**f.val)
+		secrets = append(secrets, agentSecret{f.name, *f.val})
+	}
+
+	return secrets
+}
+
+// CheckEncryptionKey returns ErrEncryptionKeyMismatch if this node does not hold the encryption
+// key the database was encrypted with.
 //
 // Every node of an HA cluster shares one database but keeps its own key file, so a node that
 // generated its own key cannot decrypt the credentials written by the others.
-func VerifyEncryptionKey(q reform.DBTX) error {
-	fingerprint, err := encryption.Fingerprint()
+func CheckEncryptionKey(q reform.DBTX) error {
+	_, _, err := checkEncryptionKey(q)
+	return err
+}
+
+// VerifyEncryptionKey is CheckEncryptionKey that also records this node's key fingerprint when
+// none is stored yet. It holds a lock until tx ends, so that nodes starting at the same time
+// cannot each record their own key.
+func VerifyEncryptionKey(tx *reform.TX) error {
+	_, err := tx.Exec("SELECT pg_advisory_xact_lock($1)", encryptionKeyLockID)
+	if err != nil {
+		return fmt.Errorf("failed to lock the encryption key check: %w", err)
+	}
+
+	settings, fingerprint, err := checkEncryptionKey(tx)
 	if err != nil {
 		return err
+	}
+	if settings.EncryptionKeyFingerprint != "" {
+		return nil
+	}
+
+	settings.EncryptionKeyFingerprint = fingerprint
+
+	return SaveSettings(tx, settings)
+}
+
+// checkEncryptionKey returns the settings and this node's key fingerprint.
+func checkEncryptionKey(q reform.DBTX) (*Settings, string, error) {
+	fingerprint, err := encryption.Fingerprint()
+	if err != nil {
+		return nil, "", err
 	}
 
 	settings, err := GetSettings(q)
 	if err != nil {
-		return err
+		return nil, "", err
 	}
 
 	if settings.EncryptionKeyFingerprint == "" {
 		// Either a fresh install or an upgrade from a version that did not record the
-		// fingerprint. This node's key is adopted only if it can read what is already stored.
-		err = checkStoredSecretsReadable(q, settings)
-		if err != nil {
-			return err
-		}
-
-		settings.EncryptionKeyFingerprint = fingerprint
-
-		return SaveSettings(q, settings)
+		// fingerprint. This node's key is accepted only if it can read everything already stored.
+		return settings, fingerprint, checkStoredSecretsReadable(q, settings)
 	}
 
 	if settings.EncryptionKeyFingerprint != fingerprint {
-		return fmt.Errorf("%w: this node's key fingerprint is %s, the database was encrypted with %s",
-			ErrEncryptionKeyMismatch, fingerprint, settings.EncryptionKeyFingerprint)
+		return nil, "", keyMismatchError(fingerprint, settings.EncryptionKeyFingerprint)
 	}
 
-	return nil
+	return settings, fingerprint, nil
 }
 
-// checkStoredSecretsReadable decrypts one stored agent username to tell a matching key from a
-// foreign one on databases that carry no fingerprint yet.
+func keyMismatchError(local, stored string) error {
+	return fmt.Errorf("%w: this node's key fingerprint is %s, the database was encrypted with %s",
+		ErrEncryptionKeyMismatch, local, stored)
+}
+
+// checkStoredSecretsReadable decrypts every stored agent username and password to tell a
+// matching key from a foreign one on databases that carry no fingerprint yet.
 func checkStoredSecretsReadable(q reform.DBTX, settings *Settings) error {
-	encrypted := slices.ContainsFunc(settings.EncryptedItems, func(item string) bool {
-		return strings.HasSuffix(item, ".agents.username")
-	})
-	if !encrypted {
-		// The probed column holds plaintext, so nothing there can contradict this key.
-		return nil
-	}
-
-	var username string
-	err := q.QueryRow("SELECT username FROM agents WHERE username IS NOT NULL AND username != '' LIMIT 1").Scan(&username)
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil
-	}
-	if err != nil {
-		return fmt.Errorf("failed to read stored agent credentials: %w", err)
-	}
-
-	_, err = encryption.Decrypt(username)
-	if err != nil {
-		return fmt.Errorf("%w: stored agent credentials cannot be decrypted with this node's key: %w",
-			ErrEncryptionKeyMismatch, err)
-	}
-
-	return nil
-}
-
-func agentEncryption(agent Agent, handler func(string) (string, error)) (Agent, error) {
-	apply := func(name string, val *string) error {
-		res, err := handler(*val)
-		if err != nil {
-			return fmt.Errorf("agent %s: %s: %w", agent.AgentID, name, err)
-		}
-		*val = res
-
-		return nil
-	}
-
-	// The *string fields are shared with the caller's Agent, so a copy is assigned instead of
-	// writing through the existing pointer.
-	ptr := func(name string, val *string) (*string, error) {
-		if val == nil {
-			return nil, nil //nolint:nilnil
-		}
-
-		res := *val
-		err := apply(name, &res)
-		if err != nil {
-			return nil, err
-		}
-
-		return &res, nil
-	}
-
-	var err error
-
-	agent.Username, err = ptr("username", agent.Username)
-	if err != nil {
-		return agent, err
-	}
-
-	agent.Password, err = ptr("password", agent.Password)
-	if err != nil {
-		return agent, err
-	}
-
-	agent.AgentPassword, err = ptr("agent_password", agent.AgentPassword)
-	if err != nil {
-		return agent, err
-	}
-
-	for _, f := range []struct {
-		nonEmpty bool
-		name     string
-		val      *string
-	}{
-		{!agent.AWSOptions.IsEmpty(), "aws_options.access_key", &agent.AWSOptions.AWSAccessKey},
-		{!agent.AWSOptions.IsEmpty(), "aws_options.secret_key", &agent.AWSOptions.AWSSecretKey},
-		{!agent.AzureOptions.IsEmpty(), "azure_options.client_id", &agent.AzureOptions.ClientID},
-		{!agent.AzureOptions.IsEmpty(), "azure_options.client_secret", &agent.AzureOptions.ClientSecret},
-		{!agent.AzureOptions.IsEmpty(), "azure_options.subscription_id", &agent.AzureOptions.SubscriptionID},
-		{!agent.AzureOptions.IsEmpty(), "azure_options.tenant_id", &agent.AzureOptions.TenantID},
-		{!agent.MongoDBOptions.IsEmpty(), "mongo_options.tls_certificate_key", &agent.MongoDBOptions.TLSCertificateKey},
-		{!agent.MongoDBOptions.IsEmpty(), "mongo_options.tls_certificate_key_file_password", &agent.MongoDBOptions.TLSCertificateKeyFilePassword},
-		{!agent.MySQLOptions.IsEmpty(), "mysql_options.tls_cert", &agent.MySQLOptions.TLSCert},
-		{!agent.MySQLOptions.IsEmpty(), "mysql_options.tls_key", &agent.MySQLOptions.TLSKey},
-		{!agent.PostgreSQLOptions.IsEmpty(), "postgresql_options.ssl_cert", &agent.PostgreSQLOptions.SSLCert},
-		{!agent.PostgreSQLOptions.IsEmpty(), "postgresql_options.ssl_key", &agent.PostgreSQLOptions.SSLKey},
-	} {
-		if !f.nonEmpty {
+	var total, unreadable int
+	for _, column := range []string{"username", "password"} {
+		encrypted := slices.ContainsFunc(settings.EncryptedItems, func(item string) bool {
+			return strings.HasSuffix(item, ".agents."+column)
+		})
+		if !encrypted {
+			// The column holds plaintext, so nothing in it can contradict this key.
 			continue
 		}
 
-		err = apply(f.name, f.val)
+		t, u, err := countUnreadable(q, column)
 		if err != nil {
-			return agent, err
+			return err
+		}
+		total += t
+		unreadable += u
+	}
+
+	if unreadable > 0 {
+		return fmt.Errorf("%w: %d of %d stored agent credentials cannot be decrypted with this node's key",
+			ErrEncryptionKeyMismatch, unreadable, total)
+	}
+
+	return nil
+}
+
+// countUnreadable returns how many non-empty values the column holds and how many of them this
+// node's key cannot decrypt.
+func countUnreadable(q reform.DBTX, column string) (int, int, error) {
+	rows, err := q.Query(fmt.Sprintf("SELECT %[1]s FROM agents WHERE %[1]s IS NOT NULL AND %[1]s != ''", column))
+	if err != nil {
+		return 0, 0, fmt.Errorf("failed to read stored agent credentials: %w", err)
+	}
+	defer rows.Close() //nolint:errcheck
+
+	var total, unreadable int
+	for rows.Next() {
+		var value string
+		err = rows.Scan(&value)
+		if err != nil {
+			return 0, 0, fmt.Errorf("failed to read stored agent credentials: %w", err)
+		}
+
+		total++
+		_, err = encryption.Decrypt(value)
+		if err != nil {
+			unreadable++
 		}
 	}
 
-	return agent, nil
+	err = rows.Err()
+	if err != nil {
+		return 0, 0, fmt.Errorf("failed to read stored agent credentials: %w", err)
+	}
+
+	return total, unreadable, nil
 }
 
 // EncryptAWSOptionsHandler returns encrypted AWS Options.
@@ -263,7 +337,7 @@ func azureOptionsHandler(val any, handler func(string) (string, error)) (any, er
 		return nil, err
 	}
 
-	res, err := json.Marshal(o)
+	res, err := json.Marshal(o) //nolint:gosec
 	if err != nil {
 		return nil, err
 	}

@@ -213,7 +213,7 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 			}
 		}
 		agent.PostgreSQLOptions.PGSMVersion = sInfo.PgsmVersion
-		agent.PostgreSQLOptions.DatabaseCount = int32(databaseCount - excludedDatabaseCount)
+		agent.PostgreSQLOptions.DatabaseCount = int32(databaseCount - excludedDatabaseCount) //nolint:gosec
 
 		l.Debugf("Updating PostgreSQL options, database count: %d.", agent.PostgreSQLOptions.DatabaseCount)
 		err = models.UpdateAgent(q, agent)

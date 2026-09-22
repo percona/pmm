@@ -104,17 +104,7 @@ func isTest() bool {
 
 // New creates an encryption; if key on path doesn't exist, it will be generated.
 func New() *Encryption {
-	e := &Encryption{}
-	customKeyPath := os.Getenv(CustomEncryptionKeyPathEnvVar)
-	if customKeyPath != "" {
-		e.Path = customKeyPath
-	} else {
-		if isTest() {
-			e.Path = "./encryption.key"
-		} else {
-			e.Path = DefaultEncryptionKeyPath
-		}
-	}
+	e := &Encryption{Path: KeyPath()}
 
 	bytes, err := os.ReadFile(e.Path)
 	switch {
