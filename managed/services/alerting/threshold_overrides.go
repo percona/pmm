@@ -203,13 +203,29 @@ func (s *Service) ListThresholds(ctx context.Context, req *alerting.ListThreshol
 			return err
 		}
 
-		for _, rule := range rules {
-			ruleThresholds, err := s.thresholdsForRule(tx.Querier, rule, scope, req.Target)
-			if err != nil {
-				return err
-			}
+		overrides, err := thresholdOverridesFor(tx.Querier, req.RuleId)
+		if err != nil {
+			return err
+		}
 
-			thresholds = append(thresholds, ruleThresholds...)
+		inv, err := loadThresholdInventory(tx.Querier, overrides)
+		if err != nil {
+			return err
+		}
+
+		targetName, err := s.thresholdTargetName(tx.Querier, scope, req.Target, &inv)
+		if err != nil {
+			return err
+		}
+
+		byRule := make(map[string][]*models.AlertRuleThresholdOverride, len(rules))
+		for _, override := range overrides {
+			byRule[override.RuleID] = append(byRule[override.RuleID], override)
+		}
+
+		for _, rule := range rules {
+			thresholds = append(thresholds,
+				thresholdsForRule(rule, byRule[rule.RuleID], inv, targetName, scope, req.Target)...)
 		}
 
 		return nil
@@ -225,28 +241,31 @@ func (s *Service) ListThresholds(ctx context.Context, req *alerting.ListThreshol
 	return &alerting.ListThresholdsResponse{Thresholds: thresholds}, nil
 }
 
+// thresholdOverridesFor loads the override rows a listing needs: one rule's when the
+// request names a rule, every rule's otherwise. One query either way.
+func thresholdOverridesFor(q *reform.Querier, ruleID string) ([]*models.AlertRuleThresholdOverride, error) {
+	if ruleID != "" {
+		return models.FindThresholdOverridesByRule(q, ruleID)
+	}
+
+	return models.FindAllThresholdOverrides(q)
+}
+
 // thresholdsForRule reports one registry row's thresholds. With no target it reports only
 // what has actually been overridden; with a target it reports every parameter of the rule
 // that can be overridden at the requested scope, falling back to that rule's own default
 // where nothing overrides it.
-func (s *Service) thresholdsForRule(
-	q *reform.Querier, rule *models.AlertRule, scope models.ThresholdScope, target string,
-) ([]*alerting.Threshold, error) {
-	overrides, err := models.FindThresholdOverridesByRule(q, rule.RuleID)
-	if err != nil {
-		return nil, err
-	}
-
-	inv, err := loadThresholdInventory(q, overrides)
-	if err != nil {
-		return nil, err
-	}
-
-	targetName, err := s.thresholdTargetName(q, scope, target, &inv)
-	if err != nil {
-		return nil, err
-	}
-
+//
+// Takes its overrides, inventory and resolved target name from the caller so a listing
+// spanning many rules loads them once.
+func thresholdsForRule(
+	rule *models.AlertRule,
+	overrides []*models.AlertRuleThresholdOverride,
+	inv models.ThresholdInventory,
+	targetName string,
+	scope models.ThresholdScope,
+	target string,
+) []*alerting.Threshold {
 	var thresholds []*alerting.Threshold
 
 	for paramName, param := range rule.Params {
@@ -281,7 +300,7 @@ func (s *Service) thresholdsForRule(
 		thresholds = append(thresholds, thresholdFromResolved(rule.RuleID, paramName, param, entry))
 	}
 
-	return thresholds, nil
+	return thresholds
 }
 
 // thresholdRules returns the registry rows to report on, honouring an optional filter.
