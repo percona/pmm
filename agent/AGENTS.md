@@ -27,29 +27,16 @@ The `client` package maintains a persistent bidirectional gRPC stream (`Agent.Co
 
 #### The request loop must never block indefinitely
 
-`client.processChannelRequests` is the only reader of `channel.Requests()`, and `channel.runReceiver`
-is the only goroutine that reads the stream — so it is also the only one that can deliver a response
-the loop is waiting for. A handler that waits on the server therefore forms a cycle: the loop stops
-draining the queue, the full queue stops the receiver, and the receiver can no longer deliver what
-the handler waits for. Nothing breaks that from inside; the agent goes silent while looking healthy
-(PMM-15431 on the agent, PMM-15310 on the server).
+`client.processChannelRequests` is the sole reader of `channel.Requests()`, and `channel.runReceiver` is the sole reader of the stream — the only goroutine that can deliver a response a handler is waiting for. A handler in the loop that waits on the server therefore deadlocks: the loop stops draining, the full queue blocks the receiver, and the response never arrives. The agent goes silent while still looking connected.
 
 What keeps it out:
 
-- `SetStateRequest` is queued for `client.processSetStates` and answered immediately — the response
-  means acceptance, per `agent.proto`, and the outcome arrives as `StateChanged` requests
-- `Ping` is answered by `client.processPings` from `channel.Pings()`, a single-slot queue dropped on
-  overflow, so a pong is never queued behind a request the loop has not got to yet
-- `runReceiver` gives up on the connection if the queue stays full (`requestQueueStuckTimeout`), and
-  `Channel.SendAndWaitResponse` takes a ctx, so a caller with its own deadline is bounded. That only
-  recovers as far as the blocked handler allows: `run.go` waits on `client.Done()` before redialing,
-  and that waits for `processChannelRequests`, so a handler still has to honor the canceled ctx
-- `supervisor` bounds the waits for stopping agents to one `agentsStopTimeout` budget per phase of
-  a call, so a hung exporter cannot spend what the built-in agents after it need
+- `SetStateRequest` is answered immediately (acceptance, per `agent.proto`) and applied by `client.processSetStates`; the outcome arrives as `StateChanged` requests
+- `Ping` bypasses the request queue: `client.processPings` answers from `channel.Pings()`, a single-slot queue that drops on overflow
+- `runReceiver` drops the connection if the queue stays full for `requestQueueStuckTimeout`; reconnecting still waits for `processChannelRequests` to exit, so handlers must honor ctx cancellation
+- `supervisor` spends at most one `agentsStopTimeout` per phase waiting for agents to stop
 
-`CheckConnectionRequest`, `ServiceInfoRequest` and `GetVersionsRequest` still run inline, bounded
-only by the user's own timeouts. They cannot deadlock — they do not wait on the server — but they do
-delay every request behind them, and making the loop a pure dispatcher is what PMM-4245 is about.
+`CheckConnectionRequest`, `ServiceInfoRequest` and `GetVersionsRequest` still run inline. They don't wait on the server, so they cannot deadlock, but they delay every request queued behind them.
 
 ### Local API
 
@@ -109,8 +96,7 @@ pmm-agent has **no direct database access**. All state comes from pmm-managed vi
 - Don't bypass the supervisor for agent lifecycle management
 - Don't persist agent state locally — pmm-agent has no datastore of its own; configuration arrives from pmm-managed over gRPC. Querying *monitored* databases is a separate matter: the QAN collectors read their system views through reform
 - Don't modify exporter args directly — they come from server templates
-- Don't add a handler that waits on the server (or on a stopping agent) to the request loop in
-  `client.processChannelRequests` — see [the request loop must never block indefinitely](#the-request-loop-must-never-block-indefinitely)
+- Don't add a handler that waits on the server (or on a stopping agent) to the request loop in `client.processChannelRequests` — see [the request loop must never block indefinitely](#the-request-loop-must-never-block-indefinitely)
 
 ## Testing
 
