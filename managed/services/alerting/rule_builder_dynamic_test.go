@@ -311,7 +311,10 @@ func TestJoinLabelForScopes(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			got, err := joinLabelForScopes(tc.scopes)
+			got, err := joinLabelForParam(alert.Parameter{
+				Overridable:    true,
+				OverrideScopes: tc.scopes,
+			})
 			if tc.wantErr != "" {
 				require.Error(t, err)
 				assert.Contains(t, err.Error(), tc.wantErr)
@@ -334,7 +337,7 @@ func TestObservedQueryForParamErrors(t *testing.T) {
 		template := overridableRuleTemplate()
 		template.Expressions[0].Expression = "[[ .threshold ]] > 1"
 
-		_, err := observedQueryForParam(template, "threshold")
+		_, err := template.ObservedQueryForParam("threshold")
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "not compared against any query")
 	})
@@ -342,7 +345,7 @@ func TestObservedQueryForParamErrors(t *testing.T) {
 	t.Run("parameter referenced by no expression", func(t *testing.T) {
 		t.Parallel()
 
-		_, err := observedQueryForParam(overridableRuleTemplate(), "missing")
+		_, err := overridableRuleTemplate().ObservedQueryForParam("missing")
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "not referenced by any expression")
 	})

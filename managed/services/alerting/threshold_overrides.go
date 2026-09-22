@@ -226,8 +226,9 @@ func (s *Service) ListThresholds(ctx context.Context, req *alerting.ListThreshol
 }
 
 // thresholdsForRule reports one registry row's thresholds. With no target it reports only
-// what has actually been overridden; with a target it reports every parameter of the rule,
-// falling back to that rule's own default where nothing overrides it.
+// what has actually been overridden; with a target it reports every parameter of the rule
+// that can be overridden at the requested scope, falling back to that rule's own default
+// where nothing overrides it.
 func (s *Service) thresholdsForRule(
 	q *reform.Querier, rule *models.AlertRule, scope models.ThresholdScope, target string,
 ) ([]*alerting.Threshold, error) {
@@ -249,6 +250,13 @@ func (s *Service) thresholdsForRule(
 	var thresholds []*alerting.Threshold
 
 	for paramName, param := range rule.Params {
+		// A parameter that cannot be overridden at this scope has no row to offer for
+		// this target. Listing it anyway puts a field in the UI that the write path
+		// rejects, and one rejected row rolls back every other edit in the same batch.
+		if target != "" && !slices.Contains(param.Scopes, string(scope)) {
+			continue
+		}
+
 		resolved := models.ResolveThresholdsDetailed(
 			filterOverridesByParam(overrides, paramName), param.Default, inv,
 		)

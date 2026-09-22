@@ -178,7 +178,26 @@ func TestValidateOverridableRejectsUnreferencedParam(t *testing.T) {
 
 	err := template.Validate()
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "must be referenced by an expression step")
+	assert.Contains(t, err.Error(), "not referenced by any expression")
+}
+
+// A parameter compared against another expression rather than against a query is referenced
+// by an expression, so a reference check alone accepts it - but the builder fans the default
+// out over the observed query, and there is none to find. Every CreateRule from such a
+// template would fail, so reject it when the template is uploaded instead.
+func TestValidateOverridableRejectsParamComparedAgainstAnExpression(t *testing.T) {
+	t.Parallel()
+
+	template := overridableTemplate()
+	template.Expressions = []TemplateExpression{
+		{RefID: "B", Type: "math", Expression: "$A * 2"},
+		{RefID: "C", Type: "math", Expression: "$B > [[ .threshold ]]"},
+	}
+	template.Condition = "C"
+
+	err := template.Validate()
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "not compared against any query in expression C")
 }
 
 func TestValidateOverridableRejectsNonFloat(t *testing.T) {

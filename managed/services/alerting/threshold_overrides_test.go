@@ -467,3 +467,54 @@ func TestListThresholdsFiltersByRule(t *testing.T) {
 	assert.Equal(t, otherRuleID, res.Thresholds[0].RuleId)
 	assert.InDelta(t, 50.0, res.Thresholds[0].DefaultValue, 0.0001)
 }
+
+// A parameter that cannot be overridden at the requested scope must not be listed for a
+// target of that scope. Listing it puts a field in the UI that the write path rejects, and
+// because a batch is one transaction, that one rejection rolls back every other edit.
+func TestListThresholdsFiltersByScope(t *testing.T) {
+	ctx := t.Context()
+
+	t.Run("a service-scoped parameter is absent from a node listing", func(t *testing.T) {
+		svc, db, node := setupThresholdAPI(t)
+
+		_, err := models.CreateAlertRule(db.Querier, &models.CreateAlertRuleParams{
+			RuleID: "service-scoped-rule",
+			Params: models.AlertRuleParams{
+				"threshold": {
+					Default:   90,
+					JoinLabel: "service_name",
+					Scopes:    []string{string(models.ThresholdScopeService)},
+				},
+			},
+		})
+		require.NoError(t, err)
+
+		res, err := svc.ListThresholds(ctx, &alerting.ListThresholdsRequest{
+			Scope:  alerting.ThresholdScope_THRESHOLD_SCOPE_NODE,
+			Target: node.NodeID,
+		})
+		require.NoError(t, err)
+
+		for _, threshold := range res.Thresholds {
+			assert.NotEqual(t, "service-scoped-rule", threshold.RuleId,
+				"a parameter that cannot be overridden at node scope must not be listed for a node")
+		}
+		require.Len(t, res.Thresholds, 1)
+		assert.Equal(t, thresholdTestRuleID, res.Thresholds[0].RuleId)
+	})
+
+	// Without a target the listing reports overrides that already exist, whatever scope
+	// they were set at, so the scope filter must not apply there.
+	t.Run("a target-less listing is not filtered by scope", func(t *testing.T) {
+		svc, db, node := setupThresholdAPI(t)
+
+		_, err := models.UpsertThresholdOverride(db.Querier, thresholdTestRuleID, "threshold",
+			models.ThresholdScopeNode, node.NodeID, 95)
+		require.NoError(t, err)
+
+		res, err := svc.ListThresholds(ctx, &alerting.ListThresholdsRequest{})
+		require.NoError(t, err)
+		require.Len(t, res.Thresholds, 1)
+		assert.InDelta(t, 95, res.Thresholds[0].EffectiveValue, 0.001)
+	})
+}

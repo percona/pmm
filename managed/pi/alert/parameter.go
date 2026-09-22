@@ -175,28 +175,32 @@ func (p *Parameter) validateOverride() error {
 		return fmt.Errorf("an overridable parameter must be of type float, got %s", p.Type)
 	}
 
+	_, err := p.OverrideJoinsOnNode()
+
+	return err
+}
+
+// OverrideJoinsOnNode reports whether overrides for this parameter are matched by node_name
+// rather than by service_name, validating the scope set while deciding.
+func (p *Parameter) OverrideJoinsOnNode() (bool, error) {
 	var node, service bool
 
-	for _, scope := range p.OverrideScopes {
+	for _, scope := range p.GetOverrideScopes() {
 		switch scope {
 		case OverrideScopeNode:
 			node = true
 		case OverrideScopeService, OverrideScopeCluster:
 			service = true
 		default:
-			return fmt.Errorf("unknown override scope %q", scope)
+			return false, fmt.Errorf("unknown override scope '%s'", scope)
 		}
 	}
 
-	// A node override identifies its target by node name, while service and cluster
-	// overrides both identify theirs by service name. A rule joins its threshold on one
-	// label, so a parameter offering both would silently ignore overrides set at the
-	// scope that does not match.
 	if node && service {
-		return errors.New("override scopes cannot mix node with service or cluster, which join on different labels")
+		return false, errors.New("override scopes cannot mix node with service or cluster, which join on different labels")
 	}
 
-	return nil
+	return node, nil
 }
 
 func (p *Parameter) validateValue() error {

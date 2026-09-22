@@ -19,6 +19,11 @@ Pass `scope` and `target` to get **every** overridable parameter that applies to
 overridden or not. This is what a settings screen for a single Node needs — the untouched
 parameters have to be shown alongside the changed ones.
 
+"Applies to it" means the parameter can be overridden at the scope you asked for. A
+parameter its template restricts to service scope is omitted from a node-scoped listing,
+because setting it there would be rejected — so every row you get back is one you can
+actually write.
+
 ```shell
 curl --insecure -X GET \
      --header 'Authorization: Bearer XXXXX' \

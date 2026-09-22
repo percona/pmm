@@ -55,6 +55,55 @@ func (r *Template) OverridableParams() []Parameter {
 	return params
 }
 
+// ObservedQueryForParam returns the query a parameter is compared against, which is the one
+// the default clause fans out over. It is the nearest query reference to the left of the
+// parameter's token, so a template comparing several queries in one expression -
+// `$A > [[ .a ]] && $B > [[ .b ]]` - pairs each parameter with its own query.
+//
+// Template validation calls this too, so a template whose parameter resolves to no query is
+// rejected when it is uploaded rather than on every attempt to create a rule from it.
+func (r *Template) ObservedQueryForParam(paramName string) (TemplateQuery, error) {
+	token := ParamTokenRegexp(paramName)
+
+	for _, expression := range r.Expressions {
+		loc := token.FindStringIndex(expression.Expression)
+		if loc == nil {
+			continue
+		}
+
+		preceding := expression.Expression[:loc[0]]
+
+		var (
+			found TemplateQuery
+			at    = -1
+		)
+
+		for _, query := range r.Queries {
+			ref := regexp.MustCompile(`\$` + regexp.QuoteMeta(query.RefID) + `\b`)
+
+			matches := ref.FindAllStringIndex(preceding, -1)
+			if len(matches) == 0 {
+				continue
+			}
+
+			last := matches[len(matches)-1][0]
+			if last > at {
+				at, found = last, query
+			}
+		}
+
+		if at < 0 {
+			return TemplateQuery{}, fmt.Errorf(
+				"overridable parameter '%s' is not compared against any query in expression %s", paramName, expression.RefID,
+			)
+		}
+
+		return found, nil
+	}
+
+	return TemplateQuery{}, fmt.Errorf("overridable parameter '%s' is not referenced by any expression", paramName)
+}
+
 // SingleExprSplit is a single-expression template taken apart so the builder can emit the
 // same three steps a multi-expression template produces: the observed query, an injected
 // threshold, and a math comparison between them.
@@ -129,10 +178,14 @@ func (r *Template) validateOverridableParams() error {
 
 	for _, param := range overridable {
 		if r.UsesMultipleExpressions() {
-			// The threshold is injected as a separate query step and referenced from the
-			// expression, so a parameter no expression mentions has nothing to override.
-			if !r.ParamReferencedInExpressions(param.Name) {
-				return fmt.Errorf("overridable parameter %q must be referenced by an expression step", param.Name)
+			// The threshold is injected as a separate query step and the expression
+			// compares it against a query, so it is not enough that some expression
+			// mentions the parameter: one must compare it against a query the builder can
+			// fan the default out over. Checking only the mention would accept a template
+			// that fails at every CreateRule instead of at upload.
+			_, err := r.ObservedQueryForParam(param.Name)
+			if err != nil {
+				return err
 			}
 
 			continue

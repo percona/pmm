@@ -119,7 +119,7 @@ func buildDesugaredRuleData(
 		return nil, "", fmt.Errorf("failed to split expression for parameter %q: %w", param.Name, err)
 	}
 
-	joinLabel, err := joinLabelForScopes(param.GetOverrideScopes())
+	joinLabel, err := joinLabelForParam(param)
 	if err != nil {
 		return nil, "", fmt.Errorf("parameter %q: %w", param.Name, err)
 	}
@@ -347,12 +347,12 @@ func planThresholdInjections(template *alert.Template, ruleID string, params map
 
 	injections := make([]thresholdInjection, 0, len(overridable))
 	for _, param := range overridable {
-		joinLabel, err := joinLabelForScopes(param.GetOverrideScopes())
+		joinLabel, err := joinLabelForParam(param)
 		if err != nil {
 			return nil, fmt.Errorf("parameter %q: %w", param.Name, err)
 		}
 
-		observed, err := observedQueryForParam(template, param.Name)
+		observed, err := template.ObservedQueryForParam(param.Name)
 		if err != nil {
 			return nil, err
 		}
@@ -408,25 +408,14 @@ func thresholdQueryExpr(ruleID, paramName, joinLabel, observedExpr, defaultValue
 	)
 }
 
-// joinLabelForScopes derives the join label from the scopes a parameter may be overridden
-// at. Node overrides resolve to a node_name while service and cluster overrides both
-// resolve to a service_name, so a parameter cannot mix node with the other two: a rule
-// joins on one label, and overrides landing in the other namespace would never match.
-func joinLabelForScopes(scopes []string) (string, error) {
-	var node, service bool
-	for _, scope := range scopes {
-		switch scope {
-		case alert.OverrideScopeNode:
-			node = true
-		case alert.OverrideScopeService, alert.OverrideScopeCluster:
-			service = true
-		default:
-			return "", fmt.Errorf("unknown override scope %q", scope)
-		}
-	}
-
-	if node && service {
-		return "", fmt.Errorf("override scopes %v mix node with service or cluster, which join on different labels", scopes)
+// joinLabelForParam derives the join label from the scopes a parameter may be overridden at.
+// The node-versus-service rule itself lives on Parameter.OverrideJoinsOnNode, which template
+// validation also uses, so a template can never validate against one rule and build against
+// another.
+func joinLabelForParam(param alert.Parameter) (string, error) {
+	node, err := param.OverrideJoinsOnNode()
+	if err != nil {
+		return "", err
 	}
 
 	if node {
@@ -434,52 +423,6 @@ func joinLabelForScopes(scopes []string) (string, error) {
 	}
 
 	return serviceJoinLabel, nil
-}
-
-// observedQueryForParam returns the query a parameter is compared against, which is the
-// one the default clause fans out over. It is the nearest query reference to the left of
-// the parameter's token, so a template comparing several queries in one expression -
-// `$A > [[ .a ]] && $B > [[ .b ]]` - pairs each parameter with its own query.
-func observedQueryForParam(template *alert.Template, paramName string) (alert.TemplateQuery, error) {
-	token := alert.ParamTokenRegexp(paramName)
-
-	for _, expression := range template.Expressions {
-		loc := token.FindStringIndex(expression.Expression)
-		if loc == nil {
-			continue
-		}
-
-		preceding := expression.Expression[:loc[0]]
-
-		var (
-			found alert.TemplateQuery
-			at    = -1
-		)
-
-		for _, query := range template.Queries {
-			ref := regexp.MustCompile(`\$` + regexp.QuoteMeta(query.RefID) + `\b`)
-
-			matches := ref.FindAllStringIndex(preceding, -1)
-			if len(matches) == 0 {
-				continue
-			}
-
-			last := matches[len(matches)-1][0]
-			if last > at {
-				at, found = last, query
-			}
-		}
-
-		if at < 0 {
-			return alert.TemplateQuery{}, fmt.Errorf(
-				"overridable parameter %q is not compared against any query in expression %s", paramName, expression.RefID,
-			)
-		}
-
-		return found, nil
-	}
-
-	return alert.TemplateQuery{}, fmt.Errorf("overridable parameter %q is not referenced by any expression", paramName)
 }
 
 // allocateThresholdRefID derives a ref ID for a parameter's threshold query, suffixing it

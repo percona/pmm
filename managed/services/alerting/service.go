@@ -901,7 +901,7 @@ func collectOverridableParams(template *alert.Template, values AlertExprParamsVa
 	params := make(models.AlertRuleParams, len(overridable))
 
 	for _, param := range overridable {
-		joinLabel, err := joinLabelForScopes(param.GetOverrideScopes())
+		joinLabel, err := joinLabelForParam(param)
 		if err != nil {
 			return nil, fmt.Errorf("parameter %q: %w", param.Name, err)
 		}
