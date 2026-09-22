@@ -5,21 +5,14 @@ import ResetValueCell from './reset-value-cell';
 import { Messages } from './AlertThresholds.messages';
 import { formatUnit } from './AlertThresholds.utils';
 
-// Maps the backend ParamUnit enum to a display symbol.
-export const UNIT_SYMBOLS: Record<string, string> = {
-  PARAM_UNIT_PERCENTAGE: '%',
-  PARAM_UNIT_SECONDS: 's',
-};
-
 export const ALERT_THRESHOLDS_COLUMNS: MRT_ColumnDef<AlertThresholdRow>[] = [
   {
     accessorKey: 'ruleTitle',
     header: Messages.table.columns.ruleTitle,
   },
   {
-    accessorKey: 'summary',
+    accessorKey: 'paramName',
     header: Messages.table.columns.parameter,
-    Cell: ({ row: { original } }) => original.paramName,
   },
   {
     accessorKey: 'defaultValue',
@@ -62,6 +55,7 @@ export const ALERT_THRESHOLDS_COLUMNS: MRT_ColumnDef<AlertThresholdRow>[] = [
   },
   {
     id: 'unit',
+    accessorFn: (row) => formatUnit(row.unit),
     size: 80,
     grow: false,
     header: Messages.table.columns.unit,

@@ -71,18 +71,6 @@ export const getThresholds = async (
   return res.data;
 };
 
-export const setThreshold = async (update: Required<ThresholdUpdate>) => {
-  const res = await api.post('alerting/thresholds', update);
-  return res.data;
-};
-
-export const clearThreshold = async (
-  update: Omit<ThresholdUpdate, 'value'>
-) => {
-  const res = await api.post('alerting/thresholds:clear', update);
-  return res.data;
-};
-
 export const batchUpdateThresholds = async (updates: ThresholdUpdate[]) => {
   const res = await api.post<BatchUpdateThresholdsResponse>(
     'alerting/thresholds:batchUpdate',

@@ -8,7 +8,11 @@ import type {
   AlertThresholdRow,
   AlertThresholdsFormValues,
 } from './AlertThresholds.types';
-import { UNIT_SYMBOLS } from './AlertThresholds.constants';
+
+export const UNIT_SYMBOLS: Record<string, string> = {
+  PARAM_UNIT_PERCENTAGE: '%',
+  PARAM_UNIT_SECONDS: 's',
+};
 
 export const formatUnit = (unit?: string): string =>
   (unit && UNIT_SYMBOLS[unit]) || '';
@@ -98,7 +102,10 @@ export const buildThresholdUpdates = (
     };
 
     if (cleared || parsed === row.defaultValue) {
-      if (row.isOverridden) {
+      const ownOverride =
+        row.isOverridden && row.scope === scope && row.target === target;
+
+      if (ownOverride) {
         updates.push(base);
       }
       continue;

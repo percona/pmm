@@ -120,8 +120,17 @@ const AlertThresholds = () => {
     );
 
     if (updates.length > 0) {
-      // One transactional call: either every row lands or none does.
-      await applyThresholds(updates);
+      try {
+        // One transactional call: either every row lands or none does.
+        await applyThresholds(updates);
+      } catch {
+        // Nothing was applied, so the modal stays open with the operator's edits intact
+        // rather than closing as though the changes had been saved.
+        enqueueSnackbar(Messages.error.update, { variant: 'error' });
+
+        return;
+      }
+
       enqueueSnackbar(Messages.success.updated, { variant: 'success' });
     }
 
@@ -153,6 +162,7 @@ const AlertThresholds = () => {
               tableName="alert-thresholds"
               columns={ALERT_THRESHOLDS_COLUMNS}
               data={rows}
+              getRowId={(row) => row.id}
               enableHiding={false}
               muiTableContainerProps={{
                 sx: {

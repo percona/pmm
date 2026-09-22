@@ -19,6 +19,8 @@ const rulesResponse = (
     data: { groups: [{ rules }] },
   }) as PrometheusAlertRulesResponse;
 
+// The API reports scope/target alongside an override, naming where the effective value
+// came from, so a row standing in for one carries them too.
 const row = (over: Partial<AlertThresholdRow> = {}): AlertThresholdRow => ({
   id: 'rule-1:threshold:0',
   ruleId: 'rule-1',
@@ -27,6 +29,8 @@ const row = (over: Partial<AlertThresholdRow> = {}): AlertThresholdRow => ({
   defaultValue: 80,
   effectiveValue: 80,
   isOverridden: false,
+  scope: NODE,
+  target: 'node-1',
   ...over,
 });
 
@@ -198,6 +202,35 @@ describe('buildThresholdUpdates', () => {
     const updates = buildThresholdUpdates(
       rows,
       { [rows[0].id]: 80 },
+      NODE,
+      'node-1'
+    );
+
+    expect(updates).toHaveLength(1);
+    expect(updates[0]).not.toHaveProperty('value');
+  });
+
+  it('does not clear an override inherited from a broader scope', () => {
+    const rows = [
+      row({
+        isOverridden: true,
+        effectiveValue: 95,
+        scope: 'THRESHOLD_SCOPE_CLUSTER',
+        target: 'prod',
+      }),
+    ];
+
+    expect(
+      buildThresholdUpdates(rows, { [rows[0].id]: undefined }, NODE, 'node-1')
+    ).toEqual([]);
+  });
+
+  it('clears an override set on the target being edited', () => {
+    const rows = [row({ isOverridden: true, effectiveValue: 95 })];
+
+    const updates = buildThresholdUpdates(
+      rows,
+      { [rows[0].id]: undefined },
       NODE,
       'node-1'
     );
