@@ -72,16 +72,18 @@ function paginated<T>(items: T[], total = items.length, limit = 50) {
  * Route GETs for the list page: incidents vs delivery config. Config defaults
  * to configured (no reasons) so most tests stay quiet about ServiceNow.
  */
-function routeGet(options: {
-  incidents?: AtwIncident[] | 'reject' | 'hang';
-  incidentsPage?: {
-    items: AtwIncident[];
-    total: number;
-    offset: number;
-    limit: number;
-  };
-  config?: { send_disabled_reasons?: string[] };
-} = {}) {
+function routeGet(
+  options: {
+    incidents?: AtwIncident[] | 'reject' | 'hang';
+    incidentsPage?: {
+      items: AtwIncident[];
+      total: number;
+      offset: number;
+      limit: number;
+    };
+    config?: { send_disabled_reasons?: string[] };
+  } = {}
+) {
   mockedApi.get.mockImplementation((url: string) => {
     if (url.includes('/config/')) {
       return Promise.resolve({
@@ -164,9 +166,9 @@ describe('IncidentListPage', () => {
       Messages.create
     );
     // Only the empty-state CTA — no second header button.
-    expect(screen.getAllByRole('button', { name: /New incident/i })).toHaveLength(
-      1
-    );
+    expect(
+      screen.getAllByRole('button', { name: /New incident/i })
+    ).toHaveLength(1);
   });
 
   it('withholds the create button when the list request failed', async () => {
@@ -489,9 +491,10 @@ describe('IncidentListPage — ServiceNow connection banner', () => {
     expect(
       screen.getByText(/Sending requires a valid ServiceNow connection/i)
     ).toBeTruthy();
-    expect(
-      screen.getByTestId('atw-send-unavailable-settings')
-    ).toHaveAttribute('href', SETTINGS_PATH);
+    expect(screen.getByTestId('atw-send-unavailable-settings')).toHaveAttribute(
+      'href',
+      SETTINGS_PATH
+    );
   });
 
   it('explains without a Settings control when the host offers no route', async () => {
@@ -546,8 +549,9 @@ describe('IncidentListPage — ServiceNow connection banner', () => {
       expect(screen.getByText('DB slowness')).toBeTruthy();
     });
     expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
-    expect(
-      screen.getByTestId('atw-send-unavailable-settings')
-    ).toHaveAttribute('href', SETTINGS_PATH);
+    expect(screen.getByTestId('atw-send-unavailable-settings')).toHaveAttribute(
+      'href',
+      SETTINGS_PATH
+    );
   });
 });

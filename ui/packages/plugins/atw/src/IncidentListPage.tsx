@@ -183,9 +183,7 @@ export function IncidentListPage() {
         </Alert>
       )}
 
-      {canMutate && sendDisabledReasons.length > 0 && (
-        <SendUnavailableNotice />
-      )}
+      {canMutate && sendDisabledReasons.length > 0 && <SendUnavailableNotice />}
 
       {!isLoading && !error && !hasIncidents && (
         <IncidentsEmptyState
