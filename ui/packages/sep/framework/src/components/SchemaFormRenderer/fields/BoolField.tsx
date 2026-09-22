@@ -15,9 +15,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useId } from 'react';
+import { get, useFormContext, useWatch } from 'react-hook-form';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
+import FormHelperText from '@mui/material/FormHelperText';
 import { SwitchInput } from '@percona/peak-ui';
 import { FieldHelpIcon } from '../FieldLabelWithHelp';
 import { fieldHelp } from '../fieldHelp';
@@ -28,7 +30,9 @@ interface BoolFieldProps {
 }
 
 export function BoolField({ field }: BoolFieldProps) {
-  const { control } = useFormContext();
+  const { control, formState } = useFormContext();
+  const error = get(formState.errors, field.name);
+  const errorId = useId();
   const help = fieldHelp(field);
   const value = useWatch({ control, name: field.name });
 
@@ -41,7 +45,20 @@ export function BoolField({ field }: BoolFieldProps) {
             label={field.label}
             labelCaption={help.inline}
             control={control}
+            switchFieldProps={{
+              slotProps: {
+                input: {
+                  'aria-invalid': Boolean(error),
+                  'aria-describedby': error ? errorId : undefined,
+                },
+              },
+            }}
           />
+          {error && (
+            <FormHelperText error id={errorId}>
+              {error.message}
+            </FormHelperText>
+          )}
         </Box>
         {help.tooltip ? (
           <FieldHelpIcon description={help.tooltip} label={field.label} />
