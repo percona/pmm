@@ -235,7 +235,7 @@ Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITH
 
 User-facing docs are Markdown under [`documentation/docs/`](documentation/docs/). The rules for writing them — voice, page structure, Markdown conventions, release-note entries — are in [`documentation/AGENTS.md`](documentation/AGENTS.md); read it before editing anything under `documentation/`. It links out to [`WRITERS-NOTES.md`](documentation/WRITERS-NOTES.md) (admonition colours, icons, symbols) and [`documentation/CONTRIBUTING.md`](documentation/CONTRIBUTING.md) (contributor workflow + local preview) for the parts those files own. MkDocs config lives in [`documentation/`](documentation/); this is separate from the developer process docs in [`dev/docs/process/`](dev/docs/process/).
 
-A merge to `main` publishes the documentation live, so don't merge docs for a feature that has not shipped.
+Documentation is published from the release branch of the latest GA version, not from `main`, so docs merged with an unreleased feature stay private until it ships. A fix to live docs goes to that release branch and must also reach `main`.
 
 ---
 
