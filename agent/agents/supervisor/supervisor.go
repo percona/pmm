@@ -886,7 +886,6 @@ func (s *Supervisor) handleNomadAgent(
 	processInfo *agentProcessInfo,
 	l *logrus.Entry,
 ) {
-	done := make(chan struct{})
 	s.agentProcesses[agentID] = processInfo
 
 	status := inventoryv1.AgentStatus_AGENT_STATUS_DONE
@@ -909,8 +908,6 @@ func (s *Supervisor) handleNomadAgent(
 	default:
 		l.Warnf("Dropping status %s: nothing is draining the status channel.", status)
 	}
-
-	close(done)
 }
 
 // startBuiltin starts built-in Agent.
