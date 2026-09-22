@@ -70,6 +70,10 @@ const storeReturnTo = (path: string) =>
     JSON.stringify({ path, at: Date.now() })
   );
 
+const setSessionExpiry = (unixSeconds: number) => {
+  document.cookie = `grafana_session_expiry=${unixSeconds}`;
+};
+
 /**
  * Stands in for GrafanaProvider relaying the iframe's own URL rewrite back into the shell router:
  * Grafana appends timezone/var-* once a dashboard loads and reports it via LOCATION_CHANGE.
@@ -122,6 +126,8 @@ describe('AuthProvider', () => {
     cleanup();
     sessionStorage.clear();
     localStorage.clear();
+    document.cookie =
+      'grafana_session_expiry=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
   });
 
   afterAll(() => {
@@ -143,6 +149,8 @@ describe('AuthProvider', () => {
     expect(stored).not.toBeNull();
     expect(JSON.parse(stored ?? '{}').path).toBe(DEEP_LINK);
     expect(screen.queryByTestId('probe')).not.toBeInTheDocument();
+    // this query gates the first paint, so a failure must not sit behind a backoff
+    expect(mocks.rotateToken).toHaveBeenCalledTimes(1);
   });
 
   it('restores the remembered URL before rendering children', async () => {
@@ -176,6 +184,7 @@ describe('AuthProvider', () => {
     await screen.findByTestId('probe');
     expect(renderedLocations).toContain('/graph|true');
     expect(replaceMock).not.toHaveBeenCalled();
+    expect(mocks.rotateToken).toHaveBeenCalledTimes(1);
   });
 
   it('neither redirects nor remembers anything when anonymous access is on', async () => {
@@ -231,5 +240,34 @@ describe('AuthProvider', () => {
     expect(renderedLocations[renderedLocations.length - 1]).toBe(
       `${expanded}|true`
     );
+  });
+
+  // Timers are frozen in hidden tabs, so the scheduled rotation can be missed outright.
+  it('rotates on return to the tab when the deadline has passed', async () => {
+    mocks.rotateToken.mockResolvedValue({ token: 'ok' });
+
+    renderProvider('/graph');
+    await screen.findByTestId('probe');
+
+    setSessionExpiry(Math.floor(Date.now() / 1000) - 60);
+    // React Query's focus manager listens on `window`, which the real event reaches by
+    // bubbling up from `document`.
+    document.dispatchEvent(new Event('visibilitychange', { bubbles: true }));
+
+    await waitFor(() => expect(mocks.rotateToken).toHaveBeenCalledTimes(2));
+  });
+
+  it('does not rotate on return to the tab while the session is still valid', async () => {
+    mocks.rotateToken.mockResolvedValue({ token: 'ok' });
+    setSessionExpiry(Math.floor(Date.now() / 1000) + 3600);
+
+    renderProvider('/graph');
+    await screen.findByTestId('probe');
+
+    // React Query's focus manager listens on `window`, which the real event reaches by
+    // bubbling up from `document`.
+    document.dispatchEvent(new Event('visibilitychange', { bubbles: true }));
+
+    await waitFor(() => expect(mocks.rotateToken).toHaveBeenCalledTimes(1));
   });
 });

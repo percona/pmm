@@ -16,7 +16,11 @@ import {
   useClientSession,
 } from './auth.clientSession';
 import { ROTATE_TOKEN_QUERY_KEY } from './auth.queryKeys';
-import { getRefetchInterval, redirectToLogin } from './auth.utils';
+import {
+  getRefetchInterval,
+  isSessionExpired,
+  redirectToLogin,
+} from './auth.utils';
 import { consumeReturnTo } from './auth.returnTo';
 import { constructUrl } from 'utils/link.utils';
 import { AxiosError, HttpStatusCode } from 'axios';
@@ -43,6 +47,7 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
     },
     refetchInterval: () => getRefetchInterval(),
     refetchIntervalInBackground: true,
+    refetchOnWindowFocus: () => (isSessionExpired() ? 'always' : false),
     retry: false,
   });
 
