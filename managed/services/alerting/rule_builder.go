@@ -80,7 +80,7 @@ func buildGrafanaRuleData(
 	ruleID string,
 	params map[string]string,
 	filters []*alertingv1.Filter,
-) ([]services.Data, string, error) {
+) ([]services.Data, string, map[string]string, error) {
 	if template.UsesMultipleExpressions() {
 		return buildMultiExpressionRuleData(template, metricsDatasourceUID, ruleID, params, filters)
 	}
@@ -92,15 +92,15 @@ func buildGrafanaRuleData(
 
 	expr, err := fillAndFilterExpr(template.Expr, params, filters)
 	if err != nil {
-		return nil, "", err
+		return nil, "", nil, err
 	}
 
 	data, err := newPromQueryData(metricsDatasourceUID, "A", expr)
 	if err != nil {
-		return nil, "", err
+		return nil, "", nil, err
 	}
 
-	return []services.Data{data}, "A", nil
+	return []services.Data{data}, "A", nil, nil
 }
 
 // buildDesugaredRuleData turns a single-expression template into the same three steps a
@@ -113,32 +113,32 @@ func buildDesugaredRuleData(
 	param alert.Parameter,
 	params map[string]string,
 	filters []*alertingv1.Filter,
-) ([]services.Data, string, error) {
+) ([]services.Data, string, map[string]string, error) {
 	split, err := alert.SplitSingleExpr(template.Expr, param.Name)
 	if err != nil {
-		return nil, "", fmt.Errorf("failed to split expression for parameter %q: %w", param.Name, err)
+		return nil, "", nil, fmt.Errorf("failed to split expression for parameter %q: %w", param.Name, err)
 	}
 
 	joinLabel, err := joinLabelForParam(param)
 	if err != nil {
-		return nil, "", fmt.Errorf("parameter %q: %w", param.Name, err)
+		return nil, "", nil, fmt.Errorf("parameter %q: %w", param.Name, err)
 	}
 
 	defaultValue, ok := params[param.Name]
 	if !ok {
-		return nil, "", fmt.Errorf("no value supplied for overridable parameter %q", param.Name)
+		return nil, "", nil, fmt.Errorf("no value supplied for overridable parameter %q", param.Name)
 	}
 
 	// The observed query carries the alert's filters; the threshold deliberately does not,
 	// since a filtered threshold would leave the targets the filter excludes with none.
 	observed, err := fillAndFilterExpr(split.LHS, params, filters)
 	if err != nil {
-		return nil, "", err
+		return nil, "", nil, err
 	}
 
 	fanOut, err := fillExprWithParams(split.LHS, params)
 	if err != nil {
-		return nil, "", err
+		return nil, "", nil, err
 	}
 
 	// A and C are fixed here, unlike the multi-expression path where the template chooses
@@ -151,13 +151,13 @@ func buildDesugaredRuleData(
 
 	query, err := newPromQueryData(metricsDatasourceUID, desugaredQueryRefID, observed)
 	if err != nil {
-		return nil, "", err
+		return nil, "", nil, err
 	}
 
 	threshold, err := newPromQueryData(metricsDatasourceUID, thresholdRefID,
 		thresholdQueryExpr(ruleID, param.Name, joinLabel, fanOut, defaultValue))
 	if err != nil {
-		return nil, "", err
+		return nil, "", nil, err
 	}
 
 	// The template's `bool` modifier, if any, is dropped: Grafana math comparisons already
@@ -165,10 +165,11 @@ func buildDesugaredRuleData(
 	condition, err := newMathExpressionData(desugaredConditionRefID,
 		fmt.Sprintf("$%s %s $%s", desugaredQueryRefID, split.Operator, thresholdRefID))
 	if err != nil {
-		return nil, "", err
+		return nil, "", nil, err
 	}
 
-	return []services.Data{query, threshold, condition}, desugaredConditionRefID, nil
+	return []services.Data{query, threshold, condition}, desugaredConditionRefID,
+		map[string]string{param.Name: thresholdRefID}, nil
 }
 
 func buildMultiExpressionRuleData(
@@ -177,10 +178,10 @@ func buildMultiExpressionRuleData(
 	ruleID string,
 	params map[string]string,
 	filters []*alertingv1.Filter,
-) ([]services.Data, string, error) {
+) ([]services.Data, string, map[string]string, error) {
 	injections, err := planThresholdInjections(template, ruleID, params)
 	if err != nil {
-		return nil, "", err
+		return nil, "", nil, err
 	}
 
 	data := make([]services.Data, 0, len(template.Queries)+len(template.Expressions)+len(injections))
@@ -188,12 +189,12 @@ func buildMultiExpressionRuleData(
 	for _, query := range template.Queries {
 		expr, err := fillAndFilterExpr(query.Expr, params, filters)
 		if err != nil {
-			return nil, "", fmt.Errorf("failed to fill query %s: %w", query.RefID, err)
+			return nil, "", nil, fmt.Errorf("failed to fill query %s: %w", query.RefID, err)
 		}
 
 		item, err := newPromQueryData(metricsDatasourceUID, query.RefID, expr)
 		if err != nil {
-			return nil, "", err
+			return nil, "", nil, err
 		}
 
 		data = append(data, item)
@@ -202,7 +203,7 @@ func buildMultiExpressionRuleData(
 	for _, injection := range injections {
 		item, err := newPromQueryData(metricsDatasourceUID, injection.refID, injection.expr)
 		if err != nil {
-			return nil, "", err
+			return nil, "", nil, err
 		}
 
 		data = append(data, item)
@@ -215,18 +216,23 @@ func buildMultiExpressionRuleData(
 
 		expr, err := fillExprWithParams(body, params)
 		if err != nil {
-			return nil, "", fmt.Errorf("failed to fill expression %s: %w", expression.RefID, err)
+			return nil, "", nil, fmt.Errorf("failed to fill expression %s: %w", expression.RefID, err)
 		}
 
 		item, err := newMathExpressionData(expression.RefID, expr)
 		if err != nil {
-			return nil, "", err
+			return nil, "", nil, err
 		}
 
 		data = append(data, item)
 	}
 
-	return data, template.Condition, nil
+	thresholdRefs := make(map[string]string, len(injections))
+	for _, injection := range injections {
+		thresholdRefs[injection.paramName] = injection.refID
+	}
+
+	return data, template.Condition, thresholdRefs, nil
 }
 
 func fillAndFilterExpr(expr string, params map[string]string, filters []*alertingv1.Filter) (string, error) {
@@ -467,6 +473,22 @@ var desugaredBareValueRegexp = regexp.MustCompile(`\{\{\s*\$value\s*\}\}`)
 // isDesugaredRule reports whether this rule is built by splitting a single expression apart.
 func isDesugaredRule(template *alert.Template, ruleID string) bool {
 	return ruleID != "" && !template.UsesMultipleExpressions() && len(template.OverridableParams()) != 0
+}
+
+// rewriteOverridableAnnotations repoints an overridable parameter's placeholder at the
+// threshold step that resolves it, so the alert text reports the value the rule actually
+// fired on rather than the template default.
+func rewriteOverridableAnnotations(annotations map[string]string, thresholdRefs map[string]string) {
+	for paramName, refID := range thresholdRefs {
+		token := alert.ParamTokenRegexp(paramName)
+		// `%g` keeps a whole number whole - 80 rather than 80.00 - while still carrying
+		// the decimals of a fractional threshold.
+		value := `{{ printf "%g" $values.` + refID + `.Value }}`
+
+		for key, text := range annotations {
+			annotations[key] = token.ReplaceAllLiteralString(text, value)
+		}
+	}
 }
 
 // rewriteDesugaredAnnotations repoints Grafana's `$value` at the observed query.

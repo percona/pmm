@@ -29,7 +29,7 @@ import (
 func TestBuildGrafanaRuleDataSingleExpression(t *testing.T) {
 	t.Parallel()
 
-	data, condition, err := buildGrafanaRuleData(&alert.Template{
+	data, condition, _, err := buildGrafanaRuleData(&alert.Template{
 		Expr: "up == 1",
 	}, "metrics-uid", "", nil, nil)
 	require.NoError(t, err)
@@ -42,7 +42,7 @@ func TestBuildGrafanaRuleDataSingleExpression(t *testing.T) {
 func TestBuildGrafanaRuleDataMultiExpression(t *testing.T) {
 	t.Parallel()
 
-	data, condition, err := buildGrafanaRuleData(&alert.Template{
+	data, condition, _, err := buildGrafanaRuleData(&alert.Template{
 		Queries: []alert.TemplateQuery{
 			{RefID: "A", Expr: "cpu > 0"},
 			{RefID: "B", Expr: "vector(80)"},
@@ -74,7 +74,7 @@ func TestBuildGrafanaRuleDataMultiExpression(t *testing.T) {
 func TestBuildGrafanaRuleDataMultiExpressionWithParamsAndFilters(t *testing.T) {
 	t.Parallel()
 
-	data, condition, err := buildGrafanaRuleData(&alert.Template{
+	data, condition, _, err := buildGrafanaRuleData(&alert.Template{
 		Queries: []alert.TemplateQuery{
 			{RefID: "A", Expr: `rate(node_cpu_seconds_total{mode="idle"}[[ .window ]])`},
 			{RefID: "B", Expr: "vector([[ .threshold ]])"},
@@ -113,7 +113,7 @@ func TestBuildGrafanaRuleDataMultiExpressionWithParamsAndFilters(t *testing.T) {
 func TestBuildGrafanaRuleDataModelContract(t *testing.T) {
 	t.Parallel()
 
-	data, _, err := buildGrafanaRuleData(&alert.Template{
+	data, _, _, err := buildGrafanaRuleData(&alert.Template{
 		Queries: []alert.TemplateQuery{
 			{RefID: "A", Expr: "cpu"},
 			{RefID: "B", Expr: "vector(80)"},
@@ -148,7 +148,7 @@ func TestBuildGrafanaRuleDataModelContract(t *testing.T) {
 func TestBuildGrafanaRuleDataMismatchFilter(t *testing.T) {
 	t.Parallel()
 
-	data, _, err := buildGrafanaRuleData(&alert.Template{
+	data, _, _, err := buildGrafanaRuleData(&alert.Template{
 		Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "up"}},
 		Expressions: []alert.TemplateExpression{{RefID: "C", Type: "math", Expression: "$A > 0"}},
 		Condition:   "C",
@@ -205,7 +205,7 @@ func TestBuildGrafanaRuleDataMultiExpressionErrors(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, _, err := buildGrafanaRuleData(tc.tmpl, "metrics-uid", "", map[string]string{}, tc.filters)
+			_, _, _, err := buildGrafanaRuleData(tc.tmpl, "metrics-uid", "", map[string]string{}, tc.filters)
 			require.Error(t, err)
 			assert.Contains(t, err.Error(), tc.wantErr)
 		})

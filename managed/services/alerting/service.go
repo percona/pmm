@@ -755,7 +755,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		}
 	}
 
-	ruleData, condition, err := buildGrafanaRuleData(alertTemplate, metricsDatasourceUID, ruleID, paramsValues.AsStringMap(), req.Filters)
+	ruleData, condition, thresholdRefs, err := buildGrafanaRuleData(alertTemplate, metricsDatasourceUID, ruleID, paramsValues.AsStringMap(), req.Filters)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build alert rule data: %w", err)
 	}
@@ -764,6 +764,8 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	if err != nil {
 		return nil, fmt.Errorf("failed to get template annotations: %w", err)
 	}
+
+	rewriteOverridableAnnotations(ta, thresholdRefs)
 
 	// Copy annotations form template
 	annotations := make(map[string]string)
