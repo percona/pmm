@@ -10,9 +10,7 @@ import {
   NotistackMuiSnackbar,
 } from '@percona/peak-ui';
 import { ThemeClass } from 'components/theme-class';
-import { useEffect } from 'react';
 import type { ComponentType } from 'react';
-import { addApiErrorInterceptor, removeApiErrorInterceptor } from 'api/api';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,13 +22,6 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  useEffect(() => {
-    addApiErrorInterceptor();
-    return () => {
-      removeApiErrorInterceptor();
-    };
-  }, []);
-
   return (
     <ThemeContextProvider themeOptions={pmmThemeOptions}>
       <ThemeClass />

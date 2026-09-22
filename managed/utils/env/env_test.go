@@ -16,6 +16,7 @@
 package env
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -72,6 +73,79 @@ func TestGetBool(t *testing.T) {
 			}
 			result := GetBool(tt.envKey)
 			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestSEPEnabled(t *testing.T) {
+	tests := []struct {
+		name     string
+		set      bool
+		envValue string
+		expected bool
+	}{
+		{
+			name:     "not set",
+			expected: false,
+		},
+		{
+			name:     "empty",
+			set:      true,
+			envValue: "",
+			expected: false,
+		},
+		{
+			name:     "1",
+			set:      true,
+			envValue: "1",
+			expected: true,
+		},
+		{
+			name:     "true",
+			set:      true,
+			envValue: "true",
+			expected: true,
+		},
+		{
+			name:     "0",
+			set:      true,
+			envValue: "0",
+			expected: false,
+		},
+		{
+			name:     "false",
+			set:      true,
+			envValue: "false",
+			expected: false,
+		},
+		// The container entrypoint treats only "1" and "true" as enabled, so
+		// these must not enable SEP here either: the API would advertise
+		// navigation that nginx has no location block to route.
+		{
+			name:     "True",
+			set:      true,
+			envValue: "True",
+			expected: false,
+		},
+		{
+			name:     "yes",
+			set:      true,
+			envValue: "yes",
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.set {
+				t.Setenv(EnableSEP, tt.envValue)
+			} else {
+				// Setenv first, so the original value is restored on cleanup.
+				t.Setenv(EnableSEP, "")
+				os.Unsetenv(EnableSEP)
+			}
+
+			assert.Equal(t, tt.expected, SEPEnabled())
 		})
 	}
 }
