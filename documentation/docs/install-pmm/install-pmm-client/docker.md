@@ -171,7 +171,7 @@ After installing PMM Client, you add database services to monitor with the [`pmm
 docker exec -t pmm-client pmm-admin add mysql --username=pmm --password=pass --query-source=perfschema --host=mysql-host
 ```
 
-If you would rather declare the Services together with the container, use the `PMM_AGENT_PRERUN_SCRIPT` argument to pass a script with the `pmm-admin add DATABASE [FLAGS] [NAME] [ADDRESS]` commands. The pmm-agent runs the script on every start, after setup. `pmm-admin add` reports a Service which exists already as an error, and a failing script stops the container, so make the script tolerate the Services it added on an earlier start, for example by appending `|| true` to each command. For example:
+If you would rather declare the Services together with the container, use the `PMM_AGENT_PRERUN_SCRIPT` argument to pass a script with the `pmm-admin add DATABASE [FLAGS] [NAME] [ADDRESS]` commands. `pmm-agent` runs the script on every start, after setup. `pmm-admin add` reports a Service which exists already as an error, and a failing script stops the container, so make the script tolerate the Services it added on an earlier start, for example by appending `|| true` to each command.
 
 ```bash
  docker run \
