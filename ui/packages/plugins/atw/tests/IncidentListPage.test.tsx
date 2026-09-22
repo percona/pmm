@@ -21,7 +21,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import type { ReactNode } from 'react';
+import { DeliverySettingsProvider } from '../src/deliverySettings';
 import { IncidentListPage } from '../src/IncidentListPage';
+import {
+  Messages,
+  SUPPORT_DIAGNOSTICS_DOCS_URL,
+} from '../src/IncidentsEmptyState.messages';
 import type { AtwIncident } from '../src/types';
 
 /** Flipped per test to cover the read-only (non-admin) rendering. */
@@ -45,6 +50,8 @@ const mockedApi = apiClient as unknown as {
   delete: ReturnType<typeof vi.fn>;
 };
 
+const SETTINGS_PATH = '/settings/servicenow-connection';
+
 const incident: AtwIncident = {
   id: '11111111-1111-4111-8111-111111111111',
   name: 'DB slowness',
@@ -57,17 +64,57 @@ const incident: AtwIncident = {
   failed_run_count: 0,
 };
 
-function paginated<T>(items: T[]) {
-  return { data: { items, total: items.length, offset: 0, limit: 50 } };
+function paginated<T>(items: T[], total = items.length, limit = 50) {
+  return { data: { items, total, offset: 0, limit } };
 }
 
-function renderPage(ui: ReactNode) {
+/**
+ * Route GETs for the list page: incidents vs delivery config. Config defaults
+ * to configured (no reasons) so most tests stay quiet about ServiceNow.
+ */
+function routeGet(options: {
+  incidents?: AtwIncident[] | 'reject' | 'hang';
+  incidentsPage?: {
+    items: AtwIncident[];
+    total: number;
+    offset: number;
+    limit: number;
+  };
+  config?: { send_disabled_reasons?: string[] };
+} = {}) {
+  mockedApi.get.mockImplementation((url: string) => {
+    if (url.includes('/config/')) {
+      return Promise.resolve({
+        data: {
+          send_disabled_reasons: options.config?.send_disabled_reasons ?? [],
+          case_search_available: false,
+        },
+      });
+    }
+    if (options.incidents === 'hang') {
+      return new Promise(() => {});
+    }
+    if (options.incidents === 'reject') {
+      return Promise.reject(new Error('Internal Server Error'));
+    }
+    if (options.incidentsPage) {
+      return Promise.resolve({ data: options.incidentsPage });
+    }
+    return Promise.resolve(paginated(options.incidents ?? []));
+  });
+}
+
+function renderPage(ui: ReactNode, deliverySettingsPath?: string) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter>{ui}</MemoryRouter>
+      <MemoryRouter>
+        <DeliverySettingsProvider path={deliverySettingsPath}>
+          {ui}
+        </DeliverySettingsProvider>
+      </MemoryRouter>
     </QueryClientProvider>
   );
 }
@@ -78,7 +125,7 @@ describe('IncidentListPage', () => {
   });
 
   it('renders the incident list', async () => {
-    mockedApi.get.mockResolvedValue(paginated([incident]));
+    routeGet({ incidents: [incident] });
 
     renderPage(<IncidentListPage />);
 
@@ -88,18 +135,42 @@ describe('IncidentListPage', () => {
     expect(screen.getByText(/Case CS-42/)).toBeTruthy();
   });
 
-  it('shows an empty state when there are no incidents', async () => {
-    mockedApi.get.mockResolvedValue(paginated([]));
+  it('shows an explanatory empty state when there are no incidents', async () => {
+    routeGet({ incidents: [] });
 
     renderPage(<IncidentListPage />);
 
     await waitFor(() => {
-      expect(screen.getByText(/No incidents yet/i)).toBeTruthy();
+      expect(screen.getByTestId('atw-incidents-empty')).toBeTruthy();
     });
+    expect(screen.getByText(Messages.title)).toBeTruthy();
+    expect(screen.getByText(Messages.description)).toBeTruthy();
+    expect(screen.getByTestId('atw-incidents-empty-docs')).toHaveAttribute(
+      'href',
+      SUPPORT_DIAGNOSTICS_DOCS_URL
+    );
+    expect(screen.getByText(Messages.howItWorks)).toBeTruthy();
+  });
+
+  it('puts New incident inside the empty state, not the header', async () => {
+    routeGet({ incidents: [] });
+
+    renderPage(<IncidentListPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-incidents-empty-create')).toBeTruthy();
+    });
+    expect(screen.getByTestId('atw-incidents-empty-create')).toHaveTextContent(
+      Messages.create
+    );
+    // Only the empty-state CTA — no second header button.
+    expect(screen.getAllByRole('button', { name: /New incident/i })).toHaveLength(
+      1
+    );
   });
 
   it('withholds the create button when the list request failed', async () => {
-    mockedApi.get.mockRejectedValue(new Error('Internal Server Error'));
+    routeGet({ incidents: 'reject' });
 
     renderPage(<IncidentListPage />);
 
@@ -114,7 +185,7 @@ describe('IncidentListPage', () => {
   });
 
   it('disables the create button until the list has loaded', async () => {
-    mockedApi.get.mockReturnValue(new Promise(() => {}));
+    routeGet({ incidents: 'hang' });
 
     renderPage(<IncidentListPage />);
 
@@ -126,14 +197,14 @@ describe('IncidentListPage', () => {
   });
 
   it('creates an incident from the dialog, sending the trimmed name', async () => {
-    mockedApi.get.mockResolvedValue(paginated([]));
+    routeGet({ incidents: [] });
     mockedApi.post.mockResolvedValue({ data: incident });
     const user = userEvent.setup();
 
     renderPage(<IncidentListPage />);
 
     await waitFor(() =>
-      expect(screen.getByText(/No incidents yet/i)).toBeTruthy()
+      expect(screen.getByTestId('atw-incidents-empty-create')).toBeTruthy()
     );
 
     await user.click(screen.getByRole('button', { name: /New incident/i }));
@@ -151,14 +222,14 @@ describe('IncidentListPage', () => {
   });
 
   it('omits the name when the create field is left blank', async () => {
-    mockedApi.get.mockResolvedValue(paginated([]));
+    routeGet({ incidents: [] });
     mockedApi.post.mockResolvedValue({ data: incident });
     const user = userEvent.setup();
 
     renderPage(<IncidentListPage />);
 
     await waitFor(() =>
-      expect(screen.getByText(/No incidents yet/i)).toBeTruthy()
+      expect(screen.getByTestId('atw-incidents-empty-create')).toBeTruthy()
     );
 
     await user.click(screen.getByRole('button', { name: /New incident/i }));
@@ -170,8 +241,8 @@ describe('IncidentListPage', () => {
   });
 
   it('renders pagination controls once the list exceeds one page', async () => {
-    mockedApi.get.mockResolvedValue({
-      data: { items: [incident], total: 40, offset: 0, limit: 20 },
+    routeGet({
+      incidentsPage: { items: [incident], total: 40, offset: 0, limit: 20 },
     });
 
     renderPage(<IncidentListPage />);
@@ -185,7 +256,7 @@ describe('IncidentListPage', () => {
   });
 
   it('omits pagination controls when a single page holds everything', async () => {
-    mockedApi.get.mockResolvedValue(paginated([incident]));
+    routeGet({ incidents: [incident] });
 
     renderPage(<IncidentListPage />);
 
@@ -198,7 +269,7 @@ describe('IncidentListPage', () => {
   });
 
   it('closes an open incident from the row action', async () => {
-    mockedApi.get.mockResolvedValue(paginated([incident]));
+    routeGet({ incidents: [incident] });
     mockedApi.post.mockResolvedValue({
       data: { ...incident, closed_at: '2026-07-30T12:00:00Z' },
     });
@@ -220,7 +291,7 @@ describe('IncidentListPage', () => {
 
   it('reopens a closed incident from the row action', async () => {
     const closedIncident = { ...incident, closed_at: '2026-07-30T12:00:00Z' };
-    mockedApi.get.mockResolvedValue(paginated([closedIncident]));
+    routeGet({ incidents: [closedIncident] });
     mockedApi.post.mockResolvedValue({ data: incident });
     const user = userEvent.setup();
 
@@ -239,7 +310,7 @@ describe('IncidentListPage', () => {
   });
 
   it('shows an error when closing an incident fails', async () => {
-    mockedApi.get.mockResolvedValue(paginated([incident]));
+    routeGet({ incidents: [incident] });
     mockedApi.post.mockRejectedValue(new Error('Incident is already closed.'));
     const user = userEvent.setup();
 
@@ -261,7 +332,7 @@ describe('IncidentListPage', () => {
       id: '22222222-2222-4222-8222-222222222222',
       name: 'Lock waits',
     };
-    mockedApi.get.mockResolvedValue(paginated([incident, other]));
+    routeGet({ incidents: [incident, other] });
 
     let resolveFirst!: (value: { data: typeof incident }) => void;
     let resolveSecond!: (value: { data: typeof other }) => void;
@@ -328,7 +399,7 @@ describe('IncidentListPage — write access', () => {
   });
 
   it('renders create, close, rename and delete for a session that may mutate', async () => {
-    mockedApi.get.mockResolvedValue(paginated([incident]));
+    routeGet({ incidents: [incident] });
 
     renderPage(<IncidentListPage />);
 
@@ -347,36 +418,38 @@ describe('IncidentListPage — write access', () => {
     ).toBeInTheDocument();
   });
 
-  it('drops the create instruction from the empty state for a non-admin', async () => {
+  it('omits New incident from the empty state for a non-admin', async () => {
     mockCanMutate = false;
-    mockedApi.get.mockResolvedValue(paginated([]));
+    routeGet({ incidents: [] });
 
     renderPage(<IncidentListPage />);
 
-    await waitFor(() =>
-      expect(screen.getByText('No incidents yet.')).toBeTruthy()
-    );
-    // The instruction points at a control this session is not offered.
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-incidents-empty')).toBeTruthy();
+    });
+    expect(screen.getByText(Messages.title)).toBeTruthy();
+    expect(screen.getByText(Messages.description)).toBeTruthy();
     expect(
-      screen.queryByText(/Create one to get started/i)
+      screen.queryByRole('button', { name: /New incident/i })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('atw-incidents-empty-create')
     ).not.toBeInTheDocument();
   });
 
-  it('keeps the create instruction in the empty state for a session that may mutate', async () => {
-    mockedApi.get.mockResolvedValue(paginated([]));
+  it('keeps New incident in the empty state for a session that may mutate', async () => {
+    routeGet({ incidents: [] });
 
     renderPage(<IncidentListPage />);
 
-    await waitFor(() =>
-      expect(
-        screen.getByText(/No incidents yet\. Create one to get started\./)
-      ).toBeTruthy()
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-incidents-empty-create')).toBeTruthy();
+    });
   });
 
   it('renders no create, close, rename or delete for a non-admin', async () => {
     mockCanMutate = false;
-    mockedApi.get.mockResolvedValue(paginated([incident]));
+    routeGet({ incidents: [incident] });
 
     renderPage(<IncidentListPage />);
 
@@ -393,5 +466,88 @@ describe('IncidentListPage — write access', () => {
     expect(
       screen.queryByRole('button', { name: /Delete DB slowness/i })
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('IncidentListPage — ServiceNow connection banner', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const unconfigured = {
+    send_disabled_reasons: ['Diagnostics delivery is not configured'],
+  };
+
+  it('shows the connection banner and Settings link for an admin when delivery is missing', async () => {
+    routeGet({ incidents: [], config: unconfigured });
+
+    renderPage(<IncidentListPage />, SETTINGS_PATH);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
+    });
+    expect(
+      screen.getByText(/Sending requires a valid ServiceNow connection/i)
+    ).toBeTruthy();
+    expect(
+      screen.getByTestId('atw-send-unavailable-settings')
+    ).toHaveAttribute('href', SETTINGS_PATH);
+  });
+
+  it('explains without a Settings control when the host offers no route', async () => {
+    routeGet({ incidents: [], config: unconfigured });
+
+    renderPage(<IncidentListPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
+    });
+    expect(
+      screen.queryByTestId('atw-send-unavailable-settings')
+    ).not.toBeInTheDocument();
+  });
+
+  it('stays silent while delivery is configured', async () => {
+    routeGet({ incidents: [] });
+
+    renderPage(<IncidentListPage />, SETTINGS_PATH);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-incidents-empty')).toBeTruthy();
+    });
+    expect(
+      screen.queryByTestId('atw-send-unavailable')
+    ).not.toBeInTheDocument();
+  });
+
+  it('hides the connection banner from a non-admin', async () => {
+    mockCanMutate = false;
+    routeGet({ incidents: [], config: unconfigured });
+
+    renderPage(<IncidentListPage />, SETTINGS_PATH);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-incidents-empty')).toBeTruthy();
+    });
+    expect(
+      screen.queryByTestId('atw-send-unavailable')
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('atw-send-unavailable-settings')
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows the banner on a populated list when delivery is missing', async () => {
+    routeGet({ incidents: [incident], config: unconfigured });
+
+    renderPage(<IncidentListPage />, SETTINGS_PATH);
+
+    await waitFor(() => {
+      expect(screen.getByText('DB slowness')).toBeTruthy();
+    });
+    expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
+    expect(
+      screen.getByTestId('atw-send-unavailable-settings')
+    ).toHaveAttribute('href', SETTINGS_PATH);
   });
 });
