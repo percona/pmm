@@ -1,9 +1,19 @@
 # MySQL InnoDB Details
 
+Provides a deep-dive view into InnoDB internals for a single MySQL service, covering buffer pool usage, redo logging, flushing, locking, undo space, and adaptive hash index activity. 
+
+Use this dashboard when you need to investigate InnoDB-level performance issues beyond what the instance summary shows.
+
+Use the filters at the top to select the service and time range.
+
 ![!image](../../images/PMM_MySQL_InnoDB_Details.jpg)
 
-!!! hint alert alert-success "Tip"
-    If metrics are missing, try running: `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client.
+## Troubleshooting empty panels
+
+If panels are missing data, try the following:
+
+- Run `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client to enable InnoDB metrics collection.
+- For empty panels in the **InnoDB Logging** section on older MySQL versions, verify that the `mysqld_exporte`r` is up to date.
 
 ## InnoDB Activity
 
@@ -475,6 +485,8 @@ Do not set it to actual storage capacity.
 InnoDB IO Capacity to use when falling behind and need to catch up with Flushing.
 
 ## InnoDB Logging
+
+Redo log panels work correctly across MySQL 5.7 through 9.x. If redo log panels are empty on older versions, verify that the mysqld_exporter is up to date.
 
 ### Total Log Space
 

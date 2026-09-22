@@ -20,7 +20,9 @@ Most Fragmented Tables by Freeable Size
 
 ## Table Activity
 
-The next two graphs are available only for [Percona Server](https://www.percona.com/doc/percona-server/5.6/diagnostics/user_stats.html) and [MariaDB](https://mariadb.com/docs/server/ha-and-performance/optimization-and-tuning/query-optimizations/statistics-for-optimizing-queries/user-statistics) and require `userstat` variable turned on.
+**Top Tables by Rows Read** and **Top Tables by Rows Changed** show the top 5 tables by row activity.
+
+On Community MySQL, these panels use `performance_schema.table_io_waits_summary_by_table`. On [Percona Server](https://www.percona.com/doc/percona-server/5.6/diagnostics/user_stats.html) and [MariaDB](https://mariadb.com/docs/server/ha-and-performance/optimization-and-tuning/query-optimizations/statistics-for-optimizing-queries/user-statistics), they use user statistics. To enable user statistics, set `userstat=ON`.
 
 ## Rows read
 
