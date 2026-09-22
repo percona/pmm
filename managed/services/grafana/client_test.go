@@ -30,6 +30,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/metadata"
 
+	"github.com/percona/pmm/managed/services"
 	stringsgen "github.com/percona/pmm/utils/strings"
 )
 
@@ -478,6 +479,130 @@ func TestCurrentUserHTTPResponse(t *testing.T) {
 	}
 }
 
+func TestCreateServiceAccount(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	const nodeName = "test-node"
+
+	// grafana answers the calls createServiceAccount makes: POST creates the account, and the search finds
+	// the one a registration left behind. leftover is the account the search holds, none for a Grafana
+	// which has no account for this Node.
+	grafana := func(t *testing.T, createStatus int, leftover string) (*Client, *int) {
+		t.Helper()
+
+		patched := 0
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			switch {
+			case r.Method == http.MethodPost && r.URL.Path == "/api/serviceaccounts":
+				w.WriteHeader(createStatus)
+				if createStatus == http.StatusOK {
+					_, _ = fmt.Fprint(w, `{"id": 7}`)
+					return
+				}
+				_, _ = fmt.Fprint(w, `{"message": "Failed to create service account"}`)
+			case r.Method == http.MethodGet && r.URL.Path == "/api/serviceaccounts/search":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprintf(w, `{"totalCount":1,"serviceAccounts":[%s]}`, leftover)
+			case r.Method == http.MethodPatch:
+				patched++
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		t.Cleanup(ts.Close)
+
+		return NewClient(strings.TrimPrefix(ts.URL, "http://")), &patched
+	}
+
+	t.Run("creates the account of a Node being registered", func(t *testing.T) {
+		t.Parallel()
+
+		c, patched := grafana(t, http.StatusOK, "")
+
+		id, err := c.createServiceAccount(ctx, admin, nodeName, false, http.Header{})
+		require.NoError(t, err)
+		assert.Equal(t, 7, id)
+		assert.Equal(t, 1, *patched, "the account has to be moved to the default org")
+	})
+
+	t.Run("takes over the account a failed registration left behind", func(t *testing.T) {
+		t.Parallel()
+
+		// Grafana refuses to create it a second time, and the Node holds no registration - the caller has
+		// just taken its name - so the leftover is this Node's and the registration goes on with it.
+		leftover := fmt.Sprintf(`{"id":42,"name":"%s-%s"}`, pmmServiceAccountName, nodeName)
+		c, patched := grafana(t, http.StatusInternalServerError, leftover)
+
+		id, err := c.createServiceAccount(ctx, admin, nodeName, false, http.Header{})
+		require.NoError(t, err)
+		assert.Equal(t, 42, id)
+		assert.Equal(t, 1, *patched)
+	})
+
+	t.Run("reports the failure to create where there is nothing to take over", func(t *testing.T) {
+		t.Parallel()
+
+		c, patched := grafana(t, http.StatusInternalServerError, `{"id":42,"name":"pmm-agent-sa-another-node"}`)
+
+		_, err := c.createServiceAccount(ctx, admin, nodeName, false, http.Header{})
+		// The failure to create is the answer, not the lookup which found no account of this Node.
+		require.ErrorContains(t, err, "Failed to create service account")
+		require.NotErrorIs(t, err, services.ErrServiceAccountNotFound)
+		assert.Equal(t, 0, *patched)
+	})
+}
+
+func TestGetServiceAccountIDFromName(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	// Node names may hold spaces and other characters which are not valid in a query string.
+	const nodeName = "a node named with spaces & signs"
+	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
+
+	newServer := func(t *testing.T, accounts string) (*Client, *string) {
+		t.Helper()
+
+		var gotQuery string
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != "/api/serviceaccounts/search" {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+			gotQuery = r.URL.Query().Get("query")
+			w.WriteHeader(http.StatusOK)
+			_, _ = fmt.Fprintf(w, `{"totalCount":1,"serviceAccounts":[%s]}`, accounts)
+		}))
+		t.Cleanup(ts.Close)
+
+		return NewClient(strings.TrimPrefix(ts.URL, "http://")), &gotQuery
+	}
+
+	t.Run("finds the account of a node whose name needs escaping", func(t *testing.T) {
+		t.Parallel()
+
+		c, gotQuery := newServer(t, fmt.Sprintf(`{"id":42,"name":%q}`, serviceAccountName))
+
+		id, err := c.getServiceAccountIDFromName(ctx, nodeName, http.Header{})
+		require.NoError(t, err)
+		assert.Equal(t, 42, id)
+		assert.Equal(t, serviceAccountName, *gotQuery)
+	})
+
+	t.Run("reports a node without an account as not found", func(t *testing.T) {
+		t.Parallel()
+
+		c, _ := newServer(t, `{"id":42,"name":"pmm-another-node"}`)
+
+		_, err := c.getServiceAccountIDFromName(ctx, nodeName, http.Header{})
+		assert.ErrorIs(t, err, services.ErrServiceAccountNotFound)
+	})
+}
+
 func TestClient(t *testing.T) {
 	l := logrus.WithField("test", t.Name())
 
@@ -579,7 +704,7 @@ func TestClient(t *testing.T) {
 					require.NoError(t, err)
 				}()
 
-				serviceTokenID, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName, true, authHeaders)
+				serviceTokenID, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName, authHeaders)
 				require.NoError(t, err)
 				require.NotZero(t, serviceTokenID)
 				require.NotEmpty(t, serviceToken)
