@@ -379,7 +379,7 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 		DefaultRoleId:       convertDefaultRoleID(settings.DefaultRoleID),
 
 		ExtensionsEnabled: pkgenv.ExtensionsEnabled(),
-		OmEnabled:  settings.IsOMEnabled(),
+		OmEnabled:         settings.IsOMEnabled(),
 	}
 
 	return res
