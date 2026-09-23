@@ -744,6 +744,16 @@ To change retention, edit `dataRetentionDays` and run `helm upgrade`. The value 
 
 Setting `pmmEnv.PMM_DATA_RETENTION` or `victoriaMetrics.vmstorage.retentionPeriod` yourself is rejected. Either one lets the two stores disagree about how long to keep data, and each then purges on its own schedule.
 
+!!! warning "Upgrading from a Technical Preview installation"
+    `dataRetentionDays` defaults to `30`. Technical Preview versions of the chart kept metrics for 90 days by default, through `victoriaMetrics.vmstorage.retentionPeriod`, and left Query Analytics retention to the PMM UI. A shorter period takes effect in the same `helm upgrade` and deletes the older data, which cannot be recovered.
+
+    Before upgrading, check the periods the release is using:
+
+    - Metrics: `kubectl get vmcluster -n pmm -o jsonpath='{.items[*].spec.retentionPeriod}'`
+    - Query Analytics: **Data retention** under **Configuration > Settings > Advanced settings**
+
+    Then set `dataRetentionDays` to the period you want to keep, for example `90` to keep the earlier metrics default, and remove `victoriaMetrics.vmstorage.retentionPeriod` and `pmmEnv.PMM_DATA_RETENTION` from your values.
+
 #### Check the retention period a replica is using
 
 Every replica reports its retention period and where the value came from when it starts:
