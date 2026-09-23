@@ -125,6 +125,7 @@ describe('NavigationProvider', () => {
         'inventory-divider',
         'inventory',
         'management',
+        'om',
         'backups',
         'backups-divider',
         'configuration',
