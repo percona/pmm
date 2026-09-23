@@ -16,7 +16,7 @@ POST /api/apps/{app}/{task_name}/execute
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `app` | string | The app that owns the task (for example, `mysql-backups`). |
+| `app` | string | The app that owns the task (for example, `mysql_backups`). |
 | `task_name` | string | The name of the task to execute. Use [List tasks](ref:sep-list-tasks) to find available task names. |
 
 ## Request body
