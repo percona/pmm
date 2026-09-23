@@ -331,6 +331,36 @@ func TestListInventoryHosts(t *testing.T) {
 		assert.NotContains(t, stub.query, "failing")
 		assert.NotContains(t, stub.query, "executor")
 	})
+
+	t.Run("walks every page", func(t *testing.T) {
+		t.Parallel()
+
+		// total (3) exceeds the first page's own item count (2), which is what makes
+		// fetchAllPages loop instead of stopping after one request -- every other test
+		// in this file sets total equal to len(items), so a regression that stopped
+		// after the first page or miscomputed the next offset would pass them all.
+		firstPage := `{"items": [
+		  {"node_id": "n1", "name": "db00"},
+		  {"node_id": "n2", "name": "db01"}
+		], "total": 3, "offset": 0, "limit": 200}`
+		secondPage := `{"items": [
+		  {"node_id": "n3", "name": "db02"}
+		], "total": 3, "offset": 2, "limit": 200}`
+		stub := newSEPStubSeq(t, http.StatusOK, firstPage, secondPage)
+
+		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+
+		require.NoError(t, err)
+		require.Len(t, response.GetHosts(), 3, "both pages' items should be concatenated")
+		assert.Equal(t, "n1", response.GetHosts()[0].GetNodeId())
+		assert.Equal(t, "n3", response.GetHosts()[2].GetNodeId())
+
+		require.Len(t, stub.calls, 2)
+		assert.Contains(t, stub.calls[0].query, "offset=0")
+		assert.Contains(t, stub.calls[1].query, "offset=2",
+			"the second request's offset should be the first page's item count, not its own offset field")
+		assert.Contains(t, stub.calls[1].query, "limit=200")
+	})
 }
 
 func TestInventoryServiceProjection(t *testing.T) {
