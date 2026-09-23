@@ -586,11 +586,17 @@ describe('IncidentListPage — ServiceNow connection banner', () => {
       </QueryClientProvider>
     );
 
+    const configCalls = () =>
+      mockedApi.get.mock.calls.filter(([url]) =>
+        String(url).includes('/config/')
+      );
+
     const { unmount } = render(tree(<IncidentListPage />));
 
     await waitFor(() => {
       expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
     });
+    expect(configCalls()).toHaveLength(1);
 
     mockedApi.get.mockImplementation((url: string) => {
       if (url.includes('/config/')) {
@@ -603,6 +609,7 @@ describe('IncidentListPage — ServiceNow connection banner', () => {
     render(tree(<IncidentListPage />));
 
     await waitFor(() => {
+      expect(configCalls()).toHaveLength(2);
       expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
     });
   });
