@@ -36,7 +36,8 @@ func (_m *mockGrafanaProvisioningClient) IsReady(ctx context.Context) error {
 func newMockGrafanaProvisioningClient(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockGrafanaProvisioningClient {
+},
+) *mockGrafanaProvisioningClient {
 	mock := &mockGrafanaProvisioningClient{}
 	mock.Mock.Test(t)
 

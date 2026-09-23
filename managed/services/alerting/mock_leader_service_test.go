@@ -32,7 +32,8 @@ func (_m *mockLeaderService) IsLeader() bool {
 func newMockLeaderService(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockLeaderService {
+},
+) *mockLeaderService {
 	mock := &mockLeaderService{}
 	mock.Mock.Test(t)
 

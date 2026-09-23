@@ -141,9 +141,10 @@ func TestProvisionerWritesAndAppliesOnStartup(t *testing.T) {
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(1, true)
 
-	// A nil status is "state unknown", which supervisord's contract says to leave alone: the file
-	// is written and whoever starts Grafana next reads it.
+	// A nil status is "state unknown", and a Grafana that does not answer either has not read any
+	// file yet, so it is left alone: the file is written and whoever starts Grafana next reads it.
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 
@@ -160,6 +161,7 @@ func TestProvisionerOnStandaloneWritesComponentsOnly(t *testing.T) {
 	f := newProvisionerFixture(t, false)
 	f.expectSettings(1, true)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 
@@ -179,6 +181,7 @@ func TestProvisionerRemovesEverythingWhenAlertingIsOff(t *testing.T) {
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(1, false)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 
@@ -196,6 +199,7 @@ func TestProvisionerKeepsStateOutOfGrafanasReach(t *testing.T) {
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(1, true)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 
@@ -225,6 +229,7 @@ func TestProvisionerToleratesConcurrentCallers(t *testing.T) {
 	}
 	f.expectNoConflicts(40)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Maybe()
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Maybe()
 
 	var wg sync.WaitGroup
 	for range 4 {
@@ -253,6 +258,7 @@ func TestProvisionerDoesNothingWhenNothingChanged(t *testing.T) {
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(2, true)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 	first := f.fileContent(t)
@@ -395,6 +401,7 @@ func TestProvisionerRollsBackAFailedRestart(t *testing.T) {
 	// A first pass leaves a known good file in place.
 	f.expectSettings(1, true)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 	good := f.fileContent(t)
 
@@ -492,6 +499,7 @@ func TestProvisionerRunPicksUpARetryArmedAtStartup(t *testing.T) {
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(1, true)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Maybe()
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Maybe()
 
 	f.provisioner.retryBackoff = 10 * time.Millisecond
 
@@ -534,6 +542,7 @@ func TestProvisionerLeavesGrafanaAloneWhenStateIsUnknown(t *testing.T) {
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(1, true)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 
@@ -556,6 +565,7 @@ func TestProvisionerLeavesRulesItDoesNotOwnAlone(t *testing.T) {
 			AddRow("pmm-clickhouse-down", "api").
 			AddRow("pmm-grafana-down", "")) // made in the interface: no provenance at all
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 
@@ -577,6 +587,7 @@ func TestProvisionerOmitsSquattedUIDsFromDeletions(t *testing.T) {
 	f.gfMock.ExpectQuery("FROM alert_rule").
 		WillReturnRows(sqlmock.NewRows([]string{"uid", "provenance"}).AddRow("pmm-ha-no-leader", ""))
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 
@@ -762,4 +773,182 @@ func bundleState(t *testing.T, p *Provisioner, bundleID string) string {
 		}
 	}
 	return ""
+}
+
+// TestProvisionerAppliesToAGrafanaThatServesWhileItsStateIsUnknown is the guard against an apply
+// discharged by a status command that would not run. ProgramState reports the same nil for output
+// it cannot parse as it does for a program supervisord has not been told about, and taking that as
+// "leave it alone" settles the apply for good: the file is already on disk, so every later
+// reconcile finds it unchanged and never restarts anything. Grafana serving is what tells the two
+// apart, because a Grafana that answers is serving rules it read before this file changed.
+func TestProvisionerAppliesToAGrafanaThatServesWhileItsStateIsUnknown(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	f.expectSettings(1, true)
+
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(nil)
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil)
+
+	f.provisioner.reconcile(context.Background(), triggerStartup)
+
+	f.supervisord.AssertNumberOfCalls(t, "RestartSupervisedService", 1)
+	assert.False(t, f.provisioner.applyPending, "the apply happened, so nothing is owed")
+	assert.False(t, f.provisioner.startupApplyOwed)
+	assert.Equal(t, stateWritten, bundleState(t, f.provisioner, haBundleID))
+}
+
+// TestProvisionerStopsOfferingARevisionGrafanaRejects is the guard against the restart loop found
+// in review. A failed apply leaves applyPending set, which defeats the "nothing changed" early
+// return, so without a budget the same content is offered for as long as it keeps being rendered:
+// another restart, another wait for a Grafana that never answers, every retry, forever.
+func TestProvisionerStopsOfferingARevisionGrafanaRejects(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+
+	// A first pass leaves a known good file in place.
+	f.expectSettings(1, true)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
+	f.provisioner.reconcile(context.Background(), triggerStartup)
+	good := f.fileContent(t)
+
+	// Then a real change - Percona Alerting switched off empties the file - offered far more times
+	// than the budget allows.
+	const attempts = 5
+	f.expectSettings(attempts, false)
+	f.leader.On("IsLeader").Return(true)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
+
+	for range attempts {
+		f.provisioner.reconcile(context.Background(), triggerRetry)
+	}
+
+	f.supervisord.AssertNumberOfCalls(t, "RestartSupervisedService", maxApplyAttemptsPerRevision)
+	assert.Equal(t, good, f.fileContent(t),
+		"the file Grafana last accepted must be the one on disk, so the next start has something to read")
+	assert.Zero(t, f.provisioner.retryBackoff, "nothing is owed once a revision is given up on")
+	assert.True(t, f.provisioner.applyPending,
+		"the rules Grafana holds are still not the rendered ones, and the metric has to say so")
+	assert.InDelta(t, maxApplyAttemptsPerRevision, errorCount(t, f.provisioner, stageApply), 0,
+		"each attempt is counted once, and the passes that skip the apply add nothing")
+}
+
+// TestProvisionerOffersNewContentAfterGivingUpOnARevision is the other half of the budget: it is
+// spent per revision, not for good. Anything that renders differently is offered on its own terms.
+func TestProvisionerOffersNewContentAfterGivingUpOnARevision(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+
+	f.expectSettings(1, true)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
+	f.provisioner.reconcile(context.Background(), triggerStartup)
+
+	f.expectSettings(maxApplyAttemptsPerRevision, false)
+	f.leader.On("IsLeader").Return(true).Times(maxApplyAttemptsPerRevision)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
+	for range maxApplyAttemptsPerRevision {
+		f.provisioner.reconcile(context.Background(), triggerRetry)
+	}
+	require.NotEmpty(t, f.provisioner.rejectedHash, "the revision must have been given up on first")
+
+	// Switching Percona Alerting back on renders something else. This node is not the leader, so
+	// the proof that the content is being offered again is that it reaches the leader gate at all.
+	f.expectSettings(1, true)
+	f.leader.On("IsLeader").Return(false).Once()
+	f.provisioner.reconcile(context.Background(), triggerTick)
+
+	assert.Empty(t, f.provisioner.rejectedHash, "one revision is never held against another")
+	assert.Contains(t, f.fileContent(t), "PMM High Availability")
+	f.supervisord.AssertNumberOfCalls(t, "RestartSupervisedService", maxApplyAttemptsPerRevision)
+}
+
+// TestProvisionerStartsAGrafanaLeftDownByARevisionItGaveUpOn covers what is still owed after giving
+// up. The file has been rolled back to one Grafana accepted, but Grafana itself may have been left
+// dead by the revision that failed, and nothing else is coming for it.
+func TestProvisionerStartsAGrafanaLeftDownByARevisionItGaveUpOn(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+
+	f.expectSettings(1, true)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
+	f.provisioner.reconcile(context.Background(), triggerStartup)
+	good := f.fileContent(t)
+
+	f.expectSettings(maxApplyAttemptsPerRevision, false)
+	f.leader.On("IsLeader").Return(true)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).
+		Return(new(true)).Times(maxApplyAttemptsPerRevision)
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
+	for range maxApplyAttemptsPerRevision {
+		f.provisioner.reconcile(context.Background(), triggerRetry)
+	}
+
+	// Grafana is now FATAL, which supervisord documents as "will not be restarted".
+	f.expectSettings(1, false)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(false))
+	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(nil)
+
+	f.provisioner.reconcile(context.Background(), triggerTick)
+
+	f.supervisord.AssertNumberOfCalls(t, "StartSupervisedService", 1)
+	assert.Equal(t, good, f.fileContent(t), "it must be started on the file it last accepted, not the one it refused")
+}
+
+// TestProvisionerChargesOnlyGrafanaFailuresToTheRevision keeps the budget aimed at what it is for.
+// A supervisord command that would not run says nothing about the content and leaves Grafana where
+// it was, so it must be retried indefinitely rather than counted against the rules.
+func TestProvisionerChargesOnlyGrafanaFailuresToTheRevision(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	f.expectSettings(3, true)
+
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(false))
+	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(errors.New("supervisorctl is not there"))
+
+	for range 3 {
+		f.provisioner.reconcile(context.Background(), triggerRetry)
+	}
+
+	f.supervisord.AssertNumberOfCalls(t, "StartSupervisedService", 3)
+	assert.Zero(t, f.provisioner.rejectedApplies)
+	assert.Equal(t, 4*datasourceRetryInitial, f.provisioner.retryBackoff,
+		"the backoff must keep growing, because this is still worth retrying")
+}
+
+// TestProvisionerRollsBackAStartGrafanaDoesNotSurvive is the rollback on the other apply path. A
+// Grafana supervisord has given up on is started by PMM, and content it cannot start on has to be
+// taken back off disk just as a failed restart's is - otherwise it can never come up again.
+func TestProvisionerRollsBackAStartGrafanaDoesNotSurvive(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+
+	f.expectSettings(1, true)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
+	f.provisioner.reconcile(context.Background(), triggerStartup)
+	good := f.fileContent(t)
+
+	f.expectSettings(1, false)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(false))
+	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
+
+	f.provisioner.reconcile(context.Background(), triggerTick)
+
+	assert.Equal(t, good, f.fileContent(t), "the file Grafana last started from must be restored")
+	assert.Equal(t, 1, f.provisioner.rejectedApplies, "a Grafana that did not come back counts against the content")
 }

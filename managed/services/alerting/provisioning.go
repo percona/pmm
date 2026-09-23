@@ -93,6 +93,20 @@ const (
 
 	// GrafanaReadyPollInterval is how often a restarting Grafana is asked whether it is back.
 	grafanaReadyPollInterval = time.Second
+
+	// MaxApplyAttemptsPerRevision is how many times one rendered revision may take Grafana down
+	// before PMM stops offering it. Applying means restarting Grafana, and a restart it does not
+	// come back from costs a whole grafanaReadyTimeout with the interface unavailable. Without a
+	// budget that repeats for as long as the content stays the same, because a failed apply leaves
+	// applyPending set and the next reconcile therefore skips its "nothing changed" early return.
+	//
+	// Two rather than one: the restart may have failed for a reason that has nothing to do with the
+	// rules - a Grafana database briefly out of reach, a host too loaded to start one inside the
+	// timeout - and a single quick retry settles that far more cheaply than leaving a good revision
+	// unapplied. Beyond that the evidence points at the content, and repeating only costs
+	// availability. The count is per revision and in memory: any change to the rendered file, and
+	// any restart of pmm-managed, offers the content afresh.
+	maxApplyAttemptsPerRevision = 2
 )
 
 // provisioningTrigger says what caused a reconcile, which decides how far the provisioner may go to
@@ -187,6 +201,12 @@ type Provisioner struct {
 	// at boot and is settled by the retry that finishes the recovery. From then on only the leader
 	// restarts: a later change is visible to every node, and the leader applies it for all.
 	startupApplyOwed bool
+	// rejectedHash is the content Grafana last refused to come back from, and rejectedApplies is
+	// how many times it has been tried. Together they stop PMM from spending the interface on a
+	// revision already shown to break it: see maxApplyAttemptsPerRevision. Rendering anything else
+	// clears both, so a revision is only ever held against itself.
+	rejectedHash    string
+	rejectedApplies int
 }
 
 // ProvisionerParams holds Provisioner configuration.
@@ -386,6 +406,23 @@ func (p *Provisioner) reconcile(ctx context.Context, trigger provisioningTrigger
 	}
 
 	hash := contentHash(content)
+	if hash != p.rejectedHash {
+		// Whatever was rejected is no longer what PMM wants to apply, so it is no longer held
+		// against anything. This is the escape hatch: the settings change, the datasource resolves,
+		// an upgrade ships different templates, and the budget starts over.
+		p.rejectedHash = ""
+		p.rejectedApplies = 0
+	}
+	if p.rejectedApplies >= maxApplyAttemptsPerRevision {
+		// Deliberately before the write, not just before the apply. Leaving content Grafana cannot
+		// start from on disk would turn the next restart - an upgrade, a host reboot, anything -
+		// into an outage nobody connected to alert rules, and the rollback that put the working
+		// file back only runs as part of an apply this branch no longer performs.
+		p.l.Debugf("Not applying alert rules Grafana already refused to come back from, on %s.", trigger)
+		p.recoverGrafanaLocked(ctx)
+		return
+	}
+
 	previous, changed, err := p.write(content)
 	if err != nil {
 		p.l.Errorf("Failed to write the alert rule provisioning file: %s.", err)
@@ -428,9 +465,30 @@ func (p *Provisioner) reconcile(ctx context.Context, trigger provisioningTrigger
 		// every later tick would return early on "unchanged". Arm the backoff instead.
 		p.applyPending = true
 		p.metrics.setApplyPending(true)
+		p.metrics.recordError(stageApply)
+
+		if errors.Is(err, errGrafanaNotBack) {
+			// Grafana was taken down for this content and did not return, and the file has been
+			// rolled back to what it last accepted. Charge the revision for it. Any other failure
+			// is a command that would not run, which says nothing about the content and leaves
+			// Grafana where it was, so it costs the revision nothing.
+			p.rejectedHash = hash
+			p.rejectedApplies++
+		}
+
+		if p.rejectedApplies >= maxApplyAttemptsPerRevision {
+			// Out of attempts. Stop the fast retry as well: everything it would reach now returns
+			// at the gate above, and only a change to the rendered content can make this worth
+			// trying again. The slow tick keeps checking for that, and for a Grafana left down.
+			p.retryBackoff = 0
+			p.l.Errorf("Giving up on applying these alert rules: Grafana did not come back %d times, "+
+				"and the file it last accepted has been restored. The rules Grafana holds are the "+
+				"previous ones, and PMM will try again once the rendered rules change: %s.", p.rejectedApplies, err)
+			return
+		}
+
 		p.armRetryLocked()
 		p.l.Warnf("Alert rules are written but not applied yet: %s.", err)
-		p.metrics.recordError(stageApply)
 	}
 }
 
@@ -443,6 +501,12 @@ var errRuleUIDTaken = errors.New("could not check who owns the built-in rule UID
 // It is returned rather than silently ignored so the caller can tell it apart from an apply that
 // genuinely failed and is owed a retry.
 var errDeferredToLeader = errors.New("left to the leader to apply")
+
+// errGrafanaNotBack reports that PMM took Grafana down to apply a file and it did not answer again
+// within the timeout. It is the one apply failure that says something about the content, so it is
+// told apart from a supervisord command that would not run: only this one counts against the
+// revision that caused it.
+var errGrafanaNotBack = errors.New("grafana did not come back")
 
 // reportConflictsLocked logs and counts UIDs that belong to someone else, once per distinct set so
 // a standing conflict does not fill the log every tick. Called with m held.
@@ -568,16 +632,30 @@ func (p *Provisioner) write(content []byte) ([]byte, bool, error) {
 // late.
 func (p *Provisioner) apply(ctx context.Context, trigger provisioningTrigger, previous []byte) error {
 	running := p.supervisord.ProgramState(ctx, grafanaProgramName)
+	if running == nil {
+		// The state could not be determined, and that covers two situations which need opposite
+		// answers. The usual one is that Grafana is not configured yet, on a container whose first
+		// boot has not reached UpdateConfiguration: supervisord starts it moments later and it
+		// reads this file as it goes, so there is nothing to apply. The other is a status command
+		// that would not run - ProgramState reports the same nil for output it cannot parse - while
+		// Grafana is up and serving the rules it read before this file changed. Treating that as
+		// "leave it alone" would discharge the apply for good: the content is already on disk, so
+		// every later reconcile finds it unchanged and returns without ever restarting anything.
+		//
+		// Asking Grafana itself tells the two apart, and it is the question that actually matters:
+		// a Grafana that answers is serving rules from a file it has already read, and one that
+		// does not is either not started or still starting, which is to say still to read this one.
+		err := p.grafana.IsReady(ctx)
+		if err != nil {
+			p.l.Debugf("Grafana's state is unknown and it is not serving yet, leaving it alone on %s: %s.", trigger, err)
+			return nil
+		}
+
+		p.l.Warnf("Grafana's state could not be determined, but it is serving, so it is treated as running.")
+		running = new(true)
+	}
 
 	switch {
-	case running == nil:
-		// The state could not be determined, which supervisord's own contract says to treat as
-		// "leave it alone". The usual cause is that Grafana is not configured yet, on a container
-		// whose first boot has not reached UpdateConfiguration: supervisord starts it moments later
-		// and it reads this file as it goes.
-		p.l.Debugf("Grafana's state is unknown, leaving it alone on %s.", trigger)
-		return nil
-
 	case !*running:
 		// Not running, and supervisord will not start it: this is FATAL or STOPPED, the states
 		// parseStatus documents as "will not be restarted". Nobody is coming, so PMM has to be the
@@ -588,11 +666,14 @@ func (p *Provisioner) apply(ctx context.Context, trigger provisioningTrigger, pr
 		// action across nodes sharing one database; a dead Grafana serves nobody, so there is no
 		// blast radius to contain, and at startup no node is leader yet.
 		p.l.Warnf("Grafana is down and supervisord will not restart it; starting it to apply the alert rules.")
-		err := p.supervisord.StartSupervisedService(grafanaProgramName)
+		err := p.startGrafana(ctx)
 		if err != nil {
-			return fmt.Errorf("failed to start Grafana: %w", err)
+			// Same reasoning as the restart below: a Grafana that will not start on this file has
+			// to be left the one it last accepted, or it can never come up again.
+			p.rollback(previous)
+			return err
 		}
-		return p.waitForGrafana(ctx)
+		return nil
 
 	default:
 		// One restart applies the change for the whole cluster: this node's Grafana ingests the file
@@ -629,10 +710,43 @@ func (p *Provisioner) restartGrafana(ctx context.Context, previous []byte) error
 	err = p.waitForGrafana(ctx)
 	if err != nil {
 		p.rollback(previous)
-		return fmt.Errorf("grafana did not come back after the restart: %w", err)
+		return fmt.Errorf("%w after the restart: %w", errGrafanaNotBack, err)
 	}
 
 	return nil
+}
+
+// startGrafana starts a Grafana supervisord has given up on and waits for it to answer.
+func (p *Provisioner) startGrafana(ctx context.Context) error {
+	err := p.supervisord.StartSupervisedService(grafanaProgramName)
+	if err != nil {
+		return fmt.Errorf("failed to start Grafana: %w", err)
+	}
+
+	err = p.waitForGrafana(ctx)
+	if err != nil {
+		return fmt.Errorf("%w after being started: %w", errGrafanaNotBack, err)
+	}
+
+	return nil
+}
+
+// recoverGrafanaLocked brings Grafana back if it is down and supervisord will not do it, without
+// touching the provisioning file. It is what is left to do for a revision PMM has stopped applying:
+// the file on disk is the one Grafana last accepted, so starting it is safe, and a Grafana left
+// FATAL by the revision that was given up on would otherwise stay down with nothing else coming for
+// it. Called with m held.
+func (p *Provisioner) recoverGrafanaLocked(ctx context.Context) {
+	running := p.supervisord.ProgramState(ctx, grafanaProgramName)
+	if running == nil || *running {
+		return
+	}
+
+	p.l.Warnf("Grafana is down and supervisord will not restart it; starting it on the file it last accepted.")
+	err := p.startGrafana(ctx)
+	if err != nil {
+		p.l.Errorf("Failed to bring Grafana back: %s.", err)
+	}
 }
 
 func (p *Provisioner) waitForGrafana(ctx context.Context) error {

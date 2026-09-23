@@ -74,7 +74,8 @@ func (_m *mockSupervisordService) StartSupervisedService(serviceName string) err
 func newMockSupervisordService(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockSupervisordService {
+},
+) *mockSupervisordService {
 	mock := &mockSupervisordService{}
 	mock.Mock.Test(t)
 
