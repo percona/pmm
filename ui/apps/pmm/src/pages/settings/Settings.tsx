@@ -33,6 +33,10 @@ export const Settings: FC = () => {
   });
   const navigate = useNavigate();
   const showSshKeyTab = version?.distributionMethod === DistributionMethod.ami;
+  // SEP has no backend when the feature is off, so the tab would only ever
+  // render its "can't be loaded" state. Hide it like the sidebar does
+  // (contexts/navigation/navigation.provider.tsx).
+  const showServiceNowTab = !!settings?.sepEnabled;
 
   if (isLoading || isVersionLoading || (isEnabled && !settings)) {
     return (
@@ -47,6 +51,10 @@ export const Settings: FC = () => {
   const setTab = (value: TabValue) => navigate(`/settings/${value}`);
 
   if (!showSshKeyTab && tab === 'ssh-key') {
+    return <Navigate to="/settings" replace />;
+  }
+
+  if (!showServiceNowTab && tab === 'servicenow-connection') {
     return <Navigate to="/settings" replace />;
   }
 
@@ -78,11 +86,13 @@ export const Settings: FC = () => {
               label={Messages.tabs.ssh}
             />
           )}
-          <Tab
-            data-testid="settings-tab-servicenow"
-            value="servicenow-connection"
-            label={Messages.tabs.serviceNow}
-          />
+          {showServiceNowTab && (
+            <Tab
+              data-testid="settings-tab-servicenow"
+              value="servicenow-connection"
+              label={Messages.tabs.serviceNow}
+            />
+          )}
         </Tabs>
 
         <Box sx={{ flex: 1 }} data-testid="settings-tab-content">
