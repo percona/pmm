@@ -39,7 +39,11 @@ vi.mock('hooks/theme', () => ({
 const renderNavTree = (
   user: User = TEST_USER_ADMIN,
   routerProps?: MemoryRouterProps,
-  settings?: { sepEnabled?: boolean; backupManagementEnabled?: boolean }
+  settings?: {
+    sepEnabled?: boolean;
+    backupManagementEnabled?: boolean;
+    omEnabled?: boolean;
+  }
 ) => {
   const { result } = renderHook(() => useNavigation(), {
     wrapper: ({ children }) => (
@@ -55,6 +59,7 @@ const renderNavTree = (
             settings: {
               backupManagementEnabled: true,
               sepEnabled: true,
+              omEnabled: true,
               ...settings,
             },
           }
@@ -126,6 +131,29 @@ describe('NavigationProvider', () => {
         'inventory',
         'management',
         'om',
+        'backups',
+        'backups-divider',
+        'configuration',
+        'users-and-access',
+        'account',
+        'help',
+      ]);
+    });
+
+    it('withholds OpenManager when the switch is off, leaving the block otherwise intact', () => {
+      // OM is gated on its own settings flag rather than on the SEP group beside
+      // it: it is served by pmm-managed, so SEP being enabled says nothing about
+      // whether this entry should render (PMM-15360).
+      const ids = renderNavTree(TEST_USER_ADMIN, undefined, {
+        omEnabled: false,
+      }).map((item) => item.id);
+
+      expect(ids).not.toContain('om');
+      const block = ids.slice(ids.indexOf('inventory-divider'));
+      expect(block).toEqual([
+        'inventory-divider',
+        'inventory',
+        'management',
         'backups',
         'backups-divider',
         'configuration',
