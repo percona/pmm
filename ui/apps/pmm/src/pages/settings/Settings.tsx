@@ -36,7 +36,14 @@ export const Settings: FC = () => {
   // SEP has no backend when the feature is off, so the tab would only ever
   // render its "can't be loaded" state. Hide it like the sidebar does
   // (contexts/navigation/navigation.provider.tsx).
-  const showServiceNowTab = !!settings?.sepEnabled;
+  //
+  // Only an explicit `false` redirects. `settings` is also undefined while the
+  // user is still resolving — the query is keyed off `user.isPMMAdmin`, and
+  // `UserProvider` reports ready before preferences land — so redirecting on
+  // the undefined state would drop a cold deep link to the tab even with SEP
+  // enabled, and nothing navigates back once settings arrive.
+  const showServiceNowTab = settings?.sepEnabled === true;
+  const isSepDisabled = settings?.sepEnabled === false;
 
   if (isLoading || isVersionLoading || (isEnabled && !settings)) {
     return (
@@ -54,7 +61,7 @@ export const Settings: FC = () => {
     return <Navigate to="/settings" replace />;
   }
 
-  if (!showServiceNowTab && tab === 'servicenow-connection') {
+  if (isSepDisabled && tab === 'servicenow-connection') {
     return <Navigate to="/settings" replace />;
   }
 

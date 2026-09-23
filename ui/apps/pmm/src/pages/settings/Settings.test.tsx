@@ -1,5 +1,6 @@
+import { ComponentProps } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import { useSettingsList } from '@sep/api';
 import { Settings } from './Settings';
 import { TestWrapper } from 'utils/testWrapper';
@@ -44,13 +45,26 @@ const getSettingsMock = vi.mocked(settingsApi.getSettings);
 const getVersionMock = vi.mocked(versionApi.getVersion);
 const useSettingsListMock = vi.mocked(useSettingsList);
 
-const renderWithRoute = (initialPath: string) =>
+const LocationProbe = () => (
+  <span data-testid="location-probe">{useLocation().pathname}</span>
+);
+
+const renderWithRoute = (
+  initialPath: string,
+  wrapperProps?: Partial<ComponentProps<typeof TestWrapper>>
+) =>
   render(
-    <TestWrapper routerProps={{ initialEntries: [initialPath] }}>
+    <TestWrapper
+      routerProps={{ initialEntries: [initialPath] }}
+      {...wrapperProps}
+    >
       {wrapWithQueryProvider(
-        <Routes>
-          <Route path="/settings/:tab?" element={<Settings />} />
-        </Routes>
+        <>
+          <LocationProbe />
+          <Routes>
+            <Route path="/settings/:tab?" element={<Settings />} />
+          </Routes>
+        </>
       )}
     </TestWrapper>
   );
@@ -195,6 +209,22 @@ describe('Settings', () => {
         screen.queryByTestId('settings-tab-servicenow')
       ).not.toBeInTheDocument();
       expect(screen.queryByTestId('servicenow-tab')).not.toBeInTheDocument();
+      expect(useSettingsListMock).not.toHaveBeenCalled();
+      expect(screen.getByTestId('location-probe')).toHaveTextContent(
+        '/settings'
+      );
+    });
+
+    it('keeps the ServiceNow URL while the user is still resolving', async () => {
+      renderWithRoute('/settings/servicenow-connection', {
+        userContext: { isLoading: false, user: undefined },
+      });
+
+      await waitFor(() =>
+        expect(screen.getByTestId('location-probe')).toHaveTextContent(
+          '/settings/servicenow-connection'
+        )
+      );
       expect(useSettingsListMock).not.toHaveBeenCalled();
     });
 
