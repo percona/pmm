@@ -20,6 +20,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -250,31 +252,39 @@ func (p probeService) failureSummary() string {
 	return fmt.Sprintf("%s: %s", name, p.LastError)
 }
 
-// fetch reads the app's service estate.
+// fetch reads the app's service estate, walking every page GET /services
+// answers (PMM-15326: "Bound the estate listings" -- see sepPage's own
+// comment) until fetchAllPages has read every row.
 func (s probeSource) fetch(ctx context.Context) ([]probeService, error) {
 	ctx, cancel := context.WithTimeout(ctx, probeRequestTimeout)
 	defer cancel()
 
-	url := s.app.endpoint(probeServicesPath)
-	req, err := s.app.request(ctx, http.MethodGet, probeServicesPath, nil, nil, false)
-	if err != nil {
-		return nil, fmt.Errorf("failed to build the request: %w", err)
-	}
+	return fetchAllPages(func(offset, limit int) (sepPage[probeService], error) {
+		query := url.Values{
+			"offset": {strconv.Itoa(offset)},
+			"limit":  {strconv.Itoa(limit)},
+		}
+		endpoint := s.app.endpoint(probeServicesPath) + "?" + query.Encode()
+		req, err := s.app.request(ctx, http.MethodGet, probeServicesPath, query, nil, false)
+		if err != nil {
+			return sepPage[probeService]{}, fmt.Errorf("failed to build the request: %w", err)
+		}
 
-	resp, err := s.app.client.http.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("GET %s: %w", url, err)
-	}
-	defer resp.Body.Close() //nolint:errcheck
+		resp, err := s.app.client.http.Do(req)
+		if err != nil {
+			return sepPage[probeService]{}, fmt.Errorf("GET %s: %w", endpoint, err)
+		}
+		defer resp.Body.Close() //nolint:errcheck
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("GET %s: unexpected status %s", url, resp.Status)
-	}
+		if resp.StatusCode != http.StatusOK {
+			return sepPage[probeService]{}, fmt.Errorf("GET %s: unexpected status %s", endpoint, resp.Status)
+		}
 
-	answer := []probeService{}
-	err = json.NewDecoder(resp.Body).Decode(&answer)
-	if err != nil {
-		return nil, fmt.Errorf("GET %s: failed to decode the response: %w", url, err)
-	}
-	return answer, nil
+		page := sepPage[probeService]{}
+		err = json.NewDecoder(resp.Body).Decode(&page)
+		if err != nil {
+			return sepPage[probeService]{}, fmt.Errorf("GET %s: failed to decode the response: %w", endpoint, err)
+		}
+		return page, nil
+	})
 }
