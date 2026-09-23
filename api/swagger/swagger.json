@@ -17868,7 +17868,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "warning": {
+                  "description": "Warning message if there are more service tokens attached to service account.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
@@ -31470,10 +31477,15 @@
                       "type": "boolean",
                       "x-order": 17
                     },
+                    "sep_enabled": {
+                      "description": "True if the SEP integration is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
+                      "type": "boolean",
+                      "x-order": 18
+                    },
                     "enable_mcp": {
                       "description": "True if the Model Context Protocol endpoint (/mcp) is enabled.",
                       "type": "boolean",
-                      "x-order": 18
+                      "x-order": 19
                     }
                   },
                   "x-order": 0
@@ -31799,10 +31811,15 @@
                       "type": "boolean",
                       "x-order": 17
                     },
+                    "sep_enabled": {
+                      "description": "True if the SEP integration is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
+                      "type": "boolean",
+                      "x-order": 18
+                    },
                     "enable_mcp": {
                       "description": "True if the Model Context Protocol endpoint (/mcp) is enabled.",
                       "type": "boolean",
-                      "x-order": 18
+                      "x-order": 19
                     }
                   },
                   "x-order": 0
@@ -31904,10 +31921,15 @@
                       "type": "boolean",
                       "x-order": 7
                     },
+                    "sep_enabled": {
+                      "description": "True if the SEP integration is enabled.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
                     "enable_mcp": {
                       "description": "True if the Model Context Protocol endpoint (/mcp) is enabled.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 9
                     }
                   },
                   "x-order": 0

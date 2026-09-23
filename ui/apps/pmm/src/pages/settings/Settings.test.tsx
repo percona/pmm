@@ -2,7 +2,11 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { Route, Routes } from 'react-router-dom';
 import { Settings } from './Settings';
 import { TestWrapper } from 'utils/testWrapper';
-import { wrapWithQueryProvider } from 'utils/testUtils';
+import {
+  measurePageSurface,
+  measureSurface,
+  wrapWithQueryProvider,
+} from 'utils/testUtils';
 import * as settingsApi from 'api/settings';
 import * as versionApi from 'api/version';
 import { SETTINGS_MOCK } from 'api/__mocks__/settings';
@@ -19,6 +23,9 @@ vi.mock('./components/advanced/AdvancedSettingsForm', () => ({
 }));
 vi.mock('./components/ssh-key/SshKeyForm', () => ({
   SshKeyForm: () => null,
+}));
+vi.mock('./components/servicenow', () => ({
+  ServiceNowConnectionTab: () => <div data-testid="servicenow-tab" />,
 }));
 
 const getSettingsMock = vi.mocked(settingsApi.getSettings);
@@ -47,6 +54,28 @@ describe('Settings', () => {
     render(<TestWrapper>{wrapWithQueryProvider(<Settings />)}</TestWrapper>);
 
     expect(screen.getByTestId('settings-loading')).toBeInTheDocument();
+  });
+
+  it('shows the loading state on the paper surface the loaded page uses', () => {
+    const stage = measurePageSurface('default');
+    const paper = measurePageSurface('paper');
+
+    // Guards the assertion below: it only means anything while the two
+    // surfaces actually differ.
+    expect(paper).not.toBe(stage);
+
+    getSettingsMock.mockImplementation(() => new Promise(() => {}));
+
+    const loading = measureSurface(() => {
+      const result = render(
+        <TestWrapper>{wrapWithQueryProvider(<Settings />)}</TestWrapper>
+      );
+      expect(screen.getByTestId('settings-loading')).toBeInTheDocument();
+
+      return result;
+    });
+
+    expect(loading).toBe(paper);
   });
 
   describe('tab navigation by URL', () => {
@@ -101,6 +130,17 @@ describe('Settings', () => {
           'true'
         )
       );
+    });
+
+    it('activates the ServiceNow tab for /settings/servicenow-connection', async () => {
+      renderWithRoute('/settings/servicenow-connection');
+      await waitFor(() =>
+        expect(screen.getByTestId('settings-tab-servicenow')).toHaveAttribute(
+          'aria-selected',
+          'true'
+        )
+      );
+      expect(screen.getByTestId('servicenow-tab')).toBeInTheDocument();
     });
 
     it('defaults to metrics tab when no tab is in the URL', async () => {

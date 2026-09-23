@@ -2283,6 +2283,8 @@ func (m *Settings) validate(all bool) error {
 
 	// no validation rules for EnableInternalPgQan
 
+	// no validation rules for SepEnabled
+
 	// no validation rules for EnableMcp
 
 	if len(errors) > 0 {
@@ -2400,6 +2402,8 @@ func (m *ReadOnlySettings) validate(all bool) error {
 	// no validation rules for AzurediscoverEnabled
 
 	// no validation rules for EnableAccessControl
+
+	// no validation rules for SepEnabled
 
 	// no validation rules for EnableMcp
 

@@ -708,6 +708,9 @@ type GetReadOnlySettingsOKBodySettings struct {
 	// True if Access Control is enabled.
 	EnableAccessControl bool `json:"enable_access_control,omitempty"`
 
+	// True if the SEP integration is enabled.
+	SepEnabled bool `json:"sep_enabled,omitempty"`
+
 	// True if the Model Context Protocol endpoint (/mcp) is enabled.
 	EnableMcp bool `json:"enable_mcp,omitempty"`
 }
