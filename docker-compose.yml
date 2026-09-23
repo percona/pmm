@@ -9,8 +9,8 @@
 #     docker compose -f docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
 #  3. Full suite + external clickhouse (server, client, postgres, mongo, mysql + sysbench, external ClickHouse):
 #     docker compose -f docker-compose.yml -f qan-api2/docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
-#  4. Any of the above + SEP (set PMM_ENABLE_SEP=1 and PMM_ENABLE_NOMAD=1 in .env first):
-#     docker compose -f docker-compose.yml --profile pmm --profile sep up -d
+#  4. Any of the above + extensions (set PMM_ENABLE_SEP=1 and PMM_ENABLE_NOMAD=1 in .env first):
+#     docker compose -f docker-compose.yml --profile pmm --profile extensions up -d
 #
 # Configuration: copy .env.example to .env and adjust variables (image tag, ports, credentials, AWS keys, etc.).
 #  Docker Compose loads .env automatically — no extra flags needed.
@@ -177,7 +177,7 @@ services:
   # addresses configured. Requires PMM_ENABLE_SEP=1 and PMM_ENABLE_NOMAD=1 on pmm-server.
   sep:
     profiles:
-      - sep
+      - extensions
     image: ${SEP_IMAGE:-percona/percona-sep:3.10.0}
     platform: linux/amd64
     container_name: sep
