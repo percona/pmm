@@ -4598,7 +4598,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "Min Virtual Memory Available ",
+            "title": "Min Virtual Memory Available",
             "type": "stat"
         },
         {
@@ -5467,7 +5467,7 @@
                             "calculatedInterval": "2s",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (node_name) (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} - \n(node_memory_MemFree_bytes{node_name=~\"$node_name\"} + node_memory_Buffers_bytes{node_name=~\"$node_name\"} + node_memory_Cached_bytes{node_name=~\"$node_name\"})))",
+                            "expr": "topk(5,avg by (node_name) (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} - \n(node_memory_MemFree_bytes{node_name=~\"$node_name\"} + node_memory_Buffers_bytes{node_name=~\"$node_name\"} + (node_memory_Cached_bytes{node_name=~\"$node_name\"} + \n(node_memory_SReclaimable_bytes{node_name=~\"$node_name\"} - node_memory_Shmem_bytes{node_name=~\"$node_name\"} or node_memory_Cached_bytes{node_name=~\"$node_name\"} * 0)))))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -5479,7 +5479,7 @@
                             "target": ""
                         },
                         {
-                            "expr": "avg by () (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} - \n(node_memory_MemFree_bytes{node_name=~\"$node_name\"} + \nnode_memory_Buffers_bytes{node_name=~\"$node_name\"} + \nnode_memory_Cached_bytes{node_name=~\"$node_name\"}))",
+                            "expr": "avg by () (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} - \n(node_memory_MemFree_bytes{node_name=~\"$node_name\"} + \nnode_memory_Buffers_bytes{node_name=~\"$node_name\"} + \n(node_memory_Cached_bytes{node_name=~\"$node_name\"} + \n(node_memory_SReclaimable_bytes{node_name=~\"$node_name\"} - node_memory_Shmem_bytes{node_name=~\"$node_name\"} or node_memory_Cached_bytes{node_name=~\"$node_name\"} * 0))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -6724,7 +6724,7 @@
                     "refId": "A"
                 }
             ],
-            "title": " Top Disk Latency",
+            "title": "Top Disk Latency",
             "type": "stat"
         },
         {
@@ -6804,7 +6804,7 @@
                     "refId": "A"
                 }
             ],
-            "title": " Top Disk Operations",
+            "title": "Top Disk Operations",
             "type": "stat"
         },
         {
@@ -6884,7 +6884,7 @@
                     "refId": "A"
                 }
             ],
-            "title": " Top Disk Bandwidth",
+            "title": "Top Disk Bandwidth",
             "type": "stat"
         },
         {
@@ -6964,7 +6964,7 @@
                     "refId": "A"
                 }
             ],
-            "title": " Top I/O Activity",
+            "title": "Top I/O Activity",
             "type": "stat"
         },
         {
@@ -7838,7 +7838,7 @@
                             "refId": "A"
                         }
                     ],
-                    "title": " Disk Latency",
+                    "title": "Disk Latency",
                     "type": "grafana-polystat-panel"
                 },
                 {
@@ -8274,7 +8274,7 @@
                             "refId": "A"
                         }
                     ],
-                    "title": " Disk Bandwidth",
+                    "title": "Disk Bandwidth",
                     "type": "grafana-polystat-panel"
                 },
                 {
@@ -8807,7 +8807,7 @@
                     "refId": "A"
                 }
             ],
-            "title": " Top Receive Network Traffic",
+            "title": "Top Receive Network Traffic",
             "type": "stat"
         },
         {
@@ -8887,7 +8887,7 @@
                     "refId": "A"
                 }
             ],
-            "title": " Top Transmit Network Traffic",
+            "title": "Top Transmit Network Traffic",
             "type": "stat"
         },
         {
