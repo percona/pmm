@@ -76,7 +76,7 @@ func TestEnvVarValidator(t *testing.T) {
 	t.Run("SEP env variables", func(t *testing.T) {
 		t.Parallel()
 
-		envs := []string{"PMM_ENABLE_SEP=1", "PMM_SEP_POSTGRES_PASSWORD=s3cr3t"}
+		envs := []string{"PMM_ENABLE_SEP=1", "PMM_SEP_POSTGRES_PASSWORD=s3cr3t", "PMM_SEP_ADDRESS=sep:9000"}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
@@ -142,6 +142,18 @@ func TestEnvVarValidator(t *testing.T) {
 			"PMM_CLICKHOUSE_CONFIG=low-memory",
 			"PMM_DISABLE_BUILTIN_CLICKHOUSE=1",
 		}
+		expectedEnvVars := &models.ChangeSettingsParams{}
+
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Equal(t, expectedEnvVars, gotEnvVars)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
+	t.Run("Skipped internal node name prefixes env var", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{"PMM_INTERNAL_NODE_NAME_PREFIXES=pmm-pmm-ha-pg-db-"}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)

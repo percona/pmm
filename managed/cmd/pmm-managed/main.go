@@ -234,6 +234,20 @@ type gRPCServerDeps struct {
 	versionCache              *versioncache.Service
 	vmdb                      *victoriametrics.Service
 	vmalert                   *vmalert.Service
+	internalNodePrefixes      []string
+}
+
+// parseNodeNamePrefixes splits a comma-separated list of Node name prefixes.
+func parseNodeNamePrefixes(value string) []string {
+	var prefixes []string
+	for p := range strings.SplitSeq(value, ",") {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			prefixes = append(prefixes, p)
+		}
+	}
+
+	return prefixes
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -278,7 +292,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	agentv1.RegisterAgentServiceServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
 	agentpb.RegisterAgentServer(gRPCServer, agentgrpc.NewAgentPBServer(deps.handler))
 
-	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
+	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.grafanaClient)
 	agentsSvc := inventory.NewAgentsService(
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
 		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService,
@@ -304,6 +318,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
 		deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb,
 		deps.versionCache, deps.grafanaClient, v1.NewAPI(*deps.vmClient),
+		deps.internalNodePrefixes,
+		deps.ha.Params().Enabled,
 	)
 
 	managementv1.RegisterManagementServiceServer(gRPCServer, managementSvc)
@@ -334,7 +350,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	go rtaStore.Run(ctx)
 
 	// run server until it is stopped gracefully or not
-	listener, err := net.Listen("tcp", gRPCAddr)
+	listener, err := (&net.ListenConfig{}).Listen(ctx, "tcp", gRPCAddr)
 	if err != nil {
 		l.Fatal(err)
 	}
@@ -510,7 +526,7 @@ func runDebugServer(ctx context.Context) {
 		l.Fatal(err)
 	}
 	http.HandleFunc("/debug", func(rw http.ResponseWriter, _ *http.Request) {
-		rw.Write(buf.Bytes()) //nolint:errcheck
+		_, _ = rw.Write(buf.Bytes())
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugAddr, strings.Join(handlers, "\n\t"))
 
@@ -742,6 +758,11 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		Envar("PMM_HA_GRAFANA_GOSSIP_PORT").
 		Default("9762").
 		Int()
+
+	internalNodePrefixesF := kingpin.Flag("internal-node-name-prefixes",
+		"Comma-separated list of Node name prefixes reserved for the internal infrastructure of this PMM deployment").
+		Envar("PMM_INTERNAL_NODE_NAME_PREFIXES").
+		String()
 
 	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
 
@@ -1192,6 +1213,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				grafanaClient:             grafanaClient,
 				handler:                   agentsHandler,
 				ha:                        haService,
+				internalNodePrefixes:      parseNodeNamePrefixes(*internalNodePrefixesF),
 				jobsService:               jobsService,
 				minioClient:               minioClient,
 				pbmPITRService:            pbmPITRService,

@@ -165,6 +165,9 @@ message UniversalNode {
   string instance_id = 18;
   // True if this node is a PMM Server node (HA mode).
   bool is_pmm_server_node = 19;
+  // True if this node belongs to the internal infrastructure of a PMM deployment
+  // (e.g. the HA persistence layer) and must not host user monitoring workloads.
+  bool is_pmm_internal_node = 20;
 }
 
 message ListNodesRequest {

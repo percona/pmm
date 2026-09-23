@@ -3,7 +3,7 @@
 > **Parent guide**: [AGENTS.md](../AGENTS.md) — product overview, architecture, domain model, global conventions
 > **Related**: [api/AGENTS.md](../api/AGENTS.md) (API definitions consumed by UI) · [managed/AGENTS.md](../managed/AGENTS.md) (server backend)
 
-The `/ui` directory contains the PMM web frontend — a React/TypeScript application that provides the primary user interface for Percona Monitoring and Management. It runs inside a Grafana iframe on PMM Server and also hosts standalone pages for updates, RTA, and help.
+The `/ui` directory contains the PMM web frontend — a React/TypeScript application that provides the primary user interface for Percona Monitoring and Management. It is the outer shell served at `/pmm-ui` on PMM Server: it embeds Grafana in an iframe and hosts its own pages for updates, RTA, and help.
 
 ## Architecture
 
@@ -39,7 +39,7 @@ The UI uses a **pnpm workspaces + Turborepo** monorepo with three packages:
 
 ### Communication with Grafana
 
-PMM UI runs inside a Grafana iframe. Cross-frame communication uses `CrossFrameMessenger` from `@pmm/shared`:
+PMM UI is the top frame and Grafana runs inside its `#grafana-iframe`; the `pmm-compat` plugin runs on the Grafana side and targets `window.top`. Cross-frame communication uses `CrossFrameMessenger` from `@pmm/shared`:
 
 - Navigation events
 - Theme synchronization
@@ -85,6 +85,7 @@ Providers are composed in `Providers.tsx`, all wrapped by `ThemeContextProvider`
 - `UserProvider` — current user info
 - `SettingsProvider` — PMM Server settings
 - `UpdatesProvider` — update availability
+- `VersionProvider` — reloads the page after the server is upgraded externally
 - `GrafanaProvider` — Grafana integration state
 - `NavigationProvider` — sidebar navigation
 - `TourProvider` — onboarding tour

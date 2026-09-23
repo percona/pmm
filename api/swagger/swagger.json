@@ -17868,7 +17868,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "warning": {
+                  "description": "Warning message if there are more service tokens attached to service account.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
@@ -21353,6 +21360,11 @@
                         "description": "True if this node is a PMM Server node (HA mode).",
                         "type": "boolean",
                         "x-order": 18
+                      },
+                      "is_pmm_internal_node": {
+                        "description": "True if this node belongs to the internal infrastructure of a PMM deployment\n(e.g. the HA persistence layer) and must not host user monitoring workloads.",
+                        "type": "boolean",
+                        "x-order": 19
                       }
                     }
                   },
@@ -21910,6 +21922,11 @@
                       "description": "True if this node is a PMM Server node (HA mode).",
                       "type": "boolean",
                       "x-order": 18
+                    },
+                    "is_pmm_internal_node": {
+                      "description": "True if this node belongs to the internal infrastructure of a PMM deployment\n(e.g. the HA persistence layer) and must not host user monitoring workloads.",
+                      "type": "boolean",
+                      "x-order": 19
                     }
                   },
                   "x-order": 0
@@ -27681,6 +27698,11 @@
                   "description": "Connection timeout for exporter (if set).",
                   "type": "string",
                   "x-order": 25
+                },
+                "pmm_agent_id": {
+                  "description": "The pmm-agent identifier which should run agents. Defaults to the PMM Server's own pmm-agent.",
+                  "type": "string",
+                  "x-order": 26
                 }
               }
             }
@@ -31454,6 +31476,11 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "sep_enabled": {
+                      "description": "True if the SEP integration is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -31772,6 +31799,11 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "sep_enabled": {
+                      "description": "True if the SEP integration is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -31872,6 +31904,11 @@
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
                       "x-order": 7
+                    },
+                    "sep_enabled": {
+                      "description": "True if the SEP integration is enabled.",
+                      "type": "boolean",
+                      "x-order": 8
                     }
                   },
                   "x-order": 0

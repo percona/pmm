@@ -633,7 +633,7 @@ telemetry:
 
   - id: PMMNodeMemoryUsage
     source: VM
-    query: clamp_min(avg by (node_name) (((avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m])) - ((avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]))))),0)
+    query: clamp_min(avg by (node_name) (((avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m])) - ((avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]))+((avg_over_time(node_memory_SReclaimable_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_SReclaimable_bytes{node_name=~"pmm-server"}[5m]))-(avg_over_time(node_memory_Shmem_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Shmem_bytes{node_name=~"pmm-server"}[5m])) or (avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]))*0)))),0)
     summary: "PMM node memory usage"
     data:
       - metric_name: "pmm_server_node_memory_usage"
@@ -973,6 +973,13 @@ telemetry:
       - metric_name: "pmm_server_builtin_postgres_disable"
         column: "PMM_DISABLE_BUILTIN_POSTGRES"
 
+  - id: PMMServerSEPEnabled
+    source: ENV_VARS
+    summary: "Use of SEP integration"
+    data:
+      - metric_name: "pmm_server_sep_enabled"
+        column: "PMM_ENABLE_SEP"
+
   - id: PMMServerHAUseOfDBs
     source: ENV_VARS
     transform:
@@ -985,6 +992,32 @@ telemetry:
         column: "PMM_POSTGRES_ADDR"
       - metric_name: "pmm_server_ha_vm_url"
         column: "PMM_VM_URL"
+
+  # Deployment environment, reported as presence flags. Only the pmm and pmm-ha Helm charts set
+  # PMM_INSTALL_METHOD, so its presence means "installed with Helm"; KUBERNETES_SERVICE_HOST is
+  # injected by kubelet into every Pod (even when enableServiceLinks is false), so it also covers
+  # Kubernetes deployments that skip Helm. StripValues reports presence only: both values are
+  # external input that a deployment can set to anything, and neither is needed beyond the flag.
+  # Should PMM_INSTALL_METHOD ever carry more than one value, report it through a bounded
+  # allowlist rather than verbatim. All are absent on Docker, OVF, AMI and Azure, where the
+  # variables are unset.
+  - id: PMMServerInstalledWithHelm
+    source: ENV_VARS
+    transform:
+      type: StripValues
+    summary: "PMM Server was installed with the Helm chart"
+    data:
+      - metric_name: "pmm_server_installed_with_helm"
+        column: "PMM_INSTALL_METHOD"
+
+  - id: PMMServerInKubernetes
+    source: ENV_VARS
+    transform:
+      type: StripValues
+    summary: "PMM Server runs inside a Kubernetes Pod"
+    data:
+      - metric_name: "pmm_server_in_kubernetes"
+        column: "KUBERNETES_SERVICE_HOST"
 
   # Real-Time Analytics for MongoDB (RTA)
   - id: RTAMongoAgentsRegisteredTotalCount
