@@ -1,6 +1,6 @@
 # Run PMM Client as a Kubernetes pod
 
-Deploy the [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/) as a Kubernetes pod to monitor your databases without installing software on your host system. 
+Run PMM Client as a Kubernetes pod to monitor your databases without installing software on your hosts.
 
 This deployment approach provides:
 
@@ -18,32 +18,46 @@ Before deploying PMM Client:
 
 2. Check [system requirements](prerequisites.md) to ensure your environment meets the minimum criteria.
 
-3. [Install and configure PMM Server](../install-pmm-server/index.md) as you'll need its address to configure the Client. See [Address PMM Server](#address-pmm-server).
+3. [Install and configure PMM Server](../install-pmm-server/index.md) as you'll need its address to configure the Client. See [Configure the PMM Server address](#configure-the-pmm-server-address).
 
 4. [Set up firewall rules](../plan-pmm-installation/network_and_firewall.md) to allow communication between PMM Client and PMM Server.
 
 5. [Create database monitoring users](prerequisites.md#database-monitoring-requirements) with appropriate permissions for the databases you plan to monitor.
 
+6. Use PMM Client 3.10.0 or later, otherwise you'll lose registered Services on every restart regardless of storage. This is because earlier versions re-register the Node on each container start, and PMM Server responds by removing the Node together with every Service on it.
+
 ## Installation and setup
 
-### Address PMM Server
+### Configure the PMM Server address
 
-Both examples below set `PMM_AGENT_SERVER_ADDRESS` to `X.X.X.X:443`. What belongs there depends on where PMM Server runs:
+Find the address of your PMM Server to set as `PMM_AGENT_SERVER_ADDRESS` when you deploy PMM Client in the next section. Without a working address, the Client can't register with PMM Server or send it data. How you find it depends on where PMM Server runs:
 
-- **Outside the cluster**: its IP address or hostname, for example `pmm.example.com:443`.
-- **In the same cluster**: the DNS name of its Kubernetes Service. `kubectl get svc -n <namespace>` lists the Service and the port it listens on.
+=== "PMM Server outside the cluster"
 
-!!! caution alert alert-warning "Qualify the Service name with its namespace"
-    A Service name on its own resolves only from inside the namespace that Service lives in. A PMM Client deployed to any other namespace has to address PMM Server as `<service>.<namespace>.svc.cluster.local`:
+    Use its hostname or IP address and port, for example `pmm.example.com:443`.
 
-    ```yaml
-    - name: PMM_AGENT_SERVER_ADDRESS
-      value: monitoring-service.pmm.svc.cluster.local:443
-    ```
+=== "PMM Server in the same cluster"
 
-    An unqualified name leaves the Client unable to register, and the pod log names the lookup rather than the connection. See [the address does not resolve](#failed-to-register-pmm-agent-on-pmm-server-the-address-does-not-resolve).
+    Find and qualify the address of PMM Server's Kubernetes Service.
+    {.power-number}
 
-For PMM Server in [HA mode](../install-HA-clustered.md), address the HAProxy Service, for example `pmm-ha-haproxy.pmm.svc.cluster.local:443`. Its `monitoring-service` Service reaches the PMM pods directly and bypasses the leader election, so it is not the address to register against.
+    1. Find PMM Server's Service:
+
+      ```sh
+      kubectl get svc -n <namespace>
+      ```
+
+        - The standard PMM Server Helm chart names this Service `monitoring-service` by default.
+        - For PMM Server in [HA mode](../install-HA-clustered.md), register against the HAProxy Service instead, for example `pmm-ha-haproxy`. The HAProxy Service routes traffic to the active PMM leader; a Service that connects directly to a PMM pod bypasses leader election and does not.
+
+    2. Qualify the Service name with its namespace. A Service name on its own resolves only from inside its own namespace, so a Client deployed to a different namespace needs the full form:
+
+        ```yaml
+        - name: PMM_AGENT_SERVER_ADDRESS
+          value: monitoring-service.pmm.svc.cluster.local:443
+        ```
+
+        An unqualified name fails before the Client even attempts a connection: it can't look up the address at all, and the pod log names the lookup rather than the connection, which reads like the wrong problem. See [the address does not resolve](#failed-to-register-pmm-agent-on-pmm-server-the-address-does-not-resolve) if you hit this.
 
 ### Deploy PMM Client
 
@@ -53,15 +67,7 @@ Choose your deployment approach:
 - **Sidecar**: Deploy PMM Client alongside a database in the same pod 
 
 === "Deploy PMM Client as a Standalone container"
-    Deploy PMM Client as a StatefulSet, so that the pod keeps its name when it restarts. PMM
-    identifies a Node by name, and the Agent identity that PMM Server issues is stored in a file on
-    the pod's volume, so both the name and the volume have to be stable for the Services you add to
-    survive a restart or an image upgrade.
-
-    !!! caution alert alert-warning "Requires PMM Client 3.10.0 or later"
-        Earlier versions register the Node again on every container start, and PMM Server answers a
-        re-registration by removing the Node together with every Service configured on it. On those
-        versions the Services you add to a restarted pod are lost regardless of the storage you give it.
+    Deploy PMM Client as a StatefulSet so the pod keeps its name when it restarts. The volume preserves the identity PMM Server issued to the agent, so your monitored services survive restarts and image upgrades.
 
     Follow these steps to deploy PMM Client using `kubectl`:
     {.power-number}
@@ -81,7 +87,7 @@ Choose your deployment approach:
         --from-literal=PMM_AGENT_SERVER_PASSWORD=admin
         ```
 
-    3. Create `pmm-client.yaml` to define the StatefulSet and its volume. Replace `X.X.X.X:443` with [the address of your PMM Server](#address-pmm-server):
+    3. Create `pmm-client.yaml` to define the StatefulSet and its volume. Replace `X.X.X.X:443` with [the address of your PMM Server](#configure-the-pmm-server-address):
 
         ```yaml
         apiVersion: apps/v1
@@ -197,7 +203,7 @@ Choose your deployment approach:
 
 
 === "Deploy PMM Client as a Sidecar container"
-    Follow these steps to deploy PMM Client as a Sidecar container to a MySQL container using `kubectl`:
+    Follow these steps to deploy PMM Client as a sidecar alongside MySQL using `kubectl`:
     {.power-number}
 
     1. (Optional) Create a namespace named `pmm-client-test` for the deployment and set it as the default namespace:
@@ -263,7 +269,7 @@ Choose your deployment approach:
          --from-literal=MYSQL_ROOT_PASSWORD=very_secure_password
         ```
     
-    6. Create `mysql-pmm-client-pod.yaml` to define a Pod running MySQL 9.0 container with a PMM Client container running as Sidecar. Replace `X.X.X.X:443` with [the address of your PMM Server](#address-pmm-server):
+    6. Create `mysql-pmm-client-pod.yaml` to define a Pod running MySQL 9.0 with PMM Client as a sidecar. Replace `X.X.X.X:443` with [the address of your PMM Server](#configure-the-pmm-server-address):
 
         ```yaml
         apiVersion: apps/v1
@@ -370,32 +376,31 @@ If you get `Failed to register pmm-agent on PMM Server: connection refused`, thi
 
 ### Failed to register pmm-agent on PMM Server: the address does not resolve
 
-A registration failure naming the lookup rather than the connection means the pod cannot resolve the name in `PMM_AGENT_SERVER_ADDRESS`:
+This error means the pod cannot resolve the name set in `PMM_AGENT_SERVER_ADDRESS`:
 
 ```
 Failed to register pmm-agent on PMM Server: Post "https://monitoring-service:443/v1/management/nodes": dial tcp: lookup monitoring-service on 172.20.0.10:53: server misbehaving.
 ```
 
-How the message ends differs between clusters — `no such host` is as common as `server misbehaving` — but `lookup` is what marks it as name resolution. The usual cause is a Kubernetes Service name used from another namespace, which resolves only from within its own. Qualify it as `<service>.<namespace>.svc.cluster.local`, as in [Address PMM Server](#address-pmm-server), then check what the pod reaches:
+The message ending varies (`no such host` is as common as `server misbehaving`), but `lookup` is what identifies name resolution as the cause. The usual cause is an unqualified Kubernetes Service name, which resolves only within its own namespace. Qualify the name as `<service>.<namespace>.svc.cluster.local` as described in [Configure the PMM Server address](#configure-the-pmm-server-address), then verify connectivity:
 
 ```sh
 kubectl exec pmm-client-0 -- curl -sk -o /dev/null -w '%{http_code}\n' \
   https://<service>.<namespace>.svc.cluster.local:443/v1/server/readyz
 ```
 
-`200` means PMM Server answers at that address. The endpoint needs no credentials, so anything else is about the address itself rather than the ones in your Secret.
+A `200` response means PMM Server is reachable at that address. The endpoint needs no credentials, so any other response points to an address problem, not the credentials in your Secret.
 
 ### Pod stuck in Pending state
-Check that the volume was bound. The standalone StatefulSet claims it through its volume claim
-template, which names the claim after the template and the pod:
+
+Check that the volume was bound. The standalone StatefulSet claims it through its volume claim template, which names the claim after the template and the pod:
 
 ```sh
 kubectl get pvc
 kubectl describe pvc pmm-agent-pmm-client-0
 ```
 
-A claim left `Pending` usually means the cluster has no default StorageClass. List the available
-classes with `kubectl get storageclass` and set `storageClassName` in the claim template.
+A claim left `Pending` usually means the cluster has no default StorageClass. List the available classes with `kubectl get storageclass` and set `storageClassName` in the claim template.
 
 ### View PMM Client logs
 

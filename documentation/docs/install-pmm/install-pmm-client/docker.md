@@ -24,20 +24,15 @@ Complete these essential steps before installation:
 
 5. [Create database monitoring users](prerequisites.md#database-monitoring-requirements) with appropriate permissions for the databases you plan to monitor.
 
-## Installation and setup
+6. Use **PMM Client 3.10.0 or later**. Earlier versions register the Node again on every container start, and PMM Server responds by removing the Node together with every service on it, so services are lost on restart regardless of the volume you give it.
 
-Set up PMM Client by deploying it as a Docker container and registering it with PMM Server.
+## Installation and setup
 
 ### Deploy and register PMM Client
 
-Deploy and register PMM Client to start monitoring your node. 
+Deploy PMM Client with a fixed node name and a mounted volume for its configuration file so PMM Server can identify it across restarts, container re-creations, and image upgrades. Without these, a re-created container loses its identity and its monitored services.
 
-PMM identifies a Node by name, and the identity that PMM Server issues to the pmm-agent is stored in its configuration file. Keep both stable, a fixed `PMM_AGENT_SETUP_NODE_NAME` and a volume for the configuration, and the Node together with the Services you add survives a restart, a re-created container, or an image upgrade.
-
-!!! caution alert alert-warning "Requires PMM Client 3.10.0 or later"
-    Earlier versions register the Node again on every container start, and PMM Server answers a re-registration by removing the Node together with every Service configured on it. On those versions the Services you add to a restarted container are lost regardless of the volume you give it.
-
-Registration gives PMM Server permission to collect metrics from your infrastructure and display them in monitoring dashboards. PMM supports two authentication methods: service account tokens (recommended) and username/password credentials. 
+PMM supports two authentication methods for registration: service account tokens (recommended) and username/password credentials.
 
 To deploy and register PMM Client using Docker:
 {.power-number}
@@ -89,8 +84,8 @@ To deploy and register PMM Client using Docker:
     
             **Parameters explained:**
     
-            - `PMM_AGENT_SETUP_NODE_NAME` - Name of the Node in PMM. Keep it fixed: it defaults to the hostname, which a re-created container does not keep, and `pmm-agent setup` stops when PMM Server has the pmm-agent registered under another name
-            - `pmm-client-config` - Named volume holding `pmm-agent.yaml` with the identity PMM Server issued to the pmm-agent. Without it a re-created container has nothing to keep, and registering the same Node name again fails
+            - `PMM_AGENT_SETUP_NODE_NAME`: name of the Node in PMM. Keep it fixed: it defaults to the hostname, which a re-created container does not keep, and `pmm-agent setup` stops if PMM Server has the pmm-agent registered under another name
+            - `pmm-client-config`: named volume holding `pmm-agent.yaml` with the identity PMM Server issued to the pmm-agent. Without it a re-created container has nothing to keep, and registering the same Node name again fails
             - `PMM_AGENT_SETUP_NODE_TYPE` - (Optional) Node type: generic, container, etc.
             - `PMM_AGENT_SERVER_ADDRESS` - Your PMM Server’s IP address or hostname
             - `service_token` - Use this exact string as the username (not a placeholder!)
@@ -140,7 +135,7 @@ To deploy and register PMM Client using Docker:
 !!! hint alert-success "Important"
     If you get `Failed to register pmm-agent on PMM Server: connection refused`, this typically means that the IP address is incorrect or the PMM Server is unreachable.
 
-!!! caution alert alert-warning "Recovering a Node after losing the volume"
+!!! caution "Recovering a Node after losing the volume"
     If the volume is deleted while the Node still exists in PMM, the Client cannot register that Node name again and the container exits. Add `-e PMM_AGENT_SETUP_FORCE=1` for one start to take the name over. PMM Server then removes the old Node together with every Service on it, so drop the variable again afterwards.
     
 ## Verify the connection
