@@ -178,7 +178,7 @@ services:
   sep:
     profiles:
       - extensions
-    image: ${SEP_IMAGE:-percona/percona-sep:3}
+    image: ${PMM_SEP_IMAGE:-percona/percona-sep:3}
     platform: linux/amd64
     container_name: sep
     restart: always
@@ -195,8 +195,8 @@ services:
       GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
       # Where task executors download scripts from. The default is reachable only from this
-      # Compose network; see SEP_BASE_URL in .env.example.
-      BASE_URL: ${SEP_BASE_URL:-http://sep:9000/sep}
+      # Compose network; see PMM_SEP_BASE_URL in .env.example.
+      BASE_URL: ${PMM_SEP_BASE_URL:-http://sep:9000/sep}
     volumes:
       - pmm-sep:/run/secrets/sep:ro
       - sep-state:/home/sep/state
