@@ -363,6 +363,54 @@ func TestListInventoryHosts(t *testing.T) {
 	})
 }
 
+func TestListInventoryServices(t *testing.T) {
+	t.Parallel()
+
+	t.Run("reads the paginated envelope, keeping the caller's filters", func(t *testing.T) {
+		t.Parallel()
+
+		// GET /services answers the same PaginatedResponse envelope GET /hosts does
+		// (PMM-15326: "Bound the estate listings") -- decoding a bare array here is
+		// exactly the bug this PR fixes for /hosts, and this handler had no coverage
+		// at all, which is how it was missed.
+		stub := newSEPStub(t, http.StatusOK, `{"items": [
+		  {"service_id": "s1", "node_id": "n1", "name": "mongo-1", "port": 27017, "role": "PRIMARY"},
+		  {"service_id": "s2", "node_id": "n1", "name": "mongo-2", "port": 27018, "role": null}
+		], "total": 2, "offset": 0, "limit": 200}`)
+		nodeID, failing := "n1", true
+
+		response, err := stub.service(t).ListInventoryServices(t.Context(), &omv1.ListInventoryServicesRequest{
+			NodeId:  &nodeID,
+			Failing: &failing,
+		})
+
+		require.NoError(t, err)
+		require.Len(t, response.GetServices(), 2)
+		assert.Equal(t, "s1", response.GetServices()[0].GetServiceId())
+		assert.Equal(t, "/api/apps/om_inventory/services", stub.path)
+		// The caller's filters have to survive being copied onto the per-page query.
+		assert.Contains(t, stub.query, "node_id=n1")
+		assert.Contains(t, stub.query, "failing=true")
+	})
+
+	t.Run("walks every page", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(t, http.StatusOK,
+			`{"items": [{"service_id": "s1", "node_id": "n1", "name": "mongo-1"}], "total": 2, "offset": 0, "limit": 200}`,
+			`{"items": [{"service_id": "s2", "node_id": "n2", "name": "mongo-2"}], "total": 2, "offset": 1, "limit": 200}`)
+
+		response, err := stub.service(t).ListInventoryServices(t.Context(), &omv1.ListInventoryServicesRequest{})
+
+		require.NoError(t, err)
+		require.Len(t, stub.calls, 2)
+		require.Len(t, response.GetServices(), 2)
+		assert.Equal(t, "s1", response.GetServices()[0].GetServiceId())
+		assert.Equal(t, "s2", response.GetServices()[1].GetServiceId())
+		assert.Contains(t, stub.calls[1].query, "offset=1")
+	})
+}
+
 func TestInventoryServiceProjection(t *testing.T) {
 	t.Parallel()
 
