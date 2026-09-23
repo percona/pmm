@@ -291,9 +291,11 @@ func seedRetentionCounters() {
 // until ctx is canceled. A pass that failed is retried after retry instead, which doubles with
 // each consecutive failure up to interval.
 //
-// Every replica runs one of these against the same ClickHouse, all with the same retention
-// period: it is fixed at start-up, so they cannot disagree about which partitions are old.
-// DROP PARTITION is a no-op once the partition is gone, so the repeated work is harmless.
+// Every replica runs one of these against the same ClickHouse. Once a rollout completes they all
+// share one retention period, and DROP PARTITION is a no-op once the partition is gone, so the
+// repeated work is harmless. During a rolling upgrade that changes the period they do disagree:
+// a replica still on the old, shorter period drops partitions the new one was meant to keep, and
+// those cannot be recovered.
 //
 // Nothing here can fail loudly on its own: a node that never applies retention shows up much
 // later as a full disk. So every pass records its outcome in mRetentionPasses, and the first

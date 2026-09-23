@@ -72,6 +72,10 @@ type Server struct {
 	envRW       sync.RWMutex
 	envSettings *models.ChangeSettingsParams
 
+	// setup() retries UpdateSettingsFromEnv every few seconds until start-up succeeds, and the
+	// retention line is meant to be read once per start.
+	retentionLogged sync.Once
+
 	sshKeyM sync.Mutex
 }
 
@@ -147,15 +151,16 @@ func (s *Server) UpdateSettingsFromEnv(ctx context.Context, env []string) []erro
 		return []error{err}
 	}
 	s.envSettings = envSettings
-	s.logDataRetention(newSettings)
 	err = s.UpdateConfigurations(ctx)
 	if err != nil {
 		return []error{err}
 	}
+	s.retentionLogged.Do(func() { s.logDataRetention(newSettings) })
 	return nil
 }
 
-// logDataRetention reports the retention period in force and where it came from.
+// logDataRetention reports the retention period in force and where it came from, once it has been
+// applied.
 //
 // A boot-time setting has no other feedback channel. In an HA cluster the value cannot be read
 // back out of the UI as confirmation that it took effect, because the field is not writable
@@ -174,15 +179,19 @@ func (s *Server) logDataRetention(settings *models.Settings) {
 		return
 	}
 
+	// Not "fixed": every replica writes its own environment to the shared settings row when it
+	// starts, and this one re-renders its configuration from that row, so a replica that restarts
+	// with a different value changes what this one enforces too.
 	if fromEnv {
-		s.l.Infof("Data retention: %dd, set by PMM_DATA_RETENTION and fixed for the lifetime of this process.", days)
+		s.l.Infof("Data retention: %dd, set by PMM_DATA_RETENTION. High availability is enabled, "+
+			"so it cannot be changed through the settings API; every replica takes it from the environment when it starts.", days)
 		return
 	}
 
 	// Warned rather than corrected. Substituting the default would silently shorten retention
 	// for a deployment that had a longer period stored, and deleted metrics do not come back.
 	s.l.Warnf("Data retention: %dd, carried over from the stored settings. High availability is enabled "+
-		"and PMM_DATA_RETENTION is not set, so nothing can change this value while this process runs. "+
+		"and PMM_DATA_RETENTION is not set, so it cannot be changed through the settings API. "+
 		"The pmm-ha chart is expected to supply it through dataRetentionDays.", days)
 }
 
@@ -531,7 +540,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Low resolution for metrics is set via PMM_METRICS_RESOLUTION_LR environment variable.")
 	}
 
-	err := s.validateDataRetention(ctx, req)
+	err := s.validateDataRetention(req)
 	if err != nil {
 		return err
 	}
@@ -539,13 +548,14 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 	return nil
 }
 
-// validateDataRetention refuses a request that would change data retention while it cannot be
-// applied.
+// validateDataRetention checks the requested data retention against what needs no stored state.
 //
 // Outside high availability the only lock is PMM_DATA_RETENTION, checked the same way as every
-// other environment-pinned setting. In HA the value is fixed at start-up on every replica, so a
-// change is refused whatever the environment says.
-func (s *Server) validateDataRetention(ctx context.Context, req *serverv1.ChangeSettingsRequest) error {
+// other environment-pinned setting. In HA the value is checked here only for its format, so that
+// malformed input gets the same InvalidArgument as outside HA rather than the HA refusal: whether
+// it changes the stored value is decided by refuseDataRetentionChangeInHA, inside the transaction
+// that writes it.
+func (s *Server) validateDataRetention(req *serverv1.ChangeSettingsRequest) error {
 	if !s.haService.Params().Enabled {
 		if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
 			return status.Error(codes.FailedPrecondition, "Data retention is set via the PMM_DATA_RETENTION environment variable.")
@@ -554,30 +564,41 @@ func (s *Server) validateDataRetention(ctx context.Context, req *serverv1.Change
 		return nil
 	}
 
-	// Repeating the value already in force is not a change. The UI submits the whole settings
-	// form, so refusing an unchanged retention would block every other setting on the page.
+	err := models.ValidateSettings(&models.ChangeSettingsParams{DataRetention: req.DataRetention.AsDuration()})
+	if err != nil {
+		return status.Errorf(codes.InvalidArgument, "Invalid argument: %s.", err)
+	}
+
+	return nil
+}
+
+// refuseDataRetentionChangeInHA refuses a request that would change data retention in HA, where
+// the value comes only from the pmm-ha chart. It compares against the settings row read by the
+// same transaction that then writes it, not a separate read, so the check and the write see the
+// same row.
+//
+// That narrows the window but does not close it: the transaction runs at READ COMMITTED and the
+// settings row is rewritten whole, so another replica can still commit in between. The same holds
+// for every other setting in HA.
+func (s *Server) refuseDataRetentionChangeInHA(req *serverv1.ChangeSettingsRequest, stored *models.Settings) error {
+	if !s.haService.Params().Enabled {
+		return nil
+	}
+
+	// Repeating the value already in force is not a change. Clients send the whole settings
+	// form back (the UI does until it learns HA is enabled), so refusing an unchanged retention
+	// would block every other setting on the page.
 	if req.DataRetention == nil || req.DataRetention.AsDuration() == 0 {
 		return nil
 	}
 
-	// Reading the stored value can fail, and this returns that failure rather than falling
-	// through to "no change requested". Treating an unreadable settings row as permission to
-	// proceed would let retention move in an HA cluster exactly when the database is unhealthy,
-	// and shortening retention deletes data that cannot be brought back.
-	settings, err := models.GetSettings(s.db.WithContext(ctx))
-	if err != nil {
-		s.l.Errorf("Failed to read the stored settings while validating data retention: %s.", err)
-
-		return status.Error(codes.Internal, "Failed to read the stored data retention.")
-	}
-
-	if req.DataRetention.AsDuration() == settings.DataRetention {
+	if req.DataRetention.AsDuration() == stored.DataRetention {
 		return nil
 	}
 
 	return status.Error(codes.FailedPrecondition,
 		"Data retention cannot be changed at runtime when high availability is enabled. "+
-			"Set it with the pmm-ha chart's dataRetentionDays value and apply it with helm upgrade.")
+			"Set it with the pmm-ha chart's dataRetentionDays value (rendered as PMM_DATA_RETENTION) and apply it with helm upgrade.")
 }
 
 // ChangeSettings changes PMM Server settings.
@@ -596,6 +617,11 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		oldSettings, err = models.GetSettings(tx)
 		if err != nil {
 			return fmt.Errorf("failed to get server settings: %w", err)
+		}
+
+		err = s.refuseDataRetentionChangeInHA(req, oldSettings)
+		if err != nil {
+			return err
 		}
 
 		metricsRes := req.MetricsResolutions

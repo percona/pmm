@@ -26,8 +26,11 @@ export const toFormValues = (
   accessControl: settings.enableAccessControl,
 });
 
+// A locked retention is left out rather than echoed back: the form value can be stale, and the
+// server refuses any retention that differs from the stored one.
 export const toPayload = (
-  values: AdvancedSettingsFormValues
+  values: AdvancedSettingsFormValues,
+  { retentionLocked = false }: { retentionLocked?: boolean } = {}
 ): UpdateSettingsPayload => {
   const dataRetention = `${Math.round(parseFloat(values.retention) * SECONDS_IN_DAY)}s`;
   const advisorRunIntervals = values.stt
@@ -39,7 +42,7 @@ export const toPayload = (
     : undefined;
 
   return {
-    dataRetention,
+    ...(retentionLocked ? {} : { dataRetention }),
     pmmPublicAddress: values.publicAddress,
     enableTelemetry: values.telemetry,
     enableUpdates: values.updates,

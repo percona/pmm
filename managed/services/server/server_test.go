@@ -257,14 +257,18 @@ func TestServer(t *testing.T) {
 			return &serverv1.ChangeSettingsRequest{DataRetention: durationpb.New(d)}
 		}
 
-		t.Run("a changed value is refused", func(t *testing.T) {
+		t.Run("a changed value is refused and not written", func(t *testing.T) {
 			s := newServerWithHA(t, true)
 
 			stored, err := models.GetSettings(s.db)
 			require.NoError(t, err)
 
-			err = s.validateChangeSettingsRequest(context.TODO(), retention(stored.DataRetention+24*time.Hour))
+			_, err = s.ChangeSettings(context.TODO(), retention(stored.DataRetention+24*time.Hour))
 			tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "Data retention cannot be changed at runtime", err)
+
+			after, err := models.GetSettings(s.db)
+			require.NoError(t, err)
+			assert.Equal(t, stored.DataRetention, after.DataRetention)
 		})
 
 		// The UI submits the whole settings form, so refusing an unchanged retention would
@@ -277,22 +281,20 @@ func TestServer(t *testing.T) {
 
 			req := retention(stored.DataRetention)
 			req.PmmPublicAddress = new("1.2.3.4:5678")
-			require.NoError(t, s.validateChangeSettingsRequest(context.TODO(), req))
+			_, err = s.ChangeSettings(context.TODO(), req)
+			require.NoError(t, err)
 		})
 
-		// Falling through to "no change requested" here would let retention move exactly when
-		// the database is unhealthy, and shortening it deletes data that cannot come back.
-		t.Run("an unreadable settings row refuses rather than allows", func(t *testing.T) {
+		// Malformed input is a client error whether or not HA is enabled, and must not be
+		// reported as a refusal to change a valid value.
+		t.Run("a malformed value is an invalid argument", func(t *testing.T) {
 			s := newServerWithHA(t, true)
 
-			stored, err := models.GetSettings(s.db)
-			require.NoError(t, err)
+			err := s.validateChangeSettingsRequest(t.Context(), retention(36*time.Hour))
+			tests.AssertGRPCErrorRE(t, codes.InvalidArgument, `Invalid argument: data_retention: should be a natural number of days\.`, err)
 
-			ctx, cancel := context.WithCancel(t.Context())
-			cancel()
-
-			err = s.validateChangeSettingsRequest(ctx, retention(stored.DataRetention+24*time.Hour))
-			tests.AssertGRPCErrorRE(t, codes.Internal, "Failed to read the stored data retention.", err)
+			err = s.validateChangeSettingsRequest(t.Context(), retention(10*time.Second))
+			tests.AssertGRPCErrorRE(t, codes.InvalidArgument, `Invalid argument: data_retention: minimal resolution is 24h\.`, err)
 		})
 
 		t.Run("nothing is refused when HA is disabled", func(t *testing.T) {
@@ -301,7 +303,8 @@ func TestServer(t *testing.T) {
 			stored, err := models.GetSettings(s.db)
 			require.NoError(t, err)
 
-			require.NoError(t, s.validateChangeSettingsRequest(context.TODO(), retention(stored.DataRetention+24*time.Hour)))
+			_, err = s.ChangeSettings(context.TODO(), retention(stored.DataRetention+24*time.Hour))
+			require.NoError(t, err)
 		})
 	})
 
@@ -349,6 +352,24 @@ func TestServer(t *testing.T) {
 			e := retentionEntry(t, run(t, false, nil))
 			assert.Equal(t, logrus.InfoLevel, e.Level)
 			assert.Contains(t, e.Message, "changeable through the settings API")
+		})
+
+		// setup() retries UpdateSettingsFromEnv until start-up succeeds, so the line must not
+		// repeat on every retry.
+		t.Run("reported once across retries", func(t *testing.T) {
+			s := newServerWithHA(t, true)
+			l, hook := logrustest.NewNullLogger()
+			s.l = l.WithField("component", "server-test")
+			require.Empty(t, s.UpdateSettingsFromEnv(context.TODO(), nil))
+			require.Empty(t, s.UpdateSettingsFromEnv(context.TODO(), nil))
+
+			var n int
+			for _, e := range hook.AllEntries() {
+				if strings.HasPrefix(e.Message, "Data retention:") {
+					n++
+				}
+			}
+			assert.Equal(t, 1, n)
 		})
 	})
 

@@ -14,8 +14,8 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WarningIcon from '@mui/icons-material/Warning';
 import { TextInput, SwitchInput } from '@percona/peak-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FC, useEffect, useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import { FormProvider, useForm, type Resolver } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
 import { useHAStatus } from 'hooks/api/useHA';
@@ -32,7 +32,7 @@ import { MAX_LABEL_WIDTH } from '../../Settings.constants';
 import { AdvancedSettingsFormProps } from './AdvancedSettingsForm.types';
 import {
   AdvancedSettingsFormValues,
-  advancedSettingsSchema,
+  createAdvancedSettingsSchema,
 } from './AdvancedSettingsForm.schema';
 import { toFormValues, toPayload } from './AdvancedSettingsForm.utils';
 import { SettingsFieldLabel } from '../settings-field-label';
@@ -47,8 +47,24 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   const { mutateAsync: updateSettings } = useUpdateSettings();
   const { data: haStatus } = useHAStatus();
 
+  // In HA retention is fixed at start-up and the server refuses a change, so the field is
+  // disabled before a user types into it rather than after they press Save.
+  const retentionLockedByHa = haStatus?.status === 'Enabled';
+
+  // The HA status arrives after the form is created, so the resolver reads the lock at
+  // validation time rather than capturing it once.
+  const retentionLockedRef = useRef(retentionLockedByHa);
+  retentionLockedRef.current = retentionLockedByHa;
+  const resolver = useCallback<Resolver<AdvancedSettingsFormValues>>(
+    (...args) =>
+      zodResolver(createAdvancedSettingsSchema(retentionLockedRef.current))(
+        ...args
+      ),
+    []
+  );
+
   const methods = useForm<AdvancedSettingsFormValues>({
-    resolver: zodResolver(advancedSettingsSchema),
+    resolver,
     defaultValues: toFormValues(settings),
     mode: 'onChange',
   });
@@ -63,25 +79,24 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   }, [settings, reset]);
 
   const onSubmit = async (values: AdvancedSettingsFormValues) => {
-    await updateSettings(toPayload(values), {
-      onSuccess: () => {
-        enqueueSnackbar(Messages.service.success, { variant: 'success' });
-        reset(values);
-      },
-      onError: (error) => {
-        enqueueSnackbar(
-          error instanceof Error ? error.message : Messages.unauthorized,
-          { variant: 'error' }
-        );
-      },
-    });
+    await updateSettings(
+      toPayload(values, { retentionLocked: retentionLockedByHa }),
+      {
+        onSuccess: () => {
+          enqueueSnackbar(Messages.service.success, { variant: 'success' });
+          reset(values);
+        },
+        onError: (error) => {
+          enqueueSnackbar(
+            error instanceof Error ? error.message : Messages.unauthorized,
+            { variant: 'error' }
+          );
+        },
+      }
+    );
   };
 
   const m = Messages.advanced;
-
-  // In HA retention is fixed at start-up and the server refuses a change, so the field is
-  // disabled before a user types into it rather than after they press Save.
-  const retentionLockedByHa = haStatus?.status === 'Enabled';
 
   return (
     <FormProvider {...methods}>
