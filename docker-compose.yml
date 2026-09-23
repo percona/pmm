@@ -178,7 +178,7 @@ services:
   sep:
     profiles:
       - extensions
-    image: ${SEP_IMAGE:-percona/percona-sep:3.10.0}
+    image: ${SEP_IMAGE:-percona/percona-sep:3}
     platform: linux/amd64
     container_name: sep
     restart: always
