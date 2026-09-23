@@ -479,11 +479,16 @@ func (p *Provisioner) reconcile(ctx context.Context, trigger provisioningTrigger
 		if p.rejectedApplies >= maxApplyAttemptsPerRevision {
 			// Out of attempts. Stop the fast retry as well: everything it would reach now returns
 			// at the gate above, and only a change to the rendered content can make this worth
-			// trying again. The slow tick keeps checking for that, and for a Grafana left down.
+			// trying again. The slow tick keeps checking for that.
 			p.retryBackoff = 0
 			p.l.Errorf("Giving up on applying these alert rules: Grafana did not come back %d times, "+
 				"and the file it last accepted has been restored. The rules Grafana holds are the "+
 				"previous ones, and PMM will try again once the rendered rules change: %s.", p.rejectedApplies, err)
+
+			// The attempt that ran out the budget may have left Grafana FATAL, and with the fast retry
+			// gone the next pass is a whole tick away. The file it accepts is already back on disk, so
+			// bring it back now rather than leave the interface down until then.
+			p.recoverGrafanaLocked(ctx)
 			return
 		}
 

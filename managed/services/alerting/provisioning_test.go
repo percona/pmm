@@ -873,7 +873,8 @@ func TestProvisionerOffersNewContentAfterGivingUpOnARevision(t *testing.T) {
 
 // TestProvisionerStartsAGrafanaLeftDownByARevisionItGaveUpOn covers what is still owed after giving
 // up. The file has been rolled back to one Grafana accepted, but Grafana itself may have been left
-// dead by the revision that failed, and nothing else is coming for it.
+// dead by the revision that failed, and nothing else is coming for it. Giving up also cancels the
+// fast retry, so this has to happen in the same pass: the next one is a whole tick away.
 func TestProvisionerStartsAGrafanaLeftDownByARevisionItGaveUpOn(t *testing.T) {
 	t.Parallel()
 
@@ -891,18 +892,18 @@ func TestProvisionerStartsAGrafanaLeftDownByARevisionItGaveUpOn(t *testing.T) {
 		Return(new(true)).Times(maxApplyAttemptsPerRevision)
 	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
+
+	// After the last attempt Grafana is FATAL, which supervisord documents as "will not be
+	// restarted".
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(false))
+	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(nil)
+
 	for range maxApplyAttemptsPerRevision {
 		f.provisioner.reconcile(context.Background(), triggerRetry)
 	}
 
-	// Grafana is now FATAL, which supervisord documents as "will not be restarted".
-	f.expectSettings(1, false)
-	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(false))
-	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(nil)
-
-	f.provisioner.reconcile(context.Background(), triggerTick)
-
 	f.supervisord.AssertNumberOfCalls(t, "StartSupervisedService", 1)
+	assert.Zero(t, f.provisioner.retryBackoff, "the revision was given up on, so no retry is coming")
 	assert.Equal(t, good, f.fileContent(t), "it must be started on the file it last accepted, not the one it refused")
 }
 
