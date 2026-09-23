@@ -710,6 +710,9 @@ type GetReadOnlySettingsOKBodySettings struct {
 
 	// True if the SEP integration is enabled.
 	SepEnabled bool `json:"sep_enabled,omitempty"`
+
+	// True if OpenManager is enabled.
+	OMEnabled bool `json:"om_enabled,omitempty"`
 }
 
 // Validate validates this get read only settings OK body settings

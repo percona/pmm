@@ -222,6 +222,9 @@ type ChangeSettingsBody struct {
 	// Enable Query Analytics for PMM's internal PG database.
 	EnableInternalPgQAN *bool `json:"enable_internal_pg_qan,omitempty"`
 
+	// Enable OpenManager.
+	EnableOM *bool `json:"enable_om,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsParamsBodyAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 
@@ -986,6 +989,9 @@ type ChangeSettingsOKBodySettings struct {
 	// True if the SEP integration is enabled. Read-only: it reports how this PMM
 	// Server process was started, and cannot be changed through ChangeSettings.
 	SepEnabled bool `json:"sep_enabled,omitempty"`
+
+	// True if OpenManager is enabled.
+	OMEnabled bool `json:"om_enabled,omitempty"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
