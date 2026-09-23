@@ -14,7 +14,6 @@ import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
 import Search from '@mui/icons-material/Search';
 import Security from '@mui/icons-material/Security';
 import SettingsApplicationsOutlined from '@mui/icons-material/SettingsApplicationsOutlined';
-import SettingsBackupRestore from '@mui/icons-material/SettingsBackupRestore';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
 import {
   CirclesExtIcon,
@@ -608,39 +607,6 @@ export const NAV_INVENTORY: NavItem = {
       text: 'Nodes',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes`,
       matches: ['*'],
-    },
-  ],
-};
-
-//
-// Backups
-//
-export const NAV_BACKUPS: NavItem = {
-  id: 'backups',
-  icon: SettingsBackupRestore,
-  text: 'Backups',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
-  children: [
-    {
-      id: 'backup-inventory',
-      text: 'All backups',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
-      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/backup/new`],
-    },
-    {
-      id: 'scheduled-backups',
-      text: 'Scheduled backup jobs',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/scheduled`,
-    },
-    {
-      id: 'restore-history',
-      text: 'Restores',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/restore`,
-    },
-    {
-      id: 'storage-locations',
-      text: 'Storage locations',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/locations`,
     },
   ],
 };

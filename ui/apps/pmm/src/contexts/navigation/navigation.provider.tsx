@@ -21,7 +21,6 @@ import { useColorMode } from 'hooks/theme';
 import { INTERVALS_MS } from 'lib/constants';
 import { useSettings } from 'contexts/settings';
 import {
-  NAV_BACKUPS,
   NAV_DIVIDERS,
   NAV_HELP,
   NAV_INVENTORY,
@@ -107,10 +106,14 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
           items.push(...addOm());
         }
 
-        if (settings?.backupManagementEnabled) {
-          items.push(NAV_BACKUPS);
-        }
-
+        // PMM's own Backups entry is deliberately absent. Its MongoDB half is
+        // served by pmm-managed + pmm-agent jobs, which is a second, unrelated
+        // implementation of what OpenManager -> MongoDB Backups does through SEP;
+        // offering both put two "back up this MongoDB service" flows in one menu
+        // with different storage configuration and no shared state. The
+        // `backupManagementEnabled` setting is untouched -- it still gates
+        // pmm-managed's backup machinery and its Grafana pages, which remain
+        // reachable by URL; this only stops the nav advertising a second route in.
         items.push(NAV_DIVIDERS.backups);
 
         items.push(addConfiguration(status, versionInfo));
