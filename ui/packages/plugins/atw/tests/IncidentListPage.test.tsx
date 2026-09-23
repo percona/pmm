@@ -569,4 +569,41 @@ describe('IncidentListPage — ServiceNow connection banner', () => {
       SETTINGS_PATH
     );
   });
+
+  it('keeps the banner when a remount refetch of config fails', async () => {
+    routeGet({ incidents: [], config: unconfigured });
+
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    const tree = (ui: ReactNode) => (
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <DeliverySettingsProvider path={SETTINGS_PATH}>
+            {ui}
+          </DeliverySettingsProvider>
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
+
+    const { unmount } = render(tree(<IncidentListPage />));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
+    });
+
+    mockedApi.get.mockImplementation((url: string) => {
+      if (url.includes('/config/')) {
+        return Promise.reject(new Error('config unavailable'));
+      }
+      return Promise.resolve(paginated([]));
+    });
+
+    unmount();
+    render(tree(<IncidentListPage />));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
+    });
+  });
 });

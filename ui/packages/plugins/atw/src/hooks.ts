@@ -420,14 +420,17 @@ export function useAtwIncidentExecutions(
 
 /**
  * Probe whether a diagnostics receiver is configured, so the Send action can
- * carry the reasons it is unavailable. Returns no reasons on any error: a
- * transient config blip should not silently withhold the action, and the POST's
- * own 503 gate remains the real guard.
+ * carry the reasons it is unavailable.
  *
  * Cached forever while mounted so a polling Results pane does not re-hit the
  * endpoint every few seconds; `refetchOnMount: 'always'` still reloads when the
  * operator returns from Settings after fixing ServiceNow (PMM-15515). Delivery
  * setting writes also invalidate {@link ATW_CONFIG_QUERY_KEY}.
+ *
+ * Failures reject rather than returning empty reasons: a first load leaves
+ * callers with no cache (so Send stays offered — the POST's 503 is the real
+ * guard), while a remount refetch keeps the last successful cache instead of
+ * wiping disabled reasons and hiding the ServiceNow banner.
  */
 export const ATW_CONFIG_QUERY_KEY = ['atw', 'config'] as const;
 
@@ -435,12 +438,8 @@ export function useAtwConfig() {
   return useQuery<AtwConfig>({
     queryKey: ATW_CONFIG_QUERY_KEY,
     queryFn: async () => {
-      try {
-        const { data } = await apiClient.get<AtwConfig>(`${ATW_BASE}/config/`);
-        return data;
-      } catch {
-        return { send_disabled_reasons: [], case_search_available: false };
-      }
+      const { data } = await apiClient.get<AtwConfig>(`${ATW_BASE}/config/`);
+      return data;
     },
     staleTime: Infinity,
     refetchOnMount: 'always',
@@ -451,9 +450,9 @@ export function useAtwConfig() {
 /**
  * Search the configured delivery provider for support cases matching `term`.
  *
- * Degrades the way `useAtwConfig` does: any error resolves to an unavailable
- * search rather than rejecting, so a provider blip leaves the case-reference
- * field a plain text input instead of surfacing an error beside it.
+ * Any error resolves to an unavailable search rather than rejecting, so a
+ * provider blip leaves the case-reference field a plain text input instead of
+ * surfacing an error beside it.
  *
  * `enabled` carries the deployment-level answer from `atw_config`, so a
  * deployment that declares no case-search section issues zero requests rather
