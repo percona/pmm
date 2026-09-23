@@ -26,16 +26,9 @@ import { useUser } from 'contexts/user';
 import { useReadonlySettings } from 'hooks/api/useSettings';
 import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 import { OrgRole } from 'types/user.types';
+import { Messages } from './OmPage.messages';
 
 const TECHNICAL_PREVIEW_DISMISSED_KEY = 'pmm-ui.om.technicalPreviewDismissed';
-
-const Messages = {
-  switchedOff:
-    'OpenManager is switched off. A PMM admin can turn it on in Configuration → Settings → Advanced Settings.',
-  technicalPreview: 'Technical preview',
-  technicalPreviewBody:
-    'OpenManager is a technical preview. It is still under development and may change.',
-};
 
 /**
  * Host chrome for the OM page.
