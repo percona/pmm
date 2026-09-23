@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import type { CSSProperties } from 'react';
+import { Tab, Tabs } from '@mui/material';
 import { SchemaDrivenPlugin } from '@sep/framework';
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import {
@@ -39,47 +39,38 @@ import { BACKUP_APP_NAME, RESTORE_APP_NAME } from './routes';
 const BACKUP_DETAIL_SUPPRESS_KEYS = ['derived_tasks', 'latest_pbm_status'];
 const RESTORE_DETAIL_SUPPRESS_KEYS = ['derived_tasks'];
 
-const tabNavStyle: CSSProperties = {
-  display: 'flex',
-  gap: '1.5rem',
-  marginBottom: '1.5rem',
-  borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
-};
-
-const tabLinkStyle: CSSProperties = {
-  display: 'inline-block',
-  padding: '0.75rem 0',
-  textDecoration: 'none',
-  color: 'inherit',
-};
-
-const tabLinkActiveStyle: CSSProperties = {
-  ...tabLinkStyle,
-  borderBottom: '2px solid #e74c3c',
-  fontWeight: 600,
-};
-
+/*
+ * MUI `Tabs` rather than the hand-rolled <nav> of styled <Link>s this arrived
+ * with. That version drew its active underline in a hardcoded `#e74c3c` -- a red
+ * that appears nowhere in PMM's palette, which is purple -- and its divider in a
+ * light-mode-only `rgba(0, 0, 0, 0.12)`. `Tabs` takes both from the theme, and
+ * brings the roving-tabindex keyboard behaviour the plain links did not have.
+ * The links stay real anchors via `component={Link}`, so middle-click and
+ * open-in-new-tab keep working.
+ */
 function MongoBackupTabs({ basePath }: { basePath: string }) {
   const { pathname } = useLocation();
   const isRestores = pathname.includes('/restores');
 
   return (
-    <nav aria-label="MongoDB backup and restore" style={tabNavStyle}>
-      <Link
+    <Tabs
+      value={isRestores ? 'restores' : 'backups'}
+      aria-label="MongoDB backup and restore"
+      sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
+    >
+      <Tab
+        label="Backups"
+        value="backups"
+        component={Link}
         to={`${basePath}/backups`}
-        style={isRestores ? tabLinkStyle : tabLinkActiveStyle}
-        aria-current={isRestores ? undefined : 'page'}
-      >
-        Backups
-      </Link>
-      <Link
+      />
+      <Tab
+        label="Restores"
+        value="restores"
+        component={Link}
         to={`${basePath}/restores`}
-        style={isRestores ? tabLinkActiveStyle : tabLinkStyle}
-        aria-current={isRestores ? 'page' : undefined}
-      >
-        Restores
-      </Link>
-    </nav>
+      />
+    </Tabs>
   );
 }
 

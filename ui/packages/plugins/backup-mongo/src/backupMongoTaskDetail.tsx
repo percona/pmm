@@ -16,14 +16,15 @@
  */
 
 import type { TaskExecuteAction } from '@sep/framework';
+import { Box } from '@mui/material';
 import {
-  cellStyle,
+  cellSx,
   PbmConfigSection,
-  preStyle,
+  preSx,
   readPbmConfigYaml,
-  sectionHeadingStyle,
-  sectionStyle,
-  tableStyle,
+  sectionHeadingSx,
+  sectionSx,
+  tableSx,
 } from './pbmTaskDetailShared';
 
 interface DerivedTaskSummary {
@@ -147,36 +148,52 @@ export function BackupMongoTaskDetailExtras({
     <>
       <PbmConfigSection task={task} />
       {derived.length > 0 && (
-        <section style={sectionStyle}>
-          <h2 style={sectionHeadingStyle}>Derived tasks</h2>
-          <table style={tableStyle}>
+        <Box component="section" sx={sectionSx}>
+          <Box component="h2" sx={sectionHeadingSx}>
+            Derived tasks
+          </Box>
+          <Box component="table" sx={tableSx}>
             <thead>
               <tr>
-                <th style={cellStyle}>Task</th>
-                <th style={cellStyle}>Type</th>
-                <th style={cellStyle}>Latest status</th>
+                <Box component="th" sx={cellSx}>
+                  Task
+                </Box>
+                <Box component="th" sx={cellSx}>
+                  Type
+                </Box>
+                <Box component="th" sx={cellSx}>
+                  Latest status
+                </Box>
               </tr>
             </thead>
             <tbody>
               {derived.map((entry) => (
                 <tr key={entry.name}>
-                  <td style={cellStyle}>{entry.name}</td>
-                  <td style={cellStyle}>
+                  <Box component="td" sx={cellSx}>
+                    {entry.name}
+                  </Box>
+                  <Box component="td" sx={cellSx}>
                     {derivedTaskLabel(entry.backup_type)}
-                  </td>
-                  <td style={cellStyle}>{entry.status ?? '—'}</td>
+                  </Box>
+                  <Box component="td" sx={cellSx}>
+                    {entry.status ?? '—'}
+                  </Box>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </section>
+          </Box>
+        </Box>
       )}
 
       {latestStatus && (
-        <section style={sectionStyle}>
-          <h2 style={sectionHeadingStyle}>Latest PBM status</h2>
-          <pre style={preStyle}>{latestStatus}</pre>
-        </section>
+        <Box component="section" sx={sectionSx}>
+          <Box component="h2" sx={sectionHeadingSx}>
+            Latest PBM status
+          </Box>
+          <Box component="pre" sx={preSx}>
+            {latestStatus}
+          </Box>
+        </Box>
       )}
     </>
   );

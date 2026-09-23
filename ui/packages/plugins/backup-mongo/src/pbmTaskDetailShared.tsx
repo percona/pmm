@@ -15,7 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { lazy, Suspense, type CSSProperties } from 'react';
+import { lazy, Suspense } from 'react';
+import { Box, type SxProps, type Theme } from '@mui/material';
 
 const DetailSyntaxHighlighter = lazy(() =>
   import('@sep/framework').then((mod) => ({
@@ -23,35 +24,47 @@ const DetailSyntaxHighlighter = lazy(() =>
   }))
 );
 
-export const sectionStyle: CSSProperties = {
-  border: '1px solid rgba(0, 0, 0, 0.12)',
-  borderRadius: 4,
-  padding: '1.5rem',
-  marginBottom: '1.5rem',
+/*
+ * Detail-page styling, as theme-aware `sx` rather than the `CSSProperties`
+ * literals this UI arrived with. The literals hardcoded light-mode values
+ * (`#fafafa`, `rgba(0, 0, 0, 0.12)`), which render as near-black-on-black once
+ * PMM's theme switches to dark -- the palette keys below resolve per mode, and
+ * the numeric spacing/radius values come off the theme scale instead of
+ * restating its 8px unit in rem.
+ */
+
+export const sectionSx: SxProps<Theme> = {
+  border: 1,
+  borderColor: 'divider',
+  borderRadius: 1,
+  p: 3,
+  mb: 3,
 };
 
-export const sectionHeadingStyle: CSSProperties = {
-  marginTop: 0,
-  marginBottom: '1rem',
+export const sectionHeadingSx: SxProps<Theme> = {
+  mt: 0,
+  mb: 2,
   fontSize: '1.125rem',
 };
 
-export const tableStyle: CSSProperties = {
+export const tableSx: SxProps<Theme> = {
   width: '100%',
   borderCollapse: 'collapse',
 };
 
-export const cellStyle: CSSProperties = {
-  padding: '0.5rem 0.75rem',
-  borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+export const cellSx: SxProps<Theme> = {
+  px: 1.5,
+  py: 1,
+  borderBottom: 1,
+  borderColor: 'divider',
   textAlign: 'left',
 };
 
-export const preStyle: CSSProperties = {
-  margin: 0,
-  padding: '1rem',
-  background: '#fafafa',
-  borderRadius: 4,
+export const preSx: SxProps<Theme> = {
+  m: 0,
+  p: 2,
+  bgcolor: 'action.hover',
+  borderRadius: 1,
   overflow: 'auto',
   fontFamily: "'Roboto Mono', monospace",
   fontSize: '0.875rem',
@@ -79,13 +92,7 @@ export function readPbmConfigYaml(
 }
 
 const configSyntaxFallback = (
-  <pre
-    style={{
-      ...preStyle,
-      minHeight: '8rem',
-    }}
-    aria-hidden
-  />
+  <Box component="pre" sx={[preSx, { minHeight: '8rem' }]} aria-hidden />
 );
 
 export function PbmConfigSection({ task }: { task: Record<string, unknown> }) {
@@ -95,11 +102,13 @@ export function PbmConfigSection({ task }: { task: Record<string, unknown> }) {
   }
 
   return (
-    <section style={sectionStyle}>
-      <h2 style={sectionHeadingStyle}>Configuration</h2>
+    <Box component="section" sx={sectionSx}>
+      <Box component="h2" sx={sectionHeadingSx}>
+        Configuration
+      </Box>
       <Suspense fallback={configSyntaxFallback}>
         <DetailSyntaxHighlighter value={configYaml} language="yaml" />
       </Suspense>
-    </section>
+    </Box>
   );
 }

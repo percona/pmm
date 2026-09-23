@@ -16,6 +16,7 @@
  */
 
 import { useLayoutEffect, useRef, type ReactNode } from 'react';
+import { Box } from '@mui/material';
 import { useFormContext, useWatch } from 'react-hook-form';
 import {
   SchemaFormRenderer,
@@ -26,7 +27,6 @@ import {
   isAutoMongoRestoreTaskName,
   suggestMongoRestoreTaskName,
 } from './suggestMongoRestoreTaskName';
-import './restoreMongoCreateForm.css';
 
 function serviceDisplayName(value: unknown): string | undefined {
   if (value && typeof value === 'object' && 'name' in value) {
@@ -138,7 +138,14 @@ function renderRestoreMongoForm(
   }: { defaultValues?: Record<string, unknown>; submitLabel: string }
 ): ReactNode {
   return (
-    <div className="restore-mongo-create-form">
+    /*
+     * The accordion is rendered inside SchemaFormRenderer, so its padding is
+     * reached by descendant selector rather than a prop. This was a stylesheet
+     * -- the only first-party .css in pmm/ui -- for exactly that reason; `sx`
+     * does the same job without a global class name, and takes the values off
+     * the theme's spacing scale.
+     */
+    <Box sx={{ '& .MuiAccordionDetails-root': { pt: 1, px: 2, pb: 2 } }}>
       <SchemaFormRenderer
         sections={sections}
         onSubmit={onSubmit}
@@ -150,7 +157,7 @@ function renderRestoreMongoForm(
         submitError={submitError}
         fieldErrors={fieldErrors}
       />
-    </div>
+    </Box>
   );
 }
 
