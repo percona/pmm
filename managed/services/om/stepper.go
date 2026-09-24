@@ -30,6 +30,32 @@ import (
 // just-succeeded) bootstrap run and decides what happens next.
 const bootstrapPollInterval = 15 * time.Second
 
+// bootstrapInventoryRefreshWindow bounds how long completeSucceededRun keeps a
+// fully registered run in the sweep waiting for the inventory app to accept its
+// scoped refresh.
+//
+// Generous against the conflict it exists to outlast -- an estate sweep holding
+// these hosts -- and finite against the one it must not outlast: a host the app
+// will never accept a refresh for keeps the run out of RegisteredAt, and with it
+// in a list re-read every bootstrapPollInterval for the life of the server. When
+// the window closes the run leaves anyway; confirm_monitoring then resolves on
+// the app's own schedule, which is exactly where it stood before the nudge
+// existed.
+const bootstrapInventoryRefreshWindow = 5 * time.Minute
+
+// refreshRetryWindowOpen reports whether run finished recently enough to be worth
+// holding in the sweep for another refresh attempt.
+//
+// A run with no finish time cannot be aged, so it is not held: SEP sets
+// finished_at with the terminal status, making this unreachable for a SUCCEEDED
+// run, and guessing wrong in the other direction is the forever case.
+func refreshRetryWindowOpen(run *sepBootstrapRun, now time.Time) bool {
+	if run.FinishedAt == nil {
+		return false
+	}
+	return now.Sub(*run.FinishedAt) < bootstrapInventoryRefreshWindow
+}
+
 // bootstrapMongoDBUsername is the one user every run's create_pmm_monitoring_user
 // step creates -- see OmBootstrapSecret's own doc comment on why this is a single
 // user, not a root account plus a separate PMM-only one (phase-1 scope,
@@ -254,9 +280,17 @@ func (s *Service) finishBootstrapRun(ctx context.Context, run *sepBootstrapRun, 
 // registered service on, rather than leaving confirm_monitoring (GetBootstrapRun's
 // own synthetic step -- see confirmMonitoringStep's doc comment) to wait out
 // however long the app's own schedule takes to get there unprompted. Scoped to
-// exactly this run's hosts, and best-effort: a trigger failure only delays
-// confirm_monitoring, never registration itself, and this whole function runs
-// again next tick regardless.
+// exactly this run's hosts.
+//
+// A refused nudge holds the run in the sweep rather than being dropped. The
+// refusal to expect is a 409 from a sweep already walking these hosts, and a run
+// that has just finished is precisely when one is likely to be in flight -- so
+// the single attempt this used to make was lost often, not rarely, and lost
+// silently: registration succeeds either way, and the only visible symptom is
+// confirm_monitoring sitting unconfirmed until the app's own schedule comes
+// round. Bounded by refreshRetryWindowOpen, because a host that can never be
+// refreshed must not pin the run here forever -- that is the cost
+// OmBootstrapRunConfig.RegisteredAt exists to avoid.
 func (s *Service) completeSucceededRun(ctx context.Context, run *sepBootstrapRun) {
 	secret, err := models.FindOmBootstrapSecretByRunID(s.db.Querier, run.ID)
 	if err != nil {
@@ -291,8 +325,9 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *sepBootstrapRun
 		}
 	}
 
+	refreshed := true
 	if len(unconfirmed) > 0 {
-		s.triggerScopedInventoryRefresh(ctx, unconfirmed)
+		refreshed = s.triggerScopedInventoryRefresh(ctx, unconfirmed)
 	}
 
 	if done < len(run.Hosts) {
@@ -300,12 +335,15 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *sepBootstrapRun
 		// idempotent, so the next tick picks up only what is left.
 		return
 	}
+	if !refreshed && refreshRetryWindowOpen(run, time.Now()) {
+		// Registration is already complete; what is left is the nudge, and the
+		// run has to stay in the sweep to get another go at it. Nothing else
+		// would: marking it registered here is what takes it out for good, so
+		// "ask again next tick" is only true while this branch holds it.
+		return
+	}
 	// The last thing PMM owed this run is done, so it leaves the sweep: see
-	// stepBootstrapRuns on what revisiting it forever cost. The refresh kicked
-	// above is deliberately not part of that condition -- it only asks SEP to
-	// re-probe sooner than its own schedule would, so a missed kick costs
-	// freshness, not correctness, and is not worth another pass over the estate
-	// every 15 seconds for the life of the server.
+	// stepBootstrapRuns on what revisiting it forever cost.
 	err = models.MarkOmBootstrapRunRegistered(s.db.Querier, run.ID)
 	if err != nil {
 		s.l.Warnf("bootstrap run %s: registered every host, but failed to record it: %s", run.ID, err)
