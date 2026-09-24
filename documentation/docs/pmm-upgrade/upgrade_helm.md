@@ -1,7 +1,7 @@
 # Upgrade PMM Server using Helm
 
 !!! info "Running PMM HA Cluster?"
-    This topic covers the single-instance `percona/pmm` chart (one PMM Server pod). If you deployed [PMM HA Cluster](../install-pmm/HA-clustered.md) with the `percona/pmm-ha` chart, use [Upgrade PMM HA Cluster using Helm](upgrade_helm_ha.md) instead—the release name, chart, and rolling-update behavior are different.
+    This topic covers the single-instance `percona/pmm` chart (one PMM Server pod). If you deployed [PMM HA Cluster](../install-pmm/HA-clustered.md) with the `percona/pmm-ha` chart, use [Upgrade PMM HA Cluster using Helm](upgrade_helm_ha.md) instead, as the release name, chart, and rolling-update behavior are different.
 
 Percona releases new chart versions to update containers when:
 
