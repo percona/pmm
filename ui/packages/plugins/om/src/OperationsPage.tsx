@@ -36,6 +36,16 @@ import {
 import { useOmBootstrapRuns } from './inventoryHooks';
 import type { OmGetBootstrapRunResponse } from './types';
 
+/**
+ * How many runs to ask for.
+ *
+ * Asked for explicitly because this page has no pagination: left unset, the
+ * server's own default of 20 would silently cut the history off, and 100 is the
+ * most it will serve (ListInventoryRunsRequest.limit is validated lte: 100, and
+ * pmm-managed's maxInventoryRunLimit caps it again).
+ */
+const RUN_HISTORY_LIMIT = 100;
+
 const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
   {
     accessorKey: 'status',
@@ -86,8 +96,32 @@ const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
  * is another that has to survive leaving the page it started on.
  */
 export const OperationsPage = () => {
-  const { data: runs, isLoading, error } = useOmBootstrapRuns();
+  const {
+    data: runs,
+    isLoading,
+    error,
+  } = useOmBootstrapRuns(RUN_HISTORY_LIMIT);
   const rows = useMemo(() => runs ?? [], [runs]);
+
+  if (isLoading && !runs) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  // Returns rather than rendering above the table: a failed load has no rows to
+  // show, and an empty table under the error reads as "there are no runs", which
+  // is a different thing from "we could not find out". Same shape as HostsPage's
+  // own isError branch.
+  if (error) {
+    return (
+      <Alert severity="error">
+        Could not load bootstrap runs: {(error as Error).message}
+      </Alert>
+    );
+  }
 
   return (
     <Stack gap={2}>
@@ -101,17 +135,7 @@ export const OperationsPage = () => {
         }
       />
 
-      {error && (
-        <Alert severity="error">
-          Could not load bootstrap runs: {(error as Error).message}
-        </Alert>
-      )}
-
-      {isLoading && !runs ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
-          <CircularProgress />
-        </Box>
-      ) : rows.length === 0 && !error ? (
+      {rows.length === 0 ? (
         <Alert severity="info">No bootstrap runs yet.</Alert>
       ) : (
         <Table
