@@ -104,4 +104,70 @@ func TestCompleteSucceededRun(t *testing.T) {
 		require.Len(t, stub.calls, 1, "no scoped refresh should be triggered")
 		assert.Equal(t, "/api/apps/om_inventory/hosts", stub.calls[0].path)
 	})
+
+	t.Run("records the run as registered, so the sweep stops revisiting it", func(t *testing.T) {
+		// The reason this is persisted rather than remembered: a run stays SUCCEEDED
+		// in SEP for the rest of its life, so without a record of PMM's own last
+		// step every finished run in the history would be re-fetched, re-matched
+		// against the whole estate and re-registered on every 15s tick, forever --
+		// and a new leader after a failover would start over.
+		db := storeTestDB(t)
+		node00, _ := registerTestNode(t, db, "node00")
+		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
+			RunID:           "run-abc",
+			MongoDBUsername: "admin",
+			MongoDBPassword: "secret",
+			KeyFile:         "keyfile-content",
+		}))
+
+		stub := newSEPStub(t, http.StatusOK,
+			fmt.Sprintf(`{"items": [{"node_id": %q, "executor_host": "node00", "services": [{"service_id": "s1"}]}], "total": 1, "offset": 0, "limit": 200}`, node00))
+		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
+			WithProbeSource(stub.server.URL, "test-token")
+
+		svc.completeSucceededRun(t.Context(), &sepBootstrapRun{
+			ID:             "run-abc",
+			Status:         bootstrapRunSucceeded,
+			ReplicaSetName: "rs-test",
+			Hosts:          []sepBootstrapHost{{Host: "node00"}},
+		})
+
+		config, err := models.FindOmBootstrapRunConfigByRunID(db.Querier, "run-abc")
+		require.NoError(t, err, "an unlabelled run gets its row on completion")
+		assert.NotNil(t, config.RegisteredAt)
+
+		registered, err := models.FindRegisteredOmBootstrapRunIDs(db.Querier)
+		require.NoError(t, err)
+		assert.Contains(t, registered, "run-abc")
+	})
+
+	t.Run("leaves a run whose host the inventory app has not seen for the next tick", func(t *testing.T) {
+		db := storeTestDB(t)
+		node00, _ := registerTestNode(t, db, "node00")
+		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
+			RunID:           "run-abc",
+			MongoDBUsername: "admin",
+			MongoDBPassword: "secret",
+			KeyFile:         "keyfile-content",
+		}))
+
+		// node01 bootstrapped, but the inventory app has no row for it yet, so PMM
+		// cannot register it and the run is not finished from PMM's side.
+		stub := newSEPStubSeq(t, http.StatusOK,
+			fmt.Sprintf(`{"items": [{"node_id": %q, "executor_host": "node00", "services": []}], "total": 1, "offset": 0, "limit": 200}`, node00),
+			`{}`)
+		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
+			WithProbeSource(stub.server.URL, "test-token")
+
+		svc.completeSucceededRun(t.Context(), &sepBootstrapRun{
+			ID:             "run-abc",
+			Status:         bootstrapRunSucceeded,
+			ReplicaSetName: "rs-test",
+			Hosts:          []sepBootstrapHost{{Host: "node00"}, {Host: "node01"}},
+		})
+
+		registered, err := models.FindRegisteredOmBootstrapRunIDs(db.Querier)
+		require.NoError(t, err)
+		assert.NotContains(t, registered, "run-abc", "a run with an unregistered host has to come back next tick")
+	})
 }
