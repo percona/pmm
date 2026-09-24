@@ -3928,7 +3928,9 @@ type TriggerHostBootstrapRequest struct {
 	// host missing from this map -- including every host, when this is left
 	// empty -- gets MongoDB's own defaults (priority 1, votes on, not hidden,
 	// no delay), the phase-A behavior before per-member settings existed
-	// (PMM-15347/plan.md §6 Phase B). A key outside node_ids is rejected.
+	// (PMM-15347/plan.md §6 Phase B). A field left unset on a host that *is*
+	// named gets the same default, rather than its proto3 zero value; see
+	// BootstrapMemberConfig.priority. A key outside node_ids is rejected.
 	MemberConfigs map[string]*BootstrapMemberConfig `protobuf:"bytes,10,rep,name=member_configs,json=memberConfigs,proto3" json:"member_configs,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -4038,11 +4040,18 @@ func (x *TriggerHostBootstrapRequest) GetMemberConfigs() map[string]*BootstrapMe
 // TriggerHostBootstrapRequest.member_configs.
 type BootstrapMemberConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Relative election priority. 0 means this member can never become
-	// primary; MongoDB's own default for an unlisted member is 1.
-	Priority uint32 `protobuf:"varint,1,opt,name=priority,proto3" json:"priority,omitempty"`
-	// Whether this member gets a vote in elections.
-	Votes bool `protobuf:"varint,2,opt,name=votes,proto3" json:"votes,omitempty"`
+	// Relative election priority. 0 means this member can never become primary.
+	//
+	// Optional because MongoDB's default is 1, and a proto3 uint32 cannot tell
+	// "leave it alone" from "0": a caller setting only `hidden` on every member
+	// would otherwise ask for a replica set no member of which can be elected.
+	// Unset means MongoDB's own default, exactly as a host absent from
+	// member_configs gets.
+	Priority *uint32 `protobuf:"varint,1,opt,name=priority,proto3,oneof" json:"priority,omitempty"`
+	// Whether this member gets a vote in elections. Optional for the same reason
+	// as `priority`, whose comment has the detail: unset means MongoDB's own
+	// default, which is on.
+	Votes *bool `protobuf:"varint,2,opt,name=votes,proto3,oneof" json:"votes,omitempty"`
 	// Whether this member is hidden from client read preference and
 	// db.hello()'s own output.
 	Hidden bool `protobuf:"varint,3,opt,name=hidden,proto3" json:"hidden,omitempty"`
@@ -4086,15 +4095,15 @@ func (*BootstrapMemberConfig) Descriptor() ([]byte, []int) {
 }
 
 func (x *BootstrapMemberConfig) GetPriority() uint32 {
-	if x != nil {
-		return x.Priority
+	if x != nil && x.Priority != nil {
+		return *x.Priority
 	}
 	return 0
 }
 
 func (x *BootstrapMemberConfig) GetVotes() bool {
-	if x != nil {
-		return x.Votes
+	if x != nil && x.Votes != nil {
+		return *x.Votes
 	}
 	return false
 }
@@ -5344,13 +5353,15 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\v2\x1c.om.v1.BootstrapMemberConfigR\x05value:\x028\x01B\x0e\n" +
 	"\f_environmentB\n" +
 	"\n" +
-	"\b_cluster\"\x8a\x01\n" +
-	"\x15BootstrapMemberConfig\x12$\n" +
-	"\bpriority\x18\x01 \x01(\rB\b\xfaB\x05*\x03\x18\xe8\aR\bpriority\x12\x14\n" +
-	"\x05votes\x18\x02 \x01(\bR\x05votes\x12\x16\n" +
+	"\b_cluster\"\xab\x01\n" +
+	"\x15BootstrapMemberConfig\x12)\n" +
+	"\bpriority\x18\x01 \x01(\rB\b\xfaB\x05*\x03\x18\xe8\aH\x00R\bpriority\x88\x01\x01\x12\x19\n" +
+	"\x05votes\x18\x02 \x01(\bH\x01R\x05votes\x88\x01\x01\x12\x16\n" +
 	"\x06hidden\x18\x03 \x01(\bR\x06hidden\x12\x1d\n" +
 	"\n" +
-	"delay_secs\x18\x04 \x01(\rR\tdelaySecs\"5\n" +
+	"delay_secs\x18\x04 \x01(\rR\tdelaySecsB\v\n" +
+	"\t_priorityB\b\n" +
+	"\x06_votes\"5\n" +
 	"\x1cTriggerHostBootstrapResponse\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\"\x88\x01\n" +
 	"\rBootstrapStep\x12\x12\n" +
@@ -5562,7 +5573,6 @@ var (
 		(*structpb.Value)(nil),        // 75: google.protobuf.Value
 	}
 )
-
 var file_om_v1_om_proto_depIdxs = []int32{
 	0,  // 0: om.v1.TopologyService.status:type_name -> om.v1.ServiceStatus
 	1,  // 1: om.v1.TopologyService.process_role:type_name -> om.v1.ProcessRole
@@ -5703,6 +5713,7 @@ func file_om_v1_om_proto_init() {
 	file_om_v1_om_proto_msgTypes[27].OneofWrappers = []any{}
 	file_om_v1_om_proto_msgTypes[33].OneofWrappers = []any{}
 	file_om_v1_om_proto_msgTypes[45].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[46].OneofWrappers = []any{}
 	file_om_v1_om_proto_msgTypes[48].OneofWrappers = []any{}
 	file_om_v1_om_proto_msgTypes[51].OneofWrappers = []any{}
 	type x struct{}
