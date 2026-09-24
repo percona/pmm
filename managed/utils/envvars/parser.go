@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
@@ -121,8 +122,11 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			"PMM_DISABLE_BUILTIN_POSTGRES":
 			// skip env variables for external postgres
 			continue
-		case "PMM_ENABLE_SEP", "PMM_SEP_POSTGRES_PASSWORD":
-			// skip env variables consumed by the entrypoint to expose postgres to SEP
+		case pkgenv.EnableSEP, "PMM_SEP_POSTGRES_PASSWORD", "PMM_SEP_ADDRESS":
+			// skip env variables consumed by the entrypoint to wire up SEP.
+			// PMM_ENABLE_SEP is not a stored setting: it describes how this
+			// process was started, so it is read from the environment by
+			// env.SEPEnabled instead of being persisted here.
 			continue
 		case "PERCONA_TELEMETRY_DISABLE":
 			// skip the Pillars telemetry environment variable
@@ -324,6 +328,13 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 
 			warns = append(warns, "unknown environment variable "+env)
 		}
+	}
+
+	// Nomad needs the public address to build the URL agents connect back to. Only the
+	// environment is visible here, so this also warns when the address is set in Settings.
+	if pointer.Get(envSettings.EnableNomad) && pointer.Get(envSettings.PMMPublicAddress) == "" {
+		warns = append(warns, "PMM_ENABLE_NOMAD is set but PMM_PUBLIC_ADDRESS is not; "+
+			"Nomad will not start unless a public address is configured in PMM settings")
 	}
 
 	return envSettings, errs, warns
