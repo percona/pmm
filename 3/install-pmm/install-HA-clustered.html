@@ -4129,10 +4129,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#identify-the-leader-node" class="md-nav__link">
+  <a href="#identify-the-health-status" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Identify the leader node
+        Identify the health status
       
     </span>
   </a>
@@ -17433,10 +17433,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#identify-the-leader-node" class="md-nav__link">
+  <a href="#identify-the-health-status" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Identify the leader node
+        Identify the health status
       
     </span>
   </a>
@@ -18637,16 +18637,15 @@ pmm-admin<span class="w"> </span>config<span class="w"> </span><span class="se">
 <p>To create additional service tokens manually, see the <a href="https://docs.percona.com/percona-monitoring-and-management/api/authentication.html">PMM documentation on service accounts</a>.</p>
 <h3 id="monitor-ha-features">Monitor HA features<a class="headerlink" href="#monitor-ha-features" title="Permanent link">&para;</a></h3>
 <h4 id="monitor-cluster-health">Monitor cluster health<a class="headerlink" href="#monitor-cluster-health" title="Permanent link">&para;</a></h4>
-<p>Use the <strong>PMM HA Health Overview</strong> dashboard to monitor your entire HA deployment from a single view. </p>
-<p>This dashboard shows real-time health status for all critical components including PMM server replicas, PostgreSQL, ClickHouse, VictoriaMetrics, and HAProxy.</p>
-<p>Access the dashboard from <strong>All Dashboards &gt; Browse all dashboards &gt; Experimental &gt; PMM HA Health Overview</strong>.</p>
+<p>Use the <strong>PMM HA Health Overview</strong> dashboard to monitor your entire HA deployment from a single view.</p>
+<p>This dashboard shows alive versus expected instance counts, active or primary nodes, replication health, and real-time status for PMM, PostgreSQL, ClickHouse, VictoriaMetrics, and HAProxy.</p>
+<p>Access the dashboard from <strong>PMM HA &gt; Overview</strong> in the main menu, or from <strong>All Dashboards &gt; Browse all dashboards &gt; PMM Health &gt; PMM HA Health Overview</strong>.</p>
 <p>The dashboard helps you quickly identify component failures, resource constraints, and stability issues across your high-availability infrastructure. </p>
 <p>For detailed information about each panel and what to check, see the <a href="../reference/dashboards/dashboard-ha-health-overview.html">PMM HA Health Overview dashboard reference</a>.</p>
-<h4 id="identify-the-leader-node">Identify the leader node<a class="headerlink" href="#identify-the-leader-node" title="Permanent link">&para;</a></h4>
-<p>PMM displays a visual badge on the side menu and displays the name of the active PMM instance that&rsquo;s currently handling all monitoring operations. For example, <code>pmm-ha-0</code>, <code>pmm-ha-1</code>, or <code>pmm-ha-2</code>.</p>
-<p>Check this to quickly identify which server is active without needing to query the cluster directly:</p>
+<h4 id="identify-the-health-status">Identify the health status<a class="headerlink" href="#identify-the-health-status" title="Permanent link">&para;</a></h4>
+<p>PMM displays a visual badge on the side menu.</p>
 <p><img alt="PMM HA Status badge" src="../images/HA-Status.png" /></p>
-<p>The badge also includes a health status indicator that reflects the overall cluster state based on how many nodes are responding:</p>
+<p>The badge includes a health status indicator that reflects the overall cluster state based on how many nodes are responding:</p>
 <ul>
 <li><strong>Healthy</strong> indicates all nodes are in &ldquo;alive&rdquo; status and functioning normally</li>
 <li><strong>Degraded</strong> means approximately one-third of your nodes are not responding</li>
@@ -19056,7 +19055,7 @@ kubectl<span class="w"> </span>get<span class="w"> </span>pvc<span class="w"> </
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 10:16:51 UTC">August 25, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 24, 2026 08:05:38 UTC">September 24, 2026</span>
   </span>
 
     
