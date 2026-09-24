@@ -26,6 +26,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -371,6 +372,130 @@ func (s *Service) TriggerInventoryRefresh(ctx context.Context, req *omv1.Trigger
 	return response, nil
 }
 
+// validateMemberConfigs checks one request's per-member settings against the
+// hosts it names and against what rs.initiate() will accept, so a set it would
+// refuse fails here rather than several steps into a run -- minutes later, with
+// mongod already installed everywhere.
+//
+// Split out of TriggerHostBootstrap, its only caller, to keep that function's
+// cognitive complexity within the linter's limit, the same reason
+// resolveBootstrapHostOSID sits beside it.
+func validateMemberConfigs(nodeIDs []string, memberConfigs map[string]*omv1.BootstrapMemberConfig) error {
+	nodeIDSet := make(map[string]bool, len(nodeIDs))
+	for _, nodeID := range nodeIDs {
+		nodeIDSet[nodeID] = true
+	}
+	for nodeID, member := range memberConfigs {
+		if !nodeIDSet[nodeID] {
+			return status.Errorf(codes.InvalidArgument,
+				"member_configs names host %s, which is not in node_ids", nodeID)
+		}
+		// MongoDB's own rs.initiate() rule: a delayed member cannot vote or be
+		// eligible for primary -- rejected here rather than left for SEP to
+		// discover only once rs.initiate actually runs, minutes later. Leaving
+		// priority or votes unset is the same mistake as setting them wrong,
+		// since unset means MongoDB's defaults of 1 and on.
+		if member.GetDelaySecs() > 0 && (member.Priority == nil || *member.Priority != 0 || member.Votes == nil || *member.Votes) {
+			return status.Errorf(codes.InvalidArgument,
+				"host %s: a delayed member (delay_secs > 0) must also set priority 0 and votes off", nodeID)
+		}
+	}
+
+	// A replica set needs a member that can vote and one that can be elected,
+	// and rs.initiate() is where a set with neither fails -- minutes into a run,
+	// after every host already has mongod installed and started. Counted over
+	// node_ids rather than member_configs because a host named nowhere in it
+	// keeps MongoDB's defaults and therefore does both.
+	voters, electable := 0, 0
+	for _, nodeID := range nodeIDs {
+		member, named := memberConfigs[nodeID]
+		if !named || member.Votes == nil || *member.Votes {
+			voters++
+		}
+		if !named || member.Priority == nil || *member.Priority > 0 {
+			electable++
+		}
+	}
+	if voters == 0 {
+		return status.Error(codes.InvalidArgument,
+			"member_configs leaves no host with a vote; a replica set needs at least one voting member")
+	}
+	if electable == 0 {
+		return status.Error(codes.InvalidArgument,
+			"member_configs leaves every host with priority 0; a replica set needs at least one member that can become primary")
+	}
+
+	return nil
+}
+
+// runIgnoredSettings names the first run setting om_bootstrap did not apply, or
+// "" when the accepted run matches what was asked for.
+//
+// Raised in review: these fields are new on the wire, and SEP's own
+// TriggerRunRequest is a plain pydantic model, which ignores fields it does not
+// know rather than rejecting them. Against an om_bootstrap older than
+// percona/SEP#1534 the run would be accepted and then come up on SEP's own
+// defaults -- mongod on a different port, and a member meant to be hidden,
+// non-voting and delayed joining as an ordinary voting one -- with nothing
+// saying so. SEP echoes every one of these back on the accepted run (its
+// RunResponse), so the answer is in hand the moment the run is created; an
+// older SEP simply omits them, which reads here as the zero value and so as a
+// mismatch.
+//
+// Reports the first difference rather than all of them: any single one means
+// the app is too old, and the caller's next step is the same either way. Only
+// what was actually asked for is compared -- a field PMM left out is SEP's to
+// default, and the value it chose is not a disagreement.
+func runIgnoredSettings(planned sepTriggerBootstrapRunRequest, accepted *sepBootstrapRun) string {
+	switch {
+	case planned.DataPath != "" && accepted.DataPath != planned.DataPath:
+		return "the data path"
+	case planned.LogPath != "" && accepted.LogPath != planned.LogPath:
+		return "the log path"
+	case planned.Port != 0 && accepted.Port != planned.Port:
+		return "the port"
+	case planned.BindIP != "" && accepted.BindIP != planned.BindIP:
+		return "the bind address"
+	}
+
+	for host, member := range planned.MemberConfigs {
+		got, ok := accepted.MemberConfigs[host]
+		if !ok || !sameMemberConfig(got, member) {
+			return "the per-member replica-set settings"
+		}
+	}
+	return ""
+}
+
+// sameMemberConfig compares one host's settings as asked for against as accepted.
+//
+// An unset priority or votes on the request side is MongoDB's own default, which
+// is what SEP fills in and echoes back, so the two compare equal rather than
+// reading as a mismatch on every run that leaves them out.
+func sameMemberConfig(accepted, planned sepMemberConfig) bool {
+	if pointer.GetUint32(planned.Priority) != pointer.GetUint32(accepted.Priority) && planned.Priority != nil {
+		return false
+	}
+	if planned.Votes != nil && pointer.GetBool(planned.Votes) != pointer.GetBool(accepted.Votes) {
+		return false
+	}
+	return planned.Hidden == accepted.Hidden && planned.DelaySecs == accepted.DelaySecs
+}
+
+// abandonMisconfiguredRun cancels a run PMM has just decided it cannot use.
+//
+// Best-effort and logged rather than returned: the caller is already being told
+// why its request failed, and a cancel that does not land leaves a run visible
+// on the Automations page rather than anything worse. A SEP too old for the
+// settings above is also too old for :cancel, which 404s -- that is the same
+// "your SEP is older than this PMM" answer, so it is not worth reporting twice.
+func (s *Service) abandonMisconfiguredRun(ctx context.Context, runID string) {
+	_, err := s.bootstrap.cancelRun(ctx, runID)
+	if err != nil {
+		s.l.Warnf("bootstrap run %s: failed to cancel a run SEP would not configure: %s", runID, err)
+	}
+}
+
 // executorUnusable says why a payload cannot be dispatched to this host right now,
 // or "" when nothing is known to be wrong.
 //
@@ -404,6 +529,40 @@ func executorUnusable(host sepHost) string {
 		return "its Nomad executor's driver is not healthy"
 	}
 	return ""
+}
+
+// supportedBootstrapOSIDs mirrors SEP's own om_bootstrap.strategy.OperatingSystem
+// enum (app/sep/apps/om_bootstrap/strategy.py) -- there is no Go-side equivalent
+// type, since PMM otherwise treats os_id as an opaque string sourced from
+// om_inventory's probe and forwarded to SEP verbatim. Checked here purely so an
+// unsupported OS fails at trigger time with a clear reason instead of a run
+// that starts, dispatches a step, and only then fails on SEP's own
+// _require_package_manager -- SEP remains the actual source of truth, so a
+// third OS lands here only after (never instead of) that enum gaining it.
+var supportedBootstrapOSIDs = map[string]bool{"ubuntu": true, "rocky": true}
+
+// resolveBootstrapHostOSID validates one host's OS against the run's OS chosen
+// so far (osID, empty for the first host in the loop) and returns the OS to
+// carry forward. Split out of TriggerHostBootstrap, which this is called from
+// once per host, purely to keep that function's cognitive complexity within
+// the linter's limit -- there is no reuse elsewhere.
+func resolveBootstrapHostOSID(nodeID string, host sepHost, osID string) (string, error) {
+	hostOSID, _ := host.Observed["os_id"].(string)
+	if hostOSID == "" {
+		return "", status.Errorf(codes.FailedPrecondition,
+			"host %s has no known OS yet; wait for its next inventory probe and try again", nodeID)
+	}
+	if !supportedBootstrapOSIDs[hostOSID] {
+		return "", status.Errorf(codes.FailedPrecondition,
+			"host %s runs %q, which om_bootstrap does not support yet (supported: ubuntu, rocky)",
+			nodeID, hostOSID)
+	}
+	if osID != "" && osID != hostOSID {
+		return "", status.Errorf(codes.InvalidArgument,
+			"host %s runs %s, but %s was already selected; a mixed-OS replica set is out of phase-1 scope",
+			nodeID, hostOSID, osID)
+	}
+	return hostOSID, nil
 }
 
 // TriggerHostBootstrap plans installing MongoDB on one or three hosts and
@@ -443,8 +602,14 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 			"node_ids must have exactly one or three entries, got %d", len(nodeIDs))
 	}
 
+	err = validateMemberConfigs(nodeIDs, req.GetMemberConfigs())
+	if err != nil {
+		return nil, err
+	}
+
 	osID := ""
 	executorHosts := make([]string, 0, len(nodeIDs))
+	memberConfigs := make(map[string]sepMemberConfig, len(req.GetMemberConfigs()))
 	for _, nodeID := range nodeIDs {
 		host := sepHost{}
 		call := inventoryCall{method: http.MethodGet, path: inventoryPath("hosts", nodeID)}
@@ -461,30 +626,45 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 			return nil, status.Errorf(codes.FailedPrecondition,
 				"host %s cannot be bootstrapped right now: %s", nodeID, unusable)
 		}
-		hostOSID, _ := host.Observed["os_id"].(string)
-		if hostOSID == "" {
-			return nil, status.Errorf(codes.FailedPrecondition,
-				"host %s has no known OS yet; wait for its next inventory probe and try again", nodeID)
-		}
-		if osID == "" {
-			osID = hostOSID
-		} else if osID != hostOSID {
-			return nil, status.Errorf(codes.InvalidArgument,
-				"host %s runs %s, but %s was already selected; a mixed-OS replica set is out of phase-1 scope",
-				nodeID, hostOSID, osID)
+		osID, err = resolveBootstrapHostOSID(nodeID, host, osID)
+		if err != nil {
+			return nil, err
 		}
 		executorHosts = append(executorHosts, *host.ExecutorHost)
+		if member, ok := req.GetMemberConfigs()[nodeID]; ok {
+			memberConfigs[*host.ExecutorHost] = sepMemberConfig{
+				Priority:  member.Priority,
+				Votes:     member.Votes,
+				Hidden:    member.GetHidden(),
+				DelaySecs: member.GetDelaySecs(),
+			}
+		}
 	}
 
-	run, err := s.bootstrap.triggerRun(ctx, sepTriggerBootstrapRunRequest{
+	planned := sepTriggerBootstrapRunRequest{
 		Hosts:          executorHosts,
 		InstallMethod:  "packages",
 		OS:             osID,
 		MongoDBVersion: req.GetMongodbVersion(),
 		ReplicaSetName: req.GetReplicaSetName(),
-	})
+		DataPath:       req.GetDataPath(),
+		LogPath:        req.GetLogPath(),
+		Port:           req.GetPort(),
+		BindIP:         req.GetBindIp(),
+		MemberConfigs:  memberConfigs,
+	}
+	run, err := s.bootstrap.triggerRun(ctx, planned)
 	if err != nil {
 		return nil, err
+	}
+
+	ignored := runIgnoredSettings(planned, run)
+	if ignored != "" {
+		s.abandonMisconfiguredRun(ctx, run.ID)
+		return nil, status.Errorf(codes.FailedPrecondition,
+			"SEP accepted the run but did not apply %s, so it would come up on its own defaults "+
+				"instead of the settings you chose; its om_bootstrap app is older than this PMM. "+
+				"The run has been cancelled", ignored)
 	}
 
 	if environment, cluster := req.GetEnvironment(), req.GetCluster(); environment != "" || cluster != "" {
@@ -635,6 +815,28 @@ func (s *Service) GetBootstrapRun(ctx context.Context, req *omv1.GetBootstrapRun
 	return bootstrapRunToProto(run, s.confirmMonitoringLookup(ctx, run.Status), environment, cluster), nil
 }
 
+// CancelBootstrapRun asks SEP to flag runID for cancellation and best-effort
+// stop whatever step is currently dispatching -- see om_bootstrap's own
+// :cancel route doc comment. Actually rolling every host back from there is
+// PMM's own stepper's job, driven by bootstrap_decision.go's runNeedsRollback
+// the next time it observes cancel_requested set, not this handler's.
+func (s *Service) CancelBootstrapRun(ctx context.Context, req *omv1.CancelBootstrapRunRequest) (*omv1.CancelBootstrapRunResponse, error) {
+	bootstrap, err := s.bootstrapProbe()
+	if err != nil {
+		return nil, err
+	}
+
+	run, err := bootstrap.cancelRun(ctx, req.GetRunId())
+	if err != nil {
+		return nil, err
+	}
+
+	environment, cluster := s.bootstrapRunConfigLabels(run.ID)
+	return &omv1.CancelBootstrapRunResponse{
+		Run: bootstrapRunToProto(run, s.confirmMonitoringLookup(ctx, run.Status), environment, cluster),
+	}, nil
+}
+
 // ListBootstrapRuns returns the bootstrap run history, newest first.
 //
 // Every status, not just active ones -- this backs an operator-facing history view,
@@ -758,17 +960,18 @@ func bootstrapRunToProto(run *sepBootstrapRun, hostsByExecutor map[string]sepHos
 		})
 	}
 	return &omv1.GetBootstrapRunResponse{
-		RunId:          run.ID,
-		Status:         run.Status,
-		Hosts:          hosts,
-		RunSteps:       bootstrapStepsToProto(run.RunSteps),
-		Error:          run.Error,
-		ReplicaSetName: run.ReplicaSetName,
-		MongodbVersion: run.MongoDBVersion,
-		StartedAt:      timestamppb.New(run.StartedAt),
-		FinishedAt:     optionalTimestamp(run.FinishedAt),
-		Environment:    optional(environment),
-		Cluster:        optional(cluster),
+		RunId:           run.ID,
+		Status:          run.Status,
+		Hosts:           hosts,
+		RunSteps:        bootstrapStepsToProto(run.RunSteps),
+		Error:           run.Error,
+		ReplicaSetName:  run.ReplicaSetName,
+		MongodbVersion:  run.MongoDBVersion,
+		StartedAt:       timestamppb.New(run.StartedAt),
+		FinishedAt:      optionalTimestamp(run.FinishedAt),
+		Environment:     optional(environment),
+		Cluster:         optional(cluster),
+		CancelRequested: run.CancelRequested,
 	}
 }
 

@@ -6504,6 +6504,96 @@ func (m *TriggerHostBootstrapRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if utf8.RuneCountInString(m.GetDataPath()) < 1 {
+		err := TriggerHostBootstrapRequestValidationError{
+			field:  "DataPath",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetLogPath()) < 1 {
+		err := TriggerHostBootstrapRequestValidationError{
+			field:  "LogPath",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if val := m.GetPort(); val < 1 || val > 65535 {
+		err := TriggerHostBootstrapRequestValidationError{
+			field:  "Port",
+			reason: "value must be inside range [1, 65535]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetBindIp()) < 1 {
+		err := TriggerHostBootstrapRequestValidationError{
+			field:  "BindIp",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	{
+		sorted_keys := make([]string, len(m.GetMemberConfigs()))
+		i := 0
+		for key := range m.GetMemberConfigs() {
+			sorted_keys[i] = key
+			i++
+		}
+		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
+		for _, key := range sorted_keys {
+			val := m.GetMemberConfigs()[key]
+			_ = val
+
+			// no validation rules for MemberConfigs[key]
+
+			if all {
+				switch v := interface{}(val).(type) {
+				case interface{ ValidateAll() error }:
+					if err := v.ValidateAll(); err != nil {
+						errors = append(errors, TriggerHostBootstrapRequestValidationError{
+							field:  fmt.Sprintf("MemberConfigs[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				case interface{ Validate() error }:
+					if err := v.Validate(); err != nil {
+						errors = append(errors, TriggerHostBootstrapRequestValidationError{
+							field:  fmt.Sprintf("MemberConfigs[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				}
+			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+				if err := v.Validate(); err != nil {
+					return TriggerHostBootstrapRequestValidationError{
+						field:  fmt.Sprintf("MemberConfigs[%v]", key),
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		}
+	}
+
 	if m.Environment != nil {
 		// no validation rules for Environment
 	}
@@ -6593,6 +6683,130 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = TriggerHostBootstrapRequestValidationError{}
+
+// Validate checks the field values on BootstrapMemberConfig with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *BootstrapMemberConfig) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on BootstrapMemberConfig with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// BootstrapMemberConfigMultiError, or nil if none found.
+func (m *BootstrapMemberConfig) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *BootstrapMemberConfig) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Hidden
+
+	// no validation rules for DelaySecs
+
+	if m.Priority != nil {
+		if m.GetPriority() > 1000 {
+			err := BootstrapMemberConfigValidationError{
+				field:  "Priority",
+				reason: "value must be less than or equal to 1000",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
+
+	if m.Votes != nil {
+		// no validation rules for Votes
+	}
+
+	if len(errors) > 0 {
+		return BootstrapMemberConfigMultiError(errors)
+	}
+
+	return nil
+}
+
+// BootstrapMemberConfigMultiError is an error wrapping multiple validation
+// errors returned by BootstrapMemberConfig.ValidateAll() if the designated
+// constraints aren't met.
+type BootstrapMemberConfigMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m BootstrapMemberConfigMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m BootstrapMemberConfigMultiError) AllErrors() []error { return m }
+
+// BootstrapMemberConfigValidationError is the validation error returned by
+// BootstrapMemberConfig.Validate if the designated constraints aren't met.
+type BootstrapMemberConfigValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e BootstrapMemberConfigValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e BootstrapMemberConfigValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e BootstrapMemberConfigValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e BootstrapMemberConfigValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e BootstrapMemberConfigValidationError) ErrorName() string {
+	return "BootstrapMemberConfigValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e BootstrapMemberConfigValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sBootstrapMemberConfig.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = BootstrapMemberConfigValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = BootstrapMemberConfigValidationError{}
 
 // Validate checks the field values on TriggerHostBootstrapResponse with the
 // rules defined in the proto definition for this message. If any rules are
@@ -7257,6 +7471,8 @@ func (m *GetBootstrapRunResponse) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for CancelRequested
+
 	if m.Error != nil {
 		// no validation rules for Error
 	}
@@ -7380,6 +7596,252 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetBootstrapRunResponseValidationError{}
+
+// Validate checks the field values on CancelBootstrapRunRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CancelBootstrapRunRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CancelBootstrapRunRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CancelBootstrapRunRequestMultiError, or nil if none found.
+func (m *CancelBootstrapRunRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CancelBootstrapRunRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetRunId()) < 1 {
+		err := CancelBootstrapRunRequestValidationError{
+			field:  "RunId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return CancelBootstrapRunRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// CancelBootstrapRunRequestMultiError is an error wrapping multiple validation
+// errors returned by CancelBootstrapRunRequest.ValidateAll() if the
+// designated constraints aren't met.
+type CancelBootstrapRunRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CancelBootstrapRunRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CancelBootstrapRunRequestMultiError) AllErrors() []error { return m }
+
+// CancelBootstrapRunRequestValidationError is the validation error returned by
+// CancelBootstrapRunRequest.Validate if the designated constraints aren't met.
+type CancelBootstrapRunRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CancelBootstrapRunRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CancelBootstrapRunRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CancelBootstrapRunRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CancelBootstrapRunRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CancelBootstrapRunRequestValidationError) ErrorName() string {
+	return "CancelBootstrapRunRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CancelBootstrapRunRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCancelBootstrapRunRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = CancelBootstrapRunRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CancelBootstrapRunRequestValidationError{}
+
+// Validate checks the field values on CancelBootstrapRunResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CancelBootstrapRunResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CancelBootstrapRunResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CancelBootstrapRunResponseMultiError, or nil if none found.
+func (m *CancelBootstrapRunResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CancelBootstrapRunResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetRun()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, CancelBootstrapRunResponseValidationError{
+					field:  "Run",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, CancelBootstrapRunResponseValidationError{
+					field:  "Run",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRun()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CancelBootstrapRunResponseValidationError{
+				field:  "Run",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return CancelBootstrapRunResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// CancelBootstrapRunResponseMultiError is an error wrapping multiple
+// validation errors returned by CancelBootstrapRunResponse.ValidateAll() if
+// the designated constraints aren't met.
+type CancelBootstrapRunResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CancelBootstrapRunResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CancelBootstrapRunResponseMultiError) AllErrors() []error { return m }
+
+// CancelBootstrapRunResponseValidationError is the validation error returned
+// by CancelBootstrapRunResponse.Validate if the designated constraints aren't met.
+type CancelBootstrapRunResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CancelBootstrapRunResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CancelBootstrapRunResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CancelBootstrapRunResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CancelBootstrapRunResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CancelBootstrapRunResponseValidationError) ErrorName() string {
+	return "CancelBootstrapRunResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CancelBootstrapRunResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCancelBootstrapRunResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = CancelBootstrapRunResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CancelBootstrapRunResponseValidationError{}
 
 // Validate checks the field values on ListBootstrapRunsRequest with the rules
 // defined in the proto definition for this message. If any rules are

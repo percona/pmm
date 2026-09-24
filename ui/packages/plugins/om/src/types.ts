@@ -495,15 +495,28 @@ export interface OmInventoryRunAccepted {
 }
 
 /**
- * A single-host bootstrap accepted by the app, from
- * `POST /v1/om/inventory/hosts/{node_id}:bootstrap`.
+ * One host's replica-set election settings, for
+ * `TriggerHostBootstrapRequest.member_configs` - keyed by node id there, one
+ * entry per host that needs something other than MongoDB's own defaults
+ * (priority 1, votes on, not hidden, no delay).
+ */
+export interface OmBootstrapMemberConfig {
+  priority: number;
+  votes: boolean;
+  hidden: boolean;
+  delay_secs: number;
+}
+
+/**
+ * A bootstrap run accepted by the app, from
+ * `POST /v1/om/inventory/hosts:bootstrap`.
  *
  * PMM-15347 PoC only. Carries no credentials: the run's generated MongoDB user
  * is created only once every host is up, minutes after this response - see
- * `run_id`'s own comment for why there is nothing to show here yet.
+ * `run_id`'s own comment for how to watch it happen.
  */
 export interface OmHostBootstrapAccepted {
-  /** The om_bootstrap run's id. Nothing here polls it for progress yet. */
+  /** The om_bootstrap run's id - pass to `useBootstrapRun` to watch its progress. */
   run_id: string;
 }
 
@@ -570,12 +583,30 @@ export interface OmGetBootstrapRunResponse {
   mongodb_version: string;
   started_at: string;
   finished_at?: string | null;
+  environment?: string | null;
+  cluster?: string | null;
+  /**
+   * Whether an operator has asked this run to stop - see `useCancelBootstrapRun`.
+   * Once set, PMM's own stepper rolls back every host, the same as a step that
+   * exhausted its retries, so a reader can show a run as "aborting" rather than
+   * simply "running" while that rollback is still in flight.
+   */
+  cancel_requested: boolean;
 }
 
 /** The bootstrap run history, from `GET /v1/om/inventory/bootstrap-runs`. */
 export interface OmListBootstrapRunsResponse {
   runs: OmGetBootstrapRunResponse[];
 }
+
+/**
+ * The run's state as of recording a cancellation request, from
+ * `POST /v1/om/inventory/bootstrap-runs/{id}:cancel`.
+ */
+export interface OmCancelBootstrapRunResponse {
+  run: OmGetBootstrapRunResponse;
+}
+
 /**
  * What one refresh reached.
  *
