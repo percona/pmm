@@ -89,6 +89,10 @@ const REPORTS_ITS_OWN_WAY: Record<string, string> = {
     'inline Typography rendering the trigger mutation error beside the button',
   'plugins/om/src/inventoryHooks.ts':
     'exposes mutation error state, rendered as inline Alerts by HostsPage.tsx and ConfigForm.tsx',
+  'plugins/om/src/BootstrapPage.tsx':
+    'inline Alert on the Review step rendering the trigger mutation error',
+  'plugins/om/src/components/RunProgress.tsx':
+    'in-dialog Alert rendering the abort mutation error, above the button that fired it',
 };
 
 const MUTATION_CALL = /\.(mutate|mutateAsync)\s*\(/;
