@@ -237,10 +237,10 @@ Task status and execution history are visible in the **Apps > MySQL Backups** li
 Each backup and restore run captures `stdout` and `stderr` as task logs.                
                                                                                           
 #### Find logs
-Check the `taskhistory_log` table in PMM's embedded PostgreSQL database (`sep`). Logs are not written to disk or Docker container logs.                         
+Check the `taskhistory_log` table in PMM's embedded PostgreSQL database (`pmm_extensions`). Logs are not written to disk or Docker container logs.                         
                                                                                           
 #### Configure retention
-Use the SEP API to set TASKS__LOG_RETENTION_DAYS and override the default 90-day retention period. The maximum is 365 days.
+Use the PMM Extensions API to set TASKS__LOG_RETENTION_DAYS and override the default 90-day retention period. The maximum is 365 days.
 
 A daily purge job removes log bodies for finished tasks older than the configured threshold. Task history records (who ran what, when, and final status) are never purged.      
                                                                                         

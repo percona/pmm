@@ -1,8 +1,8 @@
 ---
 title: Execute a task
-slug: sep-execute-task
+slug: extensions-execute-task
 category:
-  uri: sep-tasks-api
+  uri: extensions-tasks-api
 position: 1
 ---
 
@@ -17,7 +17,7 @@ POST /api/apps/{app}/{task_name}/execute
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `app` | string | The app that owns the task (for example, `mysql_backups`). |
-| `task_name` | string | The name of the task to execute. Use [List tasks](ref:sep-list-tasks) to find available task names. |
+| `task_name` | string | The name of the task to execute. Use [List tasks](ref:extensions-list-tasks) to find available task names. |
 
 ## Request body
 
@@ -61,12 +61,12 @@ Returns the task history record created for this execution.
 }
 ```
 
-Use the returned `id` to [monitor the run](ref:sep-task-history).
+Use the returned `id` to [monitor the run](ref:extensions-task-history).
 
 ## Example
 
 ```shell
-curl -sk -X POST https://<pmm-server>/sep/api/apps/mysql-backups/mysql-backup-xtrabackup/execute \
+curl -sk -X POST https://<pmm-server>/extensions/api/apps/mysql-backups/mysql-backup-xtrabackup/execute \
      -H "Authorization: Bearer <token>" \
      -H "Content-Type: application/json" \
      -d '{}'

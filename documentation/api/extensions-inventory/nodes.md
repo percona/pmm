@@ -1,8 +1,8 @@
 ---
 title: Nodes
-slug: sep-list-nodes
+slug: extensions-list-nodes
 category:
-  uri: sep-inventory-api
+  uri: extensions-inventory-api
 position: 1
 ---
 
@@ -30,7 +30,7 @@ GET /nodes/
 **Example:**
 
 ```shell
-curl -sk "https://<pmm-server>/sep/nodes/?search=db-host" \
+curl -sk "https://<pmm-server>/extensions/nodes/?search=db-host" \
      -H "Authorization: Bearer <token>"
 ```
 
@@ -68,7 +68,7 @@ Restores a retired node. Its services stay retired. Revive them separately if ne
 
 ## Duplicate node records
 
-When PMM re-registers a host with a new node ID, SEP may create a second node record for the same physical host. The identity endpoints let you identify and resolve these duplicates.
+When PMM re-registers a host with a new node ID, PMM Extensions may create a second node record for the same physical host. The identity endpoints let you identify and resolve these duplicates.
 
 ### List duplicate candidates
 

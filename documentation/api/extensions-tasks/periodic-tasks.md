@@ -1,8 +1,8 @@
 ---
 title: Schedule recurring tasks
-slug: sep-list-periodic-tasks
+slug: extensions-list-periodic-tasks
 category:
-  uri: sep-tasks-api
+  uri: extensions-tasks-api
 position: 3
 ---
 
@@ -14,7 +14,7 @@ Periodic tasks run a task automatically on a cron or interval schedule. Each per
 GET /periodic/
 ```
 
-Returns a paginated list of all periodic tasks managed by SEP.
+Returns a paginated list of all periodic tasks managed by PMM Extensions.
 
 **Query parameters:**
 
@@ -75,7 +75,7 @@ Creates a new periodic task for the named task. Supply either an `interval` or a
 | `task` | string | The task name this schedule will run. |
 | `enabled` | boolean | Whether the schedule is active. Default: `true`. |
 | `description` | string | A label for this schedule. |
-| `execute_request` | object | The execution parameters passed to the task on each run. Same fields as the [execute endpoint](ref:sep-execute-task) request body. |
+| `execute_request` | object | The execution parameters passed to the task on each run. Same fields as the [execute endpoint](ref:extensions-execute-task) request body. |
 | `interval` | object | Interval schedule: `{"every": 1, "period": "days"}`. Period options: `days`, `hours`, `minutes`, `seconds`. |
 | `crontab` | object | Crontab schedule with `minute`, `hour`, `day_of_week`, `day_of_month`, `month_of_year`, and `timezone` fields. |
 | `start_time` | datetime | Earliest time the schedule can fire. |

@@ -1,12 +1,12 @@
 ---
 title: List available tasks
-slug: sep-list-tasks
+slug: extensions-list-tasks
 category:
-  uri: sep-tasks-api
+  uri: extensions-tasks-api
 position: 5
 ---
 
-List registered tasks to find the task names you need for [execute](ref:sep-execute-task) and [schedule](ref:sep-list-periodic-tasks) calls.
+List registered tasks to find the task names you need for [execute](ref:extensions-execute-task) and [schedule](ref:extensions-list-periodic-tasks) calls.
 
 ## List all tasks
 
@@ -14,7 +14,7 @@ List registered tasks to find the task names you need for [execute](ref:sep-exec
 GET /
 ```
 
-Returns a paginated list of all tasks registered in SEP.
+Returns a paginated list of all tasks registered in PMM Extensions.
 
 **Query parameters:**
 
@@ -31,7 +31,7 @@ Returns a paginated list of all tasks registered in SEP.
 **Example:**
 
 ```shell
-curl -sk "https://<pmm-server>/sep/?owner=mysql-backups" \
+curl -sk "https://<pmm-server>/extensions/?owner=mysql-backups" \
      -H "Authorization: Bearer <token>"
 ```
 
@@ -46,7 +46,7 @@ Returns the full record for a single task by name.
 **Example:**
 
 ```shell
-curl -sk https://<pmm-server>/sep/mysql-backup-xtrabackup \
+curl -sk https://<pmm-server>/extensions/mysql-backup-xtrabackup \
      -H "Authorization: Bearer <token>"
 ```
 
@@ -56,4 +56,4 @@ curl -sk https://<pmm-server>/sep/mysql-backup-xtrabackup \
 GET /hosts/
 ```
 
-Returns the available executor hosts where tasks can run. Use this to find valid `target` values for the [execute](ref:sep-execute-task) and [connectivity check](ref:sep-connectivity-check) endpoints.
+Returns the available executor hosts where tasks can run. Use this to find valid `target` values for the [execute](ref:extensions-execute-task) and [connectivity check](ref:extensions-connectivity-check) endpoints.

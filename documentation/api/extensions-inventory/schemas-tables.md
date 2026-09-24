@@ -1,8 +1,8 @@
 ---
 title: Schemas and tables
-slug: sep-list-schemas
+slug: extensions-list-schemas
 category:
-  uri: sep-inventory-api
+  uri: extensions-inventory-api
 position: 3
 ---
 
@@ -35,7 +35,7 @@ Returns schemas for a specific service. Pass `include_tables=1` to include table
 **Example:**
 
 ```shell
-curl -sk "https://<pmm-server>/sep/services/7/schemas/?include_tables=1" \
+curl -sk "https://<pmm-server>/extensions/services/7/schemas/?include_tables=1" \
      -H "Authorization: Bearer <token>"
 ```
 

@@ -1,24 +1,24 @@
 ---
 title: Overview
-slug: sep-tasks-overview
+slug: extensions-tasks-overview
 category:
-  uri: sep-tasks-api
+  uri: extensions-tasks-api
 position: 0
 ---
 
-The SEP Tasks API gives you programmatic control over database operations available in the PMM UI under **Apps**.
+The PMM Extensions Tasks API gives you programmatic control over database operations available in the PMM UI under **Apps**.
 
 Use it to:
 
-- [execute](ref:sep-execute-task) database operations (backups, diagnostics, schema changes) on your hosts
-- [monitor runs](ref:sep-task-history): check status, stream logs, and browse output files
-- [stop](ref:sep-task-history) a running task
-- [schedule recurring operations](ref:sep-list-periodic-tasks) with cron or interval schedules
-- [verify connectivity](ref:sep-connectivity-check) between an executor host and a database before running a task
+- [execute](ref:extensions-execute-task) database operations (backups, diagnostics, schema changes) on your hosts
+- [monitor runs](ref:extensions-task-history): check status, stream logs, and browse output files
+- [stop](ref:extensions-task-history) a running task
+- [schedule recurring operations](ref:extensions-list-periodic-tasks) with cron or interval schedules
+- [verify connectivity](ref:extensions-connectivity-check) between an executor host and a database before running a task
 
 ## Concepts
 
-**Task**: a named operation template registered in SEP. PMM ships a set of built-in tasks with stable identifiers like `mysql-backup-xtrabackup`.
+**Task**: a named operation template registered in PMM Extensions. PMM ships a set of built-in tasks with stable identifiers like `mysql-backup-xtrabackup`.
 
 **Task history**: a single execution of a task. Each run produces a history record with a status, timestamps, logs, and output files.
 
@@ -28,10 +28,10 @@ Use it to:
 
 ## Base URL
 
-The SEP Tasks API is proxied through PMM Server at:
+The PMM Extensions Tasks API is proxied through PMM Server at:
 
 ```
-https://<pmm-server>/sep/
+https://<pmm-server>/extensions/
 ```
 
 All endpoints in this reference are relative to that base.
@@ -41,7 +41,7 @@ All endpoints in this reference are relative to that base.
 Use the same PMM service account token you use for the PMM REST API. Pass it as a Bearer token:
 
 ```shell
-curl -sk -X POST https://<pmm-server>/sep/api/apps/mysql-backups/mysql-backup-xtrabackup/execute \
+curl -sk -X POST https://<pmm-server>/extensions/api/apps/mysql-backups/mysql-backup-xtrabackup/execute \
      -H "Authorization: Bearer <token>" \
      -H "Content-Type: application/json" \
      -d '{}'

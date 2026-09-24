@@ -1,8 +1,8 @@
 ---
 title: Check connectivity
-slug: sep-connectivity-check
+slug: extensions-connectivity-check
 category:
-  uri: sep-tasks-api
+  uri: extensions-tasks-api
 position: 4
 ---
 
@@ -53,7 +53,7 @@ Runs a lightweight check on the specified executor host that attempts to connect
 ## Example
 
 ```shell
-curl -sk -X POST https://<pmm-server>/sep/connectivity-check/ \
+curl -sk -X POST https://<pmm-server>/extensions/connectivity-check/ \
      -H "Authorization: Bearer <token>" \
      -H "Content-Type: application/json" \
      -d '{

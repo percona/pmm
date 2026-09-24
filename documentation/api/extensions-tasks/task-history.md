@@ -1,12 +1,12 @@
 ---
 title: Monitor task runs
-slug: sep-task-history
+slug: extensions-task-history
 category:
-  uri: sep-tasks-api
+  uri: extensions-tasks-api
 position: 2
 ---
 
-After [executing a task](ref:sep-execute-task), use the history endpoints to track status, stream logs, browse output files, and stop a run in progress.
+After [executing a task](ref:extensions-execute-task), use the history endpoints to track status, stream logs, browse output files, and stop a run in progress.
 
 ## List runs for a task
 
@@ -29,7 +29,7 @@ Returns paginated execution history for a task, newest first.
 **Example:**
 
 ```shell
-curl -sk "https://<pmm-server>/sep/mysql-backup-xtrabackup/history/?status=failed&limit=10" \
+curl -sk "https://<pmm-server>/extensions/mysql-backup-xtrabackup/history/?status=failed&limit=10" \
      -H "Authorization: Bearer <token>"
 ```
 
@@ -44,7 +44,7 @@ Returns the full record for one execution, identified by the `id` returned when 
 **Example:**
 
 ```shell
-curl -sk https://<pmm-server>/sep/history/42 \
+curl -sk https://<pmm-server>/extensions/history/42 \
      -H "Authorization: Bearer <token>"
 ```
 
@@ -67,7 +67,7 @@ Streams log output for a run. While the task is running, returns a live stream. 
 **Example:**
 
 ```shell
-curl -sk "https://<pmm-server>/sep/history/42/logs/" \
+curl -sk "https://<pmm-server>/extensions/history/42/logs/" \
      -H "Authorization: Bearer <token>"
 ```
 
@@ -106,7 +106,7 @@ Returns aggregate statistics for all runs of a task: total run count, counts by 
 **Example:**
 
 ```shell
-curl -sk https://<pmm-server>/sep/stats/mysql-backup-xtrabackup \
+curl -sk https://<pmm-server>/extensions/stats/mysql-backup-xtrabackup \
      -H "Authorization: Bearer <token>"
 ```
 
@@ -121,6 +121,6 @@ Stops a running task. Returns the updated history record with `status: stopped`.
 **Example:**
 
 ```shell
-curl -sk -X POST https://<pmm-server>/sep/history/42/stop/ \
+curl -sk -X POST https://<pmm-server>/extensions/history/42/stop/ \
      -H "Authorization: Bearer <token>"
 ```

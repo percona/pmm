@@ -1,8 +1,8 @@
 ---
 title: Services
-slug: sep-list-services
+slug: extensions-list-services
 category:
-  uri: sep-inventory-api
+  uri: extensions-inventory-api
 position: 2
 ---
 
@@ -31,14 +31,14 @@ GET /services/
 **List all MySQL services:**
 
 ```shell
-curl -sk "https://<pmm-server>/sep/services/?service_type=mysql" \
+curl -sk "https://<pmm-server>/extensions/services/?service_type=mysql" \
      -H "Authorization: Bearer <token>"
 ```
 
 **Look up a service by PMM service ID:**
 
 ```shell
-curl -sk "https://<pmm-server>/sep/services/?external_id=svc-abc123" \
+curl -sk "https://<pmm-server>/extensions/services/?external_id=svc-abc123" \
      -H "Authorization: Bearer <token>"
 ```
 
@@ -76,7 +76,7 @@ Restores a retired service and its parent node if also retired. Returns HTTP 409
 
 ## Duplicate service records
 
-Same pattern as [duplicate node records](ref:sep-list-nodes). Use when PMM re-registration creates a second service record for the same database instance.
+Same pattern as [duplicate node records](ref:extensions-list-nodes). Use when PMM re-registration creates a second service record for the same database instance.
 
 ### List duplicate candidates
 
