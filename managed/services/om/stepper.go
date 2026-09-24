@@ -86,8 +86,8 @@ func (s *Service) RunBootstrapStepper(ctx context.Context) {
 // stepBootstrapRuns discovers every run worth a look this tick and drives each one.
 //
 // "Worth a look" is what keeps the succeeded half of this sweep bounded. A run that
-// reads SUCCEEDED in SEP stays in that status for the rest of its life, so without a
-// record of PMM's own last step -- registering the hosts, which SEP knows nothing
+// reads SUCCEEDED in PMM Extensions stays in that status for the rest of its life, so without a
+// record of PMM's own last step -- registering the hosts, which PMM Extensions knows nothing
 // about -- every finished run in the history is re-fetched, re-matched against the
 // whole estate, and re-registered on every tick, forever. Measured in review at 20
 // GET /runs/{id} plus 20 full estate fetches per 15s tick against a 20-run history,
@@ -98,7 +98,7 @@ func (s *Service) stepBootstrapRuns(ctx context.Context) {
 	if err != nil {
 		// Without the set, the sweep below would redo every finished run. Skipping
 		// this tick costs at most bootstrapPollInterval of progress on a run that
-		// is, by definition, already succeeded on SEP's side.
+		// is, by definition, already succeeded on PMM Extensions' side.
 		s.l.Warnf("failed to list the bootstrap runs PMM has already registered: %s", err)
 		return
 	}
@@ -302,7 +302,7 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *extensionsBoots
 	}
 	// The last thing PMM owed this run is done, so it leaves the sweep: see
 	// stepBootstrapRuns on what revisiting it forever cost. The refresh kicked
-	// above is deliberately not part of that condition -- it only asks SEP to
+	// above is deliberately not part of that condition -- it only asks PMM Extensions to
 	// re-probe sooner than its own schedule would, so a missed kick costs
 	// freshness, not correctness, and is not worth another pass over the estate
 	// every 15 seconds for the life of the server.

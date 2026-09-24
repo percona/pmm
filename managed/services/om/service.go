@@ -35,7 +35,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/http"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -167,14 +166,7 @@ func (s *Service) WithProbeSource(extensionsURL, token string) *Service {
 	if token != "" && cleartextToken(extensionsURL) {
 		s.l.Warnf("PMM Extensions at %s is plain HTTP and off this host: PMM_EXTENSIONS_TOKEN will cross the network in clear text", extensionsURL)
 	}
-	client := &extensionsClient{
-		baseURL: extensionsURL,
-		token:   token,
-		http: &http.Client{
-			Timeout:       probeRequestTimeout,
-			CheckRedirect: refuseRedirect,
-		},
-	}
+	client := newExtensionsClient(extensionsURL, token)
 	probe := &probeSource{
 		app: client.app(probeAppModule),
 		l:   s.l.WithField("source", sourceProbe),
@@ -278,11 +270,10 @@ func (s *Service) WithBootstrapSource(extensionsURL, token string) *Service {
 		s.l.Info("PMM Extensions is not configured; MongoDB bootstrap will be unavailable")
 		return s
 	}
-	client := &extensionsClient{
-		baseURL: extensionsURL,
-		token:   token,
-		http:    &http.Client{Timeout: probeRequestTimeout},
+	if token != "" && cleartextToken(extensionsURL) {
+		s.l.Warnf("PMM Extensions at %s is plain HTTP and off this host: PMM_EXTENSIONS_TOKEN will cross the network in clear text", extensionsURL)
 	}
+	client := newExtensionsClient(extensionsURL, token)
 	s.bootstrap = &bootstrapClient{app: client.app(bootstrapAppModule)}
 	return s
 }
