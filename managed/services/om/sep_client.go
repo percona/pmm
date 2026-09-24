@@ -50,6 +50,22 @@ func (c *sepClient) app(module string) sepApp {
 	return sepApp{client: c, path: "api/apps/" + module}
 }
 
+// newSEPClient builds the transport one SEP-backed source talks through: the shared
+// request timeout, and the redirect refusal that keeps the bearer it attaches to
+// every call from being replayed somewhere else (see refuseRedirect). Every source
+// goes through here rather than composing its own http.Client, so a source added
+// later cannot quietly arrive without the guard.
+func newSEPClient(baseURL, token string) *sepClient {
+	return &sepClient{
+		baseURL: baseURL,
+		token:   token,
+		http: &http.Client{
+			Timeout:       probeRequestTimeout,
+			CheckRedirect: refuseRedirect,
+		},
+	}
+}
+
 // refuseRedirect keeps a credentialed request from being replayed somewhere else.
 //
 // PMM_SEP_TOKEN rides on every call this client makes, via request(), and the

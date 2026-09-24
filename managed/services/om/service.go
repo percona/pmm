@@ -35,7 +35,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/http"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -162,14 +161,7 @@ func (s *Service) WithProbeSource(sepURL, token string) *Service {
 	if token != "" && cleartextToken(sepURL) {
 		s.l.Warnf("SEP at %s is plain HTTP and off this host: PMM_SEP_TOKEN will cross the network in clear text", sepURL)
 	}
-	client := &sepClient{
-		baseURL: sepURL,
-		token:   token,
-		http: &http.Client{
-			Timeout:       probeRequestTimeout,
-			CheckRedirect: refuseRedirect,
-		},
-	}
+	client := newSEPClient(sepURL, token)
 	probe := &probeSource{
 		app: client.app(probeAppModule),
 		l:   s.l.WithField("source", sourceProbe),
@@ -261,11 +253,10 @@ func (s *Service) WithBootstrapSource(sepURL, token string) *Service {
 		s.l.Info("SEP is not configured; MongoDB bootstrap will be unavailable")
 		return s
 	}
-	client := &sepClient{
-		baseURL: sepURL,
-		token:   token,
-		http:    &http.Client{Timeout: probeRequestTimeout},
+	if token != "" && cleartextToken(sepURL) {
+		s.l.Warnf("SEP at %s is plain HTTP and off this host: PMM_SEP_TOKEN will cross the network in clear text", sepURL)
 	}
+	client := newSEPClient(sepURL, token)
 	s.bootstrap = &bootstrapClient{app: client.app(bootstrapAppModule)}
 	return s
 }
