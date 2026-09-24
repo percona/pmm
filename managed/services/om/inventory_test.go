@@ -36,14 +36,16 @@ import (
 	omv1 "github.com/percona/pmm/api/om/v1"
 )
 
-// hostsBody is one om_inventory GET /hosts answer.
+// hostsBody is one om_inventory GET /hosts answer, wrapped in SEP's own
+// paginated envelope (PMM-15326: "Bound the estate listings" --
+// app/core/pagination/models.py's PaginatedResponse) rather than a bare array.
 //
 // Two hosts on purpose, because the pair is the whole reason the host table exists.
 // `n1` runs a registered database and reports an unregistered mongod beside it -- the
 // arbiter case, which PMM registers no service for, so nothing else in OM would mention
 // the process. `n2` carries a PMM client and no database at all, which is the case a
 // service-keyed inventory cannot represent.
-const hostsBody = `[
+const hostsBody = `{"items": [
   {
     "node_id": "n1", "name": "db00", "address": "10.0.0.1", "executor_host": "db00",
     "observed": {
@@ -85,7 +87,7 @@ const hostsBody = `[
     "consecutive_failures": 3, "last_error": "no executor host",
     "services": []
   }
-]`
+], "total": 2, "offset": 0, "limit": 200}`
 
 // configBody is one om_inventory GET /config answer, trimmed to the two rows that make
 // the point: a nested schedule leaf and a field the deployment owns outright.
@@ -292,7 +294,7 @@ func TestListInventoryHosts(t *testing.T) {
 	t.Run("passes the filters through", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStub(t, http.StatusOK, `[]`)
+		stub := newSEPStub(t, http.StatusOK, `{"items": [], "total": 0, "offset": 0, "limit": 200}`)
 
 		// Addressable locals rather than a helper: these are proto3 `optional` bools, so
 		// what the request carries is a plain *bool, and false has to be distinguishable
@@ -320,12 +322,92 @@ func TestListInventoryHosts(t *testing.T) {
 		// has_service=false means "only hosts with no database", which is a very
 		// different listing from the default. Sending it because the caller said nothing
 		// would silently hide every host that has one.
-		stub := newSEPStub(t, http.StatusOK, `[]`)
+		stub := newSEPStub(t, http.StatusOK, `{"items": [], "total": 0, "offset": 0, "limit": 200}`)
 
 		_, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
 
 		require.NoError(t, err)
-		assert.Empty(t, stub.query)
+		assert.NotContains(t, stub.query, "has_service")
+		assert.NotContains(t, stub.query, "failing")
+		assert.NotContains(t, stub.query, "executor")
+	})
+
+	t.Run("walks every page", func(t *testing.T) {
+		t.Parallel()
+
+		// total (3) exceeds the first page's own item count (2), which is what makes
+		// fetchAllPages loop instead of stopping after one request -- every other test
+		// in this file sets total equal to len(items), so a regression that stopped
+		// after the first page or miscomputed the next offset would pass them all.
+		firstPage := `{"items": [
+		  {"node_id": "n1", "name": "db00"},
+		  {"node_id": "n2", "name": "db01"}
+		], "total": 3, "offset": 0, "limit": 200}`
+		secondPage := `{"items": [
+		  {"node_id": "n3", "name": "db02"}
+		], "total": 3, "offset": 2, "limit": 200}`
+		stub := newSEPStubSeq(t, http.StatusOK, firstPage, secondPage)
+
+		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+
+		require.NoError(t, err)
+		require.Len(t, response.GetHosts(), 3, "both pages' items should be concatenated")
+		assert.Equal(t, "n1", response.GetHosts()[0].GetNodeId())
+		assert.Equal(t, "n3", response.GetHosts()[2].GetNodeId())
+
+		require.Len(t, stub.calls, 2)
+		assert.Contains(t, stub.calls[0].query, "offset=0")
+		assert.Contains(t, stub.calls[1].query, "offset=2",
+			"the second request's offset should be the first page's item count, not its own offset field")
+		assert.Contains(t, stub.calls[1].query, "limit=200")
+	})
+}
+
+func TestListInventoryServices(t *testing.T) {
+	t.Parallel()
+
+	t.Run("reads the paginated envelope, keeping the caller's filters", func(t *testing.T) {
+		t.Parallel()
+
+		// GET /services answers the same PaginatedResponse envelope GET /hosts does
+		// (PMM-15326: "Bound the estate listings") -- decoding a bare array here is
+		// exactly the bug this PR fixes for /hosts, and this handler had no coverage
+		// at all, which is how it was missed.
+		stub := newSEPStub(t, http.StatusOK, `{"items": [
+		  {"service_id": "s1", "node_id": "n1", "name": "mongo-1", "port": 27017, "role": "PRIMARY"},
+		  {"service_id": "s2", "node_id": "n1", "name": "mongo-2", "port": 27018, "role": null}
+		], "total": 2, "offset": 0, "limit": 200}`)
+		nodeID, failing := "n1", true
+
+		response, err := stub.service(t).ListInventoryServices(t.Context(), &omv1.ListInventoryServicesRequest{
+			NodeId:  &nodeID,
+			Failing: &failing,
+		})
+
+		require.NoError(t, err)
+		require.Len(t, response.GetServices(), 2)
+		assert.Equal(t, "s1", response.GetServices()[0].GetServiceId())
+		assert.Equal(t, "/api/apps/om_inventory/services", stub.path)
+		// The caller's filters have to survive being copied onto the per-page query.
+		assert.Contains(t, stub.query, "node_id=n1")
+		assert.Contains(t, stub.query, "failing=true")
+	})
+
+	t.Run("walks every page", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(t, http.StatusOK,
+			`{"items": [{"service_id": "s1", "node_id": "n1", "name": "mongo-1"}], "total": 2, "offset": 0, "limit": 200}`,
+			`{"items": [{"service_id": "s2", "node_id": "n2", "name": "mongo-2"}], "total": 2, "offset": 1, "limit": 200}`)
+
+		response, err := stub.service(t).ListInventoryServices(t.Context(), &omv1.ListInventoryServicesRequest{})
+
+		require.NoError(t, err)
+		require.Len(t, stub.calls, 2)
+		require.Len(t, response.GetServices(), 2)
+		assert.Equal(t, "s1", response.GetServices()[0].GetServiceId())
+		assert.Equal(t, "s2", response.GetServices()[1].GetServiceId())
+		assert.Contains(t, stub.calls[1].query, "offset=1")
 	})
 }
 
@@ -806,7 +888,7 @@ func TestInventoryBearerIsSent(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		seen = r.Header.Get("Authorization")
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`[]`))
+		_, _ = w.Write([]byte(`{"items": [], "total": 0, "offset": 0, "limit": 200}`))
 	}))
 	t.Cleanup(server.Close)
 
@@ -829,13 +911,25 @@ func mustParseTime(t *testing.T, stamp string) time.Time {
 func TestInventoryFixturesAreValid(t *testing.T) {
 	t.Parallel()
 
-	for name, body := range map[string]string{"hosts": hostsBody, "config": configBody} {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
+	// hosts is checked separately from config: it is wrapped in SEP's own
+	// paginated envelope (PMM-15326: "Bound the estate listings") and config
+	// deliberately is not -- see sepPage's own comment on which endpoints
+	// changed shape and which stayed a bare array.
+	t.Run("hosts", func(t *testing.T) {
+		t.Parallel()
 
-			var parsed []map[string]any
-			require.NoError(t, json.Unmarshal([]byte(body), &parsed))
-			assert.NotEmpty(t, parsed)
-		})
-	}
+		var parsed struct {
+			Items []map[string]any `json:"items"`
+		}
+		require.NoError(t, json.Unmarshal([]byte(hostsBody), &parsed))
+		assert.NotEmpty(t, parsed.Items)
+	})
+
+	t.Run("config", func(t *testing.T) {
+		t.Parallel()
+
+		var parsed []map[string]any
+		require.NoError(t, json.Unmarshal([]byte(configBody), &parsed))
+		assert.NotEmpty(t, parsed)
+	})
 }

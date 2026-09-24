@@ -32,8 +32,12 @@ import (
 
 // servicesBody is one om_inventory GET /services answer, shaped as the app sends it:
 // a row per service PMM has registered, each carrying the document the last successful
-// probe stored. `gone` is a service the app knows and this PMM does not.
-const servicesBody = `[
+// probe stored, wrapped in SEP's own paginated envelope (PMM-15326: "Bound the estate
+// listings" -- app/core/pagination/models.py's PaginatedResponse) rather than a bare
+// array. `gone` is a service the app knows and this PMM does not. `total` matches
+// `items`'s own length so fetchAllPages stops after this one page, matching every
+// test below that asserts on exactly one request.
+const servicesBody = `{"items": [
   {
     "service_id": "s1", "node_id": "n1", "name": "mongo-1", "port": 27017, "role": null,
     "observed": {
@@ -55,18 +59,18 @@ const servicesBody = `[
     "last_success_at": "2026-08-11T11:32:30Z", "failing_since": null,
     "consecutive_failures": 0, "last_error": null
   }
-]`
+], "total": 2, "offset": 0, "limit": 200}`
 
 // unprobedBody is a service the app holds a row for and has never reached: an empty
 // document and null timestamps, which is a normal state rather than an absence.
-const unprobedBody = `[
+const unprobedBody = `{"items": [
   {
     "service_id": "s1", "node_id": "n1", "name": "mongo-1", "port": 27017, "role": null,
     "observed": {}, "first_seen_at": "2026-08-11T10:00:00Z",
     "last_attempt_at": null, "last_success_at": null, "failing_since": null,
     "consecutive_failures": 0, "last_error": null
   }
-]`
+], "total": 1, "offset": 0, "limit": 200}`
 
 func probeTestServices() []*models.Service {
 	return []*models.Service{
@@ -171,7 +175,7 @@ func TestProbeSource(t *testing.T) {
 
 		// The app is installed and has never swept. Not anybody's failure.
 		source := newProbeSource(t, func(w http.ResponseWriter, _ *http.Request) {
-			_, _ = w.Write([]byte(`[]`))
+			_, _ = w.Write([]byte(`{"items": [], "total": 0, "offset": 0, "limit": 200}`))
 		})
 
 		result := source.collect(context.Background(), probeTestServices())
@@ -204,7 +208,7 @@ func TestProbeSource(t *testing.T) {
 		// probe. Reporting that as "ok, 0 facts" reads as "there is nothing to probe
 		// here", which is the opposite of what happened.
 		source := newProbeSource(t, func(w http.ResponseWriter, _ *http.Request) {
-			_, _ = w.Write([]byte(`[
+			_, _ = w.Write([]byte(`{"items": [
 			  {"service_id":"s1","node_id":"n1","name":"mongo-1","observed":{},
 			   "first_seen_at":"2026-08-11T10:00:00Z","last_attempt_at":"2026-08-11T19:53:44Z",
 			   "last_success_at":null,"failing_since":"2026-08-09T19:53:44Z",
@@ -212,7 +216,8 @@ func TestProbeSource(t *testing.T) {
 			  {"service_id":"s2","node_id":"n2","name":"mongo-2","observed":{},
 			   "first_seen_at":"2026-08-11T10:00:00Z","last_attempt_at":"2026-08-11T19:53:44Z",
 			   "last_success_at":null,"failing_since":"2026-08-09T19:53:44Z",
-			   "consecutive_failures":37,"last_error":"Cannot connect to host localhost:8000"}]`))
+			   "consecutive_failures":37,"last_error":"Cannot connect to host localhost:8000"}],
+			  "total": 2, "offset": 0, "limit": 200}`))
 		})
 
 		result := source.collect(context.Background(), probeTestServices())
@@ -231,10 +236,11 @@ func TestProbeSource(t *testing.T) {
 		t.Parallel()
 
 		source := newProbeSource(t, func(w http.ResponseWriter, _ *http.Request) {
-			_, _ = w.Write([]byte(`[{"service_id":"s1","node_id":"n1","name":"mongo-1","observed":{},
+			_, _ = w.Write([]byte(`{"items": [{"service_id":"s1","node_id":"n1","name":"mongo-1","observed":{},
 			  "first_seen_at":"2026-08-11T10:00:00Z","last_attempt_at":"2026-08-11T19:53:44Z",
 			  "last_success_at":null,"failing_since":"2026-08-09T19:53:44Z",
-			  "consecutive_failures":37,"last_error":null}]`))
+			  "consecutive_failures":37,"last_error":null}],
+			  "total": 1, "offset": 0, "limit": 200}`))
 		})
 
 		result := source.collect(context.Background(), probeTestServices())
@@ -250,7 +256,7 @@ func TestProbeSource(t *testing.T) {
 		// The steady state of a real estate: one node unreachable, the rest answering.
 		// Not a failure of this source, and not a clean run either.
 		source := newProbeSource(t, func(w http.ResponseWriter, _ *http.Request) {
-			_, _ = w.Write([]byte(`[
+			_, _ = w.Write([]byte(`{"items": [
 			  {"service_id":"s1","node_id":"n1","name":"mongo-1",
 			   "observed":{"collected_at":"2026-08-11T11:32:30+00:00","installed_version":"7.0.40-22"},
 			   "first_seen_at":"2026-08-11T10:00:00Z","last_attempt_at":"2026-08-11T11:32:30Z",
@@ -259,7 +265,8 @@ func TestProbeSource(t *testing.T) {
 			  {"service_id":"s2","node_id":"n2","name":"mongo-2","observed":{},
 			   "first_seen_at":"2026-08-11T10:00:00Z","last_attempt_at":"2026-08-11T11:32:30Z",
 			   "last_success_at":null,"failing_since":"2026-08-11T11:00:00Z",
-			   "consecutive_failures":2,"last_error":"unreachable"}]`))
+			   "consecutive_failures":2,"last_error":"unreachable"}],
+			  "total": 2, "offset": 0, "limit": 200}`))
 		})
 
 		result := source.collect(context.Background(), probeTestServices())
