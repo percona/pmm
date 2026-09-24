@@ -15,7 +15,13 @@ A PMM HA release runs three PMM server replicas as a Kubernetes `StatefulSet` be
 Before starting the upgrade, complete these preparation steps:
 {.power-number}
 
-1. Confirm your monitoring data is safe to lose in case of a failed upgrade. PMM HA stores all data in the shared ClickHouse, VictoriaMetrics, and PostgreSQL clusters (not on the PMM server pods themselves), so back these up using your regular database backup procedures for those operator-managed clusters. Downgrades are not possible, so a backup taken before upgrading is required to recover a previous state.
+1. Back up your data before upgrading—downgrades are not possible, so a backup taken beforehand is required to recover a previous state. PMM HA stores all data in the shared ClickHouse, VictoriaMetrics, and PostgreSQL clusters (not on the PMM server pods themselves), and each is backed up separately today:
+
+    - **PostgreSQL** is backed up automatically: the chart enables scheduled [pgBackRest](https://pgbackrest.org/) backups by default. Confirm a recent backup exists before upgrading:
+        ```sh
+        kubectl get perconapgbackup -n <namespace>
+        ```
+    - **ClickHouse** and **VictoriaMetrics** have no built-in backup in the chart—back them up yourself (for example with [clickhouse-backup](https://github.com/Altinity/clickhouse-backup) and VictoriaMetrics' [`vmbackup`](https://docs.victoriametrics.com/vmbackup/)) if you need to be able to restore their data.
 
 2. To reduce downtime, pre-pull the new image on every node that can run a PMM HA pod:
 
@@ -75,9 +81,16 @@ Follow these steps to upgrade the PMM Server image in your PMM HA release:
     kubectl logs -l app.kubernetes.io/name=pmm -n pmm --tail=100
     ```
 
+!!! caution alert alert-warning "helm upgrade can fail with \"field is immutable\""
+    If your upgrade changes a value the chart's `pmm-token-init` Job depends on (for example `secret.name`), Helm can fail with `Job.batch "<release>-pmm-token-init" is invalid: spec.template: ... field is immutable`. See [Troubleshoot upgrade issues](../troubleshoot/upgrade_issues.md#pmm-ha-helm-upgrade-fails-with-field-is-immutable) for the fix.
+
 ## Verify the leader after upgrade
 
 The rolling update changes which replica is the active leader. After the upgrade completes, confirm a leader is elected and identify it in the UI or through the Inventory page—see [Identify the leader node](../install-pmm/install-HA-clustered.md#identify-the-leader-node).
+
+Expand the **PMM HA** status badge in the side menu to see the current leader and cluster health at a glance:
+
+![PMM HA leader badge showing the current leader and Healthy status](../images/pmm-ha-leader-badge.png)
 
 ## Upgrade the underlying databases
 
