@@ -34,6 +34,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	omv1 "github.com/percona/pmm/api/om/v1"
+	"github.com/percona/pmm/managed/models"
 )
 
 // hostsBody is one om_inventory GET /hosts answer, wrapped in SEP's own
@@ -133,8 +134,23 @@ func newSEPStub(t *testing.T, code int, body string) *sepStub {
 	return newSEPStubSeq(t, code, body)
 }
 
-// newSEPStubSeq serves one canned answer per request, in order.
+// newSEPStubSeq serves one canned answer per request, in order, all with the same
+// status code. See newSEPStubSeqCodes for a stub whose calls answer with different
+// codes too -- a handler that reads then writes, where the write is the one that
+// fails.
 func newSEPStubSeq(t *testing.T, code int, bodies ...string) *sepStub {
+	t.Helper()
+
+	codes := make([]int, len(bodies))
+	for i := range codes {
+		codes[i] = code
+	}
+	return newSEPStubSeqCodes(t, codes, bodies)
+}
+
+// newSEPStubSeqCodes serves one canned (code, body) answer per request, in order.
+// The last pair repeats once exhausted, same as newSEPStubSeq's bodies-only form.
+func newSEPStubSeqCodes(t *testing.T, codes []int, bodies []string) *sepStub {
 	t.Helper()
 
 	stub := &sepStub{bodies: bodies}
@@ -145,9 +161,14 @@ func newSEPStubSeq(t *testing.T, code int, bodies ...string) *sepStub {
 			call.body = string(raw)
 		}
 		stub.method, stub.path, stub.query, stub.body = call.method, call.path, call.query, call.body
+		index := min(len(stub.calls), len(bodies)-1)
 		body := ""
-		if len(stub.bodies) > 0 {
-			body = stub.bodies[min(len(stub.calls), len(stub.bodies)-1)]
+		if len(bodies) > 0 {
+			body = bodies[index]
+		}
+		code := http.StatusOK
+		if len(codes) > 0 {
+			code = codes[min(len(stub.calls), len(codes)-1)]
 		}
 		stub.calls = append(stub.calls, call)
 
@@ -257,6 +278,50 @@ func TestListInventoryHosts(t *testing.T) {
 		assert.True(t, executor.GetRegistered())
 		assert.True(t, executor.GetReachable())
 		assert.True(t, executor.GetDriverHealthy())
+	})
+
+	t.Run("without an agent registry, no host is eligible", func(t *testing.T) {
+		t.Parallel()
+
+		// stub.service(t) never calls WithAgentRegistry, matching every other test in
+		// this file -- the fail-closed default from PMM-15347's PoC (see
+		// agentConnectionChecker's doc comment): a host with a fully healthy executor
+		// still reads as ineligible when PMM-managed has no wired signal for
+		// pmm-agent connectivity.
+		stub := newSEPStub(t, http.StatusOK, hostsBody)
+
+		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+		require.NoError(t, err)
+
+		healthyExecutor := response.GetHosts()[0]
+		assert.False(t, healthyExecutor.GetPmmAgentConnected())
+		assert.False(t, healthyExecutor.GetAutomationEligible())
+		assert.Contains(t, healthyExecutor.GetAutomationBlockedReasons(),
+			"PMM-Client is not installed or not connected")
+		assert.NotContains(t, healthyExecutor.GetAutomationBlockedReasons(),
+			"host is not reachable by the Nomad client",
+			"n1's executor is fully healthy -- only the missing agent signal should block it")
+
+		noExecutor := response.GetHosts()[1]
+		assert.False(t, noExecutor.GetAutomationEligible())
+		assert.Contains(t, noExecutor.GetAutomationBlockedReasons(),
+			"PMM-Client is not installed or not connected")
+		assert.Contains(t, noExecutor.GetAutomationBlockedReasons(),
+			"host is not reachable by the Nomad client")
+	})
+
+	t.Run("the automation_eligible filter excludes every host when nothing is eligible", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, hostsBody)
+
+		eligible := true
+		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{
+			AutomationEligible: &eligible,
+		})
+		require.NoError(t, err)
+		assert.Empty(t, response.GetHosts(),
+			"no host has a connected agent in this stub, so none should pass the filter")
 	})
 
 	t.Run("a host with no probe reports absent, not false", func(t *testing.T) {
@@ -411,6 +476,65 @@ func TestListInventoryServices(t *testing.T) {
 	})
 }
 
+func TestAutomationEligibility(t *testing.T) {
+	t.Parallel()
+
+	healthyExecutor := &omv1.InventoryExecutor{Registered: true, Reachable: true, DriverHealthy: true}
+	reachableOnlyExecutor := &omv1.InventoryExecutor{Registered: true, Reachable: true, DriverHealthy: false}
+
+	t.Run("connected agent and healthy executor is eligible with no reasons", func(t *testing.T) {
+		t.Parallel()
+
+		eligible, reasons := automationEligibility(healthyExecutor, true)
+
+		assert.True(t, eligible)
+		assert.Empty(t, reasons)
+	})
+
+	t.Run("a disconnected agent blocks even a healthy executor", func(t *testing.T) {
+		t.Parallel()
+
+		eligible, reasons := automationEligibility(healthyExecutor, false)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{"PMM-Client is not installed or not connected"}, reasons)
+	})
+
+	t.Run("no executor block at all blocks on reachability, not driver health", func(t *testing.T) {
+		t.Parallel()
+
+		// A nil executor is what om_inventory sends for a host it has never
+		// dispatched to -- see inventory_test.go's "a host with no probe reports
+		// absent, not false". Reporting a driver-health failure on top of that would
+		// claim a health check ran when none did.
+		eligible, reasons := automationEligibility(nil, true)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{"host is not reachable by the Nomad client"}, reasons)
+	})
+
+	t.Run("reachable but unhealthy driver blocks on the driver, not reachability", func(t *testing.T) {
+		t.Parallel()
+
+		eligible, reasons := automationEligibility(reachableOnlyExecutor, true)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{"Nomad's raw_exec driver is not healthy on this host"}, reasons)
+	})
+
+	t.Run("every condition unmet reports every reason", func(t *testing.T) {
+		t.Parallel()
+
+		eligible, reasons := automationEligibility(nil, false)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{
+			"PMM-Client is not installed or not connected",
+			"host is not reachable by the Nomad client",
+		}, reasons)
+	})
+}
+
 func TestInventoryServiceProjection(t *testing.T) {
 	t.Parallel()
 
@@ -486,6 +610,501 @@ func TestTriggerInventoryRefresh(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.Aborted, status.Code(err))
 		assert.Contains(t, status.Convert(err).Message(), "already refreshing n1")
+	})
+}
+
+func TestTriggerHostBootstrap(t *testing.T) {
+	t.Parallel()
+
+	t.Run("reads the host's OS from inventory, then plans a run with om_bootstrap", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		response, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.NoError(t, err)
+		assert.Equal(t, "run-abc", response.GetRunId())
+		require.Len(t, stub.calls, 2)
+		assert.Equal(t, "/api/apps/om_inventory/hosts/n1", stub.calls[0].path)
+		assert.Equal(t, "/api/apps/om_bootstrap/runs", stub.calls[1].path)
+		// The dispatched-to host is n1's *executor*, not its node id -- see
+		// TriggerHostBootstrap's own doc comment on why they can differ, even
+		// though this fixture happens to give them the same value.
+		assert.JSONEq(t,
+			`{"hosts": ["n1"], "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod"}`,
+			stub.calls[1].body)
+	})
+
+	t.Run("a host with no known OS yet answers FailedPrecondition, not 500", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "executor_host": "n1", "observed": {}}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "no known OS")
+	})
+
+	t.Run("a host with no usable executor answers FailedPrecondition, not 500", func(t *testing.T) {
+		t.Parallel()
+
+		// No executor_host at all -- an unprobed host, or one om_inventory
+		// never matched to a Nomad client. Caught locally, before ever
+		// reaching om_bootstrap: dispatching to node_id here (this bug's own
+		// root cause -- see TriggerHostBootstrap's doc comment) would instead
+		// reach SEP and fail there, confusingly, once every host in flight.
+		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "observed": {"os_id": "ubuntu"}}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "no usable Nomad executor")
+	})
+
+	t.Run("an unreachable executor answers FailedPrecondition before a run exists", func(t *testing.T) {
+		t.Parallel()
+
+		// Raised on the SEP side of this work: without this check the run is created
+		// first and an unreachable Nomad client only surfaces when pre_check -- itself
+		// dispatched through Nomad -- fails seconds later, with the UI already showing
+		// the run as in progress. Only one call is served here, so nothing reached
+		// om_bootstrap.
+		stub := newSEPStub(t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu",
+			  "executor": {"reachable": false, "driver_healthy": true}}}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "not reachable")
+		require.Len(t, stub.calls, 1, "no run should be planned")
+		assert.Equal(t, "/api/apps/om_inventory/hosts/n1", stub.calls[0].path)
+	})
+
+	t.Run("an unhealthy executor driver answers FailedPrecondition", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu",
+			  "executor": {"reachable": true, "driver_healthy": false}}}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "driver is not healthy")
+	})
+
+	t.Run("a healthy executor plans the run", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu",
+			  "executor": {"reachable": true, "driver_healthy": true}}}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		response, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.NoError(t, err)
+		assert.Equal(t, "run-abc", response.GetRunId())
+	})
+
+	t.Run("plans a three-host run when every host runs the same OS", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"node_id": "n2", "executor_host": "n2", "observed": {"os_id": "ubuntu"}}`,
+			`{"node_id": "n3", "executor_host": "n3", "observed": {"os_id": "ubuntu"}}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		response, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1", "n2", "n3"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.NoError(t, err)
+		assert.Equal(t, "run-abc", response.GetRunId())
+		require.Len(t, stub.calls, 4)
+		assert.JSONEq(t,
+			`{"hosts": ["n1", "n2", "n3"], "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod"}`,
+			stub.calls[3].body)
+	})
+
+	t.Run("rejects two hosts -- phase-1 supports one or three, not two", func(t *testing.T) {
+		t.Parallel()
+
+		svc := (&Service{l: logrus.WithField("test", t.Name())}).
+			WithProbeSource("http://unused.invalid", "").
+			WithBootstrapSource("http://unused.invalid", "")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1", "n2"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "one or three")
+	})
+
+	t.Run("rejects a mixed-OS selection", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"node_id": "n2", "executor_host": "n2", "observed": {"os_id": "rocky"}}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1", "n2", "n3"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "mixed-OS")
+	})
+
+	t.Run("persists environment and cluster, and echoes them back through GetBootstrapRun", func(t *testing.T) {
+		// Not t.Parallel(): storeTestDB drops and recreates one fixed-name
+		// database, which two parallel subtests would race on -- see
+		// TestRegisterBootstrapHost's own subtests, which follow the same rule.
+		db := storeTestDB(t)
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+		)
+		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
+			WithProbeSource(stub.server.URL, "test-token").
+			WithBootstrapSource(stub.server.URL, "test-token")
+		environment, cluster := "staging", "orders"
+
+		triggered, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+				Environment:    &environment,
+				Cluster:        &cluster,
+			})
+		require.NoError(t, err)
+
+		config, err := models.FindOmBootstrapRunConfigByRunID(db.Querier, triggered.GetRunId())
+		require.NoError(t, err)
+		assert.Equal(t, "staging", config.Environment)
+		assert.Equal(t, "orders", config.Cluster)
+
+		response, err := svc.GetBootstrapRun(t.Context(),
+			&omv1.GetBootstrapRunRequest{RunId: triggered.GetRunId()})
+		require.NoError(t, err)
+		assert.Equal(t, "staging", response.GetEnvironment())
+		assert.Equal(t, "orders", response.GetCluster())
+	})
+
+	t.Run("leaves no config row, and echoes no environment or cluster, when neither was given", func(t *testing.T) {
+		// Not t.Parallel() -- see the previous subtest's own comment.
+		db := storeTestDB(t)
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+		)
+		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
+			WithProbeSource(stub.server.URL, "test-token").
+			WithBootstrapSource(stub.server.URL, "test-token")
+
+		triggered, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+		require.NoError(t, err)
+
+		_, err = models.FindOmBootstrapRunConfigByRunID(db.Querier, triggered.GetRunId())
+		require.ErrorIs(t, err, models.ErrNotFound)
+
+		response, err := svc.GetBootstrapRun(t.Context(),
+			&omv1.GetBootstrapRunRequest{RunId: triggered.GetRunId()})
+		require.NoError(t, err)
+		assert.Nil(t, response.Environment)
+		assert.Nil(t, response.Cluster)
+	})
+}
+
+func TestGetBootstrapRun(t *testing.T) {
+	t.Parallel()
+
+	t.Run("projects a run's hosts, rollback steps, and run-level steps", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, `{
+			"id": "run-abc",
+			"status": "running",
+			"install_method": "packages",
+			"os": "ubuntu",
+			"mongodb_version": "7.0.8",
+			"replica_set_name": "rs-orders-prod",
+			"started_at": "2026-01-01T00:00:00Z",
+			"hosts": [
+				{
+					"host": "n1",
+					"steps": [{"name": "pre_check", "status": "succeeded", "attempt_count": 1}],
+					"rollback_steps": [{"name": "stop_service", "status": "pending", "attempt_count": 0}],
+					"finalize_steps": [{"name": "enable_auth", "status": "pending", "attempt_count": 0}]
+				}
+			],
+			"run_steps": [{"name": "rs_initiate", "status": "pending", "attempt_count": 0}]
+		}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		response, err := svc.GetBootstrapRun(t.Context(),
+			&omv1.GetBootstrapRunRequest{RunId: "run-abc"})
+
+		require.NoError(t, err)
+		assert.Equal(t, "run-abc", response.GetRunId())
+		assert.Equal(t, "running", response.GetStatus())
+		assert.Equal(t, "rs-orders-prod", response.GetReplicaSetName())
+		assert.Equal(t, "7.0.8", response.GetMongodbVersion())
+		assert.Equal(t, mustParseTime(t, "2026-01-01T00:00:00Z"), response.GetStartedAt().AsTime())
+		assert.Nil(t, response.GetFinishedAt())
+		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc", stub.path)
+		require.Len(t, response.GetHosts(), 1)
+		assert.Equal(t, "n1", response.GetHosts()[0].GetHost())
+		assert.Equal(t, "pre_check", response.GetHosts()[0].GetSteps()[0].GetName())
+		assert.Equal(t, "succeeded", response.GetHosts()[0].GetSteps()[0].GetStatus())
+		assert.Equal(t, "stop_service", response.GetHosts()[0].GetRollbackSteps()[0].GetName())
+		require.Len(t, response.GetHosts()[0].GetFinalizeSteps(), 2)
+		assert.Equal(t, "enable_auth", response.GetHosts()[0].GetFinalizeSteps()[0].GetName())
+		// confirm_monitoring is PMM's own synthetic step, appended regardless of what
+		// SEP returned -- "pending" here because the run itself has not succeeded yet,
+		// same as rollback_steps stay "pending" until a run actually rolls back.
+		assert.Equal(t, "confirm_monitoring", response.GetHosts()[0].GetFinalizeSteps()[1].GetName())
+		assert.Equal(t, "pending", response.GetHosts()[0].GetFinalizeSteps()[1].GetStatus())
+		require.Len(t, response.GetRunSteps(), 1)
+		assert.Equal(t, "rs_initiate", response.GetRunSteps()[0].GetName())
+	})
+
+	t.Run("confirms monitoring against the inventory app once the run has succeeded", func(t *testing.T) {
+		t.Parallel()
+
+		// Two responses in order: the bootstrap run itself, then the inventory app's
+		// own host list that confirmMonitoringLookup fetches once it sees "succeeded".
+		// n1 already has a service the inventory sweep noticed; n2's bootstrap
+		// succeeded too but the sweep has not caught up to it yet.
+		stub := newSEPStubSeq(t, http.StatusOK,
+			`{
+				"id": "run-abc",
+				"status": "succeeded",
+				"install_method": "packages",
+				"os": "ubuntu",
+				"mongodb_version": "7.0.8",
+				"replica_set_name": "rs-orders-prod",
+				"started_at": "2026-01-01T00:00:00Z",
+				"hosts": [
+					{"host": "n1", "steps": [], "rollback_steps": [], "finalize_steps": []},
+					{"host": "n2", "steps": [], "rollback_steps": [], "finalize_steps": []}
+				],
+				"run_steps": []
+			}`,
+			`{"items": [
+				{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]},
+				{"node_id": "node-2", "executor_host": "n2", "services": []}
+			], "total": 2, "offset": 0, "limit": 200}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		response, err := svc.GetBootstrapRun(t.Context(),
+			&omv1.GetBootstrapRunRequest{RunId: "run-abc"})
+
+		require.NoError(t, err)
+		require.Len(t, stub.calls, 2)
+		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc", stub.calls[0].path)
+		assert.Equal(t, "/api/apps/om_inventory/hosts", stub.calls[1].path)
+		require.Len(t, response.GetHosts(), 2)
+		n1Confirm := response.GetHosts()[0].GetFinalizeSteps()[0]
+		assert.Equal(t, "confirm_monitoring", n1Confirm.GetName())
+		assert.Equal(t, "succeeded", n1Confirm.GetStatus())
+		n2Confirm := response.GetHosts()[1].GetFinalizeSteps()[0]
+		assert.Equal(t, "confirm_monitoring", n2Confirm.GetName())
+		assert.Equal(t, "running", n2Confirm.GetStatus())
+	})
+
+	t.Run("a run nobody created answers NotFound, not 500", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusNotFound, `{"detail": "Bootstrap run run-missing not found"}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.GetBootstrapRun(t.Context(), &omv1.GetBootstrapRunRequest{RunId: "run-missing"})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.NotFound, status.Code(err))
+	})
+}
+
+func TestListBootstrapRuns(t *testing.T) {
+	t.Parallel()
+
+	t.Run("projects every run in the same shape GetBootstrapRun answers with", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(t, http.StatusOK, `[
+			{
+				"id": "run-abc",
+				"status": "succeeded",
+				"install_method": "packages",
+				"os": "ubuntu",
+				"mongodb_version": "7.0.8",
+				"replica_set_name": "rs-orders-prod",
+				"started_at": "2026-01-01T00:00:00Z",
+				"finished_at": "2026-01-01T00:05:00Z",
+				"hosts": [{"host": "n1", "steps": [{"name": "pre_check", "status": "succeeded", "attempt_count": 1}]}],
+				"run_steps": []
+			},
+			{
+				"id": "run-def",
+				"status": "running",
+				"install_method": "packages",
+				"os": "ubuntu",
+				"mongodb_version": "7.0.8",
+				"replica_set_name": "rs-billing",
+				"started_at": "2026-01-02T00:00:00Z",
+				"hosts": [],
+				"run_steps": []
+			}
+		]`,
+			// The second response: confirmMonitoringLookup's own GET /hosts, fetched
+			// once because run-abc is "succeeded" -- run-def being "running" would
+			// never trigger it on its own. n1 already has a service.
+			`{"items": [{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]}], "total": 1, "offset": 0, "limit": 200}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		response, err := svc.ListBootstrapRuns(t.Context(), &omv1.ListBootstrapRunsRequest{})
+
+		require.NoError(t, err)
+		require.Len(t, stub.calls, 2)
+		assert.Equal(t, "/api/apps/om_bootstrap/runs", stub.calls[0].path)
+		assert.Equal(t, "limit=20", stub.calls[0].query)
+		assert.Equal(t, "/api/apps/om_inventory/hosts", stub.calls[1].path)
+		require.Len(t, response.GetRuns(), 2)
+		assert.Equal(t, "run-abc", response.GetRuns()[0].GetRunId())
+		assert.Equal(t, "succeeded", response.GetRuns()[0].GetStatus())
+		assert.Equal(t, "rs-orders-prod", response.GetRuns()[0].GetReplicaSetName())
+		assert.Equal(t, mustParseTime(t, "2026-01-01T00:05:00Z"), response.GetRuns()[0].GetFinishedAt().AsTime())
+		assert.Equal(t, "n1", response.GetRuns()[0].GetHosts()[0].GetHost())
+		// confirm_monitoring is the last finalize step on every host, appended by PMM
+		// itself -- "succeeded" here because n1 already has a service.
+		n1FinalizeSteps := response.GetRuns()[0].GetHosts()[0].GetFinalizeSteps()
+		assert.Equal(t, "confirm_monitoring", n1FinalizeSteps[len(n1FinalizeSteps)-1].GetName())
+		assert.Equal(t, "succeeded", n1FinalizeSteps[len(n1FinalizeSteps)-1].GetStatus())
+		assert.Equal(t, "run-def", response.GetRuns()[1].GetRunId())
+		assert.Nil(t, response.GetRuns()[1].GetFinishedAt())
+	})
+
+	t.Run("clamps an over-large limit before forwarding it", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, `[]`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.ListBootstrapRuns(t.Context(), &omv1.ListBootstrapRunsRequest{Limit: 500})
+
+		require.NoError(t, err)
+		assert.Equal(t, "limit=100", stub.query)
+	})
+}
+
+func TestNodeIDForExecutorHost(t *testing.T) {
+	t.Parallel()
+
+	t.Run("finds the node id whose executor matches", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, `{"items": [
+			{"node_id": "c58168e8-...", "executor_host": "pmm-client-node00"},
+			{"node_id": "other-node", "executor_host": "pmm-client-node01"}
+		], "total": 2, "offset": 0, "limit": 200}`)
+		svc := stub.service(t)
+
+		nodeID, err := svc.nodeIDForExecutorHost(t.Context(), "pmm-client-node00")
+
+		require.NoError(t, err)
+		assert.Equal(t, "c58168e8-...", nodeID)
+		assert.Equal(t, "/api/apps/om_inventory/hosts", stub.path)
+	})
+
+	t.Run("answers NotFound when no host has that executor", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, `{"items": [{"node_id": "n1", "executor_host": "pmm-client-node00"}], "total": 1, "offset": 0, "limit": 200}`)
+		svc := stub.service(t)
+
+		_, err := svc.nodeIDForExecutorHost(t.Context(), "no-such-executor")
+
+		require.Error(t, err)
+		assert.Equal(t, codes.NotFound, status.Code(err))
 	})
 }
 
