@@ -530,8 +530,9 @@ func TestValkeyExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ValkeyExporter: &agents.ChangeAgentParamsBodyValkeyExporter{
-					TLSCert: new(""),
-					TLSKey:  new(""),
+					TLSCert:             new(""),
+					TLSKey:              new(""),
+					SkipConnectionCheck: new(true),
 				},
 			},
 			Context: pmmapitests.Context,
