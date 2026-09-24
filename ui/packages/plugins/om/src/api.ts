@@ -113,6 +113,14 @@ export function isRunActive(status: OmTopologyRunStatus | undefined): boolean {
  * has necessarily noticed the newly-registered service. Stopping on SEP's status
  * alone left confirm_monitoring showing "Running" forever once nothing was
  * polling to see it flip to "Succeeded" a few seconds later.
+ *
+ * A succeeded run counts as active while that step is either `running` or
+ * `pending`. Nothing dispatches confirm_monitoring -- pmm-managed synthesizes it
+ * on every read from the run's own status (confirmMonitoringStep, and the field's
+ * own proto comment), so today a payload cannot report `succeeded` with the step
+ * still `pending`, and there is no window between the two for polling to fall
+ * back to the slow interval in. Accepting `pending` keeps that true if the step
+ * ever becomes something actually dispatched.
  */
 export function isBootstrapRunActive(
   run: Pick<OmGetBootstrapRunResponse, 'status' | 'hosts'> | undefined
@@ -128,7 +136,9 @@ export function isBootstrapRunActive(
   }
   return run.hosts.some((host) =>
     host.finalize_steps.some(
-      (step) => step.name === 'confirm_monitoring' && step.status === 'running'
+      (step) =>
+        step.name === 'confirm_monitoring' &&
+        (step.status === 'running' || step.status === 'pending')
     )
   );
 }
