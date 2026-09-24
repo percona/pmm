@@ -79,6 +79,27 @@ describe('isBootstrapRunActive', () => {
     expect(isBootstrapRunActive(active)).toBe(true);
   });
 
+  // Asked in review: if the step were dispatched after the run succeeds, a
+  // succeeded run with the step not yet started would drop to the slow poll and
+  // leave the page stale for a minute. pmm-managed synthesizes the step from the
+  // run's own status on every read, so the payload below is not one it produces
+  // -- and polling stays fast for it anyway, so it cannot become a window.
+  it('stays true once succeeded while a confirm_monitoring is still pending', () => {
+    const active = run({
+      status: 'succeeded',
+      hosts: [
+        {
+          host: 'n1',
+          steps: [],
+          rollback_steps: [],
+          finalize_steps: [step('confirm_monitoring', 'pending')],
+        },
+      ],
+    });
+
+    expect(isBootstrapRunActive(active)).toBe(true);
+  });
+
   it('is false once succeeded and every host confirm_monitoring has succeeded', () => {
     const done = run({
       status: 'succeeded',
