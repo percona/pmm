@@ -242,7 +242,7 @@ func TestDatabaseHasEncryptedDataInOptions(t *testing.T) {
 	require.NoError(t, q.Insert(&models.Node{NodeID: "N1", NodeType: models.GenericNodeType, NodeName: "name"}))
 	require.NoError(t, q.Insert(&models.Agent{
 		AgentID:      "A1",
-		AgentType:    models.RDSExporterType,
+		AgentType:    models.PMMAgentType,
 		RunsOnNodeID: new("N1"),
 		AWSOptions:   models.AWSOptions{AWSAccessKey: "access", AWSSecretKey: "secret"},
 	}))
@@ -298,7 +298,7 @@ func TestMigrateEncryptionStackedLayers(t *testing.T) {
 	} {
 		_, err = sqlDB.ExecContext(t.Context(),
 			`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, mysql_options) `+
-				`VALUES ($1, 'mysqld_exporter', 'N1', false, '', $2, $3, false, false, $4)`,
+				`VALUES ($1, 'pmm-agent', 'N1', false, '', $2, $3, false, false, $4)`,
 			id, now, now, options(stored))
 		require.NoError(t, err)
 	}
@@ -344,7 +344,7 @@ func TestMigrateEncryptionConcurrency(t *testing.T) {
 	require.NoError(t, err)
 	_, err = sqlDB.ExecContext(t.Context(),
 		`INSERT INTO agents (agent_id, agent_type, password, runs_on_node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, listen_port) `+
-			`VALUES ('A1', 'mysqld_exporter', 'plain-password', 'N1', false, 'RUNNING', $1, $2, false, false, 42000)`,
+			`VALUES ('A1', 'pmm-agent', 'plain-password', 'N1', false, 'RUNNING', $1, $2, false, false, 42000)`,
 		updatedAt, updatedAt)
 	require.NoError(t, err)
 
@@ -401,7 +401,7 @@ func TestMigrateEncryptionBackup(t *testing.T) {
 	require.NoError(t, err)
 	_, err = sqlDB.ExecContext(t.Context(),
 		`INSERT INTO agents (agent_id, agent_type, password, runs_on_node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, mysql_options) `+
-			`VALUES ('A1', 'mysqld_exporter', 'plain-password', 'N1', false, '', $1, $2, false, false, '{"tls_key": "plain-key"}')`,
+			`VALUES ('A1', 'pmm-agent', 'plain-password', 'N1', false, '', $1, $2, false, false, '{"tls_key": "plain-key"}')`,
 		now, now)
 	require.NoError(t, err)
 
