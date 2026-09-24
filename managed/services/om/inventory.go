@@ -473,16 +473,26 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 // GET /hosts has no "find by executor_host" filter, and the estate size this
 // phase targets (a handful of hosts in one replica set) makes one full fetch
 // no real cost -- see ListInventoryHosts's own similar fetch-then-filter
-// shape. A host with no executor at all (never dispatched an eligibility
-// probe) is silently dropped rather than keyed on empty string.
+// shape. Whole means every page: GET /hosts answers the paginated envelope
+// (PMM-15326: "Bound the estate listings"), so this goes through
+// fetchAllPages like the other two readers of that endpoint rather than
+// decoding a bare array. A host with no executor at all (never dispatched
+// an eligibility probe) is silently dropped rather than keyed on empty
+// string.
 func (s *Service) inventoryHostsByExecutor(ctx context.Context) (map[string]sepHost, error) {
 	probe, err := s.inventoryProbe()
 	if err != nil {
 		return nil, err
 	}
-	hosts := []sepHost{}
-	call := inventoryCall{method: http.MethodGet, path: "hosts"}
-	err = probe.call(ctx, call, &hosts)
+	hosts, err := fetchAllPages(func(offset, limit int) (sepPage[sepHost], error) {
+		query := url.Values{}
+		query.Set("offset", strconv.Itoa(offset))
+		query.Set("limit", strconv.Itoa(limit))
+		page := sepPage[sepHost]{}
+		call := inventoryCall{method: http.MethodGet, path: "hosts", query: query}
+		err := probe.call(ctx, call, &page)
+		return page, err
+	})
 	if err != nil {
 		return nil, err
 	}
