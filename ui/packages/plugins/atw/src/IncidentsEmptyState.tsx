@@ -74,7 +74,7 @@ export function IncidentsEmptyState({ onCreate }: IncidentsEmptyStateProps) {
           sx={{ mt: 2 }}
           data-testid="atw-incidents-empty-docs"
         >
-          {Messages.howItWorks}
+          {Messages.documentation}
         </Link>
       </Stack>
     </Stack>

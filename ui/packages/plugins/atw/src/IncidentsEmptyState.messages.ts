@@ -16,8 +16,8 @@
  */
 
 /**
- * Placeholder until a dedicated Support diagnostics docs page ships. Same
- * short-link PMM used before the setup gate was removed (PMM-15405).
+ * Generic PMM docs root until a dedicated Support diagnostics page ships.
+ * Same short-link used before the setup gate was removed (PMM-15405).
  */
 export const SUPPORT_DIAGNOSTICS_DOCS_URL =
   'https://per.co.na/pmm_documentation';
@@ -27,5 +27,6 @@ export const Messages = {
   description:
     'An incident is a workspace for one support case. Create one, run diagnostic snippets against your monitored databases, and review outputs in Results — nothing is sent until you choose Send.',
   create: 'New incident',
-  howItWorks: 'How Support diagnostics works',
+  // Label matches the target: the generic docs root, not a diagnostics page.
+  documentation: 'PMM documentation',
 };

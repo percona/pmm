@@ -151,7 +151,7 @@ describe('IncidentListPage', () => {
       'href',
       SUPPORT_DIAGNOSTICS_DOCS_URL
     );
-    expect(screen.getByText(Messages.howItWorks)).toBeTruthy();
+    expect(screen.getByText(Messages.documentation)).toBeTruthy();
   });
 
   it('puts New incident inside the empty state, not the header', async () => {
