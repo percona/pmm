@@ -1370,28 +1370,53 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 }
 
 // migrateDB runs PostgreSQL database migrations.
-func migrateDB(db *reform.DB, params SetupDBParams) error {
-	var currentVersion int
-	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
-	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-	var pErr *pq.Error
-	if errors.As(errDB, &pErr) && pErr.Code == "42P01" {
-		errDB = nil
+// migrationLockID is the PostgreSQL advisory lock key held by the transaction
+// running schema and data migrations ("PMME").
+const migrationLockID = 0x504d4d45
+
+// schemaVersion returns the latest applied schema version, or 0 for an empty
+// database. It must not fail inside a transaction: a failed statement aborts it.
+func schemaVersion(q *reform.Querier) (int, error) {
+	var exists bool
+	err := q.QueryRow("SELECT to_regclass('schema_migrations') IS NOT NULL").Scan(&exists)
+	if err != nil {
+		return 0, fmt.Errorf("failed to read schema version: %w", err)
 	}
-	if errDB != nil {
-		return errDB
+	if !exists {
+		return 0, nil
 	}
 
+	var version int
+	err = q.QueryRow("SELECT COALESCE(MAX(id), 0) FROM schema_migrations").Scan(&version)
+	if err != nil {
+		return 0, fmt.Errorf("failed to read schema version: %w", err)
+	}
+
+	return version, nil
+}
+
+func migrateDB(db *reform.DB, params SetupDBParams) error {
 	latestVersion := len(databaseSchema) - 1 // skip item 0
 	if params.MigrationVersion != nil {
 		latestVersion = *params.MigrationVersion
 	}
-	if params.Logf != nil {
-		params.Logf("Current database schema version: %d. Latest version: %d.", currentVersion, latestVersion)
-	}
 
 	// rollback all migrations if one of them fails; PostgreSQL supports DDL transactions
 	return db.InTransaction(func(tx *reform.TX) error {
+		// HA nodes starting together must not run the same migrations twice:
+		// serialize them and read the schema version under the lock
+		_, err := tx.Exec("SELECT pg_advisory_xact_lock($1)", migrationLockID)
+		if err != nil {
+			return fmt.Errorf("failed to lock database migrations: %w", err)
+		}
+		currentVersion, err := schemaVersion(tx.Querier)
+		if err != nil {
+			return err
+		}
+		if params.Logf != nil {
+			params.Logf("Current database schema version: %d. Latest version: %d.", currentVersion, latestVersion)
+		}
+
 		for version := currentVersion + 1; version <= latestVersion; version++ {
 			if params.Logf != nil {
 				params.Logf("Migrating database to schema version %d ...", version)

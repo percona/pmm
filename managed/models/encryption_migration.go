@@ -179,16 +179,19 @@ func isUndefinedTable(err error) bool {
 // which makes the migration idempotent and safe to run at every startup,
 // including concurrently from several HA nodes.
 //
-// Callers run it in a transaction: an advisory lock serializes the migration
-// across HA nodes, and each row is locked and only its secret columns are
-// written, so concurrent changes to other columns by live nodes are kept.
+// q must belong to a transaction; outside one the locks below last for a
+// single statement and protect nothing. An advisory lock serializes the
+// migration across HA nodes, and each row is locked and only its secret
+// columns are written, so concurrent changes to other columns by live nodes
+// are kept.
 func MigrateEncryption(q *reform.Querier) error {
 	cipher, err := encryption.DefaultCipher()
 	if err != nil {
 		return err
 	}
 
-	_, err = q.Exec("SELECT pg_advisory_xact_lock($1)", encryptionMigrationLockID)
+	// re-entrant: migrateDB already holds it in the same transaction
+	_, err = q.Exec("SELECT pg_advisory_xact_lock($1)", migrationLockID)
 	if err != nil {
 		return fmt.Errorf("failed to lock encryption migration: %w", err)
 	}
@@ -252,10 +255,6 @@ func MigrateEncryption(q *reform.Querier) error {
 
 	return nil
 }
-
-// encryptionMigrationLockID is the PostgreSQL advisory lock key of
-// MigrateEncryption ("PMME").
-const encryptionMigrationLockID = 0x504d4d45
 
 // agentSecretColumns are the agents columns holding encrypted secrets.
 var agentSecretColumns = []string{
