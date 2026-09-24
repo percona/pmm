@@ -107,7 +107,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 
 	t.Run("records the run as registered, so the sweep stops revisiting it", func(t *testing.T) {
 		// The reason this is persisted rather than remembered: a run stays SUCCEEDED
-		// in SEP for the rest of its life, so without a record of PMM's own last
+		// in PMM Extensions for the rest of its life, so without a record of PMM's own last
 		// step every finished run in the history would be re-fetched, re-matched
 		// against the whole estate and re-registered on every 15s tick, forever --
 		// and a new leader after a failover would start over.
@@ -125,11 +125,11 @@ func TestCompleteSucceededRun(t *testing.T) {
 		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
 			WithProbeSource(stub.server.URL, "test-token")
 
-		svc.completeSucceededRun(t.Context(), &sepBootstrapRun{
+		svc.completeSucceededRun(t.Context(), &extensionsBootstrapRun{
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
-			Hosts:          []sepBootstrapHost{{Host: "node00"}},
+			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
 		})
 
 		config, err := models.FindOmBootstrapRunConfigByRunID(db.Querier, "run-abc")
@@ -159,11 +159,11 @@ func TestCompleteSucceededRun(t *testing.T) {
 		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
 			WithProbeSource(stub.server.URL, "test-token")
 
-		svc.completeSucceededRun(t.Context(), &sepBootstrapRun{
+		svc.completeSucceededRun(t.Context(), &extensionsBootstrapRun{
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
-			Hosts:          []sepBootstrapHost{{Host: "node00"}, {Host: "node01"}},
+			Hosts:          []extensionsBootstrapHost{{Host: "node00"}, {Host: "node01"}},
 		})
 
 		registered, err := models.FindRegisteredOmBootstrapRunIDs(db.Querier)

@@ -36,9 +36,9 @@ import (
 // comment.
 //
 // It also carries RegisteredAt, which is what stops the stepper's succeeded-run
-// sweep from revisiting a run forever. A run reading SUCCEEDED in SEP is not done
+// sweep from revisiting a run forever. A run reading SUCCEEDED in PMM Extensions is not done
 // from PMM's side until every one of its hosts is registered with PMM's own
-// inventory, and SEP knows nothing about that step, so the record of it has to
+// inventory, and PMM Extensions knows nothing about that step, so the record of it has to
 // live here. Nil means that work is still outstanding; set means the run is
 // finished and the sweep skips it -- and because it is persisted rather than
 // held in the stepper, a new leader after a failover, or the same one after a

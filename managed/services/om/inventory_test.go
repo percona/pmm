@@ -690,7 +690,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	t.Run("an unreachable executor answers FailedPrecondition before a run exists", func(t *testing.T) {
 		t.Parallel()
 
-		// Raised on the SEP side of this work: without this check the run is created
+		// Raised on the PMM Extensions side of this work: without this check the run is created
 		// first and an unreachable Nomad client only surfaces when pre_check -- itself
 		// dispatched through Nomad -- fails seconds later, with the UI already showing
 		// the run as in progress. Only one call is served here, so nothing reached
