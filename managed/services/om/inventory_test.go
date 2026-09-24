@@ -900,10 +900,10 @@ func TestGetBootstrapRun(t *testing.T) {
 				],
 				"run_steps": []
 			}`,
-			`[
+			`{"items": [
 				{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]},
 				{"node_id": "node-2", "executor_host": "n2", "services": []}
-			]`)
+			], "total": 2, "offset": 0, "limit": 200}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
 		response, err := svc.GetBootstrapRun(t.Context(),
@@ -969,7 +969,7 @@ func TestListBootstrapRuns(t *testing.T) {
 			// The second response: confirmMonitoringLookup's own GET /hosts, fetched
 			// once because run-abc is "succeeded" -- run-def being "running" would
 			// never trigger it on its own. n1 already has a service.
-			`[{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]}]`)
+			`{"items": [{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]}], "total": 1, "offset": 0, "limit": 200}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
 		response, err := svc.ListBootstrapRuns(t.Context(), &omv1.ListBootstrapRunsRequest{})
@@ -1013,10 +1013,10 @@ func TestNodeIDForExecutorHost(t *testing.T) {
 	t.Run("finds the node id whose executor matches", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStub(t, http.StatusOK, `[
+		stub := newSEPStub(t, http.StatusOK, `{"items": [
 			{"node_id": "c58168e8-...", "executor_host": "pmm-client-node00"},
 			{"node_id": "other-node", "executor_host": "pmm-client-node01"}
-		]`)
+		], "total": 2, "offset": 0, "limit": 200}`)
 		svc := stub.service(t)
 
 		nodeID, err := svc.nodeIDForExecutorHost(t.Context(), "pmm-client-node00")
@@ -1029,7 +1029,7 @@ func TestNodeIDForExecutorHost(t *testing.T) {
 	t.Run("answers NotFound when no host has that executor", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStub(t, http.StatusOK, `[{"node_id": "n1", "executor_host": "pmm-client-node00"}]`)
+		stub := newSEPStub(t, http.StatusOK, `{"items": [{"node_id": "n1", "executor_host": "pmm-client-node00"}], "total": 1, "offset": 0, "limit": 200}`)
 		svc := stub.service(t)
 
 		_, err := svc.nodeIDForExecutorHost(t.Context(), "no-such-executor")
