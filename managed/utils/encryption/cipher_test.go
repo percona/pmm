@@ -353,7 +353,7 @@ func TestInspectLegacyReadableValues(t *testing.T) {
 		loadLegacyFixtures(t).Strings[0].Ciphertext,
 	} {
 		insp, err := c.Inspect(stored)
-		assert.NoError(t, err, stored)
+		require.NoError(t, err, stored)
 		assert.Zero(t, insp.ExtraLayers, stored)
 	}
 }

@@ -306,6 +306,7 @@ func TestMigrateEncryptionStackedLayers(t *testing.T) {
 		"repairable": layer(current, layer(oldKey, tlsKey)),
 		"lost":       layer(current, layer(lostKey, tlsKey)),
 	} {
+		//nolint:dupword
 		_, err = sqlDB.ExecContext(t.Context(),
 			`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, mysql_options) `+
 				`VALUES ($1, 'pmm-agent', 'N1', false, '', $2, $3, false, false, $4)`,
@@ -352,6 +353,7 @@ func TestMigrateEncryptionConcurrency(t *testing.T) {
 		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
 			"VALUES ('N1', 'generic', 'name', '', '', '', '', $1, $2)", updatedAt, updatedAt)
 	require.NoError(t, err)
+	//nolint:dupword
 	_, err = sqlDB.ExecContext(t.Context(),
 		`INSERT INTO agents (agent_id, agent_type, password, runs_on_node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, listen_port) `+
 			`VALUES ('A1', 'pmm-agent', 'plain-password', 'N1', false, 'RUNNING', $1, $2, false, false, 42000)`,
@@ -409,6 +411,7 @@ func TestMigrateEncryptionBackup(t *testing.T) {
 		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
 			"VALUES ('N1', 'generic', 'name', '', '', '', '', $1, $2)", now, now)
 	require.NoError(t, err)
+	//nolint:dupword
 	_, err = sqlDB.ExecContext(t.Context(),
 		`INSERT INTO agents (agent_id, agent_type, password, runs_on_node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, mysql_options) `+
 			`VALUES ('A1', 'pmm-agent', 'plain-password', 'N1', false, '', $1, $2, false, false, '{"tls_key": "plain-key"}')`,

@@ -1369,10 +1369,31 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	return nil
 }
 
-// migrateDB runs PostgreSQL database migrations.
 // migrationLockID is the PostgreSQL advisory lock key held by the transaction
 // running schema and data migrations ("PMME").
 const migrationLockID = 0x504d4d45
+
+// applySchemaMigrations applies the schema versions after currentVersion up to
+// latestVersion.
+func applySchemaMigrations(tx *reform.TX, currentVersion, latestVersion int, logf reform.Printf) error {
+	for version := currentVersion + 1; version <= latestVersion; version++ {
+		if logf != nil {
+			logf("Migrating database to schema version %d ...", version)
+		}
+
+		queries := databaseSchema[version]
+		queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
+		for _, q := range queries {
+			q = strings.TrimSpace(q)
+			_, err := tx.Exec(q)
+			if err != nil {
+				return fmt.Errorf("failed to execute statement:\n%s: %w", q, err)
+			}
+		}
+	}
+
+	return nil
+}
 
 // schemaVersion returns the latest applied schema version, or 0 for an empty
 // database. It must not fail inside a transaction: a failed statement aborts it.
@@ -1395,6 +1416,7 @@ func schemaVersion(q *reform.Querier) (int, error) {
 	return version, nil
 }
 
+// migrateDB runs PostgreSQL database migrations.
 func migrateDB(db *reform.DB, params SetupDBParams) error {
 	latestVersion := len(databaseSchema) - 1 // skip item 0
 	if params.MigrationVersion != nil {
@@ -1417,20 +1439,9 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			params.Logf("Current database schema version: %d. Latest version: %d.", currentVersion, latestVersion)
 		}
 
-		for version := currentVersion + 1; version <= latestVersion; version++ {
-			if params.Logf != nil {
-				params.Logf("Migrating database to schema version %d ...", version)
-			}
-
-			queries := databaseSchema[version]
-			queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
-			for _, q := range queries {
-				q = strings.TrimSpace(q)
-				_, err := tx.Exec(q)
-				if err != nil {
-					return fmt.Errorf("failed to execute statement:\n%s: %w", q, err)
-				}
-			}
+		err = applySchemaMigrations(tx, currentVersion, latestVersion, params.Logf)
+		if err != nil {
+			return err
 		}
 
 		// data migration relies on the latest schema; skip it when an older

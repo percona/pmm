@@ -186,9 +186,9 @@ func TestEncryptedFieldsPinned(t *testing.T) {
 
 	taggedFields := func(typ reflect.Type) []string {
 		var fields []string
-		for i := range typ.NumField() {
-			if typ.Field(i).Tag.Get("encrypt") == "true" {
-				fields = append(fields, typ.Field(i).Name)
+		for field := range typ.Fields() {
+			if field.Tag.Get("encrypt") == "true" {
+				fields = append(fields, field.Name)
 			}
 		}
 		return fields
@@ -197,8 +197,7 @@ func TestEncryptedFieldsPinned(t *testing.T) {
 	encryptedStrings := reflect.TypeFor[*models.EncryptedString]()
 	var agentSecrets []string
 	agent := reflect.TypeFor[models.Agent]()
-	for i := range agent.NumField() {
-		field := agent.Field(i)
+	for field := range agent.Fields() {
 		switch {
 		case field.Type == encryptedStrings:
 			agentSecrets = append(agentSecrets, field.Name)

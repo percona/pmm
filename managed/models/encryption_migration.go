@@ -154,11 +154,10 @@ func legacyEncryptedColumns(settingsJSON []byte) (map[string]bool, error) {
 // row. The bookkeeping disappears from the row the first time settings are
 // saved after the upgrade; by then the migration has already run.
 func storedLegacyEncryptedColumns(q *reform.Querier) (map[string]bool, error) {
-
 	var settingsJSON []byte
 	err := q.QueryRow("SELECT settings FROM settings").Scan(&settingsJSON)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, nil
+		return map[string]bool{}, nil
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to read settings: %w", err)
@@ -180,8 +179,8 @@ func isUndefinedTable(err error) bool {
 // envelopes alike. Rows already in the desired state are left untouched,
 // which makes the migration idempotent and safe to run at every startup.
 //
-// q must belong to a transaction; outside one the locks below last for a
-// single statement and protect nothing. An advisory lock serializes the
+// The querier must belong to a transaction; outside one the locks below last
+// for a single statement and protect nothing. An advisory lock serializes the
 // migration across HA nodes, and each row is locked and only its secret
 // columns are written, so concurrent changes to other columns by live nodes
 // are kept.
@@ -339,7 +338,7 @@ func needingReencryption(q *reform.Querier, cipher *encryption.Cipher, t secretT
 }
 
 // errUndecryptable explains that the key does not match the stored data.
-// errors.Is matches the causes, e.g. encryption.ErrLegacyUnknownKey.
+// Its causes can be matched with errors.Is, e.g. encryption.ErrLegacyUnknownKey.
 func errUndecryptable(problems []error) error {
 	return &undecryptableError{problems: problems}
 }
