@@ -980,6 +980,44 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			stub.calls[1].body)
 	})
 
+	t.Run("refuses a SEP that accepted the run but ignored its settings", func(t *testing.T) {
+		t.Parallel()
+
+		// Raised in review: om_bootstrap's own TriggerRunRequest is a plain
+		// pydantic model, so an app older than percona/SEP#1534 ignores these
+		// fields rather than rejecting them -- the run would be accepted and come
+		// up on SEP's defaults, with a member meant to be hidden and non-voting
+		// joining as an ordinary one and nothing saying so. SEP echoes the
+		// configuration it accepted, so an older one is the run below: no
+		// data_path, no member_configs.
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "exec-n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			`{"id": "run-abc", "status": "running", "cancel_requested": true, "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+				DataPath:       "/srv/mongo",
+				LogPath:        "/var/log/mongodb/mongod.log",
+				Port:           27018,
+				BindIp:         "0.0.0.0",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "the data path")
+		assert.Contains(t, status.Convert(err).Message(), "older than this PMM")
+		// And the run it would not configure is not left running.
+		require.Len(t, stub.calls, 3)
+		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc:cancel", stub.calls[2].path)
+	})
+
 	t.Run("rejects a replica set with no voting member", func(t *testing.T) {
 		t.Parallel()
 
