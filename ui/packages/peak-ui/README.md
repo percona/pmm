@@ -33,7 +33,11 @@ export const App = () => (
 );
 ```
 
+Using an AI coding assistant? The package ships an [`AGENTS.md`](./AGENTS.md) with the usage rules agents need (theme wrapper, form binding, where Peak UI ends and MUI begins). It is readable straight from `node_modules/@percona/peak-ui/AGENTS.md`.
+
 ## Development
+
+Contributor conventions live in [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ```bash
 pnpm install
