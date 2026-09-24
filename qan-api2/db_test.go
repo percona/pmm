@@ -69,7 +69,7 @@ func cleanupDB(t *testing.T, dbName string) {
 	t.Helper()
 
 	cmdStr := fmt.Sprintf(`docker exec pmm-clickhouse-test clickhouse client --password=clickhouse --query='DROP DATABASE IF EXISTS %s;'`, dbName)
-	out, err := exec.CommandContext(context.Background(), "/bin/sh", "-c", cmdStr).Output() //nolint:gosec
+	out, err := exec.CommandContext(context.Background(), "/bin/sh", "-c", cmdStr).Output()
 	assert.NoError(t, err, "Docker drop db: %v", out)
 }
 

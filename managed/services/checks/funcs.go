@@ -31,7 +31,7 @@ var privateNetworks []*net.IPNet
 // GetFuncsForVersion returns predefined functions for specified check version.
 func GetFuncsForVersion(version uint32) (map[string]starlark.GoFunc, error) {
 	switch version {
-	case 1, 2:
+	case 1, 2: //nolint:mnd
 		return map[string]starlark.GoFunc{
 			"parse_version":      parseVersion,
 			"format_version_num": formatVersionNum,
@@ -80,22 +80,22 @@ func formatVersionNum(args ...any) (any, error) {
 		return nil, fmt.Errorf("expected int64 argument, got %[1]T (%[1]v)", args[0])
 	}
 	// process numbers with a rest part included
-	if num > 10000000 {
+	if num > 10000000 { //nolint:mnd
 		p := &version.Parsed{
-			Major:   int(num / 10000000),
-			Minor:   int(num / 100000 % 100),
-			Patch:   int(num / 1000 % 100),
+			Major:   int(num / 10000000),     //nolint:mnd
+			Minor:   int(num / 100000 % 100), //nolint:mnd
+			Patch:   int(num / 1000 % 100),   //nolint:mnd
 			Rest:    "-" + strconv.FormatInt(num%1000, 10),
-			NumRest: int(num % 1000),
+			NumRest: int(num % 1000), //nolint:mnd
 		}
 
 		return p.String(), nil
 	}
 
 	p := &version.Parsed{
-		Major: int(num / 10000),
-		Minor: int(num / 100 % 100),
-		Patch: int(num % 100),
+		Major: int(num / 10000),     //nolint:mnd
+		Minor: int(num / 100 % 100), //nolint:mnd
+		Patch: int(num % 100),       //nolint:mnd
 	}
 
 	return p.String(), nil

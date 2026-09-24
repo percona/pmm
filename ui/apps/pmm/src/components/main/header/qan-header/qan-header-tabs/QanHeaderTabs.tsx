@@ -10,7 +10,12 @@ const QanHeaderTabs: FC = () => {
   const isRealtime = useIsRealtimeQan();
 
   return (
-    <Tabs value={isRealtime ? 'real-time' : 'historical'}>
+    <Tabs
+      value={isRealtime ? 'real-time' : 'historical'}
+      variant="scrollable"
+      scrollButtons="auto"
+      sx={{ flex: 1, minWidth: 0 }}
+    >
       <Tab
         value="historical"
         label={Messages.tabStoredMetrics}

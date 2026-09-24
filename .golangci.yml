@@ -15,6 +15,7 @@ linters:
     - dupl                # we can't avoid duplicating code
     - err113              # extra work & poor benefit (renamed from goerr113)
     - exhaustruct         # too many files to fix/nolint
+    - exhaustruct_v5      # replaces exhaustruct, same reason
     - funlen              # useless
     - funcorder           # too many so far
     - gochecknoglobals    # mostly useless
@@ -104,6 +105,7 @@ linters:
           - forcetypeassert  # for tests' brevity sake 
           - funlen           # tests may be long
           - gocognit         # triggered by subtests
+          - gosec            # not critical, too many things to disable
           - ireturn          # we have exceptions, so need to silence them in tests
           - lll              # tests often require long lines
           - maintidx         # not critical for tests
@@ -130,18 +132,13 @@ linters:
 formatters:
   enable:
     - gci
-    - gofmt
     - gofumpt
-    - goimports
   settings:
     gci:
       sections:
         - standard
         - default
         - prefix(github.com/percona/pmm)
-    goimports:
-      local-prefixes:
-        - github.com/percona/pmm
   exclusions:
     generated: lax
     paths:

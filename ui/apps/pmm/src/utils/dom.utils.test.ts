@@ -40,6 +40,8 @@ describe('waitForVisible', () => {
     ).rejects.toBeUndefined();
   });
 
+  // waitForVisible's real default is 5000ms; give the test headroom above
+  // Vitest's 5000ms default testTimeout so it doesn't race the timeout.
   it('uses default timeout of 5000ms if not specified', async () => {
     const startTime = Date.now();
 
@@ -50,7 +52,7 @@ describe('waitForVisible', () => {
       expect(elapsed).toBeGreaterThanOrEqual(4900); // Allow some margin
       expect(elapsed).toBeLessThan(5200);
     }
-  });
+  }, 7000);
 
   it('uses custom timeout when provided', async () => {
     const customTimeout = 1000;
@@ -128,7 +130,7 @@ describe('waitForVisible', () => {
   });
 
   it('clears timeout when element is found before timeout', async () => {
-    const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout');
+    const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout');
 
     const promise = waitForVisible('#timeout-test', 5000);
 

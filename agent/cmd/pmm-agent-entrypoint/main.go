@@ -113,7 +113,7 @@ func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy re
 
 func commandPmmAgent(args []string) *exec.Cmd {
 	const pmmAgentCommandName = "pmm-agent"
-	command := exec.Command(pmmAgentCommandName, args...)
+	command := exec.Command(pmmAgentCommandName, args...) //nolint:gosec,noctx
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	return command

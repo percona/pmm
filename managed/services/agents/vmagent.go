@@ -89,8 +89,8 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetS
 	systemEnvs := make(map[string]string)
 	for _, env := range os.Environ() {
 		if strings.HasPrefix(env, envvars.EnvVMAgentPrefix) {
-			parts := strings.SplitN(env, "=", 2)
-			if len(parts) == 2 {
+			parts := strings.SplitN(env, "=", 2) //nolint:mnd
+			if len(parts) == 2 {                 //nolint:mnd
 				systemEnvs[parts[0]] = parts[1]
 			}
 		}

@@ -13,13 +13,19 @@ const HighAvailabilityBadge: FC<HighAvailabilityBadgeProps> = ({
   const theme = useTheme();
   const styles = getStyles(theme);
 
+  if (health === 'unknown') {
+    return null;
+  }
+
   return (
     <Stack flex={8} alignItems="flex-start">
       <Chip
         data-testid="ha-badge"
         color="warning"
         variant={
-          health === 'down' || health === 'critical' ? 'filled' : 'outlined'
+          health === 'unreachable' || health === 'critical'
+            ? 'filled'
+            : 'outlined'
         }
         label={HIGH_AVAILABILITY_BADGE_HEALTH[health]}
         sx={styles[health]}

@@ -216,6 +216,11 @@
                             "description": "True if all collectors are enabled.",
                             "type": "boolean",
                             "x-order": 6
+                          },
+                          "enable_diagnostic_data_histograms": {
+                            "description": "True if diagnostic data histograms are enabled.",
+                            "type": "boolean",
+                            "x-order": 7
                           }
                         },
                         "x-order": 16
@@ -798,6 +803,11 @@
                         "description": "True if this node is a PMM Server node (HA mode).",
                         "type": "boolean",
                         "x-order": 18
+                      },
+                      "is_pmm_internal_node": {
+                        "description": "True if this node belongs to the internal infrastructure of a PMM deployment\n(e.g. the HA persistence layer) and must not host user monitoring workloads.",
+                        "type": "boolean",
+                        "x-order": 19
                       }
                     }
                   },
@@ -1355,6 +1365,11 @@
                       "description": "True if this node is a PMM Server node (HA mode).",
                       "type": "boolean",
                       "x-order": 18
+                    },
+                    "is_pmm_internal_node": {
+                      "description": "True if this node belongs to the internal infrastructure of a PMM deployment\n(e.g. the HA persistence layer) and must not host user monitoring workloads.",
+                      "type": "boolean",
+                      "x-order": 19
                     }
                   },
                   "x-order": 0
@@ -1775,6 +1790,11 @@
                                   "description": "True if all collectors are enabled.",
                                   "type": "boolean",
                                   "x-order": 6
+                                },
+                                "enable_diagnostic_data_histograms": {
+                                  "description": "True if diagnostic data histograms are enabled.",
+                                  "type": "boolean",
+                                  "x-order": 7
                                 }
                               },
                               "x-order": 16
@@ -2572,6 +2592,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 35
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 36
                     }
                   },
                   "x-order": 1
@@ -4579,6 +4604,11 @@
                           "description": "Connection timeout for exporter (if set).",
                           "type": "string",
                           "x-order": 20
+                        },
+                        "enable_diagnostic_data_histograms": {
+                          "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                          "type": "boolean",
+                          "x-order": 21
                         }
                       },
                       "x-order": 1
@@ -7111,6 +7141,11 @@
                   "description": "Connection timeout for exporter (if set).",
                   "type": "string",
                   "x-order": 25
+                },
+                "pmm_agent_id": {
+                  "description": "The pmm-agent identifier which should run agents. Defaults to the PMM Server's own pmm-agent.",
+                  "type": "string",
+                  "x-order": 26
                 }
               }
             }
@@ -7517,6 +7552,7 @@
   },
   "tags": [
     {
+      "description": "ManagementService provides public methods for managing and querying Services.",
       "name": "ManagementService"
     }
   ]

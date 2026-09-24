@@ -108,7 +108,7 @@ func restartPMMServer() error {
 }
 
 func pmmServerStatus(status string) bool {
-	cmd := exec.Command("supervisorctl", "status pmm-managed")
+	cmd := exec.Command("supervisorctl", "status", "pmm-managed") //nolint:noctx
 	output, _ := cmd.CombinedOutput()
 
 	return strings.Contains(string(output), strings.ToUpper(status))

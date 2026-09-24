@@ -181,7 +181,7 @@ func qanPostgreSQLPgStatementsAgentConfig(
 ) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	dnsParams := models.DSNParams{
-		DialTimeout:              5 * time.Second,
+		DialTimeout:              5 * time.Second, //nolint:mnd
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}

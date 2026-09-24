@@ -34,9 +34,9 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
-const (
-	agentRequestsCap = 32
-)
+const agentRequestsCap = 32
+
+var errChannelClosed = errors.New("channel is closed")
 
 // AgentRequest represents an request from agent.
 // It is similar to agentv1.AgentMessage except it can contain only requests,
@@ -91,7 +91,10 @@ type Channel struct {
 
 	sendM sync.Mutex
 
-	rw        sync.RWMutex
+	rw sync.RWMutex
+	// responses maps a request ID to the channel its sender is waiting on. A nil value marks a
+	// request whose sender stopped waiting, so that a response arriving later can be recognized
+	// as expected rather than unsolicited.
 	responses map[uint32]chan Response
 	requests  chan *AgentRequest
 
@@ -128,10 +131,14 @@ func (c *Channel) close(err error) {
 		c.closeErr = err
 
 		c.rw.Lock()
-		for _, ch := range c.responses { // unblock all subscribers
-			close(ch)
+		for _, ch := range c.responses {
+			// unblock all subscribers; a nil channel marks an abandoned request with no subscriber
+			if ch != nil {
+				close(ch)
+			}
 		}
-		c.responses = nil // prevent future subscriptions
+		// prevent future subscriptions
+		c.responses = nil
 		c.rw.Unlock()
 
 		close(c.closeWait)
@@ -163,11 +170,14 @@ func (c *Channel) Send(resp *ServerResponse) {
 	c.send(msg)
 }
 
-// SendAndWaitResponse sends request to pmm-agent, blocks until response is available.
-// If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancellation.
-// Response and error will be both nil if channel is closed.
+// SendAndWaitResponse sends request to pmm-agent and blocks until the response is available,
+// the channel is closed, or ctx is done, whichever happens first.
+// If the subscription got canceled or the channel is closed, the returned payload is nil and the
+// error contains the reason.
+// When ctx is done it returns ctx.Err(), unless the response had already been delivered by then, in
+// which case that response is returned instead.
 // It is no-op once channel is closed (see Wait).
-func (c *Channel) SendAndWaitResponse(payload agentv1.ServerRequestPayload) (agentv1.AgentResponsePayload, error) { //nolint:ireturn
+func (c *Channel) SendAndWaitResponse(ctx context.Context, payload agentv1.ServerRequestPayload) (agentv1.AgentResponsePayload, error) { //nolint:ireturn
 	id := c.lastSentRequestID.Add(1)
 	ch := c.subscribe(id)
 
@@ -175,12 +185,31 @@ func (c *Channel) SendAndWaitResponse(payload agentv1.ServerRequestPayload) (age
 		Id:      id,
 		Payload: payload.ServerMessageRequestPayload(),
 	})
-	resp, ok := <-ch
-	if !ok {
-		return nil, errors.New("channel is closed")
-	}
 
-	return resp.Payload, resp.Error
+	select {
+	case resp, ok := <-ch:
+		if !ok {
+			return nil, errChannelClosed
+		}
+		return resp.Payload, resp.Error
+
+	case <-ctx.Done():
+		// select picks a ready case at random, so the response may already have been delivered
+		// when ctx expired, and it may land while we are giving up. Marking the request
+		// abandoned settles that: it succeeds only while nothing has taken the subscription,
+		// and once taken the publisher is committed to sending, so the response is imminent.
+		// Reporting a timeout for a response that did arrive would be wrong - for the stale
+		// connection probe it decides whether a live agent gets kicked.
+		if c.abandon(id) {
+			return nil, ctx.Err()
+		}
+
+		resp, ok := <-ch
+		if !ok {
+			return nil, errChannelClosed
+		}
+		return resp.Payload, resp.Error
+	}
 }
 
 func (c *Channel) send(msg *agentv1.ServerMessage) {
@@ -196,7 +225,7 @@ func (c *Channel) send(msg *agentv1.ServerMessage) {
 	// Do not waste resources in case debug level is not enabled.
 	if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
 		// do not use default compact representation for large/complex messages
-		if size := proto.Size(msg); size < 100 {
+		if size := proto.Size(msg); size < 100 { //nolint:mnd
 			c.l.Debugf("Sending message (%d bytes): %s.", size, logger.RedactMessage(msg))
 		} else {
 			c.l.Debugf("Sending message (%d bytes):\n%s\n", size, prototext.Format(logger.RedactMessage(msg)))
@@ -231,7 +260,7 @@ func (c *Channel) runReceiver() {
 		// Do not waste resources in case debug level is not enabled.
 		if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
 			// do not use default compact representation for large/complex messages
-			if size := proto.Size(msg); size < 100 {
+			if size := proto.Size(msg); size < 100 { //nolint:mnd
 				c.l.Debugf("Received message (%d bytes): %s.", size, logger.RedactMessage(msg))
 			} else {
 				c.l.Debugf("Received message (%d bytes):\n%s\n", size, prototext.Format(logger.RedactMessage(msg)))
@@ -335,28 +364,85 @@ func (c *Channel) subscribe(id uint32) chan Response {
 	return ch
 }
 
-func (c *Channel) removeResponseChannel(id uint32) chan Response {
+// abandon leaves a marker behind instead of dropping the entry, which is the whole difference
+// from removeResponseChannel: the sender is gone, but a response may still arrive, and only the
+// marker tells that apart from a response to an ID the server never sent.
+//
+// It reports whether the request was still tracked. False means the publisher took the entry
+// first and is committed to delivering a response, so there is nothing left to mark: writing
+// the marker anyway would leave an entry behind that nothing ever clears.
+func (c *Channel) abandon(id uint32) bool {
 	c.rw.Lock()
 	defer c.rw.Unlock()
-	if c.responses == nil { // Channel is closed, no more publishing
-		return nil
+	// Channel is closed, no subscriptions left
+	if c.responses == nil {
+		return false
+	}
+	if _, ok := c.responses[id]; !ok {
+		return false
+	}
+	c.responses[id] = nil
+
+	return true
+}
+
+// subscription tells what the responses map held for a request ID.
+type subscription int
+
+const (
+	// A sender is still waiting on the returned channel.
+	subscriptionWaiting subscription = iota
+	// The sender stopped waiting for the response (see abandon).
+	subscriptionAbandoned
+	// Nothing was ever tracked for the ID.
+	subscriptionUnknown
+	// The channel is closed, so there are no subscriptions left.
+	subscriptionClosed
+)
+
+// removeResponseChannel drops the entry for id and returns the channel its sender is waiting on,
+// together with what was there. The channel is non-nil only for subscriptionWaiting.
+func (c *Channel) removeResponseChannel(id uint32) (chan Response, subscription) {
+	c.rw.Lock()
+	defer c.rw.Unlock()
+	if c.responses == nil {
+		return nil, subscriptionClosed
 	}
 
-	ch := c.responses[id]
-	if ch == nil {
-		c.l.Errorf("No subscriber for ID %d", id)
-		return nil
+	ch, ok := c.responses[id]
+	if !ok {
+		return nil, subscriptionUnknown
 	}
 	delete(c.responses, id)
-	return ch
+
+	if ch == nil {
+		return nil, subscriptionAbandoned
+	}
+
+	return ch, subscriptionWaiting
+}
+
+// deliver passes resp to whoever is waiting for id, and reports the cases where nobody is.
+// It closes the subscription channel for an error, as nothing can follow one.
+func (c *Channel) deliver(id uint32, resp Response) {
+	ch, s := c.removeResponseChannel(id)
+	switch s {
+	case subscriptionWaiting:
+		ch <- resp
+		if resp.Error != nil {
+			close(ch)
+		}
+	case subscriptionAbandoned:
+		c.l.Debugf("Response for ID %d arrived after its sender stopped waiting for it.", id)
+	case subscriptionUnknown:
+		c.l.Errorf("No subscriber for ID %d", id)
+	case subscriptionClosed:
+	}
 }
 
 // cancel sends an error to the subscriber and closes the subscription channel.
 func (c *Channel) cancel(id uint32, err error) {
-	if ch := c.removeResponseChannel(id); ch != nil {
-		ch <- Response{Error: err}
-		close(ch)
-	}
+	c.deliver(id, Response{Error: err})
 }
 
 func (c *Channel) publish(id uint32, status *protostatus.Status, resp agentv1.AgentResponsePayload) {
@@ -366,15 +452,19 @@ func (c *Channel) publish(id uint32, status *protostatus.Status, resp agentv1.Ag
 		return
 	}
 
-	if ch := c.removeResponseChannel(id); ch != nil {
-		ch <- Response{Payload: resp}
-	}
+	c.deliver(id, Response{Payload: resp})
 }
 
 // Metrics returns current channel metrics.
 func (c *Channel) Metrics() *Metrics {
 	c.rw.RLock()
-	responses := len(c.responses)
+	var responses int
+	for _, ch := range c.responses {
+		// abandoned requests have no sender waiting on them, so they are not queued responses
+		if ch != nil {
+			responses++
+		}
+	}
 	requests := len(c.requests)
 	c.rw.RUnlock()
 

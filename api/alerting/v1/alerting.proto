@@ -64,6 +64,24 @@ enum TemplateSource {
   TEMPLATE_SOURCE_USER_API = 4;
 }
 
+// TemplateQuery represents a PromQL query step in a multi-query alert template.
+message TemplateQuery {
+  // Reference ID of the query (e.g. "A").
+  string ref_id = 1;
+  // PromQL query expression with templating parameters (placeholders kept intact).
+  string expr = 2;
+}
+
+// TemplateExpression represents a server-side expression step in a multi-query alert template.
+message TemplateExpression {
+  // Reference ID of the expression (e.g. "C").
+  string ref_id = 1;
+  // Expression type. Currently only "math" is supported.
+  string type = 2;
+  // Expression body referencing other steps by ref ID (e.g. "$A > $B").
+  string expression = 3;
+}
+
 // Template represents Alert Template that is used to create Alert Rule.
 message Template {
   // Machine-readable name (ID).
@@ -88,6 +106,12 @@ message Template {
   google.protobuf.Timestamp created_at = 10;
   // YAML template file content. Empty for built-in and SaaS templates.
   string yaml = 11;
+  // PromQL query steps for multi-query templates. Empty for single-expression templates.
+  repeated TemplateQuery queries = 12;
+  // Server-side expression steps for multi-query templates. Empty for single-expression templates.
+  repeated TemplateExpression expressions = 13;
+  // Reference ID of the step used as the alert condition (e.g. "C"). Empty for single-expression templates.
+  string condition = 14;
 }
 
 message ListTemplatesRequest {

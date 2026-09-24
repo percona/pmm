@@ -27,7 +27,7 @@ checks:
           # (Starlark does not support Python exceptions);
           # it is recommended to use global function `fail` for that instead.
            results = []
-           read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+           read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
            for row in docs[0]:
                name, value = row["Variable_name"], row["Value"]

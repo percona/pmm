@@ -8,18 +8,12 @@ Upgrade your PMM Server Docker container to the latest version, ensuring you ben
 
 Before you start upgrading, check current PMM Server version:
 
-=== "Via command line"
-
     ```sh
     docker exec -it pmm-server \
     curl -ku admin:admin https://localhost/v1/version
     ```
 
     For remote access, replace `localhost` with your PMM Server's address.
-
-=== "Via web UI"
-
-    Use the **PMM Upgrade** panel on the **Home Dashboard** to check for available updates.
 
 ## Upgrade procedure
 
@@ -85,10 +79,6 @@ If you encounter issues after upgrading:
    docker rename pmm-server-backup pmm-server
    docker start pmm-server
    ```
-## Automated upgrades with Watchtower
-
-If you installed [PMM Server with Watchtower](../docker/index.md#install-pmm-server--watchtower), you can [upgrade directly from the PMM UI](../../../../pmm-upgrade/ui_upgrade.md). This method handles the entire upgrade process automatically, including pulling the new image and restarting the container.
-
 ## Related topics
 
 - [Create a backup](../docker/backup_container.md) before upgrading

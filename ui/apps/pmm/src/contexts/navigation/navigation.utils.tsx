@@ -1,3 +1,5 @@
+import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
+import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
 import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
 import { User, UserPreferences } from 'types/user.types';
@@ -12,10 +14,10 @@ import {
   NAV_ALERTS_RULES,
   NAV_ALERTS,
   NAV_ALERTS_CONTACT_POINTS,
-  NAV_ALERTS_FIRED,
   NAV_ALERTS_NOTIFICATION_POLICIES,
   NAV_ALERTS_SETTINGS,
   NAV_ALERTS_TEMPLATES,
+  NAV_ALERTS_STATUS,
   NAV_CHANGE_PASSWORD,
   NAV_CONFIGURATION,
   NAV_DASHBOARDS,
@@ -43,9 +45,12 @@ import {
   NAV_HIGH_AVAILABILITY,
   NAV_USERS_AND_ACCESS,
   NAV_ACCESS_CONTROL,
-  NAV_HIGH_AVAILABILITY_LEADER,
   NAV_HIGH_AVAILABILITY_NODES,
+  NAV_HIGH_AVAILABILITY_OVERVIEW,
   NAV_HOME_PAGE,
+  NAV_MANAGEMENT,
+  NAV_SEP_ATW,
+  NAV_SEP_MYSQL_BACKUPS,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/text.utils';
@@ -133,25 +138,36 @@ export const addDashboardItems = (
   return children;
 };
 
-export const addAlerting = (enabled = false, user?: User): NavItem => {
-  const children: NavItem[] = [];
+export const addAlerting = (
+  alertingEnabled = false,
+  unifiedAlertingEnabled = false,
+  user?: User
+): NavItem => {
+  const children: NavItem[] = [NAV_ALERTS_RULES];
 
-  if (enabled) {
-    children.push(NAV_ALERTS_FIRED);
+  if (alertingEnabled) {
+    children.push(NAV_ALERTS_STATUS);
+
+    if (user?.isEditor) {
+      children.push(NAV_ALERTS_TEMPLATES);
+    }
   }
 
-  children.push(NAV_ALERTS_RULES);
-  children.push(NAV_ALERTS_CONTACT_POINTS);
-  children.push(NAV_ALERTS_NOTIFICATION_POLICIES);
-  children.push(NAV_ALERTS_SILENCES);
-  children.push(NAV_ALERTS_GROUPS);
+  if (user) {
+    children.push(NAV_ALERTS_SILENCES);
 
-  if (user?.isPMMAdmin) {
-    children.push(NAV_ALERTS_SETTINGS);
-  }
+    if (!user.isAnonymous) {
+      children.push(NAV_ALERTS_GROUPS);
 
-  if (enabled && user?.isEditor) {
-    children.push(NAV_ALERTS_TEMPLATES);
+      if (unifiedAlertingEnabled && user.isPMMAdmin) {
+        children.push(NAV_ALERTS_SETTINGS);
+      }
+    }
+
+    if (unifiedAlertingEnabled) {
+      children.push(NAV_ALERTS_CONTACT_POINTS);
+      children.push(NAV_ALERTS_NOTIFICATION_POLICIES);
+    }
   }
 
   return { ...NAV_ALERTS, children };
@@ -203,7 +219,7 @@ export const addAccount = (
 
   children.push({
     ...NAV_THEME_TOGGLE,
-    icon: colorMode === 'light' ? 'theme-dark' : 'theme-light',
+    icon: colorMode === 'light' ? DarkModeOutlined : LightModeOutlined,
     text: `Switch to ${targetMode} mode`,
     onClick: toggleMode,
   });
@@ -248,20 +264,21 @@ export const addConfiguration = (
   return NAV_CONFIGURATION;
 };
 
-export const addHighAvailability = ({ health, leader }: HAInfo): NavItem => {
+export const addHighAvailability = ({ health, namespace }: HAInfo): NavItem => {
   const item = { ...NAV_HIGH_AVAILABILITY };
+  const overview = { ...NAV_HIGH_AVAILABILITY_OVERVIEW };
+
+  if (namespace) {
+    const namespaceParam = `var-namespace=${encodeURIComponent(namespace)}`;
+    item.url = `${item.url}?${namespaceParam}`;
+    overview.url = `${overview.url}?${namespaceParam}`;
+  }
 
   item.badge = <HighAvailabilityBadge health={health} />;
   item.icon = <HighAvailabilityIcon health={health} />;
   item.badgeAlwaysVisible = true;
 
-  item.children = [
-    {
-      ...NAV_HIGH_AVAILABILITY_LEADER,
-      secondaryText: leader?.nodeName || 'Unknown',
-    },
-    NAV_HIGH_AVAILABILITY_NODES,
-  ];
+  item.children = [overview, NAV_HIGH_AVAILABILITY_NODES];
 
   return item;
 };
@@ -290,3 +307,16 @@ export const addHomePage = (preferences?: UserPreferences): NavItem => {
 
   return NAV_HOME_PAGE;
 };
+
+// SEP apps mounted as native PMM routes (migration). Metadata (icons/labels/routes)
+// is lifted from SEP's appNavConfig as data only — no SEP nav component is used.
+// Deliberately unconditional: reachability is not the gate, the per-control
+// mutation capability is (PMM-15358, and NavigationProvider for placement).
+// A collapsible with no children renders as an expandable shell that opens on
+// nothing, so a section drops out with its last child rather than outliving it.
+// Callers spread the result, which is what lets it contribute no entry at all.
+export const addSection = (section: NavItem, children: NavItem[]): NavItem[] =>
+  children.length ? [{ ...section, children }] : [];
+
+export const addSepApps = (): NavItem[] =>
+  addSection(NAV_MANAGEMENT, [NAV_SEP_MYSQL_BACKUPS, NAV_SEP_ATW]);

@@ -10,11 +10,6 @@ on:
 permissions:
   contents: read
 
-env:
-  GONOPROXY: 'github.com/percona,github.com/Percona-Lab'
-  GONOSUMDB: 'github.com/percona,github.com/Percona-Lab'
-  GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
-
 jobs:
   validate:
     name: Validate PI files
@@ -22,11 +17,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Check out code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Set up Go
-        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
-        with:
-          go-version-file: ${{ github.workspace }}/go.mod
+      - name: Setup Go
+        uses: ./.github/actions/setup-go
+
       - name: Validate PI files
         run: make -C managed pi-validate

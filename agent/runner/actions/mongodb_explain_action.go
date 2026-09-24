@@ -220,8 +220,8 @@ func reorderToCommandFirst(doc bson.D) (bson.D, bool) {
 }
 
 func (e explain) getDB() string {
-	s := strings.SplitN(e.Ns, ".", 2)
-	if len(s) == 2 {
+	s := strings.SplitN(e.Ns, ".", 2) //nolint:mnd
+	if len(s) == 2 {                  //nolint:mnd
 		return s[0]
 	}
 
@@ -229,8 +229,8 @@ func (e explain) getDB() string {
 }
 
 func (e explain) getCollection() string {
-	s := strings.SplitN(e.Ns, ".", 2)
-	if len(s) == 2 {
+	s := strings.SplitN(e.Ns, ".", 2) //nolint:mnd
+	if len(s) == 2 {                  //nolint:mnd
 		return s[1]
 	}
 

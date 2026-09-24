@@ -4,5 +4,6 @@ export const HIGH_AVAILABILITY_BADGE_HEALTH: Record<HAHealth, string> = {
   healthy: 'Healthy',
   degraded: 'Degraded',
   critical: 'Critical',
-  down: 'Down',
+  unreachable: 'Unreachable',
+  unknown: 'Unknown',
 };

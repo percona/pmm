@@ -17,6 +17,7 @@ package telemetry
 
 import (
 	"context"
+	"errors"
 	"io/fs"
 	"os"
 	"testing"
@@ -227,7 +228,7 @@ func TestRunSkipsNonReleaseVersion(t *testing.T) {
 				WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settingsJSON))
 			dbMock.ExpectCommit()
 
-			ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
+			ctx, cancel := context.WithTimeout(t.Context(), 2*time.Second)
 			defer cancel()
 
 			s := Service{
@@ -244,6 +245,55 @@ func TestRunSkipsNonReleaseVersion(t *testing.T) {
 			require.NoError(t, dbMock.ExpectationsWereMet())
 		})
 	}
+}
+
+func TestRunHandlesMakeMetricError(t *testing.T) {
+	t.Parallel()
+
+	logger := logrus.StandardLogger()
+	logger.SetLevel(logrus.DebugLevel)
+	logEntry := logrus.NewEntry(logger)
+
+	settingsJSON := []byte(`{"telemetry":{"uuid":"00000000-0000-0000-0000-000000000001"}}`)
+
+	var mockSender mockSender
+	mockSender.Test(t)
+	t.Cleanup(func() {
+		mockSender.AssertNotCalled(t, "SendTelemetry")
+	})
+
+	sqlDB, dbMock, err := sqlmock.New()
+	require.NoError(t, err)
+	t.Cleanup(func() { sqlDB.Close() })
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	// doSend's initial GetSettings succeeds and telemetry is enabled...
+	dbMock.ExpectQuery("SELECT settings FROM settings").
+		WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settingsJSON))
+	// ...but makeMetric's transaction fails, so prepareReport must return nil
+	// and Run must skip sending rather than dereference the nil report.
+	dbMock.ExpectBegin()
+	dbMock.ExpectQuery("SELECT settings FROM settings").
+		WillReturnError(errors.New("boom"))
+	dbMock.ExpectRollback()
+
+	ctx, cancel := context.WithTimeout(t.Context(), 2*time.Second)
+	defer cancel()
+
+	s := Service{
+		db:     db,
+		l:      logEntry,
+		config: getTestConfig(true, 10*time.Second),
+		// Release version: the send path is reachable, so not sending proves
+		// we bailed on the makeMetric error rather than on a version check.
+		pmmVersion:   "3.7.1",
+		dus:          getDistributionUtilService(t, logEntry),
+		portalClient: &mockSender,
+		sendCh:       make(chan *telemetryv1.GenericReport, sendChSize),
+	}
+	s.Run(ctx)
+
+	require.NoError(t, dbMock.ExpectationsWereMet())
 }
 
 func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceConfig {

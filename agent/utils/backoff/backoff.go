@@ -21,8 +21,8 @@ import (
 )
 
 const (
-	delayIncrease = 0.5  // +50%
-	delayJitter   = 0.25 // ±25%
+	delayIncrease = 0.5 // +50%
+	delayJitter   = 0.5 // ±50%
 )
 
 // Backoff encapsulates delay manipulation.
@@ -60,7 +60,7 @@ func (b *Backoff) Delay() time.Duration {
 	// f64 = rand.NormFloat64() / 3.0 (three sigma rule)
 	// but pure random seems to be better overall.
 	//nolint:gosec
-	f64 := rand.Float64()*2.0 - 1.0 // [-1.0,1.0]
+	f64 := rand.Float64()*2.0 - 1.0 //nolint:mnd // [-1.0,1.0]
 
 	delay += time.Duration(float64(delay) * f64 * delayJitter)
 	if delay < 0 {
