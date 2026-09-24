@@ -201,6 +201,26 @@ describe('IncidentListPage', () => {
     expect(screen.queryByRole('button', { name: /New incident/i })).toBeNull();
   });
 
+  it('withholds the ServiceNow banner when the list request failed', async () => {
+    routeGet({
+      incidents: 'reject',
+      config: {
+        send_disabled_reasons: ['Diagnostics delivery is not configured'],
+      },
+    });
+
+    renderPage(<IncidentListPage />, SETTINGS_PATH);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Failed to load incidents: Internal Server Error/)
+      ).toBeTruthy();
+    });
+    expect(
+      screen.queryByTestId('atw-send-unavailable')
+    ).not.toBeInTheDocument();
+  });
+
   it('disables the create button until the list has loaded', async () => {
     routeGet({ incidents: 'hang' });
 
