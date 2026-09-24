@@ -272,7 +272,9 @@ func (s probeSource) fetch(ctx context.Context) ([]probeService, error) {
 
 		resp, err := s.app.client.http.Do(req)
 		if err != nil {
-			return sepPage[probeService]{}, fmt.Errorf("GET %s: %w", endpoint, err)
+			// Returned bare: Do fails with a *url.Error, whose message already names
+			// the verb and the full URL, so a prefix here prints both of them twice.
+			return sepPage[probeService]{}, err //nolint:wrapcheck
 		}
 		defer resp.Body.Close() //nolint:errcheck
 
