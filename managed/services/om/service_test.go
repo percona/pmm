@@ -240,9 +240,9 @@ func TestCollectPersistFailureStillReturnsDocument(t *testing.T) {
 
 // TestRunSyncsInventoryEnabledOnStartup is the regression guard for a server that starts
 // up already OM-enabled -- via PMM_ENABLE_OM, or a setting persisted across a restart --
-// never telling SEP's om_inventory app. The existing syncOMInventoryEnabledIfChanged
+// never telling PMM Extensions' om_inventory app. The existing syncOMInventoryEnabledIfChanged
 // (server.go) only fires on a live ChangeSettings transition, so with no prior "off"
-// value to differ from, SEP's own ENABLED stayed permanently false with no supported
+// value to differ from, PMM Extensions' own ENABLED stayed permanently false with no supported
 // way to correct it afterward: ChangeSettings refuses any value differing from the
 // env-var-locked one, and resubmitting the same value is a no-op transition. Confirmed
 // against a live deployment before this fix. Run's own
@@ -269,7 +269,7 @@ func TestRunSyncsInventoryEnabledOnStartup(t *testing.T) {
 	cancel()
 	<-done
 
-	require.NotEmpty(t, stub.calls, "Run must sync SEP's ENABLED flag before ever reaching the ticker loop")
+	require.NotEmpty(t, stub.calls, "Run must sync PMM Extensions' ENABLED flag before ever reaching the ticker loop")
 	assert.Equal(t, http.MethodPatch, stub.calls[0].method)
 	assert.JSONEq(t, `{"ENABLED": true}`, stub.calls[0].body)
 }

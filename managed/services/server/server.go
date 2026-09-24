@@ -50,7 +50,7 @@ import (
 // pmmInitProgram is the supervisord program running PMM Server initialization and upgrade tasks.
 const pmmInitProgram = "pmm-init"
 
-// omSwitchEffectsTimeout bounds the SEP-facing work an OpenManager switch fires after
+// omSwitchEffectsTimeout bounds the PMM Extensions-facing work an OpenManager switch fires after
 // ChangeSettings has already answered. See applyOMSwitch.
 const omSwitchEffectsTimeout = 5 * time.Minute
 
@@ -524,7 +524,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 }
 
 // validateEnableOm checks an EnableOm request value against the environment override
-// and, when it would turn OpenManager on, against SEP's own availability.
+// and, when it would turn OpenManager on, against PMM Extensions' own availability.
 func (s *Server) validateEnableOm(ctx context.Context, enableOm *bool) error {
 	if enableOm != nil && s.envSettings.EnableOM != nil && *enableOm != *s.envSettings.EnableOM {
 		return status.Error(codes.FailedPrecondition, "OpenManager is configured via PMM_ENABLE_OM environment variable.")
@@ -540,7 +540,7 @@ func (s *Server) validateEnableOm(ctx context.Context, enableOm *bool) error {
 	}
 
 	if !currentSettings.IsOMEnabled() && (s.omService == nil || !s.omService.IsAvailable(ctx)) {
-		return status.Error(codes.FailedPrecondition, "OpenManager cannot be enabled: the OpenManager Inventory app is not available in SEP.")
+		return status.Error(codes.FailedPrecondition, "OpenManager cannot be enabled: the OpenManager Inventory app is not available in PMM Extensions.")
 	}
 
 	return nil
@@ -675,7 +675,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	}, nil
 }
 
-// applyOMSwitch carries an OpenManager on/off transition out to its side effects: SEP's
+// applyOMSwitch carries an OpenManager on/off transition out to its side effects: PMM Extensions'
 // om_inventory app learns the new state either way, and enabling also kicks a topology
 // collection, so OpenManager's page is not empty on first view instead of waiting out
 // the next scheduled tick.
@@ -684,9 +684,9 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 // All of it is best-effort -- every failure below is logged, never returned, and the
 // setting itself is committed before we get here -- but none of it is cheap:
 // TriggerTopologyCollection collects the whole estate inline, and SyncInventoryEnabled
-// PATCHes SEP and then kicks a sweep of its own. Measured at 12s of ChangeSettings
-// latency against a SEP answering in 3s per request, which is long enough for a client
-// to time out on a settings change that did in fact happen. The one SEP call that has to
+// PATCHes PMM Extensions and then kicks a sweep of its own. Measured at 12s of ChangeSettings
+// latency against a side-car answering in 3s per request, which is long enough for a client
+// to time out on a settings change that did in fact happen. The one PMM Extensions call that has to
 // stay on the request path is validateEnableOm's IsAvailable, whose answer decides
 // whether the save is allowed at all.
 func (s *Server) applyOMSwitch(ctx context.Context, oldSettings, newSettings *models.Settings) {
@@ -697,7 +697,7 @@ func (s *Server) applyOMSwitch(ctx context.Context, oldSettings, newSettings *mo
 
 	// Cancellation only: the values on the request's context (logging, tracing) still
 	// describe what asked for this work. The timeout is what bounds the goroutine, and
-	// is generous because nothing is waiting on it -- it exists so a SEP that never
+	// is generous because nothing is waiting on it -- it exists so a side-car that never
 	// answers cannot keep one alive indefinitely.
 	ctx = context.WithoutCancel(ctx)
 	go func() {

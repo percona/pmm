@@ -123,10 +123,10 @@ type nomadService interface {
 // omService is a subset of methods of om.Service used by this package.
 // We use it instead of the real type to avoid a dependency cycle.
 type omService interface {
-	// IsAvailable reports whether SEP's OpenManager Inventory app is configured and
+	// IsAvailable reports whether PMM Extensions' OpenManager Inventory app is configured and
 	// reachable, gating whether OpenManager may be enabled.
 	IsAvailable(ctx context.Context) bool
 	TriggerTopologyCollection(ctx context.Context, req *omv1.TriggerTopologyCollectionRequest) (*omv1.TriggerTopologyCollectionResponse, error)
-	// SyncInventoryEnabled tells SEP's om_inventory app whether OpenManager is on.
+	// SyncInventoryEnabled tells PMM Extensions' om_inventory app whether OpenManager is on.
 	SyncInventoryEnabled(ctx context.Context, enabled bool)
 }
