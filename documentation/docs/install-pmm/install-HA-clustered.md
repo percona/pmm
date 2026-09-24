@@ -810,7 +810,7 @@ PMM displays a visual badge on the side menu and displays the name of the active
 
 Check this to quickly identify which server is active without needing to query the cluster directly:
 
-![PMM HA Status badge](../images/HA-Status.png)
+![PMM HA Status badge](../images/pmm-ha-leader-badge.png)
 
 The badge also includes a health status indicator that reflects the overall cluster state based on how many nodes are responding:
 
