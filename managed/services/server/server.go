@@ -704,13 +704,20 @@ func (s *Server) applyOMSwitch(ctx context.Context, oldSettings, newSettings *mo
 		ctx, cancel := context.WithTimeout(ctx, omSwitchEffectsTimeout)
 		defer cancel()
 
+		// SEP's own switch first, and only then the collection. om_inventory
+		// refuses a sweep while its ENABLED is false, recording the run SKIPPED
+		// with "OM Inventory is switched off" as the reason, so a collection
+		// triggered ahead of the PATCH is the one call that cannot do what it
+		// exists for. That is not a race to lose occasionally: on enable the
+		// trigger always ran first, so the estate always waited out a whole
+		// schedule interval on the very transition meant to fill it immediately.
+		s.omService.SyncInventoryEnabled(ctx, enabled)
 		if enabled {
 			_, err := s.omService.TriggerTopologyCollection(ctx, &omv1.TriggerTopologyCollectionRequest{})
 			if err != nil {
 				s.l.WithError(err).Warn("failed to trigger OpenManager topology collection after enabling")
 			}
 		}
-		s.omService.SyncInventoryEnabled(ctx, enabled)
 	}()
 }
 
