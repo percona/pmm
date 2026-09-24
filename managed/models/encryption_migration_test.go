@@ -198,16 +198,23 @@ func TestMigrateEncryptionWrongKey(t *testing.T) {
 		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
 			"VALUES ('N1', 'generic', 'name', '', '', '', '', $1, $2)", now, now)
 	require.NoError(t, err)
+	// PMM 3.x wrote pmm-agent rows back decrypted, so only other agent types
+	// are known to hold ciphertext in recorded columns
 	_, err = sqlDB.ExecContext(t.Context(),
 		`INSERT INTO agents (agent_id, agent_type, password, runs_on_node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify) `+
-			`VALUES ('A1', 'pmm-agent', $1, 'N1', false, '', $2, $3, false, false)`,
+			`VALUES ('PA', 'pmm-agent', $1, 'N1', false, '', $2, $3, false, false)`,
+		foreign, now, now)
+	require.NoError(t, err)
+	_, err = sqlDB.ExecContext(t.Context(),
+		`INSERT INTO agents (agent_id, agent_type, password, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify) `+
+			`VALUES ('A1', 'mysqld_exporter', $1, 'PA', false, '', $2, $3, false, false)`,
 		foreign, now, now)
 	require.NoError(t, err)
 
 	t.Run("without PMM 3.x bookkeeping the value is plaintext", func(t *testing.T) {
 		ids, err := models.AgentsNeedingReencryption(q, cipher)
 		require.NoError(t, err)
-		assert.Equal(t, []string{"A1"}, ids)
+		assert.Equal(t, []string{"A1", "PA"}, ids)
 	})
 
 	t.Run("recorded as encrypted: refuse and change nothing", func(t *testing.T) {
@@ -221,12 +228,15 @@ func TestMigrateEncryptionWrongKey(t *testing.T) {
 		_, err = models.AgentsNeedingReencryption(q, cipher)
 		require.ErrorIs(t, err, encryption.ErrLegacyUnknownKey)
 		assert.Contains(t, err.Error(), "agent A1 password")
+		assert.NotContains(t, err.Error(), "agent PA")
 
 		require.ErrorIs(t, models.MigrateEncryption(q), encryption.ErrLegacyUnknownKey)
 
-		var password string
-		require.NoError(t, sqlDB.QueryRowContext(t.Context(), `SELECT password FROM agents WHERE agent_id = 'A1'`).Scan(&password))
-		assert.Equal(t, foreign, password)
+		for _, id := range []string{"A1", "PA"} {
+			var password string
+			require.NoError(t, sqlDB.QueryRowContext(t.Context(), `SELECT password FROM agents WHERE agent_id = $1`, id).Scan(&password))
+			assert.Equal(t, foreign, password, id)
+		}
 	})
 }
 

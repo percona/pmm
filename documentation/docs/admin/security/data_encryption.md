@@ -49,8 +49,8 @@ Before you upgrade:
 
 During the first start, PMM Server:
 
-- Stores the values it is about to re-encrypt, exactly as they were stored, in `pmm-encryption-migration-backup-<timestamp>.json` next to the key file. The file is readable by its owner only and is as sensitive as the database; keep it until you have verified the upgrade, then delete it.
-- Refuses to start if the key file does not match the encrypted data, for example when it was replaced by a different key. The error lists the affected services. Restore the original key file and restart; no data is changed.
+- Stores the values it is about to re-encrypt, exactly as they were stored, in `pmm-encryption-migration-backup-<timestamp>.json` next to the key file, or in `/srv` if that directory is read-only. The file is readable by its owner only and is as sensitive as the database; keep it until you have verified the upgrade, then delete it. If the first start is interrupted, the next one writes another backup file.
+- Refuses to start if it cannot decrypt stored data, for example when the key file was replaced by a different key. The error lists the affected agents. Restore the original key file and restart; no data is changed.
 - Repairs credentials corrupted by key rotation in PMM 3.9.0 and earlier (see [below](#recovery-after-a-corrupted-rotation)), using the previous key that the rotation left next to the key file (`pmm-encryption_old.key`, or `<name>_old.key` for a custom key path). Do not delete that file before upgrading.
 
 !!! caution alert alert-warning "Downgrading is not supported"
@@ -85,7 +85,7 @@ Once the rotation tool has completed, the keyset file (at the default location `
 
 PMM versions before 3.9.1 contained a bug that corrupted certain credentials during key rotation: TLS certificates and keys and cloud credentials were encrypted more than once.
 
-When you upgrade from such a version, PMM Server repairs them automatically with the previous key that the rotation left next to the key file. After more than one such rotation, the key of the innermost layer is no longer available; PMM Server then logs a warning that names the affected services. Place that key at the `_old.key` path from the warning and restart PMM Server, or see [Corrupted credentials after encryption key rotation](../../troubleshoot/upgrade_issues.md#corrupted-credentials-after-encryption-key-rotation) to re-add the services.
+When you upgrade from such a version, PMM Server repairs them automatically with the previous key that the rotation left next to the key file. After more than one such rotation, the key of the innermost layer is no longer available; PMM Server then logs a warning during the upgrade that names the affected agents. Place that key at the `_old.key` path from the warning and restart PMM Server, or see [Corrupted credentials after encryption key rotation](../../troubleshoot/upgrade_issues.md#corrupted-credentials-after-encryption-key-rotation) to re-add the services.
 
 ## Best practices for custom key management
 

@@ -128,7 +128,9 @@ var encryptedDataProbe = "SELECT EXISTS (SELECT 1 FROM agents t WHERE to_jsonb(t
 
 // legacyEncryptedColumns returns the agents columns that PMM 3.x recorded as
 // encrypted in settings.encrypted_items (entries are "database.table.column").
-// Every non-empty value in those columns was written as ciphertext.
+// PMM 3.x encrypted values in those columns when writing agents, except that
+// it wrote pmm-agent rows back decrypted on every pmm-agent connection; so
+// values of other agent types there are ciphertext, see scanAgents.
 func legacyEncryptedColumns(settingsJSON []byte) (map[string]bool, error) {
 	var s struct {
 		EncryptedItems []string `json:"encrypted_items"`
@@ -301,8 +303,8 @@ func (e *undecryptableError) Error() string {
 	}
 
 	return fmt.Sprintf("the encryption key at %s cannot decrypt stored credentials (%s%s): "+
-		"the key file does not match this database; restore the original key file "+
-		"(or point %s at it) and restart — no data was changed",
+		"the key file does not match this database, or the values are corrupted; "+
+		"if the key file was replaced, restore the original one (or point %s at it) and restart — no data was changed",
 		encryption.DefaultKeyPath(), strings.Join(list, "; "), more, encryption.CustomEncryptionKeyPathEnvVar)
 }
 
@@ -328,7 +330,7 @@ func scanAgents(q *reform.Querier, cipher *encryption.Cipher) (*secretsScan, err
 	}
 
 	// the Scan below follows the order of agentSecretColumns
-	rows, err := q.Query("SELECT agent_id, " + strings.Join(agentSecretColumns, ", ") + " FROM agents ORDER BY agent_id")
+	rows, err := q.Query("SELECT agent_id, agent_type, " + strings.Join(agentSecretColumns, ", ") + " FROM agents ORDER BY agent_id")
 	if err != nil {
 		return nil, fmt.Errorf("failed to read agents: %w", err)
 	}
@@ -336,15 +338,18 @@ func scanAgents(q *reform.Querier, cipher *encryption.Cipher) (*secretsScan, err
 
 	scan := &secretsScan{}
 	for rows.Next() {
-		var id string
+		var id, agentType string
 		var username, password, agentPassword sql.NullString
 		var aws, azure, mongo, mysql, postgresql, valkey sql.NullString
-		err = rows.Scan(&id, &username, &password, &agentPassword, &aws, &azure, &mongo, &mysql, &postgresql, &valkey)
+		err = rows.Scan(&id, &agentType, &username, &password, &agentPassword, &aws, &azure, &mongo, &mysql, &postgresql, &valkey)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read agents: %w", err)
 		}
 
 		insp := &inspector{cipher: cipher, strict: strict}
+		if AgentType(agentType) == PMMAgentType {
+			insp.strict = nil // may hold plaintext, see legacyEncryptedColumns
+		}
 		insp.scalar("username", username)
 		insp.scalar("password", password)
 		insp.scalar("agent_password", agentPassword)
@@ -365,10 +370,12 @@ func scanAgents(q *reform.Querier, cipher *encryption.Cipher) (*secretsScan, err
 		for _, p := range insp.undecryptable {
 			scan.undecryptable = append(scan.undecryptable, fmt.Errorf("agent %s %s: %w", id, p.column, p.err))
 		}
-		for _, p := range insp.lost {
-			scan.lost = append(scan.lost, fmt.Sprintf("agent %s %s", id, p.column))
-		}
 		if insp.needs && len(insp.undecryptable) == 0 {
+			// reported once, when the row is rewritten; later reads see an
+			// envelope around the unrecoverable inner layer
+			for _, p := range insp.lost {
+				scan.lost = append(scan.lost, fmt.Sprintf("agent %s %s", id, p.column))
+			}
 			scan.needs = append(scan.needs, id)
 			if insp.preEnvelope {
 				scan.backup = append(scan.backup, map[string]any{

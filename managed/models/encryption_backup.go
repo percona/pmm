@@ -18,6 +18,7 @@ package models
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -46,7 +47,26 @@ func writeMigrationBackup(agents, locations []map[string]any) (string, error) {
 		return "", err
 	}
 
-	dir := filepath.Dir(encryption.DefaultKeyPath())
+	// the key's directory may be read-only (e.g. a mounted secret); /srv is
+	// PMM Server's data directory and always writable
+	dirs := []string{filepath.Dir(encryption.DefaultKeyPath())}
+	if srv := filepath.Dir(encryption.DefaultEncryptionKeyPath); srv != dirs[0] {
+		dirs = append(dirs, srv)
+	}
+
+	var errs []error
+	for _, dir := range dirs {
+		path, err := writeFileAtomically(dir, data)
+		if err == nil {
+			return path, nil
+		}
+		errs = append(errs, err)
+	}
+
+	return "", errors.Join(errs...)
+}
+
+func writeFileAtomically(dir string, data []byte) (string, error) {
 	tmp, err := os.CreateTemp(dir, ".pmm-encryption-migration-backup-*.tmp")
 	if err != nil {
 		return "", fmt.Errorf("failed to create migration backup in %s: %w", dir, err)
@@ -62,14 +82,14 @@ func writeMigrationBackup(agents, locations []map[string]any) (string, error) {
 		err = closeErr
 	}
 	if err != nil {
-		return "", fmt.Errorf("failed to write migration backup: %w", err)
+		return "", fmt.Errorf("failed to write migration backup in %s: %w", dir, err)
 	}
 
 	name := fmt.Sprintf("pmm-encryption-migration-backup-%s.json", time.Now().UTC().Format("20060102T150405.000000000Z"))
 	path := filepath.Join(dir, name)
 	err = os.Rename(tmp.Name(), path)
 	if err != nil {
-		return "", fmt.Errorf("failed to write migration backup: %w", err)
+		return "", fmt.Errorf("failed to write migration backup in %s: %w", dir, err)
 	}
 
 	return path, nil
