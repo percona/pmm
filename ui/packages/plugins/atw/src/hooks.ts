@@ -423,16 +423,17 @@ export function useAtwIncidentExecutions(
  * carry the reasons it is unavailable.
  *
  * Cached forever while mounted so a polling Results pane does not re-hit the
- * endpoint every few seconds; `refetchOnMount: 'always'` still reloads when the
- * operator returns from Settings after fixing ServiceNow (PMM-15515). Delivery
- * setting writes also invalidate {@link ATW_CONFIG_QUERY_KEY}.
+ * endpoint every few seconds. ATW and ServiceNow settings are separate routes,
+ * so this query is unmounted while Settings is open — `refetchOnMount: 'always'`
+ * is what refreshes delivery state when the operator returns after fixing
+ * ServiceNow (PMM-15515).
  *
  * Failures reject rather than returning empty reasons: a first load leaves
  * callers with no cache (so Send stays offered — the POST's 503 is the real
  * guard), while a remount refetch keeps the last successful cache instead of
  * wiping disabled reasons and hiding the ServiceNow banner.
  */
-export const ATW_CONFIG_QUERY_KEY = ['atw', 'config'] as const;
+const ATW_CONFIG_QUERY_KEY = ['atw', 'config'] as const;
 
 export function useAtwConfig() {
   return useQuery<AtwConfig>({

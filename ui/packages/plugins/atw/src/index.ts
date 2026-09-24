@@ -41,7 +41,6 @@ export {
   useAtwBatchExecute,
   useAtwIncidentExecutions,
   useAtwConfig,
-  ATW_CONFIG_QUERY_KEY,
   useStartSendJob,
   useAtwSendJob,
   useAtwSendJobs,

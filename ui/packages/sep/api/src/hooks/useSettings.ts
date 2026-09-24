@@ -53,25 +53,6 @@ export const REDACTED_SECRET = '**********';
 
 export const SETTINGS_QUERY_KEY = ['settings', 'list'] as const;
 
-/**
- * Setting key for Support diagnostics ServiceNow delivery inputs. Writing it
- * changes what `/apps/atw/config/` reports for send availability, so patch and
- * reset also invalidate that query (same React Query client as ATW).
- */
-const DIAGNOSTICS_DELIVERY_INPUTS_KEY = 'DIAGNOSTICS_DELIVERY_INPUTS';
-
-const ATW_CONFIG_QUERY_KEY = ['atw', 'config'] as const;
-
-function invalidateAfterSettingWrite(
-  queryClient: ReturnType<typeof useQueryClient>,
-  key: string
-) {
-  queryClient.invalidateQueries({ queryKey: SETTINGS_QUERY_KEY });
-  if (key === DIAGNOSTICS_DELIVERY_INPUTS_KEY) {
-    queryClient.invalidateQueries({ queryKey: ATW_CONFIG_QUERY_KEY });
-  }
-}
-
 /** Base path (relative to the axios client's `/api` baseURL) for every class. */
 const SETTINGS_BASE = '/sep/admin/settings';
 
@@ -152,8 +133,8 @@ export function usePatchSetting() {
       );
       return data;
     },
-    onSuccess: (_data, { key }) => {
-      invalidateAfterSettingWrite(queryClient, key);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SETTINGS_QUERY_KEY });
     },
   });
 }
@@ -173,8 +154,8 @@ export function useResetSetting() {
     mutationFn: async ({ settingClass, key }) => {
       await apiClient.delete(`${SETTINGS_BASE}/${settingClass}/${key}`);
     },
-    onSuccess: (_data, { key }) => {
-      invalidateAfterSettingWrite(queryClient, key);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SETTINGS_QUERY_KEY });
     },
   });
 }
