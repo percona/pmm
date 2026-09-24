@@ -156,6 +156,17 @@ const ExecutorCell = ({ row }: { row: OmHostRow }) => {
 };
 
 /**
+ * Why a host cannot be automated, for a tooltip.
+ *
+ * SEP supplies the reasons, but a host can read as ineligible with none given,
+ * and an empty title makes MUI render no tooltip at all -- a disabled control
+ * with no explanation. Shared by the Automation cell and the Bootstrap button so
+ * the two cannot drift, which they had: the button showed nothing in that case.
+ */
+const automationBlockedTitle = (reasons: string[]) =>
+  reasons.join('; ') || 'Not eligible for automation.';
+
+/**
  * Whether OM automation can actually run something on this host, and why not
  * when it cannot.
  *
@@ -174,12 +185,7 @@ const AutomationCell = ({ row }: { row: OmHostRow }) => {
     );
   }
   return (
-    <Tooltip
-      title={
-        row.automation_blocked_reasons.join('; ') ||
-        'Not eligible for automation.'
-      }
-    >
+    <Tooltip title={automationBlockedTitle(row.automation_blocked_reasons)}>
       <Chip size="small" color="warning" label="Needs attention" />
     </Tooltip>
   );
@@ -780,7 +786,7 @@ export const HostsPage = () => {
           title={
             row.original.automation_eligible
               ? 'Install MongoDB on this host and initialize a single-member replica set (PoC).'
-              : row.original.automation_blocked_reasons.join('; ')
+              : automationBlockedTitle(row.original.automation_blocked_reasons)
           }
         >
           <Box component="span">
