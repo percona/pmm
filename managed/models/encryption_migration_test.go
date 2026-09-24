@@ -324,3 +324,56 @@ func TestMigrateEncryptionStackedLayers(t *testing.T) {
 	require.NoError(t, err)
 	assert.Empty(t, ids)
 }
+
+// TestMigrateEncryptionConcurrency covers HA nodes: the migration waits for
+// another node's migration, and writes only secret columns so changes made
+// by live nodes to other columns are kept.
+func TestMigrateEncryptionConcurrency(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	updatedAt := time.Date(2020, 1, 2, 3, 4, 5, 0, time.UTC)
+	_, err := sqlDB.ExecContext(t.Context(),
+		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
+			"VALUES ('N1', 'generic', 'name', '', '', '', '', $1, $2)", updatedAt, updatedAt)
+	require.NoError(t, err)
+	_, err = sqlDB.ExecContext(t.Context(),
+		`INSERT INTO agents (agent_id, agent_type, password, runs_on_node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, listen_port) `+
+			`VALUES ('A1', 'mysqld_exporter', 'plain-password', 'N1', false, 'RUNNING', $1, $2, false, false, 42000)`,
+		updatedAt, updatedAt)
+	require.NoError(t, err)
+
+	// another node holds the migration lock
+	other, err := sqlDB.BeginTx(t.Context(), nil)
+	require.NoError(t, err)
+	_, err = other.ExecContext(t.Context(), "SELECT pg_advisory_xact_lock($1)", 0x504d4d45)
+	require.NoError(t, err)
+
+	done := make(chan error, 1)
+	go func() {
+		done <- db.InTransaction(func(tx *reform.TX) error {
+			return models.MigrateEncryption(tx.Querier)
+		})
+	}()
+	select {
+	case err = <-done:
+		t.Fatalf("migration did not wait for the lock: %v", err)
+	case <-time.After(500 * time.Millisecond):
+	}
+	require.NoError(t, other.Rollback())
+	require.NoError(t, <-done)
+
+	var password, status string
+	var listenPort int
+	var storedUpdatedAt time.Time
+	err = sqlDB.QueryRowContext(t.Context(), `SELECT password, status, listen_port, updated_at FROM agents WHERE agent_id = 'A1'`).
+		Scan(&password, &status, &listenPort, &storedUpdatedAt)
+	require.NoError(t, err)
+	assert.True(t, encryption.IsEncrypted(password))
+	assert.Equal(t, "RUNNING", status)
+	assert.Equal(t, 42000, listenPort)
+	assert.True(t, updatedAt.Equal(storedUpdatedAt), "updated_at was rewritten: %s", storedUpdatedAt)
+}

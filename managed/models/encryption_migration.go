@@ -184,10 +184,19 @@ func isUndefinedTable(err error) bool {
 // envelopes alike. Rows already in the desired state are left untouched,
 // which makes the migration idempotent and safe to run at every startup,
 // including concurrently from several HA nodes.
+//
+// Callers run it in a transaction: an advisory lock serializes the migration
+// across HA nodes, and each row is locked and only its secret columns are
+// written, so concurrent changes to other columns by live nodes are kept.
 func MigrateEncryption(q *reform.Querier) error {
 	cipher, err := encryption.DefaultCipher()
 	if err != nil {
 		return err
+	}
+
+	_, err = q.Exec("SELECT pg_advisory_xact_lock($1)", encryptionMigrationLockID)
+	if err != nil {
+		return fmt.Errorf("failed to lock encryption migration: %w", err)
 	}
 
 	scan, err := scanAgents(q, cipher)
@@ -206,12 +215,15 @@ func MigrateEncryption(q *reform.Querier) error {
 	ids := scan.needs
 
 	for _, id := range ids {
-		agent := &Agent{AgentID: id}
-		err = q.Reload(agent)
+		agent := &Agent{}
+		err = q.SelectOneTo(agent, "WHERE agent_id = $1 FOR UPDATE", id)
+		if errors.Is(err, reform.ErrNoRows) {
+			continue // removed in the meantime
+		}
 		if err != nil {
 			return fmt.Errorf("failed to re-encrypt agent %s: %w", id, err)
 		}
-		err = q.Update(agent)
+		err = q.UpdateColumns(agent, agentSecretColumns...)
 		if err != nil {
 			return fmt.Errorf("failed to re-encrypt agent %s: %w", id, err)
 		}
@@ -223,18 +235,31 @@ func MigrateEncryption(q *reform.Querier) error {
 	}
 
 	for _, id := range locationIDs {
-		location := &BackupLocation{ID: id}
-		err = q.Reload(location)
+		location := &BackupLocation{}
+		err = q.SelectOneTo(location, "WHERE id = $1 FOR UPDATE", id)
+		if errors.Is(err, reform.ErrNoRows) {
+			continue
+		}
 		if err != nil {
 			return fmt.Errorf("failed to re-encrypt backup location %s: %w", id, err)
 		}
-		err = q.Update(location)
+		err = q.UpdateColumns(location, "s3_config")
 		if err != nil {
 			return fmt.Errorf("failed to re-encrypt backup location %s: %w", id, err)
 		}
 	}
 
 	return nil
+}
+
+// encryptionMigrationLockID is the PostgreSQL advisory lock key of
+// MigrateEncryption ("PMME").
+const encryptionMigrationLockID = 0x504d4d45
+
+// agentSecretColumns are the agents columns holding encrypted secrets.
+var agentSecretColumns = []string{
+	"username", "password", "agent_password",
+	"aws_options", "azure_options", "mongo_options", "mysql_options", "postgresql_options", "valkey_options",
 }
 
 // AgentsNeedingReencryption returns IDs of agents with at least one stored
@@ -284,11 +309,8 @@ func scanAgents(q *reform.Querier, cipher *encryption.Cipher) (*agentsScan, erro
 		return nil, err
 	}
 
-	rows, err := q.Query(`
-		SELECT agent_id, username, password, agent_password,
-			aws_options, azure_options, mongo_options, mysql_options, postgresql_options, valkey_options
-		FROM agents
-		ORDER BY agent_id`)
+	// the Scan below follows the order of agentSecretColumns
+	rows, err := q.Query("SELECT agent_id, " + strings.Join(agentSecretColumns, ", ") + " FROM agents ORDER BY agent_id")
 	if err != nil {
 		return nil, fmt.Errorf("failed to read agents: %w", err)
 	}
