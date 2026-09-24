@@ -429,6 +429,40 @@ func TestApplyOMSwitch(t *testing.T) {
 		}
 	})
 
+	t.Run("enabling tells SEP the switch is on before asking it to collect", func(t *testing.T) {
+		t.Parallel()
+
+		// The order is the whole test. om_inventory refuses a sweep while its own
+		// ENABLED is false and records the run SKIPPED with "OM Inventory is
+		// switched off", so collecting before the PATCH lands wastes the one
+		// collection that exists to fill the estate the moment someone turns the
+		// feature on -- and leaves the Hosts page empty until the app's own
+		// schedule comes round. Observed on a live stack: ChangeSettings at
+		// 17:05:58.795, a SKIPPED run stamped the same second, and the first real
+		// sweep only at 17:06:10.
+		om := newMockOmService(t)
+		calls := make(chan string, 2)
+		om.On("SyncInventoryEnabled", mock.Anything, true).
+			Run(func(mock.Arguments) { calls <- "sync" })
+		om.On("TriggerTopologyCollection", mock.Anything, mock.Anything).
+			Return(&omv1.TriggerTopologyCollectionResponse{}, nil).
+			Run(func(mock.Arguments) { calls <- "collect" })
+
+		s := &Server{omService: om, l: logrus.WithField("test", t.Name())}
+		s.applyOMSwitch(t.Context(), settings(false), settings(true))
+
+		got := make([]string, 0, 2)
+		for range 2 {
+			select {
+			case c := <-calls:
+				got = append(got, c)
+			case <-time.After(10 * time.Second):
+				t.Fatal("the switch's side effects never fired")
+			}
+		}
+		assert.Equal(t, []string{"sync", "collect"}, got)
+	})
+
 	t.Run("disabling syncs SEP without collecting", func(t *testing.T) {
 		t.Parallel()
 
