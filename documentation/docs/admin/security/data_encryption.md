@@ -36,6 +36,26 @@ If the keyset file is unavailable or misplaced, PMM will be unable to access and
 
 Make sure to store and manage the encryption keyset securely to avoid potential loss of data access.
 
+## Upgrading from PMM 3.9.1 or earlier
+
+Earlier versions stored encrypted values without the `pmm1$` prefix, and some sensitive data (backup location S3 credentials, Valkey TLS certificates and keys) without encryption. The first start after the upgrade re-encrypts all of it in the new format with your existing key; the key file is used as is.
+
+Before you upgrade:
+{.power-number}
+
+1. Back up the key file (`/srv/pmm-encryption.key` or the path in `PMM_ENCRYPTION_KEY_PATH`) together with your PMM data. A database backup cannot be read without it.
+
+2. If PMM runs in [high availability mode](../../install-pmm/HA-docker.md), stop all PMM Server nodes, upgrade them, then start them. Nodes that still run the previous version cannot read data re-encrypted by upgraded nodes.
+
+During the first start, PMM Server:
+
+- Stores the values it is about to re-encrypt, exactly as they were stored, in `pmm-encryption-migration-backup-<timestamp>.json` next to the key file. The file is readable by its owner only and is as sensitive as the database; keep it until you have verified the upgrade, then delete it.
+- Refuses to start if the key file does not match the encrypted data, for example when it was replaced by a different key. The error lists the affected services. Restore the original key file and restart; no data is changed.
+- Repairs credentials corrupted by key rotation in PMM 3.9.0 and earlier (see [below](#recovery-after-a-corrupted-rotation)), using the previous key that the rotation left next to the key file (`pmm-encryption_old.key`, or `<name>_old.key` for a custom key path). Do not delete that file before upgrading.
+
+!!! caution alert alert-warning "Downgrading is not supported"
+    After the upgrade, earlier PMM versions cannot read the stored credentials. To go back, restore the PMM data backup taken before the upgrade.
+
 ## Rotating the encryption key
 
 You may want to rotate the encryption key when the original key is compromised or as part of routine security maintenance. For this, you can use the **PMM Encryption Rotation Tool**.
@@ -63,11 +83,14 @@ Once the rotation tool has completed, the keyset file (at the default location `
 
 ## Recovery after a corrupted rotation
 
-PMM versions before 3.9.1 contained a bug that corrupted certain credentials during key rotation. If you rotated the encryption key before upgrading to 3.9.1, see [Corrupted credentials after encryption key rotation](../../troubleshoot/upgrade_issues.md#corrupted-credentials-after-encryption-key-rotation) for recovery steps.
+PMM versions before 3.9.1 contained a bug that corrupted certain credentials during key rotation: TLS certificates and keys and cloud credentials were encrypted more than once.
+
+When you upgrade from such a version, PMM Server repairs them automatically with the previous key that the rotation left next to the key file. After more than one such rotation, the key of the innermost layer is no longer available; PMM Server then logs a warning that names the affected services. Place that key at the `_old.key` path from the warning and restart PMM Server, or see [Corrupted credentials after encryption key rotation](../../troubleshoot/upgrade_issues.md#corrupted-credentials-after-encryption-key-rotation) to re-add the services.
 
 ## Best practices for custom key management
 
 - Always keep a secure backup of your encryption keyset, especially when using `PMM_ENCRYPTION_KEY_PATH`, as it is critical to PMM’s data decryption process.
+- If PMM Server does not start because the key file is missing or was replaced, restore the original keyset. PMM Server refuses to generate a new key or re-encrypt data it cannot decrypt, so no data is lost while the original keyset is restored.
 - In containerized environments, ensure `PMM_ENCRYPTION_KEY_PATH` is persistently set in the container configuration to avoid issues during restarts.
 - Test the encryption key rotation process in a staging environment before applying it in production to minimize potential downtime or configuration issues.
 - Keep retired keys in the keyset (do not use `--prune`) until you have verified that the rotation completed successfully.
