@@ -19,6 +19,7 @@ import (
 	"database/sql/driver"
 	"encoding/base64"
 	"encoding/json"
+	"slices"
 	"testing"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
@@ -90,6 +91,19 @@ func TestVerifyEncryptionKey(t *testing.T) {
 
 	encryptedCredentials := []string{"pmm-managed.agents.username", "pmm-managed.agents.password"}
 
+	// secretRow is a row of agentSecretColumns with the given username and password.
+	secretRow := func(username, password any) []driver.Value {
+		return []driver.Value{username, password, nil, nil, nil, nil, nil, nil}
+	}
+
+	expectSecrets := func(mock sqlmock.Sqlmock, rows ...[]driver.Value) {
+		r := sqlmock.NewRows(agentSecretColumns)
+		for _, row := range rows {
+			r.AddRow(row...)
+		}
+		mock.ExpectQuery("SELECT username, password, agent_password, aws_options, .* FROM agents").WillReturnRows(r)
+	}
+
 	t.Run("matching fingerprint is accepted", func(t *testing.T) {
 		db, mock := newMock(t)
 		expectSettings(t, mock, Settings{EncryptionKeyFingerprint: localFingerprint})
@@ -130,10 +144,7 @@ func TestVerifyEncryptionKey(t *testing.T) {
 		db, mock := newMock(t)
 		expectLock(mock)
 		expectSettings(t, mock, Settings{EncryptedItems: encryptedCredentials})
-		mock.ExpectQuery("SELECT username FROM agents").
-			WillReturnRows(sqlmock.NewRows([]string{"username"}).AddRow(readableCiphertext).AddRow(readableCiphertext))
-		mock.ExpectQuery("SELECT password FROM agents").
-			WillReturnRows(sqlmock.NewRows([]string{"password"}).AddRow(readableCiphertext))
+		expectSecrets(mock, secretRow(readableCiphertext, readableCiphertext), secretRow(readableCiphertext, nil))
 		expectSave(mock)
 		mock.ExpectCommit()
 
@@ -146,10 +157,7 @@ func TestVerifyEncryptionKey(t *testing.T) {
 		db, mock := newMock(t)
 		expectLock(mock)
 		expectSettings(t, mock, Settings{EncryptedItems: encryptedCredentials})
-		mock.ExpectQuery("SELECT username FROM agents").
-			WillReturnRows(sqlmock.NewRows([]string{"username"}).AddRow(foreignCiphertext))
-		mock.ExpectQuery("SELECT password FROM agents").
-			WillReturnRows(sqlmock.NewRows([]string{"password"}))
+		expectSecrets(mock, secretRow(foreignCiphertext, nil))
 		mock.ExpectRollback()
 
 		require.ErrorIs(t, verify(db), ErrEncryptionKeyMismatch)
@@ -161,10 +169,7 @@ func TestVerifyEncryptionKey(t *testing.T) {
 		db, mock := newMock(t)
 		expectLock(mock)
 		expectSettings(t, mock, Settings{EncryptedItems: encryptedCredentials})
-		mock.ExpectQuery("SELECT username FROM agents").
-			WillReturnRows(sqlmock.NewRows([]string{"username"}).AddRow(readableCiphertext).AddRow(foreignCiphertext))
-		mock.ExpectQuery("SELECT password FROM agents").
-			WillReturnRows(sqlmock.NewRows([]string{"password"}).AddRow(readableCiphertext))
+		expectSecrets(mock, secretRow(readableCiphertext, readableCiphertext), secretRow(foreignCiphertext, nil))
 		mock.ExpectRollback()
 
 		err := verify(db)
@@ -172,11 +177,43 @@ func TestVerifyEncryptionKey(t *testing.T) {
 		assert.Contains(t, err.Error(), "1 of 3")
 	})
 
+	awsOptions := func(t *testing.T, secretKey string) []byte {
+		t.Helper()
+		b, err := json.Marshal(AWSOptions{AWSSecretKey: secretKey})
+		require.NoError(t, err)
+
+		return b
+	}
+
 	t.Run("plaintext columns are not probed", func(t *testing.T) {
 		db, mock := newMock(t)
 		expectSettings(t, mock, Settings{EncryptedItems: []string{"pmm-managed.agents.aws_options"}})
+		row := secretRow("plaintext-username", "plaintext-password")
+		row[3] = awsOptions(t, readableCiphertext)
+		expectSecrets(mock, row)
 
 		assert.NoError(t, CheckEncryptionKey(db))
+	})
+
+	t.Run("nothing is probed while every column holds plaintext", func(t *testing.T) {
+		db, mock := newMock(t)
+		expectSettings(t, mock, Settings{})
+
+		assert.NoError(t, CheckEncryptionKey(db))
+	})
+
+	// Secrets inside JSON columns, such as the AWS keys of an RDS exporter, count like credentials.
+	t.Run("unreadable secret in an options column is reported as a mismatch", func(t *testing.T) {
+		db, mock := newMock(t)
+		items := append(slices.Clone(encryptedCredentials), "pmm-managed.agents.aws_options")
+		expectSettings(t, mock, Settings{EncryptedItems: items})
+		row := secretRow(readableCiphertext, readableCiphertext)
+		row[3] = awsOptions(t, foreignCiphertext)
+		expectSecrets(mock, row)
+
+		err := CheckEncryptionKey(db)
+		require.ErrorIs(t, err, ErrEncryptionKeyMismatch)
+		assert.Contains(t, err.Error(), "1 of 3")
 	})
 
 	adopt := func(db *reform.DB) (bool, error) {
@@ -195,10 +232,7 @@ func TestVerifyEncryptionKey(t *testing.T) {
 		db, mock := newMock(t)
 		mock.ExpectBegin()
 		expectSettings(t, mock, Settings{EncryptedItems: encryptedCredentials, EncryptionKeyFingerprint: "0123456789abcdef"})
-		mock.ExpectQuery("SELECT username FROM agents").
-			WillReturnRows(sqlmock.NewRows([]string{"username"}).AddRow(readableCiphertext))
-		mock.ExpectQuery("SELECT password FROM agents").
-			WillReturnRows(sqlmock.NewRows([]string{"password"}).AddRow(readableCiphertext))
+		expectSecrets(mock, secretRow(readableCiphertext, readableCiphertext))
 		mock.ExpectExec("UPDATE settings SET settings").
 			WithArgs(fingerprintArg(localFingerprint)).
 			WillReturnResult(sqlmock.NewResult(0, 1))
@@ -213,10 +247,7 @@ func TestVerifyEncryptionKey(t *testing.T) {
 		db, mock := newMock(t)
 		mock.ExpectBegin()
 		expectSettings(t, mock, Settings{EncryptedItems: encryptedCredentials, EncryptionKeyFingerprint: "0123456789abcdef"})
-		mock.ExpectQuery("SELECT username FROM agents").
-			WillReturnRows(sqlmock.NewRows([]string{"username"}).AddRow(readableCiphertext).AddRow(foreignCiphertext))
-		mock.ExpectQuery("SELECT password FROM agents").
-			WillReturnRows(sqlmock.NewRows([]string{"password"}))
+		expectSecrets(mock, secretRow(readableCiphertext, nil), secretRow(foreignCiphertext, nil))
 		mock.ExpectCommit()
 
 		adopted, err := adopt(db)

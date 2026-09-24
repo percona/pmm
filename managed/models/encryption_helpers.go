@@ -169,8 +169,8 @@ func VerifyEncryptionKey(tx *reform.TX) error {
 }
 
 // adoptEncryptionKey replaces a foreign fingerprint with this node's own once this node's key
-// decrypts every stored agent username and password, so that a server whose key was lost recovers
-// after its credentials have been re-entered. It returns whether the key was adopted.
+// decrypts every stored agent secret, so that a server whose key was lost recovers after its
+// credentials have been re-entered. It returns whether the key was adopted.
 // Never call it in HA: while no credentials are stored, a node with its own key would take the
 // database over from the others.
 func adoptEncryptionKey(tx *reform.TX) (bool, error) {
@@ -192,7 +192,7 @@ func adoptEncryptionKey(tx *reform.TX) (bool, error) {
 		return false, err
 	}
 
-	logrus.Warnf("Adopting encryption key fingerprint %s in place of %s: this server's key decrypts every stored agent credential.",
+	logrus.Warnf("Adopting encryption key fingerprint %s in place of %s: this server's key decrypts every stored agent secret.",
 		fingerprint, settings.EncryptionKeyFingerprint)
 	settings.EncryptionKeyFingerprint = fingerprint
 
@@ -229,65 +229,65 @@ func keyMismatchError(local, stored string) error {
 		ErrEncryptionKeyMismatch, local, stored)
 }
 
-// checkStoredSecretsReadable decrypts every stored agent username and password to tell a
-// matching key from a foreign one on databases that carry no fingerprint yet.
-func checkStoredSecretsReadable(q reform.DBTX, settings *Settings) error {
-	var total, unreadable int
-	for _, column := range []string{"username", "password"} {
-		encrypted := slices.ContainsFunc(settings.EncryptedItems, func(item string) bool {
-			return strings.HasSuffix(item, ".agents."+column)
-		})
-		if !encrypted {
-			// The column holds plaintext, so nothing in it can contradict this key.
-			continue
-		}
-
-		t, u, err := countUnreadable(q, column)
-		if err != nil {
-			return err
-		}
-		total += t
-		unreadable += u
-	}
-
-	if unreadable > 0 {
-		return fmt.Errorf("%w: %d of %d stored agent credentials cannot be decrypted with this node's key",
-			ErrEncryptionKeyMismatch, unreadable, total)
-	}
-
-	return nil
+// agentSecretColumns are the agents columns holding the fields returned by agentSecrets.
+var agentSecretColumns = []string{
+	"username", "password", "agent_password",
+	"aws_options", "azure_options", "mongo_options", "mysql_options", "postgresql_options",
 }
 
-// countUnreadable returns how many non-empty values the column holds and how many of them this
-// node's key cannot decrypt.
-func countUnreadable(q reform.DBTX, column string) (int, int, error) {
-	rows, err := q.Query(fmt.Sprintf("SELECT %[1]s FROM agents WHERE %[1]s IS NOT NULL AND %[1]s != ''", column))
+// checkStoredSecretsReadable decrypts every stored agent secret to tell a matching key from a
+// foreign one on databases that carry no fingerprint yet.
+func checkStoredSecretsReadable(q reform.DBTX, settings *Settings) error {
+	encrypted := func(column string) bool {
+		return slices.ContainsFunc(settings.EncryptedItems, func(item string) bool {
+			return strings.HasSuffix(item, ".agents."+column)
+		})
+	}
+	if !slices.ContainsFunc(agentSecretColumns, encrypted) {
+		// Every column holds plaintext, so nothing stored can contradict this key.
+		return nil
+	}
+
+	rows, err := q.Query("SELECT " + strings.Join(agentSecretColumns, ", ") + " FROM agents")
 	if err != nil {
-		return 0, 0, fmt.Errorf("failed to read stored agent credentials: %w", err)
+		return fmt.Errorf("failed to read stored agent secrets: %w", err)
 	}
 	defer rows.Close() //nolint:errcheck
 
 	var total, unreadable int
 	for rows.Next() {
-		var value string
-		err = rows.Scan(&value)
+		var a Agent
+		err = rows.Scan(&a.Username, &a.Password, &a.AgentPassword,
+			&a.AWSOptions, &a.AzureOptions, &a.MongoDBOptions, &a.MySQLOptions, &a.PostgreSQLOptions)
 		if err != nil {
-			return 0, 0, fmt.Errorf("failed to read stored agent credentials: %w", err)
+			return fmt.Errorf("failed to read stored agent secrets: %w", err)
 		}
 
-		total++
-		_, err = encryption.Decrypt(value)
-		if err != nil {
-			unreadable++
+		for _, s := range agentSecrets(&a) {
+			column, _, _ := strings.Cut(s.name, ".")
+			if *s.val == "" || !encrypted(column) {
+				continue
+			}
+
+			total++
+			_, err = encryption.Decrypt(*s.val)
+			if err != nil {
+				unreadable++
+			}
 		}
 	}
 
 	err = rows.Err()
 	if err != nil {
-		return 0, 0, fmt.Errorf("failed to read stored agent credentials: %w", err)
+		return fmt.Errorf("failed to read stored agent secrets: %w", err)
 	}
 
-	return total, unreadable, nil
+	if unreadable > 0 {
+		return fmt.Errorf("%w: %d of %d stored agent secrets cannot be decrypted with this node's key",
+			ErrEncryptionKeyMismatch, unreadable, total)
+	}
+
+	return nil
 }
 
 // EncryptAWSOptionsHandler returns encrypted AWS Options.
