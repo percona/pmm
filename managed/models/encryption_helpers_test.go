@@ -176,7 +176,7 @@ func TestDecryptAgentUnreadableFields(t *testing.T) {
 func TestEncryptionKeyInDatabase(t *testing.T) {
 	// Initialize this node's key before the test switches the key path, so that it stays the
 	// default key.
-	_, err := encryption.Fingerprint()
+	localFingerprint, err := encryption.Fingerprint()
 	require.NoError(t, err)
 
 	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, filepath.Join(t.TempDir(), "foreign.key"))
@@ -228,8 +228,31 @@ func TestEncryptionKeyInDatabase(t *testing.T) {
 		assert.Zero(t, countAgents(t, db))
 	})
 
-	t.Run("standalone server with a foreign key boots without encrypting", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Run("standalone server with a foreign key boots and keeps the fingerprint", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+		foreignCiphertext, err := foreign.Encrypt("postgres")
+		require.NoError(t, err)
+		_, err = db.Exec("UPDATE agents SET username = $1 WHERE agent_type = $2", foreignCiphertext, models.PostgresExporterType)
+		require.NoError(t, err)
+		setFingerprint(t, db, foreignFingerprint)
+
+		before, err := models.GetSettings(db)
+		require.NoError(t, err)
+
+		require.NoError(t, setup(t, sqlDB, ""))
+
+		settings, err := models.GetSettings(db)
+		require.NoError(t, err)
+		assert.Equal(t, before.EncryptedItems, settings.EncryptedItems)
+		assert.Equal(t, foreignFingerprint, settings.EncryptionKeyFingerprint)
+		require.ErrorIs(t, models.CheckEncryptionKey(db), models.ErrEncryptionKeyMismatch)
+	})
+
+	// A standalone server whose key was lost, after every credential was re-entered with its new key.
+	t.Run("standalone server adopts its key once every credential decrypts", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 		setFingerprint(t, db, foreignFingerprint)
 
@@ -237,9 +260,8 @@ func TestEncryptionKeyInDatabase(t *testing.T) {
 
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
-		assert.Empty(t, settings.EncryptedItems, "columns must not be encrypted with the wrong key")
-		assert.Equal(t, foreignFingerprint, settings.EncryptionKeyFingerprint)
-		require.ErrorIs(t, models.CheckEncryptionKey(db), models.ErrEncryptionKeyMismatch)
+		assert.Equal(t, localFingerprint, settings.EncryptionKeyFingerprint)
+		require.NoError(t, models.CheckEncryptionKey(db))
 	})
 
 	t.Run("columns are not encrypted with a foreign key", func(t *testing.T) {

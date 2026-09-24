@@ -168,6 +168,37 @@ func VerifyEncryptionKey(tx *reform.TX) error {
 	return SaveSettings(tx, settings)
 }
 
+// adoptEncryptionKey replaces a foreign fingerprint with this node's own once this node's key
+// decrypts every stored agent username and password, so that a server whose key was lost recovers
+// after its credentials have been re-entered. It returns whether the key was adopted.
+// Never call it in HA: while no credentials are stored, a node with its own key would take the
+// database over from the others.
+func adoptEncryptionKey(tx *reform.TX) (bool, error) {
+	settings, err := GetSettings(tx)
+	if err != nil {
+		return false, err
+	}
+
+	err = checkStoredSecretsReadable(tx, settings)
+	if errors.Is(err, ErrEncryptionKeyMismatch) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+
+	fingerprint, err := encryption.Fingerprint()
+	if err != nil {
+		return false, err
+	}
+
+	logrus.Warnf("Adopting encryption key fingerprint %s in place of %s: this server's key decrypts every stored agent credential.",
+		fingerprint, settings.EncryptionKeyFingerprint)
+	settings.EncryptionKeyFingerprint = fingerprint
+
+	return true, SaveSettings(tx, settings)
+}
+
 // checkEncryptionKey returns the settings and this node's key fingerprint.
 func checkEncryptionKey(q reform.DBTX) (*Settings, string, error) {
 	fingerprint, err := encryption.Fingerprint()

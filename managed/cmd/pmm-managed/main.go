@@ -691,7 +691,8 @@ func checkEncryptionKey(l *logrus.Entry, db *reform.DB) {
 
 	mEncryptionKeyMismatch.Set(1)
 	l.Errorf("%s. Stored credentials cannot be decrypted, so monitoring will not work until the "+
-		"matching key is restored to %s.", err, encryption.KeyPath())
+		"matching key is restored to %s, or the credentials of every affected Agent are re-entered "+
+		"and PMM Server is restarted.", err, encryption.KeyPath())
 }
 
 // newClickhouseDB return a new Clickhouse db.

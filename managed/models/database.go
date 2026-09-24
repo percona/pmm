@@ -1557,8 +1557,13 @@ func encryptOnMigration(tx *reform.TX, params SetupDBParams) error {
 		return EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
 	case errors.Is(err, ErrEncryptionKeyMismatch) && params.HANodeID == "":
 		// A standalone server keeps booting and reports the mismatch once started. Columns not
-		// encrypted yet are left for the first start with the matching key.
-		return nil
+		// encrypted yet are left for the first start with a matching or adopted key.
+		adopted, err := adoptEncryptionKey(tx)
+		if err != nil || !adopted {
+			return err
+		}
+
+		return EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
 	default:
 		return err
 	}

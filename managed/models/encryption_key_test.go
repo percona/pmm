@@ -16,6 +16,7 @@
 package models
 
 import (
+	"database/sql/driver"
 	"encoding/base64"
 	"encoding/json"
 	"testing"
@@ -177,4 +178,67 @@ func TestVerifyEncryptionKey(t *testing.T) {
 
 		assert.NoError(t, CheckEncryptionKey(db))
 	})
+
+	adopt := func(db *reform.DB) (bool, error) {
+		var adopted bool
+		err := db.InTransaction(func(tx *reform.TX) error {
+			var err error
+			adopted, err = adoptEncryptionKey(tx)
+			return err
+		})
+
+		return adopted, err
+	}
+
+	// A standalone server whose key was lost, after every credential was re-entered with its new key.
+	t.Run("foreign fingerprint is replaced when all stored credentials decrypt", func(t *testing.T) {
+		db, mock := newMock(t)
+		mock.ExpectBegin()
+		expectSettings(t, mock, Settings{EncryptedItems: encryptedCredentials, EncryptionKeyFingerprint: "0123456789abcdef"})
+		mock.ExpectQuery("SELECT username FROM agents").
+			WillReturnRows(sqlmock.NewRows([]string{"username"}).AddRow(readableCiphertext))
+		mock.ExpectQuery("SELECT password FROM agents").
+			WillReturnRows(sqlmock.NewRows([]string{"password"}).AddRow(readableCiphertext))
+		mock.ExpectExec("UPDATE settings SET settings").
+			WithArgs(fingerprintArg(localFingerprint)).
+			WillReturnResult(sqlmock.NewResult(0, 1))
+		mock.ExpectCommit()
+
+		adopted, err := adopt(db)
+		require.NoError(t, err)
+		assert.True(t, adopted)
+	})
+
+	t.Run("foreign fingerprint is kept while any stored credential cannot be decrypted", func(t *testing.T) {
+		db, mock := newMock(t)
+		mock.ExpectBegin()
+		expectSettings(t, mock, Settings{EncryptedItems: encryptedCredentials, EncryptionKeyFingerprint: "0123456789abcdef"})
+		mock.ExpectQuery("SELECT username FROM agents").
+			WillReturnRows(sqlmock.NewRows([]string{"username"}).AddRow(readableCiphertext).AddRow(foreignCiphertext))
+		mock.ExpectQuery("SELECT password FROM agents").
+			WillReturnRows(sqlmock.NewRows([]string{"password"}))
+		mock.ExpectCommit()
+
+		adopted, err := adopt(db)
+		require.NoError(t, err)
+		assert.False(t, adopted)
+	})
+}
+
+// fingerprintArg matches a settings document that records the given key fingerprint.
+type fingerprintArg string
+
+func (f fingerprintArg) Match(v driver.Value) bool {
+	b, ok := v.([]byte)
+	if !ok {
+		return false
+	}
+
+	var s Settings
+	err := json.Unmarshal(b, &s) //nolint:musttag
+	if err != nil {
+		return false
+	}
+
+	return s.EncryptionKeyFingerprint == string(f)
 }
