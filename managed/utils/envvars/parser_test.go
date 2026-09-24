@@ -76,12 +76,20 @@ func TestEnvVarValidator(t *testing.T) {
 	t.Run("SEP env variables", func(t *testing.T) {
 		t.Parallel()
 
-		envs := []string{"PMM_ENABLE_SEP=1", "PMM_SEP_POSTGRES_PASSWORD=s3cr3t", "PMM_SEP_ADDRESS=sep:9000"}
+		envs := []string{
+			"PMM_ENABLE_SEP=1",
+			"PMM_SEP_POSTGRES_PASSWORD=s3cr3t",
+			"PMM_SEP_ADDRESS=sep:9000",
+			"PMM_SEP_URL=http://sep:9000",
+			"PMM_SEP_TOKEN=s3cr3t-bearer",
+		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
 		assert.Equal(t, expectedEnvVars, gotEnvVars)
 		assert.Nil(t, gotErrs)
+		// Also asserts that neither secret above is echoed anywhere: an
+		// unrecognized variable is warned about as the whole KEY=VALUE.
 		assert.Nil(t, gotWarns)
 	})
 
