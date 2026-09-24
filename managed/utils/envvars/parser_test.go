@@ -292,6 +292,75 @@ func TestEnvVarValidator(t *testing.T) {
 	})
 }
 
+func TestNomadWithoutPublicAddress(t *testing.T) {
+	t.Parallel()
+
+	const warning = "PMM_ENABLE_NOMAD is set but PMM_PUBLIC_ADDRESS is not; " +
+		"Nomad will not start unless a public address is configured in PMM settings"
+
+	for _, tt := range []struct {
+		name     string
+		envs     []string
+		expected bool
+	}{
+		{
+			name:     "Nomad enabled without public address",
+			envs:     []string{"PMM_ENABLE_NOMAD=1"},
+			expected: true,
+		},
+		{
+			name:     "Nomad enabled with non-numeric truthy value",
+			envs:     []string{"PMM_ENABLE_NOMAD=TRUE"},
+			expected: true,
+		},
+		{
+			name:     "Nomad enabled with empty public address",
+			envs:     []string{"PMM_ENABLE_NOMAD=1", "PMM_PUBLIC_ADDRESS="},
+			expected: true,
+		},
+		{
+			name:     "Nomad enabled with public address",
+			envs:     []string{"PMM_ENABLE_NOMAD=1", "PMM_PUBLIC_ADDRESS=1.2.3.4:5678"},
+			expected: false,
+		},
+		{
+			name:     "Nomad explicitly disabled without public address",
+			envs:     []string{"PMM_ENABLE_NOMAD=0"},
+			expected: false,
+		},
+		{
+			name:     "neither variable set",
+			envs:     []string{"PMM_DATA_RETENTION=72h"},
+			expected: false,
+		},
+		{
+			name:     "only public address set",
+			envs:     []string{"PMM_PUBLIC_ADDRESS=1.2.3.4:5678"},
+			expected: false,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			_, gotErrs, gotWarns := ParseEnvVars(tt.envs)
+			assert.Nil(t, gotErrs)
+			if tt.expected {
+				assert.Contains(t, gotWarns, warning)
+			} else {
+				assert.NotContains(t, gotWarns, warning)
+			}
+		})
+	}
+
+	t.Run("invalid Nomad value reports an error without the warning", func(t *testing.T) {
+		t.Parallel()
+
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"PMM_ENABLE_NOMAD=maybe"})
+		assert.Len(t, gotErrs, 1)
+		assert.NotContains(t, gotWarns, warning)
+	})
+}
+
 func TestRedactSecretEnvVar(t *testing.T) {
 	t.Parallel()
 
