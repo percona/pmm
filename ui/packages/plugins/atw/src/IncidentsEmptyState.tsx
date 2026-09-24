@@ -27,15 +27,6 @@ export interface IncidentsEmptyStateProps {
   onCreate?: () => void;
 }
 
-/**
- * Peak Design empty state for the Support diagnostics landing page when no
- * incidents exist yet: what an incident is, what a run collects, where results
- * go, the primary create action (when `onCreate` is set), and a docs link.
- *
- * No Peak illustration: `plugins/atw` does not depend on `@percona/peak-ui`,
- * unlike in-app empty states such as RealtimeSelectionViewerEmptyState. The
- * layout is a centered MUI stack matching the former ServiceNow setup prompt.
- */
 export function IncidentsEmptyState({ onCreate }: IncidentsEmptyStateProps) {
   return (
     <Stack

@@ -19,27 +19,6 @@ import { Alert, Button } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { useDeliverySettingsPath } from './deliverySettings';
 
-/**
- * Why the send controls are inert, stated once above them.
- *
- * The tooltips on each disabled control carry the backend's own reasons, but a
- * tooltip on a disabled button is not something an operator finds by accident —
- * and an administrator looking at a greyed-out Send is the one person who can
- * fix it. So the pane says it in the open and, when the host supplied a route,
- * offers the way there; the specific reason stays in the tooltips rather than
- * being repeated here, which keeps this to one line whatever the backend says.
- *
- * Rendered only for a session that has send controls to explain: a read-only
- * session is never offered one, so the connection state changes nothing it
- * could do and the notice would be noise. That also makes the settings button
- * safe to offer unconditionally — `canMutate` is the administrator flag today,
- * and the settings tab it links to is administrator-only. Should `canMutate`
- * ever widen to a lesser role, gate the button separately or it becomes the
- * same dead end this notice replaced.
- *
- * Also shown on the incident list landing page (PMM-15515) so an admin learns
- * delivery is missing before opening an incident.
- */
 export function SendUnavailableNotice() {
   const settingsPath = useDeliverySettingsPath();
 
