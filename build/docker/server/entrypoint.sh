@@ -112,6 +112,52 @@ if [ ! -d "/srv/pmm-agent/tmp" ]; then
     install -d -m 770 /srv/pmm-agent/tmp
 fi
 
+# Resolved before postgres-sep, which sets the sep role's password, and sep-secrets,
+# which publishes it - both read it from the environment and neither can generate it for
+# the other. An operator value wins and is not persisted, so unsetting it returns to the
+# generated one rather than pinning whatever was passed once.
+#
+# Gated on the same two flags as the migration branch below, which is what decides whether
+# postgres-sep runs at all: under either of them sep-secrets bails too, so generating here
+# would persist a credential on /srv that nothing ever reads.
+if is_enabled "$PMM_ENABLE_SEP" && [ -z "$PMM_SEP_POSTGRES_PASSWORD" ] &&
+    ! is_enabled "$PMM_HA_ENABLE" && ! is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
+    declare SEP_PG_PASSWORD_FILE="/srv/.sep_postgres_password"
+    declare SEP_PG_MODE
+
+    if [ ! -s "$SEP_PG_PASSWORD_FILE" ]; then
+        echo "Generating the PostgreSQL password for SEP..."
+        SEP_PG_TMP=$(mktemp "$SEP_PG_PASSWORD_FILE.XXXXXX")
+        # Removed here rather than from an EXIT trap: the only trap this file installs is
+        # the NSS wrapper's, and a second one would replace it rather than chain onto it.
+        if ! openssl rand -hex 24 > "$SEP_PG_TMP"; then
+            rm -f "$SEP_PG_TMP"
+            echo "FATAL: could not generate the PostgreSQL password for SEP." >&2
+            exit 1
+        fi
+        mv "$SEP_PG_TMP" "$SEP_PG_PASSWORD_FILE"
+        unset SEP_PG_TMP
+    fi
+
+    # chmod needs ownership rather than write permission, and the arbitrary-uid path lets a
+    # later start run as a uid that does not own what an earlier one persisted - so a failed
+    # chmod is not by itself a reason to stop. A mode that still leaves the credential
+    # readable beyond its owner is, because the value is about to be exported: refusing to
+    # start beats publishing a password this uid cannot narrow.
+    if ! chmod 600 "$SEP_PG_PASSWORD_FILE" 2> /dev/null; then
+        SEP_PG_MODE=$(stat -c '%a' "$SEP_PG_PASSWORD_FILE")
+        if [ $((8#$SEP_PG_MODE & 8#077)) -ne 0 ]; then
+            echo "FATAL: $SEP_PG_PASSWORD_FILE is mode $SEP_PG_MODE and could not be narrowed to 600." >&2
+            echo "Please make sure it is owned by uid $(id -u), or narrow it by hand, and try again." >&2
+            exit 1
+        fi
+    fi
+
+    PMM_SEP_POSTGRES_PASSWORD=$(< "$SEP_PG_PASSWORD_FILE")
+    export PMM_SEP_POSTGRES_PASSWORD
+    unset SEP_PG_PASSWORD_FILE SEP_PG_MODE
+fi
+
 # The script owns the embedded cluster: it upgrades a PostgreSQL 14 data directory,
 # creates the cluster on a fresh installation, and repairs older ones.
 if is_enabled "$PMM_HA_ENABLE"; then
@@ -141,8 +187,87 @@ else
 fi
 
 if is_enabled "$PMM_ENABLE_SEP" && { is_enabled "$PMM_HA_ENABLE" || is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; }; then
-    echo "WARNING: ignoring PMM_ENABLE_SEP, the embedded PostgreSQL is not in use." >&2
+    echo "WARNING: not exposing a database to SEP, the embedded PostgreSQL is not in use." >&2
 fi
+
+# The reverse proxy is independent of which database SEP uses, so it is not nested
+# in the embedded-PostgreSQL branch above.
+declare SEP_NGINX_DIR=/etc/nginx/sep.d
+declare SEP_NGINX_TEMPLATE=/opt/ansible/roles/nginx/files/sep/sep.conf.template
+if is_enabled "$PMM_ENABLE_SEP"; then
+    declare SEP_ADDRESS="${PMM_SEP_ADDRESS:-sep:9000}"
+    # The address is interpolated into an nginx config, so an unvalidated value
+    # is a config-injection vector. The digit count is capped so the range test
+    # below cannot be handed a value that overflows the shell's integer parsing
+    # and fails open.
+    if ! [[ "$SEP_ADDRESS" =~ ^[A-Za-z0-9._-]+:[0-9]{1,5}$ ]]; then
+        echo "FATAL: PMM_SEP_ADDRESS must be <host>:<port>, got '${SEP_ADDRESS}'." >&2
+        exit 1
+    fi
+    # A variable proxy_pass resolves per request, so an out-of-range port would
+    # pass nginx -t and only surface as a 502 at runtime.
+    if [ "${SEP_ADDRESS##*:}" -lt 1 ] || [ "${SEP_ADDRESS##*:}" -gt 65535 ]; then
+        echo "FATAL: PMM_SEP_ADDRESS port must be 1-65535, got '${SEP_ADDRESS##*:}'." >&2
+        exit 1
+    fi
+
+    # Container DNS: 127.0.0.11 under Docker, an aardvark address under Podman.
+    # IPv4 first, then an unscoped IPv6 in brackets -- nginx requires the brackets
+    # and rejects a bare address, which fails nginx -t and so blocks the whole
+    # server from starting.
+    declare SEP_RESOLVER
+    SEP_RESOLVER=$(awk '/^nameserver/ && $2 != "" && $2 !~ /:/ { print $2; exit }' /etc/resolv.conf 2>/dev/null || true)
+    if [ -z "$SEP_RESOLVER" ]; then
+        # Scoped addresses are skipped rather than stripped of their zone: nginx has
+        # no syntax for the interface scope, so a stripped fe80:: address yields a
+        # config that passes nginx -t and can never route DNS -- trading a startup
+        # failure for every /sep/ request timing out into the 503.
+        SEP_RESOLVER=$(awk '/^nameserver/ && $2 != "" && $2 !~ /%/ { print "[" $2 "]"; exit }' /etc/resolv.conf 2>/dev/null || true)
+    fi
+    if [ -z "$SEP_RESOLVER" ]; then
+        if awk '/^nameserver/ && $2 ~ /%/ { found = 1 } END { exit !found }' /etc/resolv.conf 2>/dev/null; then
+            echo "FATAL: /etc/resolv.conf lists only scoped IPv6 nameservers, such as fe80::1%eth0." >&2
+            echo "nginx cannot express the interface scope, so such an address cannot be used." >&2
+            echo "Please attach the container to a network with an IPv4 or unscoped IPv6 nameserver, or unset PMM_ENABLE_SEP." >&2
+        else
+            echo "FATAL: PMM_ENABLE_SEP is set but no nameserver found in /etc/resolv.conf." >&2
+            echo "Please attach the container to a network with working DNS, or unset PMM_ENABLE_SEP." >&2
+        fi
+        exit 1
+    fi
+    # Interpolated into the same config as SEP_ADDRESS, so it needs the same
+    # guard: awk yields a whitespace-delimited field, and a nameserver line
+    # carrying anything else would close the /sep/ block and open its own.
+    if ! [[ "$SEP_RESOLVER" =~ ^([0-9.]+|\[[0-9a-fA-F:]+\])$ ]]; then
+        echo "FATAL: /etc/resolv.conf nameserver '${SEP_RESOLVER}' is not a usable address." >&2
+        echo "Please attach the container to a network with working DNS, or unset PMM_ENABLE_SEP." >&2
+        exit 1
+    fi
+
+    if [ ! -f "$SEP_NGINX_TEMPLATE" ]; then
+        echo "FATAL: missing ${SEP_NGINX_TEMPLATE}, cannot configure the SEP reverse proxy." >&2
+        exit 1
+    fi
+
+    echo "Installing nginx reverse-proxy configuration for SEP at ${SEP_ADDRESS}..."
+    mkdir -p "$SEP_NGINX_DIR"
+    sed -e "s|__SEP_ADDRESS__|${SEP_ADDRESS}|" \
+        -e "s|__SEP_RESOLVER__|${SEP_RESOLVER}|" \
+        "$SEP_NGINX_TEMPLATE" > "$SEP_NGINX_DIR/sep.conf"
+else
+    # Clears the whole directory, not just the file this version writes: an older
+    # build or an operator may have left others behind in the writable layer.
+    rm -f "$SEP_NGINX_DIR"/*.conf
+fi
+
+# Unconditional: the script owns its own gates, so the files it published are still
+# removed on the start after PMM_ENABLE_SEP is cleared.
+bash /opt/ansible/roles/sep/files/sep-secrets
+
+# The last consumer has run, so drop the password before exec'ing supervisord: otherwise
+# every supervisord child inherits it, and anything sharing the container's PID namespace
+# can then read it out of /proc/<pid>/environ.
+unset PMM_SEP_POSTGRES_PASSWORD
 
 echo "Generating self-signed certificates for nginx..."
 bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate > /dev/null 2>&1
