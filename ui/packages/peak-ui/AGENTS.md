@@ -1,105 +1,94 @@
-# AGENTS.md
+# Peak UI — guide for AI coding agents
 
-Guidance for any coding agent (Humans, Claude Code, Cursor, Codex, etc.). This is the single source of truth. `CLAUDE.md` imports it.
+This guide explains how to use Peak UI correctly inside an app that depends on it. It contains rules and boundaries only; the component catalog lives in Storybook.
 
-PEAK UI (`@percona/peak-ui`) is a React + MUI v7 component library published as an npm package (themed components, design tokens, form inputs). Zero infrastructure: no DB/Docker/services needed to build, test, or run Storybook.
+Working on Peak UI itself (the `percona/peak-ui` repository), i.e., contributing to it? Then read the `CONTRIBUTING.md` file instead.
 
-## Commands
+## What Peak UI is
 
-- **Build:** `pnpm build` (Rollup → `dist/`)
-- **Build watch:** `pnpm build:watch`
-- **Storybook dev:** `pnpm storybook:dev` (port 6006, headless via `--no-open`)
-- **Storybook build:** `pnpm storybook:build`
-- **Type check:** `pnpm typecheck` (app + `.storybook` tsconfigs)
-- **Lint:** `pnpm lint` (ESLint over `src`)
-- **Format:** `pnpm format` (Prettier write) · **check only:** `pnpm format:check`
-- **Test:** `pnpm test` (Vitest, run once) · **watch:** `pnpm test:watch`
+`@percona/peak-ui` is Percona's React component library built on top of **MUI**. It ships:
 
-## Verification (MANDATORY after any code change)
+- a Percona theme (light + dark) with design tokens,
+- a theme wrapper every app must mount once,
+- form inputs pre-wired to **react-hook-form**,
+- a small set of composite components that add behavior on top of MUI.
 
-Before considering the work done, run the safety gate and make it pass:
+Storybook is the definitive, coded source of truth: **https://percona.github.io/peak-ui/**. Components carry a maturity tag there; do not build new work on ones marked `deprecated`.
 
+## Where Peak UI ends and MUI begins
+
+- **Peak UI does not re-export MUI.** Buttons, layout (`Box`, `Stack`, `Grid`), `Typography`, menus, alerts, etc. come from `@mui/material`; icons from `@mui/icons-material`.
+- **Peak UI exports only what adds value over MUI.** Before writing a component, check whether `@percona/peak-ui` already exports it. If it does, use it. If not, use MUI directly — the Peak UI theme already styles every MUI component to "look like Percona".
+- **Never hand-style MUI to "look like Percona", and never override the theme in the app.** No hex colors, no custom fonts, no border radius tweaks. If something looks off, the theme is wrong or missing: do not patch it locally; ask the user what to do or help them file an issue against Peak UI.
+- **Import from the package root only:** `import { TextInput } from '@percona/peak-ui'`. Never deep-import from `@percona/peak-ui/dist/...`.
+- **Customize through the exposed surface.** Peak UI components expose dedicated `*Props` slot props for the MUI component they wrap (for example `textFieldProps`), and some also accept `sx`; many expose only the slots, so check the props type. Do not target internal class names or wrap a Peak UI component just to restyle it.
+
+## Theme wrapper (required, exactly once)
+
+```tsx
+import { ThemeContextProvider, pmmThemeOptions } from '@percona/peak-ui';
+
+export const Root = () => (
+  <ThemeContextProvider themeOptions={pmmThemeOptions} saveColorModeOnLocalStorage>
+    <App />
+  </ThemeContextProvider>
+);
 ```
-pnpm typecheck && pnpm lint && pnpm format:check && pnpm test
+
+- `ThemeContextProvider` creates the MUI theme, renders `CssBaseline`, and manages light/dark mode. **Do not add your own `ThemeProvider`, `createTheme`, or `CssBaseline`** on top of it.
+- Pick one theme option: `baseThemeOptions` (Percona default), `pmmThemeOptions` (Percona Monitoring and Management), `sepThemeOptions` (Services Enablement Platform, SEP). Each is a function of the palette mode, `(mode: 'light' | 'dark') => ThemeOptions`; pass the function itself, do not call it.
+- Toggle or read the color mode via `ColorModeContext`: `const { colorMode, toggleColorMode } = useContext(ColorModeContext)`. `saveColorModeOnLocalStorage` persists the choice.
+- Read design values from the theme (`useTheme()`, or `sx={{ color: 'text.secondary', p: 2 }}`), never from hard-coded literals. Spacing is in theme units (`gap: 2` = 16px).
+
+## App-side setup Peak UI leaves to you
+
+- **Fonts.** The theme names Poppins (weights 400, 500, 600, 700) and Roboto Mono (weight 450, so use the variable font) but does not load them. Load them once at your app entry with your own font packages (e.g. `@fontsource/poppins` and `@fontsource-variable/roboto-mono`) or a Google Fonts `<link>`. Do not import Peak UI's own `@fontsource/*` dependencies; they are transitive and not part of its contract.
+- **Date/time inputs** need MUI X's `LocalizationProvider` with a date adapter (e.g. `AdapterDateFnsV3`) above them.
+- **Snackbars.** notistack is a peer dependency. Register `NotistackMuiSnackbar` as the notistack `Components` renderer so toasts use MUI `Alert`.
+
+## Form inputs and react-hook-form
+
+Form inputs exported by Peak UI bind to react-hook-form through their `name`; they read the form from context or from an explicit `control`.
+
+```tsx
+import { FormProvider, useForm } from 'react-hook-form';
+import { TextInput } from '@percona/peak-ui';
+
+type Values = { host: string };
+
+const methods = useForm<Values>({ defaultValues: { host: '' } });
+
+<FormProvider {...methods}>
+  <TextInput<Values>
+    name="host"
+    label="Host"
+    isRequired
+    controllerProps={{ rules: { required: 'Host is required' } }}
+    textFieldProps={{ placeholder: 'db.example.com' }}
+  />
+</FormProvider>
 ```
 
-If `format:check` fails, fix it with `pnpm format` (don't hand-edit whitespace). If `typecheck`, `lint`, or `test` fail, fix the underlying issue and re-run the full chain until green. Do not report a change as complete until this passes.
+- `name` is required and is the react-hook-form field path. Wrap inputs in `FormProvider` (preferred) or pass `control` explicitly. Never render an input outside both.
+- **Do not pass `value`, `onChange`, or `defaultValue`.** The Controller owns them; set defaults in `useForm({ defaultValues })`.
+- **Validation belongs to react-hook-form:** `controllerProps={{ rules }}` or a resolver (zod, yup). Text-style inputs show the field error as helper text; toggle-style inputs (checkbox, switch, radio, toggle group) do not surface it, so render the error yourself. `isRequired` only adds the asterisk and `required` attribute; it does not validate.
+- Props for the wrapped MUI input go through its slot prop (`textFieldProps`, `selectFieldProps`, `slotProps`, ...), never spread onto the Peak UI component.
+- Inputs are generic over your form values; type them (`<TextInput<Values> name="host" />`) so `name` is checked.
 
-### Known non-blocking warnings
+## Naming and layout conventions
 
-Pre-existing and cosmetic — do not treat as failures:
-- `pnpm build`: a TS5096 warning (`allowImportingTsExtensions`) and a circular-dependency note.
-- `pnpm install`: pnpm 10 reports "ignored build scripts" for esbuild; the binary still resolves correctly and doesn't block Vite/Storybook/Vitest.
+- **Polymorphic prop is `component`, not `as`:** `<Typography component="h1">`, `<Button component={RouterLink} to="/x">`.
+- **Space siblings with `gap`, not `spacing`:** `sx={{ display: 'flex', gap: 2 }}` on the parent rather than `Stack spacing`, `Grid spacing`, or margins on children. (`PageContainer` is the exception: it is a `Stack` and exposes `spacing`.)
+- Color and typography come from theme keys (`'primary.main'`, `variant="body2"`), not from CSS literals.
 
-## Architecture (non-obvious bits)
+## Packaging and peer dependencies
 
-- **Themes** — three variants (`base`, `pmm`, `sep`) under `src/design/themes/`. `getThemeOptions(themeName)` is **curried** — call it as `getThemeOptions(name)(mode)` (the return value is `(mode) => ThemeOptions`). PMM/SEP extend Base via `mergeThemeOptions` (`src/design/merge-theme-options.ts`).
-- **ThemeContextProvider** wraps MUI's `ThemeProvider` with a light/dark toggle (`ColorModeContext`), persisting mode to localStorage.
-- **Components** — follow the existing folder layout for new ones: component file + `.types.ts` + `.stories.tsx` + `index.ts` barrel, with **both** named and default exports. Form inputs (`src/components/form/inputs/`) integrate with `react-hook-form`.
+- The package is published as ESM only (`"type": "module"`); there is no CommonJS build.
+- React, MUI, Emotion, notistack, and react-hook-form are peer dependencies, not bundled; the app installs them. The install command lives in the package `README.md` (also in `node_modules/@percona/peak-ui`), and the authoritative list is `peerDependencies` in `package.json`. Add a date adapter (e.g. `date-fns`) if you use date/time inputs.
 
-## Storybook maturity tags
+## Links
 
-Every documented story carries exactly **one** maturity status on its meta (default export) `tags`, appended to built-in tags (`autodocs`/`!dev`) — never overwriting them.
-
-- **One source of truth:** `.storybook/maturity-tags.ts` defines the closed set (`stable`, `experimental`, `needs-review`, `deprecated`), labels, descriptions, colors, and `badgeStyle`. To add or restyle a status, edit this file only — `main.ts` (filter registration), `manager.ts` (sidebar/toolbar badges via `storybook-addon-tag-badges`), and `src/Introduction.mdx` (homepage legend) all derive from it.
-- **MDX docs & folders:** tag a docs page with `<Meta tags={['stable']} />`. A folder's badge is the **intersection** of its children's tags, so every direct child must share a status for the folder to show it.
-- **Enforced:** `src/maturity-tags.spec.ts` fails if any `*.stories.{ts,tsx}` is missing a status or declares more than one.
-
-## Tech Stack (beyond what package.json shows)
-
-React 18 + TypeScript strict (`react-jsx` transform). Rollup bundles to ESM with sourcemaps; peer deps (MUI, Emotion, React, `react-hook-form`) are externalized. Fonts via `@fontsource` (Poppins, Roboto, Roboto Mono).
-
-## Path Aliases
-
-- `@/utils` → `./src/utils` (configured in tsconfig.json)
-
-## MUI Conventions
-
-### Imports — prefer path imports over barrels
-
-Barrel imports (`@mui/material`, `@mui/icons-material`) hurt dev startup/rebuild most, not just bundle size. Use default path imports (matches MUI docs).
-
-- **Components:** `import Button from '@mui/material/Button'` — not `import { Button } from '@mui/material'`.
-- **Icons:** `import Delete from '@mui/icons-material/Delete'` — not the barrel.
-- **Migrate existing barrels:** `npx @mui/codemod@latest v5.0.0/path-imports <path>`.
-- **Optional ESLint guard:** `no-restricted-imports` with `{ "regex": "^@mui/[^/]+$" }` blocks package-root barrels only.
-- **VS Code nudge:** `typescript.preferences.autoImportSpecifierExcludeRegexes: ["^@mui/[^/]+$"]` in `.vscode/settings.json`.
-
-### Theme overrides — gotchas
-
-- **Child themes use `mergeThemeOptions`, not raw `deepmerge`.** PMM/SEP extend BaseTheme via `mergeThemeOptions` (`src/design/merge-theme-options.ts`): it composes `styleOverrides` (child wins per-key, base slots survive) and concatenates `variants` base-first (child cascades last). Use `mergeThemeOptions(baseThemeOptions(mode), newOptions)`; never raw `deepmerge`. Array slots other than `variants` are still replaced — extend `mergeThemeOptions` if a new array slot must compose.
-- **MUI v7 drives hover backgrounds via CSS custom properties.** E.g. `IconButton`'s hover bg is `var(--IconButton-hoverBg)`, set per-variant. Override by setting the CSS var on the right slot (e.g. `"--IconButton-hoverBg": theme.palette.action.hover` in `colorSecondary`), not `"&:hover": { backgroundColor: ... }`. Grep `--{Component}-` in MUI source first.
-
-## Design Constraints (non-obvious — verify before "normalizing")
-
-### Chip
-
-- Outlined uses `palette.[color].light` for text + border — except `warning`, which uses `warning.main`. `warning.light` is a yellow/gold hue with insufficient contrast on light backgrounds; `main` is the smallest step that holds. Don't normalize warning to `light` — it's a perceptual constraint.
-- Filled uses the `palette.[color].surface` token (not MUI-standard). Don't refactor `surface` to `.light`/`.main` — those are reserved for borders/icons and have a different perceptual role.
-
-### NavItem
-
-The `<Box sx={{ mr: -1.75 }} />` rendered when no `icon` is passed is intentional — it preserves text start-line alignment with icon-bearing rows.
-
-### Tooltip
-
-- Tooltips render in the **inverted** app mode (light app → dark tooltip surface, dark app → light tooltip surface). Don't add per-theme tooltip overrides — change `BaseTheme` instead where possible.
-- Link styling inside tooltips lives as a nested `& .MuiLink-root` rule *inside* the tooltip override, **not** in `MuiLink.styleOverrides`. Don't move link styles back to `MuiLink`.
-
-### Action token model (state colors)
-
-Two parallel layers, intentionally distinct — don't collapse them:
-
-- **`palette.action.{active,hover,selected,disabled,focus}`** = neutral state tints, brand-black-tinted in all themes; used wherever the surface is default-colored.
-- **`palette.primary.{hover,selected,focus,focusVisible,outlinedBorder}`** = state tints for *primary-colored* surfaces. Identical to `action.*` in Base (both brand-black) but diverges in PMM/SEP (purple).
-- Per-mode opacity is mandatory: dark mode uses higher alpha (8% hover vs 4% light, 16% selected vs 8% light, 15% disabled/focus vs 12% light), wired through `tokens.action.{hoverOpacity,selectedOpacity,disabledOpacity,focusOpacity}` so MUI's `alpha(...)` calculations stay in sync.
-
-### Theme extension contract
-
-PMM and SEP extend BaseTheme with `mergeThemeOptions` (see MUI Conventions). Child themes may override any `styleOverrides` slot and add `variants` — both compose with Base, so baseline styles are always respected and the child wins only on genuine conflicts. Shared behavior belongs in BaseTheme; brand-specific tweaks belong in PMM/SEP.
-
-## Code Comments (CRITICAL)
-
-- Prefer no comment; code should be self-explanatory. One short line where a comment is genuinely needed — never paragraph-style docblocks for obvious logic.
-- If a comment needs more than ~150 characters, refactor or move the explanation to the PR/commit — not source.
-- Comment only non-obvious caveats worth flagging. Applies to `//` and `/* */` in TypeScript/TSX.
+- Storybook (components, tokens, usage): https://percona.github.io/peak-ui/
+- Source and issues: https://github.com/percona/peak-ui
+- Figma kit (design intent): https://www.figma.com/design/08jGF3GZAUGmazlQtk0UQk/Peak-Design-Kit
+- MUI docs: https://mui.com/material-ui/
