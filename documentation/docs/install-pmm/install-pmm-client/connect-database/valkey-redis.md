@@ -85,7 +85,8 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         pmm-admin add valkey \
           Valkey-Primary \
           localhost:6379 \
-          --environment=production
+          --environment=production \
+          Valkey-Primary
         ```
     
     === "With authentication"
@@ -93,11 +94,12 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         Add a Valkey instance with authentication:
         ```sh
         pmm-admin add valkey \
-          Valkey-Secure \
+          Valkey-Primary \
           localhost:6379 \
           --username=pmm \
           --password=StrongPassword123! \
-          --environment=production
+          --environment=production \
+          Valkey-Secure
         ```
     
     === "With remote monitoring"
@@ -105,11 +107,11 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         Add a remote Valkey instance:
         ```sh
         pmm-admin add valkey \
-          Remote-Valkey \
-          valkey-server.example.com:6379 \
+          --address=valkey-server.example.com:6379 \
           --username=pmm \
           --password=StrongPassword123! \
-          --environment=production
+          --environment=production \
+          Remote-Valkey
         ```
     
     === "With custom labels"
@@ -122,7 +124,8 @@ You can add your Valkey or Redis service to PMM either through the user interfac
           --username=pmm \
           --password=StrongPassword123! \
           --environment=production \
-          --custom-labels="role=primary,datacenter=east"
+          --custom-labels="role=primary,datacenter=east" \
+          Valkey-Primary
         ```
     
     === "With TLS connection"
@@ -130,33 +133,13 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         Add an instance with TLS security:
         ```sh
         pmm-admin add valkey \
-          Valkey-TLS \
-          valkey-server.example.com:6379 \
-          --username=pmm \
-          --password=StrongPassword123! \
-          --tls \
-          --tls-ca=/path/to/ca.pem
-        ```
-
-    === "With mutual TLS"
-
-        Add an instance that requires client certificate authentication:
-        ```sh
-        pmm-admin add valkey \
-          Valkey-mTLS \
-          valkey-server.example.com:6379 \
+          --address=valkey-server.example.com:6379 \
           --username=pmm \
           --password=StrongPassword123! \
           --tls \
           --tls-ca=/path/to/ca.pem \
-          --tls-cert=/path/to/client-cert.pem \
-          --tls-key=/path/to/client-key.pem
+          Valkey-TLS
         ```
-
-        `--tls-ca` already supplies the trust anchor, so a self-signed certificate does not need `--tls-skip-verify`. Add that flag only when a validation failure cannot be corrected — a SAN mismatch, for example — and only in development or testing: it disables server authentication entirely.
-
-    !!! note alert alert-primary "Client certificates come in pairs"
-        `--tls-cert` and `--tls-key` must be given together. Supplying one without the other is rejected, because the exporter cannot authenticate with half a key pair.
 
 === ":material-cog: Via inventory commands (Advanced)"
     PMM also provides inventory commands for more granular control:
@@ -164,18 +147,17 @@ You can add your Valkey or Redis service to PMM either through the user interfac
     === ":material-database-plus: Add Valkey service via inventory"
         ```sh
         pmm-admin inventory add service valkey \
-        Valkey-Service \
-        <node-id> \
-        localhost \
-        6379
+        --address=localhost:6379 \
+        --username=pmm \
+        --password=StrongPassword123! \
+        Valkey-Service
         ```
 
     === ":material-robot: Add Valkey exporter agent"
         ```sh
-        pmm-admin inventory add agent valkey-exporter \
-        <pmm-agent-id> \
-        <service-id> \
-        pmm \
+        pmm-admin inventory add agent valkey_exporter \
+        --address=localhost:6379 \
+        --username=pmm \
         --password=StrongPassword123!
         ```
 
