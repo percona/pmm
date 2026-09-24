@@ -3,12 +3,12 @@ import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import type { PluginField, PluginSchema } from '@sep/api';
+import type { PluginField, PluginSchema } from '@pmm-extensions/api';
 import {
   getStoredForm,
   useSchemas,
   type TaskExecuteAction,
-} from '@sep/framework';
+} from '@pmm-extensions/framework';
 
 const UNKNOWN = 'Not set';
 const SAME_AS_BACKUP = 'Same databases as in the backup';

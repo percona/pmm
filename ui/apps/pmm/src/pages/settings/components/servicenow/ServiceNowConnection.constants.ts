@@ -1,7 +1,10 @@
-import { type ConnectivityCheckRequest, SettingClass } from '@sep/api';
+import {
+  type ConnectivityCheckRequest,
+  SettingClass,
+} from '@pmm-extensions/api';
 
 /** The side-car settings class that owns the diagnostics delivery keys. */
-export const EXTENSIONS_SETTINGS_CLASS: SettingClass = 'SEPSettings';
+export const EXTENSIONS_SETTINGS_CLASS: SettingClass = 'ExtensionsSettings';
 
 /**
  * The single structured, writable key. The side-car seals its leaves deliberately:

@@ -3,7 +3,7 @@ import {
   getToken,
   postSessionExchange,
   setTokenMinter,
-} from '@sep/api';
+} from '@pmm-extensions/api';
 import { initExtensionsAuth } from './bootstrap';
 import {
   ensureExtensionsToken,
@@ -16,8 +16,8 @@ import {
 // Mock only the network boundary. `refreshAccessToken`'s single-flight, the
 // token-minter seam, and the unauthorized wiring stay real, so these exercise
 // the store against the coordinator it actually runs against.
-vi.mock('@sep/api', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@sep/api')>()),
+vi.mock('@pmm-extensions/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@pmm-extensions/api')>()),
   postSessionExchange: vi.fn(),
 }));
 
@@ -79,7 +79,7 @@ describe('extensionsTokenStore — acquiring a bearer', () => {
     expect(getExtensionsAuthState()).toEqual({ phase: 'ready', notice: null });
   });
 
-  it('serves the bearer through the token provider registered on @sep/api', async () => {
+  it('serves the bearer through the token provider registered on @pmm-extensions/api', async () => {
     await becomeReady();
 
     expect(getToken()).toBe('bearer-1');

@@ -1,5 +1,9 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { ApiError, postSessionExchange, setTokenMinter } from '@sep/api';
+import {
+  ApiError,
+  postSessionExchange,
+  setTokenMinter,
+} from '@pmm-extensions/api';
 import { ExtensionsAuthGate } from './ExtensionsAuthGate';
 import { initExtensionsAuth } from './bootstrap';
 import {
@@ -7,8 +11,8 @@ import {
   resetExtensionsAuthStore,
 } from './extensionsTokenStore';
 
-vi.mock('@sep/api', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@sep/api')>()),
+vi.mock('@pmm-extensions/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@pmm-extensions/api')>()),
   postSessionExchange: vi.fn(),
 }));
 

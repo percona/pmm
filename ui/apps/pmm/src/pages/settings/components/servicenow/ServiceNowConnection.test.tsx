@@ -9,14 +9,14 @@ import {
   useResetSetting,
   usePatchSetting,
   useSettingsList,
-} from '@sep/api';
+} from '@pmm-extensions/api';
 import { TestWrapper } from 'utils/testWrapper';
 import { wrapWithSnackbarProvider } from 'utils/testUtils';
 import { Messages } from '../../Settings.messages';
 import { ServiceNowConnection } from './ServiceNowConnection';
 
-vi.mock('@sep/api', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@sep/api')>()),
+vi.mock('@pmm-extensions/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@pmm-extensions/api')>()),
   useSettingsList: vi.fn(),
   usePatchSetting: vi.fn(),
   useResetSetting: vi.fn(),
@@ -46,7 +46,7 @@ const setting = (key: string, value: unknown, hasOverride = false) =>
     is_complex: true,
     is_secret: false,
     reload: 'none',
-    setting_class: 'SEPSettings',
+    setting_class: 'ExtensionsSettings',
     type: 'object',
   }) as unknown as SettingClassGroup['settings'][number];
 
@@ -56,7 +56,7 @@ const extensionsGroups = (
   endpoint = ''
 ): SettingClassGroup[] => [
   {
-    setting_class: 'SEPSettings',
+    setting_class: 'ExtensionsSettings',
     is_app_owned: false,
     settings: [
       setting('DIAGNOSTICS_DELIVERY', {
@@ -259,7 +259,11 @@ describe('ServiceNowConnection — states', () => {
   it('offers nothing when the deployment does not carry the key at all', () => {
     mockList({
       data: [
-        { setting_class: 'SEPSettings', is_app_owned: false, settings: [] },
+        {
+          setting_class: 'ExtensionsSettings',
+          is_app_owned: false,
+          settings: [],
+        },
       ] as SettingClassGroup[],
     });
 
@@ -327,7 +331,7 @@ describe('ServiceNowConnection — saving', () => {
 
     await waitFor(() => expect(patchMutation).toHaveBeenCalledTimes(1));
     expect(patchMutation).toHaveBeenCalledWith({
-      settingClass: 'SEPSettings',
+      settingClass: 'ExtensionsSettings',
       key: 'DIAGNOSTICS_DELIVERY_INPUTS',
       value: {
         endpoint: 'https://acme.service-now.com',
@@ -441,7 +445,7 @@ describe('ServiceNowConnection — disconnecting', () => {
 
     await waitFor(() =>
       expect(resetMutation).toHaveBeenCalledWith({
-        settingClass: 'SEPSettings',
+        settingClass: 'ExtensionsSettings',
         key: 'DIAGNOSTICS_DELIVERY_INPUTS',
       })
     );

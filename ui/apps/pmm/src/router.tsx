@@ -19,8 +19,8 @@ import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AlertsPage } from 'pages/alerting/status';
-import { AtwApp } from '@sep/plugins-atw';
-import { SchemaDrivenPlugin } from '@sep/framework';
+import { AtwApp } from '@pmm-extensions/plugins-atw';
+import { SchemaDrivenPlugin } from '@pmm-extensions/framework';
 import {
   getMysqlBackupsTaskExecuteActions,
   isMysqlRestorePluginName,

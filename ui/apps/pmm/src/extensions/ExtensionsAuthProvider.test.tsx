@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { useAuth } from '@sep/api';
+import { useAuth } from '@pmm-extensions/api';
 import { User } from 'types/user.types';
 import { ExtensionsAuthProvider } from './ExtensionsAuthProvider';
 

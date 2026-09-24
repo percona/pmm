@@ -10,7 +10,7 @@ import { TextInput } from '@percona/peak-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
-import { usePatchSetting } from '@sep/api';
+import { usePatchSetting } from '@pmm-extensions/api';
 import { Messages } from '../../Settings.messages';
 import { MAX_LABEL_WIDTH } from '../../Settings.constants';
 import {

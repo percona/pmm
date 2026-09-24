@@ -4,7 +4,7 @@ import {
   type ConnectivityStatus,
   REDACTED_SECRET,
   SettingClassGroup,
-} from '@sep/api';
+} from '@pmm-extensions/api';
 import { Messages } from '../../Settings.messages';
 import {
   DELIVERY_INPUTS_KEY,
@@ -38,7 +38,7 @@ const setting = (key: string, value: unknown, hasOverride = false) =>
     is_complex: true,
     is_secret: false,
     reload: 'none',
-    setting_class: 'SEPSettings',
+    setting_class: 'ExtensionsSettings',
     type: 'object',
   }) as unknown as SettingClassGroup['settings'][number];
 
@@ -52,7 +52,7 @@ const groups = (
       setting('DIAGNOSTICS_DELIVERY_INPUTS', { secrets: { nope: '' } }),
     ],
   },
-  { setting_class: 'SEPSettings', is_app_owned: false, settings },
+  { setting_class: 'ExtensionsSettings', is_app_owned: false, settings },
 ];
 
 const plan = (names: string[]) =>

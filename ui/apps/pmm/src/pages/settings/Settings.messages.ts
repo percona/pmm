@@ -1,4 +1,4 @@
-import { type ConnectivityStatus } from '@sep/api';
+import { type ConnectivityStatus } from '@pmm-extensions/api';
 import { PERCONA_SUPPORT_CONTACT_URL } from 'lib/constants';
 
 export const Messages = {

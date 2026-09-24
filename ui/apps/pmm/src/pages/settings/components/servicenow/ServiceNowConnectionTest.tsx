@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
-import { useConnectivityCheck } from '@sep/api';
+import { useConnectivityCheck } from '@pmm-extensions/api';
 import { Messages } from '../../Settings.messages';
 import { DELIVERY_TARGETS } from './ServiceNowConnection.constants';
 import {

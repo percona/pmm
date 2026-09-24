@@ -3,7 +3,7 @@ import {
   setOnUnauthorized,
   setTokenMinter,
   setTokenProvider,
-} from '@sep/api';
+} from '@pmm-extensions/api';
 import {
   getExtensionsToken,
   markExtensionsSignedOut,

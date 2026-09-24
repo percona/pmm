@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import type { PluginSchema } from '@sep/api';
+import type { PluginSchema } from '@pmm-extensions/api';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   getMysqlBackupsTaskExecuteActions,
@@ -12,8 +12,8 @@ import {
 
 const { mockUseSchemas } = vi.hoisted(() => ({ mockUseSchemas: vi.fn() }));
 
-vi.mock('@sep/framework', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@sep/framework')>()),
+vi.mock('@pmm-extensions/framework', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@pmm-extensions/framework')>()),
   useSchemas: (...args: unknown[]) => mockUseSchemas(...args),
 }));
 

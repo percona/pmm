@@ -6,7 +6,7 @@ import {
   SettingClassGroup,
   SettingResponse,
   settingErrorMessage,
-} from '@sep/api';
+} from '@pmm-extensions/api';
 import { Messages } from '../../Settings.messages';
 import {
   DELIVERY_INPUTS_KEY,
@@ -21,7 +21,7 @@ import {
   StoredDeliveryInputs,
 } from './ServiceNowConnection.types';
 
-/** Locate one setting inside the `SEPSettings` group of a LIST response. */
+/** Locate one setting inside the `ExtensionsSettings` group of a LIST response. */
 export const findExtensionsSetting = (
   groups: SettingClassGroup[] | undefined,
   key: string

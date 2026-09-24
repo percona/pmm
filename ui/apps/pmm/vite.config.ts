@@ -29,7 +29,7 @@ const target =
 // PMM Extensions side-car. The dev server proxies the side-car's single
 // `/extensions` mount point to it so the migrated PMM Extensions plugins get
 // real data, mirroring the shipped topology where pmm-server's nginx exposes
-// the side-car under that one location (see SEP_BASE_PATH in @sep/api). The
+// the side-car under that one location (see EXTENSIONS_BASE_PATH in @pmm-extensions/api). The
 // prefix is forwarded unstripped by default, for a side-car serving it itself —
 // so PMM_DEV_EXTENSIONS_BACKEND_URL has to point at a backend started with
 // `EXTENSIONS__ROOT_PATH=/extensions`, or PMM_DEV_EXTENSIONS_STRIP_PREFIX has to
@@ -45,7 +45,7 @@ const target =
 // OAuth routes: overwriting Authorization there would authenticate the exchange
 // as the side-car's internal service principal and mask whether the cookie path
 // works at all. Retiring the injection entirely is a follow-up.
-// Mirrors SEP_BASE_PATH in @sep/api. Declared locally rather than imported:
+// Mirrors EXTENSIONS_BASE_PATH in @pmm-extensions/api. Declared locally rather than imported:
 // this config is evaluated by Node before any of the app's module resolution
 // applies, and pulling the browser client in for one string is not worth it.
 const EXTENSIONS_BASE_PATH = '/extensions';

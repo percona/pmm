@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useSettingsList } from '@sep/api';
+import { useSettingsList } from '@pmm-extensions/api';
 import {
   connectionStatus,
   declaredSecretNames,

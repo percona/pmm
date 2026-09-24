@@ -1,5 +1,5 @@
 import { FC, PropsWithChildren, useMemo } from 'react';
-import { AuthContext, type AuthSession } from '@sep/api';
+import { AuthContext, type AuthSession } from '@pmm-extensions/api';
 import { useUser } from 'contexts/user';
 
 /**

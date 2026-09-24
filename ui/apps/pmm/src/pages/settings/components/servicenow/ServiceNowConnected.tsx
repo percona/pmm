@@ -3,7 +3,7 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { enqueueSnackbar } from 'notistack';
-import { type ApiError, useResetSetting } from '@sep/api';
+import { type ApiError, useResetSetting } from '@pmm-extensions/api';
 import { Modal } from 'components/modal';
 import { Messages } from '../../Settings.messages';
 import { MAX_LABEL_WIDTH } from '../../Settings.constants';

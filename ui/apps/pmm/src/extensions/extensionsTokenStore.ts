@@ -3,7 +3,7 @@ import {
   type MintedToken,
   postSessionExchange,
   refreshAccessToken,
-} from '@sep/api';
+} from '@pmm-extensions/api';
 
 /**
  * In-memory holder for the side-car bearer PMM mints from its own session.
@@ -31,7 +31,7 @@ import {
  * rather than by moving the phase to a full-screen state. Before that point
  * there is nothing to preserve, so a bootstrap failure takes over the page.
  *
- * Concurrency is not handled here. `refreshAccessToken()` in `@sep/api`
+ * Concurrency is not handled here. `refreshAccessToken()` in `@pmm-extensions/api`
  * single-flights every caller — the renewal timer, the initial gate, and each
  * transport's 401 retry — so a burst of parallel side-car requests triggers one
  * exchange.
@@ -259,7 +259,7 @@ export const markExtensionsSignedOut = () => {
 
 /**
  * Mint a bearer by exchanging PMM's session cookie. Wired to `setTokenMinter`,
- * replacing `@sep/api`'s default `POST /oauth/refresh` — PMM's embedding issues
+ * replacing `@pmm-extensions/api`'s default `POST /oauth/refresh` — PMM's embedding issues
  * no refresh cookie, so the default would 401 on every recovery attempt.
  */
 export const mintExtensionsToken = async (): Promise<MintedToken | null> => {
