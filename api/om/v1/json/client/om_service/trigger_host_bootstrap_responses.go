@@ -228,7 +228,9 @@ type TriggerHostBootstrapBody struct {
 	// host missing from this map -- including every host, when this is left
 	// empty -- gets MongoDB's own defaults (priority 1, votes on, not hidden,
 	// no delay), the phase-A behavior before per-member settings existed
-	// (PMM-15347/plan.md §6 Phase B). A key outside node_ids is rejected.
+	// (PMM-15347/plan.md §6 Phase B). A field left unset on a host that *is*
+	// named gets the same default, rather than its proto3 zero value; see
+	// BootstrapMemberConfig.priority. A key outside node_ids is rejected.
 	MemberConfigs map[string]TriggerHostBootstrapParamsBodyMemberConfigsAnon `json:"member_configs,omitempty"`
 }
 
@@ -599,12 +601,19 @@ TriggerHostBootstrapParamsBodyMemberConfigsAnon BootstrapMemberConfig is one hos
 swagger:model TriggerHostBootstrapParamsBodyMemberConfigsAnon
 */
 type TriggerHostBootstrapParamsBodyMemberConfigsAnon struct {
-	// Relative election priority. 0 means this member can never become
-	// primary; MongoDB's own default for an unlisted member is 1.
-	Priority int64 `json:"priority,omitempty"`
+	// Relative election priority. 0 means this member can never become primary.
+	//
+	// Optional because MongoDB's default is 1, and a proto3 uint32 cannot tell
+	// "leave it alone" from "0": a caller setting only `hidden` on every member
+	// would otherwise ask for a replica set no member of which can be elected.
+	// Unset means MongoDB's own default, exactly as a host absent from
+	// member_configs gets.
+	Priority *int64 `json:"priority,omitempty"`
 
-	// Whether this member gets a vote in elections.
-	Votes bool `json:"votes,omitempty"`
+	// Whether this member gets a vote in elections. Optional for the same reason
+	// as `priority`, whose comment has the detail: unset means MongoDB's own
+	// default, which is on.
+	Votes *bool `json:"votes,omitempty"`
 
 	// Whether this member is hidden from client read preference and
 	// db.hello()'s own output.
