@@ -199,7 +199,7 @@ services:
       BASE_URL: ${PMM_EXTENSIONS_BASE_URL:-http://pmm-extensions:9000/extensions}
     volumes:
       - pmm-extensions:/run/secrets/extensions:ro
-      - pmm-extensions-state:/home/sep/state
+      - pmm-extensions-state:/home/extensions/state
 
 volumes:
   pmm-data:
