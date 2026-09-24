@@ -20,11 +20,15 @@ Most Fragmented Tables by Freeable Size
 
 ## Table Activity
 
-**Top Tables by Rows Read** and **Top Tables by Rows Changed** show the top 5 tables by row activity.
+**Top Tables by Rows Read** shows the five tables with the highest read activity. Use it to identify your most-read tables, which benefit most from caching, indexing, or read replicas.
 
-On Community MySQL, these panels use `performance_schema.table_io_waits_summary_by_table`. On [Percona Server](https://www.percona.com/doc/percona-server/5.6/diagnostics/user_stats.html) and [MariaDB](https://mariadb.com/docs/server/ha-and-performance/optimization-and-tuning/query-optimizations/statistics-for-optimizing-queries/user-statistics), they use user statistics. To enable user statistics, set `userstat=ON`.
+**Top Tables by Rows Changed** shows the five tables with the most write activity (inserts, updates, and deletes combined). Use it to pinpoint write hotspots that may be causing lock contention, replication lag, or I/O pressure.
 
-Both sources require per-table statistics collection, which PMM disables for services with more tables than the configured table statistics limit. Where that limit is exceeded, these panels show no data.
+### Data source compatibility
+
+On [Percona Server](https://www.percona.com/doc/percona-server/5.6/diagnostics/user_stats.html) and [MariaDB](https://mariadb.com/docs/server/ha-and-performance/optimization-and-tuning/query-optimizations/statistics-for-optimizing-queries/user-statistics), these panels use `INFORMATION_SCHEMA.TABLE_STATISTICS` when `userstat` is enabled. On Oracle MySQL, including MySQL 9.7, they use `performance_schema.table_io_waits_summary_by_table`.
+
+Both data sources require per-table statistics collection. PMM disables this for services that exceed the configured table statistics limit, and these panels show no data for those services.
 
 ## Rows read
 

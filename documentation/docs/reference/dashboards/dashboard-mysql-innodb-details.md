@@ -487,9 +487,12 @@ InnoDB IO Capacity to use when falling behind and need to catch up with Flushing
 
 ## InnoDB Logging
 
-Redo log panels render on MySQL 5.7 through 9.x, Percona Server and MariaDB. On MySQL 8.0.30 and newer they read `innodb_redo_log_capacity`; on older servers they fall back to `innodb_log_file_size` and `innodb_log_files_in_group`.
+### Version compatibility
 
-Before PMM 3.10.0, **Total Log Space**, **InnoDB Logging Performance**, **InnoDB Log File Usage Hourly**, **InnoDB Log File Size** and **InnoDB Log Files** were always empty on MySQL 5.7, Percona Server 5.7 and MariaDB. Upgrading PMM fixes this; no exporter or server change is needed.
+Panels in this section show data on MySQL 5.7 through 9.x, Percona Server, and MariaDB. On MySQL 8.0.30 and newer, they read `innodb_redo_log_capacity`. On older servers, they use `innodb_log_file_size` and `innodb_log_files_in_group`.
+
+Before PMM 3.10.0, **Total Log Space**, **InnoDB Logging Performance**, **InnoDB Log File Usage Hourly**, **InnoDB Log File Size**, and **InnoDB Log Files** were always empty on MySQL 5.7, Percona Server 5.7, and MariaDB. Upgrading PMM to 3.10.0 or later fixes this with no exporter or server changes required.
+
 
 ### Total Log Space
 

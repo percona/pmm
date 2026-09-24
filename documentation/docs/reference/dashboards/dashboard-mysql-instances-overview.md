@@ -267,8 +267,11 @@ Use this alongside incoming traffic to understand data flow patterns and identif
 
 ## Query Cache details
 
-!!! note "MySQL version compatibility"
-    The Query Cache was removed in MySQL 8.0 and Percona Server 8.0, and is disabled by default in MariaDB. If you are running MySQL 8.0 or newer, these panels will show a notice rather than data. To avoid contention on older versions, disable the Query Cache by setting `query_cache_type=0` and `query_cache_size=0`. A restart is required for the change to take full effect.
+### MySQL version compatibility
+
+The Query Cache was removed in MySQL 8.0 and Percona Server 8.0, and is disabled by default in MariaDB. On MySQL 8.0 and newer, these panels show a notice rather than data.
+
+On older versions, disable the Query Cache to avoid write contention: set `query_cache_type=0` and `query_cache_size=0`. Restart the server for the change to take full effect.
 
 ### MySQL Query Cache Size
 Shows the configured query cache size for each instance.
