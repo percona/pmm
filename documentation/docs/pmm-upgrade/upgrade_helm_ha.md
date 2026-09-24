@@ -15,7 +15,16 @@ A PMM HA release runs three PMM server replicas as a Kubernetes `StatefulSet` be
 Before starting the upgrade, complete these preparation steps:
 {.power-number}
 
-1. Back up your data before upgrading—downgrades are not possible, so a backup taken beforehand is required to recover a previous state. PMM HA stores all data in the shared ClickHouse, VictoriaMetrics, and PostgreSQL clusters (not on the PMM server pods themselves), and each is backed up separately today:
+1. Confirm all three replicas are healthy before you start:
+
+    ```sh
+    kubectl get pods -n <namespace> -l app.kubernetes.io/component=pmm-server
+    ```
+
+    !!! danger "Don't upgrade a degraded cluster"
+        The rolling update always takes one more replica down as part of the normal rollout. If a replica is already down when you start (only 2 of 3 healthy), upgrading takes you to 1 of 3—below the majority Raft needs to elect a leader. Confirmed in testing: this leaves the cluster fully unreachable (`503` from HAProxy) until a majority is restored, not just briefly interrupted. Fix the unhealthy replica first. If you do end up in this state, see [No quorum: cluster is unreachable after losing multiple replicas](../troubleshoot/ha_issues.md#no-quorum-cluster-is-unreachable-after-losing-multiple-replicas).
+
+2. Back up your data before upgrading—downgrades are not possible, so a backup taken beforehand is required to recover a previous state. PMM HA stores all data in the shared ClickHouse, VictoriaMetrics, and PostgreSQL clusters (not on the PMM server pods themselves), and each is backed up separately today:
 
     - **PostgreSQL** is backed up automatically: the chart enables scheduled [pgBackRest](https://pgbackrest.org/) backups by default. Confirm a recent backup exists before upgrading:
         ```sh
@@ -23,14 +32,14 @@ Before starting the upgrade, complete these preparation steps:
         ```
     - **ClickHouse** and **VictoriaMetrics** have no built-in backup in the chart—back them up yourself (for example with [clickhouse-backup](https://github.com/Altinity/clickhouse-backup) and VictoriaMetrics' [`vmbackup`](https://docs.victoriametrics.com/vmbackup/)) if you need to be able to restore their data.
 
-2. To reduce downtime, pre-pull the new image on every node that can run a PMM HA pod:
+3. To reduce downtime, pre-pull the new image on every node that can run a PMM HA pod:
 
     ```sh
     # Replace <version> with the version you're upgrading to
     docker pull percona/pmm-server:<version>
     ```
 
-3. Keep your exposure and other custom settings in a `values.yaml` file (or repeat them as `--set` flags on every `helm upgrade`), not as a one-off `kubectl patch` on the generated Service or other resources.
+4. Keep your exposure and other custom settings in a `values.yaml` file (or repeat them as `--set` flags on every `helm upgrade`), not as a one-off `kubectl patch` on the generated Service or other resources.
 
     !!! danger "kubectl patches don't survive a helm upgrade"
         A `helm upgrade` re-renders every resource the chart manages, including the HAProxy `Service`. If you exposed PMM HA externally by patching `pmm-ha-haproxy` to type `LoadBalancer` directly with `kubectl patch` instead of setting `haproxy.service.type: LoadBalancer` in your values, the upgrade reconciles the Service back to the chart's default (`ClusterIP`) and silently drops external access—including for PMM Clients still sending metrics. Always set `haproxy.service.type` (and any other externally-visible setting) through values so it's reapplied on every upgrade. See [Configure external access](../install-pmm/install-HA-clustered.md#configure-external-access).
@@ -129,4 +138,5 @@ A PostgreSQL major version upgrade is not reversible and stops the whole cluster
 !!! seealso alert alert-info "See also"
     - [Understand PMM High Availability Cluster](../install-pmm/HA-clustered.md)
     - [Install PMM HA Cluster](../install-pmm/install-HA-clustered.md)
+    - [Troubleshoot PMM HA Cluster issues](../troubleshoot/ha_issues.md)
     - [Upgrade PMM Server using Helm](upgrade_helm.md) (single-instance deployments)
