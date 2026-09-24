@@ -9,7 +9,7 @@
 #     docker compose -f docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
 #  3. Full suite + external clickhouse (server, client, postgres, mongo, mysql + sysbench, external ClickHouse):
 #     docker compose -f docker-compose.yml -f qan-api2/docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
-#  4. Any of the above + extensions (set PMM_ENABLE_SEP=1 and PMM_ENABLE_NOMAD=1 in .env first):
+#  4. Any of the above + extensions (set PMM_ENABLE_EXTENSIONS=1 and PMM_ENABLE_NOMAD=1 in .env first):
 #     docker compose -f docker-compose.yml --profile pmm --profile extensions up -d
 #
 # Configuration: copy .env.example to .env and adjust variables (image tag, ports, credentials, AWS keys, etc.).
@@ -55,11 +55,11 @@ services:
       - PMM_POSTGRES_USERNAME
       - PMM_POSTGRES_DBPASSWORD
       - PMM_DISABLE_BUILTIN_POSTGRES
-      # To expose the built-in PostgreSQL to SEP running on the same bridge network
-      # and reverse-proxy the SEP side-car under /sep/
-      - PMM_ENABLE_SEP
-      - PMM_SEP_POSTGRES_PASSWORD
-      - PMM_SEP_ADDRESS
+      # To expose the built-in PostgreSQL to PMM Extensions running on the same bridge network
+      # and reverse-proxy the side-car under /extensions/
+      - PMM_ENABLE_EXTENSIONS
+      - PMM_EXTENSIONS_POSTGRES_PASSWORD
+      - PMM_EXTENSIONS_ADDRESS
       # To discover RDS databases via UI
       - AWS_ACCESS_KEY
       - AWS_SECRET_KEY
@@ -67,9 +67,9 @@ services:
       - ${PMM_PORT_HTTPS:-443}:8443
     volumes:
       - pmm-data:/srv
-      # Credentials PMM provisions for SEP. Mount this same volume read-only in the SEP
-      # container and point SECRETS_DIR at it; never share pmm-data itself with SEP.
-      - pmm-sep:/srv/sep
+      # Credentials PMM provisions for PMM Extensions. Mount this same volume read-only in the PMM Extensions
+      # container and point SECRETS_DIR at it; never share pmm-data itself with PMM Extensions.
+      - pmm-extensions:/srv/extensions
 
   pmm-client:
     profiles:
@@ -172,17 +172,17 @@ services:
     volumes:
       - ./dev/sysbench-ps.sh:/sysbench-ps.sh
 
-  # SEP side-car. The service name is where PMM routes /sep/ by default (PMM_SEP_ADDRESS=sep:9000),
-  # and SEP reaches PMM, its database and Nomad at pmm-server by default, so neither side needs
-  # addresses configured. Requires PMM_ENABLE_SEP=1 and PMM_ENABLE_NOMAD=1 on pmm-server.
-  sep:
+  # PMM Extensions side-car. The service name is where PMM routes /extensions/ by default (PMM_EXTENSIONS_ADDRESS=pmm-extensions:9000),
+  # and PMM Extensions reaches PMM, its database and Nomad at pmm-server by default, so neither side needs
+  # addresses configured. Requires PMM_ENABLE_EXTENSIONS=1 and PMM_ENABLE_NOMAD=1 on pmm-server.
+  pmm-extensions:
     profiles:
       - extensions
-    image: ${PMM_SEP_IMAGE:-percona/percona-sep:3}
+    image: ${PMM_EXTENSIONS_IMAGE:-percona/percona-sep:3}
     platform: linux/amd64
-    container_name: sep
+    container_name: pmm-extensions
     restart: always
-    # SEP reads the secrets PMM writes at startup, so it must not start before PMM is healthy.
+    # PMM Extensions reads the secrets PMM writes at startup, so it must not start before PMM is healthy.
     depends_on:
       pmm-server:
         condition: service_healthy
@@ -190,23 +190,23 @@ services:
     group_add:
       - "0"
     environment:
-      SECRETS_DIR: /run/secrets/sep
-      # Used to create SEP's own service-account token in PMM whenever it holds no valid one.
+      SECRETS_DIR: /run/secrets/extensions
+      # Used to create its own service-account token in PMM whenever it holds no valid one.
       GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
       # Where task executors download scripts from. The default is reachable only from this
-      # Compose network; see PMM_SEP_BASE_URL in .env.example.
-      BASE_URL: ${PMM_SEP_BASE_URL:-http://sep:9000/sep}
+      # Compose network; see PMM_EXTENSIONS_BASE_URL in .env.example.
+      BASE_URL: ${PMM_EXTENSIONS_BASE_URL:-http://pmm-extensions:9000/extensions}
     volumes:
-      - pmm-sep:/run/secrets/sep:ro
-      - sep-state:/home/sep/state
+      - pmm-extensions:/run/secrets/extensions:ro
+      - pmm-extensions-state:/home/sep/state
 
 volumes:
   pmm-data:
     name: pmm-data
-  pmm-sep:
-    name: pmm-sep
-  # Holds SEP's service-account token and the key that encrypts its stored settings. Losing it
+  pmm-extensions:
+    name: pmm-extensions
+  # Holds the side-car's service-account token and the key that encrypts its stored settings. Losing it
   # makes those settings unreadable, so back it up alongside pmm-data.
-  sep-state:
-    name: sep-state
+  pmm-extensions-state:
+    name: pmm-extensions-state
