@@ -70,10 +70,10 @@ const restoreSchema = {
 } as PluginSchema;
 
 const mydumperDetails: MysqlRestoreConfirmDetails = {
-  source: '/tmp/sep-backups/mydumper/172.28.9.40/20260920',
+  source: '/tmp/extensions-backups/mydumper/172.28.9.40/20260920',
   backupType: 'M',
-  serviceName: 'sep-mysql',
-  executorHost: 'sep-mysql',
+  serviceName: 'extensions-mysql',
+  executorHost: 'extensions-mysql',
   targetHost: '172.28.9.40:3306',
   targetDatabase: 'Same databases as in the backup',
   overwriteTables: false,
@@ -88,7 +88,7 @@ describe('warning that a restore writes into live data', () => {
     expect(alert).toHaveClass('MuiAlert-colorError');
     expect(alert).toHaveTextContent('This restore writes into live data');
     expect(alert).toHaveTextContent(
-      'into the live database service sep-mysql (172.28.9.40:3306)'
+      'into the live database service extensions-mysql (172.28.9.40:3306)'
     );
     expect(alert).toHaveTextContent('cannot be undone');
     expect(
@@ -399,21 +399,22 @@ describe('getMysqlRestoreConfirmDetails', () => {
     const details = getMysqlRestoreConfirmDetails({
       name: 'smoke-restore-01',
       backup_type: 'M',
-      hostname: 'sep-mysql',
+      hostname: 'extensions-mysql',
       host: '172.28.9.40',
       port: 3306,
       data: {
         task: 'run-python',
-        meta: { target: 'sep-mysql', _service_name: 'sep-mysql' },
+        meta: { target: 'extensions-mysql', _service_name: 'extensions-mysql' },
         _form: {
           service_id: '1',
-          backup_source: '/tmp/sep-backups/mydumper/172.28.9.40/20260920',
+          backup_source:
+            '/tmp/extensions-backups/mydumper/172.28.9.40/20260920',
           overwrite_tables: false,
           restore_mycnf: false,
         },
       },
     });
-    expect(details.serviceName).toBe('sep-mysql');
+    expect(details.serviceName).toBe('extensions-mysql');
     expect(details.targetHost).toBe('172.28.9.40:3306');
     expect(details.restoreMycnf).toBe(false);
   });

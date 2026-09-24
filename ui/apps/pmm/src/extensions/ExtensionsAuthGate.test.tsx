@@ -1,8 +1,11 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ApiError, postSessionExchange, setTokenMinter } from '@sep/api';
-import { SepAuthGate } from './SepAuthGate';
-import { initSepAuth } from './bootstrap';
-import { markSepSignedOut, resetSepAuthStore } from './sepTokenStore';
+import { ExtensionsAuthGate } from './ExtensionsAuthGate';
+import { initExtensionsAuth } from './bootstrap';
+import {
+  markExtensionsSignedOut,
+  resetExtensionsAuthStore,
+} from './extensionsTokenStore';
 
 vi.mock('@sep/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@sep/api')>()),
@@ -21,31 +24,31 @@ const unauthorized = () =>
 
 const renderGate = () =>
   render(
-    <SepAuthGate>
+    <ExtensionsAuthGate>
       <div>plugin content</div>
-    </SepAuthGate>
+    </ExtensionsAuthGate>
   );
 
 /** A page with unsaved input, standing in for a half-filled plugin form. */
 const renderGateWithForm = () =>
   render(
-    <SepAuthGate>
+    <ExtensionsAuthGate>
       <input aria-label="target" defaultValue="" />
-    </SepAuthGate>
+    </ExtensionsAuthGate>
   );
 
 beforeEach(() => {
   exchange.mockReset();
-  resetSepAuthStore();
-  initSepAuth();
+  resetExtensionsAuthStore();
+  initExtensionsAuth();
 });
 
 afterEach(() => {
-  resetSepAuthStore();
+  resetExtensionsAuthStore();
   setTokenMinter(null);
 });
 
-describe('SepAuthGate — bootstrap', () => {
+describe('ExtensionsAuthGate — bootstrap', () => {
   it('withholds children until the exchange resolves', async () => {
     let resolveExchange: (value: ReturnType<typeof bearer>) => void = () => {};
     exchange.mockReturnValue(
@@ -78,27 +81,27 @@ describe('SepAuthGate — bootstrap', () => {
 
     renderGate();
 
-    expect(await screen.findByTestId('sep-auth-error')).toHaveTextContent(
-      'Not signed in'
-    );
+    expect(
+      await screen.findByTestId('extensions-auth-error')
+    ).toHaveTextContent('Not signed in');
     expect(screen.queryByText('plugin content')).not.toBeInTheDocument();
     expect(exchange).toHaveBeenCalledOnce();
   });
 
-  it('distinguishes an unreachable SEP from a rejected session', async () => {
+  it('distinguishes an unreachable side-car from a rejected session', async () => {
     exchange.mockRejectedValue(new Error('network down'));
 
     renderGate();
 
-    expect(await screen.findByTestId('sep-auth-error')).toHaveTextContent(
-      "This page can't be loaded"
-    );
+    expect(
+      await screen.findByTestId('extensions-auth-error')
+    ).toHaveTextContent("This page can't be loaded");
   });
 
   it('exchanges again when the user retries', async () => {
     exchange.mockRejectedValue(unauthorized());
     renderGate();
-    await screen.findByTestId('sep-auth-error');
+    await screen.findByTestId('extensions-auth-error');
 
     exchange.mockResolvedValue(bearer());
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
@@ -108,17 +111,19 @@ describe('SepAuthGate — bootstrap', () => {
   });
 });
 
-describe('SepAuthGate — failure on a mounted page', () => {
+describe('ExtensionsAuthGate — failure on a mounted page', () => {
   it('reports a rejected session without unmounting the page', async () => {
     exchange.mockResolvedValue(bearer());
     renderGate();
     await screen.findByText('plugin content');
 
-    act(() => markSepSignedOut());
+    act(() => markExtensionsSignedOut());
 
-    expect(screen.getByTestId('sep-auth-notice')).toBeInTheDocument();
+    expect(screen.getByTestId('extensions-auth-notice')).toBeInTheDocument();
     expect(screen.getByText('plugin content')).toBeInTheDocument();
-    expect(screen.queryByTestId('sep-auth-error')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('extensions-auth-error')
+    ).not.toBeInTheDocument();
   });
 
   it('preserves in-progress form state', async () => {
@@ -127,9 +132,9 @@ describe('SepAuthGate — failure on a mounted page', () => {
     const field = await screen.findByLabelText('target');
     fireEvent.change(field, { target: { value: 'half-written command' } });
 
-    act(() => markSepSignedOut());
+    act(() => markExtensionsSignedOut());
 
-    expect(screen.getByTestId('sep-auth-notice')).toBeInTheDocument();
+    expect(screen.getByTestId('extensions-auth-notice')).toBeInTheDocument();
     expect(screen.getByLabelText('target')).toHaveValue('half-written command');
   });
 
@@ -138,13 +143,15 @@ describe('SepAuthGate — failure on a mounted page', () => {
     renderGateWithForm();
     const field = await screen.findByLabelText('target');
     fireEvent.change(field, { target: { value: 'half-written command' } });
-    act(() => markSepSignedOut());
+    act(() => markExtensionsSignedOut());
 
     exchange.mockResolvedValue(bearer('bearer-2'));
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
 
     await screen.findByLabelText('target');
-    expect(screen.queryByTestId('sep-auth-notice')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('extensions-auth-notice')
+    ).not.toBeInTheDocument();
     expect(screen.getByLabelText('target')).toHaveValue('half-written command');
   });
 });

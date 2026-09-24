@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { useAuth } from '@sep/api';
 import { User } from 'types/user.types';
-import { SepAuthProvider } from './SepAuthProvider';
+import { ExtensionsAuthProvider } from './ExtensionsAuthProvider';
 
 const useUserMock = vi.fn();
 
@@ -9,7 +9,7 @@ vi.mock('contexts/user', () => ({
   useUser: () => useUserMock(),
 }));
 
-/** Surfaces the capability the SEP framework and plugins read. */
+/** Surfaces the capability the PMM Extensions framework and plugins read. */
 const Probe = () => {
   const { isAdmin, canMutate } = useAuth();
   return (
@@ -22,16 +22,16 @@ const Probe = () => {
 
 const renderProbe = () =>
   render(
-    <SepAuthProvider>
+    <ExtensionsAuthProvider>
       <Probe />
-    </SepAuthProvider>
+    </ExtensionsAuthProvider>
   );
 
 beforeEach(() => {
   useUserMock.mockReset();
 });
 
-describe('SepAuthProvider', () => {
+describe('ExtensionsAuthProvider', () => {
   it('grants mutation to a PMM admin', () => {
     useUserMock.mockReturnValue({ user: { isPMMAdmin: true } as User });
 

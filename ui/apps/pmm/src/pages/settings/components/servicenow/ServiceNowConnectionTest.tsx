@@ -29,7 +29,7 @@ interface Props {
 /**
  * Test what is stored against the receiver, without saving anything.
  *
- * The probe reads SEP's own stored delivery inputs server-side, so there is
+ * The probe reads the side-car's own stored delivery inputs server-side, so there is
  * nothing to send and nothing it can overwrite — an operator can ask whether
  * the current configuration works without first replacing it. That is also why
  * it is offered here and not on the form: credentials being typed are not
@@ -47,7 +47,7 @@ interface Props {
  * never reached.
  *
  * Admin-only comes for free: the settings page renders nothing to a non-admin
- * (`Page roles={[OrgRole.Admin]}`), and SEP holds the endpoint to `IsApiAdmin`
+ * (`Page roles={[OrgRole.Admin]}`), and the side-car holds the endpoint to `IsApiAdmin`
  * besides.
  */
 export const ServiceNowConnectionTest: FC<Props> = ({
@@ -92,7 +92,7 @@ export const ServiceNowConnectionTest: FC<Props> = ({
   // A re-test keeps the previous `data` until the new call resolves, so the
   // verdict is withheld while one is in flight rather than answering for the
   // run the operator is currently waiting on. The probe leaves the cluster and
-  // SEP bounds it at 15 seconds, so that wait has to stay legible for that
+  // the side-car bounds it at 15 seconds, so that wait has to stay legible for that
   // long rather than flicker.
   const result = isPending ? undefined : deliveryResult(data);
   const outcome = result ? connectivityOutcome(result) : undefined;

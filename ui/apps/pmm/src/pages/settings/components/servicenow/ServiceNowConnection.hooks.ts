@@ -7,9 +7,9 @@ import {
 } from './ServiceNowConnection.utils';
 
 /**
- * What SEP currently holds for ServiceNow delivery, read once and derived.
+ * What the side-car currently holds for ServiceNow delivery, read once and derived.
  *
- * SEP holds `GET /sep/admin/settings` to administrators, reads included, so
+ * The side-car holds `GET /extensions/admin/settings` to administrators, reads included, so
  * every caller must already be admin-only.
  */
 export const useServiceNowConnection = () => {

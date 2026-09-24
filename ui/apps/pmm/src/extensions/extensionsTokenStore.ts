@@ -6,9 +6,9 @@ import {
 } from '@sep/api';
 
 /**
- * In-memory holder for the SEP bearer PMM mints from its own session.
+ * In-memory holder for the side-car bearer PMM mints from its own session.
  *
- * `POST /sep/api/oauth/session/exchange` (SEP-1692) trades the ambient `pmm_session`
+ * `POST /extensions/api/oauth/session/exchange` (SEP-1692) trades the ambient `pmm_session`
  * cookie — attached automatically, same origin through PMM's proxy — for a
  * short-lived bearer. No cookie is set and no refresh token is issued, so the
  * holder re-exchanges before expiry instead of refreshing.
@@ -22,28 +22,28 @@ import {
  *
  * **Fail closed.** Any exchange failure drops the bearer immediately. Nothing
  * ever proceeds on a stale, expired, or unverified credential, and there is no
- * cached fallback to reach for. A session SEP has rejected is sticky: minting is
+ * cached fallback to reach for. A session the side-car has rejected is sticky: minting is
  * refused until the user retries, so a rejection cannot drive an exchange loop.
  *
  * **Never destroy user work.** Once a bearer has been held, the page is mounted
  * and may hold a half-filled form. From that point a failure is reported through
- * {@link SepAuthState.notice} — an inline notice beside the still-mounted page —
+ * {@link ExtensionsAuthState.notice} — an inline notice beside the still-mounted page —
  * rather than by moving the phase to a full-screen state. Before that point
  * there is nothing to preserve, so a bootstrap failure takes over the page.
  *
  * Concurrency is not handled here. `refreshAccessToken()` in `@sep/api`
  * single-flights every caller — the renewal timer, the initial gate, and each
- * transport's 401 retry — so a burst of parallel SEP requests triggers one
+ * transport's 401 retry — so a burst of parallel side-car requests triggers one
  * exchange.
  */
 
 /**
  * Renew this far before the bearer actually expires, so in-flight requests
- * carry a token that is still valid when SEP validates it.
+ * carry a token that is still valid when the side-car validates it.
  */
 const EXPIRY_SKEW_MS = 30_000;
 
-/** Floor for the renewal delay, in case SEP ever issues a very short TTL. */
+/** Floor for the renewal delay, in case the side-car ever issues a very short TTL. */
 const MIN_RENEWAL_DELAY_MS = 5_000;
 
 /**
@@ -55,14 +55,14 @@ const RENEWAL_RETRY_MAX_MS = 30_000;
 const MAX_RENEWAL_RETRIES = 4;
 
 /** What the page as a whole is doing. Drives which UI the gate renders. */
-export type SepAuthPhase =
+export type ExtensionsAuthPhase =
   /** No exchange attempted yet. */
   | 'idle'
   /** First exchange in flight; nothing to authenticate with yet. */
   | 'exchanging'
   /** A bearer has been held. The page is mounted and stays mounted. */
   | 'ready'
-  /** SEP rejected the session before a bearer was ever held. */
+  /** The side-car rejected the session before a bearer was ever held. */
   | 'signedOut'
   /** The exchange could not be completed before a bearer was ever held. */
   | 'unreachable';
@@ -71,22 +71,22 @@ export type SepAuthPhase =
  * A failure that arrived after the page was already mounted. Surfaced beside
  * the page instead of replacing it, so in-progress work survives.
  */
-export type SepAuthNotice = 'signedOut' | 'unreachable';
+export type ExtensionsAuthNotice = 'signedOut' | 'unreachable';
 
-export interface SepAuthState {
-  phase: SepAuthPhase;
-  notice: SepAuthNotice | null;
+export interface ExtensionsAuthState {
+  phase: ExtensionsAuthPhase;
+  notice: ExtensionsAuthNotice | null;
 }
 
 let token: string | null = null;
 let expiresAtMs = 0;
-let phase: SepAuthPhase = 'idle';
-let notice: SepAuthNotice | null = null;
+let phase: ExtensionsAuthPhase = 'idle';
+let notice: ExtensionsAuthNotice | null = null;
 
 /**
- * Sticky once SEP has rejected the session. Blocks minting outright — without
+ * Sticky once the side-car has rejected the session. Blocks minting outright — without
  * it, every subsequent request would 401, trigger a mint, be rejected, and
- * repeat. Only {@link retrySepAuth} clears it.
+ * repeat. Only {@link retryExtensionsAuth} clears it.
  */
 let sessionRejected = false;
 
@@ -98,7 +98,7 @@ const listeners = new Set<() => void>();
 
 // `useSyncExternalStore` compares snapshots by identity, so hand out a cached
 // object and only replace it when something actually changed.
-let snapshot: SepAuthState = { phase, notice };
+let snapshot: ExtensionsAuthState = { phase, notice };
 
 const publish = () => {
   if (snapshot.phase === phase && snapshot.notice === notice) {
@@ -108,7 +108,7 @@ const publish = () => {
   listeners.forEach((listener) => listener());
 };
 
-const setPhase = (next: SepAuthPhase) => {
+const setPhase = (next: ExtensionsAuthPhase) => {
   phase = next;
   publish();
 };
@@ -120,15 +120,15 @@ const clearTimer = (timer: ReturnType<typeof setTimeout> | null) => {
   return null;
 };
 
-/** Subscribe to state changes. Pairs with {@link getSepAuthState}. */
-export const subscribeSepAuth = (listener: () => void) => {
+/** Subscribe to state changes. Pairs with {@link getExtensionsAuthState}. */
+export const subscribeExtensionsAuth = (listener: () => void) => {
   listeners.add(listener);
   return () => {
     listeners.delete(listener);
   };
 };
 
-export const getSepAuthState = (): SepAuthState => snapshot;
+export const getExtensionsAuthState = (): ExtensionsAuthState => snapshot;
 
 /**
  * Current bearer, or null once it has expired.
@@ -138,11 +138,11 @@ export const getSepAuthState = (): SepAuthState => snapshot;
  * a stale bearer, and the resulting 401 routes into the transports' retry, which
  * mints and replays.
  */
-export const getSepToken = (): string | null =>
+export const getExtensionsToken = (): string | null =>
   token !== null && Date.now() < expiresAtMs ? token : null;
 
 /** Drop the bearer and stop every pending renewal. */
-const clearSepToken = () => {
+const clearExtensionsToken = () => {
   token = null;
   expiresAtMs = 0;
   renewalTimer = clearTimer(renewalTimer);
@@ -157,8 +157,8 @@ const clearSepToken = () => {
  * the failure becomes an inline notice — a background renewal must never
  * discard what the user was typing.
  */
-const failClosed = (kind: SepAuthNotice) => {
-  clearSepToken();
+const failClosed = (kind: ExtensionsAuthNotice) => {
+  clearExtensionsToken();
   if (phase === 'ready') {
     notice = kind;
   } else {
@@ -206,14 +206,14 @@ const renew = async () => {
     return;
   }
   if (sessionRejected) {
-    // A rejected session is terminal and `markSepSignedOut` already reported it.
+    // A rejected session is terminal and `markExtensionsSignedOut` already reported it.
     // Retrying would only repeat the rejection.
     return;
   }
 
   // Transient: the bearer is gone either way (fail closed), but keep quiet and
   // back off — a blip should not put a notice in front of someone mid-form.
-  clearSepToken();
+  clearExtensionsToken();
   if (renewalRetries < MAX_RENEWAL_RETRIES) {
     renewalRetries += 1;
     scheduleRenewalRetry();
@@ -226,7 +226,10 @@ const renew = async () => {
  * Record a freshly minted bearer. Wired to `setOnRefreshed`, so it runs whoever
  * triggered the exchange — the gate, the renewal timer, or a 401 retry.
  */
-export const recordSepToken = (accessToken: string, expiresIn: number) => {
+export const recordExtensionsToken = (
+  accessToken: string,
+  expiresIn: number
+) => {
   token = accessToken;
   expiresAtMs = Date.now() + expiresIn * 1000;
   // A successful exchange proves the session is good and clears whatever the
@@ -241,15 +244,15 @@ export const recordSepToken = (accessToken: string, expiresIn: number) => {
 };
 
 /**
- * Record that SEP rejected the session, and refuse to exchange again until
- * {@link retrySepAuth}.
+ * Record that the side-car rejected the session, and refuse to exchange again until
+ * {@link retryExtensionsAuth}.
  *
- * Wired to `setOnUnauthorized`, which fires when a SEP call 401s and no token
+ * Wired to `setOnUnauthorized`, which fires when a side-car call 401s and no token
  * could be minted to replay it. Also called directly when the exchange itself
  * 401s, so the sticky guarantee holds even if the transports' unauthorized
  * wiring changes.
  */
-export const markSepSignedOut = () => {
+export const markExtensionsSignedOut = () => {
   sessionRejected = true;
   failClosed('signedOut');
 };
@@ -259,7 +262,7 @@ export const markSepSignedOut = () => {
  * replacing `@sep/api`'s default `POST /oauth/refresh` — PMM's embedding issues
  * no refresh cookie, so the default would 401 on every recovery attempt.
  */
-export const mintSepToken = async (): Promise<MintedToken | null> => {
+export const mintExtensionsToken = async (): Promise<MintedToken | null> => {
   if (sessionRejected) {
     return null;
   }
@@ -267,20 +270,20 @@ export const mintSepToken = async (): Promise<MintedToken | null> => {
     return await postSessionExchange();
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) {
-      markSepSignedOut();
+      markExtensionsSignedOut();
     }
     return null;
   }
 };
 
 /**
- * Ensure a usable bearer exists, exchanging if needed. Resolves true when SEP
+ * Ensure a usable bearer exists, exchanging if needed. Resolves true when the side-car
  * calls can be authenticated.
  *
  * Concurrent callers coalesce inside `refreshAccessToken()`.
  */
-export const ensureSepToken = async (): Promise<boolean> => {
-  if (getSepToken() !== null) {
+export const ensureExtensionsToken = async (): Promise<boolean> => {
+  if (getExtensionsToken() !== null) {
     return true;
   }
   if (sessionRejected) {
@@ -306,19 +309,19 @@ export const ensureSepToken = async (): Promise<boolean> => {
  * Clear a terminal state and exchange again. The only way out of a rejected
  * session, so recovery stays an explicit user action rather than a loop.
  */
-export const retrySepAuth = (): Promise<boolean> => {
+export const retryExtensionsAuth = (): Promise<boolean> => {
   sessionRejected = false;
   renewalRetries = 0;
-  clearSepToken();
+  clearExtensionsToken();
   if (phase !== 'ready') {
     setPhase('idle');
   }
-  return ensureSepToken();
+  return ensureExtensionsToken();
 };
 
 /** Reset every module-level field. Tests only. */
-export const resetSepAuthStore = () => {
-  clearSepToken();
+export const resetExtensionsAuthStore = () => {
+  clearExtensionsToken();
   phase = 'idle';
   notice = null;
   sessionRejected = false;

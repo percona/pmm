@@ -9,27 +9,29 @@ import {
 } from 'utils/testUtils';
 import { TEST_USER_ADMIN, TEST_USER_VIEWER } from 'utils/testStubs';
 import { User } from 'types/user.types';
-import { SepPage } from './SepPage';
+import { ExtensionsPage } from './ExtensionsPage';
 
-// The gate mints a SEP bearer on mount; this suite is about who reaches it, so
+// The gate mints a side-car bearer on mount; this suite is about who reaches it, so
 // hold it open and let the page render its children.
-vi.mock('./SepAuthGate', () => ({
-  SepAuthGate: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+vi.mock('./ExtensionsAuthGate', () => ({
+  ExtensionsAuthGate: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
 }));
 
-const renderSepPage = ({
+const renderExtensionsPage = ({
   user = TEST_USER_ADMIN,
   isLoading = false,
-  settings = { sepEnabled: true },
+  settings = { extensionsEnabled: true },
 }: {
   user?: User;
   isLoading?: boolean;
-  settings?: { sepEnabled?: boolean };
+  settings?: { extensionsEnabled?: boolean };
 } = {}) =>
   render(
-    <SepPage>
-      <div data-testid="sep-plugin" />
-    </SepPage>,
+    <ExtensionsPage>
+      <div data-testid="extensions-plugin" />
+    </ExtensionsPage>,
     {
       wrapper: ({ children }) => (
         <TestWrapper userContext={{ isLoading: false, user }}>
@@ -39,50 +41,55 @@ const renderSepPage = ({
     }
   );
 
-describe('SepPage', () => {
+describe('ExtensionsPage', () => {
   it('renders the plugin for an administrator', () => {
-    renderSepPage();
+    renderExtensionsPage();
 
-    expect(screen.getByTestId('sep-plugin')).toBeInTheDocument();
+    expect(screen.getByTestId('extensions-plugin')).toBeInTheDocument();
   });
 
   it('renders the plugin for a viewer rather than an unauthorized card', () => {
-    // SEP serves its reads to any authenticated session and holds every unsafe
+    // The side-car serves its reads to any authenticated session and holds every unsafe
     // method to administrators, so the route carries no role restriction and
     // the write controls are withheld per control instead (PMM-15358).
-    renderSepPage({ user: TEST_USER_VIEWER });
+    renderExtensionsPage({ user: TEST_USER_VIEWER });
 
-    expect(screen.getByTestId('sep-plugin')).toBeInTheDocument();
+    expect(screen.getByTestId('extensions-plugin')).toBeInTheDocument();
   });
 
-  it('renders an unavailable message when SEP is disabled', () => {
-    renderSepPage({ settings: { sepEnabled: false } });
+  it('renders an unavailable message when PMM Extensions is disabled', () => {
+    renderExtensionsPage({ settings: { extensionsEnabled: false } });
 
     expect(
       screen.getByText(
         'This feature is not enabled. Contact your administrator.'
       )
     ).toBeInTheDocument();
-    expect(screen.queryByTestId('sep-plugin')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('extensions-plugin')).not.toBeInTheDocument();
   });
 
   it('waits for settings instead of flashing not-enabled while they load', () => {
-    renderSepPage({ isLoading: true, settings: { sepEnabled: true } });
+    renderExtensionsPage({
+      isLoading: true,
+      settings: { extensionsEnabled: true },
+    });
 
-    expect(screen.getByTestId('sep-settings-loading')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('extensions-settings-loading')
+    ).toBeInTheDocument();
     expect(
       screen.queryByText(
         'This feature is not enabled. Contact your administrator.'
       )
     ).not.toBeInTheDocument();
-    expect(screen.queryByTestId('sep-plugin')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('extensions-plugin')).not.toBeInTheDocument();
   });
 
   it('waits while settings are still null after the default context', () => {
     render(
-      <SepPage>
-        <div data-testid="sep-plugin" />
-      </SepPage>,
+      <ExtensionsPage>
+        <div data-testid="extensions-plugin" />
+      </ExtensionsPage>,
       {
         wrapper: ({ children }) => (
           <TestWrapper
@@ -98,7 +105,9 @@ describe('SepPage', () => {
       }
     );
 
-    expect(screen.getByTestId('sep-settings-loading')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('extensions-settings-loading')
+    ).toBeInTheDocument();
     expect(
       screen.queryByText(
         'This feature is not enabled. Contact your administrator.'
@@ -115,13 +124,16 @@ describe('SepPage', () => {
     expect(paper).not.toBe(stage);
 
     const loading = measureSurface(() =>
-      renderSepPage({ isLoading: true, settings: { sepEnabled: true } })
+      renderExtensionsPage({
+        isLoading: true,
+        settings: { extensionsEnabled: true },
+      })
     );
     const notEnabled = measureSurface(() =>
-      renderSepPage({ settings: { sepEnabled: false } })
+      renderExtensionsPage({ settings: { extensionsEnabled: false } })
     );
     const loaded = measureSurface(() =>
-      renderSepPage({ settings: { sepEnabled: true } })
+      renderExtensionsPage({ settings: { extensionsEnabled: true } })
     );
 
     expect(loading).toBe(paper);

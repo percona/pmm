@@ -45,17 +45,18 @@ import (
 const (
 	maxLogReadLines = 50000
 
-	// The entrypoint renders the SEP nginx drop-ins here when PMM_ENABLE_SEP is
-	// set. The directory is absent on a default installation.
-	sepNginxConfigDir = "/etc/nginx/sep.d"
+	// The entrypoint renders the side-car nginx drop-ins here when
+	// PMM_ENABLE_EXTENSIONS is set. The directory is absent on a default
+	// installation.
+	extensionsNginxConfigDir = "/etc/nginx/extensions.d"
 )
 
-// sepConfigFiles returns the SEP nginx drop-ins under dir, and nothing when dir is
+// extensionsConfigFiles returns the side-car nginx drop-ins under dir, and nothing when dir is
 // absent. They are globbed rather than listed because their presence depends on
-// PMM_ENABLE_SEP: absent must not mean an error in the archive. Glob's only error
+// PMM_ENABLE_EXTENSIONS: absent must not mean an error in the archive. Glob's only error
 // is ErrBadPattern, which a caller-supplied directory joined with a literal
 // suffix cannot produce, so it is discarded rather than reported.
-func sepConfigFiles(dir string) []string {
+func extensionsConfigFiles(dir string) []string {
 	configs, _ := filepath.Glob(filepath.Join(dir, "*.conf"))
 
 	return configs
@@ -198,7 +199,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 		"/etc/supervisord.d/vmproxy.ini",
 
 		models.AgentConfigFilePath,
-	}, sepConfigFiles(sepNginxConfigDir))
+	}, extensionsConfigFiles(extensionsNginxConfigDir))
 
 	for _, f := range configs {
 		b, m, err := readFile(f)

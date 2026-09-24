@@ -121,11 +121,11 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			"PMM_DISABLE_BUILTIN_POSTGRES":
 			// skip env variables for external postgres
 			continue
-		case pkgenv.EnableSEP, "PMM_SEP_POSTGRES_PASSWORD", "PMM_SEP_ADDRESS":
-			// skip env variables consumed by the entrypoint to wire up SEP.
-			// PMM_ENABLE_SEP is not a stored setting: it describes how this
+		case pkgenv.EnableExtensions, "PMM_EXTENSIONS_POSTGRES_PASSWORD", "PMM_EXTENSIONS_ADDRESS":
+			// skip env variables consumed by the entrypoint to wire up the side-car.
+			// PMM_ENABLE_EXTENSIONS is not a stored setting: it describes how this
 			// process was started, so it is read from the environment by
-			// env.SEPEnabled instead of being persisted here.
+			// env.ExtensionsEnabled instead of being persisted here.
 			continue
 		case "PERCONA_TELEMETRY_DISABLE":
 			// skip the Pillars telemetry environment variable

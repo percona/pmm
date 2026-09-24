@@ -15,7 +15,7 @@ import { Messages } from '../../Settings.messages';
 import { MAX_LABEL_WIDTH } from '../../Settings.constants';
 import {
   DELIVERY_INPUTS_KEY,
-  SEP_SETTINGS_CLASS,
+  EXTENSIONS_SETTINGS_CLASS,
 } from './ServiceNowConnection.constants';
 import { serviceNowSchema } from './ServiceNowConnectionForm.schema';
 import {
@@ -26,7 +26,7 @@ import {
   buildDeliveryInputsPatch,
   secretHelperText,
   secretLabel,
-  sepErrorMessage,
+  extensionsErrorMessage,
   toFormValues,
 } from './ServiceNowConnection.utils';
 import { SecretField } from './SecretField';
@@ -49,7 +49,7 @@ interface Props {
  * who does not already hold them with nowhere to go.
  *
  * The write is one whole-object PATCH of `DIAGNOSTICS_DELIVERY_INPUTS` carrying
- * exactly the secret names the SEP image declares — SEP seals the leaves and
+ * exactly the secret names the side-car image declares — the side-car seals the leaves and
  * rejects an unexpected name, so neither is a shape the UI may improvise. All
  * validation is server-side and all-or-nothing: a rejected save leaves the
  * previous configuration standing, which is why nothing here is optimistic.
@@ -65,7 +65,7 @@ export const ServiceNowConnectionForm: FC<Props> = ({
   const { serviceNow } = Messages;
 
   // `values` (not `defaultValues`) so a refetch — the invalidation after a save,
-  // in particular — re-seeds the endpoint with what SEP actually stored. React
+  // in particular — re-seeds the endpoint with what the side-car actually stored. React
   // Hook Form only re-seeds on a deep change, so a background refetch that
   // returns the same data leaves half-typed input alone.
   const values = useMemo(
@@ -83,7 +83,7 @@ export const ServiceNowConnectionForm: FC<Props> = ({
   const onSubmit = async (values: ServiceNowFormValues) => {
     try {
       await patchSetting({
-        settingClass: SEP_SETTINGS_CLASS,
+        settingClass: EXTENSIONS_SETTINGS_CLASS,
         key: DELIVERY_INPUTS_KEY,
         value: buildDeliveryInputsPatch(values, declaredNames),
       });
@@ -91,7 +91,7 @@ export const ServiceNowConnectionForm: FC<Props> = ({
       onConnected();
     } catch {
       // The rejected mutation is rendered inline by `saveError`; the previous
-      // configuration is intact because SEP writes nothing on a failed validate.
+      // configuration is intact because the side-car writes nothing on a failed validate.
     }
   };
 
@@ -161,7 +161,7 @@ export const ServiceNowConnectionForm: FC<Props> = ({
               <SecretField
                 key={name}
                 // Addressed by position: a declared name is runtime data from
-                // SEP, and react-hook-form would read one containing a `.` as a
+                // the side-car, and react-hook-form would read one containing a `.` as a
                 // nested path.
                 name={`secrets.${index}`}
                 label={secretLabel(name)}
@@ -185,7 +185,7 @@ export const ServiceNowConnectionForm: FC<Props> = ({
 
         {saveError && (
           <Alert severity="error" data-testid="servicenow-save-error">
-            {sepErrorMessage(saveError)}
+            {extensionsErrorMessage(saveError)}
           </Alert>
         )}
 

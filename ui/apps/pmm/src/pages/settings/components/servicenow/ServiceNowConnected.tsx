@@ -9,12 +9,12 @@ import { Messages } from '../../Settings.messages';
 import { MAX_LABEL_WIDTH } from '../../Settings.constants';
 import {
   DELIVERY_INPUTS_KEY,
-  SEP_SETTINGS_CLASS,
+  EXTENSIONS_SETTINGS_CLASS,
 } from './ServiceNowConnection.constants';
 import { StoredDeliveryInputs } from './ServiceNowConnection.types';
 import {
   connectionIdentity,
-  sepErrorMessage,
+  extensionsErrorMessage,
 } from './ServiceNowConnection.utils';
 import { ServiceNowConnectionTest } from './ServiceNowConnectionTest';
 
@@ -44,9 +44,9 @@ const ConnectionDetail: FC<{
  * The connection as it stands, in place of the form that produced it.
  *
  * Only the endpoint is shown. PMM stores no author or timestamp for a saved
- * setting — SEP answers whether an override exists, not who wrote it — so the
- * rest of the design's detail row waits on a SEP endpoint that can answer it.
- * A blank stored endpoint means SEP is using the receiver its image bakes in,
+ * setting — the side-car answers whether an override exists, not who wrote it — so the
+ * rest of the design's detail row waits on a side-car endpoint that can answer it.
+ * A blank stored endpoint means the side-car is using the receiver its image bakes in,
  * which is the default this reports rather than an empty row.
  */
 export const ServiceNowConnected: FC<Props> = ({
@@ -62,13 +62,13 @@ export const ServiceNowConnected: FC<Props> = ({
   const onDisconnect = async () => {
     try {
       await resetSetting({
-        settingClass: SEP_SETTINGS_CLASS,
+        settingClass: EXTENSIONS_SETTINGS_CLASS,
         key: DELIVERY_INPUTS_KEY,
       });
       enqueueSnackbar(serviceNow.disconnectSuccess, { variant: 'success' });
       setDisconnectOpen(false);
     } catch (error) {
-      enqueueSnackbar(sepErrorMessage(error as ApiError), {
+      enqueueSnackbar(extensionsErrorMessage(error as ApiError), {
         variant: 'error',
       });
     }

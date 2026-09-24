@@ -1,11 +1,11 @@
 #!/bin/bash
 #
-# Makes the embedded PostgreSQL reachable by SEP running in a side container on a
+# Makes the embedded PostgreSQL reachable by the PMM Extensions side-car on a
 # shared Docker network, and provisions a dedicated low-privilege role/database for it.
 #
-# Everything below is a no-op unless PMM_ENABLE_SEP is set. When it is unset again,
-# the configuration this script added is reverted on the next start; the sep role and
-# database are left untouched.
+# Everything below is a no-op unless PMM_ENABLE_EXTENSIONS is set. When it is unset again,
+# the configuration this script added is reverted on the next start; the pmm_extensions
+# role and database are left untouched.
 
 set -o errexit
 set -o pipefail
@@ -15,8 +15,8 @@ declare POSTGRES_PASSWORD_FILE="${POSTGRES_PASSWORD_FILE:?must be exported by th
 declare POSTGRES_BIN_DIR="${POSTGRES_BIN_DIR:?must be exported by the entrypoint}"
 declare PG_CONF="$POSTGRES_DATA_DIR/postgresql.conf"
 declare PG_HBA="$POSTGRES_DATA_DIR/pg_hba.conf"
-declare BEGIN_MARKER="# BEGIN PMM SEP"
-declare END_MARKER="# END PMM SEP"
+declare BEGIN_MARKER="# BEGIN PMM EXTENSIONS"
+declare END_MARKER="# END PMM EXTENSIONS"
 
 is_enabled() { [ "$1" = "1" ] || [ "$1" = "true" ]; }
 
@@ -34,7 +34,7 @@ write_block() {
         return
     fi
 
-    tmp=$(mktemp "$POSTGRES_DATA_DIR/.pmm-sep.XXXXXX")
+    tmp=$(mktemp "$POSTGRES_DATA_DIR/.pmm-extensions.XXXXXX")
     sed "/^${BEGIN_MARKER}$/,/^${END_MARKER}$/d" "$file" > "$tmp"
     if [ -n "$body" ]; then
         {
@@ -55,7 +55,7 @@ psql_postgres() {
     "$POSTGRES_BIN_DIR/psql" -X -q -v ON_ERROR_STOP=1 -U postgres -h /run/postgresql -d postgres "$@"
 }
 
-provision_sep_role() {
+provision_extensions_role() {
     local started=0 role_exists db_exists
 
     if ! "$POSTGRES_BIN_DIR/pg_ctl" status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
@@ -66,20 +66,20 @@ provision_sep_role() {
     PGPASSWORD=$(< "$POSTGRES_PASSWORD_FILE")
     export PGPASSWORD
 
-    role_exists=$(psql_postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname = 'sep'")
+    role_exists=$(psql_postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname = 'pmm_extensions'")
     if [ -z "$role_exists" ]; then
-        psql_postgres -c "CREATE ROLE sep"
+        psql_postgres -c "CREATE ROLE pmm_extensions"
     fi
 
-    # Re-applied on every start so rotating PMM_SEP_POSTGRES_PASSWORD takes effect.
-    # Fed via stdin, not -c: psql only interpolates :'sep_password' when reading a script.
-    psql_postgres -v sep_password="$PMM_SEP_POSTGRES_PASSWORD" <<'SQL'
-ALTER ROLE sep WITH LOGIN NOSUPERUSER NOCREATEROLE NOCREATEDB PASSWORD :'sep_password';
+    # Re-applied on every start so rotating PMM_EXTENSIONS_POSTGRES_PASSWORD takes effect.
+    # Fed via stdin, not -c: psql only interpolates :'extensions_password' when reading a script.
+    psql_postgres -v extensions_password="$PMM_EXTENSIONS_POSTGRES_PASSWORD" <<'SQL'
+ALTER ROLE pmm_extensions WITH LOGIN NOSUPERUSER NOCREATEROLE NOCREATEDB PASSWORD :'extensions_password';
 SQL
 
-    db_exists=$(psql_postgres -tAc "SELECT 1 FROM pg_database WHERE datname = 'sep'")
+    db_exists=$(psql_postgres -tAc "SELECT 1 FROM pg_database WHERE datname = 'pmm_extensions'")
     if [ -z "$db_exists" ]; then
-        psql_postgres -c "CREATE DATABASE sep OWNER sep"
+        psql_postgres -c "CREATE DATABASE pmm_extensions OWNER pmm_extensions"
     fi
 
     unset PGPASSWORD
@@ -89,14 +89,14 @@ SQL
     fi
 }
 
-if ! is_enabled "$PMM_ENABLE_SEP"; then
+if ! is_enabled "$PMM_ENABLE_EXTENSIONS"; then
     write_block "$PG_CONF" ""
     write_block "$PG_HBA" ""
     exit 0
 fi
 
-if [ -z "$PMM_SEP_POSTGRES_PASSWORD" ]; then
-    echo "FATAL: PMM_ENABLE_SEP is set but PMM_SEP_POSTGRES_PASSWORD is empty." >&2
+if [ -z "$PMM_EXTENSIONS_POSTGRES_PASSWORD" ]; then
+    echo "FATAL: PMM_ENABLE_EXTENSIONS is set but PMM_EXTENSIONS_POSTGRES_PASSWORD is empty." >&2
     echo "The entrypoint generates one when it is unset, so reaching here means /srv could not be written; check its ownership and try again." >&2
     exit 1
 fi
@@ -104,19 +104,19 @@ fi
 declare -a SUBNETS
 mapfile -t SUBNETS < <(container_subnets)
 if [ ${#SUBNETS[@]} -eq 0 ]; then
-    echo "FATAL: PMM_ENABLE_SEP is set but this container is not attached to any network." >&2
-    echo "Please attach pmm-server to the bridge network shared with SEP and try again." >&2
+    echo "FATAL: PMM_ENABLE_EXTENSIONS is set but this container is not attached to any network." >&2
+    echo "Please attach pmm-server to the bridge network shared with the PMM Extensions side-car and try again." >&2
     exit 1
 fi
 
-echo "Exposing PostgreSQL to SEP on ${SUBNETS[*]}..."
+echo "Exposing PostgreSQL to PMM Extensions on ${SUBNETS[*]}..."
 
 write_block "$PG_CONF" "listen_addresses = '*'"
 
 declare HBA_BODY=""
 for subnet in "${SUBNETS[@]}"; do
-    HBA_BODY+="host    sep    sep    ${subnet}    scram-sha-256"$'\n'
+    HBA_BODY+="host    pmm_extensions    pmm_extensions    ${subnet}    scram-sha-256"$'\n'
 done
 write_block "$PG_HBA" "${HBA_BODY%$'\n'}"
 
-provision_sep_role
+provision_extensions_role

@@ -8,9 +8,9 @@ import { Modal } from 'components/modal';
 import { Messages } from '../../Settings.messages';
 import {
   DELIVERY_INPUTS_KEY,
-  SEP_SETTINGS_CLASS,
+  EXTENSIONS_SETTINGS_CLASS,
 } from './ServiceNowConnection.constants';
-import { sepErrorMessage } from './ServiceNowConnection.utils';
+import { extensionsErrorMessage } from './ServiceNowConnection.utils';
 
 interface Props {
   /**
@@ -24,7 +24,7 @@ interface Props {
 /**
  * Clearing the stored delivery inputs, behind a confirmation.
  *
- * It renders wherever SEP holds an override, not only where that override
+ * It renders wherever the side-car holds an override, not only where that override
  * satisfies the delivery plan: an override the plan no longer accepts is the
  * state most in need of removing, and Disconnect is the only route that removes
  * one now that a blank save is refused.
@@ -38,13 +38,13 @@ export const ServiceNowDisconnect: FC<Props> = ({ hint }) => {
   const onDisconnect = async () => {
     try {
       await resetSetting({
-        settingClass: SEP_SETTINGS_CLASS,
+        settingClass: EXTENSIONS_SETTINGS_CLASS,
         key: DELIVERY_INPUTS_KEY,
       });
       enqueueSnackbar(serviceNow.disconnectSuccess, { variant: 'success' });
       setIsOpen(false);
     } catch (error) {
-      enqueueSnackbar(sepErrorMessage(error as ApiError), {
+      enqueueSnackbar(extensionsErrorMessage(error as ApiError), {
         variant: 'error',
       });
     }

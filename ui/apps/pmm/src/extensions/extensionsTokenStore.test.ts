@@ -4,14 +4,14 @@ import {
   postSessionExchange,
   setTokenMinter,
 } from '@sep/api';
-import { initSepAuth } from './bootstrap';
+import { initExtensionsAuth } from './bootstrap';
 import {
-  ensureSepToken,
-  getSepAuthState,
-  getSepToken,
-  resetSepAuthStore,
-  retrySepAuth,
-} from './sepTokenStore';
+  ensureExtensionsToken,
+  getExtensionsAuthState,
+  getExtensionsToken,
+  resetExtensionsAuthStore,
+  retryExtensionsAuth,
+} from './extensionsTokenStore';
 
 // Mock only the network boundary. `refreshAccessToken`'s single-flight, the
 // token-minter seam, and the unauthorized wiring stay real, so these exercise
@@ -37,13 +37,13 @@ const mintedToken = (accessToken: string) => ({
 const unauthorized = () =>
   new ApiError({ kind: 'http', status: 401, message: 'no session' });
 
-const phase = () => getSepAuthState().phase;
-const notice = () => getSepAuthState().notice;
+const phase = () => getExtensionsAuthState().phase;
+const notice = () => getExtensionsAuthState().notice;
 
-/** Reach `ready` with a live bearer, as a mounted SEP page would be. */
+/** Reach `ready` with a live bearer, as a mounted PMM Extensions page would be. */
 const becomeReady = async (accessToken = 'bearer-1') => {
   exchange.mockResolvedValue(mintedToken(accessToken));
-  await ensureSepToken();
+  await ensureExtensionsToken();
   exchange.mockReset();
 };
 
@@ -52,19 +52,19 @@ beforeEach(() => {
   // slot in a microtask, and faking that would deadlock the second exchange.
   vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
   exchange.mockReset();
-  resetSepAuthStore();
-  initSepAuth();
+  resetExtensionsAuthStore();
+  initExtensionsAuth();
 });
 
 afterEach(() => {
-  resetSepAuthStore();
+  resetExtensionsAuthStore();
   setTokenMinter(null);
   vi.useRealTimers();
 });
 
-describe('sepTokenStore — acquiring a bearer', () => {
+describe('extensionsTokenStore — acquiring a bearer', () => {
   it('holds no token until an exchange runs', () => {
-    expect(getSepToken()).toBeNull();
+    expect(getExtensionsToken()).toBeNull();
     expect(phase()).toBe('idle');
     expect(exchange).not.toHaveBeenCalled();
   });
@@ -72,11 +72,11 @@ describe('sepTokenStore — acquiring a bearer', () => {
   it('exchanges once and exposes the bearer synchronously', async () => {
     exchange.mockResolvedValue(mintedToken('bearer-1'));
 
-    await expect(ensureSepToken()).resolves.toBe(true);
+    await expect(ensureExtensionsToken()).resolves.toBe(true);
 
     expect(exchange).toHaveBeenCalledOnce();
-    expect(getSepToken()).toBe('bearer-1');
-    expect(getSepAuthState()).toEqual({ phase: 'ready', notice: null });
+    expect(getExtensionsToken()).toBe('bearer-1');
+    expect(getExtensionsAuthState()).toEqual({ phase: 'ready', notice: null });
   });
 
   it('serves the bearer through the token provider registered on @sep/api', async () => {
@@ -88,8 +88,8 @@ describe('sepTokenStore — acquiring a bearer', () => {
   it('reuses the held bearer instead of exchanging again', async () => {
     exchange.mockResolvedValue(mintedToken('bearer-1'));
 
-    await ensureSepToken();
-    await ensureSepToken();
+    await ensureExtensionsToken();
+    await ensureExtensionsToken();
 
     expect(exchange).toHaveBeenCalledOnce();
   });
@@ -105,9 +105,9 @@ describe('sepTokenStore — acquiring a bearer', () => {
     );
 
     const pending = Promise.all([
-      ensureSepToken(),
-      ensureSepToken(),
-      ensureSepToken(),
+      ensureExtensionsToken(),
+      ensureExtensionsToken(),
+      ensureExtensionsToken(),
     ]);
     resolveExchange(mintedToken('bearer-1'));
 
@@ -124,21 +124,21 @@ describe('sepTokenStore — acquiring a bearer', () => {
 
   it('hands out a stable snapshot so subscribers do not re-render on no-ops', async () => {
     await becomeReady();
-    const first = getSepAuthState();
+    const first = getExtensionsAuthState();
 
-    await ensureSepToken();
+    await ensureExtensionsToken();
 
-    expect(getSepAuthState()).toBe(first);
+    expect(getExtensionsAuthState()).toBe(first);
   });
 });
 
-describe('sepTokenStore — failing closed', () => {
+describe('extensionsTokenStore — failing closed', () => {
   it('serves no token once the bearer has expired', async () => {
     await becomeReady();
 
     vi.setSystemTime(Date.now() + TTL_SECONDS * 1000 + 1);
 
-    expect(getSepToken()).toBeNull();
+    expect(getExtensionsToken()).toBeNull();
     expect(getToken()).toBeNull();
   });
 
@@ -148,7 +148,7 @@ describe('sepTokenStore — failing closed', () => {
 
     await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
 
-    expect(getSepToken()).toBeNull();
+    expect(getExtensionsToken()).toBeNull();
   });
 
   it('drops the bearer when a renewal cannot complete', async () => {
@@ -157,22 +157,22 @@ describe('sepTokenStore — failing closed', () => {
 
     await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
 
-    expect(getSepToken()).toBeNull();
+    expect(getExtensionsToken()).toBeNull();
   });
 
   it('refuses to exchange again once the session is rejected', async () => {
     exchange.mockRejectedValue(unauthorized());
-    await ensureSepToken();
+    await ensureExtensionsToken();
 
-    await expect(ensureSepToken()).resolves.toBe(false);
-    await expect(ensureSepToken()).resolves.toBe(false);
+    await expect(ensureExtensionsToken()).resolves.toBe(false);
+    await expect(ensureExtensionsToken()).resolves.toBe(false);
 
     expect(exchange).toHaveBeenCalledOnce();
   });
 
   it('stops renewing after the session is rejected', async () => {
     exchange.mockRejectedValue(unauthorized());
-    await ensureSepToken();
+    await ensureExtensionsToken();
 
     await vi.advanceTimersByTimeAsync(600_000);
 
@@ -180,46 +180,52 @@ describe('sepTokenStore — failing closed', () => {
   });
 });
 
-describe('sepTokenStore — bootstrap failure', () => {
+describe('extensionsTokenStore — bootstrap failure', () => {
   it('shows a signed-out page when the session is rejected at load', async () => {
     exchange.mockRejectedValue(unauthorized());
 
-    await expect(ensureSepToken()).resolves.toBe(false);
+    await expect(ensureExtensionsToken()).resolves.toBe(false);
 
-    expect(getSepAuthState()).toEqual({ phase: 'signedOut', notice: null });
+    expect(getExtensionsAuthState()).toEqual({
+      phase: 'signedOut',
+      notice: null,
+    });
   });
 
   it('shows an unreachable page when the exchange cannot complete at load', async () => {
     exchange.mockRejectedValue(new Error('network down'));
 
-    await expect(ensureSepToken()).resolves.toBe(false);
+    await expect(ensureExtensionsToken()).resolves.toBe(false);
 
-    expect(getSepAuthState()).toEqual({ phase: 'unreachable', notice: null });
+    expect(getExtensionsAuthState()).toEqual({
+      phase: 'unreachable',
+      notice: null,
+    });
   });
 
   it('recovers on an explicit retry', async () => {
     exchange.mockRejectedValue(unauthorized());
-    await ensureSepToken();
+    await ensureExtensionsToken();
     exchange.mockResolvedValue(mintedToken('bearer-1'));
 
-    await expect(retrySepAuth()).resolves.toBe(true);
+    await expect(retryExtensionsAuth()).resolves.toBe(true);
 
     expect(exchange).toHaveBeenCalledTimes(2);
-    expect(getSepAuthState()).toEqual({ phase: 'ready', notice: null });
+    expect(getExtensionsAuthState()).toEqual({ phase: 'ready', notice: null });
   });
 
   it('retries a transient bootstrap failure on the next visit', async () => {
     exchange.mockRejectedValue(new Error('network down'));
-    await ensureSepToken();
+    await ensureExtensionsToken();
     exchange.mockResolvedValue(mintedToken('bearer-1'));
 
-    await expect(ensureSepToken()).resolves.toBe(true);
+    await expect(ensureExtensionsToken()).resolves.toBe(true);
 
-    expect(getSepToken()).toBe('bearer-1');
+    expect(getExtensionsToken()).toBe('bearer-1');
   });
 });
 
-describe('sepTokenStore — renewal on a mounted page', () => {
+describe('extensionsTokenStore — renewal on a mounted page', () => {
   it('renews shortly before expiry', async () => {
     await becomeReady();
     exchange.mockResolvedValue(mintedToken('bearer-2'));
@@ -227,8 +233,8 @@ describe('sepTokenStore — renewal on a mounted page', () => {
     await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
 
     expect(exchange).toHaveBeenCalledOnce();
-    expect(getSepToken()).toBe('bearer-2');
-    expect(getSepAuthState()).toEqual({ phase: 'ready', notice: null });
+    expect(getExtensionsToken()).toBe('bearer-2');
+    expect(getExtensionsAuthState()).toEqual({ phase: 'ready', notice: null });
   });
 
   it('keeps renewing across successive lifetimes', async () => {
@@ -239,7 +245,7 @@ describe('sepTokenStore — renewal on a mounted page', () => {
     await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
 
     expect(exchange).toHaveBeenCalledTimes(2);
-    expect(getSepToken()).toBe('bearer-3');
+    expect(getExtensionsToken()).toBe('bearer-3');
   });
 
   it('retries a transient renewal failure quietly, without a notice', async () => {
@@ -250,7 +256,7 @@ describe('sepTokenStore — renewal on a mounted page', () => {
 
     expect(exchange).toHaveBeenCalledOnce();
     // Still `ready` with nothing on screen: a blip must not interrupt the user.
-    expect(getSepAuthState()).toEqual({ phase: 'ready', notice: null });
+    expect(getExtensionsAuthState()).toEqual({ phase: 'ready', notice: null });
   });
 
   it('backs off across several quiet attempts before giving up', async () => {
@@ -279,7 +285,7 @@ describe('sepTokenStore — renewal on a mounted page', () => {
 
     expect(exchange).toHaveBeenCalledTimes(1 + 4);
     // Reported beside the page, never instead of it.
-    expect(getSepAuthState()).toEqual({
+    expect(getExtensionsAuthState()).toEqual({
       phase: 'ready',
       notice: 'unreachable',
     });
@@ -292,8 +298,8 @@ describe('sepTokenStore — renewal on a mounted page', () => {
 
     await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS + 2_000);
 
-    expect(getSepToken()).toBe('bearer-2');
-    expect(getSepAuthState()).toEqual({ phase: 'ready', notice: null });
+    expect(getExtensionsToken()).toBe('bearer-2');
+    expect(getExtensionsAuthState()).toEqual({ phase: 'ready', notice: null });
   });
 
   it('stops retrying once a backoff attempt succeeds', async () => {
@@ -314,7 +320,10 @@ describe('sepTokenStore — renewal on a mounted page', () => {
 
     await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
 
-    expect(getSepAuthState()).toEqual({ phase: 'ready', notice: 'signedOut' });
+    expect(getExtensionsAuthState()).toEqual({
+      phase: 'ready',
+      notice: 'signedOut',
+    });
     // Terminal: retrying would only repeat the rejection.
     await vi.advanceTimersByTimeAsync(PAST_ALL_RETRIES_MS);
     expect(exchange).toHaveBeenCalledOnce();
@@ -336,10 +345,10 @@ describe('sepTokenStore — renewal on a mounted page', () => {
     expect(notice()).toBe('signedOut');
 
     exchange.mockResolvedValue(mintedToken('bearer-2'));
-    await expect(retrySepAuth()).resolves.toBe(true);
+    await expect(retryExtensionsAuth()).resolves.toBe(true);
 
-    expect(getSepAuthState()).toEqual({ phase: 'ready', notice: null });
-    expect(getSepToken()).toBe('bearer-2');
+    expect(getExtensionsAuthState()).toEqual({ phase: 'ready', notice: null });
+    expect(getExtensionsToken()).toBe('bearer-2');
   });
 
   it('keeps the notice when the retry fails again', async () => {
@@ -347,16 +356,19 @@ describe('sepTokenStore — renewal on a mounted page', () => {
     exchange.mockRejectedValue(unauthorized());
     await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
 
-    await expect(retrySepAuth()).resolves.toBe(false);
+    await expect(retryExtensionsAuth()).resolves.toBe(false);
 
-    expect(getSepAuthState()).toEqual({ phase: 'ready', notice: 'signedOut' });
+    expect(getExtensionsAuthState()).toEqual({
+      phase: 'ready',
+      notice: 'signedOut',
+    });
   });
 
   it('stops renewing once the store is cleared', async () => {
     await becomeReady();
     exchange.mockResolvedValue(mintedToken('bearer-2'));
 
-    resetSepAuthStore();
+    resetExtensionsAuthStore();
     await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
 
     expect(exchange).not.toHaveBeenCalled();

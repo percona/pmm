@@ -73,10 +73,10 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Equal(t, expectedWarns, gotWarns)
 	})
 
-	t.Run("SEP env variables", func(t *testing.T) {
+	t.Run("PMM Extensions env variables", func(t *testing.T) {
 		t.Parallel()
 
-		envs := []string{"PMM_ENABLE_SEP=1", "PMM_SEP_POSTGRES_PASSWORD=s3cr3t", "PMM_SEP_ADDRESS=sep:9000"}
+		envs := []string{"PMM_ENABLE_EXTENSIONS=1", "PMM_EXTENSIONS_POSTGRES_PASSWORD=s3cr3t", "PMM_EXTENSIONS_ADDRESS=pmm-extensions:9000"}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)

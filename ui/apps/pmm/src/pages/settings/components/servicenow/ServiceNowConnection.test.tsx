@@ -50,7 +50,7 @@ const setting = (key: string, value: unknown, hasOverride = false) =>
     type: 'object',
   }) as unknown as SettingClassGroup['settings'][number];
 
-const sepGroups = (
+const extensionsGroups = (
   declared: string[],
   storedSecrets?: Record<string, string>,
   endpoint = ''
@@ -77,7 +77,7 @@ const mockList = (
   overrides: Partial<ReturnType<typeof useSettingsList>> = {}
 ) => {
   settingsList.mockReturnValue({
-    data: sepGroups(['sn_api_key', 'client_token']),
+    data: extensionsGroups(['sn_api_key', 'client_token']),
     isLoading: false,
     isFetching: false,
     error: null,
@@ -96,7 +96,7 @@ const mockPatch = (error: ApiError | null = null) => {
 /** Both declared credentials stored, which is what "connected" means here. */
 const mockConfigured = (endpoint = '') =>
   mockList({
-    data: sepGroups(
+    data: extensionsGroups(
       ['sn_api_key', 'client_token'],
       { sn_api_key: REDACTED_SECRET, client_token: REDACTED_SECRET },
       endpoint
@@ -110,7 +110,7 @@ const probed = (
   service: 'delivery',
   reachable,
   status,
-  detail: 'whatever SEP said',
+  detail: 'whatever the side-car said',
   version: null,
 });
 
@@ -202,7 +202,7 @@ describe('ServiceNowConnection — states', () => {
 
   it('follows the plan when an image renames a declared secret', () => {
     mockList({
-      data: sepGroups(['sn_api_key', 'renamed_token'], {
+      data: extensionsGroups(['sn_api_key', 'renamed_token'], {
         sn_api_key: REDACTED_SECRET,
         client_token: REDACTED_SECRET,
       }),
@@ -246,7 +246,7 @@ describe('ServiceNowConnection — states', () => {
   });
 
   it('still offers the endpoint when the plan declares no credentials', () => {
-    mockList({ data: sepGroups([]) } as Partial<
+    mockList({ data: extensionsGroups([]) } as Partial<
       ReturnType<typeof useSettingsList>
     >);
 
@@ -337,7 +337,7 @@ describe('ServiceNowConnection — saving', () => {
   });
 
   it('submits a declared name that form paths cannot express, verbatim', async () => {
-    mockList({ data: sepGroups(['sn.api.key']) } as Partial<
+    mockList({ data: extensionsGroups(['sn.api.key']) } as Partial<
       ReturnType<typeof useSettingsList>
     >);
 
@@ -368,7 +368,7 @@ describe('ServiceNowConnection — saving', () => {
     );
   });
 
-  it('refuses an endpoint that is not a URL before it reaches SEP', async () => {
+  it('refuses an endpoint that is not a URL before it reaches the side-car', async () => {
     renderTab();
 
     fillCredentials();
@@ -380,7 +380,7 @@ describe('ServiceNowConnection — saving', () => {
     expect(patchMutation).not.toHaveBeenCalled();
   });
 
-  it('surfaces the 422 SEP answers with instead of swallowing it', () => {
+  it('surfaces the 422 the side-car answers with instead of swallowing it', () => {
     mockPatch(
       new ApiError({
         kind: 'http',

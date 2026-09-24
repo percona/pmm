@@ -128,7 +128,7 @@ export const Messages = {
     endpointHelper:
       'Leave it empty to use the default endpoint https://percona.service-now.com',
     // Copy for the credentials this PMM version's delivery plan is known to
-    // declare. A name not listed here is a SEP build the UI has no copy for, so
+    // declare. A name not listed here is a side-car build the UI has no copy for, so
     // it falls back to the generic label and helper below.
     secretCopy: {
       sn_api_key: {
@@ -140,7 +140,7 @@ export const Messages = {
         helper: 'Identifies your PMM instance to ServiceNow.',
       },
     } as Record<string, { label: string; helper: string }>,
-    secretHelper: (name: string) => `Sent to SEP as "${name}".`,
+    secretHelper: (name: string) => `Saved as "${name}".`,
     revealSecret: 'Show value',
     hideSecret: 'Hide value',
     noSecrets:
@@ -150,7 +150,7 @@ export const Messages = {
     cancelRenew: 'Cancel',
     // The connection as it stands. Only the endpoint is shown: PMM stores no
     // author or timestamp for a saved setting, so the rest of the design's
-    // detail row waits on a SEP endpoint that can answer it.
+    // detail row waits on a side-car endpoint that can answer it.
     connectedTitle: 'ServiceNow connected',
     endpointDetailLabel: 'Endpoint',
     defaultEndpoint: 'https://percona.service-now.com',
@@ -168,9 +168,9 @@ export const Messages = {
     disconnectConfirm: 'Disconnect',
     disconnectCancel: 'Cancel',
     disconnectSuccess: 'ServiceNow connection removed',
-    // The delivery connectivity probe. SEP classifies every probe into one of
+    // The delivery connectivity probe. The side-car classifies every probe into one of
     // `ConnectivityStatusEnum`'s members, so the record is checked against the
-    // generated union — `satisfies`, not `as`, so a member added to SEP fails
+    // generated union — `satisfies`, not `as`, so a member added to the side-car fails
     // to compile here rather than being asserted away and rendering nothing.
     // A member this build has never heard of still falls back to `unknown`
     // below at runtime.
