@@ -169,3 +169,83 @@ func TestMigrateEncryption(t *testing.T) {
 	assert.Equal(t, aws, aws2)
 	assert.Equal(t, mysql, mysql2)
 }
+
+// TestMigrateEncryptionWrongKey covers a key file that does not match the
+// data: PMM 3.x recorded the column as encrypted, the value has the shape of
+// Tink ciphertext, but its key is not in the keyset. The migration must refuse
+// instead of storing the ciphertext as if it were the password.
+func TestMigrateEncryptionWrongKey(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+
+	cipher, err := encryption.DefaultCipher()
+	require.NoError(t, err)
+
+	// legacy ciphertext produced by an unrelated keyset
+	other, err := encryption.CreateCipher(encryption.NewFileKeyProvider(t.TempDir() + "/other.key"))
+	require.NoError(t, err)
+	stored, err := other.Encrypt("password-under-another-key")
+	require.NoError(t, err)
+	foreign := strings.TrimPrefix(stored, encryption.EnvelopePrefix)
+
+	now := time.Now()
+	_, err = sqlDB.ExecContext(t.Context(),
+		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
+			"VALUES ('N1', 'generic', 'name', '', '', '', '', $1, $2)", now, now)
+	require.NoError(t, err)
+	_, err = sqlDB.ExecContext(t.Context(),
+		`INSERT INTO agents (agent_id, agent_type, password, runs_on_node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify) `+
+			`VALUES ('A1', 'pmm-agent', $1, 'N1', false, '', $2, $3, false, false)`,
+		foreign, now, now)
+	require.NoError(t, err)
+
+	t.Run("without PMM 3.x bookkeeping the value is plaintext", func(t *testing.T) {
+		ids, err := models.AgentsNeedingReencryption(q, cipher)
+		require.NoError(t, err)
+		assert.Equal(t, []string{"A1"}, ids)
+	})
+
+	t.Run("recorded as encrypted: refuse and change nothing", func(t *testing.T) {
+		res, err := sqlDB.ExecContext(t.Context(),
+			`UPDATE settings SET settings = settings || '{"encrypted_items": ["pmm-managed.agents.password"]}'::jsonb`)
+		require.NoError(t, err)
+		n, err := res.RowsAffected()
+		require.NoError(t, err)
+		require.Equal(t, int64(1), n, "settings row is missing")
+
+		_, err = models.AgentsNeedingReencryption(q, cipher)
+		require.ErrorIs(t, err, encryption.ErrLegacyUnknownKey)
+		assert.Contains(t, err.Error(), "agent A1 password")
+
+		require.ErrorIs(t, models.MigrateEncryption(q), encryption.ErrLegacyUnknownKey)
+
+		var password string
+		require.NoError(t, sqlDB.QueryRowContext(t.Context(), `SELECT password FROM agents WHERE agent_id = 'A1'`).Scan(&password))
+		assert.Equal(t, foreign, password)
+	})
+}
+
+// TestDatabaseHasEncryptedDataInOptions covers installs whose only secrets
+// live inside JSON option blobs, e.g. RDS or Azure agents without username.
+func TestDatabaseHasEncryptedDataInOptions(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+
+	require.NoError(t, q.Insert(&models.Node{NodeID: "N1", NodeType: models.GenericNodeType, NodeName: "name"}))
+	require.NoError(t, q.Insert(&models.Agent{
+		AgentID:      "A1",
+		AgentType:    models.RDSExporterType,
+		RunsOnNodeID: new("N1"),
+		AWSOptions:   models.AWSOptions{AWSAccessKey: "access", AWSSecretKey: "secret"},
+	}))
+
+	hasEncrypted, err := models.DatabaseHasEncryptedData(t.Context(), sqlDB)
+	require.NoError(t, err)
+	assert.True(t, hasEncrypted)
+}

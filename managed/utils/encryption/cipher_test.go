@@ -16,6 +16,7 @@
 package encryption
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -307,4 +308,48 @@ func TestPruneRequiresNoStaleValues(t *testing.T) {
 	swept, err := LoadCipher(provider)
 	require.NoError(t, err)
 	require.True(t, swept.NeedsReencrypt(stored))
+}
+
+func TestLegacyWrongKey(t *testing.T) {
+	c := newTestCipher(t)
+	fixtures := loadLegacyFixtures(t)
+	legacy := fixtures.Strings[0].Ciphertext
+
+	// the key file does not match the data: the value is ambiguous on its own,
+	// so Decrypt passes it through and InspectLegacy flags it
+	decrypted, err := c.Decrypt(legacy)
+	require.NoError(t, err)
+	assert.Equal(t, legacy, decrypted)
+	assert.ErrorIs(t, c.InspectLegacy(legacy), ErrLegacyUnknownKey)
+}
+
+func TestLegacyAuthFailure(t *testing.T) {
+	c := legacyCipher(t)
+	legacy := loadLegacyFixtures(t).Strings[1].Ciphertext
+
+	// flip a byte of the tag, keeping the Tink prefix and key ID intact
+	raw, err := base64.StdEncoding.DecodeString(legacy)
+	require.NoError(t, err)
+	raw[len(raw)-1] ^= 0xff
+	corrupted := base64.StdEncoding.EncodeToString(raw)
+
+	_, err = c.Decrypt(corrupted)
+	require.ErrorIs(t, err, ErrLegacyAuthFailed)
+	assert.ErrorIs(t, c.InspectLegacy(corrupted), ErrLegacyAuthFailed)
+}
+
+func TestInspectLegacyReadableValues(t *testing.T) {
+	c := legacyCipher(t)
+	envelope, err := c.Encrypt("secret")
+	require.NoError(t, err)
+
+	for _, stored := range []string{
+		"",
+		"plain-password",
+		"AeEBAg==", // Tink prefix byte, but too short to be AES-GCM ciphertext
+		envelope,
+		loadLegacyFixtures(t).Strings[0].Ciphertext,
+	} {
+		assert.NoError(t, c.InspectLegacy(stored), stored)
+	}
 }
