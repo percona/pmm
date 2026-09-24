@@ -371,6 +371,41 @@ func (s *Service) TriggerInventoryRefresh(ctx context.Context, req *omv1.Trigger
 	return response, nil
 }
 
+// executorUnusable says why a payload cannot be dispatched to this host right now,
+// or "" when nothing is known to be wrong.
+//
+// Reads the same observed.executor sub-document SEP's own _executor_usable does
+// (om_inventory's api_routes.py), so no second call is needed: the host was already
+// fetched to read its OS. Having executor_host set is not the same answer: SEP sets
+// that the moment any known executor matches the host, usable or not.
+//
+// Checked before a run is created because of what the alternative looks like, raised
+// on the SEP side of this work: an unreachable Nomad client surfaces only once
+// pre_check -- itself dispatched through Nomad -- fails a few seconds later, by which
+// time the run exists and the UI is showing it as in progress.
+//
+// Only an explicit false rejects. A host whose sub-document is missing entirely is
+// left to SEP, which is the older behaviour and keeps a PMM talking to a SEP that
+// does not write this yet able to bootstrap at all; SEP's own listing filter is
+// stricter and reads absence as not eligible, so such a host will not be offered in
+// the UI either way.
+func executorUnusable(host sepHost) string {
+	executor, ok := host.Observed["executor"].(map[string]any)
+	if !ok {
+		return ""
+	}
+
+	reachable, ok := executor["reachable"].(bool)
+	if ok && !reachable {
+		return "its Nomad executor is not reachable"
+	}
+	driverHealthy, ok := executor["driver_healthy"].(bool)
+	if ok && !driverHealthy {
+		return "its Nomad executor's driver is not healthy"
+	}
+	return ""
+}
+
 // TriggerHostBootstrap plans installing MongoDB on one or three hosts and
 // initializing them as one replica set.
 //
@@ -420,6 +455,11 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		if host.ExecutorHost == nil || *host.ExecutorHost == "" {
 			return nil, status.Errorf(codes.FailedPrecondition,
 				"host %s has no usable Nomad executor", nodeID)
+		}
+		unusable := executorUnusable(host)
+		if unusable != "" {
+			return nil, status.Errorf(codes.FailedPrecondition,
+				"host %s cannot be bootstrapped right now: %s", nodeID, unusable)
 		}
 		hostOSID, _ := host.Observed["os_id"].(string)
 		if hostOSID == "" {
