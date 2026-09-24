@@ -49,6 +49,14 @@
           - docker-compose-plugin
         state: latest
 
+    # Jobs call the standalone docker-compose command. The Compose v2 plugin
+    # binary also runs standalone, so link it onto PATH.
+    - name: Link docker-compose to the Compose plugin
+      file:
+        src: /usr/libexec/docker/cli-plugins/docker-compose
+        dest: /usr/bin/docker-compose
+        state: link
+
     - name: Enable Docker service
       systemd:
         name: docker
