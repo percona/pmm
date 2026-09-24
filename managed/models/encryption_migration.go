@@ -21,7 +21,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"slices"
 	"strings"
 
 	"github.com/lib/pq"
@@ -130,7 +129,7 @@ var encryptedDataProbe = "SELECT EXISTS (SELECT 1 FROM agents t WHERE to_jsonb(t
 // encrypted in settings.encrypted_items (entries are "database.table.column").
 // PMM 3.x encrypted values in those columns when writing agents, except that
 // it wrote pmm-agent rows back decrypted on every pmm-agent connection; so
-// values of other agent types there are ciphertext, see scanAgents.
+// values of other agent types there are ciphertext, see secretTable.
 func legacyEncryptedColumns(settingsJSON []byte) (map[string]bool, error) {
 	var s struct {
 		EncryptedItems []string `json:"encrypted_items"`
@@ -155,6 +154,7 @@ func legacyEncryptedColumns(settingsJSON []byte) (map[string]bool, error) {
 // row. The bookkeeping disappears from the row the first time settings are
 // saved after the upgrade; by then the migration has already run.
 func storedLegacyEncryptedColumns(q *reform.Querier) (map[string]bool, error) {
+
 	var settingsJSON []byte
 	err := q.QueryRow("SELECT settings FROM settings").Scan(&settingsJSON)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -173,13 +173,12 @@ func isUndefinedTable(err error) bool {
 	return errors.As(err, &pErr) && pErr.Code == "42P01"
 }
 
-// MigrateEncryption rewrites agent rows whose stored secrets are not yet
-// encrypted with the primary key in the envelope format. Reading through the
-// model decrypts any supported format, so a plain reload-and-update converts
+// MigrateEncryption rewrites rows whose stored secrets are not yet encrypted
+// with the primary key in the envelope format. Reading through the model
+// decrypts any supported format, so a plain reload-and-update converts
 // plaintext (never encrypted), legacy ciphertext (pre-envelope) and stale-key
 // envelopes alike. Rows already in the desired state are left untouched,
-// which makes the migration idempotent and safe to run at every startup,
-// including concurrently from several HA nodes.
+// which makes the migration idempotent and safe to run at every startup.
 //
 // q must belong to a transaction; outside one the locks below last for a
 // single statement and protect nothing. An advisory lock serializes the
@@ -198,71 +197,119 @@ func MigrateEncryption(q *reform.Querier) error {
 		return fmt.Errorf("failed to lock encryption migration: %w", err)
 	}
 
-	scan, err := scanAgents(q, cipher)
-	if err != nil {
-		return err
+	scans := make([]*secretsScan, len(secretTables))
+	var undecryptable, lost []error
+	backup := make(map[string][]map[string]any)
+	for i, t := range secretTables {
+		scans[i], err = scanSecrets(q, cipher, t)
+		if err != nil {
+			return err
+		}
+		undecryptable = append(undecryptable, scans[i].undecryptable...)
+		lost = append(lost, scans[i].lost...)
+		if len(scans[i].backup) != 0 {
+			backup[t.name] = scans[i].backup
+		}
 	}
-	locations, err := scanLocations(q, cipher)
-	if err != nil {
-		return err
-	}
-	if undecryptable := slices.Concat(scan.undecryptable, locations.undecryptable); len(undecryptable) != 0 {
+	if len(undecryptable) != 0 {
 		return errUndecryptable(undecryptable)
 	}
-	if len(scan.lost) != 0 {
-		logrus.Warnf("Credentials of %d agent field(s) cannot be recovered: they were encrypted more than once "+
+	if len(lost) != 0 {
+		logrus.Warnf("%d stored credential(s) cannot be recovered: they were encrypted more than once "+
 			"by key rotation in PMM before 3.9.1 and the key of the inner layer is not available (%s). "+
 			"Place that key at %s and restart PMM Server, or re-enter the credentials of the affected services.",
-			len(scan.lost), strings.Join(scan.lost, ", "), encryption.LegacyBackupKeyPath(encryption.DefaultKeyPath()))
+			len(lost), errors.Join(lost...), encryption.LegacyBackupKeyPath(encryption.DefaultKeyPath()))
 	}
 
-	if len(scan.backup)+len(locations.backup) != 0 {
-		path, err := writeMigrationBackup(scan.backup, locations.backup)
+	if len(backup) != 0 {
+		path, err := writeMigrationBackup(backup)
 		if err != nil {
 			return fmt.Errorf("refusing to migrate encrypted data without a backup: %w", err)
 		}
-		logrus.Infof("Stored the pre-migration values of %d agent(s) and %d backup location(s) in %s",
-			len(scan.backup), len(locations.backup), path)
+		logrus.Infof("Stored the pre-migration values of rewritten rows in %s", path)
 	}
 
-	for _, id := range scan.needs {
-		agent := &Agent{}
-		err = q.SelectOneTo(agent, "WHERE agent_id = $1 FOR UPDATE", id)
-		if errors.Is(err, reform.ErrNoRows) {
-			continue // removed in the meantime
-		}
-		if err != nil {
-			return fmt.Errorf("failed to re-encrypt agent %s: %w", id, err)
-		}
-		err = q.UpdateColumns(agent, agentSecretColumns...)
-		if err != nil {
-			return fmt.Errorf("failed to re-encrypt agent %s: %w", id, err)
-		}
-	}
-
-	for _, id := range locations.needs {
-		location := &BackupLocation{}
-		err = q.SelectOneTo(location, "WHERE id = $1 FOR UPDATE", id)
-		if errors.Is(err, reform.ErrNoRows) {
-			continue
-		}
-		if err != nil {
-			return fmt.Errorf("failed to re-encrypt backup location %s: %w", id, err)
-		}
-		err = q.UpdateColumns(location, "s3_config")
-		if err != nil {
-			return fmt.Errorf("failed to re-encrypt backup location %s: %w", id, err)
+	for i, t := range secretTables {
+		for _, id := range scans[i].needs {
+			record := t.newRecord()
+			err = q.SelectOneTo(record, "WHERE "+t.idColumn+" = $1 FOR UPDATE", id)
+			if errors.Is(err, reform.ErrNoRows) {
+				continue // removed in the meantime
+			}
+			if err == nil {
+				err = q.UpdateColumns(record, t.columnNames()...)
+			}
+			if err != nil {
+				return fmt.Errorf("failed to re-encrypt %s %s: %w", t.label, id, err)
+			}
 		}
 	}
 
 	return nil
 }
 
-// agentSecretColumns are the agents columns holding encrypted secrets.
-var agentSecretColumns = []string{
-	"username", "password", "agent_password",
-	"aws_options", "azure_options", "mongo_options", "mysql_options", "postgresql_options", "valkey_options",
+// secretColumn is a column holding an encrypted secret: a scalar
+// EncryptedString, or a JSON options blob with encrypt-tagged fields.
+type secretColumn struct {
+	name string
+	// options returns a new options struct for the blob; nil for a scalar
+	options func() any
 }
+
+// secretTable describes a table whose rows hold encrypted secrets.
+type secretTable struct {
+	name      string
+	idColumn  string
+	label     string
+	newRecord func() reform.Record
+	// mayHoldPlaintext is an SQL expression over the row: true when PMM 3.x
+	// may have stored its secrets as plaintext even in columns it recorded as
+	// encrypted (see legacyEncryptedColumns)
+	mayHoldPlaintext string
+	columns          []secretColumn
+}
+
+func (t secretTable) columnNames() []string {
+	names := make([]string, len(t.columns))
+	for i, c := range t.columns {
+		names[i] = c.name
+	}
+
+	return names
+}
+
+func options[T any]() func() any { return func() any { return new(T) } }
+
+var (
+	agentsSecretTable = secretTable{
+		name:             "agents",
+		idColumn:         "agent_id",
+		label:            "agent",
+		newRecord:        func() reform.Record { return &Agent{} },
+		mayHoldPlaintext: "agent_type = '" + string(PMMAgentType) + "'",
+		columns: []secretColumn{
+			{"username", nil},
+			{"password", nil},
+			{"agent_password", nil},
+			{"aws_options", options[AWSOptions]()},
+			{"azure_options", options[AzureOptions]()},
+			{"mongo_options", options[MongoDBOptions]()},
+			{"mysql_options", options[MySQLOptions]()},
+			{"postgresql_options", options[PostgreSQLOptions]()},
+			{"valkey_options", options[ValkeyOptions]()},
+		},
+	}
+	locationsSecretTable = secretTable{
+		name:      "backup_locations",
+		idColumn:  "id",
+		label:     "backup location",
+		newRecord: func() reform.Record { return &BackupLocation{} },
+		// PMM 3.x never encrypted S3 credentials
+		mayHoldPlaintext: "TRUE",
+		columns:          []secretColumn{{"s3_config", options[S3LocationConfig]()}},
+	}
+	secretTables = []secretTable{agentsSecretTable, locationsSecretTable}
+)
 
 // AgentsNeedingReencryption returns IDs of agents with at least one stored
 // secret that is not encrypted with the primary key in the envelope format.
@@ -270,7 +317,17 @@ var agentSecretColumns = []string{
 // errUndecryptable): rewriting such a row would store the ciphertext as if it
 // were the secret.
 func AgentsNeedingReencryption(q *reform.Querier, cipher *encryption.Cipher) ([]string, error) {
-	scan, err := scanAgents(q, cipher)
+	return needingReencryption(q, cipher, agentsSecretTable)
+}
+
+// LocationsNeedingReencryption is AgentsNeedingReencryption for backup
+// locations' S3 credentials.
+func LocationsNeedingReencryption(q *reform.Querier, cipher *encryption.Cipher) ([]string, error) {
+	return needingReencryption(q, cipher, locationsSecretTable)
+}
+
+func needingReencryption(q *reform.Querier, cipher *encryption.Cipher, t secretTable) ([]string, error) {
+	scan, err := scanSecrets(q, cipher, t)
 	if err != nil {
 		return nil, err
 	}
@@ -313,139 +370,90 @@ func (e *undecryptableError) Unwrap() []error {
 }
 
 type secretsScan struct {
+	// needs lists the IDs of rows to rewrite
 	needs         []string
 	undecryptable []error
 	// lost lists secrets whose innermost layer's key is gone; they cannot be
 	// recovered by PMM and are reported, not treated as a key mismatch
-	lost []string
+	lost []error
 	// backup holds the stored columns of rows rewritten from the pre-envelope
 	// format, see writeMigrationBackup
 	backup []map[string]any
 }
 
-func scanAgents(q *reform.Querier, cipher *encryption.Cipher) (*secretsScan, error) {
+// scanSecrets classifies the stored secrets of every row of t without
+// decrypting them into the model.
+func scanSecrets(q *reform.Querier, cipher *encryption.Cipher, t secretTable) (*secretsScan, error) {
 	strict, err := storedLegacyEncryptedColumns(q)
 	if err != nil {
 		return nil, err
 	}
 
-	// the Scan below follows the order of agentSecretColumns
-	rows, err := q.Query("SELECT agent_id, agent_type, " + strings.Join(agentSecretColumns, ", ") + " FROM agents ORDER BY agent_id")
+	rows, err := q.Query("SELECT " + t.idColumn + ", " + t.mayHoldPlaintext + ", " + strings.Join(t.columnNames(), ", ") +
+		" FROM " + t.name + " ORDER BY " + t.idColumn)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read agents: %w", err)
-	}
-	defer rows.Close() //nolint:errcheck
-
-	scan := &secretsScan{}
-	for rows.Next() {
-		var id, agentType string
-		var username, password, agentPassword sql.NullString
-		var aws, azure, mongo, mysql, postgresql, valkey sql.NullString
-		err = rows.Scan(&id, &agentType, &username, &password, &agentPassword, &aws, &azure, &mongo, &mysql, &postgresql, &valkey)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read agents: %w", err)
-		}
-
-		insp := &inspector{cipher: cipher, strict: strict}
-		if AgentType(agentType) == PMMAgentType {
-			insp.strict = nil // may hold plaintext, see legacyEncryptedColumns
-		}
-		insp.scalar("username", username)
-		insp.scalar("password", password)
-		insp.scalar("agent_password", agentPassword)
-		for _, o := range []optionsColumn{
-			{"aws_options", aws, &AWSOptions{}},
-			{"azure_options", azure, &AzureOptions{}},
-			{"mongo_options", mongo, &MongoDBOptions{}},
-			{"mysql_options", mysql, &MySQLOptions{}},
-			{"postgresql_options", postgresql, &PostgreSQLOptions{}},
-			{"valkey_options", valkey, &ValkeyOptions{}},
-		} {
-			err = insp.options(o)
-			if err != nil {
-				return nil, fmt.Errorf("agent %s: %w", id, err)
-			}
-		}
-
-		for _, p := range insp.undecryptable {
-			scan.undecryptable = append(scan.undecryptable, fmt.Errorf("agent %s %s: %w", id, p.column, p.err))
-		}
-		if insp.needs && len(insp.undecryptable) == 0 {
-			// reported once, when the row is rewritten; later reads see an
-			// envelope around the unrecoverable inner layer
-			for _, p := range insp.lost {
-				scan.lost = append(scan.lost, fmt.Sprintf("agent %s %s", id, p.column))
-			}
-			scan.needs = append(scan.needs, id)
-			if insp.preEnvelope {
-				scan.backup = append(scan.backup, map[string]any{
-					"agent_id": id, "username": nullString(username), "password": nullString(password),
-					"agent_password": nullString(agentPassword), "aws_options": rawJSON(aws), "azure_options": rawJSON(azure),
-					"mongo_options": rawJSON(mongo), "mysql_options": rawJSON(mysql), "postgresql_options": rawJSON(postgresql),
-					"valkey_options": rawJSON(valkey),
-				})
-			}
-		}
-	}
-
-	return scan, rows.Err()
-}
-
-// LocationsNeedingReencryption returns IDs of backup locations whose stored
-// S3 credentials are not encrypted with the primary key in the envelope format.
-// PMM 3.x stored them as plaintext, so only values that fail authentication
-// under a known key are treated as undecryptable.
-func LocationsNeedingReencryption(q *reform.Querier, cipher *encryption.Cipher) ([]string, error) {
-	scan, err := scanLocations(q, cipher)
-	if err != nil {
-		return nil, err
-	}
-	if len(scan.undecryptable) != 0 {
-		return nil, errUndecryptable(scan.undecryptable)
-	}
-
-	return scan.needs, nil
-}
-
-func scanLocations(q *reform.Querier, cipher *encryption.Cipher) (*secretsScan, error) {
-	rows, err := q.Query(`SELECT id, s3_config FROM backup_locations ORDER BY id`)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read backup locations: %w", err)
+		return nil, fmt.Errorf("failed to read %s: %w", t.name, err)
 	}
 	defer rows.Close() //nolint:errcheck
 
 	scan := &secretsScan{}
 	for rows.Next() {
 		var id string
-		var s3Config sql.NullString
-		err = rows.Scan(&id, &s3Config)
+		var mayHoldPlaintext bool
+		values := make([]sql.NullString, len(t.columns))
+		dest := []any{&id, &mayHoldPlaintext}
+		for i := range values {
+			dest = append(dest, &values[i])
+		}
+		err = rows.Scan(dest...)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read backup locations: %w", err)
+			return nil, fmt.Errorf("failed to read %s: %w", t.name, err)
 		}
 
 		insp := &inspector{cipher: cipher}
-		err = insp.options(optionsColumn{"s3_config", s3Config, &S3LocationConfig{}})
-		if err != nil {
-			return nil, fmt.Errorf("backup location %s: %w", id, err)
+		if !mayHoldPlaintext {
+			insp.strict = strict
 		}
-		for _, p := range insp.undecryptable {
-			scan.undecryptable = append(scan.undecryptable, fmt.Errorf("backup location %s %s: %w", id, p.column, p.err))
-		}
-		if insp.needs && len(insp.undecryptable) == 0 {
-			scan.needs = append(scan.needs, id)
-			if insp.preEnvelope {
-				scan.backup = append(scan.backup, map[string]any{"id": id, "s3_config": rawJSON(s3Config)})
+		stored := map[string]any{t.idColumn: id}
+		for i, c := range t.columns {
+			err = insp.column(c, values[i])
+			if err != nil {
+				return nil, fmt.Errorf("%s %s: %w", t.label, id, err)
 			}
+			stored[c.name] = storedValue(c, values[i])
+		}
+
+		for _, p := range insp.undecryptable {
+			scan.undecryptable = append(scan.undecryptable, fmt.Errorf("%s %s %s: %w", t.label, id, p.column, p.err))
+		}
+		if !insp.needs || len(insp.undecryptable) != 0 {
+			continue
+		}
+		// reported once, when the row is rewritten; later reads see an
+		// envelope around the unrecoverable inner layer
+		for _, p := range insp.lost {
+			scan.lost = append(scan.lost, fmt.Errorf("%s %s %s", t.label, id, p.column))
+		}
+		scan.needs = append(scan.needs, id)
+		if insp.preEnvelope {
+			scan.backup = append(scan.backup, stored)
 		}
 	}
 
 	return scan, rows.Err()
 }
 
-type optionsColumn struct {
-	name   string
-	raw    sql.NullString
-	target any
+// storedValue returns a column as stored, for the migration backup: JSON
+// blobs stay JSON.
+func storedValue(c secretColumn, v sql.NullString) any {
+	switch {
+	case !v.Valid:
+		return nil
+	case c.options != nil && json.Valid([]byte(v.String)):
+		return json.RawMessage(v.String)
+	default:
+		return v.String
+	}
 }
 
 type columnProblem struct {
@@ -492,26 +500,25 @@ func (i *inspector) value(column, stored string) {
 	}
 }
 
-func (i *inspector) scalar(column string, v sql.NullString) {
-	if v.Valid {
-		i.value(column, v.String)
+// column inspects a scalar secret, or the tagged secret sub-fields of an
+// options blob, unmarshaled without decrypting them.
+func (i *inspector) column(c secretColumn, v sql.NullString) error {
+	if !v.Valid {
+		return nil
 	}
-}
-
-// options unmarshals a stored options blob without decrypting it and
-// inspects its tagged secret sub-fields.
-func (i *inspector) options(o optionsColumn) error {
-	if !o.raw.Valid {
+	if c.options == nil {
+		i.value(c.name, v.String)
 		return nil
 	}
 
-	err := json.Unmarshal([]byte(o.raw.String), o.target)
+	target := c.options()
+	err := json.Unmarshal([]byte(v.String), target)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal %s: %w", o.name, err)
+		return fmt.Errorf("failed to unmarshal %s: %w", c.name, err)
 	}
 
-	return applyToSecretFields(o.target, func(s string) (string, error) {
-		i.value(o.name, s)
+	return applyToSecretFields(target, func(s string) (string, error) {
+		i.value(c.name, s)
 		return s, nil
 	})
 }

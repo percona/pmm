@@ -425,19 +425,22 @@ func TestMigrateEncryptionBackup(t *testing.T) {
 	assert.Equal(t, os.FileMode(0o600), info.Mode().Perm())
 
 	var backup struct {
-		Agents []struct {
-			AgentID      string          `json:"agent_id"`
-			Password     string          `json:"password"`
-			MySQLOptions json.RawMessage `json:"mysql_options"`
-		} `json:"agents"`
+		Tables struct {
+			Agents []struct {
+				AgentID      string          `json:"agent_id"`
+				Password     string          `json:"password"`
+				MySQLOptions json.RawMessage `json:"mysql_options"`
+			} `json:"agents"`
+		} `json:"tables"`
 	}
 	data, err := os.ReadFile(files[0])
 	require.NoError(t, err)
 	require.NoError(t, json.Unmarshal(data, &backup))
-	require.Len(t, backup.Agents, 1)
-	assert.Equal(t, "A1", backup.Agents[0].AgentID)
-	assert.Equal(t, "plain-password", backup.Agents[0].Password)
-	assert.JSONEq(t, `{"tls_key": "plain-key"}`, string(backup.Agents[0].MySQLOptions))
+	agents := backup.Tables.Agents
+	require.Len(t, agents, 1)
+	assert.Equal(t, "A1", agents[0].AgentID)
+	assert.Equal(t, "plain-password", agents[0].Password)
+	assert.JSONEq(t, `{"tls_key": "plain-key"}`, string(agents[0].MySQLOptions))
 
 	// rows already in the envelope format are not backed up again
 	require.NoError(t, models.MigrateEncryption(q))

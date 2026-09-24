@@ -16,7 +16,6 @@
 package models
 
 import (
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -30,18 +29,18 @@ import (
 // MigrationBackupPattern matches the files written by writeMigrationBackup.
 const MigrationBackupPattern = "pmm-encryption-migration-backup-*.json"
 
-// writeMigrationBackup stores the columns of rows the migration rewrites from
-// the pre-envelope format, exactly as they are stored, next to the key file.
-// The rewrite cannot be undone otherwise: older PMM versions cannot read the
-// envelope format. Values are as sensitive as the database itself (legacy
-// ciphertext, or secrets PMM 3.x stored as plaintext), so the file is
-// readable by the owner only.
-func writeMigrationBackup(agents, locations []map[string]any) (string, error) {
+// writeMigrationBackup stores the secret columns of the rows, by table, that
+// the migration rewrites from the pre-envelope format, exactly as they are
+// stored, next to the key file. If that directory is not writable, the backup
+// goes to PMM Server's data directory. The rewrite cannot be undone otherwise:
+// older PMM versions cannot read the envelope format. Values are as sensitive
+// as the database itself (legacy ciphertext, or secrets PMM 3.x stored as
+// plaintext), so the file is readable by the owner only.
+func writeMigrationBackup(rows map[string][]map[string]any) (string, error) {
 	data, err := json.MarshalIndent(map[string]any{
-		"created_at":       time.Now().UTC().Format(time.RFC3339),
-		"key_path":         encryption.DefaultKeyPath(),
-		"agents":           agents,
-		"backup_locations": locations,
+		"created_at": time.Now().UTC().Format(time.RFC3339),
+		"key_path":   encryption.DefaultKeyPath(),
+		"tables":     rows,
 	}, "", "  ")
 	if err != nil {
 		return "", err
@@ -93,25 +92,4 @@ func writeFileAtomically(dir string, data []byte) (string, error) {
 	}
 
 	return path, nil
-}
-
-func nullString(v sql.NullString) any {
-	if !v.Valid {
-		return nil
-	}
-
-	return v.String
-}
-
-// rawJSON keeps a JSON column as JSON in the backup, or as a string if it is
-// not valid JSON.
-func rawJSON(v sql.NullString) any {
-	if !v.Valid {
-		return nil
-	}
-	if json.Valid([]byte(v.String)) {
-		return json.RawMessage(v.String)
-	}
-
-	return v.String
 }
