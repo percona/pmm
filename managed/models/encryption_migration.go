@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/encryption"
@@ -56,9 +57,29 @@ func initDefaultCipher(ctx context.Context, db *sql.DB) error {
 	if err != nil {
 		return err
 	}
+
+	cipher = withLegacyBackupKey(cipher, keyPath)
 	encryption.SetDefaultCipher(cipher)
 
 	return nil
+}
+
+// withLegacyBackupKey adds the key PMM 3.x rotation left next to the key file
+// as decrypt-only, so the migration can remove the layers it stacked on
+// option fields (PMM-15188). The file is optional and never modified.
+func withLegacyBackupKey(cipher *encryption.Cipher, keyPath string) *encryption.Cipher {
+	backupPath := encryption.LegacyBackupKeyPath(keyPath)
+	withBackup, err := cipher.WithLegacyKeys(encryption.NewFileKeyProvider(backupPath))
+	switch {
+	case errors.Is(err, encryption.ErrKeysetNotFound):
+		return cipher
+	case err != nil:
+		logrus.Warnf("Ignoring the previous encryption key at %s: %s", backupPath, err)
+		return cipher
+	}
+	logrus.Infof("Using the previous encryption key at %s to decrypt data encrypted before key rotation", backupPath)
+
+	return withBackup
 }
 
 // DatabaseHasEncryptedData reports whether the database contains values that
@@ -169,10 +190,20 @@ func MigrateEncryption(q *reform.Querier) error {
 		return err
 	}
 
-	ids, err := AgentsNeedingReencryption(q, cipher)
+	scan, err := scanAgents(q, cipher)
 	if err != nil {
 		return err
 	}
+	if len(scan.undecryptable) != 0 {
+		return errUndecryptable(scan.undecryptable)
+	}
+	if len(scan.lost) != 0 {
+		logrus.Warnf("Credentials of %d agent field(s) cannot be recovered: they were encrypted more than once "+
+			"by key rotation in PMM before 3.9.1 and the key of the inner layer is not available (%s). "+
+			"Place that key at %s and restart PMM Server, or re-enter the credentials of the affected services.",
+			len(scan.lost), strings.Join(scan.lost, ", "), encryption.LegacyBackupKeyPath(encryption.DefaultKeyPath()))
+	}
+	ids := scan.needs
 
 	for _, id := range ids {
 		agent := &Agent{AgentID: id}
@@ -242,6 +273,9 @@ func errUndecryptable(problems []string) error {
 type agentsScan struct {
 	needs         []string
 	undecryptable []string
+	// lost lists secrets whose innermost layer's key is gone; they cannot be
+	// recovered by PMM and are reported, not treated as a key mismatch
+	lost []string
 }
 
 func scanAgents(q *reform.Querier, cipher *encryption.Cipher) (*agentsScan, error) {
@@ -290,6 +324,9 @@ func scanAgents(q *reform.Querier, cipher *encryption.Cipher) (*agentsScan, erro
 
 		for _, p := range insp.undecryptable {
 			scan.undecryptable = append(scan.undecryptable, fmt.Sprintf("agent %s %s: %s", id, p.column, p.err))
+		}
+		for _, p := range insp.lost {
+			scan.lost = append(scan.lost, fmt.Sprintf("agent %s %s", id, p.column))
 		}
 		if insp.needs && len(insp.undecryptable) == 0 {
 			scan.needs = append(scan.needs, id)
@@ -362,21 +399,26 @@ type inspector struct {
 	strict        map[string]bool
 	needs         bool
 	undecryptable []columnProblem
+	lost          []columnProblem
 }
 
 func (i *inspector) value(column, stored string) {
 	if stored == "" {
 		return
 	}
-	if i.cipher.NeedsReencrypt(stored) {
+	insp, err := i.cipher.Inspect(stored)
+	if i.cipher.NeedsReencrypt(stored) || insp.ExtraLayers > 0 {
 		i.needs = true
 	}
 
-	err := i.cipher.InspectLegacy(stored)
-	if errors.Is(err, encryption.ErrLegacyUnknownKey) && !i.strict[column] {
-		return // plaintext that happens to look like ciphertext
-	}
-	if err != nil {
+	switch {
+	case err == nil:
+	case errors.Is(err, encryption.ErrLegacyUnknownKey) && !i.strict[column]:
+		// plaintext that happens to look like ciphertext
+	case errors.Is(err, encryption.ErrLegacyInnerKeyLost):
+		// the key matches; the secret was lost to stacked layers before
+		i.lost = append(i.lost, columnProblem{column, err})
+	default:
 		i.undecryptable = append(i.undecryptable, columnProblem{column, err})
 	}
 }

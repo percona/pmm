@@ -249,3 +249,78 @@ func TestDatabaseHasEncryptedDataInOptions(t *testing.T) {
 	require.NoError(t, err)
 	assert.True(t, hasEncrypted)
 }
+
+// TestMigrateEncryptionStackedLayers covers option fields corrupted by key
+// rotation before PMM 3.9.1 (PMM-15188): the value is new(old(secret)) and
+// the previous key is the one PMM 3.x rotation left next to the key file.
+func TestMigrateEncryptionStackedLayers(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+
+	current, err := encryption.DefaultCipher()
+	require.NoError(t, err)
+	oldProvider := encryption.NewFileKeyProvider(t.TempDir() + "/pmm-encryption_old.key")
+	oldKey, err := encryption.CreateCipher(oldProvider)
+	require.NoError(t, err)
+	lostKey, err := encryption.CreateCipher(encryption.NewFileKeyProvider(t.TempDir() + "/lost.key"))
+	require.NoError(t, err)
+
+	withOld, err := current.WithLegacyKeys(oldProvider)
+	require.NoError(t, err)
+	encryption.SetDefaultCipher(withOld)
+	t.Cleanup(func() { encryption.SetDefaultCipher(current) })
+
+	layer := func(c *encryption.Cipher, plaintext string) string {
+		stored, err := c.Encrypt(plaintext)
+		require.NoError(t, err)
+		return strings.TrimPrefix(stored, encryption.EnvelopePrefix)
+	}
+	const tlsKey = "-----BEGIN PRIVATE KEY-----\nkey\n-----END PRIVATE KEY-----\n"
+	options := func(stored string) string {
+		b, err := json.Marshal(map[string]any{"tls_key": stored})
+		require.NoError(t, err)
+		return string(b)
+	}
+
+	now := time.Now()
+	_, err = sqlDB.ExecContext(t.Context(),
+		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
+			"VALUES ('N1', 'generic', 'name', '', '', '', '', $1, $2)", now, now)
+	require.NoError(t, err)
+	for id, stored := range map[string]string{
+		"repairable": layer(current, layer(oldKey, tlsKey)),
+		"lost":       layer(current, layer(lostKey, tlsKey)),
+	} {
+		_, err = sqlDB.ExecContext(t.Context(),
+			`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, mysql_options) `+
+				`VALUES ($1, 'mysqld_exporter', 'N1', false, '', $2, $3, false, false, $4)`,
+			id, now, now, options(stored))
+		require.NoError(t, err)
+	}
+
+	// the lost secret is reported, not treated as a key mismatch
+	require.NoError(t, models.MigrateEncryption(q))
+
+	agent, err := models.FindAgentByID(q, "repairable")
+	require.NoError(t, err)
+	assert.Equal(t, tlsKey, agent.MySQLOptions.TLSKey)
+
+	// the repaired value is a single envelope readable without the previous key
+	var raw string
+	require.NoError(t, sqlDB.QueryRowContext(t.Context(), `SELECT mysql_options FROM agents WHERE agent_id = 'repairable'`).Scan(&raw))
+	var stored models.MySQLOptions
+	require.NoError(t, json.Unmarshal([]byte(raw), &stored))
+	decrypted, err := current.Decrypt(stored.TLSKey)
+	require.NoError(t, err)
+	assert.Equal(t, tlsKey, decrypted)
+
+	// the other agent stays readable, and the sweep has converged
+	_, err = models.FindAgentByID(q, "lost")
+	require.NoError(t, err)
+	ids, err := models.AgentsNeedingReencryption(q, withOld)
+	require.NoError(t, err)
+	assert.Empty(t, ids)
+}

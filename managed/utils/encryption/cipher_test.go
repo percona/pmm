@@ -320,7 +320,8 @@ func TestLegacyWrongKey(t *testing.T) {
 	decrypted, err := c.Decrypt(legacy)
 	require.NoError(t, err)
 	assert.Equal(t, legacy, decrypted)
-	assert.ErrorIs(t, c.InspectLegacy(legacy), ErrLegacyUnknownKey)
+	_, err = c.Inspect(legacy)
+	assert.ErrorIs(t, err, ErrLegacyUnknownKey)
 }
 
 func TestLegacyAuthFailure(t *testing.T) {
@@ -335,7 +336,8 @@ func TestLegacyAuthFailure(t *testing.T) {
 
 	_, err = c.Decrypt(corrupted)
 	require.ErrorIs(t, err, ErrLegacyAuthFailed)
-	assert.ErrorIs(t, c.InspectLegacy(corrupted), ErrLegacyAuthFailed)
+	_, err = c.Inspect(corrupted)
+	assert.ErrorIs(t, err, ErrLegacyAuthFailed)
 }
 
 func TestInspectLegacyReadableValues(t *testing.T) {
@@ -350,6 +352,88 @@ func TestInspectLegacyReadableValues(t *testing.T) {
 		envelope,
 		loadLegacyFixtures(t).Strings[0].Ciphertext,
 	} {
-		assert.NoError(t, c.InspectLegacy(stored), stored)
+		insp, err := c.Inspect(stored)
+		assert.NoError(t, err, stored)
+		assert.Zero(t, insp.ExtraLayers, stored)
 	}
+}
+
+// legacyLayer encrypts plaintext in the legacy format (no envelope prefix).
+func legacyLayer(t *testing.T, c *Cipher, plaintext string) string {
+	t.Helper()
+
+	stored, err := c.Encrypt(plaintext)
+	require.NoError(t, err)
+
+	return strings.TrimPrefix(stored, EnvelopePrefix)
+}
+
+// TestStackedLegacyLayers covers values corrupted by key rotation before
+// PMM 3.9.1 (PMM-15188): its decrypt phase encrypted option fields with the
+// old key instead of decrypting them, then the encrypt phase added a layer
+// with the new key. After one rotation a value is new(old(secret)), after two
+// new2(new1(new1(old(secret)))).
+func TestStackedLegacyLayers(t *testing.T) {
+	dir := t.TempDir()
+	oldProvider := NewFileKeyProvider(filepath.Join(dir, "encryption_old.key"))
+	oldKey, err := CreateCipher(oldProvider)
+	require.NoError(t, err)
+	current := newTestCipher(t)
+
+	const secret = "-----BEGIN PRIVATE KEY-----\nsecret\n-----END PRIVATE KEY-----\n"
+	oneRotation := legacyLayer(t, current, legacyLayer(t, oldKey, secret))
+
+	t.Run("previous key available", func(t *testing.T) {
+		c, err := current.WithLegacyKeys(oldProvider)
+		require.NoError(t, err)
+
+		decrypted, err := c.Decrypt(oneRotation)
+		require.NoError(t, err)
+		assert.Equal(t, secret, decrypted)
+		insp, err := c.Inspect(oneRotation)
+		require.NoError(t, err)
+		assert.Equal(t, 1, insp.ExtraLayers)
+
+		// a value migrated before the key was found still heals: the layer
+		// under the envelope is removed on read
+		migrated, err := current.Encrypt(legacyLayer(t, oldKey, secret))
+		require.NoError(t, err)
+		decrypted, err = c.Decrypt(migrated)
+		require.NoError(t, err)
+		assert.Equal(t, secret, decrypted)
+		insp, err = c.Inspect(migrated)
+		require.NoError(t, err)
+		assert.Equal(t, 1, insp.ExtraLayers)
+
+		// the decrypt-only key never encrypts
+		reencrypted, err := c.Encrypt(secret)
+		require.NoError(t, err)
+		keyID, ok := StoredKeyID(reencrypted)
+		require.True(t, ok)
+		assert.Equal(t, current.PrimaryKeyID(), keyID)
+	})
+
+	t.Run("repeated layers of the same key", func(t *testing.T) {
+		c, err := current.WithLegacyKeys(oldProvider)
+		require.NoError(t, err)
+		stacked := legacyLayer(t, current, legacyLayer(t, current, legacyLayer(t, oldKey, secret)))
+
+		decrypted, err := c.Decrypt(stacked)
+		require.NoError(t, err)
+		assert.Equal(t, secret, decrypted)
+	})
+
+	t.Run("inner key lost", func(t *testing.T) {
+		// without the previous key the secret cannot be recovered; reads do
+		// not fail (other rows stay usable) but Inspect reports it
+		_, err := current.Decrypt(oneRotation)
+		require.NoError(t, err)
+		_, err = current.Inspect(oneRotation)
+		assert.ErrorIs(t, err, ErrLegacyInnerKeyLost)
+	})
+}
+
+func TestLegacyBackupKeyPath(t *testing.T) {
+	assert.Equal(t, "/srv/pmm-encryption_old.key", LegacyBackupKeyPath("/srv/pmm-encryption.key"))
+	assert.Equal(t, "/etc/custom-key_old.key", LegacyBackupKeyPath("/etc/custom-key"))
 }
