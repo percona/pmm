@@ -55,11 +55,11 @@ const extensionsInternalToken = env.PMM_DEV_EXTENSIONS_INTERNAL_TOKEN;
 // Escape hatch for a side-car that is not serving the `/extensions` prefix
 // itself. Setting PMM_DEV_EXTENSIONS_STRIP_PREFIX=1 strips it before forwarding.
 //
-// The supported setup does not need this. SEP-1794 added a `EXTENSIONS.ROOT_PATH`
-// setting, passed to the `FastAPI(root_path=…)` constructor, so a side-car
+// The supported setup does not need this. The side-car's `EXTENSIONS.ROOT_PATH`
+// setting is passed to the `FastAPI(root_path=…)` constructor, so a side-car
 // started with `EXTENSIONS__ROOT_PATH=/extensions` serves the prefix and the
 // proxy hands it over untouched. Reach for the strip only against a side-car
-// that predates that change or runs with `ROOT_PATH` unset.
+// that has no `ROOT_PATH` setting or runs with it unset.
 //
 // Do not pair it with uvicorn's `--root-path`. That flag *prepends* root_path
 // to the request path (`h11_impl.py`: `full_path = root_path + path`) instead
