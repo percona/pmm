@@ -70,12 +70,18 @@ export function IncidentListPage() {
   // Prefer total over the current page's items so deleting the last row on a
   // later page does not flash the empty state while the list jumps back.
   const isEmpty = data?.total === 0;
-  const hasIncidents = Boolean(incidents && incidents.length > 0);
+  const showIntro = isLoading || !isEmpty || Boolean(error);
   const sendDisabledReasons = config?.send_disabled_reasons ?? [];
   const createMutation = useCreateAtwIncident();
   const updateMutation = useUpdateAtwIncident();
   const deleteMutation = useDeleteAtwIncident();
   const lifecycle = useAtwIncidentLifecycle();
+
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createName, setCreateName] = useState('');
+  const [renameTarget, setRenameTarget] = useState<AtwIncident | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<AtwIncident | null>(null);
 
   const openCreateDialog = () => {
     createMutation.reset();
@@ -94,12 +100,6 @@ export function IncidentListPage() {
       }));
     }
   }, [data]);
-
-  const [createOpen, setCreateOpen] = useState(false);
-  const [createName, setCreateName] = useState('');
-  const [renameTarget, setRenameTarget] = useState<AtwIncident | null>(null);
-  const [renameValue, setRenameValue] = useState('');
-  const [deleteTarget, setDeleteTarget] = useState<AtwIncident | null>(null);
 
   const handleCreate = () => {
     const name = createName.trim();
@@ -161,7 +161,7 @@ export function IncidentListPage() {
           </Button>
         )}
       </Stack>
-      {(isLoading || !isEmpty || error) && (
+      {showIntro && (
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
           Open an incident to run diagnostic snippets and review their results
           in one place.
@@ -186,19 +186,17 @@ export function IncidentListPage() {
         </Alert>
       )}
 
-      {!isLoading &&
-        !error &&
-        canMutate &&
-        sendDisabledReasons.length > 0 && <SendUnavailableNotice />}
+      {!isLoading && !error && canMutate && sendDisabledReasons.length > 0 && (
+        <SendUnavailableNotice />
+      )}
 
       {!isLoading && !error && isEmpty && (
         <IncidentsEmptyState
-          canMutate={canMutate}
           onCreate={canMutate ? openCreateDialog : undefined}
         />
       )}
 
-      {hasIncidents && incidents && (
+      {incidents && incidents.length > 0 && (
         <Stack spacing={1}>
           {incidents.map((incident) => (
             <Box

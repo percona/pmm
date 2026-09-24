@@ -23,24 +23,20 @@ import {
 } from './IncidentsEmptyState.messages';
 
 export interface IncidentsEmptyStateProps {
-  /** Whether this session may create incidents (administrator today). */
-  canMutate: boolean;
-  /** Opens the create-incident dialog. Omitted when `canMutate` is false. */
+  /** Opens the create-incident dialog. Omit for a read-only session. */
   onCreate?: () => void;
 }
 
 /**
  * Peak Design empty state for the Support diagnostics landing page when no
  * incidents exist yet: what an incident is, what a run collects, where results
- * go, the primary create action (for admins), and a docs link.
+ * go, the primary create action (when `onCreate` is set), and a docs link.
  *
- * `@percona/peak-ui` has no public EmptyState component; layout matches the
- * former ServiceNow setup prompt and other PMM empty states (centered stack).
+ * No Peak illustration: `plugins/atw` does not depend on `@percona/peak-ui`,
+ * unlike in-app empty states such as RealtimeSelectionViewerEmptyState. The
+ * layout is a centered MUI stack matching the former ServiceNow setup prompt.
  */
-export function IncidentsEmptyState({
-  canMutate,
-  onCreate,
-}: IncidentsEmptyStateProps) {
+export function IncidentsEmptyState({ onCreate }: IncidentsEmptyStateProps) {
   return (
     <Stack
       alignItems="center"
@@ -59,7 +55,7 @@ export function IncidentsEmptyState({
           {Messages.description}
         </Typography>
 
-        {canMutate && onCreate && (
+        {onCreate && (
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -75,7 +71,7 @@ export function IncidentsEmptyState({
           href={SUPPORT_DIAGNOSTICS_DOCS_URL}
           target="_blank"
           rel="noopener noreferrer"
-          sx={{ mt: canMutate && onCreate ? 2 : 3 }}
+          sx={{ mt: 2 }}
           data-testid="atw-incidents-empty-docs"
         >
           {Messages.howItWorks}
