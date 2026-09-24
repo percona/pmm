@@ -579,7 +579,7 @@
               "type": "object",
               "properties": {
                 "run": {
-                  "description": "GetBootstrapRunResponse is one run, in full, as of this call.\n\nA thin proxy onto the side-car's om_bootstrap GET /runs/{id}, which reconciles the\nrun's in-flight dispatches before answering -- so polling this is enough to\nsee a step's real outcome, not a stale snapshot.",
+                  "description": "GetBootstrapRunResponse is one run, in full, as of this call.\n\nA thin proxy onto PMM Extensions' om_bootstrap GET /runs/{id}, which reconciles the\nrun's in-flight dispatches before answering -- so polling this is enough to\nsee a step's real outcome, not a stale snapshot.",
                   "type": "object",
                   "properties": {
                     "run_id": {
@@ -587,7 +587,7 @@
                       "x-order": 0
                     },
                     "status": {
-                      "description": "\"running\", \"succeeded\", \"failed\", or \"rolled_back\" -- the side-car's own\nBootstrapRunStatus values, passed through verbatim.",
+                      "description": "\"running\", \"succeeded\", \"failed\", or \"rolled_back\" -- PMM Extensions' own\nBootstrapRunStatus values, passed through verbatim.",
                       "type": "string",
                       "x-order": 1
                     },
@@ -616,7 +616,7 @@
                                   "x-order": 0
                                 },
                                 "status": {
-                                  "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- the side-car's own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
+                                  "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- PMM Extensions' own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
                                   "type": "string",
                                   "x-order": 1
                                 },
@@ -649,7 +649,7 @@
                                   "x-order": 0
                                 },
                                 "status": {
-                                  "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- the side-car's own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
+                                  "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- PMM Extensions' own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
                                   "type": "string",
                                   "x-order": 1
                                 },
@@ -682,7 +682,7 @@
                                   "x-order": 0
                                 },
                                 "status": {
-                                  "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- the side-car's own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
+                                  "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- PMM Extensions' own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
                                   "type": "string",
                                   "x-order": 1
                                 },
@@ -719,7 +719,7 @@
                             "x-order": 0
                           },
                           "status": {
-                            "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- the side-car's own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
+                            "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- PMM Extensions' own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
                             "type": "string",
                             "x-order": 1
                           },

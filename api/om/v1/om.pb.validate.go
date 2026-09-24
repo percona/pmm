@@ -6711,7 +6711,6 @@ func (m *BootstrapMemberConfig) validate(all bool) error {
 	// no validation rules for DelaySecs
 
 	if m.Priority != nil {
-
 		if m.GetPriority() > 1000 {
 			err := BootstrapMemberConfigValidationError{
 				field:  "Priority",
@@ -6722,7 +6721,6 @@ func (m *BootstrapMemberConfig) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
-
 	}
 
 	if m.Votes != nil {
