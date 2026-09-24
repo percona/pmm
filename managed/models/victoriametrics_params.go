@@ -16,6 +16,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -43,13 +44,120 @@ type VictoriaMetricsParams struct {
 	url *url.URL
 }
 
-// NewVictoriaMetricsParams - returns configuration params for VictoriaMetrics.
-func NewVictoriaMetricsParams(basePath string, vmURL string) (*VictoriaMetricsParams, error) {
+// ParseVictoriaMetricsURL parses and validates a VictoriaMetrics base URL (PMM_VM_URL): an http or
+// https URL with a host. A trailing slash is appended when missing so that paths resolve under it.
+// Error messages never echo credentials the URL may carry.
+func ParseVictoriaMetricsURL(vmURL string) (*url.URL, error) {
 	if !strings.HasSuffix(vmURL, "/") {
 		vmURL += "/"
 	}
 
 	URL, err := url.Parse(vmURL)
+	if err != nil {
+		var urlErr *url.Error
+		if errors.As(err, &urlErr) {
+			err = urlErr.Err
+		}
+		return nil, fmt.Errorf("invalid VictoriaMetrics URL: %w", err)
+	}
+	if (URL.Scheme != "http" && URL.Scheme != "https") || URL.Host == "" || URL.Opaque != "" {
+		// A scheme-less value is exactly the shape that lands here, and url.Parse leaves its
+		// credentials in Opaque, where clearing URL.User would not reach them.
+		return nil, fmt.Errorf("invalid VictoriaMetrics URL '%s': expected http(s)://host[:port][/path]", RedactURLCredentials(vmURL))
+	}
+
+	return URL, nil
+}
+
+// RedactURLCredentials replaces the userinfo of every URL in value with <redacted>, for URLs that
+// reach a log line or an error message. The value may be a comma-separated list, the shape vmagent
+// takes for a remote-write URL, and each element is redacted on its own: parsing the list as a
+// single URL leaves everything after the first comma in the path, where the userinfo of the
+// remaining elements survives untouched.
+//
+// A comma is also legal inside userinfo, so the split alone cannot tell a list of URLs from one
+// URL whose password contains a comma. The split is therefore only trusted for a value that is a
+// list of URLs throughout; anything else is redacted as the single URL it is, and is redacted
+// whole when even that cannot be parsed or leaves an '@' behind.
+func RedactURLCredentials(value string) string {
+	elements := strings.Split(value, ",")
+	if len(elements) > 1 && everyElementHasScheme(elements) {
+		for i, element := range elements {
+			redacted, ok := redactURLElementCredentials(element)
+			if !ok && strings.Contains(element, "@") {
+				redacted = "<redacted>"
+			}
+			elements[i] = redacted
+		}
+
+		return strings.Join(elements, ",")
+	}
+
+	// Not a list, so any comma belongs to this one URL and it is redacted as one. Splitting first
+	// would hand the text before the comma to an element of its own, where the front of a password
+	// no longer looks like a credential and would be printed verbatim.
+	redacted, ok := redactURLElementCredentials(value)
+	if !ok && strings.Contains(value, "@") {
+		return "<redacted>"
+	}
+	// An '@' left after a comma means this was a list after all, malformed enough that parsing it
+	// as a single URL left a later element's userinfo in the path untouched.
+	comma := strings.Index(redacted, ",")
+	if comma >= 0 && strings.Contains(redacted[comma:], "@") {
+		return "<redacted>"
+	}
+
+	return redacted
+}
+
+// everyElementHasScheme reports whether each element carries a scheme, which is what vmagent
+// requires of a remote-write URL and what makes the comma that separated them a list separator
+// rather than part of a credential. An element that carries a scheme but does not parse still
+// belongs to the list and is redacted on its own; an empty element carries nothing and does not
+// disqualify the list.
+func everyElementHasScheme(elements []string) bool {
+	for _, element := range elements {
+		if element != "" && !strings.Contains(element, "://") {
+			return false
+		}
+	}
+
+	return true
+}
+
+// redactURLElementCredentials redacts one URL and reports whether it could be parsed at all. A
+// scheme-less user:pass@host parses as an opaque URL with no userinfo to drop, so it is parsed as
+// an authority instead. A value that does not parse cannot be split, and the caller redacts it
+// rather than guess what the unparsed text holds.
+func redactURLElementCredentials(value string) (string, bool) {
+	schemeless := !strings.Contains(value, "://")
+	raw := value
+	if schemeless {
+		raw = "//" + value
+	}
+	u, err := url.Parse(raw)
+	if err != nil {
+		return value, false
+	}
+	if u.User == nil {
+		return value, true
+	}
+	u.User = nil
+	stripped := u.String()
+	if schemeless {
+		return "<redacted>@" + strings.TrimPrefix(stripped, "//"), true
+	}
+	scheme := strings.Index(stripped, "://")
+	if scheme >= 0 {
+		return stripped[:scheme+3] + "<redacted>@" + stripped[scheme+3:], true
+	}
+
+	return stripped, true
+}
+
+// NewVictoriaMetricsParams - returns configuration params for VictoriaMetrics.
+func NewVictoriaMetricsParams(basePath, vmURL string) (*VictoriaMetricsParams, error) {
+	URL, err := ParseVictoriaMetricsURL(vmURL)
 	if err != nil {
 		return nil, err
 	}
@@ -114,23 +222,16 @@ func (vmp *VictoriaMetricsParams) URL() string {
 	return vmp.url.String()
 }
 
+// ParsedURL returns a copy of the parsed base URL for VictoriaMetrics. Callers may modify the copy.
+func (vmp *VictoriaMetricsParams) ParsedURL() *url.URL {
+	u := *vmp.url
+	return &u
+}
+
 // URLFor returns the URL for a specific path in VictoriaMetrics.
 func (vmp *VictoriaMetricsParams) URLFor(path string) (*url.URL, error) {
 	if path == "" {
 		return vmp.url, nil
 	}
 	return vmp.url.Parse(path)
-}
-
-// VMAgentArgs returns additional arguments for vmagents.
-func (vmp *VictoriaMetricsParams) VMAgentArgs() []string {
-	if vmp.url.User != nil {
-		username := vmp.url.User.Username()
-		password, _ := vmp.url.User.Password()
-		return []string{
-			"-remoteWrite.basicAuth.username=" + username,
-			"-remoteWrite.basicAuth.password=" + password,
-		}
-	}
-	return []string{}
 }

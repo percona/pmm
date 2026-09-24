@@ -912,6 +912,14 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	if *haEnabled {
 		models.AgentConfigFilePath = "/srv/pmm-agent/config/pmm-agent.yaml"
+		info := agents.HARemoteWriteInfo(vmParams)
+		if info != "" {
+			l.Info(info)
+		}
+		warning := agents.HARemoteWriteWarning(vmParams)
+		if warning != "" {
+			l.Warn(warning)
+		}
 	}
 
 	migrateDB(ctx, sqlDB, setupParams)
