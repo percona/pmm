@@ -758,6 +758,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		Envar("PMM_HA_GRAFANA_GOSSIP_PORT").
 		Default("9762").
 		Int()
+	haNamespace := kingpin.Flag("ha-namespace", "HA Kubernetes namespace").
+		Envar("PMM_HA_NAMESPACE").
+		String()
 
 	internalNodePrefixesF := kingpin.Flag("internal-node-name-prefixes",
 		"Comma-separated list of Node name prefixes reserved for the internal infrastructure of this PMM deployment").
@@ -833,6 +836,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		RaftPort:          *haRaftPort,
 		GossipPort:        *haGossipPort,
 		GrafanaGossipPort: *haGrafanaGossipPort,
+		Namespace:         *haNamespace,
 	}
 	haService := ha.New(haParams)
 
