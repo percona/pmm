@@ -24,6 +24,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -1253,7 +1254,7 @@ var databaseSchema = [][]string{
 			run_id      VARCHAR PRIMARY KEY,
 			environment VARCHAR NOT NULL,
 			cluster     VARCHAR NOT NULL,
-			created_at  TIMESTAMP NOT NULL
+			created_at    TIMESTAMP NOT NULL
 		)`,
 	},
 }
@@ -1383,6 +1384,29 @@ func DecryptDB(tx *reform.TX, database string, itemsToEncrypt []encryption.Table
 	return dbEncryption(tx, database, itemsToEncrypt, encryption.DecryptItems, false)
 }
 
+// recordedEncryptedItems returns what Settings.EncryptedItems has to say after a pass
+// that just encrypted (or decrypted) changed, given what it said before.
+//
+// The recorded set describes every encrypted column in the database, not the ones the
+// last pass happened to touch, and UpdateSettings replaces EncryptedItems rather than
+// merging it. Only the columns whose state differs from the one being applied are ever
+// prepared, so writing that list on its own drops everything an earlier pass
+// encrypted. Until a second table was added, every pass on a fresh database prepared
+// the whole set and the difference never showed; on an upgrade, the agents.* columns
+// were already recorded, so the write left only the new table's columns behind. The
+// next start then found agents.* unrecorded and encrypted the ciphertext again, one
+// layer per restart, until the application read back ciphertext it could not decrypt.
+func recordedEncryptedItems(recorded, changed []string, encrypting bool) []string {
+	items := make([]string, 0, len(recorded)+len(changed))
+	items = append(items, recorded...)
+	if encrypting {
+		return append(items, changed...)
+	}
+	return slices.DeleteFunc(items, func(item string) bool {
+		return slices.Contains(changed, item)
+	})
+}
+
 func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 	encryptionHandler func(tx *reform.TX, tables []encryption.Table) error,
 	expectedState bool,
@@ -1429,13 +1453,8 @@ func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 		return err
 	}
 
-	encryptedItems := []string{}
-	if expectedState {
-		encryptedItems = prepared
-	}
-
 	_, err = UpdateSettings(tx, &ChangeSettingsParams{
-		EncryptedItems: encryptedItems,
+		EncryptedItems: recordedEncryptedItems(settings.EncryptedItems, prepared, expectedState),
 	})
 	if err != nil {
 		return err
