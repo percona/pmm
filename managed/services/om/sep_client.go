@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -47,6 +48,40 @@ type sepClient struct {
 // gains.
 func (c *sepClient) app(module string) sepApp {
 	return sepApp{client: c, path: "api/apps/" + module}
+}
+
+// refuseRedirect keeps a credentialed request from being replayed somewhere else.
+//
+// PMM_SEP_TOKEN rides on every call this client makes, via request(), and the
+// Authorization header is only dropped by net/http when a redirect leaves the original
+// host: it survives a change of scheme alone, so an https SEP redirecting to http would
+// hand the bearer to the wire in clear text (CWE-319). Nothing in SEP's JSON API
+// redirects, so a 3xx from it is a misconfiguration, better surfaced as an unexpected
+// status than followed with a credential attached.
+func refuseRedirect(_ *http.Request, _ []*http.Request) error {
+	return http.ErrUseLastResponse
+}
+
+// cleartextToken reports whether a bearer sent to this base URL would leave the host
+// unencrypted -- plain HTTP to anywhere but this machine.
+//
+// Not an error: the shipped topology is a SEP sidecar reached over loopback, where TLS
+// buys nothing and --sep-url's own help text documents http://127.0.0.1:8000. Rejecting
+// non-HTTPS URLs would disable OpenManager in every deployment there is today. An
+// operator pointing PMM at a SEP somewhere else is told instead.
+func cleartextToken(baseURL string) bool {
+	parsed, err := url.Parse(baseURL)
+	if err != nil || parsed.Scheme == "https" {
+		return false
+	}
+
+	host := parsed.Hostname()
+	if host == "" || host == "localhost" {
+		return false
+	}
+
+	ip := net.ParseIP(host)
+	return ip == nil || !ip.IsLoopback()
 }
 
 // sepApp addresses one SEP app through a shared sepClient. Cheap to copy: it is a
@@ -115,7 +150,9 @@ func (a sepApp) patchConfig(ctx context.Context, fields map[string]any) error {
 
 	resp, err := a.client.http.Do(req)
 	if err != nil {
-		return fmt.Errorf("PATCH %s: %w", a.endpoint("config"), err)
+		// Returned bare: Do fails with a *url.Error, whose message already names the
+		// verb and the full URL, so any prefix here prints both of them twice.
+		return err //nolint:wrapcheck
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
@@ -140,7 +177,8 @@ func (a sepApp) triggerRun(ctx context.Context) error {
 
 	resp, err := a.client.http.Do(req)
 	if err != nil {
-		return fmt.Errorf("POST %s: %w", a.endpoint("runs"), err)
+		// As in patchConfig: *url.Error already carries the verb and the URL.
+		return err //nolint:wrapcheck
 	}
 	defer resp.Body.Close() //nolint:errcheck
 

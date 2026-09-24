@@ -143,10 +143,16 @@ func (s *Service) WithProbeSource(sepURL, token string) *Service {
 		s.l.Info("SEP is not configured; on-host facts will be absent")
 		return s
 	}
+	if token != "" && cleartextToken(sepURL) {
+		s.l.Warnf("SEP at %s is plain HTTP and off this host: PMM_SEP_TOKEN will cross the network in clear text", sepURL)
+	}
 	client := &sepClient{
 		baseURL: sepURL,
 		token:   token,
-		http:    &http.Client{Timeout: probeRequestTimeout},
+		http: &http.Client{
+			Timeout:       probeRequestTimeout,
+			CheckRedirect: refuseRedirect,
+		},
 	}
 	probe := &probeSource{
 		app: client.app(probeAppModule),
