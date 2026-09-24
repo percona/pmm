@@ -6706,22 +6706,26 @@ func (m *BootstrapMemberConfig) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetPriority() > 1000 {
-		err := BootstrapMemberConfigValidationError{
-			field:  "Priority",
-			reason: "value must be less than or equal to 1000",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	// no validation rules for Votes
-
 	// no validation rules for Hidden
 
 	// no validation rules for DelaySecs
+
+	if m.Priority != nil {
+		if m.GetPriority() > 1000 {
+			err := BootstrapMemberConfigValidationError{
+				field:  "Priority",
+				reason: "value must be less than or equal to 1000",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
+
+	if m.Votes != nil {
+		// no validation rules for Votes
+	}
 
 	if len(errors) > 0 {
 		return BootstrapMemberConfigMultiError(errors)
