@@ -158,7 +158,7 @@ const ExecutorCell = ({ row }: { row: OmHostRow }) => {
 /**
  * Why a host cannot be automated, for a tooltip.
  *
- * SEP supplies the reasons, but a host can read as ineligible with none given,
+ * PMM Extensions supplies the reasons, but a host can read as ineligible with none given,
  * and an empty title makes MUI render no tooltip at all -- a disabled control
  * with no explanation. Shared by the Automation cell and the Bootstrap button so
  * the two cannot drift, which they had: the button showed nothing in that case.
