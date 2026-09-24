@@ -56,3 +56,51 @@ func FindOmBootstrapRunConfigByRunID(q *reform.Querier, runID string) (*OmBootst
 	}
 	return config, nil
 }
+
+// MarkOmBootstrapRunRegistered records that PMM has finished registering every host
+// of one bootstrap run with its own inventory, which is what takes the run out of
+// the stepper's succeeded-run sweep -- see OmBootstrapRunConfig's own doc comment.
+//
+// Upserts, because the row only exists from trigger time for a run that came with
+// an environment or cluster worth storing: an unlabelled run reaches this point
+// with no row at all, and its two empty labels are the correct values for it.
+func MarkOmBootstrapRunRegistered(q *reform.Querier, runID string) error {
+	if runID == "" {
+		return NewInvalidArgumentError("run_id shouldn't be empty")
+	}
+
+	registeredAt := Now()
+	config, err := FindOmBootstrapRunConfigByRunID(q, runID)
+	if errors.Is(err, ErrNotFound) {
+		return CreateOmBootstrapRunConfig(q, &OmBootstrapRunConfig{RunID: runID, RegisteredAt: &registeredAt})
+	}
+	if err != nil {
+		return err
+	}
+
+	config.RegisteredAt = &registeredAt
+	err = q.Update(config)
+	if err != nil {
+		return fmt.Errorf("failed to update OM bootstrap run config: %w", err)
+	}
+	return nil
+}
+
+// FindRegisteredOmBootstrapRunIDs returns the id of every run PMM has finished
+// registering.
+//
+// One query for the whole set rather than one per run: the stepper asks this on
+// every tick to decide which succeeded runs still need work, and the answer for a
+// server with a long bootstrap history is "none of them".
+func FindRegisteredOmBootstrapRunIDs(q *reform.Querier) (map[string]struct{}, error) {
+	rows, err := q.SelectAllFrom(OmBootstrapRunConfigTable, "WHERE registered_at IS NOT NULL")
+	if err != nil {
+		return nil, fmt.Errorf("failed to select registered OM bootstrap runs: %w", err)
+	}
+
+	registered := make(map[string]struct{}, len(rows))
+	for _, row := range rows {
+		registered[row.(*OmBootstrapRunConfig).RunID] = struct{}{} //nolint:forcetypeassert
+	}
+	return registered, nil
+}

@@ -35,18 +35,27 @@ import (
 // leader after a failover, same reasoning as OmBootstrapSecret's own doc
 // comment.
 //
-// Created once, at trigger time, and never updated -- unlike OmBootstrapSecret,
-// which is generated lazily on first use because nothing needs a value until
-// then. Absence (ErrNotFound) is expected and not an error: a run triggered
-// before this table existed, or one whose caller left both fields blank, has
-// no row, and reads back as an unlabelled service exactly as it always did.
+// It also carries RegisteredAt, which is what stops the stepper's succeeded-run
+// sweep from revisiting a run forever. A run reading SUCCEEDED in SEP is not done
+// from PMM's side until every one of its hosts is registered with PMM's own
+// inventory, and SEP knows nothing about that step, so the record of it has to
+// live here. Nil means that work is still outstanding; set means the run is
+// finished and the sweep skips it -- and because it is persisted rather than
+// held in the stepper, a new leader after a failover, or the same one after a
+// restart, skips it too.
+//
+// Created at trigger time when the caller gave a label to store, and otherwise
+// on completion. Absence (ErrNotFound) is expected and not an error: an
+// unlabelled run that has not finished registering has no row yet, and reads
+// back as an unlabelled service exactly as it always did.
 //
 //reform:om_bootstrap_run_configs
 type OmBootstrapRunConfig struct {
-	RunID       string    `reform:"run_id,pk"`
-	Environment string    `reform:"environment"`
-	Cluster     string    `reform:"cluster"`
-	CreatedAt   time.Time `reform:"created_at"`
+	RunID        string     `reform:"run_id,pk"`
+	Environment  string     `reform:"environment"`
+	Cluster      string     `reform:"cluster"`
+	CreatedAt    time.Time  `reform:"created_at"`
+	RegisteredAt *time.Time `reform:"registered_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter.
@@ -58,6 +67,10 @@ func (c *OmBootstrapRunConfig) BeforeInsert() error {
 // AfterFind implements reform.AfterFinder.
 func (c *OmBootstrapRunConfig) AfterFind() error {
 	c.CreatedAt = c.CreatedAt.UTC()
+	if c.RegisteredAt != nil {
+		registeredAt := c.RegisteredAt.UTC()
+		c.RegisteredAt = &registeredAt
+	}
 	return nil
 }
 
