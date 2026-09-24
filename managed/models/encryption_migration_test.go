@@ -206,8 +206,8 @@ func TestMigrateEncryptionWrongKey(t *testing.T) {
 		foreign, now, now)
 	require.NoError(t, err)
 	_, err = sqlDB.ExecContext(t.Context(),
-		`INSERT INTO agents (agent_id, agent_type, password, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify) `+
-			`VALUES ('A1', 'mysqld_exporter', $1, 'PA', false, '', $2, $3, false, false)`,
+		`INSERT INTO agents (agent_id, agent_type, password, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify) `+
+			`VALUES ('A1', 'node_exporter', $1, 'PA', 'N1', false, '', $2, $3, false, false)`,
 		foreign, now, now)
 	require.NoError(t, err)
 
