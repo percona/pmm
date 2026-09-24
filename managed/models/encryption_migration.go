@@ -119,19 +119,12 @@ func DatabaseHasEncryptedData(ctx context.Context, db *sql.DB) (bool, error) {
 	return exists, nil
 }
 
-// encryptedDataProbe finds any envelope value: scalar agent secrets start with
-// the prefix, secrets inside JSON blobs appear as a string starting with it.
-var encryptedDataProbe = func() string {
-	scalar := "'" + encryption.EnvelopePrefix + "%'"
-	inJSON := "'%\"" + encryption.EnvelopePrefix + "%'"
-
-	return "SELECT EXISTS (SELECT 1 FROM agents WHERE" +
-		" username LIKE " + scalar + " OR password LIKE " + scalar + " OR agent_password LIKE " + scalar +
-		" OR aws_options::text LIKE " + inJSON + " OR azure_options::text LIKE " + inJSON +
-		" OR mongo_options::text LIKE " + inJSON + " OR mysql_options::text LIKE " + inJSON +
-		" OR postgresql_options::text LIKE " + inJSON + " OR valkey_options::text LIKE " + inJSON +
-		") OR EXISTS (SELECT 1 FROM backup_locations WHERE s3_config::text LIKE " + inJSON + ")"
-}()
+// encryptedDataProbe finds any envelope value in the tables holding secrets.
+// It runs before schema migrations, so it must not name columns that older
+// schemas lack: every column of the row, including JSON blobs, is rendered as
+// JSON, where an envelope value appears as a string starting with the prefix.
+var encryptedDataProbe = "SELECT EXISTS (SELECT 1 FROM agents t WHERE to_jsonb(t)::text LIKE '%\"" + encryption.EnvelopePrefix + "%')" +
+	" OR EXISTS (SELECT 1 FROM backup_locations t WHERE to_jsonb(t)::text LIKE '%\"" + encryption.EnvelopePrefix + "%')"
 
 // legacyEncryptedColumns returns the agents columns that PMM 3.x recorded as
 // encrypted in settings.encrypted_items (entries are "database.table.column").
@@ -288,24 +281,39 @@ func AgentsNeedingReencryption(q *reform.Querier, cipher *encryption.Cipher) ([]
 }
 
 // errUndecryptable explains that the key does not match the stored data.
-func errUndecryptable(problems []string) error {
+// errors.Is matches the causes, e.g. encryption.ErrLegacyUnknownKey.
+func errUndecryptable(problems []error) error {
+	return &undecryptableError{problems: problems}
+}
+
+type undecryptableError struct {
+	problems []error
+}
+
+func (e *undecryptableError) Error() string {
 	const shown = 10
-	list := problems
+	list := make([]string, 0, shown)
+	for _, p := range e.problems[:min(len(e.problems), shown)] {
+		list = append(list, p.Error())
+	}
 	more := ""
-	if len(list) > shown {
-		more = fmt.Sprintf(" and %d more", len(list)-shown)
-		list = list[:shown]
+	if len(e.problems) > shown {
+		more = fmt.Sprintf(" and %d more", len(e.problems)-shown)
 	}
 
-	return fmt.Errorf("the encryption key at %s cannot decrypt stored credentials (%s%s): "+
+	return fmt.Sprintf("the encryption key at %s cannot decrypt stored credentials (%s%s): "+
 		"the key file does not match this database; restore the original key file "+
 		"(or point %s at it) and restart — no data was changed",
 		encryption.DefaultKeyPath(), strings.Join(list, "; "), more, encryption.CustomEncryptionKeyPathEnvVar)
 }
 
+func (e *undecryptableError) Unwrap() []error {
+	return e.problems
+}
+
 type secretsScan struct {
 	needs         []string
-	undecryptable []string
+	undecryptable []error
 	// lost lists secrets whose innermost layer's key is gone; they cannot be
 	// recovered by PMM and are reported, not treated as a key mismatch
 	lost []string
@@ -356,7 +364,7 @@ func scanAgents(q *reform.Querier, cipher *encryption.Cipher) (*secretsScan, err
 		}
 
 		for _, p := range insp.undecryptable {
-			scan.undecryptable = append(scan.undecryptable, fmt.Sprintf("agent %s %s: %s", id, p.column, p.err))
+			scan.undecryptable = append(scan.undecryptable, fmt.Errorf("agent %s %s: %w", id, p.column, p.err))
 		}
 		for _, p := range insp.lost {
 			scan.lost = append(scan.lost, fmt.Sprintf("agent %s %s", id, p.column))
@@ -415,7 +423,7 @@ func scanLocations(q *reform.Querier, cipher *encryption.Cipher) (*secretsScan, 
 			return nil, fmt.Errorf("backup location %s: %w", id, err)
 		}
 		for _, p := range insp.undecryptable {
-			scan.undecryptable = append(scan.undecryptable, fmt.Sprintf("backup location %s %s: %s", id, p.column, p.err))
+			scan.undecryptable = append(scan.undecryptable, fmt.Errorf("backup location %s %s: %w", id, p.column, p.err))
 		}
 		if insp.needs && len(insp.undecryptable) == 0 {
 			scan.needs = append(scan.needs, id)
