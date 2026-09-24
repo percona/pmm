@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/lib/pq"
@@ -203,8 +204,12 @@ func MigrateEncryption(q *reform.Querier) error {
 	if err != nil {
 		return err
 	}
-	if len(scan.undecryptable) != 0 {
-		return errUndecryptable(scan.undecryptable)
+	locations, err := scanLocations(q, cipher)
+	if err != nil {
+		return err
+	}
+	if undecryptable := slices.Concat(scan.undecryptable, locations.undecryptable); len(undecryptable) != 0 {
+		return errUndecryptable(undecryptable)
 	}
 	if len(scan.lost) != 0 {
 		logrus.Warnf("Credentials of %d agent field(s) cannot be recovered: they were encrypted more than once "+
@@ -212,9 +217,17 @@ func MigrateEncryption(q *reform.Querier) error {
 			"Place that key at %s and restart PMM Server, or re-enter the credentials of the affected services.",
 			len(scan.lost), strings.Join(scan.lost, ", "), encryption.LegacyBackupKeyPath(encryption.DefaultKeyPath()))
 	}
-	ids := scan.needs
 
-	for _, id := range ids {
+	if len(scan.backup)+len(locations.backup) != 0 {
+		path, err := writeMigrationBackup(scan.backup, locations.backup)
+		if err != nil {
+			return fmt.Errorf("refusing to migrate encrypted data without a backup: %w", err)
+		}
+		logrus.Infof("Stored the pre-migration values of %d agent(s) and %d backup location(s) in %s",
+			len(scan.backup), len(locations.backup), path)
+	}
+
+	for _, id := range scan.needs {
 		agent := &Agent{}
 		err = q.SelectOneTo(agent, "WHERE agent_id = $1 FOR UPDATE", id)
 		if errors.Is(err, reform.ErrNoRows) {
@@ -229,12 +242,7 @@ func MigrateEncryption(q *reform.Querier) error {
 		}
 	}
 
-	locationIDs, err := LocationsNeedingReencryption(q, cipher)
-	if err != nil {
-		return err
-	}
-
-	for _, id := range locationIDs {
+	for _, id := range locations.needs {
 		location := &BackupLocation{}
 		err = q.SelectOneTo(location, "WHERE id = $1 FOR UPDATE", id)
 		if errors.Is(err, reform.ErrNoRows) {
@@ -295,15 +303,18 @@ func errUndecryptable(problems []string) error {
 		encryption.DefaultKeyPath(), strings.Join(list, "; "), more, encryption.CustomEncryptionKeyPathEnvVar)
 }
 
-type agentsScan struct {
+type secretsScan struct {
 	needs         []string
 	undecryptable []string
 	// lost lists secrets whose innermost layer's key is gone; they cannot be
 	// recovered by PMM and are reported, not treated as a key mismatch
 	lost []string
+	// backup holds the stored columns of rows rewritten from the pre-envelope
+	// format, see writeMigrationBackup
+	backup []map[string]any
 }
 
-func scanAgents(q *reform.Querier, cipher *encryption.Cipher) (*agentsScan, error) {
+func scanAgents(q *reform.Querier, cipher *encryption.Cipher) (*secretsScan, error) {
 	strict, err := storedLegacyEncryptedColumns(q)
 	if err != nil {
 		return nil, err
@@ -316,7 +327,7 @@ func scanAgents(q *reform.Querier, cipher *encryption.Cipher) (*agentsScan, erro
 	}
 	defer rows.Close() //nolint:errcheck
 
-	scan := &agentsScan{}
+	scan := &secretsScan{}
 	for rows.Next() {
 		var id string
 		var username, password, agentPassword sql.NullString
@@ -352,6 +363,14 @@ func scanAgents(q *reform.Querier, cipher *encryption.Cipher) (*agentsScan, erro
 		}
 		if insp.needs && len(insp.undecryptable) == 0 {
 			scan.needs = append(scan.needs, id)
+			if insp.preEnvelope {
+				scan.backup = append(scan.backup, map[string]any{
+					"agent_id": id, "username": nullString(username), "password": nullString(password),
+					"agent_password": nullString(agentPassword), "aws_options": rawJSON(aws), "azure_options": rawJSON(azure),
+					"mongo_options": rawJSON(mongo), "mysql_options": rawJSON(mysql), "postgresql_options": rawJSON(postgresql),
+					"valkey_options": rawJSON(valkey),
+				})
+			}
 		}
 	}
 
@@ -363,14 +382,25 @@ func scanAgents(q *reform.Querier, cipher *encryption.Cipher) (*agentsScan, erro
 // PMM 3.x stored them as plaintext, so only values that fail authentication
 // under a known key are treated as undecryptable.
 func LocationsNeedingReencryption(q *reform.Querier, cipher *encryption.Cipher) ([]string, error) {
+	scan, err := scanLocations(q, cipher)
+	if err != nil {
+		return nil, err
+	}
+	if len(scan.undecryptable) != 0 {
+		return nil, errUndecryptable(scan.undecryptable)
+	}
+
+	return scan.needs, nil
+}
+
+func scanLocations(q *reform.Querier, cipher *encryption.Cipher) (*secretsScan, error) {
 	rows, err := q.Query(`SELECT id, s3_config FROM backup_locations ORDER BY id`)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read backup locations: %w", err)
 	}
 	defer rows.Close() //nolint:errcheck
 
-	var ids []string
-	var undecryptable []string
+	scan := &secretsScan{}
 	for rows.Next() {
 		var id string
 		var s3Config sql.NullString
@@ -385,20 +415,17 @@ func LocationsNeedingReencryption(q *reform.Querier, cipher *encryption.Cipher) 
 			return nil, fmt.Errorf("backup location %s: %w", id, err)
 		}
 		for _, p := range insp.undecryptable {
-			undecryptable = append(undecryptable, fmt.Sprintf("backup location %s %s: %s", id, p.column, p.err))
+			scan.undecryptable = append(scan.undecryptable, fmt.Sprintf("backup location %s %s: %s", id, p.column, p.err))
 		}
 		if insp.needs && len(insp.undecryptable) == 0 {
-			ids = append(ids, id)
+			scan.needs = append(scan.needs, id)
+			if insp.preEnvelope {
+				scan.backup = append(scan.backup, map[string]any{"id": id, "s3_config": rawJSON(s3Config)})
+			}
 		}
 	}
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-	if len(undecryptable) != 0 {
-		return nil, errUndecryptable(undecryptable)
-	}
 
-	return ids, nil
+	return scan, rows.Err()
 }
 
 type optionsColumn struct {
@@ -422,11 +449,17 @@ type inspector struct {
 	needs         bool
 	undecryptable []columnProblem
 	lost          []columnProblem
+	// preEnvelope is set when a secret is not in the envelope format yet:
+	// the row is written by PMM before this migration existed
+	preEnvelope bool
 }
 
 func (i *inspector) value(column, stored string) {
 	if stored == "" {
 		return
+	}
+	if !encryption.IsEncrypted(stored) {
+		i.preEnvelope = true
 	}
 	insp, err := i.cipher.Inspect(stored)
 	if i.cipher.NeedsReencrypt(stored) || insp.ExtraLayers > 0 {

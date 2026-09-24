@@ -18,6 +18,8 @@ package models_test
 import (
 	"database/sql"
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -376,4 +378,60 @@ func TestMigrateEncryptionConcurrency(t *testing.T) {
 	assert.Equal(t, "RUNNING", status)
 	assert.Equal(t, 42000, listenPort)
 	assert.True(t, updatedAt.Equal(storedUpdatedAt), "updated_at was rewritten: %s", storedUpdatedAt)
+}
+
+// TestMigrateEncryptionBackup covers the one-time backup of values rewritten
+// from the pre-envelope format: older PMM versions cannot read envelopes, so
+// the backup is what makes the upgrade reversible.
+func TestMigrateEncryptionBackup(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+
+	// the backup is written next to the key file
+	dir := t.TempDir()
+	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, filepath.Join(dir, "encryption.key"))
+
+	now := time.Now()
+	_, err := sqlDB.ExecContext(t.Context(),
+		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
+			"VALUES ('N1', 'generic', 'name', '', '', '', '', $1, $2)", now, now)
+	require.NoError(t, err)
+	_, err = sqlDB.ExecContext(t.Context(),
+		`INSERT INTO agents (agent_id, agent_type, password, runs_on_node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, mysql_options) `+
+			`VALUES ('A1', 'mysqld_exporter', 'plain-password', 'N1', false, '', $1, $2, false, false, '{"tls_key": "plain-key"}')`,
+		now, now)
+	require.NoError(t, err)
+
+	require.NoError(t, models.MigrateEncryption(q))
+
+	files, err := filepath.Glob(filepath.Join(dir, models.MigrationBackupPattern))
+	require.NoError(t, err)
+	require.Len(t, files, 1)
+	info, err := os.Stat(files[0])
+	require.NoError(t, err)
+	assert.Equal(t, os.FileMode(0o600), info.Mode().Perm())
+
+	var backup struct {
+		Agents []struct {
+			AgentID      string          `json:"agent_id"`
+			Password     string          `json:"password"`
+			MySQLOptions json.RawMessage `json:"mysql_options"`
+		} `json:"agents"`
+	}
+	data, err := os.ReadFile(files[0])
+	require.NoError(t, err)
+	require.NoError(t, json.Unmarshal(data, &backup))
+	require.Len(t, backup.Agents, 1)
+	assert.Equal(t, "A1", backup.Agents[0].AgentID)
+	assert.Equal(t, "plain-password", backup.Agents[0].Password)
+	assert.JSONEq(t, `{"tls_key": "plain-key"}`, string(backup.Agents[0].MySQLOptions))
+
+	// rows already in the envelope format are not backed up again
+	require.NoError(t, models.MigrateEncryption(q))
+	files, err = filepath.Glob(filepath.Join(dir, models.MigrationBackupPattern))
+	require.NoError(t, err)
+	assert.Len(t, files, 1)
 }
