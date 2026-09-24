@@ -54,8 +54,8 @@ func TestSEPClientRefusesRedirects(t *testing.T) {
 	t.Parallel()
 
 	// A redirect is where a bearer leaks: net/http keeps the Authorization header when
-	// only the scheme changes, so an https SEP pointing at http would hand PMM_SEP_TOKEN
-	// to the wire. Nothing in SEP's API redirects, so the client refuses to follow one
+	// only the scheme changes, so an https side-car pointing at http would hand PMM_EXTENSIONS_TOKEN
+	// to the wire. Nothing in PMM Extensions' API redirects, so the client refuses to follow one
 	// and the 3xx surfaces as an unexpected status instead.
 	elsewhere := newSEPStub(t, http.StatusOK, `{}`)
 	redirecting := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
