@@ -31073,21 +31073,23 @@
                   "x-order": 8
                 },
                 "member_configs": {
-                  "description": "Per-host replica-set election settings, keyed by entries of node_ids. A\nhost missing from this map -- including every host, when this is left\nempty -- gets MongoDB's own defaults (priority 1, votes on, not hidden,\nno delay), the phase-A behavior before per-member settings existed\n(PMM-15347/plan.md §6 Phase B). A key outside node_ids is rejected.",
+                  "description": "Per-host replica-set election settings, keyed by entries of node_ids. A\nhost missing from this map -- including every host, when this is left\nempty -- gets MongoDB's own defaults (priority 1, votes on, not hidden,\nno delay), the phase-A behavior before per-member settings existed\n(PMM-15347/plan.md §6 Phase B). A field left unset on a host that *is*\nnamed gets the same default, rather than its proto3 zero value; see\nBootstrapMemberConfig.priority. A key outside node_ids is rejected.",
                   "type": "object",
                   "additionalProperties": {
                     "description": "BootstrapMemberConfig is one host's replica-set election settings, for\nTriggerHostBootstrapRequest.member_configs.",
                     "type": "object",
                     "properties": {
                       "priority": {
-                        "description": "Relative election priority. 0 means this member can never become\nprimary; MongoDB's own default for an unlisted member is 1.",
+                        "description": "Relative election priority. 0 means this member can never become primary.\n\nOptional because MongoDB's default is 1, and a proto3 uint32 cannot tell\n\"leave it alone\" from \"0\": a caller setting only `hidden` on every member\nwould otherwise ask for a replica set no member of which can be elected.\nUnset means MongoDB's own default, exactly as a host absent from\nmember_configs gets.",
                         "type": "integer",
                         "format": "int64",
+                        "x-nullable": true,
                         "x-order": 0
                       },
                       "votes": {
-                        "description": "Whether this member gets a vote in elections.",
+                        "description": "Whether this member gets a vote in elections. Optional for the same reason\nas `priority`, whose comment has the detail: unset means MongoDB's own\ndefault, which is on.",
                         "type": "boolean",
+                        "x-nullable": true,
                         "x-order": 1
                       },
                       "hidden": {
