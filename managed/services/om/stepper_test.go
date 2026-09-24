@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -169,5 +170,87 @@ func TestCompleteSucceededRun(t *testing.T) {
 		registered, err := models.FindRegisteredOmBootstrapRunIDs(db.Querier)
 		require.NoError(t, err)
 		assert.NotContains(t, registered, "run-abc", "a run with an unregistered host has to come back next tick")
+	})
+
+	t.Run("keeps a run whose refresh the inventory app refused, so the next tick asks again", func(t *testing.T) {
+		// The refusal to expect is a 409 from the app's own estate sweep already
+		// holding this host -- which is likeliest exactly when a run finishes. Every
+		// host here registered, so nothing but the nudge is outstanding, and marking
+		// the run registered is what takes it out of the sweep for good: dropping the
+		// nudge here means it is never retried at all.
+		db := storeTestDB(t)
+		node00, _ := registerTestNode(t, db, "node00")
+		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
+			RunID:           "run-abc",
+			MongoDBUsername: "admin",
+			MongoDBPassword: "secret",
+			KeyFile:         "keyfile-content",
+		}))
+
+		stub := newSEPStubSeqCodes(t,
+			[]int{http.StatusOK, http.StatusConflict},
+			[]string{
+				fmt.Sprintf(`{"items": [{"node_id": %q, "executor_host": "node00", "services": []}], "total": 1, "offset": 0, "limit": 200}`, node00),
+				`{"detail": "node00 is already being refreshed"}`,
+			})
+		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
+			WithProbeSource(stub.server.URL, "test-token")
+
+		finished := time.Now()
+		svc.completeSucceededRun(t.Context(), &sepBootstrapRun{
+			ID:             "run-abc",
+			Status:         bootstrapRunSucceeded,
+			ReplicaSetName: "rs-test",
+			FinishedAt:     &finished,
+			Hosts:          []sepBootstrapHost{{Host: "node00"}},
+		})
+
+		services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: node00})
+		require.NoError(t, err)
+		assert.Len(t, services, 1, "the refusal must not cost the registration it follows")
+
+		require.Len(t, stub.calls, 2)
+		assert.Equal(t, "/api/apps/om_inventory/runs", stub.calls[1].path)
+
+		registered, err := models.FindRegisteredOmBootstrapRunIDs(db.Querier)
+		require.NoError(t, err)
+		assert.NotContains(t, registered, "run-abc", "a refused nudge has to be retried, so the run stays in the sweep")
+	})
+
+	t.Run("gives up on the refresh once the run is too old, rather than sweeping it forever", func(t *testing.T) {
+		// The other half of the branch above: a host the app will never accept a
+		// refresh for must not pin the run in a list re-read every 15 seconds for the
+		// life of the server. confirm_monitoring then waits out the app's own
+		// schedule, which is where it stood before the nudge existed.
+		db := storeTestDB(t)
+		node00, _ := registerTestNode(t, db, "node00")
+		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
+			RunID:           "run-abc",
+			MongoDBUsername: "admin",
+			MongoDBPassword: "secret",
+			KeyFile:         "keyfile-content",
+		}))
+
+		stub := newSEPStubSeqCodes(t,
+			[]int{http.StatusOK, http.StatusConflict},
+			[]string{
+				fmt.Sprintf(`{"items": [{"node_id": %q, "executor_host": "node00", "services": []}], "total": 1, "offset": 0, "limit": 200}`, node00),
+				`{"detail": "node00 is already being refreshed"}`,
+			})
+		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
+			WithProbeSource(stub.server.URL, "test-token")
+
+		finished := time.Now().Add(-bootstrapInventoryRefreshWindow - time.Minute)
+		svc.completeSucceededRun(t.Context(), &sepBootstrapRun{
+			ID:             "run-abc",
+			Status:         bootstrapRunSucceeded,
+			ReplicaSetName: "rs-test",
+			FinishedAt:     &finished,
+			Hosts:          []sepBootstrapHost{{Host: "node00"}},
+		})
+
+		registered, err := models.FindRegisteredOmBootstrapRunIDs(db.Querier)
+		require.NoError(t, err)
+		assert.Contains(t, registered, "run-abc", "past the window the run leaves the sweep regardless")
 	})
 }
