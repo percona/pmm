@@ -687,6 +687,75 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Contains(t, status.Convert(err).Message(), "no usable Nomad executor")
 	})
 
+	t.Run("an unreachable executor answers FailedPrecondition before a run exists", func(t *testing.T) {
+		t.Parallel()
+
+		// Raised on the SEP side of this work: without this check the run is created
+		// first and an unreachable Nomad client only surfaces when pre_check -- itself
+		// dispatched through Nomad -- fails seconds later, with the UI already showing
+		// the run as in progress. Only one call is served here, so nothing reached
+		// om_bootstrap.
+		stub := newSEPStub(t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu",
+			  "executor": {"reachable": false, "driver_healthy": true}}}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "not reachable")
+		require.Len(t, stub.calls, 1, "no run should be planned")
+		assert.Equal(t, "/api/apps/om_inventory/hosts/n1", stub.calls[0].path)
+	})
+
+	t.Run("an unhealthy executor driver answers FailedPrecondition", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu",
+			  "executor": {"reachable": true, "driver_healthy": false}}}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "driver is not healthy")
+	})
+
+	t.Run("a healthy executor plans the run", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu",
+			  "executor": {"reachable": true, "driver_healthy": true}}}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		response, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.NoError(t, err)
+		assert.Equal(t, "run-abc", response.GetRunId())
+	})
+
 	t.Run("plans a three-host run when every host runs the same OS", func(t *testing.T) {
 		t.Parallel()
 
