@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -47,6 +48,40 @@ type extensionsClient struct {
 // gains.
 func (c *extensionsClient) app(module string) extensionsApp {
 	return extensionsApp{client: c, path: "api/apps/" + module}
+}
+
+// refuseRedirect keeps a credentialed request from being replayed somewhere else.
+//
+// PMM_EXTENSIONS_TOKEN rides on every call this client makes, via request(), and the
+// Authorization header is only dropped by net/http when a redirect leaves the original
+// host: it survives a change of scheme alone, so an https PMM Extensions redirecting to http would
+// hand the bearer to the wire in clear text (CWE-319). Nothing in PMM Extensions' JSON API
+// redirects, so a 3xx from it is a misconfiguration, better surfaced as an unexpected
+// status than followed with a credential attached.
+func refuseRedirect(_ *http.Request, _ []*http.Request) error {
+	return http.ErrUseLastResponse
+}
+
+// cleartextToken reports whether a bearer sent to this base URL would leave the host
+// unencrypted -- plain HTTP to anywhere but this machine.
+//
+// Not an error: the shipped topology is a PMM Extensions sidecar reached over loopback, where TLS
+// buys nothing and --extensions-url's own help text documents http://127.0.0.1:8000. Rejecting
+// non-HTTPS URLs would disable OpenManager in every deployment there is today. An
+// operator pointing PMM at a PMM Extensions somewhere else is told instead.
+func cleartextToken(baseURL string) bool {
+	parsed, err := url.Parse(baseURL)
+	if err != nil || parsed.Scheme == "https" {
+		return false
+	}
+
+	host := parsed.Hostname()
+	if host == "" || host == "localhost" {
+		return false
+	}
+
+	ip := net.ParseIP(host)
+	return ip == nil || !ip.IsLoopback()
 }
 
 // extensionsApp addresses one side-car app through a shared extensionsClient. Cheap to copy: it is a
@@ -107,7 +142,7 @@ func (a extensionsApp) request(ctx context.Context, method, path string, query u
 // response body -- callers that only want to write settings, not read the
 // SettingResponse rows PATCH returns, use this instead of building the request
 // themselves.
-func (a sepApp) patchConfig(ctx context.Context, fields map[string]any) error {
+func (a extensionsApp) patchConfig(ctx context.Context, fields map[string]any) error {
 	req, err := a.request(ctx, http.MethodPatch, "config", nil, fields, false)
 	if err != nil {
 		return fmt.Errorf("failed to build the request: %w", err)
@@ -115,7 +150,9 @@ func (a sepApp) patchConfig(ctx context.Context, fields map[string]any) error {
 
 	resp, err := a.client.http.Do(req)
 	if err != nil {
-		return fmt.Errorf("PATCH %s: %w", a.endpoint("config"), err)
+		// Returned bare: Do fails with a *url.Error, whose message already names the
+		// verb and the full URL, so any prefix here prints both of them twice.
+		return err //nolint:wrapcheck
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
@@ -132,7 +169,7 @@ func (a sepApp) patchConfig(ctx context.Context, fields map[string]any) error {
 //
 // A 409 (a sweep already in flight) is not treated as a failure to log: the estate
 // is about to be swept either way, which is exactly the outcome a caller here wants.
-func (a sepApp) triggerRun(ctx context.Context) error {
+func (a extensionsApp) triggerRun(ctx context.Context) error {
 	req, err := a.request(ctx, http.MethodPost, "runs", nil, nil, true)
 	if err != nil {
 		return fmt.Errorf("failed to build the request: %w", err)
@@ -140,7 +177,8 @@ func (a sepApp) triggerRun(ctx context.Context) error {
 
 	resp, err := a.client.http.Do(req)
 	if err != nil {
-		return fmt.Errorf("POST %s: %w", a.endpoint("runs"), err)
+		// As in patchConfig: *url.Error already carries the verb and the URL.
+		return err //nolint:wrapcheck
 	}
 	defer resp.Body.Close() //nolint:errcheck
 

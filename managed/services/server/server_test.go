@@ -473,11 +473,11 @@ func TestConvertReadOnlySettings(t *testing.T) {
 	})
 }
 
-// TestApplyOMSwitch pins the OpenManager switch's SEP-facing work off the request path.
-// Enabling used to serialize four SEP round-trips into the settings save: the
+// TestApplyOMSwitch pins the OpenManager switch's PMM Extensions-facing work off the request path.
+// Enabling used to serialize four PMM Extensions round-trips into the settings save: the
 // availability check, a topology collection, the ENABLED PATCH and an immediate sweep.
 // Only the first decides whether the save is allowed; the other three are best-effort,
-// and they measured 12s of ChangeSettings latency against a SEP answering in 3s per
+// and they measured 12s of ChangeSettings latency against a side-car answering in 3s per
 // request -- long enough for a client to time out on a change that had already been
 // committed.
 func TestApplyOMSwitch(t *testing.T) {
@@ -519,7 +519,7 @@ func TestApplyOMSwitch(t *testing.T) {
 		}
 	})
 
-	t.Run("disabling syncs SEP without collecting", func(t *testing.T) {
+	t.Run("disabling syncs PMM Extensions without collecting", func(t *testing.T) {
 		t.Parallel()
 
 		om := newMockOmService(t)
@@ -533,11 +533,11 @@ func TestApplyOMSwitch(t *testing.T) {
 		select {
 		case <-synced:
 		case <-time.After(10 * time.Second):
-			t.Fatal("SEP was never told OpenManager had been turned off")
+			t.Fatal("PMM Extensions was never told OpenManager had been turned off")
 		}
 	})
 
-	t.Run("a save that leaves the switch alone never touches SEP", func(t *testing.T) {
+	t.Run("a save that leaves the switch alone never touches PMM Extensions", func(t *testing.T) {
 		t.Parallel()
 
 		// No expectations registered: every call below would fail the mock.
