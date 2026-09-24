@@ -6,7 +6,7 @@
 %global commit          8f3d007617941033867aea6a134c48b39142427f
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         20
+%define release         21
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
 # the line below is sed'ed by build/bin/build-server-rpm to set a correct version
@@ -42,15 +42,10 @@ export PMM_RELEASE_BRANCH=""
 cd src/github.com/percona/pmm/managed
 make release
 
-cd ../ui
-make release
-
 %install
 install -d -p %{buildroot}%{_bindir}
 install -d -p %{buildroot}%{_sbindir}
 install -d -p %{buildroot}%{_datadir}/%{name}
-install -d -p %{buildroot}%{_datadir}/pmm-ui
-install -d -p %{buildroot}%{_datadir}/percona-dashboards/panels/pmm-compat-app
 install -d -o 1000 %{buildroot}/usr/local/percona/{advisors,checks,alerting-templates}
 install -p -m 0755 bin/pmm-managed %{buildroot}%{_sbindir}/pmm-managed
 install -p -m 0755 bin/pmm-encryption-rotation %{buildroot}%{_sbindir}/pmm-encryption-rotation
@@ -59,8 +54,6 @@ install -p -m 0755 bin/pmm-managed-starlark %{buildroot}%{_sbindir}/pmm-managed-
 
 cd src/github.com/percona/pmm
 cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
-cp -pa ./ui/apps/pmm/dist/. %{buildroot}%{_datadir}/pmm-ui
-cp -pa ./ui/apps/pmm-compat/dist/. %{buildroot}%{_datadir}/percona-dashboards/panels/pmm-compat-app
 cp -pa ./managed/data/advisors/*.yml %{buildroot}/usr/local/percona/advisors/
 cp -pa ./managed/data/checks/*.yml %{buildroot}/usr/local/percona/checks/
 cp -pa ./managed/data/alerting-templates/*.yml %{buildroot}/usr/local/percona/alerting-templates/
@@ -73,13 +66,14 @@ cp -pa ./managed/data/alerting-templates/*.yml %{buildroot}/usr/local/percona/al
 %{_sbindir}/pmm-managed-init
 %{_sbindir}/pmm-managed-starlark
 %{_datadir}/%{name}
-%attr(-, pmm, root) %{_datadir}/pmm-ui
-%attr(-, pmm, root) %{_datadir}/percona-dashboards/panels/pmm-compat-app
 %attr(0644, pmm, root) /usr/local/percona/advisors/*.yml
 %attr(0644, pmm, root) /usr/local/percona/checks/*.yml
 %attr(0644, pmm, root) /usr/local/percona/alerting-templates/*.yml
 
 %changelog
+* Wed Jul 22 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-21
+- PMM-13776 Move the UI build into the dedicated pmm-ui package
+
 * Thu Sep 4 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.0-1
 - PMM-14013 bundle alerting templates with PMM.
 

@@ -12,7 +12,7 @@ checks:
       - type: POSTGRESQL_SELECT
         query: slot_name, pg_current_wal_insert_lsn()-restart_lsn stale_bytes, (SELECT setting FROM pg_settings WHERE name = 'max_wal_size') max_wal_size FROM pg_replication_slots WHERE active = FALSE AND temporary = FALSE AND restart_lsn IS NOT NULL
     script: |
-      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       # pg_advisor
       def check_context(docs, context):

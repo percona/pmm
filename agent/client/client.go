@@ -35,6 +35,7 @@ import (
 	// Installing the gzip encoding registers it as an available compressor.
 	// GRPC will automatically negotiate and use gzip if the client supports it.
 	grpc_gzip "google.golang.org/grpc/encoding/gzip"
+	"google.golang.org/grpc/keepalive"
 	grpcstatus "google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -59,6 +60,12 @@ const (
 	backoffMinDelay   = 1 * time.Second
 	backoffMaxDelay   = 15 * time.Second
 	clockDriftWarning = 5 * time.Second
+	// Keepalive settings detect silently dropped connections:
+	// if nothing is received for keepaliveTime, a transport ping is sent;
+	// if the ack does not arrive within keepaliveTimeout, the connection is closed
+	// and the client reconnects. See PMM-15200.
+	keepaliveTime    = 30 * time.Second
+	keepaliveTimeout = 15 * time.Second
 )
 
 // configGetter allows to get a config.
@@ -266,7 +273,7 @@ func (c *Client) Run(ctx context.Context) error {
 	c.supervisor.ClearChangesChannel()
 	c.SendActualStatuses()
 
-	oneDone := make(chan struct{}, 4)
+	oneDone := make(chan struct{}, 4) //nolint:mnd
 	go func() {
 		c.processActionResults(ctx)
 		c.l.Debug("processActionResults is finished")
@@ -828,6 +835,10 @@ func createConnectionToServer(cfg *config.Config, l *logrus.Entry) (*grpc.Client
 			// Wait for connection to be ready before sending RPC calls
 			grpc.WaitForReady(true),
 		),
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:    keepaliveTime,
+			Timeout: keepaliveTimeout,
+		}),
 	}
 	if cfg.Server.WithoutTLS {
 		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -1015,7 +1026,7 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 		err = fmt.Errorf("failed to decode Ping: %w", err)
 		return latency, clockDrift, err
 	}
-	latency = roundtrip / 2
+	latency = roundtrip / 2 //nolint:mnd
 	clockDrift = serverTime.Sub(start) - latency
 	return latency, clockDrift, err
 }

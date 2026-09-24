@@ -89,7 +89,7 @@
                     "refId": "A"
                 }
             ],
-            "title": " ",
+            "title": "",
             "type": "text"
         },
         {
@@ -340,6 +340,7 @@
                     "showLegend": true
                 },
                 "mergeValues": true,
+                "perPage": 20,
                 "rowHeight": 0.9,
                 "showValue": "always",
                 "tooltip": {

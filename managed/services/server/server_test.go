@@ -18,20 +18,23 @@ package server
 import (
 	"context"
 	"errors"
+	"math"
+	"os"
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
+	pkgenv "github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 )
@@ -110,7 +113,6 @@ func TestServer(t *testing.T) {
 				"PMM_METRICS_RESOLUTION_LR=3s",
 				"PMM_DATA_RETENTION=240h",
 				"PMM_PUBLIC_ADDRESS=1.2.3.4:5678",
-				"PMM_UPDATE_SNOOZE_DURATION=24h",
 			})
 			require.Empty(t, errs)
 			assert.True(t, *s.envSettings.EnableUpdates)
@@ -120,7 +122,6 @@ func TestServer(t *testing.T) {
 			assert.Equal(t, 3*time.Second, s.envSettings.MetricsResolutions.LR)
 			assert.Equal(t, 10*24*time.Hour, s.envSettings.DataRetention)
 			assert.Equal(t, "1.2.3.4:5678", *s.envSettings.PMMPublicAddress)
-			assert.Equal(t, 24*time.Hour, s.envSettings.UpdateSnoozeDuration)
 		})
 
 		t.Run("Untypical", func(t *testing.T) {
@@ -217,15 +218,6 @@ func TestServer(t *testing.T) {
 			EnableUpdates: new(true),
 		}))
 
-		s.envSettings.UpdateSnoozeDuration = 24 * time.Hour
-		expected = status.New(codes.FailedPrecondition, "Update snooze duration is set via PMM_UPDATE_SNOOZE_DURATION environment variable.")
-		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			UpdateSnoozeDuration: durationpb.New(12 * time.Hour),
-		}))
-		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			UpdateSnoozeDuration: durationpb.New(24 * time.Hour),
-		}))
-
 		s.envSettings.EnableTelemetry = new(true)
 		expected = status.New(codes.FailedPrecondition, "Telemetry is configured via PMM_ENABLE_TELEMETRY environment variable.")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
@@ -291,5 +283,101 @@ func TestServer(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
+	})
+}
+
+func TestConvertDefaultRoleID(t *testing.T) {
+	tests := []struct {
+		name   string
+		roleID int
+		want   uint32
+	}{
+		{
+			name:   "positive",
+			roleID: 1,
+			want:   1,
+		},
+		{
+			name:   "zero",
+			roleID: 0,
+			want:   0,
+		},
+		{
+			name:   "negative",
+			roleID: -1,
+			want:   0,
+		},
+		{
+			name:   "max uint32",
+			roleID: math.MaxUint32,
+			want:   math.MaxUint32,
+		},
+		{
+			name:   "greater than max uint32",
+			roleID: math.MaxUint32 + 1,
+			want:   0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, convertDefaultRoleID(tt.roleID))
+		})
+	}
+}
+
+func TestUpdateStatus(t *testing.T) {
+	newServer := func(t *testing.T, initRunning bool) *Server {
+		t.Helper()
+
+		var sv mockSupervisordService
+		sv.Test(t)
+		sv.On("ProgramRunning", mock.Anything, pmmInitProgram).Return(initRunning)
+
+		return &Server{
+			supervisord: &sv,
+			l:           logrus.WithField("component", "server-test"),
+		}
+	}
+
+	t.Run("done once pmm-init is no longer running", func(t *testing.T) {
+		res, err := newServer(t, false).UpdateStatus(t.Context(), &serverv1.UpdateStatusRequest{})
+		require.NoError(t, err)
+		assert.True(t, res.Done)
+	})
+
+	t.Run("not done while pmm-init is running", func(t *testing.T) {
+		res, err := newServer(t, true).UpdateStatus(t.Context(), &serverv1.UpdateStatusRequest{})
+		require.NoError(t, err)
+		assert.False(t, res.Done)
+	})
+
+	t.Run("deprecated fields are ignored and left at their defaults", func(t *testing.T) {
+		req := &serverv1.UpdateStatusRequest{}
+		req.AuthToken = "issued-by-the-previous-instance" //nolint:staticcheck
+		req.LogOffset = 1024                              //nolint:staticcheck
+
+		res, err := newServer(t, false).UpdateStatus(t.Context(), req)
+		require.NoError(t, err)
+		assert.True(t, res.Done, "an unverifiable auth token must still be accepted")
+		assert.Empty(t, res.LogLines, "the progress log is no longer served") //nolint:staticcheck
+		assert.Zero(t, res.LogOffset)                                         //nolint:staticcheck
+	})
+}
+
+func TestConvertReadOnlySettings(t *testing.T) {
+	s := &Server{}
+
+	t.Run("reports SEP as enabled when the process was started with it", func(t *testing.T) {
+		t.Setenv(pkgenv.EnableSEP, "1")
+
+		assert.True(t, s.convertReadOnlySettings(&models.Settings{}).SepEnabled)
+	})
+
+	t.Run("reports SEP as disabled when the variable is absent", func(t *testing.T) {
+		t.Setenv(pkgenv.EnableSEP, "")
+		os.Unsetenv(pkgenv.EnableSEP)
+
+		assert.False(t, s.convertReadOnlySettings(&models.Settings{}).SepEnabled)
 	})
 }

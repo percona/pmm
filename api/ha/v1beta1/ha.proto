@@ -27,6 +27,8 @@ message HANode {
 message ListNodesResponse {
   // List of nodes in the HA cluster.
   repeated HANode nodes = 1;
+  // Expected number of nodes in the cluster
+  int32 expected_nodes = 2;
 }
 
 message StatusRequest {}
@@ -34,6 +36,8 @@ message StatusRequest {}
 message StatusResponse {
   // Status of HA mode: "Enabled" or "Disabled".
   string status = 1;
+  // Kubernetes namespace this instance is running in.
+  string namespace = 2;
 }
 
 // HAService provides High Availability cluster status information.

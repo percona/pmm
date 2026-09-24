@@ -6,7 +6,7 @@ import { Page } from 'components/page';
 import { Messages } from '../RealtimeSelection.messages';
 import { DOCS_URL } from '../RealtimeSelection.constants';
 import { EmptyStateMessages } from './EmptyState.messages';
-import { Icon } from 'components/icon';
+import { RealTimeDatabaseOffIllustration } from '@percona/peak-ui';
 
 const RealtimeSelectionViewerEmptyState: FC = () => (
   <Page footer={null}>
@@ -28,8 +28,7 @@ const RealtimeSelectionViewerEmptyState: FC = () => (
           textAlign: 'center',
         }}
       >
-        <Icon
-          name="real-time-database-off"
+        <RealTimeDatabaseOffIllustration
           color="primary"
           sx={{ height: 192, width: 192, marginBottom: -5 }}
         />

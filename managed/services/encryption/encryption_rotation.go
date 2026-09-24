@@ -94,7 +94,7 @@ func RotateEncryptionKey(sqlDB *sql.DB, prune bool) (int, error) {
 func restartPMMServer() error {
 	logrus.Infoln("Restarting PMM Server")
 
-	cmd := exec.CommandContext(context.Background(), "supervisorctl", "restart pmm-managed")
+	cmd := exec.CommandContext(context.Background(), "supervisorctl", "restart", "pmm-managed")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, output)
@@ -108,7 +108,7 @@ func restartPMMServer() error {
 }
 
 func pmmServerStatus(status string) bool {
-	cmd := exec.Command("supervisorctl", "status pmm-managed")
+	cmd := exec.Command("supervisorctl", "status", "pmm-managed") //nolint:noctx
 	output, _ := cmd.CombinedOutput()
 
 	return strings.Contains(string(output), strings.ToUpper(status))

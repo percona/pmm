@@ -56,6 +56,7 @@ import (
 	// GRPC will automatically negotiate and use gzip if the client supports it.
 	_ "google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/grpclog"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/reform.v1"
@@ -125,6 +126,9 @@ var (
 const (
 	shutdownTimeout    = 3 * time.Second
 	gRPCMessageMaxSize = 100 * 1024 * 1024
+
+	// Must not exceed pmm-agent's keepalive ping interval, see PMM-15200.
+	keepaliveEnforcementMinTime = 20 * time.Second
 
 	cleanInterval  = 10 * time.Minute
 	cleanOlderThan = 30 * time.Minute
@@ -230,6 +234,20 @@ type gRPCServerDeps struct {
 	versionCache              *versioncache.Service
 	vmdb                      *victoriametrics.Service
 	vmalert                   *vmalert.Service
+	internalNodePrefixes      []string
+}
+
+// parseNodeNamePrefixes splits a comma-separated list of Node name prefixes.
+func parseNodeNamePrefixes(value string) []string {
+	var prefixes []string
+	for p := range strings.SplitSeq(value, ",") {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			prefixes = append(prefixes, p)
+		}
+	}
+
+	return prefixes
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -242,6 +260,13 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	gRPCServer := grpc.NewServer(
 		grpc.MaxRecvMsgSize(gRPCMessageMaxSize),
+
+		// Allow pmm-agent's keepalive pings (sent every 30s on a quiet connection, see PMM-15200)
+		// instead of the default 5-minute minimum that kicks such clients with "too_many_pings".
+		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
+			MinTime:             keepaliveEnforcementMinTime,
+			PermitWithoutStream: true,
+		}),
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.UnaryAdd(grpcMetrics.UnaryServerInterceptor()),
@@ -267,7 +292,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	agentv1.RegisterAgentServiceServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
 	agentpb.RegisterAgentServer(gRPCServer, agentgrpc.NewAgentPBServer(deps.handler))
 
-	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
+	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.grafanaClient)
 	agentsSvc := inventory.NewAgentsService(
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
 		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService,
@@ -293,6 +318,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
 		deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb,
 		deps.versionCache, deps.grafanaClient, v1.NewAPI(*deps.vmClient),
+		deps.internalNodePrefixes,
+		deps.ha.Params().Enabled,
 	)
 
 	managementv1.RegisterManagementServiceServer(gRPCServer, managementSvc)
@@ -323,7 +350,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	go rtaStore.Run(ctx)
 
 	// run server until it is stopped gracefully or not
-	listener, err := net.Listen("tcp", gRPCAddr)
+	listener, err := (&net.ListenConfig{}).Listen(ctx, "tcp", gRPCAddr)
 	if err != nil {
 		l.Fatal(err)
 	}
@@ -499,7 +526,7 @@ func runDebugServer(ctx context.Context) {
 		l.Fatal(err)
 	}
 	http.HandleFunc("/debug", func(rw http.ResponseWriter, _ *http.Request) {
-		rw.Write(buf.Bytes()) //nolint:errcheck
+		_, _ = rw.Write(buf.Bytes())
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugAddr, strings.Join(handlers, "\n\t"))
 
@@ -731,6 +758,14 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		Envar("PMM_HA_GRAFANA_GOSSIP_PORT").
 		Default("9762").
 		Int()
+	haNamespace := kingpin.Flag("ha-namespace", "HA Kubernetes namespace").
+		Envar("PMM_HA_NAMESPACE").
+		String()
+
+	internalNodePrefixesF := kingpin.Flag("internal-node-name-prefixes",
+		"Comma-separated list of Node name prefixes reserved for the internal infrastructure of this PMM deployment").
+		Envar("PMM_INTERNAL_NODE_NAME_PREFIXES").
+		String()
 
 	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
 
@@ -742,7 +777,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 	clickhouseUsernameF := kingpin.Flag("clickhouse-username", "Clickhouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
 	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
-	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
 
 	// Nomad garbage collection flags
 	nomadGCIntervalF := kingpin.Flag("nomad-gc-interval", "Interval at which Nomad attempts to garbage collect terminal allocation directories.").
@@ -802,6 +836,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		RaftPort:          *haRaftPort,
 		GossipPort:        *haGossipPort,
 		GrafanaGossipPort: *haGrafanaGossipPort,
+		Namespace:         *haNamespace,
 	}
 	haService := ha.New(haParams)
 
@@ -937,7 +972,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 	serviceInfoBroker := agents.NewServiceInfoBroker(agentsRegistry)
 
-	updater := server.NewUpdater(*watchtowerHostF, gRPCMessageMaxSize, db)
+	updater := server.NewUpdater(db)
 
 	logs := server.NewLogs(version.FullInfo(), updater, vmParams)
 
@@ -1145,10 +1180,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}))
 
 	wg.Go(func() {
-		supervisord.Run(ctx)
-	})
-
-	wg.Go(func() {
 		updater.Run(ctx)
 	})
 
@@ -1186,6 +1217,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				grafanaClient:             grafanaClient,
 				handler:                   agentsHandler,
 				ha:                        haService,
+				internalNodePrefixes:      parseNodeNamePrefixes(*internalNodePrefixesF),
 				jobsService:               jobsService,
 				minioClient:               minioClient,
 				pbmPITRService:            pbmPITRService,

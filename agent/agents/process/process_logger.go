@@ -118,7 +118,7 @@ func replacer(redactWords []string) *strings.Replacer {
 		return nil
 	}
 
-	r := make([]string, 0, len(redactWords)*2)
+	r := make([]string, 0, len(redactWords)*2) //nolint:mnd
 	for _, w := range redactWords {
 		if w == "" {
 			panic("redact word can't be empty")
@@ -133,7 +133,7 @@ var extractLogLevelRegex = regexp.MustCompile(`level=(\w+)`)
 func extractLogLevel(line string) (logrus.Level, bool, error) {
 	matches := extractLogLevelRegex.FindStringSubmatch(line)
 
-	noMatches := len(matches) < 2
+	noMatches := len(matches) < 2 //nolint:mnd
 	if noMatches {
 		return 0, false, nil
 	}

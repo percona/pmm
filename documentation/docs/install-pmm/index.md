@@ -23,9 +23,9 @@ Before ou install PMM, ensure your environment is properly prepared:
 
 ### PMM Server deployment options
 
-Compare the available deployment methods to choose what works best for your setup. For a fast evaluation setup, Docker is the quickest option. For production environments, consider your existing infrastructure stack and operational preferences when choosing between Docker, Kubernetes (Helm), or Virtual Appliance deployments:
+Compare the available deployment methods to choose what works best for your setup. For a fast evaluation setup, Docker is the quickest option. For production environments, consider your existing infrastructure stack and operational preferences when choosing between Docker or Kubernetes (Helm) deployments:
 
-| Deployment Method | Best for | Advantages | Considerations |
+| Deployment method | Best for | Advantages | Considerations |
 |-------------------|----------|------------|----------------|
 | [Docker](../install-pmm/install-pmm-server/deployment-options/docker/index.md) | Quick setup, development environments | • Fast deployment<br>• Easy to manage<br>• Runs without root privileges<br>• Minimal resource overhead | • Requires Docker knowledge<br>• May need additional network configuration |
 | [Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md) | Security-conscious environments | • Rootless by default<br>• Enhanced security<br>• Docker-compatible commands<br>• No daemon required | • Requires Podman installation<br>• Less common than Docker |

@@ -28,7 +28,7 @@ import (
 // Sanitizing, ensure its length by hashing postfix when length is exceeded.
 // MD5 is used because it has fixed length 32 chars.
 func SanitizeSAName(name string) string {
-	if len(name) <= 180 {
+	if len(name) <= 180 { //nolint:mnd
 		return name
 	}
 

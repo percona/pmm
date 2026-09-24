@@ -191,7 +191,7 @@ func trimTimelines(timelines []Timeline) {
 // !!! Should be agreed with pbm/pitr.chunkPath().
 func pitrMetaFromFileName(prefix, f string) *OplogChunk {
 	ppath := strings.Split(f, "/")
-	if len(ppath) < 2 {
+	if len(ppath) < 2 { //nolint:mnd
 		return nil
 	}
 	chnk := &OplogChunk{}
@@ -203,7 +203,7 @@ func pitrMetaFromFileName(prefix, f string) *OplogChunk {
 	if len(fparts) < 3 || fparts[2] != "oplog" {
 		return nil
 	}
-	if len(fparts) == 4 {
+	if len(fparts) == 4 { //nolint:mnd
 		chnk.Compression = file(fparts[3])
 	} else {
 		chnk.Compression = compressionTypeNone

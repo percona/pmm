@@ -129,7 +129,7 @@ func newPgStatStatementsQAN(
 		maxQueryLength:         maxQueryLength,
 		disableCommentsParsing: disableCommentsParsing,
 		l:                      l,
-		changes:                make(chan agents.Change, 10),
+		changes:                make(chan agents.Change, 10), //nolint:mnd
 		statementsCache:        statementCache,
 	}, nil
 }
@@ -155,7 +155,10 @@ func getPgStatVersion(q *reform.Querier) (semver.Version, error) {
 // Run extracts stats data and sends it to the channel until ctx is canceled.
 func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	defer func() {
-		m.dbCloser.Close() //nolint:errcheck
+		err := m.dbCloser.Close()
+		if err != nil {
+			m.l.WithError(err).Error("Failed to close DB connection")
+		}
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
 	}()
@@ -312,7 +315,7 @@ func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart tim
 	}
 
 	buckets := m.makeBuckets(current, prev)
-	startS := uint32(periodStart.Unix())
+	startS := uint32(periodStart.Unix()) //nolint:gosec
 	m.l.Debugf("Made %d buckets out of %d stat statements in %s+%d interval.",
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
 

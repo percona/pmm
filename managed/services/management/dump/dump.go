@@ -90,7 +90,7 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 			}
 
 			s := strings.Split(string(decodedBasic), ":")
-			if len(s) < 2 {
+			if len(s) < 2 { //nolint:mnd
 				return nil, errors.New("failed to parse basic authorization header")
 			}
 			user, password = s[0], s[1]

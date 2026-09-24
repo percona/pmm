@@ -7,7 +7,7 @@ const TestMemoizedIcon = memo(TestIcon);
 
 describe('NavItemIcon', () => {
   it('should render an icon (string)', () => {
-    render(<NavItemIcon icon="search" />);
+    render(<NavItemIcon icon="pmm-rounded" />);
     expect(screen).not.toBeNull();
   });
 

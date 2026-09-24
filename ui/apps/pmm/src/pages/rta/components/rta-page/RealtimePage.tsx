@@ -15,7 +15,9 @@ const RealtimePage: FC<StackProps> = ({ children }) => (
     <Stack
       direction="column"
       gap={2}
-    p={2}
+      px={2}
+      pt={1.5}
+      pb={2}
       sx={{
         flex: 1,
         height: '100%',

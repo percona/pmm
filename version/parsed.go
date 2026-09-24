@@ -40,7 +40,7 @@ type Parsed struct {
 // Parse parses version information from given string.
 func Parse(s string) (*Parsed, error) {
 	m := versionRE.FindStringSubmatch(s)
-	if len(m) != 5 {
+	if len(m) != 5 { //nolint:mnd
 		return nil, fmt.Errorf("failed to parse %q", s)
 	}
 

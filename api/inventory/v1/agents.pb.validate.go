@@ -831,6 +831,8 @@ func (m *MongoDBExporter) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for EnableDiagnosticDataHistograms
+
 	if len(errors) > 0 {
 		return MongoDBExporterMultiError(errors)
 	}
@@ -9462,6 +9464,8 @@ func (m *AddMongoDBExporterParams) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for EnableDiagnosticDataHistograms
+
 	if len(errors) > 0 {
 		return AddMongoDBExporterParamsMultiError(errors)
 	}
@@ -9721,6 +9725,10 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 
 	if m.ExposeExporter != nil {
 		// no validation rules for ExposeExporter
+	}
+
+	if m.EnableDiagnosticDataHistograms != nil {
+		// no validation rules for EnableDiagnosticDataHistograms
 	}
 
 	if len(errors) > 0 {
@@ -10583,6 +10591,10 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 
 	if m.ExposeExporter != nil {
 		// no validation rules for ExposeExporter
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
 	}
 
 	if len(errors) > 0 {
@@ -11734,6 +11746,10 @@ func (m *ChangeQANMongoDBProfilerAgentParams) validate(all bool) error {
 		// no validation rules for LogLevel
 	}
 
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANMongoDBProfilerAgentParamsMultiError(errors)
 	}
@@ -12104,6 +12120,10 @@ func (m *ChangeQANMongoDBMongologAgentParams) validate(all bool) error {
 
 	if m.LogLevel != nil {
 		// no validation rules for LogLevel
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
 	}
 
 	if len(errors) > 0 {
@@ -12481,6 +12501,10 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 
 	if m.LogLevel != nil {
 		// no validation rules for LogLevel
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
 	}
 
 	if len(errors) > 0 {
@@ -12864,6 +12888,10 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 
 	if m.LogLevel != nil {
 		// no validation rules for LogLevel
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
 	}
 
 	if len(errors) > 0 {
@@ -13526,6 +13554,10 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 
 	if m.ListenPort != nil {
 		// no validation rules for ListenPort
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
 	}
 
 	if len(errors) > 0 {
@@ -14438,6 +14470,10 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 		// no validation rules for LogLevel
 	}
 
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
 	if len(errors) > 0 {
 		return ChangeValkeyExporterParamsMultiError(errors)
 	}
@@ -14817,6 +14853,10 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 				}
 			}
 		}
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
 	}
 
 	if len(errors) > 0 {

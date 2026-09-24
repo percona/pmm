@@ -16,10 +16,19 @@
 package encryption
 
 import (
-	"context"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/tls"
+	"crypto/x509"
+	"crypto/x509/pkix"
 	"database/sql"
+	"encoding/json"
+	"encoding/pem"
+	"math/big"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -63,7 +72,9 @@ func TestEncryptionRotation(t *testing.T) {
 	// another test in this package initialized it first
 	encryption.SetDefaultCipher(oldCipher)
 
-	require.NoError(t, insertLegacyTestData(t.Context(), db))
+	tlsCert, tlsKey := generateTLSKeyPair(t)
+	tlsCa, _ := generateTLSKeyPair(t)
+	require.NoError(t, insertLegacyTestData(t, db, oldCipher, tlsCa, tlsCert, tlsKey))
 
 	// legacy values must be detected as needing re-encryption
 	ids, err := models.AgentsNeedingReencryption(q, oldCipher)
@@ -100,11 +111,22 @@ func TestEncryptionRotation(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "pmm-managed-username", agent.Username.Reveal())
 	assert.Equal(t, "pmm-managed-password", agent.Password.Reveal())
+	checkMySQLOptions(t, db, q, newKeyID, tlsCa, tlsCert, tlsKey)
+
+	// a second rotation must not stack encryption layers on the option columns (PMM-15188)
+	secondKeyID, err := encryption.AddNewPrimaryKey(provider)
+	require.NoError(t, err)
+	secondCipher, err := encryption.LoadCipher(provider)
+	require.NoError(t, err)
+	encryption.SetDefaultCipher(secondCipher)
+	require.NoError(t, models.MigrateEncryption(q))
+	require.NoError(t, waitForReencryption(q, secondCipher))
+	checkMySQLOptions(t, db, q, secondKeyID, tlsCa, tlsCert, tlsKey)
 
 	// prune the retired key; data remains readable
 	retired, err := encryption.PruneRetiredKeys(provider)
 	require.NoError(t, err)
-	assert.Equal(t, []uint32{oldCipher.PrimaryKeyID()}, retired)
+	assert.ElementsMatch(t, []uint32{oldCipher.PrimaryKeyID(), newKeyID}, retired)
 
 	prunedCipher, err := encryption.LoadCipher(provider)
 	require.NoError(t, err)
@@ -112,6 +134,7 @@ func TestEncryptionRotation(t *testing.T) {
 	agent, err = models.FindAgentByID(q, "1")
 	require.NoError(t, err)
 	assert.Equal(t, "pmm-managed-username", agent.Username.Reveal())
+	checkMySQLOptions(t, db, q, secondKeyID, tlsCa, tlsCert, tlsKey)
 
 	// running the migration again is a no-op
 	ids, err = models.AgentsNeedingReencryption(q, prunedCipher)
@@ -119,9 +142,89 @@ func TestEncryptionRotation(t *testing.T) {
 	assert.Empty(t, ids)
 }
 
-func insertLegacyTestData(ctx context.Context, db *sql.DB) error {
+// generateTLSKeyPair returns a self-signed certificate and its private key, both PEM encoded.
+func generateTLSKeyPair(t *testing.T) (string, string) {
+	t.Helper()
+
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	require.NoError(t, err)
+
+	template := x509.Certificate{
+		SerialNumber: big.NewInt(1),
+		Subject:      pkix.Name{CommonName: "pmm-encryption-rotation-test"},
+		NotBefore:    time.Now().Add(-time.Hour),
+		NotAfter:     time.Now().Add(time.Hour),
+	}
+	certDER, err := x509.CreateCertificate(rand.Reader, &template, &template, &key.PublicKey, key)
+	require.NoError(t, err)
+
+	keyDER, err := x509.MarshalPKCS8PrivateKey(key)
+	require.NoError(t, err)
+
+	cert := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certDER})
+	privateKey := pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: keyDER})
+
+	return string(cert), string(privateKey)
+}
+
+// legacyEncrypt returns plaintext encrypted in the pre-envelope format: base64
+// Tink ciphertext without the envelope prefix.
+func legacyEncrypt(t *testing.T, c *encryption.Cipher, plaintext string) string {
+	t.Helper()
+
+	stored, err := c.Encrypt(plaintext)
+	require.NoError(t, err)
+	legacy, ok := strings.CutPrefix(stored, encryption.EnvelopePrefix)
+	require.True(t, ok)
+
+	return legacy
+}
+
+// checkMySQLOptions verifies that agents.mysql_options survives key rotation: tls_ca
+// stays plaintext PEM while tls_cert and tls_key are single-layer envelopes of the
+// current key that decrypt back to a loadable key pair. See
+// https://perconadev.atlassian.net/browse/PMM-15188: stacking encryption layers left
+// pmm-agent unable to parse them as PEM.
+func checkMySQLOptions(t *testing.T, db *sql.DB, q *reform.Querier, keyID uint32, tlsCa, tlsCert, tlsKey string) {
+	t.Helper()
+
+	var raw string
+	err := db.QueryRowContext(t.Context(), `SELECT mysql_options FROM agents WHERE agent_id = $1`, "1").Scan(&raw)
+	require.NoError(t, err)
+	var stored models.MySQLOptions
+	require.NoError(t, json.Unmarshal([]byte(raw), &stored))
+	assert.Equal(t, tlsCa, stored.TLSCa)
+	for _, v := range []string{stored.TLSCert, stored.TLSKey} {
+		id, ok := encryption.StoredKeyID(v)
+		require.True(t, ok)
+		assert.Equal(t, keyID, id)
+	}
+
+	agent, err := models.FindAgentByID(q, "1")
+	require.NoError(t, err)
+	assert.Equal(t, tlsCa, agent.MySQLOptions.TLSCa)
+	assert.Equal(t, tlsCert, agent.MySQLOptions.TLSCert)
+	assert.Equal(t, tlsKey, agent.MySQLOptions.TLSKey)
+	_, err = tls.X509KeyPair([]byte(agent.MySQLOptions.TLSCert), []byte(agent.MySQLOptions.TLSKey))
+	assert.NoError(t, err)
+}
+
+func insertLegacyTestData(t *testing.T, db *sql.DB, c *encryption.Cipher, tlsCa, tlsCert, tlsKey string) error {
+	t.Helper()
+	ctx := t.Context()
+
+	mysqlOptions, err := json.Marshal(map[string]any{
+		"tls_ca":                             tlsCa,
+		"tls_cert":                           legacyEncrypt(t, c, tlsCert),
+		"tls_key":                            legacyEncrypt(t, c, tlsKey),
+		"table_count_tablestats_group_limit": 0,
+	})
+	if err != nil {
+		return err
+	}
+
 	now := time.Now()
-	_, err := db.ExecContext(
+	_, err = db.ExecContext(
 		ctx,
 		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
 			"VALUES ('1', 'generic', 'name', '', '', '', '', $1, $2)",
@@ -134,8 +237,8 @@ func insertLegacyTestData(ctx context.Context, db *sql.DB) error {
 	_, err = db.ExecContext(
 		ctx,
 		`INSERT INTO agents (agent_id, agent_type, username, password, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
-			`VALUES ('1', 'pmm-agent', $1, $2, '1', NULL, false, '', $3, $4, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": true, "rds_enhanced_metrics_disabled": true}', '{"push_metrics": false, "expose_exporter": false}')`,
-		originalUsernameHash, originalPasswordHash, now, now,
+			`VALUES ('1', 'pmm-agent', $1, $2, '1', NULL, false, '', $3, $4, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', $5, '{"rds_basic_metrics_disabled": true, "rds_enhanced_metrics_disabled": true}', '{"push_metrics": false, "expose_exporter": false}')`,
+		originalUsernameHash, originalPasswordHash, now, now, string(mysqlOptions),
 	)
 
 	return err

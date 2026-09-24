@@ -292,7 +292,7 @@ func mySQLActive(ctx context.Context, mySQLServiceName string) (bool, error) {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "systemctl", "is-active", "--quiet", mySQLServiceName)
+	cmd := exec.CommandContext(ctx, "systemctl", "is-active", "--quiet", mySQLServiceName) //nolint:gosec
 	err := cmd.Start()
 	if err != nil {
 		return false, fmt.Errorf("starting systemctl is-active command failed: %w", err)
@@ -315,7 +315,7 @@ func stopMySQL(ctx context.Context, mySQLServiceName string) error {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "systemctl", "stop", mySQLServiceName)
+	cmd := exec.CommandContext(ctx, "systemctl", "stop", mySQLServiceName) //nolint:gosec
 	err := cmd.Start()
 	if err != nil {
 		return fmt.Errorf("starting systemctl stop command failed: %w", err)
@@ -332,7 +332,7 @@ func startMySQL(ctx context.Context, mySQLServiceName string) error {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "systemctl", "start", mySQLServiceName)
+	cmd := exec.CommandContext(ctx, "systemctl", "start", mySQLServiceName) //nolint:gosec
 	err := cmd.Start()
 	if err != nil {
 		return fmt.Errorf("starting systemctl start command failed: %w", err)
@@ -403,7 +403,7 @@ func getPermissions(path string) (os.FileMode, error) {
 func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) error {
 	// TODO We should implement recognizing correct default permissions based on DB configuration.
 	// Setting default value in case the base MySQL folder have been lost.
-	mysqlDirPermissions := os.FileMode(0o750)
+	mysqlDirPermissions := os.FileMode(0o750) //nolint:mnd
 
 	output, err := exec.CommandContext( //nolint:gosec
 		ctx,

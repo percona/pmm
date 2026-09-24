@@ -16,9 +16,11 @@
 package fingerprinter
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/percona/percona-toolkit/src/go/mongolib/fingerprinter"
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
@@ -46,7 +48,7 @@ func (pf *ProfilerFingerprinter) Fingerprint(doc proto.SystemProfile) (fingerpri
 	}
 
 	// Parse the namespace to separate database and collection names
-	parts := strings.SplitN(doc.Ns, ".", 2)
+	parts := strings.SplitN(doc.Ns, ".", 2) //nolint:mnd
 	fp.Database = parts[0]
 	if len(parts) > 1 {
 		fp.Collection = parts[1]
@@ -75,7 +77,7 @@ func (pf *ProfilerFingerprinter) fingerprintFind(fp fingerprinter.Fingerprint, d
 	command := doc.Command.Map() //nolint:staticcheck // PMM-13964
 	if f, ok := command["filter"]; ok {
 		values := maskValues(f, make(map[string]maskOption))
-		filterJSON, _ := json.Marshal(values)
+		filterJSON := marshalJSON(values)
 		filter = string(filterJSON)
 	}
 
@@ -85,7 +87,7 @@ func (pf *ProfilerFingerprinter) fingerprintFind(fp fingerprinter.Fingerprint, d
 
 	// Optional fields for find command
 	if command["project"] != nil {
-		projectionJSON, _ := json.Marshal(command["project"])
+		projectionJSON := marshalJSON(command["project"])
 		fp.Fingerprint += fmt.Sprintf(`, %s`, projectionJSON)
 	}
 	fp.Fingerprint += ")"
@@ -93,10 +95,10 @@ func (pf *ProfilerFingerprinter) fingerprintFind(fp fingerprinter.Fingerprint, d
 	if sort, ok := command["sort"]; ok {
 		switch s := sort.(type) {
 		case bson.D:
-			sortJSON, _ := json.Marshal(s.Map()) //nolint:errchkjson,staticcheck // PMM-13964
+			sortJSON := marshalJSON(s.Map()) //nolint:staticcheck // PMM-13964
 			fp.Fingerprint += fmt.Sprintf(`.sort(%s)`, sortJSON)
 		case map[string]any:
-			sortJSON, _ := json.Marshal(s) //nolint:errchkjson // PMM-13964
+			sortJSON := marshalJSON(s)
 			fp.Fingerprint += fmt.Sprintf(`.sort(%s)`, sortJSON)
 		default:
 		}
@@ -123,8 +125,8 @@ func (pf *ProfilerFingerprinter) fingerprintInsert(fp fingerprinter.Fingerprint)
 // Helper for update operations.
 func (pf *ProfilerFingerprinter) fingerprintUpdate(fp fingerprinter.Fingerprint, doc proto.SystemProfile) (fingerprinter.Fingerprint, error) {
 	command := doc.Command.Map() //nolint:staticcheck // PMM-13964
-	filterJSON, _ := json.Marshal(maskValues(command["q"], make(map[string]maskOption)))
-	updateJSON, _ := json.Marshal(maskValues(command["u"], make(map[string]maskOption)))
+	filterJSON := marshalJSON(maskValues(command["q"], make(map[string]maskOption)))
+	updateJSON := marshalJSON(maskValues(command["u"], make(map[string]maskOption)))
 
 	fp.Fingerprint = fmt.Sprintf(`db.%s.update(%s, %s`, fp.Collection, filterJSON, updateJSON)
 	fp.Keys = string(filterJSON)
@@ -137,7 +139,7 @@ func (pf *ProfilerFingerprinter) fingerprintUpdate(fp fingerprinter.Fingerprint,
 		if command["multi"] == true {
 			options["multi"] = true
 		}
-		optionsJSON, _ := json.Marshal(options)
+		optionsJSON := marshalJSON(options)
 		fp.Fingerprint += fmt.Sprintf(`, %s`, optionsJSON)
 	}
 	fp.Fingerprint += ")"
@@ -152,7 +154,7 @@ func (pf *ProfilerFingerprinter) fingerprintDelete(fp fingerprinter.Fingerprint,
 	if limit, ok := command["limit"]; ok && limit == int32(1) {
 		method = "deleteOne"
 	}
-	filterJSON, _ := json.Marshal(maskValues(command["q"], make(map[string]maskOption)))
+	filterJSON := marshalJSON(maskValues(command["q"], make(map[string]maskOption)))
 	fp.Fingerprint = fmt.Sprintf(`db.%s.%s(%s)`, fp.Collection, method, filterJSON)
 	fp.Keys = string(filterJSON)
 	return fp, nil
@@ -190,7 +192,7 @@ func (pf *ProfilerFingerprinter) fingerprintCommand(fp fingerprinter.Fingerprint
 				var stageJSON []byte
 				switch {
 				case stageMap["$match"] != nil:
-					stageJSON, _ = json.Marshal(maskValues(stageMap, maskOptions))
+					stageJSON = marshalJSON(maskValues(stageMap, maskOptions))
 				default:
 					stageJSON, _ = bson.MarshalExtJSON(stageMap, false, false)
 				}
@@ -202,7 +204,7 @@ func (pf *ProfilerFingerprinter) fingerprintCommand(fp fingerprinter.Fingerprint
 		}
 		fp.Fingerprint += "])"
 		if collation, exists := command["collation"]; exists {
-			collationMasked, _ := json.Marshal(maskValues(collation, maskOptions))
+			collationMasked := marshalJSON(maskValues(collation, maskOptions))
 			fp.Fingerprint += fmt.Sprintf(`, collation: %s`, collationMasked)
 		}
 
@@ -210,12 +212,25 @@ func (pf *ProfilerFingerprinter) fingerprintCommand(fp fingerprinter.Fingerprint
 		fp.Keys = strings.Join(stageStrings, ", ")
 	} else {
 		// Handle other commands generically
-		commandMasked, _ := json.Marshal(maskValues(doc.Command, maskOptions))
+		commandMasked := marshalJSON(maskValues(doc.Command, maskOptions))
 		fp.Fingerprint = fmt.Sprintf(`db.runCommand(%s)`, commandMasked)
 		fp.Keys = string(commandMasked)
 	}
 
 	return fp, nil
+}
+
+// marshalJSON marshals v to JSON with the Unicode replacement character escaped
+// as \ufffd. Go 1.27 enables the jsonv2 experiment, whose encoder writes U+FFFD
+// verbatim where earlier versions wrote the escape sequence. Normalizing keeps
+// fingerprints - and the query IDs derived from them - identical across Go
+// versions, and matches the extended JSON produced by the MongoDB driver.
+func marshalJSON(v any) []byte {
+	b, _ := json.Marshal(v) //nolint:errchkjson
+	if !bytes.ContainsRune(b, utf8.RuneError) {
+		return b
+	}
+	return bytes.ReplaceAll(b, []byte(string(utf8.RuneError)), []byte(`\ufffd`))
 }
 
 type maskOption struct {

@@ -281,7 +281,7 @@ func createComment(checks []check.Check) string {
 		}
 	}
 
-	b := make([]string, 0, 3)
+	b := make([]string, 0, 3) //nolint:mnd
 	if mySQL {
 		b = append(b, "MySQL")
 	}
@@ -292,7 +292,7 @@ func createComment(checks []check.Check) string {
 		b = append(b, "MongoDB")
 	}
 
-	if len(b) == 3 {
+	if len(b) == 3 { //nolint:mnd
 		return "All technologies supported"
 	}
 

@@ -85,9 +85,9 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersio
 
 var encryptionOnce sync.Once
 
-// setupEncryption points the models field codec at a per-process temporary
+// SetupEncryption points the models field codec at a per-process temporary
 // key file (respecting PMM_ENCRYPTION_KEY_PATH if set).
-func setupEncryption(tb testing.TB) {
+func SetupEncryption(tb testing.TB) {
 	tb.Helper()
 
 	encryptionOnce.Do(func() {
@@ -111,7 +111,7 @@ func setupEncryption(tb testing.TB) {
 // Please use Open method to recreate DB for each test if you don't need to control migrations.
 func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, migrationVersion *int) {
 	tb.Helper()
-	setupEncryption(tb)
+	SetupEncryption(tb)
 	ctx := context.TODO()
 	params := models.SetupDBParams{
 		// Uncomment to see all setup queries:

@@ -575,6 +575,7 @@ scrape_configs:
             - perf_schema.eventsstatements
             - perf_schema.file_instances
             - perf_schema.indexiowaits
+            - perf_schema.memory_events
             - perf_schema.tableiowaits
             - plugins
       scrape_interval: 1m
@@ -687,6 +688,7 @@ scrape_configs:
             - perf_schema.eventsstatements
             - perf_schema.file_instances
             - perf_schema.indexiowaits
+            - perf_schema.memory_events
             - perf_schema.tableiowaits
             - plugins
       scrape_interval: 1m

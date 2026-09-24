@@ -100,7 +100,7 @@ func New(params *Params, redactWords []string, l *logrus.Entry) *Process {
 		params:      params,
 		l:           l,
 		pl:          newProcessLogger(l, keepLogLines, redactWords),
-		changes:     make(chan inventoryv1.AgentStatus, 10),
+		changes:     make(chan inventoryv1.AgentStatus, 10), //nolint:mnd
 		backoff:     backoff.New(backoffMinDelay, backoffMaxDelay),
 		ctxDone:     make(chan struct{}),
 		initialized: make(chan bool, 1),

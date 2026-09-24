@@ -175,7 +175,7 @@ func (s *pgStatStatements) View() reform.View { //nolint:ireturn
 }
 
 func (s *pgStatStatements) String() string {
-	res := make([]string, 19)
+	res := make([]string, 19) //nolint:mnd
 	res[0] = "UserID: " + reform.Inspect(s.UserID, true)
 	res[1] = "DBID: " + reform.Inspect(s.DBID, true)
 	res[2] = "QueryID: " + reform.Inspect(s.QueryID, true)

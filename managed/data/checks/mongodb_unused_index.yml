@@ -14,7 +14,7 @@ checks:
       - type: METRICS_INSTANT
         query: avg by (cluster,collection,database,key_name) (mongodb_indexstats_accesses_ops{node_name=~"{{.NodeName}}"}) == 0
     script: |
-      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       def check_context(docs, context):
           threshold = 30
