@@ -371,6 +371,62 @@ func (s *Service) TriggerInventoryRefresh(ctx context.Context, req *omv1.Trigger
 	return response, nil
 }
 
+// validateMemberConfigs checks one request's per-member settings against the
+// hosts it names and against what rs.initiate() will accept, so a set it would
+// refuse fails here rather than several steps into a run -- minutes later, with
+// mongod already installed everywhere.
+//
+// Split out of TriggerHostBootstrap, its only caller, to keep that function's
+// cognitive complexity within the linter's limit, the same reason
+// resolveBootstrapHostOSID sits beside it.
+func validateMemberConfigs(nodeIDs []string, memberConfigs map[string]*omv1.BootstrapMemberConfig) error {
+	nodeIDSet := make(map[string]bool, len(nodeIDs))
+	for _, nodeID := range nodeIDs {
+		nodeIDSet[nodeID] = true
+	}
+	for nodeID, member := range memberConfigs {
+		if !nodeIDSet[nodeID] {
+			return status.Errorf(codes.InvalidArgument,
+				"member_configs names host %s, which is not in node_ids", nodeID)
+		}
+		// MongoDB's own rs.initiate() rule: a delayed member cannot vote or be
+		// eligible for primary -- rejected here rather than left for SEP to
+		// discover only once rs.initiate actually runs, minutes later. Leaving
+		// priority or votes unset is the same mistake as setting them wrong,
+		// since unset means MongoDB's defaults of 1 and on.
+		if member.GetDelaySecs() > 0 && (member.Priority == nil || *member.Priority != 0 || member.Votes == nil || *member.Votes) {
+			return status.Errorf(codes.InvalidArgument,
+				"host %s: a delayed member (delay_secs > 0) must also set priority 0 and votes off", nodeID)
+		}
+	}
+
+	// A replica set needs a member that can vote and one that can be elected,
+	// and rs.initiate() is where a set with neither fails -- minutes into a run,
+	// after every host already has mongod installed and started. Counted over
+	// node_ids rather than member_configs because a host named nowhere in it
+	// keeps MongoDB's defaults and therefore does both.
+	voters, electable := 0, 0
+	for _, nodeID := range nodeIDs {
+		member, named := memberConfigs[nodeID]
+		if !named || member.Votes == nil || *member.Votes {
+			voters++
+		}
+		if !named || member.Priority == nil || *member.Priority > 0 {
+			electable++
+		}
+	}
+	if voters == 0 {
+		return status.Error(codes.InvalidArgument,
+			"member_configs leaves no host with a vote; a replica set needs at least one voting member")
+	}
+	if electable == 0 {
+		return status.Error(codes.InvalidArgument,
+			"member_configs leaves every host with priority 0; a replica set needs at least one member that can become primary")
+	}
+
+	return nil
+}
+
 // executorUnusable says why a payload cannot be dispatched to this host right now,
 // or "" when nothing is known to be wrong.
 //
@@ -477,22 +533,9 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 			"node_ids must have exactly one or three entries, got %d", len(nodeIDs))
 	}
 
-	nodeIDSet := make(map[string]bool, len(nodeIDs))
-	for _, nodeID := range nodeIDs {
-		nodeIDSet[nodeID] = true
-	}
-	for nodeID, member := range req.GetMemberConfigs() {
-		if !nodeIDSet[nodeID] {
-			return nil, status.Errorf(codes.InvalidArgument,
-				"member_configs names host %s, which is not in node_ids", nodeID)
-		}
-		// MongoDB's own rs.initiate() rule: a delayed member cannot vote or be
-		// eligible for primary -- rejected here rather than left for SEP to
-		// discover only once rs.initiate actually runs, minutes later.
-		if member.GetDelaySecs() > 0 && (member.GetPriority() != 0 || member.GetVotes()) {
-			return nil, status.Errorf(codes.InvalidArgument,
-				"host %s: a delayed member (delay_secs > 0) must also have priority 0 and votes off", nodeID)
-		}
+	err = validateMemberConfigs(nodeIDs, req.GetMemberConfigs())
+	if err != nil {
+		return nil, err
 	}
 
 	osID := ""
@@ -521,8 +564,8 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		executorHosts = append(executorHosts, *host.ExecutorHost)
 		if member, ok := req.GetMemberConfigs()[nodeID]; ok {
 			memberConfigs[*host.ExecutorHost] = sepMemberConfig{
-				Priority:  member.GetPriority(),
-				Votes:     member.GetVotes(),
+				Priority:  member.Priority,
+				Votes:     member.Votes,
 				Hidden:    member.GetHidden(),
 				DelaySecs: member.GetDelaySecs(),
 			}

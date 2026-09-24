@@ -69,18 +69,23 @@ type sepBootstrapHost struct {
 // sepBootstrapRun is one row of GET /runs, and the full body of GET /runs/{id}
 // and every dispatch/finish response.
 type sepBootstrapRun struct {
-	ID              string             `json:"id"`
-	Status          string             `json:"status"`
-	InstallMethod   string             `json:"install_method"`
-	OS              string             `json:"os"`
-	MongoDBVersion  string             `json:"mongodb_version"`
-	ReplicaSetName  string             `json:"replica_set_name"`
-	StartedAt       time.Time          `json:"started_at"`
-	FinishedAt      *time.Time         `json:"finished_at"`
-	Hosts           []sepBootstrapHost `json:"hosts"`
-	RunSteps        []sepBootstrapStep `json:"run_steps"`
-	Error           *string            `json:"error"`
-	CancelRequested bool               `json:"cancel_requested"`
+	ID              string                     `json:"id"`
+	Status          string                     `json:"status"`
+	InstallMethod   string                     `json:"install_method"`
+	OS              string                     `json:"os"`
+	MongoDBVersion  string                     `json:"mongodb_version"`
+	ReplicaSetName  string                     `json:"replica_set_name"`
+	DataPath        string                     `json:"data_path"`
+	LogPath         string                     `json:"log_path"`
+	Port            uint32                     `json:"port"`
+	BindIP          string                     `json:"bind_ip"`
+	MemberConfigs   map[string]sepMemberConfig `json:"member_configs"`
+	StartedAt       time.Time                  `json:"started_at"`
+	FinishedAt      *time.Time                 `json:"finished_at"`
+	Hosts           []sepBootstrapHost         `json:"hosts"`
+	RunSteps        []sepBootstrapStep         `json:"run_steps"`
+	Error           *string                    `json:"error"`
+	CancelRequested bool                       `json:"cancel_requested"`
 }
 
 // sepTriggerBootstrapRunRequest is the body POST /runs takes.
@@ -100,11 +105,18 @@ type sepTriggerBootstrapRunRequest struct {
 // sepMemberConfig is one host's replica-set election settings, matching
 // om_bootstrap's own MemberConfig exactly -- see TriggerHostBootstrap's own
 // doc comment for the node-id-to-executor-host translation this sits behind.
+//
+// Priority and Votes are pointers so an unset one is left out of the body
+// entirely and om_bootstrap's own MemberConfig defaults (priority 1, votes on)
+// apply. Sending their zero values instead would ask for a member that can
+// neither vote nor be elected -- the opposite of what a caller who said
+// nothing about them meant. See BootstrapMemberConfig.priority's own proto
+// comment.
 type sepMemberConfig struct {
-	Priority  uint32 `json:"priority"`
-	Votes     bool   `json:"votes"`
-	Hidden    bool   `json:"hidden"`
-	DelaySecs uint32 `json:"delay_secs"`
+	Priority  *uint32 `json:"priority,omitempty"`
+	Votes     *bool   `json:"votes,omitempty"`
+	Hidden    bool    `json:"hidden"`
+	DelaySecs uint32  `json:"delay_secs"`
 }
 
 // sepDispatchStepRequest is the optional body every :dispatch route takes -- the
