@@ -26,6 +26,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -427,6 +428,74 @@ func validateMemberConfigs(nodeIDs []string, memberConfigs map[string]*omv1.Boot
 	return nil
 }
 
+// runIgnoredSettings names the first run setting om_bootstrap did not apply, or
+// "" when the accepted run matches what was asked for.
+//
+// Raised in review: these fields are new on the wire, and SEP's own
+// TriggerRunRequest is a plain pydantic model, which ignores fields it does not
+// know rather than rejecting them. Against an om_bootstrap older than
+// percona/SEP#1534 the run would be accepted and then come up on SEP's own
+// defaults -- mongod on a different port, and a member meant to be hidden,
+// non-voting and delayed joining as an ordinary voting one -- with nothing
+// saying so. SEP echoes every one of these back on the accepted run (its
+// RunResponse), so the answer is in hand the moment the run is created; an
+// older SEP simply omits them, which reads here as the zero value and so as a
+// mismatch.
+//
+// Reports the first difference rather than all of them: any single one means
+// the app is too old, and the caller's next step is the same either way. Only
+// what was actually asked for is compared -- a field PMM left out is SEP's to
+// default, and the value it chose is not a disagreement.
+func runIgnoredSettings(planned sepTriggerBootstrapRunRequest, accepted *sepBootstrapRun) string {
+	switch {
+	case planned.DataPath != "" && accepted.DataPath != planned.DataPath:
+		return "the data path"
+	case planned.LogPath != "" && accepted.LogPath != planned.LogPath:
+		return "the log path"
+	case planned.Port != 0 && accepted.Port != planned.Port:
+		return "the port"
+	case planned.BindIP != "" && accepted.BindIP != planned.BindIP:
+		return "the bind address"
+	}
+
+	for host, member := range planned.MemberConfigs {
+		got, ok := accepted.MemberConfigs[host]
+		if !ok || !sameMemberConfig(got, member) {
+			return "the per-member replica-set settings"
+		}
+	}
+	return ""
+}
+
+// sameMemberConfig compares one host's settings as asked for against as accepted.
+//
+// An unset priority or votes on the request side is MongoDB's own default, which
+// is what SEP fills in and echoes back, so the two compare equal rather than
+// reading as a mismatch on every run that leaves them out.
+func sameMemberConfig(accepted, planned sepMemberConfig) bool {
+	if pointer.GetUint32(planned.Priority) != pointer.GetUint32(accepted.Priority) && planned.Priority != nil {
+		return false
+	}
+	if planned.Votes != nil && pointer.GetBool(planned.Votes) != pointer.GetBool(accepted.Votes) {
+		return false
+	}
+	return planned.Hidden == accepted.Hidden && planned.DelaySecs == accepted.DelaySecs
+}
+
+// abandonMisconfiguredRun cancels a run PMM has just decided it cannot use.
+//
+// Best-effort and logged rather than returned: the caller is already being told
+// why its request failed, and a cancel that does not land leaves a run visible
+// on the Automations page rather than anything worse. A SEP too old for the
+// settings above is also too old for :cancel, which 404s -- that is the same
+// "your SEP is older than this PMM" answer, so it is not worth reporting twice.
+func (s *Service) abandonMisconfiguredRun(ctx context.Context, runID string) {
+	_, err := s.bootstrap.cancelRun(ctx, runID)
+	if err != nil {
+		s.l.Warnf("bootstrap run %s: failed to cancel a run SEP would not configure: %s", runID, err)
+	}
+}
+
 // executorUnusable says why a payload cannot be dispatched to this host right now,
 // or "" when nothing is known to be wrong.
 //
@@ -572,7 +641,7 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		}
 	}
 
-	run, err := s.bootstrap.triggerRun(ctx, sepTriggerBootstrapRunRequest{
+	planned := sepTriggerBootstrapRunRequest{
 		Hosts:          executorHosts,
 		InstallMethod:  "packages",
 		OS:             osID,
@@ -583,9 +652,19 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		Port:           req.GetPort(),
 		BindIP:         req.GetBindIp(),
 		MemberConfigs:  memberConfigs,
-	})
+	}
+	run, err := s.bootstrap.triggerRun(ctx, planned)
 	if err != nil {
 		return nil, err
+	}
+
+	ignored := runIgnoredSettings(planned, run)
+	if ignored != "" {
+		s.abandonMisconfiguredRun(ctx, run.ID)
+		return nil, status.Errorf(codes.FailedPrecondition,
+			"SEP accepted the run but did not apply %s, so it would come up on its own defaults "+
+				"instead of the settings you chose; its om_bootstrap app is older than this PMM. "+
+				"The run has been cancelled", ignored)
 	}
 
 	if environment, cluster := req.GetEnvironment(), req.GetCluster(); environment != "" || cluster != "" {
