@@ -61,9 +61,11 @@ const (
 // A run reading SUCCEEDED in SEP is not necessarily done from PMM's side:
 // registering the mongod with PMM's own inventory (registerBootstrapHost) is a step
 // om_bootstrap knows nothing about, so every tick also revisits every succeeded
-// run, not just the running ones, until that registration exists. Safe to repeat
-// forever -- see registerBootstrapHost's own doc comment on why it is idempotent by
-// construction rather than by a "was this already done" flag.
+// run, not just the running ones, until that registration exists. Repeating it is
+// harmless -- see registerBootstrapHost's own doc comment on why it is idempotent
+// by construction -- but it is not free, so a run whose hosts are all registered
+// records that (OmBootstrapRunConfig.RegisteredAt) and drops out of the sweep for
+// good; stepBootstrapRuns has the measurements.
 func (s *Service) RunBootstrapStepper(ctx context.Context) {
 	ticker := time.NewTicker(bootstrapPollInterval)
 	defer ticker.Stop()
@@ -82,7 +84,25 @@ func (s *Service) RunBootstrapStepper(ctx context.Context) {
 }
 
 // stepBootstrapRuns discovers every run worth a look this tick and drives each one.
+//
+// "Worth a look" is what keeps the succeeded half of this sweep bounded. A run that
+// reads SUCCEEDED in SEP stays in that status for the rest of its life, so without a
+// record of PMM's own last step -- registering the hosts, which SEP knows nothing
+// about -- every finished run in the history is re-fetched, re-matched against the
+// whole estate, and re-registered on every tick, forever. Measured in review at 20
+// GET /runs/{id} plus 20 full estate fetches per 15s tick against a 20-run history,
+// growing with it, each one also re-reading and decrypting the run's secret and
+// re-warning about anything not yet registered.
 func (s *Service) stepBootstrapRuns(ctx context.Context) {
+	registered, err := models.FindRegisteredOmBootstrapRunIDs(s.db.Querier)
+	if err != nil {
+		// Without the set, the sweep below would redo every finished run. Skipping
+		// this tick costs at most bootstrapPollInterval of progress on a run that
+		// is, by definition, already succeeded on SEP's side.
+		s.l.Warnf("failed to list the bootstrap runs PMM has already registered: %s", err)
+		return
+	}
+
 	for _, runStatus := range [...]string{bootstrapRunRunning, bootstrapRunSucceeded} {
 		runs, err := s.bootstrap.listRuns(ctx, runStatus, 0)
 		if err != nil {
@@ -90,6 +110,9 @@ func (s *Service) stepBootstrapRuns(ctx context.Context) {
 			continue
 		}
 		for _, run := range runs {
+			if _, done := registered[run.ID]; done {
+				continue
+			}
 			s.stepBootstrapRun(ctx, run.ID)
 		}
 	}
@@ -249,6 +272,7 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *sepBootstrapRun
 	}
 
 	unconfirmed := make([]string, 0, len(run.Hosts))
+	done := 0
 	for _, host := range run.Hosts {
 		inventoryHost, ok := hostsByExecutor[host.Host]
 		if !ok {
@@ -261,6 +285,7 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *sepBootstrapRun
 			s.l.Warnf("bootstrap run %s: failed to register %s with PMM: %s", run.ID, host.Host, err)
 			continue
 		}
+		done++
 		if len(inventoryHost.Services) == 0 {
 			unconfirmed = append(unconfirmed, inventoryHost.NodeID)
 		}
@@ -268,6 +293,22 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *sepBootstrapRun
 
 	if len(unconfirmed) > 0 {
 		s.triggerScopedInventoryRefresh(ctx, unconfirmed)
+	}
+
+	if done < len(run.Hosts) {
+		// Every host that did land is registered, and registerBootstrapHost is
+		// idempotent, so the next tick picks up only what is left.
+		return
+	}
+	// The last thing PMM owed this run is done, so it leaves the sweep: see
+	// stepBootstrapRuns on what revisiting it forever cost. The refresh kicked
+	// above is deliberately not part of that condition -- it only asks SEP to
+	// re-probe sooner than its own schedule would, so a missed kick costs
+	// freshness, not correctness, and is not worth another pass over the estate
+	// every 15 seconds for the life of the server.
+	err = models.MarkOmBootstrapRunRegistered(s.db.Querier, run.ID)
+	if err != nil {
+		s.l.Warnf("bootstrap run %s: registered every host, but failed to record it: %s", run.ID, err)
 	}
 }
 

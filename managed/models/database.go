@@ -1246,15 +1246,17 @@ var databaseSchema = [][]string{
 		)`,
 	},
 	121: {
-		// The environment and cluster a bootstrap run was triggered with -- see
+		// PMM's own record of a bootstrap run: the environment and cluster it was
+		// triggered with, and when PMM finished registering its hosts -- see
 		// OmBootstrapRunConfig's own doc comment for why these live in PMM's own
 		// database rather than round-tripping through SEP, which has no use for
 		// them.
 		`CREATE TABLE om_bootstrap_run_configs (
-			run_id      VARCHAR PRIMARY KEY,
-			environment VARCHAR NOT NULL,
-			cluster     VARCHAR NOT NULL,
-			created_at    TIMESTAMP NOT NULL
+			run_id        VARCHAR PRIMARY KEY,
+			environment   VARCHAR NOT NULL,
+			cluster       VARCHAR NOT NULL,
+			created_at    TIMESTAMP NOT NULL,
+			registered_at TIMESTAMP
 		)`,
 	},
 }
