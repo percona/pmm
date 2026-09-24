@@ -18,6 +18,7 @@ package models_test
 import (
 	"encoding/json"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -162,4 +163,53 @@ func assertStoredOptions[T any](t *testing.T, cipher *encryption.Cipher, raw []b
 		assertSingleEnvelope(t, cipher, storedVal.Field(i).String())
 	}
 	assert.Positive(t, secrets, "%s has no encrypted fields", typ.Name())
+}
+
+// TestEncryptedFieldsPinned pins the set of encrypted fields so it cannot
+// shrink by accident: dropping an encrypt tag would silently store that
+// secret as plaintext from then on. Change this list deliberately.
+func TestEncryptedFieldsPinned(t *testing.T) {
+	t.Parallel()
+
+	expected := map[string][]string{
+		"ExporterOptions":   nil,
+		"QANOptions":        nil,
+		"RTAOptions":        nil,
+		"AWSOptions":        {"AWSAccessKey", "AWSSecretKey"},
+		"AzureOptions":      {"SubscriptionID", "ClientID", "ClientSecret", "TenantID"},
+		"MongoDBOptions":    {"TLSCertificateKey", "TLSCertificateKeyFilePassword"},
+		"MySQLOptions":      {"TLSCert", "TLSKey"},
+		"PostgreSQLOptions": {"SSLCert", "SSLKey"},
+		"ValkeyOptions":     {"SSLCert", "SSLKey"},
+		"S3LocationConfig":  {"AccessKey", "SecretKey"},
+	}
+
+	taggedFields := func(typ reflect.Type) []string {
+		var fields []string
+		for i := range typ.NumField() {
+			if typ.Field(i).Tag.Get("encrypt") == "true" {
+				fields = append(fields, typ.Field(i).Name)
+			}
+		}
+		return fields
+	}
+
+	encryptedStrings := reflect.TypeFor[*models.EncryptedString]()
+	var agentSecrets []string
+	agent := reflect.TypeFor[models.Agent]()
+	for i := range agent.NumField() {
+		field := agent.Field(i)
+		switch {
+		case field.Type == encryptedStrings:
+			agentSecrets = append(agentSecrets, field.Name)
+		case strings.HasSuffix(field.Type.Name(), "Options"):
+			// a new options column must be classified here
+			want, ok := expected[field.Type.Name()]
+			require.True(t, ok, "Agent.%s: add %s to the pinned list", field.Name, field.Type.Name())
+			assert.Equal(t, want, taggedFields(field.Type), field.Type.Name())
+		}
+	}
+	assert.Equal(t, []string{"Username", "Password", "AgentPassword"}, agentSecrets)
+
+	assert.Equal(t, expected["S3LocationConfig"], taggedFields(reflect.TypeFor[models.S3LocationConfig]()))
 }
