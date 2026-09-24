@@ -9,6 +9,9 @@ To manage inventory in the UI, go to **Configuration > Inventory**. For programm
 - [`pmm-admin inventory list agents|nodes|services`](#pmm-admin-inventory-list)
 :   Shows registered agents, nodes, or services
 
+- [`pmm-admin inventory add node remote-rds`](#pmm-admin-inventory-add-node-remote-rds)
+:   Registers an Amazon RDS DB instance as a node, so an `rds_exporter` can collect its CloudWatch metrics.
+
 - [`pmm-admin inventory add agent rta-mongodb-agent`](#pmm-admin-inventory-add-agent-rta-mongodb-agent)
 :   Starts Real-Time Analytics (RTA) on a MongoDB service.
 
@@ -46,6 +49,63 @@ pmm-admin inventory list services
 
     ```bash
     pmm-admin inventory list services
+    ```
+
+## pmm-admin inventory add node remote-rds
+
+Registers an Amazon RDS DB instance as a `remote_rds` node. An `rds_exporter` attaches to this node to collect CloudWatch metrics for the instance.
+
+### Syntax
+
+```bash
+pmm-admin inventory add node remote-rds --instance-id=STRING [<name>] [flags]
+```
+
+### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `<name>` | (Optional) Node name as it appears in PMM. Defaults to the DB instance identifier. |
+
+### Flags
+
+- `--instance-id`
+:   **Required.** The AWS DB instance identifier, as shown in the **DB identifier** column of the RDS console. PMM sends it to CloudWatch as the `DBInstanceIdentifier` dimension.
+
+- `--address`
+:   Endpoint hostname PMM connects to for database-level metrics.
+
+- `--region`
+:   AWS region the instance runs in, for example `eu-north-1`.
+
+- `--az`
+:   AWS availability zone, for example `eu-north-1c`.
+
+- `--node-model`
+:   Instance class, for example `db.t4g.micro`.
+
+- `--custom-labels`
+:   Custom user-assigned labels in `key=value,key=value` format.
+
+!!! caution alert alert-warning "Give the identifier, not the endpoint"
+    `--instance-id` takes `my-database`, not `my-database.abc123.eu-north-1.rds.amazonaws.com`. PMM rejects a value containing dots for this reason. It is required because an `rds_exporter` on a node without an identifier starts, reports RUNNING and collects nothing; PMM refuses to create such an agent rather than leave you with a monitor that silently does nothing.
+
+### Examples
+
+- Register an RDS instance and start collecting its CloudWatch metrics with an assumed IAM role:
+
+    ```bash
+    # 1. Register the instance as a node
+    pmm-admin inventory add node remote-rds my-database \
+        --instance-id=my-database \
+        --address=my-database.abc123.eu-north-1.rds.amazonaws.com \
+        --region=eu-north-1 \
+        --az=eu-north-1c
+
+    # 2. Attach the exporter to the node ID returned above
+    pmm-admin inventory add agent rds-exporter \
+        --aws-role-arn=arn:aws:iam::123456789012:role/PmmRdsMonitoring \
+        <pmm-agent-id> <node-id>
     ```
 
 ## pmm-admin inventory add agent rta-mongodb-agent
