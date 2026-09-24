@@ -9,27 +9,20 @@ If you deployed PMM Server as a single instance on Kubernetes using the `percona
 
 ## How PMM HA Helm upgrades work
 
-The upgrade restarts each of the three PMM Server pods one at a time, waiting for each to become ready before restarting the next.
+The upgrade restarts each of the three PMM Server pods one at a time, waiting for each to become ready before restarting the next. 
 
-### Downtime expectations
-
-During the rollout, traffic flows only to whichever pod is the active leader. When the leader pod restarts, your PMM dashboards, alerts, and metric collection are briefly unavailable until a new leader takes over.
-
-PMM is briefly unreachable when the leader pod restarts. Traffic only flows to the active leader. When that pod restarts, your PMM dashboards and alerts are briefly unreachable until another pod takes over. This typically takes around 5-10 seconds per pod and resolves on its own.
+Traffic flows only to the active leader pod. When that pod restarts, your PMM dashboards, alerts, and metric collection are briefly unavailable until a new leader takes over. This typically takes around 5-10 seconds per pod and resolves on its own.
 
 ## Before you begin
 
-Complete these steps before starting the upgrade:
+Complete these steps before upgrading to avoid data loss or extended downtime:
 {.power-number}
 
-1. Check that all three PMM Server pods are running and ready:
+1. Check that all three PMM Server pods are running and ready. The rollout takes one pod offline at a time, so starting with a pod already down reduces the cluster to a single pod, which cannot elect a leader and causes a full outage until you restore a second pod:
 
     ```sh
     kubectl get pods -n <namespace> -l app.kubernetes.io/component=pmm-server
     ```
-
-    !!! danger "Don't upgrade with a pod already down"
-        The upgrade takes one pod offline at a time. If a pod is already down when you start, the upgrade brings the cluster to a single running pod, which is not enough to elect a leader. The result is a full outage (`503` from HAProxy) until you restore a second pod. Fix the unhealthy pod first. If you end up in this state, see [No quorum: cluster is unreachable after losing multiple replicas](../troubleshoot/ha_issues.md#no-quorum-cluster-is-unreachable-after-losing-multiple-replicas).
 
 2. Back up your data. Downgrades are not supported, so a backup is the only way to recover if something goes wrong. Your monitoring data lives in shared database clusters, not on the PMM Server pods, and each needs to be backed up separately:
 
@@ -41,17 +34,14 @@ Complete these steps before starting the upgrade:
 
     - **ClickHouse** and **VictoriaMetrics** have no automatic backup. Back them up manually before upgrading if you need to be able to restore your query analytics data and metrics (for example with [clickhouse-backup](https://github.com/Altinity/clickhouse-backup) and VictoriaMetrics' [`vmbackup`](https://docs.victoriametrics.com/vmbackup/)).
 
-3. To reduce upgrade time, pull the new PMM Server image in advance on the nodes where your cluster runs:
+3. Make sure any custom settings are in your `values.yaml` file, not applied with `kubectl patch`. Helm rewrites the cluster configuration from your values on every upgrade, so any settings applied directly to Kubernetes resources (such as exposing PMM externally via `kubectl patch` on the HAProxy Service) are silently reset.
+
+4. To reduce upgrade time, pull the new PMM Server image in advance on the nodes where your cluster runs:
 
     ```sh
     # Replace <version> with the version you're upgrading to
     docker pull percona/pmm-server:<version>
     ```
-
-4. Make sure any settings you've customized (such as external access) are saved in your `values.yaml` file, not applied with `kubectl patch`.
-
-    !!! danger "Settings applied with kubectl patch are lost on upgrade"
-        `helm upgrade` rewrites the cluster's configuration from your Helm values. If you previously exposed PMM HA externally by running `kubectl patch` directly on the HAProxy Service instead of setting `haproxy.service.type` in your values, the upgrade silently resets it to the default, cutting off external access for your PMM Clients and dashboards. Keep all custom settings in `values.yaml`. See [Configure external access](../install-pmm/install-HA-clustered.md#configure-external-access).
 
 ## Upgrade
 
@@ -75,7 +65,9 @@ Follow these steps to upgrade your PMM HA Cluster:
 
     `--reuse-values` keeps your existing configuration and only changes the image version. If you manage your settings in a `values.yaml` file, pass `-f values.yaml` with the updated `image.tag` instead.
 
-3. Watch the rollout progress. Each pod restarts one at a time:
+    In some chart versions, this step can fail with `Job.batch "<release>-pmm-token-init" is invalid: spec.template: ... field is immutable`. See [Troubleshoot upgrade issues](../troubleshoot/upgrade_issues.md#pmm-ha-helm-upgrade-fails-with-field-is-immutable) for the fix.
+
+3. Watch the rollout progress. Expect a [brief interruption when the leader pod restarts](#how-pmm-ha-helm-upgrades-work):
 
     ```sh
     kubectl rollout status statefulset/pmm-ha -n pmm
@@ -99,9 +91,6 @@ Follow these steps to upgrade your PMM HA Cluster:
     kubectl logs -l app.kubernetes.io/name=pmm -n pmm --tail=100
     ```
 
-!!! caution alert alert-warning "Upgrade may fail with \"field is immutable\""
-    In some chart versions, `helm upgrade` fails with `Job.batch "<release>-pmm-token-init" is invalid: spec.template: ... field is immutable`. See [Troubleshoot upgrade issues](../troubleshoot/upgrade_issues.md#pmm-ha-helm-upgrade-fails-with-field-is-immutable) for the fix.
-
 ## Confirm the cluster is healthy
 
 After the upgrade, verify that a leader is active and the cluster is healthy. Open the **PMM HA** status badge in the side menu to see the current leader and cluster status at a glance:
@@ -112,7 +101,7 @@ You can also check through the Inventory page. See [Identify the leader node](..
 
 ## Upgrade the underlying databases
 
-`helm upgrade pmm-ha` upgrades PMM Server only. The databases that store your monitoring data (PostgreSQL, ClickHouse, and VictoriaMetrics) are managed separately and are not touched by this upgrade.
+Running `helm upgrade pmm-ha` upgrades PMM Server only, not the databases underneath it. PostgreSQL, ClickHouse, and VictoriaMetrics are each managed by their own operators and versioned independently. This upgrade does not change their versions.
 
 Only upgrade a database version when you have a specific reason, such as a supported-version deadline or a required feature. Otherwise, leave the versions as set in the chart. When you do need to upgrade one:
 
@@ -122,14 +111,16 @@ Only upgrade a database version when you have a specific reason, such as a suppo
 | ClickHouse | No, rolls one instance at a time | [Update the ClickHouse version](https://github.com/Altinity/clickhouse-operator/blob/master/docs/chi_update_clickhouse_version.md) |
 | VictoriaMetrics | No | [Operator configuration](https://docs.victoriametrics.com/operator/configuration/) |
 
-A PostgreSQL major version upgrade stops the whole cluster and cannot be reversed. Plan it as a separate maintenance window and take a full backup first.
+Keep these in mind before upgrading a database:
 
-!!! info "Keep the VictoriaMetrics version pin in place"
-    Unlike the other databases, the VictoriaMetrics operator has a built-in default version it will use if the version is not explicitly set. Do not remove `victoriaMetrics.version` from your values, or an operator upgrade may silently change the VictoriaMetrics version.
+- **PostgreSQL major version upgrades** stop the whole cluster and cannot be reversed. Plan them as a separate maintenance window and take a full backup first.
+- **VictoriaMetrics:** Do not remove `victoriaMetrics.version` from your values. Unlike the other databases, the VictoriaMetrics operator falls back to a built-in default if no version is set, so an operator upgrade can silently change the version.
 
 ## Roll back
 
-`helm rollback` restores your previous Helm configuration but does **not** undo any data changes PMM Server made to the shared databases during the upgrade. If PMM already ran a data migration, you need to restore from your database backups to fully recover the previous state.
+`helm rollback` restores your previous Helm configuration but does **not** undo any data changes PMM Server made to the shared databases during the upgrade. 
+
+If PMM already ran a data migration, you need to restore from your database backups to fully recover the previous state:
 {.power-number}
 
 1. List available revisions:
