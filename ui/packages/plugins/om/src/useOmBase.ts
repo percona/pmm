@@ -19,6 +19,7 @@ import { useLocation } from 'react-router-dom';
 import {
   OM_ROUTE_HOSTS,
   OM_ROUTE_INVENTORY,
+  OM_ROUTE_OPERATIONS,
   OM_ROUTE_SERVICES,
 } from './constants';
 
@@ -34,6 +35,7 @@ const CHILD_PATTERNS = [
   OM_ROUTE_SERVICES,
   OM_ROUTE_HOSTS,
   OM_ROUTE_INVENTORY,
+  OM_ROUTE_OPERATIONS,
 ].map((route) => new RegExp(`/${route}$`));
 
 /**
