@@ -1,9 +1,20 @@
 # MySQL InnoDB Details
 
+Provides a deep-dive view into InnoDB internals for a single MySQL service, covering buffer pool usage, redo logging, flushing, locking, undo space, and adaptive hash index activity. 
+
+Use this dashboard when you need to investigate InnoDB-level performance issues beyond what the instance summary shows.
+
+Use the filters at the top to select the service and time range.
+
 ![!image](../../images/PMM_MySQL_InnoDB_Details.jpg)
 
-!!! hint alert alert-success "Tip"
-    If metrics are missing, try running: `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client.
+## Troubleshooting empty panels
+
+If panels are missing data, try the following:
+
+- Run `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client to enable InnoDB metrics collection.
+- Most panels on this dashboard read `INFORMATION_SCHEMA.INNODB_METRICS` rows that are disabled by default, which is what the setting above enables.
+- Panels in the **InnoDB Logging** section read redo log status variables instead and do not need that setting. If they are empty, see [InnoDB Logging](#innodb-logging).
 
 ## InnoDB Activity
 
@@ -475,6 +486,13 @@ Do not set it to actual storage capacity.
 InnoDB IO Capacity to use when falling behind and need to catch up with Flushing.
 
 ## InnoDB Logging
+
+### Version compatibility
+
+Panels in this section show data on MySQL 5.7 through 9.x, Percona Server, and MariaDB. On MySQL 8.0.30 and newer, they read `innodb_redo_log_capacity`. On older servers, they use `innodb_log_file_size` and `innodb_log_files_in_group`.
+
+Before PMM 3.10.0, **Total Log Space**, **InnoDB Logging Performance**, **InnoDB Log File Usage Hourly**, **InnoDB Log File Size**, and **InnoDB Log Files** were always empty on MySQL 5.7, Percona Server 5.7, and MariaDB. Upgrading PMM to 3.10.0 or later fixes this with no exporter or server changes required.
+
 
 ### Total Log Space
 
