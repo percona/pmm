@@ -50,6 +50,10 @@ import (
 // pmmInitProgram is the supervisord program running PMM Server initialization and upgrade tasks.
 const pmmInitProgram = "pmm-init"
 
+// omSwitchEffectsTimeout bounds the SEP-facing work an OpenManager switch fires after
+// ChangeSettings has already answered. See applyOMSwitch.
+const omSwitchEffectsTimeout = 5 * time.Minute
+
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
 	serverv1.UnimplementedServerServiceServer
@@ -664,34 +668,50 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 	}
 
-	s.triggerOMCollectionIfJustEnabled(ctx, oldSettings, newSettings)
-	s.syncOMInventoryEnabledIfChanged(ctx, oldSettings, newSettings)
+	s.applyOMSwitch(ctx, oldSettings, newSettings)
 
 	return &serverv1.ChangeSettingsResponse{
 		Settings: s.convertSettings(newSettings, disableInternalPgQan),
 	}, nil
 }
 
-// triggerOMCollectionIfJustEnabled kicks a topology collection so OpenManager's page is
-// not empty on first view, instead of waiting out the next scheduled tick.
-func (s *Server) triggerOMCollectionIfJustEnabled(ctx context.Context, oldSettings, newSettings *models.Settings) {
-	if oldSettings.IsOMEnabled() || !newSettings.IsOMEnabled() || s.omService == nil {
+// applyOMSwitch carries an OpenManager on/off transition out to its side effects: SEP's
+// om_inventory app learns the new state either way, and enabling also kicks a topology
+// collection, so OpenManager's page is not empty on first view instead of waiting out
+// the next scheduled tick.
+//
+// Runs off the request path, in a goroutine holding a context detached from the caller's.
+// All of it is best-effort -- every failure below is logged, never returned, and the
+// setting itself is committed before we get here -- but none of it is cheap:
+// TriggerTopologyCollection collects the whole estate inline, and SyncInventoryEnabled
+// PATCHes SEP and then kicks a sweep of its own. Measured at 12s of ChangeSettings
+// latency against a SEP answering in 3s per request, which is long enough for a client
+// to time out on a settings change that did in fact happen. The one SEP call that has to
+// stay on the request path is validateEnableOm's IsAvailable, whose answer decides
+// whether the save is allowed at all.
+func (s *Server) applyOMSwitch(ctx context.Context, oldSettings, newSettings *models.Settings) {
+	enabled := newSettings.IsOMEnabled()
+	if s.omService == nil || oldSettings.IsOMEnabled() == enabled {
 		return
 	}
-	_, err := s.omService.TriggerTopologyCollection(ctx, &omv1.TriggerTopologyCollectionRequest{})
-	if err != nil {
-		s.l.WithError(err).Warn("failed to trigger OpenManager topology collection after enabling")
-	}
-}
 
-// syncOMInventoryEnabledIfChanged tells SEP's om_inventory app to start or stop its
-// own estate sweep alongside this switch, on either transition -- unlike
-// triggerOMCollectionIfJustEnabled, which only reacts to enabling.
-func (s *Server) syncOMInventoryEnabledIfChanged(ctx context.Context, oldSettings, newSettings *models.Settings) {
-	if oldSettings.IsOMEnabled() == newSettings.IsOMEnabled() || s.omService == nil {
-		return
-	}
-	s.omService.SyncInventoryEnabled(ctx, newSettings.IsOMEnabled())
+	// Cancellation only: the values on the request's context (logging, tracing) still
+	// describe what asked for this work. The timeout is what bounds the goroutine, and
+	// is generous because nothing is waiting on it -- it exists so a SEP that never
+	// answers cannot keep one alive indefinitely.
+	ctx = context.WithoutCancel(ctx)
+	go func() {
+		ctx, cancel := context.WithTimeout(ctx, omSwitchEffectsTimeout)
+		defer cancel()
+
+		if enabled {
+			_, err := s.omService.TriggerTopologyCollection(ctx, &omv1.TriggerTopologyCollectionRequest{})
+			if err != nil {
+				s.l.WithError(err).Warn("failed to trigger OpenManager topology collection after enabling")
+			}
+		}
+		s.omService.SyncInventoryEnabled(ctx, enabled)
+	}()
 }
 
 func (s *Server) getInternalPgQANAgent(q *reform.Querier) (*models.Agent, error) {

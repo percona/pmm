@@ -32,6 +32,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	omv1 "github.com/percona/pmm/api/om/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	pkgenv "github.com/percona/pmm/managed/utils/env"
@@ -379,5 +380,81 @@ func TestConvertReadOnlySettings(t *testing.T) {
 		os.Unsetenv(pkgenv.EnableSEP)
 
 		assert.False(t, s.convertReadOnlySettings(&models.Settings{}).SepEnabled)
+	})
+}
+
+// TestApplyOMSwitch pins the OpenManager switch's SEP-facing work off the request path.
+// Enabling used to serialize four SEP round-trips into the settings save: the
+// availability check, a topology collection, the ENABLED PATCH and an immediate sweep.
+// Only the first decides whether the save is allowed; the other three are best-effort,
+// and they measured 12s of ChangeSettings latency against a SEP answering in 3s per
+// request -- long enough for a client to time out on a change that had already been
+// committed.
+func TestApplyOMSwitch(t *testing.T) {
+	t.Parallel()
+
+	settings := func(enabled bool) *models.Settings {
+		s := &models.Settings{}
+		s.OM.Enabled = &enabled
+		return s
+	}
+
+	t.Run("enabling collects and syncs, detached from the caller", func(t *testing.T) {
+		t.Parallel()
+
+		om := newMockOmService(t)
+		// The context is read here rather than kept: applyOMSwitch's own goroutine
+		// cancels its timeout on the way out, so what matters is that the context was
+		// live while the effect ran.
+		effects := make(chan error, 2)
+		record := func(args mock.Arguments) { effects <- args.Get(0).(context.Context).Err() }
+		om.On("TriggerTopologyCollection", mock.Anything, mock.Anything).
+			Return(&omv1.TriggerTopologyCollectionResponse{}, nil).Run(record)
+		om.On("SyncInventoryEnabled", mock.Anything, true).Run(record)
+
+		s := &Server{omService: om, l: logrus.WithField("test", t.Name())}
+		ctx, cancel := context.WithCancel(t.Context())
+
+		s.applyOMSwitch(ctx, settings(false), settings(true))
+		// The request is over the moment ChangeSettings answers, which is the whole point.
+		cancel()
+
+		for range 2 {
+			select {
+			case err := <-effects:
+				require.NoError(t, err, "the side effects must not inherit the request's cancellation")
+			case <-time.After(10 * time.Second):
+				t.Fatal("the switch's side effects never fired")
+			}
+		}
+	})
+
+	t.Run("disabling syncs SEP without collecting", func(t *testing.T) {
+		t.Parallel()
+
+		om := newMockOmService(t)
+		synced := make(chan struct{})
+		om.On("SyncInventoryEnabled", mock.Anything, false).
+			Run(func(mock.Arguments) { close(synced) })
+
+		s := &Server{omService: om, l: logrus.WithField("test", t.Name())}
+		s.applyOMSwitch(t.Context(), settings(true), settings(false))
+
+		select {
+		case <-synced:
+		case <-time.After(10 * time.Second):
+			t.Fatal("SEP was never told OpenManager had been turned off")
+		}
+	})
+
+	t.Run("a save that leaves the switch alone never touches SEP", func(t *testing.T) {
+		t.Parallel()
+
+		// No expectations registered: every call below would fail the mock.
+		om := newMockOmService(t)
+		s := &Server{omService: om, l: logrus.WithField("test", t.Name())}
+
+		s.applyOMSwitch(t.Context(), settings(true), settings(true))
+		s.applyOMSwitch(t.Context(), settings(false), settings(false))
 	})
 }
