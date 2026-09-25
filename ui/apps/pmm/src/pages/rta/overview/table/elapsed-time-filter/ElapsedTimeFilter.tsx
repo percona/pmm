@@ -14,16 +14,12 @@ import {
   toElapsedTimeBound,
 } from '../OverviewTable.utils';
 import { Messages } from './ElapsedTimeFilter.messages';
+import { readRange } from './ElapsedTimeFilter.utils';
 
 export interface Props {
   column: MRT_Column<QueryData>;
   rangeFilterIndex?: number;
 }
-
-const readRange = (value: unknown): [string, string] =>
-  Array.isArray(value)
-    ? [String(value[0] ?? ''), String(value[1] ?? '')]
-    : ['', ''];
 
 // Replaces the range field material-react-table renders for the Elapsed time
 // column. MRT keeps the typed text in its own state, so a rejected character
