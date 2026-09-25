@@ -1,8 +1,8 @@
 import {
   PMM_NEW_NAV_GRAFANA_PATH,
   PMM_NEW_NAV_PATH,
-  SEP_ATW_PATH,
-  SEP_MYSQL_BACKUPS_PATH,
+  EXTENSIONS_ATW_PATH,
+  EXTENSIONS_MYSQL_BACKUPS_PATH,
 } from 'lib/constants';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import AccountCircleOutlined from '@mui/icons-material/AccountCircleOutlined';
@@ -849,7 +849,7 @@ export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
 //
 // Management
 //
-// Section grouping the SEP apps. It has no page of its own: a collapsible nav
+// Section grouping the PMM Extensions apps. It has no page of its own: a collapsible nav
 // item takes its link from its first child, so the header opens whichever app
 // leads the group.
 export const NAV_MANAGEMENT: NavItem = {
@@ -858,18 +858,18 @@ export const NAV_MANAGEMENT: NavItem = {
   text: 'Management',
 };
 
-export const NAV_SEP_ATW: NavItem = {
-  id: 'sep-atw',
+export const NAV_EXTENSIONS_ATW: NavItem = {
+  id: 'extensions-atw',
   icon: SupportDiagnosticsIcon,
   text: 'Support diagnostics',
-  url: SEP_ATW_PATH,
+  url: EXTENSIONS_ATW_PATH,
   matches: ['*'],
 };
 
-export const NAV_SEP_MYSQL_BACKUPS: NavItem = {
-  id: 'sep-mysql-backups',
+export const NAV_EXTENSIONS_MYSQL_BACKUPS: NavItem = {
+  id: 'extensions-mysql-backups',
   icon: Restore,
   text: 'MySQL Backups',
-  url: SEP_MYSQL_BACKUPS_PATH,
+  url: EXTENSIONS_MYSQL_BACKUPS_PATH,
   matches: ['*'],
 };

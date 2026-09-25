@@ -22,7 +22,7 @@ import { FC, PropsWithChildren, createContext, useContext } from 'react';
  *
  * The app can tell that sending is unavailable — the backend says so in
  * `send_disabled_reasons` — but not where the shell parks the form that fixes
- * it: PMM owns a dedicated settings tab, SEP has only its generic settings
+ * it: PMM owns a dedicated settings tab, PMM Extensions has only its generic settings
  * list. So the route arrives from the host rather than being assumed here, and
  * a host that passes nothing simply gets the explanation without the link.
  *

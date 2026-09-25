@@ -5,8 +5,11 @@ import {
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
 import { createAnonymousUser } from 'contexts/user/user.utils';
-import { addAlerting, addSection, addSepApps } from './navigation.utils';
-import { SEP_ATW_PATH, SEP_MYSQL_BACKUPS_PATH } from 'lib/constants';
+import { addAlerting, addSection, addExtensionsApps } from './navigation.utils';
+import {
+  EXTENSIONS_ATW_PATH,
+  EXTENSIONS_MYSQL_BACKUPS_PATH,
+} from 'lib/constants';
 
 const childIds = (item: ReturnType<typeof addAlerting>) =>
   (item.children || []).map((c) => c.id);
@@ -102,31 +105,31 @@ describe('addAlerting', () => {
   });
 });
 
-describe('addSepApps', () => {
+describe('addExtensionsApps', () => {
   it('returns one Management section instead of two flat entries', () => {
-    const items = addSepApps();
+    const items = addExtensionsApps();
 
     expect(items).toHaveLength(1);
     expect(items[0]).toMatchObject({ id: 'management', text: 'Management' });
   });
 
   it('gives the section no page of its own', () => {
-    expect(addSepApps()[0].url).toBeUndefined();
+    expect(addExtensionsApps()[0].url).toBeUndefined();
   });
 
   it('keeps each app url and matches on the children', () => {
-    const children = addSepApps()[0].children || [];
+    const children = addExtensionsApps()[0].children || [];
 
     expect(children.map((child) => child.id)).toEqual([
-      'sep-mysql-backups',
-      'sep-atw',
+      'extensions-mysql-backups',
+      'extensions-atw',
     ]);
     expect(children[0]).toMatchObject({
-      url: SEP_MYSQL_BACKUPS_PATH,
+      url: EXTENSIONS_MYSQL_BACKUPS_PATH,
       matches: ['*'],
     });
     expect(children[1]).toMatchObject({
-      url: SEP_ATW_PATH,
+      url: EXTENSIONS_ATW_PATH,
       matches: ['*'],
     });
   });

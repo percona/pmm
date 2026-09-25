@@ -3,7 +3,10 @@ import { ReactElement } from 'react';
 import { MemoryRouterProps } from 'react-router-dom';
 import { NavItem } from 'types/navigation.types';
 import { User } from 'types/user.types';
-import { SEP_ATW_PATH, SEP_MYSQL_BACKUPS_PATH } from 'lib/constants';
+import {
+  EXTENSIONS_ATW_PATH,
+  EXTENSIONS_MYSQL_BACKUPS_PATH,
+} from 'lib/constants';
 import { findActiveNavItem } from 'utils/navigation.utils';
 import {
   TEST_USER_ADMIN,
@@ -39,7 +42,7 @@ vi.mock('hooks/theme', () => ({
 const renderNavTree = (
   user: User = TEST_USER_ADMIN,
   routerProps?: MemoryRouterProps,
-  settings?: { sepEnabled?: boolean; backupManagementEnabled?: boolean }
+  settings?: { extensionsEnabled?: boolean; backupManagementEnabled?: boolean }
 ) => {
   const { result } = renderHook(() => useNavigation(), {
     wrapper: ({ children }) => (
@@ -54,7 +57,7 @@ const renderNavTree = (
           {
             settings: {
               backupManagementEnabled: true,
-              sepEnabled: true,
+              extensionsEnabled: true,
               ...settings,
             },
           }
@@ -83,16 +86,16 @@ describe('NavigationProvider', () => {
       expect(management?.text).toBe('Management');
       expect(management?.url).toBeUndefined();
       expect(management?.children?.map((child) => child.id)).toEqual([
-        'sep-mysql-backups',
-        'sep-atw',
+        'extensions-mysql-backups',
+        'extensions-atw',
       ]);
     });
 
-    it('does not leave the SEP apps as top-level entries', () => {
+    it('does not leave the PMM Extensions apps as top-level entries', () => {
       const ids = renderNavTree().map((item) => item.id);
 
-      expect(ids).not.toContain('sep-atw');
-      expect(ids).not.toContain('sep-mysql-backups');
+      expect(ids).not.toContain('extensions-atw');
+      expect(ids).not.toContain('extensions-mysql-backups');
     });
 
     it('preserves each child url, matches and icon', () => {
@@ -101,14 +104,14 @@ describe('NavigationProvider', () => {
 
       expect(mysqlBackups).toMatchObject({
         text: 'MySQL Backups',
-        url: SEP_MYSQL_BACKUPS_PATH,
+        url: EXTENSIONS_MYSQL_BACKUPS_PATH,
         matches: ['*'],
       });
       expect(mysqlBackups?.icon).toBeDefined();
 
       expect(atw).toMatchObject({
         text: 'Support diagnostics',
-        url: SEP_ATW_PATH,
+        url: EXTENSIONS_ATW_PATH,
         matches: ['*'],
       });
       expect(atw?.icon).toBeDefined();
@@ -134,15 +137,15 @@ describe('NavigationProvider', () => {
       ]);
     });
 
-    it('is withheld from anonymous, which has no SEP session to exchange', () => {
+    it('is withheld from anonymous, which has no side-car session to exchange', () => {
       const ids = renderNavTree(TEST_USER_ANONYMOUS).map((item) => item.id);
 
       expect(ids).not.toContain('management');
     });
 
-    it('is withheld when SEP is disabled in server settings', () => {
+    it('is withheld when PMM Extensions is disabled in server settings', () => {
       const ids = renderNavTree(TEST_USER_ADMIN, undefined, {
-        sepEnabled: false,
+        extensionsEnabled: false,
       }).map((item) => item.id);
 
       expect(ids).not.toContain('management');
@@ -160,12 +163,15 @@ describe('NavigationProvider', () => {
     });
   });
 
-  describe('deep links into a SEP app', () => {
+  describe('deep links into a PMM Extensions app', () => {
     it.each([
-      ['sep-atw', SEP_ATW_PATH],
-      ['sep-atw', `${SEP_ATW_PATH}/runs/abc`],
-      ['sep-mysql-backups', SEP_MYSQL_BACKUPS_PATH],
-      ['sep-mysql-backups', `${SEP_MYSQL_BACKUPS_PATH}/backups/123`],
+      ['extensions-atw', EXTENSIONS_ATW_PATH],
+      ['extensions-atw', `${EXTENSIONS_ATW_PATH}/runs/abc`],
+      ['extensions-mysql-backups', EXTENSIONS_MYSQL_BACKUPS_PATH],
+      [
+        'extensions-mysql-backups',
+        `${EXTENSIONS_MYSQL_BACKUPS_PATH}/backups/123`,
+      ],
     ])(
       'marks %s active and keeps it inside Management for %s',
       (childId, path) => {
