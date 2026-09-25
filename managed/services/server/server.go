@@ -73,9 +73,11 @@ type Server struct {
 	envRW       sync.RWMutex
 	envSettings *models.ChangeSettingsParams
 
-	// setup() retries UpdateSettingsFromEnv every few seconds until start-up succeeds, and the
-	// retention line is meant to be read once per start.
-	retentionLogged sync.Once
+	// UpdateConfigurations reports the retention it applies, and the SIGHUP handler calls it
+	// without envRW, so it keeps its own copy of the environment value.
+	retentionM          sync.Mutex
+	retentionFromEnv    time.Duration
+	retentionLoggedDays int
 
 	sshKeyM sync.Mutex
 }
@@ -142,36 +144,50 @@ func (s *Server) UpdateSettingsFromEnv(ctx context.Context, env []string) []erro
 		return errs
 	}
 
-	var newSettings *models.Settings
 	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		var err error
-		newSettings, err = models.UpdateSettings(tx, envSettings)
+		_, err := models.UpdateSettings(tx, envSettings)
 		return err
 	})
 	if err != nil {
 		return []error{err}
 	}
 	s.envSettings = envSettings
+
+	s.retentionM.Lock()
+	s.retentionFromEnv = envSettings.DataRetention
+	s.retentionM.Unlock()
+
 	err = s.UpdateConfigurations(ctx)
 	if err != nil {
 		return []error{err}
 	}
-	s.retentionLogged.Do(func() { s.logDataRetention(newSettings) })
 	return nil
 }
 
-// logDataRetention reports the retention period in force and where it came from, once it has been
-// applied.
+// reportDataRetention logs the retention period that was just applied, unless it is the one
+// already reported. Start-up retries UpdateSettingsFromEnv every few seconds until it succeeds,
+// and the line must not repeat on every retry, but it must follow a later change.
+func (s *Server) reportDataRetention(settings *models.Settings) {
+	s.retentionM.Lock()
+	defer s.retentionM.Unlock()
+
+	days := settings.DataRetentionDays()
+	if days == s.retentionLoggedDays {
+		return
+	}
+	s.retentionLoggedDays = days
+
+	s.logDataRetention(days, s.retentionFromEnv)
+}
+
+// logDataRetention reports the retention period in force and where it came from.
 //
 // A boot-time setting has no other feedback channel. In an HA cluster the value cannot be read
 // back out of the UI as confirmation that it took effect, because the field is not writable
 // there, so this line is what answers "what is this replica actually enforcing".
-func (s *Server) logDataRetention(settings *models.Settings) {
-	days := settings.DataRetentionDays()
-	fromEnv := s.envSettings.DataRetention != 0
-
+func (s *Server) logDataRetention(days int, fromEnv time.Duration) {
 	if !s.haService.Params().Enabled {
-		if fromEnv {
+		if fromEnv != 0 {
 			s.l.Infof("Data retention: %dd, set by PMM_DATA_RETENTION.", days)
 			return
 		}
@@ -180,10 +196,19 @@ func (s *Server) logDataRetention(settings *models.Settings) {
 		return
 	}
 
-	// Not "fixed": every replica writes its own environment to the shared settings row when it
-	// starts, and this one re-renders its configuration from that row, so a replica that restarts
-	// with a different value changes what this one enforces too.
-	if fromEnv {
+	// Every replica writes its own environment to the shared settings row when it starts, and
+	// this one applies whatever that row holds whenever it re-renders its configuration: on its
+	// own start, a settings change it serves, or a SIGHUP. So the value applied here can be one
+	// that another replica wrote.
+	envDays := int(fromEnv.Hours() / 24) //nolint:mnd
+	if fromEnv != 0 && envDays != days {
+		s.l.Warnf("Data retention: %dd, written to the shared settings by another replica; "+
+			"this replica's PMM_DATA_RETENTION is %dd. High availability is enabled, so replicas "+
+			"disagree until every replica runs with the same pmm-ha chart dataRetentionDays value.", days, envDays)
+		return
+	}
+
+	if fromEnv != 0 {
 		s.l.Infof("Data retention: %dd, set by PMM_DATA_RETENTION. High availability is enabled, "+
 			"so it cannot be changed through the settings API; every replica takes it from the environment when it starts.", days)
 		return
@@ -770,6 +795,8 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to update agents state: %w", err)
 	}
+
+	s.reportDataRetention(settings)
 	return nil
 }
 

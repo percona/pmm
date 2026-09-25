@@ -18,6 +18,7 @@ package server
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math"
 	"os"
 	"strings"
@@ -363,22 +364,76 @@ func TestServer(t *testing.T) {
 			assert.Contains(t, e.Message, "changeable through the settings API")
 		})
 
+		retentionEntries := func(hook *logrustest.Hook) []*logrus.Entry {
+			var res []*logrus.Entry
+			for _, e := range hook.AllEntries() {
+				if strings.HasPrefix(e.Message, "Data retention:") {
+					res = append(res, e)
+				}
+			}
+
+			return res
+		}
+
 		// setup() retries UpdateSettingsFromEnv until start-up succeeds, so the line must not
-		// repeat on every retry.
-		t.Run("reported once across retries", func(t *testing.T) {
+		// repeat on every retry, and must not be written by an attempt that failed to apply it.
+		t.Run("reported once, after it is applied", func(t *testing.T) {
 			s := newServerWithHA(t, true)
 			l, hook := logrustest.NewNullLogger()
 			s.l = l.WithField("component", "server-test")
-			require.Empty(t, s.UpdateSettingsFromEnv(context.TODO(), nil))
-			require.Empty(t, s.UpdateSettingsFromEnv(context.TODO(), nil))
 
-			var n int
-			for _, e := range hook.AllEntries() {
-				if strings.HasPrefix(e.Message, "Data retention:") {
-					n++
-				}
-			}
-			assert.Equal(t, 1, n)
+			var sup mockSupervisordService
+			sup.Test(t)
+			sup.On("UpdateConfiguration", mock.Anything).Return(errors.New("supervisord is not ready")).Once()
+			sup.On("UpdateConfiguration", mock.Anything).Return(nil)
+			s.supervisord = &sup
+
+			require.NotEmpty(t, s.UpdateSettingsFromEnv(t.Context(), nil))
+			assert.Empty(t, retentionEntries(hook), "nothing was applied yet")
+
+			require.Empty(t, s.UpdateSettingsFromEnv(t.Context(), nil))
+			assert.Len(t, retentionEntries(hook), 1)
+
+			require.Empty(t, s.UpdateSettingsFromEnv(t.Context(), nil))
+			assert.Len(t, retentionEntries(hook), 1, "an unchanged value must not be reported again")
+		})
+
+		// Another replica can write its own environment to the shared row; this one applies it on
+		// its next re-render, and the line must say so rather than keep the start-up value.
+		t.Run("a value written by another replica is reported when applied", func(t *testing.T) {
+			s := newServerWithHA(t, true)
+			l, hook := logrustest.NewNullLogger()
+			s.l = l.WithField("component", "server-test")
+			require.Empty(t, s.UpdateSettingsFromEnv(t.Context(), []string{"PMM_DATA_RETENTION=240h"}))
+
+			_, err := models.UpdateSettings(s.db, &models.ChangeSettingsParams{DataRetention: 20 * 24 * time.Hour})
+			require.NoError(t, err)
+			_, err = s.ChangeSettings(t.Context(), &serverv1.ChangeSettingsRequest{PmmPublicAddress: new("1.2.3.4:5678")})
+			require.NoError(t, err)
+
+			entries := retentionEntries(hook)
+			require.Len(t, entries, 2)
+			e := entries[1]
+			assert.Equal(t, logrus.WarnLevel, e.Level, "a replica enforcing a value other than its own must be warned about")
+			assert.Contains(t, e.Message, "20d")
+			assert.Contains(t, e.Message, "10d")
+			assert.Contains(t, e.Message, "another replica")
+		})
+
+		t.Run("a change through the settings API is reported", func(t *testing.T) {
+			s := newServer(t)
+			l, hook := logrustest.NewNullLogger()
+			s.l = l.WithField("component", "server-test")
+			require.Empty(t, s.UpdateSettingsFromEnv(t.Context(), nil))
+
+			stored, err := models.GetSettings(s.db)
+			require.NoError(t, err)
+			_, err = s.ChangeSettings(t.Context(), &serverv1.ChangeSettingsRequest{DataRetention: durationpb.New(stored.DataRetention + 24*time.Hour)})
+			require.NoError(t, err)
+
+			entries := retentionEntries(hook)
+			require.Len(t, entries, 2)
+			assert.Contains(t, entries[1].Message, fmt.Sprintf("%dd", stored.DataRetentionDays()+1))
 		})
 	})
 
