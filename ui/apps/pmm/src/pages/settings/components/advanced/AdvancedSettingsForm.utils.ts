@@ -24,6 +24,7 @@ export const toFormValues = (
   ...convertCheckIntervalsToHours(settings.advisorRunIntervals),
   azureDiscover: settings.azurediscoverEnabled,
   accessControl: settings.enableAccessControl,
+  openManager: settings.omEnabled,
 });
 
 export const toPayload = (
@@ -50,5 +51,6 @@ export const toPayload = (
     advisorRunIntervals,
     enableAzurediscover: values.azureDiscover,
     enableAccessControl: values.accessControl,
+    enableOm: values.openManager,
   };
 };

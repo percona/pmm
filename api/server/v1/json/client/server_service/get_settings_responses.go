@@ -736,6 +736,9 @@ type GetSettingsOKBodySettings struct {
 	// Server process was started, and cannot be changed through ChangeSettings.
 	SepEnabled bool `json:"sep_enabled,omitempty"`
 
+	// True if OpenManager is enabled.
+	OMEnabled bool `json:"om_enabled,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *GetSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 
