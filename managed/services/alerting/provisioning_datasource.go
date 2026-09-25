@@ -29,6 +29,8 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/managed/utils/envvars"
 )
 
 // A provisioned alert rule has to name its datasource by UID, and the UID of PMM's "Metrics"
@@ -97,15 +99,15 @@ func grafanaDatasourceDSN(fallback grafanaDBFallback) (string, error) {
 		dsn := url.URL{
 			Scheme: "postgres",
 			User: url.UserPassword(
-				envOrDefault("GF_DATABASE_USER", bundledGrafanaUser),
-				envOrDefault("GF_DATABASE_PASSWORD", bundledGrafanaPassword),
+				envvars.GetEnv("GF_DATABASE_USER", bundledGrafanaUser),
+				envvars.GetEnv("GF_DATABASE_PASSWORD", bundledGrafanaPassword),
 			),
 			Host: host,
-			Path: envOrDefault("GF_DATABASE_NAME", bundledGrafanaDB),
+			Path: envvars.GetEnv("GF_DATABASE_NAME", bundledGrafanaDB),
 		}
 
 		query := make(url.Values)
-		query.Set("sslmode", envOrDefault("GF_DATABASE_SSL_MODE", "disable"))
+		query.Set("sslmode", envvars.GetEnv("GF_DATABASE_SSL_MODE", "disable"))
 		// verify-ca and verify-full need the material as well, and PMM documents all three paths.
 		for env, param := range map[string]string{
 			"GF_DATABASE_CA_CERT_PATH":     "sslrootcert",
@@ -142,13 +144,6 @@ func grafanaDatasourceDSN(fallback grafanaDBFallback) (string, error) {
 	}
 
 	return dsn.String(), nil
-}
-
-func envOrDefault(name, fallback string) string {
-	if value := os.Getenv(name); value != "" {
-		return value
-	}
-	return fallback
 }
 
 // deriveMetricsDatasourceUID reproduces the UID Grafana generates for a provisioned datasource that
