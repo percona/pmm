@@ -1188,6 +1188,12 @@ var databaseSchema = [][]string{
 		`ALTER TABLE dumps ADD COLUMN encrypted boolean NOT NULL DEFAULT false`,
 		`UPDATE dumps SET encrypted = false`,
 	},
+	119: {
+		// Migration 110 filled instance_id only for Nodes that existed then; the inventory API
+		// kept creating remote RDS Nodes without it. The first label of address is the DB instance
+		// identifier both when address holds the identifier and when it holds the RDS endpoint.
+		`UPDATE nodes SET instance_id = split_part(address, '.', 1) WHERE node_type = 'remote_rds' AND instance_id = ''`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

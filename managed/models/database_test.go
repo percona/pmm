@@ -393,4 +393,47 @@ func TestDatabaseMigrations(t *testing.T) {
 		require.Equal(t, "id", agentID)
 		require.True(t, exporterOptions.PushMetrics)
 	})
+
+	t.Run("remote RDS instance_id backfill", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, new(118))
+		t.Cleanup(func() {
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		_, err := sqlDB.ExecContext(
+			t.Context(),
+			`INSERT INTO
+			nodes(node_id, node_type, node_name, distro, node_model, az, address, instance_id, region, created_at, updated_at)
+			VALUES
+			('identifier', 'remote_rds', 'identifier', '', '', '', 'db-1', '', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
+			('endpoint', 'remote_rds', 'endpoint', '', '', '', 'db-2.abc123.us-east-1.rds.amazonaws.com', '', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
+			('set', 'remote_rds', 'set', '', '', '', 'db-3.abc123.us-east-1.rds.amazonaws.com', 'db-3-custom', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
+			('generic', 'generic', 'generic', '', '', '', 'host.example.com', '', NULL, '03/03/2014 02:03:04', '03/03/2014 02:03:04')`,
+		)
+		require.NoError(t, err)
+
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, new(119))
+
+		rows, err := sqlDB.QueryContext(t.Context(), `SELECT node_id, instance_id FROM nodes`)
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			assert.NoError(t, rows.Close())
+		})
+
+		actual := make(map[string]string)
+		for rows.Next() {
+			var nodeID, instanceID string
+			require.NoError(t, rows.Scan(&nodeID, &instanceID))
+			actual[nodeID] = instanceID
+		}
+		require.NoError(t, rows.Err())
+
+		expected := map[string]string{
+			"identifier": "db-1",
+			"endpoint":   "db-2",
+			"set":        "db-3-custom",
+			"generic":    "",
+		}
+		assert.Equal(t, expected, actual)
+	})
 }
