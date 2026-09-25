@@ -121,6 +121,13 @@ const MIN_PANE_HEIGHT_PX = 140;
 /** The cap the expand toggle raises the pane to — about a screen of output. */
 const EXPANDED_PANE_HEIGHT_PX = 900;
 
+/**
+ * How much text one line is allowed to be worth while counting lines. Bounds
+ * the scan so sizing the pane costs what the caller's cap is worth rather than
+ * what the log has grown to.
+ */
+const MAX_SCANNED_CHARS_PER_LINE = 2000;
+
 const LOG_TAIL_STORAGE_KEY = 'sep.taskLogViewer.tail';
 
 const DEFAULT_LOG_TAIL_CHOICE = '1000' satisfies LogTailLineChoice;
@@ -205,19 +212,33 @@ function isRunningStatus(status?: string): boolean {
  * Line count, saturating at `limit + 1`. Callers only need to know whether a
  * pane is over the threshold, so a large log stops being scanned as soon as it
  * provably is — no full pass over megabytes of "All lines" output.
+ *
+ * A log whose newlines are sparse would defeat that, since the early exit
+ * never fires: a stream appending to one very long line would be re-scanned
+ * end to end on every render, growing with itself. So the scan is capped by
+ * characters as well, and text running past that cap without reaching `limit`
+ * newlines saturates too. Not a guess — wrapping is on, so a line that long
+ * occupies far more rows than any caller's cap allows either way.
  */
 function countLinesUpTo(text: string, limit: number): number {
   if (text === '') {
     return 0;
   }
+  const scanLimit = Math.min(
+    text.length,
+    (limit + 1) * MAX_SCANNED_CHARS_PER_LINE
+  );
   let lines = 0;
-  for (let index = 0; index < text.length; index += 1) {
+  for (let index = 0; index < scanLimit; index += 1) {
     if (text[index] === '\n') {
       lines += 1;
       if (lines > limit) {
         return lines;
       }
     }
+  }
+  if (scanLimit < text.length) {
+    return limit + 1;
   }
   // A trailing fragment without its newline is still a line on screen.
   return text.endsWith('\n') ? lines : lines + 1;
@@ -490,9 +511,12 @@ export function TaskLogViewer({
   const baseMaxHeight = fittable ? maxHeight : 0;
   const expandedMaxHeight = Math.max(baseMaxHeight, EXPANDED_PANE_HEIGHT_PX);
   const maxPaneHeight = expanded ? expandedMaxHeight : baseMaxHeight;
-  const wantedPaneHeight = fittable
-    ? fitPaneHeight(currentPaneText, maxPaneHeight)
-    : 0;
+  // Memoised on the text rather than recomputed per render: the toolbar alone
+  // re-renders this component on a copy, a wrap toggle and every stream frame.
+  const wantedPaneHeight = useMemo(
+    () => (fittable ? fitPaneHeight(currentPaneText, maxPaneHeight) : 0),
+    [fittable, currentPaneText, maxPaneHeight]
+  );
   // Only the unexpanded ceiling is asked about: once expanded, the toggle's job
   // is to offer the way back regardless of how much content is left over.
   const contentOverflows = fittable && wantedPaneHeight > baseMaxHeight;
@@ -710,7 +734,7 @@ export function TaskLogViewer({
               </IconButton>
             </span>
           </Tooltip>
-          {!fullScreen && (
+          {!fullScreen && fittable && (
             <Tooltip
               title={
                 expanded

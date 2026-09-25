@@ -1272,11 +1272,16 @@ describe('TaskLogViewer', () => {
   async function renderWithOutput(
     id: string,
     taskStatus: string,
-    text = 'line-1\n'
+    text = 'line-1\n',
+    maxHeight?: number | string
   ) {
     render(
       <QueryWrapper>
-        <TaskLogViewer taskHistoryId={id} taskStatus={taskStatus} />
+        <TaskLogViewer
+          taskHistoryId={id}
+          taskStatus={taskStatus}
+          maxHeight={maxHeight}
+        />
       </QueryWrapper>
     );
     await flushPromises();
@@ -1306,6 +1311,28 @@ describe('TaskLogViewer', () => {
       'data-wrap',
       'true'
     );
+  });
+
+  it('offers no expand control when the caller sized the pane in CSS', async () => {
+    // A CSS height cannot be measured against content, so the viewer has no
+    // basis for the control — showing it disabled would claim the output fits
+    // when nothing checked whether it does.
+    await renderWithOutput(
+      '503',
+      'SUCCESS',
+      'line-1\n',
+      'clamp(240px, calc(100vh - 460px), 900px)'
+    );
+    expect(
+      screen.queryByRole('button', { name: /expand output/i })
+    ).not.toBeInTheDocument();
+  });
+
+  it('offers the expand control when the caller gave a numeric ceiling', async () => {
+    await renderWithOutput('504', 'SUCCESS', 'line-1\n', 480);
+    expect(
+      screen.getByRole('button', { name: /expand output/i })
+    ).toBeInTheDocument();
   });
 
   it('follows the tail while the run is still going', async () => {
