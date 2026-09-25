@@ -307,6 +307,18 @@ func TestServer(t *testing.T) {
 			require.NoError(t, err)
 		})
 
+		// Another replica can commit a new retention between the transaction's two reads of the
+		// row. That cannot be staged on one test database, so this pins the rule that avoids it
+		// instead: the check keys off the request alone, and a request without a retention passes.
+		t.Run("a request without a retention is never refused", func(t *testing.T) {
+			s := newServerWithHA(t, true)
+
+			stored, err := models.GetSettings(s.db)
+			require.NoError(t, err)
+
+			assert.NoError(t, s.refuseDataRetentionChangeInHA(0, stored))
+		})
+
 		t.Run("nothing is refused when HA is disabled", func(t *testing.T) {
 			s := newServer(t)
 

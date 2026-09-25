@@ -578,18 +578,19 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 	return nil
 }
 
-// refuseDataRetentionChangeInHA refuses a settings change that altered data retention in HA,
-// where the value comes only from the pmm-ha chart. It runs after models.UpdateSettings, inside
-// the same transaction, so malformed input has already been rejected with the usual
-// InvalidArgument, and it compares the row this transaction read with the one it is about to
-// write. Repeating the value in force, or leaving it out, is not a change, so a client that sends
-// the whole settings form back is not blocked on every other setting.
+// refuseDataRetentionChangeInHA refuses a request for a data retention other than the stored one
+// in HA, where the value comes only from the pmm-ha chart. It runs after models.UpdateSettings,
+// inside the same transaction, so malformed input has already been rejected with the usual
+// InvalidArgument. Repeating the value in force, or leaving it out, is not a change, so a client
+// that sends the whole settings form back is not blocked on every other setting.
 //
-// That narrows the window but does not close it: the transaction runs at READ COMMITTED and the
-// settings row is rewritten whole, so another replica can still commit in between. The same holds
-// for every other setting in HA.
-func (s *Server) refuseDataRetentionChangeInHA(oldSettings, newSettings *models.Settings) error {
-	if !s.haService.Params().Enabled || newSettings.DataRetention == oldSettings.DataRetention {
+// It checks what the request asked for rather than comparing two reads of the row: at READ
+// COMMITTED another replica can commit a retention change between them, and a request that never
+// mentioned retention would then be refused. That race still exists for the write itself, since
+// the settings row is rewritten whole: a request repeating the old value while another replica
+// writes a new one can put the old value back. The same holds for every other setting in HA.
+func (s *Server) refuseDataRetentionChangeInHA(requested time.Duration, stored *models.Settings) error {
+	if !s.haService.Params().Enabled || requested == 0 || requested == stored.DataRetention {
 		return nil
 	}
 
@@ -658,7 +659,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 
 		// Before the SSH key write below: returning an error rolls back the row, not that file.
-		err = s.refuseDataRetentionChangeInHA(oldSettings, newSettings)
+		err = s.refuseDataRetentionChangeInHA(settingsParams.DataRetention, oldSettings)
 		if err != nil {
 			return err
 		}
