@@ -20,3 +20,6 @@
 // arrives as BackupMongoApp's `basePath` prop.
 export const BACKUP_APP_NAME = 'backup_mongo';
 export const RESTORE_APP_NAME = 'backup_mongo/restore';
+// The child app's `key`, not its `name` (`backup_mongo_config`) -- the key is what
+// addresses an app, as the restore entry above does.
+export const CONFIG_APP_NAME = 'backup_mongo/config';

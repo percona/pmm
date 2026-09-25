@@ -34,7 +34,7 @@ import {
   restoreMongoCreateRenderField,
   restoreMongoEditForm,
 } from './restoreMongoCreateForm';
-import { BACKUP_APP_NAME, RESTORE_APP_NAME } from './routes';
+import { BACKUP_APP_NAME, CONFIG_APP_NAME, RESTORE_APP_NAME } from './routes';
 
 const BACKUP_DETAIL_SUPPRESS_KEYS = ['derived_tasks', 'latest_pbm_status'];
 const RESTORE_DETAIL_SUPPRESS_KEYS = ['derived_tasks'];
@@ -48,16 +48,30 @@ const RESTORE_DETAIL_SUPPRESS_KEYS = ['derived_tasks'];
  * The links stay real anchors via `component={Link}`, so middle-click and
  * open-in-new-tab keep working.
  */
+/** The tab segments, in the order an operator meets them. */
+const TAB_SEGMENTS = ['config', 'backups', 'restores'] as const;
+
 function MongoBackupTabs({ basePath }: { basePath: string }) {
   const { pathname } = useLocation();
-  const isRestores = pathname.includes('/restores');
+  // Matched against the path rather than tracked in state, so a bookmarked or
+  // reloaded URL selects the right tab. Falls back to backups, which is where the
+  // index route sends anyone arriving at the app root.
+  const current =
+    TAB_SEGMENTS.find((segment) => pathname.includes(`/${segment}`)) ??
+    'backups';
 
   return (
     <Tabs
-      value={isRestores ? 'restores' : 'backups'}
-      aria-label="MongoDB backup and restore"
+      value={current}
+      aria-label="MongoDB configuration, backup and restore"
       sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
     >
+      <Tab
+        label="Configuration"
+        value="config"
+        component={Link}
+        to={`${basePath}/config`}
+      />
       <Tab
         label="Backups"
         value="backups"
@@ -87,6 +101,20 @@ export function BackupMongoApp({ basePath }: { basePath: string }) {
       <MongoBackupTabs basePath={basePath} />
       <Routes>
         <Route index element={<Navigate to="backups" replace />} />
+        <Route
+          // PBM's cluster-wide configuration: storage, point-in-time recovery and
+          // the backup options that describe the deployment rather than one run.
+          // Nothing custom is passed -- the app declares update=False/delete=False,
+          // so the framework derives the surface, and the form needs no field
+          // overrides the way the backups and restores forms do.
+          path="config/*"
+          element={
+            <SchemaDrivenPlugin
+              pluginName={CONFIG_APP_NAME}
+              routeBase={`${basePath}/config`}
+            />
+          }
+        />
         <Route
           path="backups/*"
           element={

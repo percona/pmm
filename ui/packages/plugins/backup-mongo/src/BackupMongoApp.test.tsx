@@ -77,10 +77,34 @@ describe('BackupMongoApp route wiring', () => {
   // Each plugin's routeBase must resolve under the path the host actually mounts
   // this app at, or the plugins' absolute nav (detail back/edit links, the
   // related-app tab bar) points outside the mount and 404s.
-  it('derives both tabs routeBase from the host-supplied basePath', () => {
+  it('derives every tab routeBase from the host-supplied basePath', () => {
     const byPath = schemaAppPropsByRoutePath();
 
+    expect(byPath['config/*'].routeBase).toBe(`${BASE_PATH}/config`);
     expect(byPath['backups/*'].routeBase).toBe(`${BASE_PATH}/backups`);
     expect(byPath['restores/*'].routeBase).toBe(`${BASE_PATH}/restores`);
+  });
+
+  // The Configuration tab addresses the child app by its `key`
+  // (`backup_mongo/config`), not its `name` (`backup_mongo_config`) -- the same
+  // way the restores tab does. Getting this wrong yields an empty tab rather
+  // than an error, because the schema fetch simply 404s.
+  it('addresses the config child app by its key', () => {
+    expect(schemaAppPropsByRoutePath()['config/*'].pluginName).toBe(
+      'backup_mongo/config'
+    );
+  });
+
+  // Nothing custom is passed for configuration: the app declares update=False /
+  // delete=False so the framework derives the surface, and the form needs none of
+  // the field overrides the backups and restores forms do. Asserted so that
+  // adding one later is a deliberate act.
+  it('leaves the config tab entirely on the framework defaults', () => {
+    const props = schemaAppPropsByRoutePath()['config/*'];
+
+    expect(props.renderField).toBeUndefined();
+    expect(props.renderCreateForm).toBeUndefined();
+    expect(props.renderEditForm).toBeUndefined();
+    expect(props.renderTaskDetailChildren).toBeUndefined();
   });
 });
