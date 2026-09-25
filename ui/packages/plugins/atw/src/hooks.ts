@@ -55,8 +55,14 @@ const ATW_STALE_TIME_MS = 5 * 60 * 1000;
 /** Poll interval while any incident execution is still running (ms). */
 const EXECUTIONS_POLL_MS = 5000;
 
-/** Non-terminal task statuses — poll the execution list while any row is here. */
-const RUNNING_TASK_STATUSES: ReadonlySet<
+/**
+ * Non-terminal task statuses — poll the execution list while any row is here.
+ *
+ * Exported so the pane's elapsed-time ticker runs on exactly the same set: a
+ * row that counts up while the list has stopped refetching would keep climbing
+ * past a run that finished.
+ */
+export const RUNNING_TASK_STATUSES: ReadonlySet<
   NonNullable<AtwIncidentExecution['task_status']>
 > = new Set(['running', 'pending']);
 

@@ -43,6 +43,7 @@ import {
   TaskFilesDialog,
   TaskHistoryStatusBadge,
   TaskLogViewer,
+  formatDuration,
   formatTimestamp,
   isTaskHistoryStatus,
   useActionError,
@@ -51,6 +52,7 @@ import {
 import { buildBatchPayload } from './CollectPane';
 import {
   ATW_PAGE_SIZE,
+  RUNNING_TASK_STATUSES,
   sendJobDetail,
   useAtwBatchExecute,
   useAtwConfig,
@@ -89,6 +91,21 @@ interface ResendContext {
   caseRef: string;
 }
 
+/** How often a running row's elapsed time is repainted, in milliseconds. */
+const ELAPSED_TICK_MS = 1000;
+
+/**
+ * Column widths for the execution row, so every row lines up whatever it
+ * carries. Each is a minimum as well as a basis: the row wraps rather than
+ * truncates on a narrow viewport, and a column with nothing in it still holds
+ * its place so the ones after it do not slide.
+ */
+const ROW_COLUMN_WIDTHS = {
+  host: 150,
+  started: 150,
+  duration: 84,
+} as const;
+
 /**
  * Task statuses whose execution is finished and therefore sendable.
  *
@@ -106,6 +123,72 @@ const SEND_STATUS_COLORS = {
   running: 'info',
   pending: 'default',
 } as const;
+
+/**
+ * Whether this execution is still going, by the same status set the pane polls
+ * on. Drives the elapsed-time ticker, so a row counts up exactly as long as the
+ * list keeps refetching it.
+ */
+function isRunning(execution: AtwIncidentExecution): boolean {
+  const status = execution.task_status;
+  return (
+    status !== null && status !== undefined && RUNNING_TASK_STATUSES.has(status)
+  );
+}
+
+/**
+ * How long the run took, in seconds, or `null` when it cannot be known.
+ *
+ * A finished run is measured between the two recorded instants, so it never
+ * moves again. A running one is measured against `now`, which the caller ticks
+ * — the wire carries no elapsed time, and a row that reports nothing while a
+ * pt-summary works through a large instance is the complaint this answers.
+ */
+function runSeconds(
+  execution: AtwIncidentExecution,
+  now: number
+): number | null {
+  if (!execution.started_at) {
+    return null;
+  }
+  const started = new Date(execution.started_at).getTime();
+  if (Number.isNaN(started)) {
+    return null;
+  }
+  if (execution.finished_at) {
+    const finished = new Date(execution.finished_at).getTime();
+    if (!Number.isNaN(finished)) {
+      return (finished - started) / 1000;
+    }
+  }
+  // Still going: measure against the ticking clock. Anything else ended
+  // without recording when, and has nothing honest to subtract.
+  return isRunning(execution) ? (now - started) / 1000 : null;
+}
+
+/**
+ * A clock that ticks only while `active`.
+ *
+ * Returning a frozen value when nothing is running keeps a page of finished
+ * executions from re-rendering once a second forever, which is the state this
+ * pane sits in almost all of the time.
+ */
+function useTickingNow(active: boolean): number {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!active) {
+      return;
+    }
+    // Re-read immediately: a run that just started would otherwise show the
+    // timestamp from whenever this component last mounted.
+    setNow(Date.now());
+    const timer = setInterval(() => setNow(Date.now()), ELAPSED_TICK_MS);
+    return () => clearInterval(timer);
+  }, [active]);
+
+  return now;
+}
 
 function isSelectable(execution: AtwIncidentExecution): boolean {
   const status = execution.task_status;
@@ -222,6 +305,12 @@ export function ResultsPane({
   }, [data]);
 
   const rows = data?.items;
+
+  // One clock for the page: each running row reads the same tick, so they never
+  // disagree by a second, and a page of finished runs stops it entirely.
+  const anyRunning = (rows ?? []).some(isRunning);
+  const now = useTickingNow(anyRunning);
+
   const knownExecutions = useMemo(() => {
     const map = new Map<string, AtwSendLogExecution>();
     for (const execution of rows ?? []) {
@@ -323,13 +412,18 @@ export function ResultsPane({
     );
 
   const disabledReasons = config?.send_disabled_reasons ?? [];
-  const sendDisabled =
-    selectedExecutions.length === 0 || disabledReasons.length > 0;
-  const sendTooltip = disabledReasons.length
-    ? disabledReasons.join('; ')
-    : selectedExecutions.length === 0
-      ? 'Select one or more finished executions to send.'
-      : '';
+  // Every unmet condition, not the first one found. Send is routinely blocked by
+  // both an unconfigured receiver and an empty selection at once, and a tooltip
+  // that names only one leaves the operator fixing that one and finding the
+  // button still grey.
+  const sendBlockers = [
+    ...disabledReasons,
+    ...(selectedExecutions.length === 0
+      ? ['Select one or more finished executions to send.']
+      : []),
+  ];
+  const sendDisabled = sendBlockers.length > 0;
+  const sendTooltip = sendBlockers.join(' ');
 
   const openSend = (context: ResendContext | null) => {
     setResend(context);
@@ -438,6 +532,7 @@ export function ResultsPane({
         <ExecutionRow
           key={execution.id}
           execution={execution}
+          elapsedSeconds={runSeconds(execution, now)}
           selected={selectedIds.has(execution.id)}
           onToggleSelected={() => toggleSelected(execution)}
           onOpenFiles={() => setFilesForTask(execution.task_history_id)}
@@ -604,6 +699,7 @@ function SendHistory({
 
 function ExecutionRow({
   execution,
+  elapsedSeconds,
   selected,
   onToggleSelected,
   onOpenFiles,
@@ -613,6 +709,7 @@ function ExecutionRow({
   onEditParameters,
 }: {
   execution: AtwIncidentExecution;
+  elapsedSeconds: number | null;
   selected: boolean;
   onToggleSelected: () => void;
   onOpenFiles: () => void;
@@ -626,8 +723,12 @@ function ExecutionRow({
   const { canMutate } = useAuth();
   const {
     snippet_filename,
+    snippet_title,
+    executor_host,
     task_status,
     task_history_id,
+    created_at,
+    started_at,
     has_logs,
     masked_args,
     args_withheld,
@@ -643,6 +744,23 @@ function ExecutionRow({
   // starts, so it mounts when the polled status reaches `running`.
   const logsUnavailable = has_logs === false && task_status !== 'running';
 
+  const displayName = snippet_title?.trim() || snippet_filename;
+
+  // A queued run has no start time, so the row falls back to when it was
+  // recorded and labels it as such rather than leaving the column blank.
+  const startStamp = formatTimestamp(started_at ?? created_at);
+  const startIsQueue = !started_at;
+  const startTitle = startStamp
+    ? startIsQueue
+      ? `Queued ${startStamp.title}; not started yet`
+      : startStamp.title
+    : undefined;
+  const startLabel = startStamp
+    ? startIsQueue
+      ? `Queued ${startStamp.display}`
+      : startStamp.display
+    : '—';
+
   return (
     <Accordion
       disableGutters
@@ -657,7 +775,7 @@ function ExecutionRow({
           direction="row"
           spacing={1}
           alignItems="center"
-          sx={{ width: '100%', pr: 1, flexWrap: 'wrap' }}
+          sx={{ width: '100%', pr: 1, flexWrap: 'wrap', rowGap: 1 }}
         >
           {/* Selection exists only to feed the send action, so both go together. */}
           {canMutate && (
@@ -671,30 +789,54 @@ function ExecutionRow({
                   disabled={!selectable}
                   onChange={onToggleSelected}
                   onClick={(event) => event.stopPropagation()}
-                  inputProps={{ 'aria-label': `Select ${snippet_filename}` }}
+                  inputProps={{ 'aria-label': `Select ${displayName}` }}
                 />
               </span>
             </Tooltip>
           )}
-          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-            <Typography variant="subtitle2" sx={{ wordBreak: 'break-all' }}>
-              {snippet_filename}
+          <Box sx={{ flexGrow: 1, flexBasis: 200, minWidth: 0 }}>
+            <Typography variant="subtitle2" sx={{ wordBreak: 'break-word' }}>
+              {displayName}
             </Typography>
-            {masked_args && (
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  fontFamily: 'monospace',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {masked_args}
-              </Typography>
-            )}
           </Box>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            title={executor_host ?? undefined}
+            sx={{
+              width: ROW_COLUMN_WIDTHS.host,
+              flexShrink: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {executor_host || '—'}
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            title={startTitle}
+            sx={{ width: ROW_COLUMN_WIDTHS.started, flexShrink: 0 }}
+          >
+            {startLabel}
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            title={
+              elapsedSeconds === null
+                ? 'This run has no recorded duration'
+                : `Ran for ${formatDuration(elapsedSeconds)}`
+            }
+            sx={{
+              width: ROW_COLUMN_WIDTHS.duration,
+              flexShrink: 0,
+              fontFamily: 'monospace',
+            }}
+          >
+            {formatDuration(elapsedSeconds)}
+          </Typography>
           {isTaskHistoryStatus(task_status) ? (
             <TaskHistoryStatusBadge status={task_status} />
           ) : (
@@ -743,6 +885,23 @@ function ExecutionRow({
             color="text.secondary"
             sx={{ display: 'block' }}
           >
+            Snippet
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ fontFamily: 'monospace', wordBreak: 'break-all' }}
+          >
+            {snippet_filename}
+          </Typography>
+        </Box>
+
+        <Box sx={{ mb: 2 }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: 'block' }}
+          >
             Arguments
           </Typography>
           {masked_args ? (
@@ -774,7 +933,7 @@ function ExecutionRow({
           <TaskLogViewer
             taskHistoryId={task_history_id}
             taskStatus={task_status ?? undefined}
-            height={360}
+            maxHeight={360}
           />
         )}
       </AccordionDetails>

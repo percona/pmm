@@ -15,17 +15,25 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import CheckIcon from '@mui/icons-material/Check';
+import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DownloadIcon from '@mui/icons-material/Download';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
+import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Alert from '@mui/material/Alert';
 import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
+import Dialog from '@mui/material/Dialog';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
+import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
 import Select from '@mui/material/Select';
@@ -35,8 +43,9 @@ import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { RUNNING_STATUSES, type TaskHistoryStatus } from '@pmm-extensions/api';
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import { useExecutionEvents } from '../../hooks/useExecutionEvents';
 import { useLogDownload } from '../../hooks/useLogDownload';
 import {
@@ -88,6 +97,37 @@ const SMALLEST_LOG_TAIL_OPTION =
     ? Math.min(...NUMERIC_LOG_TAIL_OPTIONS)
     : 0;
 
+/**
+ * LazyLog's own default row height, in pixels. Mirrored here rather than
+ * imported because the library exposes it only as a prop default; the pane
+ * relies on it to turn a line count into a pixel height, so a library change
+ * would need this constant changed with it.
+ */
+const LOG_ROW_HEIGHT_PX = 19;
+
+/**
+ * Room for the search bar LazyLog renders above its rows. Its own
+ * `SEARCH_BAR_HEIGHT`, which the library does not export — a pixel short here
+ * clips the last row of a report that would otherwise have fit exactly.
+ */
+const LOG_PANE_CHROME_PX = 45;
+
+/**
+ * Shortest the pane ever gets. A two-line report still needs to look like a
+ * pane rather than a stray sentence, and the search bar has to fit.
+ */
+const MIN_PANE_HEIGHT_PX = 140;
+
+/** The cap the expand toggle raises the pane to — about a screen of output. */
+const EXPANDED_PANE_HEIGHT_PX = 900;
+
+/**
+ * How much text one line is allowed to be worth while counting lines. Bounds
+ * the scan so sizing the pane costs what the caller's cap is worth rather than
+ * what the log has grown to.
+ */
+const MAX_SCANNED_CHARS_PER_LINE = 2000;
+
 const LOG_TAIL_STORAGE_KEY = 'extensions.taskLogViewer.tail';
 
 const DEFAULT_LOG_TAIL_CHOICE = '1000' satisfies LogTailLineChoice;
@@ -113,7 +153,14 @@ function logTailChoiceToParam(choice: LogTailLineChoice): number | undefined {
 export interface TaskLogViewerProps {
   taskHistoryId: number | string;
   taskStatus?: string;
-  height?: number | string;
+  /**
+   * Tallest the output pane gets before the user expands it. A number is a
+   * ceiling the pane is fitted within, so a report shorter than it renders at
+   * its own height rather than in a box padded out with blank space. A CSS
+   * string cannot be fitted against without measuring, so it is applied as-is
+   * and the expand toggle goes away with it.
+   */
+  maxHeight?: number | string;
   /** Mid-sentence singular noun for one record (e.g. `backup`). */
   itemName?: string;
 }
@@ -165,19 +212,33 @@ function isRunningStatus(status?: string): boolean {
  * Line count, saturating at `limit + 1`. Callers only need to know whether a
  * pane is over the threshold, so a large log stops being scanned as soon as it
  * provably is — no full pass over megabytes of "All lines" output.
+ *
+ * A log whose newlines are sparse would defeat that, since the early exit
+ * never fires: a stream appending to one very long line would be re-scanned
+ * end to end on every render, growing with itself. So the scan is capped by
+ * characters as well, and text running past that cap without reaching `limit`
+ * newlines saturates too. Not a guess — wrapping is on, so a line that long
+ * occupies far more rows than any caller's cap allows either way.
  */
 function countLinesUpTo(text: string, limit: number): number {
   if (text === '') {
     return 0;
   }
+  const scanLimit = Math.min(
+    text.length,
+    (limit + 1) * MAX_SCANNED_CHARS_PER_LINE
+  );
   let lines = 0;
-  for (let index = 0; index < text.length; index += 1) {
+  for (let index = 0; index < scanLimit; index += 1) {
     if (text[index] === '\n') {
       lines += 1;
       if (lines > limit) {
         return lines;
       }
     }
+  }
+  if (scanLimit < text.length) {
+    return limit + 1;
   }
   // A trailing fragment without its newline is still a line on screen.
   return text.endsWith('\n') ? lines : lines + 1;
@@ -205,6 +266,23 @@ function maxPaneLineCountUpTo(
     }
   }
   return max;
+}
+
+/**
+ * Pixel height the pane wants for `text`, before any cap is applied.
+ *
+ * Counts newlines only, so a wrapped line is measured as one row. That
+ * under-measures a report full of very long lines, which then scrolls inside a
+ * pane shorter than its content — the same behaviour as before this sizing
+ * existed, and the honest alternative would mean measuring the rendered pane
+ * width and re-measuring on every resize. Over-measuring is the failure worth
+ * avoiding: it leaves blank space under a short report, which is exactly the
+ * complaint the fixed height caused.
+ */
+function fitPaneHeight(text: string, maxHeight: number): number {
+  const rowsInCap = Math.ceil(maxHeight / LOG_ROW_HEIGHT_PX);
+  const lines = countLinesUpTo(text, rowsInCap);
+  return lines * LOG_ROW_HEIGHT_PX + LOG_PANE_CHROME_PX;
 }
 
 function resolveBadgeStatus(
@@ -242,10 +320,11 @@ function preferredTopTab(
 export function TaskLogViewer({
   taskHistoryId,
   taskStatus,
-  height = 480,
+  maxHeight = 480,
   itemName = 'task',
 }: TaskLogViewerProps) {
   const running = isRunningStatus(taskStatus);
+  const logTailLabelId = useId();
   const [logTailChoice, setLogTailChoice] = useState<LogTailLineChoice>(
     readStoredLogTailChoice
   );
@@ -310,6 +389,8 @@ export function TaskLogViewer({
   const [manualTopTab, setManualTopTab] = useState<TopTab | undefined>();
   const [activeStep, setActiveStep] = useState<string | undefined>();
   const [wrap, setWrap] = useState(true);
+  const [expanded, setExpanded] = useState(false);
+  const [fullScreen, setFullScreen] = useState(false);
 
   const [unreadTypes, setUnreadTypes] = useState<Set<LogType>>(new Set());
   const [unreadSteps, setUnreadSteps] = useState<Set<string>>(new Set());
@@ -328,6 +409,8 @@ export function TaskLogViewer({
     setActiveEventStep(undefined);
     setUnreadTypes(new Set());
     setUnreadSteps(new Set());
+    setExpanded(false);
+    setFullScreen(false);
     prevLogSizesRef.current = {};
   }, [taskHistoryId]);
 
@@ -419,6 +502,31 @@ export function TaskLogViewer({
     download(filename, currentPaneText);
   };
 
+  const clipboard = useCopyToClipboard();
+  const handleCopy = () => {
+    clipboard.copy(currentPaneText);
+  };
+
+  const fittable = typeof maxHeight === 'number';
+  const baseMaxHeight = fittable ? maxHeight : 0;
+  const expandedMaxHeight = Math.max(baseMaxHeight, EXPANDED_PANE_HEIGHT_PX);
+  const maxPaneHeight = expanded ? expandedMaxHeight : baseMaxHeight;
+  // Memoised on the text rather than recomputed per render: the toolbar alone
+  // re-renders this component on a copy, a wrap toggle and every stream frame.
+  const wantedPaneHeight = useMemo(
+    () => (fittable ? fitPaneHeight(currentPaneText, maxPaneHeight) : 0),
+    [fittable, currentPaneText, maxPaneHeight]
+  );
+  // Only the unexpanded ceiling is asked about: once expanded, the toggle's job
+  // is to offer the way back regardless of how much content is left over.
+  const contentOverflows = fittable && wantedPaneHeight > baseMaxHeight;
+
+  const paneHeight = fullScreen
+    ? '100%'
+    : fittable
+      ? Math.min(maxPaneHeight, Math.max(MIN_PANE_HEIGHT_PX, wantedPaneHeight))
+      : maxHeight;
+
   const handleLogTailChange = (choice: LogTailLineChoice) => {
     // Only a cap has to clear the live-log record to be fetched again. "All"
     // keeps it tracked, so a stream still open after the run ends is reloaded
@@ -438,8 +546,15 @@ export function TaskLogViewer({
   // carrying a terminal status) or, absent that, once the caller's own status
   // prop says the run is not running — the case for a viewer just mounted
   // against an already-terminal history row, before its stream has caught up.
-  // Used only to pick the empty-pane wording: "No output" reads as final,
-  // where "No output yet." promises more may still arrive.
+  //
+  // Picks the empty-pane wording ("No output" reads as final, where "No output
+  // yet." promises more may still arrive) and decides whether the pane tails.
+  // Tailing deliberately keys on this rather than on `running`: `taskStatus` is
+  // optional, and `SnippetExecutionAccordion` mounts the viewer against a
+  // just-launched task without it, so a live log would otherwise sit still
+  // while output arrived off-screen. Reading the stream instead also stops the
+  // tail the moment a `finish` event lands, which the status prop — frozen at
+  // whatever the caller last rendered — would never do.
   const hasFinished =
     Boolean(finishStatus) || (taskStatus !== undefined && !running);
 
@@ -466,8 +581,18 @@ export function TaskLogViewer({
     return effectiveTailLines !== undefined && maxLines >= effectiveTailLines;
   }, [running, streamStatus, textByStep, effectiveTailLines]);
 
-  return (
-    <Paper variant="outlined" sx={{ display: 'flex', flexDirection: 'column' }}>
+  const body = (
+    <Paper
+      variant="outlined"
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        // Full screen the Paper owns the dialog surface: no rounded corners or
+        // border floating against the viewport edge, and a definite height so
+        // the output pane's `100%` has something to resolve against.
+        ...(fullScreen && { height: '100%', border: 0, borderRadius: 0 }),
+      }}
+    >
       <Stack
         direction="row"
         alignItems="center"
@@ -520,15 +645,22 @@ export function TaskLogViewer({
             >
               <FormControl
                 size="small"
-                sx={{ minWidth: 96 }}
+                sx={{ minWidth: 128 }}
                 disabled={running}
               >
+                {/*
+                  A visible label, not just the `aria-label` this replaced: on
+                  its own, "Last 1000" names neither what is being counted nor
+                  that it can be changed.
+                */}
+                <InputLabel id={logTailLabelId}>Lines loaded</InputLabel>
                 <Select
+                  labelId={logTailLabelId}
+                  label="Lines loaded"
                   value={logTailChoice}
                   onChange={(event) =>
                     handleLogTailChange(event.target.value as LogTailLineChoice)
                   }
-                  aria-label="Log lines to show"
                   disabled={running}
                   renderValue={(value) => (
                     <Typography variant="body2" component="span">
@@ -565,6 +697,31 @@ export function TaskLogViewer({
             label="Wrap"
             slotProps={{ typography: { variant: 'body2' } }}
           />
+          <Tooltip
+            title={
+              clipboard.copied
+                ? 'Copied'
+                : clipboard.failed
+                  ? 'Could not copy — use Download instead'
+                  : 'Copy this output'
+            }
+          >
+            <span>
+              <IconButton
+                size="small"
+                onClick={handleCopy}
+                disabled={!currentPaneText}
+                aria-label={clipboard.copied ? 'Copied' : 'Copy log'}
+                color={clipboard.failed ? 'error' : undefined}
+              >
+                {clipboard.copied ? (
+                  <CheckIcon fontSize="small" color="success" />
+                ) : (
+                  <ContentCopyIcon fontSize="small" />
+                )}
+              </IconButton>
+            </span>
+          </Tooltip>
           <Tooltip title="Download log">
             <span>
               <IconButton
@@ -576,6 +733,45 @@ export function TaskLogViewer({
                 <DownloadIcon fontSize="small" />
               </IconButton>
             </span>
+          </Tooltip>
+          {!fullScreen && fittable && (
+            <Tooltip
+              title={
+                expanded
+                  ? 'Collapse to the default height'
+                  : contentOverflows
+                    ? 'Expand the output'
+                    : 'The whole output already fits'
+              }
+            >
+              <span>
+                <IconButton
+                  size="small"
+                  onClick={() => setExpanded((previous) => !previous)}
+                  disabled={!expanded && !contentOverflows}
+                  aria-label={expanded ? 'Collapse output' : 'Expand output'}
+                >
+                  {expanded ? (
+                    <CloseFullscreenIcon fontSize="small" />
+                  ) : (
+                    <OpenInFullIcon fontSize="small" />
+                  )}
+                </IconButton>
+              </span>
+            </Tooltip>
+          )}
+          <Tooltip title={fullScreen ? 'Exit full screen' : 'Full screen'}>
+            <IconButton
+              size="small"
+              onClick={() => setFullScreen((previous) => !previous)}
+              aria-label={fullScreen ? 'Exit full screen' : 'Full screen'}
+            >
+              {fullScreen ? (
+                <FullscreenExitIcon fontSize="small" />
+              ) : (
+                <FullscreenIcon fontSize="small" />
+              )}
+            </IconButton>
           </Tooltip>
         </Stack>
       </Stack>
@@ -603,16 +799,20 @@ export function TaskLogViewer({
         />
       </Box>
 
-      <Box sx={{ flex: 1, minHeight: 0 }}>
+      <Box sx={{ flex: fullScreen ? 1 : 'none', minHeight: 0 }}>
         <LogOutputPane
           text={currentPaneText}
           wrap={wrap}
-          height={height}
+          height={paneHeight}
+          follow={!hasFinished}
           emptyLabel={hasFinished ? 'No output' : 'No output yet.'}
         />
       </Box>
 
-      <Accordion disableGutters sx={{ '&:before': { display: 'none' } }}>
+      <Accordion
+        disableGutters
+        sx={{ flexShrink: 0, '&:before': { display: 'none' } }}
+      >
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="body2" color="text.secondary">
             Technical details
@@ -636,4 +836,24 @@ export function TaskLogViewer({
       </Accordion>
     </Paper>
   );
+
+  // Moving the whole viewer into the dialog — rather than overlaying a copy of
+  // the pane — keeps one set of tabs, one search and one selected step, so
+  // nothing has to be re-found after going full screen. The cost is that the
+  // pane remounts across the transition, dropping whatever was typed into
+  // LazyLog's search box.
+  if (fullScreen) {
+    return (
+      <Dialog
+        fullScreen
+        open
+        onClose={() => setFullScreen(false)}
+        aria-label="Log output, full screen"
+      >
+        {body}
+      </Dialog>
+    );
+  }
+
+  return body;
 }
