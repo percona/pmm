@@ -31,8 +31,8 @@ import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
-import { useAuth } from '@sep/api';
-import { ReadOnlyNotice } from '@sep/framework';
+import { useAuth } from '@pmm-extensions/api';
+import { ReadOnlyNotice } from '@pmm-extensions/framework';
 import { CollectPane } from './CollectPane';
 import { ResultsPane } from './ResultsPane';
 import { useAtwIncident, useAtwIncidentLifecycle } from './hooks';
@@ -293,7 +293,7 @@ export function IncidentWorkspacePage() {
           alignItems: 'start',
         }}
       >
-        {/* PMM divergence from upstream SEP — keep on the next sync. */}
+        {/* PMM divergence from upstream PMM Extensions — keep on the next sync. */}
         {canMutate && (
           <Paper variant="outlined" sx={{ p: 2 }} ref={collectSectionRef}>
             <CollectPane

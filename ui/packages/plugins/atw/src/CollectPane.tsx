@@ -30,8 +30,12 @@ import {
   SchemaFormRenderer,
   SNIPPET_FORM_RESERVED_FIELD_NAMES,
   type RenderFieldOverride,
-} from '@sep/framework';
-import { useAuth, type FormSection, type SectionField } from '@sep/api';
+} from '@pmm-extensions/framework';
+import {
+  useAuth,
+  type FormSection,
+  type SectionField,
+} from '@pmm-extensions/api';
 import { CategoryBrowser } from './CategoryBrowser';
 import {
   useAtwBatchExecute,
