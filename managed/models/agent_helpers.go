@@ -18,6 +18,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -38,6 +39,26 @@ const (
 	pushMetricsFalse = "(NOT (exporter_options ? 'push_metrics') OR (exporter_options->>'push_metrics')::boolean = false)"
 )
 
+// timeZoneRegexp bounds the (unquoted) time_zone DSN parameter to characters
+// valid in a MySQL time zone: numeric offsets like +07:00, named zones like
+// Europe/Helsinki, or SYSTEM. Any surrounding quotes are stripped before the
+// match, so anything left outside this set is rejected to keep the value from
+// altering the SET time_zone=<value> command the driver issues.
+var timeZoneRegexp = regexp.MustCompile(`^[A-Za-z0-9_/+:-]+$`)
+
+// normalizeTimeZone strips at most one pair of matching surrounding quotes so a
+// caller may pass the value quoted or bare.
+func normalizeTimeZone(v string) string {
+	v = strings.TrimSpace(v)
+	if len(v) >= 2 {
+		first, last := v[0], v[len(v)-1]
+		if (first == '\'' && last == '\'') || (first == '"' && last == '"') {
+			v = v[1 : len(v)-1]
+		}
+	}
+	return v
+}
+
 // MySQLOptionsParams contains methods to create MySQLOptions object.
 type MySQLOptionsParams interface { //nolint:iface
 	GetTlsCa() string
@@ -48,23 +69,35 @@ type MySQLOptionsParams interface { //nolint:iface
 
 // MySQLOptionsFromRequest creates MySQLOptions object from request.
 func MySQLOptionsFromRequest(params MySQLOptionsParams) (MySQLOptions, error) {
-	if params.GetExtraDsnParams() != nil {
+	extraDSNParams := params.GetExtraDsnParams()
+	if extraDSNParams != nil {
 		// keep a list of "supported" parameters and fail early if there are unsupported ones.
 		// this prevents unsupported parameters from being passed to the mysql config.
-		for k := range params.GetExtraDsnParams() {
+		// normalize into a copy so the caller's map is left untouched.
+		normalized := make(map[string]string, len(extraDSNParams))
+		for k, v := range extraDSNParams {
 			switch k {
 			case "allowCleartextPasswords":
-				continue
+				normalized[k] = v
+			case "time_zone":
+				tz := normalizeTimeZone(v)
+				if !timeZoneRegexp.MatchString(tz) {
+					return MySQLOptions{}, status.Errorf(codes.InvalidArgument, "Invalid time_zone value: %s", v)
+				}
+				// store the canonical single-quoted form so every consumer issues
+				// a valid SET time_zone='<value>' regardless of how it was passed.
+				normalized[k] = "'" + tz + "'"
 			default:
 				return MySQLOptions{}, status.Errorf(codes.InvalidArgument, "Unsupported DSN parameter: %s", k)
 			}
 		}
+		extraDSNParams = normalized
 	}
 	return MySQLOptions{
 		TLSCa:          params.GetTlsCa(),
 		TLSCert:        params.GetTlsCert(),
 		TLSKey:         params.GetTlsKey(),
-		ExtraDSNParams: params.GetExtraDsnParams(),
+		ExtraDSNParams: extraDSNParams,
 	}, nil
 }
 
