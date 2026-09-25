@@ -617,13 +617,16 @@ func TestProvisionerLeavesGrafanaAloneWhenStateIsUnknown(t *testing.T) {
 func TestProvisionerLeavesRulesItDoesNotOwnAlone(t *testing.T) {
 	t.Parallel()
 
-	f := newProvisionerFixture(t, false) // standalone: the components bundle only
+	// Standalone, so only the components bundle is rendered.
+	f := newProvisionerFixture(t, false)
 	f.dbMock.ExpectQuery("SELECT settings FROM settings").
 		WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settingsJSON(true)))
+	// One UID is owned through the API, the other by a rule made in the interface, which has no
+	// provenance at all.
 	f.gfMock.ExpectQuery("FROM alert_rule").
 		WillReturnRows(sqlmock.NewRows([]string{"uid", "provenance"}).
 			AddRow("pmm-clickhouse-down", "api").
-			AddRow("pmm-grafana-down", "")) // made in the interface: no provenance at all
+			AddRow("pmm-grafana-down", ""))
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
@@ -642,8 +645,9 @@ func TestProvisionerOmitsSquattedUIDsFromDeletions(t *testing.T) {
 	t.Parallel()
 
 	f := newProvisionerFixture(t, true)
+	// Percona Alerting off, so every bundle is disabled and lists its UIDs for deletion.
 	f.dbMock.ExpectQuery("SELECT settings FROM settings").
-		WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settingsJSON(false))) // alerting off
+		WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settingsJSON(false)))
 	f.gfMock.ExpectQuery("FROM alert_rule").
 		WillReturnRows(sqlmock.NewRows([]string{"uid", "provenance"}).AddRow("pmm-ha-no-leader", ""))
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
