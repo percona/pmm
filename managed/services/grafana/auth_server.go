@@ -152,6 +152,11 @@ var lbacPrefixes = []string{
 	// tree instead of enumerating them: every shape left out is served unfiltered, and
 	// /graph requires no role, so nothing else stands between a viewer and raw data.
 	"/graph/api/datasources/",
+	// Alerting runs the queries of a rule being edited, previewed or backtested on the
+	// caller's behalf and returns what they select. One of these routes cannot carry the
+	// filters; see dropsFilters.
+	"/graph/api/v1/eval",
+	"/graph/api/v1/rule/",
 }
 
 const lbacHeaderName = "X-Proxy-Filter"
@@ -192,6 +197,9 @@ var ErrCannotGetUserID = errors.New("CannotGetUserID")
 
 // errDotDotSegment is returned for a path that has a ".." segment once unescaped.
 var errDotDotSegment = errors.New("dot-dot segment in path")
+
+// errFiltersDropped is returned for a filtered user on a route that cannot carry the filters.
+var errFiltersDropped = errors.New("route drops LBAC filters")
 
 type cacheItem struct {
 	u       authUser
@@ -311,6 +319,11 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	errF := s.maybeAddLBACFilters(ctx, rw, req, cleanedPath, userID, l)
+	if errors.Is(errF, errFiltersDropped) {
+		l.Warn("Refusing a filtered user a route that would serve them unfiltered.")
+		s.returnAuthError(rw, &authError{code: codes.PermissionDenied, message: "Access denied"}, l)
+		return
+	}
 	if errF != nil {
 		l.Errorf("Failed to add VMProxy filters: %s", errF)
 		s.returnAuthError(rw, &authError{code: codes.Internal, message: "Internal server error."}, l)
@@ -391,6 +404,10 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 		return nil
 	}
 
+	if dropsFilters(cleanedPath) {
+		return errFiltersDropped
+	}
+
 	jsonFilters, err := json.Marshal(filters)
 	if err != nil {
 		return fmt.Errorf("failed to marshal LBAC filters: %w", err)
@@ -416,6 +433,14 @@ func (s *AuthServer) shallAddLBACFilters(cleanedPath string) bool {
 	}
 
 	return false
+}
+
+// dropsFilters reports whether Grafana serves the path through a request of its own to the
+// data source, which leaves the filter header behind: the rule test of a data source-managed
+// rule. The Grafana-managed one evaluates in-process and forwards the header like a query.
+func dropsFilters(cleanedPath string) bool {
+	dsUID, ok := strings.CutPrefix(cleanedPath, "/graph/api/v1/rule/test/")
+	return ok && strings.TrimSuffix(dsUID, "/") != "grafana"
 }
 
 // getLBACFilters retrieves LBAC filters for the user.

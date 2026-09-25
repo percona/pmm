@@ -299,6 +299,11 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 			// the prefixes.
 			"/graph/api/datasources%2Fproxy/1/api/v1/query":                           true,
 			"/graph/api/datasources%2Fuid%2FPA58DA793C7250F1B/resources/api/v1/query": true,
+			// Alerting runs a rule's queries on the caller's behalf to preview it.
+			"/graph/api/v1/eval":                    true,
+			"/graph/api/v1/rule/test/grafana":       true,
+			"/graph/api/v1/rule/backtest":           true,
+			"/graph/api/ruler/grafana/api/v1/rules": false,
 		} {
 			for _, userID := range []int{0, 1337, 1338} {
 				t.Run(fmt.Sprintf("uri=%s userID=%d", uri, userID), func(t *testing.T) {
@@ -372,6 +377,42 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 			require.Emptyf(t, headerString, "uri=%s", uri)
 		}
 	})
+
+	// Grafana tests a data source-managed rule through a request of its own, without the
+	// filter header, so a filtered user must be refused rather than served unfiltered.
+	//nolint:paralleltest
+	t.Run("shall refuse a filtered user a route that drops the filters", func(t *testing.T) {
+		const uri = "/graph/api/v1/rule/test/PA58DA793C7250F1B"
+
+		for userID, wantErr := range map[int]bool{1337: true, 1339: false} {
+			rw := httptest.NewRecorder()
+			req, err := http.NewRequestWithContext(ctx, http.MethodPost, uri, nil)
+			require.NoError(t, err)
+
+			err = s.maybeAddLBACFilters(ctx, rw, req, uri, userID, logrus.WithField("test", t.Name()))
+			if wantErr {
+				require.ErrorIsf(t, err, errFiltersDropped, "userID=%d", userID)
+			} else {
+				require.NoErrorf(t, err, "userID=%d", userID)
+			}
+			require.Emptyf(t, rw.Header().Get(lbacHeaderName), "userID=%d", userID)
+		}
+	})
+}
+
+func TestDropsFilters(t *testing.T) {
+	t.Parallel()
+
+	for p, want := range map[string]bool{
+		"/graph/api/v1/rule/test/PA58DA793C7250F1B": true,
+		"/graph/api/v1/rule/test/":                  true,
+		"/graph/api/v1/rule/test/grafana":           false,
+		"/graph/api/v1/rule/test/grafana/":          false,
+		"/graph/api/v1/eval":                        false,
+		"/graph/api/ds/query":                       false,
+	} {
+		assert.Equalf(t, want, dropsFilters(p), "dropsFilters(%s)", p)
+	}
 }
 
 func TestCleanPath(t *testing.T) {

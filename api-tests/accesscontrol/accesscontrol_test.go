@@ -114,6 +114,52 @@ func TestLBACFiltersEveryDataSourceRoute(t *testing.T) {
 	}
 }
 
+// TestLBACFiltersAlertingPreview covers the alerting routes that run a rule's queries on the
+// caller's behalf. Grafana forwards the filter header on the ones it evaluates in-process; the
+// rule test of a data source-managed rule sends a request of its own without it, so a filtered
+// user is refused that one instead.
+func TestLBACFiltersAlertingPreview(t *testing.T) {
+	t.Parallel()
+
+	eval := fmt.Sprintf(`{"condition":"A","data":[%s]}`, alertQuery())
+	ruleTest := fmt.Sprintf(`{"folderUid":%q,"rule_group":"api-tests","rule":{"for":"0s","grafana_alert":`+
+		`{"title":"api-tests","condition":"A","no_data_state":"OK","exec_err_state":"OK","data":[%s]}}}`,
+		testEnv.folderUID, alertQuery())
+
+	for _, tc := range []struct {
+		path   string
+		body   string
+		series func([]byte) int
+	}{
+		{"/graph/api/v1/eval", eval, evalSeries},
+		{"/graph/api/v1/rule/test/grafana", ruleTest, alertSeries},
+	} {
+		t.Run(tc.path, func(t *testing.T) {
+			t.Parallel()
+
+			code, body := requestBody(t, http.MethodPost, tc.path, adminUser(), tc.body)
+			require.Equal(t, http.StatusOK, code, "%s", trim(body))
+			require.Positive(t, tc.series(body), "admin preview selected nothing: %s", trim(body))
+
+			code, body = requestBody(t, http.MethodPost, tc.path, testEnv.viewer, tc.body)
+			require.Equal(t, http.StatusOK, code, "%s", trim(body))
+			assert.Zerof(t, tc.series(body), "filters were not applied, response: %s", trim(body))
+		})
+	}
+
+	t.Run("/graph/api/v1/rule/test/<uid>", func(t *testing.T) {
+		t.Parallel()
+
+		path := "/graph/api/v1/rule/test/" + testEnv.dsUID
+
+		code, body := requestBody(t, http.MethodPost, path, adminUser(), `{"expr":"up"}`)
+		assert.Equalf(t, http.StatusOK, code, "response: %s", trim(body))
+
+		code, body = requestBody(t, http.MethodPost, path, testEnv.viewer, `{"expr":"up"}`)
+		assert.Equalf(t, http.StatusForbidden, code, "response: %s", trim(body))
+	})
+}
+
 // TestEncodedDelimiterInPath guards the paths that legitimately carry an encoded '?' or '#':
 // Grafana puts an alert rule group name in the path, so refusing them made every such group
 // impossible to open, edit or delete.
@@ -637,6 +683,56 @@ func results(body []byte) int {
 	}
 
 	return len(vector.Data.Result)
+}
+
+// evalSeries counts the series an alerting query evaluation answered with: a frame per series
+// holding its samples, and a single empty frame when the query selected nothing.
+func evalSeries(body []byte) int {
+	var answer struct {
+		Results map[string]struct {
+			Frames []struct {
+				Data struct {
+					Values [][]json.RawMessage `json:"values"`
+				} `json:"data"`
+			} `json:"frames"`
+		} `json:"results"`
+	}
+	err := json.Unmarshal(body, &answer)
+	if err != nil {
+		return -1
+	}
+
+	var count int
+	for _, result := range answer.Results {
+		for _, frame := range result.Frames {
+			if len(frame.Data.Values) > 0 && len(frame.Data.Values[0]) > 0 {
+				count++
+			}
+		}
+	}
+
+	return count
+}
+
+// alertSeries counts the alerts a rule preview answered with that carry a series' labels. A
+// query that selected nothing still yields one alert for the rule itself, without them.
+func alertSeries(body []byte) int {
+	var alerts []struct {
+		Labels map[string]string `json:"labels"`
+	}
+	err := json.Unmarshal(body, &alerts)
+	if err != nil {
+		return -1
+	}
+
+	var count int
+	for _, a := range alerts {
+		if a.Labels["job"] != "" {
+			count++
+		}
+	}
+
+	return count
 }
 
 func trim(body []byte) string {
