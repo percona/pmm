@@ -789,6 +789,11 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to update supervisord configuration: %w", err)
 	}
+	// qan-api2 takes its retention from the supervisord configuration, and so does VictoriaMetrics
+	// when it runs inside PMM; an external VictoriaMetrics, as in HA, is configured outside PMM. So
+	// the value is in force from here on, whatever happens below.
+	s.reportDataRetention(settings)
+
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
 
@@ -797,7 +802,6 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 		return fmt.Errorf("failed to update agents state: %w", err)
 	}
 
-	s.reportDataRetention(settings)
 	return nil
 }
 

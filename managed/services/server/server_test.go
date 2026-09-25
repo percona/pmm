@@ -410,6 +410,22 @@ func TestServer(t *testing.T) {
 			assert.Len(t, retentionEntries(hook), 1, "an unchanged value must not be reported again")
 		})
 
+		// qan-api2 takes its retention from the supervisord configuration, so the value is in force
+		// once supervisord has rendered it, even if a later step of the re-render fails.
+		t.Run("reported once supervisord applies it, even if the agents update fails", func(t *testing.T) {
+			s := newServerWithHA(t, true)
+			l, hook := logrustest.NewNullLogger()
+			s.l = l.WithField("component", "server-test")
+
+			mState := &mockAgentsStateUpdater{}
+			mState.Test(t)
+			mState.On("UpdateAgentsState", mock.Anything).Return(errors.New("agents are not ready"))
+			s.agentsState = mState
+
+			require.NotEmpty(t, s.UpdateSettingsFromEnv(t.Context(), nil))
+			assert.Len(t, retentionEntries(hook), 1)
+		})
+
 		// Another replica can write its own environment to the shared row; this one applies it on
 		// its next re-render, and the line must say so rather than keep the start-up value.
 		t.Run("a value written by another replica is reported when applied", func(t *testing.T) {
