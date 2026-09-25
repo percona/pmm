@@ -15,7 +15,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import type { PluginField } from '@pmm-extensions/api';
+import type { FormSection, OneOfGroup, PluginField } from '@pmm-extensions/api';
+import { getAtPath } from './fieldPath';
+import { isOneOfGroup } from './flattenSectionFields';
 
 /** Most entries a one-line summary spells out before it counts the rest. */
 const MAX_SUMMARY_ENTRIES = 4;
@@ -26,12 +28,8 @@ const SUMMARY_SEPARATOR = ' · ';
 /** What a section reads as when nothing in it carries a value. */
 export const EMPTY_SECTION_SUMMARY = 'Using default values';
 
-/**
- * Field types whose value does not summarise on one line: a file is a browser
- * handle rather than text, and a script preview is read-only output.
- */
+/** A script preview is read-only output, not a value the reader chose. */
 const UNSUMMARISABLE_TYPES: ReadonlySet<PluginField['type']> = new Set([
-  'file',
   'script_preview',
 ]);
 
@@ -63,6 +61,10 @@ export function summariseFieldValue(
   }
   if (value === undefined || value === null || value === '') {
     return null;
+  }
+  // The file input itself shows the chosen name, so the summary names it too.
+  if (value instanceof File) {
+    return `${field.label}: ${value.name}`;
   }
   if (typeof value === 'boolean') {
     if (!value && !field.default) {
@@ -106,4 +108,56 @@ export function summariseSectionValues(
   }
   const shown = entries.slice(0, MAX_SUMMARY_ENTRIES).join(SUMMARY_SEPARATOR);
   return `${shown}${SUMMARY_SEPARATOR}+${entries.length - MAX_SUMMARY_ENTRIES} more`;
+}
+
+/** The branch a `one_of` group shows, resolved the way the group itself does. */
+function activeBranch(group: OneOfGroup, formValues: Record<string, unknown>) {
+  const mode = String(
+    getAtPath(formValues, group.discriminator) ??
+      group.default ??
+      group.branches[0]?.value ??
+      ''
+  );
+  return (
+    group.branches.find((branch) => branch.value === mode) ?? group.branches[0]
+  );
+}
+
+/**
+ * {@link summariseSectionValues} for a whole section read from the form's
+ * values.
+ *
+ * A `one_of` group reads as its selected mode followed by that branch's fields
+ * alone: every branch is seeded with defaults, and a collapsed section never
+ * mounts the group that would unregister the inactive ones.
+ */
+export function summariseSection(
+  section: FormSection,
+  formValues: Record<string, unknown>
+): string {
+  const fields: PluginField[] = [];
+  const values: unknown[] = [];
+  for (const item of section.fields) {
+    if (!isOneOfGroup(item)) {
+      fields.push(item);
+      values.push(getAtPath(formValues, item.name));
+      continue;
+    }
+    const branch = activeBranch(item, formValues);
+    if (!branch) {
+      continue;
+    }
+    fields.push({
+      type: 'choice',
+      name: item.discriminator,
+      label: item.label,
+      choices: item.branches.map(({ label, value }) => ({ label, value })),
+    });
+    values.push(branch.value);
+    for (const leaf of branch.fields) {
+      fields.push(leaf);
+      values.push(getAtPath(formValues, leaf.name));
+    }
+  }
+  return summariseSectionValues(fields, values);
 }

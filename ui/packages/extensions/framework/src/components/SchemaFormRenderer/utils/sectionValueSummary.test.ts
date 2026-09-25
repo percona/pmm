@@ -16,10 +16,11 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import type { PluginField } from '@pmm-extensions/api';
+import type { FormSection, PluginField } from '@pmm-extensions/api';
 import {
   EMPTY_SECTION_SUMMARY,
   summariseFieldValue,
+  summariseSection,
   summariseSectionValues,
 } from './sectionValueSummary';
 
@@ -89,19 +90,27 @@ describe('summariseFieldValue', () => {
     expect(summariseFieldValue(defaultOn, false)).toBe('Sudo: off');
   });
 
-  it.each(['file', 'script_preview'] as const)(
-    'skips the unsummarisable %s field',
-    (type) => {
-      const field = {
-        type,
-        name: 'payload',
-        label: 'Payload',
-        endpoint_url: '/preview',
-        depends_on: [],
-      } as unknown as PluginField;
-      expect(summariseFieldValue(field, 'anything')).toBeNull();
-    }
-  );
+  it('skips a script preview', () => {
+    const field = {
+      type: 'script_preview',
+      name: 'payload',
+      label: 'Payload',
+      endpoint_url: '/preview',
+      depends_on: [],
+    } as unknown as PluginField;
+    expect(summariseFieldValue(field, 'anything')).toBeNull();
+  });
+
+  it('names a selected file', () => {
+    const field = {
+      type: 'file',
+      name: 'upload',
+      label: 'Upload',
+    } as PluginField;
+    const file = new File(['x'], 'dump.sql');
+    expect(summariseFieldValue(field, file)).toBe('Upload: dump.sql');
+    expect(summariseSectionValues([field], [file])).toBe('Upload: dump.sql');
+  });
 });
 
 describe('summariseSectionValues', () => {
@@ -133,6 +142,50 @@ describe('summariseSectionValues', () => {
     }));
     expect(summariseSectionValues(many, ['1', '2', '3', '4', '5', '6'])).toBe(
       'A: 1 · B: 2 · C: 3 · D: 4 · +2 more'
+    );
+  });
+});
+
+describe('summariseSection', () => {
+  const section: FormSection = {
+    title: 'Source',
+    fields: [
+      { type: 'string', name: 'host', label: 'Host' },
+      {
+        type: 'one_of',
+        name: 'source',
+        label: 'Source',
+        discriminator: 'source.mode',
+        branches: [
+          {
+            value: 'path',
+            label: 'From path',
+            fields: [{ type: 'string', name: 'source.path', label: 'Path' }],
+          },
+          {
+            value: 'url',
+            label: 'From URL',
+            fields: [{ type: 'string', name: 'source.url', label: 'URL' }],
+          },
+        ],
+      },
+    ],
+  } as FormSection;
+
+  it('names the selected mode and only that branch', () => {
+    const values = {
+      host: 'db-1',
+      source: { mode: 'url', path: '/tmp/seeded', url: 'https://x' },
+    };
+    expect(summariseSection(section, values)).toBe(
+      'Host: db-1 · Source: From URL · URL: https://x'
+    );
+  });
+
+  it('falls back to the first branch when no mode is set', () => {
+    const values = { source: { path: '/var/log', url: 'https://x' } };
+    expect(summariseSection(section, values)).toBe(
+      'Source: From path · Path: /var/log'
     );
   });
 });

@@ -44,5 +44,6 @@ export { evaluatePredicate } from './utils/predicateEvaluator';
 export {
   EMPTY_SECTION_SUMMARY,
   summariseFieldValue,
+  summariseSection,
   summariseSectionValues,
 } from './utils/sectionValueSummary';

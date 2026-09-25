@@ -72,7 +72,7 @@ import { useCardinalityRules } from './hooks/useCardinalityRules';
 import { useFailRules } from './hooks/useFailRules';
 import { useUnsavedChangesGuard } from './hooks/useUnsavedChangesGuard';
 import { coerceFormValues } from './utils/validationMapper';
-import { summariseSectionValues } from './utils/sectionValueSummary';
+import { summariseSection } from './utils/sectionValueSummary';
 import { fieldDefault } from './utils/fieldDefault';
 import { getAtPath, setAtPath } from './utils/fieldPath';
 import {
@@ -299,18 +299,11 @@ interface SectionRendererProps {
  * summary recomputes on any keystroke in the form, which is one string join per
  * closed shell.
  */
-function SectionValueSummary({ fields }: { fields: PluginField[] }) {
+function SectionValueSummary({ section }: { section: FormSection }) {
   const all = useWatch() as Record<string, unknown>;
-  const summary = useMemo(
-    () =>
-      summariseSectionValues(
-        fields,
-        fields.map((field) => getAtPath(all, field.name))
-      ),
-    [all, fields]
-  );
+  const summary = useMemo(() => summariseSection(section, all), [all, section]);
 
-  if (fields.length === 0) {
+  if (section.fields.length === 0) {
     return null;
   }
 
@@ -344,13 +337,6 @@ const SectionRenderer = memo(function SectionRenderer({
       setExpanded(true);
     }
   }, [forceExpanded]);
-
-  // Flattened once here rather than per render of the summary: the shell keeps
-  // rendering while the reader types in a sibling section.
-  const summaryFields = useMemo(
-    () => flattenSectionFields([section]),
-    [section]
-  );
 
   // Mark the odd optional field out in a section that is otherwise required —
   // the absence of an asterisk is easy to miss when every neighbour has one.
@@ -445,7 +431,7 @@ const SectionRenderer = memo(function SectionRenderer({
                 staler copy of the fields right below it.
               */}
               {showValueSummary && !expanded && (
-                <SectionValueSummary fields={summaryFields} />
+                <SectionValueSummary section={section} />
               )}
             </Box>
           </AccordionSummary>
