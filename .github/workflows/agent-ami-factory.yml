@@ -1,0 +1,613 @@
+# pmm Jenkins agent AMI factory.
+# Bakes the two pmm-worker-3 agent AMIs (amd64, arm64) from build/packer with
+# Packer over AWS Session Manager, authenticated through GitHub OIDC (no static
+# keys), boot-tests each candidate, and promotes the pair by tag so the Docker
+# Farm cloud on pmm.cd and the pmm-staging pipelines pick it up on their next
+# launch. Two IAM roles: the bake role can create and delete candidates but
+# never write a live tag, the promote role can only retag inside a family and
+# trusts nothing but the two GitHub environments, so the environment gate is
+# enforced by IAM as well as by GitHub.
+#
+# Triggers: pull_request validates only (no AWS). A push to main on the recipe
+# paths bakes and promotes env=test, an unattended check of the merged recipe
+# (test tags are never selected by a consumer). The weekly schedule bakes prod
+# and its promote job waits for the pmm-agent-ami-factory-prod reviewers.
+# workflow_dispatch picks env=prod or env=test. Concurrency is per job, so a
+# promotion waiting for approval never blocks the next bake.
+# Actions are pinned to commit SHAs; the trailing comment records the tag.
+# The repository's Actions allowlist admits only percona-owned and GitHub-owned
+# actions plus a fixed list, so Packer is installed from the HashiCorp release
+# zip against a pinned SHA-256 and the OIDC role is assumed with the AWS CLI
+# (aws sts assume-role-with-web-identity), no third-party actions.
+
+name: agent-ami-factory
+run-name: agent AMI factory (${{ github.event.inputs.env || (github.event_name == 'push' && 'test') || 'prod' }}, ${{ github.event_name }})
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: 'prod (candidates may become the live pair) or test (isolated tag family, never consumed)'
+        required: false
+        default: 'prod'
+        type: choice
+        options: [prod, test]
+  push:
+    branches: [main]
+    paths:
+      - 'build/packer/aws.pkr.hcl'
+      - 'build/packer/smoke/**'
+      - 'build/packer/scripts/**'
+      - 'build/packer/ansible/agent-aws.yml'
+      - 'build/packer/ansible/requirements.yml'
+      - 'build/packer/ansible/files/**'
+      - '.github/workflows/agent-ami-factory.yml'
+  pull_request:
+    paths:
+      - 'build/packer/**'
+      - '.github/workflows/agent-ami-factory.yml'
+  schedule:
+    - cron: '0 5 * * 1'  # weekly Monday 05:00 UTC, absorbs AlmaLinux errata and tool updates
+
+permissions:
+  contents: read  # workflow-level default, read-only
+
+env:
+  AWS_REGION: us-east-2
+  FACTORY_ENV: ${{ github.event.inputs.env || (github.event_name == 'push' && 'test') || 'prod' }}
+  PACKER_VERSION: '1.15.4'
+  PACKER_SHA256: '15f97a6a99645c7d5308c609973b5280837b38e112beac413ccbce80da927cf1'  # packer_1.15.4_linux_amd64.zip, releases.hashicorp.com SHA256SUMS
+  ANSIBLE_CORE_VERSION: '2.20.9'
+  SMP_VERSION: '1.2.835.0'
+  SMP_SHA256: '7c6dcad12518571cc7959a713e6a8ae1bdf6ed66fd9bee37dc189e39ca58ae03'  # ubuntu_64bit session-manager-plugin.deb for SMP_VERSION
+  # Role ARNs come from repository secrets (this is a public repo, no account
+  # id in the tree) and are exposed only to the job that assumes them. Both
+  # roles are defined in percona-cd-platform
+  # terraform/iam-gha-pmm-agent-ami-factory.tf and their ARNs are Terraform
+  # outputs. The bake and promote jobs fail closed when a secret is missing.
+
+jobs:
+  # No-AWS gate. A malformed template or playbook fails here before any EC2
+  # spend. No id-token, so this job can never assume a factory role.
+  check:
+    name: Validate templates and playbook (no AWS)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Packer (pinned version, verified checksum)
+        run: |
+          set -euo pipefail
+          curl -fsSL -o /tmp/packer.zip "https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip"
+          echo "${PACKER_SHA256}  /tmp/packer.zip" | sha256sum -c -
+          sudo unzip -o -q /tmp/packer.zip packer -d /usr/local/bin
+          packer version
+
+      # The runner image ships its own ansible-core under a root-owned pipx home,
+      # so the pinned version lives in a private venv that leads PATH for the
+      # following steps.
+      - name: Install ansible-core (pinned)
+        run: |
+          set -euo pipefail
+          python3 -m venv "${RUNNER_TEMP}/ansible"
+          "${RUNNER_TEMP}/ansible/bin/pip" install --quiet "ansible-core==${ANSIBLE_CORE_VERSION}"
+          "${RUNNER_TEMP}/ansible/bin/ansible-playbook" --version | head -1 | grep -F "core ${ANSIBLE_CORE_VERSION}"
+          echo "${RUNNER_TEMP}/ansible/bin" >> "${GITHUB_PATH}"
+
+      - name: fmt-check, validate, playbook syntax
+        working-directory: build/packer
+        env:
+          PACKER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # packer init against the GitHub API from a shared runner IP
+        run: bash scripts/check.sh
+
+  bake:
+    name: bake + smoke ${{ matrix.arch }}
+    needs: check
+    if: github.event_name != 'pull_request'  # PRs run the no-AWS check only
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      id-token: write  # OIDC token for the bake role
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64]
+    # One bake per architecture at a time. A promotion waiting for approval
+    # holds its own group, not this one.
+    concurrency:
+      group: agent-ami-factory-bake-${{ matrix.arch }}
+      cancel-in-progress: false
+    env:
+      # Per-lane identity: both lanes share github.run_id, so the cleanup that
+      # terminates "this run's" instances must not see the other lane's builder.
+      LANE_ID: ${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.arch }}
+      ARCH: ${{ matrix.arch }}
+      BAKE_ROLE_ARN: ${{ secrets.PMM_AGENT_AMI_BAKE_ROLE_ARN }}
+    steps:
+      - name: Refuse to bake from a branch other than main
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "the bake role trusts only main, dispatch this workflow from main (ref: ${GITHUB_REF})"
+          exit 1
+
+      - name: Require the bake role secret
+        run: |
+          [[ -n "${BAKE_ROLE_ARN}" ]] || { echo "repository secret PMM_AGENT_AMI_BAKE_ROLE_ARN is not set (value: the pmm_agent_ami_bake_oidc_role_arn output of percona-cd-platform)"; exit 1; }
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      # OIDC without a third-party action: request the GitHub token for the STS
+      # audience, exchange it for 2 h of bake-role credentials (the job may run
+      # 90 min), mask them and export them for the following steps.
+      - name: Assume the bake role (OIDC)
+        id: assume
+        run: |
+          set -euo pipefail
+          id_token=$(curl -sSf -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" | jq -er '.value')
+          echo "::add-mask::${id_token}"
+          read -r access_key secret_key session_token < <(aws sts assume-role-with-web-identity \
+            --role-arn "${BAKE_ROLE_ARN}" \
+            --role-session-name "pmm-agent-ami-factory-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${ARCH}" \
+            --web-identity-token "${id_token}" --duration-seconds 7200 \
+            --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' --output text)
+          unset id_token
+
+          for secret in "${access_key}" "${secret_key}" "${session_token}"; do
+            echo "::add-mask::${secret}"
+          done
+
+          {
+            echo "AWS_ACCESS_KEY_ID=${access_key}"
+            echo "AWS_SECRET_ACCESS_KEY=${secret_key}"
+            echo "AWS_SESSION_TOKEN=${session_token}"
+            echo "AWS_DEFAULT_REGION=${AWS_REGION}"
+          } >> "${GITHUB_ENV}"
+          # The logs of this public repository must not carry the account id, and
+          # every ARN an IAM denial prints contains it, so mask it for the whole job.
+          account_id=$(AWS_ACCESS_KEY_ID="${access_key}" AWS_SECRET_ACCESS_KEY="${secret_key}" AWS_SESSION_TOKEN="${session_token}" \
+            aws sts get-caller-identity --query Account --output text --region "${AWS_REGION}")
+          echo "::add-mask::${account_id}"
+          echo "assumed the bake role in ${AWS_REGION}"
+
+      - name: Install Session Manager plugin (pinned version, verified checksum)
+        run: |
+          set -euo pipefail
+          curl -fsSL -o /tmp/smp.deb "https://s3.amazonaws.com/session-manager-downloads/plugin/${SMP_VERSION}/ubuntu_64bit/session-manager-plugin.deb"
+          echo "${SMP_SHA256}  /tmp/smp.deb" | sha256sum -c -
+          sudo dpkg -i /tmp/smp.deb
+          session-manager-plugin --version
+
+      - name: Install Packer (pinned version, verified checksum)
+        run: |
+          set -euo pipefail
+          curl -fsSL -o /tmp/packer.zip "https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip"
+          echo "${PACKER_SHA256}  /tmp/packer.zip" | sha256sum -c -
+          sudo unzip -o -q /tmp/packer.zip packer -d /usr/local/bin
+          packer version
+
+      - name: Packer init
+        working-directory: build/packer
+        env:
+          PACKER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          packer init aws.pkr.hcl
+          packer init smoke/smoke.pkr.hcl
+
+      # Candidates that never promoted (smoke failed, promote never ran) and
+      # AMIs still carrying the factory tag (a bake died before Packer tagged
+      # them) accumulate 60 GiB snapshots each. The bake role may delete
+      # exactly those two classes, never live or previous images. Builders and
+      # key pairs of any lane that a lost runner left behind go here too: the
+      # account reaper treats a category billing tag as an exemption, a bake
+      # finishes within 90 minutes, so anything older than three hours is stale.
+      - name: Janitor, stale candidates, incomplete bakes and orphaned builders
+        run: |
+          set -euo pipefail
+          aws_arch=x86_64
+          if [[ "${ARCH}" == arm64 ]]; then
+            aws_arch=arm64
+          fi
+          candidate_tag=pmm-worker-3-candidate
+          if [[ "${FACTORY_ENV}" == test ]]; then
+            candidate_tag=pmm-worker-3-test-candidate
+          fi
+
+          stale_cutoff=$(date -u -d '-3 hours' +%Y-%m-%dT%H:%M:%SZ)
+          orphans=$(aws ec2 describe-instances --region "${AWS_REGION}" \
+            --filters "Name=tag:iit-billing-tag,Values=pmm-agent-ami-factory" \
+                      "Name=instance-state-name,Values=pending,running,stopping,stopped" \
+            --query "Reservations[].Instances[?LaunchTime<'${stale_cutoff}'].InstanceId" --output text)
+          if [[ -n "${orphans}" ]]; then
+            echo "terminating orphaned factory instances: ${orphans}"
+            # shellcheck disable=SC2086  # word-split the id list on purpose
+            aws ec2 terminate-instances --region "${AWS_REGION}" --instance-ids ${orphans} >/dev/null
+          fi
+          for orphan_key in $(aws ec2 describe-key-pairs --region "${AWS_REGION}" \
+              --filters "Name=tag:iit-billing-tag,Values=pmm-agent-ami-factory" \
+              --query "KeyPairs[?CreateTime<'${stale_cutoff}'].KeyName" --output text); do
+            echo "deleting orphaned key pair ${orphan_key}"
+            aws ec2 delete-key-pair --region "${AWS_REGION}" --key-name "${orphan_key}" >/dev/null
+          done
+
+          stale_images() {
+            local tag_value=$1 max_age_days=$2 cutoff
+            cutoff=$(date -u -d "-${max_age_days} days" +%Y-%m-%dT%H:%M:%SZ)
+            aws ec2 describe-images --region "${AWS_REGION}" --owners self \
+              --filters "Name=tag:iit-billing-tag,Values=${tag_value}" "Name=architecture,Values=${aws_arch}" \
+              --query "Images[?CreationDate<'${cutoff}'].ImageId" --output text
+          }
+
+          # A test run promotes its pair into the test family, which no consumer
+          # reads and nothing else prunes, so it ages out here too.
+          stale_test=""
+          if [[ "${FACTORY_ENV}" == test ]]; then
+            stale_test="$(stale_images pmm-worker-3-test 7) $(stale_images pmm-worker-3-test-previous 7)"
+          fi
+
+          # DeregisterImage reports each snapshot deletion separately inside a
+          # successful response, and a snapshot that survives its image can never
+          # be found through the image again, so every result is checked.
+          leaked=""
+          for stale_ami in $(stale_images "${candidate_tag}" 7) $(stale_images pmm-agent-ami-factory 1) ${stale_test}; do
+            echo "deregistering stale ${stale_ami}"
+            # shellcheck disable=SC2016  # JMESPath literals use backticks, nothing expands
+            failed_snapshots=$(aws ec2 deregister-image --region "${AWS_REGION}" --image-id "${stale_ami}" --delete-associated-snapshots \
+              --query 'DeleteSnapshotResults[?ReturnCode!=`success` && ReturnCode!=`skipped`].[SnapshotId,ReturnCode]' --output text)
+            if [[ -n "${failed_snapshots}" ]]; then
+              echo "snapshot deletion failed for ${stale_ami}: ${failed_snapshots}"
+              leaked="${leaked} ${stale_ami}"
+            fi
+          done
+          [[ -z "${leaked}" ]] || { echo "snapshots leaked from:${leaked}"; exit 1; }
+
+      - name: Build candidate (${{ matrix.arch }}, env=${{ env.FACTORY_ENV }})
+        id: build
+        working-directory: build/packer
+        run: |
+          set -euo pipefail
+          rm -f manifest.json
+          packer build -color=false \
+            -only="jenkins-farm.amazon-ebs.${ARCH}-agent" \
+            -var "env=${FACTORY_ENV}" \
+            -var "factory_run=${LANE_ID}" \
+            -var "region=${AWS_REGION}" \
+            -var "ansible_core_version=${ANSIBLE_CORE_VERSION}" \
+            aws.pkr.hcl
+
+          [[ -s manifest.json ]] || { echo "manifest.json missing or empty after build"; exit 1; }
+          candidate_ami=$(jq -er '.builds[-1].artifact_id | split(":")[1]' manifest.json)
+          [[ "${candidate_ami}" == ami-* ]] || { echo "no AMI id in manifest: ${candidate_ami}"; exit 1; }
+          echo "ami=${candidate_ami}" >> "${GITHUB_OUTPUT}"
+          echo "${candidate_ami}" > "candidate-${ARCH}.txt"
+          {
+            echo "### ${ARCH}"
+            echo "- candidate: ${candidate_ami}"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      # A smoke failure keeps the candidate (tagged role=smoke-failed) instead
+      # of deleting a 40-minute bake: a capacity refusal or an SSM timeout is
+      # not evidence against the image. The janitor above removes it after a
+      # week if nobody looks at it.
+      - name: Smoke test (fresh boot of the candidate)
+        working-directory: build/packer
+        env:
+          CANDIDATE_AMI: ${{ steps.build.outputs.ami }}
+        run: |
+          set -euo pipefail
+          aws_arch=x86_64
+          if [[ "${ARCH}" == arm64 ]]; then
+            aws_arch=arm64
+          fi
+
+          candidate_tag=pmm-worker-3-candidate
+          if [[ "${FACTORY_ENV}" == test ]]; then
+            candidate_tag=pmm-worker-3-test-candidate
+          fi
+
+          if ( cd smoke && packer build -color=false \
+                -var "candidate_ami=${CANDIDATE_AMI}" -var "arch=${aws_arch}" -var "env=${FACTORY_ENV}" \
+                -var "factory_run=${LANE_ID}" -var "region=${AWS_REGION}" smoke.pkr.hcl ); then
+            echo "- smoke: pass" >> "${GITHUB_STEP_SUMMARY}"
+          else
+            # The bake policy allows a tag write on a candidate only when the
+            # request carries the candidate billing tag, so it is re-asserted here.
+            if aws ec2 create-tags --region "${AWS_REGION}" --resources "${CANDIDATE_AMI}" \
+                 --tags "Key=iit-billing-tag,Value=${candidate_tag}" Key=role,Value=smoke-failed; then
+              echo "- smoke: FAIL (${CANDIDATE_AMI} kept as candidate, tagged role=smoke-failed)" >> "${GITHUB_STEP_SUMMARY}"
+            else
+              echo "- smoke: FAIL (${CANDIDATE_AMI} kept as candidate, tagging it role=smoke-failed FAILED)" >> "${GITHUB_STEP_SUMMARY}"
+            fi
+            exit 1
+          fi
+
+      - name: Upload candidate id
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: candidate-${{ matrix.arch }}
+          path: build/packer/candidate-${{ matrix.arch }}.txt
+          if-no-files-found: error
+          retention-days: 14
+          overwrite: true  # re-running all jobs reuses github.run_id
+
+      - name: Console output of this lane's instances (diagnostics)
+        if: failure() && steps.assume.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          lane_instances=$(aws ec2 describe-instances --region "${AWS_REGION}" \
+            --filters "Name=tag:iit-billing-tag,Values=pmm-agent-ami-factory" "Name=tag:factory_run,Values=${LANE_ID}" \
+            --query 'Reservations[].Instances[].InstanceId' --output text)
+
+          for instance_id in ${lane_instances}; do
+            echo "===== console output ${instance_id} ====="
+            aws ec2 get-console-output --region "${AWS_REGION}" --instance-id "${instance_id}" --latest --output text --query Output | tail -80 || echo "no console output for ${instance_id}"
+          done
+
+      # Best-effort: a transient API error here must not fail a lane whose
+      # candidate already passed smoke. The janitor of the next bake sweeps
+      # anything this step misses.
+      - name: Terminate leftover factory instances and key pair of this lane
+        if: always() && steps.assume.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          lane_instances=$(aws ec2 describe-instances --region "${AWS_REGION}" \
+            --filters "Name=tag:iit-billing-tag,Values=pmm-agent-ami-factory" "Name=tag:factory_run,Values=${LANE_ID}" \
+                      "Name=instance-state-name,Values=pending,running,stopping,stopped" \
+            --query 'Reservations[].Instances[].InstanceId' --output text)
+
+          if [[ -n "${lane_instances}" ]]; then
+            echo "terminating leftover factory instances: ${lane_instances}"
+            # shellcheck disable=SC2086  # word-split the id list on purpose
+            aws ec2 terminate-instances --region "${AWS_REGION}" --instance-ids ${lane_instances} >/dev/null
+          else
+            echo "no leftover factory instances"
+          fi
+
+          # Packer deletes its temporary key pair on a normal exit but not when
+          # it is killed, for instance by a cancelled run, so the lane's own key
+          # pair goes here too.
+          lane_keys=$(aws ec2 describe-key-pairs --region "${AWS_REGION}" \
+            --filters "Name=tag:factory_run,Values=${LANE_ID}" \
+            --query 'KeyPairs[].KeyName' --output text)
+
+          for lane_key in ${lane_keys}; do
+            echo "deleting leftover key pair ${lane_key}"
+            aws ec2 delete-key-pair --region "${AWS_REGION}" --key-name "${lane_key}" >/dev/null
+          done
+
+  # One promotion for both architectures, only when both candidates passed
+  # smoke, under a GitHub environment (repo admins configure required
+  # reviewers on the prod one) and with the promote role, which trusts only the
+  # environment subjects. Validate everything read-only first, then promote
+  # (candidate live), verify, then demote the predecessors: at no point is an
+  # architecture left without a live image, and a stale candidate never wins.
+  promote:
+    name: promote pair (env=${{ github.event.inputs.env || (github.event_name == 'push' && 'test') || 'prod' }})
+    needs: bake
+    if: github.event_name != 'pull_request' && needs.bake.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: pmm-agent-ami-factory-${{ github.event.inputs.env || (github.event_name == 'push' && 'test') || 'prod' }}
+    # A promotion waiting for approval holds only this group.
+    concurrency:
+      group: agent-ami-factory-promote
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write  # OIDC token for the promote role
+    env:
+      PROMOTE_ROLE_ARN: ${{ secrets.PMM_AGENT_AMI_PROMOTE_ROLE_ARN }}
+    steps:
+      # The environment subject carries no ref, so both environments restrict
+      # deployments to main. This step is the same guard in the workflow itself.
+      - name: Refuse to promote from a branch other than main
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "promotion runs only from main (ref: ${GITHUB_REF})"
+          exit 1
+
+      - name: Require the promote role secret
+        run: |
+          [[ -n "${PROMOTE_ROLE_ARN}" ]] || { echo "repository secret PMM_AGENT_AMI_PROMOTE_ROLE_ARN is not set (value: the pmm_agent_ami_promote_oidc_role_arn output of percona-cd-platform)"; exit 1; }
+
+      - name: Assume the promote role (OIDC)
+        run: |
+          set -euo pipefail
+          id_token=$(curl -sSf -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" | jq -er '.value')
+          echo "::add-mask::${id_token}"
+          read -r access_key secret_key session_token < <(aws sts assume-role-with-web-identity \
+            --role-arn "${PROMOTE_ROLE_ARN}" \
+            --role-session-name "pmm-agent-ami-factory-promote-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
+            --web-identity-token "${id_token}" --duration-seconds 3600 \
+            --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' --output text)
+          unset id_token
+
+          for secret in "${access_key}" "${secret_key}" "${session_token}"; do
+            echo "::add-mask::${secret}"
+          done
+
+          {
+            echo "AWS_ACCESS_KEY_ID=${access_key}"
+            echo "AWS_SECRET_ACCESS_KEY=${secret_key}"
+            echo "AWS_SESSION_TOKEN=${session_token}"
+            echo "AWS_DEFAULT_REGION=${AWS_REGION}"
+          } >> "${GITHUB_ENV}"
+          account_id=$(AWS_ACCESS_KEY_ID="${access_key}" AWS_SECRET_ACCESS_KEY="${secret_key}" AWS_SESSION_TOKEN="${session_token}" \
+            aws sts get-caller-identity --query Account --output text --region "${AWS_REGION}")
+          echo "::add-mask::${account_id}"
+          echo "assumed the promote role in ${AWS_REGION}"
+
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7
+        with:
+          pattern: candidate-*
+          merge-multiple: true
+          path: candidates
+
+      - name: Promote both candidates by tag
+        run: |
+          set -euo pipefail
+          live_tag=pmm-worker-3
+          previous_tag=pmm-worker-3-previous
+          if [[ "${FACTORY_ENV}" == test ]]; then
+            live_tag=pmm-worker-3-test
+            previous_tag=pmm-worker-3-test-previous
+          fi
+
+          images_with() {
+            local tag_value=$1 aws_arch=$2
+            aws ec2 describe-images --region "${AWS_REGION}" --owners self \
+              --filters "Name=tag:iit-billing-tag,Values=${tag_value}" "Name=architecture,Values=${aws_arch}" \
+              --query 'Images[].ImageId' --output text
+          }
+
+          newest_image_with() {
+            local tag_value=$1 aws_arch=$2
+            aws ec2 describe-images --region "${AWS_REGION}" --owners self \
+              --filters "Name=tag:iit-billing-tag,Values=${tag_value}" "Name=architecture,Values=${aws_arch}" \
+              --query 'sort_by(Images,&CreationDate)[-1].ImageId' --output text
+          }
+
+          snapshots_of() {
+            aws ec2 describe-images --region "${AWS_REGION}" --image-ids "$1" \
+              --query 'Images[0].BlockDeviceMappings[].Ebs.SnapshotId' --output text
+          }
+
+          creation_date_of() {
+            aws ec2 describe-images --region "${AWS_REGION}" --image-ids "$1" --query 'Images[0].CreationDate' --output text
+          }
+
+          # Every mutating call is retried. None of them deletes anything, so a
+          # retry is safe, and one transient error must not leave two live images.
+          retry() {
+            local attempt
+            for attempt in 1 2 3 4 5; do
+              if "$@"; then
+                return 0
+              fi
+              sleep $((attempt * 5))
+            done
+            echo "failed after retries: $*"
+            return 1
+          }
+
+          tag_resources() {
+            local tag_value=$1 role_value=$2
+            shift 2
+            retry aws ec2 create-tags --region "${AWS_REGION}" --resources "$@" \
+              --tags "Key=iit-billing-tag,Value=${tag_value}" "Key=role,Value=${role_value}"
+          }
+
+          # Tag reads are eventually consistent: give a read up to 60 s to agree.
+          wait_until_newest_live() {
+            local expected=$1 aws_arch=$2 attempt
+
+            for attempt in $(seq 1 12); do
+              if [[ "$(newest_image_with "${live_tag}" "${aws_arch}")" == "${expected}" ]]; then
+                return 0
+              fi
+              sleep 5
+            done
+
+            echo "timed out: newest live ${aws_arch} image is not ${expected}"
+            return 1
+          }
+
+          wait_until_one_live() {
+            local aws_arch=$1 attempt live_count
+
+            for attempt in $(seq 1 12); do
+              live_count=$(images_with "${live_tag}" "${aws_arch}" | wc -w)
+              if [[ "${live_count}" == 1 ]]; then
+                return 0
+              fi
+              sleep 5
+            done
+
+            echo "timed out: expected exactly one live ${aws_arch} image, found ${live_count}"
+            return 1
+          }
+
+          declare -A candidate
+          for arch in amd64 arm64; do
+            aws_arch=x86_64
+            if [[ "${arch}" == arm64 ]]; then
+              aws_arch=arm64
+            fi
+            candidate_ami=$(tr -d '[:space:]' < "candidates/candidate-${arch}.txt")
+            [[ "${candidate_ami}" == ami-* ]] || { echo "bad candidate id for ${arch}: '${candidate_ami}'"; exit 1; }
+
+            image_state=$(aws ec2 describe-images --region "${AWS_REGION}" --image-ids "${candidate_ami}" --query 'Images[0].State' --output text)
+            [[ "${image_state}" == available ]] || { echo "${candidate_ami} is ${image_state}, not available"; exit 1; }
+
+            # Read-only validation: the candidate must be newer than every current live image of this arch.
+            candidate_date=$(creation_date_of "${candidate_ami}")
+            for live_ami in $(images_with "${live_tag}" "${aws_arch}"); do
+              if [[ "${live_ami}" == "${candidate_ami}" ]]; then
+                continue
+              fi
+              if [[ ! "$(creation_date_of "${live_ami}")" < "${candidate_date}" ]]; then
+                echo "live ${live_ami} is not older than candidate ${candidate_ami}, refusing to promote a stale candidate"
+                exit 1
+              fi
+            done
+            candidate[${arch}]=${candidate_ami}
+          done
+
+          for arch in amd64 arm64; do
+            aws_arch=x86_64
+            if [[ "${arch}" == arm64 ]]; then
+              aws_arch=arm64
+            fi
+            candidate_ami=${candidate[${arch}]}
+            predecessors=$(images_with "${live_tag}" "${aws_arch}" | tr '\t' '\n' | grep -v "^${candidate_ami}$" || true)
+            predecessor_count=$(echo "${predecessors}" | wc -w)
+            echo "promoting ${arch}: candidate ${candidate_ami}, predecessors: ${predecessors:-none}"
+            # The billing tag is a cost-allocation tag anything in the account may
+            # carry, so a demotion that would touch more than the expected pair
+            # (one live image, at most one leftover of a half-finished run) stops here.
+            [[ "${predecessor_count}" -le 2 ]] || { echo "refusing to demote ${predecessor_count} ${aws_arch} images tagged ${live_tag}"; exit 1; }
+
+            # 1. Promote: the image first, then its snapshots (both idempotent).
+            tag_resources "${live_tag}" live "${candidate_ami}"
+            # shellcheck disable=SC2046  # snapshot ids are a space-separated list on purpose
+            tag_resources "${live_tag}" live $(snapshots_of "${candidate_ami}")
+            retry aws ec2 disable-image-deprecation --region "${AWS_REGION}" --image-id "${candidate_ami}" >/dev/null
+
+            # 2. Verify: the consumers' own query returns the candidate as the newest live image.
+            wait_until_newest_live "${candidate_ami}" "${aws_arch}"
+
+            # 3. Demote every other live image of this arch (image, then snapshots), deprecate in 30 days.
+            for predecessor in ${predecessors}; do
+              tag_resources "${previous_tag}" previous "${predecessor}"
+              # shellcheck disable=SC2046  # snapshot ids are a space-separated list on purpose
+              tag_resources "${previous_tag}" previous $(snapshots_of "${predecessor}")
+              retry aws ec2 enable-image-deprecation --region "${AWS_REGION}" --image-id "${predecessor}" \
+                --deprecate-at "$(date -u -d '+30 days' +%Y-%m-%dT%H:%M:%SZ)" >/dev/null
+              echo "demoted ${predecessor} -> ${previous_tag}"
+            done
+
+            # 4. Reconcile the newest previous image of this arch (a half-finished earlier
+            # run may have left its snapshots untagged). Best-effort: the promote role may
+            # not tag a snapshot outside the two families, and the pair is already live.
+            newest_previous=$(newest_image_with "${previous_tag}" "${aws_arch}")
+            if [[ "${newest_previous}" == ami-* ]]; then
+              # shellcheck disable=SC2046  # snapshot ids are a space-separated list on purpose
+              tag_resources "${previous_tag}" previous $(snapshots_of "${newest_previous}") \
+                || echo "could not reconcile the snapshots of ${newest_previous}, continuing"
+            fi
+
+            # 5. Exactly one live image per architecture (the staging pipelines take Images[0] unsorted).
+            wait_until_one_live "${aws_arch}"
+            echo "- ${arch}: ${candidate_ami} is live (${live_tag}), predecessors: ${predecessors:-none}" >> "${GITHUB_STEP_SUMMARY}"
+          done

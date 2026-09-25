@@ -43,7 +43,7 @@ func (s *HAServer) Status(_ context.Context, _ *hav1beta1.StatusRequest) (*hav1b
 	if s.service.params.Enabled {
 		status = "Enabled"
 	}
-	return &hav1beta1.StatusResponse{Status: status}, nil
+	return &hav1beta1.StatusResponse{Status: status, Namespace: s.service.params.Namespace}, nil
 }
 
 // ListNodes returns a list of all nodes in the High Availability cluster.

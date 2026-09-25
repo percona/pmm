@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
@@ -334,6 +335,13 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 
 			warns = append(warns, "unknown environment variable "+env)
 		}
+	}
+
+	// Nomad needs the public address to build the URL agents connect back to. Only the
+	// environment is visible here, so this also warns when the address is set in Settings.
+	if pointer.Get(envSettings.EnableNomad) && pointer.Get(envSettings.PMMPublicAddress) == "" {
+		warns = append(warns, "PMM_ENABLE_NOMAD is set but PMM_PUBLIC_ADDRESS is not; "+
+			"Nomad will not start unless a public address is configured in PMM settings")
 	}
 
 	return envSettings, errs, warns
