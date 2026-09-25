@@ -176,3 +176,118 @@ func TestConnectionRequestTimeoutUsesConnectionTimeoutOverhead(t *testing.T) {
 	assert.Equal(t, 3*time.Second, requestTimeout(2*time.Second).AsDuration())
 	assert.Equal(t, 11*time.Second, requestTimeout(10*time.Second).AsDuration())
 }
+
+// valkeyTLSRequestFixture holds a sqlmock-backed querier that knows no pmm-agent, plus a
+// TLS Valkey service and exporter with skip-verify enabled, for the request builders under test.
+type valkeyTLSRequestFixture struct {
+	db      *reform.DB
+	mock    sqlmock.Sqlmock
+	service *models.Service
+	agent   *models.Agent
+}
+
+func newValkeyTLSRequestFixture(t *testing.T) valkeyTLSRequestFixture {
+	t.Helper()
+
+	sqlDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		_ = mock.ExpectClose()
+		assert.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE .+ LIMIT 1`).
+		WithArgs("pmm-agent-id").
+		WillReturnError(reform.ErrNoRows)
+
+	return valkeyTLSRequestFixture{
+		db:   db,
+		mock: mock,
+		service: &models.Service{
+			ServiceType: models.ValkeyServiceType,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(6379)),
+		},
+		agent: &models.Agent{
+			AgentType:     models.ValkeyExporterType,
+			PMMAgentID:    new("pmm-agent-id"),
+			Username:      new("pmm-agent"),
+			Password:      new("password"),
+			TLS:           true,
+			TLSSkipVerify: true,
+			ValkeyOptions: models.ValkeyOptions{SSLCa: "ca-pem"},
+		},
+	}
+}
+
+func TestConnectionRequestValkeyForwardsTLSSettings(t *testing.T) {
+	t.Parallel()
+	f := newValkeyTLSRequestFixture(t)
+
+	request, err := connectionRequest(f.db.Querier, f.service, f.agent)
+	require.NoError(t, err)
+
+	assert.True(t, request.Tls)
+	assert.True(t, request.TlsSkipVerify)
+	assert.Contains(t, request.Dsn, "rediss://")
+	assert.Equal(t, map[string]string{"tlsCa": "ca-pem"}, request.TextFiles.Files)
+	require.NoError(t, f.mock.ExpectationsWereMet())
+}
+
+// Skip-verify is the one setting that has to survive with no TLS material at all, since
+// that is exactly the self-signed case it exists for.
+func TestConnectionRequestValkeyForwardsSkipVerifyWithoutCertificates(t *testing.T) {
+	t.Parallel()
+	f := newValkeyTLSRequestFixture(t)
+	f.agent.ValkeyOptions = models.ValkeyOptions{}
+
+	request, err := connectionRequest(f.db.Querier, f.service, f.agent)
+	require.NoError(t, err)
+
+	assert.True(t, request.Tls)
+	assert.True(t, request.TlsSkipVerify)
+	assert.Empty(t, request.TextFiles.GetFiles())
+	require.NoError(t, f.mock.ExpectationsWereMet())
+}
+
+// The check has to authenticate the same way the exporter will, so a row holding half a pair
+// reaches pmm-agent with the certificate authority alone rather than with material it cannot use.
+func TestConnectionRequestValkeyShipsIncompleteKeyPairAsCertificateAuthorityOnly(t *testing.T) {
+	t.Parallel()
+
+	for name, options := range map[string]models.ValkeyOptions{
+		"cert without key": {SSLCa: "ca-pem", SSLCert: "cert-pem"},
+		"key without cert": {SSLCa: "ca-pem", SSLKey: "key-pem"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			f := newValkeyTLSRequestFixture(t)
+			f.agent.ValkeyOptions = options
+
+			request, err := connectionRequest(f.db.Querier, f.service, f.agent)
+			require.NoError(t, err)
+
+			assert.Equal(t, map[string]string{"tlsCa": "ca-pem"}, request.TextFiles.Files)
+			require.NoError(t, f.mock.ExpectationsWereMet())
+		})
+	}
+}
+
+// Certificates supplied without TLS are ignored rather than applied, and the check must agree
+// with the exporter on that or it would pass against a link the exporter cannot reproduce.
+func TestConnectionRequestValkeyIgnoresCertificatesWithoutTLS(t *testing.T) {
+	t.Parallel()
+	f := newValkeyTLSRequestFixture(t)
+	f.agent.TLS = false
+	f.agent.ValkeyOptions = models.ValkeyOptions{SSLCa: "ca-pem", SSLCert: "cert-pem", SSLKey: "key-pem"}
+
+	request, err := connectionRequest(f.db.Querier, f.service, f.agent)
+	require.NoError(t, err)
+
+	assert.False(t, request.Tls)
+	assert.Contains(t, request.Dsn, "redis://")
+	assert.NotContains(t, request.Dsn, "rediss://")
+	assert.Empty(t, request.TextFiles.GetFiles())
+	require.NoError(t, f.mock.ExpectationsWereMet())
+}
