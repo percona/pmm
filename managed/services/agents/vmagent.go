@@ -31,56 +31,110 @@ var (
 	maxScrapeSizeDefault = "64MiB"
 )
 
-// extractCredentialsFromURL extracts username and password from a URL string.
-// Returns empty strings if no credentials are found or if there's an error parsing the URL.
-func extractCredentialsFromURL(urlStr string) (string, string) {
+// splitURLCredentials strips credentials from a URL string and returns the clean URL
+// together with the extracted username and password (URL-decoded).
+// When no credentials are present, the URL is returned unchanged
+// with empty credentials.
+func splitURLCredentials(urlStr string) (string, string, string) {
 	if urlStr == "" {
-		return "", ""
+		return urlStr, "", ""
 	}
 
 	parsedURL, err := url.Parse(urlStr)
 	if err != nil || parsedURL.User == nil {
-		return "", ""
+		return urlStr, "", ""
 	}
 
 	username := parsedURL.User.Username()
-	password := ""
-	if pwd, ok := parsedURL.User.Password(); ok {
-		password = pwd
-	}
+	password, _ := parsedURL.User.Password()
+	parsedURL.User = nil
 
-	return username, password
+	return parsedURL.String(), username, password
+}
+
+// vmAgentDeployment describes the deployment context that selects the
+// vmagent remote-write path.
+type vmAgentDeployment struct {
+	// PMM Server runs in HA (clustered) mode.
+	haEnabled bool
+	// This is PMM Server's own built-in agent.
+	isServerAgent bool
 }
 
 // vmAgentConfig returns desired configuration of vmagent process.
-func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetStateRequest_AgentProcess {
-	serverURL := "{{.server_url}}/victoriametrics/"
-	var vmUsername, vmPassword string
+func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams, deployment vmAgentDeployment) *agentv1.SetStateRequest_AgentProcess {
+	// Remote-write routing:
+	//   * server agent in HA -> direct
+	//   * external VM in standalone -> direct
+	//   * everything else -> server write-proxy
+	if (deployment.haEnabled && deployment.isServerAgent) || (params.ExternalVM() && !deployment.haEnabled) {
+		return vmAgentConfigExternalVM(scrapeCfg, params)
+	}
+	return vmAgentConfigServerProxy(scrapeCfg, deployment.haEnabled)
+}
 
-	if params.ExternalVM() {
-		serverURL = params.URL()
+// vmAgentConfigServerProxy configures the vmagent so that writes go through the PMM server's VM proxy,
+// authenticated by default with each client's own PMM server credentials.
+func vmAgentConfigServerProxy(scrapeCfg string, dropInjectedAuth bool) *agentv1.SetStateRequest_AgentProcess {
+	return buildVMAgentProcess(scrapeCfg, vmAgentSettings{
+		remoteWriteURL:   "{{.server_url}}/victoriametrics/api/v1/write",
+		dropInjectedAuth: dropInjectedAuth,
+		// Template placeholders, not secrets.
+		//nolint:gosec
+		auth: &basicAuth{username: "{{.server_username}}", password: "{{.server_password}}"},
+	})
+}
 
-		// Extract username and password from external VM URL if present
-		vmUsername, vmPassword = extractCredentialsFromURL(serverURL)
+// vmAgentConfigExternalVM prepares the vmagent configuration so that clients push directly to the external VictoriaMetrics.
+// Credentials embedded in its URL are stripped and passed as basic-auth environment variables instead.
+// Deployment-injected VMAGENT_ overrides are honored.
+func vmAgentConfigExternalVM(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetStateRequest_AgentProcess {
+	vmURL, vmUsername, vmPassword := splitURLCredentials(params.URL())
+
+	var auth *basicAuth
+	if vmUsername != "" || vmPassword != "" {
+		auth = &basicAuth{username: vmUsername, password: vmPassword}
+	}
+
+	remoteWriteURL, _ := url.JoinPath(vmURL, "api/v1/write")
+	return buildVMAgentProcess(scrapeCfg, vmAgentSettings{
+		remoteWriteURL: remoteWriteURL,
+		auth:           auth,
+	})
+}
+
+// basicAuth holds default remote-write basic-auth credentials.
+type basicAuth struct {
+	username string
+	password string
+}
+
+// vmAgentSettings captures settings that differ between deployment scenarios.
+type vmAgentSettings struct {
+	// Default for VMAGENT_remoteWrite_url, can be overridden by an injected value.
+	remoteWriteURL string
+	// Discards injected VMAGENT_remoteWrite_basicAuth_*.
+	dropInjectedAuth bool
+	// Basic-auth default, applied only if not injected.
+	auth *basicAuth
+}
+
+// buildVMAgentProcess assembles the vmagent process configuration common to all scenarios.
+func buildVMAgentProcess(scrapeCfg string, settings vmAgentSettings) *agentv1.SetStateRequest_AgentProcess {
+	interfaceToBind := envvars.GetInterfaceToBind()
+	// Only keep the specified exceptions as command line arguments
+	args := []string{
+		"-envflag.enable=true",
+		"-envflag.prefix=VMAGENT_",
+		"-remoteWrite.tmpDataPath={{.tmp_dir}}/vmagent-temp-dir",
+		"-promscrape.config={{.TextFiles.vmagentscrapecfg}}",
+		"-httpListenAddr=" + interfaceToBind + ":{{.listen_port}}",
 	}
 
 	maxScrapeSize := maxScrapeSizeDefault
 	if space := os.Getenv(maxScrapeSizeEnv); space != "" {
 		maxScrapeSize = space
 	}
-
-	interfaceToBind := envvars.GetInterfaceToBind()
-
-	// Only keep the specified exceptions as command line arguments
-	args := append([]string{
-		"-envflag.enable=true",
-		"-envflag.prefix=VMAGENT_",
-		"-remoteWrite.tmpDataPath={{.tmp_dir}}/vmagent-temp-dir",
-		"-promscrape.config={{.TextFiles.vmagentscrapecfg}}",
-		"-httpListenAddr=" + interfaceToBind + ":{{.listen_port}}",
-	}, params.VMAgentArgs()...)
-
-	sort.Strings(args)
 
 	// Move all other parameters to environment variables
 	var envs []string
@@ -96,6 +150,15 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetS
 		}
 	}
 
+	// An injected remote-write URL means the target is no longer the server proxy, so injected
+	// credentials belong with it and must not be dropped.
+	if settings.dropInjectedAuth {
+		if _, urlInjected := systemEnvs["VMAGENT_remoteWrite_url"]; !urlInjected {
+			delete(systemEnvs, "VMAGENT_remoteWrite_basicAuth_username")
+			delete(systemEnvs, "VMAGENT_remoteWrite_basicAuth_password")
+		}
+	}
+
 	// Helper function to add env var only if not already set by system
 	addEnvIfNotSet := func(key, value string) {
 		if _, exists := systemEnvs[key]; !exists {
@@ -104,23 +167,19 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetS
 	}
 
 	// Add the parameters that were previously command line arguments (only if not overridden)
-	addEnvIfNotSet("VMAGENT_remoteWrite_url", serverURL+"api/v1/write")
+	addEnvIfNotSet("VMAGENT_remoteWrite_url", settings.remoteWriteURL)
 	addEnvIfNotSet("VMAGENT_remoteWrite_tlsInsecureSkipVerify", "{{.server_insecure}}")
 	addEnvIfNotSet("VMAGENT_promscrape_maxScrapeSize", maxScrapeSize)
 	addEnvIfNotSet("VMAGENT_remoteWrite_maxDiskUsagePerURL", "1073741824") // 1GB disk queue size
 	addEnvIfNotSet("VMAGENT_loggerLevel", "INFO")
 
-	// Set authentication based on VM type
-	if params.ExternalVM() && vmUsername != "" {
-		// Use credentials from external VM URL
-		addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_username", vmUsername)
-		if vmPassword != "" {
-			addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_password", vmPassword)
+	if settings.auth != nil {
+		if settings.auth.username != "" {
+			addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_username", settings.auth.username)
 		}
-	} else if !params.ExternalVM() {
-		// Use PMM server credentials for internal VM
-		addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_username", "{{.server_username}}")
-		addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_password", "{{.server_password}}")
+		if settings.auth.password != "" {
+			addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_password", settings.auth.password)
+		}
 	}
 
 	// Add all system VMAGENT_ environment variables
@@ -129,7 +188,7 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetS
 	}
 
 	sort.Strings(envs)
-
+	sort.Strings(args)
 	res := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_VM_AGENT,
 		TemplateLeftDelim:  "{{",
