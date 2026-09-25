@@ -194,7 +194,12 @@ func (s *Settings) IsVictoriaMetricsCacheEnabled() bool {
 // VictoriaMetrics and qan-api2 take it in. Validation keeps DataRetention a whole number of
 // days, see validators.DataRetentionMultipleOf, so the truncation is a formality.
 func (s *Settings) DataRetentionDays() int {
-	return int(s.DataRetention.Hours() / 24) //nolint:mnd
+	return DurationToDays(s.DataRetention)
+}
+
+// DurationToDays returns the number of whole days in d; any part of a day left over is dropped.
+func DurationToDays(d time.Duration) int {
+	return int(d.Hours() / 24) //nolint:mnd
 }
 
 // AdvisorsRunIntervals represents intervals between Advisors checks.

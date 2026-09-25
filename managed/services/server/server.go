@@ -200,7 +200,7 @@ func (s *Server) logDataRetention(days int, fromEnv time.Duration) {
 	// this one applies whatever that row holds whenever it re-renders its configuration: on its
 	// own start, a settings change it serves, or a SIGHUP. So the value applied here can be one
 	// that another replica wrote.
-	envDays := int(fromEnv.Hours() / 24) //nolint:mnd
+	envDays := models.DurationToDays(fromEnv)
 	if fromEnv != 0 && envDays != days {
 		s.l.Warnf("Data retention: %dd, written to the shared settings by another replica; "+
 			"this replica's PMM_DATA_RETENTION is %dd. High availability is enabled, so replicas "+
