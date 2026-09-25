@@ -8,6 +8,7 @@ import { SETTINGS_MOCK } from 'api/__mocks__/settings';
 import type { HAStatus } from 'types/ha.types';
 import type { Settings as SettingsType } from 'types/settings.types';
 import { AdvancedSettingsForm } from './AdvancedSettingsForm';
+import { toFormValues, toPayload } from './AdvancedSettingsForm.utils';
 
 vi.mock('api/settings');
 vi.mock('api/ha', () => ({
@@ -202,4 +203,60 @@ describe('AdvancedSettingsForm submit with data retention in HA', () => {
       expectNoRetentionError();
     }
   );
+
+  // The field is editable until the HA status answers, so a user can type into it first. Once the
+  // lock arrives the field is disabled and cannot be changed back, so the typed value must go,
+  // and so must any error it raised, which would otherwise keep Save disabled.
+  it.each([
+    ['a valid', '45', false],
+    ['an out-of-range', '5000', true],
+  ])(
+    'drops %s retention typed before the HA lock arrives',
+    async (_, typed, invalid) => {
+      let resolveStatus: (value: { status: HAStatus }) => void = () => {};
+      getHAStatusMock.mockReturnValue(
+        new Promise((resolve) => {
+          resolveStatus = resolve;
+        })
+      );
+      renderForm(SETTINGS_MOCK);
+
+      fireEvent.change(retentionInput(), { target: { value: typed } });
+      expect(retentionInput()).toHaveValue(Number(typed));
+      await waitFor(() =>
+        expect(retentionInput()).toHaveAttribute(
+          'aria-invalid',
+          String(invalid)
+        )
+      );
+
+      resolveStatus({ status: 'Enabled' });
+      await waitFor(() => expect(retentionInput()).toBeDisabled());
+      expect(retentionInput()).toHaveValue(30);
+      expectNoRetentionError();
+
+      await submitAnotherSetting();
+
+      await waitFor(() => expect(updateSettingsMock).toHaveBeenCalled());
+      expect(updateSettingsMock.mock.calls[0][0]).not.toHaveProperty(
+        'dataRetention'
+      );
+    }
+  );
+});
+
+describe('toPayload', () => {
+  const values = { ...toFormValues(SETTINGS_MOCK), retention: '45' };
+
+  it('sends a changed retention', () => {
+    expect(toPayload(values, '30')).toHaveProperty(
+      'dataRetention',
+      `${45 * 24 * 60 * 60}s`
+    );
+  });
+
+  // The form resets a locked field, but the payload must not rely on that having happened.
+  it('leaves a changed retention out when the field is locked', () => {
+    expect(toPayload(values, '30', true)).not.toHaveProperty('dataRetention');
+  });
 });

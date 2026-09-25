@@ -48,12 +48,11 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   const { data: haStatus } = useHAStatus();
 
   // In HA retention comes from the pmm-ha chart and the server refuses a change through the
-  // settings API, so the field is disabled before a user types into it rather than after they
-  // press Save.
+  // settings API, so the field is disabled rather than failing when the user presses Save.
   const retentionLockedByHa = haStatus?.status === 'Enabled';
 
-  // Validation and the payload both key off the value loaded from the server rather than the
-  // HA lock, so they hold while the HA status is still loading or has failed to load.
+  // Validation and the payload also key off the value loaded from the server, not only the HA
+  // lock, so they hold while the HA status is still loading or has failed to load.
   const loadedRetention = toFormValues(settings).retention;
   const resolver = useMemo(
     () => zodResolver(createAdvancedSettingsSchema(loadedRetention)),
@@ -66,7 +65,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
     mode: 'onChange',
   });
 
-  const { handleSubmit, reset, watch, setValue } = methods;
+  const { handleSubmit, reset, resetField, watch, setValue } = methods;
 
   const sttEnabled = watch('stt');
   const [telemetryDialogOpen, setTelemetryDialogOpen] = useState(false);
@@ -75,19 +74,30 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
     reset(toFormValues(settings));
   }, [settings, reset]);
 
+  // The HA status can arrive after the user has typed into the field. Put the loaded value back
+  // so the disabled field shows what is in force rather than a value that is never sent.
+  useEffect(() => {
+    if (retentionLockedByHa) {
+      resetField('retention');
+    }
+  }, [retentionLockedByHa, resetField]);
+
   const onSubmit = async (values: AdvancedSettingsFormValues) => {
-    await updateSettings(toPayload(values, loadedRetention), {
-      onSuccess: () => {
-        enqueueSnackbar(Messages.service.success, { variant: 'success' });
-        reset(values);
-      },
-      onError: (error) => {
-        enqueueSnackbar(
-          error instanceof Error ? error.message : Messages.unauthorized,
-          { variant: 'error' }
-        );
-      },
-    });
+    await updateSettings(
+      toPayload(values, loadedRetention, retentionLockedByHa),
+      {
+        onSuccess: () => {
+          enqueueSnackbar(Messages.service.success, { variant: 'success' });
+          reset(values);
+        },
+        onError: (error) => {
+          enqueueSnackbar(
+            error instanceof Error ? error.message : Messages.unauthorized,
+            { variant: 'error' }
+          );
+        },
+      }
+    );
   };
 
   const m = Messages.advanced;
