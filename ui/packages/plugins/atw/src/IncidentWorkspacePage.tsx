@@ -273,13 +273,13 @@ export function IncidentWorkspacePage() {
       )}
 
       {/*
-        Two columns above `md`, decided on PMM-15511 against stacking Collect
-        over Results at the standard content width. The complaint stacking
-        answered was that Collect ran past two screen heights, which is fixed
-        at the source — script sections open collapsed and the run button is
-        pinned — and side by side is the only arrangement where a reader
-        watches a run while the form that started it is still there. Stacking
-        would put Results below the fold permanently, for every run.
+        Two columns above `md` rather than Collect stacked over Results at the
+        standard content width. The complaint stacking answered was that
+        Collect ran past two screen heights, which is fixed at the source —
+        script sections open collapsed and the run button is pinned — and side
+        by side is the only arrangement where a reader watches a run while the
+        form that started it is still there. Stacking would put Results below
+        the fold permanently, for every run.
       */}
       <Box
         sx={{

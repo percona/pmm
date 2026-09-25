@@ -182,10 +182,6 @@ export function omitCliUsageTrapFields(fields: SectionField[]): SectionField[] {
  *   slot, so a closed section submits every branch's seeded default at once;
  * - a gated field's `requires` / `forbidden` predicates are evaluated by the
  *   field's own slot, so a gate that would make it required does nothing.
- *
- * ATW snippet schemas declare neither groups nor gates today — the gated-field
- * warning below fires loudly if one appears — so in practice this is the
- * required-field rule.
  */
 function fieldForcesOpenSection(field: SectionField): boolean {
   if (field.type === 'one_of') {
@@ -375,9 +371,7 @@ export function CollectPane({
     null
   );
   // How many scripts the last batch started, set only while its confirmation
-  // is standing in for the form. Non-null is what collapses the form: a
-  // dispatch that changed nothing where the reader was looking is the whole
-  // defect this replaces (PMM-15511).
+  // is standing in for the form. Non-null is what collapses the form.
   const [dispatchedCount, setDispatchedCount] = useState<number | null>(null);
   // The selection as it stands now, for an in-flight batch to compare its own
   // against. Identity is the test: every path that changes the selection
