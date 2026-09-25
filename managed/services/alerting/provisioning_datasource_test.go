@@ -16,7 +16,6 @@
 package alerting
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 	"testing"
@@ -121,7 +120,7 @@ func TestQueryMetricsDatasourceUID(t *testing.T) {
 			WithArgs(provisionedOrgID, metricsDatasourceName).
 			WillReturnRows(sqlmock.NewRows([]string{"uid"}).AddRow("prometheus"))
 
-		uid, err := queryMetricsDatasourceUID(context.Background(), db)
+		uid, err := queryMetricsDatasourceUID(t.Context(), db)
 		require.NoError(t, err)
 		assert.Equal(t, "prometheus", uid)
 		assert.NoError(t, mock.ExpectationsWereMet())
@@ -138,7 +137,7 @@ func TestQueryMetricsDatasourceUID(t *testing.T) {
 			WithArgs(provisionedOrgID, metricsDatasourceName).
 			WillReturnRows(sqlmock.NewRows([]string{"uid"}))
 
-		_, err = queryMetricsDatasourceUID(context.Background(), db)
+		_, err = queryMetricsDatasourceUID(t.Context(), db)
 		require.ErrorIs(t, err, sql.ErrNoRows)
 	})
 }
@@ -163,7 +162,7 @@ func TestDatasourceResolver(t *testing.T) {
 		mock.ExpectQuery("SELECT uid FROM data_source").
 			WillReturnRows(sqlmock.NewRows([]string{"uid"}).AddRow("prometheus"))
 
-		uid, err := newResolver(t, db).ResolveDatasourceUID(context.Background())
+		uid, err := newResolver(t, db).ResolveDatasourceUID(t.Context())
 		require.NoError(t, err)
 		assert.Equal(t, "prometheus", uid)
 	})
@@ -177,7 +176,7 @@ func TestDatasourceResolver(t *testing.T) {
 
 		mock.ExpectQuery("SELECT uid FROM data_source").WillReturnRows(sqlmock.NewRows([]string{"uid"}))
 
-		uid, err := newResolver(t, db).ResolveDatasourceUID(context.Background())
+		uid, err := newResolver(t, db).ResolveDatasourceUID(t.Context())
 		require.NoError(t, err)
 		assert.Equal(t, deriveMetricsDatasourceUID(), uid)
 	})
@@ -195,7 +194,7 @@ func TestDatasourceResolver(t *testing.T) {
 		mock.ExpectQuery("SELECT uid FROM data_source").
 			WillReturnError(&pq.Error{Code: undefinedTableCode, Message: `relation "data_source" does not exist`})
 
-		uid, err := newResolver(t, db).ResolveDatasourceUID(context.Background())
+		uid, err := newResolver(t, db).ResolveDatasourceUID(t.Context())
 		require.NoError(t, err)
 		assert.Equal(t, deriveMetricsDatasourceUID(), uid)
 	})
@@ -212,7 +211,7 @@ func TestDatasourceResolver(t *testing.T) {
 
 		mock.ExpectQuery("SELECT uid FROM data_source").WillReturnError(errors.New("connection refused"))
 
-		uid, err := newResolver(t, db).ResolveDatasourceUID(context.Background())
+		uid, err := newResolver(t, db).ResolveDatasourceUID(t.Context())
 		require.ErrorIs(t, err, errDatasourceUnresolved)
 		assert.Empty(t, uid)
 	})
@@ -229,7 +228,7 @@ func TestDatasourceResolver(t *testing.T) {
 
 			mock.ExpectQuery("SELECT uid FROM data_source").WillReturnError(&pq.Error{Code: code})
 
-			_, err = newResolver(t, db).ResolveDatasourceUID(context.Background())
+			_, err = newResolver(t, db).ResolveDatasourceUID(t.Context())
 			require.ErrorIs(t, err, errDatasourceUnresolved)
 		})
 	}
@@ -248,7 +247,7 @@ func TestDatasourceResolver(t *testing.T) {
 
 		resolver := newResolver(t, db)
 		for range 5 {
-			uid, err := resolver.ResolveDatasourceUID(context.Background())
+			uid, err := resolver.ResolveDatasourceUID(t.Context())
 			require.NoError(t, err)
 			assert.Equal(t, "prometheus", uid)
 		}
@@ -270,13 +269,13 @@ func TestDatasourceResolver(t *testing.T) {
 			WillReturnRows(sqlmock.NewRows([]string{"uid"}).AddRow("recreated"))
 
 		resolver := newResolver(t, db)
-		uid, err := resolver.ResolveDatasourceUID(context.Background())
+		uid, err := resolver.ResolveDatasourceUID(t.Context())
 		require.NoError(t, err)
 		assert.Equal(t, "prometheus", uid)
 
 		resolver.checkedAt = time.Now().Add(-datasourceRecheckInterval - time.Second)
 
-		uid, err = resolver.ResolveDatasourceUID(context.Background())
+		uid, err = resolver.ResolveDatasourceUID(t.Context())
 		require.NoError(t, err)
 		assert.Equal(t, "recreated", uid)
 		assert.NoError(t, mock.ExpectationsWereMet())
@@ -296,11 +295,11 @@ func TestDatasourceResolver(t *testing.T) {
 			WillReturnRows(sqlmock.NewRows([]string{"uid"}).AddRow("b_nGyianz"))
 
 		resolver := newResolver(t, db)
-		uid, err := resolver.ResolveDatasourceUID(context.Background())
+		uid, err := resolver.ResolveDatasourceUID(t.Context())
 		require.NoError(t, err)
 		assert.Equal(t, deriveMetricsDatasourceUID(), uid)
 
-		uid, err = resolver.ResolveDatasourceUID(context.Background())
+		uid, err = resolver.ResolveDatasourceUID(t.Context())
 		require.NoError(t, err)
 		assert.Equal(t, "b_nGyianz", uid)
 		assert.NoError(t, mock.ExpectationsWereMet())
@@ -331,7 +330,7 @@ func TestConflictingRules(t *testing.T) {
 				AddRow("pmm-clickhouse-down", "api").
 				AddRow("pmm-grafana-down", ""))
 
-		conflicts, err := newReader(t, db).ConflictingRules(context.Background(), catalogUIDs())
+		conflicts, err := newReader(t, db).ConflictingRules(t.Context(), catalogUIDs())
 		require.NoError(t, err)
 		assert.Equal(t, map[string]string{"pmm-clickhouse-down": "api", "pmm-grafana-down": ""}, conflicts)
 	})
@@ -345,7 +344,7 @@ func TestConflictingRules(t *testing.T) {
 
 		mock.ExpectQuery("FROM alert_rule").WillReturnRows(sqlmock.NewRows([]string{"uid", "provenance"}))
 
-		conflicts, err := newReader(t, db).ConflictingRules(context.Background(), catalogUIDs())
+		conflicts, err := newReader(t, db).ConflictingRules(t.Context(), catalogUIDs())
 		require.NoError(t, err)
 		assert.Empty(t, conflicts)
 	})
@@ -362,7 +361,7 @@ func TestConflictingRules(t *testing.T) {
 		mock.ExpectQuery("FROM alert_rule").
 			WillReturnError(&pq.Error{Code: undefinedTableCode, Message: `relation "alert_rule" does not exist`})
 
-		conflicts, err := newReader(t, db).ConflictingRules(context.Background(), catalogUIDs())
+		conflicts, err := newReader(t, db).ConflictingRules(t.Context(), catalogUIDs())
 		require.NoError(t, err)
 		assert.Empty(t, conflicts)
 	})
@@ -376,7 +375,7 @@ func TestConflictingRules(t *testing.T) {
 
 		mock.ExpectQuery("FROM alert_rule").WillReturnError(errors.New("connection refused"))
 
-		_, err = newReader(t, db).ConflictingRules(context.Background(), catalogUIDs())
+		_, err = newReader(t, db).ConflictingRules(t.Context(), catalogUIDs())
 		require.Error(t, err)
 	})
 
@@ -384,7 +383,7 @@ func TestConflictingRules(t *testing.T) {
 		t.Parallel()
 
 		conflicts, err := newGrafanaReader("", logrus.WithField("test", t.Name())).
-			ConflictingRules(context.Background(), nil)
+			ConflictingRules(t.Context(), nil)
 		require.NoError(t, err)
 		assert.Empty(t, conflicts)
 	})

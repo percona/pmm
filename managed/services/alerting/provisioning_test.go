@@ -165,7 +165,7 @@ func TestProvisionerWritesAndAppliesOnStartup(t *testing.T) {
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 
 	content := f.fileContent(t)
 	assert.Contains(t, content, "PMM High Availability")
@@ -182,7 +182,7 @@ func TestProvisionerOnStandaloneWritesComponentsOnly(t *testing.T) {
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 
 	content := f.fileContent(t)
 	assert.Contains(t, content, "PMM Server")
@@ -202,7 +202,7 @@ func TestProvisionerRemovesEverythingWhenAlertingIsOff(t *testing.T) {
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 
 	content := f.fileContent(t)
 	assert.Contains(t, content, `"groups": []`)
@@ -220,7 +220,7 @@ func TestProvisionerKeepsStateOutOfGrafanasReach(t *testing.T) {
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 
 	entries, err := os.ReadDir(f.dir)
 	require.NoError(t, err)
@@ -254,15 +254,15 @@ func TestProvisionerToleratesConcurrentCallers(t *testing.T) {
 	for range 4 {
 		wg.Go(func() {
 			f.provisioner.ProvisionAtStartup()
-			f.provisioner.reconcile(context.Background(), triggerStartup)
+			f.provisioner.reconcile(t.Context(), triggerStartup)
 		})
 
 		wg.Go(func() {
-			f.provisioner.reconcile(context.Background(), triggerTick)
+			f.provisioner.reconcile(t.Context(), triggerTick)
 		})
 
 		wg.Go(func() {
-			f.provisioner.reconcile(context.Background(), triggerRetry)
+			f.provisioner.reconcile(t.Context(), triggerRetry)
 		})
 	}
 	wg.Wait()
@@ -280,12 +280,12 @@ func TestProvisionerDoesNothingWhenNothingChanged(t *testing.T) {
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 	first := f.fileContent(t)
 
 	// The second pass must not consult supervisord or Grafana at all: steady state is the common
 	// case, and a reconcile that touched Grafana every five minutes would be a liability.
-	f.provisioner.reconcile(context.Background(), triggerTick)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 	assert.Equal(t, first, f.fileContent(t))
 }
 
@@ -302,7 +302,7 @@ func TestProvisionerRestartsGrafanaWhenRequested(t *testing.T) {
 	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(nil)
 
-	f.provisioner.reconcile(context.Background(), triggerTick)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 }
 
 // TestProvisionerTickWaitsForTheLeader is the guard against a settings change bouncing Grafana on
@@ -317,7 +317,7 @@ func TestProvisionerTickWaitsForTheLeader(t *testing.T) {
 	f.leader.On("IsLeader").Return(false)
 
 	for range 3 {
-		f.provisioner.reconcile(context.Background(), triggerTick)
+		f.provisioner.reconcile(t.Context(), triggerTick)
 	}
 	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", mock.Anything, grafanaProgramName)
 }
@@ -339,7 +339,7 @@ func TestProvisionerStartupRestartsWithoutWaitingForTheLeader(t *testing.T) {
 	// Once before the boot restart, to let Grafana finish starting, and once after it.
 	f.grafana.On("IsReady", mock.Anything).Return(nil).Times(2)
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 
 	assert.False(t, f.provisioner.startupApplyOwed, "a restart settles the boot's debt")
 	assert.Zero(t, errorCount(t, f.provisioner, stageApply))
@@ -375,11 +375,11 @@ func TestProvisionerStartupDebtSurvivesARenderFailure(t *testing.T) {
 	// Once before the boot restart, to let Grafana finish starting, and once after it.
 	f.grafana.On("IsReady", mock.Anything).Return(nil).Times(2)
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 	require.True(t, f.provisioner.startupApplyOwed, "a boot that wrote nothing still owes its restart")
 	require.Positive(t, f.provisioner.retryBackoff, "the datasource failure arms a retry")
 
-	f.provisioner.reconcile(context.Background(), triggerRetry)
+	f.provisioner.reconcile(t.Context(), triggerRetry)
 
 	assert.False(t, f.provisioner.startupApplyOwed)
 	assert.Zero(t, f.provisioner.retryBackoff)
@@ -400,14 +400,14 @@ func TestProvisionerBootExemptionEndsWithTheBoot(t *testing.T) {
 	// Once before the boot restart, to let Grafana finish starting, and once after it.
 	f.grafana.On("IsReady", mock.Anything).Return(nil).Times(2)
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 	require.False(t, f.provisioner.startupApplyOwed)
 
 	// Percona Alerting switched off changes the content, on a node that is not the leader.
 	f.expectSettings(1, false)
 	f.leader.On("IsLeader").Return(false).Once()
 
-	f.provisioner.reconcile(context.Background(), triggerTick)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 
 	f.supervisord.AssertNumberOfCalls(t, "RestartSupervisedService", 1)
 	assert.Zero(t, errorCount(t, f.provisioner, stageApply), "a deferral is still not a failure")
@@ -425,7 +425,7 @@ func TestProvisionerRollsBackAFailedRestart(t *testing.T) {
 	f.expectSettings(1, true)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 	good := f.fileContent(t)
 	f.markAccepted(t)
 
@@ -437,7 +437,7 @@ func TestProvisionerRollsBackAFailedRestart(t *testing.T) {
 	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
-	f.provisioner.reconcile(context.Background(), triggerTick)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 
 	assert.Equal(t, good, f.fileContent(t), "the file Grafana last started from must be restored")
 }
@@ -452,7 +452,7 @@ func TestProvisionerRefusesToWriteWhenItCannotRender(t *testing.T) {
 	// that takes the whole PMM user interface with it.
 	f.dbMock.ExpectQuery("SELECT settings FROM settings").WillReturnError(errors.New("database is down"))
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 
 	_, err := os.Stat(filepath.Join(f.dir, provisioningFileName))
 	assert.True(t, os.IsNotExist(err), "no file should have been written")
@@ -479,7 +479,7 @@ func TestProvisionerRefusesToGuessTheDatasourceUID(t *testing.T) {
 	f.provisioner.grafanaDB = newGrafanaReader("dsn-not-used", logrus.WithField("test", t.Name()))
 	f.provisioner.grafanaDB.db = dsDB
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 
 	_, err = os.Stat(filepath.Join(f.dir, provisioningFileName))
 	assert.True(t, err != nil && os.IsNotExist(err), "no file should have been written")
@@ -585,7 +585,7 @@ func TestProvisionerStartsGrafanaWhenSupervisordWillNot(t *testing.T) {
 	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(nil)
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 
 	// Deliberately no leader stub: starting a dead Grafana is a repair, not a rollout action, so it
 	// is not leader-gated. A mockLeaderService call would fail the test.
@@ -604,7 +604,7 @@ func TestProvisionerLeavesGrafanaAloneWhenStateIsUnknown(t *testing.T) {
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 
 	require.NotEmpty(t, f.fileContent(t), "the file is still written")
 	f.supervisord.AssertNotCalled(t, "StartSupervisedService", grafanaProgramName)
@@ -627,7 +627,7 @@ func TestProvisionerLeavesRulesItDoesNotOwnAlone(t *testing.T) {
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 
 	content := f.fileContent(t)
 	assert.NotContains(t, content, "pmm-clickhouse-down", "an api-owned UID must not be claimed")
@@ -649,7 +649,7 @@ func TestProvisionerOmitsSquattedUIDsFromDeletions(t *testing.T) {
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 
 	content := f.fileContent(t)
 	assert.NotContains(t, content, "pmm-ha-no-leader", "a squatted UID must not be deleted either")
@@ -669,7 +669,7 @@ func TestProvisionerDeferralIsNotAFailure(t *testing.T) {
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
 	f.leader.On("IsLeader").Return(false)
 
-	f.provisioner.reconcile(context.Background(), triggerTick)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 
 	assert.Zero(t, errorCount(t, f.provisioner, stageApply), "a deferral must not count as a failure")
 	assert.Equal(t, stateWritten, bundleState(t, f.provisioner, haBundleID))
@@ -695,7 +695,7 @@ func TestProvisionerRetriesAnApplyItOwes(t *testing.T) {
 	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(nil)
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 
 	require.True(t, f.provisioner.applyPending, "a failed start is owed a retry")
 	assert.Equal(t, statePending, bundleState(t, f.provisioner, haBundleID))
@@ -703,7 +703,7 @@ func TestProvisionerRetriesAnApplyItOwes(t *testing.T) {
 	assert.Positive(t, f.provisioner.retryBackoff, "the retry must be armed")
 
 	// The content has not changed, so this is precisely the reconcile that used to return early.
-	f.provisioner.reconcile(context.Background(), triggerRetry)
+	f.provisioner.reconcile(t.Context(), triggerRetry)
 
 	f.supervisord.AssertNumberOfCalls(t, "StartSupervisedService", 2)
 	assert.False(t, f.provisioner.applyPending, "a successful retry clears the debt")
@@ -725,14 +725,14 @@ func TestProvisionerApplyRetryBacksOff(t *testing.T) {
 	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 	assert.Equal(t, datasourceRetryInitial, f.provisioner.retryBackoff)
 
-	f.provisioner.reconcile(context.Background(), triggerRetry)
+	f.provisioner.reconcile(t.Context(), triggerRetry)
 	assert.Equal(t, datasourceRetryInitial*datasourceRetryFactor, f.provisioner.retryBackoff,
 		"a second failure must grow the backoff rather than start over")
 
-	f.provisioner.reconcile(context.Background(), triggerRetry)
+	f.provisioner.reconcile(t.Context(), triggerRetry)
 	assert.Zero(t, f.provisioner.retryBackoff, "a successful apply clears the backoff")
 	assert.False(t, f.provisioner.applyPending)
 	assert.InDelta(t, 2, errorCount(t, f.provisioner, stageApply), 0)
@@ -754,7 +754,7 @@ func TestProvisionerStillDoesNothingWhenNothingChanged(t *testing.T) {
 	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
 
 	for range 3 {
-		f.provisioner.reconcile(context.Background(), triggerTick)
+		f.provisioner.reconcile(t.Context(), triggerTick)
 	}
 
 	// One restart for the first write; the two reconciles after it are true no-ops.
@@ -853,7 +853,7 @@ func TestProvisionerAppliesToAGrafanaThatServesWhileItsStateIsUnknown(t *testing
 	f.grafana.On("IsReady", mock.Anything).Return(nil)
 	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil)
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 
 	f.supervisord.AssertNumberOfCalls(t, "RestartSupervisedService", 1)
 	assert.False(t, f.provisioner.applyPending, "the apply happened, so nothing is owed")
@@ -874,7 +874,7 @@ func TestProvisionerStopsOfferingARevisionGrafanaRejects(t *testing.T) {
 	f.expectSettings(1, true)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 	good := f.fileContent(t)
 	f.markAccepted(t)
 
@@ -888,7 +888,7 @@ func TestProvisionerStopsOfferingARevisionGrafanaRejects(t *testing.T) {
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
 	for range attempts {
-		f.provisioner.reconcile(context.Background(), triggerRetry)
+		f.provisioner.reconcile(t.Context(), triggerRetry)
 	}
 
 	f.supervisord.AssertNumberOfCalls(t, "RestartSupervisedService", maxApplyAttemptsPerRevision)
@@ -911,7 +911,7 @@ func TestProvisionerOffersNewContentAfterGivingUpOnARevision(t *testing.T) {
 	f.expectSettings(1, true)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 
 	f.expectSettings(maxApplyAttemptsPerRevision, false)
 	f.leader.On("IsLeader").Return(true).Times(maxApplyAttemptsPerRevision)
@@ -919,7 +919,7 @@ func TestProvisionerOffersNewContentAfterGivingUpOnARevision(t *testing.T) {
 	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 	for range maxApplyAttemptsPerRevision {
-		f.provisioner.reconcile(context.Background(), triggerRetry)
+		f.provisioner.reconcile(t.Context(), triggerRetry)
 	}
 	require.NotEmpty(t, f.provisioner.rejectedHash, "the revision must have been given up on first")
 
@@ -927,7 +927,7 @@ func TestProvisionerOffersNewContentAfterGivingUpOnARevision(t *testing.T) {
 	// the proof that the content is being offered again is that it reaches the leader gate at all.
 	f.expectSettings(1, true)
 	f.leader.On("IsLeader").Return(false).Once()
-	f.provisioner.reconcile(context.Background(), triggerTick)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 
 	assert.Empty(t, f.provisioner.rejectedHash, "one revision is never held against another")
 	assert.Contains(t, f.fileContent(t), "PMM High Availability")
@@ -946,7 +946,7 @@ func TestProvisionerStartsAGrafanaLeftDownByARevisionItGaveUpOn(t *testing.T) {
 	f.expectSettings(1, true)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 	good := f.fileContent(t)
 	f.markAccepted(t)
 
@@ -963,7 +963,7 @@ func TestProvisionerStartsAGrafanaLeftDownByARevisionItGaveUpOn(t *testing.T) {
 	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(nil)
 
 	for range maxApplyAttemptsPerRevision {
-		f.provisioner.reconcile(context.Background(), triggerRetry)
+		f.provisioner.reconcile(t.Context(), triggerRetry)
 	}
 
 	f.supervisord.AssertNumberOfCalls(t, "StartSupervisedService", 1)
@@ -988,7 +988,7 @@ func TestProvisionerChargesOnlyGrafanaFailuresToTheRevision(t *testing.T) {
 	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(errors.New("supervisorctl is not there"))
 
 	for range 3 {
-		f.provisioner.reconcile(context.Background(), triggerRetry)
+		f.provisioner.reconcile(t.Context(), triggerRetry)
 	}
 
 	f.supervisord.AssertNumberOfCalls(t, "StartSupervisedService", 3)
@@ -1008,7 +1008,7 @@ func TestProvisionerRollsBackAStartGrafanaDoesNotSurvive(t *testing.T) {
 	f.expectSettings(1, true)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 	good := f.fileContent(t)
 	f.markAccepted(t)
 
@@ -1017,7 +1017,7 @@ func TestProvisionerRollsBackAStartGrafanaDoesNotSurvive(t *testing.T) {
 	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
-	f.provisioner.reconcile(context.Background(), triggerTick)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 
 	assert.Equal(t, good, f.fileContent(t), "the file Grafana last started from must be restored")
 	assert.Equal(t, 1, f.provisioner.rejectedApplies, "a Grafana that did not come back counts against the content")
@@ -1035,7 +1035,7 @@ func TestProvisionerChargesARestartGrafanaDiesDuring(t *testing.T) {
 	f.expectSettings(1, true)
 	f.expectProgramStates(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 	good := f.fileContent(t)
 	f.markAccepted(t)
 
@@ -1046,7 +1046,7 @@ func TestProvisionerChargesARestartGrafanaDiesDuring(t *testing.T) {
 	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).
 		Return(errors.New("grafana: ERROR (abnormal termination)")).Once()
 
-	f.provisioner.reconcile(context.Background(), triggerTick)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 
 	assert.Equal(t, good, f.fileContent(t), "the file Grafana last started from must be restored")
 	assert.Equal(t, 1, f.provisioner.rejectedApplies, "a Grafana that died on the content counts against it")
@@ -1065,7 +1065,7 @@ func TestProvisionerGivesUpOnAStartGrafanaDiesDuring(t *testing.T) {
 	f.expectSettings(1, true)
 	f.expectProgramStates(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 	good := f.fileContent(t)
 	f.markAccepted(t)
 
@@ -1083,7 +1083,7 @@ func TestProvisionerGivesUpOnAStartGrafanaDiesDuring(t *testing.T) {
 	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
 
 	for range maxApplyAttemptsPerRevision + 1 {
-		f.provisioner.reconcile(context.Background(), triggerRetry)
+		f.provisioner.reconcile(t.Context(), triggerRetry)
 	}
 
 	f.supervisord.AssertNumberOfCalls(t, "StartSupervisedService", maxApplyAttemptsPerRevision+1)
@@ -1108,7 +1108,7 @@ func TestProvisionerWaitsForAGrafanaSupervisordIsStillRetrying(t *testing.T) {
 		Return(errors.New("grafana: ERROR (abnormal termination)")).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
 
-	f.provisioner.reconcile(context.Background(), triggerTick)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 
 	assert.False(t, f.provisioner.applyPending, "Grafana came back on the new content")
 	assert.Zero(t, f.provisioner.rejectedApplies)
@@ -1134,7 +1134,7 @@ func TestProvisionerBootRestartLetsGrafanaFinishStarting(t *testing.T) {
 	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil).Once().
 		Run(func(mock.Arguments) { calls = append(calls, "restart") })
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerStartup)
 
 	assert.Equal(t, []string{"not ready", "not ready", "ready", "restart", "ready"}, calls)
 	assert.False(t, f.provisioner.startupApplyOwed)
@@ -1155,7 +1155,7 @@ func TestProvisionerBootLeavesAGrafanaStillStartingAlone(t *testing.T) {
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
 	for _, trigger := range []provisioningTrigger{triggerStartup, triggerRetry} {
-		f.provisioner.reconcile(context.Background(), trigger)
+		f.provisioner.reconcile(t.Context(), trigger)
 	}
 
 	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", mock.Anything, grafanaProgramName)
@@ -1177,7 +1177,7 @@ func TestProvisionerAppliesADeferralAfterBecomingLeader(t *testing.T) {
 
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
 	f.leader.On("IsLeader").Return(false).Once()
-	f.provisioner.reconcile(context.Background(), triggerTick)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 	require.False(t, f.provisioner.deferredAt.IsZero(), "the deferral must be remembered")
 	assert.Equal(t, stateWritten, bundleState(t, f.provisioner, haBundleID), "a deferring follower is not pending")
 
@@ -1185,7 +1185,7 @@ func TestProvisionerAppliesADeferralAfterBecomingLeader(t *testing.T) {
 	f.leader.On("IsLeader").Return(true)
 	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
-	f.provisioner.reconcile(context.Background(), triggerTick)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 
 	f.supervisord.AssertNumberOfCalls(t, "RestartSupervisedService", 1)
 	assert.True(t, f.provisioner.deferredAt.IsZero(), "applying settles the deferral")
@@ -1203,11 +1203,11 @@ func TestProvisionerForgetsADeferralOnceTheLeaderHadItsTurn(t *testing.T) {
 
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
 	f.leader.On("IsLeader").Return(false).Once()
-	f.provisioner.reconcile(context.Background(), triggerTick)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 	require.False(t, f.provisioner.deferredAt.IsZero())
 
 	f.provisioner.deferredAt = time.Now().Add(-deferralWindow - time.Second)
-	f.provisioner.reconcile(context.Background(), triggerTick)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 
 	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", mock.Anything, grafanaProgramName)
 	f.leader.AssertNumberOfCalls(t, "IsLeader", 1)
@@ -1226,7 +1226,7 @@ func TestProvisionerFollowerKeepsLeavingADeferralToTheLeader(t *testing.T) {
 	f.leader.On("IsLeader").Return(false)
 
 	for range 3 {
-		f.provisioner.reconcile(context.Background(), triggerTick)
+		f.provisioner.reconcile(t.Context(), triggerTick)
 	}
 
 	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", mock.Anything, grafanaProgramName)
@@ -1249,7 +1249,7 @@ func TestProvisionerRollsBackToWhatGrafanaAccepted(t *testing.T) {
 	// Grafana comes back on the first content, which makes it the rollback target.
 	f.expectSettings(1, true)
 	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
-	f.provisioner.reconcile(context.Background(), triggerTick)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 	accepted := f.fileContent(t)
 
 	// Something else then puts a file on disk that Grafana never came back on.
@@ -1258,7 +1258,7 @@ func TestProvisionerRollsBackToWhatGrafanaAccepted(t *testing.T) {
 	// Percona Alerting switched off changes the content, and Grafana does not come back from it.
 	f.expectSettings(1, false)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
-	f.provisioner.reconcile(context.Background(), triggerTick)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 
 	assert.Equal(t, accepted, f.fileContent(t), "the rollback target is what Grafana accepted, not what was on disk")
 }
@@ -1279,7 +1279,7 @@ func TestProvisionerRemovesTheFileWhenNothingIsKnownGood(t *testing.T) {
 	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
-	f.provisioner.reconcile(context.Background(), triggerTick)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 
 	_, err := os.Stat(filepath.Join(f.dir, provisioningFileName))
 	require.ErrorIs(t, err, fs.ErrNotExist, "a file nobody saw Grafana accept must not be put back")
