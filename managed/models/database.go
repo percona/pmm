@@ -1188,6 +1188,16 @@ var databaseSchema = [][]string{
 		`ALTER TABLE dumps ADD COLUMN encrypted boolean NOT NULL DEFAULT false`,
 		`UPDATE dumps SET encrypted = false`,
 	},
+	119: {
+		// Before environment variable names were restricted to agents pmm-agent starts as a separate
+		// process, addMongoDB copied the requested names onto the QAN and RTA agents it created
+		// alongside mongodb_exporter. Nothing ever read them there: only mongodbExporterConfig calls
+		// GetEnvironmentVariableNames, and no API type exposes the field for those agent types, so
+		// the rows have no way to be cleared through the API and would keep the dead value forever.
+		`UPDATE agents SET environment_variables = NULL
+			WHERE environment_variables IS NOT NULL
+			AND agent_type <> 'mongodb_exporter'`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
