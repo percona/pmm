@@ -20,15 +20,7 @@ const updateSettingsMock = vi.mocked(settingsApi.updateSettings);
 
 const settings = { dataRetention: '2592000s' } as SettingsType;
 
-// The field is editable until the HA status arrives, so anything asserted while the query is
-// still in flight holds whatever the answer turns out to be. Render, then wait for the status to
-// land in the cache, so every assertion below is made against the settled form.
-const renderWithSettledHA = async (
-  status: HAStatus,
-  formSettings: SettingsType = settings
-) => {
-  getHAStatusMock.mockResolvedValue({ status });
-
+const renderForm = (formSettings: SettingsType = settings) => {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -42,12 +34,35 @@ const renderWithSettledHA = async (
     </TestWrapper>
   );
 
+  return queryClient;
+};
+
+// The field is editable until the HA status arrives, so anything asserted while the query is
+// still in flight holds whatever the answer turns out to be. Render, then wait for the status to
+// land in the cache, so every assertion below is made against the settled form.
+const renderWithSettledHA = async (
+  status: HAStatus,
+  formSettings: SettingsType = settings
+) => {
+  getHAStatusMock.mockResolvedValue({ status });
+
+  const queryClient = renderForm(formSettings);
+
   await waitFor(() =>
     expect(queryClient.getQueryData(['ha:status'])).toEqual({ status })
   );
 };
 
 const retentionInput = () => screen.getByTestId('retention-number-input');
+
+// peak-ui's TextInput passes only sx through formHelperTextProps, so a helper-text test ID never
+// reaches the DOM; check the input's own state and the message text instead.
+const expectNoRetentionError = () => {
+  expect(retentionInput()).toHaveAttribute('aria-invalid', 'false');
+  expect(
+    screen.queryByText(/Value should be in the range/)
+  ).not.toBeInTheDocument();
+};
 
 describe('AdvancedSettingsForm data retention in HA', () => {
   beforeEach(() => {
@@ -85,16 +100,51 @@ describe('AdvancedSettingsForm submit with data retention in HA', () => {
     fireEvent.click(submit);
   };
 
-  it('sends the retention when high availability is disabled', async () => {
+  const outOfRangeRetention = {
+    ...SETTINGS_MOCK,
+    dataRetention: `${4000 * 24 * 60 * 60}s`,
+  };
+
+  // An unchanged retention is echoed back only at the risk of being stale, so it is left out
+  // whatever the HA status is; the server treats a missing retention as "no change".
+  it('leaves an unchanged retention out when high availability is disabled', async () => {
     await renderWithSettledHA('Disabled', SETTINGS_MOCK);
 
     await submitAnotherSetting();
 
     await waitFor(() => expect(updateSettingsMock).toHaveBeenCalled());
+    expect(updateSettingsMock.mock.calls[0][0]).not.toHaveProperty(
+      'dataRetention'
+    );
+  });
+
+  it('sends the retention once the user changes it', async () => {
+    await renderWithSettledHA('Disabled', SETTINGS_MOCK);
+
+    fireEvent.change(retentionInput(), { target: { value: '45' } });
+    const submit = screen.getByTestId('advanced-button');
+    await waitFor(() => expect(submit).toBeEnabled());
+    fireEvent.click(submit);
+
+    await waitFor(() => expect(updateSettingsMock).toHaveBeenCalled());
     expect(updateSettingsMock.mock.calls[0][0]).toHaveProperty(
       'dataRetention',
-      '2592000s'
+      `${45 * 24 * 60 * 60}s`
     );
+  });
+
+  it('still rejects a typed retention outside the range', async () => {
+    await renderWithSettledHA('Disabled', SETTINGS_MOCK);
+
+    fireEvent.change(retentionInput(), { target: { value: '4000' } });
+
+    await waitFor(() =>
+      expect(retentionInput()).toHaveAttribute('aria-invalid', 'true')
+    );
+    expect(
+      screen.getByText(/Value should be in the range/)
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('advanced-button')).toBeDisabled();
   });
 
   // The server refuses any retention that differs from the stored one in HA, and the user
@@ -112,15 +162,9 @@ describe('AdvancedSettingsForm submit with data retention in HA', () => {
 
   // The pmm-ha chart accepts up to 36500 days, beyond the range the form enforces.
   it('does not let a locked retention outside the form range block saving', async () => {
-    await renderWithSettledHA('Enabled', {
-      ...SETTINGS_MOCK,
-      dataRetention: `${4000 * 24 * 60 * 60}s`,
-    });
+    await renderWithSettledHA('Enabled', outOfRangeRetention);
 
     expect(retentionInput()).toHaveValue(4000);
-    expect(
-      screen.queryByTestId('retention-field-error-message')
-    ).not.toBeInTheDocument();
 
     await submitAnotherSetting();
 
@@ -128,5 +172,34 @@ describe('AdvancedSettingsForm submit with data retention in HA', () => {
     expect(updateSettingsMock.mock.calls[0][0]).not.toHaveProperty(
       'dataRetention'
     );
+    // Only now has every field been validated, so this is when a range error would show.
+    expectNoRetentionError();
   });
+
+  // Until /ha/status answers, or if it fails, the form cannot know the field is locked, so
+  // neither the payload nor validation may depend on that answer.
+  it.each([
+    [
+      'still loading',
+      () => getHAStatusMock.mockReturnValue(new Promise(() => {})),
+    ],
+    [
+      'failed',
+      () => getHAStatusMock.mockRejectedValue(new Error('unavailable')),
+    ],
+  ])(
+    'does not send or block on a loaded retention while the HA status is %s',
+    async (_, mockStatus) => {
+      mockStatus();
+      renderForm(outOfRangeRetention);
+
+      await submitAnotherSetting();
+
+      await waitFor(() => expect(updateSettingsMock).toHaveBeenCalled());
+      expect(updateSettingsMock.mock.calls[0][0]).not.toHaveProperty(
+        'dataRetention'
+      );
+      expectNoRetentionError();
+    }
+  );
 });

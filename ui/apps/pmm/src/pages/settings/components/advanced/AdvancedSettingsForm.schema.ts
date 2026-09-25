@@ -8,16 +8,22 @@ import {
 
 const { required, retentionRange, intervalMin } = Messages.advanced.validation;
 
-const retentionField = z
-  .string()
-  .refine((v) => v !== '' && !isNaN(parseFloat(v)), { message: required })
-  .refine(
-    (v) => {
-      const n = parseFloat(v);
-      return n >= MIN_DAYS && n <= MAX_DAYS;
-    },
-    { message: retentionRange(MIN_DAYS, MAX_DAYS) }
-  );
+// The value loaded from the server is accepted as it is: it is only sent once the user changes it,
+// and the pmm-ha chart may set one outside the range a user can type here.
+const retentionField = (loaded?: string) =>
+  z
+    .string()
+    .refine((v) => v === loaded || (v !== '' && !isNaN(parseFloat(v))), {
+      message: required,
+    })
+    .refine(
+      (v) => {
+        if (v === loaded) return true;
+        const n = parseFloat(v);
+        return n >= MIN_DAYS && n <= MAX_DAYS;
+      },
+      { message: retentionRange(MIN_DAYS, MAX_DAYS) }
+    );
 
 const intervalFields = [
   'rareInterval',
@@ -25,12 +31,10 @@ const intervalFields = [
   'frequentInterval',
 ] as const;
 
-// While high availability locks retention, the field is not submitted and the chart may hold a
-// value outside the range accepted here, so validating it would block the rest of the form.
-export const createAdvancedSettingsSchema = (retentionLocked: boolean) =>
+export const createAdvancedSettingsSchema = (loadedRetention?: string) =>
   z
     .object({
-      retention: retentionLocked ? z.string() : retentionField,
+      retention: retentionField(loadedRetention),
       telemetry: z.boolean(),
       updates: z.boolean(),
       alerting: z.boolean(),
@@ -65,6 +69,6 @@ export const createAdvancedSettingsSchema = (retentionLocked: boolean) =>
       }
     });
 
-export const advancedSettingsSchema = createAdvancedSettingsSchema(false);
+export const advancedSettingsSchema = createAdvancedSettingsSchema();
 
 export type AdvancedSettingsFormValues = z.infer<typeof advancedSettingsSchema>;

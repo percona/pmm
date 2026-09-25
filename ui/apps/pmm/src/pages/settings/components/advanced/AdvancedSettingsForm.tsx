@@ -14,8 +14,8 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WarningIcon from '@mui/icons-material/Warning';
 import { TextInput, SwitchInput } from '@percona/peak-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
-import { FormProvider, useForm, type Resolver } from 'react-hook-form';
+import { FC, useEffect, useMemo, useState } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
 import { useHAStatus } from 'hooks/api/useHA';
@@ -47,20 +47,17 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   const { mutateAsync: updateSettings } = useUpdateSettings();
   const { data: haStatus } = useHAStatus();
 
-  // In HA retention is fixed at start-up and the server refuses a change, so the field is
-  // disabled before a user types into it rather than after they press Save.
+  // In HA retention comes from the pmm-ha chart and the server refuses a change through the
+  // settings API, so the field is disabled before a user types into it rather than after they
+  // press Save.
   const retentionLockedByHa = haStatus?.status === 'Enabled';
 
-  // The HA status arrives after the form is created, so the resolver reads the lock at
-  // validation time rather than capturing it once.
-  const retentionLockedRef = useRef(retentionLockedByHa);
-  retentionLockedRef.current = retentionLockedByHa;
-  const resolver = useCallback<Resolver<AdvancedSettingsFormValues>>(
-    (...args) =>
-      zodResolver(createAdvancedSettingsSchema(retentionLockedRef.current))(
-        ...args
-      ),
-    []
+  // Validation and the payload both key off the value loaded from the server rather than the
+  // HA lock, so they hold while the HA status is still loading or has failed to load.
+  const loadedRetention = toFormValues(settings).retention;
+  const resolver = useMemo(
+    () => zodResolver(createAdvancedSettingsSchema(loadedRetention)),
+    [loadedRetention]
   );
 
   const methods = useForm<AdvancedSettingsFormValues>({
@@ -79,21 +76,18 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   }, [settings, reset]);
 
   const onSubmit = async (values: AdvancedSettingsFormValues) => {
-    await updateSettings(
-      toPayload(values, { retentionLocked: retentionLockedByHa }),
-      {
-        onSuccess: () => {
-          enqueueSnackbar(Messages.service.success, { variant: 'success' });
-          reset(values);
-        },
-        onError: (error) => {
-          enqueueSnackbar(
-            error instanceof Error ? error.message : Messages.unauthorized,
-            { variant: 'error' }
-          );
-        },
-      }
-    );
+    await updateSettings(toPayload(values, loadedRetention), {
+      onSuccess: () => {
+        enqueueSnackbar(Messages.service.success, { variant: 'success' });
+        reset(values);
+      },
+      onError: (error) => {
+        enqueueSnackbar(
+          error instanceof Error ? error.message : Messages.unauthorized,
+          { variant: 'error' }
+        );
+      },
+    });
   };
 
   const m = Messages.advanced;
@@ -163,7 +157,9 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
                 slotProps: {
                   htmlInput: {
                     min: MIN_DAYS,
-                    max: MAX_DAYS,
+                    // The browser's own range check would block submitting a loaded value above
+                    // the maximum, which the schema accepts; typed values are still held to it.
+                    max: Math.max(MAX_DAYS, Number(loadedRetention)),
                     step: 1,
                     'data-testid': 'retention-number-input',
                   },

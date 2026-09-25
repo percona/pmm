@@ -26,11 +26,12 @@ export const toFormValues = (
   accessControl: settings.enableAccessControl,
 });
 
-// A locked retention is left out rather than echoed back: the form value can be stale, and the
-// server refuses any retention that differs from the stored one.
+// Retention is sent only when it differs from the value loaded from the server. Echoing an
+// unchanged value back can be stale, and in high availability the server refuses any retention
+// that differs from the stored one, whether or not the HA status has reached the form yet.
 export const toPayload = (
   values: AdvancedSettingsFormValues,
-  { retentionLocked = false }: { retentionLocked?: boolean } = {}
+  loadedRetention?: string
 ): UpdateSettingsPayload => {
   const dataRetention = `${Math.round(parseFloat(values.retention) * SECONDS_IN_DAY)}s`;
   const advisorRunIntervals = values.stt
@@ -42,7 +43,7 @@ export const toPayload = (
     : undefined;
 
   return {
-    ...(retentionLocked ? {} : { dataRetention }),
+    ...(values.retention === loadedRetention ? {} : { dataRetention }),
     pmmPublicAddress: values.publicAddress,
     enableTelemetry: values.telemetry,
     enableUpdates: values.updates,
