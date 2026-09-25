@@ -114,7 +114,7 @@ function toNum(v: unknown): number {
 /**
  * Evaluate a predicate wire-format object against the current form values.
  *
- * Mirrors the backend DSL operators from `app/extensions/plugins/framework/rules.py`.
+ * Mirrors the backend DSL operators from `app/extensions/apps/framework/rules.py`.
  * Each predicate is a single-key object `{ <operator>: <operand> }` — the BE
  * schema validator enforces this; multi-key predicates are not valid wire format
  * and only the first entry would be evaluated.

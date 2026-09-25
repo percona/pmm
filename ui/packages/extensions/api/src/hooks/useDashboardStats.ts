@@ -37,7 +37,7 @@ export function useDashboardStats() {
       const response = await apiClient.get<DashboardStatsRaw>(
         '/extensions/dashboard/'
       );
-      const errorHeader = response.headers['x-extensions-upstream-error'] as
+      const errorHeader = response.headers['x-upstream-error'] as
         | string
         | undefined;
       return {

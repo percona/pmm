@@ -18,7 +18,7 @@
 /**
  * Reserved key under a task's ``data`` that holds the verbatim create-form body
  * the backend stamps on the JSON create path. Mirrors the backend
- * ``RESERVED_FORM_KEY`` in ``app/extensions/plugins/framework/spec.py``.
+ * ``RESERVED_FORM_KEY`` in ``app/extensions/apps/framework/spec.py``.
  */
 export const STORED_FORM_KEY = '_form';
 

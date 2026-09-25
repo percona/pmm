@@ -28,7 +28,7 @@ import { apiClient } from '../client';
 import type { ApiError } from '../errors';
 
 const CONFIG_EXPORT_PATH = '/extensions/admin/settings/export';
-const DEFAULT_FILENAME = 'extensions-config.yaml';
+const DEFAULT_FILENAME = 'pmm-extensions-config.yaml';
 
 function filenameFromContentDisposition(
   header: string | undefined
