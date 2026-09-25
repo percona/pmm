@@ -15,9 +15,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import type { SectionField, SepComponents } from '@sep/api';
+import type { SectionField, ExtensionsComponents } from '@pmm-extensions/api';
 
-type Schemas = SepComponents['schemas'];
+type Schemas = ExtensionsComponents['schemas'];
 
 // ── Category browser ─────────────────────────────────────────────────────
 

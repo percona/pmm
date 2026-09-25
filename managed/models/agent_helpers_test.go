@@ -658,6 +658,228 @@ func TestAgentHelpers(t *testing.T) {
 		assert.Equal(t, "A9", agents[2].AgentID)
 	})
 
+	errIncompleteValkeyKeyPair := status.New(codes.InvalidArgument, "TLS certificate and key must both be provided.")
+
+	const (
+		valkeyServiceID       = "S2"
+		valkeyExporterAgentID = "A14"
+	)
+
+	// insertValkeyService stores the service a Valkey exporter can attach to. The fixture set
+	// above carries a MySQL one only, and CreateAgent refuses a mismatched pair.
+	insertValkeyService := func(t *testing.T, q *reform.Querier) {
+		t.Helper()
+
+		row := models.Service{
+			ServiceID:   valkeyServiceID,
+			ServiceType: models.ValkeyServiceType,
+			ServiceName: "Valkey Service on N1",
+			NodeID:      "N1",
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(6379)),
+		}
+		require.NoError(t, q.Insert(&row))
+	}
+
+	// insertValkeyExporter stores a Valkey exporter row directly. CreateAgent now refuses a half
+	// client key pair, so the shapes rows written before that validation hold cannot be reached
+	// through it.
+	insertValkeyExporter := func(t *testing.T, q *reform.Querier, options models.ValkeyOptions) {
+		t.Helper()
+
+		insertValkeyService(t, q)
+
+		row := models.Agent{
+			AgentID:       valkeyExporterAgentID,
+			AgentType:     models.ValkeyExporterType,
+			PMMAgentID:    new("A1"),
+			ServiceID:     new(valkeyServiceID),
+			ListenPort:    new(uint16(8200)),
+			TLS:           true,
+			ValkeyOptions: options,
+		}
+		require.NoError(t, q.Insert(new(models.EncryptAgent(row))))
+	}
+
+	t.Run("CreateAgentRejectsIncompleteValkeyKeyPair", func(t *testing.T) {
+		// The material is validated as it is stored rather than as it is used, so the rule holds
+		// with TLS off too and no row can reach the exporter in a shape it refuses to start on.
+		for name, params := range map[string]*models.CreateAgentParams{
+			"cert without key": {
+				PMMAgentID: "A1", ServiceID: valkeyServiceID, TLS: true,
+				ValkeyOptions: models.ValkeyOptions{SSLCert: "cert-pem"},
+			},
+			"key without cert": {
+				PMMAgentID: "A1", ServiceID: valkeyServiceID, TLS: true,
+				ValkeyOptions: models.ValkeyOptions{SSLKey: "key-pem"},
+			},
+			"cert without key beside a certificate authority": {
+				PMMAgentID: "A1", ServiceID: valkeyServiceID, TLS: true,
+				ValkeyOptions: models.ValkeyOptions{SSLCa: "ca-pem", SSLCert: "cert-pem"},
+			},
+			"key without cert beside a certificate authority": {
+				PMMAgentID: "A1", ServiceID: valkeyServiceID, TLS: true,
+				ValkeyOptions: models.ValkeyOptions{SSLCa: "ca-pem", SSLKey: "key-pem"},
+			},
+			"cert without key and TLS disabled": {
+				PMMAgentID: "A1", ServiceID: valkeyServiceID,
+				ValkeyOptions: models.ValkeyOptions{SSLCert: "cert-pem"},
+			},
+			"key without cert and TLS disabled": {
+				PMMAgentID: "A1", ServiceID: valkeyServiceID,
+				ValkeyOptions: models.ValkeyOptions{SSLKey: "key-pem"},
+			},
+		} {
+			t.Run(name, func(t *testing.T) {
+				q, teardown := setup(t)
+				defer teardown(t)
+
+				insertValkeyService(t, q)
+
+				agent, err := models.CreateAgent(q, models.ValkeyExporterType, params)
+				tests.AssertGRPCError(t, errIncompleteValkeyKeyPair, err)
+				require.Nil(t, agent)
+			})
+		}
+	})
+
+	t.Run("CreateAgentAcceptsValkeyMaterial", func(t *testing.T) {
+		for name, params := range map[string]*models.CreateAgentParams{
+			"no material": {PMMAgentID: "A1", ServiceID: valkeyServiceID, TLS: true},
+			"certificate authority alone": {
+				PMMAgentID: "A1", ServiceID: valkeyServiceID, TLS: true,
+				ValkeyOptions: models.ValkeyOptions{SSLCa: "ca-pem"},
+			},
+			"complete pair without a certificate authority": {
+				PMMAgentID: "A1", ServiceID: valkeyServiceID, TLS: true,
+				ValkeyOptions: models.ValkeyOptions{SSLCert: "cert-pem", SSLKey: "key-pem"},
+			},
+			"certificate authority and a complete pair": {
+				PMMAgentID: "A1", ServiceID: valkeyServiceID, TLS: true,
+				ValkeyOptions: models.ValkeyOptions{SSLCa: "ca-pem", SSLCert: "cert-pem", SSLKey: "key-pem"},
+			},
+			// A complete pair is stored and then ignored over a plaintext link; only half a pair
+			// is refused, because only half a pair is unusable however it is later turned on.
+			"complete pair with TLS disabled": {
+				PMMAgentID: "A1", ServiceID: valkeyServiceID,
+				ValkeyOptions: models.ValkeyOptions{SSLCa: "ca-pem", SSLCert: "cert-pem", SSLKey: "key-pem"},
+			},
+		} {
+			t.Run(name, func(t *testing.T) {
+				q, teardown := setup(t)
+				defer teardown(t)
+
+				insertValkeyService(t, q)
+
+				agent, err := models.CreateAgent(q, models.ValkeyExporterType, params)
+				require.NoError(t, err)
+				assert.Equal(t, params.ValkeyOptions, agent.ValkeyOptions)
+			})
+		}
+	})
+
+	// The merged row is what gets stored, so one half on its own is rejected whether it arrives
+	// as an addition to a row that has neither half or as the removal of one half of a stored pair.
+	t.Run("ChangeAgentRejectsIncompleteValkeyKeyPair", func(t *testing.T) {
+		storedPair := models.ValkeyOptions{SSLCa: "ca-pem", SSLCert: "cert-pem", SSLKey: "key-pem"}
+
+		for name, tc := range map[string]struct {
+			stored models.ValkeyOptions
+			change models.ChangeValkeyOptions
+		}{
+			"cert added to a row with no key": {
+				change: models.ChangeValkeyOptions{SSLCert: new("cert-pem")},
+			},
+			"key added to a row with no cert": {
+				change: models.ChangeValkeyOptions{SSLKey: new("key-pem")},
+			},
+			"cert cleared on a stored pair": {
+				stored: storedPair,
+				change: models.ChangeValkeyOptions{SSLCert: new("")},
+			},
+			"key cleared on a stored pair": {
+				stored: storedPair,
+				change: models.ChangeValkeyOptions{SSLKey: new("")},
+			},
+		} {
+			t.Run(name, func(t *testing.T) {
+				q, teardown := setup(t)
+				defer teardown(t)
+
+				insertValkeyExporter(t, q, tc.stored)
+
+				agent, err := models.ChangeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{ValkeyOptions: &tc.change})
+				tests.AssertGRPCError(t, errIncompleteValkeyKeyPair, err)
+				require.Nil(t, agent)
+			})
+		}
+	})
+
+	// Dropping client authentication altogether is a supported change; it is dropping one half
+	// of it that is not.
+	t.Run("ChangeAgentClearsValkeyKeyPairAsAUnit", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		insertValkeyExporter(t, q, models.ValkeyOptions{SSLCa: "ca-pem", SSLCert: "cert-pem", SSLKey: "key-pem"})
+
+		agent, err := models.ChangeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{
+			ValkeyOptions: &models.ChangeValkeyOptions{SSLCert: new(""), SSLKey: new("")},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, models.ValkeyOptions{SSLCa: "ca-pem"}, agent.ValkeyOptions)
+	})
+
+	// Rows stored before this validation existed may hold half a pair, and ChangeValkeyExporter
+	// always sends ValkeyOptions, so a change that leaves the pair alone must still go through -
+	// otherwise such an agent could never be disabled, relabeled, or repaired.
+	t.Run("ChangeAgentKeepsStoredIncompleteValkeyKeyPairEditable", func(t *testing.T) {
+		for name, tc := range map[string]struct {
+			stored models.ValkeyOptions
+			repair models.ChangeValkeyOptions
+		}{
+			"cert without key": {
+				stored: models.ValkeyOptions{SSLCert: "cert-pem"},
+				repair: models.ChangeValkeyOptions{SSLKey: new("key-pem")},
+			},
+			"key without cert": {
+				stored: models.ValkeyOptions{SSLKey: "key-pem"},
+				repair: models.ChangeValkeyOptions{SSLCert: new("cert-pem")},
+			},
+		} {
+			t.Run(name, func(t *testing.T) {
+				q, teardown := setup(t)
+				defer teardown(t)
+
+				insertValkeyExporter(t, q, tc.stored)
+
+				// Disabling the row is the change such an agent most needs to accept.
+				agent, err := models.ChangeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{
+					Enabled:       new(false),
+					ValkeyOptions: &models.ChangeValkeyOptions{},
+				})
+				require.NoError(t, err)
+				assert.True(t, agent.Disabled)
+				assert.Equal(t, tc.stored, agent.ValkeyOptions)
+
+				// Replacing the certificate authority is a change to the other half of the
+				// material, and leaves the stored pair as it was.
+				agent, err = models.ChangeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{
+					ValkeyOptions: &models.ChangeValkeyOptions{SSLCa: new("ca-pem")},
+				})
+				require.NoError(t, err)
+				assert.Equal(t, "ca-pem", agent.ValkeyOptions.SSLCa)
+				assert.Equal(t, tc.stored.SSLCert, agent.ValkeyOptions.SSLCert)
+				assert.Equal(t, tc.stored.SSLKey, agent.ValkeyOptions.SSLKey)
+
+				agent, err = models.ChangeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{ValkeyOptions: &tc.repair})
+				require.NoError(t, err)
+				assert.Equal(t, "cert-pem", agent.ValkeyOptions.SSLCert)
+				assert.Equal(t, "key-pem", agent.ValkeyOptions.SSLKey)
+			})
+		}
+	})
+
 	t.Run("ChangeAgent", func(t *testing.T) {
 		t.Run("ChangeBasicFields", func(t *testing.T) {
 			q, teardown := setup(t)

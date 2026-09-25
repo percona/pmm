@@ -397,6 +397,147 @@ func TestAddValkey(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
 		assert.Nil(t, addValkeyOK)
 	})
+
+	// valkey_exporter aborts on half a client key pair, so the shape is refused here rather than
+	// registering a service that silently falls back to server authentication. This is the path
+	// `pmm-admin add valkey` takes, and the rejection has to arrive before the connection check
+	// so the reason is the key pair and not a failed handshake.
+	t.Run("Incomplete TLS Client Key Pair", func(t *testing.T) {
+		t.Parallel()
+
+		nodeName := pmmapitests.TestString(t, "node-for-incomplete-key-pair")
+		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
+			NodeName: nodeName,
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+		})
+
+		for name, material := range map[string]struct{ ca, cert, key string }{
+			"cert without key": {ca: "ca-pem", cert: "cert-pem"},
+			"key without cert": {ca: "ca-pem", key: "key-pem"},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				params := &mservice.AddServiceParams{
+					Context: pmmapitests.Context,
+					Body: mservice.AddServiceBody{
+						Valkey: &mservice.AddServiceParamsBodyValkey{
+							PMMAgentID:  pmmAgentID,
+							NodeID:      nodeID,
+							ServiceName: pmmapitests.TestString(t, "service-"+name),
+							Address:     pmmapitests.TestString(t, "10.10.10.10"),
+							Port:        6379,
+							Username:    "default",
+							TLS:         true,
+							TLSCa:       material.ca,
+							TLSCert:     material.cert,
+							TLSKey:      material.key,
+						},
+					},
+				}
+
+				addValkeyOK, err := client.Default.ManagementService.AddService(params)
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "TLS certificate and key must both be provided.")
+				assert.Nil(t, addValkeyOK)
+			})
+		}
+	})
+
+	// The service and its exporter are created in one transaction, so a rejected key pair must
+	// leave neither behind.
+	t.Run("Incomplete TLS Client Key Pair Registers Nothing", func(t *testing.T) {
+		t.Parallel()
+
+		nodeName := pmmapitests.TestString(t, "node-for-rolled-back-key-pair")
+		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
+			NodeName: nodeName,
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+		})
+
+		serviceName := pmmapitests.TestString(t, "service-for-rolled-back-key-pair")
+		params := &mservice.AddServiceParams{
+			Context: pmmapitests.Context,
+			Body: mservice.AddServiceBody{
+				Valkey: &mservice.AddServiceParamsBodyValkey{
+					PMMAgentID:  pmmAgentID,
+					NodeID:      nodeID,
+					ServiceName: serviceName,
+					Address:     pmmapitests.TestString(t, "10.10.10.10"),
+					Port:        6379,
+					Username:    "default",
+					TLS:         true,
+					TLSCert:     "cert-pem",
+				},
+			},
+		}
+
+		addValkeyOK, err := client.Default.ManagementService.AddService(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "TLS certificate and key must both be provided.")
+		assert.Nil(t, addValkeyOK)
+
+		// Adding the same name again has to succeed. If the rejected attempt had left the service
+		// behind, this would come back as a name conflict instead.
+		params.Body.Valkey.TLSKey = "key-pem"
+		params.Body.Valkey.SkipConnectionCheck = true
+
+		addValkeyOK, err = client.Default.ManagementService.AddService(params)
+		require.NoError(t, err)
+		require.NotNil(t, addValkeyOK.Payload.Valkey.Service)
+		t.Cleanup(func() {
+			pmmapitests.RemoveServices(t, addValkeyOK.Payload.Valkey.Service.ServiceID)
+		})
+		assert.Equal(t, serviceName, addValkeyOK.Payload.Valkey.Service.ServiceName)
+	})
+
+	// Server authentication alone and a pinned client identity are both valid, so only the half
+	// pair is refused.
+	t.Run("Accepted TLS Material", func(t *testing.T) {
+		t.Parallel()
+
+		nodeName := pmmapitests.TestString(t, "node-for-accepted-tls-material")
+		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
+			NodeName: nodeName,
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+		})
+
+		for name, material := range map[string]struct{ ca, cert, key string }{
+			"certificate authority alone":                   {ca: "ca-pem"},
+			"complete pair without a certificate authority": {cert: "cert-pem", key: "key-pem"},
+			"certificate authority and a complete pair":     {ca: "ca-pem", cert: "cert-pem", key: "key-pem"},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				params := &mservice.AddServiceParams{
+					Context: pmmapitests.Context,
+					Body: mservice.AddServiceBody{
+						Valkey: &mservice.AddServiceParamsBodyValkey{
+							PMMAgentID:          pmmAgentID,
+							NodeID:              nodeID,
+							ServiceName:         pmmapitests.TestString(t, "service-"+name),
+							Address:             pmmapitests.TestString(t, "10.10.10.10"),
+							Port:                6379,
+							Username:            "default",
+							TLS:                 true,
+							TLSCa:               material.ca,
+							TLSCert:             material.cert,
+							TLSKey:              material.key,
+							SkipConnectionCheck: true,
+						},
+					},
+				}
+
+				addValkeyOK, err := client.Default.ManagementService.AddService(params)
+				require.NoError(t, err)
+				require.NotNil(t, addValkeyOK.Payload.Valkey.Service)
+				t.Cleanup(func() {
+					pmmapitests.RemoveServices(t, addValkeyOK.Payload.Valkey.Service.ServiceID)
+				})
+
+				assert.True(t, addValkeyOK.Payload.Valkey.ValkeyExporter.TLS)
+			})
+		}
+	})
 }
 
 func TestRemoveValkey(t *testing.T) {

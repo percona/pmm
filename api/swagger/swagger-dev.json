@@ -5323,6 +5323,11 @@
                   "description": "Status of HA mode: \"Enabled\" or \"Disabled\".",
                   "type": "string",
                   "x-order": 0
+                },
+                "namespace": {
+                  "description": "Kubernetes namespace this instance is running in.",
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -32450,8 +32455,8 @@
                       "type": "boolean",
                       "x-order": 17
                     },
-                    "sep_enabled": {
-                      "description": "True if the SEP integration is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
+                    "extensions_enabled": {
+                      "description": "True if PMM Extensions is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
                       "type": "boolean",
                       "x-order": 18
                     }
@@ -32773,8 +32778,8 @@
                       "type": "boolean",
                       "x-order": 17
                     },
-                    "sep_enabled": {
-                      "description": "True if the SEP integration is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
+                    "extensions_enabled": {
+                      "description": "True if PMM Extensions is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
                       "type": "boolean",
                       "x-order": 18
                     }
@@ -32878,8 +32883,8 @@
                       "type": "boolean",
                       "x-order": 7
                     },
-                    "sep_enabled": {
-                      "description": "True if the SEP integration is enabled.",
+                    "extensions_enabled": {
+                      "description": "True if PMM Extensions is enabled.",
                       "type": "boolean",
                       "x-order": 8
                     }
