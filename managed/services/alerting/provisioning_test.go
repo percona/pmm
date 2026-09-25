@@ -127,6 +127,14 @@ func (f *provisionerFixture) expectNoConflicts(times int) {
 	}
 }
 
+// expectProgramStates queues supervisord's answers about Grafana's state, in the order they are
+// asked for. A nil entry is a status that cannot be determined.
+func (f *provisionerFixture) expectProgramStates(states ...*bool) {
+	for _, state := range states {
+		f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(state).Once()
+	}
+}
+
 func (f *provisionerFixture) fileContent(t *testing.T) string {
 	t.Helper()
 
@@ -627,7 +635,9 @@ func TestProvisionerRetriesAnApplyItOwes(t *testing.T) {
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(2, true)
 
-	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(false))
+	// Down for the first apply, then a status that cannot be determined after the failed start,
+	// which is what a command that would not run looks like, then down again for the retry.
+	f.expectProgramStates(new(false), nil, new(false))
 	f.supervisord.On("StartSupervisedService", grafanaProgramName).
 		Return(errors.New("boom")).Once()
 	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(nil).Once()
@@ -657,7 +667,7 @@ func TestProvisionerApplyRetryBacksOff(t *testing.T) {
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(3, true)
 
-	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(false))
+	f.expectProgramStates(new(false), nil, new(false), nil, new(false))
 	f.supervisord.On("StartSupervisedService", grafanaProgramName).
 		Return(errors.New("boom")).Times(2)
 	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(nil).Once()
@@ -909,14 +919,18 @@ func TestProvisionerStartsAGrafanaLeftDownByARevisionItGaveUpOn(t *testing.T) {
 
 // TestProvisionerChargesOnlyGrafanaFailuresToTheRevision keeps the budget aimed at what it is for.
 // A supervisord command that would not run says nothing about the content and leaves Grafana where
-// it was, so it must be retried indefinitely rather than counted against the rules.
+// it was, so it must be retried indefinitely rather than counted against the rules. It is told
+// apart by the status check after it: a supervisorctl that is not there cannot report a state
+// either.
 func TestProvisionerChargesOnlyGrafanaFailuresToTheRevision(t *testing.T) {
 	t.Parallel()
 
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(3, true)
 
-	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(false))
+	for range 3 {
+		f.expectProgramStates(new(false), nil)
+	}
 	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(errors.New("supervisorctl is not there"))
 
 	for range 3 {
@@ -952,4 +966,94 @@ func TestProvisionerRollsBackAStartGrafanaDoesNotSurvive(t *testing.T) {
 
 	assert.Equal(t, good, f.fileContent(t), "the file Grafana last started from must be restored")
 	assert.Equal(t, 1, f.provisioner.rejectedApplies, "a Grafana that did not come back counts against the content")
+}
+
+// TestProvisionerChargesARestartGrafanaDiesDuring is the review finding on the restart path. Grafana
+// runs with startsecs = 1, so content it cannot start from makes supervisorctl restart itself exit
+// non-zero ("abnormal termination"), before any readiness wait. That failure used to be taken for a
+// command that would not run: the bad file stayed on disk and the revision was never charged.
+func TestProvisionerChargesARestartGrafanaDiesDuring(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+
+	f.expectSettings(1, true)
+	f.expectProgramStates(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
+	f.provisioner.reconcile(context.Background(), triggerStartup)
+	good := f.fileContent(t)
+
+	f.expectSettings(1, false)
+	f.leader.On("IsLeader").Return(true)
+	// Running when the apply looks, FATAL once the restart has failed.
+	f.expectProgramStates(new(true), new(false))
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).
+		Return(errors.New("grafana: ERROR (abnormal termination)")).Once()
+
+	f.provisioner.reconcile(context.Background(), triggerTick)
+
+	assert.Equal(t, good, f.fileContent(t), "the file Grafana last started from must be restored")
+	assert.Equal(t, 1, f.provisioner.rejectedApplies, "a Grafana that died on the content counts against it")
+	assert.True(t, f.provisioner.applyPending)
+}
+
+// TestProvisionerGivesUpOnAStartGrafanaDiesDuring is the review finding on the start path, where the
+// uncharged failure had no way out: the rollback left Grafana FATAL, the next retry wrote the same
+// content again and started Grafana on it, and the budget that ends that never ran out. Charged, it
+// runs out after maxApplyAttemptsPerRevision, and Grafana is brought back on the restored file.
+func TestProvisionerGivesUpOnAStartGrafanaDiesDuring(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+
+	f.expectSettings(1, true)
+	f.expectProgramStates(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
+	f.provisioner.reconcile(context.Background(), triggerStartup)
+	good := f.fileContent(t)
+
+	f.expectSettings(maxApplyAttemptsPerRevision+1, false)
+	// FATAL for each attempt and after each failed start, and for the recovery that follows giving
+	// up. Running from then on.
+	for range maxApplyAttemptsPerRevision {
+		f.expectProgramStates(new(false), new(false))
+	}
+	f.expectProgramStates(new(false))
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
+	f.supervisord.On("StartSupervisedService", grafanaProgramName).
+		Return(errors.New("grafana: ERROR (abnormal termination)")).Times(maxApplyAttemptsPerRevision)
+	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(nil).Once()
+	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
+
+	for range maxApplyAttemptsPerRevision + 1 {
+		f.provisioner.reconcile(context.Background(), triggerRetry)
+	}
+
+	f.supervisord.AssertNumberOfCalls(t, "StartSupervisedService", maxApplyAttemptsPerRevision+1)
+	assert.Equal(t, maxApplyAttemptsPerRevision, f.provisioner.rejectedApplies)
+	assert.Zero(t, f.provisioner.retryBackoff, "the revision was given up on, so no retry is coming")
+	assert.Equal(t, good, f.fileContent(t), "Grafana must be started on the file it last accepted")
+}
+
+// TestProvisionerWaitsForAGrafanaSupervisordIsStillRetrying covers the failed command that is not
+// the end of it. The first abnormal termination is what supervisorctl reports, but supervisord
+// keeps retrying up to startretries, and a Grafana that then comes up has applied the content.
+func TestProvisionerWaitsForAGrafanaSupervisordIsStillRetrying(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	f.expectSettings(1, true)
+
+	f.leader.On("IsLeader").Return(true)
+	// Running when the apply looks, backing off (reported as running) after the failed restart.
+	f.expectProgramStates(new(true), new(true))
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).
+		Return(errors.New("grafana: ERROR (abnormal termination)")).Once()
+	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
+
+	f.provisioner.reconcile(context.Background(), triggerTick)
+
+	assert.False(t, f.provisioner.applyPending, "Grafana came back on the new content")
+	assert.Zero(t, f.provisioner.rejectedApplies)
+	assert.Zero(t, errorCount(t, f.provisioner, stageApply))
 }

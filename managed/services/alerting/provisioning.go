@@ -470,8 +470,9 @@ func (p *Provisioner) reconcile(ctx context.Context, trigger provisioningTrigger
 		if errors.Is(err, errGrafanaNotBack) {
 			// Grafana was taken down for this content and did not return, and the file has been
 			// rolled back to what it last accepted. Charge the revision for it. Any other failure
-			// is a command that would not run, which says nothing about the content and leaves
-			// Grafana where it was, so it costs the revision nothing.
+			// is a command that would not run (awaitGrafana tells the two apart), which says
+			// nothing about the content and leaves Grafana where it was, so it costs the revision
+			// nothing.
 			p.rejectedHash = hash
 			p.rejectedApplies++
 		}
@@ -508,7 +509,7 @@ var errRuleUIDTaken = errors.New("could not check who owns the built-in rule UID
 var errDeferredToLeader = errors.New("left to the leader to apply")
 
 // errGrafanaNotBack reports that PMM took Grafana down to apply a file and it did not answer again
-// within the timeout. It is the one apply failure that says something about the content, so it is
+// within the timeout, or died so quickly that supervisord gave up on it. It is the one apply failure that says something about the content, so it is
 // told apart from a supervisord command that would not run: only this one counts against the
 // revision that caused it.
 var errGrafanaNotBack = errors.New("grafana did not come back")
@@ -708,29 +709,44 @@ func (p *Provisioner) restartGrafana(ctx context.Context, previous []byte) error
 	p.l.Infof("Restarting Grafana to apply alert rule changes.")
 
 	err := p.supervisord.RestartSupervisedService(ctx, grafanaProgramName)
-	if err != nil {
-		return fmt.Errorf("failed to restart Grafana: %w", err)
-	}
-
-	err = p.waitForGrafana(ctx)
-	if err != nil {
+	err = p.awaitGrafana(ctx, "restart", err)
+	if errors.Is(err, errGrafanaNotBack) {
 		p.rollback(previous)
-		return fmt.Errorf("%w after the restart: %w", errGrafanaNotBack, err)
 	}
 
-	return nil
+	return err
 }
 
 // startGrafana starts a Grafana supervisord has given up on and waits for it to answer.
 func (p *Provisioner) startGrafana(ctx context.Context) error {
 	err := p.supervisord.StartSupervisedService(grafanaProgramName)
-	if err != nil {
-		return fmt.Errorf("failed to start Grafana: %w", err)
+	return p.awaitGrafana(ctx, "start", err)
+}
+
+// awaitGrafana works out what a supervisorctl restart or start of Grafana did, given the error the
+// command returned, and waits for Grafana to answer when that is still possible.
+//
+// A failed command does not mean the command never ran. Grafana runs with startsecs = 1, and
+// supervisorctl exits non-zero with "abnormal termination" or "spawn error" when the process dies
+// within that second - which is exactly what content Grafana cannot start from makes it do. So a
+// failure is followed by a status check, and only a status that cannot be determined either is
+// taken as a command that would not run: that says nothing about the content, so it must not
+// count against it. A Grafana supervisord has stopped retrying did not come back, and one it is
+// still retrying gets the same wait as after a command that succeeded.
+func (p *Provisioner) awaitGrafana(ctx context.Context, command string, cmdErr error) error {
+	if cmdErr != nil {
+		running := p.supervisord.ProgramState(ctx, grafanaProgramName)
+		if running == nil {
+			return fmt.Errorf("failed to %s Grafana: %w", command, cmdErr)
+		}
+		if !*running {
+			return fmt.Errorf("%w after supervisorctl %s: %w", errGrafanaNotBack, command, cmdErr)
+		}
 	}
 
-	err = p.waitForGrafana(ctx)
+	err := p.waitForGrafana(ctx)
 	if err != nil {
-		return fmt.Errorf("%w after being started: %w", errGrafanaNotBack, err)
+		return fmt.Errorf("%w after supervisorctl %s: %w", errGrafanaNotBack, command, err)
 	}
 
 	return nil
