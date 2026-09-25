@@ -44,12 +44,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@sep/api';
 import {
   ATW_PAGE_SIZE,
+  useAtwConfig,
   useAtwIncidentLifecycle,
   useAtwIncidents,
   useCreateAtwIncident,
   useDeleteAtwIncident,
   useUpdateAtwIncident,
 } from './hooks';
+import { IncidentsEmptyState } from './IncidentsEmptyState';
+import { SendUnavailableNotice } from './SendUnavailableNotice';
 import type { AtwIncident } from './types';
 
 /**
@@ -62,11 +65,29 @@ export function IncidentListPage() {
   const navigate = useNavigate();
   const [page, setPage] = useState({ offset: 0, limit: ATW_PAGE_SIZE });
   const { data, isLoading, error } = useAtwIncidents(page);
+  const { data: config } = useAtwConfig();
   const incidents = data?.items;
+  // Prefer total over the current page's items so deleting the last row on a
+  // later page does not flash the empty state while the list jumps back.
+  const isEmpty = data?.total === 0;
+  const showIntro = isLoading || !isEmpty || Boolean(error);
+  const sendDisabledReasons = config?.send_disabled_reasons ?? [];
   const createMutation = useCreateAtwIncident();
   const updateMutation = useUpdateAtwIncident();
   const deleteMutation = useDeleteAtwIncident();
   const lifecycle = useAtwIncidentLifecycle();
+
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createName, setCreateName] = useState('');
+  const [renameTarget, setRenameTarget] = useState<AtwIncident | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<AtwIncident | null>(null);
+
+  const openCreateDialog = () => {
+    createMutation.reset();
+    setCreateName('');
+    setCreateOpen(true);
+  };
 
   useEffect(() => {
     if (data && data.total > 0 && data.offset >= data.total) {
@@ -79,12 +100,6 @@ export function IncidentListPage() {
       }));
     }
   }, [data]);
-
-  const [createOpen, setCreateOpen] = useState(false);
-  const [createName, setCreateName] = useState('');
-  const [renameTarget, setRenameTarget] = useState<AtwIncident | null>(null);
-  const [renameValue, setRenameValue] = useState('');
-  const [deleteTarget, setDeleteTarget] = useState<AtwIncident | null>(null);
 
   const handleCreate = () => {
     const name = createName.trim();
@@ -132,27 +147,26 @@ export function IncidentListPage() {
         {/*
           Withheld while the list is unavailable: a create would hit the same
           backend that just failed, so offering it only produces a second error
-          on top of one the user cannot act on.
+          on top of one the user cannot act on. Also withheld when empty — the
+          primary CTA lives inside the empty state instead (PMM-15515).
         */}
-        {!error && canMutate && (
+        {!error && canMutate && (isLoading || !isEmpty) && (
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             disabled={isLoading}
-            onClick={() => {
-              createMutation.reset();
-              setCreateName('');
-              setCreateOpen(true);
-            }}
+            onClick={openCreateDialog}
           >
             New incident
           </Button>
         )}
       </Stack>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Open an incident to run diagnostic snippets and review their results in
-        one place.
-      </Typography>
+      {showIntro && (
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          Open an incident to run diagnostic snippets and review their results
+          in one place.
+        </Typography>
+      )}
 
       {isLoading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
@@ -172,12 +186,14 @@ export function IncidentListPage() {
         </Alert>
       )}
 
-      {!isLoading && !error && (!incidents || incidents.length === 0) && (
-        <Alert severity="info">
-          {canMutate
-            ? 'No incidents yet. Create one to get started.'
-            : 'No incidents yet.'}
-        </Alert>
+      {!isLoading && !error && canMutate && sendDisabledReasons.length > 0 && (
+        <SendUnavailableNotice />
+      )}
+
+      {!isLoading && !error && isEmpty && (
+        <IncidentsEmptyState
+          onCreate={canMutate ? openCreateDialog : undefined}
+        />
       )}
 
       {incidents && incidents.length > 0 && (
