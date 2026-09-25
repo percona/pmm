@@ -178,7 +178,7 @@ services:
   pmm-extensions:
     profiles:
       - extensions
-    image: ${PMM_EXTENSIONS_IMAGE:-percona/percona-sep:3}
+    image: ${PMM_EXTENSIONS_IMAGE:-percona/pmm-extensions:3}
     platform: linux/amd64
     container_name: pmm-extensions
     restart: always
