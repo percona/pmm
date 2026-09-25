@@ -589,7 +589,8 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 // COMMITTED another replica can commit a retention change between them, and a request that never
 // mentioned retention would then be refused. That race still exists for the write itself, since
 // the settings row is rewritten whole: a request repeating the old value while another replica
-// writes a new one can put the old value back. The same holds for every other setting in HA.
+// writes a new one can put the old value back. The same holds for every other setting in HA;
+// locking the settings row is tracked in PMM-15600.
 func (s *Server) refuseDataRetentionChangeInHA(requested time.Duration, stored *models.Settings) error {
 	if !s.haService.Params().Enabled || requested == 0 || requested == stored.DataRetention {
 		return nil
