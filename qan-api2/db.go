@@ -209,8 +209,12 @@ func DropOldPartition(ctx context.Context, db *sqlx.DB, dbName string, days uint
 
 	// Logged even when nothing was old enough, so a healthy deployment leaves evidence that
 	// retention is running at all.
-	l.Infof("Data retention applied to %s.metrics: dropped %d of %d partitions older than %d days.",
-		dbName, dropped, len(partitions), days)
+	l.WithFields(logrus.Fields{
+		"table":      dbName + ".metrics",
+		"dropped":    dropped,
+		"partitions": len(partitions),
+		"days":       days,
+	}).Info("Data retention applied: checked for partitions older than the retention period.")
 
 	return nil
 }

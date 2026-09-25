@@ -321,7 +321,7 @@ func runRetentionLoop(ctx context.Context, interval, retry time.Duration, drop f
 		deadline := start.Add(interval)
 		if err != nil {
 			result = retentionFailed
-			l.Errorf("Failed to apply data retention, will retry in %s: %s.", backoff, err)
+			l.WithError(err).WithField("retry_in", backoff).Error("Failed to apply data retention, will retry.")
 			// The retry is measured from the end of the failed pass instead. A drop that
 			// took longer to fail than the retry interval would otherwise be retried with
 			// no delay at all, turning a degraded ClickHouse into a tight retry loop.

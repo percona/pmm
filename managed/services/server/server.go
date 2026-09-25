@@ -186,12 +186,13 @@ func (s *Server) reportDataRetention(settings *models.Settings) {
 // back out of the UI as confirmation that it took effect, because the field is not writable
 // there, so this line is what answers "what is this replica actually enforcing".
 func (s *Server) logDataRetention(days int, fromEnv time.Duration) {
+	l := s.l.WithField("days", days)
 	if !s.haService.Params().Enabled {
 		if fromEnv != 0 {
-			s.l.Infof("Data retention: %dd, set by PMM_DATA_RETENTION.", days)
+			l.Info("Data retention: set by PMM_DATA_RETENTION.")
 			return
 		}
-		s.l.Infof("Data retention: %dd, changeable through the settings API.", days)
+		l.Info("Data retention: changeable through the settings API.")
 
 		return
 	}
@@ -202,23 +203,23 @@ func (s *Server) logDataRetention(days int, fromEnv time.Duration) {
 	// that another replica wrote.
 	envDays := models.DurationToDays(fromEnv)
 	if fromEnv != 0 && envDays != days {
-		s.l.Warnf("Data retention: %dd, written to the shared settings by another replica; "+
-			"this replica's PMM_DATA_RETENTION is %dd. High availability is enabled, so replicas "+
-			"disagree until every replica runs with the same pmm-ha chart dataRetentionDays value.", days, envDays)
+		l.WithField("env_days", envDays).Warn("Data retention: written to the shared settings by another replica, " +
+			"and different from this replica's PMM_DATA_RETENTION. High availability is enabled, so replicas " +
+			"disagree until every replica runs with the same pmm-ha chart dataRetentionDays value.")
 		return
 	}
 
 	if fromEnv != 0 {
-		s.l.Infof("Data retention: %dd, set by PMM_DATA_RETENTION. High availability is enabled, "+
-			"so it cannot be changed through the settings API; every replica takes it from the environment when it starts.", days)
+		l.Info("Data retention: set by PMM_DATA_RETENTION. High availability is enabled, " +
+			"so it cannot be changed through the settings API; every replica takes it from the environment when it starts.")
 		return
 	}
 
 	// Warned rather than corrected. Substituting the default would silently shorten retention
 	// for a deployment that had a longer period stored, and deleted metrics do not come back.
-	s.l.Warnf("Data retention: %dd, carried over from the stored settings. High availability is enabled "+
-		"and PMM_DATA_RETENTION is not set, so it cannot be changed through the settings API. "+
-		"The pmm-ha chart is expected to supply it through dataRetentionDays.", days)
+	l.Warn("Data retention: carried over from the stored settings. High availability is enabled " +
+		"and PMM_DATA_RETENTION is not set, so it cannot be changed through the settings API. " +
+		"The pmm-ha chart is expected to supply it through dataRetentionDays.")
 }
 
 // Version returns PMM Server version.

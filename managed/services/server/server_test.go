@@ -18,7 +18,6 @@ package server
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math"
 	"os"
 	"strings"
@@ -366,7 +365,7 @@ func TestServer(t *testing.T) {
 		t.Run("HA with the environment variable is informational", func(t *testing.T) {
 			e := retentionEntry(t, run(t, true, []string{"PMM_DATA_RETENTION=240h"}))
 			assert.Equal(t, logrus.InfoLevel, e.Level)
-			assert.Contains(t, e.Message, "10d")
+			assert.Equal(t, 10, e.Data["days"])
 			assert.Contains(t, e.Message, "PMM_DATA_RETENTION")
 		})
 
@@ -443,8 +442,8 @@ func TestServer(t *testing.T) {
 			require.Len(t, entries, 2)
 			e := entries[1]
 			assert.Equal(t, logrus.WarnLevel, e.Level, "a replica enforcing a value other than its own must be warned about")
-			assert.Contains(t, e.Message, "20d")
-			assert.Contains(t, e.Message, "10d")
+			assert.Equal(t, 20, e.Data["days"])
+			assert.Equal(t, 10, e.Data["env_days"])
 			assert.Contains(t, e.Message, "another replica")
 		})
 
@@ -461,7 +460,7 @@ func TestServer(t *testing.T) {
 
 			entries := retentionEntries(hook)
 			require.Len(t, entries, 2)
-			assert.Contains(t, entries[1].Message, fmt.Sprintf("%dd", stored.DataRetentionDays()+1))
+			assert.Equal(t, stored.DataRetentionDays()+1, entries[1].Data["days"])
 		})
 	})
 
