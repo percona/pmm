@@ -378,7 +378,7 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 		EnableAccessControl: settings.IsAccessControlEnabled(),
 		DefaultRoleId:       convertDefaultRoleID(settings.DefaultRoleID),
 
-		SepEnabled: pkgenv.SEPEnabled(),
+		ExtensionsEnabled: pkgenv.ExtensionsEnabled(),
 	}
 
 	return res
@@ -403,7 +403,7 @@ func (s *Server) convertReadOnlySettings(settings *models.Settings) *serverv1.Re
 		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
 		AzurediscoverEnabled:    settings.IsAzureDiscoverEnabled(),
 		EnableAccessControl:     settings.IsAccessControlEnabled(),
-		SepEnabled:              pkgenv.SEPEnabled(),
+		ExtensionsEnabled:       pkgenv.ExtensionsEnabled(),
 	}
 
 	return res

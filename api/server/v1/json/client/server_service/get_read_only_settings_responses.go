@@ -708,8 +708,8 @@ type GetReadOnlySettingsOKBodySettings struct {
 	// True if Access Control is enabled.
 	EnableAccessControl bool `json:"enable_access_control,omitempty"`
 
-	// True if the SEP integration is enabled.
-	SepEnabled bool `json:"sep_enabled,omitempty"`
+	// True if PMM Extensions is enabled.
+	ExtensionsEnabled bool `json:"extensions_enabled,omitempty"`
 }
 
 // Validate validates this get read only settings OK body settings
