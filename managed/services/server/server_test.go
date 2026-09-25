@@ -20,15 +20,18 @@ import (
 	"errors"
 	"math"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/sirupsen/logrus"
+	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -42,7 +45,7 @@ import (
 func TestServer(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
-	newServer := func(t *testing.T) *Server {
+	newServerWithHA := func(t *testing.T, haEnabled bool) *Server {
 		t.Helper()
 		var r mockSupervisordService
 		r.Test(t)
@@ -53,7 +56,7 @@ func TestServer(t *testing.T) {
 		mvmdb.On("RequestConfigurationUpdate").Return(nil)
 		mState := &mockAgentsStateUpdater{}
 		mState.Test(t)
-		mState.On("UpdateAgentsState", context.TODO()).Return(nil)
+		mState.On("UpdateAgentsState", mock.Anything).Return(nil)
 		mState.On("RequestStateUpdate", context.TODO(), mock.Anything).Return(nil)
 
 		var mvmalert mockPrometheusService
@@ -83,7 +86,7 @@ func TestServer(t *testing.T) {
 		var ha mockHaService
 		ha.Test(t)
 		ha.On("IsLeader").Return(true)
-		ha.On("Params").Return(&models.HAParams{Enabled: false})
+		ha.On("Params").Return(&models.HAParams{Enabled: haEnabled})
 
 		s, err := NewServer(&Params{
 			DB:                   reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
@@ -99,7 +102,14 @@ func TestServer(t *testing.T) {
 			HAService:            &ha,
 		})
 		require.NoError(t, err)
+
 		return s
+	}
+
+	newServer := func(t *testing.T) *Server {
+		t.Helper()
+
+		return newServerWithHA(t, false)
 	}
 
 	t.Run("UpdateSettingsFromEnv", func(t *testing.T) {
@@ -242,6 +252,216 @@ func TestServer(t *testing.T) {
 		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			EnableAdvisor: new(true),
 		}))
+	})
+
+	t.Run("DataRetentionIsEnvOnlyInHA", func(t *testing.T) {
+		retention := func(d time.Duration) *serverv1.ChangeSettingsRequest {
+			return &serverv1.ChangeSettingsRequest{DataRetention: durationpb.New(d)}
+		}
+
+		t.Run("a changed value is refused and not written", func(t *testing.T) {
+			s := newServerWithHA(t, true)
+
+			stored, err := models.GetSettings(s.db)
+			require.NoError(t, err)
+
+			_, err = s.ChangeSettings(context.TODO(), retention(stored.DataRetention+24*time.Hour))
+			tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "Data retention cannot be changed at runtime", err)
+
+			after, err := models.GetSettings(s.db)
+			require.NoError(t, err)
+			assert.Equal(t, stored.DataRetention, after.DataRetention)
+		})
+
+		// The UI submits the whole settings form, so refusing an unchanged retention would
+		// block every other setting on the page.
+		t.Run("the value already in force is not a change", func(t *testing.T) {
+			s := newServerWithHA(t, true)
+
+			stored, err := models.GetSettings(s.db)
+			require.NoError(t, err)
+
+			req := retention(stored.DataRetention)
+			req.PmmPublicAddress = new("1.2.3.4:5678")
+			_, err = s.ChangeSettings(context.TODO(), req)
+			require.NoError(t, err)
+		})
+
+		// Malformed input is a client error whether or not HA is enabled, and must not be
+		// reported as a refusal to change a valid value.
+		t.Run("a malformed value is an invalid argument", func(t *testing.T) {
+			s := newServerWithHA(t, true)
+
+			_, err := s.ChangeSettings(t.Context(), retention(36*time.Hour))
+			tests.AssertGRPCErrorRE(t, codes.InvalidArgument, `Invalid argument: data_retention: should be a natural number of days\.`, err)
+
+			_, err = s.ChangeSettings(t.Context(), retention(10*time.Second))
+			tests.AssertGRPCErrorRE(t, codes.InvalidArgument, `Invalid argument: data_retention: minimal resolution is 24h\.`, err)
+		})
+
+		t.Run("leaving the value out is not a change", func(t *testing.T) {
+			s := newServerWithHA(t, true)
+
+			_, err := s.ChangeSettings(t.Context(), &serverv1.ChangeSettingsRequest{PmmPublicAddress: new("1.2.3.4:5678")})
+			require.NoError(t, err)
+		})
+
+		// Another replica can commit a new retention between the transaction's two reads of the
+		// row. That cannot be staged on one test database, so this pins the rule that avoids it
+		// instead: the check keys off the request alone, and a request without a retention passes.
+		t.Run("a request without a retention is never refused", func(t *testing.T) {
+			s := newServerWithHA(t, true)
+
+			stored, err := models.GetSettings(s.db)
+			require.NoError(t, err)
+
+			assert.NoError(t, s.refuseDataRetentionChangeInHA(0, stored))
+		})
+
+		t.Run("nothing is refused when HA is disabled", func(t *testing.T) {
+			s := newServer(t)
+
+			stored, err := models.GetSettings(s.db)
+			require.NoError(t, err)
+
+			_, err = s.ChangeSettings(context.TODO(), retention(stored.DataRetention+24*time.Hour))
+			require.NoError(t, err)
+		})
+	})
+
+	t.Run("DataRetentionIsReportedAtStartUp", func(t *testing.T) {
+		// A boot-time setting has no other feedback channel, so the line itself is the
+		// contract: assert the level, since that is what decides whether an operator sees it.
+		run := func(t *testing.T, haEnabled bool, env []string) *logrustest.Hook {
+			t.Helper()
+
+			s := newServerWithHA(t, haEnabled)
+			l, hook := logrustest.NewNullLogger()
+			s.l = l.WithField("component", "server-test")
+			require.Empty(t, s.UpdateSettingsFromEnv(context.TODO(), env))
+
+			return hook
+		}
+
+		retentionEntry := func(t *testing.T, hook *logrustest.Hook) *logrus.Entry {
+			t.Helper()
+
+			for _, e := range hook.AllEntries() {
+				if strings.HasPrefix(e.Message, "Data retention:") {
+					return e
+				}
+			}
+			t.Fatal("the effective data retention was never reported")
+
+			return nil
+		}
+
+		t.Run("HA without the environment variable warns", func(t *testing.T) {
+			e := retentionEntry(t, run(t, true, nil))
+			assert.Equal(t, logrus.WarnLevel, e.Level, "an HA deployment with no retention supplied must be warned about")
+			assert.Contains(t, e.Message, "dataRetentionDays", "the message must say where the value should come from")
+		})
+
+		t.Run("HA with the environment variable is informational", func(t *testing.T) {
+			e := retentionEntry(t, run(t, true, []string{"PMM_DATA_RETENTION=240h"}))
+			assert.Equal(t, logrus.InfoLevel, e.Level)
+			assert.Equal(t, 10, e.Data["days"])
+			assert.Contains(t, e.Message, "PMM_DATA_RETENTION")
+		})
+
+		t.Run("standalone is informational", func(t *testing.T) {
+			e := retentionEntry(t, run(t, false, nil))
+			assert.Equal(t, logrus.InfoLevel, e.Level)
+			assert.Contains(t, e.Message, "changeable through the settings API")
+		})
+
+		retentionEntries := func(hook *logrustest.Hook) []*logrus.Entry {
+			var res []*logrus.Entry
+			for _, e := range hook.AllEntries() {
+				if strings.HasPrefix(e.Message, "Data retention:") {
+					res = append(res, e)
+				}
+			}
+
+			return res
+		}
+
+		// setup() retries UpdateSettingsFromEnv until start-up succeeds, so the line must not
+		// repeat on every retry, and must not be written by an attempt that failed to apply it.
+		t.Run("reported once, after it is applied", func(t *testing.T) {
+			s := newServerWithHA(t, true)
+			l, hook := logrustest.NewNullLogger()
+			s.l = l.WithField("component", "server-test")
+
+			var sup mockSupervisordService
+			sup.Test(t)
+			sup.On("UpdateConfiguration", mock.Anything).Return(errors.New("supervisord is not ready")).Once()
+			sup.On("UpdateConfiguration", mock.Anything).Return(nil)
+			s.supervisord = &sup
+
+			require.NotEmpty(t, s.UpdateSettingsFromEnv(t.Context(), nil))
+			assert.Empty(t, retentionEntries(hook), "nothing was applied yet")
+
+			require.Empty(t, s.UpdateSettingsFromEnv(t.Context(), nil))
+			assert.Len(t, retentionEntries(hook), 1)
+
+			require.Empty(t, s.UpdateSettingsFromEnv(t.Context(), nil))
+			assert.Len(t, retentionEntries(hook), 1, "an unchanged value must not be reported again")
+		})
+
+		// qan-api2 takes its retention from the supervisord configuration, so the value is in force
+		// once supervisord has rendered it, even if a later step of the re-render fails.
+		t.Run("reported once supervisord applies it, even if the agents update fails", func(t *testing.T) {
+			s := newServerWithHA(t, true)
+			l, hook := logrustest.NewNullLogger()
+			s.l = l.WithField("component", "server-test")
+
+			mState := &mockAgentsStateUpdater{}
+			mState.Test(t)
+			mState.On("UpdateAgentsState", mock.Anything).Return(errors.New("agents are not ready"))
+			s.agentsState = mState
+
+			require.NotEmpty(t, s.UpdateSettingsFromEnv(t.Context(), nil))
+			assert.Len(t, retentionEntries(hook), 1)
+		})
+
+		// Another replica can write its own environment to the shared row; this one applies it on
+		// its next re-render, and the line must say so rather than keep the start-up value.
+		t.Run("a value written by another replica is reported when applied", func(t *testing.T) {
+			s := newServerWithHA(t, true)
+			l, hook := logrustest.NewNullLogger()
+			s.l = l.WithField("component", "server-test")
+			require.Empty(t, s.UpdateSettingsFromEnv(t.Context(), []string{"PMM_DATA_RETENTION=240h"}))
+
+			_, err := models.UpdateSettings(s.db, &models.ChangeSettingsParams{DataRetention: 20 * 24 * time.Hour})
+			require.NoError(t, err)
+			_, err = s.ChangeSettings(t.Context(), &serverv1.ChangeSettingsRequest{PmmPublicAddress: new("1.2.3.4:5678")})
+			require.NoError(t, err)
+
+			entries := retentionEntries(hook)
+			require.Len(t, entries, 2)
+			e := entries[1]
+			assert.Equal(t, logrus.WarnLevel, e.Level, "a replica enforcing a value other than its own must be warned about")
+			assert.Equal(t, 20, e.Data["days"])
+			assert.Equal(t, 10, e.Data["env_days"])
+			assert.Contains(t, e.Message, "another replica")
+		})
+
+		t.Run("a change through the settings API is reported", func(t *testing.T) {
+			s := newServer(t)
+			l, hook := logrustest.NewNullLogger()
+			s.l = l.WithField("component", "server-test")
+			require.Empty(t, s.UpdateSettingsFromEnv(t.Context(), nil))
+
+			stored, err := models.GetSettings(s.db)
+			require.NoError(t, err)
+			_, err = s.ChangeSettings(t.Context(), &serverv1.ChangeSettingsRequest{DataRetention: durationpb.New(stored.DataRetention + 24*time.Hour)})
+			require.NoError(t, err)
+
+			entries := retentionEntries(hook)
+			require.Len(t, entries, 2)
+			assert.Equal(t, stored.DataRetentionDays()+1, entries[1].Data["days"])
+		})
 	})
 
 	t.Run("ChangeSettings", func(t *testing.T) {
