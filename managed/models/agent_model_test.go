@@ -24,6 +24,8 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -691,4 +693,95 @@ func TestExporterOptionsIsEmpty(t *testing.T) {
 			ConnectionTimeout: pointer.ToDuration(time.Second),
 		}).IsEmpty())
 	})
+}
+
+func TestAWSOptionsCredentialsKey(t *testing.T) {
+	t.Parallel()
+
+	const roleARN = "arn:aws:iam::123456789012:role/pmm-monitoring"
+
+	for _, tc := range []struct {
+		name     string
+		options  models.AWSOptions
+		expected string
+	}{{
+		name:     "empty options yield empty key",
+		options:  models.AWSOptions{},
+		expected: "",
+	}, {
+		name:     "access key is returned verbatim to preserve existing group IDs",
+		options:  models.AWSOptions{AWSAccessKey: "AKIAIOSFODNN7EXAMPLE", AWSSecretKey: "secret"},
+		expected: "AKIAIOSFODNN7EXAMPLE",
+	}, {
+		name:     "role ARN is hashed",
+		options:  models.AWSOptions{AWSRoleARN: roleARN},
+		expected: "role-4c562ef173064add",
+	}, {
+		name:     "metrics flags alone yield empty key",
+		options:  models.AWSOptions{RDSBasicMetricsDisabled: true},
+		expected: "",
+	}} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.expected, tc.options.CredentialsKey())
+		})
+	}
+}
+
+func TestAWSOptionsCredentialsKeyDistinguishesRoles(t *testing.T) {
+	t.Parallel()
+
+	a := models.AWSOptions{AWSRoleARN: "arn:aws:iam::111111111111:role/pmm"}
+	b := models.AWSOptions{AWSRoleARN: "arn:aws:iam::222222222222:role/pmm"}
+
+	assert.NotEqual(t, a.CredentialsKey(), b.CredentialsKey())
+	assert.Equal(t, a.CredentialsKey(), models.AWSOptions{AWSRoleARN: a.AWSRoleARN}.CredentialsKey())
+}
+
+func TestAWSOptionsIsEmpty(t *testing.T) {
+	t.Parallel()
+
+	assert.True(t, models.AWSOptions{}.IsEmpty())
+	assert.False(t, models.AWSOptions{AWSRoleARN: "arn:aws:iam::123456789012:role/pmm"}.IsEmpty())
+}
+
+func TestAWSOptionsValidate(t *testing.T) {
+	t.Parallel()
+
+	const roleARN = "arn:aws:iam::123456789012:role/pmm-monitoring"
+
+	for _, tc := range []struct {
+		name    string
+		options models.AWSOptions
+		wantErr bool
+	}{{
+		name:    "empty is valid",
+		options: models.AWSOptions{},
+	}, {
+		name:    "static keys alone are valid",
+		options: models.AWSOptions{AWSAccessKey: "AKIA", AWSSecretKey: "secret"},
+	}, {
+		name:    "role ARN alone is valid",
+		options: models.AWSOptions{AWSRoleARN: roleARN},
+	}, {
+		name:    "role ARN with access key is rejected",
+		options: models.AWSOptions{AWSRoleARN: roleARN, AWSAccessKey: "AKIA"},
+		wantErr: true,
+	}, {
+		name:    "role ARN with secret key is rejected",
+		options: models.AWSOptions{AWSRoleARN: roleARN, AWSSecretKey: "secret"},
+		wantErr: true,
+	}} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := tc.options.Validate()
+			if !tc.wantErr {
+				require.NoError(t, err)
+				return
+			}
+			require.Error(t, err)
+			assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		})
+	}
 }
