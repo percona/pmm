@@ -863,7 +863,7 @@ export const NAV_EXTENSIONS_ATW: NavItem = {
   icon: SupportDiagnosticsIcon,
   text: 'Support diagnostics',
   url: EXTENSIONS_ATW_PATH,
-  matches: [EXTENSIONS_ATW_PATH],
+  matches: ['*'],
 };
 
 export const NAV_EXTENSIONS_MYSQL_BACKUPS: NavItem = {
@@ -871,5 +871,5 @@ export const NAV_EXTENSIONS_MYSQL_BACKUPS: NavItem = {
   icon: Restore,
   text: 'MySQL Backups',
   url: EXTENSIONS_MYSQL_BACKUPS_PATH,
-  matches: [EXTENSIONS_MYSQL_BACKUPS_PATH],
+  matches: ['*'],
 };
