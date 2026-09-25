@@ -5,9 +5,9 @@ checks:
     summary: MongoDB write Tickets
     description: This check returns warnings if MongoDB is using more than 128 write tickets.
     interval: standard
-    family: MONGODB
-    advisor: configuration_generic
-    #author: Vinicius Grippa/Parag Bhayani
+    technology: MONGODB
+    category: Performance
+    # author: Vinicius Grippa/Parag Bhayani
     queries:
       - type: MONGODB_GETCMDLINEOPTS
     script: |
@@ -34,4 +34,5 @@ checks:
                               "read_more_url": read_url.format("mongodb-write-tickets"),
                               "severity": "warning",
                           })
-              return results
+
+          return results

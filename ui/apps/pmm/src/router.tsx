@@ -18,6 +18,9 @@ import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
+import { AdvisorsList } from 'pages/advisors';
+import { AdvisorInsights } from 'pages/advisors/insights';
+import { AdvisorRuns } from 'pages/advisors/runs';
 import { AlertsPage } from 'pages/alerting/status';
 import { AtwApp } from '@sep/plugins-atw';
 import { SchemaDrivenPlugin } from '@sep/framework';
@@ -89,6 +92,23 @@ const router = createBrowserRouter(
                 {
                   path: 'overview',
                   element: <RealtimeOverviewPage />,
+                },
+              ],
+            },
+            {
+              path: 'advisors',
+              children: [
+                {
+                  path: '',
+                  element: <AdvisorsList />,
+                },
+                {
+                  path: 'insights',
+                  element: <AdvisorInsights />,
+                },
+                {
+                  path: 'runs',
+                  element: <AdvisorRuns />,
                 },
               ],
             },

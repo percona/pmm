@@ -17,6 +17,8 @@ import (
 	"unicode/utf8"
 
 	"google.golang.org/protobuf/types/known/anypb"
+
+	managementv1 "github.com/percona/pmm/api/management/v1"
 )
 
 // ensure the imports are used
@@ -33,6 +35,8 @@ var (
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
 	_ = sort.Sort
+
+	_ = managementv1.Severity(0)
 )
 
 // Validate checks the field values on VersionInfo with the rules defined in
@@ -2285,6 +2289,39 @@ func (m *Settings) validate(all bool) error {
 
 	// no validation rules for SepEnabled
 
+	// no validation rules for AdvisorNotificationsEnabled
+
+	// no validation rules for AdvisorNotificationSeverityThreshold
+
+	if all {
+		switch v := interface{}(m.GetAdvisorHistoryRetention()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SettingsValidationError{
+					field:  "AdvisorHistoryRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SettingsValidationError{
+					field:  "AdvisorHistoryRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAdvisorHistoryRetention()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SettingsValidationError{
+				field:  "AdvisorHistoryRetention",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return SettingsMultiError(errors)
 	}
@@ -3062,6 +3099,37 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetAdvisorHistoryRetention()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ChangeSettingsRequestValidationError{
+					field:  "AdvisorHistoryRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ChangeSettingsRequestValidationError{
+					field:  "AdvisorHistoryRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAdvisorHistoryRetention()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChangeSettingsRequestValidationError{
+				field:  "AdvisorHistoryRetention",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for AdvisorNotificationSeverityThreshold
+
 	if m.EnableUpdates != nil {
 		// no validation rules for EnableUpdates
 	}
@@ -3131,6 +3199,41 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 
 	if m.EnableInternalPgQan != nil {
 		// no validation rules for EnableInternalPgQan
+	}
+
+	if m.EnableAdvisorNotifications != nil {
+		// no validation rules for EnableAdvisorNotifications
+	}
+
+	if m.AdvisorNotificationEmailAddresses != nil {
+		if all {
+			switch v := interface{}(m.GetAdvisorNotificationEmailAddresses()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeSettingsRequestValidationError{
+						field:  "AdvisorNotificationEmailAddresses",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeSettingsRequestValidationError{
+						field:  "AdvisorNotificationEmailAddresses",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetAdvisorNotificationEmailAddresses()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeSettingsRequestValidationError{
+					field:  "AdvisorNotificationEmailAddresses",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
 	}
 
 	if len(errors) > 0 {

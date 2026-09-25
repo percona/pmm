@@ -43,16 +43,21 @@ func (c *Results) Run(ctx context.Context, interval time.Duration, olderThan tim
 	l := logrus.WithField("component", "cleaner")
 
 	for {
-		olderThanTS := models.Now().Add(-1 * olderThan)
-		err := models.CleanupOldActionResults(c.db.Querier, olderThanTS)
-		if err != nil {
-			l.Error(err)
-		}
+		c.cleanup(l, olderThan)
 
 		select {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
 		}
+	}
+}
+
+// cleanup performs a single cleanup pass, removing action results older than the given age.
+func (c *Results) cleanup(l *logrus.Entry, olderThan time.Duration) {
+	olderThanTS := models.Now().Add(-1 * olderThan)
+	err := models.CleanupOldActionResults(c.db.Querier, olderThanTS)
+	if err != nil {
+		l.Error(err)
 	}
 }

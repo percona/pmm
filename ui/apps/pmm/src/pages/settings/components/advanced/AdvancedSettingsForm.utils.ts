@@ -1,11 +1,7 @@
 import { Settings, UpdateSettingsPayload } from 'types/settings.types';
 import { AdvancedSettingsFormValues } from './AdvancedSettingsForm.schema';
 import { DEFAULT_DATA_RETENTION, SECONDS_IN_DAY } from './Advanced.constants';
-import {
-  convertCheckIntervalsToHours,
-  convertHoursStringToSeconds,
-  convertSecondsToDays,
-} from './Advanced.utils';
+import { convertSecondsToDays } from './Advanced.utils';
 
 export const toFormValues = (
   settings: Settings
@@ -20,8 +16,6 @@ export const toFormValues = (
   backup: settings.backupManagementEnabled,
   enableInternalPgQan: settings.enableInternalPgQan ?? false,
   publicAddress: settings.pmmPublicAddress,
-  stt: settings.advisorEnabled,
-  ...convertCheckIntervalsToHours(settings.advisorRunIntervals),
   azureDiscover: settings.azurediscoverEnabled,
   accessControl: settings.enableAccessControl,
 });
@@ -30,13 +24,6 @@ export const toPayload = (
   values: AdvancedSettingsFormValues
 ): UpdateSettingsPayload => {
   const dataRetention = `${Math.round(parseFloat(values.retention) * SECONDS_IN_DAY)}s`;
-  const advisorRunIntervals = values.stt
-    ? {
-        rareInterval: `${convertHoursStringToSeconds(values.rareInterval)}s`,
-        standardInterval: `${convertHoursStringToSeconds(values.standardInterval)}s`,
-        frequentInterval: `${convertHoursStringToSeconds(values.frequentInterval)}s`,
-      }
-    : undefined;
 
   return {
     dataRetention,
@@ -46,8 +33,6 @@ export const toPayload = (
     enableAlerting: values.alerting,
     enableBackupManagement: values.backup,
     enableInternalPgQan: values.enableInternalPgQan,
-    enableAdvisor: values.stt,
-    advisorRunIntervals,
     enableAzurediscover: values.azureDiscover,
     enableAccessControl: values.accessControl,
   };
