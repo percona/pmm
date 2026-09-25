@@ -114,9 +114,9 @@ const (
 type provisioningTrigger int
 
 const (
-	// triggerStartup runs while pmm-managed starts, and by then Grafana is normally already
-	// running: setup() writes grafana.ini and starts it from UpdateSettingsFromEnv, before this
-	// runs. Applying therefore usually does mean restarting Grafana - once, on the boot where the
+	// TriggerStartup is the first reconcile of a boot, which setup() asks Run for, and by then
+	// Grafana is normally already running: setup() writes grafana.ini and starts it from
+	// UpdateSettingsFromEnv, before it asks. Applying therefore usually does mean restarting Grafana - once, on the boot where the
 	// content changed, and not at all on a restart that renders the same file. That restart does
 	// not wait for a leader: it settles a debt only this node can see, recorded in startupApplyOwed.
 	triggerStartup provisioningTrigger = iota
@@ -174,9 +174,13 @@ type Provisioner struct {
 	readyTimeout      time.Duration
 	readyPollInterval time.Duration
 
-	// m serialises the work. Two goroutines call in: the startup path, which setup() retries in a
-	// goroutine of its own, and the Run loop. They write the same file and the same counters below,
-	// so they must not overlap.
+	// startup is closed by ProvisionAtStartup to ask Run for the startup reconcile, and
+	// startupOnce makes sure that happens once however often setup() is retried.
+	startup     chan struct{}
+	startupOnce sync.Once
+
+	// m serialises the work. Run is the only caller in production, but reconcile must stay safe to
+	// call from more than one goroutine: it writes the file and the counters below.
 	m sync.Mutex
 
 	// reportedConflicts is the set of squatted UIDs last logged, so a standing conflict is reported
@@ -258,6 +262,7 @@ func NewProvisioner(params ProvisionerParams) *Provisioner {
 	}
 
 	return &Provisioner{
+		startup:     make(chan struct{}),
 		db:          params.DB,
 		grafana:     params.GrafanaCli,
 		supervisord: params.Supervisord,
@@ -314,9 +319,8 @@ func (p *Provisioner) Run(ctx context.Context) {
 	ticker := time.NewTicker(jitter(reconcileInterval))
 	defer ticker.Stop()
 
-	// Read before the first select: the startup reconcile runs before this loop exists, so a
-	// backoff it armed would otherwise wait out a whole tick.
 	retry := p.retryAfter()
+	startup := p.startup
 
 	for {
 		select {
@@ -326,6 +330,11 @@ func (p *Provisioner) Run(ctx context.Context) {
 				p.l.Debugf("Failed to close the Grafana database connection: %s.", err)
 			}
 			return
+
+		case <-startup:
+			// Once only: a closed channel is always ready, and a nil one never is.
+			startup = nil
+			p.reconcile(ctx, triggerStartup)
 
 		case <-ticker.C:
 			p.reconcile(ctx, triggerTick)
@@ -350,21 +359,27 @@ func jitter(d time.Duration) time.Duration {
 	return d - spread + offset
 }
 
-// ProvisionAtStartup writes the rules while PMM starts.
+// ProvisionAtStartup asks Run for the startup reconcile, and returns without waiting for it.
 //
-// Grafana is normally already running by this point, on a fresh container as well as an existing
-// one: setup() writes grafana.ini and starts it from UpdateSettingsFromEnv, before this runs. So
-// this may restart Grafana - once, on the boot where the content changed. That restart does not
-// wait for a leader, and the debt survives a render that fails here: the retry that finishes the
-// recovery settles it. See startupApplyOwed.
-func (p *Provisioner) ProvisionAtStartup(ctx context.Context) {
-	p.reconcile(ctx, triggerStartup)
+// That reconcile may restart Grafana and wait up to readyTimeout for it to answer again: Grafana is
+// normally already running by the time PMM gets here, on a fresh container as well as an existing
+// one, because setup() writes grafana.ini and starts it from UpdateSettingsFromEnv first. And
+// setup() runs before PMM's API servers start, so it must not wait on that. The restart does not wait for a
+// leader, and the debt survives a render that fails: the retry that finishes the recovery settles
+// it. See startupApplyOwed.
+//
+// It is safe to call on every attempt of setup(), which is retried every couple of seconds while
+// it fails: only the first call counts, so the startup reconcile runs once and every retry after it
+// keeps to the backoff Run holds.
+func (p *Provisioner) ProvisionAtStartup() {
+	p.startupOnce.Do(func() {
+		close(p.startup)
+	})
 }
 
 // reconcile renders the provisioning file, writes it if it changed, and makes Grafana pick it up as
 // far as this trigger allows. It never returns an error: a failure is logged and counted, and the
-// next tick tries again. Returning one would only give PMM's startup path something it must not act
-// on, since provisioning may never stop the server from starting.
+// next tick or retry tries again.
 func (p *Provisioner) reconcile(ctx context.Context, trigger provisioningTrigger) {
 	// Skip rather than queue behind the reconcile in flight: reconciling is idempotent, so the one
 	// already running does the same work.

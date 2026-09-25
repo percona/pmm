@@ -18,6 +18,7 @@ package alerting
 import (
 	"context"
 	"errors"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"sync"
@@ -221,10 +222,10 @@ func TestProvisionerKeepsStateOutOfGrafanasReach(t *testing.T) {
 		"only the provisioning file itself may live in the directory Grafana reads")
 }
 
-// TestProvisionerToleratesConcurrentCallers is a regression test for a race found in review. Three
-// goroutines reach the provisioner in production - the startup path, which setup() retries in a
-// goroutine of its own; the gRPC handler serving a settings change; and the Run loop - and they
-// share both the counters and the files. Run this with -race.
+// TestProvisionerToleratesConcurrentCallers is a regression test for a race found in review. Only
+// Run reconciles in production now, but setup() asks for the startup reconcile from a retry
+// goroutine of its own, and reconcile has to stay safe for more than one caller: they share both
+// the counters and the files. Run this with -race.
 func TestProvisionerToleratesConcurrentCallers(t *testing.T) {
 	t.Parallel()
 
@@ -242,7 +243,8 @@ func TestProvisionerToleratesConcurrentCallers(t *testing.T) {
 	var wg sync.WaitGroup
 	for range 4 {
 		wg.Go(func() {
-			f.provisioner.ProvisionAtStartup(context.Background())
+			f.provisioner.ProvisionAtStartup()
+			f.provisioner.reconcile(context.Background(), triggerStartup)
 		})
 
 		wg.Go(func() {
@@ -326,7 +328,7 @@ func TestProvisionerStartupRestartsWithoutWaitingForTheLeader(t *testing.T) {
 	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
 
-	f.provisioner.ProvisionAtStartup(context.Background())
+	f.provisioner.reconcile(context.Background(), triggerStartup)
 
 	assert.False(t, f.provisioner.startupApplyOwed, "a restart settles the boot's debt")
 	assert.Zero(t, errorCount(t, f.provisioner, stageApply))
@@ -361,7 +363,7 @@ func TestProvisionerStartupDebtSurvivesARenderFailure(t *testing.T) {
 	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
 
-	f.provisioner.ProvisionAtStartup(context.Background())
+	f.provisioner.reconcile(context.Background(), triggerStartup)
 	require.True(t, f.provisioner.startupApplyOwed, "a boot that wrote nothing still owes its restart")
 	require.Positive(t, f.provisioner.retryBackoff, "the datasource failure arms a retry")
 
@@ -385,7 +387,7 @@ func TestProvisionerBootExemptionEndsWithTheBoot(t *testing.T) {
 	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
 
-	f.provisioner.ProvisionAtStartup(context.Background())
+	f.provisioner.reconcile(context.Background(), triggerStartup)
 	require.False(t, f.provisioner.startupApplyOwed)
 
 	// Percona Alerting switched off changes the content, on a node that is not the leader.
@@ -499,24 +501,60 @@ func TestProvisionerDatasourceRetryBacksOff(t *testing.T) {
 	assert.Less(t, datasourceRetryMax, reconcileInterval)
 }
 
-func TestProvisionerRunPicksUpARetryArmedAtStartup(t *testing.T) {
+// TestProvisionerAtStartupDoesNotWait is the review finding on setup(): the first call runs before
+// PMM's API servers start, and it used to restart Grafana and wait up to readyTimeout for it right
+// there. Asking must touch nothing - every mock here is strict, so any call to Grafana, supervisord
+// or the database fails the test - and being asked again by every setup() retry must not panic on
+// a second close.
+func TestProvisionerAtStartupDoesNotWait(t *testing.T) {
 	t.Parallel()
 
-	// ProvisionAtStartup runs before Run exists, so a backoff it armed has to be read before the
-	// first select rather than after a whole tick has passed.
+	f := newProvisionerFixture(t, true)
+
+	for range 3 {
+		f.provisioner.ProvisionAtStartup()
+	}
+
+	_, err := os.Stat(filepath.Join(f.dir, provisioningFileName))
+	require.ErrorIs(t, err, fs.ErrNotExist, "nothing may be written until Run does the work")
+	require.NoError(t, f.dbMock.ExpectationsWereMet())
+}
+
+// TestProvisionerRunReconcilesOnceForStartup checks the other half: Run does the startup reconcile it
+// was asked for, straight away rather than at the first tick, and once however often setup() asked.
+// A second startup reconcile would find no settings row queued and count a render error.
+func TestProvisionerRunReconcilesOnceForStartup(t *testing.T) {
+	t.Parallel()
+
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(1, true)
-	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Maybe()
-	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Maybe()
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
 
-	f.provisioner.retryBackoff = 10 * time.Millisecond
+	for range 3 {
+		f.provisioner.ProvisionAtStartup()
+	}
 
-	go f.provisioner.Run(t.Context())
+	ctx, cancel := context.WithCancel(t.Context())
+	done := make(chan struct{})
+	go func() {
+		f.provisioner.Run(ctx)
+		close(done)
+	}()
 
 	assert.Eventually(t, func() bool {
 		_, err := os.Stat(filepath.Join(f.dir, provisioningFileName))
 		return err == nil
-	}, 5*time.Second, 10*time.Millisecond, "the retry should have reconciled well inside one tick")
+	}, 5*time.Second, 10*time.Millisecond, "the startup reconcile should not wait for a tick")
+
+	// Give a second startup reconcile, if there were one, time to run before stopping Run.
+	time.Sleep(100 * time.Millisecond)
+	cancel()
+	<-done
+
+	assert.Zero(t, errorCount(t, f.provisioner, stageRender), "the startup reconcile must run exactly once")
+	assert.Zero(t, f.provisioner.retryBackoff)
+	require.NoError(t, f.dbMock.ExpectationsWereMet())
 }
 
 // TestProvisionerStartsGrafanaWhenSupervisordWillNot covers the case that used to leave a server

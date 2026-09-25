@@ -586,10 +586,10 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	// Grafana, so the rules are usually applied by restarting it rather than by being in place
 	// first. Moving this earlier would avoid that restart but would read the settings before the
 	// environment has been applied to them, so the Percona Alerting gate could see a stale value.
-	// Never fails setup: this is retried every couple of seconds until it succeeds, and a permanent
-	// failure here would mean Grafana was never started at all.
-	deps.l.Infof("Provisioning built-in alert rules...")
-	deps.provisioner.ProvisionAtStartup(ctx)
+	// It only asks the provisioner's own goroutine for the work, because applying can mean waiting
+	// minutes for Grafana, and nothing here may hold up the servers that start after setup.
+	deps.l.Infof("Requesting provisioning of built-in alert rules...")
+	deps.provisioner.ProvisionAtStartup()
 
 	deps.l.Infof("Updating supervisord configuration...")
 	settings, err := models.GetSettings(db.Querier)
