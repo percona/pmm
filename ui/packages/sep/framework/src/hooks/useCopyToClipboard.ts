@@ -20,43 +20,16 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 /** How long a successful copy keeps reporting itself, in milliseconds. */
 const COPIED_FEEDBACK_MS = 2000;
 
-/**
- * Copy text without the async clipboard API.
- *
- * PMM Server is routinely reached over plain HTTP on a private address, which
- * is not a secure context, so `navigator.clipboard` is simply absent there —
- * the one deployment shape where an operator is most likely to be pasting a
- * diagnostics report into a ticket. A detached textarea plus the legacy
- * `execCommand` still works in every browser PMM supports.
- *
- * Positioned off-screen rather than hidden: a `display: none` or
- * `visibility: hidden` element cannot take a selection, so the copy would
- * silently do nothing.
- */
-function copyViaExecCommand(text: string): boolean {
-  const textarea = document.createElement('textarea');
-  textarea.value = text;
-  textarea.setAttribute('readonly', '');
-  textarea.style.position = 'fixed';
-  textarea.style.top = '-9999px';
-  textarea.style.left = '-9999px';
-  document.body.append(textarea);
-  try {
-    textarea.select();
-    return document.execCommand('copy');
-  } catch {
-    return false;
-  } finally {
-    textarea.remove();
-  }
-}
-
 export interface CopyToClipboard {
   /** Copy `text`, reporting whether it landed. */
   copy: (text: string) => Promise<boolean>;
   /** True for a short window after a successful copy, for button feedback. */
   copied: boolean;
-  /** True when the last attempt failed; cleared by the next attempt. */
+  /**
+   * True when the last attempt failed — including when the clipboard is out of
+   * reach, as it is on the plain-HTTP origins PMM Server is often reached on.
+   * Cleared by the next attempt.
+   */
   failed: boolean;
 }
 
@@ -96,10 +69,6 @@ export function useCopyToClipboard(): CopyToClipboard {
         ok = false;
       }
     }
-    if (!ok) {
-      ok = copyViaExecCommand(text);
-    }
-
     // `writeText` is a promise, and this viewer lives inside accordions that
     // unmount on collapse — so the await above can outlive the component.
     // Reporting into an unmounted tree would both warn and leave a timer

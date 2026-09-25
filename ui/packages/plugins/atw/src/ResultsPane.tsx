@@ -143,9 +143,6 @@ function isRunning(execution: AtwIncidentExecution): boolean {
  * moves again. A running one is measured against `now`, which the caller ticks
  * — the wire carries no elapsed time, and a row that reports nothing while a
  * pt-summary works through a large instance is the complaint this answers.
- *
- * `null` for a run that never started: `formatDuration` renders that as an
- * em-dash, which is the truth, where a `0s` would read as an instant run.
  */
 function runSeconds(
   execution: AtwIncidentExecution,
@@ -164,11 +161,9 @@ function runSeconds(
       return (finished - started) / 1000;
     }
   }
-  if (!isRunning(execution)) {
-    // Finished, but without a recorded end — nothing honest to subtract.
-    return null;
-  }
-  return (now - started) / 1000;
+  // Still going: measure against the ticking clock. Anything else ended
+  // without recording when, and has nothing honest to subtract.
+  return isRunning(execution) ? (now - started) / 1000 : null;
 }
 
 /**
@@ -714,7 +709,6 @@ function ExecutionRow({
   onEditParameters,
 }: {
   execution: AtwIncidentExecution;
-  /** How long this run has taken, in seconds; `null` when it never started. */
   elapsedSeconds: number | null;
   selected: boolean;
   onToggleSelected: () => void;
@@ -750,17 +744,22 @@ function ExecutionRow({
   // starts, so it mounts when the polled status reaches `running`.
   const logsUnavailable = has_logs === false && task_status !== 'running';
 
-  // The name the user picked in the Collect pane, which is what they are
-  // looking for here. The filename is the fallback, not the label: it is the
-  // script's identity, not the run's, and every row would otherwise read as
-  // some variation of `pt-mysql-summary.sh`.
   const displayName = snippet_title?.trim() || snippet_filename;
 
-  // A run that has not started has no start time, so the row falls back to when
-  // the execution was recorded — the moment the operator pressed Run — and says
-  // so, rather than leaving the column blank for a queued run.
+  // A queued run has no start time, so the row falls back to when it was
+  // recorded and labels it as such rather than leaving the column blank.
   const startStamp = formatTimestamp(started_at ?? created_at);
   const startIsQueue = !started_at;
+  const startTitle = startStamp
+    ? startIsQueue
+      ? `Queued ${startStamp.title}; not started yet`
+      : startStamp.title
+    : undefined;
+  const startLabel = startStamp
+    ? startIsQueue
+      ? `Queued ${startStamp.display}`
+      : startStamp.display
+    : '—';
 
   return (
     <Accordion
@@ -817,20 +816,10 @@ function ExecutionRow({
           <Typography
             variant="body2"
             color="text.secondary"
-            title={
-              startStamp
-                ? startIsQueue
-                  ? `Queued ${startStamp.title}; not started yet`
-                  : startStamp.title
-                : undefined
-            }
+            title={startTitle}
             sx={{ width: ROW_COLUMN_WIDTHS.started, flexShrink: 0 }}
           >
-            {startStamp
-              ? startIsQueue
-                ? `Queued ${startStamp.display}`
-                : startStamp.display
-              : '—'}
+            {startLabel}
           </Typography>
           <Typography
             variant="body2"
@@ -890,13 +879,6 @@ function ExecutionRow({
           )}
         </Stack>
 
-        {/*
-          The filename and the command line live here, not in the row: they
-          identify the script rather than the run, and a list of them is what
-          made the Results pane unreadable. An operator who needs either — to
-          reproduce the run in a terminal, or to check what it was given — is
-          already looking at one execution.
-        */}
         <Box sx={{ mb: 2 }}>
           <Typography
             variant="caption"
@@ -951,7 +933,7 @@ function ExecutionRow({
           <TaskLogViewer
             taskHistoryId={task_history_id}
             taskStatus={task_status ?? undefined}
-            height={360}
+            maxHeight={360}
           />
         )}
       </AccordionDetails>

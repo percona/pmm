@@ -148,12 +148,12 @@ export interface TaskLogViewerProps {
   taskStatus?: string;
   /**
    * Tallest the output pane gets before the user expands it. A number is a
-   * ceiling, not a fixed size: a report shorter than this renders at its own
-   * height rather than in a box padded out with blank space. A string is taken
-   * as a literal CSS height and used as-is, which also disables the expand
-   * toggle — the caller has sized the pane itself.
+   * ceiling the pane is fitted within, so a report shorter than it renders at
+   * its own height rather than in a box padded out with blank space. A CSS
+   * string cannot be fitted against without measuring, so it is applied as-is
+   * and the expand toggle goes away with it.
    */
-  height?: number | string;
+  maxHeight?: number | string;
   /** Mid-sentence singular noun for one record (e.g. `backup`). */
   itemName?: string;
 }
@@ -299,7 +299,7 @@ function preferredTopTab(
 export function TaskLogViewer({
   taskHistoryId,
   taskStatus,
-  height = 480,
+  maxHeight = 480,
   itemName = 'task',
 }: TaskLogViewerProps) {
   const running = isRunningStatus(taskStatus);
@@ -486,26 +486,22 @@ export function TaskLogViewer({
     clipboard.copy(currentPaneText);
   };
 
-  // A caller that passed a CSS string has sized the pane itself; only a numeric
-  // ceiling is something this viewer may fit to content or raise.
-  const sizable = typeof height === 'number';
-  const baseMaxHeight = sizable ? height : 0;
-  // Expanding never shrinks a pane whose caller already asked for more than the
-  // expanded cap.
+  const fittable = typeof maxHeight === 'number';
+  const baseMaxHeight = fittable ? maxHeight : 0;
   const expandedMaxHeight = Math.max(baseMaxHeight, EXPANDED_PANE_HEIGHT_PX);
   const maxPaneHeight = expanded ? expandedMaxHeight : baseMaxHeight;
-  const wantedPaneHeight = sizable
+  const wantedPaneHeight = fittable
     ? fitPaneHeight(currentPaneText, maxPaneHeight)
     : 0;
   // Only the unexpanded ceiling is asked about: once expanded, the toggle's job
   // is to offer the way back regardless of how much content is left over.
-  const contentOverflows = sizable && wantedPaneHeight > baseMaxHeight;
+  const contentOverflows = fittable && wantedPaneHeight > baseMaxHeight;
 
   const paneHeight = fullScreen
     ? '100%'
-    : sizable
+    : fittable
       ? Math.min(maxPaneHeight, Math.max(MIN_PANE_HEIGHT_PX, wantedPaneHeight))
-      : height;
+      : maxHeight;
 
   const handleLogTailChange = (choice: LogTailLineChoice) => {
     // Only a cap has to clear the live-log record to be fetched again. "All"
@@ -714,10 +710,6 @@ export function TaskLogViewer({
               </IconButton>
             </span>
           </Tooltip>
-          {/*
-            Hidden in full screen, where the pane already takes the whole
-            viewport and the ceiling it raises no longer applies.
-          */}
           {!fullScreen && (
             <Tooltip
               title={

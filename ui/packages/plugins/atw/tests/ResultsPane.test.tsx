@@ -194,8 +194,6 @@ describe('ResultsPane recorded arguments', () => {
     await waitFor(() => {
       expect(screen.getByText('diag/mongo.sh')).toBeTruthy();
     });
-    // The filename is the row's fallback label here (this fixture carries no
-    // title), but the command line has no business in a list of runs at all.
     expect(screen.queryByText(MASKED_ARGS)).not.toBeInTheDocument();
   });
 
@@ -1668,8 +1666,6 @@ describe('ResultsPane execution rows', () => {
         `${new Date('2026-07-22T10:00:00Z').toLocaleString()} (${browserTimezone()})`
       )
     ).toBeTruthy();
-    // The script's filename identifies the script, not the run — it belongs
-    // behind the expand, and the pane opened with every row collapsed.
     expect(screen.queryByText('pt-mysql-summary.sh')).not.toBeInTheDocument();
   });
 

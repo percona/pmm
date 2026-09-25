@@ -47,11 +47,6 @@ export interface LogOutputPaneProps {
   enableSearch?: boolean;
   height?: number | string;
   emptyLabel?: string;
-  /**
-   * Whether the pane sticks to the last line as text arrives. Off by default:
-   * a finished report is read from the top, and only a run still producing
-   * output wants tailing.
-   */
   follow?: boolean;
 }
 

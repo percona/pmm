@@ -96,8 +96,6 @@ describe('TaskLogViewer', () => {
     vi.unstubAllGlobals();
     vi.clearAllMocks();
     globalThis.localStorage.clear();
-    // The copy cases redefine this; leaving one test's stub in place would let
-    // a later one assert against a clipboard it never installed.
     Object.defineProperty(navigator, 'clipboard', {
       value: undefined,
       configurable: true,
@@ -1304,8 +1302,6 @@ describe('TaskLogViewer', () => {
       'data-follow',
       'false'
     );
-    // Wrapping is what makes a 137-line summary readable without a horizontal
-    // scrollbar, so it is on from the first paint, not after a toggle.
     expect(screen.getByTestId('log-output')).toHaveAttribute(
       'data-wrap',
       'true'
@@ -1448,7 +1444,7 @@ describe('TaskLogViewer', () => {
 
   it('keeps Copy usable when the clipboard is refused', async () => {
     // What an operator on a plain-HTTP PMM Server hits: no secure context, so
-    // no `navigator.clipboard`, and jsdom has no `execCommand` either.
+    // no `navigator.clipboard` at all.
     vi.stubGlobal('isSecureContext', false);
     await renderWithOutput('508', 'SUCCESS', 'report body\n');
 
