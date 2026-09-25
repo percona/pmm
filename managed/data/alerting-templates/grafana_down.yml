@@ -1,0 +1,24 @@
+---
+templates:
+  - name: pmm_grafana_down
+    version: 1
+    summary: PMM Grafana is down
+    # Grafana evaluates the alert rules, so this cannot fire when Grafana is down everywhere.
+    # It covers the case that matters in a clustered deployment: Grafana failing on one node
+    # while another node still evaluates rules. See the coverage limitations in the docs.
+    expr: 'last_over_time(up{job="grafana"}[2m]) == bool 0'
+    for: 5m
+    severity: critical
+    annotations:
+      summary: PMM Grafana is down on '{{ $labels.instance }}'
+      description: |-
+        The Grafana instance on '{{ $labels.instance }}' is not responding.
+        The PMM user interface, dashboards and alert rule evaluation all depend on it. Data collection
+        continues, so no metrics are lost, but nobody can see them and alerts on that node do not run.
+
+        Remediation steps:
+          1. Check the Grafana process or pod on that node and restart it if it has stopped.
+          2. Review the Grafana logs for startup failures. A failed database migration after an upgrade is a common cause.
+          3. Confirm Grafana can reach the PMM PostgreSQL database that holds its configuration.
+          4. Check free disk space and memory on the node.
+          5. Once it is back, confirm the PMM user interface loads and the alert rules are evaluating.
