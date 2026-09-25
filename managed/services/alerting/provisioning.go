@@ -80,6 +80,13 @@ const (
 	// change feels like it worked, rare enough to be invisible.
 	reconcileInterval = 5 * time.Minute
 
+	// DeferralWindow is how long a follower that left an apply to the leader keeps it in mind, in
+	// case it becomes the leader itself before the old one has applied. The leader applies at its
+	// next tick, at most one jittered interval after the change; a node that took over before then
+	// reaches its own next tick at most one more interval later. Past that the old leader has had
+	// its turn, and applying again would only restart Grafana for nothing.
+	deferralWindow = 2 * (reconcileInterval + reconcileInterval/jitterFraction)
+
 	// A datasource that cannot be resolved blocks the whole bundle, so it is retried far faster
 	// than the ordinary tick rather than leaving a server without rules for minutes. The first
 	// delay matches setup()'s own two-second cadence, and the cap keeps it well inside one tick.
@@ -196,6 +203,10 @@ type Provisioner struct {
 	// applyPending records that an apply action PMM performs itself failed, so the next reconcile
 	// must try again even though the file on disk is already the content it would write.
 	applyPending bool
+	// deferredAt is when this node last wrote content and left applying it to the leader, and zero
+	// when there is no such deferral. It is kept apart from applyPending, which would report every
+	// healthy follower as pending, and it expires after deferralWindow: see deferralOwedLocked.
+	deferredAt time.Time
 	// startupApplyOwed records that this process has started but has not yet established that its
 	// own Grafana runs on the file currently on disk. Grafana starts before the first reconcile and
 	// reads its provisioning only then, so a boot that changes the content owes a restart of the
@@ -448,7 +459,7 @@ func (p *Provisioner) reconcile(ctx context.Context, trigger provisioningTrigger
 	p.metrics.setRendered(hash, bundles)
 	p.metrics.setWritten(hash)
 
-	if !changed && !p.applyPending {
+	if !changed && !p.applyPending && !p.deferralOwedLocked() {
 		// The file on disk is already the content we would write, and PMM owes no apply of its own,
 		// so there is nothing to do. This is the ordinary case on every restart: Grafana started
 		// after the file was last written and read exactly this content.
@@ -464,6 +475,7 @@ func (p *Provisioner) reconcile(ctx context.Context, trigger provisioningTrigger
 		p.metrics.setApplyPending(false)
 		p.retryBackoff = 0
 		p.startupApplyOwed = false
+		p.deferredAt = time.Time{}
 
 	case errors.Is(err, errDeferredToLeader):
 		// Not a failure and not this node's work to retry: the change is visible to every node, and
@@ -472,6 +484,7 @@ func (p *Provisioner) reconcile(ctx context.Context, trigger provisioningTrigger
 		p.applyPending = false
 		p.metrics.setApplyPending(false)
 		p.retryBackoff = 0
+		p.deferredAt = time.Now()
 		p.l.Debugf("Alert rules written; %s.", err)
 
 	default:
@@ -481,6 +494,8 @@ func (p *Provisioner) reconcile(ctx context.Context, trigger provisioningTrigger
 		p.applyPending = true
 		p.metrics.setApplyPending(true)
 		p.metrics.recordError(stageApply)
+		// ApplyPending carries the debt from here on.
+		p.deferredAt = time.Time{}
 
 		if errors.Is(err, errGrafanaNotBack) {
 			// Grafana was taken down for this content and did not return, and the file has been
@@ -511,6 +526,22 @@ func (p *Provisioner) reconcile(ctx context.Context, trigger provisioningTrigger
 		p.armRetryLocked()
 		p.l.Warnf("Alert rules are written but not applied yet: %s.", err)
 	}
+}
+
+// deferralOwedLocked reports whether an apply this node left to the leader is now its own to do,
+// because it has become the leader before the deferral expired. Leaving the apply to the leader
+// assumes the node that is leader when a follower defers is the one that applies, and leadership
+// can move in between: the new leader then finds its file unchanged, the old one defers as a
+// follower, and nobody applies, so the shared database keeps the old rules. Called with m held.
+func (p *Provisioner) deferralOwedLocked() bool {
+	if p.deferredAt.IsZero() {
+		return false
+	}
+	if time.Since(p.deferredAt) > deferralWindow {
+		p.deferredAt = time.Time{}
+		return false
+	}
+	return p.leader.IsLeader()
 }
 
 // errRuleUIDTaken reports that PMM could not establish whether its rule UIDs are still its own.

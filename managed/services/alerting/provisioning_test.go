@@ -1148,3 +1148,72 @@ func TestProvisionerBootLeavesAGrafanaStillStartingAlone(t *testing.T) {
 	assert.True(t, f.provisioner.startupApplyOwed, "the boot restart is still owed")
 	assert.Equal(t, datasourceRetryInitial*datasourceRetryFactor, f.provisioner.retryBackoff)
 }
+
+// TestProvisionerAppliesADeferralAfterBecomingLeader is the review finding on leadership moving
+// between a deferral and the leader's apply. Node B writes as a follower and defers, then becomes
+// the leader before the old leader ticked. The old leader, now a follower, defers too, so unless B
+// remembers its deferral nobody applies and the shared database keeps the old rules.
+func TestProvisionerAppliesADeferralAfterBecomingLeader(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	f.expectSettings(2, true)
+
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
+	f.leader.On("IsLeader").Return(false).Once()
+	f.provisioner.reconcile(context.Background(), triggerTick)
+	require.False(t, f.provisioner.deferredAt.IsZero(), "the deferral must be remembered")
+	assert.Equal(t, stateWritten, bundleState(t, f.provisioner, haBundleID), "a deferring follower is not pending")
+
+	// Leadership moves to this node. The file is unchanged, so only the deferral can make it apply.
+	f.leader.On("IsLeader").Return(true)
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil).Once()
+	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
+	f.provisioner.reconcile(context.Background(), triggerTick)
+
+	f.supervisord.AssertNumberOfCalls(t, "RestartSupervisedService", 1)
+	assert.True(t, f.provisioner.deferredAt.IsZero(), "applying settles the deferral")
+	assert.False(t, f.provisioner.applyPending)
+}
+
+// TestProvisionerForgetsADeferralOnceTheLeaderHadItsTurn is the bound on that. Past deferralWindow
+// the old leader has ticked and applied, so a node that becomes leader later must not restart its
+// Grafana for a change the cluster already has.
+func TestProvisionerForgetsADeferralOnceTheLeaderHadItsTurn(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	f.expectSettings(2, true)
+
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
+	f.leader.On("IsLeader").Return(false).Once()
+	f.provisioner.reconcile(context.Background(), triggerTick)
+	require.False(t, f.provisioner.deferredAt.IsZero())
+
+	f.provisioner.deferredAt = time.Now().Add(-deferralWindow - time.Second)
+	f.provisioner.reconcile(context.Background(), triggerTick)
+
+	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", mock.Anything, grafanaProgramName)
+	f.leader.AssertNumberOfCalls(t, "IsLeader", 1)
+	assert.True(t, f.provisioner.deferredAt.IsZero(), "an expired deferral is dropped")
+}
+
+// TestProvisionerFollowerKeepsLeavingADeferralToTheLeader guards the steady state on a follower: a
+// remembered deferral must not make a node that is still a follower restart anything.
+func TestProvisionerFollowerKeepsLeavingADeferralToTheLeader(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	f.expectSettings(3, true)
+
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
+	f.leader.On("IsLeader").Return(false)
+
+	for range 3 {
+		f.provisioner.reconcile(context.Background(), triggerTick)
+	}
+
+	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", mock.Anything, grafanaProgramName)
+	assert.False(t, f.provisioner.deferredAt.IsZero())
+	assert.Equal(t, stateWritten, bundleState(t, f.provisioner, haBundleID))
+}
