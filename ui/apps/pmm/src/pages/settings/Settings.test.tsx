@@ -1,5 +1,7 @@
+import { ComponentProps } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
+import { useSettingsList } from '@sep/api';
 import { Settings } from './Settings';
 import { TestWrapper } from 'utils/testWrapper';
 import {
@@ -24,26 +26,52 @@ vi.mock('./components/advanced/AdvancedSettingsForm', () => ({
 vi.mock('./components/ssh-key/SshKeyForm', () => ({
   SshKeyForm: () => null,
 }));
+vi.mock('@sep/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@sep/api')>()),
+  useSettingsList: vi.fn(),
+}));
+// The stub stands in for the tab's SEP read (the real one reaches
+// `useSettingsList` through `useServiceNowConnection`), so the disabled case
+// can assert the route fires no SEP request rather than only that the tab is
+// absent from the DOM.
 vi.mock('./components/servicenow', () => ({
-  ServiceNowConnectionTab: () => <div data-testid="servicenow-tab" />,
+  ServiceNowConnectionTab: () => {
+    useSettingsList();
+    return <div data-testid="servicenow-tab" />;
+  },
 }));
 
 const getSettingsMock = vi.mocked(settingsApi.getSettings);
 const getVersionMock = vi.mocked(versionApi.getVersion);
+const useSettingsListMock = vi.mocked(useSettingsList);
 
-const renderWithRoute = (initialPath: string) =>
+const LocationProbe = () => (
+  <span data-testid="location-probe">{useLocation().pathname}</span>
+);
+
+const renderWithRoute = (
+  initialPath: string,
+  wrapperProps?: Partial<ComponentProps<typeof TestWrapper>>
+) =>
   render(
-    <TestWrapper routerProps={{ initialEntries: [initialPath] }}>
+    <TestWrapper
+      routerProps={{ initialEntries: [initialPath] }}
+      {...wrapperProps}
+    >
       {wrapWithQueryProvider(
-        <Routes>
-          <Route path="/settings/:tab?" element={<Settings />} />
-        </Routes>
+        <>
+          <LocationProbe />
+          <Routes>
+            <Route path="/settings/:tab?" element={<Settings />} />
+          </Routes>
+        </>
       )}
     </TestWrapper>
   );
 
 describe('Settings', () => {
   beforeEach(() => {
+    useSettingsListMock.mockClear();
     getSettingsMock.mockResolvedValue(SETTINGS_MOCK);
     getVersionMock.mockResolvedValue(VERSION_MOCK);
   });
@@ -132,7 +160,9 @@ describe('Settings', () => {
       );
     });
 
-    it('activates the ServiceNow tab for /settings/servicenow-connection', async () => {
+    it('activates the ServiceNow tab for /settings/servicenow-connection when SEP is enabled', async () => {
+      getSettingsMock.mockResolvedValue({ ...SETTINGS_MOCK, sepEnabled: true });
+
       renderWithRoute('/settings/servicenow-connection');
       await waitFor(() =>
         expect(screen.getByTestId('settings-tab-servicenow')).toHaveAttribute(
@@ -141,6 +171,61 @@ describe('Settings', () => {
         )
       );
       expect(screen.getByTestId('servicenow-tab')).toBeInTheDocument();
+      expect(useSettingsListMock).toHaveBeenCalled();
+    });
+
+    it('shows the ServiceNow tab when SEP is enabled', async () => {
+      getSettingsMock.mockResolvedValue({ ...SETTINGS_MOCK, sepEnabled: true });
+
+      renderWithRoute('/settings/metrics-resolution');
+
+      await waitFor(() =>
+        expect(
+          screen.getByTestId('settings-tab-servicenow')
+        ).toBeInTheDocument()
+      );
+    });
+
+    it('does not show the ServiceNow tab when SEP is disabled', async () => {
+      renderWithRoute('/settings/metrics-resolution');
+
+      await screen.findByTestId('settings-tab-metrics');
+
+      expect(
+        screen.queryByTestId('settings-tab-servicenow')
+      ).not.toBeInTheDocument();
+    });
+
+    it('redirects from /settings/servicenow-connection to default when SEP is disabled', async () => {
+      renderWithRoute('/settings/servicenow-connection');
+
+      await waitFor(() =>
+        expect(screen.getByTestId('settings-tab-metrics')).toHaveAttribute(
+          'aria-selected',
+          'true'
+        )
+      );
+      expect(
+        screen.queryByTestId('settings-tab-servicenow')
+      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId('servicenow-tab')).not.toBeInTheDocument();
+      expect(useSettingsListMock).not.toHaveBeenCalled();
+      expect(screen.getByTestId('location-probe')).toHaveTextContent(
+        '/settings'
+      );
+    });
+
+    it('keeps the ServiceNow URL while the user is still resolving', async () => {
+      renderWithRoute('/settings/servicenow-connection', {
+        userContext: { isLoading: false, user: undefined },
+      });
+
+      await waitFor(() =>
+        expect(screen.getByTestId('location-probe')).toHaveTextContent(
+          '/settings/servicenow-connection'
+        )
+      );
+      expect(useSettingsListMock).not.toHaveBeenCalled();
     });
 
     it('defaults to metrics tab when no tab is in the URL', async () => {
