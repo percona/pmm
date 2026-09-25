@@ -143,8 +143,9 @@ func waitFor(t *testing.T, until func() bool) {
 	}
 }
 
-// Retention is applied on every node, on a schedule, with no leadership to wait for: the period
-// is fixed at start-up, so every replica agrees on which partitions are old.
+// Retention is applied on every node, on a schedule, with no leadership to wait for: once a
+// rollout completes every replica runs with the same period, so they agree on which partitions
+// are old.
 func TestRetentionLoopDropsOnSchedule(t *testing.T) {
 	captureLogs(t)
 	resetPasses(t)
