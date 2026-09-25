@@ -56,7 +56,7 @@ func TestServer(t *testing.T) {
 		mvmdb.On("RequestConfigurationUpdate").Return(nil)
 		mState := &mockAgentsStateUpdater{}
 		mState.Test(t)
-		mState.On("UpdateAgentsState", context.TODO()).Return(nil)
+		mState.On("UpdateAgentsState", mock.Anything).Return(nil)
 		mState.On("RequestStateUpdate", context.TODO(), mock.Anything).Return(nil)
 
 		var mvmalert mockPrometheusService
@@ -292,11 +292,18 @@ func TestServer(t *testing.T) {
 		t.Run("a malformed value is an invalid argument", func(t *testing.T) {
 			s := newServerWithHA(t, true)
 
-			err := s.validateChangeSettingsRequest(t.Context(), retention(36*time.Hour))
+			_, err := s.ChangeSettings(t.Context(), retention(36*time.Hour))
 			tests.AssertGRPCErrorRE(t, codes.InvalidArgument, `Invalid argument: data_retention: should be a natural number of days\.`, err)
 
-			err = s.validateChangeSettingsRequest(t.Context(), retention(10*time.Second))
+			_, err = s.ChangeSettings(t.Context(), retention(10*time.Second))
 			tests.AssertGRPCErrorRE(t, codes.InvalidArgument, `Invalid argument: data_retention: minimal resolution is 24h\.`, err)
+		})
+
+		t.Run("leaving the value out is not a change", func(t *testing.T) {
+			s := newServerWithHA(t, true)
+
+			_, err := s.ChangeSettings(t.Context(), &serverv1.ChangeSettingsRequest{PmmPublicAddress: new("1.2.3.4:5678")})
+			require.NoError(t, err)
 		})
 
 		t.Run("nothing is refused when HA is disabled", func(t *testing.T) {

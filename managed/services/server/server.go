@@ -544,59 +544,27 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Low resolution for metrics is set via PMM_METRICS_RESOLUTION_LR environment variable.")
 	}
 
-	err := s.validateDataRetention(req)
-	if err != nil {
-		return err
+	// In HA the stored value can come from another replica's environment, so the lock is checked
+	// against the stored row instead; see refuseDataRetentionChangeInHA.
+	if !s.haService.Params().Enabled && !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
+		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
 	}
 
 	return nil
 }
 
-// validateDataRetention checks the requested data retention against what needs no stored state.
-//
-// Outside high availability the only lock is PMM_DATA_RETENTION, checked the same way as every
-// other environment-pinned setting. In HA the value is checked here only for its format, so that
-// malformed input gets the same InvalidArgument as outside HA rather than the HA refusal: whether
-// it changes the stored value is decided by refuseDataRetentionChangeInHA, inside the transaction
-// that writes it.
-func (s *Server) validateDataRetention(req *serverv1.ChangeSettingsRequest) error {
-	if !s.haService.Params().Enabled {
-		if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
-			return status.Error(codes.FailedPrecondition, "Data retention is set via the PMM_DATA_RETENTION environment variable.")
-		}
-
-		return nil
-	}
-
-	err := models.ValidateSettings(&models.ChangeSettingsParams{DataRetention: req.DataRetention.AsDuration()})
-	if err != nil {
-		return status.Errorf(codes.InvalidArgument, "Invalid argument: %s.", err)
-	}
-
-	return nil
-}
-
-// refuseDataRetentionChangeInHA refuses a request that would change data retention in HA, where
-// the value comes only from the pmm-ha chart. It compares against the settings row read by the
-// same transaction that then writes it, not a separate read, so the check and the write see the
-// same row.
+// refuseDataRetentionChangeInHA refuses a settings change that altered data retention in HA,
+// where the value comes only from the pmm-ha chart. It runs after models.UpdateSettings, inside
+// the same transaction, so malformed input has already been rejected with the usual
+// InvalidArgument, and it compares the row this transaction read with the one it is about to
+// write. Repeating the value in force, or leaving it out, is not a change, so a client that sends
+// the whole settings form back is not blocked on every other setting.
 //
 // That narrows the window but does not close it: the transaction runs at READ COMMITTED and the
 // settings row is rewritten whole, so another replica can still commit in between. The same holds
 // for every other setting in HA.
-func (s *Server) refuseDataRetentionChangeInHA(req *serverv1.ChangeSettingsRequest, stored *models.Settings) error {
-	if !s.haService.Params().Enabled {
-		return nil
-	}
-
-	// Repeating the value already in force is not a change. Clients send the whole settings
-	// form back (the UI does until it learns HA is enabled), so refusing an unchanged retention
-	// would block every other setting on the page.
-	if req.DataRetention == nil || req.DataRetention.AsDuration() == 0 {
-		return nil
-	}
-
-	if req.DataRetention.AsDuration() == stored.DataRetention {
+func (s *Server) refuseDataRetentionChangeInHA(oldSettings, newSettings *models.Settings) error {
+	if !s.haService.Params().Enabled || newSettings.DataRetention == oldSettings.DataRetention {
 		return nil
 	}
 
@@ -621,11 +589,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		oldSettings, err = models.GetSettings(tx)
 		if err != nil {
 			return fmt.Errorf("failed to get server settings: %w", err)
-		}
-
-		err = s.refuseDataRetentionChangeInHA(req, oldSettings)
-		if err != nil {
-			return err
 		}
 
 		metricsRes := req.MetricsResolutions
@@ -667,6 +630,12 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 			return status.Errorf(codes.InvalidArgument, "Invalid argument: %s.", errInvalidArgument.Details)
 		default:
 			return fmt.Errorf("failed to update server settings: %w", err)
+		}
+
+		// Before the SSH key write below: returning an error rolls back the row, not that file.
+		err = s.refuseDataRetentionChangeInHA(oldSettings, newSettings)
+		if err != nil {
+			return err
 		}
 
 		// absent value means "do not change"
