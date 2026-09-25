@@ -72,9 +72,8 @@ type ProvisioningMetrics struct {
 	mConflicts   *prom.Desc
 
 	m sync.RWMutex
-	// renderedHash and writtenHash differ exactly while a render has not reached disk.
-	renderedHash string
-	writtenHash  string
+	// hash is the content this node last rendered and wrote to disk, empty until the first write.
+	hash string
 	// applyPending is set when an apply action PMM performs itself failed and is being retried.
 	applyPending bool
 	bundles      map[string]bool
@@ -130,25 +129,17 @@ func seedBundles() map[string]bool {
 	return bundles
 }
 
-// setRendered records the content this node has rendered and which bundles it covers.
-func (m *ProvisioningMetrics) setRendered(hash string, bundles map[string]bool) {
+// setWritten records that the given content is on disk, and which bundles it covers. It says
+// nothing about Grafana having read it - see the note on the state constants.
+func (m *ProvisioningMetrics) setWritten(hash string, bundles map[string]bool) {
 	m.m.Lock()
 	defer m.m.Unlock()
 
-	m.renderedHash = hash
+	m.hash = hash
 	m.failed = false
 	if bundles != nil {
 		m.bundles = bundles
 	}
-}
-
-// setWritten records that the given content is on disk. It says nothing about Grafana having read
-// it - see the note on the state constants.
-func (m *ProvisioningMetrics) setWritten(hash string) {
-	m.m.Lock()
-	defer m.m.Unlock()
-
-	m.writtenHash = hash
 	m.lastSuccess = time.Now()
 }
 
@@ -202,13 +193,13 @@ func (m *ProvisioningMetrics) Collect(ch chan<- prom.Metric) {
 			state = stateError
 		case m.applyPending:
 			state = statePending
-		case m.renderedHash != "" && m.renderedHash == m.writtenHash:
+		case m.hash != "":
 			state = stateWritten
 		default:
 			state = statePending
 		}
 
-		ch <- prom.MustNewConstMetric(m.mInfo, prom.GaugeValue, 1, bundle, state, m.renderedHash)
+		ch <- prom.MustNewConstMetric(m.mInfo, prom.GaugeValue, 1, bundle, state, m.hash)
 	}
 
 	var lastSuccess float64

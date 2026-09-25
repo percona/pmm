@@ -462,8 +462,7 @@ func (p *Provisioner) reconcile(ctx context.Context, trigger provisioningTrigger
 		return
 	}
 
-	p.metrics.setRendered(hash, bundles)
-	p.metrics.setWritten(hash)
+	p.metrics.setWritten(hash, bundles)
 
 	if !changed && !p.applyPending && !p.deferralOwedLocked() {
 		// The file on disk is already the content we would write, and PMM owes no apply of its own,
