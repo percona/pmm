@@ -536,14 +536,13 @@ func TestRDSExporter(t *testing.T) {
 
 		const roleARN = "arn:aws:iam::123456789012:role/pmm-monitoring"
 
-		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		nodeID := pmmapitests.AddRemoteRDSNode(t, pmmapitests.TestString(t, "Remote node for role ARN")).NodeID
-		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
+		// A role ARN needs a pmm-agent that has reported a version, so use the one in PMM Server.
 		rdsExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
 				NodeID:              nodeID,
-				PMMAgentID:          pmmAgentID,
+				PMMAgentID:          "pmm-server",
 				AWSRoleArn:          roleARN,
 				SkipConnectionCheck: true,
 			},
@@ -558,6 +557,31 @@ func TestRDSExporter(t *testing.T) {
 		})
 		require.NoError(t, err)
 		assert.Equal(t, roleARN, getAgentRes.Payload.RDSExporter.AWSRoleArn)
+	})
+
+	t.Run("RoleARNNeedsReportedAgentVersion", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		nodeID := pmmapitests.AddRemoteRDSNode(t, pmmapitests.TestString(t, "Remote node for unknown version")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
+
+		// This pmm-agent never connects, so its version is unknown and it may be too old.
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
+					NodeID:              nodeID,
+					PMMAgentID:          pmmAgentID,
+					AWSRoleArn:          "arn:aws:iam::123456789012:role/pmm-monitoring",
+					SkipConnectionCheck: true,
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "pmm agent %q has no version info", pmmAgentID)
+		if !assert.Nil(t, res) {
+			pmmapitests.RemoveAgents(t, res.Payload.RDSExporter.AgentID)
+		}
 	})
 
 	t.Run("RoleARNAndKeysAreMutuallyExclusive", func(t *testing.T) {

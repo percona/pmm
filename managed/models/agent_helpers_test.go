@@ -284,23 +284,18 @@ func TestAgentHelpers(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, roleARN, agent.AWSOptions.AWSRoleARN)
 
-		// A pmm-agent that has not reported a version yet (never connected) is not blocked:
-		// the config is stored and the gate re-checks once the agent connects.
-		require.NoError(t, q.Insert(&models.Node{
-			NodeID: "RN2", NodeType: models.RemoteRDSNodeType, NodeName: "rds node for unknown-version gate",
-			Address: "rds2.example.com", InstanceID: "rds-inst-2",
-		}))
+		// A pmm-agent that has not reported a version yet (never connected) may be too old, and
+		// nothing re-checks once it connects, so it is refused too.
 		require.NoError(t, q.Insert(&models.Agent{
 			AgentID: "PA-noversion", AgentType: models.PMMAgentType, RunsOnNodeID: new("RN"),
 		}))
-		agent, err = models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
-			PMMAgentID: "PA-noversion", NodeID: "RN2",
+		_, err = models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-noversion", NodeID: "RN",
 			AWSOptions: models.AWSOptions{AWSRoleARN: roleARN},
 		})
-		require.NoError(t, err)
-		assert.Equal(t, roleARN, agent.AWSOptions.AWSRoleARN)
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "has no version info", err)
 
-		// A pmm-agent whose version is present but unparseable is refused (unlike a nil version).
+		// A pmm-agent whose version is present but unparseable is refused.
 		require.NoError(t, q.Insert(&models.Agent{
 			AgentID: "PA-bad", AgentType: models.PMMAgentType, RunsOnNodeID: new("RN"), Version: new("not-a-version"),
 		}))
