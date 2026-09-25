@@ -17,6 +17,7 @@ package inventory
 
 import (
 	"context"
+	"errors"
 	"reflect"
 	"testing"
 	"time"
@@ -1285,5 +1286,65 @@ func TestAddAgentConnectionCheck(t *testing.T) {
 			Username:   "username",
 		})
 		require.NoError(t, err)
+	})
+}
+
+func TestChangeNodeExporterConfigurationUpdate(t *testing.T) {
+	// Regenerating the scrape config only after the exporter has restarted leaves
+	// VictoriaMetrics asking for a collector that is already disabled, and node_exporter
+	// answers HTTP 400 for the whole scrape, so every metric for the node gaps.
+	nodeExporterID := func(t *testing.T, as *AgentsService) string {
+		t.Helper()
+		agentType := models.NodeExporterType
+		agents, err := models.FindAgents(as.db.Querier, models.AgentFilters{AgentType: &agentType})
+		require.NoError(t, err)
+		require.NotEmpty(t, agents, "the fixtures should provide PMM Server's node_exporter")
+		return agents[0].AgentID
+	}
+
+	t.Run("ForcedWhenDisabledCollectorsAreSet", func(t *testing.T) {
+		_, as, _, teardown, ctx, vmdb := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := nodeExporterID(t, as)
+		vmdb.On("ForceConfigurationUpdate", ctx).Return(nil).Once()
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, mock.Anything)
+
+		_, err := as.ChangeNodeExporter(ctx, agentID, &inventoryv1.ChangeNodeExporterParams{
+			DisableCollectors: []string{"cpu"},
+		})
+		require.NoError(t, err)
+	})
+
+	t.Run("NotForcedForUnrelatedChanges", func(t *testing.T) {
+		// The mocks are strict, so an unexpected ForceConfigurationUpdate fails the test:
+		// the synchronous update must not be paid for on every change.
+		_, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := nodeExporterID(t, as)
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, mock.Anything)
+
+		_, err := as.ChangeNodeExporter(ctx, agentID, &inventoryv1.ChangeNodeExporterParams{
+			Enable: new(false),
+		})
+		require.NoError(t, err)
+	})
+
+	t.Run("FailureToForceDoesNotFailTheChange", func(t *testing.T) {
+		// The agent change is already committed at that point, and StateChanged requests the
+		// update anyway, so the caller must not be told the change failed.
+		_, as, _, teardown, ctx, vmdb := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := nodeExporterID(t, as)
+		vmdb.On("ForceConfigurationUpdate", ctx).Return(errors.New("vm is down")).Once()
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, mock.Anything)
+
+		changed, err := as.ChangeNodeExporter(ctx, agentID, &inventoryv1.ChangeNodeExporterParams{
+			DisableCollectors: []string{"cpu"},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"cpu"}, changed.GetNodeExporter().DisabledCollectors)
 	})
 }
