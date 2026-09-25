@@ -58,7 +58,14 @@ func IsAgentSupported(agentModel *Agent, functionalityPrefix string, pmmMinVersi
 	}
 	pmmAgentVersion, err := version.NewVersion(*agentModel.Version)
 	if err != nil {
-		return fmt.Errorf("failed to parse PMM agent version %q: %w", *agentModel.Version, err)
+		// An unparseable version (e.g. a malformed Feature Build string) can't be compared,
+		// so treat it the same as "too old" rather than failing the caller's request outright.
+		return AgentNotSupportedError{
+			AgentID:         agentModel.AgentID,
+			Functionality:   functionalityPrefix,
+			AgentVersion:    *agentModel.Version,
+			MinAgentVersion: pmmMinVersion.String(),
+		}
 	}
 
 	if pmmAgentVersion.LessThan(pmmMinVersion) {

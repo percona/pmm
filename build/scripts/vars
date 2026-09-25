@@ -18,8 +18,9 @@ pmm_branch=$(git rev-parse --abbrev-ref HEAD)
 
 pmm_base_version=$(< "${root_dir}/VERSION")
 full_pmm_version=${pmm_base_version}-${pmm_branch}-$(git rev-parse --short HEAD)
-# Replace '/' with '-' to prevent sed from failing on dependabot-authored PRs
-full_pmm_version=${full_pmm_version//\//-}
+# Replace characters that are illegal in a semver prerelease identifier (e.g. '/' and '_',
+# both found in dependabot-authored branch names) with '-'.
+full_pmm_version=${full_pmm_version//[\/_]/-}
 
 if [[ ${pmm_branch} =~ pmm-3.* || ${pmm_branch} == "main" ]]; then
     full_pmm_version=${pmm_base_version}
