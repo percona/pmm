@@ -1,9 +1,12 @@
 import {
+  PMM_LOGIN_URL,
+  PMM_LOGOUT_URL,
   PMM_NEW_NAV_GRAFANA_PATH,
   PMM_NEW_NAV_PATH,
   SEP_ATW_PATH,
   SEP_MYSQL_BACKUPS_PATH,
 } from 'lib/constants';
+import { clearReturnTo, saveReturnTo } from 'contexts/auth/auth.returnTo';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import AccountCircleOutlined from '@mui/icons-material/AccountCircleOutlined';
 import AppsRounded from '@mui/icons-material/AppsRounded';
@@ -785,8 +788,10 @@ export const NAV_SIGN_OUT: NavItem = {
   id: 'sign-out',
   icon: Logout,
   text: 'Sign out',
-  url: '/graph/logout',
+  url: PMM_LOGOUT_URL,
   target: '_self',
+  // Leaving on purpose should not drop the user back on that page at the next login.
+  onClick: clearReturnTo,
 };
 
 export const NAV_HELP: NavItem = {
@@ -800,8 +805,18 @@ export const NAV_SIGN_IN: NavItem = {
   id: 'sign-in',
   icon: LoginOutlinedIcon,
   text: 'Sign in',
-  url: '/graph/login',
+  url: PMM_LOGIN_URL,
   target: '_self',
+  // Remembers the page the way an involuntary bounce through redirectToLogin() does. Stays a real
+  // anchor: /graph/login is exempt from the nginx redirect and must not enter the router.
+  //
+  // Cleared first because the bounce guard only makes sense for involuntary cycles - under
+  // anonymous access this click often lands seconds after the shell restored this very page,
+  // which is exactly the state the guard refuses.
+  onClick: () => {
+    clearReturnTo();
+    saveReturnTo();
+  },
 };
 
 /**
