@@ -326,7 +326,8 @@ func TestProvisionerStartupRestartsWithoutWaitingForTheLeader(t *testing.T) {
 	// Deliberately no leader stub: a call would fail the test.
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
 	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil).Once()
-	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
+	// Once before the boot restart, to let Grafana finish starting, and once after it.
+	f.grafana.On("IsReady", mock.Anything).Return(nil).Times(2)
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 
@@ -361,7 +362,8 @@ func TestProvisionerStartupDebtSurvivesARenderFailure(t *testing.T) {
 
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
 	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil).Once()
-	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
+	// Once before the boot restart, to let Grafana finish starting, and once after it.
+	f.grafana.On("IsReady", mock.Anything).Return(nil).Times(2)
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 	require.True(t, f.provisioner.startupApplyOwed, "a boot that wrote nothing still owes its restart")
@@ -385,7 +387,8 @@ func TestProvisionerBootExemptionEndsWithTheBoot(t *testing.T) {
 	f.expectSettings(1, true)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
 	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil).Once()
-	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
+	// Once before the boot restart, to let Grafana finish starting, and once after it.
+	f.grafana.On("IsReady", mock.Anything).Return(nil).Times(2)
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 	require.False(t, f.provisioner.startupApplyOwed)
@@ -1094,4 +1097,54 @@ func TestProvisionerWaitsForAGrafanaSupervisordIsStillRetrying(t *testing.T) {
 	assert.False(t, f.provisioner.applyPending, "Grafana came back on the new content")
 	assert.Zero(t, f.provisioner.rejectedApplies)
 	assert.Zero(t, errorCount(t, f.provisioner, stageApply))
+}
+
+// TestProvisionerBootRestartLetsGrafanaFinishStarting is the review finding on the first boot. From
+// its first second Grafana is reported running by supervisord, while a cold start can still be in
+// database migrations, and the boot restart used to cut that short. It now waits for Grafana to
+// answer first, and only then restarts it.
+func TestProvisionerBootRestartLetsGrafanaFinishStarting(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	f.expectSettings(1, true)
+
+	var calls []string
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Times(2).
+		Run(func(mock.Arguments) { calls = append(calls, "not ready") })
+	f.grafana.On("IsReady", mock.Anything).Return(nil).
+		Run(func(mock.Arguments) { calls = append(calls, "ready") })
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil).Once().
+		Run(func(mock.Arguments) { calls = append(calls, "restart") })
+
+	f.provisioner.reconcile(context.Background(), triggerStartup)
+
+	assert.Equal(t, []string{"not ready", "not ready", "ready", "restart", "ready"}, calls)
+	assert.False(t, f.provisioner.startupApplyOwed)
+	assert.False(t, f.provisioner.applyPending)
+}
+
+// TestProvisionerBootLeavesAGrafanaStillStartingAlone covers a Grafana slower than readyTimeout. It
+// is not restarted and nothing is charged, because a slow start says nothing about the content, and
+// charging it would spend the budget on every slow boot and leave the server without its rules. The
+// boot restart stays owed and is retried on the backoff.
+func TestProvisionerBootLeavesAGrafanaStillStartingAlone(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	f.expectSettings(2, true)
+
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
+
+	for _, trigger := range []provisioningTrigger{triggerStartup, triggerRetry} {
+		f.provisioner.reconcile(context.Background(), trigger)
+	}
+
+	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", mock.Anything, grafanaProgramName)
+	assert.Zero(t, f.provisioner.rejectedApplies, "a slow start must not count against the content")
+	assert.True(t, f.provisioner.applyPending)
+	assert.True(t, f.provisioner.startupApplyOwed, "the boot restart is still owed")
+	assert.Equal(t, datasourceRetryInitial*datasourceRetryFactor, f.provisioner.retryBackoff)
 }

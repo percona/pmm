@@ -523,6 +523,10 @@ var errRuleUIDTaken = errors.New("could not check who owns the built-in rule UID
 // genuinely failed and is owed a retry.
 var errDeferredToLeader = errors.New("left to the leader to apply")
 
+// errGrafanaStillStarting reports that the boot restart was put off because Grafana had not
+// finished starting. It says nothing about the content, so it does not count against it.
+var errGrafanaStillStarting = errors.New("grafana is still starting, so it was not restarted")
+
 // errGrafanaNotBack reports that PMM took Grafana down to apply a file and it did not answer again
 // within the timeout, or died so quickly that supervisord gave up on it. It is the one apply failure that says something about the content, so it is
 // told apart from a supervisord command that would not run: only this one counts against the
@@ -712,6 +716,20 @@ func (p *Provisioner) apply(ctx context.Context, trigger provisioningTrigger, pr
 		// cluster before some Grafana happens to restart.
 		if !p.startupApplyOwed && !p.leader.IsLeader() {
 			return fmt.Errorf("%w on %s", errDeferredToLeader, trigger)
+		}
+
+		if p.startupApplyOwed {
+			// At boot Grafana may still be starting: supervisord reports it running from the first
+			// second, while a cold start can spend minutes in database migrations. Restarting it
+			// then only throws that work away, and a Grafana slower than readyTimeout would be cut
+			// short on every attempt and charged each time, until the budget ran out and left the
+			// server without its rules. So let it finish first. One that does not is left alone and
+			// tried again on the backoff, without counting against the content: a Grafana that
+			// keeps dying instead ends up FATAL, and the start path above charges that.
+			err := p.waitForGrafana(ctx)
+			if err != nil {
+				return fmt.Errorf("%w: %w", errGrafanaStillStarting, err)
+			}
 		}
 
 		return p.restartGrafana(ctx, previous)
