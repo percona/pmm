@@ -1,4 +1,9 @@
-import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
+import {
+  PMM_NEW_NAV_GRAFANA_PATH,
+  PMM_NEW_NAV_PATH,
+  EXTENSIONS_ATW_PATH,
+  EXTENSIONS_MYSQL_BACKUPS_PATH,
+} from 'lib/constants';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import AccountCircleOutlined from '@mui/icons-material/AccountCircleOutlined';
 import AppsRounded from '@mui/icons-material/AppsRounded';
@@ -10,12 +15,13 @@ import Logout from '@mui/icons-material/Logout';
 import MemoryOutlined from '@mui/icons-material/MemoryOutlined';
 import NorthEast from '@mui/icons-material/NorthEast';
 import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
-import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
+import Restore from '@mui/icons-material/Restore';
 import Search from '@mui/icons-material/Search';
 import Security from '@mui/icons-material/Security';
 import SettingsApplicationsOutlined from '@mui/icons-material/SettingsApplicationsOutlined';
 import SettingsBackupRestore from '@mui/icons-material/SettingsBackupRestore';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
+import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
 import {
   CirclesExtIcon,
   Graph4Icon,
@@ -31,6 +37,7 @@ import {
   ProxyIcon,
   QueryStatsIcon,
   SearchInsightsIcon,
+  SupportDiagnosticsIcon,
 } from '@percona/peak-ui';
 import { NavItem } from 'types/navigation.types';
 
@@ -822,13 +829,14 @@ export const NAV_HIGH_AVAILABILITY: NavItem = {
   id: 'high-availability',
   icon: CirclesExtIcon,
   text: 'PMM HA',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/high-availability`,
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-ha-health-overview/pmm-ha-health-overview`,
 };
 
-export const NAV_HIGH_AVAILABILITY_LEADER: NavItem = {
-  id: 'high-availability-leader',
-  text: 'Leader:',
-  type: 'menu-text',
+export const NAV_HIGH_AVAILABILITY_OVERVIEW: NavItem = {
+  id: 'high-availability-overview',
+  icon: PageviewOutlined,
+  text: 'Overview',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-ha-health-overview/pmm-ha-health-overview`,
 };
 
 export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
@@ -836,4 +844,32 @@ export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
   icon: NorthEast,
   text: 'Identify Nodes',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes?isPmmServerNode=true`,
+};
+
+//
+// Management
+//
+// Section grouping the PMM Extensions apps. It has no page of its own: a collapsible nav
+// item takes its link from its first child, so the header opens whichever app
+// leads the group.
+export const NAV_MANAGEMENT: NavItem = {
+  id: 'management',
+  icon: AppsRounded,
+  text: 'Management',
+};
+
+export const NAV_EXTENSIONS_ATW: NavItem = {
+  id: 'extensions-atw',
+  icon: SupportDiagnosticsIcon,
+  text: 'Support diagnostics',
+  url: EXTENSIONS_ATW_PATH,
+  matches: [EXTENSIONS_ATW_PATH],
+};
+
+export const NAV_EXTENSIONS_MYSQL_BACKUPS: NavItem = {
+  id: 'extensions-mysql-backups',
+  icon: Restore,
+  text: 'MySQL Backups',
+  url: EXTENSIONS_MYSQL_BACKUPS_PATH,
+  matches: [EXTENSIONS_MYSQL_BACKUPS_PATH],
 };

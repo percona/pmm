@@ -1835,7 +1835,7 @@ type QANMySQLSlowlogAgent struct {
 	CustomLabels map[string]string `protobuf:"bytes,15,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,20,opt,name=status,proto3,enum=inventory.v1.AgentStatus" json:"status,omitempty"`
-	// mod tidy
+	//  mod tidy
 	ProcessExecPath string `protobuf:"bytes,21,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,22,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`

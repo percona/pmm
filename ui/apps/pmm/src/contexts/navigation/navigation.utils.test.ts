@@ -5,7 +5,11 @@ import {
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
 import { createAnonymousUser } from 'contexts/user/user.utils';
-import { addAlerting } from './navigation.utils';
+import { addAlerting, addSection, addExtensionsApps } from './navigation.utils';
+import {
+  EXTENSIONS_ATW_PATH,
+  EXTENSIONS_MYSQL_BACKUPS_PATH,
+} from 'lib/constants';
 
 const childIds = (item: ReturnType<typeof addAlerting>) =>
   (item.children || []).map((c) => c.id);
@@ -98,5 +102,47 @@ describe('addAlerting', () => {
     expect(childIds(addAlerting(false, false, TEST_USER_EDITOR))).not.toContain(
       'alerts-templates'
     );
+  });
+});
+
+describe('addExtensionsApps', () => {
+  it('returns one Management section instead of two flat entries', () => {
+    const items = addExtensionsApps();
+
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({ id: 'management', text: 'Management' });
+  });
+
+  it('gives the section no page of its own', () => {
+    expect(addExtensionsApps()[0].url).toBeUndefined();
+  });
+
+  it('keeps each app url and matches on the children', () => {
+    const children = addExtensionsApps()[0].children || [];
+
+    expect(children.map((child) => child.id)).toEqual([
+      'extensions-mysql-backups',
+      'extensions-atw',
+    ]);
+    expect(children[0]).toMatchObject({
+      url: EXTENSIONS_MYSQL_BACKUPS_PATH,
+      matches: [EXTENSIONS_MYSQL_BACKUPS_PATH],
+    });
+    expect(children[1]).toMatchObject({
+      url: EXTENSIONS_ATW_PATH,
+      matches: [EXTENSIONS_ATW_PATH],
+    });
+  });
+});
+
+describe('addSection', () => {
+  it('wraps the children in the section', () => {
+    const items = addSection({ id: 'section' }, [{ id: 'child' }]);
+
+    expect(items).toEqual([{ id: 'section', children: [{ id: 'child' }] }]);
+  });
+
+  it('contributes nothing rather than an empty expandable shell', () => {
+    expect(addSection({ id: 'section' }, [])).toEqual([]);
   });
 });

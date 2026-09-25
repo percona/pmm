@@ -15,6 +15,7 @@ export const READONLY_SETTINGS_MOCK: ReadonlySettings = {
   backupManagementEnabled: true,
   azurediscoverEnabled: false,
   enableAccessControl: false,
+  extensionsEnabled: false,
 };
 
 export const SETTINGS_MOCK: Settings = {
