@@ -381,15 +381,6 @@ func TestCleanPath(t *testing.T) {
 		expected string
 	}{
 		{
-			"/v1/server/AWSInstanceCheck/..%2f..%2finventory/Services/List",
-			"/v1/inventory/Services/List",
-		}, {
-			"/v1/server/AWSInstanceCheck/..%2f..%2f..%2fmanaged/logs.zip",
-			"/managed/logs.zip",
-		}, {
-			"/v1/server/AWSInstanceCheck/..%2f..%2f..%2f/logs.zip",
-			"/logs.zip",
-		}, {
 			"/graph/api/datasources/proxy/8/?query=WITH%20(%0A%20%20%20%20CASE%20%0A%20%20%20%20%20%20%20%20WHEN%20(3000%20%25%2060)%20%3D%200%20THEN%203000%0A%20%20%20%20ELSE%2060%20END%0A)%20AS%20scale%0ASELECT%0A%20%20%20%20(intDiv(toUInt32(timestamp)%2C%203000)%20*%203000)%20*%201000%20as%20t%2C%0A%20%20%20%20hostname%20h%2C%0A%20%20%20%20status%20s%2C%0A%20%20%20%20SUM(req_count)%20as%20req_count%0AFROM%20pinba.report_by_all%0AWHERE%0A%20%20%20%20timestamp%20%3E%3D%20toDateTime(1707139680)%20AND%20timestamp%20%3C%3D%20toDateTime(1707312480)%0A%20%20%20%20AND%20status%20%3E%3D%20400%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20schema%20%3D%20%27all%27%20ELSE%201%20END%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20hostname%20%3D%20%27all%27%20ELSE%201%20END%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20server_name%20%3D%20%27all%27%20ELSE%201%20END%0AGROUP%20BY%20t%2C%20h%2C%20s%0AORDER%20BY%20t%20FORMAT%20JSON",
 			"/graph/api/datasources/proxy/8/",
 		}, {
@@ -403,6 +394,20 @@ func TestCleanPath(t *testing.T) {
 		}, {
 			"/v1/server/logs.zip#/../../ping",
 			"/v1/server/logs.zip",
+		}, {
+			// Grafana puts an alert rule group name in the path, so an encoded '?' or '#'
+			// is an ordinary character there.
+			"/graph/api/ruler/grafana/api/v1/rules/folder/PMM-15379%20%231",
+			"/graph/api/ruler/grafana/api/v1/rules/folder/PMM-15379 #1",
+		}, {
+			"/graph/api/ruler/grafana/api/v1/rules/folder/PMM-15379%20%3F2",
+			"/graph/api/ruler/grafana/api/v1/rules/folder/PMM-15379 ?2",
+		}, {
+			"/graph/api/datasources/proxy/1/./api/v1/query",
+			"/graph/api/datasources/proxy/1/api/v1/query",
+		}, {
+			"/graph/api/datasources/proxy/1/api/v1/..query",
+			"/graph/api/datasources/proxy/1/api/v1/..query",
 		},
 	}
 	for _, tt := range tests {
@@ -414,19 +419,24 @@ func TestCleanPath(t *testing.T) {
 		})
 	}
 
-	// An encoded delimiter survives the query-string cut, decodes to a real one, and lets
-	// path.Clean walk the "../" behind it -- out of the data source prefix here, while
-	// Grafana keeps routing the request to the data source with no filters attached.
+	// Grafana routes on the path as sent, and only the data source resolves a ".." within
+	// its sub-path, so resolving it here would authorize and filter a different path than
+	// the one served -- out of the data source prefix, and out of a role-free one.
 	for _, p := range []string{
+		"/graph/api/datasources/proxy/1/api/v1/query/../../../../../../api/v1/query",
+		"/graph/api/datasources/proxy/1/api/v1/query/%2E%2E/%2e%2e/../../../../api/v1/query",
+		"/graph/api/datasources/proxy/1/api/v1/query%2F..%2F..%2F..%2F..%2F..%2F..%2Fapi/v1/query",
 		"/graph/api/datasources/proxy/1/api/v1/query%3Fa=/../../../../../../api/v1/query",
 		"/graph/api/datasources/proxy/1/api/v1/query%23a=/../../../../../../api/v1/query",
 		"/graph%3F/../../v1/server/logs.zip",
-		"/v1/server/logs.zip%23x",
+		"/v1/server/AWSInstanceCheck/..%2f..%2finventory/Services/List",
+		"/v1/server/AWSInstanceCheck/..%2f..%2f..%2f/logs.zip",
+		"/graph/..",
 	} {
 		t.Run(p, func(t *testing.T) {
 			t.Parallel()
 			_, err := cleanPath(p)
-			require.ErrorIs(t, err, errEncodedSeparator)
+			require.ErrorIs(t, err, errDotDotSegment)
 		})
 	}
 }

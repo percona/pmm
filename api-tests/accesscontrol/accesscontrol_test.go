@@ -57,12 +57,13 @@ var (
 	httpClient *http.Client
 )
 
-// env holds the fixture: a viewer restricted to a label set that matches nothing, and the two
-// identifiers Grafana serves the Metrics data source under.
+// env holds the fixture: a viewer restricted to a label set that matches nothing, the two
+// identifiers Grafana serves the Metrics data source under, and a folder for alert rules.
 type env struct {
-	viewer *url.Userinfo
-	dsID   int64
-	dsUID  string
+	viewer    *url.Userinfo
+	dsID      int64
+	dsUID     string
+	folderUID string
 }
 
 func TestMain(m *testing.M) {
@@ -109,6 +110,39 @@ func TestLBACFiltersEveryDataSourceRoute(t *testing.T) {
 			code, body := request(t, http.MethodGet, path, testEnv.viewer)
 			require.Equal(t, http.StatusOK, code, "%s", body)
 			assert.Zerof(t, results(body), "filters were not applied, response: %s", trim(body))
+		})
+	}
+}
+
+// TestEncodedDelimiterInPath guards the paths that legitimately carry an encoded '?' or '#':
+// Grafana puts an alert rule group name in the path, so refusing them made every such group
+// impossible to open, edit or delete.
+func TestEncodedDelimiterInPath(t *testing.T) {
+	t.Parallel()
+
+	for _, name := range []string{"api-tests #1", "api-tests ?2"} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			folderPath := "/graph/api/ruler/grafana/api/v1/rules/" + testEnv.folderUID
+			group := fmt.Sprintf(`{"name":%q,"interval":"1m","rules":[{"for":"1m","grafana_alert":`+
+				`{"title":%q,"condition":"A","no_data_state":"OK","exec_err_state":"OK","data":[%s]}}]}`,
+				name, name, alertQuery())
+
+			code, body := requestBody(t, http.MethodPost, folderPath, adminUser(), group)
+			require.Equal(t, http.StatusAccepted, code, "%s", trim(body))
+
+			groupPath := folderPath + "/" + url.PathEscape(name)
+			t.Cleanup(func() {
+				code, body, err := send(http.MethodDelete, groupPath, adminUser())
+				if err != nil || code != http.StatusAccepted {
+					t.Logf("Failed to delete rule group %s: %d %s %v", name, code, trim(body), err)
+				}
+			})
+
+			code, body = request(t, http.MethodGet, groupPath, adminUser())
+			require.Equal(t, http.StatusAccepted, code, "%s", trim(body))
+			assert.Contains(t, string(body), name)
 		})
 	}
 }
@@ -167,6 +201,22 @@ func TestPathConfusion(t *testing.T) {
 		assert.Equalf(t, http.StatusUnauthorized, code, "response: %s", trim(body))
 	})
 
+	// pmm-managed resolved the ".." and read /graph/api/api/v1/query, outside the data source
+	// prefix, while Grafana routed the path as sent and vmproxy cleaned the sub-path back onto
+	// /api/v1/query: every series, unfiltered.
+	for _, path := range []string{
+		dsPath("/api/v1/query" + traversal + "/api/v1/query?query=up"),
+		dsPath("/api/v1/query" + strings.ReplaceAll(traversal, "..", "%2E%2E") + "/api/v1/query?query=up"),
+		dsPath("/api/v1/query" + strings.ReplaceAll(traversal, "/", "%2F") + "%2Fapi/v1/query?query=up"),
+	} {
+		t.Run("a traversal in the path is refused: "+path, func(t *testing.T) {
+			t.Parallel()
+
+			code, body := request(t, http.MethodGet, path, testEnv.viewer)
+			assert.Equalf(t, http.StatusForbidden, code, "response: %s", trim(body))
+		})
+	}
+
 	t.Run("a traversal in the query string does not drop the filters", func(t *testing.T) {
 		t.Parallel()
 
@@ -194,7 +244,8 @@ func TestPathConfusion(t *testing.T) {
 		t.Parallel()
 
 		// vmproxy checked the path it was given and forwarded a different one, because
-		// the upstream URL was parsed out of an already decoded string.
+		// the upstream URL was parsed out of an already decoded string. pmm-managed now
+		// refuses the ".." before it gets there; vmproxy's own tests cover the proxy.
 		code, body := request(t, http.MethodGet, dsPath("/metrics%23/../api/v1/query"), testEnv.viewer)
 		assert.Equalf(t, http.StatusForbidden, code, "response: %s", trim(body))
 		assert.NotContainsf(t, string(body), "vm_promscrape", "VictoriaMetrics metrics leaked: %s", trim(body))
@@ -267,6 +318,18 @@ func setup() (func(), error) {
 	testEnv.dsID, testEnv.dsUID = dsID, dsUID
 
 	suffix := time.Now().UnixNano()
+
+	folderUID, err := createFolder(fmt.Sprintf("api-tests-lbac-%d", suffix))
+	if err != nil {
+		return teardown, err
+	}
+	cleanups = append(cleanups, func() {
+		err := deleteFolder(folderUID)
+		if err != nil {
+			logrus.Errorf("Failed to delete folder %s: %s", folderUID, err)
+		}
+	})
+	testEnv.folderUID = folderUID
 
 	role, err := accesscontrolClient.Default.AccessControlService.CreateRole(&accesscontrol.CreateRoleParams{
 		Body: accesscontrol.CreateRoleBody{
@@ -434,11 +497,59 @@ func deleteGrafanaUser(userID int64) error {
 	return nil
 }
 
+// createFolder creates a Grafana folder for alert rules and returns its uid.
+func createFolder(title string) (string, error) {
+	code, body, err := sendBody(http.MethodPost, "/graph/api/folders", adminUser(), fmt.Sprintf(`{"title":%q}`, title))
+	if err != nil {
+		return "", err
+	}
+	if code != http.StatusOK {
+		return "", fmt.Errorf("failed to create folder: %d %s", code, trim(body))
+	}
+
+	var created struct {
+		UID string `json:"uid"`
+	}
+	err = json.Unmarshal(body, &created)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse created folder: %w", err)
+	}
+
+	return created.UID, nil
+}
+
+// deleteFolder deletes a Grafana folder together with any alert rules left in it.
+func deleteFolder(uid string) error {
+	code, body, err := send(http.MethodDelete, fmt.Sprintf("/graph/api/folders/%s?forceDeleteRules=true", uid), adminUser())
+	if err != nil {
+		return err
+	}
+	if code != http.StatusOK {
+		return fmt.Errorf("failed to delete folder: %d %s", code, trim(body))
+	}
+
+	return nil
+}
+
+// alertQuery returns an alert rule query that selects every 'up' series of the Metrics data
+// source.
+func alertQuery() string {
+	return fmt.Sprintf(`{"refId":"A","datasourceUid":%q,"relativeTimeRange":{"from":600,"to":0},`+
+		`"model":{"refId":"A","expr":"up","instant":true}}`, testEnv.dsUID)
+}
+
 // request sends rawPath as written and fails the test if the request cannot be made.
 func request(t *testing.T, method, rawPath string, user *url.Userinfo) (int, []byte) {
 	t.Helper()
 
-	code, body, err := sendBody(method, rawPath, user, "")
+	return requestBody(t, method, rawPath, user, "")
+}
+
+// requestBody is request with a JSON body.
+func requestBody(t *testing.T, method, rawPath string, user *url.Userinfo, reqBody string) (int, []byte) {
+	t.Helper()
+
+	code, body, err := sendBody(method, rawPath, user, reqBody)
 	require.NoError(t, err)
 	t.Logf("%s %s -> %d", method, rawPath, code)
 

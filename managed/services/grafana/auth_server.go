@@ -26,6 +26,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"path"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -189,8 +190,8 @@ var ErrInvalidUserID = errors.New("InvalidUserID")
 // ErrCannotGetUserID is returned when we cannot retrieve user ID.
 var ErrCannotGetUserID = errors.New("CannotGetUserID")
 
-// errEncodedSeparator is returned for a path that still holds a percent-encoded '?' or '#'.
-var errEncodedSeparator = errors.New("encoded separator in path")
+// errDotDotSegment is returned for a path that has a ".." segment once unescaped.
+var errDotDotSegment = errors.New("dot-dot segment in path")
 
 type cacheItem struct {
 	u       authUser
@@ -280,10 +281,10 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		l.Warnf("Refusing to authenticate path %s: %s", req.URL.Path, err)
 
-		// An encoded delimiter is a deliberate act rather than a malformed URI, so it is
-		// denied outright; everything else keeps reporting as an internal error.
+		// A ".." segment is a deliberate act rather than a malformed URI, so it is denied
+		// outright; everything else keeps reporting as an internal error.
 		authErr := &authError{code: codes.Internal, message: "Internal server error."}
-		if errors.Is(err, errEncodedSeparator) {
+		if errors.Is(err, errDotDotSegment) {
 			authErr = &authError{code: codes.PermissionDenied, message: "Access denied"}
 		}
 
@@ -618,13 +619,15 @@ func cleanPath(uri string) (string, error) {
 		return "", err
 	}
 
-	// nginx split the query string off the URI it matched a location on, so a delimiter
-	// that reappears here was percent-encoded to be decoded by something downstream.
-	// Grafana obliges, and routes what this function reads as a different path: a ".."
-	// behind the decoded '?' walks out of the data source prefix here while Grafana still
-	// forwards the request to the data source, filterless.
-	if strings.ContainsAny(unescaped, "?#") {
-		return "", errEncodedSeparator
+	// Refuse a ".." segment rather than resolve it: nginx resolves it, but Grafana routes on
+	// the path as sent and leaves it to the data source, so
+	// /graph/api/datasources/proxy/1/api/v1/query/../../../../../../api/v1/query cleans to
+	// /graph/api/api/v1/query here, outside every filtered prefix, while vmproxy lands back
+	// on /api/v1/query. Browsers and curl resolve ".." before sending. An encoded '?' or '#'
+	// stays an ordinary character, as it does downstream; Grafana sends one for an alert
+	// rule group named with it.
+	if slices.Contains(strings.Split(unescaped, "/"), "..") {
+		return "", errDotDotSegment
 	}
 
 	cleanedPath := path.Clean(unescaped)
