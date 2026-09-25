@@ -222,6 +222,12 @@ type Provisioner struct {
 	// clears both, so a revision is only ever held against itself.
 	rejectedHash    string
 	rejectedApplies int
+	// accepted is the content Grafana last came back healthy on after PMM restarted or started it,
+	// and acceptedKnown says whether there is one; a nil accepted then means Grafana came back with
+	// no file at all. This, not whatever happened to be on disk before a write, is what a failed
+	// apply rolls back to: a file merely found there may be the very one Grafana is failing on.
+	accepted      []byte
+	acceptedKnown bool
 }
 
 // ProvisionerParams holds Provisioner configuration.
@@ -449,7 +455,7 @@ func (p *Provisioner) reconcile(ctx context.Context, trigger provisioningTrigger
 		return
 	}
 
-	previous, changed, err := p.write(content)
+	changed, err := p.write(content)
 	if err != nil {
 		p.l.Errorf("Failed to write the alert rule provisioning file: %s.", err)
 		p.metrics.recordError(stageWrite)
@@ -468,7 +474,7 @@ func (p *Provisioner) reconcile(ctx context.Context, trigger provisioningTrigger
 		return
 	}
 
-	err = p.apply(ctx, trigger, previous)
+	err = p.apply(ctx, trigger)
 	switch {
 	case err == nil:
 		p.applyPending = false
@@ -513,7 +519,7 @@ func (p *Provisioner) reconcile(ctx context.Context, trigger provisioningTrigger
 			// trying again. The slow tick keeps checking for that.
 			p.retryBackoff = 0
 			p.l.Errorf("Giving up on applying these alert rules: Grafana did not come back %d times, "+
-				"and the file it last accepted has been restored. The rules Grafana holds are the "+
+				"and the file it refused has been rolled back. The rules Grafana holds are the "+
 				"previous ones, and PMM will try again once the rendered rules change: %s.", p.rejectedApplies, err)
 
 			// The attempt that ran out the budget may have left Grafana FATAL, and with the fast retry
@@ -648,34 +654,34 @@ func (p *Provisioner) render(ctx context.Context) ([]byte, map[string]bool, erro
 	return content, bundles, nil
 }
 
-// write puts the content on disk, reporting what was there before so a failed apply can be rolled
-// back, and whether anything actually changed. Unchanged means Grafana already read this exact file
-// when it last started, so nothing has to be done to make it pick the rules up.
-func (p *Provisioner) write(content []byte) ([]byte, bool, error) {
+// write puts the content on disk, reporting whether anything actually changed. Unchanged means
+// Grafana already read this exact file when it last started, so nothing has to be done to make it
+// pick the rules up.
+func (p *Provisioner) write(content []byte) (bool, error) {
 	err := dir.CreateDataDir(p.dirPath, provisioningDirPerm)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	path := p.filePath()
 	previous, err := os.ReadFile(path) //nolint:gosec
 	if err != nil && !errors.Is(err, fs.ErrNotExist) {
-		return nil, false, err
+		return false, err
 	}
 
 	if previous != nil && bytes.Equal(previous, content) {
-		return previous, false, nil
+		return false, nil
 	}
 
 	// Grafana may be reading this directory right now, so the file is replaced atomically rather
 	// than truncated and rewritten.
 	err = dir.WriteFileAtomic(path, content, provisioningFilePerm)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	p.l.Infof("Wrote alert rule provisioning file %s.", path)
-	return previous, true, nil
+	return true, nil
 }
 
 // apply makes Grafana pick up a file that has just changed.
@@ -686,7 +692,7 @@ func (p *Provisioner) write(content []byte) ([]byte, bool, error) {
 // those arrive by recreating the container, which restarts Grafana anyway. What is
 // left is the boot where the rendered content changed, and the case where the datasource resolved
 // late.
-func (p *Provisioner) apply(ctx context.Context, trigger provisioningTrigger, previous []byte) error {
+func (p *Provisioner) apply(ctx context.Context, trigger provisioningTrigger) error {
 	running := p.supervisord.ProgramState(ctx, grafanaProgramName)
 	if running == nil {
 		// The state could not be determined, and that covers two situations which need opposite
@@ -726,7 +732,7 @@ func (p *Provisioner) apply(ctx context.Context, trigger provisioningTrigger, pr
 		if err != nil {
 			// Same reasoning as the restart below: a Grafana that will not start on this file has
 			// to be left the one it last accepted, or it can never come up again.
-			p.rollback(previous)
+			p.rollback()
 			return err
 		}
 		return nil
@@ -763,19 +769,19 @@ func (p *Provisioner) apply(ctx context.Context, trigger provisioningTrigger, pr
 			}
 		}
 
-		return p.restartGrafana(ctx, previous)
+		return p.restartGrafana(ctx)
 	}
 }
 
-// restartGrafana restarts Grafana and waits for it to answer again, restoring the previous file if
-// it does not.
-func (p *Provisioner) restartGrafana(ctx context.Context, previous []byte) error {
+// restartGrafana restarts Grafana and waits for it to answer again, rolling the file back if it
+// does not.
+func (p *Provisioner) restartGrafana(ctx context.Context) error {
 	p.l.Infof("Restarting Grafana to apply alert rule changes.")
 
 	err := p.supervisord.RestartSupervisedService(ctx, grafanaProgramName)
 	err = p.awaitGrafana(ctx, "restart", err)
 	if errors.Is(err, errGrafanaNotBack) {
-		p.rollback(previous)
+		p.rollback()
 	}
 
 	return err
@@ -813,12 +819,28 @@ func (p *Provisioner) awaitGrafana(ctx context.Context, command string, cmdErr e
 		return fmt.Errorf("%w after supervisorctl %s: %w", errGrafanaNotBack, command, err)
 	}
 
+	p.recordAccepted()
 	return nil
+}
+
+// recordAccepted remembers the file Grafana has just come back healthy on as the rollback target.
+// Nothing writes the file while m is held, so what is on disk now is what Grafana started on.
+func (p *Provisioner) recordAccepted() {
+	content, err := os.ReadFile(p.filePath())
+	switch {
+	case err == nil:
+		p.accepted, p.acceptedKnown = content, true
+	case errors.Is(err, fs.ErrNotExist):
+		p.accepted, p.acceptedKnown = nil, true
+	default:
+		p.l.Warnf("Cannot read back the alert rule provisioning file Grafana started on: %s.", err)
+		p.accepted, p.acceptedKnown = nil, false
+	}
 }
 
 // recoverGrafanaLocked brings Grafana back if it is down and supervisord will not do it, without
 // touching the provisioning file. It is what is left to do for a revision PMM has stopped applying:
-// the file on disk is the one Grafana last accepted, so starting it is safe, and a Grafana left
+// the file on disk is the one Grafana last accepted, or none, so starting it is safe, and a Grafana left
 // FATAL by the revision that was given up on would otherwise stay down with nothing else coming for
 // it. Called with m held.
 func (p *Provisioner) recoverGrafanaLocked(ctx context.Context) {
@@ -827,7 +849,7 @@ func (p *Provisioner) recoverGrafanaLocked(ctx context.Context) {
 		return
 	}
 
-	p.l.Warnf("Grafana is down and supervisord will not restart it; starting it on the file it last accepted.")
+	p.l.Warnf("Grafana is down and supervisord will not restart it; starting it without the rules it refused.")
 	err := p.startGrafana(ctx)
 	if err != nil {
 		p.l.Errorf("Failed to bring Grafana back: %s.", err)
@@ -865,23 +887,29 @@ func (p *Provisioner) waitForGrafana(ctx context.Context) error {
 	}
 }
 
-// rollback puts back the content Grafana last started from, so that a server left in this state
-// still has a Grafana that starts.
-func (p *Provisioner) rollback(previous []byte) {
-	if previous == nil {
+// rollback puts back the content Grafana last came back healthy on, so that a server left in this
+// state still has a Grafana that starts. When there is none - nothing has been applied since PMM
+// started, or Grafana came back with no file at all - it removes the file rather than guess: no
+// file is always safe, and Grafana keeps the rules it already holds, because it only ever deletes
+// provisioned rules that a file tells it to.
+func (p *Provisioner) rollback() {
+	if !p.acceptedKnown || p.accepted == nil {
 		err := os.Remove(p.filePath())
 		if err != nil && !errors.Is(err, fs.ErrNotExist) {
 			p.l.Errorf("Failed to remove the alert rule provisioning file: %s.", err)
+			return
 		}
+		p.l.Warnf("Removed the alert rule provisioning file: Grafana has not come back on any " +
+			"content of it since PMM started. The rules Grafana already holds are kept.")
 		return
 	}
 
-	err := dir.WriteFileAtomic(p.filePath(), previous, provisioningFilePerm)
+	err := dir.WriteFileAtomic(p.filePath(), p.accepted, provisioningFilePerm)
 	if err != nil {
-		p.l.Errorf("Failed to restore the previous alert rule provisioning file: %s.", err)
+		p.l.Errorf("Failed to restore the alert rule provisioning file Grafana last accepted: %s.", err)
 		return
 	}
-	p.l.Warnf("Restored the previous alert rule provisioning file.")
+	p.l.Warnf("Restored the alert rule provisioning file Grafana last accepted.")
 }
 
 func (p *Provisioner) filePath() string {

@@ -136,6 +136,16 @@ func (f *provisionerFixture) expectProgramStates(states ...*bool) {
 	}
 }
 
+// markAccepted records the file on disk as one Grafana has come back healthy on, which is what a
+// failed apply rolls back to. Tests that only need a known good file use it instead of going
+// through a full restart first.
+func (f *provisionerFixture) markAccepted(t *testing.T) {
+	t.Helper()
+
+	f.provisioner.accepted = []byte(f.fileContent(t))
+	f.provisioner.acceptedKnown = true
+}
+
 func (f *provisionerFixture) fileContent(t *testing.T) string {
 	t.Helper()
 
@@ -417,6 +427,7 @@ func TestProvisionerRollsBackAFailedRestart(t *testing.T) {
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 	good := f.fileContent(t)
+	f.markAccepted(t)
 
 	// Then a real change - Percona Alerting switched off empties the file - which Grafana refuses
 	// to come back from. Only a change reaches the apply step: an identical render is a no-op.
@@ -865,6 +876,7 @@ func TestProvisionerStopsOfferingARevisionGrafanaRejects(t *testing.T) {
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 	good := f.fileContent(t)
+	f.markAccepted(t)
 
 	// Then a real change - Percona Alerting switched off empties the file - offered far more times
 	// than the budget allows.
@@ -936,6 +948,7 @@ func TestProvisionerStartsAGrafanaLeftDownByARevisionItGaveUpOn(t *testing.T) {
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 	good := f.fileContent(t)
+	f.markAccepted(t)
 
 	f.expectSettings(maxApplyAttemptsPerRevision, false)
 	f.leader.On("IsLeader").Return(true)
@@ -997,6 +1010,7 @@ func TestProvisionerRollsBackAStartGrafanaDoesNotSurvive(t *testing.T) {
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 	good := f.fileContent(t)
+	f.markAccepted(t)
 
 	f.expectSettings(1, false)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(false))
@@ -1023,6 +1037,7 @@ func TestProvisionerChargesARestartGrafanaDiesDuring(t *testing.T) {
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 	good := f.fileContent(t)
+	f.markAccepted(t)
 
 	f.expectSettings(1, false)
 	f.leader.On("IsLeader").Return(true)
@@ -1052,6 +1067,7 @@ func TestProvisionerGivesUpOnAStartGrafanaDiesDuring(t *testing.T) {
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 	good := f.fileContent(t)
+	f.markAccepted(t)
 
 	f.expectSettings(maxApplyAttemptsPerRevision+1, false)
 	// FATAL for each attempt and after each failed start, and for the recovery that follows giving
@@ -1216,4 +1232,56 @@ func TestProvisionerFollowerKeepsLeavingADeferralToTheLeader(t *testing.T) {
 	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", mock.Anything, grafanaProgramName)
 	assert.False(t, f.provisioner.deferredAt.IsZero())
 	assert.Equal(t, stateWritten, bundleState(t, f.provisioner, haBundleID))
+}
+
+// TestProvisionerRollsBackToWhatGrafanaAccepted is the review finding on the rollback target. The
+// file on disk before a write is not necessarily one Grafana ever started on - it may be the one
+// Grafana is failing on - so a failed apply rolls back to the content Grafana last came back
+// healthy on after PMM restarted it, not to whatever happened to be there.
+func TestProvisionerRollsBackToWhatGrafanaAccepted(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	f.leader.On("IsLeader").Return(true)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil)
+
+	// Grafana comes back on the first content, which makes it the rollback target.
+	f.expectSettings(1, true)
+	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
+	f.provisioner.reconcile(context.Background(), triggerTick)
+	accepted := f.fileContent(t)
+
+	// Something else then puts a file on disk that Grafana never came back on.
+	require.NoError(t, os.WriteFile(filepath.Join(f.dir, provisioningFileName), []byte(`{"apiVersion": 1}`), 0o600))
+
+	// Percona Alerting switched off changes the content, and Grafana does not come back from it.
+	f.expectSettings(1, false)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
+	f.provisioner.reconcile(context.Background(), triggerTick)
+
+	assert.Equal(t, accepted, f.fileContent(t), "the rollback target is what Grafana accepted, not what was on disk")
+}
+
+// TestProvisionerRemovesTheFileWhenNothingIsKnownGood covers a rollback before Grafana has come
+// back on anything in this process, such as a file from an older release that a newer Grafana
+// refuses. Restoring it would restore the failure; removing it is always safe, because Grafana
+// keeps the rules it already holds.
+func TestProvisionerRemovesTheFileWhenNothingIsKnownGood(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	require.NoError(t, os.WriteFile(filepath.Join(f.dir, provisioningFileName), []byte(`{"apiVersion": 1}`), 0o600))
+
+	f.expectSettings(1, true)
+	f.leader.On("IsLeader").Return(true)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
+
+	f.provisioner.reconcile(context.Background(), triggerTick)
+
+	_, err := os.Stat(filepath.Join(f.dir, provisioningFileName))
+	require.ErrorIs(t, err, fs.ErrNotExist, "a file nobody saw Grafana accept must not be put back")
+	assert.Equal(t, 1, f.provisioner.rejectedApplies)
 }
