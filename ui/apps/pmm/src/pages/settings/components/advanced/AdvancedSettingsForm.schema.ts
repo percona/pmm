@@ -69,6 +69,6 @@ export const createAdvancedSettingsSchema = (loadedRetention?: string) =>
       }
     });
 
-export const advancedSettingsSchema = createAdvancedSettingsSchema();
-
-export type AdvancedSettingsFormValues = z.infer<typeof advancedSettingsSchema>;
+export type AdvancedSettingsFormValues = z.infer<
+  ReturnType<typeof createAdvancedSettingsSchema>
+>;
