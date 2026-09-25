@@ -88,6 +88,27 @@ func CheckUniqueNodeAddressRegion(q *reform.Querier, address string, region *str
 	return &node, status.Errorf(codes.AlreadyExists, "Node with address %q and region %q already exists.", address, *region)
 }
 
+// checkUniqueNodeInstanceIDRegion checks that no other remote RDS Node monitors the same DB instance.
+// The address is the instance endpoint, so the address/region check does not catch two Nodes
+// that carry the same DB instance identifier; each would make rds_exporter query CloudWatch
+// for that instance again. This check is performed only if the region is not empty.
+func checkUniqueNodeInstanceIDRegion(q *reform.Querier, instanceID string, region *string) error {
+	if pointer.GetString(region) == "" {
+		return nil
+	}
+
+	var node Node
+	err := q.SelectOneTo(&node, "WHERE node_type = $1 AND instance_id = $2 AND region = $3 LIMIT 1", RemoteRDSNodeType, instanceID, region)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
+		return err
+	}
+
+	return status.Errorf(codes.AlreadyExists, "Node with DB instance identifier %s and region %s already exists.", instanceID, *region)
+}
+
 // NodeFilters represents filters for nodes list.
 type NodeFilters struct {
 	// Return Nodes with provided type.
@@ -224,6 +245,11 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 		}
 		if strings.Contains(params.InstanceID, ".") {
 			return nil, status.Error(codes.InvalidArgument, "DB instance identifier should not contain dots.")
+		}
+
+		err = checkUniqueNodeInstanceIDRegion(q, params.InstanceID, params.Region)
+		if err != nil {
+			return nil, err
 		}
 	}
 

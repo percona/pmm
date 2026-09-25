@@ -174,6 +174,23 @@ func TestNodes(t *testing.T) {
 		tests.AssertGRPCError(t, expected, err)
 	})
 
+	t.Run("AddRemoteRDSNodeInstanceIDNotUnique", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		_, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test1", InstanceId: "test-instance"})
+		require.NoError(t, err)
+
+		// The same DB instance reached through another address is still the same instance.
+		_, err = ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test2", Region: "test-region", Address: "test2", InstanceId: "test-instance"})
+		expected := status.New(codes.AlreadyExists, `Node with DB instance identifier test-instance and region test-region already exists.`)
+		tests.AssertGRPCError(t, expected, err)
+
+		// DB instance identifiers are unique per region, not globally.
+		_, err = ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test3", Region: "other-region", Address: "test3", InstanceId: "test-instance"})
+		require.NoError(t, err)
+	})
+
 	t.Run("RemoveNotFound", func(t *testing.T) {
 		_, _, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)
