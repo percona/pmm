@@ -58,8 +58,7 @@ func main() {
 	)
 
 	if opts.GenerateKey {
-		e := &encryption.Encryption{}
-		key, err := e.GenerateKey()
+		key, err := encryption.GenerateKeyset()
 		if err != nil {
 			logrus.Errorf("Failed to generate key: %v", err)
 			os.Exit(1)
@@ -74,7 +73,7 @@ func main() {
 		os.Exit(codeDBConnectionFailed)
 	}
 
-	statusCode, err := encryptionService.RotateEncryptionKey(sqlDB, "pmm-managed")
+	statusCode, err := encryptionService.RotateEncryptionKey(sqlDB, opts.Prune)
 	sqlDB.Close() //nolint:errcheck
 	if err != nil {
 		logrus.Error(err)
@@ -93,6 +92,7 @@ type flags struct {
 	SSLKeyPath  string `name:"postgres-ssl-key-path" help:"PostgreSQL SSL key path" type:"path"`
 	SSLCertPath string `name:"postgres-ssl-cert-path" help:"PostgreSQL SSL certificate path" type:"path"`
 	GenerateKey bool   `name:"generate-key" help:"Only generate a new encryption key and print to stdout"`
+	Prune       bool   `name:"prune" help:"Remove retired keys from the keyset after all data is re-encrypted with the new key"`
 }
 
 func setupParams(opts flags) models.SetupDBParams {

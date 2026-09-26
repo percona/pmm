@@ -72,17 +72,17 @@ func (s *BackupLocation) AfterFind() error {
 // S3LocationConfig contains required properties for accessing S3 Bucket.
 type S3LocationConfig struct {
 	Endpoint     string `json:"endpoint"`
-	AccessKey    string `json:"access_key"`
-	SecretKey    string `json:"secret_key"`
+	AccessKey    string `json:"access_key" encrypt:"true"`
+	SecretKey    string `json:"secret_key" encrypt:"true"`
 	BucketName   string `json:"bucket_name"`
 	BucketRegion string `json:"bucket_region"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c S3LocationConfig) Value() (driver.Value, error) { return jsonValue(c) }
+func (c S3LocationConfig) Value() (driver.Value, error) { return encryptedJSONValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *S3LocationConfig) Scan(src any) error { return jsonScan(c, src) }
+func (c *S3LocationConfig) Scan(src any) error { return encryptedJSONScan(c, src) }
 
 // FilesystemLocationConfig contains require properties for accessing file system on pmm-client-node.
 type FilesystemLocationConfig struct {

@@ -109,7 +109,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 				AgentType:    models.MySQLdExporterType,
 				PMMAgentID:   new("PA1"),
 				RunsOnNodeID: nil,
-				Username:     new("pmm-user"),
+				Username:     new(models.EncryptedString("pmm-user")),
 				ServiceID:    new("S2"),
 			},
 			&models.Agent{
@@ -117,7 +117,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 				AgentType:    models.QANMySQLSlowlogAgentType,
 				PMMAgentID:   new("PA1"),
 				RunsOnNodeID: nil,
-				Username:     new("pmm-user"),
+				Username:     new(models.EncryptedString("pmm-user")),
 				ServiceID:    new("S2"),
 			},
 			&models.Agent{
@@ -152,7 +152,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 				AgentType:    models.MongoDBExporterType,
 				PMMAgentID:   new("PA2"),
 				RunsOnNodeID: nil,
-				Username:     new("pmm-user{{"),
+				Username:     new(models.EncryptedString("pmm-user{{")),
 				ServiceID:    new("S4"),
 				TLS:          true,
 				MongoDBOptions: models.MongoDBOptions{
@@ -162,9 +162,6 @@ func TestFindDSNByServiceID(t *testing.T) {
 				},
 			},
 		} {
-			if v, ok := str.(*models.Agent); ok {
-				str = new(models.EncryptAgent(*v))
-			}
 			require.NoError(t, q.Insert(str))
 		}
 

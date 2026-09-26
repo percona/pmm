@@ -25,7 +25,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -268,8 +267,6 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		rtaAgent.Disabled = false
 		// Need to update CreatedAt to reflect the new session start time.
 		rtaAgent.CreatedAt = time.Now()
-		// Encrypt agent's sensitive data before updating it in the database.
-		rtaAgent = new(models.EncryptAgent(*rtaAgent))
 
 		err = tx.Update(rtaAgent)
 		if err != nil {
@@ -362,8 +359,8 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		rtaAgent, err = models.CreateAgent(tx.Querier, rtaAgentType, &models.CreateAgentParams{
 			PMMAgentID:        pmmAgent.AgentID,
 			ServiceID:         service.ServiceID,
-			Username:          pointer.GetString(existingAgent.Username),
-			Password:          pointer.GetString(existingAgent.Password),
+			Username:          existingAgent.Username.Reveal(),
+			Password:          existingAgent.Password.Reveal(),
 			TLS:               existingAgent.TLS,
 			TLSSkipVerify:     existingAgent.TLSSkipVerify,
 			MongoDBOptions:    existingAgent.MongoDBOptions,
@@ -433,8 +430,6 @@ func (s *Service) StopSession(ctx context.Context, req *rtav1.StopSessionRequest
 		// RTA Agent exists - update its state
 		rtaAgent := existingRTAAgents[0]
 		rtaAgent.Disabled = true
-		// Encrypt agent's sensitive data before updating it in the database.
-		rtaAgent = new(models.EncryptAgent(*rtaAgent))
 
 		err = tx.Update(rtaAgent)
 		if err != nil {

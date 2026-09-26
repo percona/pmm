@@ -286,9 +286,6 @@ func TestVictoriaMetrics(t *testing.T) {
 				},
 			},
 		} {
-			if str, ok := str.(*models.Agent); ok {
-				*str = models.EncryptAgent(*str)
-			}
 
 			err := db.Insert(str)
 			check.NoError(err, "%+v", str)

@@ -506,7 +506,7 @@ func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *actions
 	}
 
 	err = s.a.StartPTPgSummaryAction(ctx, res.ID, pmmAgentID, pointer.GetString(service.Address), pointer.GetUint16(service.Port),
-		pointer.GetString(postgresExporters[0].Username), pointer.GetString(postgresExporters[0].Password))
+		postgresExporters[0].Username.Reveal(), postgresExporters[0].Password.Reveal())
 	if err != nil {
 		return nil, err
 	}
@@ -573,7 +573,7 @@ func (s *actionsServer) StartPTMongoDBSummaryAction(
 
 	// Starts the pt-pg-summary with the host address, port, username and password
 	err = s.a.StartPTMongoDBSummaryAction(ctx, res.ID, pmmAgentID, pointer.GetString(service.Address), pointer.GetUint16(service.Port),
-		pointer.GetString(mongoDBExporters[0].Username), pointer.GetString(mongoDBExporters[0].Password))
+		mongoDBExporters[0].Username.Reveal(), mongoDBExporters[0].Password.Reveal())
 	if err != nil {
 		return nil, err
 	}
@@ -645,8 +645,8 @@ func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *acti
 	}
 
 	err = s.a.StartPTMySQLSummaryAction(ctx, res.ID, pmmAgentID, pointer.GetString(service.Address), pointer.GetUint16(service.Port),
-		pointer.GetString(service.Socket), pointer.GetString(mysqldExporters[0].Username),
-		pointer.GetString(mysqldExporters[0].Password))
+		pointer.GetString(service.Socket), mysqldExporters[0].Username.Reveal(),
+		mysqldExporters[0].Password.Reveal())
 	if err != nil {
 		return nil, err
 	}
