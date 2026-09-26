@@ -1614,3 +1614,79 @@ describe('ResultsPane live log', () => {
     ).toEqual([]);
   });
 });
+
+describe('ResultsPane — executions that just started', () => {
+  /** Two pages of finished executions, keyed by the requested offset. */
+  function pageAt(offset: number, limit: number) {
+    const rows = Array.from({ length: limit }, (_, index) => {
+      const n = offset + index;
+      return {
+        id: `exec-${n}`,
+        snippet_filename: `diag/script-${n}.sh`,
+        task_history_id: n,
+        created_at: '2026-07-22T10:00:00Z',
+        task_status: 'success',
+        started_at: null,
+        finished_at: null,
+        has_logs: false,
+      };
+    });
+    return { data: { items: rows, total: 40, offset, limit } };
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockedApi.get.mockImplementation(
+      async (url: string, config?: { params?: { offset: number } }) => {
+        if (url.includes('/executions/')) {
+          return pageAt(config?.params?.offset ?? 0, 20);
+        }
+        return paginated([]);
+      }
+    );
+  });
+
+  it('marks out an execution the reader just started', async () => {
+    renderPane(
+      <ResultsPane incidentId="inc-1" highlightedTaskIds={new Set([3])} />
+    );
+
+    const row = await screen.findByTestId('atw-execution-row-new');
+    expect(row).toHaveTextContent('diag/script-3.sh');
+    // Only the one it names.
+    expect(screen.getAllByTestId('atw-execution-row-new')).toHaveLength(1);
+  });
+
+  it('returns a reader on a later page to the top for every new batch', async () => {
+    // One client across every rerender: a fresh one would refetch from scratch
+    // and hide whether the pane's own page state actually moved.
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    const withHighlight = (highlightedTaskIds: Set<number>) => (
+      <QueryClientProvider client={queryClient}>
+        <ResultsPane
+          incidentId="inc-1"
+          highlightedTaskIds={highlightedTaskIds}
+        />
+      </QueryClientProvider>
+    );
+    const { rerender } = render(withHighlight(new Set()));
+
+    await screen.findByText('diag/script-0.sh');
+    fireEvent.click(screen.getByRole('button', { name: /next page/i }));
+    await screen.findByText('diag/script-20.sh');
+
+    rerender(withHighlight(new Set([1])));
+    await screen.findByText('diag/script-0.sh');
+
+    // Back to a later page, then a second batch inside the first one's
+    // highlight window: the set is replaced without ever emptying, which a
+    // reset keyed on "is anything highlighted" would sleep through.
+    fireEvent.click(screen.getByRole('button', { name: /next page/i }));
+    await screen.findByText('diag/script-20.sh');
+
+    rerender(withHighlight(new Set([2])));
+    expect(await screen.findByText('diag/script-0.sh')).toBeVisible();
+  });
+});
