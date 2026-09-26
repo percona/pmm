@@ -28,6 +28,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/metadata"
 
 	"github.com/percona/pmm/managed/services"
 	stringsgen "github.com/percona/pmm/utils/strings"
@@ -783,5 +784,86 @@ func TestClient(t *testing.T) {
 	t.Run("IsReady", func(t *testing.T) {
 		err := c.IsReady(ctx)
 		require.NoError(t, err)
+	})
+}
+
+func TestListPMMRuleIDs(t *testing.T) {
+	t.Parallel()
+
+	const rulerPath = "/api/ruler/grafana/api/v1/rules"
+
+	newClient := func(t *testing.T, body string) (*Client, context.Context) {
+		t.Helper()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != rulerPath {
+				w.WriteHeader(http.StatusNotFound)
+
+				return
+			}
+
+			w.WriteHeader(http.StatusOK)
+			_, _ = fmt.Fprint(w, body)
+		}))
+		t.Cleanup(ts.Close)
+
+		ctx := metadata.NewIncomingContext(t.Context(),
+			metadata.Pairs("Authorization", "Basic YWRtaW46YWRtaW4="))
+
+		return NewClient(strings.TrimPrefix(ts.URL, "http://")), ctx
+	}
+
+	t.Run("extracts the identity label from a ruler payload", func(t *testing.T) {
+		t.Parallel()
+
+		c, ctx := newClient(t, `{
+			"folder one": [
+				{
+					"name": "group-a",
+					"interval": "1m",
+					"rules": [
+						{
+							"grafana_alert": {"uid": "abc", "title": "PMM rule", "condition": "C"},
+							"for": "5m",
+							"labels": {"severity": "warning", "pmm_rule_id": "rule-1"},
+							"annotations": {"summary": "s"}
+						},
+						{
+							"grafana_alert": {"uid": "def", "title": "hand-made rule"},
+							"labels": {"severity": "critical"}
+						}
+					]
+				}
+			],
+			"folder two": [
+				{"name": "group-b", "rules": [
+					{"grafana_alert": {"uid": "ghi"}, "labels": {"pmm_rule_id": "rule-2"}}
+				]}
+			]
+		}`)
+
+		ids, err := c.ListPMMRuleIDs(ctx)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]struct{}{"rule-1": {}, "rule-2": {}}, ids,
+			"only rules carrying the identity label are PMM's")
+	})
+
+	t.Run("a Grafana with no rules yields no ids", func(t *testing.T) {
+		t.Parallel()
+
+		c, ctx := newClient(t, `{}`)
+
+		ids, err := c.ListPMMRuleIDs(ctx)
+		require.NoError(t, err)
+		assert.Empty(t, ids)
+	})
+
+	t.Run("an unauthenticated context never reaches Grafana", func(t *testing.T) {
+		t.Parallel()
+
+		c, _ := newClient(t, `{}`)
+
+		_, err := c.ListPMMRuleIDs(t.Context())
+		require.Error(t, err)
 	})
 }

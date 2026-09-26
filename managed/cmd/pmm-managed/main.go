@@ -1054,6 +1054,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 	alertingService.CollectTemplates(ctx)
 
+	alertThresholdMetricsCollector := alerting.NewAlertThresholdMetricsCollector(db)
+	prom.MustRegister(alertThresholdMetricsCollector)
+
 	agentService := agents.NewAgentService(agentsRegistry)
 
 	versioner := agents.NewVersionerService(agentsRegistry)
