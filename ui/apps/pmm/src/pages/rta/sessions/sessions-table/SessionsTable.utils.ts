@@ -1,5 +1,6 @@
 import { RealtimeSession, RealtimeSessionStatus } from 'types/rta.types';
 import { SessionRow } from './SessionsTable.types';
+import { sharedTechnology } from 'pages/rta/components/technology';
 
 export const getSessionRows = (sessions: RealtimeSession[]): SessionRow[] => {
   const clusters = getClusters(sessions);
@@ -24,6 +25,9 @@ export const getSessionRows = (sessions: RealtimeSession[]): SessionRow[] => {
         sessionId: cluster,
         type: 'cluster',
         sessionName: cluster,
+        serviceType: sharedTechnology(
+          services.map((service) => service.serviceType)
+        ),
         status: areAllRunning
           ? RealtimeSessionStatus.running
           : RealtimeSessionStatus.unspecified,
@@ -55,6 +59,7 @@ const serviceToSessionRow = (serviceSession: RealtimeSession): SessionRow => ({
   sessionId: serviceSession.serviceId,
   type: 'service',
   sessionName: serviceSession.serviceName,
+  serviceType: serviceSession.serviceType,
   status: serviceSession.status,
   startTime: serviceSession.startTime,
   serviceSessions: [],
