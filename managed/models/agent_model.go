@@ -397,6 +397,10 @@ type Agent struct {
 	MySQLOptions      MySQLOptions      `reform:"mysql_options"`
 	PostgreSQLOptions PostgreSQLOptions `reform:"postgresql_options"`
 	ValkeyOptions     ValkeyOptions     `reform:"valkey_options"`
+
+	// undecrypted holds the stored ciphertext of the secret fields this node's key could not
+	// decrypt, by field name, so that writing the Agent back keeps them intact.
+	undecrypted map[string]string
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

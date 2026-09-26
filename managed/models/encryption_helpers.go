@@ -18,113 +18,276 @@ package models
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"slices"
+	"strings"
+	"sync"
 
 	"github.com/sirupsen/logrus"
+	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/encryption"
 )
 
+// ErrEncryptionKeyMismatch is returned when this node's encryption key is not the key the data
+// in the database was encrypted with.
+var ErrEncryptionKeyMismatch = errors.New("encryption key does not match the database")
+
+// encryptionKeyLockID is the PostgreSQL advisory lock that serializes the encryption key check
+// between PMM Server nodes starting against the same database.
+const encryptionKeyLockID = 14979
+
+// undecryptableWarned holds the Agent fields already warned about, since Agents are read many
+// times per second.
+var undecryptableWarned sync.Map
+
 // EncryptAgent encrypt agent.
-func EncryptAgent(agent Agent) Agent {
-	return agentEncryption(agent, encryption.Encrypt)
+// A field DecryptAgent could not decrypt is written back with its stored ciphertext, unless the
+// caller has set a new value in the meantime.
+func EncryptAgent(agent Agent) (Agent, error) {
+	undecrypted := agent.undecrypted
+	agent.undecrypted = nil
+
+	for _, s := range agentSecrets(&agent) {
+		stored, ok := undecrypted[s.name]
+		if ok && *s.val == "" {
+			*s.val = stored
+			continue
+		}
+
+		res, err := encryption.Encrypt(*s.val)
+		if err != nil {
+			return agent, fmt.Errorf("agent %s: %s: %w", agent.AgentID, s.name, err)
+		}
+		*s.val = res
+	}
+
+	return agent, nil
 }
 
 // DecryptAgent decrypt agent.
+// A field this node's key cannot decrypt is logged and left empty, so that one unreadable row
+// does not fail every query over Agents.
 func DecryptAgent(agent Agent) Agent {
-	return agentEncryption(agent, encryption.Decrypt)
-}
-
-func agentEncryption(agent Agent, handler func(string) (string, error)) Agent { //nolint:gocognit
-	if agent.Username != nil {
-		username, err := handler(*agent.Username)
+	var undecrypted map[string]string
+	for _, s := range agentSecrets(&agent) {
+		res, err := encryption.Decrypt(*s.val)
 		if err != nil {
-			logrus.Warning(err)
+			l := logrus.WithFields(logrus.Fields{"agent_id": agent.AgentID, "field": s.name})
+			_, warned := undecryptableWarned.LoadOrStore(agent.AgentID+" "+s.name, struct{}{})
+			if warned {
+				l.Debugf("Cannot decrypt agent credentials: %s.", err)
+			} else {
+				l.Warnf("Cannot decrypt agent credentials: %s.", err)
+			}
+
+			if undecrypted == nil {
+				undecrypted = make(map[string]string)
+			}
+			undecrypted[s.name] = *s.val
 		}
-		agent.Username = &username
+		*s.val = res
 	}
-
-	if agent.Password != nil {
-		password, err := handler(*agent.Password)
-		if err != nil {
-			logrus.Warning(err)
-		}
-		agent.Password = &password
-	}
-
-	if agent.AgentPassword != nil {
-		agentPassword, err := handler(*agent.AgentPassword)
-		if err != nil {
-			logrus.Warning(err)
-		}
-		agent.AgentPassword = &agentPassword
-	}
-
-	var err error
-	if !agent.AWSOptions.IsEmpty() {
-		agent.AWSOptions.AWSAccessKey, err = handler(agent.AWSOptions.AWSAccessKey)
-		if err != nil {
-			logrus.Warning(err)
-		}
-
-		agent.AWSOptions.AWSSecretKey, err = handler(agent.AWSOptions.AWSSecretKey)
-		if err != nil {
-			logrus.Warning(err)
-		}
-	}
-
-	if !agent.AzureOptions.IsEmpty() {
-		agent.AzureOptions.ClientID, err = handler(agent.AzureOptions.ClientID)
-		if err != nil {
-			logrus.Warning(err)
-		}
-		agent.AzureOptions.ClientSecret, err = handler(agent.AzureOptions.ClientSecret)
-		if err != nil {
-			logrus.Warning(err)
-		}
-		agent.AzureOptions.SubscriptionID, err = handler(agent.AzureOptions.SubscriptionID)
-		if err != nil {
-			logrus.Warning(err)
-		}
-		agent.AzureOptions.TenantID, err = handler(agent.AzureOptions.TenantID)
-		if err != nil {
-			logrus.Warning(err)
-		}
-	}
-
-	if !agent.MongoDBOptions.IsEmpty() {
-		agent.MongoDBOptions.TLSCertificateKey, err = handler(agent.MongoDBOptions.TLSCertificateKey)
-		if err != nil {
-			logrus.Warning(err)
-		}
-		agent.MongoDBOptions.TLSCertificateKeyFilePassword, err = handler(agent.MongoDBOptions.TLSCertificateKeyFilePassword)
-		if err != nil {
-			logrus.Warning(err)
-		}
-	}
-
-	if !agent.MySQLOptions.IsEmpty() {
-		agent.MySQLOptions.TLSCert, err = handler(agent.MySQLOptions.TLSCert)
-		if err != nil {
-			logrus.Warning(err)
-		}
-		agent.MySQLOptions.TLSKey, err = handler(agent.MySQLOptions.TLSKey)
-		if err != nil {
-			logrus.Warning(err)
-		}
-	}
-
-	if !agent.PostgreSQLOptions.IsEmpty() {
-		agent.PostgreSQLOptions.SSLCert, err = handler(agent.PostgreSQLOptions.SSLCert)
-		if err != nil {
-			logrus.Warning(err)
-		}
-		agent.PostgreSQLOptions.SSLKey, err = handler(agent.PostgreSQLOptions.SSLKey)
-		if err != nil {
-			logrus.Warning(err)
-		}
-	}
+	agent.undecrypted = undecrypted
 
 	return agent
+}
+
+type agentSecret struct {
+	name string
+	val  *string
+}
+
+// agentSecrets returns the encrypted fields of the Agent. Its *string fields are shared with the
+// Agent it was copied from, so they are replaced with copies that can be written through.
+func agentSecrets(agent *Agent) []agentSecret {
+	secrets := []agentSecret{
+		{"aws_options.access_key", &agent.AWSOptions.AWSAccessKey},
+		{"aws_options.secret_key", &agent.AWSOptions.AWSSecretKey},
+		{"azure_options.client_id", &agent.AzureOptions.ClientID},
+		{"azure_options.client_secret", &agent.AzureOptions.ClientSecret},
+		{"azure_options.subscription_id", &agent.AzureOptions.SubscriptionID},
+		{"azure_options.tenant_id", &agent.AzureOptions.TenantID},
+		{"mongo_options.tls_certificate_key", &agent.MongoDBOptions.TLSCertificateKey},
+		{"mongo_options.tls_certificate_key_file_password", &agent.MongoDBOptions.TLSCertificateKeyFilePassword},
+		{"mysql_options.tls_cert", &agent.MySQLOptions.TLSCert},
+		{"mysql_options.tls_key", &agent.MySQLOptions.TLSKey},
+		{"postgresql_options.ssl_cert", &agent.PostgreSQLOptions.SSLCert},
+		{"postgresql_options.ssl_key", &agent.PostgreSQLOptions.SSLKey},
+	}
+
+	for _, f := range []struct {
+		name string
+		val  **string
+	}{
+		{"username", &agent.Username},
+		{"password", &agent.Password},
+		{"agent_password", &agent.AgentPassword},
+	} {
+		if *f.val == nil {
+			continue
+		}
+
+		*f.val = new(**f.val)
+		secrets = append(secrets, agentSecret{f.name, *f.val})
+	}
+
+	return secrets
+}
+
+// CheckEncryptionKey returns ErrEncryptionKeyMismatch if this node does not hold the encryption
+// key the database was encrypted with.
+//
+// Every node of an HA cluster shares one database but keeps its own key file, so a node that
+// generated its own key cannot decrypt the credentials written by the others.
+func CheckEncryptionKey(q reform.DBTX) error {
+	_, _, err := checkEncryptionKey(q)
+	return err
+}
+
+// VerifyEncryptionKey is CheckEncryptionKey that also records this node's key fingerprint when
+// none is stored yet. It holds a lock until tx ends, so that nodes starting at the same time
+// cannot each record their own key.
+func VerifyEncryptionKey(tx *reform.TX) error {
+	_, err := tx.Exec("SELECT pg_advisory_xact_lock($1)", encryptionKeyLockID)
+	if err != nil {
+		return fmt.Errorf("failed to lock the encryption key check: %w", err)
+	}
+
+	settings, fingerprint, err := checkEncryptionKey(tx)
+	if err != nil {
+		return err
+	}
+	if settings.EncryptionKeyFingerprint != "" {
+		return nil
+	}
+
+	settings.EncryptionKeyFingerprint = fingerprint
+
+	return SaveSettings(tx, settings)
+}
+
+// adoptEncryptionKey replaces a foreign fingerprint with this node's own once this node's key
+// decrypts every stored agent secret, so that a server whose key was lost recovers after its
+// credentials have been re-entered. It returns whether the key was adopted.
+// Never call it in HA: while no credentials are stored, a node with its own key would take the
+// database over from the others.
+func adoptEncryptionKey(tx *reform.TX) (bool, error) {
+	settings, err := GetSettings(tx)
+	if err != nil {
+		return false, err
+	}
+
+	err = checkStoredSecretsReadable(tx, settings)
+	if errors.Is(err, ErrEncryptionKeyMismatch) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+
+	fingerprint, err := encryption.Fingerprint()
+	if err != nil {
+		return false, err
+	}
+
+	logrus.Warnf("Adopting encryption key fingerprint %s in place of %s: this server's key decrypts every stored agent secret.",
+		fingerprint, settings.EncryptionKeyFingerprint)
+	settings.EncryptionKeyFingerprint = fingerprint
+
+	return true, SaveSettings(tx, settings)
+}
+
+// checkEncryptionKey returns the settings and this node's key fingerprint.
+func checkEncryptionKey(q reform.DBTX) (*Settings, string, error) {
+	fingerprint, err := encryption.Fingerprint()
+	if err != nil {
+		return nil, "", err
+	}
+
+	settings, err := GetSettings(q)
+	if err != nil {
+		return nil, "", err
+	}
+
+	if settings.EncryptionKeyFingerprint == "" {
+		// Either a fresh install or an upgrade from a version that did not record the
+		// fingerprint. This node's key is accepted only if it can read everything already stored.
+		return settings, fingerprint, checkStoredSecretsReadable(q, settings)
+	}
+
+	if settings.EncryptionKeyFingerprint != fingerprint {
+		return nil, "", keyMismatchError(fingerprint, settings.EncryptionKeyFingerprint)
+	}
+
+	return settings, fingerprint, nil
+}
+
+func keyMismatchError(local, stored string) error {
+	return fmt.Errorf("%w: this node's key fingerprint is %s, the database was encrypted with %s",
+		ErrEncryptionKeyMismatch, local, stored)
+}
+
+// agentSecretColumns are the agents columns holding the fields returned by agentSecrets.
+var agentSecretColumns = []string{
+	"username", "password", "agent_password",
+	"aws_options", "azure_options", "mongo_options", "mysql_options", "postgresql_options",
+}
+
+// checkStoredSecretsReadable decrypts every stored agent secret to tell a matching key from a
+// foreign one on databases that carry no fingerprint yet.
+func checkStoredSecretsReadable(q reform.DBTX, settings *Settings) error {
+	encrypted := func(column string) bool {
+		return slices.ContainsFunc(settings.EncryptedItems, func(item string) bool {
+			return strings.HasSuffix(item, ".agents."+column)
+		})
+	}
+	if !slices.ContainsFunc(agentSecretColumns, encrypted) {
+		// Every column holds plaintext, so nothing stored can contradict this key.
+		return nil
+	}
+
+	rows, err := q.Query("SELECT " + strings.Join(agentSecretColumns, ", ") + " FROM agents")
+	if err != nil {
+		return fmt.Errorf("failed to read stored agent secrets: %w", err)
+	}
+	defer rows.Close() //nolint:errcheck
+
+	var total, unreadable int
+	for rows.Next() {
+		var a Agent
+		err = rows.Scan(&a.Username, &a.Password, &a.AgentPassword,
+			&a.AWSOptions, &a.AzureOptions, &a.MongoDBOptions, &a.MySQLOptions, &a.PostgreSQLOptions)
+		if err != nil {
+			return fmt.Errorf("failed to read stored agent secrets: %w", err)
+		}
+
+		for _, s := range agentSecrets(&a) {
+			column, _, _ := strings.Cut(s.name, ".")
+			if *s.val == "" || !encrypted(column) {
+				continue
+			}
+
+			total++
+			_, err = encryption.Decrypt(*s.val)
+			if err != nil {
+				unreadable++
+			}
+		}
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return fmt.Errorf("failed to read stored agent secrets: %w", err)
+	}
+
+	if unreadable > 0 {
+		return fmt.Errorf("%w: %d of %d stored agent secrets cannot be decrypted with this node's key",
+			ErrEncryptionKeyMismatch, unreadable, total)
+	}
+
+	return nil
 }
 
 // EncryptAWSOptionsHandler returns encrypted AWS Options.
@@ -205,7 +368,7 @@ func azureOptionsHandler(val any, handler func(string) (string, error)) (any, er
 		return nil, err
 	}
 
-	res, err := json.Marshal(o)
+	res, err := json.Marshal(o) //nolint:gosec
 	if err != nil {
 		return nil, err
 	}

@@ -1,0 +1,275 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+package models
+
+import (
+	"database/sql/driver"
+	"encoding/base64"
+	"encoding/json"
+	"slices"
+	"testing"
+
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
+
+	"github.com/percona/pmm/managed/utils/encryption"
+)
+
+// TestVerifyEncryptionKey covers detection of the HA misconfiguration behind
+// https://perconadev.atlassian.net/browse/PMM-14979, where each node generated its own
+// encryption key while sharing one database.
+func TestVerifyEncryptionKey(t *testing.T) {
+	localFingerprint, err := encryption.Fingerprint()
+	require.NoError(t, err)
+	require.NotEmpty(t, localFingerprint)
+
+	foreignCiphertext := base64.StdEncoding.EncodeToString([]byte("encrypted-with-another-key"))
+
+	readableCiphertext, err := encryption.Encrypt("pmm-managed")
+	require.NoError(t, err)
+
+	settingsJSON := func(t *testing.T, s Settings) []byte {
+		t.Helper()
+		b, err := json.Marshal(s) //nolint:musttag
+		require.NoError(t, err)
+
+		return b
+	}
+
+	newMock := func(t *testing.T) (*reform.DB, sqlmock.Sqlmock) {
+		t.Helper()
+
+		sqlDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			assert.NoError(t, mock.ExpectationsWereMet())
+			_ = mock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		return reform.NewDB(sqlDB, postgresql.Dialect, nil), mock
+	}
+
+	expectSettings := func(t *testing.T, mock sqlmock.Sqlmock, s Settings) {
+		t.Helper()
+		mock.ExpectQuery("SELECT settings FROM settings").
+			WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settingsJSON(t, s)))
+	}
+
+	verify := func(db *reform.DB) error {
+		return db.InTransaction(VerifyEncryptionKey)
+	}
+
+	expectLock := func(mock sqlmock.Sqlmock) {
+		mock.ExpectBegin()
+		mock.ExpectExec("SELECT pg_advisory_xact_lock").
+			WithArgs(encryptionKeyLockID).
+			WillReturnResult(sqlmock.NewResult(0, 0))
+	}
+
+	expectSave := func(mock sqlmock.Sqlmock) {
+		mock.ExpectExec("UPDATE settings SET settings").
+			WithArgs(sqlmock.AnyArg()).
+			WillReturnResult(sqlmock.NewResult(0, 1))
+	}
+
+	encryptedCredentials := []string{"pmm-managed.agents.username", "pmm-managed.agents.password"}
+
+	// secretRow is a row of agentSecretColumns with the given username and password.
+	secretRow := func(username, password any) []driver.Value {
+		return []driver.Value{username, password, nil, nil, nil, nil, nil, nil}
+	}
+
+	expectSecrets := func(mock sqlmock.Sqlmock, rows ...[]driver.Value) {
+		r := sqlmock.NewRows(agentSecretColumns)
+		for _, row := range rows {
+			r.AddRow(row...)
+		}
+		mock.ExpectQuery("SELECT username, password, agent_password, aws_options, .* FROM agents").WillReturnRows(r)
+	}
+
+	t.Run("matching fingerprint is accepted", func(t *testing.T) {
+		db, mock := newMock(t)
+		expectSettings(t, mock, Settings{EncryptionKeyFingerprint: localFingerprint})
+
+		assert.NoError(t, CheckEncryptionKey(db))
+	})
+
+	t.Run("matching fingerprint is not rewritten", func(t *testing.T) {
+		db, mock := newMock(t)
+		expectLock(mock)
+		expectSettings(t, mock, Settings{EncryptionKeyFingerprint: localFingerprint})
+		mock.ExpectCommit()
+
+		assert.NoError(t, verify(db))
+	})
+
+	t.Run("foreign fingerprint is reported as a mismatch", func(t *testing.T) {
+		db, mock := newMock(t)
+		expectSettings(t, mock, Settings{EncryptionKeyFingerprint: "0123456789abcdef"})
+
+		err := CheckEncryptionKey(db)
+		require.ErrorIs(t, err, ErrEncryptionKeyMismatch)
+		assert.Contains(t, err.Error(), localFingerprint)
+		assert.Contains(t, err.Error(), "0123456789abcdef")
+	})
+
+	t.Run("fingerprint is recorded when nothing is encrypted yet", func(t *testing.T) {
+		db, mock := newMock(t)
+		expectLock(mock)
+		expectSettings(t, mock, Settings{})
+		expectSave(mock)
+		mock.ExpectCommit()
+
+		assert.NoError(t, verify(db))
+	})
+
+	t.Run("fingerprint is adopted when all stored credentials decrypt", func(t *testing.T) {
+		db, mock := newMock(t)
+		expectLock(mock)
+		expectSettings(t, mock, Settings{EncryptedItems: encryptedCredentials})
+		expectSecrets(mock, secretRow(readableCiphertext, readableCiphertext), secretRow(readableCiphertext, nil))
+		expectSave(mock)
+		mock.ExpectCommit()
+
+		assert.NoError(t, verify(db))
+	})
+
+	// The upgrade path for the reported cluster: a follower with its own key, against a database
+	// whose rows were encrypted by another node and which carries no fingerprint yet.
+	t.Run("fingerprint is not adopted when stored credentials cannot be decrypted", func(t *testing.T) {
+		db, mock := newMock(t)
+		expectLock(mock)
+		expectSettings(t, mock, Settings{EncryptedItems: encryptedCredentials})
+		expectSecrets(mock, secretRow(foreignCiphertext, nil))
+		mock.ExpectRollback()
+
+		require.ErrorIs(t, verify(db), ErrEncryptionKeyMismatch)
+	})
+
+	// Rows written by several nodes with different keys: whichever row the database returns first
+	// must not decide the outcome.
+	t.Run("fingerprint is not adopted when any stored credential cannot be decrypted", func(t *testing.T) {
+		db, mock := newMock(t)
+		expectLock(mock)
+		expectSettings(t, mock, Settings{EncryptedItems: encryptedCredentials})
+		expectSecrets(mock, secretRow(readableCiphertext, readableCiphertext), secretRow(foreignCiphertext, nil))
+		mock.ExpectRollback()
+
+		err := verify(db)
+		require.ErrorIs(t, err, ErrEncryptionKeyMismatch)
+		assert.Contains(t, err.Error(), "1 of 3")
+	})
+
+	awsOptions := func(t *testing.T, secretKey string) []byte {
+		t.Helper()
+		b, err := json.Marshal(AWSOptions{AWSSecretKey: secretKey})
+		require.NoError(t, err)
+
+		return b
+	}
+
+	t.Run("plaintext columns are not probed", func(t *testing.T) {
+		db, mock := newMock(t)
+		expectSettings(t, mock, Settings{EncryptedItems: []string{"pmm-managed.agents.aws_options"}})
+		row := secretRow("plaintext-username", "plaintext-password")
+		row[3] = awsOptions(t, readableCiphertext)
+		expectSecrets(mock, row)
+
+		assert.NoError(t, CheckEncryptionKey(db))
+	})
+
+	t.Run("nothing is probed while every column holds plaintext", func(t *testing.T) {
+		db, mock := newMock(t)
+		expectSettings(t, mock, Settings{})
+
+		assert.NoError(t, CheckEncryptionKey(db))
+	})
+
+	// Secrets inside JSON columns, such as the AWS keys of an RDS exporter, count like credentials.
+	t.Run("unreadable secret in an options column is reported as a mismatch", func(t *testing.T) {
+		db, mock := newMock(t)
+		items := append(slices.Clone(encryptedCredentials), "pmm-managed.agents.aws_options")
+		expectSettings(t, mock, Settings{EncryptedItems: items})
+		row := secretRow(readableCiphertext, readableCiphertext)
+		row[3] = awsOptions(t, foreignCiphertext)
+		expectSecrets(mock, row)
+
+		err := CheckEncryptionKey(db)
+		require.ErrorIs(t, err, ErrEncryptionKeyMismatch)
+		assert.Contains(t, err.Error(), "1 of 3")
+	})
+
+	adopt := func(db *reform.DB) (bool, error) {
+		var adopted bool
+		err := db.InTransaction(func(tx *reform.TX) error {
+			var err error
+			adopted, err = adoptEncryptionKey(tx)
+			return err
+		})
+
+		return adopted, err
+	}
+
+	// A standalone server whose key was lost, after every credential was re-entered with its new key.
+	t.Run("foreign fingerprint is replaced when all stored credentials decrypt", func(t *testing.T) {
+		db, mock := newMock(t)
+		mock.ExpectBegin()
+		expectSettings(t, mock, Settings{EncryptedItems: encryptedCredentials, EncryptionKeyFingerprint: "0123456789abcdef"})
+		expectSecrets(mock, secretRow(readableCiphertext, readableCiphertext))
+		mock.ExpectExec("UPDATE settings SET settings").
+			WithArgs(fingerprintArg(localFingerprint)).
+			WillReturnResult(sqlmock.NewResult(0, 1))
+		mock.ExpectCommit()
+
+		adopted, err := adopt(db)
+		require.NoError(t, err)
+		assert.True(t, adopted)
+	})
+
+	t.Run("foreign fingerprint is kept while any stored credential cannot be decrypted", func(t *testing.T) {
+		db, mock := newMock(t)
+		mock.ExpectBegin()
+		expectSettings(t, mock, Settings{EncryptedItems: encryptedCredentials, EncryptionKeyFingerprint: "0123456789abcdef"})
+		expectSecrets(mock, secretRow(readableCiphertext, nil), secretRow(foreignCiphertext, nil))
+		mock.ExpectCommit()
+
+		adopted, err := adopt(db)
+		require.NoError(t, err)
+		assert.False(t, adopted)
+	})
+}
+
+// fingerprintArg matches a settings document that records the given key fingerprint.
+type fingerprintArg string
+
+func (f fingerprintArg) Match(v driver.Value) bool {
+	b, ok := v.([]byte)
+	if !ok {
+		return false
+	}
+
+	var s Settings
+	err := json.Unmarshal(b, &s) //nolint:musttag
+	if err != nil {
+		return false
+	}
+
+	return s.EncryptionKeyFingerprint == string(f)
+}

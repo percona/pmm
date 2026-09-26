@@ -16,12 +16,19 @@
 package agents
 
 import (
+	"context"
+	"database/sql/driver"
 	"sync"
 	"testing"
+	"time"
 
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
@@ -115,6 +122,66 @@ func TestUnregister(t *testing.T) {
 		assert.Nil(t, r.unregister(ctx, testAgentID, "done", &pmmAgentInfo{id: testAgentID}))
 		assert.Empty(t, r.agents)
 	})
+}
+
+type haEnabledStub struct{}
+
+func (haEnabledStub) Params() *models.HAParams { return &models.HAParams{Enabled: true} }
+
+// TestUnregisterPersistsDisconnectInHA guards against the connection status staying true after a
+// disconnect: the handler unregisters with the context of the stream that just ended, which is
+// already canceled.
+func TestUnregisterPersistsDisconnectInHA(t *testing.T) {
+	t.Parallel()
+
+	sqlDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		assert.NoError(t, mock.ExpectationsWereMet())
+		_ = mock.ExpectClose()
+		assert.NoError(t, sqlDB.Close())
+	})
+
+	r := newTestRegistry()
+	r.haService = haEnabledStub{}
+	r.db = reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	r.connectionCache = map[string]struct{}{testAgentID: {}}
+	current := newTestConn()
+	r.agents[testAgentID] = current
+
+	columns := models.AgentTable.Columns()
+	values := make([]driver.Value, len(columns))
+	for i, c := range columns {
+		switch c {
+		case "agent_id":
+			values[i] = testAgentID
+		case "agent_type":
+			values[i] = string(models.PMMAgentType)
+		case "created_at", "updated_at":
+			values[i] = time.Now()
+		case "disabled", "tls", "tls_skip_verify":
+			values[i] = false
+		case "is_connected":
+			values[i] = true
+		case "status":
+			values[i] = ""
+		}
+	}
+
+	mock.ExpectBegin()
+	mock.ExpectQuery(`SELECT .+ FROM "agents"`).
+		WithArgs(testAgentID).
+		WillReturnRows(sqlmock.NewRows(columns).AddRow(values...))
+	mock.ExpectExec(`UPDATE "agents" SET "updated_at" = \$1, "is_connected" = \$2 WHERE "agent_id" = \$3`).
+		WithArgs(sqlmock.AnyArg(), false, testAgentID).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectCommit()
+
+	ctx, cancel := context.WithCancel(logger.SetEntry(t.Context(), logrus.WithField("test", t.Name())))
+	cancel()
+
+	assert.Same(t, current, r.unregister(ctx, testAgentID, "done", current))
+	assert.Empty(t, r.connectionCache)
 }
 
 func TestKickConn(t *testing.T) {
