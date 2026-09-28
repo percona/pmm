@@ -77,6 +77,10 @@ COPY --from=builder --chown=0:0 \
 COPY --from=builder --chown=0:0 /usr/share/perl5 /usr/share/perl5
 COPY --from=builder --chown=0:0 /etc/ld.so.conf.d/mysql-*.conf /etc/ld.so.conf.d
 
+# CA trust store for outbound TLS (e.g. azure_exporter); openssl.cnf is skipped as it includes crypto-policies absent in ubi9-micro
+COPY --from=builder --chown=0:0 /etc/pki/ca-trust/extracted /etc/pki/ca-trust/extracted
+COPY --from=builder --chown=0:0 /etc/pki/tls/certs /etc/pki/tls/certs
+
 # Install pmm-client
 RUN install -d -o pmm-agent -g pmm-agent -m 0775 /usr/local/percona/pmm
 COPY --from=builder /usr/local/percona/pmm /usr/local/percona/pmm/
