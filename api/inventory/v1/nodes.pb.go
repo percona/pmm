@@ -454,7 +454,7 @@ type RemoteRDSNode struct {
 	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// Unique across all Nodes user-defined name.
 	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
-	// Node address. For RDS this is the instance endpoint, not the DB instance identifier.
+	// Node address: the instance endpoint or, for older Nodes, the DB instance identifier.
 	Address string `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
 	// Node model.
 	NodeModel string `protobuf:"bytes,4,opt,name=node_model,json=nodeModel,proto3" json:"node_model,omitempty"`
@@ -464,7 +464,7 @@ type RemoteRDSNode struct {
 	Az string `protobuf:"bytes,6,opt,name=az,proto3" json:"az,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,7,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	// AWS instance ID.
+	// AWS DB instance identifier.
 	InstanceId    string `protobuf:"bytes,8,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1531,7 +1531,8 @@ type AddRemoteRDSNodeParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Unique across all Nodes user-defined name.
 	NodeName string `protobuf:"bytes,1,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
-	// Node address. For RDS this is the instance endpoint, not the DB instance identifier.
+	// Node address: the instance endpoint. Older clients pass the DB instance identifier here
+	// instead and omit instance_id.
 	Address string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
 	// Node model.
 	NodeModel string `protobuf:"bytes,3,opt,name=node_model,json=nodeModel,proto3" json:"node_model,omitempty"`
@@ -1541,8 +1542,9 @@ type AddRemoteRDSNodeParams struct {
 	Az string `protobuf:"bytes,5,opt,name=az,proto3" json:"az,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,6,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	// AWS DB instance identifier. Required: rds_exporter uses it as the CloudWatch
-	// DBInstanceIdentifier dimension, and cannot scrape without it.
+	// AWS DB instance identifier: rds_exporter uses it as the CloudWatch DBInstanceIdentifier
+	// dimension. Optional when address is the bare identifier, which is then used; required when
+	// address is an endpoint. Stored in lowercase, as AWS does.
 	InstanceId    string `protobuf:"bytes,7,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1772,7 +1774,9 @@ func (x *RemoveNodeRequest) GetForce() bool {
 }
 
 type RemoveNodeResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Warning message if there are more service tokens attached to service account.
+	Warning       string `protobuf:"bytes,1,opt,name=warning,proto3" json:"warning,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1805,6 +1809,13 @@ func (x *RemoveNodeResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use RemoveNodeResponse.ProtoReflect.Descriptor instead.
 func (*RemoveNodeResponse) Descriptor() ([]byte, []int) {
 	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *RemoveNodeResponse) GetWarning() string {
+	if x != nil {
+		return x.Warning
+	}
+	return ""
 }
 
 var File_inventory_v1_nodes_proto protoreflect.FileDescriptor
@@ -1987,8 +1998,9 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"K\n" +
 	"\x11RemoveNodeRequest\x12 \n" +
 	"\anode_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\x12\x14\n" +
-	"\x05force\x18\x02 \x01(\bR\x05force\"\x14\n" +
-	"\x12RemoveNodeResponse*\xc3\x01\n" +
+	"\x05force\x18\x02 \x01(\bR\x05force\".\n" +
+	"\x12RemoveNodeResponse\x12\x18\n" +
+	"\awarning\x18\x01 \x01(\tR\awarning*\xc3\x01\n" +
 	"\bNodeType\x12\x19\n" +
 	"\x15NODE_TYPE_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16NODE_TYPE_GENERIC_NODE\x10\x01\x12\x1c\n" +

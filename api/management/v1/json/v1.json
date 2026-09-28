@@ -5907,7 +5907,7 @@
                           "x-order": 1
                         },
                         "address": {
-                          "description": "Node address. For RDS this is the instance endpoint, not the DB instance identifier.",
+                          "description": "Node address: the instance endpoint or, for older Nodes, the DB instance identifier.",
                           "type": "string",
                           "x-order": 2
                         },
@@ -5935,7 +5935,7 @@
                           "x-order": 6
                         },
                         "instance_id": {
-                          "description": "AWS instance ID.",
+                          "description": "AWS DB instance identifier.",
                           "type": "string",
                           "x-order": 7
                         }

@@ -998,7 +998,7 @@ type GetNodeOKBodyRemoteRDS struct {
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// Node address. For RDS this is the instance endpoint, not the DB instance identifier.
+	// Node address: the instance endpoint or, for older Nodes, the DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
@@ -1013,7 +1013,7 @@ type GetNodeOKBodyRemoteRDS struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// AWS instance ID.
+	// AWS DB instance identifier.
 	InstanceID string `json:"instance_id,omitempty"`
 }
 

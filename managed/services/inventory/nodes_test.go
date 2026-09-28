@@ -16,18 +16,28 @@
 package inventory
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/tests"
 )
+
+// boundedCtx matches the context of the Grafana cleanup, which has to carry a deadline.
+var boundedCtx = mock.MatchedBy(func(ctx context.Context) bool {
+	_, ok := ctx.Deadline()
+	return ok
+})
 
 func TestNodes(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
@@ -61,7 +71,8 @@ func TestNodes(t *testing.T) {
 		require.Len(t, nodesResponse, 2)
 		assert.Equal(t, expectedNode, nodesResponse[0])
 
-		err = ns.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
+		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-bm", false).Return("", nil)
+		_, err = ns.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
 		require.NoError(t, err)
 		getNodeResponse, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: "00000000-0000-4000-8000-000000000005"})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "00000000-0000-4000-8000-000000000005" not found.`), err)
@@ -138,13 +149,36 @@ func TestNodes(t *testing.T) {
 		require.NoError(t, err)
 	})
 
+	t.Run("AddRemoteRDSNodeInstanceIDFromBareAddress", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// Clients from before 3.4.0 send the DB instance identifier as the address and no
+		// instance_id. A bare address is the identifier, so they keep working.
+		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test-db"})
+		require.NoError(t, err)
+		assert.Equal(t, "test-db", node.InstanceId)
+	})
+
+	t.Run("AddRemoteRDSNodeEndpointWithoutInstanceID", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// The first label of an endpoint is the identifier only for a standard instance
+		// endpoint, so an endpoint address needs an explicit instance_id.
+		_, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{
+			NodeName: "test1", Region: "test-region", Address: "test.abcdef.eu-north-1.rds.amazonaws.com",
+		})
+		expected := status.New(codes.InvalidArgument, "DB instance identifier is required when the address is an endpoint.")
+		tests.AssertGRPCError(t, expected, err)
+	})
+
 	t.Run("AddRemoteRDSNodeEmptyInstanceID", func(t *testing.T) {
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
-		// Without a DB instance identifier the rds_exporter has no CloudWatch
-		// DBInstanceIdentifier to query, so the node is unusable. Refuse it.
-		_, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
+		// Without an address there is nothing to derive the identifier from either.
+		_, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region"})
 		expected := status.New(codes.InvalidArgument, "Empty DB instance identifier.")
 		tests.AssertGRPCError(t, expected, err)
 	})
@@ -174,11 +208,44 @@ func TestNodes(t *testing.T) {
 		tests.AssertGRPCError(t, expected, err)
 	})
 
+	t.Run("AddRemoteRDSNodeInstanceIDNotUnique", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		_, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test1", InstanceId: "test-instance"})
+		require.NoError(t, err)
+
+		// The same DB instance reached through another address is still the same instance.
+		_, err = ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test2", Region: "test-region", Address: "test2", InstanceId: "test-instance"})
+		expected := status.New(codes.AlreadyExists, `Node with DB instance identifier test-instance and region test-region already exists.`)
+		tests.AssertGRPCError(t, expected, err)
+
+		// DB instance identifiers are unique per region, not globally.
+		_, err = ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test3", Region: "other-region", Address: "test3", InstanceId: "test-instance"})
+		require.NoError(t, err)
+	})
+
+	t.Run("AddRemoteRDSNodeInstanceIDLowercased", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// AWS stores DB instance identifiers in lowercase and rds_exporter matches them
+		// exactly, so a mixed-case identifier would never scrape anything.
+		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test1", InstanceId: "MyDB"})
+		require.NoError(t, err)
+		assert.Equal(t, "mydb", node.InstanceId)
+
+		// The uniqueness check sees the same identifier whatever the case.
+		_, err = ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test2", Region: "test-region", Address: "test2", InstanceId: "mydb"})
+		expected := status.New(codes.AlreadyExists, `Node with DB instance identifier mydb and region test-region already exists.`)
+		tests.AssertGRPCError(t, expected, err)
+	})
+
 	t.Run("RemoveNotFound", func(t *testing.T) {
 		_, _, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
-		err := ns.Remove(ctx, "no-such-id", false)
+		_, err := ns.Remove(ctx, "no-such-id", false)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "no-such-id" not found.`), err)
 	})
 
@@ -187,10 +254,123 @@ func TestNodes(t *testing.T) {
 		defer teardown(t)
 
 		expected := status.New(codes.PermissionDenied, `PMM Server node can't be removed.`)
-		err := ns.Remove(ctx, models.PMMServerNodeID, false)
+		_, err := ns.Remove(ctx, models.PMMServerNodeID, false)
 		tests.AssertGRPCError(t, expected, err)
-		err = ns.Remove(ctx, models.PMMServerNodeID, true)
+		_, err = ns.Remove(ctx, models.PMMServerNodeID, true)
 		tests.AssertGRPCError(t, expected, err)
+	})
+
+	t.Run("RemoveWithoutServiceAccount", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		addNodeResponse, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
+			Node: &inventoryv1.AddNodeRequest_Generic{
+				Generic: &inventoryv1.AddGenericNodeParams{NodeName: "test-bm"},
+			},
+		})
+		require.NoError(t, err)
+		nodeID := addNodeResponse.GetGeneric().NodeId
+
+		// A Node which pmm-agent never registered has no service account, and its removal still succeeds.
+		// The error has to be the sentinel: any other failure leaves a live token behind, and this test
+		// would pass for that too if it only asserted that some error is tolerated.
+		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-bm", false).
+			Return("", fmt.Errorf("%w: pmm-agent-sa-test-bm", services.ErrServiceAccountNotFound))
+		_, err = ns.Remove(ctx, nodeID, false)
+		require.NoError(t, err)
+
+		_, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID)), err)
+	})
+
+	t.Run("RemoveReportsAServiceAccountWhichCouldNotBeDeleted", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		addNodeResponse, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
+			Node: &inventoryv1.AddNodeRequest_Generic{
+				Generic: &inventoryv1.AddGenericNodeParams{NodeName: "test-bm"},
+			},
+		})
+		require.NoError(t, err)
+		nodeID := addNodeResponse.GetGeneric().NodeId
+
+		// The account is deleted after the removal is committed, because deleting it is not reversible
+		// while the removal still is. A Grafana which cannot be reached is therefore reported, not
+		// returned as an error: the Node is gone either way, and an error would say it is not.
+		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-bm", false).
+			Return("", errors.New("connection refused"))
+		warning, err := ns.Remove(ctx, nodeID, false)
+		require.NoError(t, err)
+		assert.Contains(t, warning, "connection refused")
+		assert.Contains(t, warning, "still live")
+
+		_, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID)), err)
+	})
+
+	t.Run("RemoveDoesNotAskGrafanaAboutANodeWhichCannotHaveAnAccount", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		addNodeResponse, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
+			Node: &inventoryv1.AddNodeRequest_Remote{
+				Remote: &inventoryv1.AddRemoteNodeParams{NodeName: "test-remote"},
+			},
+		})
+		require.NoError(t, err)
+		nodeID := addNodeResponse.GetRemote().NodeId
+
+		// Only RegisterNode creates an account, and it takes Generic and Container alone, so a remote Node
+		// never has one. Its removal must not depend on Grafana being up to delete what cannot exist - the
+		// mock has no expectation, so any call fails the test.
+		warning, err := ns.Remove(ctx, nodeID, false)
+		require.NoError(t, err)
+		assert.Empty(t, warning)
+		ns.grafanaClient.(*mockGrafanaClient).AssertNotCalled(t, "DeleteServiceAccount")
+	})
+
+	t.Run("RemoveKeepsForeignServiceAccountTokens", func(t *testing.T) {
+		_, _, ns, teardown, ctx, vmdb := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		addNodeResponse, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
+			Node: &inventoryv1.AddNodeRequest_Generic{
+				Generic: &inventoryv1.AddGenericNodeParams{NodeName: "test-bm"},
+			},
+		})
+		require.NoError(t, err)
+		nodeID := addNodeResponse.GetGeneric().NodeId
+
+		// Removing a Node with everything on it does not ask for tokens nobody here created to go with it,
+		// so the cascade flag must not reach Grafana as its own force. What Grafana kept has to reach the
+		// caller, not only the log: a credential outliving its Node is not something to find out later.
+		vmdb.Mock.On("RequestConfigurationUpdate").Once().Return()
+		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-bm", false).
+			Return("the account is kept", nil)
+		warning, err := ns.Remove(ctx, nodeID, true)
+		require.NoError(t, err)
+		assert.Equal(t, "the account is kept", warning)
+	})
+
+	t.Run("RemoveReportsNothingWhenTheAccountIsGone", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		addNodeResponse, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
+			Node: &inventoryv1.AddNodeRequest_Generic{
+				Generic: &inventoryv1.AddGenericNodeParams{NodeName: "test-bm"},
+			},
+		})
+		require.NoError(t, err)
+		nodeID := addNodeResponse.GetGeneric().NodeId
+
+		// Nothing was left behind, so there is nothing to warn about.
+		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-bm", false).Return("", nil)
+		warning, err := ns.Remove(ctx, nodeID, false)
+		require.NoError(t, err)
+		assert.Empty(t, warning)
 	})
 }
 
@@ -228,7 +408,8 @@ func TestAddNode(t *testing.T) {
 		require.Len(t, nodesResponse, 2)
 		assert.Equal(t, expectedNode, nodesResponse[0])
 
-		err = ns.Remove(ctx, nodeID, false)
+		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-bm", false).Return("", nil)
+		_, err = ns.Remove(ctx, nodeID, false)
 		require.NoError(t, err)
 		getNodeResponse, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID)), err)
@@ -363,7 +544,8 @@ func TestAddNode(t *testing.T) {
 		require.Len(t, nodesResponse, 6)
 		assert.Equal(t, expectedNode1, nodesResponse[0])
 
-		err = ns.Remove(ctx, nodeID1, false)
+		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-name1", false).Return("", nil)
+		_, err = ns.Remove(ctx, nodeID1, false)
 		require.NoError(t, err)
 		getNodeResponse, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID1})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID1)), err)

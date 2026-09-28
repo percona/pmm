@@ -1426,7 +1426,7 @@
                     "steppedLine": false,
                     "targets": [
                         {
-                            "expr": "avg by (node_name) (max by (node_name) (node_memory_MemTotal_bytes{node_name=~\"$node_name\"}) - (max by (node_name) (node_memory_MemFree_bytes{node_name=~\"$node_name\"}) + max by (node_name) (node_memory_Buffers_bytes{node_name=~\"$node_name\"}) + (max by (node_name) (node_memory_Cached_bytes{node_name=~\"$node_name\"}))))",
+                            "expr": "avg by (node_name) (max by (node_name) (node_memory_MemTotal_bytes{node_name=~\"$node_name\"}) - (max by (node_name) (node_memory_MemFree_bytes{node_name=~\"$node_name\"}) + max by (node_name) (node_memory_Buffers_bytes{node_name=~\"$node_name\"}) + (max by (node_name) (node_memory_Cached_bytes{node_name=~\"$node_name\"}) + \n(max by (node_name) (node_memory_SReclaimable_bytes{node_name=~\"$node_name\"}) - max by (node_name) (node_memory_Shmem_bytes{node_name=~\"$node_name\"}) or max by (node_name) (node_memory_Cached_bytes{node_name=~\"$node_name\"}) * 0))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -1450,7 +1450,7 @@
                             "refId": "C"
                         },
                         {
-                            "expr": "avg by (node_name) (max by (node_name) (node_memory_Cached_bytes{node_name=~\"$node_name\"}))",
+                            "expr": "avg by (node_name) (max by (node_name) (node_memory_Cached_bytes{node_name=~\"$node_name\"}) + \n(max by (node_name) (node_memory_SReclaimable_bytes{node_name=~\"$node_name\"}) - max by (node_name) (node_memory_Shmem_bytes{node_name=~\"$node_name\"}) or max by (node_name) (node_memory_Cached_bytes{node_name=~\"$node_name\"}) * 0))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,

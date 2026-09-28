@@ -12509,7 +12509,7 @@
                         "x-order": 1
                       },
                       "address": {
-                        "description": "Node address. For RDS this is the instance endpoint, not the DB instance identifier.",
+                        "description": "Node address: the instance endpoint or, for older Nodes, the DB instance identifier.",
                         "type": "string",
                         "x-order": 2
                       },
@@ -12537,7 +12537,7 @@
                         "x-order": 6
                       },
                       "instance_id": {
-                        "description": "AWS instance ID.",
+                        "description": "AWS DB instance identifier.",
                         "type": "string",
                         "x-order": 7
                       }
@@ -12795,7 +12795,7 @@
                       "x-order": 0
                     },
                     "address": {
-                      "description": "Node address. For RDS this is the instance endpoint, not the DB instance identifier.",
+                      "description": "Node address: the instance endpoint. Older clients pass the DB instance identifier here\ninstead and omit instance_id.",
                       "type": "string",
                       "x-order": 1
                     },
@@ -12823,7 +12823,7 @@
                       "x-order": 5
                     },
                     "instance_id": {
-                      "description": "AWS DB instance identifier. Required: rds_exporter uses it as the CloudWatch\nDBInstanceIdentifier dimension, and cannot scrape without it.",
+                      "description": "AWS DB instance identifier: rds_exporter uses it as the CloudWatch DBInstanceIdentifier\ndimension. Optional when address is the bare identifier, which is then used; required when\naddress is an endpoint. Stored in lowercase, as AWS does.",
                       "type": "string",
                       "x-order": 6
                     }
@@ -13064,7 +13064,7 @@
                       "x-order": 1
                     },
                     "address": {
-                      "description": "Node address. For RDS this is the instance endpoint, not the DB instance identifier.",
+                      "description": "Node address: the instance endpoint or, for older Nodes, the DB instance identifier.",
                       "type": "string",
                       "x-order": 2
                     },
@@ -13092,7 +13092,7 @@
                       "x-order": 6
                     },
                     "instance_id": {
-                      "description": "AWS instance ID.",
+                      "description": "AWS DB instance identifier.",
                       "type": "string",
                       "x-order": 7
                     }
@@ -13389,7 +13389,7 @@
                       "x-order": 1
                     },
                     "address": {
-                      "description": "Node address. For RDS this is the instance endpoint, not the DB instance identifier.",
+                      "description": "Node address: the instance endpoint or, for older Nodes, the DB instance identifier.",
                       "type": "string",
                       "x-order": 2
                     },
@@ -13417,7 +13417,7 @@
                       "x-order": 6
                     },
                     "instance_id": {
-                      "description": "AWS instance ID.",
+                      "description": "AWS DB instance identifier.",
                       "type": "string",
                       "x-order": 7
                     }
@@ -13531,7 +13531,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "warning": {
+                  "description": "Warning message if there are more service tokens attached to service account.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {

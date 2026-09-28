@@ -96,3 +96,23 @@ func TestGroupRDSExporters(t *testing.T) {
 		assert.Len(t, grouped[""], 2)
 	})
 }
+
+func TestStateUpdaterVMAgentDeployment(t *testing.T) {
+	testCases := []struct {
+		name      string
+		haEnabled bool
+		agentID   string
+		want      vmAgentDeployment
+	}{
+		{name: "standalone, client agent", agentID: "00000000-0000-4000-8000-000000000001"},
+		{name: "standalone, server agent", agentID: models.PMMServerAgentID, want: vmAgentDeployment{isServerAgent: true}},
+		{name: "HA, client agent", haEnabled: true, agentID: "00000000-0000-4000-8000-000000000001", want: vmAgentDeployment{haEnabled: true}},
+		{name: "HA, server agent", haEnabled: true, agentID: models.PMMServerAgentID, want: vmAgentDeployment{haEnabled: true, isServerAgent: true}},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			u := &StateUpdater{r: &Registry{haService: haServiceStub{params: &models.HAParams{Enabled: tc.haEnabled}}}}
+			assert.Equal(t, tc.want, u.vmAgentDeployment(tc.agentID))
+		})
+	}
+}

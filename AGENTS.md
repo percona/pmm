@@ -62,6 +62,7 @@ Each PMM component has a dedicated guide with architecture, directory structure,
 | **QAN App** (Grafana plugin & QAN panel) | [dashboards/pmm-app/AGENTS.md](dashboards/pmm-app/AGENTS.md) | `dashboards/pmm-app/**` |
 | **API Tests** (integration tests) | [api-tests/AGENTS.md](api-tests/AGENTS.md) | `api-tests/**` |
 | **Build & Packaging** | [build/AGENTS.md](build/AGENTS.md) | `build/**` |
+| **Documentation** (user docs & release notes) | [documentation/AGENTS.md](documentation/AGENTS.md) | `documentation/**` |
 
 A component guide covers only what is specific to its area. Global conventions — Go style, error handling, logging, testing, code generation — live in [Global Development Conventions](#global-development-conventions) and are deliberately **not** repeated in component guides: both files load together, so a restated rule costs context twice and creates a second place to forget to update it. When adding a rule, put it in the most specific guide — or guides, where a rule genuinely applies to more than one component but not to all — that covers it, and nowhere else. The one intentional exception is [PMM-specific choices](#pmm-specific-choices-agents-often-get-wrong), a short curated list of pitfalls that repeats a handful of rules on purpose.
 
@@ -130,9 +131,7 @@ PMM has three test layers ([`CONTRIBUTING.md`](CONTRIBUTING.md)): unit, API inte
 | REST behavior end-to-end | `make env-up`, then `make api-test` ([`api-tests/AGENTS.md`](api-tests/AGENTS.md)) |
 | UI (anything under `ui/`) | `cd ui && make lint && make test` |
 | Grafana dashboard JSON (`dashboards/dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` (or run cleanup without `--check-only`); CI enforces this in `dashboards.yml` ([`dashboards/dashboards/AGENTS.md`](dashboards/dashboards/AGENTS.md)) |
-| User-visible feature / bugfix | Create or update a Feature Build; link it in the PR ([`CONTRIBUTING.md`](CONTRIBUTING.md#feature-build)) |
-
----
+| User documentation (`documentation/`) | `make doc-build-preview` and read the rendered page; CI runs `linkspector` on every docs PR ([`documentation/AGENTS.md`](documentation/AGENTS.md)) |
 
 ## Linting decision tree
 
@@ -146,6 +145,7 @@ The Go linter is `bin/golangci-lint`, pinned to the version CI uses. Install it 
 | `.proto` only | `make gen`, then `make check` (`buf lint`, `golangci-lint`, `go-sumtype`) |
 | UI (anything under `ui/`) | `cd ui && make lint && make format-check` (oxlint + oxfmt across every workspace package; same as CI `ui.yml`) |
 | Grafana dashboard JSON (`dashboards/dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` before commit (CI `dashboards.yml`; no separate JS linter) |
+| `dashboards/misc/cleanup-dash.py`, `dashboards/misc/test_*.py` | No linter; run the suite — see the [Testing decision tree](#testing-decision-tree). The other scripts in `dashboards/misc/` have no automated coverage |
 | Grafana plugin / QAN app (`dashboards/pmm-app`) | `cd dashboards/pmm-app && yarn lint:check` (and `yarn typecheck` if TypeScript changed) |
 | Before any PR | Run the row(s) that match **every** area you touched; fix errors, not just warnings, unless CI allows them |
 
@@ -233,7 +233,9 @@ Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITH
 
 ## User documentation
 
-User-facing docs are Markdown under [`documentation/docs/`](documentation/docs/). How to write them: [`docs-contributing.md`](documentation/docs-contributing.md) (workflow + local preview) and [`WRITERS-NOTES.md`](documentation/WRITERS-NOTES.md) (style, admonitions, variables, icons). MkDocs config lives in [`documentation/`](documentation/); this is separate from the developer process docs in [`dev/docs/process/`](dev/docs/process/).
+User-facing docs are Markdown under [`documentation/docs/`](documentation/docs/). The rules for writing them — voice, page structure, Markdown conventions, release-note entries — are in [`documentation/AGENTS.md`](documentation/AGENTS.md); read it before editing anything under `documentation/`. It links out to [`WRITERS-NOTES.md`](documentation/WRITERS-NOTES.md) (admonition colours, icons, symbols) and [`documentation/CONTRIBUTING.md`](documentation/CONTRIBUTING.md) (contributor workflow + local preview) for the parts those files own. MkDocs config lives in [`documentation/`](documentation/); this is separate from the developer process docs in [`dev/docs/process/`](dev/docs/process/).
+
+A merge to `main` publishes the documentation live, so don't merge docs for a feature that has not shipped.
 
 ---
 

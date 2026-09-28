@@ -116,6 +116,17 @@ func ValkeyOptionsFromRequest(params ValkeyOptionsParams) ValkeyOptions {
 	return res
 }
 
+// Validate rejects a half TLS client key pair. The exporter calls log.Fatal when given one
+// half without the other, and the connection check cannot use one either, so the service
+// would otherwise be registered only to monitor with weaker authentication than was asked for.
+func (c ValkeyOptions) Validate() error {
+	if c.clientKeyPairIncomplete() {
+		return status.Error(codes.InvalidArgument, "TLS certificate and key must both be provided.")
+	}
+
+	return nil
+}
+
 // MongoDBOptionsParams contains methods to create MongoDBOptions object.
 type MongoDBOptionsParams interface {
 	GetTlsCertificateKey() string
@@ -854,6 +865,12 @@ type CreateAgentParams struct {
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
+	// rds_exporter scrapes CloudWatch for the Node's region and DB instance identifier,
+	// so it only makes sense on a remote RDS Node, whatever else the Node type allows.
+	if agentType == RDSExporterType {
+		return nodeType == RemoteRDSNodeType
+	}
+
 	const allowAll = "allow_all"
 	allow := map[NodeType]AgentType{
 		GenericNodeType:             allowAll,
@@ -960,7 +977,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		// An rds_exporter uses the Node's DB instance identifier as the CloudWatch
 		// DBInstanceIdentifier dimension. Without it the exporter starts, reports RUNNING
 		// and silently scrapes nothing, so refuse rather than create a dead agent.
-		if node.NodeType == RemoteRDSNodeType && agentType == RDSExporterType && node.InstanceID == "" {
+		if agentType == RDSExporterType && node.InstanceID == "" {
 			return nil, status.Errorf(codes.FailedPrecondition,
 				"node %s has no DB instance identifier; rds_exporter would have nothing to scrape", node.NodeID)
 		}
@@ -975,6 +992,11 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		if !compatibleServiceAndAgent(svc.ServiceType, agentType) {
 			return nil, status.Errorf(codes.FailedPrecondition, "invalid combination of service type %s and agent type %s", svc.ServiceType, agentType)
 		}
+	}
+
+	err = params.ValkeyOptions.Validate()
+	if err != nil {
+		return nil, err
 	}
 
 	exporterOptions := params.ExporterOptions
@@ -1325,6 +1347,16 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		}
 		if params.ValkeyOptions.SSLKey != nil {
 			row.ValkeyOptions.SSLKey = *params.ValkeyOptions.SSLKey
+		}
+
+		// Only the change that touches the key pair is validated: rows stored before this
+		// validation existed may already hold half a pair, and validating the merged row on
+		// every call would make them permanently un-editable, including back into a valid shape.
+		if params.ValkeyOptions.SSLCert != nil || params.ValkeyOptions.SSLKey != nil {
+			err = row.ValkeyOptions.Validate()
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 

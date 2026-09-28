@@ -832,7 +832,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "Storage Utilization ",
+            "title": "Storage Utilization",
             "type": "timeseries"
         },
         {
