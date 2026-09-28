@@ -1190,9 +1190,11 @@ var databaseSchema = [][]string{
 	},
 	119: {
 		// Migration 110 filled instance_id only for Nodes that existed then; the inventory API
-		// kept creating remote RDS Nodes without it. The first label of address is the DB instance
-		// identifier both when address holds the identifier and when it holds the RDS endpoint.
-		`UPDATE nodes SET instance_id = split_part(address, '.', 1) WHERE node_type = 'remote_rds' AND instance_id = ''`,
+		// kept creating remote RDS Nodes without it. Before 3.4.0 that API took the DB instance
+		// identifier as the address, so a bare address is the identifier. An endpoint address is
+		// left alone: its first label is only right for a standard instance endpoint, not for a
+		// cluster endpoint, a CNAME or an IP, and a wrong identifier is harder to spot than none.
+		`UPDATE nodes SET instance_id = address WHERE node_type = 'remote_rds' AND instance_id = '' AND address NOT LIKE '%.%'`,
 	},
 }
 

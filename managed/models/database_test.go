@@ -407,6 +407,8 @@ func TestDatabaseMigrations(t *testing.T) {
 			VALUES
 			('identifier', 'remote_rds', 'identifier', '', '', '', 'db-1', '', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
 			('endpoint', 'remote_rds', 'endpoint', '', '', '', 'db-2.abc123.us-east-1.rds.amazonaws.com', '', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
+			('cluster', 'remote_rds', 'cluster', '', '', '', 'db-4.cluster-abc123.us-east-1.rds.amazonaws.com', '', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
+			('ip', 'remote_rds', 'ip', '', '', '', '10.0.3.7', '', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
 			('set', 'remote_rds', 'set', '', '', '', 'db-3.abc123.us-east-1.rds.amazonaws.com', 'db-3-custom', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
 			('generic', 'generic', 'generic', '', '', '', 'host.example.com', '', NULL, '03/03/2014 02:03:04', '03/03/2014 02:03:04')`,
 		)
@@ -428,9 +430,13 @@ func TestDatabaseMigrations(t *testing.T) {
 		}
 		require.NoError(t, rows.Err())
 
+		// Only a bare address is the identifier; endpoints and IPs stay empty so that
+		// attaching an rds_exporter is refused instead of scraping a wrong instance.
 		expected := map[string]string{
 			"identifier": "db-1",
-			"endpoint":   "db-2",
+			"endpoint":   "",
+			"cluster":    "",
+			"ip":         "",
 			"set":        "db-3-custom",
 			"generic":    "",
 		}
