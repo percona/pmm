@@ -280,7 +280,7 @@ func TestProvisionerDoesNothingWhenNothingChanged(t *testing.T) {
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
 
-	f.provisioner.reconcile(t.Context(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 	first := f.fileContent(t)
 
 	// The second pass must not consult supervisord or Grafana at all: steady state is the common
@@ -425,7 +425,7 @@ func TestProvisionerRollsBackAFailedRestart(t *testing.T) {
 	f.expectSettings(1, true)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
-	f.provisioner.reconcile(t.Context(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 	good := f.fileContent(t)
 	f.markAccepted(t)
 
@@ -542,8 +542,9 @@ func TestProvisionerRunReconcilesOnceForStartup(t *testing.T) {
 
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(1, true)
-	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
-	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true)).Once()
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil).Once()
+	f.grafana.On("IsReady", mock.Anything).Return(nil)
 
 	for range 3 {
 		f.provisioner.ProvisionAtStartup()
@@ -878,7 +879,7 @@ func TestProvisionerStopsOfferingARevisionGrafanaRejects(t *testing.T) {
 	f.expectSettings(1, true)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
-	f.provisioner.reconcile(t.Context(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 	good := f.fileContent(t)
 	f.markAccepted(t)
 
@@ -915,7 +916,7 @@ func TestProvisionerOffersNewContentAfterGivingUpOnARevision(t *testing.T) {
 	f.expectSettings(1, true)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
-	f.provisioner.reconcile(t.Context(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 
 	f.expectSettings(maxApplyAttemptsPerRevision, false)
 	f.leader.On("IsLeader").Return(true).Times(maxApplyAttemptsPerRevision)
@@ -950,7 +951,7 @@ func TestProvisionerStartsAGrafanaLeftDownByARevisionItGaveUpOn(t *testing.T) {
 	f.expectSettings(1, true)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
-	f.provisioner.reconcile(t.Context(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 	good := f.fileContent(t)
 	f.markAccepted(t)
 
@@ -1012,7 +1013,7 @@ func TestProvisionerRollsBackAStartGrafanaDoesNotSurvive(t *testing.T) {
 	f.expectSettings(1, true)
 	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
-	f.provisioner.reconcile(t.Context(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 	good := f.fileContent(t)
 	f.markAccepted(t)
 
@@ -1039,7 +1040,7 @@ func TestProvisionerChargesARestartGrafanaDiesDuring(t *testing.T) {
 	f.expectSettings(1, true)
 	f.expectProgramStates(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
-	f.provisioner.reconcile(t.Context(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 	good := f.fileContent(t)
 	f.markAccepted(t)
 
@@ -1069,7 +1070,7 @@ func TestProvisionerGivesUpOnAStartGrafanaDiesDuring(t *testing.T) {
 	f.expectSettings(1, true)
 	f.expectProgramStates(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Once()
-	f.provisioner.reconcile(t.Context(), triggerStartup)
+	f.provisioner.reconcile(t.Context(), triggerTick)
 	good := f.fileContent(t)
 	f.markAccepted(t)
 
@@ -1167,6 +1168,111 @@ func TestProvisionerBootLeavesAGrafanaStillStartingAlone(t *testing.T) {
 	assert.True(t, f.provisioner.applyPending)
 	assert.True(t, f.provisioner.startupApplyOwed, "the boot restart is still owed")
 	assert.Equal(t, datasourceRetryInitial*datasourceRetryFactor, f.provisioner.retryBackoff)
+}
+
+// TestProvisionerBootRestartsAGrafanaThatNeverFinishesStarting is the review finding on the boot
+// wait. A Grafana that dies on the new file after startsecs is restarted by supervisord for ever and
+// reported running throughout, exactly like a slow start. Once the waits run out, the boot restart
+// happens anyway, and a Grafana that does not come back from it is charged and the file rolled back.
+func TestProvisionerBootRestartsAGrafanaThatNeverFinishesStarting(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	f.expectSettings(maxBootWaits+1, true)
+
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
+
+	f.provisioner.reconcile(t.Context(), triggerStartup)
+	for range maxBootWaits - 1 {
+		f.provisioner.reconcile(t.Context(), triggerRetry)
+	}
+
+	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", mock.Anything, grafanaProgramName)
+	assert.Zero(t, f.provisioner.rejectedApplies)
+
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil).Once()
+
+	f.provisioner.reconcile(t.Context(), triggerRetry)
+
+	_, err := os.Stat(filepath.Join(f.dir, provisioningFileName))
+	require.ErrorIs(t, err, fs.ErrNotExist, "the file Grafana is crash-looping on is rolled back")
+	assert.Equal(t, 1, f.provisioner.rejectedApplies, "a Grafana that does not come back is charged")
+	assert.True(t, f.provisioner.applyPending)
+}
+
+// TestProvisionerBootAcceptsAGrafanaThatStartsAfterTheWrite is the first boot of a new container.
+// pmm-managed writes the file before Grafana is configured, so its state is unknown and it is not
+// serving. A Grafana that then comes up started after the write and read the file, so it must not be
+// restarted, and the file becomes the rollback target.
+func TestProvisionerBootAcceptsAGrafanaThatStartsAfterTheWrite(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	f.expectSettings(1, true)
+
+	f.expectProgramStates(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused")).Times(3)
+	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
+
+	f.provisioner.reconcile(t.Context(), triggerStartup)
+
+	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", mock.Anything, grafanaProgramName)
+	assert.False(t, f.provisioner.startupApplyOwed)
+	assert.False(t, f.provisioner.applyPending)
+	assert.Zero(t, errorCount(t, f.provisioner, stageApply))
+	assert.True(t, f.provisioner.acceptedKnown)
+	assert.Equal(t, f.fileContent(t), string(f.provisioner.accepted))
+}
+
+// TestProvisionerBootKeepsTheRestartOwedForAnExitedGrafana covers the other state a crash-looping
+// Grafana can be caught in. Between two of its restarts supervisord reports EXITED, which parses as
+// unknown. At boot the restart must stay owed, or the file it is dying on would be taken as applied
+// and never rolled back. The wait counts towards the bound like any other.
+func TestProvisionerBootKeepsTheRestartOwedForAnExitedGrafana(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	f.expectSettings(1, true)
+
+	f.expectProgramStates(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
+
+	f.provisioner.reconcile(t.Context(), triggerStartup)
+
+	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", mock.Anything, grafanaProgramName)
+	assert.True(t, f.provisioner.startupApplyOwed, "the boot restart is still owed")
+	assert.True(t, f.provisioner.applyPending)
+	assert.Equal(t, 1, f.provisioner.bootWaits)
+	assert.Zero(t, f.provisioner.rejectedApplies)
+}
+
+// TestProvisionerBootRestartsAnExitedGrafanaThatNeverComesUp is the EXITED half of the bound: a
+// Grafana caught between restarts on every attempt is restarted once the waits run out, and one
+// that does not come back from that is charged and the file rolled back.
+func TestProvisionerBootRestartsAnExitedGrafanaThatNeverComesUp(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	f.expectSettings(maxBootWaits+1, true)
+
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
+	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
+
+	f.provisioner.reconcile(t.Context(), triggerStartup)
+	for range maxBootWaits - 1 {
+		f.provisioner.reconcile(t.Context(), triggerRetry)
+	}
+	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", mock.Anything, grafanaProgramName)
+
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil).Once()
+
+	f.provisioner.reconcile(t.Context(), triggerRetry)
+
+	_, err := os.Stat(filepath.Join(f.dir, provisioningFileName))
+	require.ErrorIs(t, err, fs.ErrNotExist, "the file Grafana is crash-looping on is rolled back")
+	assert.Equal(t, 1, f.provisioner.rejectedApplies, "a Grafana that does not come back is charged")
+	assert.True(t, f.provisioner.applyPending)
 }
 
 // TestProvisionerAppliesADeferralAfterBecomingLeader is the review finding on leadership moving

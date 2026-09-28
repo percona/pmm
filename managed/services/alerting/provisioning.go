@@ -114,6 +114,14 @@ const (
 	// availability. The count is per revision and in memory: any change to the rendered file, and
 	// any restart of pmm-managed, offers the content afresh.
 	maxApplyAttemptsPerRevision = 2
+
+	// MaxBootWaits is how many times the boot apply waits a whole readyTimeout for a Grafana that
+	// is not serving before restarting it anyway. A cold start slower than that is
+	// deep in database migrations, and a few waits give it time to finish them. A Grafana that
+	// dies on the new file after startsecs looks exactly the same, though: supervisord restarts it
+	// for ever without counting towards startretries, so it never ends up FATAL. Only the restart
+	// charges the revision and rolls the file back, so the waits have to end.
+	maxBootWaits = 3
 )
 
 // provisioningTrigger says what caused a reconcile, which decides how far the provisioner may go to
@@ -216,6 +224,10 @@ type Provisioner struct {
 	// at boot and is settled by the retry that finishes the recovery. From then on only the leader
 	// restarts: a later change is visible to every node, and the leader applies it for all.
 	startupApplyOwed bool
+	// bootWaits is how many times the boot apply has waited for Grafana to finish starting and
+	// timed out: see maxBootWaits. It is only consulted while startupApplyOwed is set, which
+	// happens once per process, so it is never reset.
+	bootWaits int
 	// rejectedHash is the content Grafana last refused to come back from, and rejectedApplies is
 	// how many times it has been tried. Together they stop PMM from spending the interface on a
 	// revision already shown to break it: see maxApplyAttemptsPerRevision. Rendering anything else
@@ -560,7 +572,8 @@ var errRuleUIDTaken = errors.New("could not check who owns the built-in rule UID
 var errDeferredToLeader = errors.New("left to the leader to apply")
 
 // errGrafanaStillStarting reports that the boot restart was put off because Grafana had not
-// finished starting. It says nothing about the content, so it does not count against it.
+// finished starting. It says nothing about the content, so it does not count against it; how often
+// it may happen is bounded by maxBootWaits instead.
 var errGrafanaStillStarting = errors.New("grafana is still starting, so it was not restarted")
 
 // errGrafanaNotBack reports that PMM took Grafana down to apply a file and it did not answer again
@@ -705,11 +718,11 @@ func (p *Provisioner) apply(ctx context.Context, trigger provisioningTrigger) er
 		//
 		// Asking Grafana itself tells the two apart, and it is the question that actually matters:
 		// a Grafana that answers is serving rules from a file it has already read, and one that
-		// does not is either not started or still starting, which is to say still to read this one.
+		// does not is either not started or still starting, which is to say still to read this one. At boot that needs a closer look: see
+		// applyToGrafanaNotServing.
 		err := p.grafana.IsReady(ctx)
 		if err != nil {
-			p.l.Debugf("Grafana's state is unknown and it is not serving yet, leaving it alone on %s: %s.", trigger, err)
-			return nil
+			return p.applyToGrafanaNotServing(ctx, trigger, err)
 		}
 
 		p.l.Warnf("Grafana's state could not be determined, but it is serving, so it is treated as running.")
@@ -754,22 +767,55 @@ func (p *Provisioner) apply(ctx context.Context, trigger provisioningTrigger) er
 			return fmt.Errorf("%w on %s", errDeferredToLeader, trigger)
 		}
 
-		if p.startupApplyOwed {
+		if p.startupApplyOwed && p.bootWaits < maxBootWaits {
 			// At boot Grafana may still be starting: supervisord reports it running from the first
 			// second, while a cold start can spend minutes in database migrations. Restarting it
 			// then only throws that work away, and a Grafana slower than readyTimeout would be cut
 			// short on every attempt and charged each time, until the budget ran out and left the
 			// server without its rules. So let it finish first. One that does not is left alone and
-			// tried again on the backoff, without counting against the content: a Grafana that
-			// keeps dying instead ends up FATAL, and the start path above charges that.
+			// tried again on the backoff, without counting against the content, up to maxBootWaits
+			// times: a Grafana crash-looping on the new file is reported running too, and only the
+			// restart below rolls that file back.
 			err := p.waitForGrafana(ctx)
 			if err != nil {
+				p.bootWaits++
 				return fmt.Errorf("%w: %w", errGrafanaStillStarting, err)
 			}
 		}
 
 		return p.restartGrafana(ctx)
 	}
+}
+
+// applyToGrafanaNotServing handles an apply that finds Grafana neither running by supervisord's
+// account nor serving, given the error it did not answer with.
+//
+// Outside the boot that is a Grafana still to read the new file, so there is nothing to do. At boot,
+// not serving is not enough to settle the restart: EXITED is reported as unknown too, and that is
+// what a Grafana dying on the new file looks like between two of supervisord's restarts. So it is
+// waited for instead. One that comes up started after this file was written, so it has read it, and
+// there is nothing to restart. One that does not is waited for again on the backoff, and once
+// maxBootWaits run out, restarted like a Grafana stuck starting, which charges the revision and
+// rolls the file back.
+func (p *Provisioner) applyToGrafanaNotServing(ctx context.Context, trigger provisioningTrigger, notServing error) error {
+	if !p.startupApplyOwed {
+		p.l.Debugf("Grafana's state is unknown and it is not serving yet, leaving it alone on %s: %s.", trigger, notServing)
+		return nil
+	}
+
+	if p.bootWaits >= maxBootWaits {
+		return p.restartGrafana(ctx)
+	}
+
+	err := p.waitForGrafana(ctx)
+	if err != nil {
+		p.bootWaits++
+		return fmt.Errorf("%w: its state is unknown and it is not serving: %w", errGrafanaStillStarting, err)
+	}
+
+	p.l.Infof("Grafana started after the alert rule provisioning file was written, so it has read it.")
+	p.recordAccepted()
+	return nil
 }
 
 // restartGrafana restarts Grafana and waits for it to answer again, rolling the file back if it
