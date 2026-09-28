@@ -27,16 +27,16 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// This file is the client half of the inventory proxy: the shapes SEP's om_inventory
+// This file is the client half of the inventory proxy: the shapes PMM Extensions' om_inventory
 // app serves, and the estate-specific decoding of its answers. The transport itself --
-// where SEP is, the bearer token, the request/response mechanics -- is sep_client.go,
-// shared with every other SEP-backed source in this package.
+// where PMM Extensions is, the bearer token, the request/response mechanics -- is sep_client.go,
+// shared with every other side-car-backed source in this package.
 //
-// It exists because the browser must not hold a SEP bearer. A page that talks to SEP
-// directly needs one minted from the PMM session, which means the page is gated on SEP
+// It exists because the browser must not hold a PMM Extensions bearer. A page that talks to PMM Extensions
+// directly needs one minted from the PMM session, which means the page is gated on PMM Extensions
 // being up, configured and willing to exchange the token -- and it fails closed, so a
-// sick SEP blanks the page rather than showing an estate with an error on it. Proxying
-// here costs a second hop and buys "SEP is unreachable" as an error *inside* a page
+// sick PMM Extensions blanks the page rather than showing an estate with an error on it. Proxying
+// here costs a second hop and buys "PMM Extensions is unreachable" as an error *inside* a page
 // that still renders.
 
 // inventoryRequestTimeout bounds a proxied request.
@@ -47,8 +47,8 @@ import (
 // sign the app is unwell rather than busy.
 const inventoryRequestTimeout = 15 * time.Second
 
-// sepFreshness is the freshness block both estate rows carry.
-type sepFreshness struct {
+// extensionsFreshness is the freshness block both estate rows carry.
+type extensionsFreshness struct {
 	FirstSeenAt         *time.Time `json:"first_seen_at"`
 	LastAttemptAt       *time.Time `json:"last_attempt_at"`
 	LastSuccessAt       *time.Time `json:"last_success_at"`
@@ -57,9 +57,9 @@ type sepFreshness struct {
 	LastError           *string    `json:"last_error"`
 }
 
-// sepService is one row of GET /services, and of the `services` list on a host.
-type sepService struct {
-	sepFreshness
+// extensionsService is one row of GET /services, and of the `services` list on a host.
+type extensionsService struct {
+	extensionsFreshness
 
 	ServiceID string         `json:"service_id"`
 	NodeID    string         `json:"node_id"`
@@ -69,20 +69,20 @@ type sepService struct {
 	Observed  map[string]any `json:"observed"`
 }
 
-// sepHost is one row of GET /hosts.
-type sepHost struct {
-	sepFreshness
+// extensionsHost is one row of GET /hosts.
+type extensionsHost struct {
+	extensionsFreshness
 
-	NodeID       string         `json:"node_id"`
-	Name         string         `json:"name"`
-	Address      *string        `json:"address"`
-	ExecutorHost *string        `json:"executor_host"`
-	Observed     map[string]any `json:"observed"`
-	Services     []sepService   `json:"services"`
+	NodeID       string              `json:"node_id"`
+	Name         string              `json:"name"`
+	Address      *string             `json:"address"`
+	ExecutorHost *string             `json:"executor_host"`
+	Observed     map[string]any      `json:"observed"`
+	Services     []extensionsService `json:"services"`
 }
 
-// sepRunCounts is what one refresh saw.
-type sepRunCounts struct {
+// extensionsRunCounts is what one refresh saw.
+type extensionsRunCounts struct {
 	ServicesTotal    int32 `json:"services_total"`
 	ServicesResolved int32 `json:"services_resolved"`
 	ServicesOrphaned int32 `json:"services_orphaned"`
@@ -92,42 +92,42 @@ type sepRunCounts struct {
 	HostsAnswered    int32 `json:"hosts_answered"`
 }
 
-// sepRun is one row of GET /runs.
-type sepRun struct {
-	RunID      string       `json:"run_id"`
-	Status     string       `json:"status"`
-	StartedAt  *time.Time   `json:"started_at"`
-	FinishedAt *time.Time   `json:"finished_at"`
-	Counts     sepRunCounts `json:"counts"`
-	Scope      []string     `json:"scope"`
-	Error      *string      `json:"error"`
+// extensionsRun is one row of GET /runs.
+type extensionsRun struct {
+	RunID      string              `json:"run_id"`
+	Status     string              `json:"status"`
+	StartedAt  *time.Time          `json:"started_at"`
+	FinishedAt *time.Time          `json:"finished_at"`
+	Counts     extensionsRunCounts `json:"counts"`
+	Scope      []string            `json:"scope"`
+	Error      *string             `json:"error"`
 	// Only the detail endpoint fills this; the list omits it.
-	Nodes []sepRunNode `json:"nodes"`
+	Nodes []extensionsRunNode `json:"nodes"`
 }
 
-// sepRunNode is one host a refresh attempted, from GET /runs/{id}.
-type sepRunNode struct {
-	NodeID        string              `json:"node_id"`
-	HostName      *string             `json:"host_name"`
-	ExecutorHost  *string             `json:"executor_host"`
-	Resolution    string              `json:"resolution"`
-	Answered      bool                `json:"answered"`
-	Duration      *float64            `json:"duration_seconds"`
-	TaskHistoryID *int64              `json:"task_history_id"`
-	Error         *string             `json:"error"`
-	Services      []sepRunNodeService `json:"services"`
+// extensionsRunNode is one host a refresh attempted, from GET /runs/{id}.
+type extensionsRunNode struct {
+	NodeID        string                     `json:"node_id"`
+	HostName      *string                    `json:"host_name"`
+	ExecutorHost  *string                    `json:"executor_host"`
+	Resolution    string                     `json:"resolution"`
+	Answered      bool                       `json:"answered"`
+	Duration      *float64                   `json:"duration_seconds"`
+	TaskHistoryID *int64                     `json:"task_history_id"`
+	Error         *string                    `json:"error"`
+	Services      []extensionsRunNodeService `json:"services"`
 }
 
-// sepRunNodeService is one service on such a host.
-type sepRunNodeService struct {
+// extensionsRunNodeService is one service on such a host.
+type extensionsRunNodeService struct {
 	ServiceID   *string `json:"service_id"`
 	ServiceName *string `json:"service_name"`
 	Answered    bool    `json:"answered"`
 	Error       *string `json:"error"`
 }
 
-// sepSetting is one row of GET /config.
-type sepSetting struct {
+// extensionsSetting is one row of GET /config.
+type extensionsSetting struct {
 	Key          string  `json:"key"`
 	Value        any     `json:"value"`
 	DefaultValue any     `json:"default_value"`
@@ -138,11 +138,11 @@ type sepSetting struct {
 	Description  *string `json:"description"`
 }
 
-// sepError is FastAPI's error envelope.
+// extensionsError is FastAPI's error envelope.
 //
 // `detail` is a string for the app's own errors and a list of per-field objects for a
 // validation failure, so it is decoded as `any` and rendered rather than typed.
-type sepError struct {
+type extensionsError struct {
 	Detail any `json:"detail"`
 }
 
@@ -161,9 +161,9 @@ type inventoryCall struct {
 // call performs one proxied request and decodes the answer into out.
 //
 // The out parameter may be nil for a DELETE, whose 204 carries none. Errors come back as gRPC status
-// errors with the code the gateway will turn back into the status SEP gave, so a 404
+// errors with the code the gateway will turn back into the status PMM Extensions gave, so a 404
 // from the app reaches the browser as a 404 rather than as a 500 about a 404.
-func (a sepApp) call(ctx context.Context, c inventoryCall, out any) error {
+func (a extensionsApp) call(ctx context.Context, c inventoryCall, out any) error {
 	ctx, cancel := context.WithTimeout(ctx, inventoryRequestTimeout)
 	defer cancel()
 
@@ -179,7 +179,7 @@ func (a sepApp) call(ctx context.Context, c inventoryCall, out any) error {
 	defer resp.Body.Close() //nolint:errcheck
 
 	if resp.StatusCode >= http.StatusBadRequest {
-		return sepStatusError(resp)
+		return extensionsStatusError(resp)
 	}
 	if out == nil || resp.StatusCode == http.StatusNoContent {
 		return nil
@@ -191,7 +191,7 @@ func (a sepApp) call(ctx context.Context, c inventoryCall, out any) error {
 	return nil
 }
 
-// sepStatusError turns the app's error response into a gRPC status error.
+// extensionsStatusError turns the app's error response into a gRPC status error.
 //
 // The mapping is chosen so the gateway reproduces the app's own status where it can:
 // 404 stays 404 and 409 stays 409, because "no such host" and "another refresh already
@@ -201,8 +201,8 @@ func (a sepApp) call(ctx context.Context, c inventoryCall, out any) error {
 // failure arrives as InvalidArgument and the browser sees 400. The app's per-field
 // detail is carried through in the message rather than dropped, which is what the UI
 // needs to render inline errors; only the status number is lost.
-func sepStatusError(resp *http.Response) error {
-	detail := sepErrorDetail(resp)
+func extensionsStatusError(resp *http.Response) error {
+	detail := extensionsErrorDetail(resp)
 	switch resp.StatusCode {
 	case http.StatusNotFound:
 		return status.Error(codes.NotFound, detail)
@@ -214,7 +214,7 @@ func sepStatusError(resp *http.Response) error {
 		// Deliberately not passed through as-is: a 401 from PMM's own gateway means the
 		// *caller* is unauthenticated, and reflecting the app's 401 would tell the
 		// browser to re-authenticate against PMM when what actually failed is PMM's
-		// credential for SEP. That is an operator's problem, so it reads as one.
+		// credential for PMM Extensions. That is an operator's problem, so it reads as one.
 		return status.Errorf(codes.Internal,
 			"PMM's credential for the inventory app was rejected (%s): %s", resp.Status, detail)
 	default:
@@ -222,9 +222,9 @@ func sepStatusError(resp *http.Response) error {
 	}
 }
 
-// sepErrorDetail extracts something readable from the app's error body.
-func sepErrorDetail(resp *http.Response) string {
-	var envelope sepError
+// extensionsErrorDetail extracts something readable from the app's error body.
+func extensionsErrorDetail(resp *http.Response) string {
+	var envelope extensionsError
 	err := json.NewDecoder(resp.Body).Decode(&envelope)
 	if err != nil || envelope.Detail == nil {
 		return resp.Status

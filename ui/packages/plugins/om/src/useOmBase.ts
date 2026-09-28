@@ -39,7 +39,7 @@ const CHILD_PATTERNS = [
 /**
  * Recover OM's mount path from the current location.
  *
- * The shell mounts OM as a splat (`sep/om/*`), so the plugin is never told
+ * The shell mounts OM as a splat (`om/*`), so the plugin is never told
  * where it lives. Relative links are not a substitute: React Router resolves
  * `to=""` against the *current* route, so on `runs` it points back at `runs` —
  * which made the Clusters tab silently do nothing once you were on Discovery

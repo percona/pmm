@@ -114,7 +114,7 @@ export interface OmService {
   oplog_window_seconds?: number | null;
 
   /**
-   * Probe-only, and null wherever SEP's `om_inventory` app has not run.
+   * Probe-only, and null wherever PMM Extensions' `om_inventory` app has not run.
    *
    * `installed_version` is the binary on disk, which is not necessarily the server
    * that is running: divergence from `version` is the upgraded-but-not-restarted
@@ -308,7 +308,7 @@ export interface OmTopologyRunAccepted {
  *
  * A different source from everything above. The topology document is PMM's own
  * derivation from its inventory and VictoriaMetrics, rebuilt per request in about a
- * tenth of a second and never touching a host. The estate is what SEP's probe found by
+ * tenth of a second and never touching a host. The estate is what PMM Extensions' probe found by
  * running a payload on the hosts themselves, upserted row by row, and it answers for a
  * service or a host whether or not the last sweep reached it.
  *

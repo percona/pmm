@@ -21,7 +21,7 @@
  * Paired with `inventoryHooks.ts`, and kept apart from it for one reason worth stating:
  * the two sources are nothing alike. This document is PMM's own derivation from its
  * inventory and VictoriaMetrics, rebuilt per request in about a tenth of a second, and
- * it never touches a host. The estate over there is what SEP's probe found by running a
+ * it never touches a host. The estate over there is what PMM Extensions' probe found by running a
  * payload on the hosts themselves.
  *
  * That difference is why the triggers must not look alike. `POST

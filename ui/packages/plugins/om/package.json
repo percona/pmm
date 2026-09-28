@@ -1,5 +1,5 @@
 {
-  "name": "@sep/plugins-om",
+  "name": "@pmm/plugins-om",
   "version": "0.0.0",
   "private": true,
   "type": "module",

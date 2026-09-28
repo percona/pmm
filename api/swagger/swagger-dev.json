@@ -29447,7 +29447,7 @@
                         "x-order": 5
                       },
                       "executor": {
-                        "description": "InventoryExecutor reports whether SEP can run anything on a host.\n\nThree flags rather than one, because \"orphaned\" hid three different problems with\nthree different fixes: never onboarded (registered false), onboarded and down\n(reachable false), and up with a broken raw_exec driver (driver_healthy false). This\nis SEP's own knowledge rather than probe output, so it is filled in for every host\non every sweep, including hosts no probe reached.",
+                        "description": "InventoryExecutor reports whether PMM Extensions can run anything on a host.\n\nThree flags rather than one, because \"orphaned\" hid three different problems with\nthree different fixes: never onboarded (registered false), onboarded and down\n(reachable false), and up with a broken raw_exec driver (driver_healthy false). This\nis PMM Extensions' own knowledge rather than probe output, so it is filled in for every host\non every sweep, including hosts no probe reached.",
                         "type": "object",
                         "properties": {
                           "registered": {
@@ -29805,7 +29805,7 @@
                       "x-order": 5
                     },
                     "executor": {
-                      "description": "InventoryExecutor reports whether SEP can run anything on a host.\n\nThree flags rather than one, because \"orphaned\" hid three different problems with\nthree different fixes: never onboarded (registered false), onboarded and down\n(reachable false), and up with a broken raw_exec driver (driver_healthy false). This\nis SEP's own knowledge rather than probe output, so it is filled in for every host\non every sweep, including hosts no probe reached.",
+                      "description": "InventoryExecutor reports whether PMM Extensions can run anything on a host.\n\nThree flags rather than one, because \"orphaned\" hid three different problems with\nthree different fixes: never onboarded (registered false), onboarded and down\n(reachable false), and up with a broken raw_exec driver (driver_healthy false). This\nis PMM Extensions' own knowledge rather than probe output, so it is filled in for every host\non every sweep, including hosts no probe reached.",
                       "type": "object",
                       "properties": {
                         "registered": {

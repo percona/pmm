@@ -71,12 +71,12 @@ function inputKind(setting: OmInventorySetting): InputKind {
  * Parse an edited value back into what the app expects on the wire.
  *
  * `Number(draft)` is right for a `timedelta` because a `timedelta` never reaches this
- * form as a duration string. SEP declares those fields as
+ * form as a duration string. PMM Extensions declares those fields as
  * `Annotated[timedelta, PlainSerializer(lambda v: round(v.total_seconds()), int)]`, so
  * the configuration API dumps `1800`, not `"PT30M"`, and the box holds `"1800"`. The
  * write goes back as the same integer and the app coerces it.
  *
- * That is a load-bearing dependency on SEP's annotation rather than on its type: drop
+ * That is a load-bearing dependency on PMM Extensions' annotation rather than on its type: drop
  * the serialiser and pydantic's ISO-8601 default takes over, `Number` yields NaN, and
  * every duration field renders as invalid. Named here because nothing else would say so.
  */
@@ -322,7 +322,7 @@ export const ConfigForm = () => {
           </AccordionSummary>
           <AccordionDetails>
             {/* Collapsed, and grouped by the app's own `is_advanced` flag rather than
-                a list kept here - so a setting SEP adds lands in the right section
+                a list kept here - so a setting PMM Extensions adds lands in the right section
                 without this file knowing about it. */}
             <Typography variant="caption" color="text.secondary">
               Timeouts, concurrency and retention. Raising concurrency or

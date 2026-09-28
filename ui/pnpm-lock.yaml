@@ -86,7 +86,7 @@ importers:
       '@pmm-extensions/plugins-atw':
         specifier: workspace:*
         version: link:../../packages/plugins/atw
-      '@pmm-extensions/plugins-om':
+      '@pmm/plugins-om':
         specifier: workspace:*
         version: link:../../packages/plugins/om
       '@pmm/shared':
@@ -589,7 +589,7 @@ importers:
         version: 19.2.18
       '@vitejs/plugin-react':
         specifier: ^6.1.0
-        version: 6.1.0(vite@8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0))
+        version: 6.1.1(vite@8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0))
       jsdom:
         specifier: ^29.1.1
         version: 29.1.1
@@ -614,27 +614,6 @@ importers:
       vitest:
         specifier: ^4.0.0
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@20.19.43)(jsdom@29.1.1)(msw@2.15.0(@types/node@20.19.43)(typescript@6.0.3))(vite@8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0))
-
-  '@vitejs/plugin-react@6.1.0':
-    resolution: {integrity: sha512-qd2BzUBehkov86WFhg0JkEFEYyCLG9uPCe6qWTY/kRlss9OvJrOF2UbIWT7p+8IzZHkEu0DNGHc4HSv+JdDLsw==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    peerDependencies:
-      '@rolldown/plugin-babel': ^0.1.7 || ^0.2.0
-      babel-plugin-react-compiler: ^1.0.0
-      oxc-transform-react: ^0.145.0
-      vite: ^8.0.0
-    peerDependenciesMeta:
-      '@rolldown/plugin-babel':
-        optional: true
-      babel-plugin-react-compiler:
-        optional: true
-      oxc-transform-react:
-        optional: true
-
-  '@vitejs/plugin-react@6.1.0(vite@8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0))':
-    dependencies:
-      '@rolldown/pluginutils': 1.0.1
-      vite: 8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(sass@1.63.2)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0)
 
   packages/shared:
     dependencies:
@@ -3354,6 +3333,22 @@ packages:
       '@rolldown/plugin-babel':
         optional: true
       babel-plugin-react-compiler:
+        optional: true
+
+  '@vitejs/plugin-react@6.1.1':
+    resolution: {integrity: sha512-yxLaQV9gkhS8ezJqCM6+ndU7mDY6gqAg75NQ+0IjwEI8IYOmQCgkRwHKVSfWXW076DsqMo0Dk+0FK1U+M5RgFw==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    peerDependencies:
+      '@rolldown/plugin-babel': ^0.1.7 || ^0.2.0
+      babel-plugin-react-compiler: ^1.0.0
+      oxc-transform-react: ^0.145.0
+      vite: ^8.0.0
+    peerDependenciesMeta:
+      '@rolldown/plugin-babel':
+        optional: true
+      babel-plugin-react-compiler:
+        optional: true
+      oxc-transform-react:
         optional: true
 
   '@vitest/expect@4.1.10':
@@ -10724,6 +10719,11 @@ snapshots:
       vite: 8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(sass@1.63.2)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0)
 
   '@vitejs/plugin-react@6.0.5(vite@8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0))':
+    dependencies:
+      '@rolldown/pluginutils': 1.0.1
+      vite: 8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(sass@1.63.2)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0)
+
+  '@vitejs/plugin-react@6.1.1(vite@8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(sass@1.63.2)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0)

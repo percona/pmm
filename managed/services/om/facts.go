@@ -23,7 +23,7 @@ import (
 // The common currency every collection source deals in.
 //
 // Collection reads the same MongoDB estate from several places -- PMM's inventory,
-// VictoriaMetrics, and (later) a SEP app running probes on Nomad clients -- and each
+// VictoriaMetrics, and (later) a PMM Extensions app running probes on Nomad clients -- and each
 // knows a different, overlapping subset of the truth. Rather than special-case the
 // sources against each other, every one of them emits the same thing: flat Fact records
 // keyed by (service, field). Adding a source is then implementing one interface and
@@ -62,8 +62,8 @@ const (
 const (
 	sourceInventory = "inventory"
 	sourceMetrics   = "metrics"
-	// The SEP inventory app's on-host facts -- argv, config paths, the installed binary
-	// version. Produced by probeSource in probe_source.go, which reads them off SEP's
+	// The PMM Extensions inventory app's on-host facts -- argv, config paths, the installed binary
+	// version. Produced by probeSource in probe_source.go, which reads them off PMM Extensions'
 	// om_inventory app rather than probing anything itself; see that file for why.
 	sourceProbe = "probe"
 )
@@ -296,7 +296,7 @@ func (f fieldSet) truthy(field string) bool {
 // live returns a field's value, dropping it when it is a volatile field whose
 // observation has aged out.
 //
-// This is the half SEP records but does not act on. Facts are collected over a long
+// This is the half PMM Extensions records but does not act on. Facts are collected over a long
 // window and kept with their age -- that is what tells "this service is gone" apart from
 // "this service has not been scraped since Tuesday" -- but a volatile fact past its age
 // must not be read as current. A replica-set state or an up flag from an hour ago is not

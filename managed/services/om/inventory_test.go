@@ -105,8 +105,8 @@ type stubCall struct {
 	body   string
 }
 
-// sepStub stands in for the inventory app, recording what it was asked.
-type sepStub struct {
+// extensionsStub stands in for the inventory app, recording what it was asked.
+type extensionsStub struct {
 	server *httptest.Server
 
 	method string
@@ -125,17 +125,17 @@ type sepStub struct {
 }
 
 // newSEPStub serves one canned answer and records the request that fetched it.
-func newSEPStub(t *testing.T, code int, body string) *sepStub {
+func newSEPStub(t *testing.T, code int, body string) *extensionsStub {
 	t.Helper()
 
 	return newSEPStubSeq(t, code, body)
 }
 
 // newSEPStubSeq serves one canned answer per request, in order.
-func newSEPStubSeq(t *testing.T, code int, bodies ...string) *sepStub {
+func newSEPStubSeq(t *testing.T, code int, bodies ...string) *extensionsStub {
 	t.Helper()
 
-	stub := &sepStub{bodies: bodies}
+	stub := &extensionsStub{bodies: bodies}
 	stub.server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		call := stubCall{method: r.Method, path: r.URL.Path, query: r.URL.RawQuery}
 		raw, err := io.ReadAll(r.Body)
@@ -158,7 +158,7 @@ func newSEPStubSeq(t *testing.T, code int, bodies ...string) *sepStub {
 }
 
 // service returns an OM service wired to the stub.
-func (s *sepStub) service(t *testing.T) *Service {
+func (s *extensionsStub) service(t *testing.T) *Service {
 	t.Helper()
 
 	svc := &Service{l: logrus.WithField("test", t.Name())}
@@ -168,7 +168,7 @@ func (s *sepStub) service(t *testing.T) *Service {
 func TestInventoryNotConfigured(t *testing.T) {
 	t.Parallel()
 
-	// An unconfigured SEP is a deployment that has not been told where SEP is, not a
+	// An unconfigured PMM Extensions is a deployment that has not been told where PMM Extensions is, not a
 	// missing feature and not a broken app. FailedPrecondition says so; NotFound would
 	// read as "there is no such endpoint" and send the reader looking for a version
 	// problem.
@@ -260,7 +260,7 @@ func TestListInventoryHosts(t *testing.T) {
 	t.Run("a host with no probe reports absent, not false", func(t *testing.T) {
 		t.Parallel()
 
-		// Three false flags would claim SEP looked and the answer was no. A nil block
+		// Three false flags would claim PMM Extensions looked and the answer was no. A nil block
 		// says this sweep did not say, which is what an empty document means.
 		stub := newSEPStub(t, http.StatusOK, hostsBody)
 
@@ -605,7 +605,7 @@ func TestInventoryConfig(t *testing.T) {
 
 		// The app is Python, where the default recursion limit is 1000, while protojson
 		// accepts nesting just short of 10k. Forwarding that would make PMM the thing
-		// that broke SEP.
+		// that broke PMM Extensions.
 		stub := newSEPStub(t, http.StatusOK, configBody)
 		nested := map[string]any{"leaf": 1}
 		for range maxConfigDepth + 1 {
@@ -799,7 +799,7 @@ func TestInventoryRunDetailIsHostOriented(t *testing.T) {
 func TestInventoryBearerIsSent(t *testing.T) {
 	t.Parallel()
 
-	// The browser holds no SEP token -- that is the point of proxying -- so this hop is
+	// The browser holds no PMM Extensions token -- that is the point of proxying -- so this hop is
 	// the only place the app's credential is presented. Without it every request is a
 	// 401 the page cannot explain.
 	var seen string

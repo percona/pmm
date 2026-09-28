@@ -19,17 +19,17 @@
  * The one HTTP client both halves of OM use, and the wire facts they share.
  *
  * `/v1/om` serves two very different things - pmm-managed's own topology document and
- * SEP's estate, proxied - but they arrive over the same origin with the same auth and
+ * PMM Extensions' estate, proxied - but they arrive over the same origin with the same auth and
  * the same error envelope, so the transport belongs in one place rather than in
  * whichever hook file grew it first.
  *
  * Two consequences of pmm-managed serving both, and both are simplifications:
  *
  * - **No bearer.** `/v1` is PMM's own origin and authorises on the Grafana session
- *   cookie, so there is no token to mint and no `SepAuthGate` to wait for. `fetch` with
+ *   cookie, so there is no token to mint and no `ExtensionsAuthGate` to wait for. `fetch` with
  *   `credentials: 'same-origin'` is the whole auth story. Before the proxy, the estate
- *   was read from SEP directly with a bearer minted from the PMM session, which meant a
- *   second HTTP client and a page that failed closed when SEP was unwell.
+ *   was read from PMM Extensions directly with a bearer minted from the PMM session, which meant a
+ *   second HTTP client and a page that failed closed when PMM Extensions was unwell.
  * - **snake_case survives.** gRPC-Gateway is configured with `UseProtoNames` and
  *   `EmitUnpopulated`, and `types.ts` describes exactly that shape.
  */

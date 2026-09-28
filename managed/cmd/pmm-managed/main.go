@@ -704,15 +704,15 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	kingpin.Version(version.FullInfo())
 	kingpin.HelpFlag.Short('h')
 
-	// Where SEP is, not where any one of its apps is: OM's on-host facts come from
-	// the om_inventory app today and the actions apps will come from the same SEP, so
+	// Where PMM Extensions is, not where any one of its apps is: OM's on-host facts come from
+	// the om_inventory app today and the actions apps will come from the same side-car, so
 	// each consumer appends its own /api/apps/<module> path. Optional -- with no URL
 	// the probe source reports itself disabled and the document is built from PMM's own
 	// inventory and metrics alone.
-	sepURLF := kingpin.Flag("sep-url", "Base URL of SEP, e.g. http://127.0.0.1:8000").
-		Envar("PMM_SEP_URL").String()
-	sepTokenF := kingpin.Flag("sep-token", "Bearer token for SEP's API").
-		Envar("PMM_SEP_TOKEN").String()
+	extensionsURLF := kingpin.Flag("extensions-url", "Base URL of the PMM Extensions API, e.g. http://127.0.0.1:8000").
+		Envar("PMM_EXTENSIONS_URL").String()
+	extensionsTokenF := kingpin.Flag("extensions-token", "Bearer token for the PMM Extensions API").
+		Envar("PMM_EXTENSIONS_TOKEN").String()
 
 	victoriaMetricsURLF := kingpin.Flag("victoriametrics-url", "VictoriaMetrics base URL").Envar("PMM_VM_URL").
 		Default(models.VMBaseURL).String()
@@ -1218,10 +1218,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		return nil
 	}))
 
-	// Where SEP is, optional. Empty means OM builds its document from PMM's own inventory
+	// Where PMM Extensions is, optional. Empty means OM builds its document from PMM's own inventory
 	// and metrics alone and records the probe source as disabled.
 	omService := om.New(db, v1.NewAPI(vmClient), haService, logrus.WithField("component", "om"))
-	omService.WithProbeSource(*sepURLF, *sepTokenF)
+	omService.WithProbeSource(*extensionsURLF, *extensionsTokenF)
 	prom.MustRegister(om.NewMetricsCollector(omService))
 
 	// Leader-only, like every other periodic writer here. A collection persists a run and
