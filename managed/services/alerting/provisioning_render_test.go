@@ -235,6 +235,22 @@ func TestRenderProvisioningFileRejectsBadTemplate(t *testing.T) {
 	assert.Nil(t, actual)
 }
 
+// TestRenderProvisioningFileRejectsDollarInTitle covers the title half of the dollar-sign guard.
+// Grafana expands the title from the environment, and a title that expands to nothing makes it
+// refuse the whole file and fail to start, so such a template must never be rendered.
+func TestRenderProvisioningFileRejectsDollarInTitle(t *testing.T) {
+	t.Parallel()
+
+	templates := shippedTemplates(t)
+	broken := templates["pmm_ha_no_leader"]
+	broken.Summary = "${UNSET}"
+	templates["pmm_ha_no_leader"] = broken
+
+	actual, err := renderProvisioningFile(templates, testDatasourceUID, alertingEnabled(true), allGates(), nil)
+	require.ErrorContains(t, err, "title contains a dollar sign")
+	assert.Nil(t, actual)
+}
+
 func TestRenderProvisioningFileRequiresDatasource(t *testing.T) {
 	t.Parallel()
 

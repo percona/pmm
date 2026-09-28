@@ -35,9 +35,9 @@ import (
 // but the field names differ (noDataState here, no_data_state there), so it needs its own structs.
 //
 // Grafana interpolates environment variables into most string fields of a provisioning file, but
-// reads query models and annotations raw. Anything rendered into a label value must therefore not
-// contain a dollar sign, or Grafana expands it into an empty string and keeps the broken result
-// without reporting an error.
+// reads query models and annotations raw. Anything rendered into a label value or the title must
+// therefore not contain a dollar sign, or Grafana expands it into an empty string: a label keeps
+// the broken result without reporting an error, and an empty title stops Grafana from starting.
 type provisioningFile struct {
 	APIVersion  int                      `json:"apiVersion"`
 	Groups      []provisioningGroup      `json:"groups"`
@@ -223,6 +223,11 @@ func renderProvisionedRule(rule provisionedRule, template models.Template, datas
 		if strings.ContainsRune(value, '$') {
 			return provisioningRule{}, fmt.Errorf("label '%s' contains a dollar sign, which Grafana provisioning would expand: '%s'", name, value)
 		}
+	}
+	if strings.ContainsRune(template.Summary, '$') {
+		// The title is interpolated too, and one that expands to nothing makes Grafana refuse the
+		// whole file and fail to start.
+		return provisioningRule{}, fmt.Errorf("title contains a dollar sign, which Grafana provisioning would expand: '%s'", template.Summary)
 	}
 
 	return provisioningRule{
