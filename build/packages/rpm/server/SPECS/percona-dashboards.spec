@@ -6,10 +6,10 @@
 %global commit		      ad4af6808bcd361284e8eb8cd1f36b1e98e32bce
 %global shortcommit	    %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         28
+%define release         29
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
-%define clickhouse_datasource_version 4.20.0
+%define clickhouse_datasource_version 4.21.3
 %define polystat_panel_version        2.1.16
 
 %ifarch x86_64
@@ -66,6 +66,9 @@ echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 
 
 %changelog
+* Mon Sep 28 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-29
+- PMM-15335 Bump clickhouse datasource plugin to 4.21.3
+
 * Fri Aug 14 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-28
 - PMM-15335 Bump clickhouse datasource plugin to 4.20.0
 
