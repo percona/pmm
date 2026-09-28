@@ -742,7 +742,7 @@ telemetry:
 
   - id: AdvisorsChecksDisabled
     source: PMMDB_SELECT
-    query: settings->'sass'->'disabled_advisors' as disabled_checks from settings;
+    query: json_agg(name) as disabled_checks from advisor_checks where disabled;
     summary: "Advisor - Checks that are disabled on the PMM instance"
     transform:
       type: JSON

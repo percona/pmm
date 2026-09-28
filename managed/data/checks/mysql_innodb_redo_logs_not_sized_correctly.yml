@@ -2,13 +2,11 @@
 checks:
   - version: 2
     name: mysql_innodb_redo_logs_not_sized_correctly
-    summary: Checks if InnoDB redo log size is not configured correctly.
+    summary: Checks if InnoDB redo log size is not configured correctly
     description: This check reviews InnoDB redo log size and suggests if it is configured too low.
-    family: MYSQL
-    category: performance
-    #subcategory: configuration
-    #author: Kedar Vaijanapurkar
-    advisor: configuration_innodb
+    technology: MYSQL
+    # author: Kedar Vaijanapurkar
+    category: Performance
     interval: standard
     queries:
       - type: MYSQL_SELECT
@@ -58,8 +56,9 @@ checks:
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
       def redo_log_check(docs):
-          # Guarded like docs[1..3] below: an empty result would leave version
-          # and service unbound and raise NameError at the .format() calls.
+          # An empty result would leave version and service unbound and raise
+          # NameError at the .format() calls, and there would be no service to
+          # label a result with, so there is nothing to report at all.
           if len(docs[0]) == 0:
               return None
           version = ""
@@ -77,17 +76,30 @@ checks:
 
           # MySQL 8.0.30 replaced innodb_log_file_size/innodb_log_files_in_group with
           # innodb_redo_log_capacity, and MySQL 9.x dropped the legacy variables
-          # entirely. Both spellings are queried, but if neither is exposed there is
-          # no size to compare the written redo against, so bail out instead of
-          # falling through with a zero size and flagging every sample as a spike.
-          if len(docs[2]) == 0:
-              return None
-          redo_log_size = int(float(docs[2][0]["value"][1]))
+          # entirely. Every spelling is queried, but if none is exposed there is no
+          # size to compare the written redo against, so report the check as
+          # unevaluated instead of falling through with a zero size and flagging
+          # every sample as a spike. Checkpoint age is deliberately absent from this
+          # list, it is optional - see the two arms further down.
+          missing = []
+          if len(docs[2]) > 0:
+              redo_log_size = int(float(docs[2][0]["value"][1]))
           if redo_log_size <= 0:
-              return None
-
+              missing.append("redo log size")
           if len(docs[1]) == 0 or len(docs[1][0]["values"]) == 0:
-              return None
+              missing.append("redo log written")
+
+          if missing:
+              return {
+                  "summary": "Redo log size could not be evaluated",
+                  "description": "No {} metrics are available for this service, so the InnoDB redo log size was not reviewed. This can be transient shortly after PMM Server starts.".format(", ".join(missing)),
+                  "severity": "info",
+                  "labels": {
+                      "mysql_version": "{}".format(version),
+                      "service": "{}".format(service),
+                  },
+                  "read_more_url":read_url.format("innodb_redo_logs_not_sized_correctly")
+              }
 
           # Sample values arrive as strings and increase() can yield fractional
           # results, so parse them as floats. int() would reject "123.5".
@@ -135,7 +147,7 @@ checks:
               return {
                   "summary": "Redo log size check.",
                   "read_more": "https://percona.com/blog",
-                  "description": "Current total redo log size is {}M. The relo log written are more than the configured though this hasn't caused system degradation. The average redo written per hour over the past 7 days is {}M with spikes above redo_log_size being {}% of total samples with max written redolog size being {}M. ".format(int(redo_log_size/1024/1024),int(logs_written_avg), int(cnt_high*100/cnt),int(logs_written_max/1024/1024)),
+                  "description": "Current total redo log size is {}M. The redo log written are more than the configured though this hasn't caused system degradation. The average redo written per hour over the past 7 days is {}M with spikes above redo_log_size being {}% of total samples with max written redolog size being {}M.".format(int(redo_log_size/1024/1024),int(logs_written_avg), int(cnt_high*100/cnt),int(logs_written_max/1024/1024)),
                   "severity": "warning",
                   "labels": {
                       "mysql_version": "{}".format(version),

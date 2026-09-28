@@ -5,13 +5,14 @@ checks:
     summary: InnoDB Adaptive Hash Index (AHI) efficiency checker
     description: Check the efficiency and effectiveness of InnoDB's Adaptive Hash Index (AHI).
     interval: standard
-    advisor: configuration_innodb
-    family: MYSQL
+    category: Performance
+    technology: MYSQL
     queries:
       - type: MYSQL_SHOW
         query: VARIABLES
       - type: METRICS_RANGE
-        # This query comes from the InnoDB Adaptive Hash Index graph from the MySQL/MySQL InnoDB Details dashboard
+        # This query comes from the "AHI Miss Ratio" graph of the MySQL/MySQL InnoDB Details dashboard,
+        # so it yields the share of searches NOT resolved through AHI
         query: avg by (service_name) (1-((rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~"{{.ServiceName}}"}[1h]))/(rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~"{{.ServiceName}}"}[1h])+rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~"{{.ServiceName}}"}[1h])) or(irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~"{{.ServiceName}}"}[5m]))/(irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~"{{.ServiceName}}"}[5m])+irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~"{{.ServiceName}}"}[5m]))))
         parameters:
           #range: 168h
@@ -44,6 +45,7 @@ checks:
           # it is recommended to use global function `fail` for that instead.
 
            results = []
+           ahi_enabled = 0
            ahi_parts = 0
            read_more = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql-ahi-efficiency-performance-basic-check.html"
 
@@ -67,34 +69,57 @@ checks:
                    "summary": "InnoDB's Adaptive Hash Index (AHI) is enabled.",
                    "description": desc,
                    "read_more_url": read_more,
-                   "severity": "notice",
+                   "severity": "warning",
                    "labels": {},
                })
 
-               # AHI hit-ratio
+               # A metrics query can come back without any series, for example right after
+               # PMM Server starts or when the underlying metrics are not being collected.
+               missSamples = docs[1][0]["values"] if docs[1] else []
+               loadSamples = docs[2][0]["values"] if docs[2] else []
+
+               missing = []
+               if not missSamples:
+                   missing.append("AHI search")
+               if not loadSamples:
+                   missing.append("btr_search_latch wait")
+               if not docs[3]:
+                   missing.append("CPU count")
+
+               if missing:
+                   results.append({
+                       "summary": "AHI efficiency could not be evaluated",
+                       "description": "No {} metrics are available for this service, so the AHI miss ratio and contention were not evaluated. This is expected shortly after PMM Server starts. If it persists, verify these metrics are collected: AHI search counters need InnoDB's adaptive_hash_index metrics module, btr_search_latch waits need Performance Schema wait instrumentation.".format(", ".join(missing)),
+                       "read_more_url": read_more,
+                       "severity": "info",
+                       "labels": {},
+                   })
+                   return results
+
+               # AHI miss-ratio
                dataPoints = []
                samplesSum = 0
-               for row in docs[1][0]["values"]:
+               for row in missSamples:
                    sample = float(row[1])
                    dataPoints.append(sample)
                    samplesSum = samplesSum + sample
-               hitRatioAvg = int((samplesSum/len(dataPoints))*100)
+               missRatioAvg = int((samplesSum/len(dataPoints))*100) if dataPoints else 0
 
                # AHI btr_search_latch load
                dataPoints = []
                samplesSum = 0
-               for row in docs[2][0]["values"]:
+               for row in loadSamples:
                    sample = float(row[1])
                    # Removing the 0.0 samples matches PMM's averages
                    if sample!=0.0:
                        dataPoints.append(sample)
                    samplesSum = samplesSum + sample
-               loadAvg = int(samplesSum/len(dataPoints))
+               loadAvg = int(samplesSum/len(dataPoints)) if dataPoints else 0
 
                # Proposed evaluation:
-               # Low AHI hit ratio --> NOTICE
+               # Low AHI hit ratio --> INFO
                # Low AHI contention --> WARNING
-               # Medium AHI contention --> MAJOR
+               # Medium AHI contention --> ERROR
                # High AHI contention --> CRITICAL
                #
                # But how to calculate contention?
@@ -109,23 +134,34 @@ checks:
                thresholdB = nCPUs*2
                # - The "warning" threshold is 3/4 of the critical one
                thresholdA = (thresholdB/4)*3
+               # - The "error" threshold sits midway between warning and critical
+               thresholdMid = (thresholdA+thresholdB)/2
 
-               btrWaitLoadHitRatioMsg = "AHI average btr_search_latch wait load is {}, AHI average hit ratio is {}%.".format(loadAvg,hitRatioAvg)
+               btrWaitLoadMissRatioMsg = "AHI average btr_search_latch wait load is {}, AHI average miss ratio is {}%.".format(loadAvg,missRatioAvg)
 
-               if hitRatioAvg > 50 and loadAvg > thresholdA:
-                   if loadAvg < thresholdB:
+               if missRatioAvg < 50 and loadAvg > thresholdA:
+                   if loadAvg < thresholdMid:
                        summary = "AHI is experiencing some contention"
-                       description = btrWaitLoadHitRatioMsg
+                       description = btrWaitLoadMissRatioMsg
                        severity = "warning"
+                   elif loadAvg < thresholdB:
+                       summary = "AHI is experiencing contention"
+                       description = "{} Consider increasing the number of AHI partitions (currently operating with {}).".format(btrWaitLoadMissRatioMsg,ahi_parts)
+                       severity = "error"
                    else:  # loadAvg > thresholdB
                        summary = "AHI is likely experiencing contention"
-                       description = "{}. You should consider increasing the number of AHI partitions (currently operating with {}) or disable it altogether.".format(btrWaitLoadHitRatioMsg,ahi_parts)
-                       severity = "error"
+                       description = "{} You should consider increasing the number of AHI partitions (currently operating with {}) or disable it altogether.".format(btrWaitLoadMissRatioMsg,ahi_parts)
+                       severity = "critical"
+
+               elif missRatioAvg >= 50:
+                   summary = "AHI hit ratio is low"
+                   description = "{} AHI is enabled but only a small share of searches are served by it; it may not be benefiting this workload.".format(btrWaitLoadMissRatioMsg)
+                   severity = "info"
 
                else:
                    summary = "AHI is operating with no contention detected"
-                   description = btrWaitLoadHitRatioMsg
-                   severity = "notice"
+                   description = btrWaitLoadMissRatioMsg
+                   severity = "warning"
 
                results.append({
                    "summary": summary,
@@ -141,7 +177,7 @@ checks:
                    "summary": "InnoDB's Adaptive Hash Index (AHI) is disabled.",
                    "description": "The AHI can speed up queries in certain MySQL read workloads, sometimes at the expense of concurrency. It might be worth experimenting operating with it enabled if you haven't already. Then, keep checking this dashboard for any signs of contention on AHI; test with caution.",
                    "read_more_url": read_more,
-                   "severity": "notice",
+                   "severity": "warning",
                    "labels": {},
                })
 

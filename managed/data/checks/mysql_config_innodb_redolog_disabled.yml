@@ -5,9 +5,9 @@ checks:
     summary: Redo log is disabled in this instance
     description: The MySQL InnoDB Redo log, is one of the core components to fulfil the ACID paradigm in MySQL. This element is currently OFF, the setting is highly insecure.
     interval: standard
-    advisor: configuration_innodb
-    #author: The Grinch
-    family: MYSQL
+    category: Durability
+    # author: The Grinch
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service/*!80021 ,(select variable_value from performance_schema.global_status where lower(variable_name) = 'innodb_redo_log_enabled') as redolog */;"
@@ -16,7 +16,7 @@ checks:
           for row in doc:
             version = row["version"]
             service = row["service"]
-            redolog = row["redolog"]
+            redolog = row.get("redolog", "")
 
             if redolog == "OFF":
                return {

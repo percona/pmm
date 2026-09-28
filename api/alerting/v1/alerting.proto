@@ -56,7 +56,7 @@ enum TemplateSource {
   TEMPLATE_SOURCE_UNSPECIFIED = 0;
   // Template that is shipped with PMM Server releases.
   TEMPLATE_SOURCE_BUILT_IN = 1;
-  // Template that is downloaded from check.percona.com.
+  // Template that is downloaded from check.percona.com. Deprecated.
   TEMPLATE_SOURCE_SAAS = 2;
   // Templated loaded from user-suplied file.
   TEMPLATE_SOURCE_USER_FILE = 3;

@@ -2,12 +2,12 @@
 checks:
   - version: 2
     name: mongodb_dbpath_mount
-    summary: MongoDB - separate mount point other than "/" partition for dbpath.
+    summary: MongoDB separate mount point other than "/" partition for dbpath
     description: This check returns a warning if dbpath does not have a dedicated mount point.
     interval: rare
-    family: MONGODB
-    advisor: configuration_resources
-    #author: Parag Bhayani
+    technology: MONGODB
+    category: Resources
+    # author: Parag Bhayani
     queries:
       - type: MONGODB_GETCMDLINEOPTS
       - type: METRICS_INSTANT
@@ -23,10 +23,10 @@ checks:
           #Gather DBPATH details.
           for row in info:
               parsed = row["parsed"]
-              if "storage" in parsed: // Check if key exists
-                  storage = parsed["storage"] // We already know that it's exists, so we can just take the value
-                  if "dbPath" in storage: // Check if key exists
-                      dbpath = storage["dbPath"] // Same thing, we already know that key exists
+              if "storage" in parsed:  # Check if key exists
+                  storage = parsed["storage"]  # We already know that it exists, so we can just take the value
+                  if "dbPath" in storage:  # Check if key exists
+                      dbpath = storage["dbPath"]  # Same thing, we already know that key exists
               if not parsed.get("storage", {}):
                   return results
 

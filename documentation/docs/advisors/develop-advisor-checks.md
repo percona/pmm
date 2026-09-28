@@ -47,7 +47,7 @@ Advisor checks use the following format:
         summary: Check format V2
         description: Checks something important
         interval: standard
-        family: MYSQL
+        technology: MYSQL
         category: configuration ## Deprecated since PMM 2.36
         advisor: dev            ## Required since PMM 2.36
         queries:
@@ -153,20 +153,22 @@ Advisor checks use the following format:
 
 The check script assumes that there is a function with `check_context`, that accepts a _list_ where each item represents the result of a single query specified in the check. Each result itself is a _list_ of _docs_ containing returned rows for SQL databases and documents for MongoDB. It returns zero, one, or several check results that are then converted to alerts.
 
+### Finding granularity
+
+Return one finding per service — or one finding per database for checks that examine per-database objects — rather than one finding per offending object. Aggregate the objects into the finding: put the count in the summary (for example, `3 relation(s) with unused indexes in database app`), list the objects in the description, and set labels such as `database` and `count`. The Advisors Insights list distinguishes findings by their summary and labels, so per-object findings with a shared summary flood the history with rows that look identical. If your check reports issues at different severity levels, return one aggregated finding per severity level.
+
 ## Check severity levels
 
 You can label your advisor checks with one of the following available severity levels:
 
-- Emergency
-- Alert
 - Critical
 - Error
 - Warning
-- Notice
 - Info
-- Debug
 
-PMM groups failed checks by their severity, and displays them under **Advisors Checks > Failed Checks**.
+Findings with any other severity level (previously: Emergency, Alert, Notice, Debug) are rejected, and the check run fails with an error.
+
+PMM groups failed checks by their severity and displays them under **Advisors > Insights**.
 
 ## Check fields
 
@@ -176,7 +178,7 @@ Checks can include the following fields:
 - **Name** (string, required): defines machine-readable name (ID).
 - **Summary** (string, required): defines short human-readable description.
 - **Description** (string, required): defines long human-readable description.
-- **Family** (string, required): specifies one of the supported database families: MYSQL, POSTGRESQL, MONGODB. This field is only available for Advisor checks v.2.
+- **Technology** (string, required): specifies one of the supported database technologies: MYSQL, POSTGRESQL, MONGODB. This field is only available for Advisor checks v.2.
 - **Advisor** (string, required): specifies the advisor to which this check belongs. For local environments, specify **dev**.
 - **Interval** (string/enum, optional): defines running interval. Can be one of the predefined intervals in the UI: Standard, Frequent, Rare.
 - **Queries** (array, required): contains items that specify queries.

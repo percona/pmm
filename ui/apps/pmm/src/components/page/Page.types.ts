@@ -16,6 +16,9 @@ export interface PageProps extends PropsWithChildren {
    * `maxWidth="full"` when `maxWidth` is not set.
    */
   fullWidth?: boolean;
+  // caps the page to the viewport height so its content scrolls internally
+  // (instead of the whole page scrolling); for full-height table pages
+  fillViewport?: boolean;
   surface?: 'default' | 'paper';
   roles?: OrgRole[];
 }

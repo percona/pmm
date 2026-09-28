@@ -49,18 +49,21 @@ PMM UI is the top frame and Grafana runs inside its `#grafana-iframe`; the `pmm-
 
 Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createBrowserRouter` with `basename: '/pmm-ui'`:
 
-| Route              | Page                            |
-| ------------------ | ------------------------------- |
-| `/`                | Redirects to `/graph` (Grafana) |
-| `/updates`         | PMM Server updates              |
-| `/updates/clients` | Client updates                  |
-| `/help`            | Help center                     |
-| `/rta`             | Real-Time Analytics tab         |
-| `/rta/selection`   | RTA service selection           |
-| `/rta/sessions`    | RTA sessions list               |
-| `/rta/overview`    | RTA overview                    |
-| `/graph/*`         | Grafana iframe                  |
-| `*`                | 404 fallback                    |
+| Route                | Page                            |
+| -------------------- | ------------------------------- |
+| `/`                  | Redirects to `/graph` (Grafana) |
+| `/updates`           | PMM Server updates              |
+| `/updates/clients`   | Client updates                  |
+| `/help`              | Help center                     |
+| `/rta`               | Real-Time Analytics tab         |
+| `/rta/selection`     | RTA service selection           |
+| `/rta/sessions`      | RTA sessions list               |
+| `/rta/overview`      | RTA overview                    |
+| `/advisors`          | Advisors                        |
+| `/advisors/insights` | Advisor insights                |
+| `/advisors/runs`     | Advisor runs                    |
+| `/graph/*`           | Grafana iframe                  |
+| `*`                  | 404 fallback                    |
 
 ## State Management
 

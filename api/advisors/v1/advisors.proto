@@ -3,6 +3,7 @@ syntax = "proto3";
 package advisors.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 import "management/v1/severity.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
@@ -15,69 +16,50 @@ enum AdvisorCheckInterval {
   ADVISOR_CHECK_INTERVAL_RARE = 3;
 }
 
-enum AdvisorCheckFamily {
-  ADVISOR_CHECK_FAMILY_UNSPECIFIED = 0;
-  ADVISOR_CHECK_FAMILY_MYSQL = 1;
-  ADVISOR_CHECK_FAMILY_POSTGRESQL = 2;
-  ADVISOR_CHECK_FAMILY_MONGODB = 3;
+enum AdvisorCheckTechnology {
+  ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED = 0;
+  ADVISOR_CHECK_TECHNOLOGY_MYSQL = 1;
+  ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL = 2;
+  ADVISOR_CHECK_TECHNOLOGY_MONGODB = 3;
 }
 
-// AdvisorCheckResult represents the check result returned from pmm-managed after running the check.
-message AdvisorCheckResult {
-  string summary = 1;
-  string description = 2;
-  management.v1.Severity severity = 3;
-  map<string, string> labels = 4;
-  // URL containing information on how to resolve an issue detected by an Advisor check.
-  string read_more_url = 5;
-  // Name of the monitored service on which the check ran.
-  string service_name = 6;
+// AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.
+enum AdvisorCheckResultStatus {
+  ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED = 0;
+  // The check ran and found no issue.
+  ADVISOR_CHECK_RESULT_STATUS_OK = 1;
+  // The check ran and detected an issue.
+  ADVISOR_CHECK_RESULT_STATUS_FAILED = 2;
+  // The check could not be executed.
+  ADVISOR_CHECK_RESULT_STATUS_ERROR = 3;
 }
 
-// CheckResultSummary is a summary of check results.
-message CheckResultSummary {
-  string service_name = 1;
-  string service_id = 2;
-  // Number of failed checks for this service with severity level "EMERGENCY".
-  uint32 emergency_count = 3;
-  // Number of failed checks for this service with severity level "ALERT".
-  uint32 alert_count = 4;
-  // Number of failed checks for this service with severity level "CRITICAL".
-  uint32 critical_count = 5;
-  // Number of failed checks for this service with severity level "ERROR".
-  uint32 error_count = 6;
-  // Number of failed checks for this service with severity level "WARNING".
-  uint32 warning_count = 7;
-  // Number of failed checks for this service with severity level "NOTICE".
-  uint32 notice_count = 8;
-  // Number of failed checks for this service with severity level "INFO".
-  uint32 info_count = 9;
-  // Number of failed checks for this service with severity level "DEBUG".
-  uint32 debug_count = 10;
+// AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.
+enum AdvisorCheckTriggeredBy {
+  ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED = 0;
+  // The run was started by a user via the API or UI.
+  ADVISOR_CHECK_TRIGGERED_BY_USER = 1;
+  // The run was started by the built-in scheduler.
+  ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER = 2;
 }
 
-// CheckResult represents the check results for a given service.
-message CheckResult {
-  string summary = 1;
-  string description = 2;
-  management.v1.Severity severity = 3;
-  map<string, string> labels = 4;
-  // URL containing information on how to resolve an issue detected by an Advisor check.
-  string read_more_url = 5;
-  // Name of the monitored service on which the check ran.
-  string service_name = 6;
-  // ID of the monitored service on which the check ran.
-  string service_id = 7;
-  // Name of the check that failed
-  string check_name = 8;
-  // Silence status of the check result
-  bool silenced = 10;
+// AdvisorCheckQuery is a single data-collection query of an advisor check.
+message AdvisorCheckQuery {
+  // Query type, e.g. "MYSQL_SHOW", "POSTGRESQL_SELECT", "METRICS_RANGE".
+  string type = 1;
+  // Query text (may be empty for parameterless types such as MYSQL_SHOW).
+  string query = 2;
+  // Optional query parameters (e.g. range/step for metrics range queries).
+  map<string, string> parameters = 3;
 }
 
 // AdvisorCheck contains check name and status.
 message AdvisorCheck {
   // Machine-readable name (ID) that is used in expression.
-  string name = 1;
+  string name = 1 [(validate.rules).string = {
+    pattern: "^[a-zA-Z_][a-zA-Z0-9_]*$"
+    max_len: 128
+  }];
   // True if that check is enabled.
   bool enabled = 2;
   // Long human-readable description.
@@ -86,20 +68,30 @@ message AdvisorCheck {
   string summary = 4;
   // Check execution interval.
   AdvisorCheckInterval interval = 5;
-  // DB family.
-  AdvisorCheckFamily family = 6;
+  // DB technology.
+  AdvisorCheckTechnology technology = 6;
+  // Category the check belongs to.
+  string category = 7;
+  // True if the check is user-authored (editable/deletable); false for Percona-shipped checks.
+  bool user_defined = 8;
+  // Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.
+  repeated AdvisorCheckQuery queries = 9;
+  // Starlark source script. Populated by Get/Create/Update; may be empty in list responses.
+  string script = 10;
+  // IDs of services for which this check is disabled.
+  repeated string disabled_service_ids = 11;
 }
 
 message Advisor {
-  // Machine-readable name (ID) that is used in expression.
-  string name = 1;
-  // Long human-readable description.
-  string description = 2;
-  // Short human-readable summary.
-  string summary = 3;
-  // Comment.
-  string comment = 4;
-  // Category.
+  // Deprecated: no longer populated; an advisor is identified by its category.
+  string name = 1 [deprecated = true];
+  // Deprecated: advisor descriptions were removed.
+  string description = 2 [deprecated = true];
+  // Deprecated: use category instead.
+  string summary = 3 [deprecated = true];
+  // Deprecated: no longer populated.
+  string comment = 4 [deprecated = true];
+  // Category the checks belong to.
   string category = 5;
   // Advisor checks.
   repeated AdvisorCheck checks = 6;
@@ -112,19 +104,114 @@ message ChangeAdvisorCheckParams {
   optional bool enable = 2;
   // check execution interval.
   AdvisorCheckInterval interval = 4;
+  // IDs of services to apply the enable/disable to. When set, enable/disable
+  // affects only the given services instead of the whole check; interval
+  // changes are not allowed in the same params entry.
+  repeated string service_ids = 5;
 }
 
 message StartAdvisorChecksRequest {
   // Names of the checks that should be started.
   repeated string names = 1;
+  // IDs of the services to run the checks against. When empty, the checks run
+  // against every monitored service of a matching technology.
+  repeated string service_ids = 2;
 }
 
-message StartAdvisorChecksResponse {}
+message StartAdvisorChecksResponse {
+  // ID assigned to this run; all check results produced by it share this run_id.
+  string run_id = 1;
+}
 
 message ListAdvisorChecksRequest {}
 
 message ListAdvisorChecksResponse {
   repeated AdvisorCheck checks = 1;
+}
+
+message GetAdvisorCheckRequest {
+  // Machine-readable name (ID) of the check.
+  string name = 1;
+}
+
+message GetAdvisorCheckResponse {
+  AdvisorCheck check = 1;
+}
+
+message CreateAdvisorCheckRequest {
+  // The check to create. Its name must be unique across all checks.
+  AdvisorCheck check = 1;
+}
+
+message CreateAdvisorCheckResponse {
+  AdvisorCheck check = 1;
+}
+
+message UpdateAdvisorCheckRequest {
+  // Machine-readable name (ID) of the check to update.
+  string name = 1;
+  // The updated check definition. A check cannot be renamed: leave its name
+  // empty or set it to the name above, otherwise the request is rejected.
+  AdvisorCheck check = 2;
+}
+
+message UpdateAdvisorCheckResponse {
+  AdvisorCheck check = 1;
+}
+
+message DeleteAdvisorCheckRequest {
+  // Machine-readable name (ID) of the check to delete.
+  string name = 1;
+}
+
+message DeleteAdvisorCheckResponse {}
+
+message TestAdvisorCheckRequest {
+  // Check definition to execute; it is not saved.
+  AdvisorCheck check = 1;
+  // ID of the service to run the check against.
+  string service_id = 2 [(validate.rules).string.min_len = 1];
+}
+
+// TestAdvisorCheckResult is a single finding produced by a test (dry-run) check execution.
+message TestAdvisorCheckResult {
+  string summary = 1;
+  string description = 2;
+  management.v1.Severity severity = 3;
+  map<string, string> labels = 4;
+  // URL containing information on how to resolve an issue detected by the check.
+  string read_more_url = 5;
+  // Name of the monitored service on which the check ran.
+  string service_name = 6;
+  // ID of the monitored service on which the check ran.
+  string service_id = 7;
+  // Name of the tested check.
+  string check_name = 8;
+}
+
+message TestAdvisorCheckResponse {
+  // Findings produced by the check script; empty means the check passed.
+  repeated TestAdvisorCheckResult results = 1;
+  // Output produced by the script's print() calls, for debugging.
+  string script_output = 2;
+}
+
+message ListAdvisorCheckTestTargetsRequest {
+  // Technology of the check to be tested; determines the eligible service type.
+  AdvisorCheckTechnology technology = 1;
+}
+
+// AdvisorCheckTestTarget is a service an advisor check can be tested against.
+message AdvisorCheckTestTarget {
+  // ID of the eligible service.
+  string service_id = 1;
+  // Name of the eligible service.
+  string service_name = 2;
+}
+
+message ListAdvisorCheckTestTargetsResponse {
+  // Services a check of the requested technology can be tested against.
+  repeated AdvisorCheckTestTarget targets = 1;
 }
 
 message ListAdvisorsRequest {}
@@ -139,46 +226,235 @@ message ChangeAdvisorChecksRequest {
 
 message ChangeAdvisorChecksResponse {}
 
-message ListFailedServicesRequest {}
-
-message ListFailedServicesResponse {
-  repeated CheckResultSummary result = 1;
+message SendTestAdvisorNotificationRequest {
+  // Addresses the sample report is emailed to.
+  repeated string email_addresses = 1;
 }
 
-message GetFailedChecksRequest {
+message SendTestAdvisorNotificationResponse {}
+
+// Insight represents a single persisted Advisor check run against a service.
+message Insight {
+  // Unique identifier of the history record.
+  string id = 1;
+  // ID of the run this result belongs to; all results produced by one execution share it.
+  string run_id = 2;
+  // Name of the check that ran.
+  string check_name = 3;
+  // Category the check belongs to.
+  string category = 4;
+  // Check execution interval.
+  AdvisorCheckInterval interval = 5;
+  // ID of the monitored service on which the check ran.
+  string service_id = 6;
+  // Name of the monitored service on which the check ran.
+  string service_name = 7;
+  // Type of the monitored service on which the check ran.
+  string service_type = 8;
+  // ID of the node the service runs on.
+  string node_id = 9;
+  // Name of the node the service runs on.
+  string node_name = 10;
+  // Environment of the monitored service on which the check ran.
+  string environment = 11;
+  // Cluster of the monitored service on which the check ran.
+  string cluster = 12;
+  // Replication set of the monitored service on which the check ran.
+  string replication_set = 13;
+  // Outcome of the check run.
+  AdvisorCheckResultStatus status = 14;
+  // Short human-readable summary of the result.
+  string summary = 15;
+  // Long human-readable description of the result.
+  string description = 16;
+  // URL containing information on how to resolve a detected issue.
+  string read_more_url = 17;
+  // Output returned by the check run (finding details or execution error).
+  string outcome = 18;
+  // Severity of the result.
+  management.v1.Severity severity = 19;
+  // Result labels.
+  map<string, string> labels = 20;
+  // Time when the check ran.
+  google.protobuf.Timestamp checked_at = 21;
+  // Whether the result has been marked as read.
+  bool is_read = 22;
+  // The actor that initiated the run.
+  AdvisorCheckTriggeredBy triggered_by = 23;
+  // Cloud region of the node the service runs on, empty when not applicable.
+  string region = 24;
+  // Cloud availability zone of the node the service runs on, empty when not applicable.
+  string az = 25;
+}
+
+message ListInsightsRequest {
   // Maximum number of results per page.
   optional int32 page_size = 1 [(validate.rules).int32.gte = 1];
   // Index of the requested page, starts from 0.
   optional int32 page_index = 2 [(validate.rules).int32.gte = 0];
-  // Service ID.
+  // Filter by service ID.
   string service_id = 3;
+  // Filter by outcome.
+  optional AdvisorCheckResultStatus status = 4;
+  // Filter by read state.
+  optional bool is_read = 5;
+  // Return only results recorded at or after this time.
+  google.protobuf.Timestamp from = 6;
+  // Return only results recorded at or before this time.
+  google.protobuf.Timestamp to = 7;
+  // Filter by service name (partial, case-insensitive match).
+  string service_name = 8;
+  // Filter by node name (partial, case-insensitive match).
+  string node_name = 9;
+  // Filter by advisor category.
+  string category = 10;
+  // Filter by check name.
+  string check_name = 11;
+  // Filter by severity.
+  optional management.v1.Severity severity = 12;
+  // Filter by run ID.
+  string run_id = 13;
+  // Filter by the actor that initiated the run.
+  optional AdvisorCheckTriggeredBy triggered_by = 14;
 }
 
-message GetFailedChecksResponse {
+message ListInsightsResponse {
   // Total number of results.
   int32 total_items = 1;
   // Total number of pages.
   int32 total_pages = 2;
-  // Check results
-  repeated CheckResult results = 3;
+  // Insight records.
+  repeated Insight results = 3;
+}
+
+message ListInsightsFilterValuesRequest {}
+
+message ListInsightsFilterValuesResponse {
+  // Distinct service names present in the check results history, sorted alphabetically.
+  repeated string service_names = 1;
+  // Distinct node names present in the check results history, sorted alphabetically.
+  repeated string node_names = 2;
+}
+
+// InsightsFilters select Advisor insights by attribute; all present fields must match.
+message InsightsFilters {
+  // Filter by check name.
+  string check_name = 1;
+  // Filter by service name (partial, case-insensitive match).
+  string service_name = 2;
+  // Filter by node name (partial, case-insensitive match).
+  string node_name = 3;
+  // Filter by advisor category.
+  string category = 4;
+  // Filter by severity.
+  optional management.v1.Severity severity = 5;
+  // Filter by outcome.
+  optional AdvisorCheckResultStatus status = 6;
+  // Filter by read state.
+  optional bool is_read = 7;
+  // Filter by run ID.
+  string run_id = 8;
+}
+
+message MarkInsightsReadRequest {
+  // IDs of the insights to update. Takes precedence over filters.
+  repeated string ids = 1;
+  // Read state to set on the records.
+  bool is_read = 2;
+  // When set and ids is empty, all insights matching these filters are updated
+  // (an empty filter set matches every record). Either ids or filters must be provided.
+  InsightsFilters filters = 3;
+}
+
+message MarkInsightsReadResponse {}
+
+// AdvisorRun is a single execution of Advisor checks. Its totals are recorded on
+// completion, so they stay accurate after the run's insights have been pruned.
+message AdvisorRun {
+  // ID shared by every insight the run produced.
+  string id = 1;
+  // The actor that initiated the run.
+  AdvisorCheckTriggeredBy triggered_by = 2;
+  // When the run began.
+  google.protobuf.Timestamp started_at = 3;
+  // When the run completed; unset while it is still running.
+  google.protobuf.Timestamp finished_at = 4;
+  // Number of distinct checks the run executed.
+  int32 checks_count = 5;
+  // Number of distinct services the run covered.
+  int32 services_count = 6;
+  // Number of findings, i.e. checks that detected an issue.
+  int32 findings_count = 7;
+  // Number of checks that could not be executed at all.
+  int32 errors_count = 8;
+  // Number of findings per severity, most severe first. A repeated field rather
+  // than a map so severity stays a typed enum instead of a free-form key.
+  repeated SeverityCount severity_counts = 9;
+}
+
+// SeverityCount is the number of findings a run produced at a single severity.
+message SeverityCount {
+  management.v1.Severity severity = 1;
+  int32 count = 2;
+}
+
+message ListRunsRequest {
+  // Maximum number of results per page.
+  optional int32 page_size = 1 [(validate.rules).int32.gte = 1];
+  // Index of the requested page, starts from 0.
+  optional int32 page_index = 2 [(validate.rules).int32.gte = 0];
+  // Filter by the actor that initiated the run.
+  optional AdvisorCheckTriggeredBy triggered_by = 3;
+  // Return only runs started at or after this time.
+  google.protobuf.Timestamp from = 4;
+  // Return only runs started at or before this time.
+  google.protobuf.Timestamp to = 5;
+}
+
+message ListRunsResponse {
+  // Total number of results.
+  int32 total_items = 1;
+  // Total number of pages.
+  int32 total_pages = 2;
+  // Runs, most recently started first.
+  repeated AdvisorRun results = 3;
 }
 
 // AdvisorService service provides public Management API methods for Advisor Service.
 service AdvisorService {
-  // ListFailedServices returns a list of services with failed checks.
-  rpc ListFailedServices(ListFailedServicesRequest) returns (ListFailedServicesResponse) {
-    option (google.api.http) = {get: "/v1/advisors/failedServices"};
+  // ListRuns returns the history of Advisor check executions, most recent first.
+  rpc ListRuns(ListRunsRequest) returns (ListRunsResponse) {
+    option (google.api.http) = {get: "/v1/advisors/runs"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "List Failed Services"
-      description: "Returns a list of services with failed checks and a summary of check results."
+      summary: "List Advisor Runs"
+      description: "Returns the chronological history of Advisor check executions with their totals."
     };
   }
-  // GetFailedChecks returns the checks result for a given service.
-  rpc GetFailedChecks(GetFailedChecksRequest) returns (GetFailedChecksResponse) {
-    option (google.api.http) = {get: "/v1/advisors/checks/failed"};
+  // ListInsights returns the history of Advisor check results (insights).
+  rpc ListInsights(ListInsightsRequest) returns (ListInsightsResponse) {
+    option (google.api.http) = {get: "/v1/advisors/insights"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Get Failed Advisor Checks"
-      description: "Returns the latest check results for a given service."
+      summary: "List Advisor Insights"
+      description: "Returns the history of Advisor check results (insights), including their outcomes."
+    };
+  }
+  // ListInsightsFilterValues returns the distinct values usable as insights filters.
+  rpc ListInsightsFilterValues(ListInsightsFilterValuesRequest) returns (ListInsightsFilterValuesResponse) {
+    option (google.api.http) = {get: "/v1/advisors/insights:filterValues"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Advisor Insights Filter Values"
+      description: "Returns the distinct service and node names present in the Advisor insights, for populating filter dropdowns."
+    };
+  }
+  // MarkInsightsRead sets the read state on Advisor insights.
+  rpc MarkInsightsRead(MarkInsightsReadRequest) returns (MarkInsightsReadResponse) {
+    option (google.api.http) = {
+      post: "/v1/advisors/insights:markRead"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Mark Advisor Insights Read"
+      description: "Sets the read state on the specified Advisor insights. Set is_read to false to mark them unread."
     };
   }
   // StartAdvisorChecks executes Advisor checks and returns when all checks are executed.
@@ -217,6 +493,74 @@ service AdvisorService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change Advisor Checks"
       description: "Enables/disables advisor checks or changes their exec interval."
+    };
+  }
+  // GetAdvisorCheck returns a single advisor check by name, including its queries and script.
+  rpc GetAdvisorCheck(GetAdvisorCheckRequest) returns (GetAdvisorCheckResponse) {
+    option (google.api.http) = {get: "/v1/advisors/checks/{name}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Advisor Check"
+      description: "Returns a single advisor check by name, including its queries and script."
+    };
+  }
+  // CreateAdvisorCheck creates a new user-authored advisor check.
+  rpc CreateAdvisorCheck(CreateAdvisorCheckRequest) returns (CreateAdvisorCheckResponse) {
+    option (google.api.http) = {
+      post: "/v1/advisors/checks"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Create Advisor Check"
+      description: "Creates a new user-authored advisor check."
+    };
+  }
+  // UpdateAdvisorCheck updates an existing user-authored advisor check.
+  rpc UpdateAdvisorCheck(UpdateAdvisorCheckRequest) returns (UpdateAdvisorCheckResponse) {
+    option (google.api.http) = {
+      put: "/v1/advisors/checks/{name}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update Advisor Check"
+      description: "Updates an existing user-authored advisor check. Percona-shipped checks cannot be modified. A check cannot be renamed: the name in the request body must either be empty or match the name in the path."
+    };
+  }
+  // TestAdvisorCheck executes an advisor check definition without saving it.
+  rpc TestAdvisorCheck(TestAdvisorCheckRequest) returns (TestAdvisorCheckResponse) {
+    option (google.api.http) = {
+      post: "/v1/advisors/checks:test"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Test Advisor Check"
+      description: "Executes an advisor check definition against a single service without saving the check; results are returned and not persisted."
+    };
+  }
+  // ListAdvisorCheckTestTargets returns the services an advisor check of the given technology can be tested against.
+  rpc ListAdvisorCheckTestTargets(ListAdvisorCheckTestTargetsRequest) returns (ListAdvisorCheckTestTargetsResponse) {
+    option (google.api.http) = {get: "/v1/advisors/checks:testTargets"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Advisor Check Test Targets"
+      description: "Lists the services an advisor check of the given technology can be tested against."
+    };
+  }
+  // DeleteAdvisorCheck deletes a user-authored advisor check.
+  rpc DeleteAdvisorCheck(DeleteAdvisorCheckRequest) returns (DeleteAdvisorCheckResponse) {
+    option (google.api.http) = {delete: "/v1/advisors/checks/{name}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Delete Advisor Check"
+      description: "Deletes a user-authored advisor check. Percona-shipped checks cannot be deleted."
+    };
+  }
+  // SendTestAdvisorNotification emails a sample Advisor report to the given addresses.
+  rpc SendTestAdvisorNotification(SendTestAdvisorNotificationRequest) returns (SendTestAdvisorNotificationResponse) {
+    option (google.api.http) = {
+      post: "/v1/advisors/notifications:test"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Send Test Advisor Notification"
+      description: "Emails a sample Advisor report to the given addresses so that email delivery can be verified. It runs no checks and stores nothing."
     };
   }
 }

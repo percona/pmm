@@ -16,8 +16,10 @@
 package checks
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
+	"os"
 	"testing"
 	"time"
 
@@ -28,6 +30,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -48,6 +52,34 @@ var (
 	clickhouseDB *sql.DB
 )
 
+// loadTestCheck parses the good-check test fixture into a check.Check.
+func loadTestCheck(t *testing.T) check.Check {
+	t.Helper()
+
+	b, err := os.ReadFile(testChecksFile)
+	require.NoError(t, err)
+
+	checks, err := check.ParseChecks(bytes.NewReader(b), &check.ParseParams{
+		DisallowUnknownFields: true,
+		DisallowInvalidChecks: true,
+	})
+	require.NoError(t, err)
+	require.Len(t, checks, 1)
+
+	return checks[0]
+}
+
+// seedUserCheck stores the good-check test fixture as a user-authored check in the DB.
+func seedUserCheck(t *testing.T, db *reform.DB) {
+	t.Helper()
+
+	c := loadTestCheck(t)
+	m, err := userCheckToModel(c)
+	require.NoError(t, err)
+	_, err = models.CreateAdvisorCheck(db.Querier, m)
+	require.NoError(t, err)
+}
+
 func TestLoadBuiltinAdvisors(t *testing.T) {
 	setupClients(t)
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
@@ -66,9 +98,8 @@ func TestLoadBuiltinAdvisors(t *testing.T) {
 		ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
 		defer cancel()
 
-		dChecks, err := s.loadBuiltinAdvisors(ctx)
+		err = s.reconcileBuiltinChecks(ctx)
 		require.NoError(t, err)
-		assert.NotEmpty(t, dChecks)
 
 		s.UpdateAdvisorsList(ctx)
 
@@ -86,7 +117,7 @@ func TestLoadBuiltinAdvisors(t *testing.T) {
 		ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
 		defer cancel()
 
-		dChecks, err := s.loadBuiltinAdvisors(ctx)
+		dChecks, err := s.loadBuiltinChecks(ctx)
 		require.NoError(t, err)
 		assert.NotEmpty(t, dChecks)
 
@@ -106,7 +137,7 @@ func TestUpdateAdvisorsList(t *testing.T) {
 
 	t.Run("collect custom checks", func(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
-		s.customCheckFile = testChecksFile
+		seedUserCheck(t, db)
 
 		s.UpdateAdvisorsList(t.Context())
 
@@ -114,12 +145,10 @@ func TestUpdateAdvisorsList(t *testing.T) {
 		require.NoError(t, err)
 		require.GreaterOrEqual(t, len(advisors), 1)
 
-		// custom checks are loaded last, so we check the last advisor in the list.
+		// the user check carries a unique category, so it forms its own advisor
+		// group loaded last.
 		advisor := advisors[len(advisors)-1]
-		require.Equal(t, "dev", advisor.Name)
-		require.Equal(t, "Dev Advisor", advisor.Summary)
-		require.Equal(t, "Advisor used for developing checks", advisor.Description)
-		require.Equal(t, "development", advisor.Category)
+		require.Equal(t, "Development", advisor.Category)
 		require.Len(t, advisor.Checks, 1)
 
 		checkNames := make([]string, 0, len(advisor.Checks))
@@ -142,7 +171,7 @@ func TestDisableChecks(t *testing.T) {
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 		s := New(db, nil, vmClient, clickhouseDB)
-		s.customCheckFile = testChecksFile
+		seedUserCheck(t, db)
 
 		s.UpdateAdvisorsList(t.Context())
 
@@ -150,14 +179,14 @@ func TestDisableChecks(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotEmpty(t, checks)
 
-		disChecks, err := s.GetDisabledChecks()
+		disChecks, err := s.GetDisabledChecks(t.Context())
 		require.NoError(t, err)
 		assert.Empty(t, disChecks)
 
-		err = s.DisableChecks([]string{checks["good_check_pg"].Name})
+		err = s.DisableChecks(t.Context(), []string{checks["good_check_pg"].Name})
 		require.NoError(t, err)
 
-		disChecks, err = s.GetDisabledChecks()
+		disChecks, err = s.GetDisabledChecks(t.Context())
 		require.NoError(t, err)
 		assert.Len(t, disChecks, 1)
 	})
@@ -171,7 +200,7 @@ func TestDisableChecks(t *testing.T) {
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 		s := New(db, nil, vmClient, clickhouseDB)
-		s.customCheckFile = testChecksFile
+		seedUserCheck(t, db)
 
 		s.UpdateAdvisorsList(t.Context())
 
@@ -179,17 +208,17 @@ func TestDisableChecks(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotEmpty(t, checks)
 
-		disChecks, err := s.GetDisabledChecks()
+		disChecks, err := s.GetDisabledChecks(t.Context())
 		require.NoError(t, err)
 		assert.Empty(t, disChecks)
 
-		err = s.DisableChecks([]string{checks["good_check_pg"].Name})
+		err = s.DisableChecks(t.Context(), []string{checks["good_check_pg"].Name})
 		require.NoError(t, err)
 
-		err = s.DisableChecks([]string{checks["good_check_pg"].Name})
+		err = s.DisableChecks(t.Context(), []string{checks["good_check_pg"].Name})
 		require.NoError(t, err)
 
-		disChecks, err = s.GetDisabledChecks()
+		disChecks, err = s.GetDisabledChecks(t.Context())
 		require.NoError(t, err)
 		assert.Len(t, disChecks, 1)
 	})
@@ -203,14 +232,14 @@ func TestDisableChecks(t *testing.T) {
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 		s := New(db, nil, vmClient, clickhouseDB)
-		s.customCheckFile = testChecksFile
+		seedUserCheck(t, db)
 
 		s.UpdateAdvisorsList(t.Context())
 
-		err := s.DisableChecks([]string{"unknown_check"})
+		err := s.DisableChecks(t.Context(), []string{"unknown_check"})
 		require.Error(t, err)
 
-		disChecks, err := s.GetDisabledChecks()
+		disChecks, err := s.GetDisabledChecks(t.Context())
 		require.NoError(t, err)
 		assert.Empty(t, disChecks)
 	})
@@ -226,7 +255,7 @@ func TestEnableChecks(t *testing.T) {
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 		s := New(db, nil, vmClient, clickhouseDB)
-		s.customCheckFile = testChecksFile
+		seedUserCheck(t, db)
 
 		s.UpdateAdvisorsList(t.Context())
 
@@ -235,10 +264,10 @@ func TestEnableChecks(t *testing.T) {
 		assert.NotEmpty(t, checks, 1)
 
 		originalLength := len(checks)
-		err = s.DisableChecks([]string{checks["good_check_pg"].Name})
+		err = s.DisableChecks(t.Context(), []string{checks["good_check_pg"].Name})
 		require.NoError(t, err)
 
-		disChecks, err := s.GetDisabledChecks()
+		disChecks, err := s.GetDisabledChecks(t.Context())
 		require.NoError(t, err)
 		assert.Equal(t, []string{checks["good_check_pg"].Name}, disChecks)
 
@@ -257,7 +286,7 @@ func TestChangeInterval(t *testing.T) {
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 		s := New(db, nil, vmClient, clickhouseDB)
-		s.customCheckFile = testChecksFile
+		seedUserCheck(t, db)
 
 		s.UpdateAdvisorsList(t.Context())
 
@@ -270,7 +299,7 @@ func TestChangeInterval(t *testing.T) {
 		for _, c := range checks {
 			params[c.Name] = check.Rare
 		}
-		err = s.ChangeInterval(params)
+		err = s.ChangeInterval(t.Context(), params)
 		require.NoError(t, err)
 
 		updatedChecks, err := s.GetChecks()
@@ -292,6 +321,101 @@ func TestChangeInterval(t *testing.T) {
 	})
 }
 
+func TestChecksForServices(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	ctx := t.Context()
+
+	s := New(db, nil, vmClient, clickhouseDB)
+	seedUserCheck(t, db)
+	s.UpdateAdvisorsList(ctx)
+
+	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+		NodeName: "test-node",
+	})
+	require.NoError(t, err)
+
+	serviceIDs := make([]string, 0, 2)
+	for _, name := range []string{"mysql1", "mysql2"} {
+		svc, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: name,
+			NodeID:      node.NodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
+		})
+		require.NoError(t, err)
+		serviceIDs = append(serviceIDs, svc.ServiceID)
+	}
+
+	t.Run("disable and dedup", func(t *testing.T) {
+		err := s.DisableChecksForServices(ctx, "good_check_pg", []string{serviceIDs[0]})
+		require.NoError(t, err)
+
+		// disabling again including an already-disabled service must not duplicate it
+		err = s.DisableChecksForServices(ctx, "good_check_pg", serviceIDs)
+		require.NoError(t, err)
+
+		m, err := s.GetDisabledServicesForChecks(ctx)
+		require.NoError(t, err)
+		assert.ElementsMatch(t, serviceIDs, m["good_check_pg"])
+	})
+
+	t.Run("unknown check rejected", func(t *testing.T) {
+		err := s.DisableChecksForServices(ctx, "no_such_check", []string{serviceIDs[0]})
+		require.Error(t, err)
+		assert.Equal(t, codes.NotFound, status.Code(err))
+	})
+
+	t.Run("unknown service rejected", func(t *testing.T) {
+		err := s.DisableChecksForServices(ctx, "good_check_pg", []string{"no-such-service"})
+		require.Error(t, err)
+		assert.Equal(t, codes.NotFound, status.Code(err))
+	})
+
+	t.Run("globally disabled check rejects per-service changes but keeps them", func(t *testing.T) {
+		err := s.DisableChecks(ctx, []string{"good_check_pg"})
+		require.NoError(t, err)
+
+		err = s.DisableChecksForServices(ctx, "good_check_pg", []string{serviceIDs[0]})
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+
+		// existing per-service settings survive the global disable...
+		m, err := s.GetDisabledServicesForChecks(ctx)
+		require.NoError(t, err)
+		assert.ElementsMatch(t, serviceIDs, m["good_check_pg"])
+
+		// ...and still apply after the check is re-enabled globally
+		err = s.EnableChecks(ctx, []string{"good_check_pg"})
+		require.NoError(t, err)
+
+		m, err = s.GetDisabledServicesForChecks(ctx)
+		require.NoError(t, err)
+		assert.ElementsMatch(t, serviceIDs, m["good_check_pg"])
+	})
+
+	t.Run("enable removes only given services", func(t *testing.T) {
+		err := s.EnableChecksForServices(ctx, "good_check_pg", []string{serviceIDs[0]})
+		require.NoError(t, err)
+
+		m, err := s.GetDisabledServicesForChecks(ctx)
+		require.NoError(t, err)
+		assert.Equal(t, []string{serviceIDs[1]}, m["good_check_pg"])
+
+		// IDs of unknown (e.g. already removed) services are accepted
+		err = s.EnableChecksForServices(ctx, "good_check_pg", []string{"no-such-service", serviceIDs[1]})
+		require.NoError(t, err)
+
+		m, err = s.GetDisabledServicesForChecks(ctx)
+		require.NoError(t, err)
+		assert.Empty(t, m)
+	})
+}
+
 func TestStartChecks(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
@@ -303,7 +427,6 @@ func TestStartChecks(t *testing.T) {
 
 	t.Run("unknown interval", func(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
-		s.customCheckFile = testChecksFile
 
 		err := s.runChecksGroup(t.Context(), "unknown")
 		require.EqualError(t, err, "unknown check interval: unknown")
@@ -312,7 +435,7 @@ func TestStartChecks(t *testing.T) {
 	t.Run("advisors enabled", func(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 
-		s.customCheckFile = testChecksFile
+		seedUserCheck(t, db)
 		s.UpdateAdvisorsList(t.Context())
 		assert.NotEmpty(t, s.advisors)
 		assert.NotEmpty(t, s.checks)
@@ -333,6 +456,215 @@ func TestStartChecks(t *testing.T) {
 
 		err = s.runChecksGroup(t.Context(), "")
 		require.ErrorIs(t, err, services.ErrAdvisorsDisabled)
+	})
+}
+
+func TestUserAdvisorChecks(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	ctx := t.Context()
+
+	s := New(db, nil, vmClient, clickhouseDB)
+
+	// author a valid user check from a known-good template
+	c := loadTestCheck(t)
+	c.Name = "custom_test_user_check_crud"
+
+	err := s.CreateAdvisorCheck(ctx, c)
+	require.NoError(t, err)
+
+	checks, err := s.GetChecks()
+	require.NoError(t, err)
+	created, ok := checks[c.Name]
+	require.True(t, ok)
+	assert.True(t, created.UserDefined)
+	assert.Equal(t, c.Summary, created.Summary)
+
+	t.Run("duplicate name rejected", func(t *testing.T) {
+		err := s.CreateAdvisorCheck(ctx, c)
+		require.Error(t, err)
+		assert.Equal(t, codes.AlreadyExists, status.Code(err))
+	})
+
+	t.Run("name without the reserved prefix rejected", func(t *testing.T) {
+		unprefixed := c
+		unprefixed.Name = "test_user_check_without_prefix"
+		err := s.CreateAdvisorCheck(ctx, unprefixed)
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+	})
+
+	t.Run("update", func(t *testing.T) {
+		updated := c
+		updated.Summary = "updated summary"
+		err := s.UpdateAdvisorCheck(ctx, updated)
+		require.NoError(t, err)
+
+		checks, err := s.GetChecks()
+		require.NoError(t, err)
+		require.Contains(t, checks, c.Name)
+		assert.Equal(t, "updated summary", checks[c.Name].Summary)
+	})
+
+	t.Run("update unknown rejected", func(t *testing.T) {
+		unknown := c
+		unknown.Name = "no_such_check"
+		err := s.UpdateAdvisorCheck(ctx, unknown)
+		require.Error(t, err)
+		assert.Equal(t, codes.NotFound, status.Code(err))
+	})
+
+	t.Run("delete", func(t *testing.T) {
+		err := s.DeleteAdvisorCheck(ctx, c.Name)
+		require.NoError(t, err)
+
+		checks, err := s.GetChecks()
+		require.NoError(t, err)
+		assert.NotContains(t, checks, c.Name)
+	})
+
+	t.Run("delete unknown rejected", func(t *testing.T) {
+		err := s.DeleteAdvisorCheck(ctx, "no_such_check")
+		require.Error(t, err)
+		assert.Equal(t, codes.NotFound, status.Code(err))
+	})
+}
+
+func TestTestAdvisorCheck(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	ctx := t.Context()
+
+	s := New(db, nil, vmClient, clickhouseDB)
+
+	c := loadTestCheck(t)
+	c.Name = "custom_test_dry_run"
+
+	t.Run("invalid check rejected", func(t *testing.T) {
+		invalid := c
+		invalid.Script = ""
+
+		res, output, err := s.TestAdvisorCheck(ctx, invalid, "svc-1")
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Nil(t, res)
+		assert.Empty(t, output)
+	})
+
+	t.Run("unknown check technology rejected", func(t *testing.T) {
+		unknown := c
+		unknown.Technology = "unknown"
+
+		res, output, err := s.TestAdvisorCheck(ctx, unknown, "svc-1")
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Nil(t, res)
+		assert.Empty(t, output)
+	})
+
+	t.Run("unknown service rejected", func(t *testing.T) {
+		res, output, err := s.TestAdvisorCheck(ctx, c, "no-such-service")
+		require.Error(t, err)
+		assert.Equal(t, codes.NotFound, status.Code(err))
+		assert.Nil(t, res)
+		assert.Empty(t, output)
+	})
+
+	// ineligible-service diagnosis: each case gets its own precise error
+	pgCheck := check.Check{
+		Name:        "custom_test_diagnosis",
+		Summary:     "Diagnosis probe",
+		Description: "Diagnosis probe",
+		Category:    "test",
+		Technology:  check.PostgreSQL,
+		Interval:    check.Standard,
+		Queries:     []check.Query{{Type: check.PostgreSQLSelect, Query: "1"}},
+		Script:      "def check_context(docs, context):\n    return []",
+	}
+
+	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+		NodeName: "diagnosis-node",
+	})
+	require.NoError(t, err)
+
+	mysqlSvc, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "mysql-diagnosis-svc",
+		NodeID:      node.NodeID,
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(3306)),
+	})
+	require.NoError(t, err)
+
+	pgSvc, err := models.AddNewService(db.Querier, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "pg-diagnosis-no-agent",
+		NodeID:      node.NodeID,
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(5432)),
+	})
+	require.NoError(t, err)
+
+	internalPG, err := models.AddNewService(db.Querier, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
+		ServiceName: models.PMMServerPostgreSQLServiceName,
+		NodeID:      node.NodeID,
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(5432)),
+	})
+	require.NoError(t, err)
+
+	t.Run("internal PMM Server PostgreSQL rejected", func(t *testing.T) {
+		res, output, err := s.TestAdvisorCheck(ctx, pgCheck, internalPG.ServiceID)
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Equal(t,
+			"PMM Server's internal PostgreSQL database cannot be targeted by advisor checks",
+			status.Convert(err).Message())
+		assert.Nil(t, res)
+		assert.Empty(t, output)
+	})
+
+	t.Run("service of another type rejected", func(t *testing.T) {
+		res, output, err := s.TestAdvisorCheck(ctx, pgCheck, mysqlSvc.ServiceID)
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Equal(t,
+			"Service 'mysql-diagnosis-svc' is a mysql service, but this check targets postgresql services",
+			status.Convert(err).Message())
+		assert.Nil(t, res)
+		assert.Empty(t, output)
+	})
+
+	t.Run("service without pmm-agent rejected", func(t *testing.T) {
+		res, output, err := s.TestAdvisorCheck(ctx, pgCheck, pgSvc.ServiceID)
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Equal(t,
+			"Service 'pg-diagnosis-no-agent' has no compatible pmm-agent: it may be missing, disconnected or outdated",
+			status.Convert(err).Message())
+		assert.Nil(t, res)
+		assert.Empty(t, output)
+	})
+
+	// keep last: it flips the shared test DB settings
+	t.Run("advisors disabled", func(t *testing.T) {
+		settings, err := models.GetSettings(db)
+		require.NoError(t, err)
+
+		settings.SaaS.Enabled = new(false)
+		err = models.SaveSettings(db, settings)
+		require.NoError(t, err)
+
+		res, output, err := s.TestAdvisorCheck(ctx, c, "svc-1")
+		require.ErrorIs(t, err, services.ErrAdvisorsDisabled)
+		assert.Nil(t, res)
+		assert.Empty(t, output)
 	})
 }
 
@@ -359,38 +691,20 @@ func TestFilterChecks(t *testing.T) {
 
 	valid := []check.Advisor{
 		{
-			Name:        "mysql_advisor",
-			Summary:     "MySQL advisor",
-			Description: "Test mySQL advisor",
-			Category:    "test",
+			Category: "MySQL",
 			Checks: []check.Check{
-				{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
-				{Name: "MySQLSelect", Version: 1, Type: check.MySQLSelect},
 				{Name: "MySQL check V2", Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.MySQLSelect}}},
 			},
 		},
 		{
-			Name:        "postgresql_advisor",
-			Summary:     "PostgreSQL advisor",
-			Description: "Test postgreSQL advisor",
-			Category:    "test",
+			Category: "PostgreSQL",
 			Checks: []check.Check{
-				{Name: "PostgreSQLShow", Version: 1, Type: check.PostgreSQLShow},
-				{Name: "PostgreSQLSelect", Version: 1, Type: check.PostgreSQLSelect},
 				{Name: "PostgreSQL check V2", Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}},
 			},
 		},
 		{
-			Name:        "mongodb_advisor",
-			Summary:     "MongoDB advisor",
-			Description: "Test mongoDB advisor",
-			Category:    "test",
+			Category: "MongoDB",
 			Checks: []check.Check{
-				{Name: "MongoDBGetParameter", Version: 1, Type: check.MongoDBGetParameter},
-				{Name: "MongoDBBuildInfo", Version: 1, Type: check.MongoDBBuildInfo},
-				{Name: "MongoDBGetCmdLineOpts", Version: 1, Type: check.MongoDBGetCmdLineOpts},
-				{Name: "MongoDBReplSetGetStatus", Version: 1, Type: check.MongoDBReplSetGetStatus},
-				{Name: "MongoDBGetDiagnosticData", Version: 1, Type: check.MongoDBGetDiagnosticData},
 				{Name: "MongoDB check V2", Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}, {Type: check.MongoDBGetParameter}, {Type: check.MongoDBGetCmdLineOpts}}},
 			},
 		},
@@ -398,23 +712,17 @@ func TestFilterChecks(t *testing.T) {
 
 	invalid := []check.Advisor{
 		{
-			Name:        "completely_invalid_advisor",
-			Summary:     "Completely invalid advisor",
-			Description: "Test advisor that contains only unsupported checks",
-			Category:    "test",
+			Category: "CompletelyInvalid",
 			Checks: []check.Check{
-				{Name: "unsupported version", Version: maxSupportedVersion + 1, Type: check.MySQLShow},
-				{Name: "unsupported type", Version: 1, Type: check.Type("RedisInfo")},
+				{Name: "unsupported version", Version: check.MaxSupportedVersion + 1, Queries: []check.Query{{Type: check.MySQLShow}}},
+				{Name: "unsupported type", Version: 2, Queries: []check.Query{{Type: check.Type("RedisInfo")}}},
 			},
 		},
 		{
-			Name:        "partially_invalid_advisor",
-			Summary:     "Partially invalid advisor",
-			Description: "Test advisor that contains some unsupported checks",
-			Category:    "test",
+			Category: "PartiallyInvalid",
 			Checks: []check.Check{
-				{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
-				{Name: "missing type", Version: 1},
+				{Name: "MySQLShow", Version: 2, Queries: []check.Query{{Type: check.MySQLShow}}},
+				{Name: "unsupported type", Version: 2, Queries: []check.Query{{Type: check.Type("RedisInfo")}}},
 			},
 		},
 	}
@@ -438,16 +746,16 @@ func TestMinPMMAgents(t *testing.T) {
 		check      check.Check
 		minVersion *version.Parsed
 	}{
-		{name: "MySQLShow", minVersion: pmmAgent2_6_0, check: check.Check{Version: 1, Type: check.MySQLShow}},
-		{name: "MySQLSelect", minVersion: pmmAgent2_6_0, check: check.Check{Version: 1, Type: check.MySQLSelect}},
-		{name: "PostgreSQLShow", minVersion: pmmAgent2_6_0, check: check.Check{Version: 1, Type: check.PostgreSQLShow}},
-		{name: "PostgreSQLSelect", minVersion: pmmAgent2_6_0, check: check.Check{Version: 1, Type: check.PostgreSQLSelect}},
-		{name: "MongoDBGetParameter", minVersion: pmmAgent2_6_0, check: check.Check{Version: 1, Type: check.MongoDBGetParameter}},
-		{name: "MongoDBBuildInfo", minVersion: pmmAgent2_6_0, check: check.Check{Version: 1, Type: check.MongoDBBuildInfo}},
-		{name: "MongoDBGetCmdLineOpts", minVersion: pmmAgent2_7_0, check: check.Check{Version: 1, Type: check.MongoDBGetCmdLineOpts}},
-		{name: "MySQL Family", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.MySQLSelect}}}},
-		{name: "MongoDB Family", minVersion: pmmAgent2_7_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}, {Type: check.MongoDBGetParameter}, {Type: check.MongoDBGetCmdLineOpts}}}},
-		{name: "PostgreSQL Family", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}}},
+		{name: "MySQLShow", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MySQLShow}}}},
+		{name: "MySQLSelect", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MySQLSelect}}}},
+		{name: "PostgreSQLShow", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}}}},
+		{name: "PostgreSQLSelect", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLSelect}}}},
+		{name: "MongoDBGetParameter", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBGetParameter}}}},
+		{name: "MongoDBBuildInfo", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}}}},
+		{name: "MongoDBGetCmdLineOpts", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBGetCmdLineOpts}}}},
+		{name: "MySQL Technology", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.MySQLSelect}}}},
+		{name: "MongoDB Technology", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}, {Type: check.MongoDBGetParameter}, {Type: check.MongoDBGetCmdLineOpts}}}},
+		{name: "PostgreSQL Technology", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}}},
 	}
 
 	s := New(nil, nil, vmClient, clickhouseDB)
@@ -514,7 +822,7 @@ func TestFindTargets(t *testing.T) {
 	t.Run("unknown service", func(t *testing.T) {
 		t.Parallel()
 
-		targets, err := s.findTargets(models.PostgreSQLServiceType, nil)
+		targets, err := s.findTargets(t.Context(), models.PostgreSQLServiceType, nil, nil)
 		require.NoError(t, err)
 		assert.Empty(t, targets)
 	})
@@ -550,12 +858,71 @@ func TestFindTargets(t *testing.T) {
 			t.Run(test.name, func(t *testing.T) {
 				t.Parallel()
 
-				targets, err := s.findTargets(models.MySQLServiceType, test.minRequiredVersion)
+				targets, err := s.findTargets(t.Context(), models.MySQLServiceType, test.minRequiredVersion, nil)
 				require.NoError(t, err)
 				assert.Len(t, targets, test.count)
 			})
 		}
 	})
+}
+
+func TestFindTargetsSkipsOnlyInternalPostgreSQL(t *testing.T) {
+	// NOTE: no t.Parallel() - testdb.Open recreates a single shared database, so concurrent
+	// testdb tests collide.
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	s := New(db, nil, vmClient, clickhouseDB)
+
+	// A user service registered on the PMM Server node must still be a valid target.
+	setup(t, db, "mysql-on-pmm-node", models.PMMServerNodeID, "")
+
+	mysqlTargets, err := s.findTargets(t.Context(), models.MySQLServiceType, nil, nil)
+	require.NoError(t, err)
+	require.Len(t, mysqlTargets, 1)
+	assert.Equal(t, "mysql-on-pmm-node", mysqlTargets[0].ServiceName)
+
+	// PMM Server's internal PostgreSQL must be skipped, leaving no PostgreSQL targets.
+	pgTargets, err := s.findTargets(t.Context(), models.PostgreSQLServiceType, nil, nil)
+	require.NoError(t, err)
+	assert.Empty(t, pgTargets)
+}
+
+func TestListTestTargets(t *testing.T) {
+	// NOTE: no t.Parallel() - testdb.Open recreates a single shared database, so concurrent
+	// testdb tests collide.
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	s := New(db, nil, vmClient, clickhouseDB)
+
+	setup(t, db, "mysql-b", models.PMMServerNodeID, "")
+	setup(t, db, "mysql-a", models.PMMServerNodeID, "")
+
+	targets, err := s.ListTestTargets(t.Context(), check.MySQL)
+	require.NoError(t, err)
+	require.Len(t, targets, 2)
+	// sorted by service name
+	assert.Equal(t, "mysql-a", targets[0].ServiceName)
+	assert.Equal(t, "mysql-b", targets[1].ServiceName)
+
+	// the internal PMM Server PostgreSQL is monitored but not a target
+	pgTargets, err := s.ListTestTargets(t.Context(), check.PostgreSQL)
+	require.NoError(t, err)
+	assert.Empty(t, pgTargets)
+
+	// unknown technology rejected
+	_, err = s.ListTestTargets(t.Context(), check.Technology("unknown"))
+	require.Error(t, err)
+	assert.Equal(t, codes.InvalidArgument, status.Code(err))
 }
 
 func TestFilterChecksByInterval(t *testing.T) {
@@ -582,143 +949,6 @@ func TestFilterChecksByInterval(t *testing.T) {
 
 	frequentChecks := s.filterChecks(checks, check.Frequent, nil, nil)
 	assert.Equal(t, map[string]check.Check{"frequentCheck": frequentCheck}, frequentChecks)
-}
-
-func TestGetFailedChecks(t *testing.T) {
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-	t.Cleanup(func() {
-		require.NoError(t, sqlDB.Close())
-	})
-
-	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
-
-	t.Run("no failed check for service", func(t *testing.T) {
-		s := New(db, nil, vmClient, clickhouseDB)
-
-		results, err := s.GetChecksResults(t.Context(), "test_svc")
-		assert.Empty(t, results)
-		require.NoError(t, err)
-	})
-
-	t.Run("non empty failed checks", func(t *testing.T) {
-		checkResults := []services.CheckResult{
-			{
-				CheckName: "test_check",
-				Interval:  check.Frequent,
-				Target: services.Target{
-					ServiceName: "test_svc1",
-					ServiceID:   "test_svc1",
-					Labels: map[string]string{
-						"targetLabel": "targetLabelValue",
-					},
-				},
-				Result: check.Result{
-					Summary:     "Check summary",
-					Description: "Check description",
-					ReadMoreURL: "https://www.example.com",
-					Severity:    common.Error,
-					Labels: map[string]string{
-						"resultLabel": "reslutLabelValue",
-					},
-				},
-			},
-			{
-				CheckName: "test_check2",
-				Interval:  check.Frequent,
-				Target: services.Target{
-					ServiceName: "test_svc2",
-					ServiceID:   "test_svc2",
-					Labels: map[string]string{
-						"targetLabel": "targetLabelValue",
-					},
-				},
-				Result: check.Result{
-					Summary:     "Check summary",
-					Description: "Check description",
-					ReadMoreURL: "https://www.example.com",
-					Severity:    common.Error,
-					Labels: map[string]string{
-						"resultLabel": "reslutLabelValue",
-					},
-				},
-			},
-		}
-
-		s := New(db, nil, vmClient, clickhouseDB)
-		s.alertsRegistry.set(checkResults)
-
-		response, err := s.GetChecksResults(t.Context(), "")
-		require.NoError(t, err)
-		assert.ElementsMatch(t, checkResults, response)
-	})
-
-	t.Run("non empty failed checks for specific service", func(t *testing.T) {
-		checkResults := []services.CheckResult{
-			{
-				CheckName: "test_check",
-				Interval:  check.Frequent,
-				Target: services.Target{
-					ServiceName: "test_svc1",
-					ServiceID:   "test_svc1",
-					Labels: map[string]string{
-						"targetLabel": "targetLabelValue",
-					},
-				},
-				Result: check.Result{
-					Summary:     "Check summary",
-					Description: "Check description",
-					ReadMoreURL: "https://www.example.com",
-					Severity:    common.Error,
-					Labels: map[string]string{
-						"resultLabel": "reslutLabelValue",
-					},
-				},
-			},
-			{
-				CheckName: "test_check2",
-				Interval:  check.Frequent,
-				Target: services.Target{
-					ServiceName: "test_svc2",
-					ServiceID:   "test_svc2",
-					Labels: map[string]string{
-						"targetLabel": "targetLabelValue",
-					},
-				},
-				Result: check.Result{
-					Summary:     "Check summary",
-					Description: "Check description",
-					ReadMoreURL: "https://www.example.com",
-					Severity:    common.Error,
-					Labels: map[string]string{
-						"resultLabel": "reslutLabelValue",
-					},
-				},
-			},
-		}
-
-		s := New(db, nil, vmClient, clickhouseDB)
-		s.alertsRegistry.set(checkResults)
-
-		response, err := s.GetChecksResults(t.Context(), "test_svc1")
-		require.NoError(t, err)
-		require.Len(t, response, 1)
-		assert.Equal(t, checkResults[0], response[0])
-	})
-
-	t.Run("Advisors disabled", func(t *testing.T) {
-		s := New(db, nil, vmClient, clickhouseDB)
-
-		settings, err := models.GetSettings(db)
-		require.NoError(t, err)
-
-		settings.SaaS.Enabled = new(false)
-		err = models.SaveSettings(db, settings)
-		require.NoError(t, err)
-
-		results, err := s.GetChecksResults(t.Context(), "test_svc")
-		assert.Nil(t, results)
-		require.ErrorIs(t, err, services.ErrAdvisorsDisabled)
-	})
 }
 
 func TestFillQueryPlaceholders(t *testing.T) {
@@ -803,45 +1033,45 @@ func TestGroupChecksByDB(t *testing.T) {
 	t.Parallel()
 
 	checks := map[string]check.Check{
-		"MySQLShow":                {Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
-		"MySQLSelect":              {Name: "MySQLSelect", Version: 1, Type: check.MySQLSelect},
-		"PostgreSQLShow":           {Name: "PostgreSQLShow", Version: 1, Type: check.PostgreSQLShow},
-		"PostgreSQLSelect":         {Name: "PostgreSQLSelect", Version: 1, Type: check.PostgreSQLSelect},
-		"MongoDBGetParameter":      {Name: "MongoDBGetParameter", Version: 1, Type: check.MongoDBGetParameter},
-		"MongoDBBuildInfo":         {Name: "MongoDBBuildInfo", Version: 1, Type: check.MongoDBBuildInfo},
-		"MongoDBGetCmdLineOpts":    {Name: "MongoDBGetCmdLineOpts", Version: 1, Type: check.MongoDBGetCmdLineOpts},
-		"MongoDBReplSetGetStatus":  {Name: "MongoDBReplSetGetStatus", Version: 1, Type: check.MongoDBReplSetGetStatus},
-		"MongoDBGetDiagnosticData": {Name: "MongoDBGetDiagnosticData", Version: 1, Type: check.MongoDBGetDiagnosticData},
-		"unsupported type":         {Name: "unsupported type", Version: 1, Type: check.Type("RedisInfo")},
-		"missing type":             {Name: "missing type", Version: 1},
-		"MySQL family V2":          {Name: "MySQL family V2", Version: 2, Family: check.MySQL},
-		"PostgreSQL family V2":     {Name: "PostgreSQL family V2", Version: 2, Family: check.PostgreSQL},
-		"MongoDB family V2":        {Name: "MongoDB family V2", Version: 2, Family: check.MongoDB},
-		"missing family":           {Name: "missing family", Version: 2},
+		"mysql_1":            {Name: "mysql_1", Version: 2, Technology: check.MySQL},
+		"mysql_2":            {Name: "mysql_2", Version: 2, Technology: check.MySQL},
+		"mysql_3":            {Name: "mysql_3", Version: 2, Technology: check.MySQL},
+		"postgresql_1":       {Name: "postgresql_1", Version: 2, Technology: check.PostgreSQL},
+		"postgresql_2":       {Name: "postgresql_2", Version: 2, Technology: check.PostgreSQL},
+		"postgresql_3":       {Name: "postgresql_3", Version: 2, Technology: check.PostgreSQL},
+		"mongodb_1":          {Name: "mongodb_1", Version: 2, Technology: check.MongoDB},
+		"mongodb_2":          {Name: "mongodb_2", Version: 2, Technology: check.MongoDB},
+		"mongodb_3":          {Name: "mongodb_3", Version: 2, Technology: check.MongoDB},
+		"mongodb_4":          {Name: "mongodb_4", Version: 2, Technology: check.MongoDB},
+		"mongodb_5":          {Name: "mongodb_5", Version: 2, Technology: check.MongoDB},
+		"mongodb_6":          {Name: "mongodb_6", Version: 2, Technology: check.MongoDB},
+		"missing technology": {Name: "missing technology", Version: 2},
+		"unknown technology": {Name: "unknown technology", Version: 2, Technology: check.Technology("RedisTechnology")},
 	}
 
 	l := logrus.WithField("component", "tests")
 	mySQLChecks, postgreSQLChecks, mongoDBChecks := groupChecksByDB(l, checks)
 
+	// checks with a missing or unknown technology are skipped
 	require.Len(t, mySQLChecks, 3)
 	require.Len(t, postgreSQLChecks, 3)
 	require.Len(t, mongoDBChecks, 6)
 
-	// V1 checks
-	assert.Equal(t, check.MySQLShow, mySQLChecks["MySQLShow"].Type)
-	assert.Equal(t, check.MySQLSelect, mySQLChecks["MySQLSelect"].Type)
+	assert.Equal(t, check.MySQL, mySQLChecks["mysql_1"].Technology)
+	assert.Equal(t, check.PostgreSQL, postgreSQLChecks["postgresql_1"].Technology)
+	assert.Equal(t, check.MongoDB, mongoDBChecks["mongodb_1"].Technology)
+}
 
-	assert.Equal(t, check.PostgreSQLShow, postgreSQLChecks["PostgreSQLShow"].Type)
-	assert.Equal(t, check.PostgreSQLSelect, postgreSQLChecks["PostgreSQLSelect"].Type)
+func TestValidateAdvisorSeverity(t *testing.T) {
+	t.Parallel()
 
-	assert.Equal(t, check.MongoDBGetParameter, mongoDBChecks["MongoDBGetParameter"].Type)
-	assert.Equal(t, check.MongoDBBuildInfo, mongoDBChecks["MongoDBBuildInfo"].Type)
-	assert.Equal(t, check.MongoDBGetCmdLineOpts, mongoDBChecks["MongoDBGetCmdLineOpts"].Type)
-	assert.Equal(t, check.MongoDBReplSetGetStatus, mongoDBChecks["MongoDBReplSetGetStatus"].Type)
-	assert.Equal(t, check.MongoDBGetDiagnosticData, mongoDBChecks["MongoDBGetDiagnosticData"].Type)
+	for _, s := range []common.Severity{common.Critical, common.Error, common.Warning, common.Info} {
+		require.NoError(t, validateAdvisorSeverity(s))
+	}
 
-	// V2 checks
-	assert.Equal(t, check.MySQL, mySQLChecks["MySQL family V2"].Family)
-	assert.Equal(t, check.PostgreSQL, postgreSQLChecks["PostgreSQL family V2"].Family)
-	assert.Equal(t, check.MongoDB, mongoDBChecks["MongoDB family V2"].Family)
+	for _, s := range []common.Severity{common.Emergency, common.Alert, common.Notice, common.Debug, common.Unknown} {
+		err := validateAdvisorSeverity(s)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "use one of: critical, error, warning, info")
+	}
 }

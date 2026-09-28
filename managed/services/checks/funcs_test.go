@@ -58,7 +58,7 @@ def check_context(rows, context):
 	}
 	res, err := env.Run("type", input, nil, t.Log)
 	expectedErr := strings.TrimSpace(`
-thread type: failed to execute function check_context: parse_version: expected string argument, got int64 (1)
+failed to execute function check_context: parse_version: expected string argument, got int64 (1)
 Traceback (most recent call last):
   TestVersion:2:22: in check_context
   <builtin>: in parse_version
@@ -71,7 +71,7 @@ Traceback (most recent call last):
 	}
 	res, err = env.Run("foo", input, nil, t.Log)
 	expectedErr = strings.TrimSpace(`
-thread foo: failed to execute function check_context: parse_version: failed to parse "foo"
+failed to execute function check_context: parse_version: failed to parse "foo"
 Traceback (most recent call last):
   TestVersion:2:22: in check_context
   <builtin>: in parse_version
@@ -123,7 +123,7 @@ def check_context(rows, context):
     }]
 	`),
 			err: strings.TrimSpace(`
-thread too many args: failed to execute function check_context: ip_is_private: expected 1 argument, got 2
+failed to execute function check_context: ip_is_private: expected 1 argument, got 2
 Traceback (most recent call last):
   TestAdditionalContext/too_many_args:7:55: in check_context
   <builtin>: in ip_is_private
@@ -162,7 +162,7 @@ def check_context(rows, context):
     }]
 	`),
 			err: strings.TrimSpace(`
-thread invalid arg type: failed to execute function check_context: ip_is_private: expected string argument, got int64 (1)
+failed to execute function check_context: ip_is_private: expected string argument, got int64 (1)
 Traceback (most recent call last):
   TestAdditionalContext/invalid_arg_type:7:55: in check_context
   <builtin>: in ip_is_private

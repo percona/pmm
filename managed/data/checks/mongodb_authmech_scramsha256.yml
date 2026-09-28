@@ -4,9 +4,9 @@ checks:
     name: mongodb_authmech_scramsha256
     summary: MongoDB Security AuthMech Check
     description: This check returns warnings if MongoDB is not using the default SHA-256 hashing function as its SCRAM authentication method.
-    family: MONGODB
-    #author: Kimberly Wilkins
-    advisor: security_configuration
+    technology: MONGODB
+    # author: Kimberly Wilkins
+    category: Security
     interval: standard
     queries:
       - type: MONGODB_GETPARAMETER
@@ -20,11 +20,11 @@ checks:
 
           rows = docs[0]
           if len(rows) != 1:
-              return "Unexpected number of documents"
+              return "unexpected number of documents: {}".format(len(rows))
 
           results = []
-          parsed = rows[0]["parsed"]
-          authMechanism = "SCRAM-SHA-256" not in parsed.get("authenicationMechanisms")
+          authMechanisms = rows[0].get("authenticationMechanisms", [])
+          authMechanism = "SCRAM-SHA-256" not in authMechanisms
 
           if authMechanism:
               results.append({

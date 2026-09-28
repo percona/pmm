@@ -5,9 +5,9 @@ checks:
     summary: Anonymous user (you must remove any anonymous user)
     description: Anonymous user should never be present, that is a security safe best practices.
     interval: standard
-    advisor: security_authentication
-    #author: The Grinch
-    family: MYSQL
+    category: Security
+    # author: The Grinch
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service, count(user) found,group_concat( concat(user,'@',host) separator'; ') user from mysql.user where user like '' group by version, service;"

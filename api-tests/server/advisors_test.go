@@ -50,30 +50,6 @@ func TestStartChecks(t *testing.T) {
 	})
 }
 
-func TestGetAdvisorCheckResults(t *testing.T) {
-	t.Run("with disabled Advisors", func(t *testing.T) {
-		toggleAdvisorChecks(t, false)
-		t.Cleanup(func() { RestoreSettingsDefaults(t) })
-
-		results, err := advisorClient.Default.AdvisorService.GetFailedChecks(nil)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `advisor checks are disabled.`)
-		assert.Nil(t, results)
-	})
-
-	t.Run("with enabled Advisors", func(t *testing.T) {
-		toggleAdvisorChecks(t, true)
-		t.Cleanup(func() { RestoreSettingsDefaults(t) })
-
-		resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(nil)
-		require.NoError(t, err)
-		assert.NotNil(t, resp)
-
-		results, err := advisorClient.Default.AdvisorService.GetFailedChecks(nil)
-		require.NoError(t, err)
-		assert.NotNil(t, results)
-	})
-}
-
 func TestListAdvisorChecks(t *testing.T) {
 	toggleAdvisorChecks(t, true)
 	t.Cleanup(func() { RestoreSettingsDefaults(t) })
@@ -98,11 +74,7 @@ func TestListAdvisors(t *testing.T) {
 	assert.NotNil(t, resp)
 	assert.NotEmpty(t, resp.Payload.Advisors)
 	for _, a := range resp.Payload.Advisors {
-		assert.NotEmpty(t, a.Name, "%+v", a)
-		assert.NotEmpty(t, a.Summary, "%+v", a)
-		assert.NotEmpty(t, a.Description, "%+v", a)
 		assert.NotEmpty(t, a.Category, "%+v", a)
-		assert.NotEmpty(t, a.Comment, "%+v", a)
 		assert.NotEmpty(t, a.Checks, "%+v", a)
 
 		for _, c := range a.Checks {

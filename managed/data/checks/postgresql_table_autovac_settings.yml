@@ -4,9 +4,9 @@ checks:
     name: postgresql_table_autovac_settings
     summary: Check whether there is any table level autovacuum settings
     description: This check returns those tables where autovacuum parameters are specified along with autovacuum settings specified
-    family: POSTGRESQL
-    #author: Jobin Augustine
-    advisor: configuration_vacuum
+    technology: POSTGRESQL
+    # author: Jobin Augustine
+    category: Maintenance
     interval: standard
     queries:
       - type: POSTGRESQL_SELECT
@@ -18,15 +18,24 @@ checks:
       # thresholds
       # RECOMMENDED_MAX_VALUE="on"
 
+      def format_list(items, cap=10):
+          if len(items) > cap:
+              return "; ".join(items[:cap]) + "; and {} more".format(len(items) - cap)
+          return "; ".join(items)
+
       def check_context(docs, context):
           results = []
+          tables = []
           for row in docs[0]:
-              tabname, opts = row["relname"], row["opts"]
+              tables.append("{} ({})".format(row["relname"], row["opts"]))
+
+          if tables:
               results.append({
-                  "summary": "Table level autovacuum settings are existing",
-                  "description": "Table {} has autovacuum settings {}".format(tabname, opts),
+                  "summary": "{} table(s) with table-level autovacuum settings".format(len(tables)),
+                  "description": "The following tables override the global autovacuum settings: {}.".format(format_list(tables)),
                   "read_more_url": read_url.format("postgresql-tables-per-table-vacuum-settings"),
-                  "severity": "notice"
+                  "severity": "warning",
+                  "labels": {"count": str(len(tables))},
               })
 
           return results

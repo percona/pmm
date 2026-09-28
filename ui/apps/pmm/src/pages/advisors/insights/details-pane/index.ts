@@ -1,0 +1,1 @@
+export { InsightDetailsPane } from './InsightDetailsPane';

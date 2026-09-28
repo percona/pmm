@@ -30,8 +30,12 @@ import (
 
 type clientStub struct{}
 
-func (clientStub) getRole(context.Context, http.Header) (role, error) {
-	return grafanaAdmin, nil
+func (clientStub) getAuthUser(context.Context, http.Header, *logrus.Entry) (authUser, error) {
+	return authUser{role: grafanaAdmin}, nil
+}
+
+func (clientStub) rotateSessionToken(context.Context, http.Header) ([]string, error) {
+	return nil, nil
 }
 
 func Fuzz(data []byte) int {
@@ -45,7 +49,7 @@ func Fuzz(data []byte) int {
 		return 0
 	}
 
-	_ = s.authenticate(context.Background(), req, logrus.NewEntry(logrus.StandardLogger()))
+	_, _, _ = s.authenticate(context.Background(), req, logrus.NewEntry(logrus.StandardLogger()))
 
 	return 1
 }

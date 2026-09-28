@@ -40,7 +40,7 @@ type grafanaClient interface { //nolint:iface
 // We use it instead of real type to avoid dependency cycle.
 //
 // FIXME Rename to victoriaMetrics.Service, update tests.
-type prometheusService interface { //nolint:iface
+type prometheusService interface {
 	RequestConfigurationUpdate()
 	// ForceConfigurationUpdate triggers immediate synchronous configuration update,
 	// bypassing the batch delay. Use this for critical updates like port changes.
@@ -51,15 +51,15 @@ type prometheusService interface { //nolint:iface
 // checksService is a subset of methods of checks.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface {
-	StartChecks(checkNames []string) error
+	StartChecks(checkNames, serviceIDs []string) (string, error)
 	UpdateAdvisorsList(ctx context.Context)
-	CleanupAlerts()
+	CleanupCheckResults()
 	UpdateIntervals(rare, standard, frequent time.Duration)
 }
 
 // vmAlertService is a subset of methods of vmalert.Service used by this package.
 // We use it instead of real type to avoid dependency cycle.
-type vmAlertService interface { //nolint:iface
+type vmAlertService interface {
 	RequestConfigurationUpdate()
 	healthChecker
 }
