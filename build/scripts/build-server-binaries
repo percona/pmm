@@ -164,11 +164,13 @@ main() {
             exit 1
         fi
 
+        # Recipes share this shell; don't let one reuse the previous one's functions.
+        unset -f key build
+        . ${bin_dir}/server/${component}
+
         # The recipe holds the build instructions and the version pins that
         # used to live in the spec file, so its own commit is part of the key.
         local recipe=build/scripts/server/${component}
-        . ${bin_dir}/server/${component}
-
         cached_build ${component} $(key)-$(get_shortcommit pmm ${recipe})
     done
 }
