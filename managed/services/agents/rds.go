@@ -67,6 +67,18 @@ func mergeLabels(node *models.Node, agent *models.Agent) (model.LabelSet, error)
 	return res, nil
 }
 
+// checkRDSExporterSupported returns an error when exporter must not be sent to pmmAgent.
+// A role-based rds_exporter needs pmm-agent 3.4.0: an older one accepts the config, reports
+// RUNNING and scrapes nothing. Both models.CreateAgent and models.ChangeAgent refuse such a row,
+// but they only see the version reported when the row is saved, so a pmm-agent downgraded since
+// then is caught here, every time its state is sent.
+func checkRDSExporterSupported(pmmAgent, exporter *models.Agent) error {
+	if exporter.AWSOptions.AWSRoleARN == "" {
+		return nil
+	}
+	return models.IsAgentSupported(pmmAgent, "AWS IAM role assumption", models.PMMAgentMinVersionForAWSRoleARN)
+}
+
 // rdsExporterConfig returns desired configuration of rds_exporter process.
 func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMode, pmmAgentVersion *version.Parsed) (*agentv1.SetStateRequest_AgentProcess, error) {
 	config := rdsExporterConfigFile{

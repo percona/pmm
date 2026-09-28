@@ -292,6 +292,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			agentProcesses[row.AgentID] = params
 
 		case models.RDSExporterType:
+			err := checkRDSExporterSupported(pmmAgent, row)
+			if err != nil {
+				l.Warnf("Leaving rds_exporter %s out of the state of pmm-agent %s: %s.", row.AgentID, agent.id, err)
+				continue
+			}
 			node, err := getNode(pointer.GetString(row.NodeID))
 			if err != nil {
 				return err

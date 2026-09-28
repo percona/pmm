@@ -19,6 +19,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -182,4 +183,55 @@ instances:
 
 	require.Equal(t, expected, actual.TextFiles["config"])
 	require.Equal(t, []string{}, actual.RedactWords)
+}
+
+func TestCheckRDSExporterSupported(t *testing.T) {
+	t.Parallel()
+
+	pmmAgent := func(v string) *models.Agent {
+		agent := &models.Agent{AgentID: "pmm-agent", AgentType: models.PMMAgentType}
+		if v != "" {
+			agent.Version = &v
+		}
+		return agent
+	}
+	keysExporter := &models.Agent{
+		AgentID:    "keys",
+		AgentType:  models.RDSExporterType,
+		AWSOptions: models.AWSOptions{AWSAccessKey: "AKIAIOSFODNN7EXAMPLE", AWSSecretKey: "secret"},
+	}
+	roleExporter := &models.Agent{
+		AgentID:    "role",
+		AgentType:  models.RDSExporterType,
+		AWSOptions: models.AWSOptions{AWSRoleARN: "arn:aws:iam::123456789012:role/pmm-monitoring"},
+	}
+
+	t.Run("static keys on any version", func(t *testing.T) {
+		t.Parallel()
+
+		assert.NoError(t, checkRDSExporterSupported(pmmAgent("3.3.1"), keysExporter))
+		assert.NoError(t, checkRDSExporterSupported(pmmAgent(""), keysExporter))
+	})
+
+	t.Run("role on 3.4.0", func(t *testing.T) {
+		t.Parallel()
+
+		assert.NoError(t, checkRDSExporterSupported(pmmAgent("3.4.0"), roleExporter))
+		assert.NoError(t, checkRDSExporterSupported(pmmAgent("3.4.0-beta1"), roleExporter))
+	})
+
+	t.Run("role on a downgraded pmm-agent", func(t *testing.T) {
+		t.Parallel()
+
+		err := checkRDSExporterSupported(pmmAgent("3.3.1"), roleExporter)
+		var notSupported models.AgentNotSupportedError
+		require.ErrorAs(t, err, &notSupported)
+		assert.Equal(t, "3.3.1", notSupported.AgentVersion)
+	})
+
+	t.Run("role on a pmm-agent without a version", func(t *testing.T) {
+		t.Parallel()
+
+		require.Error(t, checkRDSExporterSupported(pmmAgent(""), roleExporter))
+	})
 }
