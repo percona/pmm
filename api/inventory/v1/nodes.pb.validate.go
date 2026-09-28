@@ -2878,6 +2878,8 @@ func (m *RemoveNodeResponse) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for Warning
+
 	if len(errors) > 0 {
 		return RemoveNodeResponseMultiError(errors)
 	}

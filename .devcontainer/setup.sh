@@ -56,6 +56,8 @@ install_node() {
     # corepack's own package ships yarn/yarnpkg shims too; --force lets the real yarn
     # binary below win over those.
     npm install -g yarn@1.22.22 --force
+    # pnpm is not pinned here: corepack resolves it from the `packageManager`
+    # field in ui/package.json on first use.
     corepack enable pnpm
     node --version
     yarn --version

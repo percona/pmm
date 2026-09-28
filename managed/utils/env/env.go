@@ -41,6 +41,9 @@ const (
 	// EnableInternalPgQAN is used to enable Query Analytics for PMM's internal PostgreSQL.
 	EnableInternalPgQAN = "PMM_ENABLE_INTERNAL_PG_QAN"
 
+	// EnableExtensions is used to enable PMM Extensions.
+	EnableExtensions = "PMM_ENABLE_EXTENSIONS"
+
 	// ClickHouseNodes is used to store the ClickHouse nodes.
 	ClickHouseNodes = "PMM_CLICKHOUSE_NODES"
 
@@ -61,6 +64,18 @@ func GetBool(key string) bool {
 		return false
 	}
 	return b
+}
+
+// ExtensionsEnabled reports whether PMM Extensions is enabled for this process.
+//
+// It deliberately does not use GetBool. The container entrypoint decides whether
+// to render the side-car's nginx locations and start the side-car, and it treats only "1"
+// and "true" as enabled. Accepting the wider set strconv.ParseBool allows would
+// let the API report PMM Extensions as enabled on a deployment whose entrypoint judged it
+// disabled, leaving the UI offering links nginx cannot route.
+func ExtensionsEnabled() bool {
+	v, ok := os.LookupEnv(EnableExtensions)
+	return ok && (v == "1" || v == "true")
 }
 
 // GetStringSlice returns the string slice value of the environment variable.
