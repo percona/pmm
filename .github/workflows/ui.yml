@@ -9,7 +9,6 @@ on:
       - "api-tests/**"
       - "dev/docs/**"
       - "documentation/**"
-      - "dashboards/**"
       - "managed/**"
       - "qan-api2/**"
       - "vmproxy/**"
@@ -39,6 +38,20 @@ jobs:
           node-version-file: ui/.nvmrc
           cache: pnpm
           cache-dependency-path: ui/pnpm-lock.yaml
+
+      # pmm-app's src/dashboards is a symlink to the top-level dashboards/ folder,
+      # so a renamed or deleted dashboard JSON breaks plugin.json includes.
+      # Paths are resolved through the symlink, so a broken symlink fails too.
+      - name: Verify plugin.json dashboard paths exist
+        working-directory: ${{ github.workspace }}/ui/apps/pmm-app/src
+        run: |
+          missing=$(jq -r '.includes[] | select(.path) | .path' plugin.json \
+            | while read -r p; do [ -f "$p" ] || echo "$p"; done)
+          if [ -n "$missing" ]; then
+            echo "::error::plugin.json references dashboard files that do not exist:"
+            echo "$missing" | sed 's/^/  - /'
+            exit 1
+          fi
 
       - name: Check formatting
         run: make format-check

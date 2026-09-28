@@ -13,6 +13,7 @@
     "node_modules",
     "pnpm-lock.yaml",
     "storybook-static",
-    "**/.config/**"
+    "**/.config/**",
+    "apps/pmm-app/src/dashboards/**/*.json"
   ]
 }

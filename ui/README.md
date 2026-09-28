@@ -25,6 +25,7 @@ This repo uses the following stack across its packages:
 
 - **pmm** — main PMM UI application
 - **pmm-compat** — Grafana plugin that handles communication between Grafana and PMM UI
+- **pmm-app** — Grafana app plugin bundling the PMM dashboards (from the top-level `dashboards/` folder) and the Query Analytics panel
 
 ## Packages
 
@@ -45,14 +46,14 @@ Then **inside the container**:
 make run-ui
 ```
 
-`run-ui` installs UI dependencies, symlinks the `pmm-compat` plugin into Grafana's plugin directory, injects livereload into Grafana's `index.html` (`setup-livereload`), and starts Vite on port `5173`.
+`run-ui` installs UI dependencies, symlinks the `pmm-compat` and `pmm-app` plugins into Grafana's plugin directory, injects livereload into Grafana's `index.html` (`setup-livereload`), and starts every app's dev server: Vite on port `5173`, and webpack + livereload for `pmm-compat` (port `35729`) and `pmm-app` (port `35730`). `pmm-app` also syncs dashboard JSON edits from the top-level `dashboards/` folder into Grafana — see [`apps/pmm-app/CONTRIBUTING.md`](apps/pmm-app/CONTRIBUTING.md).
 
 Open `https://localhost/` — Grafana loads the `pmm-compat` plugin, which fetches the main UI from the Vite dev server. Edits under `ui/apps/pmm/src/` hot-reload in the browser without a full page refresh.
 
 Notes:
 
 - The Vite port is configurable via `PMM_PORT_VITE` in your `.env` (see `.env.dev.example`); it defaults to `5173`.
-- `run-ui` installs an EXIT trap that restores the original `pmm-compat-app` plugin and restarts Grafana when you Ctrl-C. Don't kill the container mid-run, or the restore is skipped.
+- `run-ui` installs an EXIT trap that restores the original `pmm-compat-app` and `pmm-app` plugins and restarts Grafana when you Ctrl-C. Don't kill the container mid-run, or the restore is skipped.
 - For a one-shot build deployed into the container's system paths, use `make build-ui` instead.
 
 ### Update Grafana in the devcontainer

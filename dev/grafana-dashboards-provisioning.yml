@@ -1,0 +1,13 @@
+# Dev-only override of build/ansible/roles/grafana/files/dashboards.yml:
+# polls the provisioned dashboards every 5s (instead of 60s) so dashboard JSON
+# edits synced by `make run-ui` show up in Grafana almost immediately.
+apiVersion: 1
+
+providers:
+  - name: 'percona_dashboards'
+    orgId: 1
+    type: file
+    updateIntervalSeconds: 5
+    options:
+      path: /usr/share/percona-dashboards/panels/pmm-app/dist/dashboards/
+      foldersFromFilesStructure: true

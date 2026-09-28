@@ -1,0 +1,24 @@
+{
+  "extends": "./.config/tsconfig.json",
+  "include": ["src", "types"],
+  "compilerOptions": {
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["jest", "mocha", "grafana"],
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    // Dependencies that don't declare an @types/react peer (antd, rc-*, react-final-form, ...)
+    // would otherwise resolve React types to the workspace-hoisted @types/react 19 used by
+    // apps/pmm. Pin them to this package's React 18 types.
+    "paths": {
+      "react": ["../node_modules/@types/react"],
+      "react/*": ["../node_modules/@types/react/*"],
+      "react-dom": ["../node_modules/@types/react-dom"],
+      "react-dom/*": ["../node_modules/@types/react-dom/*"]
+    }
+  }
+}

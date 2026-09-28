@@ -1,0 +1,9 @@
+# development
+.env/
+docker-compose.*.y*ml
+
+# PMM-specific
+pmm-app.tar.gz
+video/
+pr.browsers.json
+tests/output/

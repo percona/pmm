@@ -8,7 +8,7 @@ import requests
 HOST = 'https://pmmdemo.percona.com/graph'
 API_KEY = '***'
 
-DIR = 'pmm-app/src/dashboards/'
+DIR = './'
 TEMPLATE_VARS = ['host', 'device', 'mountpoint', 'proxysql', 'hostgroup', 'cluster', 'instance', 'replset']
 
 def main():

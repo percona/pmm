@@ -16,7 +16,7 @@ import unittest
 
 REPO = os.environ.get('PMM_REPO', os.getcwd())
 SCRIPT = os.path.join(REPO, 'dashboards', 'misc', 'cleanup-dash.py')
-DASH_DIR = os.path.join(REPO, 'dashboards', 'dashboards')
+DASH_DIR = os.path.join(REPO, 'dashboards')
 
 
 def load_module():

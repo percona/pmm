@@ -9,13 +9,14 @@ The `/ui` directory contains the PMM web frontend — a React/TypeScript applica
 
 ### Monorepo Structure
 
-The UI uses a **pnpm workspaces + Turborepo** monorepo with three packages:
+The UI uses a **pnpm workspaces + Turborepo** monorepo. The main packages:
 
-| Package         | Path                  | Purpose                                                       |
-| --------------- | --------------------- | ------------------------------------------------------------- |
-| **pmm**         | `ui/apps/pmm/`        | Main PMM UI application (Vite + React)                        |
-| **pmm-compat**  | `ui/apps/pmm-compat/` | Grafana plugin for PMM ↔ Grafana integration (Webpack)        |
-| **@pmm/shared** | `ui/packages/shared/` | Shared code: cross-frame messaging, types, utilities (Rollup) |
+| Package         | Path                  | Purpose                                                                                                                    |
+| --------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **pmm**         | `ui/apps/pmm/`        | Main PMM UI application (Vite + React)                                                                                     |
+| **pmm-compat**  | `ui/apps/pmm-compat/` | Grafana plugin for PMM ↔ Grafana integration (Webpack)                                                                     |
+| **pmm-app**     | `ui/apps/pmm-app/`    | Grafana app plugin: PMM dashboards + Query Analytics panel (Webpack). See [apps/pmm-app/AGENTS.md](apps/pmm-app/AGENTS.md) |
+| **@pmm/shared** | `ui/packages/shared/` | Shared code: cross-frame messaging, types, utilities (Rollup)                                                              |
 
 ### Key Technology Choices
 
@@ -29,8 +30,8 @@ The UI uses a **pnpm workspaces + Turborepo** monorepo with three packages:
 | **TanStack Query (React Query)** | Server state management (API caching, mutations)     |
 | **React Context**                | UI/auth state (AuthProvider, SettingsProvider, etc.) |
 | **Vitest**                       | Unit testing (main app)                              |
-| **Jest**                         | Unit testing (shared package)                        |
-| **Webpack**                      | Build for Grafana plugin (pmm-compat)                |
+| **Jest**                         | Unit testing (shared package, Grafana plugins)       |
+| **Webpack**                      | Build for Grafana plugins (pmm-compat, pmm-app)      |
 | **Rollup**                       | Build for shared package                             |
 | **pnpm (via Corepack)**          | Package manager and workspaces                       |
 | **Turborepo**                    | Task runner across the workspace                     |
@@ -137,11 +138,15 @@ The app is wrapped in `ThemeContextProvider` (see `App.tsx`); style with the the
   built-in plugin the rules rely on — setting it replaces oxlint's default set,
   and a rule whose plugin is missing is silently inert.
 - **Formatter**: oxfmt, configured in `ui/.oxfmtrc.json`. It owns formatting;
-  there is no Prettier and no formatting rule in the linter.
+  there is no Prettier and no formatting rule in the linter. Dashboard JSON
+  (`/dashboards`, also reached through `apps/pmm-app/src/dashboards`) is
+  excluded — `dashboards/misc/cleanup-dash.py` formats it, see
+  [dashboards/AGENTS.md](../dashboards/AGENTS.md).
 - **Scope**: build/test config files (`vite.config.ts`, `vitest.config.ts`,
   `webpack.config.ts`, `jest.config.js`) are linted like any other source. The
-  only exclusion is `apps/pmm-compat/.config/`, Grafana's auto-generated plugin
-  scaffold, which upstream regenerates and tells you not to edit.
+  only exclusion is `.config/` in the Grafana plugins (`apps/pmm-compat/`,
+  `apps/pmm-app/`), Grafana's auto-generated plugin scaffold, which upstream
+  regenerates and tells you not to edit.
 - **Run**: `make lint`, `make format` (or `make format-check`, which is what CI
   runs in `.github/workflows/ui.yml`).
 
@@ -170,7 +175,7 @@ make lint
 make format        # make format-check in CI
 ```
 
-Inside the PMM devcontainer (`make env-up` then `make env` from the repo root), `make run-ui` (main UI HMR via Vite on port 5173) and `make run-qan-ui` (QAN livereload on port 35730) replace `make dev` and wire the dev servers into the bundled Grafana automatically. See `ui/README.md` for details.
+Inside the PMM devcontainer (`make env-up` then `make env` from the repo root), `make run-ui` replaces `make dev` and wires every dev server into the bundled Grafana automatically: Vite HMR for the main UI (port 5173), and webpack + livereload for `pmm-compat` (port 35729) and `pmm-app`/QAN (port 35730). `pmm-app` also syncs dashboard JSON edits from the top-level `dashboards/` folder into Grafana. See `ui/README.md` for details.
 
 ## Key Files to Reference
 

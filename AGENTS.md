@@ -58,8 +58,8 @@ Each PMM component has a dedicated guide with architecture, directory structure,
 | **qan-api2** (query analytics) | [qan-api2/AGENTS.md](qan-api2/AGENTS.md) | `qan-api2/**` |
 | **vmproxy** (VictoriaMetrics proxy) | [vmproxy/AGENTS.md](vmproxy/AGENTS.md) | `vmproxy/**` |
 | **UI** (React frontend) | [ui/AGENTS.md](ui/AGENTS.md) | `ui/**` |
-| **Dashboards** (Grafana dashboard definitions) | [dashboards/dashboards/AGENTS.md](dashboards/dashboards/AGENTS.md) | `dashboards/dashboards/**` |
-| **QAN App** (Grafana plugin & QAN panel) | [dashboards/pmm-app/AGENTS.md](dashboards/pmm-app/AGENTS.md) | `dashboards/pmm-app/**` |
+| **Dashboards** (Grafana dashboard definitions) | [dashboards/AGENTS.md](dashboards/AGENTS.md) | `dashboards/**` |
+| **QAN App** (Grafana plugin & QAN panel) | [ui/apps/pmm-app/AGENTS.md](ui/apps/pmm-app/AGENTS.md) | `ui/apps/pmm-app/**` |
 | **API Tests** (integration tests) | [api-tests/AGENTS.md](api-tests/AGENTS.md) | `api-tests/**` |
 | **Build & Packaging** | [build/AGENTS.md](build/AGENTS.md) | `build/**` |
 | **Documentation** (user docs & release notes) | [documentation/AGENTS.md](documentation/AGENTS.md) | `documentation/**` |
@@ -130,7 +130,7 @@ PMM has three test layers ([`CONTRIBUTING.md`](CONTRIBUTING.md)): unit, API inte
 | `.proto` or gRPC/REST definitions | `make gen`, then `make check`; update handlers in `managed/` and UI hooks if user-facing |
 | REST behavior end-to-end | `make env-up`, then `make api-test` ([`api-tests/AGENTS.md`](api-tests/AGENTS.md)) |
 | UI (anything under `ui/`) | `cd ui && make lint && make test` |
-| Grafana dashboard JSON (`dashboards/dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` (or run cleanup without `--check-only`); CI enforces this in `dashboards.yml` ([`dashboards/dashboards/AGENTS.md`](dashboards/dashboards/AGENTS.md)) |
+| Grafana dashboard JSON (`dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` (or run cleanup without `--check-only`); CI enforces this in `dashboards.yml` ([`dashboards/AGENTS.md`](dashboards/AGENTS.md)). Adding, renaming or deleting one also needs `ui/apps/pmm-app/src/plugin.json` kept in sync — CI `ui.yml` checks its `includes` |
 | User documentation (`documentation/`) | `make doc-build-preview` and read the rendered page; CI runs `linkspector` on every docs PR ([`documentation/AGENTS.md`](documentation/AGENTS.md)) |
 
 ## Linting decision tree
@@ -144,9 +144,9 @@ The Go linter is `bin/golangci-lint`, pinned to the version CI uses. Install it 
 | Go backend (`managed/`, `agent/`, `admin/`, `qan-api2/`, `vmproxy/`, shared packages) | `make prepare-pr` from repo root (or `make check` after `make gen` for a quicker pass) |
 | `.proto` only | `make gen`, then `make check` (`buf lint`, `golangci-lint`, `go-sumtype`) |
 | UI (anything under `ui/`) | `cd ui && make lint && make format-check` (oxlint + oxfmt across every workspace package; same as CI `ui.yml`) |
-| Grafana dashboard JSON (`dashboards/dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` before commit (CI `dashboards.yml`; no separate JS linter) |
+| Grafana dashboard JSON (`dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` before commit (CI `dashboards.yml`; no separate JS linter) |
 | `dashboards/misc/cleanup-dash.py`, `dashboards/misc/test_*.py` | No linter; run the suite — see the [Testing decision tree](#testing-decision-tree). The other scripts in `dashboards/misc/` have no automated coverage |
-| Grafana plugin / QAN app (`dashboards/pmm-app`) | `cd dashboards/pmm-app && yarn lint:check` (and `yarn typecheck` if TypeScript changed) |
+| Grafana plugin / QAN app (`ui/apps/pmm-app`) | Covered by the UI row above; add `cd ui/apps/pmm-app && pnpm typecheck` if TypeScript changed |
 | Before any PR | Run the row(s) that match **every** area you touched; fix errors, not just warnings, unless CI allows them |
 
 ---
@@ -442,8 +442,7 @@ All long-running daemons expose on `127.0.0.1`:
 | `make env-up-rebuild` | Rebuild development container from scratch |
 | `make env TARGET=<t>` | Run `make <t>` **inside** the `pmm-server` container as the `pmm` user (bash shell if `TARGET` omitted); use `make env-root` for build/test/lint targets |
 | `make env-root TARGET=run-managed-ci` | Rebuild + hot-swap the pmm-managed binary (no image rebuild); see [running and verifying locally](dev/docs/process/running-and-verifying-locally.md). Also `run-agent-ci`, `run-qan-ci`, `run-vmproxy-ci`, `run-all` |
-| `make run-ui` | Inside devcontainer: Vite HMR for the main PMM UI |
-| `make run-qan-ui` | Inside devcontainer: webpack + livereload for the QAN Grafana plugin |
+| `make run-ui` | Inside devcontainer: Vite HMR for the main PMM UI, webpack + livereload for `pmm-compat` and the QAN Grafana plugin (`pmm-app`), and dashboard JSON sync into Grafana |
 | `make doc-build-preview` | Preview user docs (`documentation/docs/`) with live reload at http://localhost:8000 |
 | `make doc-build` | Build user docs (used in CI); `make doc-build-pdf` for the PDF |
 | `make gen` | Generate all code (protobuf, reform, mocks, format) |
