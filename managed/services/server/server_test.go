@@ -459,16 +459,16 @@ func TestUpdateStatus(t *testing.T) {
 func TestConvertReadOnlySettings(t *testing.T) {
 	s := &Server{}
 
-	t.Run("reports SEP as enabled when the process was started with it", func(t *testing.T) {
-		t.Setenv(env.EnableSEP, "1")
+	t.Run("reports PMM Extensions as enabled when the process was started with it", func(t *testing.T) {
+		t.Setenv(pkgenv.EnableExtensions, "1")
 
-		assert.True(t, s.convertReadOnlySettings(&models.Settings{}).SepEnabled)
+		assert.True(t, s.convertReadOnlySettings(&models.Settings{}).ExtensionsEnabled)
 	})
 
-	t.Run("reports SEP as disabled when the variable is absent", func(t *testing.T) {
-		t.Setenv(env.EnableSEP, "")
-		os.Unsetenv(env.EnableSEP)
+	t.Run("reports PMM Extensions as disabled when the variable is absent", func(t *testing.T) {
+		t.Setenv(pkgenv.EnableExtensions, "")
+		os.Unsetenv(pkgenv.EnableExtensions)
 
-		assert.False(t, s.convertReadOnlySettings(&models.Settings{}).SepEnabled)
+		assert.False(t, s.convertReadOnlySettings(&models.Settings{}).ExtensionsEnabled)
 	})
 }
