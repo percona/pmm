@@ -422,21 +422,7 @@ export interface OmInventoryHost {
   freshness: OmInventoryFreshness;
   /** The services on it. Empty is a meaningful answer, not a gap. */
   services: OmInventoryService[];
-  /**
-   * Whether PMM's own agent registry currently has a connected pmm-agent for
-   * this node - independent of `executor`, which is Nomad/PMM Extensions' own signal.
-   * This is the "PMM-Client installed and healthy" half of automation
-   * eligibility that `executor` alone cannot answer: a node can be a known,
-   * probed host in OM's estate while its agent has since disconnected.
-   */
   pmm_agent_connected: boolean;
-  /**
-   * Whether this host is eligible for OM automation (a probe today;
-   * provisioning in a later phase): `pmm_agent_connected` is true and
-   * `executor` reports reachable and driver-healthy. Computed server-side so
-   * every consumer agrees on one definition - see `automation_blocked_reasons`
-   * for why not, when this is false.
-   */
   automation_eligible: boolean;
   /** Every unmet condition behind `automation_eligible: false`. Empty when true. */
   automation_blocked_reasons: string[];
