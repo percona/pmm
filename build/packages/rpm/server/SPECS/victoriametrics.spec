@@ -43,7 +43,7 @@ install -D -p -m 0755 ./bin/vmalert-pure %{buildroot}%{_sbindir}/vmalert
 
 
 %changelog
-- Mon Sep 28 2026 Alex Demidoff <alexander.demidoff@percona.com> - 1.152.0-1
+* Mon Sep 28 2026 Alex Demidoff <alexander.demidoff@percona.com> - 1.152.0-1
 - upgrade victoriametrics to 1.152.0 release
 
 * Fri Aug 14 2026 Alex Demidoff <alexander.demidoff@percona.com> - 1.149.0-1
