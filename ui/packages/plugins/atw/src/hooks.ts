@@ -28,7 +28,7 @@ import {
   normalizePluginListResponse,
   type PluginListResult,
   type PaginatedPluginList,
-} from '@sep/api';
+} from '@pmm-extensions/api';
 import type {
   AtwBatchExecuteResponse,
   AtwBatchExecuteWrite,

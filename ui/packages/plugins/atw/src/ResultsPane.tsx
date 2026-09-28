@@ -36,7 +36,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import SendIcon from '@mui/icons-material/Send';
-import { useAuth } from '@sep/api';
+import { useAuth } from '@pmm-extensions/api';
 import {
   ActionErrorAlert,
   TaskFilesDialog,
@@ -46,7 +46,7 @@ import {
   isTaskHistoryStatus,
   useActionError,
   useHasDownloadableFiles,
-} from '@sep/framework';
+} from '@pmm-extensions/framework';
 import { buildBatchPayload } from './CollectPane';
 import {
   ATW_PAGE_SIZE,
@@ -590,7 +590,7 @@ function ExecutionRow({
   // Probed only once the run is finished: a running task's file listing is
   // not yet meaningful, and the endpoint's answer for it is not stable.
   const hasFiles = useHasDownloadableFiles(task_history_id, selectable);
-  // `has_logs` reports only the log SEP has already captured, which trails a
+  // `has_logs` reports only the log PMM Extensions has already captured, which trails a
   // running execution — sometimes by its whole length — so while it runs the
   // viewer's own stream is what shows the output. Not while it is pending: the
   // log route refuses a pending run, and the viewer does not reconnect once it
