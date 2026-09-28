@@ -23,7 +23,7 @@ import {
 } from '../src/constants';
 import { omBase } from '../src/useOmBase';
 
-const MOUNT = '/sep/om';
+const MOUNT = '/om';
 
 describe('omBase', () => {
   it('is the path itself on the index route', () => {

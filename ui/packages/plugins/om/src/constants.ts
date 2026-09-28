@@ -200,7 +200,7 @@ export const RUN_STATUS_COLOR: Record<OmTopologyRunStatus, ChipProps['color']> =
  *
  * The raw keys are what the app calls them and what the API takes; these are what a
  * reader should see. Anything not named here falls back to its key, so a setting added
- * in SEP still renders rather than disappearing from the form.
+ * in PMM Extensions still renders rather than disappearing from the form.
  */
 export const SETTING_LABEL: Record<string, string> = {
   SCHEDULE__every: 'Sweep every',

@@ -190,7 +190,7 @@ func TestSourcesOrdering(t *testing.T) {
 	})
 
 	t.Run("with a probe configured, probe is appended last", func(t *testing.T) {
-		client := &sepClient{baseURL: "http://sep.example", http: nil}
+		client := &extensionsClient{baseURL: "http://sep.example", http: nil}
 		svc := &Service{
 			l:     logrus.WithField("test", t.Name()),
 			probe: &probeSource{app: client.app(probeAppModule), l: logrus.WithField("source", sourceProbe)},

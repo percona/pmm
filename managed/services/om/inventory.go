@@ -31,7 +31,7 @@ import (
 	omv1 "github.com/percona/pmm/api/om/v1"
 )
 
-// The /v1/om/inventory/* handlers: SEP's estate, served through PMM.
+// The /v1/om/inventory/* handlers: PMM Extensions' estate, served through PMM.
 //
 // Two different things are called a "run" one path segment apart, so they are mounted
 // apart on purpose. /v1/om/topology/runs is PMM's *own* collection pass -- inventory
@@ -46,9 +46,9 @@ import (
 
 // defaultInventoryRunLimit is what a caller who passes no limit gets, and
 // maxInventoryRunLimit is the most one can ask for. The ceiling exists because the value
-// is forwarded to SEP verbatim: without it a caller could ask the inventory app for an
+// is forwarded to PMM Extensions verbatim: without it a caller could ask the inventory app for an
 // unbounded page and wait on it through this proxy. Matches the proto's own
-// ListInventoryRunsRequest.limit validation (lte: 100) and SEP's le=100 -- any of the
+// ListInventoryRunsRequest.limit validation (lte: 100) and PMM Extensions' le=100 -- any of the
 // three drifting from the others makes one of them dead code, since the request has to
 // clear all of them to reach the database.
 const (
@@ -56,19 +56,19 @@ const (
 	maxInventoryRunLimit     = 100
 )
 
-// inventoryProbe returns the configured SEP client, or an error saying it is not.
+// inventoryProbe returns the configured PMM Extensions client, or an error saying it is not.
 //
 // Reported as FailedPrecondition rather than Unimplemented or NotFound: the endpoints
-// exist and work, the deployment has simply not been told where SEP is, and that is an
+// exist and work, the deployment has simply not been told where PMM Extensions is, and that is an
 // operator's action rather than a missing feature.
 //
-// Returns sepApp, not *probeSource: the inventory handlers below only ever need to call
+// Returns extensionsApp, not *probeSource: the inventory handlers below only ever need to call
 // against om_inventory, never any of probeSource's own factSource behaviour, and holding
 // the narrower handle is what keeps this file from knowing probeSource exists at all.
-func (s *Service) inventoryProbe() (sepApp, error) {
+func (s *Service) inventoryProbe() (extensionsApp, error) {
 	if s.probe == nil {
-		return sepApp{}, status.Error(codes.FailedPrecondition,
-			"SEP is not configured; set PMM_SEP_URL and PMM_SEP_TOKEN to reach the inventory app")
+		return extensionsApp{}, status.Error(codes.FailedPrecondition,
+			"PMM Extensions is not configured; set PMM_EXTENSIONS_URL and PMM_EXTENSIONS_TOKEN to reach the inventory app")
 	}
 	return s.probe.app, nil
 }
@@ -91,7 +91,7 @@ func (s *Service) ListInventoryHosts(ctx context.Context, req *omv1.ListInventor
 		query.Set("executor", strconv.FormatBool(req.GetExecutor()))
 	}
 
-	hosts := []sepHost{}
+	hosts := []extensionsHost{}
 	call := inventoryCall{method: http.MethodGet, path: "hosts", query: query}
 	err = probe.call(ctx, call, &hosts)
 	if err != nil {
@@ -112,7 +112,7 @@ func (s *Service) GetInventoryHost(ctx context.Context, req *omv1.GetInventoryHo
 		return nil, err
 	}
 
-	host := sepHost{}
+	host := extensionsHost{}
 	call := inventoryCall{method: http.MethodGet, path: inventoryPath("hosts", req.GetNodeId())}
 	err = probe.call(ctx, call, &host)
 	if err != nil {
@@ -155,7 +155,7 @@ func (s *Service) ListInventoryServices(ctx context.Context, req *omv1.ListInven
 		query.Set("failing", strconv.FormatBool(req.GetFailing()))
 	}
 
-	services := []sepService{}
+	services := []extensionsService{}
 	call := inventoryCall{method: http.MethodGet, path: "services", query: query}
 	err = probe.call(ctx, call, &services)
 	if err != nil {
@@ -176,7 +176,7 @@ func (s *Service) GetInventoryService(ctx context.Context, req *omv1.GetInventor
 		return nil, err
 	}
 
-	service := sepService{}
+	service := extensionsService{}
 	call := inventoryCall{method: http.MethodGet, path: inventoryPath("services", req.GetServiceId())}
 	err = probe.call(ctx, call, &service)
 	if err != nil {
@@ -227,7 +227,7 @@ func (s *Service) ListInventoryRuns(ctx context.Context, req *omv1.ListInventory
 		query.Set("until", until.AsTime().UTC().Format(time.RFC3339Nano))
 	}
 
-	runs := []sepRun{}
+	runs := []extensionsRun{}
 	call := inventoryCall{method: http.MethodGet, path: "runs", query: query}
 	err = probe.call(ctx, call, &runs)
 	if err != nil {
@@ -248,7 +248,7 @@ func (s *Service) GetInventoryRun(ctx context.Context, req *omv1.GetInventoryRun
 		return nil, err
 	}
 
-	run := sepRun{}
+	run := extensionsRun{}
 	call := inventoryCall{method: http.MethodGet, path: inventoryPath("runs", req.GetRunId())}
 	err = probe.call(ctx, call, &run)
 	if err != nil {
@@ -300,7 +300,7 @@ func (s *Service) TriggerInventoryRefresh(ctx context.Context, req *omv1.Trigger
 
 	response := &omv1.TriggerInventoryRefreshResponse{
 		RunId:  accepted.RunID,
-		Status: sepRunStatusToProto(accepted.Status),
+		Status: extensionsRunStatusToProto(accepted.Status),
 		Scope:  accepted.Scope,
 	}
 	if accepted.StartedAt != nil {
@@ -318,7 +318,7 @@ func (s *Service) GetInventoryConfig(ctx context.Context, _ *omv1.GetInventoryCo
 		return nil, err
 	}
 
-	settings := []sepSetting{}
+	settings := []extensionsSetting{}
 	call := inventoryCall{method: http.MethodGet, path: "config"}
 	err = probe.call(ctx, call, &settings)
 	if err != nil {
@@ -338,7 +338,7 @@ func (s *Service) GetInventoryConfig(ctx context.Context, _ *omv1.GetInventoryCo
 // protojson accepts 200k fields in a 2.3MB body, inside the 4MB default gRPC message
 // size, and nests to just under 10k before refusing. The app on the far side is Python,
 // where the default recursion limit is 1000, so forwarding either would make PMM the
-// thing that broke SEP. This endpoint is admin-only, which makes it a footgun rather
+// thing that broke PMM Extensions. This endpoint is admin-only, which makes it a footgun rather
 // than an attack, but a 200k-key batch is an accident worth refusing by name.
 const (
 	maxConfigFields = 100
@@ -393,7 +393,7 @@ func exceedsDepth(value *structpb.Value, limit int) bool {
 // checked here, by validateConfigValues.
 //
 // PUT here, PATCH to the app below, deliberately. PMM's API guidelines require the
-// standard Update method to be PUT and every other update in this repo is one; SEP
+// standard Update method to be PUT and every other update in this repo is one; PMM Extensions
 // reaches the same overrides through a generic settings router that PATCHes
 // `/{setting_class}` for every app, so the verb there is not this app's to pick.
 // Translating one method is what a proxy is for.
@@ -407,7 +407,7 @@ func (s *Service) UpdateInventoryConfig(ctx context.Context, req *omv1.UpdateInv
 		return nil, err
 	}
 
-	applied := []sepSetting{}
+	applied := []extensionsSetting{}
 	call := inventoryCall{method: http.MethodPatch, path: "config", body: req.GetValues().AsMap()}
 	err = probe.call(ctx, call, &applied)
 	if err != nil {
@@ -426,7 +426,7 @@ func (s *Service) UpdateInventoryConfig(ctx context.Context, req *omv1.UpdateInv
 	// This also retires the rule the UI had to follow -- "re-read after a write, never
 	// echo the submitted value" -- by doing it once here, for every caller rather than
 	// only the ones that remembered.
-	current := []sepSetting{}
+	current := []extensionsSetting{}
 	read := inventoryCall{method: http.MethodGet, path: "config"}
 	err = probe.call(ctx, read, &current)
 	if err != nil {
@@ -457,7 +457,7 @@ func (s *Service) DeleteInventoryConfigOverride(
 }
 
 // inventoryHostToProto projects one host row for the wire.
-func inventoryHostToProto(host sepHost) *omv1.InventoryHost {
+func inventoryHostToProto(host extensionsHost) *omv1.InventoryHost {
 	out := &omv1.InventoryHost{
 		NodeId:              host.NodeID,
 		Name:                host.Name,
@@ -468,7 +468,7 @@ func inventoryHostToProto(host sepHost) *omv1.InventoryHost {
 		Executor:            executorToProto(host.Observed),
 		UnregisteredMongods: unregisteredMongodsToProto(host.Observed),
 		Observed:            observedToStruct(host.Observed),
-		Freshness:           freshnessToProto(host.sepFreshness),
+		Freshness:           freshnessToProto(host.extensionsFreshness),
 		Services:            make([]*omv1.InventoryService, 0, len(host.Services)),
 	}
 	for _, service := range host.Services {
@@ -478,7 +478,7 @@ func inventoryHostToProto(host sepHost) *omv1.InventoryHost {
 }
 
 // inventoryServiceToProto projects one service row for the wire.
-func inventoryServiceToProto(service sepService) *omv1.InventoryService {
+func inventoryServiceToProto(service extensionsService) *omv1.InventoryService {
 	return &omv1.InventoryService{
 		ServiceId:        service.ServiceID,
 		NodeId:           service.NodeID,
@@ -494,15 +494,15 @@ func inventoryServiceToProto(service sepService) *omv1.InventoryService {
 		UptimeSeconds:    observedDouble(service.Observed, "uptime_seconds"),
 		ReplicationSet:   observedString(service.Observed, "replication_set"),
 		Observed:         observedToStruct(service.Observed),
-		Freshness:        freshnessToProto(service.sepFreshness),
+		Freshness:        freshnessToProto(service.extensionsFreshness),
 	}
 }
 
 // inventoryRunToProto projects one refresh for the wire.
-func inventoryRunToProto(run sepRun) *omv1.InventoryRun {
+func inventoryRunToProto(run extensionsRun) *omv1.InventoryRun {
 	return &omv1.InventoryRun{
 		RunId:     run.RunID,
-		Status:    sepRunStatusToProto(run.Status),
+		Status:    extensionsRunStatusToProto(run.Status),
 		StartTime: optionalTimestamp(run.StartedAt),
 		EndTime:   optionalTimestamp(run.FinishedAt),
 		Counts: &omv1.InventoryRunCounts{
@@ -531,7 +531,7 @@ func inventoryRunToProto(run sepRun) *omv1.InventoryRun {
 // refresh runs. TaskHistoryID is the one exception, and not a contradiction of that
 // rule: it carries no observation, only a pointer to where the dispatch's raw output
 // -- the observations that were deliberately *not* kept here -- can still be read.
-func inventoryRunEntitiesToProto(nodes []sepRunNode) []*omv1.InventoryRunEntity {
+func inventoryRunEntitiesToProto(nodes []extensionsRunNode) []*omv1.InventoryRunEntity {
 	entities := make([]*omv1.InventoryRunEntity, 0, len(nodes))
 	for _, node := range nodes {
 		services := make([]*omv1.InventoryRunEntityService, 0, len(node.Services))
@@ -547,7 +547,7 @@ func inventoryRunEntitiesToProto(nodes []sepRunNode) []*omv1.InventoryRunEntity 
 			NodeId:          node.NodeID,
 			HostName:        optionalString(node.HostName),
 			ExecutorHost:    optionalString(node.ExecutorHost),
-			Resolution:      sepResolutionToProto(node.Resolution),
+			Resolution:      extensionsResolutionToProto(node.Resolution),
 			Answered:        node.Answered,
 			DurationSeconds: optionalDouble(node.Duration),
 			TaskHistoryId:   node.TaskHistoryID,
@@ -559,7 +559,7 @@ func inventoryRunEntitiesToProto(nodes []sepRunNode) []*omv1.InventoryRunEntity 
 }
 
 // inventorySettingsToProto projects the configuration rows for the wire.
-func inventorySettingsToProto(settings []sepSetting) []*omv1.InventorySetting {
+func inventorySettingsToProto(settings []extensionsSetting) []*omv1.InventorySetting {
 	out := make([]*omv1.InventorySetting, 0, len(settings))
 	for _, setting := range settings {
 		out = append(out, &omv1.InventorySetting{
@@ -567,7 +567,7 @@ func inventorySettingsToProto(settings []sepSetting) []*omv1.InventorySetting {
 			Value:        anyToValue(setting.Value),
 			DefaultValue: anyToValue(setting.DefaultValue),
 			Type:         setting.Type,
-			Reload:       sepReloadToProto(setting.Reload),
+			Reload:       extensionsReloadToProto(setting.Reload),
 			HasOverride:  setting.HasOverride,
 			IsAdvanced:   setting.IsAdvanced,
 			Description:  optionalString(setting.Description),
@@ -577,7 +577,7 @@ func inventorySettingsToProto(settings []sepSetting) []*omv1.InventorySetting {
 }
 
 // freshnessToProto projects the freshness block.
-func freshnessToProto(f sepFreshness) *omv1.InventoryFreshness {
+func freshnessToProto(f extensionsFreshness) *omv1.InventoryFreshness {
 	return &omv1.InventoryFreshness{
 		FirstSeenAt:         optionalTimestamp(f.FirstSeenAt),
 		LastAttemptAt:       optionalTimestamp(f.LastAttemptAt),
@@ -591,7 +591,7 @@ func freshnessToProto(f sepFreshness) *omv1.InventoryFreshness {
 // executorToProto lifts the executor block out of the host document.
 //
 // Returns nil when the app reported none, which is not the same as three false flags:
-// absent means "this sweep did not say", while false means "SEP looked and the answer
+// absent means "this sweep did not say", while false means "PMM Extensions looked and the answer
 // was no".
 func executorToProto(observed map[string]any) *omv1.InventoryExecutor {
 	nested, ok := observed["executor"].(map[string]any)
@@ -696,7 +696,7 @@ func observedString(observed map[string]any, key string) *string {
 
 // clampInt32 narrows a count that arrived as a JSON number.
 //
-// SEP's counter is decoded into an int, which is 64-bit here, so a plain conversion could
+// PMM Extensions' counter is decoded into an int, which is 64-bit here, so a plain conversion could
 // wrap and report a negative number of consecutive failures. Saturating instead keeps the
 // column monotonic: a reader learns "very many", never "minus two billion".
 func clampInt32(value int) int32 {
@@ -789,8 +789,8 @@ func parseSepTime(stamp string) *timestamppb.Timestamp {
 // falls through to UNSPECIFIED, which is how "the app said something new" reaches a caller
 // as an unknown rather than as a plausible wrong answer.
 
-// sepRunStatusToProto maps the app's run status onto the wire enum.
-func sepRunStatusToProto(status string) omv1.RunStatus {
+// extensionsRunStatusToProto maps the app's run status onto the wire enum.
+func extensionsRunStatusToProto(status string) omv1.RunStatus {
 	switch status {
 	case "running":
 		return omv1.RunStatus_RUN_STATUS_RUNNING
@@ -807,8 +807,8 @@ func sepRunStatusToProto(status string) omv1.RunStatus {
 	}
 }
 
-// sepResolutionToProto maps how the app matched a host to an executor client.
-func sepResolutionToProto(resolution string) omv1.ExecutorResolution {
+// extensionsResolutionToProto maps how the app matched a host to an executor client.
+func extensionsResolutionToProto(resolution string) omv1.ExecutorResolution {
 	switch resolution {
 	case "name":
 		return omv1.ExecutorResolution_EXECUTOR_RESOLUTION_NAME
@@ -821,13 +821,13 @@ func sepResolutionToProto(resolution string) omv1.ExecutorResolution {
 	}
 }
 
-// sepReloadToProto maps a setting's reload class.
+// extensionsReloadToProto maps a setting's reload class.
 //
 // Mirrors ReloadClassification in the app's settings registry one-for-one. Collapsing
 // nested_only into "not overridable" was the tempting simplification and it is wrong: a
 // nested parent rejects a whole-object write while its children accept one, so a form
 // reading the parent would refuse to edit a leaf the API accepts.
-func sepReloadToProto(reload string) omv1.SettingReload {
+func extensionsReloadToProto(reload string) omv1.SettingReload {
 	switch reload {
 	case "hot":
 		return omv1.SettingReload_SETTING_RELOAD_HOT

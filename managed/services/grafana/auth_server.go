@@ -164,7 +164,7 @@ var methodRules = map[string]role{
 
 	// OM's inventory surface reads as viewer (see "/v1/om" above) but writes here.
 	//
-	// Refreshing is editor rather than admin. It runs SEP's fixed probe payload on the
+	// Refreshing is editor rather than admin. It runs PMM Extensions' fixed probe payload on the
 	// hosts it covers -- nothing the caller supplies, no database touched -- and the
 	// per-host refresh is the button beside a row that answers "I just fixed this, is it
 	// healthy now". Requiring admin for that would put the routine question behind the

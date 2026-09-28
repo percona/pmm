@@ -1822,12 +1822,12 @@ func (x *TriggerTopologyCollectionResponse) GetStartTime() *timestamppb.Timestam
 	return nil
 }
 
-// InventoryExecutor reports whether SEP can run anything on a host.
+// InventoryExecutor reports whether PMM Extensions can run anything on a host.
 //
 // Three flags rather than one, because "orphaned" hid three different problems with
 // three different fixes: never onboarded (registered false), onboarded and down
 // (reachable false), and up with a broken raw_exec driver (driver_healthy false). This
-// is SEP's own knowledge rather than probe output, so it is filled in for every host
+// is PMM Extensions' own knowledge rather than probe output, so it is filled in for every host
 // on every sweep, including hosts no probe reached.
 type InventoryExecutor struct {
 	state protoimpl.MessageState `protogen:"open.v1"`

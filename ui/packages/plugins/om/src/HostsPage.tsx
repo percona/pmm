@@ -379,7 +379,7 @@ const HostDetail = ({ row }: { row: OmHostRow }) => {
  *
  * The per-row Forget button and the bulk one share this dialog: the only real
  * difference is how many names are in the title and how many DELETE calls go out.
- * SEP has no batch-delete endpoint, so a bulk forget is N independent requests, not
+ * PMM Extensions has no batch-delete endpoint, so a bulk forget is N independent requests, not
  * one. They are dispatched together and awaited together; a partial failure keeps
  * the dialog open with the failures named, rather than closing over an incomplete
  * result the reader would have to notice was incomplete.
@@ -614,9 +614,9 @@ export const HostsPage = () => {
   if (isError) {
     return (
       <Alert severity="error">
-        {/* An error here means SEP is unwell, and it renders inside the page rather
+        {/* An error here means PMM Extensions is unwell, and it renders inside the page rather
             than replacing it. That is the whole point of reaching the estate through
-            pmm-managed: before the proxy, a sick SEP blanked the page entirely. */}
+            pmm-managed: before the proxy, a sick PMM Extensions blanked the page entirely. */}
         {(error as Error)?.message ?? 'Could not load the host inventory.'}
       </Alert>
     );

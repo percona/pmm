@@ -24,12 +24,12 @@ import { OrgRole } from 'types/user.types';
 /**
  * Host chrome for the OM page.
  *
- * Deliberately not `SepPage`, which OM used while its backend was a SEP app. That
- * wrapper holds its children behind `SepAuthGate` until a SEP bearer has been minted
- * from the PMM session, and fails closed — so a SEP that is down, unconfigured or
+ * Deliberately not `ExtensionsPage`, which OM used while its backend was a PMM Extensions app. That
+ * wrapper holds its children behind `ExtensionsAuthGate` until a PMM Extensions bearer has been minted
+ * from the PMM session, and fails closed — so a PMM Extensions that is down, unconfigured or
  * refusing the exchange would blank a page whose data comes from pmm-managed's own
- * inventory, VictoriaMetrics and stored snapshot. OM has no SEP call on any browser
- * path, so it must not inherit SEP's availability.
+ * inventory, VictoriaMetrics and stored snapshot. OM has no PMM Extensions call on any browser
+ * path, so it must not inherit PMM Extensions' availability.
  *
  * The PMM-admin restriction is kept, and enforced here rather than left to the
  * sidebar: NavigationProvider only *hides* the entry for non-admins, while the route

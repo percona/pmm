@@ -31,9 +31,9 @@ import { ServicesPage } from './ServicesPage';
  * index route, with the service, host and refresh pages beside it.
  *
  * **All four mount here now.** Discovery used to live on its own route wrapped in
- * ``SepPage``, because it read SEP's app directly and needed a bearer minted from the
+ * ``ExtensionsPage``, because it read PMM Extensions' app directly and needed a bearer minted from the
  * PMM session that no other OM page did. Reading it through pmm-managed removes the
- * bearer, and with it the gate: ``SepAuthGate`` fails closed, so a SEP that was down,
+ * bearer, and with it the gate: ``ExtensionsAuthGate`` fails closed, so a PMM Extensions that was down,
  * unconfigured or refusing the exchange blanked the page entirely rather than letting
  * it render its own error.
  *

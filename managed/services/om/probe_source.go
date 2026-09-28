@@ -28,7 +28,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// probeSource reads on-host facts from SEP's om_inventory app.
+// probeSource reads on-host facts from PMM Extensions' om_inventory app.
 //
 // The facts it contributes are the ones nothing on this side can answer: the command
 // line a mongod was started with, the config file it read, and the *installed* binary
@@ -41,20 +41,20 @@ import (
 // an OM run in the tenth-of-a-second range with a source attached whose own work
 // takes tens of seconds.
 //
-// This is the only job a probeSource has. Where SEP is, how PMM authenticates to it and
-// how a request against it is built are sepApp's and sepClient's, in sep_client.go --
+// This is the only job a probeSource has. Where PMM Extensions is, how PMM authenticates to it and
+// how a request against it is built are extensionsApp's and extensionsClient's, in sep_client.go --
 // shared with inventory.go's proxy handlers rather than duplicated for them, and ready
-// for the next SEP-backed source to reuse the same way.
+// for the next side-car-backed source to reuse the same way.
 type probeSource struct {
 	// app is the zero value, with a nil client, when the source is not configured -- a
 	// normal state, reported as disabled rather than failed. See Service.WithProbeSource.
-	app sepApp
+	app extensionsApp
 	l   *logrus.Entry
 }
 
-// probeAppModule is where SEP mounts the inventory app: the module name under the
-// `/api/apps/<module>` convention every SEP app follows, and what Service.WithProbeSource
-// hands to sepClient.app to build this source's handle.
+// probeAppModule is where PMM Extensions mounts the inventory app: the module name under the
+// `/api/apps/<module>` convention every side-car app follows, and what Service.WithProbeSource
+// hands to extensionsClient.app to build this source's handle.
 const probeAppModule = "om_inventory"
 
 // probeServicesPath is the app's estate, flat. /hosts nests the same service rows
@@ -104,7 +104,7 @@ const probeRequestTimeout = 10 * time.Second
 func (s probeSource) collect(ctx context.Context, services []*models.Service) SourceResult {
 	result := SourceResult{Source: sourceProbe, Status: SourceDisabled}
 	if s.app.client == nil {
-		result.Detail = map[string]any{"reason": "no SEP endpoint configured"}
+		result.Detail = map[string]any{"reason": "no PMM Extensions endpoint configured"}
 		return result
 	}
 

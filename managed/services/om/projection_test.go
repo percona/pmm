@@ -210,7 +210,7 @@ func TestBuildDocument(t *testing.T) {
 		}, projectionNow, projectionMaxAge)
 
 		// Environments sort by the internal grouping key, so the unnamed bucket --
-		// "UNSPECIFIED" -- sorts ahead of "prod" by codepoint. Matches SEP, whose
+		// "UNSPECIFIED" -- sorts ahead of "prod" by codepoint. Matches PMM Extensions, whose
 		// sorted() orders the same way.
 		require.Len(t, doc.environments, 2)
 		assert.Nil(t, doc.environments[0].EnvName, "an unset environment is null, never invented")

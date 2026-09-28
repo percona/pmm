@@ -20,7 +20,7 @@
  *
  * A different source from `topologyHooks.ts`, on the same client and the same origin.
  * The topology document is PMM's own derivation, rebuilt per request in about a tenth
- * of a second, and it never touches a host. The estate is what SEP's probe found by
+ * of a second, and it never touches a host. The estate is what PMM Extensions' probe found by
  * running a payload on the hosts themselves.
  *
  * That difference is why the two are not merged into one hook file and, more
