@@ -451,6 +451,7 @@ nav:
               - pmm-upgrade/upgrade_podman.md
           - Upgrade PMM Server in K8s:
               - pmm-upgrade/upgrade_helm.md
+              - pmm-upgrade/upgrade_helm_ha.md
           - pmm-upgrade/migrating_from_pmm_2.md
           - pmm-upgrade/upgrade_aws.md
       - Upgrade PMM Client: pmm-upgrade/upgrade_client.md
@@ -465,6 +466,7 @@ nav:
       - troubleshoot/index.md
       - troubleshoot/checklist.md
       - troubleshoot/upgrade_issues.md
+      - troubleshoot/ha_issues.md
       - troubleshoot/config_issues.md
       - troubleshoot/exporter_issues.md
       - troubleshoot/alerting_issues.md
