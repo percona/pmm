@@ -54,8 +54,8 @@ func ParseVictoriaMetricsURL(vmURL string) (*url.URL, error) {
 
 	URL, err := url.Parse(vmURL)
 	if err != nil {
-		var urlErr *url.Error
-		if errors.As(err, &urlErr) {
+		urlErr, ok := errors.AsType[*url.Error](err)
+		if ok {
 			err = urlErr.Err
 		}
 		return nil, fmt.Errorf("invalid VictoriaMetrics URL: %w", err)

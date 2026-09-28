@@ -524,8 +524,8 @@ func checkVMAgentRemoteWriteOverride(envs []string) ([]error, []string) {
 	parsedURL, err := url.Parse(writeURL)
 	if err != nil {
 		// The URL may carry a password, so the error must not echo it.
-		var urlErr *url.Error
-		if errors.As(err, &urlErr) {
+		urlErr, ok := errors.AsType[*url.Error](err)
+		if ok {
 			err = urlErr.Err
 		}
 		return []error{fmt.Errorf("VMAGENT_remoteWrite_url is not a valid URL, and every vmagent PMM Server manages would refuse to start: %w", err)}, warns
