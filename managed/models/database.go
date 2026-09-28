@@ -1194,7 +1194,10 @@ var databaseSchema = [][]string{
 		// identifier as the address, so a bare address is the identifier. An endpoint address is
 		// left alone: its first label is only right for a standard instance endpoint, not for a
 		// cluster endpoint, a CNAME or an IP, and a wrong identifier is harder to spot than none.
-		`UPDATE nodes SET instance_id = address WHERE node_type = 'remote_rds' AND instance_id = '' AND address NOT LIKE '%.%'`,
+		// AWS stores DB instance identifiers in lowercase and rds_exporter matches them exactly,
+		// so identifiers stored as typed are lowercased too, as createNodeWithID now does.
+		`UPDATE nodes SET instance_id = lower(instance_id) WHERE node_type = 'remote_rds' AND instance_id <> lower(instance_id)`,
+		`UPDATE nodes SET instance_id = lower(address) WHERE node_type = 'remote_rds' AND instance_id = '' AND address NOT LIKE '%.%'`,
 	},
 }
 

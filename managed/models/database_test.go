@@ -410,6 +410,8 @@ func TestDatabaseMigrations(t *testing.T) {
 			('cluster', 'remote_rds', 'cluster', '', '', '', 'db-4.cluster-abc123.us-east-1.rds.amazonaws.com', '', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
 			('ip', 'remote_rds', 'ip', '', '', '', '10.0.3.7', '', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
 			('set', 'remote_rds', 'set', '', '', '', 'db-3.abc123.us-east-1.rds.amazonaws.com', 'db-3-custom', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
+			('mixed', 'remote_rds', 'mixed', '', '', '', 'MyDB', '', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
+			('set-mixed', 'remote_rds', 'set-mixed', '', '', '', 'db-5.abc123.us-east-1.rds.amazonaws.com', 'DB-5-Custom', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
 			('generic', 'generic', 'generic', '', '', '', 'host.example.com', '', NULL, '03/03/2014 02:03:04', '03/03/2014 02:03:04')`,
 		)
 		require.NoError(t, err)
@@ -432,12 +434,15 @@ func TestDatabaseMigrations(t *testing.T) {
 
 		// Only a bare address is the identifier; endpoints and IPs stay empty so that
 		// attaching an rds_exporter is refused instead of scraping a wrong instance.
+		// Identifiers are lowercased, whether backfilled or stored as typed before.
 		expected := map[string]string{
 			"identifier": "db-1",
 			"endpoint":   "",
 			"cluster":    "",
 			"ip":         "",
 			"set":        "db-3-custom",
+			"mixed":      "mydb",
+			"set-mixed":  "db-5-custom",
 			"generic":    "",
 		}
 		assert.Equal(t, expected, actual)
