@@ -102,26 +102,6 @@ export function isRunActive(status: OmTopologyRunStatus | undefined): boolean {
   return status === 'RUN_STATUS_RUNNING';
 }
 
-/**
- * True while a bootstrap run is still worth polling: PMM Extensions' own status has not
- * reached a terminal value, or it has but a host's confirm_monitoring step
- * (PMM's own, appended to finalize_steps -- see its own proto comment) has not
- * caught up yet.
- *
- * PMM Extensions' status alone understates "done": om_bootstrap marks a run succeeded the
- * moment every step it dispatched has succeeded, before PMM's inventory sweep
- * has necessarily noticed the newly-registered service. Stopping on PMM Extensions' status
- * alone left confirm_monitoring showing "Running" forever once nothing was
- * polling to see it flip to "Succeeded" a few seconds later.
- *
- * A succeeded run counts as active while that step is either `running` or
- * `pending`. Nothing dispatches confirm_monitoring -- pmm-managed synthesizes it
- * on every read from the run's own status (confirmMonitoringStep, and the field's
- * own proto comment), so today a payload cannot report `succeeded` with the step
- * still `pending`, and there is no window between the two for polling to fall
- * back to the slow interval in. Accepting `pending` keeps that true if the step
- * ever becomes something actually dispatched.
- */
 export function isBootstrapRunActive(
   run: Pick<OmGetBootstrapRunResponse, 'status' | 'hosts'> | undefined
 ): boolean {
@@ -143,15 +123,6 @@ export function isBootstrapRunActive(
   );
 }
 
-/**
- * True once any of a host's rollback steps has been dispatched.
- *
- * Every rollback step is planned `pending` up front alongside the host's
- * forward steps (om_bootstrap's own HostBootstrapState doc comment) and stays
- * that way for the entire life of a run that never needed rollback - so "not
- * still all pending" is "rollback actually started," the same test
- * PMM-15347's stepper itself uses (bootstrap_decision.go's hostRollbackStarted).
- */
 export function isHostRollingBack(host: OmBootstrapHost): boolean {
   return host.rollback_steps.some((step) => step.status !== 'pending');
 }

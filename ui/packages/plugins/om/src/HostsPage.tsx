@@ -166,18 +166,6 @@ const ExecutorCell = ({ row }: { row: OmHostRow }) => {
 const automationBlockedTitle = (reasons: string[]) =>
   reasons.join('; ') || 'Not eligible for automation.';
 
-/**
- * Whether OM automation can actually run something on this host, and why not
- * when it cannot.
- *
- * Deliberately separate from `ExecutorCell`, not a duplicate of it:
- * `automation_eligible` is `executor` plus `pmm_agent_connected`, a signal
- * `executor` alone cannot carry - a host can have a perfectly healthy Nomad
- * executor while its pmm-agent has disconnected, which `executor` would read
- * as "Ready" and this cell would not. The blocked reasons are the server's
- * own explanation, not re-derived here, so this cell can never disagree with
- * why the row actually says what it says.
- */
 const AutomationCell = ({ row }: { row: OmHostRow }) => {
   if (row.automation_eligible) {
     return (
