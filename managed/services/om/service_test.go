@@ -17,7 +17,9 @@ package om
 
 import (
 	"context"
+	"io"
 	"net/http"
+	"net/http/httptest"
 	"sync"
 	"testing"
 	"time"
@@ -240,7 +242,7 @@ func TestCollectPersistFailureStillReturnsDocument(t *testing.T) {
 
 // TestRunSyncsInventoryEnabledOnStartup is the regression guard for a server that starts
 // up already OM-enabled -- via PMM_ENABLE_OM, or a setting persisted across a restart --
-// never telling PMM Extensions' om_inventory app. The existing syncOMInventoryEnabledIfChanged
+// never telling PMM Extensions' om_inventory app. The applyOMSwitch helper
 // (server.go) only fires on a live ChangeSettings transition, so with no prior "off"
 // value to differ from, PMM Extensions' own ENABLED stayed permanently false with no supported
 // way to correct it afterward: ChangeSettings refuses any value differing from the
@@ -272,4 +274,83 @@ func TestRunSyncsInventoryEnabledOnStartup(t *testing.T) {
 	require.NotEmpty(t, stub.calls, "Run must sync PMM Extensions' ENABLED flag before ever reaching the ticker loop")
 	assert.Equal(t, http.MethodPatch, stub.calls[0].method)
 	assert.JSONEq(t, `{"ENABLED": true}`, stub.calls[0].body)
+}
+
+// TestRunRetriesInventoryEnabledUntilItLands is the regression guard for that startup
+// reconcile being attempted exactly once.
+//
+// Startup is the one moment PMM Extensions is least likely to answer: in the bundled
+// deployment its side-car cannot finish starting until pmm-server's entrypoint has
+// published its credentials and the embedded Postgres is up, and pmm-managed -- with,
+// on a non-HA server, this service -- starts at that same point. A single attempt that
+// lost that race left ENABLED false for the life of the process, because nothing else
+// reconciles it: ChangeSettings cannot, since the env lock rejects any other value and
+// resubmitting the same one is a no-op transition. Reported against a fresh
+// 3-dev-latest with PMM_ENABLE_OM=1 and the side-car brought up alongside it, where the
+// estate stayed empty until pmm-managed was restarted by hand.
+func TestRunRetriesInventoryEnabledUntilItLands(t *testing.T) {
+	db := serviceTestDB(t)
+	_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{EnableOM: new(true)})
+	require.NoError(t, err)
+
+	var mu sync.Mutex
+	var patches []string
+	refuse := true
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if r.Method != http.MethodPatch {
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`{}`))
+			return
+		}
+		raw, _ := io.ReadAll(r.Body)
+
+		mu.Lock()
+		patches = append(patches, string(raw))
+		first := refuse
+		refuse = false
+		mu.Unlock()
+
+		if first {
+			// The side-car is still starting: exactly the race this test is about.
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{}`))
+	}))
+	t.Cleanup(server.Close)
+
+	svc := (&Service{l: logrus.WithField("test", t.Name())}).WithProbeSource(server.URL, "test-token")
+	svc.db = db
+	svc.vmClient = &recordingVM{}
+	svc.tick = 20 * time.Millisecond
+
+	ctx, cancel := context.WithCancel(t.Context())
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		svc.Run(ctx)
+	}()
+
+	seen := func() int {
+		mu.Lock()
+		defer mu.Unlock()
+		return len(patches)
+	}
+	require.Eventually(t, func() bool { return seen() >= 2 }, 10*time.Second, 10*time.Millisecond,
+		"the refused ENABLED write must be retried on a later tick, not abandoned")
+
+	// And stops there: reconciling is a one-time obligation, not a per-tick PATCH.
+	settled := seen()
+	time.Sleep(10 * svc.tick)
+	cancel()
+	<-done
+
+	assert.Equal(t, settled, seen(), "reconciling must stop at the first success")
+	mu.Lock()
+	defer mu.Unlock()
+	for i, body := range patches {
+		assert.JSONEq(t, `{"ENABLED": true}`, body, "PATCH %d carried the wrong state", i)
+	}
 }
