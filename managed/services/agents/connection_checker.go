@@ -129,9 +129,8 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 
 	pmmAgentVersion := models.ExtractPmmAgentVersionFromAgent(q, agent)
 	var node *models.Node
-	if agent.AgentType == models.PostgresExporterType &&
+	if (agent.AgentType == models.MySQLdExporterType || agent.AgentType == models.PostgresExporterType) &&
 		agent.ExporterOptions.ConnectionTimeout == nil &&
-		agent.AzureOptions.ClientID == "" &&
 		service.NodeID != "" {
 		var err error
 		node, err = models.FindNodeByID(q, service.NodeID)
@@ -236,10 +235,8 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 
 func connectionCheckDialTimeout(node *models.Node, agent *models.Agent) time.Duration {
 	switch agent.AgentType {
-	case models.MySQLdExporterType:
-		return mysqlExporterDialTimeout(agent)
-	case models.PostgresExporterType:
-		return postgresExporterDialTimeout(node, agent)
+	case models.MySQLdExporterType, models.PostgresExporterType:
+		return dbExporterDialTimeout(node, agent)
 	default:
 		return agent.EffectiveDialTimeout()
 	}
