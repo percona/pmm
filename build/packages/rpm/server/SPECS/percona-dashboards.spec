@@ -13,9 +13,9 @@
 %define polystat_panel_version        2.1.16
 
 %ifarch x86_64
-%define plugin_platform linux_amd64
+%define plugin_platform linux-amd64
 %else
-%define plugin_platform linux_arm64
+%define plugin_platform linux-arm64
 %endif
 
 Name:		  percona-dashboards
@@ -31,7 +31,7 @@ BuildRequires:	unzip
 Requires:	percona-grafana
 
 Source0:	https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
-Source1:	https://github.com/grafana/clickhouse-datasource/releases/download/v%{clickhouse_datasource_version}/grafana-clickhouse-datasource-%{clickhouse_datasource_version}.%{plugin_platform}.zip
+Source1:	https://storage.googleapis.com/grafana-plugins-catalog/grafana-clickhouse-datasource/release/%{clickhouse_datasource_version}/grafana-clickhouse-datasource-%{clickhouse_datasource_version}.%{plugin_platform}.zip
 Source2:	https://github.com/grafana/grafana-polystat-panel/releases/download/v%{polystat_panel_version}/grafana-polystat-panel-%{polystat_panel_version}.zip
 
 %description
