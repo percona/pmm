@@ -114,7 +114,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
       }
 
       if (user.isPMMAdmin) {
-        // Served by pmm-managed, so it is not gated with the SEP group.
+        // Served by pmm-managed, so it is not gated with the PMM Extensions group.
         items.push(...addOm());
 
         if (settings?.backupManagementEnabled) {

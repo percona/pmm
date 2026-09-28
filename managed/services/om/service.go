@@ -26,7 +26,7 @@
 //
 // It is the read half of a split: derivation over data PMM owns lives here, while work
 // that has to run on a database host -- collecting argv and installed binary versions,
-// restarts, upgrades, configuration changes -- lives in SEP apps driving Nomad clients.
+// restarts, upgrades, configuration changes -- lives in PMM Extensions apps driving Nomad clients.
 // Those arrive here as another factSource, which is why the merge is by declared
 // precedence rather than by which source ran last.
 package om
@@ -98,7 +98,7 @@ type Service struct {
 	// default.
 	ha haChecker
 
-	// probe is the on-host fact source, or nil when SEP's om_inventory app is not
+	// probe is the on-host fact source, or nil when PMM Extensions' om_inventory app is not
 	// configured. Held rather than constructed per run so the HTTP client is reused.
 	probe *probeSource
 
@@ -130,21 +130,21 @@ func New(db *reform.DB, vmClient victoriaMetricsClient, ha haChecker, l *logrus.
 	}
 }
 
-// WithProbeSource attaches SEP's om_inventory app as a fact source.
+// WithProbeSource attaches PMM Extensions' om_inventory app as a fact source.
 //
-// Takes where SEP is, not where the app is: the app path is this package's business,
-// and the sources that follow -- upgrade, restart -- will hang off the same SEP.
+// Takes where PMM Extensions is, not where the app is: the app path is this package's business,
+// and the sources that follow -- upgrade, restart -- will hang off the same PMM Extensions.
 //
 // Optional by design: an empty URL leaves the source off, and the document is built
 // from PMM's own inventory and metrics alone. That is the difference between "no probe
 // has run here" and "the probe failed", and the run receipt reports which.
-func (s *Service) WithProbeSource(sepURL, token string) *Service {
-	if sepURL == "" {
-		s.l.Info("SEP is not configured; on-host facts will be absent")
+func (s *Service) WithProbeSource(extensionsURL, token string) *Service {
+	if extensionsURL == "" {
+		s.l.Info("PMM Extensions is not configured; on-host facts will be absent")
 		return s
 	}
-	client := &sepClient{
-		baseURL: sepURL,
+	client := &extensionsClient{
+		baseURL: extensionsURL,
 		token:   token,
 		http:    &http.Client{Timeout: probeRequestTimeout},
 	}
@@ -209,7 +209,7 @@ func (s *Service) GetTopologyRun(ctx context.Context, req *omv1.GetTopologyRunRe
 
 // TriggerTopologyCollection rebuilds the topology document now and records the run.
 //
-// Synchronous, unlike SEP's, and it answers with a terminal status: there is no fan-out
+// Synchronous, unlike PMM Extensions', and it answers with a terminal status: there is no fan-out
 // to remote executors to wait on here, so there is nothing to poll for. It refuses
 // rather than queues while one is in flight -- two collections would issue the same
 // queries twice and race to publish, and the caller wants the answer, not a second run.

@@ -33,7 +33,7 @@ import (
 
 // factSource is one place collection reads the estate from.
 //
-// The interface is the extension point: the SEP inventory app's on-host facts arrive as
+// The interface is the extension point: the PMM Extensions inventory app's on-host facts arrive as
 // another implementation of this and nothing downstream changes, because the merge
 // resolves overlap by the precedence table rather than by which source ran.
 type factSource interface {

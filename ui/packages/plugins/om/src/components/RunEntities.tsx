@@ -157,12 +157,12 @@ export const RunEntities = ({ run }: { run: OmInventoryRun }) => {
                 {entity.task_history_id == null ? (
                   <Unavailable reason="not_applicable" />
                 ) : (
-                  // Text, not a link: the OM plugin only reaches SEP through
+                  // Text, not a link: the OM plugin only reaches PMM Extensions through
                   // pmm-managed's inventory proxy, which does not carry the task-log
                   // surface (app/sep/routes/download_files.py). A second route
-                  // straight from the browser into SEP is a security decision, not
+                  // straight from the browser into PMM Extensions is a security decision, not
                   // one to make here -- the id is still most of the value.
-                  <Tooltip title="The task history id of this attempt's own probe run. Its raw output is in SEP's task log, not reachable from this page.">
+                  <Tooltip title="The task history id of this attempt's own probe run. Its raw output is in PMM Extensions' task log, not reachable from this page.">
                     <Box component="span">{entity.task_history_id}</Box>
                   </Tooltip>
                 )}

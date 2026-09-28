@@ -25,39 +25,39 @@ import (
 	"strings"
 )
 
-// sepClient is where SEP is and how PMM authenticates to it: the base URL, the bearer
-// token, the http.Client every SEP-backed source and proxy handler shares.
+// extensionsClient is where PMM Extensions is and how PMM authenticates to it: the base URL, the bearer
+// token, the http.Client every side-car-backed source and proxy handler shares.
 //
 // It knows nothing about a specific app -- that is app()'s job. Splitting the two is what
-// lets a second SEP-backed source (restart, upgrade, whatever om_actions turns out to
-// need) get a client of its own by calling app() again on the one sepClient the Service
+// lets a second side-car-backed source (restart, upgrade, whatever om_actions turns out to
+// need) get a client of its own by calling app() again on the one extensionsClient the Service
 // already holds, rather than by copying the transport. Before this split, probeSource was
-// three things at once: the on-host fact source, the transport to SEP, and (through
+// three things at once: the on-host fact source, the transport to PMM Extensions, and (through
 // inventory.go's use of it) half of the inventory REST surface. Only the first of those
 // is a probeSource's business; the other two are this file's.
-type sepClient struct {
+type extensionsClient struct {
 	baseURL string
 	token   string
 	http    *http.Client
 }
 
-// app returns a handle addressed relative to /api/apps/<module>, the mount every SEP app
-// follows. Which app to ask is the caller's business, not the operator's: `--sep-url`
-// points at SEP, not at an app, so the same setting serves every source this package
+// app returns a handle addressed relative to /api/apps/<module>, the mount every side-car app
+// follows. Which app to ask is the caller's business, not the operator's: `--extensions-url`
+// points at PMM Extensions, not at an app, so the same setting serves every source this package
 // gains.
-func (c *sepClient) app(module string) sepApp {
-	return sepApp{client: c, path: "api/apps/" + module}
+func (c *extensionsClient) app(module string) extensionsApp {
+	return extensionsApp{client: c, path: "api/apps/" + module}
 }
 
-// sepApp addresses one SEP app through a shared sepClient. Cheap to copy: it is a
+// extensionsApp addresses one side-car app through a shared extensionsClient. Cheap to copy: it is a
 // pointer and a path.
-type sepApp struct {
-	client *sepClient
+type extensionsApp struct {
+	client *extensionsClient
 	path   string
 }
 
 // endpoint builds an absolute URL for a path relative to this app.
-func (a sepApp) endpoint(path string) string {
+func (a extensionsApp) endpoint(path string) string {
 	return strings.TrimSuffix(a.client.baseURL, "/") + "/" + a.path + "/" + strings.TrimPrefix(path, "/")
 }
 
@@ -72,7 +72,7 @@ func (a sepApp) endpoint(path string) string {
 // request the browser is waiting on) and different error mappings (a gRPC status for the
 // inventory proxy, a plain error for a factSource's run receipt), and only the request
 // itself -- the URL, the query, the body encoding, the bearer header -- is common to both.
-func (a sepApp) request(ctx context.Context, method, path string, query url.Values, body any, sendEmptyBody bool) (*http.Request, error) {
+func (a extensionsApp) request(ctx context.Context, method, path string, query url.Values, body any, sendEmptyBody bool) (*http.Request, error) {
 	endpoint := a.endpoint(path)
 	if len(query) > 0 {
 		endpoint += "?" + query.Encode()

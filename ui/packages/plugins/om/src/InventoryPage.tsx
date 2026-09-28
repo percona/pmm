@@ -317,8 +317,8 @@ const PeriodFilter = ({
  * from data PMM already holds. They are two different things called a "run", which is
  * why they live at two different paths and on two different pages.
  *
- * Read through pmm-managed rather than from SEP directly, which is what lets this page
- * render its own error when SEP is unwell instead of being blanked by a gate that
+ * Read through pmm-managed rather than from PMM Extensions directly, which is what lets this page
+ * render its own error when PMM Extensions is unwell instead of being blanked by a gate that
  * fails closed.
  *
  * The two halves are tabs rather than one column because they answer different
@@ -406,7 +406,7 @@ export const InventoryPage = () => {
         <>
           {error && (
             <Alert severity="error">
-              {/* Rendered inside the page rather than replacing it: SEP being
+              {/* Rendered inside the page rather than replacing it: PMM Extensions being
                   unwell is a fact about the estate, and the settings tab still
                   reads. */}
               Could not load refreshes: {(error as Error).message}

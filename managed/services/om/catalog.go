@@ -118,7 +118,7 @@ var sourceQueries = []string{
 	metricOplogTail,
 }
 
-// The document fields sources set. Names match SEP's om_inventory app so a fact
+// The document fields sources set. Names match PMM Extensions' om_inventory app so a fact
 // produced there needs no translation on the way in.
 const (
 	fieldHost             = "host"

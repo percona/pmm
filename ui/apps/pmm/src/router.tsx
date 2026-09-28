@@ -21,9 +21,7 @@ import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AlertsPage } from 'pages/alerting/status';
 import { AtwApp } from '@pmm-extensions/plugins-atw';
-import { SchemaDrivenPlugin } from '@pmm-extensions/framework';
-import { AtwApp } from '@pmm-extensions/plugins-atw';
-import { OmApp } from '@pmm-extensions/plugins-om';
+import { OmApp } from '@pmm/plugins-om';
 import { OmPage } from 'om/OmPage';
 import { SchemaDrivenPlugin } from '@pmm-extensions/framework';
 import {
