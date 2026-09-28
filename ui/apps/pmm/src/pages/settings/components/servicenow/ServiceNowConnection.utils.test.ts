@@ -4,7 +4,7 @@ import {
   type ConnectivityStatus,
   REDACTED_SECRET,
   SettingClassGroup,
-} from '@sep/api';
+} from '@pmm-extensions/api';
 import { Messages } from '../../Settings.messages';
 import {
   DELIVERY_INPUTS_KEY,
@@ -21,7 +21,7 @@ import {
   probeErrorMessage,
   secretHelperText,
   secretLabel,
-  sepErrorMessage,
+  extensionsErrorMessage,
   storedDeliveryInputs,
   toFormValues,
 } from './ServiceNowConnection.utils';
@@ -38,7 +38,7 @@ const setting = (key: string, value: unknown, hasOverride = false) =>
     is_complex: true,
     is_secret: false,
     reload: 'none',
-    setting_class: 'SEPSettings',
+    setting_class: 'ExtensionsSettings',
     type: 'object',
   }) as unknown as SettingClassGroup['settings'][number];
 
@@ -52,7 +52,7 @@ const groups = (
       setting('DIAGNOSTICS_DELIVERY_INPUTS', { secrets: { nope: '' } }),
     ],
   },
-  { setting_class: 'SEPSettings', is_app_owned: false, settings },
+  { setting_class: 'ExtensionsSettings', is_app_owned: false, settings },
 ];
 
 const plan = (names: string[]) =>
@@ -166,7 +166,7 @@ describe('buildDeliveryInputsPatch', () => {
     ).toEqual({ secrets: { sn_api_key: '' } });
   });
 
-  it('omits a blank endpoint so SEP keeps the baked receiver', () => {
+  it('omits a blank endpoint so the side-car keeps the baked receiver', () => {
     expect(
       buildDeliveryInputsPatch({ endpoint: '   ', secrets: ['a'] }, [
         'sn_api_key',
@@ -174,7 +174,7 @@ describe('buildDeliveryInputsPatch', () => {
     ).toEqual({ secrets: { sn_api_key: 'a' } });
   });
 
-  it('stores the endpoint as SEP will use it, not as it was typed', () => {
+  it('stores the endpoint as the side-car will use it, not as it was typed', () => {
     expect(
       buildDeliveryInputsPatch(
         { endpoint: '  https://acme.service-now.com// ', secrets: [] },
@@ -261,12 +261,12 @@ describe('connectionStatus', () => {
   });
 });
 
-describe('sepErrorMessage', () => {
+describe('extensionsErrorMessage', () => {
   const httpError = (status: number, data?: unknown) =>
     new ApiError({ kind: 'http', status, message: `HTTP ${status}`, data });
 
-  it('surfaces the per-field 422 message SEP returns', () => {
-    const message = sepErrorMessage(
+  it('surfaces the per-field 422 message the side-car returns', () => {
+    const message = extensionsErrorMessage(
       httpError(422, {
         detail: [
           {
@@ -282,35 +282,35 @@ describe('sepErrorMessage', () => {
   });
 
   it('explains a 403 instead of leaving it unaccounted for', () => {
-    expect(sepErrorMessage(httpError(403))).toBe(
+    expect(extensionsErrorMessage(httpError(403))).toBe(
       Messages.serviceNow.errors.forbidden
     );
   });
 
   it('explains a 401', () => {
-    expect(sepErrorMessage(httpError(401))).toBe(
+    expect(extensionsErrorMessage(httpError(401))).toBe(
       Messages.serviceNow.errors.unauthenticated
     );
   });
 
-  it('reports an unreachable SEP', () => {
+  it('reports an unreachable side-car', () => {
     expect(
-      sepErrorMessage(new ApiError({ kind: 'network', message: 'boom' }))
+      extensionsErrorMessage(new ApiError({ kind: 'network', message: 'boom' }))
     ).toBe(Messages.serviceNow.errors.unreachable);
   });
 
   it('never leaks a raw HTTP message', () => {
-    expect(sepErrorMessage(httpError(500))).toBe(
+    expect(extensionsErrorMessage(httpError(500))).toBe(
       Messages.serviceNow.errors.generic
     );
   });
 
   it('uses the caller fallback when one is given', () => {
-    expect(sepErrorMessage(httpError(500), 'nope')).toBe('nope');
+    expect(extensionsErrorMessage(httpError(500), 'nope')).toBe('nope');
   });
 
   it('is empty without an error', () => {
-    expect(sepErrorMessage(null)).toBe('');
+    expect(extensionsErrorMessage(null)).toBe('');
   });
 });
 
@@ -351,11 +351,11 @@ describe('normalizeEndpoint', () => {
       'https://acme.service-now.com/api/now/',
       'https://acme.service-now.com/api/now',
     ],
-  ])('reduces %s to what SEP keeps: %s', (typed, stored) => {
+  ])('reduces %s to what the side-car keeps: %s', (typed, stored) => {
     expect(normalizeEndpoint(typed)).toBe(stored);
   });
 
-  it('keeps the query exactly as typed, rewriting nothing SEP reads itself', () => {
+  it('keeps the query exactly as typed, rewriting nothing the side-car reads itself', () => {
     expect(
       normalizeEndpoint('https://acme.service-now.com/?a=1&a=2&b=x%20y')
     ).toBe('https://acme.service-now.com?a=1&a=2&b=x%20y');
@@ -364,7 +364,7 @@ describe('normalizeEndpoint', () => {
   it('leaves an endpoint carrying credentials alone rather than dropping them', () => {
     // `URL.origin` omits userinfo where Python's `netloc` keeps it, so
     // normalizing this would store an endpoint that authenticates differently
-    // from the one SEP receives.
+    // from the one the side-car receives.
     expect(normalizeEndpoint('https://user:pass@acme.service-now.com/')).toBe(
       'https://user:pass@acme.service-now.com/'
     );
@@ -421,7 +421,7 @@ describe('connectivityOutcome', () => {
     service: 'delivery',
     reachable,
     status,
-    detail: 'whatever SEP said',
+    detail: 'whatever the side-car said',
     version: null,
   });
 
@@ -449,7 +449,7 @@ describe('connectivityOutcome', () => {
 
   it('never echoes what the receiver said', () => {
     expect(connectivityOutcome(probed('error')).message).not.toContain(
-      'whatever SEP said'
+      'whatever the side-car said'
     );
   });
 

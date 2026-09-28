@@ -6,13 +6,13 @@ import {
   SettingClassGroup,
   SettingResponse,
   settingErrorMessage,
-} from '@sep/api';
+} from '@pmm-extensions/api';
 import { Messages } from '../../Settings.messages';
 import {
   DELIVERY_INPUTS_KEY,
   DELIVERY_PLAN_KEY,
   DELIVERY_TARGETS,
-  SEP_SETTINGS_CLASS,
+  EXTENSIONS_SETTINGS_CLASS,
 } from './ServiceNowConnection.constants';
 import {
   ConnectionStatus,
@@ -21,13 +21,13 @@ import {
   StoredDeliveryInputs,
 } from './ServiceNowConnection.types';
 
-/** Locate one setting inside the `SEPSettings` group of a LIST response. */
-export const findSepSetting = (
+/** Locate one setting inside the `ExtensionsSettings` group of a LIST response. */
+export const findExtensionsSetting = (
   groups: SettingClassGroup[] | undefined,
   key: string
 ): SettingResponse | undefined =>
   groups
-    ?.find((group) => group.setting_class === SEP_SETTINGS_CLASS)
+    ?.find((group) => group.setting_class === EXTENSIONS_SETTINGS_CLASS)
     ?.settings.find((setting) => setting.key === key);
 
 const asInputs = (value: unknown): DeliveryInputs => {
@@ -52,8 +52,8 @@ const asInputs = (value: unknown): DeliveryInputs => {
 /**
  * The secret names this deployment must supply, read from the baked plan.
  *
- * The plan is the declaration SEP validates a write against, so it always wins.
- * The stored inputs are a fallback for a SEP build that does not list the plan
+ * The plan is the declaration the side-car validates a write against, so it always wins.
+ * The stored inputs are a fallback for a side-car build that does not list the plan
  * at all: their names are only stale if that build also renamed one, and the
  * cost of guessing wrong there is a 422 the form shows verbatim — better than a
  * form with no fields, which no operator could recover from.
@@ -62,13 +62,15 @@ export const declaredSecretNames = (
   groups: SettingClassGroup[] | undefined
 ): string[] => {
   const planNames = Object.keys(
-    asInputs(findSepSetting(groups, DELIVERY_PLAN_KEY)?.value).secrets ?? {}
+    asInputs(findExtensionsSetting(groups, DELIVERY_PLAN_KEY)?.value).secrets ??
+      {}
   );
   if (planNames.length > 0) {
     return planNames;
   }
   return Object.keys(
-    asInputs(findSepSetting(groups, DELIVERY_INPUTS_KEY)?.value).secrets ?? {}
+    asInputs(findExtensionsSetting(groups, DELIVERY_INPUTS_KEY)?.value)
+      .secrets ?? {}
   );
 };
 
@@ -80,7 +82,7 @@ export const declaredSecretNames = (
 export const storedDeliveryInputs = (
   groups: SettingClassGroup[] | undefined
 ): StoredDeliveryInputs => {
-  const setting = findSepSetting(groups, DELIVERY_INPUTS_KEY);
+  const setting = findExtensionsSetting(groups, DELIVERY_INPUTS_KEY);
   const { endpoint, secrets } = asInputs(setting?.value);
   return {
     endpoint: endpoint ?? '',
@@ -95,9 +97,9 @@ export const storedDeliveryInputs = (
  * name in declaration order — the form addresses secrets by position, not by
  * name.
  *
- * Secrets are never seeded from what SEP holds. Every route to the form is a
+ * Secrets are never seeded from what the side-car holds. Every route to the form is a
  * route that replaces them: nothing is stored yet, the stored values no longer
- * satisfy the plan, or the operator asked to renew them. SEP masks a stored
+ * satisfy the plan, or the operator asked to renew them. The side-car masks a stored
  * secret anyway, so seeding could only ever put a mask in front of someone
  * about to overwrite it.
  */
@@ -110,19 +112,19 @@ export const toFormValues = (
 });
 
 /**
- * Render an endpoint the way SEP will actually use it.
+ * Render an endpoint the way the side-car will actually use it.
  *
- * SEP keeps only `scheme://netloc` as the delivery transport's origin and moves
+ * The side-car keeps only `scheme://netloc` as the delivery transport's origin and moves
  * the endpoint's path and query onto the plan's own step paths
  * (`split_endpoint`), joining each step onto the endpoint path with its
  * trailing slash stripped. So `https://host//` and `https://host` reach the
  * same receiver, while the tab would go on displaying whichever was typed.
  * Normalizing on write keeps the value shown and the value used identical.
  *
- * It removes only what SEP provably discards — trailing slashes and the
+ * It removes only what the side-car provably discards — trailing slashes and the
  * fragment, which `split_endpoint` never carries — and reorders or drops
  * nothing else. Every query pair survives, in the order and the encoding it
- * arrived in: SEP reads the query with `parse_qsl` into a dict, so it collapses
+ * arrived in: the side-car reads the query with `parse_qsl` into a dict, so it collapses
  * a repeated key and drops a blank value on its own, and matching that here
  * would mean deleting something the operator typed to gain nothing they can
  * see.
@@ -136,11 +138,11 @@ export const toFormValues = (
  *
  * A URL carrying userinfo is left entirely alone. `URL.origin` omits it while
  * Python's `netloc` keeps it, so normalizing one would quietly store an
- * endpoint that no longer authenticates the way the one SEP receives does.
+ * endpoint that no longer authenticates the way the one the side-car receives does.
  *
  * A blank endpoint stays blank — it means "keep the receiver this image bakes
  * in", and normalization must never turn that into a stored one. Anything that
- * is not an http(s) URL is passed through trimmed and left to SEP: the schema
+ * is not an http(s) URL is passed through trimmed and left to the side-car: the schema
  * already refuses it before submit, and inventing a shape for it here could
  * only ever store something the operator did not type.
  */
@@ -168,9 +170,9 @@ export const normalizeEndpoint = (value: string): string => {
  * Build the PATCH value: one whole object carrying exactly the declared secret
  * names.
  *
- * `endpoint` is dropped when blank so SEP keeps the receiver its image bakes
+ * `endpoint` is dropped when blank so the side-car keeps the receiver its image bakes
  * in — that is also how a previously entered endpoint is reverted, and it is
- * stored normalized so the tab never displays a value SEP would reduce to
+ * stored normalized so the tab never displays a value the side-car would reduce to
  * something else. The secrets
  * are whatever the operator typed: the form requires every declared one, so
  * there is no mask to restore and no empty value to send.
@@ -187,12 +189,12 @@ export const buildDeliveryInputsPatch = (
 };
 
 /**
- * What the stored inputs say about delivery, without asking SEP a second time.
+ * What the stored inputs say about delivery, without asking the side-car a second time.
  *
  * An empty secret is a valid save that leaves delivery unavailable, so it reads
  * as "not configured" rather than as a failure. A declared name with no stored
  * counterpart means the image renamed one after the values were supplied — the
- * value SEP still holds no longer satisfies the plan.
+ * value the side-car still holds no longer satisfies the plan.
  *
  * A plan that declares no secrets is judged on the override alone: there is no
  * credential left for the deployment to supply, so a stored override is as
@@ -218,15 +220,15 @@ export const connectionStatus = (
 };
 
 /**
- * Turn a failed SEP call into something the operator can act on.
+ * Turn a failed side-car call into something the operator can act on.
  *
- * SEP's 422 message is the most specific thing available — it names the
+ * The side-car's 422 message is the most specific thing available — it names the
  * offending secret keys — so it wins over the generic mapping. Everything else
- * distinguishes "you may not do this" from "SEP did not answer", because the
+ * distinguishes "you may not do this" from "the side-car did not answer", because the
  * two need different responses. A raw HTTP message is never shown: anything
  * unrecognised falls back to `fallback`.
  */
-export const sepErrorMessage = (
+export const extensionsErrorMessage = (
   error: ApiError | null | undefined,
   fallback: string = Messages.serviceNow.errors.generic
 ): string => {
@@ -253,7 +255,7 @@ export const sepErrorMessage = (
 /**
  * Turn a failed probe *call* into something the operator can act on.
  *
- * Separate from {@link sepErrorMessage} because the two answer different
+ * Separate from {@link extensionsErrorMessage} because the two answer different
  * questions. That one explains a rejected write and offers the write's remedy;
  * this one explains why no verdict exists, and a probe refused for want of
  * privilege has nothing to say about saving. It also skips the settings 422
@@ -305,19 +307,19 @@ const humanizeSecretName = (name: string): string =>
     .join(' ');
 
 /**
- * Render a SEP secret name as a field label.
+ * Render a side-car secret name as a field label.
  *
  * A name the delivery plan is known to declare gets the copy Support wrote for
- * it; anything else is a SEP build the UI has no copy for, so its raw name is
+ * it; anything else is a side-car build the UI has no copy for, so its raw name is
  * humanized — `instance_url` reads "Instance URL" — and stays recognisable
- * against SEP's own documentation and error messages.
+ * against the side-car's own documentation and error messages.
  */
 export const secretLabel = (name: string): string =>
   Messages.serviceNow.secretCopy[name]?.label ?? humanizeSecretName(name);
 
 /**
  * Helper text under a credential field: what the credential is for, or — for a
- * name the UI has no copy for — the raw key SEP will receive it as.
+ * name the UI has no copy for — the raw key the side-car will receive it as.
  */
 export const secretHelperText = (name: string): string => {
   const { secretCopy, secretHelper } = Messages.serviceNow;
@@ -332,7 +334,7 @@ export const secretHelperText = (name: string): string => {
  * administrator saving from a second session, or a background refetch bringing
  * a change back — and drop a verdict that now describes something else.
  *
- * Secret values are useless as identity (SEP masks every one of them with the
+ * Secret values are useless as identity (the side-car masks every one of them with the
  * same string), so the names are what is compared, alongside the endpoint and
  * whether an override exists at all.
  */
@@ -344,7 +346,7 @@ export const connectionIdentity = (stored: StoredDeliveryInputs): string =>
   ]);
 
 /**
- * Alert severity per probe outcome, keyed by SEP's generated union so a member
+ * Alert severity per probe outcome, keyed by the side-car's generated union so a member
  * added there fails to compile here rather than rendering unstyled.
  *
  * `not_configured` and `probe_undeclared` are informational on purpose: neither
@@ -372,8 +374,8 @@ export interface ConnectivityOutcome {
 /**
  * The delivery entry of a probe response.
  *
- * The request names exactly one target and SEP answers one result per target in
- * request order, so the fallback is only reached by a SEP that answered
+ * The request names exactly one target and the side-car answers one result per target in
+ * request order, so the fallback is only reached by a side-car that answered
  * something else — in which case the first entry is still the only result there
  * is, and reporting it beats reporting nothing.
  */
@@ -387,12 +389,12 @@ export const deliveryResult = (
  * How to render a probe that ran, in the operator's terms rather than the
  * receiver's.
  *
- * SEP's own `detail` is deliberately not shown: for everything except the two
+ * The side-car's own `detail` is deliberately not shown: for everything except the two
  * unavailable outcomes it is a fixed English sentence this copy already says
  * better, and the ticket's complaint about a failure "phrased in the receiver's
  * own words" is exactly what it would put back.
  *
- * A status this UI has no copy for is a newer SEP than this PMM. Falling back
+ * A status this UI has no copy for is a newer side-car than this PMM. Falling back
  * on `reachable` keeps the one thing every result carries — whether the
  * receiver answered — rather than rendering an empty alert.
  */

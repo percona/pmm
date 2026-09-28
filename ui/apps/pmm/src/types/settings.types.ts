@@ -7,7 +7,7 @@ export interface ReadonlySettings {
   backupManagementEnabled: boolean;
   azurediscoverEnabled: boolean;
   enableAccessControl: boolean;
-  sepEnabled: boolean;
+  extensionsEnabled: boolean;
 }
 
 export interface MetricsResolutions {
