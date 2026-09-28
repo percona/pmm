@@ -43,6 +43,15 @@ import (
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
 type AgentType string
 
+// Text file names carrying TLS material to pmm-agent. They are part of the agent wire
+// protocol and are declared canonically in api/agent/v1, which models must not import;
+// TestTLSFileNamesMatchAgentAPI in managed/services/agents keeps the two copies in step.
+const (
+	TLSCaFileName   = "tlsCa"
+	TLSCertFileName = "tlsCert"
+	TLSKeyFileName  = "tlsKey"
+)
+
 const (
 	certificateFilePlaceholder    = "certificateFilePlaceholder"
 	certificateKeyFilePlaceholder = "certificateKeyFilePlaceholder"
@@ -312,6 +321,11 @@ func (c ValkeyOptions) IsEmpty() bool {
 	return c.SSLCa == "" &&
 		c.SSLCert == "" &&
 		c.SSLKey == ""
+}
+
+// clientKeyPairIncomplete reports whether only one half of the TLS client key pair is set.
+func (c ValkeyOptions) clientKeyPairIncomplete() bool {
+	return (c.SSLCert == "") != (c.SSLKey == "")
 }
 
 // RTAOptions represents structure for Real-Time Analytics options.
@@ -903,13 +917,13 @@ func (a Agent) Files() map[string]string { //nolint:gocognit
 	case MySQLdExporterType, QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
 		files := make(map[string]string)
 		if a.MySQLOptions.TLSCa != "" {
-			files["tlsCa"] = a.MySQLOptions.TLSCa
+			files[TLSCaFileName] = a.MySQLOptions.TLSCa
 		}
 		if a.MySQLOptions.TLSCert != "" {
-			files["tlsCert"] = a.MySQLOptions.TLSCert
+			files[TLSCertFileName] = a.MySQLOptions.TLSCert
 		}
 		if a.MySQLOptions.TLSKey != "" {
-			files["tlsKey"] = a.MySQLOptions.TLSKey
+			files[TLSKeyFileName] = a.MySQLOptions.TLSKey
 		}
 
 		if len(files) != 0 {
@@ -952,16 +966,23 @@ func (a Agent) Files() map[string]string { //nolint:gocognit
 
 		return nil
 	case ValkeyExporterType:
+		// Nothing consumes the material over a plaintext link, so keep the private key off
+		// the agent host in that case.
+		if !a.TLS {
+			return nil
+		}
+
 		files := make(map[string]string)
 
 		if a.ValkeyOptions.SSLCa != "" {
-			files["tlsCa"] = a.ValkeyOptions.SSLCa
+			files[TLSCaFileName] = a.ValkeyOptions.SSLCa
 		}
-		if a.ValkeyOptions.SSLCert != "" {
-			files["tlsCert"] = a.ValkeyOptions.SSLCert
-		}
-		if a.ValkeyOptions.SSLKey != "" {
-			files["tlsKey"] = a.ValkeyOptions.SSLKey
+		// valkey_exporter calls log.Fatal on half a client key pair and the connection
+		// check cannot use one either, so the pair only ships as a unit. Registration rejects
+		// a half pair, so this only guards rows written before that validation existed.
+		if a.ValkeyOptions.SSLCert != "" && a.ValkeyOptions.SSLKey != "" {
+			files[TLSCertFileName] = a.ValkeyOptions.SSLCert
+			files[TLSKeyFileName] = a.ValkeyOptions.SSLKey
 		}
 
 		if len(files) != 0 {
@@ -995,6 +1016,18 @@ func (a Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 	case PostgreSQLServiceType:
 		if a.PostgreSQLOptions.SSLKey != "" {
 			templateParams = append(templateParams, a.PostgreSQLOptions.SSLKey)
+		}
+	case ValkeyServiceType:
+		// pmm-agent renders every text file's content as a template, so all three
+		// certificates have to be considered, not just the private key.
+		if a.ValkeyOptions.SSLCa != "" {
+			templateParams = append(templateParams, a.ValkeyOptions.SSLCa)
+		}
+		if a.ValkeyOptions.SSLCert != "" {
+			templateParams = append(templateParams, a.ValkeyOptions.SSLCert)
+		}
+		if a.ValkeyOptions.SSLKey != "" {
+			templateParams = append(templateParams, a.ValkeyOptions.SSLKey)
 		}
 	case ProxySQLServiceType:
 	case HAProxyServiceType:

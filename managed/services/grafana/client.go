@@ -35,7 +35,6 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/managed/services"
@@ -43,9 +42,6 @@ import (
 	"github.com/percona/pmm/managed/utils/irt"
 	"github.com/percona/pmm/utils/grafana"
 )
-
-// ErrFailedToGetToken means it failed to get the user token. Most likely due to the fact the user is not logged in using Percona Account.
-var ErrFailedToGetToken = errors.New("failed to get the user token")
 
 const (
 	pmmServiceTokenName          = "pmm-agent-st" //nolint:gosec
@@ -1132,41 +1128,6 @@ func (c *Client) IsReady(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-const grpcGatewayCookie = "grpcgateway-cookie"
-
-type currentUser struct {
-	AccessToken string `json:"access_token"`
-}
-
-var errCookieIsNotSet = fmt.Errorf("cookie %q is not set", grpcGatewayCookie)
-
-// GetCurrentUserAccessToken return users access token from Grafana.
-func (c *Client) GetCurrentUserAccessToken(ctx context.Context) (string, error) {
-	// We need to set cookie to the request to make it execute in grafana user context.
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return "", fmt.Errorf("metadata not set in the context: %w", errCookieIsNotSet)
-	}
-	cookies := md.Get(grpcGatewayCookie)
-	if len(cookies) == 0 {
-		return "", errCookieIsNotSet
-	}
-	headers := http.Header{}
-	headers.Set("Cookie", strings.Join(cookies, "; "))
-
-	var user currentUser
-	err := c.do(ctx, http.MethodGet, "/graph/percona-api/user/oauth-token", "", headers, nil, &user)
-	if err != nil {
-		var e *clientError
-		if errors.As(err, &e) && e.ErrorMessage == "Failed to get token" && e.Code == http.StatusInternalServerError {
-			return "", ErrFailedToGetToken
-		}
-		return "", fmt.Errorf("unknown error occurred during getting of user's token: %w", err)
-	}
-
-	return user.AccessToken, nil
 }
 
 // check interfaces.

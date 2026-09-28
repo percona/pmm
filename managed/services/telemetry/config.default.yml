@@ -973,12 +973,12 @@ telemetry:
       - metric_name: "pmm_server_builtin_postgres_disable"
         column: "PMM_DISABLE_BUILTIN_POSTGRES"
 
-  - id: PMMServerSEPEnabled
+  - id: PMMServerExtensionsEnabled
     source: ENV_VARS
-    summary: "Use of SEP integration"
+    summary: "Use of PMM Extensions"
     data:
-      - metric_name: "pmm_server_sep_enabled"
-        column: "PMM_ENABLE_SEP"
+      - metric_name: "pmm_server_extensions_enabled"
+        column: "PMM_ENABLE_EXTENSIONS"
 
   - id: PMMServerHAUseOfDBs
     source: ENV_VARS

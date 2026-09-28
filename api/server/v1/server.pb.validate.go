@@ -2287,7 +2287,7 @@ func (m *Settings) validate(all bool) error {
 
 	// no validation rules for EnableInternalPgQan
 
-	// no validation rules for SepEnabled
+	// no validation rules for ExtensionsEnabled
 
 	// no validation rules for AdvisorNotificationsEnabled
 
@@ -2438,7 +2438,7 @@ func (m *ReadOnlySettings) validate(all bool) error {
 
 	// no validation rules for EnableAccessControl
 
-	// no validation rules for SepEnabled
+	// no validation rules for ExtensionsEnabled
 
 	if len(errors) > 0 {
 		return ReadOnlySettingsMultiError(errors)

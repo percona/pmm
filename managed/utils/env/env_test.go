@@ -77,7 +77,7 @@ func TestGetBool(t *testing.T) {
 	}
 }
 
-func TestSEPEnabled(t *testing.T) {
+func TestExtensionsEnabled(t *testing.T) {
 	tests := []struct {
 		name     string
 		set      bool
@@ -119,7 +119,7 @@ func TestSEPEnabled(t *testing.T) {
 			expected: false,
 		},
 		// The container entrypoint treats only "1" and "true" as enabled, so
-		// these must not enable SEP here either: the API would advertise
+		// these must not enable PMM Extensions here either: the API would advertise
 		// navigation that nginx has no location block to route.
 		{
 			name:     "True",
@@ -138,14 +138,14 @@ func TestSEPEnabled(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.set {
-				t.Setenv(EnableSEP, tt.envValue)
+				t.Setenv(EnableExtensions, tt.envValue)
 			} else {
 				// Setenv first, so the original value is restored on cleanup.
-				t.Setenv(EnableSEP, "")
-				os.Unsetenv(EnableSEP)
+				t.Setenv(EnableExtensions, "")
+				os.Unsetenv(EnableExtensions)
 			}
 
-			assert.Equal(t, tt.expected, SEPEnabled())
+			assert.Equal(t, tt.expected, ExtensionsEnabled())
 		})
 	}
 }
