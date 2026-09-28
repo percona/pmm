@@ -7,9 +7,7 @@ Upgrade a [PMM HA Cluster](../install-pmm/HA-clustered.md) deployed with the `pe
 
 ## How PMM HA Helm upgrades work
 
-The upgrade restarts each of the three PMM Server pods one at a time, waiting for each to become ready before restarting the next. 
-
-Traffic flows only to the active leader pod. When that pod restarts, your PMM dashboards, alerts, and metric collection are briefly unavailable until a new leader takes over. This typically takes around 5-10 seconds per pod and resolves on its own.
+The upgrade restarts each of the three PMM Server pods one at a time, waiting for each to become ready before restarting the next. Traffic flows only to the active leader pod. When that pod restarts, your PMM dashboards, alerts, and metric collection are briefly unavailable until a new leader takes over. This typically takes around 5-10 seconds per pod and resolves on its own.
 
 ## Before you begin
 
@@ -97,6 +95,8 @@ After the upgrade, verify that a leader is active and the cluster is healthy. Op
 
 ![PMM HA leader badge showing the current leader and Healthy status](../images/pmm-ha-leader-badge.png)
 
+You can also check through the Inventory page. See [Identify the leader node](../install-pmm/install-HA-clustered.md#identify-the-leader-node).
+
 ## Upgrade the underlying databases
 
 The `helm upgrade pmm-ha` command above upgraded PMM Server only. PostgreSQL, ClickHouse, and VictoriaMetrics are managed by their own operators and were not changed. Only upgrade a database when you have a specific reason, such as a version deadline or a required feature.
@@ -111,9 +111,9 @@ If you need to upgrade one:
 
 ## Roll back to a previous version
 
-If the upgrade causes issues, you can restore your previous Helm configuration. 
+If the upgrade causes issues, you can restore your previous Helm configuration. Keep in mind that this only restores the PMM Server configuration, not any database changes PMM made during the upgrade. 
 
-Keep in mind that this only restores the PMM Server configuration, not any database changes PMM made during the upgrade. To fully return to the pre-upgrade state, also restore your databases from the backups you took in [Before you begin](#before-you-begin):
+To fully return to the pre-upgrade state, also restore your databases from the backups you took in [Before you begin](#before-you-begin):
 
 - [Restore PostgreSQL](https://docs.percona.com/percona-operator-for-postgresql/latest/backups-restore.html)
 - [Restore ClickHouse](https://github.com/Altinity/clickhouse-backup?tab=readme-ov-file#usage)
