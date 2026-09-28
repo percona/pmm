@@ -200,6 +200,11 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 				"Role %s belongs to AWS partition %s, which is not enabled in PMM settings.", req.AwsRoleArn, partition)
 		}
 
+		// The assumed credentials are only valid in the role's partition, so scan just that one.
+		// Calls into the other enabled partitions can only fail, and when the role's partition has
+		// no instances the first such failure would be reported instead of an empty list.
+		regions = listRegions([]string{partition})
+
 		roleCfg := cfg
 		roleCfg.Region = stsRegion
 		provider := assumeRoleProvider(roleCfg, req.AwsRoleArn)
