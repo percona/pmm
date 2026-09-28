@@ -181,7 +181,7 @@ describe('IncidentListPage', () => {
     await waitFor(() => {
       expect(
         screen.getByRole('button', { name: /New incident/i })
-      ).toBeInTheDocument();
+      ).toBeEnabled();
     });
     expect(screen.queryByTestId('atw-incidents-empty')).not.toBeInTheDocument();
   });
@@ -630,7 +630,8 @@ describe('IncidentListPage — ServiceNow connection banner', () => {
 
     await waitFor(() => {
       expect(configCalls()).toHaveLength(2);
-      expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
+      expect(queryClient.isFetching()).toBe(0);
     });
+    expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
   });
 });
