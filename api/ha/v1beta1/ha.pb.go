@@ -267,7 +267,9 @@ func (*StatusRequest) Descriptor() ([]byte, []int) {
 type StatusResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Status of HA mode: "Enabled" or "Disabled".
-	Status        string `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	Status string `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	// Kubernetes namespace this instance is running in.
+	Namespace     string `protobuf:"bytes,2,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -309,6 +311,13 @@ func (x *StatusResponse) GetStatus() string {
 	return ""
 }
 
+func (x *StatusResponse) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
 var File_ha_v1beta1_ha_proto protoreflect.FileDescriptor
 
 const file_ha_v1beta1_ha_proto_rawDesc = "" +
@@ -323,9 +332,10 @@ const file_ha_v1beta1_ha_proto_rawDesc = "" +
 	"\x11ListNodesResponse\x12(\n" +
 	"\x05nodes\x18\x01 \x03(\v2\x12.ha.v1beta1.HANodeR\x05nodes\x12%\n" +
 	"\x0eexpected_nodes\x18\x02 \x01(\x05R\rexpectedNodes\"\x0f\n" +
-	"\rStatusRequest\"(\n" +
+	"\rStatusRequest\"F\n" +
 	"\x0eStatusResponse\x12\x16\n" +
-	"\x06status\x18\x01 \x01(\tR\x06status*S\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status\x12\x1c\n" +
+	"\tnamespace\x18\x02 \x01(\tR\tnamespace*S\n" +
 	"\bNodeRole\x12\x19\n" +
 	"\x15NODE_ROLE_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10NODE_ROLE_LEADER\x10\x01\x12\x16\n" +
