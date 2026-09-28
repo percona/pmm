@@ -197,7 +197,7 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 		// with a misleading error, or silently return nothing. Reject up front, before any network.
 		if !slices.Contains(settings.AWSPartitions, partition) {
 			return nil, status.Errorf(codes.FailedPrecondition,
-				"Role %s belongs to AWS partition %q, which is not enabled in PMM settings.", req.AwsRoleArn, partition)
+				"Role %s belongs to AWS partition %s, which is not enabled in PMM settings.", req.AwsRoleArn, partition)
 		}
 
 		roleCfg := cfg
@@ -613,12 +613,12 @@ var stsDefaultRegion = map[string]string{
 func stsRegionForRoleARN(roleARN string) (string, string, error) {
 	parsed, err := arn.Parse(roleARN)
 	if err != nil {
-		return "", "", fmt.Errorf("failed to parse AWS role ARN %q: %w", roleARN, err)
+		return "", "", fmt.Errorf("failed to parse AWS role ARN %s: %w", roleARN, err)
 	}
 
 	region, ok := stsDefaultRegion[parsed.Partition]
 	if !ok {
-		return "", "", fmt.Errorf("unsupported AWS partition %q in role ARN %q", parsed.Partition, roleARN)
+		return "", "", fmt.Errorf("unsupported AWS partition %s in role ARN %s", parsed.Partition, roleARN)
 	}
 
 	return region, parsed.Partition, nil
