@@ -225,6 +225,22 @@ func TestNodes(t *testing.T) {
 		require.NoError(t, err)
 	})
 
+	t.Run("AddRemoteRDSNodeInstanceIDLowercased", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// AWS stores DB instance identifiers in lowercase and rds_exporter matches them
+		// exactly, so a mixed-case identifier would never scrape anything.
+		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test1", InstanceId: "MyDB"})
+		require.NoError(t, err)
+		assert.Equal(t, "mydb", node.InstanceId)
+
+		// The uniqueness check sees the same identifier whatever the case.
+		_, err = ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test2", Region: "test-region", Address: "test2", InstanceId: "mydb"})
+		expected := status.New(codes.AlreadyExists, `Node with DB instance identifier mydb and region test-region already exists.`)
+		tests.AssertGRPCError(t, expected, err)
+	})
+
 	t.Run("RemoveNotFound", func(t *testing.T) {
 		_, _, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)

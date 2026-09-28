@@ -252,6 +252,8 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 			}
 			instanceID = params.Address
 		}
+		// AWS stores DB instance identifiers in lowercase and rds_exporter matches them exactly.
+		instanceID = strings.ToLower(instanceID)
 		if instanceID == "" {
 			return nil, status.Error(codes.InvalidArgument, "Empty DB instance identifier.")
 		}
