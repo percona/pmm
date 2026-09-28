@@ -116,6 +116,17 @@ func ValkeyOptionsFromRequest(params ValkeyOptionsParams) ValkeyOptions {
 	return res
 }
 
+// Validate rejects a half TLS client key pair. The exporter calls log.Fatal when given one
+// half without the other, and the connection check cannot use one either, so the service
+// would otherwise be registered only to monitor with weaker authentication than was asked for.
+func (c ValkeyOptions) Validate() error {
+	if c.clientKeyPairIncomplete() {
+		return status.Error(codes.InvalidArgument, "TLS certificate and key must both be provided.")
+	}
+
+	return nil
+}
+
 // MongoDBOptionsParams contains methods to create MongoDBOptions object.
 type MongoDBOptionsParams interface {
 	GetTlsCertificateKey() string
@@ -976,6 +987,11 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		}
 	}
 
+	err = params.ValkeyOptions.Validate()
+	if err != nil {
+		return nil, err
+	}
+
 	exporterOptions := params.ExporterOptions
 	if pointer.Get(exporterOptions.ConnectionTimeout) == 0 {
 		exporterOptions.ConnectionTimeout = nil
@@ -1307,6 +1323,16 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		}
 		if params.ValkeyOptions.SSLKey != nil {
 			row.ValkeyOptions.SSLKey = *params.ValkeyOptions.SSLKey
+		}
+
+		// Only the change that touches the key pair is validated: rows stored before this
+		// validation existed may already hold half a pair, and validating the merged row on
+		// every call would make them permanently un-editable, including back into a valid shape.
+		if params.ValkeyOptions.SSLCert != nil || params.ValkeyOptions.SSLKey != nil {
+			err = row.ValkeyOptions.Validate()
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
