@@ -251,6 +251,20 @@ func TestAgentHelpers(t *testing.T) {
 		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, `node N4 has no DB instance identifier`, err)
 	})
 
+	t.Run("CreateAgentRDSExporterRequiresRemoteRDSNode", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		// A generic Node accepts any agent type, but an rds_exporter there has no region
+		// and no DB instance identifier to scrape, so it is refused like any other bad
+		// combination.
+		_, err := models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "A1",
+			NodeID:     "N1",
+		})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, `invalid combination of node type generic and agent type rds_exporter`, err)
+	})
+
 	t.Run("AgentsForNode", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
