@@ -552,6 +552,10 @@ type ListSessionsOKBodySessionsItems0 struct {
 	//  - SESSION_STATUS_DOWN: Session has been stopped or disabled.
 	// Enum: ["SESSION_STATUS_UNSPECIFIED","SESSION_STATUS_ERROR","SESSION_STATUS_RUNNING","SESSION_STATUS_DOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// ServiceType describes supported Service types.
+	// Enum: ["SERVICE_TYPE_UNSPECIFIED","SERVICE_TYPE_MYSQL_SERVICE","SERVICE_TYPE_MONGODB_SERVICE","SERVICE_TYPE_POSTGRESQL_SERVICE","SERVICE_TYPE_VALKEY_SERVICE","SERVICE_TYPE_PROXYSQL_SERVICE","SERVICE_TYPE_HAPROXY_SERVICE","SERVICE_TYPE_EXTERNAL_SERVICE"]
+	ServiceType *string `json:"service_type,omitempty"`
 }
 
 // Validate validates this list sessions OK body sessions items0
@@ -563,6 +567,10 @@ func (o *ListSessionsOKBodySessionsItems0) Validate(formats strfmt.Registry) err
 	}
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateServiceType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -626,6 +634,66 @@ func (o *ListSessionsOKBodySessionsItems0) validateStatus(formats strfmt.Registr
 
 	// value enum
 	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var listSessionsOkBodySessionsItems0TypeServiceTypePropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_UNSPECIFIED","SERVICE_TYPE_MYSQL_SERVICE","SERVICE_TYPE_MONGODB_SERVICE","SERVICE_TYPE_POSTGRESQL_SERVICE","SERVICE_TYPE_VALKEY_SERVICE","SERVICE_TYPE_PROXYSQL_SERVICE","SERVICE_TYPE_HAPROXY_SERVICE","SERVICE_TYPE_EXTERNAL_SERVICE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listSessionsOkBodySessionsItems0TypeServiceTypePropEnum = append(listSessionsOkBodySessionsItems0TypeServiceTypePropEnum, v)
+	}
+}
+
+const (
+
+	// ListSessionsOKBodySessionsItems0ServiceTypeSERVICETYPEUNSPECIFIED captures enum value "SERVICE_TYPE_UNSPECIFIED"
+	ListSessionsOKBodySessionsItems0ServiceTypeSERVICETYPEUNSPECIFIED string = "SERVICE_TYPE_UNSPECIFIED"
+
+	// ListSessionsOKBodySessionsItems0ServiceTypeSERVICETYPEMYSQLSERVICE captures enum value "SERVICE_TYPE_MYSQL_SERVICE"
+	ListSessionsOKBodySessionsItems0ServiceTypeSERVICETYPEMYSQLSERVICE string = "SERVICE_TYPE_MYSQL_SERVICE"
+
+	// ListSessionsOKBodySessionsItems0ServiceTypeSERVICETYPEMONGODBSERVICE captures enum value "SERVICE_TYPE_MONGODB_SERVICE"
+	ListSessionsOKBodySessionsItems0ServiceTypeSERVICETYPEMONGODBSERVICE string = "SERVICE_TYPE_MONGODB_SERVICE"
+
+	// ListSessionsOKBodySessionsItems0ServiceTypeSERVICETYPEPOSTGRESQLSERVICE captures enum value "SERVICE_TYPE_POSTGRESQL_SERVICE"
+	ListSessionsOKBodySessionsItems0ServiceTypeSERVICETYPEPOSTGRESQLSERVICE string = "SERVICE_TYPE_POSTGRESQL_SERVICE"
+
+	// ListSessionsOKBodySessionsItems0ServiceTypeSERVICETYPEVALKEYSERVICE captures enum value "SERVICE_TYPE_VALKEY_SERVICE"
+	ListSessionsOKBodySessionsItems0ServiceTypeSERVICETYPEVALKEYSERVICE string = "SERVICE_TYPE_VALKEY_SERVICE"
+
+	// ListSessionsOKBodySessionsItems0ServiceTypeSERVICETYPEPROXYSQLSERVICE captures enum value "SERVICE_TYPE_PROXYSQL_SERVICE"
+	ListSessionsOKBodySessionsItems0ServiceTypeSERVICETYPEPROXYSQLSERVICE string = "SERVICE_TYPE_PROXYSQL_SERVICE"
+
+	// ListSessionsOKBodySessionsItems0ServiceTypeSERVICETYPEHAPROXYSERVICE captures enum value "SERVICE_TYPE_HAPROXY_SERVICE"
+	ListSessionsOKBodySessionsItems0ServiceTypeSERVICETYPEHAPROXYSERVICE string = "SERVICE_TYPE_HAPROXY_SERVICE"
+
+	// ListSessionsOKBodySessionsItems0ServiceTypeSERVICETYPEEXTERNALSERVICE captures enum value "SERVICE_TYPE_EXTERNAL_SERVICE"
+	ListSessionsOKBodySessionsItems0ServiceTypeSERVICETYPEEXTERNALSERVICE string = "SERVICE_TYPE_EXTERNAL_SERVICE"
+)
+
+// prop value enum
+func (o *ListSessionsOKBodySessionsItems0) validateServiceTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listSessionsOkBodySessionsItems0TypeServiceTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListSessionsOKBodySessionsItems0) validateServiceType(formats strfmt.Registry) error {
+	if swag.IsZero(o.ServiceType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateServiceTypeEnum("service_type", "body", *o.ServiceType); err != nil {
 		return err
 	}
 

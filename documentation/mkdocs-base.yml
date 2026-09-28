@@ -256,7 +256,9 @@ nav:
                 - Details panel: use/qan/panels/details.md
             - use/qan/mysql.md
             - use/qan/qan_mongo.md
-          - Real-time analytics: use/qan/QAN-realtime-analytics.md           
+          - Real-time analytics:
+            - use/qan/QAN-realtime-analytics.md
+            - use/qan/QAN-realtime-analytics-mysql.md
 
 
       - Percona Advisors:

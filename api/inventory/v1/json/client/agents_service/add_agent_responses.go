@@ -238,6 +238,9 @@ type AddAgentBody struct {
 	// rta mongodb agent
 	RtaMongodbAgent *AddAgentParamsBodyRtaMongodbAgent `json:"rta_mongodb_agent,omitempty"`
 
+	// rta mysql agent
+	RtaMysqlAgent *AddAgentParamsBodyRtaMysqlAgent `json:"rta_mysql_agent,omitempty"`
+
 	// valkey exporter
 	ValkeyExporter *AddAgentParamsBodyValkeyExporter `json:"valkey_exporter,omitempty"`
 }
@@ -307,6 +310,10 @@ func (o *AddAgentBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRtaMongodbAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaMysqlAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -688,6 +695,29 @@ func (o *AddAgentBody) validateRtaMongodbAgent(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *AddAgentBody) validateRtaMysqlAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaMysqlAgent) { // not required
+		return nil
+	}
+
+	if o.RtaMysqlAgent != nil {
+		if err := o.RtaMysqlAgent.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_mysql_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_mysql_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *AddAgentBody) validateValkeyExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.ValkeyExporter) { // not required
 		return nil
@@ -776,6 +806,10 @@ func (o *AddAgentBody) ContextValidate(ctx context.Context, formats strfmt.Regis
 	}
 
 	if err := o.contextValidateRtaMongodbAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRtaMysqlAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1173,6 +1207,30 @@ func (o *AddAgentBody) contextValidateRtaMongodbAgent(ctx context.Context, forma
 	return nil
 }
 
+func (o *AddAgentBody) contextValidateRtaMysqlAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.RtaMysqlAgent != nil {
+
+		if swag.IsZero(o.RtaMysqlAgent) { // not required
+			return nil
+		}
+
+		if err := o.RtaMysqlAgent.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_mysql_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_mysql_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *AddAgentBody) contextValidateValkeyExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.ValkeyExporter != nil {
 
@@ -1496,6 +1554,9 @@ type AddAgentOKBody struct {
 	// rta mongodb agent
 	RtaMongodbAgent *AddAgentOKBodyRtaMongodbAgent `json:"rta_mongodb_agent,omitempty"`
 
+	// rta mysql agent
+	RtaMysqlAgent *AddAgentOKBodyRtaMysqlAgent `json:"rta_mysql_agent,omitempty"`
+
 	// valkey exporter
 	ValkeyExporter *AddAgentOKBodyValkeyExporter `json:"valkey_exporter,omitempty"`
 }
@@ -1565,6 +1626,10 @@ func (o *AddAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRtaMongodbAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaMysqlAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1946,6 +2011,29 @@ func (o *AddAgentOKBody) validateRtaMongodbAgent(formats strfmt.Registry) error 
 	return nil
 }
 
+func (o *AddAgentOKBody) validateRtaMysqlAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaMysqlAgent) { // not required
+		return nil
+	}
+
+	if o.RtaMysqlAgent != nil {
+		if err := o.RtaMysqlAgent.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addAgentOk" + "." + "rta_mysql_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addAgentOk" + "." + "rta_mysql_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *AddAgentOKBody) validateValkeyExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.ValkeyExporter) { // not required
 		return nil
@@ -2034,6 +2122,10 @@ func (o *AddAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 	}
 
 	if err := o.contextValidateRtaMongodbAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRtaMysqlAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2422,6 +2514,30 @@ func (o *AddAgentOKBody) contextValidateRtaMongodbAgent(ctx context.Context, for
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "rta_mongodb_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddAgentOKBody) contextValidateRtaMysqlAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.RtaMysqlAgent != nil {
+
+		if swag.IsZero(o.RtaMysqlAgent) { // not required
+			return nil
+		}
+
+		if err := o.RtaMysqlAgent.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addAgentOk" + "." + "rta_mysql_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addAgentOk" + "." + "rta_mysql_agent")
 			}
 
 			return err
@@ -6686,6 +6802,309 @@ func (o *AddAgentOKBodyRtaMongodbAgentRtaOptions) UnmarshalBinary(b []byte) erro
 }
 
 /*
+AddAgentOKBodyRtaMysqlAgent RTAMySQLAgent runs within pmm-agent and sends MySQL Real-Time Query Analytics data to the PMM Server.
+swagger:model AddAgentOKBodyRtaMysqlAgent
+*/
+type AddAgentOKBodyRtaMysqlAgent struct {
+	// Unique agent identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MySQL username for getting the currently running queries.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// rta options
+	RtaOptions *AddAgentOKBodyRtaMysqlAgentRtaOptions `json:"rta_options,omitempty"`
+}
+
+// Validate validates this add agent OK body rta mysql agent
+func (o *AddAgentOKBodyRtaMysqlAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaOptions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addAgentOkBodyRtaMysqlAgentTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addAgentOkBodyRtaMysqlAgentTypeStatusPropEnum = append(addAgentOkBodyRtaMysqlAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddAgentOKBodyRtaMysqlAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyRtaMysqlAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddAgentOKBodyRtaMysqlAgent) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addAgentOk"+"."+"rta_mysql_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addAgentOkBodyRtaMysqlAgentTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addAgentOkBodyRtaMysqlAgentTypeLogLevelPropEnum = append(addAgentOkBodyRtaMysqlAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddAgentOKBodyRtaMysqlAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyRtaMysqlAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddAgentOKBodyRtaMysqlAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addAgentOk"+"."+"rta_mysql_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *AddAgentOKBodyRtaMysqlAgent) validateRtaOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaOptions) { // not required
+		return nil
+	}
+
+	if o.RtaOptions != nil {
+		if err := o.RtaOptions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addAgentOk" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addAgentOk" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add agent OK body rta mysql agent based on the context it is used
+func (o *AddAgentOKBodyRtaMysqlAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateRtaOptions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddAgentOKBodyRtaMysqlAgent) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
+	if o.RtaOptions != nil {
+
+		if swag.IsZero(o.RtaOptions) { // not required
+			return nil
+		}
+
+		if err := o.RtaOptions.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addAgentOk" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addAgentOk" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentOKBodyRtaMysqlAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentOKBodyRtaMysqlAgent) UnmarshalBinary(b []byte) error {
+	var res AddAgentOKBodyRtaMysqlAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddAgentOKBodyRtaMysqlAgentRtaOptions RTAOptions holds Real-Time Query Analytics agent options.
+swagger:model AddAgentOKBodyRtaMysqlAgentRtaOptions
+*/
+type AddAgentOKBodyRtaMysqlAgentRtaOptions struct {
+	// Query collect interval (default 2s is set by server).
+	CollectInterval string `json:"collect_interval,omitempty"`
+}
+
+// Validate validates this add agent OK body rta mysql agent rta options
+func (o *AddAgentOKBodyRtaMysqlAgentRtaOptions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add agent OK body rta mysql agent rta options based on context it is used
+func (o *AddAgentOKBodyRtaMysqlAgentRtaOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentOKBodyRtaMysqlAgentRtaOptions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentOKBodyRtaMysqlAgentRtaOptions) UnmarshalBinary(b []byte) error {
+	var res AddAgentOKBodyRtaMysqlAgentRtaOptions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
 AddAgentOKBodyValkeyExporter ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.
 swagger:model AddAgentOKBodyValkeyExporter
 */
@@ -9186,6 +9605,243 @@ func (o *AddAgentParamsBodyRtaMongodbAgentRtaOptions) MarshalBinary() ([]byte, e
 // UnmarshalBinary interface implementation
 func (o *AddAgentParamsBodyRtaMongodbAgentRtaOptions) UnmarshalBinary(b []byte) error {
 	var res AddAgentParamsBodyRtaMongodbAgentRtaOptions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddAgentParamsBodyRtaMysqlAgent add agent params body rta mysql agent
+swagger:model AddAgentParamsBodyRtaMysqlAgent
+*/
+type AddAgentParamsBodyRtaMysqlAgent struct {
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MySQL username for getting queries data.
+	Username string `json:"username,omitempty"`
+
+	// MySQL password for getting queries data.
+	Password string `json:"password,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// MySQL specific options.
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Certificate Authority certificate chain.
+	TLSCa string `json:"tls_ca,omitempty"`
+
+	// Client certificate.
+	TLSCert string `json:"tls_cert,omitempty"`
+
+	// Client key.
+	TLSKey string `json:"tls_key,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// rta options
+	RtaOptions *AddAgentParamsBodyRtaMysqlAgentRtaOptions `json:"rta_options,omitempty"`
+}
+
+// Validate validates this add agent params body rta mysql agent
+func (o *AddAgentParamsBodyRtaMysqlAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaOptions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addAgentParamsBodyRtaMysqlAgentTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addAgentParamsBodyRtaMysqlAgentTypeLogLevelPropEnum = append(addAgentParamsBodyRtaMysqlAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddAgentParamsBodyRtaMysqlAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentParamsBodyRtaMysqlAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddAgentParamsBodyRtaMysqlAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"rta_mysql_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *AddAgentParamsBodyRtaMysqlAgent) validateRtaOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaOptions) { // not required
+		return nil
+	}
+
+	if o.RtaOptions != nil {
+		if err := o.RtaOptions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add agent params body rta mysql agent based on the context it is used
+func (o *AddAgentParamsBodyRtaMysqlAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateRtaOptions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddAgentParamsBodyRtaMysqlAgent) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
+	if o.RtaOptions != nil {
+
+		if swag.IsZero(o.RtaOptions) { // not required
+			return nil
+		}
+
+		if err := o.RtaOptions.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentParamsBodyRtaMysqlAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentParamsBodyRtaMysqlAgent) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyRtaMysqlAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddAgentParamsBodyRtaMysqlAgentRtaOptions RTAOptions holds Real-Time Query Analytics agent options.
+swagger:model AddAgentParamsBodyRtaMysqlAgentRtaOptions
+*/
+type AddAgentParamsBodyRtaMysqlAgentRtaOptions struct {
+	// Query collect interval (default 2s is set by server).
+	CollectInterval string `json:"collect_interval,omitempty"`
+}
+
+// Validate validates this add agent params body rta mysql agent rta options
+func (o *AddAgentParamsBodyRtaMysqlAgentRtaOptions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add agent params body rta mysql agent rta options based on context it is used
+func (o *AddAgentParamsBodyRtaMysqlAgentRtaOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentParamsBodyRtaMysqlAgentRtaOptions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentParamsBodyRtaMysqlAgentRtaOptions) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyRtaMysqlAgentRtaOptions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -2289,6 +2289,156 @@ var _ interface {
 	ErrorName() string
 } = RTAMongoDBAgentValidationError{}
 
+// Validate checks the field values on RTAMySQLAgent with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *RTAMySQLAgent) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RTAMySQLAgent with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in RTAMySQLAgentMultiError, or
+// nil if none found.
+func (m *RTAMySQLAgent) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RTAMySQLAgent) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for AgentId
+
+	// no validation rules for PmmAgentId
+
+	// no validation rules for Disabled
+
+	// no validation rules for ServiceId
+
+	// no validation rules for Username
+
+	// no validation rules for Tls
+
+	// no validation rules for TlsSkipVerify
+
+	// no validation rules for CustomLabels
+
+	if all {
+		switch v := interface{}(m.GetRtaOptions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RTAMySQLAgentValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RTAMySQLAgentValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RTAMySQLAgentValidationError{
+				field:  "RtaOptions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Status
+
+	// no validation rules for LogLevel
+
+	if len(errors) > 0 {
+		return RTAMySQLAgentMultiError(errors)
+	}
+
+	return nil
+}
+
+// RTAMySQLAgentMultiError is an error wrapping multiple validation errors
+// returned by RTAMySQLAgent.ValidateAll() if the designated constraints
+// aren't met.
+type RTAMySQLAgentMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RTAMySQLAgentMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RTAMySQLAgentMultiError) AllErrors() []error { return m }
+
+// RTAMySQLAgentValidationError is the validation error returned by
+// RTAMySQLAgent.Validate if the designated constraints aren't met.
+type RTAMySQLAgentValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RTAMySQLAgentValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RTAMySQLAgentValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RTAMySQLAgentValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RTAMySQLAgentValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RTAMySQLAgentValidationError) ErrorName() string { return "RTAMySQLAgentValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RTAMySQLAgentValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRTAMySQLAgent.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = RTAMySQLAgentValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RTAMySQLAgentValidationError{}
+
 // Validate checks the field values on QANPostgreSQLPgStatementsAgent with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -3970,6 +4120,40 @@ func (m *ListAgentsResponse) validate(all bool) error {
 
 	}
 
+	for idx, item := range m.GetRtaMysqlAgent() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("RtaMysqlAgent[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("RtaMysqlAgent[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListAgentsResponseValidationError{
+					field:  fmt.Sprintf("RtaMysqlAgent[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return ListAgentsResponseMultiError(errors)
 	}
@@ -4959,6 +5143,47 @@ func (m *GetAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "RtaMongodbAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *GetAgentResponse_RtaMysqlAgent:
+		if v == nil {
+			err := GetAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMysqlAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMysqlAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetAgentResponseValidationError{
+					field:  "RtaMysqlAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -5989,6 +6214,47 @@ func (m *AddAgentRequest) validate(all bool) error {
 			}
 		}
 
+	case *AddAgentRequest_RtaMysqlAgent:
+		if v == nil {
+			err := AddAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMysqlAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddAgentRequestValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddAgentRequestValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMysqlAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddAgentRequestValidationError{
+					field:  "RtaMysqlAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -6786,6 +7052,47 @@ func (m *AddAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return AddAgentResponseValidationError{
 					field:  "RtaMongodbAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddAgentResponse_RtaMysqlAgent:
+		if v == nil {
+			err := AddAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMysqlAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddAgentResponseValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddAgentResponseValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMysqlAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddAgentResponseValidationError{
+					field:  "RtaMysqlAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -7606,6 +7913,47 @@ func (m *ChangeAgentRequest) validate(all bool) error {
 			}
 		}
 
+	case *ChangeAgentRequest_RtaMysqlAgent:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMysqlAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMysqlAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "RtaMysqlAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -8405,6 +8753,47 @@ func (m *ChangeAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return ChangeAgentResponseValidationError{
 					field:  "RtaMongodbAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_RtaMysqlAgent:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMysqlAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMysqlAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "RtaMysqlAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -14940,6 +15329,385 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ChangeRTAMongoDBAgentParamsValidationError{}
+
+// Validate checks the field values on AddRTAMySQLAgentParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddRTAMySQLAgentParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddRTAMySQLAgentParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddRTAMySQLAgentParamsMultiError, or nil if none found.
+func (m *AddRTAMySQLAgentParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddRTAMySQLAgentParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
+		err := AddRTAMySQLAgentParamsValidationError{
+			field:  "PmmAgentId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
+		err := AddRTAMySQLAgentParamsValidationError{
+			field:  "ServiceId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Username
+
+	// no validation rules for Password
+
+	// no validation rules for CustomLabels
+
+	// no validation rules for LogLevel
+
+	// no validation rules for Tls
+
+	// no validation rules for TlsSkipVerify
+
+	// no validation rules for TlsCa
+
+	// no validation rules for TlsCert
+
+	// no validation rules for TlsKey
+
+	// no validation rules for SkipConnectionCheck
+
+	if all {
+		switch v := interface{}(m.GetRtaOptions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AddRTAMySQLAgentParamsValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AddRTAMySQLAgentParamsValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AddRTAMySQLAgentParamsValidationError{
+				field:  "RtaOptions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return AddRTAMySQLAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddRTAMySQLAgentParamsMultiError is an error wrapping multiple validation
+// errors returned by AddRTAMySQLAgentParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddRTAMySQLAgentParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddRTAMySQLAgentParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddRTAMySQLAgentParamsMultiError) AllErrors() []error { return m }
+
+// AddRTAMySQLAgentParamsValidationError is the validation error returned by
+// AddRTAMySQLAgentParams.Validate if the designated constraints aren't met.
+type AddRTAMySQLAgentParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddRTAMySQLAgentParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddRTAMySQLAgentParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddRTAMySQLAgentParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddRTAMySQLAgentParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddRTAMySQLAgentParamsValidationError) ErrorName() string {
+	return "AddRTAMySQLAgentParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddRTAMySQLAgentParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddRTAMySQLAgentParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = AddRTAMySQLAgentParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddRTAMySQLAgentParamsValidationError{}
+
+// Validate checks the field values on ChangeRTAMySQLAgentParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeRTAMySQLAgentParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeRTAMySQLAgentParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeRTAMySQLAgentParamsMultiError, or nil if none found.
+func (m *ChangeRTAMySQLAgentParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeRTAMySQLAgentParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.Enable != nil {
+		// no validation rules for Enable
+	}
+
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeRTAMySQLAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeRTAMySQLAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeRTAMySQLAgentParamsValidationError{
+					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.RtaOptions != nil {
+		if all {
+			switch v := interface{}(m.GetRtaOptions()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeRTAMySQLAgentParamsValidationError{
+						field:  "RtaOptions",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeRTAMySQLAgentParamsValidationError{
+						field:  "RtaOptions",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeRTAMySQLAgentParamsValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if len(errors) > 0 {
+		return ChangeRTAMySQLAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeRTAMySQLAgentParamsMultiError is an error wrapping multiple validation
+// errors returned by ChangeRTAMySQLAgentParams.ValidateAll() if the
+// designated constraints aren't met.
+type ChangeRTAMySQLAgentParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeRTAMySQLAgentParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeRTAMySQLAgentParamsMultiError) AllErrors() []error { return m }
+
+// ChangeRTAMySQLAgentParamsValidationError is the validation error returned by
+// ChangeRTAMySQLAgentParams.Validate if the designated constraints aren't met.
+type ChangeRTAMySQLAgentParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeRTAMySQLAgentParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeRTAMySQLAgentParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeRTAMySQLAgentParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeRTAMySQLAgentParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeRTAMySQLAgentParamsValidationError) ErrorName() string {
+	return "ChangeRTAMySQLAgentParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeRTAMySQLAgentParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeRTAMySQLAgentParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ChangeRTAMySQLAgentParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeRTAMySQLAgentParamsValidationError{}
 
 // Validate checks the field values on RemoveAgentRequest with the rules
 // defined in the proto definition for this message. If any rules are
