@@ -454,7 +454,7 @@ type RemoteRDSNode struct {
 	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// Unique across all Nodes user-defined name.
 	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
-	// Node address. For RDS this is the instance endpoint, not the DB instance identifier.
+	// Node address: the instance endpoint or, for older Nodes, the DB instance identifier.
 	Address string `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
 	// Node model.
 	NodeModel string `protobuf:"bytes,4,opt,name=node_model,json=nodeModel,proto3" json:"node_model,omitempty"`
@@ -464,7 +464,7 @@ type RemoteRDSNode struct {
 	Az string `protobuf:"bytes,6,opt,name=az,proto3" json:"az,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,7,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	// AWS instance ID.
+	// AWS DB instance identifier.
 	InstanceId    string `protobuf:"bytes,8,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1531,7 +1531,8 @@ type AddRemoteRDSNodeParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Unique across all Nodes user-defined name.
 	NodeName string `protobuf:"bytes,1,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
-	// Node address. For RDS this is the instance endpoint, not the DB instance identifier.
+	// Node address: the instance endpoint. Older clients pass the DB instance identifier here
+	// instead and omit instance_id.
 	Address string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
 	// Node model.
 	NodeModel string `protobuf:"bytes,3,opt,name=node_model,json=nodeModel,proto3" json:"node_model,omitempty"`
@@ -1541,8 +1542,9 @@ type AddRemoteRDSNodeParams struct {
 	Az string `protobuf:"bytes,5,opt,name=az,proto3" json:"az,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,6,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	// AWS DB instance identifier. Required: rds_exporter uses it as the CloudWatch
-	// DBInstanceIdentifier dimension, and cannot scrape without it.
+	// AWS DB instance identifier: rds_exporter uses it as the CloudWatch DBInstanceIdentifier
+	// dimension. Optional when address is the bare identifier, which is then used; required when
+	// address is an endpoint. Stored in lowercase, as AWS does.
 	InstanceId    string `protobuf:"bytes,7,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2065,7 +2067,6 @@ var (
 		nil,                              // 28: inventory.v1.AddRemoteAzureNodeParams.CustomLabelsEntry
 	}
 )
-
 var file_inventory_v1_nodes_proto_depIdxs = []int32{
 	19, // 0: inventory.v1.GenericNode.custom_labels:type_name -> inventory.v1.GenericNode.CustomLabelsEntry
 	20, // 1: inventory.v1.ContainerNode.custom_labels:type_name -> inventory.v1.ContainerNode.CustomLabelsEntry
