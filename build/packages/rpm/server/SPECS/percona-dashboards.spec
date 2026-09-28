@@ -67,7 +67,7 @@ echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 
 %changelog
 * Mon Sep 28 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-29
-- PMM-15335 Bump clickhouse datasource plugin to 4.21.3
+- PMM-15225 Bump clickhouse datasource plugin to 4.21.3
 
 * Fri Aug 14 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-28
 - PMM-15335 Bump clickhouse datasource plugin to 4.20.0
