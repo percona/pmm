@@ -538,7 +538,6 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 	case <-t.C:
 	}
 
-	//nolint:forcetypeassert
 	s.agentProcesses[agentID] = processInfo
 	return nil
 }
