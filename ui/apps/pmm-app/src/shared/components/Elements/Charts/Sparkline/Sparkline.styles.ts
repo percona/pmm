@@ -3,7 +3,7 @@ import { css } from '@emotion/css';
 export const styles = {
   graphWrapper: css`
     background: transparent;
-    borderbottom: 1px solid grey;
+    border-bottom: 1px solid grey;
   `,
   tippy: css`
     .tippy-content {
