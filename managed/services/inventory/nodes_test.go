@@ -149,13 +149,36 @@ func TestNodes(t *testing.T) {
 		require.NoError(t, err)
 	})
 
+	t.Run("AddRemoteRDSNodeInstanceIDFromBareAddress", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// Clients from before 3.4.0 send the DB instance identifier as the address and no
+		// instance_id. A bare address is the identifier, so they keep working.
+		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test-db"})
+		require.NoError(t, err)
+		assert.Equal(t, "test-db", node.InstanceId)
+	})
+
+	t.Run("AddRemoteRDSNodeEndpointWithoutInstanceID", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// The first label of an endpoint is the identifier only for a standard instance
+		// endpoint, so an endpoint address needs an explicit instance_id.
+		_, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{
+			NodeName: "test1", Region: "test-region", Address: "test.abcdef.eu-north-1.rds.amazonaws.com",
+		})
+		expected := status.New(codes.InvalidArgument, "DB instance identifier is required when the address is an endpoint.")
+		tests.AssertGRPCError(t, expected, err)
+	})
+
 	t.Run("AddRemoteRDSNodeEmptyInstanceID", func(t *testing.T) {
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
-		// Without a DB instance identifier the rds_exporter has no CloudWatch
-		// DBInstanceIdentifier to query, so the node is unusable. Refuse it.
-		_, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
+		// Without an address there is nothing to derive the identifier from either.
+		_, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region"})
 		expected := status.New(codes.InvalidArgument, "Empty DB instance identifier.")
 		tests.AssertGRPCError(t, expected, err)
 	})

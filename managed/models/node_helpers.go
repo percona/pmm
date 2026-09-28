@@ -239,15 +239,27 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 
 	// do not check that machine-id is unique: https://perconadev.atlassian.net/browse/PMM-4196
 
+	instanceID := params.InstanceID
 	if nodeType == RemoteRDSNodeType {
-		if params.InstanceID == "" {
+		// Before 3.4.0 the inventory API took the DB instance identifier as the address, and
+		// clients from that time still send it that way. Keep them working: a bare address is
+		// the identifier. An endpoint address without an identifier is refused, because its
+		// first label is only right for a standard instance endpoint, not for a cluster
+		// endpoint, a CNAME or an IP.
+		if instanceID == "" {
+			if strings.Contains(params.Address, ".") {
+				return nil, status.Error(codes.InvalidArgument, "DB instance identifier is required when the address is an endpoint.")
+			}
+			instanceID = params.Address
+		}
+		if instanceID == "" {
 			return nil, status.Error(codes.InvalidArgument, "Empty DB instance identifier.")
 		}
-		if strings.Contains(params.InstanceID, ".") {
+		if strings.Contains(instanceID, ".") {
 			return nil, status.Error(codes.InvalidArgument, "DB instance identifier should not contain dots.")
 		}
 
-		err = checkUniqueNodeInstanceIDRegion(q, params.InstanceID, params.Region)
+		err = checkUniqueNodeInstanceIDRegion(q, instanceID, params.Region)
 		if err != nil {
 			return nil, err
 		}
@@ -272,7 +284,7 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 		AZ:              params.AZ,
 		ContainerID:     params.ContainerID,
 		ContainerName:   params.ContainerName,
-		InstanceID:      params.InstanceID,
+		InstanceID:      instanceID,
 		Address:         params.Address,
 		Region:          params.Region,
 		IsPMMServerNode: params.IsPMMServerNode,
