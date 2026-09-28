@@ -80,7 +80,8 @@ build-ui: ui-setup               ## Build UI and deploy to system dirs
 	rm -rf /usr/share/percona-dashboards/panels/pmm-compat-app /srv/grafana/plugins/pmm-compat-app
 	cp -r ui/apps/pmm-compat/dist /usr/share/percona-dashboards/panels/pmm-compat-app
 	cp -r ui/apps/pmm-compat/dist /srv/grafana/plugins/pmm-compat-app
-	rm -rf /srv/grafana/plugins/pmm-app/dist
+	rm -rf /usr/share/percona-dashboards/panels/pmm-app/dist /srv/grafana/plugins/pmm-app/dist
+	cp -r ui/apps/pmm-app/dist /usr/share/percona-dashboards/panels/pmm-app/dist
 	cp -r ui/apps/pmm-app/dist /srv/grafana/plugins/pmm-app/dist
 	supervisorctl restart grafana
 
