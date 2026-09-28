@@ -102,6 +102,11 @@ type Service struct {
 	// configured. Held rather than constructed per run so the HTTP client is reused.
 	probe *probeSource
 
+	// tick overrides Run's ticker interval; zero means refreshInterval. Only tests set
+	// it, and only before Run starts, so the retry path can be exercised without waiting
+	// out a real interval.
+	tick time.Duration
+
 	// restored guards the one-time read of the stored document on a cold start.
 	restored sync.Once
 
@@ -203,31 +208,43 @@ func (s *Service) IsAvailable(ctx context.Context) bool {
 // beat store is not due until one full SCHEDULE interval has elapsed -- there is no
 // "run once now, then repeat" concept in an interval schedule, so a 60-minute
 // cadence would otherwise leave the estate empty for up to an hour after being
-// turned on. Mirrors triggerOMCollectionIfJustEnabled, PMM's own equivalent kick for
-// its topology page.
+// turned on. Mirrors applyOMSwitch, PMM's own equivalent kick for its topology page.
 //
-// Both calls are best-effort: a stale write, or a sweep that does not fire, means
-// PMM Extensions is briefly out of step with PMM's switch, not a broken settings change, so
-// failure is logged rather than returned to the caller -- matching
-// triggerOMCollectionIfJustEnabled, the other side effect ChangeSettings fires on
-// this same transition.
+// Best-effort for a caller that cannot retry: a stale write, or a sweep that does not
+// fire, means PMM Extensions is briefly out of step with PMM's switch, not a broken
+// settings change, so failure is logged rather than returned -- matching applyOMSwitch,
+// the side effect ChangeSettings fires on this same transition. Run reconciles the same
+// state and does retry, so it calls syncInventoryEnabled directly.
 func (s *Service) SyncInventoryEnabled(ctx context.Context, enabled bool) {
+	_ = s.syncInventoryEnabled(ctx, enabled)
+}
+
+// syncInventoryEnabled is SyncInventoryEnabled's error-returning half, for the one caller
+// that can do something about a failure.
+//
+// Only the ENABLED write decides the returned error. That write is the whole of the
+// reconcile: until it lands, PMM Extensions' own ENABLED stays at its default of false
+// and the sweep never runs at all. The immediate sweep after it is a kick at an app
+// already correctly configured, so a failure there is logged and left to SCHEDULE rather
+// than reported as an unreconciled switch.
+func (s *Service) syncInventoryEnabled(ctx context.Context, enabled bool) error {
 	if s.probe == nil || s.probe.app.client == nil {
-		return
+		return nil
 	}
 	err := s.probe.app.patchConfig(ctx, map[string]any{"ENABLED": enabled})
 	if err != nil {
 		s.l.WithError(err).WithField("enabled", enabled).
 			Warn("failed to sync OpenManager's on/off state to PMM Extensions' om_inventory app")
-		return
+		return err
 	}
 	if !enabled {
-		return
+		return nil
 	}
 	err = s.probe.app.triggerRun(ctx)
 	if err != nil {
 		s.l.WithError(err).Warn("failed to trigger an immediate PMM Extensions inventory sweep after enabling OpenManager")
 	}
+	return nil
 }
 
 // GetTopology returns the whole MongoDB estate as one document.
@@ -326,20 +343,34 @@ func (s *Service) TriggerTopologyCollection(ctx context.Context, _ *omv1.Trigger
 // only worth having if it exists when nobody is looking, and a document assembled purely
 // on demand can say nothing about the interval since the last one.
 //
-// Also reconciles PMM Extensions' om_inventory ENABLED flag with PMM's own switch once, up front.
-// The existing syncOMInventoryEnabledIfChanged (server.go) only calls SyncInventoryEnabled
-// on a live ChangeSettings transition, so a server that starts up already enabled -- via
-// PMM_ENABLE_OM, or a persisted setting surviving a restart -- never fires it: there is
-// no "old" value to differ from a "new" one. Confirmed the hard way: PMM_ENABLE_OM=1 at
-// container start left PMM Extensions' ENABLED permanently false, with no supported way to correct
-// it afterward, since ChangeSettings refuses any value differing from the env-var-locked
-// one, and resubmitting the same value is a no-op transition. This call is what this
-// same ticker's own Enabled() check already gets for free every tick -- the current
-// truth, not just transitions away from it.
+// Also reconciles PMM Extensions' om_inventory ENABLED flag with PMM's own switch, up
+// front and then on every tick until it lands. The applyOMSwitch helper (server.go) only
+// calls SyncInventoryEnabled on a live ChangeSettings transition, so a server that starts up
+// already enabled -- via PMM_ENABLE_OM, or a persisted setting surviving a restart --
+// never fires it: there is no "old" value to differ from a "new" one. Confirmed the hard
+// way: PMM_ENABLE_OM=1 at container start left PMM Extensions' ENABLED permanently false,
+// with no supported way to correct it afterward, since ChangeSettings refuses any value
+// differing from the env-var-locked one, and resubmitting the same value is a no-op
+// transition. This call is what this same ticker's own Enabled() check already gets for
+// free every tick -- the current truth, not just transitions away from it.
+//
+// Retried rather than attempted once, because up front is the one moment PMM Extensions
+// is least likely to answer. In the bundled deployment its side-car cannot finish starting
+// until pmm-server's entrypoint has published its credentials and the embedded Postgres is
+// up, while pmm-managed -- and, on a non-HA server, this service -- start at that same
+// point. A single attempt there loses the race on a cold deployment and leaves ENABLED
+// false for good: nothing else reconciles it, and ChangeSettings cannot, since the env
+// lock rejects other values and resubmitting the same one is a no-op. Retrying stops at
+// the first success; steady-state costs one extra PATCH only on a server that has never
+// reached PMM Extensions at all.
 func (s *Service) Run(ctx context.Context) {
-	s.SyncInventoryEnabled(ctx, s.Enabled())
+	reconciled := s.syncInventoryEnabled(ctx, s.Enabled()) == nil
 
-	ticker := time.NewTicker(refreshInterval)
+	interval := s.tick
+	if interval == 0 {
+		interval = refreshInterval
+	}
+	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
 	for {
@@ -347,6 +378,11 @@ func (s *Service) Run(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
+			// Before the Enabled() gate, not after: reconciling a switch that is off is
+			// how PMM Extensions is told to stop sweeping.
+			if !reconciled {
+				reconciled = s.syncInventoryEnabled(ctx, s.Enabled()) == nil
+			}
 			if !s.Enabled() {
 				continue
 			}
