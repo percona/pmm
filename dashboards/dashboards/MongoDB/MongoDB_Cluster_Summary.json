@@ -1919,7 +1919,7 @@
             "type": "bargauge"
         },
         {
-            "description": "Ops/sec, classified by legacy wire protocol type (query, insert, update, delete, getmore).",
+            "description": "Client operations per second on each shard (query, getmore, insert, update and delete), summed over all members. Equals Reads Per Shard plus Writes Per Shard; config servers and replicated writes are excluded.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1934,7 +1934,7 @@
                         "barAlignment": 0,
                         "barWidthFactor": 0.6,
                         "drawStyle": "line",
-                        "fillOpacity": 60,
+                        "fillOpacity": 10,
                         "gradientMode": "none",
                         "hideFrom": {
                             "legend": false,
@@ -1952,7 +1952,7 @@
                         "spanNulls": false,
                         "stacking": {
                             "group": "A",
-                            "mode": "normal"
+                            "mode": "none"
                         },
                         "thresholdsStyle": {
                             "mode": "off"
@@ -1961,8 +1961,8 @@
                     "links": [
                         {
                             "targetBlank": true,
-                            "title": "MongoDB ReplSet Summary - ${__series.name}",
-                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?var-cluster=${cluster}&var-rs_nm=${__series.name}&${__url_time_range}"
+                            "title": "MongoDB ReplSet Summary - ${__field.labels.rs_nm}",
+                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?var-cluster=${cluster}&var-rs_nm=${__field.labels.rs_nm}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -2009,15 +2009,14 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "sum(sum(rate(mongodb_op_counters_total{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\", type!=\"command\"}[$interval]) or \nirate(mongodb_op_counters_total{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\", type!=\"command\"}[5m])) by (instance) * on (instance) \ngroup_right mongodb_mongod_replset_my_state{environment=~\"$environment\", cluster=~\"$cluster\", set=~\"$set\", service_name=~\"$service_name\"} / mongodb_mongod_replset_my_state{environment=~\"$environment\", cluster=~\"$cluster\", set=~\"$set\", service_name=~\"$service_name\"}) by (set)",
+                    "expr": "sum by (rs_nm) (rate(mongodb_ss_opcounters{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\", legacy_op_type!=\"command\"}[$interval]))",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
-                    "legendFormat": "{{set}}",
+                    "legendFormat": "{{rs_nm}}",
                     "range": true,
-                    "refId": "A",
-                    "step": 300
+                    "refId": "A"
                 }
             ],
             "title": "Operations Per Shard",
