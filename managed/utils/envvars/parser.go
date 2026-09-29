@@ -133,6 +133,15 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			// process was started, so it is read from the environment by
 			// env.ExtensionsEnabled instead of being persisted here.
 			continue
+		case "PMM_EXTENSIONS_URL", "PMM_EXTENSIONS_TOKEN":
+			// skip the env variables that are already handled by kingpin, as the
+			// Envar() backing --extensions-url and --extensions-token.
+			//
+			// Not merely noise: the warning below prints the whole KEY=VALUE, so
+			// leaving PMM_EXTENSIONS_TOKEN to reach it writes the bearer pmm-managed
+			// authenticates to PMM Extensions with into the server log in clear text, on
+			// every start of every deployment that sets it.
+			continue
 		case "PERCONA_TELEMETRY_DISABLE":
 			// skip the Pillars telemetry environment variable
 			continue
