@@ -2,8 +2,8 @@
 
 Use this page when a PMM High Availability (HA) Cluster is unreachable, has no leader, or has stopped collecting data. For problems that aren't specific to HA, such as dashboards, agents, or queries on an otherwise healthy server, see [Troubleshoot PMM](index.md).
 
-## Default values used in examples
-The examples assume the default namespace `pmm` and release name `pmm-ha`, which gives three PMM Server pods: `pmm-ha-0`, `pmm-ha-1`, and `pmm-ha-2`. If you used different values, adjust the commands accordingly.
+!!! note "Default values used in examples"
+    The examples assume the default namespace `pmm` and release name `pmm-ha`, which gives three PMM Server pods: `pmm-ha-0`, `pmm-ha-1`, and `pmm-ha-2`. If you used different values, adjust the commands accordingly.
 
 ## Before you begin
 
