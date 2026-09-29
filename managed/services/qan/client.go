@@ -28,12 +28,31 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/proto"
 	"gopkg.in/reform.v1"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	qanv1 "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/stringset"
+)
+
+const (
+	// Largest CollectRequest qan-api2 accepts. It mirrors the MaxRecvMsgSize enforced there,
+	// which is deliberately never raised, so a bucket bigger than this can never be
+	// delivered no matter what pmm-managed does with it.
+	qanCollectRequestLimit = 20 * 1024 * 1024
+
+	// Budget for packing several buckets into one request, kept below the limit above so
+	// batching never has to be exact.
+	maxCollectRequestSize = 16 * 1024 * 1024
+
+	// Cap on one request even when every bucket is tiny.
+	maxCollectRequestBuckets = 25000
+
+	// Upper bound on what one bucket costs on top of its own encoded size: the repeated
+	// field's tag byte plus its length varint.
+	collectRequestBucketOverhead = 5
 )
 
 // Client represents qan-api client for data collection.
@@ -306,16 +325,14 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 		convertedMetricsBuckets = append(convertedMetricsBuckets, mb)
 	}
 
+	convertedMetricsBuckets, sizes := c.dropOversizedBuckets(convertedMetricsBuckets)
+
 	// Slice metrics, so request to qan-api is not too big
-	const bucketSize = 25000
-	from, to := 0, bucketSize
 	// Send at least one time, even though it's empty
-	for from <= len(convertedMetricsBuckets) {
-		if to > len(convertedMetricsBuckets) {
-			to = len(convertedMetricsBuckets)
-		}
+	for from := 0; ; {
+		n := nextCollectBatch(sizes[from:])
 		qanReq := &qanv1.CollectRequest{
-			MetricsBucket: convertedMetricsBuckets[from:to],
+			MetricsBucket: convertedMetricsBuckets[from : from+n],
 		}
 		c.l.Debugf("%+v", qanReq)
 		res, err := c.c.Collect(ctx, qanReq)
@@ -324,11 +341,62 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 		}
 		c.l.Debugf("%+v", res)
 
-		from += bucketSize
-		to += bucketSize
+		from += n
+		if from >= len(convertedMetricsBuckets) {
+			return nil
+		}
+	}
+}
+
+// Drops buckets that no CollectRequest could ever carry, which happens only with an
+// unlimited max_query_length. Keeping one would cost far more than itself: Collect stops at
+// the first request QAN rejects, so every bucket queued behind it would be lost too. Also
+// returns the encoded size of each kept bucket, so batching need not measure them again.
+func (c *Client) dropOversizedBuckets(buckets []*qanv1.MetricsBucket) ([]*qanv1.MetricsBucket, []int) {
+	// Filtering in place is safe: buckets is the slice Collect just built and nothing else
+	// refers to it.
+	kept := buckets[:0]
+	sizes := make([]int, 0, len(buckets))
+
+	for _, b := range buckets {
+		size := proto.Size(b) + collectRequestBucketOverhead
+		if size > qanCollectRequestLimit {
+			c.l.Warnf("Dropping metrics bucket for query '%s' of service '%s': %d bytes exceeds the "+
+				"%d byte limit QAN accepts. Set a max_query_length for that service.",
+				b.Queryid, b.ServiceName, size, qanCollectRequestLimit)
+
+			continue
+		}
+
+		kept = append(kept, b)
+		sizes = append(sizes, size)
 	}
 
-	return nil
+	return kept, sizes
+}
+
+// Returns how many buckets from the front of sizes fit into a single CollectRequest. Never
+// 0 for a non-empty slice, so Collect always makes progress: a bucket over the batching
+// budget is sent on its own, which QAN still accepts because dropOversizedBuckets has
+// already removed anything larger than it will take.
+func nextCollectBatch(sizes []int) int {
+	var total int
+	for i, size := range sizes {
+		if i == maxCollectRequestBuckets {
+			return i
+		}
+
+		total += size
+		if total > maxCollectRequestSize {
+			if i == 0 {
+				return 1
+			}
+
+			return i
+		}
+	}
+
+	return len(sizes)
 }
 
 func convertExampleType(exampleType agentv1.ExampleType) qanv1.ExampleType {
