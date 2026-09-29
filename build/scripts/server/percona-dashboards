@@ -30,6 +30,9 @@ cp -pa dashboards/pmm-app/dist ${rootfs}/usr/share/percona-dashboards/panels/pmm
 unzip -q /home/builder/downloads/grafana-clickhouse-datasource-${clickhouse_datasource_version}.${plugin_platform}.zip -d ${rootfs}/usr/share/percona-dashboards/panels
 unzip -q /home/builder/downloads/grafana-polystat-panel-${polystat_panel_version}.zip -d ${rootfs}/usr/share/percona-dashboards/panels
 echo ${pmm_version} > ${rootfs}/usr/share/percona-dashboards/VERSION
+
+install -D -p -m 0644 dashboards/LICENSE ${rootfs}/usr/share/licenses/percona-dashboards/LICENSE
+install -D -p -m 0644 dashboards/README.md ${rootfs}/usr/share/doc/percona-dashboards/README.md
 EOF
 }
 

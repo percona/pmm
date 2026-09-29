@@ -15,6 +15,9 @@ cp -pa ui/apps/pmm/dist/. ${rootfs}/usr/share/pmm-ui/
 
 install -d ${rootfs}/usr/share/percona-dashboards/panels/pmm-compat-app
 cp -pa ui/apps/pmm-compat/dist/. ${rootfs}/usr/share/percona-dashboards/panels/pmm-compat-app/
+
+install -D -p -m 0644 ui/LICENSE ${rootfs}/usr/share/licenses/pmm-ui/LICENSE
+install -D -p -m 0644 ui/README.md ${rootfs}/usr/share/doc/pmm-ui/README.md
 EOF
 }
 

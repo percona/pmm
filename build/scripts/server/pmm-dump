@@ -11,6 +11,9 @@ make build BRANCH="main" COMMIT="$(get_shortcommit pmm-dump)" VERSION="${pmm_ver
 
 install -d ${rootfs}/usr/sbin
 install -p -m 0755 pmm-dump ${rootfs}/usr/sbin/pmm-dump
+
+install -D -p -m 0644 LICENSE ${rootfs}/usr/share/licenses/pmm-dump/LICENSE
+install -D -p -m 0644 README.md ${rootfs}/usr/share/doc/pmm-dump/README.md
 EOF
 }
 

@@ -105,6 +105,8 @@
     - /usr/share/grafana
     - /etc/grafana
     - /var/lib/grafana
+    - /usr/share/licenses/percona-grafana
+    - /usr/share/doc/percona-grafana
     - /usr/local/percona/advisors
     - /usr/local/percona/checks
     - /usr/local/percona/alerting-templates

@@ -15,6 +15,9 @@ make -C qan-api2 release
 
 install -d ${rootfs}/usr/sbin
 install -p -m 0755 bin/qan-api2 ${rootfs}/usr/sbin/percona-qan-api2
+
+install -D -p -m 0644 qan-api2/LICENSE ${rootfs}/usr/share/licenses/percona-qan-api2/LICENSE
+install -D -p -m 0644 qan-api2/README.md ${rootfs}/usr/share/doc/percona-qan-api2/README.md
 EOF
 }
 

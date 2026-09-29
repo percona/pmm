@@ -24,6 +24,9 @@ make victoria-metrics-pure vmalert-pure
 
 install -D -p -m 0755 bin/victoria-metrics-pure ${rootfs}/usr/sbin/victoriametrics
 install -D -p -m 0755 bin/vmalert-pure ${rootfs}/usr/sbin/vmalert
+
+install -D -p -m 0644 LICENSE ${rootfs}/usr/share/licenses/percona-victoriametrics/LICENSE
+install -D -p -m 0644 README.md ${rootfs}/usr/share/doc/percona-victoriametrics/README.md
 EOF
 }
 

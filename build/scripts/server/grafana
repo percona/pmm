@@ -29,6 +29,10 @@ cp -p conf/sample.ini ${rootfs}/etc/grafana/grafana.ini
 cp -p conf/ldap.toml ${rootfs}/etc/grafana/ldap.toml
 
 install -d ${rootfs}/var/lib/grafana
+
+install -D -p -m 0644 LICENSE ${rootfs}/usr/share/licenses/percona-grafana/LICENSE
+install -D -p -m 0644 CHANGELOG.md ${rootfs}/usr/share/doc/percona-grafana/CHANGELOG.md
+install -D -p -m 0644 README.md ${rootfs}/usr/share/doc/percona-grafana/README.md
 EOF
 }
 

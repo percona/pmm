@@ -26,6 +26,9 @@ install -d ${rootfs}/usr/local/percona/advisors ${rootfs}/usr/local/percona/chec
 install -p -m 0644 managed/data/advisors/*.yml ${rootfs}/usr/local/percona/advisors/
 install -p -m 0644 managed/data/checks/*.yml ${rootfs}/usr/local/percona/checks/
 install -p -m 0644 managed/data/alerting-templates/*.yml ${rootfs}/usr/local/percona/alerting-templates/
+
+install -D -p -m 0644 LICENSE ${rootfs}/usr/share/licenses/pmm-managed/LICENSE
+install -D -p -m 0644 README.md ${rootfs}/usr/share/doc/pmm-managed/README.md
 EOF
 }
 
