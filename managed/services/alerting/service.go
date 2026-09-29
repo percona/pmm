@@ -74,11 +74,10 @@ type Service struct {
 	// concurrent responses and MUST be treated as immutable by consumers.
 	convertedTemplates map[string]*alerting.Template
 
-	// sweepMu guards sweeping/lastSweep, the reconciler's throttle state. Separate from rw,
-	// which guards unrelated template state.
+	// sweepMu guards lastSweep, the reconciler's throttle. Separate from rw, which guards
+	// unrelated template state.
 	sweepMu   sync.Mutex
 	lastSweep time.Time
-	sweeping  bool
 }
 
 // NewService creates a new Service.

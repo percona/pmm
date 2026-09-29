@@ -174,10 +174,7 @@ func thresholdFromResolved(ruleID, paramName string, param models.AlertRuleParam
 }
 
 // ListThresholds returns per-target threshold overrides.
-//
-// As a side effect, throttled to once per reconcileInterval, this also triggers an async
-// sweep that reaps alert-rule registry rows whose Grafana rule no longer exists.
-func (s *Service) ListThresholds(ctx context.Context, req *alerting.ListThresholdsRequest) (*alerting.ListThresholdsResponse, error) {
+func (s *Service) ListThresholds(_ context.Context, req *alerting.ListThresholdsRequest) (*alerting.ListThresholdsResponse, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return nil, err
@@ -234,8 +231,6 @@ func (s *Service) ListThresholds(ctx context.Context, req *alerting.ListThreshol
 	}
 
 	sortThresholds(thresholds)
-
-	s.maybeReconcile(ctx)
 
 	return &alerting.ListThresholdsResponse{Thresholds: thresholds}, nil
 }
@@ -386,7 +381,7 @@ func sortThresholds(thresholds []*alerting.Threshold) {
 }
 
 // SetThreshold overrides one rule parameter for one target.
-func (s *Service) SetThreshold(_ context.Context, req *alerting.SetThresholdRequest) (*alerting.SetThresholdResponse, error) {
+func (s *Service) SetThreshold(ctx context.Context, req *alerting.SetThresholdRequest) (*alerting.SetThresholdResponse, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return nil, err
@@ -422,12 +417,14 @@ func (s *Service) SetThreshold(_ context.Context, req *alerting.SetThresholdRequ
 		return nil, errTx
 	}
 
+	s.maybeReconcile(ctx)
+
 	return &alerting.SetThresholdResponse{Threshold: threshold}, nil
 }
 
 // ClearThreshold removes an override so the target falls back to the rule's default, or
 // to a broader override still covering it.
-func (s *Service) ClearThreshold(_ context.Context, req *alerting.ClearThresholdRequest) (*alerting.ClearThresholdResponse, error) {
+func (s *Service) ClearThreshold(ctx context.Context, req *alerting.ClearThresholdRequest) (*alerting.ClearThresholdResponse, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return nil, err
@@ -454,12 +451,14 @@ func (s *Service) ClearThreshold(_ context.Context, req *alerting.ClearThreshold
 		return nil, errTx
 	}
 
+	s.maybeReconcile(ctx)
+
 	return &alerting.ClearThresholdResponse{}, nil
 }
 
 // BatchUpdateThresholds applies several set and clear operations in one transaction, so
 // a client editing many rows at once never lands a partial result it cannot report.
-func (s *Service) BatchUpdateThresholds(_ context.Context, req *alerting.BatchUpdateThresholdsRequest) (*alerting.BatchUpdateThresholdsResponse, error) {
+func (s *Service) BatchUpdateThresholds(ctx context.Context, req *alerting.BatchUpdateThresholdsRequest) (*alerting.BatchUpdateThresholdsResponse, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return nil, err
@@ -512,6 +511,8 @@ func (s *Service) BatchUpdateThresholds(_ context.Context, req *alerting.BatchUp
 	if errTx != nil {
 		return nil, errTx
 	}
+
+	s.maybeReconcile(ctx)
 
 	return &alerting.BatchUpdateThresholdsResponse{Thresholds: thresholds}, nil
 }

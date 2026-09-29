@@ -28,6 +28,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	alerting "github.com/percona/pmm/api/alerting/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
@@ -159,9 +160,8 @@ func TestReconcileAlertRules(t *testing.T) {
 	})
 }
 
-// incomingCtx builds a context carrying gRPC incoming metadata, the way a real request
-// through grpc-gateway would - the shape maybeReconcile's metadata.FromIncomingContext
-// check requires.
+// incomingCtx builds a context carrying gRPC incoming metadata, as a real request through
+// grpc-gateway would.
 func incomingCtx(ctx context.Context) context.Context {
 	return metadata.NewIncomingContext(ctx, metadata.New(map[string]string{"authorization": "Bearer test"}))
 }
@@ -175,31 +175,62 @@ func TestMaybeReconcile(t *testing.T) {
 		m.AssertNotCalled(t, "ListPMMRuleIDs", mock.Anything)
 	})
 
-	t.Run("sweeps once on a detached context, throttles an immediate second call", func(t *testing.T) {
+	t.Run("sweeps inline, throttles an immediate second call", func(t *testing.T) {
 		svc, m, db := setupReconciler(t)
 		createRegistryRow(t, db, "gone-rule", time.Hour)
 
-		reqCtx, cancel := context.WithCancel(t.Context())
 		m.On("ListPMMRuleIDs", mock.Anything).Return(map[string]struct{}{"other-rule": {}}, nil)
 
-		svc.maybeReconcile(incomingCtx(reqCtx))
-		// The triggering request finishes and cancels its own context immediately - the
-		// sweep must keep running on its detached context, not the request's, or this
-		// would never complete.
-		cancel()
+		svc.maybeReconcile(incomingCtx(t.Context()))
 
-		require.Eventually(t, func() bool {
-			rules, err := models.FindAlertRules(db.Querier)
-			return err == nil && len(rules) == 0
-		}, 2*time.Second, 10*time.Millisecond, "sweep did not complete on its detached context")
+		rules, err := models.FindAlertRules(db.Querier)
+		require.NoError(t, err)
+		assert.Empty(t, rules, "the sweep runs before maybeReconcile returns")
 
-		// lastSweep is set synchronously before the first call's goroutine is even
-		// spawned, so this is deterministic regardless of whether that goroutine has
-		// finished: it must not reach the mock a second time. If it ever did,
-		// mockGrafanaClient's t.Cleanup(mock.AssertExpectations) would fail from a
-		// background goroutine, which testify does not support safely - the throttle
-		// ordering in maybeReconcile is what has to prevent that, not this assertion.
 		svc.maybeReconcile(incomingCtx(t.Context()))
 		m.AssertNumberOfCalls(t, "ListPMMRuleIDs", 1)
 	})
+}
+
+func TestThresholdWritesTriggerSweep(t *testing.T) {
+	svc, _, node := setupThresholdAPI(t)
+
+	m := svc.grafanaClient.(*mockGrafanaClient)
+	m.On("ListPMMRuleIDs", mock.Anything).Return(map[string]struct{}{thresholdTestRuleID: {}}, nil)
+
+	ctx := incomingCtx(t.Context())
+	scope := alerting.ThresholdScope_THRESHOLD_SCOPE_NODE
+
+	_, err := svc.ListThresholds(ctx, &alerting.ListThresholdsRequest{Scope: scope, Target: node.NodeID})
+	require.NoError(t, err)
+	m.AssertNotCalled(t, "ListPMMRuleIDs", mock.Anything)
+
+	writes := []func() error{
+		func() error {
+			_, err := svc.SetThreshold(ctx, &alerting.SetThresholdRequest{
+				Scope: scope, Target: node.NodeID, RuleId: thresholdTestRuleID, ParamName: "threshold", Value: 90,
+			})
+			return err
+		},
+		func() error {
+			_, err := svc.ClearThreshold(ctx, &alerting.ClearThresholdRequest{
+				Scope: scope, Target: node.NodeID, RuleId: thresholdTestRuleID, ParamName: "threshold",
+			})
+			return err
+		},
+		func() error {
+			_, err := svc.BatchUpdateThresholds(ctx, &alerting.BatchUpdateThresholdsRequest{
+				Updates: []*alerting.ThresholdUpdate{{
+					Scope: scope, Target: node.NodeID, RuleId: thresholdTestRuleID, ParamName: "threshold", Value: new(95.0),
+				}},
+			})
+			return err
+		},
+	}
+
+	for i, write := range writes {
+		svc.lastSweep = time.Time{}
+		require.NoError(t, write())
+		m.AssertNumberOfCalls(t, "ListPMMRuleIDs", i+1)
+	}
 }
