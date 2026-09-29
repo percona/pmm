@@ -35,11 +35,15 @@ const AlertThresholds = () => {
   const [nodeName, setNodeName] = useState<string>();
   const [open, setIsOpen] = useState(false);
 
-  const { data, isLoading } = useNodeThresholds(nodeId ?? '', {
+  const { data, isLoading, isError } = useNodeThresholds(nodeId ?? '', {
     enabled: open && !!nodeId,
   });
 
-  const { data: rulesData } = usePrometheusAlertRules({
+  const {
+    data: rulesData,
+    isLoading: rulesLoading,
+    isError: rulesError,
+  } = usePrometheusAlertRules({
     enabled: open && !!nodeId,
   });
 
@@ -50,8 +54,13 @@ const AlertThresholds = () => {
     [rulesData]
   );
 
+  // A row whose rule is missing from Grafana belongs to a deleted rule not yet swept, or
+  // to another org, so it is hidden rather than offered for editing.
   const rows = useMemo<AlertThresholdRow[]>(
-    () => getRows(data as ListThresholdsResponse, ruleTitles),
+    () =>
+      getRows(data as ListThresholdsResponse, ruleTitles).filter((row) =>
+        ruleTitles.has(row.ruleId)
+      ),
     [data, ruleTitles]
   );
 
@@ -68,14 +77,11 @@ const AlertThresholds = () => {
     nodeId ?? ''
   );
 
-  // The form is seeded here rather than through useForm's defaultValues: this component
-  // is always mounted and only returns null while closed, so defaultValues sees the empty
-  // object once, at app start.
-  //
-  // `nodeId` is a dependency in its own right - handleClose clears it, so reopening, even
-  // for the same node, re-seeds and drops edits left behind by a cancelled session.
+  // Seeded here rather than through useForm's defaultValues, which this always-mounted
+  // component would only see once. A refetch keeps what the user has typed; handleClose
+  // resets the form, so a reopened modal starts clean.
   useEffect(() => {
-    methods.reset(initialValues);
+    methods.reset(initialValues, { keepDirtyValues: true });
   }, [nodeId, initialValues, methods]);
 
   // Deliberately has no dependency array, so it re-subscribes after every render.
@@ -106,6 +112,7 @@ const AlertThresholds = () => {
   });
 
   const handleClose = () => {
+    methods.reset({});
     setNodeId(undefined);
     setNodeName(undefined);
     setIsOpen(false);
@@ -146,7 +153,11 @@ const AlertThresholds = () => {
     >
       <FormProvider {...methods}>
         <Stack component="form" onSubmit={methods.handleSubmit(handleSubmit)}>
-          {isLoading ? (
+          {isError || rulesError ? (
+            <Typography variant="body2" color="error">
+              {Messages.error}
+            </Typography>
+          ) : isLoading || rulesLoading ? (
             <Typography variant="body2" color="text.secondary">
               {Messages.loading}
             </Typography>

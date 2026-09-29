@@ -71,6 +71,7 @@ const rulesResponse = () => ({
 });
 
 let rulesData: ReturnType<typeof rulesResponse> | undefined;
+let rulesLoading: boolean;
 
 // A fresh element tree per call: re-rendering the identical element object lets React
 // bail out, and these tests need the hooks re-read after a mock changes.
@@ -103,14 +104,18 @@ const type = (value: string) =>
   fireEvent.change(overrideInput(), { target: { value } });
 
 beforeEach(() => {
-  rulesData = undefined;
+  rulesData = rulesResponse();
+  rulesLoading = false;
   mocks.applyThresholds.mockReset();
   mocks.applyThresholds.mockResolvedValue({});
   mocks.useNodeThresholds.mockImplementation((nodeId: string) => ({
     data: THRESHOLDS[nodeId],
     isLoading: false,
   }));
-  mocks.usePrometheusAlertRules.mockImplementation(() => ({ data: rulesData }));
+  mocks.usePrometheusAlertRules.mockImplementation(() => ({
+    data: rulesData,
+    isLoading: rulesLoading,
+  }));
 });
 
 describe('AlertThresholds', () => {
@@ -121,19 +126,73 @@ describe('AlertThresholds', () => {
     expect(overrideInput().value).toBe('90');
   });
 
-  // The regression this suite exists for. The rules query is separate and slower, and
-  // only the thresholds query gates the table, so the operator can be typing when it
-  // lands. Seeding off `rows` meant the arriving titles re-seeded the form.
-  it('keeps a typed value when the rule titles arrive late', () => {
+  it('waits for the rule titles before showing the table', () => {
+    rulesData = undefined;
+    rulesLoading = true;
+    const { refresh } = renderModal();
+    openFor('node-1');
+
+    expect(screen.getByText(Messages.loading)).toBeInTheDocument();
+
+    rulesData = rulesResponse();
+    rulesLoading = false;
+    act(refresh);
+
+    expect(screen.getByText('CPU load')).toBeInTheDocument();
+    expect(overrideInput().value).toBe('90');
+  });
+
+  it('hides rows whose rule is not in Grafana', () => {
+    const withDeletedRule: ListThresholdsResponse = {
+      thresholds: [
+        ...THRESHOLDS['node-1'].thresholds!,
+        { ...THRESHOLDS['node-1'].thresholds![0], ruleId: 'deleted-rule' },
+      ],
+    };
+    mocks.useNodeThresholds.mockImplementation(() => ({
+      data: withDeletedRule,
+      isLoading: false,
+    }));
+
+    renderModal();
+    openFor('node-1');
+
+    expect(screen.getAllByRole('spinbutton')).toHaveLength(1);
+  });
+
+  it('shows an error instead of the empty state when the thresholds fail to load', () => {
+    mocks.useNodeThresholds.mockImplementation(() => ({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+    }));
+
+    renderModal();
+    openFor('node-1');
+
+    expect(screen.getByText(Messages.error)).toBeInTheDocument();
+    expect(screen.queryByText(Messages.empty)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: Messages.actions.submit })
+    ).toBeDisabled();
+  });
+
+  // A reopened node shows cached rows and refetches in the background; the refetch must
+  // not throw away what the operator has typed in the meantime.
+  it('keeps a typed value when the thresholds are refetched', () => {
     const { refresh } = renderModal();
     openFor('node-1');
 
     type('42');
 
-    rulesData = rulesResponse();
+    const refetched = structuredClone(THRESHOLDS['node-1']);
+    refetched.thresholds![0].effectiveValue = 91;
+    mocks.useNodeThresholds.mockImplementation(() => ({
+      data: refetched,
+      isLoading: false,
+    }));
     act(refresh);
 
-    expect(screen.getByText('CPU load')).toBeInTheDocument();
     expect(overrideInput().value).toBe('42');
   });
 
