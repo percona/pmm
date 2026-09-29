@@ -24,6 +24,7 @@ import (
 	alertingv1 "github.com/percona/pmm/api/alerting/v1"
 	"github.com/percona/pmm/managed/pi/alert"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/services/victoriametrics"
 )
 
 const (
@@ -38,6 +39,9 @@ const (
 
 	// Prefixes the ref ID of each injected threshold query.
 	thresholdRefIDPrefix = "T_"
+
+	// How long the threshold keeps an override while pmm-managed cannot be scraped.
+	thresholdOutageBridge = "5m"
 
 	// Ref IDs used when a single-expression template is desugared. A multi-expression
 	// template names its own steps; a desugared one has none to inherit.
@@ -398,29 +402,23 @@ func planThresholdInjections(template *alert.Template, ruleID string, params map
 	return injections, nil
 }
 
-// thresholdQueryExpr renders the injected threshold step.
-//
-// The first clause carries the overrides, with label_replace mapping the collector's
-// generic target label onto whichever label this rule joins on - without it the two
-// operands of the `or` have different label sets and `or` returns both instead of
-// preferring the left.
-//
-// The second clause manufactures the default for every target the observed query
-// reports, by reusing that query and discarding its value with `* 0`. Fanning out over
-// the observed query rather than over an inventory metric is what makes the threshold
-// share the observed data's fate: it cannot go missing while the data it guards is still
-// arriving, so a rule cannot silently stop evaluating.
-//
-// `max by` is load-bearing in both clauses. It strips instance and job - the threshold is
-// scraped from pmm-managed, which can never match an observed series - reduces both
-// operands to identical label sets so `or` prefers the left, and collapses the duplicate
-// series an HA cluster emits.
+// thresholdQueryExpr renders the injected threshold step: the override, else the last
+// override seen while pmm-managed is down, else the default fanned out over the observed
+// query. Every clause is reduced to the join label so `or` prefers the left.
 func thresholdQueryExpr(ruleID, paramName, joinLabel, observedExpr, defaultValue string) string {
+	override := fmt.Sprintf(`%s{%s=%q, %s=%q}`,
+		thresholdMetricName, thresholdRuleIDLabel, ruleID, thresholdParamLabel, paramName)
+
+	byJoinLabel := func(expr string) string {
+		return fmt.Sprintf(`max by (%s) (label_replace(%s, %q, "$1", %q, "(.*)"))`,
+			joinLabel, expr, joinLabel, thresholdTargetLabel)
+	}
+
 	return fmt.Sprintf(
-		`max by (%s) (label_replace(%s{%s=%q, %s=%q}, %q, "$1", %q, "(.*)")) or (max by (%s) (%s) * 0 + %s)`,
-		joinLabel,
-		thresholdMetricName, thresholdRuleIDLabel, ruleID, thresholdParamLabel, paramName,
-		joinLabel, thresholdTargetLabel,
+		`%s or (%s unless on() (up{job=%q} == 1)) or (group by (%s) (%s) * %s)`,
+		byJoinLabel(override),
+		byJoinLabel(fmt.Sprintf("last_over_time(%s[%s])", override, thresholdOutageBridge)),
+		victoriametrics.PMMManagedJobName,
 		joinLabel, observedExpr, defaultValue,
 	)
 }

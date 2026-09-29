@@ -102,16 +102,15 @@ func TestBuildRuleDataInjectsThresholdQuery(t *testing.T) {
 	require.Len(t, built.data, 3, "observed query, injected threshold, math expression")
 	require.Contains(t, byRef, "T_threshold")
 
-	expr := exprOf(t, byRef["T_threshold"])
-
-	// The override clause, mapping the collector's generic target label onto this
-	// rule's join label.
-	assert.Contains(t, expr, `pmm_alert_threshold_override{rule_id="rule-1", param="threshold"}`)
-	assert.Contains(t, expr, `label_replace(`)
-	assert.Contains(t, expr, `"node_name", "$1", "target", "(.*)"`)
-
-	// The default clause, fanned out over the rule's own observed query.
-	assert.Contains(t, expr, `or (max by (node_name) (`+testObservedExpr+`) * 0 + 80)`)
+	override := `pmm_alert_threshold_override{rule_id="rule-1", param="threshold"}`
+	assert.Equal(
+		t,
+		`max by (node_name) (label_replace(`+override+`, "node_name", "$1", "target", "(.*)"))`+
+			` or (max by (node_name) (label_replace(last_over_time(`+override+`[5m]), "node_name", "$1", "target", "(.*)"))`+
+			` unless on() (up{job="pmm-managed"} == 1))`+
+			` or (group by (node_name) (`+testObservedExpr+`) * 80)`,
+		exprOf(t, byRef["T_threshold"]),
+	)
 
 	// The threshold query is a metrics query, not an expression.
 	assert.Equal(t, "metrics-uid", byRef["T_threshold"].DatasourceUID)
@@ -252,8 +251,8 @@ func TestThresholdPairsEachParamWithItsOwnQuery(t *testing.T) {
 
 	byRef := dataByRefID(t, built.data)
 
-	assert.Contains(t, exprOf(t, byRef["T_first"]), `(query_a) * 0 + 1)`)
-	assert.Contains(t, exprOf(t, byRef["T_second"]), `(query_b) * 0 + 2)`)
+	assert.Contains(t, exprOf(t, byRef["T_first"]), `(query_a) * 1)`)
+	assert.Contains(t, exprOf(t, byRef["T_second"]), `(query_b) * 2)`)
 	assert.Equal(t, "$A > $T_first && $B > $T_second", expressionOf(t, byRef["C"]))
 }
 
@@ -400,7 +399,7 @@ func TestBuildDesugaredRuleData(t *testing.T) {
 	// multi-expression template.
 	threshold := exprOf(t, byRef["T_threshold"])
 	assert.Contains(t, threshold, `pmm_alert_threshold_override{rule_id="rule-1", param="threshold"}`)
-	assert.Contains(t, threshold, "* 0 + 20)")
+	assert.Contains(t, threshold, "* 20)")
 }
 
 // A single-expression template with no PMM-minted rule ID must generate exactly what it did
