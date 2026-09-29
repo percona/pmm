@@ -330,25 +330,30 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 		if err != nil {
 			return nil, err
 		}
+		protected, err := s.isProtectedNode(ctx, node)
+		if err != nil {
+			return nil, err
+		}
 
 		uNode := &managementv1.UniversalNode{
-			Address:           node.Address,
-			CustomLabels:      labels,
-			NodeId:            node.NodeID,
-			NodeName:          node.NodeName,
-			NodeType:          string(node.NodeType),
-			Az:                node.AZ,
-			CreatedAt:         timestamppb.New(node.CreatedAt),
-			ContainerId:       pointer.GetString(node.ContainerID),
-			ContainerName:     pointer.GetString(node.ContainerName),
-			Distro:            node.Distro,
-			MachineId:         pointer.GetString(node.MachineID),
-			NodeModel:         node.NodeModel,
-			Region:            pointer.GetString(node.Region),
-			UpdatedAt:         timestamppb.New(node.UpdatedAt),
-			InstanceId:        node.InstanceID,
-			IsPmmServerNode:   node.IsPMMServerNode,
-			IsPmmInternalNode: s.isInternalNode(node),
+			Address:            node.Address,
+			CustomLabels:       labels,
+			NodeId:             node.NodeID,
+			NodeName:           node.NodeName,
+			NodeType:           string(node.NodeType),
+			Az:                 node.AZ,
+			CreatedAt:          timestamppb.New(node.CreatedAt),
+			ContainerId:        pointer.GetString(node.ContainerID),
+			ContainerName:      pointer.GetString(node.ContainerName),
+			Distro:             node.Distro,
+			MachineId:          pointer.GetString(node.MachineID),
+			NodeModel:          node.NodeModel,
+			Region:             pointer.GetString(node.Region),
+			UpdatedAt:          timestamppb.New(node.UpdatedAt),
+			InstanceId:         node.InstanceID,
+			IsPmmServerNode:    node.IsPMMServerNode,
+			IsPmmInternalNode:  s.isInternalNode(node),
+			IsPmmProtectedNode: protected,
 		}
 
 		freshUp, hasFresh := metrics[node.NodeID]
@@ -412,24 +417,29 @@ func (s *ManagementService) GetNode(ctx context.Context, req *managementv1.GetNo
 	if err != nil {
 		return nil, err
 	}
+	protected, err := s.isProtectedNode(ctx, node)
+	if err != nil {
+		return nil, err
+	}
 
 	uNode := &managementv1.UniversalNode{
-		Address:           node.Address,
-		Az:                node.AZ,
-		CreatedAt:         timestamppb.New(node.CreatedAt),
-		ContainerId:       pointer.GetString(node.ContainerID),
-		ContainerName:     pointer.GetString(node.ContainerName),
-		CustomLabels:      labels,
-		Distro:            node.Distro,
-		MachineId:         pointer.GetString(node.MachineID),
-		NodeId:            node.NodeID,
-		NodeName:          node.NodeName,
-		NodeType:          string(node.NodeType),
-		NodeModel:         node.NodeModel,
-		Region:            pointer.GetString(node.Region),
-		UpdatedAt:         timestamppb.New(node.UpdatedAt),
-		IsPmmServerNode:   node.IsPMMServerNode,
-		IsPmmInternalNode: s.isInternalNode(node),
+		Address:            node.Address,
+		Az:                 node.AZ,
+		CreatedAt:          timestamppb.New(node.CreatedAt),
+		ContainerId:        pointer.GetString(node.ContainerID),
+		ContainerName:      pointer.GetString(node.ContainerName),
+		CustomLabels:       labels,
+		Distro:             node.Distro,
+		MachineId:          pointer.GetString(node.MachineID),
+		NodeId:             node.NodeID,
+		NodeName:           node.NodeName,
+		NodeType:           string(node.NodeType),
+		NodeModel:          node.NodeModel,
+		Region:             pointer.GetString(node.Region),
+		UpdatedAt:          timestamppb.New(node.UpdatedAt),
+		IsPmmServerNode:    node.IsPMMServerNode,
+		IsPmmInternalNode:  s.isInternalNode(node),
+		IsPmmProtectedNode: protected,
 	}
 
 	freshUp, hasFresh := metrics[node.NodeID]

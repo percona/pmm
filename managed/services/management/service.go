@@ -130,6 +130,11 @@ func (s *ManagementService) isInternalNode(node *models.Node) bool {
 	return false
 }
 
+// isProtectedNode reports whether users cannot remove the Node, see services.IsNodeProtected.
+func (s *ManagementService) isProtectedNode(ctx context.Context, node *models.Node) (bool, error) {
+	return services.IsNodeProtected(s.db.WithContext(ctx), s.r, node, s.protectedNodePrefixes)
+}
+
 // A map to check if the service is supported.
 // NOTE: known external services appear to match the vendor names,
 // (e.g. "mysql", "mongodb", "postgresql", "valkey", "proxysql", "haproxy"),
