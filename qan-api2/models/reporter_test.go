@@ -286,6 +286,29 @@ func TestMatchersToSQL(t *testing.T) {
 	})
 }
 
+func TestSearchWhitespaceNormalization(t *testing.T) {
+	// Mirrors the normalization applied to the search term in Reporter.Select, which must match
+	// the replaceRegexpAll(..., '\\s+', ' ') applied to the fingerprint column in queryReportTmpl,
+	// so that a search phrase matches a fingerprint regardless of how the original query was formatted.
+	testCases := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{"single space is preserved", "SELECT datid", "SELECT datid"},
+		{"newline and indentation collapse to one space", "SELECT\n    datid, datname", "SELECT datid, datname"},
+		{"tabs and repeated spaces collapse to one space", "SELECT\tdatid,   datname", "SELECT datid, datname"},
+		{"surrounding whitespace is trimmed", "  SELECT datid  ", "SELECT datid"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := searchWhitespaceRegexp.ReplaceAllString(strings.TrimSpace(tc.input), " ")
+			require.Equal(t, tc.expected, result)
+		})
+	}
+}
+
 func TestQueryDimensionTemplate(t *testing.T) {
 	type tmplArgs struct {
 		MainMetric    string

@@ -502,7 +502,7 @@ func TestClientPerformance(t *testing.T) {
 			ServiceName: "test-mysql",
 			NodeId:      "pmm-server",
 			NodeName:    "pmm-server",
-			NodeType:    "generic",
+			NodeType:    "container",
 			ServiceId:   "0d350868-4d85-4884-b972-dff130129c23",
 			ServiceType: "mysql",
 			AgentId:     "6b74c6bf-642d-43f0-bee1-0faddd1a2e28",

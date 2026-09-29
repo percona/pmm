@@ -3,6 +3,7 @@ syntax = "proto3";
 package server.v1;
 
 import "common/common.proto";
+import "extensions/v1/redact.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
@@ -100,6 +101,25 @@ message ListChangeLogsResponse {
   google.protobuf.Timestamp last_check = 2;
 }
 
+message UpdateStatusRequest {
+  // Authentication token. Accepted from pre-3.9 clients.
+  string auth_token = 1 [
+    deprecated = true,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
+  // Progress log offset. Accepted from pre-3.9 clients but ignored.
+  uint32 log_offset = 2 [deprecated = true];
+}
+
+message UpdateStatusResponse {
+  // Progress log lines. Always empty, kept so pre-3.9 clients can parse the response.
+  repeated string log_lines = 1 [deprecated = true];
+  // Progress log offset for the next request. Always zero, kept so pre-3.9 clients can parse the response.
+  uint32 log_offset = 2 [deprecated = true];
+  // True once PMM Server has finished initializing.
+  bool done = 3;
+}
+
 // MetricsResolutions represents Prometheus exporters metrics resolutions.
 message MetricsResolutions {
   // High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
@@ -153,6 +173,9 @@ message Settings {
   uint32 default_role_id = 18;
   // True if Query Analytics for PMM's internal PG database is enabled.
   bool enable_internal_pg_qan = 19;
+  // True if PMM Extensions is enabled. Read-only: it reports how this PMM
+  // Server process was started, and cannot be changed through ChangeSettings.
+  bool extensions_enabled = 21;
   // Field 20 (update_snooze_duration) was removed when GUI-triggered upgrades were deprecated.
   reserved 20;
   reserved "update_snooze_duration";
@@ -176,6 +199,8 @@ message ReadOnlySettings {
   bool azurediscover_enabled = 7;
   // True if Access Control is enabled.
   bool enable_access_control = 8;
+  // True if PMM Extensions is enabled.
+  bool extensions_enabled = 9;
 }
 
 message GetSettingsRequest {}
@@ -264,6 +289,20 @@ service ServerService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get the changelog"
       description: "Display a changelog comparing the installed version to the latest available version."
+    };
+  }
+  // UpdateStatus returns PMM Server initialization status.
+  //
+  // It exists for pre-3.9 clients, which poll it after triggering an update to learn when the
+  // freshly started PMM Server has finished initializing. Only the "done" field is meaningful.
+  rpc UpdateStatus(UpdateStatusRequest) returns (UpdateStatusResponse) {
+    option (google.api.http) = {
+      post: "/v1/server/updates:getStatus"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update status"
+      description: "Returns PMM Server initialization status."
     };
   }
   // GetSettings returns current PMM Server settings.

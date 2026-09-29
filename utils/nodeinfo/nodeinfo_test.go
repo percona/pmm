@@ -16,6 +16,8 @@ package nodeinfo
 
 import (
 	"net"
+	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
@@ -28,7 +30,6 @@ func TestGet(t *testing.T) {
 	t.Parallel()
 
 	info := Get()
-	require.False(t, info.Container, "not expected to be run inside a container")
 	assert.Equal(t, runtime.GOOS, info.Distro)
 
 	// all our test environments have IPv4 addresses
@@ -37,4 +38,76 @@ func TestGet(t *testing.T) {
 	assert.NotNil(t, ip.To4())
 
 	assert.False(t, strings.HasSuffix(info.MachineID, "\n"), "%q", info.MachineID)
+}
+
+func TestCheckContainer(t *testing.T) {
+	for _, tc := range []struct {
+		name     string
+		files    map[string]string
+		env      map[string]string
+		expected bool
+	}{
+		{
+			name:  "host with cgroup v2",
+			files: map[string]string{"proc/1/cgroup": "0::/init.scope\n"},
+		}, {
+			name:  "host with cgroup v1",
+			files: map[string]string{"proc/1/cgroup": "1:name=systemd:/init.scope\n0::/init.scope\n"},
+		}, {
+			// the case PMM Server itself hits: cgroup v2 says nothing, only the marker file does
+			name:     "docker with cgroup v2",
+			files:    map[string]string{".dockerenv": "", "proc/1/cgroup": "0::/\n"},
+			expected: true,
+		}, {
+			name:     "docker with cgroup v1",
+			files:    map[string]string{"proc/1/cgroup": "1:name=systemd:/docker/dc4b1a5cb7fd\n"},
+			expected: true,
+		}, {
+			name:     "podman",
+			files:    map[string]string{"run/.containerenv": "engine=\"podman-5.4.0\"\n", "proc/1/cgroup": "0::/\n"},
+			expected: true,
+		}, {
+			name:     "docker with the systemd cgroup driver",
+			files:    map[string]string{"proc/1/cgroup": "1:name=systemd:/system.slice/docker-dc4b1a5cb7fd.scope\n"},
+			expected: true,
+		}, {
+			name:     "lxc",
+			files:    map[string]string{"proc/1/cgroup": "0::/\n"},
+			env:      map[string]string{"container": "lxc"},
+			expected: true,
+		}, {
+			// systemd strips its own "container" variable from the services it starts, so an agent
+			// running as a unit only has the file to go by
+			name:     "lxc with an agent started by systemd",
+			files:    map[string]string{"run/systemd/container": "lxc\n", "proc/1/cgroup": "0::/\n"},
+			expected: true,
+		}, {
+			name:     "kubernetes pod with cgroup v2",
+			files:    map[string]string{"proc/1/cgroup": "0::/\n"},
+			env:      map[string]string{"KUBERNETES_SERVICE_HOST": "10.96.0.1"},
+			expected: true,
+		}, {
+			name:     "kubernetes pod with cgroup v1",
+			files:    map[string]string{"proc/1/cgroup": "1:name=systemd:/kubepods/besteffort/pod9f4a\n"},
+			expected: true,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			// keep the outcome independent of the environment the tests themselves run in
+			t.Setenv("container", "")
+			t.Setenv("KUBERNETES_SERVICE_HOST", "")
+			for name, value := range tc.env {
+				t.Setenv(name, value)
+			}
+
+			root := t.TempDir()
+			for name, content := range tc.files {
+				path := filepath.Join(root, name)
+				require.NoError(t, os.MkdirAll(filepath.Dir(path), 0o755))
+				require.NoError(t, os.WriteFile(path, []byte(content), 0o644))
+			}
+
+			assert.Equal(t, tc.expected, checkContainer(root))
+		})
+	}
 }

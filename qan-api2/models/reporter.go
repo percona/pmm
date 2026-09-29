@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"slices"
 	"strings"
 	"sync"
@@ -79,6 +80,10 @@ var sCache = newSelectorCache()
 
 var promParser = parser.NewParser(parser.Options{})
 
+// searchWhitespaceRegexp collapses runs of whitespace in search terms so that a search phrase
+// matches a fingerprint regardless of the line breaks/indentation of the original query text.
+var searchWhitespaceRegexp = regexp.MustCompile(`\s+`)
+
 var funcMap = template.FuncMap{
 	"inc":         func(i int) int { return i + 1 },
 	"StringsJoin": strings.Join,
@@ -125,7 +130,7 @@ FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 {{ if .Search }}
   {{ if eq .Group "queryid" }}
-    AND ( lowerUTF8(queryid) LIKE :search OR lowerUTF8(metrics.fingerprint) LIKE :search )
+    AND ( lowerUTF8(queryid) LIKE :search OR replaceRegexpAll(lowerUTF8(metrics.fingerprint), '\\s+', ' ') LIKE :search )
   {{ else }}
     AND lowerUTF8({{ .Group }}) LIKE :search
   {{ end }}
@@ -174,7 +179,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 	group, order, search string, offset, limit uint32,
 	specialColumns, commonColumns, sumColumns []string,
 ) ([]M, error) {
-	search = strings.TrimSpace(search)
+	search = searchWhitespaceRegexp.ReplaceAllString(strings.TrimSpace(search), " ")
 
 	arg := map[string]any{
 		"period_start_from": periodStartFromSec,

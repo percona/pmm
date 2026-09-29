@@ -12,7 +12,7 @@ Before Percona Alerting can send out email notifications via email contact point
 1. Configure Email (SMTP) server settings.
 2. Configure a contact point to define the email delivery options
 
-Contact points with invalid settings show a **No Attempts** status under <i class="uil uil-bell"></i> **Alerting > Contact points**.
+Contact points with invalid settings show a **No Attempts** status under :material-bell-outline: **Alerting > Contact points**.
 
 ## Configure Email (SMTP) server settings
 
@@ -99,7 +99,7 @@ Alerts that don't match any specific policies are handled by the root policy. Th
 To edit the root notification policy:
 {.power-number}
 
-1. Go to <i class="uil uil-bell"></i> **Alerts > Notification policies** tab.
+1. Go to :material-bell-outline: **Alerts > Notification policies** tab.
 2. Click the ellipsis button next to the root policy box and select the **Edit** option.
 3. Choose whether to keep the default Email contact point, select a new available contact point or create a new one.
 4. In the **Group by** field, specify how alert rules should be processed into notifications. If multiple alerts are matched for this policy, they will be grouped based on the labels you specify, and a notification will be sent per group.
@@ -114,7 +114,7 @@ To edit the root notification policy:
 To create a new notification policy:
 {.power-number}
 
-1. Go to <i class="uil uil-bell"></i> **Alerting > Notification policies** tab.
+1. Go to :material-bell-outline: **Alerting > Notification policies** tab.
 ![!](../images/alerting-new-notification-policy.png)
 
 2. Click **New child policy**.

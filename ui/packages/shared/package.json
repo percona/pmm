@@ -23,7 +23,7 @@
     "format": "oxfmt --write ."
   },
   "dependencies": {
-    "uuid": "^11.1.0"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",

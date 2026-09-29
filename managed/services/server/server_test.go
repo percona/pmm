@@ -17,11 +17,12 @@ package server
 
 import (
 	"context"
-	"errors"
 	"math"
+	"os"
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -32,70 +33,87 @@ import (
 
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 )
+
+// newTestServer builds a Server with every dependency mocked, for tests that drive the real
+// GetSettings/ChangeSettings paths. It returns the state updater alongside the Server so a caller
+// can assert on the pmm-agent that gets signalled: the only one this package ever signals is PMM
+// Server's own, and passing the changed agent's own ID instead was the bug fixed here, so the
+// expectation is pinned to models.PMMServerAgentID and any other argument panics the test.
+func newTestServer(t *testing.T, db *reform.DB) (*Server, *mockAgentsStateUpdater) {
+	t.Helper()
+
+	var supervisord mockSupervisordService
+	supervisord.Test(t)
+	supervisord.On("UpdateConfiguration", mock.Anything).Return(nil)
+
+	var vmdb mockPrometheusService
+	vmdb.Test(t)
+	vmdb.On("RequestConfigurationUpdate").Return(nil)
+
+	var vmalert mockPrometheusService
+	vmalert.Test(t)
+	vmalert.On("RequestConfigurationUpdate").Return(nil)
+
+	state := &mockAgentsStateUpdater{}
+	state.Test(t)
+	state.On("UpdateAgentsState", context.TODO()).Return(nil)
+	state.On("RequestStateUpdate", context.TODO(), models.PMMServerAgentID).Return(nil)
+
+	var templatesService mockTemplatesService
+	templatesService.Test(t)
+	templatesService.On("CollectTemplates", context.TODO()).Return(nil)
+
+	var checksService mockChecksService
+	checksService.Test(t)
+	checksService.On("UpdateAdvisorsList", context.TODO()).Return(nil)
+
+	var externalRules mockVmAlertExternalRules
+	externalRules.Test(t)
+	externalRules.On("ReadRules").Return("", nil)
+
+	var telemetry mockTelemetryService
+	telemetry.Test(t)
+	telemetry.On("GetSummaries").Return(nil)
+
+	var nomad mockNomadService
+	nomad.Test(t)
+	nomad.On("UpdateConfiguration", mock.Anything).Return(nil)
+
+	var ha mockHaService
+	ha.Test(t)
+	ha.On("IsLeader").Return(true)
+	ha.On("Params").Return(&models.HAParams{Enabled: false})
+
+	s, err := NewServer(&Params{
+		DB:                   db,
+		VMDB:                 &vmdb,
+		VMAlert:              &vmalert,
+		ChecksService:        &checksService,
+		TemplatesService:     &templatesService,
+		AgentsStateUpdater:   state,
+		Supervisord:          &supervisord,
+		VMAlertExternalRules: &externalRules,
+		TelemetryService:     &telemetry,
+		Nomad:                &nomad,
+		HAService:            &ha,
+	})
+	require.NoError(t, err)
+
+	return s, state
+}
 
 func TestServer(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
 	newServer := func(t *testing.T) *Server {
 		t.Helper()
-		var r mockSupervisordService
-		r.Test(t)
-		r.On("UpdateConfiguration", mock.Anything).Return(nil)
 
-		var mvmdb mockPrometheusService
-		mvmdb.Test(t)
-		mvmdb.On("RequestConfigurationUpdate").Return(nil)
-		mState := &mockAgentsStateUpdater{}
-		mState.Test(t)
-		mState.On("UpdateAgentsState", context.TODO()).Return(nil)
-		mState.On("RequestStateUpdate", context.TODO(), mock.Anything).Return(nil)
+		s, _ := newTestServer(t, reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)))
 
-		var mvmalert mockPrometheusService
-		mvmalert.Test(t)
-		mvmalert.On("RequestConfigurationUpdate").Return(nil)
-
-		var mtemplatesService mockTemplatesService
-		mtemplatesService.Test(t)
-		mtemplatesService.On("CollectTemplates", context.TODO()).Return(nil)
-
-		var mchecksService mockChecksService
-		mchecksService.Test(t)
-		mchecksService.On("UpdateAdvisorsList", context.TODO()).Return(nil)
-
-		var par mockVmAlertExternalRules
-		par.Test(t)
-		par.On("ReadRules").Return("", nil)
-
-		var ts mockTelemetryService
-		ts.Test(t)
-		ts.On("GetSummaries").Return(nil)
-
-		var nomad mockNomadService
-		nomad.Test(t)
-		nomad.On("UpdateConfiguration", mock.Anything).Return(nil)
-
-		var ha mockHaService
-		ha.Test(t)
-		ha.On("IsLeader").Return(true)
-		ha.On("Params").Return(&models.HAParams{Enabled: false})
-
-		s, err := NewServer(&Params{
-			DB:                   reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
-			VMDB:                 &mvmdb,
-			VMAlert:              &mvmalert,
-			ChecksService:        &mchecksService,
-			TemplatesService:     &mtemplatesService,
-			AgentsStateUpdater:   mState,
-			Supervisord:          &r,
-			VMAlertExternalRules: &par,
-			TelemetryService:     &ts,
-			Nomad:                &nomad,
-			HAService:            &ha,
-		})
-		require.NoError(t, err)
 		return s
 	}
 
@@ -161,7 +179,7 @@ func TestServer(t *testing.T) {
 			})
 			require.Len(t, errs, 1)
 			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(errs[0], &errInvalidArgument))
+			require.ErrorAs(t, errs[0], &errInvalidArgument)
 			require.EqualError(t, errs[0], `invalid argument: hr: minimal resolution is 1s`)
 			assert.Zero(t, s.envSettings.MetricsResolutions.HR)
 		})
@@ -173,7 +191,7 @@ func TestServer(t *testing.T) {
 			})
 			require.Len(t, errs, 1)
 			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(errs[0], &errInvalidArgument))
+			require.ErrorAs(t, errs[0], &errInvalidArgument)
 			require.EqualError(t, errs[0], `invalid argument: data_retention: minimal resolution is 24h`)
 			assert.Zero(t, s.envSettings.DataRetention)
 		})
@@ -185,7 +203,7 @@ func TestServer(t *testing.T) {
 			})
 			require.Len(t, errs, 1)
 			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(errs[0], &errInvalidArgument))
+			require.ErrorAs(t, errs[0], &errInvalidArgument)
 			require.EqualError(t, errs[0], `invalid argument: data_retention: should be a natural number of days`)
 			assert.Zero(t, s.envSettings.DataRetention)
 		})
@@ -283,6 +301,81 @@ func TestServer(t *testing.T) {
 	})
 }
 
+// TestInternalPgQANSettings covers the two call sites in this package that now key the internal QAN
+// agent off the Service name through models.FindInternalPgQANAgent: GetSettings and
+// handleInternalQANToggle. TestServer above opens its database with models.SkipFixtures, so
+// pmm-server-postgresql never exists there and both paths only ever take the NotFound branch.
+func TestInternalPgQANSettings(t *testing.T) {
+	// The fixtures read PMM_ENABLE_INTERNAL_PG_QAN to decide the agent's initial state, so unset it
+	// for a known starting point rather than inheriting the developer's or CI's environment.
+	tests.UnsetEnv(t, env.EnableInternalPgQAN)
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	s, state := newTestServer(t, db)
+	ctx := context.TODO()
+
+	agent, err := models.FindInternalPgQANAgent(db.Querier)
+	require.NoError(t, err)
+	require.True(t, agent.Disabled, "the fixtures create the agent disabled when the variable is unset")
+
+	t.Run("GetSettingsReportsTheAgentState", func(t *testing.T) {
+		resp, err := s.GetSettings(ctx, &serverv1.GetSettingsRequest{})
+		require.NoError(t, err)
+		assert.False(t, resp.Settings.EnableInternalPgQan)
+	})
+
+	t.Run("ChangeSettingsTogglesTheAgent", func(t *testing.T) {
+		resp, err := s.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
+			EnableInternalPgQan: new(true),
+		})
+		require.NoError(t, err)
+		assert.True(t, resp.Settings.EnableInternalPgQan)
+
+		// The toggle has to reach the row the Service-keyed lookup finds, not just the response.
+		stored, err := models.FindInternalPgQANAgent(db.Querier)
+		require.NoError(t, err)
+		assert.False(t, stored.Disabled)
+
+		// RequestStateUpdate takes a pmm-agent ID, not the ID of the agent that changed.
+		state.AssertCalled(t, "RequestStateUpdate", ctx, models.PMMServerAgentID)
+	})
+}
+
+// TestInternalPgQANSettingsWithEnvPin pins the reason checkInternalPgQANEnvOverride stays in the
+// inventory service layer instead of moving into models.ApplyAgentChange: ChangeSettings is the
+// legitimate owner of this state, so it has to keep working while the variable is set to the
+// opposite value. Moving that guard down makes this fail, which the comment on it asks for and
+// nothing else in either suite checks.
+func TestInternalPgQANSettingsWithEnvPin(t *testing.T) {
+	// Pinned off, so enabling through the settings API contradicts the variable -- the case a
+	// models-level guard would reject.
+	t.Setenv(env.EnableInternalPgQAN, "false")
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	s, _ := newTestServer(t, db)
+	ctx := context.TODO()
+
+	agent, err := models.FindInternalPgQANAgent(db.Querier)
+	require.NoError(t, err)
+	require.True(t, agent.Disabled)
+
+	resp, err := s.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
+		EnableInternalPgQan: new(true),
+	})
+	require.NoError(t, err)
+	assert.True(t, resp.Settings.EnableInternalPgQan)
+
+	stored, err := models.FindInternalPgQANAgent(db.Querier)
+	require.NoError(t, err)
+	assert.False(t, stored.Disabled)
+}
+
 func TestConvertDefaultRoleID(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -321,4 +414,60 @@ func TestConvertDefaultRoleID(t *testing.T) {
 			assert.Equal(t, tt.want, convertDefaultRoleID(tt.roleID))
 		})
 	}
+}
+
+func TestUpdateStatus(t *testing.T) {
+	newServer := func(t *testing.T, initRunning bool) *Server {
+		t.Helper()
+
+		var sv mockSupervisordService
+		sv.Test(t)
+		sv.On("ProgramRunning", mock.Anything, pmmInitProgram).Return(initRunning)
+
+		return &Server{
+			supervisord: &sv,
+			l:           logrus.WithField("component", "server-test"),
+		}
+	}
+
+	t.Run("done once pmm-init is no longer running", func(t *testing.T) {
+		res, err := newServer(t, false).UpdateStatus(t.Context(), &serverv1.UpdateStatusRequest{})
+		require.NoError(t, err)
+		assert.True(t, res.Done)
+	})
+
+	t.Run("not done while pmm-init is running", func(t *testing.T) {
+		res, err := newServer(t, true).UpdateStatus(t.Context(), &serverv1.UpdateStatusRequest{})
+		require.NoError(t, err)
+		assert.False(t, res.Done)
+	})
+
+	t.Run("deprecated fields are ignored and left at their defaults", func(t *testing.T) {
+		req := &serverv1.UpdateStatusRequest{}
+		req.AuthToken = "issued-by-the-previous-instance" //nolint:staticcheck
+		req.LogOffset = 1024                              //nolint:staticcheck
+
+		res, err := newServer(t, false).UpdateStatus(t.Context(), req)
+		require.NoError(t, err)
+		assert.True(t, res.Done, "an unverifiable auth token must still be accepted")
+		assert.Empty(t, res.LogLines, "the progress log is no longer served") //nolint:staticcheck
+		assert.Zero(t, res.LogOffset)                                         //nolint:staticcheck
+	})
+}
+
+func TestConvertReadOnlySettings(t *testing.T) {
+	s := &Server{}
+
+	t.Run("reports PMM Extensions as enabled when the process was started with it", func(t *testing.T) {
+		t.Setenv(env.EnableExtensions, "1")
+
+		assert.True(t, s.convertReadOnlySettings(&models.Settings{}).ExtensionsEnabled)
+	})
+
+	t.Run("reports PMM Extensions as disabled when the variable is absent", func(t *testing.T) {
+		t.Setenv(env.EnableExtensions, "")
+		os.Unsetenv(env.EnableExtensions)
+
+		assert.False(t, s.convertReadOnlySettings(&models.Settings{}).ExtensionsEnabled)
+	})
 }

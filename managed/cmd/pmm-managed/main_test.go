@@ -16,9 +16,11 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
+	"slices"
 	"sort"
 	"strings"
 	"testing"
@@ -28,8 +30,12 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
+const dotFile = "packages.dot"
+
+var updateF = flag.Bool("update", false, "update "+dotFile)
+
 func TestPackages(t *testing.T) {
-	cmd := exec.Command("pmm-managed", "-h")
+	cmd := exec.CommandContext(t.Context(), "pmm-managed", "-h")
 	b, err := cmd.CombinedOutput()
 	require.NoError(t, err, "%s", b)
 
@@ -110,7 +116,6 @@ func TestImports(t *testing.T) {
 
 	// just to add them to packages.dot
 	for _, service := range []string{
-		"github.com/percona/pmm/managed",
 		"github.com/percona/pmm/managed/cmd/pmm-managed-init",
 		"github.com/percona/pmm/managed/cmd/pmm-managed-starlark",
 		"github.com/percona/pmm/managed/services/agents/grpc",
@@ -129,6 +134,8 @@ func TestImports(t *testing.T) {
 	for path, c := range constraints {
 		pkgs, err := packages.Load(config, path)
 		require.NoError(t, err)
+		require.NotEmpty(t, pkgs, "pattern %s matched no packages", path)
+		require.Zero(t, packages.PrintErrors(pkgs), "failed to load %s", path)
 
 		for _, p := range pkgs {
 			allPkgs = append(allPkgs, p)
@@ -160,10 +167,6 @@ func TestImports(t *testing.T) {
 		}
 	}
 
-	f, err := os.Create("packages.dot")
-	require.NoError(t, err)
-	defer func() { require.NoError(t, f.Close()) }()
-
 	var lines []string
 	for _, p := range allPkgs {
 		pName := formatPkgName(t, p.PkgPath)
@@ -181,19 +184,25 @@ func TestImports(t *testing.T) {
 		}
 	}
 	sort.Strings(lines)
+	lines = slices.Compact(lines)
 
-	_, err = fmt.Fprintf(f, "digraph packages {\n")
-	require.NoError(t, err)
-	duplicate := make(map[string]struct{})
+	var graph strings.Builder
+	graph.WriteString("digraph packages {\n")
 	for _, line := range lines {
-		if _, ok := duplicate[line]; !ok {
-			duplicate[line] = struct{}{}
-			_, err = fmt.Fprint(f, line)
-			require.NoError(t, err)
-		}
+		graph.WriteString(line)
 	}
-	_, err = fmt.Fprintf(f, "}\n")
+	graph.WriteString("}\n")
+
+	if *updateF {
+		require.NoError(t, os.WriteFile(dotFile, []byte(graph.String()), 0o644))
+		t.Logf("%s updated.", dotFile)
+		return
+	}
+
+	expected, err := os.ReadFile(dotFile)
 	require.NoError(t, err)
+	assert.Equal(t, string(expected), graph.String(),
+		"%s is stale; regenerate it with 'go test ./managed/cmd/pmm-managed -run TestImports -update'.", dotFile)
 }
 
 func formatPkgName(t *testing.T, name string) string {
@@ -205,4 +214,18 @@ func formatPkgName(t *testing.T, name string) string {
 	}
 
 	return name
+}
+
+func TestParseNodeNamePrefixes(t *testing.T) {
+	for _, tc := range []struct {
+		value    string
+		expected []string
+	}{
+		{value: "", expected: nil},
+		{value: ",,", expected: nil},
+		{value: "pmm-pmm-ha-pg-db-", expected: []string{"pmm-pmm-ha-pg-db-"}},
+		{value: " pmm-pmm-ha-pg-db- , pmm-pmm-ha-ch- ", expected: []string{"pmm-pmm-ha-pg-db-", "pmm-pmm-ha-ch-"}},
+	} {
+		assert.Equal(t, tc.expected, parseNodeNamePrefixes(tc.value), tc.value)
+	}
 }

@@ -79,7 +79,7 @@ Choose the restoration method that matches how your backup was created:
 
     4. Fix ownership of restored files:
         ```sh
-        docker run --rm -v pmm-data:/srv -t percona/pmm-server:3 chown -R pmm:pmm /srv
+        docker run --rm --user root -v pmm-data:/srv -t percona/pmm-server:3 chown -R 1000:0 /srv
         ```
 
     5. Start the restored PMM Server:
@@ -162,7 +162,7 @@ Choose the restoration method that matches how your backup was created:
 
     6. Fix ownership of the restored files:
         ```sh
-        docker run --rm -v pmm-data:/srv -t percona/pmm-server:3 chown -R pmm:pmm /srv
+        docker run --rm --user root -v pmm-data:/srv -t percona/pmm-server:3 chown -R 1000:0 /srv
         ```
 
     7. Start the restored PMM Server container:

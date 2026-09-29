@@ -62,7 +62,7 @@ When importing a non-encrypted dump, pass the `--no-encryption` flag to the pmm-
 If you are a Percona Customer, you can securely share PMM data dumps with Percona Support via SFTP.
 {.power-number}
 
-1. From the main menu, go to <i class="uil uil-question-circle"></i>  **Help > PMM Dump > Manage datasets**.
+1. From the main menu, go to :material-help-circle-outline:  **Help > PMM Dump > Manage datasets**.
 2. Select the PMM dump entry which you want to send to Support.
 3. In the **Options** column, expand the table row to check the PMM Service associated with the dataset, then click the ellipsis (three vertical dots) and select **Send to Support**.
 4. Fill in the [details of the SFTP server](https://percona.service-now.com/percona?id=kb_article_view&sysparm_article=KB0010247&sys_kb_id=bebd04da87e329504035b8c9cebb35a7&spa=1), then click **Send**.
