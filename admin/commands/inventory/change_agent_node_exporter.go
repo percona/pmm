@@ -83,10 +83,12 @@ func (cmd *ChangeAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 	// Parse custom labels if provided
 	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
+	disableCollectors := commands.ParseDisableCollectors(cmd.DisableCollectors)
+
 	body := &agents.ChangeAgentParamsBodyNodeExporter{
 		Enable:            cmd.Enable,
 		EnablePushMetrics: cmd.PushMetrics,
-		DisableCollectors: cmd.DisableCollectors,
+		DisableCollectors: disableCollectors,
 		ExposeExporter:    cmd.ExposeExporter,
 		LogLevel:          convertLogLevelPtr(cmd.LogLevel),
 	}
@@ -132,8 +134,8 @@ func (cmd *ChangeAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 			changes = append(changes, "disabled expose exporter")
 		}
 	}
-	if cmd.DisableCollectors != nil {
-		changes = append(changes, fmt.Sprintf("updated disabled collectors: %v", cmd.DisableCollectors))
+	if disableCollectors != nil {
+		changes = append(changes, fmt.Sprintf("updated disabled collectors: %v", disableCollectors))
 	}
 	if cmd.LogLevel != nil {
 		changes = append(changes, fmt.Sprintf("changed log level to %s", *cmd.LogLevel))

@@ -45,7 +45,7 @@ func FilterOutCollectors(prefix string, args, disabledCollectors []string) []str
 
 // DisableDefaultEnabledCollectors returns CLI arguments to disable default enabled collectors based on input.
 // DefaultCollectors and disabledCollectors should be collector names without prefix.
-// Result will be returned with prefix.
+// Result will be returned with prefix, at most once per collector.
 func DisableDefaultEnabledCollectors(prefix string, defaultCollectors []string, disabledCollectors []string) []string {
 	defaultCollectorsMap := make(map[string]struct{})
 	for _, defaultCollector := range defaultCollectors {
@@ -53,9 +53,14 @@ func DisableDefaultEnabledCollectors(prefix string, defaultCollectors []string, 
 	}
 	args := []string{}
 	for _, collector := range disabledCollectors {
-		if _, ok := defaultCollectorsMap[collector]; ok {
-			args = append(args, fmt.Sprintf("%s%s", prefix, collector))
+		if _, ok := defaultCollectorsMap[collector]; !ok {
+			continue
 		}
+		// A repeated flag is rejected by the exporters' flag parser, which would stop the
+		// exporter from starting, so a collector listed twice must still yield one argument.
+		// Dropping the name here makes the membership check above reject every repeat.
+		delete(defaultCollectorsMap, collector)
+		args = append(args, fmt.Sprintf("%s%s", prefix, collector))
 	}
 	return args
 }
