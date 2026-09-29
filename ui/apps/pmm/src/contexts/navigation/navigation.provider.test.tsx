@@ -105,14 +105,14 @@ describe('NavigationProvider', () => {
       expect(mysqlBackups).toMatchObject({
         text: 'MySQL Backups',
         url: EXTENSIONS_MYSQL_BACKUPS_PATH,
-        matches: [EXTENSIONS_MYSQL_BACKUPS_PATH],
+        matches: ['*'],
       });
       expect(mysqlBackups?.icon).toBeDefined();
 
       expect(atw).toMatchObject({
         text: 'Support diagnostics',
         url: EXTENSIONS_ATW_PATH,
-        matches: [EXTENSIONS_ATW_PATH],
+        matches: ['*'],
       });
       expect(atw?.icon).toBeDefined();
     });
@@ -166,18 +166,26 @@ describe('NavigationProvider', () => {
   describe('deep links into a PMM Extensions app', () => {
     it.each([
       ['extensions-atw', EXTENSIONS_ATW_PATH],
+      ['extensions-atw', `${EXTENSIONS_ATW_PATH}/runs/abc`],
       ['extensions-mysql-backups', EXTENSIONS_MYSQL_BACKUPS_PATH],
-    ])('marks %s active and keeps it inside Management', (childId, path) => {
-      const navTree = renderNavTree(TEST_USER_VIEWER, {
-        initialEntries: [path],
-      });
-      const management = findById(navTree, 'management');
-      const active = findActiveNavItem(navTree, path);
+      [
+        'extensions-mysql-backups',
+        `${EXTENSIONS_MYSQL_BACKUPS_PATH}/backups/123`,
+      ],
+    ])(
+      'marks %s active and keeps it inside Management for %s',
+      (childId, path) => {
+        const navTree = renderNavTree(TEST_USER_VIEWER, {
+          initialEntries: [path],
+        });
+        const management = findById(navTree, 'management');
+        const active = findActiveNavItem(navTree, path);
 
-      expect(active?.id).toBe(childId);
-      // The sidebar expands a section when its active child is the very object
-      // held in `children`, so identity — not just the id — has to match.
-      expect(management?.children).toContain(active);
-    });
+        expect(active?.id).toBe(childId);
+        // The sidebar expands a section when its active child is the very object
+        // held in `children`, so identity — not just the id — has to match.
+        expect(management?.children).toContain(active);
+      }
+    );
   });
 });
