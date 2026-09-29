@@ -17,9 +17,9 @@
 
 import { describe, expect, it } from 'vitest';
 import {
+  OM_ROUTE_AUTOMATIONS,
   OM_ROUTE_HOSTS,
   OM_ROUTE_INVENTORY,
-  OM_ROUTE_OPERATIONS,
   OM_ROUTE_SERVICES,
 } from '../src/constants';
 import { omBase } from '../src/useOmBase';
@@ -44,7 +44,7 @@ describe('omBase', () => {
     OM_ROUTE_SERVICES,
     OM_ROUTE_HOSTS,
     OM_ROUTE_INVENTORY,
-    OM_ROUTE_OPERATIONS,
+    OM_ROUTE_AUTOMATIONS,
   ])(
     'strips the %s segment so an absolute link resolves to the mount',
     (route) => {
