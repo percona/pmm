@@ -37,3 +37,27 @@ type haChecker interface {
 	IsLeader() bool
 	LeaderID() string
 }
+
+// agentConnectionChecker reports whether a pmm-agent is currently connected. A subset
+// of *agents.Registry's exported surface -- the "PMM-Client installed and healthy"
+// signal ListInventoryHosts needs, which om_inventory has no way to answer for itself:
+// a node existing in its estate only means PMM registered it once, not that the agent
+// on it is alive now. See inventory.go's automationEligibility.
+//
+// Optional like probe and ha: a Service built without one treats every host as
+// disconnected, which is the fail-closed default for something that gates automation
+// eligibility.
+type agentConnectionChecker interface {
+	IsConnected(pmmAgentID string) bool
+}
+
+// agentStateUpdater tells a pmm-agent to refresh its own state -- a subset of
+// *agents.StateUpdater's exported surface. Every RPC that creates an Agent row
+// directly (addMongoDB and its siblings in services/management) calls this
+// immediately after, since pmm-agent otherwise has no way to learn a new
+// exporter it should be running exists -- it only starts one in response to
+// this exact push. See registerBootstrapHost's own doc comment for why it
+// needs the same call.
+type agentStateUpdater interface {
+	RequestStateUpdate(ctx context.Context, pmmAgentID string)
+}
