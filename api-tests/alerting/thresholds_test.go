@@ -331,7 +331,8 @@ func TestThresholdBatchUpdate(t *testing.T) {
 					{
 						Scope: new(scopeNode), Target: f.nodeID,
 						RuleID: f.ruleID, ParamName: "threshold",
-						Value: pointer.ToFloat64(500), // outside the declared range
+						// Outside the declared range.
+						Value: pointer.ToFloat64(500),
 					},
 				},
 			},

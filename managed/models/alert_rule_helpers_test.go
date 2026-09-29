@@ -40,9 +40,8 @@ func createTestAlertRule(t *testing.T, q *reform.Querier) *models.AlertRule {
 		RuleID: uuid.New().String(),
 		Params: models.AlertRuleParams{
 			"threshold": {
-				Default:   80,
-				JoinLabel: "node_name",
-				Scopes:    []string{string(models.ThresholdScopeNode)},
+				Default: 80,
+				Scopes:  []string{string(models.ThresholdScopeNode)},
 			},
 		},
 	})
@@ -71,7 +70,6 @@ func TestAlertRuleRegistry(t *testing.T) {
 		found, err := models.FindAlertRuleByID(q, rule.RuleID)
 		require.NoError(t, err)
 		assert.InDelta(t, 80.0, found.Params["threshold"].Default, 0.0001)
-		assert.Equal(t, "node_name", found.Params["threshold"].JoinLabel)
 		assert.Equal(t, []string{"node"}, found.Params["threshold"].Scopes)
 	})
 

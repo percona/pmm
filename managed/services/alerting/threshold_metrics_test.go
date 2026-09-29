@@ -112,9 +112,8 @@ func createThresholdRule(t *testing.T, db *reform.DB) {
 		RuleID: testRuleID,
 		Params: models.AlertRuleParams{
 			"threshold": {
-				Default:   80,
-				JoinLabel: "node_name",
-				Scopes:    []string{string(models.ThresholdScopeNode)},
+				Default: 80,
+				Scopes:  []string{string(models.ThresholdScopeNode)},
 			},
 		},
 	})
@@ -187,8 +186,8 @@ func TestThresholdCollectorEmitsOnePerTargetAcrossParams(t *testing.T) {
 	_, err := models.CreateAlertRule(db.Querier, &models.CreateAlertRuleParams{
 		RuleID: testRuleID,
 		Params: models.AlertRuleParams{
-			"threshold": {Default: 80, JoinLabel: "node_name"},
-			"second":    {Default: 10, JoinLabel: "node_name"},
+			"threshold": {Default: 80},
+			"second":    {Default: 10},
 		},
 	})
 	require.NoError(t, err)

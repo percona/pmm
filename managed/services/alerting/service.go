@@ -875,22 +875,16 @@ func collectOverridableParams(template *alert.Template, values AlertExprParamsVa
 	params := make(models.AlertRuleParams, len(overridable))
 
 	for _, param := range overridable {
-		joinLabel, err := joinLabelForParam(param)
-		if err != nil {
-			return nil, fmt.Errorf("parameter '%s': %w", param.Name, err)
-		}
-
 		supplied, ok := byName[param.Name]
 		if !ok {
 			return nil, fmt.Errorf("no value supplied for overridable parameter '%s'", param.Name)
 		}
 
 		snapshot := models.AlertRuleParam{
-			Default:   supplied.FloatValue,
-			JoinLabel: joinLabel,
-			Scopes:    param.GetOverrideScopes(),
-			Unit:      string(param.Unit),
-			Summary:   param.Summary,
+			Default: supplied.FloatValue,
+			Scopes:  param.GetOverrideScopes(),
+			Unit:    string(param.Unit),
+			Summary: param.Summary,
 		}
 
 		if len(param.Range) != 0 {

@@ -55,7 +55,7 @@ func createRegistryRow(t *testing.T, db *reform.DB, ruleID string, age time.Dura
 	_, err := models.CreateAlertRule(db.Querier, &models.CreateAlertRuleParams{
 		RuleID: ruleID,
 		Params: models.AlertRuleParams{
-			"threshold": {Default: 80, JoinLabel: "node_name", Scopes: []string{string(models.ThresholdScopeNode)}},
+			"threshold": {Default: 80, Scopes: []string{string(models.ThresholdScopeNode)}},
 		},
 	})
 	require.NoError(t, err)

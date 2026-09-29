@@ -30,13 +30,12 @@ import (
 // only durable record of what the rule actually evaluates against, and the only place the
 // effective default can be read back from.
 type AlertRuleParam struct {
-	Default   float64  `json:"default"`
-	JoinLabel string   `json:"join_label"`
-	Scopes    []string `json:"scopes"`
-	Unit      string   `json:"unit,omitempty"`
-	Summary   string   `json:"summary,omitempty"`
-	Min       *float64 `json:"min,omitempty"`
-	Max       *float64 `json:"max,omitempty"`
+	Default float64  `json:"default"`
+	Scopes  []string `json:"scopes"`
+	Unit    string   `json:"unit,omitempty"`
+	Summary string   `json:"summary,omitempty"`
+	Min     *float64 `json:"min,omitempty"`
+	Max     *float64 `json:"max,omitempty"`
 }
 
 // OverridableAt reports whether this parameter may be overridden at the given scope. It is

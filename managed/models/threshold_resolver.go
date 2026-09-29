@@ -49,14 +49,11 @@ type ThresholdInventory struct {
 	NodeNames map[string]string
 	// ServiceNames maps service_id to service_name.
 	ServiceNames map[string]string
-	// ServicesByCluster maps a cluster label value to the names of its services.
-	ServicesByCluster map[string][]string
 }
 
-// targetNames returns the join-label values an override applies to. A node or service
-// override yields at most one; a cluster override fans out onto every service in that
-// cluster. An unresolvable target yields none, so a row left behind by a deleted entity
-// is inert rather than wrong.
+// targetNames returns the join-label values an override applies to: at most one for a node
+// or service, and none for a target that no longer exists, so a row it left behind is inert.
+// A cluster override resolves to nothing until services can be looked up by cluster.
 func (inv ThresholdInventory) targetNames(override *AlertRuleThresholdOverride) []string {
 	switch override.Scope {
 	case ThresholdScopeNode:
@@ -76,7 +73,7 @@ func (inv ThresholdInventory) targetNames(override *AlertRuleThresholdOverride) 
 		return []string{name}
 
 	case ThresholdScopeCluster:
-		return inv.ServicesByCluster[override.Target]
+		return nil
 	}
 
 	// do not add `default:` to make exhaustive linter do its job

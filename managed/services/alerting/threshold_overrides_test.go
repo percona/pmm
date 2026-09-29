@@ -52,13 +52,12 @@ func setupThresholdAPI(t *testing.T) (*Service, *reform.DB, *models.Node) {
 		RuleID: thresholdTestRuleID,
 		Params: models.AlertRuleParams{
 			"threshold": {
-				Default:   80,
-				JoinLabel: "node_name",
-				Scopes:    []string{string(models.ThresholdScopeNode)},
-				Unit:      "%",
-				Summary:   "A percentage from configured maximum",
-				Min:       pointer.ToFloat64(0),
-				Max:       pointer.ToFloat64(100),
+				Default: 80,
+				Scopes:  []string{string(models.ThresholdScopeNode)},
+				Unit:    "%",
+				Summary: "A percentage from configured maximum",
+				Min:     pointer.ToFloat64(0),
+				Max:     pointer.ToFloat64(100),
 			},
 		},
 	})
@@ -314,7 +313,8 @@ func TestBatchUpdateThresholds(t *testing.T) {
 				{
 					Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
 					RuleId: thresholdTestRuleID, ParamName: "threshold",
-					Value: pointer.ToFloat64(500), // out of range
+					// Out of range.
+					Value: pointer.ToFloat64(500),
 				},
 			},
 		})
@@ -413,9 +413,8 @@ func TestSetThresholdRejectsScopeTheParameterDoesNotDeclare(t *testing.T) {
 		RuleID: ruleID,
 		Params: models.AlertRuleParams{
 			"threshold": {
-				Default:   80,
-				JoinLabel: "service_name",
-				Scopes:    []string{string(models.ThresholdScopeService)},
+				Default: 80,
+				Scopes:  []string{string(models.ThresholdScopeService)},
 			},
 		},
 	})
@@ -439,9 +438,8 @@ func TestListThresholdsFiltersByRule(t *testing.T) {
 		RuleID: otherRuleID,
 		Params: models.AlertRuleParams{
 			"threshold": {
-				Default:   50,
-				JoinLabel: "node_name",
-				Scopes:    []string{string(models.ThresholdScopeNode)},
+				Default: 50,
+				Scopes:  []string{string(models.ThresholdScopeNode)},
 			},
 		},
 	})
@@ -476,9 +474,8 @@ func TestListThresholdsFiltersByScope(t *testing.T) {
 			RuleID: "service-scoped-rule",
 			Params: models.AlertRuleParams{
 				"threshold": {
-					Default:   90,
-					JoinLabel: "service_name",
-					Scopes:    []string{string(models.ThresholdScopeService)},
+					Default: 90,
+					Scopes:  []string{string(models.ThresholdScopeService)},
 				},
 			},
 		})

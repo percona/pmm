@@ -232,10 +232,6 @@ func ConvertParamsDefinitions(params []alert.Parameter) (AlertExprParamsDefiniti
 			Overridable: param.Overridable,
 		}
 
-		if param.Overridable {
-			p.OverrideScopes = param.GetOverrideScopes()
-		}
-
 		switch param.Type {
 		case alert.Float:
 			var fp FloatParam

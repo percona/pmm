@@ -163,7 +163,6 @@ func TestCreateRuleRegistersOverridableRule(t *testing.T) {
 		param, ok := rule.Params["threshold"]
 		require.True(t, ok)
 		assert.InDelta(t, 80.0, param.Default, 0.0001)
-		assert.Equal(t, "node_name", param.JoinLabel)
 		assert.Equal(t, []string{"node"}, param.Scopes)
 		assert.Equal(t, "%", param.Unit)
 		require.NotNil(t, param.Min)
@@ -246,7 +245,7 @@ func TestCollectOverridableParams(t *testing.T) {
 
 	template := overridableRuleTemplate()
 
-	t.Run("snapshots the supplied value and derived join label", func(t *testing.T) {
+	t.Run("snapshots the supplied value and scopes", func(t *testing.T) {
 		t.Parallel()
 
 		params, err := collectOverridableParams(template, AlertExprParamsValues{{
@@ -258,23 +257,7 @@ func TestCollectOverridableParams(t *testing.T) {
 
 		require.Contains(t, params, "threshold")
 		assert.InDelta(t, 55.0, params["threshold"].Default, 0.0001)
-		assert.Equal(t, "node_name", params["threshold"].JoinLabel)
 		assert.Equal(t, []string{alert.OverrideScopeNode}, params["threshold"].Scopes)
-	})
-
-	t.Run("service and cluster scopes join on service_name", func(t *testing.T) {
-		t.Parallel()
-
-		scoped := overridableRuleTemplate()
-		scoped.Params[0].OverrideScopes = []string{alert.OverrideScopeService, alert.OverrideScopeCluster}
-
-		params, err := collectOverridableParams(scoped, AlertExprParamsValues{{
-			Name:       "threshold",
-			Type:       models.Float,
-			FloatValue: 55,
-		}})
-		require.NoError(t, err)
-		assert.Equal(t, "service_name", params["threshold"].JoinLabel)
 	})
 
 	t.Run("a missing value is rejected", func(t *testing.T) {

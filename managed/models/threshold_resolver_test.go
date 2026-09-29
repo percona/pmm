@@ -33,10 +33,17 @@ func testInventory() ThresholdInventory {
 			"svc-id-1": "svc-1",
 			"svc-id-2": "svc-2",
 		},
-		ServicesByCluster: map[string][]string{
-			"prod": {"svc-1", "svc-2"},
-		},
 	}
+}
+
+// collidingInventory adds a node named like a service. That is the only way node and service
+// scope can reach the same target, since they otherwise resolve into separate label
+// namespaces; node_name and service_name are unique within their own tables, not across them.
+func collidingInventory() ThresholdInventory {
+	inv := testInventory()
+	inv.NodeNames["node-id-3"] = "svc-1"
+
+	return inv
 }
 
 func override(scope ThresholdScope, target string, value float64) *AlertRuleThresholdOverride {
@@ -74,21 +81,6 @@ func TestResolveThresholds(t *testing.T) {
 			expected:  map[string]float64{"svc-1": 91},
 		},
 		{
-			name:      "cluster override fans out onto every service in the cluster",
-			overrides: []*AlertRuleThresholdOverride{override(ThresholdScopeCluster, "prod", 70)},
-			expected:  map[string]float64{"svc-1": 70, "svc-2": 70},
-		},
-		{
-			name: "service beats cluster regardless of value",
-			overrides: []*AlertRuleThresholdOverride{
-				override(ThresholdScopeCluster, "prod", 99),
-				override(ThresholdScopeService, "svc-id-1", 50),
-			},
-			// svc-1 takes the more specific 50 even though the cluster value is larger:
-			// precedence is by scope, not by magnitude.
-			expected: map[string]float64{"svc-1": 50, "svc-2": 99},
-		},
-		{
 			name: "unresolvable target is skipped, never defaulted",
 			overrides: []*AlertRuleThresholdOverride{
 				override(ThresholdScopeNode, "deleted-node-id", 90),
@@ -96,9 +88,9 @@ func TestResolveThresholds(t *testing.T) {
 			expected: map[string]float64{},
 		},
 		{
-			name: "unknown cluster expands to nothing",
+			name: "cluster override resolves to nothing",
 			overrides: []*AlertRuleThresholdOverride{
-				override(ThresholdScopeCluster, "staging", 90),
+				override(ThresholdScopeCluster, "prod", 90),
 			},
 			expected: map[string]float64{},
 		},
@@ -116,106 +108,47 @@ func TestResolveThresholds(t *testing.T) {
 	}
 }
 
-// TestResolveThresholdsPrecedenceAcrossAllScopes pins the order that is derivable rather
-// than conventional: a service runs on exactly one node and belongs to at most one
-// cluster, so a service override is strictly narrower than either and must win.
-func TestResolveThresholdsPrecedenceAcrossAllScopes(t *testing.T) {
+// TestResolveThresholdsServiceBeatsNode pins the derivable half of the order: a service
+// runs on exactly one node, so a service override is strictly narrower and must win.
+func TestResolveThresholdsServiceBeatsNode(t *testing.T) {
 	t.Parallel()
 
-	inv := testInventory()
-	// A node whose name collides with a service name is the only way node and service
-	// scope can reach the same target, since they otherwise resolve into separate label
-	// namespaces. Nothing in the schema prevents it: node_name and service_name are
-	// unique within their own tables, not across them.
-	inv.NodeNames["node-id-3"] = "svc-1"
-
 	overrides := []*AlertRuleThresholdOverride{
-		override(ThresholdScopeCluster, "prod", 10),
 		override(ThresholdScopeService, "svc-id-1", 20),
 		override(ThresholdScopeNode, "node-id-3", 30),
+		override(ThresholdScopeNode, "node-id-1", 90),
 	}
 
-	resolved := ResolveThresholds(overrides, inv)
-	assert.InDelta(t, 20.0, resolved["svc-1"].Value, 0.0001, "service scope must win over node and cluster")
-}
-
-// TestResolveThresholdsNodeBeatsCluster pins the conventional half of the order. Node and
-// cluster cross-cut rather than nest - a cluster spans several nodes, a node hosts
-// services from several clusters - so this is a chosen tie-break, not a containment.
-func TestResolveThresholdsNodeBeatsCluster(t *testing.T) {
-	t.Parallel()
-
-	inv := testInventory()
-	inv.NodeNames["node-id-3"] = "svc-1"
-
-	overrides := []*AlertRuleThresholdOverride{
-		override(ThresholdScopeCluster, "prod", 10),
-		override(ThresholdScopeNode, "node-id-3", 30),
-	}
-
-	resolved := ResolveThresholds(overrides, inv)
-	assert.InDelta(t, 30.0, resolved["svc-1"].Value, 0.0001)
+	resolved := ResolveThresholds(overrides, collidingInventory())
+	require.Len(t, resolved, 2, "one value per target: duplicate series fail the whole /metrics response")
+	assert.InDelta(t, 20.0, resolved["svc-1"].Value, 0.0001, "service scope must win over node")
+	assert.InDelta(t, 90.0, resolved["node-1"].Value, 0.0001)
 }
 
 func TestResolveThresholdsIsOrderIndependent(t *testing.T) {
 	t.Parallel()
 
 	forward := []*AlertRuleThresholdOverride{
-		override(ThresholdScopeCluster, "prod", 99),
+		override(ThresholdScopeNode, "node-id-3", 99),
 		override(ThresholdScopeService, "svc-id-1", 50),
 	}
 	reversed := []*AlertRuleThresholdOverride{forward[1], forward[0]}
 
-	inv := testInventory()
+	inv := collidingInventory()
 	assert.Equal(t,
 		ResolveThresholds(forward, inv),
 		ResolveThresholds(reversed, inv),
 		"precedence must not depend on row order returned by the database")
 }
 
-// TestResolveThresholdsEmitsOneValuePerTarget guards the invariant that matters most
-// operationally: two series with identical labels make the Prometheus gatherer fail the
-// entire /metrics response, taking every other collector down with it.
-func TestResolveThresholdsEmitsOneValuePerTarget(t *testing.T) {
-	t.Parallel()
-
-	inv := testInventory()
-	inv.ServicesByCluster["prod"] = []string{"svc-1", "svc-1", "svc-2"}
-
-	overrides := []*AlertRuleThresholdOverride{
-		override(ThresholdScopeCluster, "prod", 70),
-		override(ThresholdScopeNode, "node-id-1", 90),
-	}
-
-	resolved := ResolveThresholds(overrides, inv)
-	require.Len(t, resolved, 3)
-	assert.InDelta(t, 70.0, resolved["svc-1"].Value, 0.0001)
-	assert.InDelta(t, 70.0, resolved["svc-2"].Value, 0.0001)
-	assert.InDelta(t, 90.0, resolved["node-1"].Value, 0.0001)
-}
-
 func BenchmarkResolveThresholds(b *testing.B) {
-	inv := ThresholdInventory{
-		NodeNames:         make(map[string]string, 1000),
-		ServiceNames:      map[string]string{},
-		ServicesByCluster: make(map[string][]string, 50),
-	}
+	inv := ThresholdInventory{NodeNames: make(map[string]string, 1000)}
 
 	overrides := make([]*AlertRuleThresholdOverride, 0, 1000)
 	for i := range 1000 {
 		id := fmt.Sprintf("node-id-%d", i)
 		inv.NodeNames[id] = fmt.Sprintf("node-%d", i)
 		overrides = append(overrides, override(ThresholdScopeNode, id, float64(i%100)))
-	}
-
-	for i := range 50 {
-		cluster := fmt.Sprintf("cluster-%d", i)
-		services := make([]string, 0, 200)
-		for j := range 200 {
-			services = append(services, fmt.Sprintf("svc-%d-%d", i, j))
-		}
-		inv.ServicesByCluster[cluster] = services
-		overrides = append(overrides, override(ThresholdScopeCluster, cluster, 55))
 	}
 
 	for b.Loop() {
@@ -240,9 +173,8 @@ func TestTargetNamesSkipsTargetsOutsideInventory(t *testing.T) {
 	// its target. Such a row must resolve to nothing rather than to an empty join-label
 	// value, which would match every series the rule produces.
 	inv := ThresholdInventory{
-		NodeNames:         map[string]string{"node-id-1": "node-1"},
-		ServiceNames:      map[string]string{"service-id-1": "service-1"},
-		ServicesByCluster: map[string][]string{"prod": {"service-1"}},
+		NodeNames:    map[string]string{"node-id-1": "node-1"},
+		ServiceNames: map[string]string{"service-id-1": "service-1"},
 	}
 
 	assert.Nil(t, inv.targetNames(&AlertRuleThresholdOverride{
@@ -257,8 +189,5 @@ func TestTargetNamesSkipsTargetsOutsideInventory(t *testing.T) {
 
 	assert.Equal(t, []string{"service-1"}, inv.targetNames(&AlertRuleThresholdOverride{
 		Scope: ThresholdScopeService, Target: "service-id-1",
-	}))
-	assert.Equal(t, []string{"service-1"}, inv.targetNames(&AlertRuleThresholdOverride{
-		Scope: ThresholdScopeCluster, Target: "prod",
 	}))
 }
