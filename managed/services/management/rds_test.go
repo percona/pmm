@@ -185,12 +185,7 @@ func TestRDSService(t *testing.T) {
 				assert.NoError(t, err)
 			})
 
-			fake := newFakeAWS(t)
-			t.Setenv("AWS_ENDPOINT_URL_STS", fake.URL)
-			t.Setenv("AWS_ENDPOINT_URL_RDS", fake.URL)
-			// The role is assumed with the server's ambient credentials.
-			t.Setenv("AWS_ACCESS_KEY_ID", "AKIAIOSFODNN7EXAMPLE")
-			t.Setenv("AWS_SECRET_ACCESS_KEY", "ambient-secret")
+			fake := setupRoleDiscovery(t)
 
 			instances, err := s.DiscoverRDS(ctx, &managementv1.DiscoverRDSRequest{
 				AwsRoleArn: "arn:aws:iam::123456789012:role/pmm-monitoring",
@@ -209,16 +204,66 @@ func TestRDSService(t *testing.T) {
 				},
 			}, instances.RdsInstances)
 
-			// The role is assumed once, against the partition's default region.
+			// With no region configured on the server, the role is assumed once, against the
+			// partition's default region.
 			assert.Equal(t, []fakeAWSCall{{"sts", "us-east-1", "arn:aws:iam::123456789012:role/pmm-monitoring"}}, fake.calls("sts"))
 
 			// Only the role's partition is scanned; aws-cn is enabled in settings but never called.
-			scanned := make([]string, 0, len(fake.calls("rds")))
-			for _, c := range fake.calls("rds") {
-				scanned = append(scanned, c.region)
-			}
-			sort.Strings(scanned)
-			assert.Equal(t, listRegions([]string{"aws"}), scanned)
+			assert.Equal(t, listRegions([]string{"aws"}), scannedRegions(fake))
+		})
+
+		t.Run("RoleARNUsesConfiguredRegion", func(t *testing.T) {
+			ctx := logger.Set(t.Context(), t.Name())
+
+			fake := setupRoleDiscovery(t)
+			t.Setenv("AWS_REGION", "eu-west-1")
+
+			instances, err := s.DiscoverRDS(ctx, &managementv1.DiscoverRDSRequest{
+				AwsRoleArn: "arn:aws:iam::123456789012:role/pmm-monitoring",
+			})
+			require.NoError(t, err)
+			require.Len(t, instances.RdsInstances, 1)
+			assert.Equal(t, "eu-north-1", instances.RdsInstances[0].Region)
+
+			// The role is assumed in the server's configured region, not the partition default.
+			assert.Equal(t, []fakeAWSCall{{"sts", "eu-west-1", "arn:aws:iam::123456789012:role/pmm-monitoring"}}, fake.calls("sts"))
+
+			// The configured region moves only the STS call; the whole partition is still scanned.
+			assert.Equal(t, listRegions([]string{"aws"}), scannedRegions(fake))
+		})
+
+		t.Run("RoleARNUsesDefaultRegionVariable", func(t *testing.T) {
+			ctx := logger.Set(t.Context(), t.Name())
+
+			fake := setupRoleDiscovery(t)
+			t.Setenv("AWS_DEFAULT_REGION", "eu-west-1")
+
+			instances, err := s.DiscoverRDS(ctx, &managementv1.DiscoverRDSRequest{
+				AwsRoleArn: "arn:aws:iam::123456789012:role/pmm-monitoring",
+			})
+			require.NoError(t, err)
+			require.Len(t, instances.RdsInstances, 1)
+
+			assert.Equal(t, []fakeAWSCall{{"sts", "eu-west-1", "arn:aws:iam::123456789012:role/pmm-monitoring"}}, fake.calls("sts"))
+		})
+
+		t.Run("RoleARNRejectsRegionOutsidePartition", func(t *testing.T) {
+			ctx := logger.Set(t.Context(), t.Name())
+
+			fake := setupRoleDiscovery(t)
+			t.Setenv("AWS_REGION", "cn-north-1")
+
+			instances, err := s.DiscoverRDS(ctx, &managementv1.DiscoverRDSRequest{
+				AwsRoleArn: "arn:aws:iam::123456789012:role/pmm-monitoring",
+			})
+			tests.AssertGRPCError(t, status.New(codes.FailedPrecondition,
+				"AWS region cn-north-1 configured on PMM Server is not in AWS partition aws of role "+
+					"arn:aws:iam::123456789012:role/pmm-monitoring; unset AWS_REGION or set it to a region of that partition."), err)
+			assert.Nil(t, instances)
+
+			// Rejected before any network call.
+			assert.Empty(t, fake.calls("sts"))
+			assert.Empty(t, fake.calls("rds"))
 		})
 
 		t.Run("Normal", func(t *testing.T) {
@@ -687,4 +732,34 @@ func (f *fakeAWS) calls(service string) []fakeAWSCall {
 		}
 	}
 	return res
+}
+
+// scannedRegions returns the regions fakeAWS received RDS calls for, sorted.
+func scannedRegions(f *fakeAWS) []string {
+	calls := f.calls("rds")
+	res := make([]string, 0, len(calls))
+	for _, c := range calls {
+		res = append(res, c.region)
+	}
+	sort.Strings(res)
+	return res
+}
+
+// setupRoleDiscovery points DiscoverRDS at a fakeAWS with ambient credentials and no region
+// configured, so a subtest that sets AWS_REGION or AWS_DEFAULT_REGION is the only region source.
+// The shared config files are disabled too, so a developer's ~/.aws/config region cannot leak in.
+func setupRoleDiscovery(t *testing.T) *fakeAWS {
+	t.Helper()
+
+	fake := newFakeAWS(t)
+	t.Setenv("AWS_ENDPOINT_URL_STS", fake.URL)
+	t.Setenv("AWS_ENDPOINT_URL_RDS", fake.URL)
+	// The role is assumed with the server's ambient credentials.
+	t.Setenv("AWS_ACCESS_KEY_ID", "AKIAIOSFODNN7EXAMPLE")
+	t.Setenv("AWS_SECRET_ACCESS_KEY", "ambient-secret")
+	t.Setenv("AWS_REGION", "")
+	t.Setenv("AWS_DEFAULT_REGION", "")
+	t.Setenv("AWS_CONFIG_FILE", "/nonexistent")
+	t.Setenv("AWS_SHARED_CREDENTIALS_FILE", "/nonexistent")
+	return fake
 }

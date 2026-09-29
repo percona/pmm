@@ -185,7 +185,8 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 	}
 
 	// A session token from any region's STS endpoint is valid across the whole partition, so
-	// the role is assumed once, rather than once per region, against the partition's default region.
+	// the role is assumed once, rather than once per region: in PMM Server's own configured
+	// region when it has one, otherwise in the partition's default region.
 	if req.AwsRoleArn != "" {
 		stsRegion, partition, err := stsRegionForRoleARN(req.AwsRoleArn)
 		if err != nil {
@@ -204,6 +205,19 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 		// Calls into the other enabled partitions can only fail, and when the role's partition has
 		// no instances the first such failure would be reported instead of an empty list.
 		regions = listRegions([]string{partition})
+
+		// PMM Server's own AWS region (AWS_REGION, AWS_DEFAULT_REGION or the profile), when set,
+		// is where the role is assumed, so egress can be limited to that region. The partition
+		// default is only the fallback for a server with no region configured. A region outside
+		// the role's partition cannot issue its credentials, so reject it before any network.
+		if cfg.Region != "" {
+			if !slices.Contains(regions, cfg.Region) {
+				return nil, status.Errorf(codes.FailedPrecondition,
+					"AWS region %s configured on PMM Server is not in AWS partition %s of role %s; "+
+						"unset AWS_REGION or set it to a region of that partition.", cfg.Region, partition, req.AwsRoleArn)
+			}
+			stsRegion = cfg.Region
+		}
 
 		roleCfg := cfg
 		roleCfg.Region = stsRegion
@@ -604,8 +618,8 @@ func assumeRoleProvider(cfg aws.Config, roleARN string) aws.CredentialsProvider 
 }
 
 // stsDefaultRegion maps an AWS partition to a region always enabled in that partition,
-// used to reach STS once for a role instead of once per scanned region. A session
-// token issued in this region is valid across every region in the partition.
+// used to reach STS for a role when PMM Server has no region of its own configured. A
+// session token issued in this region is valid across every region in the partition.
 var stsDefaultRegion = map[string]string{
 	"aws":        "us-east-1",
 	"aws-cn":     "cn-north-1",
@@ -613,8 +627,8 @@ var stsDefaultRegion = map[string]string{
 	"aws-iso":    "us-iso-east-1",
 }
 
-// stsRegionForRoleARN returns the STS region to use for assuming roleARN and the ARN's AWS
-// partition, based on that partition.
+// stsRegionForRoleARN returns the default STS region for assuming roleARN and the ARN's AWS
+// partition. The caller prefers PMM Server's own configured region over the default.
 func stsRegionForRoleARN(roleARN string) (string, string, error) {
 	parsed, err := arn.Parse(roleARN)
 	if err != nil {
