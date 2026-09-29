@@ -17,19 +17,23 @@ package om
 
 import (
 	"context"
+	"errors"
 	"maps"
 	"math"
 	"net/http"
 	"net/url"
+	"slices"
 	"strconv"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	omv1 "github.com/percona/pmm/api/om/v1"
+	"github.com/percona/pmm/managed/models"
 )
 
 // The /v1/om/inventory/* handlers: PMM Extensions' estate, served through PMM.
@@ -106,11 +110,48 @@ func (s *Service) ListInventoryHosts(ctx context.Context, req *omv1.ListInventor
 		return nil, err
 	}
 
+	connectedNodes, err := s.pmmAgentConnectedByNode()
+	if err != nil {
+		return nil, err
+	}
+
 	response := &omv1.ListInventoryHostsResponse{Hosts: make([]*omv1.InventoryHost, 0, len(hosts))}
 	for _, host := range hosts {
-		response.Hosts = append(response.Hosts, inventoryHostToProto(host))
+		proto := inventoryHostToProto(host, connectedNodes[host.NodeID])
+		if req.AutomationEligible != nil && proto.AutomationEligible != req.GetAutomationEligible() {
+			continue
+		}
+		response.Hosts = append(response.Hosts, proto)
 	}
 	return response, nil
+}
+
+// pmmAgentConnectedByNode returns, for every node with a pmm-agent, whether that
+// agent is currently connected -- one query and one registry check per node, not one
+// per host in the estate.
+//
+// Absence from the returned map (rather than a false-valued entry) is the same "not
+// connected" answer callers here read either way, since a Go map's missing key
+// already zero-values to false; kept as a genuinely sparse map only because building
+// it is naturally that shape, not because callers need to distinguish a missing agent
+// from a disconnected one.
+func (s *Service) pmmAgentConnectedByNode() (map[string]bool, error) {
+	if s.agents == nil {
+		return nil, nil //nolint:nilnil // absent registry: every lookup below reads as not connected
+	}
+	agentType := models.PMMAgentType
+	pmmAgents, err := models.FindAgents(s.db.Querier, models.AgentFilters{AgentType: &agentType})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to list pmm-agents: %s", err)
+	}
+	connected := make(map[string]bool, len(pmmAgents))
+	for _, agent := range pmmAgents {
+		if agent.RunsOnNodeID == nil {
+			continue
+		}
+		connected[*agent.RunsOnNodeID] = s.agents.IsConnected(agent.AgentID)
+	}
+	return connected, nil
 }
 
 // GetInventoryHost returns one host.
@@ -126,7 +167,12 @@ func (s *Service) GetInventoryHost(ctx context.Context, req *omv1.GetInventoryHo
 	if err != nil {
 		return nil, err
 	}
-	return &omv1.GetInventoryHostResponse{Host: inventoryHostToProto(host)}, nil
+
+	connectedNodes, err := s.pmmAgentConnectedByNode()
+	if err != nil {
+		return nil, err
+	}
+	return &omv1.GetInventoryHostResponse{Host: inventoryHostToProto(host, connectedNodes[host.NodeID])}, nil
 }
 
 // DeleteInventoryHost forgets a host and the services on it.
@@ -326,6 +372,625 @@ func (s *Service) TriggerInventoryRefresh(ctx context.Context, req *omv1.Trigger
 	return response, nil
 }
 
+// validateMemberConfigs checks one request's per-member settings against the
+// hosts it names and against what rs.initiate() will accept, so a set it would
+// refuse fails here rather than several steps into a run -- minutes later, with
+// mongod already installed everywhere.
+//
+// Split out of TriggerHostBootstrap, its only caller, to keep that function's
+// cognitive complexity within the linter's limit, the same reason
+// resolveBootstrapHostOSID sits beside it.
+func validateMemberConfigs(nodeIDs []string, memberConfigs map[string]*omv1.BootstrapMemberConfig) error {
+	nodeIDSet := make(map[string]bool, len(nodeIDs))
+	for _, nodeID := range nodeIDs {
+		nodeIDSet[nodeID] = true
+	}
+	for nodeID, member := range memberConfigs {
+		if !nodeIDSet[nodeID] {
+			return status.Errorf(codes.InvalidArgument,
+				"member_configs names host %s, which is not in node_ids", nodeID)
+		}
+		// MongoDB's own rs.initiate() rule: a delayed member cannot vote or be
+		// eligible for primary -- rejected here rather than left for PMM Extensions to
+		// discover only once rs.initiate actually runs, minutes later. Leaving
+		// priority or votes unset is the same mistake as setting them wrong,
+		// since unset means MongoDB's defaults of 1 and on.
+		if member.GetDelaySecs() > 0 && (member.Priority == nil || *member.Priority != 0 || member.Votes == nil || *member.Votes) {
+			return status.Errorf(codes.InvalidArgument,
+				"host %s: a delayed member (delay_secs > 0) must also set priority 0 and votes off", nodeID)
+		}
+	}
+
+	// A replica set needs a member that can vote and one that can be elected,
+	// and rs.initiate() is where a set with neither fails -- minutes into a run,
+	// after every host already has mongod installed and started. Counted over
+	// node_ids rather than member_configs because a host named nowhere in it
+	// keeps MongoDB's defaults and therefore does both.
+	voters, electable := 0, 0
+	for _, nodeID := range nodeIDs {
+		member, named := memberConfigs[nodeID]
+		if !named || member.Votes == nil || *member.Votes {
+			voters++
+		}
+		if !named || member.Priority == nil || *member.Priority > 0 {
+			electable++
+		}
+	}
+	if voters == 0 {
+		return status.Error(codes.InvalidArgument,
+			"member_configs leaves no host with a vote; a replica set needs at least one voting member")
+	}
+	if electable == 0 {
+		return status.Error(codes.InvalidArgument,
+			"member_configs leaves every host with priority 0; a replica set needs at least one member that can become primary")
+	}
+
+	return nil
+}
+
+// runIgnoredSettings names the first run setting om_bootstrap did not apply, or
+// "" when the accepted run matches what was asked for.
+//
+// Raised in review: these fields are new on the wire, and PMM Extensions' own
+// TriggerRunRequest is a plain pydantic model, which ignores fields it does not
+// know rather than rejecting them. Against an om_bootstrap older than
+// percona/PMM Extensions#1534 the run would be accepted and then come up on PMM Extensions' own
+// defaults -- mongod on a different port, and a member meant to be hidden,
+// non-voting and delayed joining as an ordinary voting one -- with nothing
+// saying so. PMM Extensions echoes every one of these back on the accepted run (its
+// RunResponse), so the answer is in hand the moment the run is created; an
+// older PMM Extensions simply omits them, which reads here as the zero value and so as a
+// mismatch.
+//
+// Reports the first difference rather than all of them: any single one means
+// the app is too old, and the caller's next step is the same either way. Only
+// what was actually asked for is compared -- a field PMM left out is PMM Extensions' to
+// default, and the value it chose is not a disagreement.
+func runIgnoredSettings(planned extensionsTriggerBootstrapRunRequest, accepted *extensionsBootstrapRun) string {
+	switch {
+	case planned.DataPath != "" && accepted.DataPath != planned.DataPath:
+		return "the data path"
+	case planned.LogPath != "" && accepted.LogPath != planned.LogPath:
+		return "the log path"
+	case planned.Port != 0 && accepted.Port != planned.Port:
+		return "the port"
+	case planned.BindIP != "" && accepted.BindIP != planned.BindIP:
+		return "the bind address"
+	}
+
+	for host, member := range planned.MemberConfigs {
+		got, ok := accepted.MemberConfigs[host]
+		if !ok || !sameMemberConfig(got, member) {
+			return "the per-member replica-set settings"
+		}
+	}
+	return ""
+}
+
+// sameMemberConfig compares one host's settings as asked for against as accepted.
+//
+// An unset priority or votes on the request side is MongoDB's own default, which
+// is what PMM Extensions fills in and echoes back, so the two compare equal rather than
+// reading as a mismatch on every run that leaves them out.
+func sameMemberConfig(accepted, planned extensionsMemberConfig) bool {
+	if pointer.GetUint32(planned.Priority) != pointer.GetUint32(accepted.Priority) && planned.Priority != nil {
+		return false
+	}
+	if planned.Votes != nil && pointer.GetBool(planned.Votes) != pointer.GetBool(accepted.Votes) {
+		return false
+	}
+	return planned.Hidden == accepted.Hidden && planned.DelaySecs == accepted.DelaySecs
+}
+
+// abandonMisconfiguredRun cancels a run PMM has just decided it cannot use.
+//
+// Best-effort and logged rather than returned: the caller is already being told
+// why its request failed, and a cancel that does not land leaves a run visible
+// on the Automations page rather than anything worse. A PMM Extensions too old for the
+// settings above is also too old for :cancel, which 404s -- that is the same
+// "your PMM Extensions is older than this PMM" answer, so it is not worth reporting twice.
+func (s *Service) abandonMisconfiguredRun(ctx context.Context, runID string) {
+	_, err := s.bootstrap.cancelRun(ctx, runID)
+	if err != nil {
+		s.l.Warnf("bootstrap run %s: failed to cancel a run PMM Extensions would not configure: %s", runID, err)
+	}
+}
+
+// executorUnusable says why a payload cannot be dispatched to this host right now,
+// or "" when nothing is known to be wrong.
+//
+// Reads the same observed.executor sub-document PMM Extensions' own _executor_usable does
+// (om_inventory's api_routes.py), so no second call is needed: the host was already
+// fetched to read its OS. Having executor_host set is not the same answer: PMM Extensions sets
+// that the moment any known executor matches the host, usable or not.
+//
+// Checked before a run is created because of what the alternative looks like, raised
+// on the PMM Extensions side of this work: an unreachable Nomad client surfaces only once
+// pre_check -- itself dispatched through Nomad -- fails a few seconds later, by which
+// time the run exists and the UI is showing it as in progress.
+//
+// Only an explicit false rejects. A host whose sub-document is missing entirely is
+// left to PMM Extensions, which is the older behaviour and keeps a PMM talking to a side-car that
+// does not write this yet able to bootstrap at all; PMM Extensions' own listing filter is
+// stricter and reads absence as not eligible, so such a host will not be offered in
+// the UI either way.
+func executorUnusable(host extensionsHost) string {
+	executor, ok := host.Observed["executor"].(map[string]any)
+	if !ok {
+		return ""
+	}
+
+	reachable, ok := executor["reachable"].(bool)
+	if ok && !reachable {
+		return "its Nomad executor is not reachable"
+	}
+	driverHealthy, ok := executor["driver_healthy"].(bool)
+	if ok && !driverHealthy {
+		return "its Nomad executor's driver is not healthy"
+	}
+	return ""
+}
+
+// supportedBootstrapOSIDs mirrors PMM Extensions' own om_bootstrap.strategy.OperatingSystem
+// enum (app/sep/apps/om_bootstrap/strategy.py) -- there is no Go-side equivalent
+// type, since PMM otherwise treats os_id as an opaque string sourced from
+// om_inventory's probe and forwarded to PMM Extensions verbatim. Checked here purely so an
+// unsupported OS fails at trigger time with a clear reason instead of a run
+// that starts, dispatches a step, and only then fails on PMM Extensions' own
+// _require_package_manager -- PMM Extensions remains the actual source of truth, so a
+// third OS lands here only after (never instead of) that enum gaining it.
+var supportedBootstrapOSIDs = map[string]bool{"ubuntu": true, "rocky": true}
+
+// resolveBootstrapHostOSID validates one host's OS against the run's OS chosen
+// so far (osID, empty for the first host in the loop) and returns the OS to
+// carry forward. Split out of TriggerHostBootstrap, which this is called from
+// once per host, purely to keep that function's cognitive complexity within
+// the linter's limit -- there is no reuse elsewhere.
+func resolveBootstrapHostOSID(nodeID string, host extensionsHost, osID string) (string, error) {
+	hostOSID, _ := host.Observed["os_id"].(string)
+	if hostOSID == "" {
+		return "", status.Errorf(codes.FailedPrecondition,
+			"host %s has no known OS yet; wait for its next inventory probe and try again", nodeID)
+	}
+	if !supportedBootstrapOSIDs[hostOSID] {
+		return "", status.Errorf(codes.FailedPrecondition,
+			"host %s runs %q, which om_bootstrap does not support yet (supported: ubuntu, rocky)",
+			nodeID, hostOSID)
+	}
+	if osID != "" && osID != hostOSID {
+		return "", status.Errorf(codes.InvalidArgument,
+			"host %s runs %s, but %s was already selected; a mixed-OS replica set is out of phase-1 scope",
+			nodeID, hostOSID, osID)
+	}
+	return hostOSID, nil
+}
+
+// TriggerHostBootstrap plans installing MongoDB on one or three hosts and
+// initializing them as one replica set.
+//
+// PMM-15347 PoC only -- see the RPC's own proto comment and PMM-15347/plan.md for
+// scope. Reads every host's own os_id from om_inventory (a general inventory
+// fact, PMM-15326: Surface the host's machine-readable OS id) rather than
+// asking the caller for it, then hands off to PMM Extensions' om_bootstrap app -- not
+// om_inventory, which stays read-only by design -- which does the real
+// planning (install_method fixed to "packages", the only strategy implemented
+// yet). PMM's own HA-leader-only stepper (stepper.go) drives the returned run
+// forward from here; this handler's job ends at planning it.
+//
+// The om_bootstrap app's own "host" identity is the Nomad *executor* host (the name
+// its own dispatch route passes straight through as the Tasks API's
+// target -- see dispatch.go's own doc comment on PMM Extensions' side), not PMM's node
+// id: the two are different strings for the same machine (a node id is a
+// UUID PMM minted; the executor host is whatever name the Nomad client
+// registered under, e.g. "pmm-client-node00"), and Nomad only knows the
+// latter. GetBootstrapRun passes the executor host straight through --
+// arguably more readable for a progress display than a bare UUID -- and only
+// registerBootstrapHost (nodeIDForExecutorHost) ever needs the node id back,
+// since PMM's own inventory is keyed on that instead.
+func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHostBootstrapRequest) (*omv1.TriggerHostBootstrapResponse, error) {
+	probe, err := s.inventoryProbe()
+	if err != nil {
+		return nil, err
+	}
+	if s.bootstrap == nil {
+		return nil, status.Error(codes.FailedPrecondition,
+			"PMM Extensions is not configured; set PMM_EXTENSIONS_URL and PMM_EXTENSIONS_TOKEN to reach the bootstrap app")
+	}
+	nodeIDs := req.GetNodeIds()
+	if len(nodeIDs) != 1 && len(nodeIDs) != 3 {
+		return nil, status.Errorf(codes.InvalidArgument,
+			"node_ids must have exactly one or three entries, got %d", len(nodeIDs))
+	}
+
+	err = validateMemberConfigs(nodeIDs, req.GetMemberConfigs())
+	if err != nil {
+		return nil, err
+	}
+
+	osID := ""
+	executorHosts := make([]string, 0, len(nodeIDs))
+	memberConfigs := make(map[string]extensionsMemberConfig, len(req.GetMemberConfigs()))
+	for _, nodeID := range nodeIDs {
+		host := extensionsHost{}
+		call := inventoryCall{method: http.MethodGet, path: inventoryPath("hosts", nodeID)}
+		err = probe.call(ctx, call, &host)
+		if err != nil {
+			return nil, err
+		}
+		if host.ExecutorHost == nil || *host.ExecutorHost == "" {
+			return nil, status.Errorf(codes.FailedPrecondition,
+				"host %s has no usable Nomad executor", nodeID)
+		}
+		unusable := executorUnusable(host)
+		if unusable != "" {
+			return nil, status.Errorf(codes.FailedPrecondition,
+				"host %s cannot be bootstrapped right now: %s", nodeID, unusable)
+		}
+		osID, err = resolveBootstrapHostOSID(nodeID, host, osID)
+		if err != nil {
+			return nil, err
+		}
+		executorHosts = append(executorHosts, *host.ExecutorHost)
+		if member, ok := req.GetMemberConfigs()[nodeID]; ok {
+			memberConfigs[*host.ExecutorHost] = extensionsMemberConfig{
+				Priority:  member.Priority,
+				Votes:     member.Votes,
+				Hidden:    member.GetHidden(),
+				DelaySecs: member.GetDelaySecs(),
+			}
+		}
+	}
+
+	planned := extensionsTriggerBootstrapRunRequest{
+		Hosts:          executorHosts,
+		InstallMethod:  "packages",
+		OS:             osID,
+		MongoDBVersion: req.GetMongodbVersion(),
+		ReplicaSetName: req.GetReplicaSetName(),
+		DataPath:       req.GetDataPath(),
+		LogPath:        req.GetLogPath(),
+		Port:           req.GetPort(),
+		BindIP:         req.GetBindIp(),
+		MemberConfigs:  memberConfigs,
+	}
+	run, err := s.bootstrap.triggerRun(ctx, planned)
+	if err != nil {
+		return nil, err
+	}
+
+	ignored := runIgnoredSettings(planned, run)
+	if ignored != "" {
+		s.abandonMisconfiguredRun(ctx, run.ID)
+		return nil, status.Errorf(codes.FailedPrecondition,
+			"PMM Extensions accepted the run but did not apply %s, so it would come up on its own defaults "+
+				"instead of the settings you chose; its om_bootstrap app is older than this PMM. "+
+				"The run has been cancelled", ignored)
+	}
+
+	if environment, cluster := req.GetEnvironment(), req.GetCluster(); environment != "" || cluster != "" {
+		config := &models.OmBootstrapRunConfig{RunID: run.ID, Environment: environment, Cluster: cluster}
+		err = models.CreateOmBootstrapRunConfig(s.db.Querier, config)
+		if err != nil {
+			// The bootstrap itself is already under way on PMM Extensions' side; failing this
+			// request now would report an error for a run that is, in fact, running --
+			// worse than registering it unlabelled, which is exactly what happens
+			// today for every run triggered before this field existed.
+			s.l.Warnf("bootstrap run %s: failed to persist environment/cluster: %s", run.ID, err)
+		}
+	}
+
+	return &omv1.TriggerHostBootstrapResponse{RunId: run.ID}, nil
+}
+
+// inventoryHostsByExecutor returns every host the inventory app currently has a
+// row for, keyed by its Nomad executor host name -- the identity a bootstrap
+// run's progress is keyed on (TriggerHostBootstrap's own doc comment), not the
+// node id PMM's own inventory needs. Shared by nodeIDForExecutorHost and
+// confirmMonitoringLookup, the two places that need the estate the other way
+// round from how ListInventoryHosts reads it.
+//
+// Fetches the whole estate rather than a filtered query: om_inventory's own
+// GET /hosts has no "find by executor_host" filter, and the estate size this
+// phase targets (a handful of hosts in one replica set) makes one full fetch
+// no real cost -- see ListInventoryHosts's own similar fetch-then-filter
+// shape. Whole means every page: GET /hosts answers the paginated envelope
+// (PMM-15326: "Bound the estate listings"), so this goes through
+// fetchAllPages like the other two readers of that endpoint rather than
+// decoding a bare array. A host with no executor at all (never dispatched
+// an eligibility probe) is silently dropped rather than keyed on empty
+// string.
+func (s *Service) inventoryHostsByExecutor(ctx context.Context) (map[string]extensionsHost, error) {
+	probe, err := s.inventoryProbe()
+	if err != nil {
+		return nil, err
+	}
+	hosts, err := fetchAllPages(func(offset, limit int) (extensionsPage[extensionsHost], error) {
+		query := url.Values{}
+		query.Set("offset", strconv.Itoa(offset))
+		query.Set("limit", strconv.Itoa(limit))
+		page := extensionsPage[extensionsHost]{}
+		call := inventoryCall{method: http.MethodGet, path: "hosts", query: query}
+		err := probe.call(ctx, call, &page)
+		return page, err
+	})
+	if err != nil {
+		return nil, err
+	}
+	byExecutor := make(map[string]extensionsHost, len(hosts))
+	for _, host := range hosts {
+		if host.ExecutorHost != nil {
+			byExecutor[*host.ExecutorHost] = host
+		}
+	}
+	return byExecutor, nil
+}
+
+// triggerScopedInventoryRefresh asks the inventory app to re-probe exactly
+// nodeIDs now, rather than leaving confirmMonitoringStep to wait out however
+// long the app's own schedule takes to get there on its own -- called by
+// completeSucceededRun once a run's hosts are registered.
+//
+// Reports whether the app took the request, which is the caller's cue to stop
+// asking.
+//
+// A 409 (Aborted here -- see extensionsStatusError) means some other refresh already
+// holds one of these hosts, and is expected rather than broken: the app judges
+// conflict per host, and the estate sweep it runs on its own schedule holds
+// every host it is walking. That makes a refusal likely exactly when a run
+// finishes, not rare -- a sweep occupies a sizeable fraction of every schedule
+// period -- so it is reported rather than swallowed, and completeSucceededRun
+// decides how long to keep asking. It stays un-logged either way: a conflict is
+// a normal outcome, and this is called on every tick until it lands.
+func (s *Service) triggerScopedInventoryRefresh(ctx context.Context, nodeIDs []string) bool {
+	probe, err := s.inventoryProbe()
+	if err != nil {
+		return false
+	}
+	call := inventoryCall{method: http.MethodPost, path: "runs", body: map[string]any{"node_ids": nodeIDs}}
+	err = probe.call(ctx, call, nil)
+	if err == nil {
+		return true
+	}
+	if status.Code(err) != codes.Aborted {
+		s.l.Warnf("failed to trigger a scoped inventory refresh for %v: %s", nodeIDs, err)
+	}
+	return false
+}
+
+// nodeIDForExecutorHost resolves a Nomad executor host name back to the PMM
+// node id it belongs to -- the reverse of TriggerHostBootstrap's own
+// resolution, needed wherever a bootstrap run's progress has to reach PMM's
+// own inventory, which is keyed on node id.
+func (s *Service) nodeIDForExecutorHost(ctx context.Context, executorHost string) (string, error) {
+	hosts, err := s.inventoryHostsByExecutor(ctx)
+	if err != nil {
+		return "", err
+	}
+	host, ok := hosts[executorHost]
+	if !ok {
+		return "", status.Errorf(codes.NotFound,
+			"no host in the inventory has executor %q", executorHost)
+	}
+	return host.NodeID, nil
+}
+
+// bootstrapProbe returns the configured om_bootstrap client, or an error saying
+// it is not -- the same FailedPrecondition treatment inventoryProbe gives
+// om_inventory, for the same reason: this is a deployment nobody has pointed at
+// PMM Extensions yet, not a missing feature.
+func (s *Service) bootstrapProbe() (*bootstrapClient, error) {
+	if s.bootstrap == nil {
+		return nil, status.Error(codes.FailedPrecondition,
+			"PMM Extensions is not configured; set PMM_EXTENSIONS_URL and PMM_EXTENSIONS_TOKEN to reach the bootstrap app")
+	}
+	return s.bootstrap, nil
+}
+
+// defaultBootstrapRunLimit and maxBootstrapRunLimit mirror defaultInventoryRunLimit and
+// maxInventoryRunLimit's own doc comment: the ceiling is forwarded to PMM Extensions verbatim, and
+// matches both the proto's ListBootstrapRunsRequest.limit validation and PMM Extensions' own
+// om_bootstrap GET /runs le=100.
+const (
+	defaultBootstrapRunLimit = 20
+	maxBootstrapRunLimit     = 100
+)
+
+// GetBootstrapRun returns one bootstrap run's current progress.
+//
+// A thin proxy onto PMM Extensions' om_bootstrap GET /runs/{id}, like every other read in
+// this file -- reconciling the run's in-flight dispatches happens on PMM Extensions' own
+// side (see om_bootstrap's own doc comment on that route), not here.
+func (s *Service) GetBootstrapRun(ctx context.Context, req *omv1.GetBootstrapRunRequest) (*omv1.GetBootstrapRunResponse, error) {
+	bootstrap, err := s.bootstrapProbe()
+	if err != nil {
+		return nil, err
+	}
+
+	run, err := bootstrap.getRun(ctx, req.GetRunId())
+	if err != nil {
+		return nil, err
+	}
+
+	environment, cluster := s.bootstrapRunConfigLabels(run.ID)
+	return bootstrapRunToProto(run, s.confirmMonitoringLookup(ctx, run.Status), environment, cluster), nil
+}
+
+// CancelBootstrapRun asks PMM Extensions to flag runID for cancellation and best-effort
+// stop whatever step is currently dispatching -- see om_bootstrap's own
+// :cancel route doc comment. Actually rolling every host back from there is
+// PMM's own stepper's job, driven by bootstrap_decision.go's runNeedsRollback
+// the next time it observes cancel_requested set, not this handler's.
+func (s *Service) CancelBootstrapRun(ctx context.Context, req *omv1.CancelBootstrapRunRequest) (*omv1.CancelBootstrapRunResponse, error) {
+	bootstrap, err := s.bootstrapProbe()
+	if err != nil {
+		return nil, err
+	}
+
+	run, err := bootstrap.cancelRun(ctx, req.GetRunId())
+	if err != nil {
+		return nil, err
+	}
+
+	environment, cluster := s.bootstrapRunConfigLabels(run.ID)
+	return &omv1.CancelBootstrapRunResponse{
+		Run: bootstrapRunToProto(run, s.confirmMonitoringLookup(ctx, run.Status), environment, cluster),
+	}, nil
+}
+
+// ListBootstrapRuns returns the bootstrap run history, newest first.
+//
+// Every status, not just active ones -- this backs an operator-facing history view,
+// where a finished run is exactly as worth seeing as a running one.
+func (s *Service) ListBootstrapRuns(ctx context.Context, req *omv1.ListBootstrapRunsRequest) (*omv1.ListBootstrapRunsResponse, error) {
+	bootstrap, err := s.bootstrapProbe()
+	if err != nil {
+		return nil, err
+	}
+
+	limit := int(req.GetLimit())
+	switch {
+	case limit <= 0:
+		limit = defaultBootstrapRunLimit
+	case limit > maxBootstrapRunLimit:
+		limit = maxBootstrapRunLimit
+	}
+
+	runs, err := bootstrap.listRuns(ctx, "", limit)
+	if err != nil {
+		return nil, err
+	}
+
+	statuses := make([]string, len(runs))
+	for i, run := range runs {
+		statuses[i] = run.Status
+	}
+	hostsByExecutor := s.confirmMonitoringLookup(ctx, statuses...)
+
+	proto := make([]*omv1.GetBootstrapRunResponse, 0, len(runs))
+	for i := range runs {
+		environment, cluster := s.bootstrapRunConfigLabels(runs[i].ID)
+		proto = append(proto, bootstrapRunToProto(&runs[i], hostsByExecutor, environment, cluster))
+	}
+	return &omv1.ListBootstrapRunsResponse{Runs: proto}, nil
+}
+
+// bootstrapRunConfigLabels returns the environment and cluster runID was
+// triggered with, or two empty strings when there is nothing on record -- see
+// OmBootstrapRunConfig's own doc comment on why that is the ordinary case, not
+// a failure.
+func (s *Service) bootstrapRunConfigLabels(runID string) (string, string) {
+	if s.db == nil {
+		return "", ""
+	}
+	config, err := models.FindOmBootstrapRunConfigByRunID(s.db.Querier, runID)
+	if err != nil {
+		if !errors.Is(err, models.ErrNotFound) {
+			s.l.Warnf("bootstrap run %s: failed to load its environment/cluster: %s", runID, err)
+		}
+		return "", ""
+	}
+	return config.Environment, config.Cluster
+}
+
+// confirmMonitoringLookup fetches the inventory app's current hosts for
+// confirmMonitoringStep to check, but only when at least one of statuses is
+// bootstrapRunSucceeded -- a run still installing, or one that failed or rolled
+// back, can only ever report confirm_monitoring as "pending", so there is
+// nothing worth an extra PMM Extensions call for. Degrades to nil on failure rather than
+// failing the read it backs: a run's own progress is the more important half
+// of that response, and a nil map reads every host as still unconfirmed, which
+// is the honest answer when the lookup itself is unavailable.
+func (s *Service) confirmMonitoringLookup(ctx context.Context, statuses ...string) map[string]extensionsHost {
+	needed := slices.Contains(statuses, bootstrapRunSucceeded)
+	if !needed {
+		return nil
+	}
+	hosts, err := s.inventoryHostsByExecutor(ctx)
+	if err != nil {
+		s.l.Warnf("failed to confirm bootstrap monitoring against the inventory app: %s", err)
+		return nil
+	}
+	return hosts
+}
+
+// confirmMonitoringStepName names the synthetic, PMM-only step appended to every
+// host's finalize_steps. Unlike every other step in this file, om_bootstrap never
+// dispatches it -- it is PMM's own read-time confirmation that the service
+// registerBootstrapHost created has actually been noticed by the estate's own
+// inventory sweep, the same fact HostsPage's "Unregistered mongod" badge reports
+// (databaseState in inventory.ts, on the UI side) until it flips. Appended to
+// finalize_steps rather than a list of its own so it renders for free wherever a
+// host's steps already do.
+const confirmMonitoringStepName = "confirm_monitoring"
+
+// confirmMonitoringStep reports whether executorHost's bootstrapped service has
+// been noticed yet. "Pending" until the run itself has succeeded (nothing to
+// confirm before then), "running" from there until hostsByExecutor shows a
+// service for that host, "succeeded" once it does. A nil hostsByExecutor is what
+// confirmMonitoringLookup returns when there was nothing to check yet, or its own
+// PMM Extensions call failed -- both read as "still running" here, which is honest either
+// way: a host genuinely isn't confirmed yet, or PMM cannot currently say.
+func confirmMonitoringStep(runStatus, executorHost string, hostsByExecutor map[string]extensionsHost) *omv1.BootstrapStep {
+	stepStatus := bootstrapStepPending
+	if runStatus == bootstrapRunSucceeded {
+		stepStatus = bootstrapStepRunning
+		if host, ok := hostsByExecutor[executorHost]; ok && len(host.Services) > 0 {
+			stepStatus = bootstrapStepSucceeded
+		}
+	}
+	return &omv1.BootstrapStep{Name: confirmMonitoringStepName, Status: stepStatus}
+}
+
+// bootstrapRunToProto projects a extensionsBootstrapRun onto the wire shape
+// GetBootstrapRun answers with. Its hostsByExecutor argument comes from
+// confirmMonitoringLookup, and may be nil -- see confirmMonitoringStep. Its
+// environment and cluster arguments come from bootstrapRunConfigLabels, and are
+// empty strings when there is nothing on record for this run.
+func bootstrapRunToProto(run *extensionsBootstrapRun, hostsByExecutor map[string]extensionsHost, environment, cluster string) *omv1.GetBootstrapRunResponse {
+	hosts := make([]*omv1.BootstrapHost, 0, len(run.Hosts))
+	for _, host := range run.Hosts {
+		finalizeSteps := bootstrapStepsToProto(host.FinalizeSteps)
+		finalizeSteps = append(finalizeSteps,
+			confirmMonitoringStep(run.Status, host.Host, hostsByExecutor))
+		hosts = append(hosts, &omv1.BootstrapHost{
+			Host:          host.Host,
+			Steps:         bootstrapStepsToProto(host.Steps),
+			RollbackSteps: bootstrapStepsToProto(host.RollbackSteps),
+			FinalizeSteps: finalizeSteps,
+		})
+	}
+	return &omv1.GetBootstrapRunResponse{
+		RunId:           run.ID,
+		Status:          run.Status,
+		Hosts:           hosts,
+		RunSteps:        bootstrapStepsToProto(run.RunSteps),
+		Error:           run.Error,
+		ReplicaSetName:  run.ReplicaSetName,
+		MongodbVersion:  run.MongoDBVersion,
+		StartedAt:       timestamppb.New(run.StartedAt),
+		FinishedAt:      optionalTimestamp(run.FinishedAt),
+		Environment:     optional(environment),
+		Cluster:         optional(cluster),
+		CancelRequested: run.CancelRequested,
+	}
+}
+
+// bootstrapStepsToProto projects a slice of extensionsBootstrapStep onto the wire
+// shape shared by a host's own steps, its rollback steps, and a run's
+// run-level steps.
+func bootstrapStepsToProto(steps []extensionsBootstrapStep) []*omv1.BootstrapStep {
+	proto := make([]*omv1.BootstrapStep, 0, len(steps))
+	for _, step := range steps {
+		proto = append(proto, &omv1.BootstrapStep{
+			Name:         step.Name,
+			Status:       step.Status,
+			Detail:       step.Detail,
+			AttemptCount: int32(step.AttemptCount), //nolint:gosec // an attempt count never approaches int32's range
+		})
+	}
+	return proto
+}
+
 // GetInventoryConfig returns the inventory app's configuration.
 func (s *Service) GetInventoryConfig(ctx context.Context, _ *omv1.GetInventoryConfigRequest) (*omv1.GetInventoryConfigResponse, error) {
 	probe, err := s.inventoryProbe()
@@ -472,24 +1137,51 @@ func (s *Service) DeleteInventoryConfigOverride(
 }
 
 // inventoryHostToProto projects one host row for the wire.
-func inventoryHostToProto(host extensionsHost) *omv1.InventoryHost {
+func inventoryHostToProto(host extensionsHost, pmmAgentConnected bool) *omv1.InventoryHost {
+	executor := executorToProto(host.Observed)
+	eligible, reasons := automationEligibility(executor, pmmAgentConnected)
 	out := &omv1.InventoryHost{
-		NodeId:              host.NodeID,
-		Name:                host.Name,
-		Address:             optionalString(host.Address),
-		ExecutorHost:        optionalString(host.ExecutorHost),
-		Os:                  observedString(host.Observed, "os"),
-		Kernel:              observedString(host.Observed, "kernel"),
-		Executor:            executorToProto(host.Observed),
-		UnregisteredMongods: unregisteredMongodsToProto(host.Observed),
-		Observed:            observedToStruct(host.Observed),
-		Freshness:           freshnessToProto(host.extensionsFreshness),
-		Services:            make([]*omv1.InventoryService, 0, len(host.Services)),
+		NodeId:                   host.NodeID,
+		Name:                     host.Name,
+		Address:                  optionalString(host.Address),
+		ExecutorHost:             optionalString(host.ExecutorHost),
+		Os:                       observedString(host.Observed, "os"),
+		Kernel:                   observedString(host.Observed, "kernel"),
+		Executor:                 executor,
+		UnregisteredMongods:      unregisteredMongodsToProto(host.Observed),
+		Observed:                 observedToStruct(host.Observed),
+		Freshness:                freshnessToProto(host.extensionsFreshness),
+		Services:                 make([]*omv1.InventoryService, 0, len(host.Services)),
+		PmmAgentConnected:        pmmAgentConnected,
+		AutomationEligible:       eligible,
+		AutomationBlockedReasons: reasons,
 	}
 	for _, service := range host.Services {
 		out.Services = append(out.Services, inventoryServiceToProto(service))
 	}
 	return out
+}
+
+// automationEligibility decides whether OM automation (a probe today; provisioning in
+// a later phase) can run on a host, and names every unmet condition.
+//
+// Deliberately one shared definition rather than per-task-type requirements for now:
+// probing and the PMM-15347 PoC's bootstrap dispatch both need the same two things
+// (a connected agent, a reachable driver-healthy executor), and there is exactly one
+// consumer of the distinction so far. See PMM-15347/questions.md Q2 for why a
+// requirements-per-task-type mechanism is deliberately not built until a second,
+// differently-shaped task type actually needs one.
+func automationEligibility(executor *omv1.InventoryExecutor, pmmAgentConnected bool) (bool, []string) {
+	var reasons []string
+	if !pmmAgentConnected {
+		reasons = append(reasons, "PMM-Client is not installed or not connected")
+	}
+	if executor == nil || !executor.GetReachable() {
+		reasons = append(reasons, "host is not reachable by the Nomad client")
+	} else if !executor.GetDriverHealthy() {
+		reasons = append(reasons, "Nomad's raw_exec driver is not healthy on this host")
+	}
+	return len(reasons) == 0, reasons
 }
 
 // inventoryServiceToProto projects one service row for the wire.

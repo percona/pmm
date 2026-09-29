@@ -365,6 +365,12 @@ export const addOm = (): NavItem[] => [
         url: `${OM_PATH}/inventory`,
         matches: [`${OM_PATH}/inventory`],
       },
+      {
+        id: 'om-automations',
+        text: 'Automations',
+        url: `${OM_PATH}/automations`,
+        matches: [`${OM_PATH}/automations`],
+      },
     ],
   },
 ];

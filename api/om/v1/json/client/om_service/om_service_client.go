@@ -51,11 +51,15 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	CancelBootstrapRun(params *CancelBootstrapRunParams, opts ...ClientOption) (*CancelBootstrapRunOK, error)
+
 	DeleteInventoryConfigOverride(params *DeleteInventoryConfigOverrideParams, opts ...ClientOption) (*DeleteInventoryConfigOverrideOK, error)
 
 	DeleteInventoryHost(params *DeleteInventoryHostParams, opts ...ClientOption) (*DeleteInventoryHostOK, error)
 
 	DeleteInventoryService(params *DeleteInventoryServiceParams, opts ...ClientOption) (*DeleteInventoryServiceOK, error)
+
+	GetBootstrapRun(params *GetBootstrapRunParams, opts ...ClientOption) (*GetBootstrapRunOK, error)
 
 	GetInventoryConfig(params *GetInventoryConfigParams, opts ...ClientOption) (*GetInventoryConfigOK, error)
 
@@ -69,6 +73,8 @@ type ClientService interface {
 
 	GetTopologyRun(params *GetTopologyRunParams, opts ...ClientOption) (*GetTopologyRunOK, error)
 
+	ListBootstrapRuns(params *ListBootstrapRunsParams, opts ...ClientOption) (*ListBootstrapRunsOK, error)
+
 	ListInventoryHosts(params *ListInventoryHostsParams, opts ...ClientOption) (*ListInventoryHostsOK, error)
 
 	ListInventoryRuns(params *ListInventoryRunsParams, opts ...ClientOption) (*ListInventoryRunsOK, error)
@@ -77,6 +83,8 @@ type ClientService interface {
 
 	ListTopologyRuns(params *ListTopologyRunsParams, opts ...ClientOption) (*ListTopologyRunsOK, error)
 
+	TriggerHostBootstrap(params *TriggerHostBootstrapParams, opts ...ClientOption) (*TriggerHostBootstrapOK, error)
+
 	TriggerInventoryRefresh(params *TriggerInventoryRefreshParams, opts ...ClientOption) (*TriggerInventoryRefreshOK, error)
 
 	TriggerTopologyCollection(params *TriggerTopologyCollectionParams, opts ...ClientOption) (*TriggerTopologyCollectionOK, error)
@@ -84,6 +92,50 @@ type ClientService interface {
 	UpdateInventoryConfig(params *UpdateInventoryConfigParams, opts ...ClientOption) (*UpdateInventoryConfigOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+CancelBootstrapRun cancels a bootstrap run po c
+
+Requests that a running bootstrap run stop and roll back every host. Returns as soon as the request is recorded; PMM's own stepper drives the rollback forward in the background. Idempotent while the run is still running.
+*/
+func (a *Client) CancelBootstrapRun(params *CancelBootstrapRunParams, opts ...ClientOption) (*CancelBootstrapRunOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewCancelBootstrapRunParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "CancelBootstrapRun",
+		Method:             "POST",
+		PathPattern:        "/v1/om/inventory/bootstrap-runs/{run_id}:cancel",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &CancelBootstrapRunReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*CancelBootstrapRunOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*CancelBootstrapRunDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -214,6 +266,50 @@ func (a *Client) DeleteInventoryService(params *DeleteInventoryServiceParams, op
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*DeleteInventoryServiceDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+GetBootstrapRun gets a bootstrap run s progress po c
+
+Returns one bootstrap run's current status and every host's step-by-step progress, reconciled against its in-flight dispatches as of this call. Poll this to watch a run started by TriggerHostBootstrap.
+*/
+func (a *Client) GetBootstrapRun(params *GetBootstrapRunParams, opts ...ClientOption) (*GetBootstrapRunOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewGetBootstrapRunParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetBootstrapRun",
+		Method:             "GET",
+		PathPattern:        "/v1/om/inventory/bootstrap-runs/{run_id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetBootstrapRunReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*GetBootstrapRunOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*GetBootstrapRunDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
@@ -483,6 +579,50 @@ func (a *Client) GetTopologyRun(params *GetTopologyRunParams, opts ...ClientOpti
 }
 
 /*
+ListBootstrapRuns lists bootstrap runs po c
+
+Returns the recorded bootstrap runs, newest first, each in the same full detail GetBootstrapRun answers with.
+*/
+func (a *Client) ListBootstrapRuns(params *ListBootstrapRunsParams, opts ...ClientOption) (*ListBootstrapRunsOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewListBootstrapRunsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListBootstrapRuns",
+		Method:             "GET",
+		PathPattern:        "/v1/om/inventory/bootstrap-runs",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListBootstrapRunsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ListBootstrapRunsOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ListBootstrapRunsDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 ListInventoryHosts lists inventory hosts
 
 Returns every host the inventory app has a row for, whether or not a database was found on it, with the services on each and how current the observations are.
@@ -654,6 +794,50 @@ func (a *Client) ListTopologyRuns(params *ListTopologyRunsParams, opts ...Client
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListTopologyRunsDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+TriggerHostBootstrap bootstraps one or three hosts po c
+
+Plans installing MongoDB on one or three hosts through the Nomad client and initializing them as one replica set, monitored by PMM once it comes up. PMM-15347 proof-of-concept scope only. Returns as soon as the run is planned; PMM's own stepper drives it forward in the background.
+*/
+func (a *Client) TriggerHostBootstrap(params *TriggerHostBootstrapParams, opts ...ClientOption) (*TriggerHostBootstrapOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewTriggerHostBootstrapParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "TriggerHostBootstrap",
+		Method:             "POST",
+		PathPattern:        "/v1/om/inventory/hosts:bootstrap",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &TriggerHostBootstrapReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*TriggerHostBootstrapOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*TriggerHostBootstrapDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

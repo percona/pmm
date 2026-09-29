@@ -50,6 +50,22 @@ func (c *extensionsClient) app(module string) extensionsApp {
 	return extensionsApp{client: c, path: "api/apps/" + module}
 }
 
+// newExtensionsClient builds the transport one PMM Extensions-backed source talks through: the shared
+// request timeout, and the redirect refusal that keeps the bearer it attaches to
+// every call from being replayed somewhere else (see refuseRedirect). Every source
+// goes through here rather than composing its own http.Client, so a source added
+// later cannot quietly arrive without the guard.
+func newExtensionsClient(baseURL, token string) *extensionsClient {
+	return &extensionsClient{
+		baseURL: baseURL,
+		token:   token,
+		http: &http.Client{
+			Timeout:       probeRequestTimeout,
+			CheckRedirect: refuseRedirect,
+		},
+	}
+}
+
 // refuseRedirect keeps a credentialed request from being replayed somewhere else.
 //
 // PMM_EXTENSIONS_TOKEN rides on every call this client makes, via request(), and the
