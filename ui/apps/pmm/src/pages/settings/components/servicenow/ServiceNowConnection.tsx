@@ -7,7 +7,7 @@ import { Messages } from '../../Settings.messages';
 import { MAX_LABEL_WIDTH } from '../../Settings.constants';
 import { SettingsFieldLabel } from '../settings-field-label';
 import { useServiceNowConnection } from './ServiceNowConnection.hooks';
-import { sepErrorMessage } from './ServiceNowConnection.utils';
+import { extensionsErrorMessage } from './ServiceNowConnection.utils';
 import { ServiceNowConnected } from './ServiceNowConnected';
 import { ServiceNowConnectionForm } from './ServiceNowConnectionForm';
 
@@ -75,12 +75,12 @@ export const ServiceNowConnection: FC = () => {
             </Button>
           }
         >
-          {sepErrorMessage(loadError, serviceNow.errors.loadFailed)}
+          {extensionsErrorMessage(loadError, serviceNow.errors.loadFailed)}
         </Alert>
       );
     }
 
-    // A SEP build that does not carry the key at all would answer any write with
+    // A side-car build that does not carry the key at all would answer any write with
     // a 422, so there is nothing to offer — as distinct from a deployment that
     // carries it and has simply not been configured yet.
     if (!stored.isPresent) {

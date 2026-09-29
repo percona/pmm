@@ -34,6 +34,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
+	"github.com/percona/pmm/utils/envvars"
 	"github.com/percona/pmm/version"
 )
 
@@ -42,6 +43,15 @@ import (
 // AgentType represents Agent type as stored in databases:
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
 type AgentType string
+
+// Text file names carrying TLS material to pmm-agent. They are part of the agent wire
+// protocol and are declared canonically in api/agent/v1, which models must not import;
+// TestTLSFileNamesMatchAgentAPI in managed/services/agents keeps the two copies in step.
+const (
+	TLSCaFileName   = "tlsCa"
+	TLSCertFileName = "tlsCert"
+	TLSKeyFileName  = "tlsKey"
+)
 
 const (
 	certificateFilePlaceholder    = "certificateFilePlaceholder"
@@ -314,6 +324,11 @@ func (c ValkeyOptions) IsEmpty() bool {
 		c.SSLKey == ""
 }
 
+// clientKeyPairIncomplete reports whether only one half of the TLS client key pair is set.
+func (c ValkeyOptions) clientKeyPairIncomplete() bool {
+	return (c.SSLCert == "") != (c.SSLKey == "")
+}
+
 // RTAOptions represents structure for Real-Time Analytics options.
 type RTAOptions struct {
 	// Queries collection interval for this agent.
@@ -457,11 +472,19 @@ func (a *Agent) GetEnvironmentVariableNames() ([]string, error) {
 	return names, nil
 }
 
-// SetEnvironmentVariableNames encodes shared environment variable names.
+// SetEnvironmentVariableNames encodes shared environment variable names. Names already stored
+// (e.g. from before this validation existed, or under since-tightened rules) are carried forward
+// as-is: this is a full-replace field, so a caller resending an existing name alongside a new one
+// must not be rejected because of a name it did not intend to change.
 func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 	if len(names) == 0 {
 		a.EnvironmentVariables = nil
 		return nil
+	}
+
+	names, err := envvars.NormalizeNamesAllowing(names, a.GrandfatheredEnvironmentVariableNames())
+	if err != nil {
+		return err
 	}
 
 	b, err := json.Marshal(names)
@@ -470,6 +493,37 @@ func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 	}
 	a.EnvironmentVariables = b
 	return nil
+}
+
+// GrandfatheredEnvironmentVariableNames returns the agent's currently-stored environment variable
+// names as the set the grandfathering checks compare against, normalized the same way
+// NormalizeNamesAllowing normalizes its input. Callers that use it to decide whether an update is
+// allowed must read the agent within the same transaction as that update, so the names it
+// grandfathers cannot go stale before the update applies them.
+//
+// Two stored values yield no grandfathering rather than an error. A column that cannot be decoded
+// holds nothing worth carrying forward, and failing here would make the row permanently unwritable:
+// every non-empty update would be rejected, contradicting the repair path ToAPIAgent documents. An
+// empty or whitespace-only entry is skipped for a related reason — grandfathering it would let the
+// empty string be written back for good, and pmm-agent can only skip it and warn on every state
+// update. Neither can be fixed by the caller, so neither is reported to them.
+func (a *Agent) GrandfatheredEnvironmentVariableNames() map[string]struct{} {
+	existing, err := a.GetEnvironmentVariableNames()
+	if err != nil {
+		return nil
+	}
+
+	grandfathered := make(map[string]struct{}, len(existing))
+	for _, name := range existing {
+		name = strings.TrimSpace(name)
+		if name == "" {
+			continue
+		}
+
+		grandfathered[name] = struct{}{}
+	}
+
+	return grandfathered
 }
 
 // GetAgentPassword returns agent password, if it is empty then agent ID.
@@ -903,13 +957,13 @@ func (a Agent) Files() map[string]string { //nolint:gocognit
 	case MySQLdExporterType, QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
 		files := make(map[string]string)
 		if a.MySQLOptions.TLSCa != "" {
-			files["tlsCa"] = a.MySQLOptions.TLSCa
+			files[TLSCaFileName] = a.MySQLOptions.TLSCa
 		}
 		if a.MySQLOptions.TLSCert != "" {
-			files["tlsCert"] = a.MySQLOptions.TLSCert
+			files[TLSCertFileName] = a.MySQLOptions.TLSCert
 		}
 		if a.MySQLOptions.TLSKey != "" {
-			files["tlsKey"] = a.MySQLOptions.TLSKey
+			files[TLSKeyFileName] = a.MySQLOptions.TLSKey
 		}
 
 		if len(files) != 0 {
@@ -952,16 +1006,23 @@ func (a Agent) Files() map[string]string { //nolint:gocognit
 
 		return nil
 	case ValkeyExporterType:
+		// Nothing consumes the material over a plaintext link, so keep the private key off
+		// the agent host in that case.
+		if !a.TLS {
+			return nil
+		}
+
 		files := make(map[string]string)
 
 		if a.ValkeyOptions.SSLCa != "" {
-			files["tlsCa"] = a.ValkeyOptions.SSLCa
+			files[TLSCaFileName] = a.ValkeyOptions.SSLCa
 		}
-		if a.ValkeyOptions.SSLCert != "" {
-			files["tlsCert"] = a.ValkeyOptions.SSLCert
-		}
-		if a.ValkeyOptions.SSLKey != "" {
-			files["tlsKey"] = a.ValkeyOptions.SSLKey
+		// valkey_exporter calls log.Fatal on half a client key pair and the connection
+		// check cannot use one either, so the pair only ships as a unit. Registration rejects
+		// a half pair, so this only guards rows written before that validation existed.
+		if a.ValkeyOptions.SSLCert != "" && a.ValkeyOptions.SSLKey != "" {
+			files[TLSCertFileName] = a.ValkeyOptions.SSLCert
+			files[TLSKeyFileName] = a.ValkeyOptions.SSLKey
 		}
 
 		if len(files) != 0 {
@@ -995,6 +1056,18 @@ func (a Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 	case PostgreSQLServiceType:
 		if a.PostgreSQLOptions.SSLKey != "" {
 			templateParams = append(templateParams, a.PostgreSQLOptions.SSLKey)
+		}
+	case ValkeyServiceType:
+		// pmm-agent renders every text file's content as a template, so all three
+		// certificates have to be considered, not just the private key.
+		if a.ValkeyOptions.SSLCa != "" {
+			templateParams = append(templateParams, a.ValkeyOptions.SSLCa)
+		}
+		if a.ValkeyOptions.SSLCert != "" {
+			templateParams = append(templateParams, a.ValkeyOptions.SSLCert)
+		}
+		if a.ValkeyOptions.SSLKey != "" {
+			templateParams = append(templateParams, a.ValkeyOptions.SSLKey)
 		}
 	case ProxySQLServiceType:
 	case HAProxyServiceType:

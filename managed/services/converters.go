@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
@@ -28,6 +29,11 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 )
+
+// convertersL logs rows this package has to convert around rather than reject. These converters are
+// pure functions with no request-scoped entry to thread in — ToAPIAgent alone has 25 call sites — so
+// they use a component-scoped entry, the same shape the rest of pmm-managed names its loggers with.
+var convertersL = logrus.WithField("component", "converters")
 
 // ToAPINode converts Node database model to API model.
 func ToAPINode(node *models.Node) (inventoryv1.Node, error) { //nolint:ireturn
@@ -328,6 +334,17 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		exporter.CollectionsLimit = agent.MongoDBOptions.CollectionsLimit
 		exporter.EnableAllCollectors = agent.MongoDBOptions.EnableAllCollectors
 		exporter.EnableDiagnosticDataHistograms = agent.MongoDBOptions.EnableDiagnosticDataHistograms
+
+		// A stored value that cannot be decoded (hand-edited row, failed migration, an older
+		// writer) must not fail the conversion: ListAgents calls ToAPIAgent once per row, so
+		// propagating the error would drop the entire inventory listing because of one unrelated
+		// column on one agent. Report the field as empty and log instead; sending a new list
+		// repairs the row.
+		envVarNames, err := agent.GetEnvironmentVariableNames()
+		if err != nil {
+			convertersL.WithField("agent_id", agent.AgentID).Warnf("Ignoring undecodable environment variable names: %s.", err)
+		}
+		exporter.EnvironmentVariableNames = envVarNames
 
 		return exporter, nil
 
