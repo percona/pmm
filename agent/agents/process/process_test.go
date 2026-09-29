@@ -67,6 +67,47 @@ func setup(t *testing.T) (context.Context, context.CancelFunc, *logrus.Entry) {
 	return ctx, cancel, l
 }
 
+func TestParamsString(t *testing.T) {
+	t.Parallel()
+
+	t.Run("DSN-shaped values are masked by shape", func(t *testing.T) {
+		t.Parallel()
+
+		p := &Params{
+			Path: "/path/to/exporter",
+			Env:  []string{"MONGODB_URI=mongodb://user:pass@host:27017/"},
+		}
+		assert.Contains(t, p.String(), "MONGODB_URI=mongodb://***REDACTED***:***REDACTED***@host:27017/")
+	})
+
+	t.Run("values resolved from pmm-agent's own environment are always fully redacted", func(t *testing.T) {
+		t.Parallel()
+
+		p := &Params{
+			Path:             "/path/to/exporter",
+			Env:              []string{"PMM_TEST_SECRET=s3cret"},
+			ResolvedEnvNames: []string{"PMM_TEST_SECRET"},
+		}
+		s := p.String()
+		assert.Contains(t, s, "PMM_TEST_SECRET=***REDACTED***")
+		assert.NotContains(t, s, "s3cret")
+	})
+
+	t.Run("resolved values that happen to be DSN-shaped are still fully redacted, not partially", func(t *testing.T) {
+		t.Parallel()
+
+		p := &Params{
+			Path:             "/path/to/exporter",
+			Env:              []string{"PMM_TEST_URI=mongodb://user:pass@host:27017/"},
+			ResolvedEnvNames: []string{"PMM_TEST_URI"},
+		}
+		s := p.String()
+		assert.Contains(t, s, "PMM_TEST_URI=***REDACTED***")
+		assert.NotContains(t, s, "user")
+		assert.NotContains(t, s, "host:27017")
+	})
+}
+
 func TestProcess(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
 		ctx, cancel, l := setup(t)
