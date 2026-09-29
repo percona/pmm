@@ -27,10 +27,9 @@ Critical systems requiring sub-second failover gain the most value from PMM HA, 
 
 All three options prevent data loss through PMM Client caching during outages.
 
-| Feature | [Docker](../install-pmm/HA-docker.md) | [Kubernetes (Single-Instance)](../install-pmm/HA-kubernetes-single-instance.md) | [Kubernetes (Clustered)](../install-pmm/HA-clustered.md) |
+| Feature | [Docker](../install-pmm/HA-docker.md) | [Kubernetes (Single-Instance)](../install-pmm/HA-kubernetes-single-instance.md) | [Kubernetes / OpenShift (Clustered)](../install-pmm/HA-clustered.md) |
 |---------|--------|-------------------|---------------------|
-| **Status** | ✅ GA (Production ready) | ✅ GA (Production-ready)  | ⚠️ Tech Preview (Testing only) |
-| **Kubernetes required** | No | Yes | Yes |
+| **Kubernetes required** | No | Yes | Yes (Kubernetes or OpenShift) |
 | **PMM instances** | 1 | 1 | 3 |
 | **Failover time** | 1-3 min | 2-5 min | < 30 sec |
 | **Zero downtime** | No | No | Yes |
@@ -43,8 +42,6 @@ All three options prevent data loss through PMM Client caching during outages.
 Choose the deployment option that matches your infrastructure and requirements:
 
 === "Docker HA (basic)"
-
-    **Status** **Production-ready**
 
     Simple automatic restart capabilities using Docker's built-in recovery features. Perfect for development, testing, and single-server deployments.
 
@@ -74,8 +71,6 @@ Choose the deployment option that matches your infrastructure and requirements:
 
 === "Kubernetes HA (Single-Instance)" 
 
-    **Status** **Production-ready**
-
     Enterprise-grade high availability through Kubernetes orchestration. Provides automatic pod rescheduling and persistent data across failures.
 
     **Key features**
@@ -100,11 +95,9 @@ Choose the deployment option that matches your infrastructure and requirements:
 
     [View Kubernetes HA installation guide](../install-pmm/HA-kubernetes-single-instance.md){.md-button} 
 
-=== "Kubernetes HA (Clustered)"
+=== "Kubernetes / OpenShift HA (Clustered)"
 
-    **Status**: Technical Preview (NOT for production environments). Use for testing and feedback purposes only.
-
-    Zero-downtime high availability with multiple active PMM instances, distributed databases, and automatic load balancing.
+    Zero-downtime high availability with multiple active PMM instances, distributed databases, and automatic load balancing. Supported on Amazon EKS and OpenShift 4.21+.
 
     **Key features**
     
@@ -122,12 +115,8 @@ Choose the deployment option that matches your infrastructure and requirements:
 
     **Known limitations**
     
-    - NOT production-ready as it has known bugs
     - complex setup requiring 3 Kubernetes operators
     - 3x resource overhead minimum
-    - Subject to breaking changes
-    - Node selection shows incorrect PostgreSQL instances
-    - Services added via pmm-admin don't show dashboard data
     - PostgreSQL monitoring may show incorrect FAILED status
 
     **When to use this option**
@@ -136,4 +125,4 @@ Choose the deployment option that matches your infrastructure and requirements:
     - You need continuous monitoring visibility (no 2-5 min gaps)
     - You have strict SLA requirements for sub-30-second failover
     - You need multiple active PMM instances for load distribution
-    - You have expert Kubernetes skills
+    - You have expert Kubernetes or OpenShift skills
