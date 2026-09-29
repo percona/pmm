@@ -45,8 +45,8 @@ const (
 // forever without ever succeeding. The wrapped error is preserved in that case so errors.Is and
 // errors.As keep matching upstream.
 func environmentVariableNamesError(err error) error {
-	var invalid *envvars.InvalidNameError
-	if errors.As(err, &invalid) {
+	_, ok := errors.AsType[*envvars.InvalidNameError](err)
+	if ok {
 		return status.Error(codes.InvalidArgument, err.Error())
 	}
 
