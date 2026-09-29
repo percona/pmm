@@ -2189,12 +2189,437 @@
             "type": "table"
         },
         {
+            "description": "Read operations per second on each shard (query and getmore), summed over all members so reads served by secondaries are included.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "MongoDB ReplSet Summary - ${__field.labels.rs_nm}",
+                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?var-cluster=${cluster}&var-rs_nm=${__field.labels.rs_nm}&${__url_time_range}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "ops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 47
+            },
+            "id": 1705,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "sum by (rs_nm) (rate(mongodb_ss_opcounters{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\", legacy_op_type=~\"query|getmore\"}[$interval]))",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{rs_nm}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Reads Per Shard",
+            "type": "timeseries"
+        },
+        {
+            "description": "Write operations per second on each shard (insert, update and delete). Only client writes are counted; replicated writes on secondaries are excluded.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "MongoDB ReplSet Summary - ${__field.labels.rs_nm}",
+                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?var-cluster=${cluster}&var-rs_nm=${__field.labels.rs_nm}&${__url_time_range}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "ops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 47
+            },
+            "id": 1706,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "sum by (rs_nm) (rate(mongodb_ss_opcounters{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\", legacy_op_type=~\"insert|update|delete\"}[$interval]))",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{rs_nm}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Writes Per Shard",
+            "type": "timeseries"
+        },
+        {
+            "description": "Documents examined per second on each shard by queries, updates and deletes, summed over all members. A shard scanning far more documents than the others points to missing indexes or a hot range.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "MongoDB ReplSet Summary - ${__field.labels.rs_nm}",
+                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?var-cluster=${cluster}&var-rs_nm=${__field.labels.rs_nm}&${__url_time_range}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "ops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 55
+            },
+            "id": 1707,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "sum by (rs_nm) (rate(mongodb_ss_metrics_queryExecutor_scannedObjects{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\"}[$interval]))",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{rs_nm}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Documents Scanned Per Shard",
+            "type": "timeseries"
+        },
+        {
+            "description": "Documents examined per document returned on each shard, the same ratio MongoDB Ops Manager calls Query Targeting. 1 is ideal; values in the hundreds or more mean operations examine many documents they do not return, usually because of a missing or unselective index. Documents examined by updates and deletes count too, so write-heavy shards read higher.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "dashed"
+                        }
+                    },
+                    "decimals": 1,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "MongoDB ReplSet Summary - ${__field.labels.rs_nm}",
+                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?var-cluster=${cluster}&var-rs_nm=${__field.labels.rs_nm}&${__url_time_range}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "orange",
+                                "value": 100
+                            },
+                            {
+                                "color": "red",
+                                "value": 1000
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 55
+            },
+            "id": 1708,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "sum by (rs_nm) (rate(mongodb_ss_metrics_queryExecutor_scannedObjects{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\"}[$interval])) / (sum by (rs_nm) (rate(mongodb_ss_metrics_document{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\", doc_op_type=\"returned\"}[$interval])) > 0)",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{rs_nm}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Query Targeting Per Shard",
+            "type": "timeseries"
+        },
+        {
             "collapsed": true,
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 47
+                "y": 63
             },
             "id": 1285,
             "panels": [
@@ -2352,7 +2777,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 48
+                "y": 64
             },
             "id": 81,
             "panels": [
@@ -2604,7 +3029,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 49
+                "y": 65
             },
             "id": 1279,
             "panels": [
@@ -3250,7 +3675,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 82
+                "y": 98
             },
             "id": 1199,
             "panels": [
@@ -3732,7 +4157,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 83
+                "y": 99
             },
             "id": 97,
             "panels": [
@@ -4190,7 +4615,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 84
+                "y": 100
             },
             "id": 1326,
             "panels": [
