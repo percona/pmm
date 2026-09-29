@@ -44,49 +44,83 @@ func (r *Template) OverridableParams() []Parameter {
 }
 
 // ObservedQueryForParam returns the query a parameter is compared against, which is the one
-// the default clause fans out over. It is the nearest query reference to the left of the
-// parameter's token, so a template comparing several queries in one expression -
-// `$A > [[ .a ]] && $B > [[ .b ]]` - pairs each parameter with its own query.
+// the default clause fans out over. Every occurrence must be the bare right-hand side of a
+// comparison against the same query, because one threshold step serves all of them.
 func (r *Template) ObservedQueryForParam(paramName string) (TemplateQuery, error) {
 	token := ParamTokenRegexp(paramName)
 
+	var found *TemplateQuery
+
 	for _, expression := range r.Expressions {
-		loc := token.FindStringIndex(expression.Expression)
-		if loc == nil {
+		text := expression.Expression
+
+		for _, loc := range token.FindAllStringIndex(text, -1) {
+			if !isBareComparand(text[:loc[0]], text[loc[1]:]) {
+				return TemplateQuery{}, fmt.Errorf(
+					"overridable parameter '%s' in expression %s must be the whole right-hand side of a comparison, e.g. `$A > [[ .%s ]]`",
+					paramName, expression.RefID, paramName,
+				)
+			}
+
+			query, ok := r.nearestQueryRef(text[:loc[0]])
+			if !ok {
+				return TemplateQuery{}, fmt.Errorf(
+					"overridable parameter '%s' is not compared against any query in expression %s", paramName, expression.RefID,
+				)
+			}
+
+			if found != nil && query.RefID != found.RefID {
+				return TemplateQuery{}, fmt.Errorf(
+					"overridable parameter '%s' is compared against both $%s and $%s, but can only be compared against one query",
+					paramName, found.RefID, query.RefID,
+				)
+			}
+
+			found = &query
+		}
+	}
+
+	if found == nil {
+		return TemplateQuery{}, fmt.Errorf("overridable parameter '%s' is not referenced by any expression", paramName)
+	}
+
+	return *found, nil
+}
+
+// isBareComparand reports whether the text around a token makes it the whole right-hand
+// operand of a comparison, so the rule compares against exactly the value the API reports.
+func isBareComparand(before, after string) bool {
+	return comparisonSuffix.MatchString(before) && operandEndPrefix.MatchString(after)
+}
+
+var (
+	comparisonSuffix = regexp.MustCompile(`(?:[<>]=?|[=!]=)\s*$`)
+	operandEndPrefix = regexp.MustCompile(`^\s*(?:$|\)|&&|\|\|)`)
+)
+
+// nearestQueryRef returns the query referenced last in text, which pairs each parameter with
+// its own query in an expression like `$A > [[ .a ]] && $B > [[ .b ]]`.
+func (r *Template) nearestQueryRef(text string) (TemplateQuery, bool) {
+	var (
+		found TemplateQuery
+		at    = -1
+	)
+
+	for _, query := range r.Queries {
+		ref := regexp.MustCompile(`\$` + regexp.QuoteMeta(query.RefID) + `\b`)
+
+		matches := ref.FindAllStringIndex(text, -1)
+		if len(matches) == 0 {
 			continue
 		}
 
-		preceding := expression.Expression[:loc[0]]
-
-		var (
-			found TemplateQuery
-			at    = -1
-		)
-
-		for _, query := range r.Queries {
-			ref := regexp.MustCompile(`\$` + regexp.QuoteMeta(query.RefID) + `\b`)
-
-			matches := ref.FindAllStringIndex(preceding, -1)
-			if len(matches) == 0 {
-				continue
-			}
-
-			last := matches[len(matches)-1][0]
-			if last > at {
-				at, found = last, query
-			}
+		last := matches[len(matches)-1][0]
+		if last > at {
+			at, found = last, query
 		}
-
-		if at < 0 {
-			return TemplateQuery{}, fmt.Errorf(
-				"overridable parameter '%s' is not compared against any query in expression %s", paramName, expression.RefID,
-			)
-		}
-
-		return found, nil
 	}
 
-	return TemplateQuery{}, fmt.Errorf("overridable parameter '%s' is not referenced by any expression", paramName)
+	return found, at >= 0
 }
 
 // SingleExprSplit is a single-expression template taken apart so the builder can emit the

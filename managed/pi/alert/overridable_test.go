@@ -191,6 +191,69 @@ func TestValidateOverridableRejectsParamComparedAgainstAnExpression(t *testing.T
 	assert.Contains(t, err.Error(), "not compared against any query in expression C")
 }
 
+func TestValidateOverridableRequiresBareComparand(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		expression string
+		valid      bool
+	}{
+		{expression: "$A >= [[.threshold]]", valid: true},
+		{expression: "($A < [[ .threshold ]]) || $A == 0", valid: true},
+		{expression: "$A > [[ .threshold ]] && $A < 1000", valid: true},
+		{expression: "$A > [[ .threshold ]] * 100"},
+		{expression: "$A > [[ .threshold ]] + 5"},
+		{expression: "$A > -[[ .threshold ]]"},
+		{expression: "$A > ([[ .threshold ]])"},
+		{expression: "[[ .threshold ]] < $A"},
+	} {
+		t.Run(tc.expression, func(t *testing.T) {
+			t.Parallel()
+
+			template := overridableTemplate()
+			template.Expressions[0].Expression = tc.expression
+
+			err := template.Validate()
+			if tc.valid {
+				require.NoError(t, err)
+				return
+			}
+
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "whole right-hand side of a comparison")
+		})
+	}
+}
+
+func TestValidateOverridableRejectsParamComparedAgainstTwoQueries(t *testing.T) {
+	t.Parallel()
+
+	template := overridableTemplate()
+	template.Queries = append(template.Queries, TemplateQuery{RefID: "B", Expr: "up"})
+	template.Expressions = []TemplateExpression{
+		{RefID: "C", Type: "math", Expression: "$A > [[ .threshold ]]"},
+		{RefID: "D", Type: "math", Expression: "$B > [[ .threshold ]] && $C"},
+	}
+	template.Condition = "D"
+
+	err := template.Validate()
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "compared against both $A and $B")
+}
+
+func TestValidateOverridableAcceptsParamReusedAgainstOneQuery(t *testing.T) {
+	t.Parallel()
+
+	template := overridableTemplate()
+	template.Expressions = []TemplateExpression{
+		{RefID: "C", Type: "math", Expression: "$A > [[ .threshold ]]"},
+		{RefID: "D", Type: "math", Expression: "$A > [[ .threshold ]] && $C"},
+	}
+	template.Condition = "D"
+
+	require.NoError(t, template.Validate())
+}
+
 func TestValidateOverridableRejectsNonFloat(t *testing.T) {
 	t.Parallel()
 

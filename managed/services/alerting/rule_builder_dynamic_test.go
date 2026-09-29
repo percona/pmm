@@ -334,7 +334,7 @@ func TestObservedQueryForParamErrors(t *testing.T) {
 		t.Parallel()
 
 		template := overridableRuleTemplate()
-		template.Expressions[0].Expression = "[[ .threshold ]] > 1"
+		template.Expressions[0].Expression = "1 > [[ .threshold ]]"
 
 		_, err := template.ObservedQueryForParam("threshold")
 		require.Error(t, err)
