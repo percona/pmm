@@ -171,9 +171,10 @@ func TestServiceService(t *testing.T) {
 			defer teardown(t)
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
-				NodeName: "test",
-				Address:  "test-address",
-				Region:   new("test-region"),
+				NodeName:   "test",
+				Address:    "test-address",
+				InstanceID: "test-instance-id",
+				Region:     new("test-region"),
 			})
 			require.NoError(t, err)
 
@@ -412,9 +413,10 @@ func TestServiceService(t *testing.T) {
 			t.Cleanup(func() { teardown(t) })
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
-				NodeName: "test",
-				Address:  "test-address",
-				Region:   new("test-region"),
+				NodeName:   "test",
+				Address:    "test-address",
+				InstanceID: "test-instance-id",
+				Region:     new("test-region"),
 			})
 			require.NoError(t, err)
 

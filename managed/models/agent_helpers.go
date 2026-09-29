@@ -872,6 +872,12 @@ type CreateAgentParams struct {
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
+	// rds_exporter scrapes CloudWatch for the Node's region and DB instance identifier,
+	// so it only makes sense on a remote RDS Node, whatever else the Node type allows.
+	if agentType == RDSExporterType {
+		return nodeType == RemoteRDSNodeType
+	}
+
 	const allowAll = "allow_all"
 	allow := map[NodeType]AgentType{
 		GenericNodeType:             allowAll,
@@ -973,6 +979,14 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 
 		if !compatibleNodeAndAgent(node.NodeType, agentType) {
 			return nil, status.Errorf(codes.FailedPrecondition, "invalid combination of node type %s and agent type %s", node.NodeType, agentType)
+		}
+
+		// An rds_exporter uses the Node's DB instance identifier as the CloudWatch
+		// DBInstanceIdentifier dimension. Without it the exporter starts, reports RUNNING
+		// and silently scrapes nothing, so refuse rather than create a dead agent.
+		if agentType == RDSExporterType && node.InstanceID == "" {
+			return nil, status.Errorf(codes.FailedPrecondition,
+				"node %s has no DB instance identifier; rds_exporter would have nothing to scrape", node.NodeID)
 		}
 	}
 

@@ -5892,7 +5892,7 @@
                           "x-order": 1
                         },
                         "address": {
-                          "description": "DB instance identifier.",
+                          "description": "Node address: the instance endpoint or, for older Nodes, the DB instance identifier.",
                           "type": "string",
                           "x-order": 2
                         },
@@ -5920,7 +5920,7 @@
                           "x-order": 6
                         },
                         "instance_id": {
-                          "description": "AWS instance ID.",
+                          "description": "AWS DB instance identifier.",
                           "type": "string",
                           "x-order": 7
                         }
