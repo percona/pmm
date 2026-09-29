@@ -151,6 +151,11 @@ func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv
 	}
 
 	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		err := services.CheckNodeRemovable(tx.Querier, s.r, node, s.protectedNodePrefixes)
+		if err != nil {
+			return err
+		}
+
 		mode := models.RemoveRestrict
 		if req.Force {
 			mode = models.RemoveCascade

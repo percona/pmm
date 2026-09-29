@@ -17,6 +17,8 @@ package services
 
 import (
 	"fmt"
+	"slices"
+	"strings"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -24,6 +26,41 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 )
+
+// AgentConnectionChecker reports whether a pmm-agent is connected to PMM Server.
+type AgentConnectionChecker interface {
+	IsConnected(pmmAgentID string) bool
+}
+
+// CheckNodeRemovable rejects the removal of a Node which this PMM deployment provisioned for itself,
+// such as the PMM Client pods the HA Helm chart runs as monitoring delegates, recognized by the name
+// prefixes it reserves for them. Removing one strands the pod: its pmm-agent keeps running with an ID
+// PMM Server no longer knows, and every Service configured on the Node goes with it.
+//
+// A Node whose pmm-agent is not connected stays removable, which is what a scale-down leaves behind.
+func CheckNodeRemovable(q *reform.Querier, cc AgentConnectionChecker, node *models.Node, protectedPrefixes []string) error {
+	protected := slices.ContainsFunc(protectedPrefixes, func(prefix string) bool {
+		return strings.HasPrefix(node.NodeName, prefix)
+	})
+	if !protected {
+		return nil
+	}
+
+	agents, err := models.FindPMMAgentsRunningOnNode(q, node.NodeID)
+	if err != nil {
+		return fmt.Errorf("failed to find pmm-agent on node %s: %w", node.NodeID, err)
+	}
+	connected := slices.ContainsFunc(agents, func(a *models.Agent) bool {
+		return cc.IsConnected(a.AgentID)
+	})
+	if !connected {
+		return nil
+	}
+
+	return status.Errorf(codes.FailedPrecondition,
+		"Node '%s' is managed by this PMM deployment and cannot be removed while its pmm-agent is connected. "+
+			"Scale the deployment down to remove it.", node.NodeName)
+}
 
 // CheckMongoDBBackupPreconditions checks compatibility of different types of scheduled backups and on-demand backups for MongoDB.
 //

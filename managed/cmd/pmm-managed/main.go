@@ -30,6 +30,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -235,6 +236,7 @@ type gRPCServerDeps struct {
 	vmdb                      *victoriametrics.Service
 	vmalert                   *vmalert.Service
 	internalNodePrefixes      []string
+	protectedNodePrefixes     []string
 }
 
 // parseNodeNamePrefixes splits a comma-separated list of Node name prefixes.
@@ -292,7 +294,10 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	agentv1.RegisterAgentServiceServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
 	agentpb.RegisterAgentServer(gRPCServer, agentgrpc.NewAgentPBServer(deps.handler))
 
-	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.grafanaClient)
+	nodesSvc := inventory.NewNodesService(
+		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
+		deps.vmdb, deps.grafanaClient, deps.protectedNodePrefixes,
+	)
 	agentsSvc := inventory.NewAgentsService(
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
 		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService,
@@ -319,6 +324,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb,
 		deps.versionCache, deps.grafanaClient, v1.NewAPI(*deps.vmClient),
 		deps.internalNodePrefixes,
+		deps.protectedNodePrefixes,
 		deps.ha.Params().Enabled,
 	)
 
@@ -766,6 +772,11 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		"Comma-separated list of Node name prefixes reserved for the internal infrastructure of this PMM deployment").
 		Envar("PMM_INTERNAL_NODE_NAME_PREFIXES").
 		String()
+	protectedNodePrefixesF := kingpin.Flag("protected-node-name-prefixes",
+		"Comma-separated list of Node name prefixes reserved for the Nodes this PMM deployment provisions for itself, "+
+			"which cannot be removed while their pmm-agent is connected. Implies the internal Node name prefixes").
+		Envar("PMM_PROTECTED_NODE_NAME_PREFIXES").
+		String()
 
 	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
 
@@ -1206,6 +1217,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		return nil
 	}))
 
+	internalNodePrefixes := parseNodeNamePrefixes(*internalNodePrefixesF)
+	// Removing a Node of the internal infrastructure strands its pod all the same.
+	protectedNodePrefixes := append(slices.Clone(internalNodePrefixes), parseNodeNamePrefixes(*protectedNodePrefixesF)...)
+
 	wg.Go(func() {
 		runGRPCServer(ctx,
 			&gRPCServerDeps{
@@ -1225,11 +1240,12 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				grafanaClient:             grafanaClient,
 				handler:                   agentsHandler,
 				ha:                        haService,
-				internalNodePrefixes:      parseNodeNamePrefixes(*internalNodePrefixesF),
+				internalNodePrefixes:      internalNodePrefixes,
 				jobsService:               jobsService,
 				minioClient:               minioClient,
 				pbmPITRService:            pbmPITRService,
 				platformClient:            platformClient,
+				protectedNodePrefixes:     protectedNodePrefixes,
 				schedulerService:          schedulerService,
 				server:                    server,
 				serviceInfoBroker:         serviceInfoBroker,
