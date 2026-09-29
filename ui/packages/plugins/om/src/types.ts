@@ -422,6 +422,10 @@ export interface OmInventoryHost {
   freshness: OmInventoryFreshness;
   /** The services on it. Empty is a meaningful answer, not a gap. */
   services: OmInventoryService[];
+  pmm_agent_connected: boolean;
+  automation_eligible: boolean;
+  /** Every unmet condition behind `automation_eligible: false`. Empty when true. */
+  automation_blocked_reasons: string[];
 }
 
 /** Whether a host can fetch packages, and why not when it cannot. */
@@ -474,6 +478,119 @@ export interface OmInventoryRunAccepted {
   start_time?: string | null;
   /** The hosts it will cover. Empty means the whole estate. */
   scope: string[];
+}
+
+/**
+ * One host's replica-set election settings, for
+ * `TriggerHostBootstrapRequest.member_configs` - keyed by node id there, one
+ * entry per host that needs something other than MongoDB's own defaults
+ * (priority 1, votes on, not hidden, no delay).
+ */
+export interface OmBootstrapMemberConfig {
+  priority: number;
+  votes: boolean;
+  hidden: boolean;
+  delay_secs: number;
+}
+
+/**
+ * A bootstrap run accepted by the app, from
+ * `POST /v1/om/inventory/hosts:bootstrap`.
+ *
+ * PMM-15347 PoC only. Carries no credentials: the run's generated MongoDB user
+ * is created only once every host is up, minutes after this response - see
+ * `run_id`'s own comment for how to watch it happen.
+ */
+export interface OmHostBootstrapAccepted {
+  /** The om_bootstrap run's id - pass to `useBootstrapRun` to watch its progress. */
+  run_id: string;
+}
+
+/** One step's progress - a host's own, one of its rollback steps, or a run's own. */
+export type OmBootstrapStepStatus =
+  | 'pending'
+  | 'running'
+  | 'succeeded'
+  | 'failed'
+  | 'skipped';
+
+/**
+ * One step, wherever it appears - a host's `steps`, its `rollback_steps`, or a
+ * run's own `run_steps`. One shape for all three, matching om_bootstrap's own
+ * StepRecord (see its doc comment): none of the three contexts needs a field
+ * the others don't.
+ */
+export interface OmBootstrapStep {
+  name: string;
+  status: OmBootstrapStepStatus;
+  detail?: string | null;
+  attempt_count: number;
+}
+
+/** One host's progress within a bootstrap run. */
+export interface OmBootstrapHost {
+  host: string;
+  /** This host's own install steps, in the order they run. */
+  steps: OmBootstrapStep[];
+  /**
+   * This host's teardown steps, planned up front alongside `steps`. Every
+   * entry stays `pending` unless the run actually rolls this host back - see
+   * `isHostRollingBack` in `api.ts`.
+   */
+  rollback_steps: OmBootstrapStep[];
+  /**
+   * This host's post-install steps, dispatched only once every run-level step
+   * has succeeded - e.g. enabling MongoDB authorization once the run's own
+   * create_pmm_monitoring_user step has created the first user.
+   */
+  finalize_steps: OmBootstrapStep[];
+}
+
+/** A bootstrap run's overall lifecycle state, from om_bootstrap's own BootstrapRunStatus. */
+export type OmBootstrapRunStatus =
+  | 'running'
+  | 'succeeded'
+  | 'failed'
+  | 'rolled_back';
+
+/**
+ * One bootstrap run, in full, from `GET /v1/om/inventory/bootstrap-runs/{run_id}`.
+ *
+ * Reconciled against its in-flight dispatches as of the call that fetched it -
+ * polling this is enough to see a step's real outcome, not a stale snapshot.
+ */
+export interface OmGetBootstrapRunResponse {
+  run_id: string;
+  status: OmBootstrapRunStatus;
+  hosts: OmBootstrapHost[];
+  run_steps: OmBootstrapStep[];
+  error?: string | null;
+  replica_set_name: string;
+  mongodb_version: string;
+  started_at: string;
+  finished_at?: string | null;
+  environment?: string | null;
+  cluster?: string | null;
+  /**
+   * Whether an operator has asked this run to stop - see `useCancelBootstrapRun`.
+   * Once set, PMM's own stepper rolls back every host, the same as a step that
+   * exhausted its retries, so a reader can show a run as "aborting" rather than
+   * simply "running" while that rollback is still in flight.
+   */
+  cancel_requested: boolean;
+}
+
+/** The bootstrap run history, from `GET /v1/om/inventory/bootstrap-runs`. */
+export interface OmListBootstrapRunsResponse {
+  runs: OmGetBootstrapRunResponse[];
+}
+
+/**
+ * The run's state as of recording a cancellation request, from
+ * `POST /v1/om/inventory/bootstrap-runs/{id}:cancel`.
+ */
+export interface OmCancelBootstrapRunResponse {
+  run: OmGetBootstrapRunResponse;
 }
 
 /**

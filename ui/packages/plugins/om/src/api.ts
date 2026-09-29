@@ -34,7 +34,12 @@
  *   `EmitUnpopulated`, and `types.ts` describes exactly that shape.
  */
 
-import type { OmTopologyRunStatus } from './types';
+import type {
+  OmBootstrapHost,
+  OmBootstrapRunStatus,
+  OmGetBootstrapRunResponse,
+  OmTopologyRunStatus,
+} from './types';
 
 const OM_BASE = '/v1/om';
 
@@ -82,6 +87,28 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
+/** How many times a retryable request may be retried before giving up. */
+const MAX_QUERY_RETRIES = 3;
+
+/**
+ * TanStack Query's `retry` option for a query that deliberately overrides the
+ * app-wide `retry: false` default (see useOmBootstrapRuns's own comment on
+ * why): retries a network failure (`request` rejects without ever completing
+ * a response, so `error` is not an `OmApiError`) and a 5xx, but not a 4xx --
+ * `request` throws `OmApiError` for those too, and retrying an already-
+ * completed "not found" or "bad request" response three times over just
+ * delays showing the caller an error nothing about retrying will fix.
+ */
+export function retryTransientRequestErrors(
+  failureCount: number,
+  error: unknown
+): boolean {
+  if (failureCount >= MAX_QUERY_RETRIES) {
+    return false;
+  }
+  return !(error instanceof OmApiError) || error.status >= 500;
+}
+
 /**
  * True while a run has not reached a terminal status.
  *
@@ -96,4 +123,83 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
  */
 export function isRunActive(status: OmTopologyRunStatus | undefined): boolean {
   return status === 'RUN_STATUS_RUNNING';
+}
+
+/**
+ * True while any host's confirm_monitoring finalize step (PMM's own, appended
+ * to finalize_steps -- see its own proto comment) has not yet reached a
+ * terminal state. Shared by {@link isBootstrapRunActive} (should we keep
+ * polling) and {@link bootstrapRunDisplayStatus} (what should the badge say)
+ * -- both are asking the same underlying question of the same field.
+ *
+ * `pending` counts as unconfirmed alongside `running`. Nothing dispatches
+ * confirm_monitoring -- pmm-managed synthesizes it on every read from the run's
+ * own status (confirmMonitoringStep, and the field's own proto comment), so
+ * today a payload cannot report a succeeded run with the step still `pending`,
+ * and there is no window between the two to fall through. Accepting `pending`
+ * keeps that true if the step ever becomes something actually dispatched.
+ */
+function hasUnconfirmedMonitoring(
+  hosts: OmGetBootstrapRunResponse['hosts']
+): boolean {
+  return hosts.some((host) =>
+    host.finalize_steps.some(
+      (step) =>
+        step.name === 'confirm_monitoring' &&
+        (step.status === 'running' || step.status === 'pending')
+    )
+  );
+}
+
+export function isBootstrapRunActive(
+  run: Pick<OmGetBootstrapRunResponse, 'status' | 'hosts'> | undefined
+): boolean {
+  if (!run) {
+    return false;
+  }
+  if (run.status === 'running') {
+    return true;
+  }
+  if (run.status !== 'succeeded') {
+    return false;
+  }
+  return hasUnconfirmedMonitoring(run.hosts);
+}
+
+/**
+ * The status a run's own badge should show -- not necessarily PMM Extensions' raw
+ * `status`. A run PMM Extensions reports `succeeded` still reads as `running` here while
+ * confirm_monitoring hasn't caught up on every host, for the same reason
+ * {@link isBootstrapRunActive} keeps polling through it: from the operator's
+ * point of view the run isn't actually done, the service isn't monitored yet,
+ * and a green "Succeeded" badge at that point is simply wrong.
+ */
+export function bootstrapRunDisplayStatus(
+  run: Pick<OmGetBootstrapRunResponse, 'status' | 'hosts'>
+): OmBootstrapRunStatus {
+  if (run.status === 'succeeded' && hasUnconfirmedMonitoring(run.hosts)) {
+    return 'running';
+  }
+  return run.status;
+}
+
+/**
+ * True while a run can still be cancelled.
+ *
+ * Checks `status` directly rather than {@link bootstrapRunDisplayStatus}'s
+ * reinterpreted one: PMM Extensions' own `:cancel` route 409s the instant its `status`
+ * has left `running`, including the moment it flips to `succeeded` but
+ * `confirm_monitoring` hasn't caught up yet - the case where the display
+ * status still reads "running" for a different reason. Also false once
+ * `cancel_requested` is already set - see `useCancelBootstrapRun`'s own
+ * idempotency note; there is nothing left for a second click to request.
+ */
+export function canCancelBootstrapRun(
+  run: Pick<OmGetBootstrapRunResponse, 'status' | 'cancel_requested'>
+): boolean {
+  return run.status === 'running' && !run.cancel_requested;
+}
+
+export function isHostRollingBack(host: OmBootstrapHost): boolean {
+  return host.rollback_steps.some((step) => step.status !== 'pending');
 }
