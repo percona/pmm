@@ -16,10 +16,13 @@
 package alerting
 
 import (
+	"encoding/json"
 	"math"
 	"testing"
+	"time"
 
 	"github.com/AlekSi/pointer"
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -73,188 +76,71 @@ func setupThresholdAPI(t *testing.T) (*Service, *reform.DB, *models.Node) {
 }
 
 func TestSetThreshold(t *testing.T) {
-	ctx := t.Context()
+	svc, _, node := setupThresholdAPI(t)
 
-	t.Run("sets an override and reports the effective value", func(t *testing.T) {
-		svc, _, node := setupThresholdAPI(t)
-
-		res, err := svc.SetThreshold(ctx, &alerting.SetThresholdRequest{
-			Scope:     alerting.ThresholdScope_THRESHOLD_SCOPE_NODE,
-			Target:    node.NodeID,
-			RuleId:    thresholdTestRuleID,
-			ParamName: "threshold",
-			Value:     90,
-		})
-		require.NoError(t, err)
-
-		assert.InDelta(t, 90.0, res.Threshold.EffectiveValue, 0.0001)
-		assert.InDelta(t, 80.0, res.Threshold.DefaultValue, 0.0001)
-		assert.True(t, res.Threshold.IsOverridden)
-		assert.Equal(t, alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, res.Threshold.Scope)
-		assert.Equal(t, node.NodeID, res.Threshold.Target)
-		assert.Equal(t, alerting.ParamUnit_PARAM_UNIT_PERCENTAGE, res.Threshold.Unit)
-		assert.Equal(t, "A percentage from configured maximum", res.Threshold.Summary)
+	res, err := svc.SetThreshold(t.Context(), &alerting.SetThresholdRequest{
+		Scope:     alerting.ThresholdScope_THRESHOLD_SCOPE_NODE,
+		Target:    node.NodeID,
+		RuleId:    thresholdTestRuleID,
+		ParamName: "threshold",
+		Value:     90,
 	})
+	require.NoError(t, err)
 
-	t.Run("rejects a value outside the declared range", func(t *testing.T) {
-		svc, _, node := setupThresholdAPI(t)
-
-		_, err := svc.SetThreshold(ctx, &alerting.SetThresholdRequest{
-			Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
-			RuleId: thresholdTestRuleID, ParamName: "threshold", Value: 150,
-		})
-		require.Error(t, err)
-		assert.Equal(t, codes.InvalidArgument, status.Code(err))
-	})
-
-	t.Run("rejects non-finite values before they reach the database", func(t *testing.T) {
-		svc, _, node := setupThresholdAPI(t)
-
-		for _, value := range []float64{math.NaN(), math.Inf(1), math.Inf(-1)} {
-			_, err := svc.SetThreshold(ctx, &alerting.SetThresholdRequest{
-				Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
-				RuleId: thresholdTestRuleID, ParamName: "threshold", Value: value,
-			})
-			require.Error(t, err)
-			assert.Equal(t, codes.InvalidArgument, status.Code(err),
-				"the database CHECK would surface as an opaque internal error instead")
-		}
-	})
-
-	t.Run("rejects an unknown parameter", func(t *testing.T) {
-		svc, _, node := setupThresholdAPI(t)
-
-		_, err := svc.SetThreshold(ctx, &alerting.SetThresholdRequest{
-			Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
-			RuleId: thresholdTestRuleID, ParamName: "not-overridable", Value: 90,
-		})
-		require.Error(t, err)
-		assert.Equal(t, codes.NotFound, status.Code(err))
-	})
-
-	t.Run("rejects an unknown rule", func(t *testing.T) {
-		svc, _, node := setupThresholdAPI(t)
-
-		_, err := svc.SetThreshold(ctx, &alerting.SetThresholdRequest{
-			Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
-			RuleId: "no-such-rule", ParamName: "threshold", Value: 90,
-		})
-		require.Error(t, err)
-		assert.Equal(t, codes.NotFound, status.Code(err))
-	})
-
-	t.Run("rejects a target that does not exist", func(t *testing.T) {
-		svc, _, _ := setupThresholdAPI(t)
-
-		_, err := svc.SetThreshold(ctx, &alerting.SetThresholdRequest{
-			Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: "no-such-node",
-			RuleId: thresholdTestRuleID, ParamName: "threshold", Value: 90,
-		})
-		require.Error(t, err)
-		assert.Equal(t, codes.NotFound, status.Code(err))
-	})
-
-	// Service and cluster scope are carried by the schema, resolver and proto already, so
-	// they report as not-yet-implemented rather than as a malformed request.
-	t.Run("reports unimplemented scopes distinctly from invalid ones", func(t *testing.T) {
-		svc, _, node := setupThresholdAPI(t)
-
-		for _, scope := range []alerting.ThresholdScope{
-			alerting.ThresholdScope_THRESHOLD_SCOPE_SERVICE,
-			alerting.ThresholdScope_THRESHOLD_SCOPE_CLUSTER,
-		} {
-			_, err := svc.SetThreshold(ctx, &alerting.SetThresholdRequest{
-				Scope: scope, Target: node.NodeID,
-				RuleId: thresholdTestRuleID, ParamName: "threshold", Value: 90,
-			})
-			require.Error(t, err)
-			assert.Equal(t, codes.Unimplemented, status.Code(err))
-		}
-	})
+	assert.InDelta(t, 90.0, res.Threshold.EffectiveValue, 0.0001)
+	assert.InDelta(t, 80.0, res.Threshold.DefaultValue, 0.0001)
+	assert.True(t, res.Threshold.IsOverridden)
+	assert.Equal(t, alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, res.Threshold.Scope)
+	assert.Equal(t, node.NodeID, res.Threshold.Target)
+	assert.Equal(t, alerting.ParamUnit_PARAM_UNIT_PERCENTAGE, res.Threshold.Unit)
+	assert.Equal(t, "A percentage from configured maximum", res.Threshold.Summary)
 }
 
 func TestClearThreshold(t *testing.T) {
-	ctx := t.Context()
+	svc, db, node := setupThresholdAPI(t)
 
-	t.Run("clearing returns the target to the default", func(t *testing.T) {
-		svc, db, node := setupThresholdAPI(t)
-
-		_, err := svc.SetThreshold(ctx, &alerting.SetThresholdRequest{
-			Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
-			RuleId: thresholdTestRuleID, ParamName: "threshold", Value: 90,
-		})
-		require.NoError(t, err)
-
-		_, err = svc.ClearThreshold(ctx, &alerting.ClearThresholdRequest{
-			Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
-			RuleId: thresholdTestRuleID, ParamName: "threshold",
-		})
-		require.NoError(t, err)
-
-		overrides, err := models.FindThresholdOverridesByRule(db.Querier, thresholdTestRuleID)
-		require.NoError(t, err)
-		assert.Empty(t, overrides)
-
-		list, err := svc.ListThresholds(ctx, &alerting.ListThresholdsRequest{
-			Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
-		})
-		require.NoError(t, err)
-		require.Len(t, list.Thresholds, 1)
-		assert.InDelta(t, 80.0, list.Thresholds[0].EffectiveValue, 0.0001)
-		assert.False(t, list.Thresholds[0].IsOverridden)
+	_, err := svc.SetThreshold(t.Context(), &alerting.SetThresholdRequest{
+		Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
+		RuleId: thresholdTestRuleID, ParamName: "threshold", Value: 90,
 	})
+	require.NoError(t, err)
+
+	_, err = svc.ClearThreshold(t.Context(), &alerting.ClearThresholdRequest{
+		Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
+		RuleId: thresholdTestRuleID, ParamName: "threshold",
+	})
+	require.NoError(t, err)
+
+	overrides, err := models.FindThresholdOverridesByRule(db.Querier, thresholdTestRuleID)
+	require.NoError(t, err)
+	assert.Empty(t, overrides)
+
+	list, err := svc.ListThresholds(t.Context(), &alerting.ListThresholdsRequest{
+		Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
+	})
+	require.NoError(t, err)
+	require.Len(t, list.Thresholds, 1)
+	assert.InDelta(t, 80.0, list.Thresholds[0].EffectiveValue, 0.0001)
+	assert.False(t, list.Thresholds[0].IsOverridden)
 }
 
 func TestListThresholds(t *testing.T) {
-	ctx := t.Context()
+	svc, _, node := setupThresholdAPI(t)
 
-	t.Run("with a target, every overridable parameter is reported", func(t *testing.T) {
-		svc, _, node := setupThresholdAPI(t)
+	res, err := svc.ListThresholds(t.Context(), &alerting.ListThresholdsRequest{})
+	require.NoError(t, err)
+	assert.Empty(t, res.Thresholds, "there is no bounded target set to enumerate")
 
-		res, err := svc.ListThresholds(ctx, &alerting.ListThresholdsRequest{
-			Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
-		})
-		require.NoError(t, err)
-
-		require.Len(t, res.Thresholds, 1, "an untouched target still reports its default")
-		assert.InDelta(t, 80.0, res.Thresholds[0].EffectiveValue, 0.0001)
-		assert.False(t, res.Thresholds[0].IsOverridden)
+	_, err = svc.SetThreshold(t.Context(), &alerting.SetThresholdRequest{
+		Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
+		RuleId: thresholdTestRuleID, ParamName: "threshold", Value: 90,
 	})
+	require.NoError(t, err)
 
-	t.Run("without a target, only actual overrides are reported", func(t *testing.T) {
-		svc, _, node := setupThresholdAPI(t)
-
-		res, err := svc.ListThresholds(ctx, &alerting.ListThresholdsRequest{})
-		require.NoError(t, err)
-		assert.Empty(t, res.Thresholds, "there is no bounded target set to enumerate")
-
-		_, err = svc.SetThreshold(ctx, &alerting.SetThresholdRequest{
-			Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
-			RuleId: thresholdTestRuleID, ParamName: "threshold", Value: 90,
-		})
-		require.NoError(t, err)
-
-		res, err = svc.ListThresholds(ctx, &alerting.ListThresholdsRequest{})
-		require.NoError(t, err)
-		require.Len(t, res.Thresholds, 1)
-		assert.True(t, res.Thresholds[0].IsOverridden)
-	})
-
-	// An unsupported scope is refused whether or not a target narrows the listing. The
-	// scope goes unused without a target, but answering as though node scope had been
-	// asked for would report node overrides to a caller that asked about services.
-	t.Run("reports unimplemented scopes with no target", func(t *testing.T) {
-		svc, _, _ := setupThresholdAPI(t)
-
-		for _, scope := range []alerting.ThresholdScope{
-			alerting.ThresholdScope_THRESHOLD_SCOPE_SERVICE,
-			alerting.ThresholdScope_THRESHOLD_SCOPE_CLUSTER,
-		} {
-			_, err := svc.ListThresholds(ctx, &alerting.ListThresholdsRequest{Scope: scope})
-			require.Error(t, err, scope.String())
-			assert.Equal(t, codes.Unimplemented, status.Code(err), scope.String())
-		}
-	})
+	res, err = svc.ListThresholds(t.Context(), &alerting.ListThresholdsRequest{})
+	require.NoError(t, err)
+	require.Len(t, res.Thresholds, 1)
+	assert.True(t, res.Thresholds[0].IsOverridden)
 }
 
 func TestBatchUpdateThresholds(t *testing.T) {
@@ -388,44 +274,40 @@ func TestSortThresholds(t *testing.T) {
 	}, got)
 }
 
-func TestSetThresholdRejectsValueBelowMinimum(t *testing.T) {
-	svc, _, node := setupThresholdAPI(t)
+func TestCheckThresholdValue(t *testing.T) {
+	t.Parallel()
 
-	// The maximum is covered by TestSetThreshold; the minimum is the other half of the
-	// same guard, and nothing else would catch it being wrong.
-	_, err := svc.SetThreshold(t.Context(), &alerting.SetThresholdRequest{
-		Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
-		RuleId: thresholdTestRuleID, ParamName: "threshold", Value: -5,
-	})
-	require.Error(t, err)
-	assert.Equal(t, codes.InvalidArgument, status.Code(err))
-}
+	bounded := models.AlertRuleParam{Min: pointer.ToFloat64(0), Max: pointer.ToFloat64(100)}
 
-func TestSetThresholdRejectsScopeTheParameterDoesNotDeclare(t *testing.T) {
-	svc, db, node := setupThresholdAPI(t)
+	for _, tc := range []struct {
+		name  string
+		param models.AlertRuleParam
+		value float64
+		valid bool
+	}{
+		{name: "inside the range", param: bounded, value: 50, valid: true},
+		{name: "on the minimum", param: bounded, value: 0, valid: true},
+		{name: "on the maximum", param: bounded, value: 100, valid: true},
+		{name: "below the minimum", param: bounded, value: -5},
+		{name: "above the maximum", param: bounded, value: 150},
+		{name: "unbounded accepts any finite value", value: -1e9, valid: true},
+		{name: "NaN", value: math.NaN()},
+		{name: "positive infinity", value: math.Inf(1)},
+		{name: "negative infinity", value: math.Inf(-1)},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	// A parameter carries the scopes its template declared. This rule's parameter joins
-	// on service_name, so overriding it per node would produce a threshold series the
-	// rule can never match.
-	const ruleID = "service-scoped-rule"
+			err := checkThresholdValue("threshold", tc.param, tc.value)
+			if tc.valid {
+				require.NoError(t, err)
+				return
+			}
 
-	_, err := models.CreateAlertRule(db.Querier, &models.CreateAlertRuleParams{
-		RuleID: ruleID,
-		Params: models.AlertRuleParams{
-			"threshold": {
-				Default: 80,
-				Scopes:  []string{string(models.ThresholdScopeService)},
-			},
-		},
-	})
-	require.NoError(t, err)
-
-	_, err = svc.SetThreshold(t.Context(), &alerting.SetThresholdRequest{
-		Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
-		RuleId: ruleID, ParamName: "threshold", Value: 90,
-	})
-	require.Error(t, err)
-	assert.Equal(t, codes.InvalidArgument, status.Code(err))
+			require.Error(t, err)
+			assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		})
+	}
 }
 
 func TestListThresholdsFiltersByRule(t *testing.T) {
@@ -461,33 +343,146 @@ func TestListThresholdsFiltersByRule(t *testing.T) {
 	assert.InDelta(t, 50.0, res.Thresholds[0].DefaultValue, 0.0001)
 }
 
-// A parameter that cannot be overridden at the requested scope must not be listed for a
-// target of that scope. Listing it puts a field in the UI that the write path rejects, and
-// because a batch is one transaction, that one rejection rolls back every other edit.
-func TestListThresholdsFiltersByScope(t *testing.T) {
-	ctx := t.Context()
+// newThresholdMockDB returns a mocked database that fails the test on unmet expectations.
+func newThresholdMockDB(t *testing.T) (*reform.DB, sqlmock.Sqlmock) {
+	t.Helper()
 
-	t.Run("a service-scoped parameter is absent from a node listing", func(t *testing.T) {
-		svc, db, node := setupThresholdAPI(t)
+	sqlDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		require.NoError(t, mock.ExpectationsWereMet())
+		mock.ExpectClose()
+		require.NoError(t, sqlDB.Close())
+	})
 
-		_, err := models.CreateAlertRule(db.Querier, &models.CreateAlertRuleParams{
-			RuleID: "service-scoped-rule",
-			Params: models.AlertRuleParams{
-				"threshold": {
-					Default: 90,
-					Scopes:  []string{string(models.ThresholdScopeService)},
-				},
-			},
+	return reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)), mock
+}
+
+// setupThresholdMock returns a service on a mocked database with alerting enabled.
+func setupThresholdMock(t *testing.T) (*Service, sqlmock.Sqlmock) {
+	t.Helper()
+
+	db, mock := newThresholdMockDB(t)
+
+	svc, err := NewService(db, newMockGrafanaClient(t))
+	require.NoError(t, err)
+
+	mock.ExpectQuery("SELECT settings FROM settings").
+		WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(`{"alerting":{"enabled":true}}`))
+
+	return svc, mock
+}
+
+func TestSetThresholdRejectsBeforeWriting(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name      string
+		ruleFound bool
+		paramName string
+		value     float64
+		nodeQuery bool
+		code      codes.Code
+	}{
+		{name: "unknown rule", paramName: "threshold", value: 90, code: codes.NotFound},
+		{name: "unknown parameter", ruleFound: true, paramName: "not-overridable", value: 90, code: codes.NotFound},
+		{name: "scope the parameter does not declare", ruleFound: true, paramName: "service-param", value: 90, code: codes.InvalidArgument},
+		{name: "value outside the declared range", ruleFound: true, paramName: "threshold", value: 150, code: codes.InvalidArgument},
+		{name: "target that does not exist", ruleFound: true, paramName: "threshold", value: 90, nodeQuery: true, code: codes.NotFound},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			svc, mock := setupThresholdMock(t)
+			mock.ExpectBegin()
+
+			rule := sqlmock.NewRows([]string{"rule_id", "params", "created_at", "updated_at"})
+			if tc.ruleFound {
+				params, err := json.Marshal(models.AlertRuleParams{
+					"threshold": {
+						Default: 80,
+						Scopes:  []string{string(models.ThresholdScopeNode)},
+						Min:     pointer.ToFloat64(0),
+						Max:     pointer.ToFloat64(100),
+					},
+					"service-param": {Default: 80, Scopes: []string{string(models.ThresholdScopeService)}},
+				})
+				require.NoError(t, err)
+				rule.AddRow(thresholdTestRuleID, params, time.Now(), time.Now())
+			}
+			mock.ExpectQuery(`FROM "alert_rules"`).WillReturnRows(rule)
+
+			if tc.nodeQuery {
+				mock.ExpectQuery(`FROM "nodes"`).WillReturnRows(sqlmock.NewRows([]string{"node_id"}))
+			}
+			mock.ExpectRollback()
+
+			_, err := svc.SetThreshold(t.Context(), &alerting.SetThresholdRequest{
+				Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: "no-such-node",
+				RuleId: thresholdTestRuleID, ParamName: tc.paramName, Value: tc.value,
+			})
+			require.Error(t, err)
+			assert.Equal(t, tc.code, status.Code(err))
 		})
-		require.NoError(t, err)
+	}
+}
 
-		res, err := svc.ListThresholds(ctx, &alerting.ListThresholdsRequest{
-			Scope:  alerting.ThresholdScope_THRESHOLD_SCOPE_NODE,
-			Target: node.NodeID,
+// An unsupported scope is refused whether or not a target narrows the listing: answering as
+// though node scope had been asked for would report node overrides to a caller asking about
+// services.
+func TestListThresholdsRejectsUnimplementedScopeWithoutTarget(t *testing.T) {
+	t.Parallel()
+
+	for _, scope := range []alerting.ThresholdScope{
+		alerting.ThresholdScope_THRESHOLD_SCOPE_SERVICE,
+		alerting.ThresholdScope_THRESHOLD_SCOPE_CLUSTER,
+	} {
+		t.Run(scope.String(), func(t *testing.T) {
+			t.Parallel()
+
+			svc, _ := setupThresholdMock(t)
+
+			_, err := svc.ListThresholds(t.Context(), &alerting.ListThresholdsRequest{Scope: scope})
+			require.Error(t, err)
+			assert.Equal(t, codes.Unimplemented, status.Code(err))
 		})
-		require.NoError(t, err)
+	}
+}
 
-		require.Len(t, res.Thresholds, 1)
-		assert.Equal(t, thresholdTestRuleID, res.Thresholds[0].RuleId)
+func TestThresholdsForRule(t *testing.T) {
+	t.Parallel()
+
+	inv := models.ThresholdInventory{NodeNames: map[string]string{"node-id-1": "node-1"}}
+	rule := &models.AlertRule{
+		RuleID: "rule-1",
+		Params: models.AlertRuleParams{
+			"node-param":    {Default: 80, Scopes: []string{string(models.ThresholdScopeNode)}},
+			"service-param": {Default: 90, Scopes: []string{string(models.ThresholdScopeService)}},
+		},
+	}
+
+	t.Run("a target reports every parameter overridable at its scope", func(t *testing.T) {
+		t.Parallel()
+
+		thresholds := thresholdsForRule(rule, nil, inv, "node-1", models.ThresholdScopeNode)
+
+		require.Len(t, thresholds, 1, "the service-scoped parameter cannot be set per node")
+		assert.Equal(t, "node-param", thresholds[0].ParamName)
+		assert.InDelta(t, 80.0, thresholds[0].EffectiveValue, 0.0001, "an untouched target reports its default")
+		assert.False(t, thresholds[0].IsOverridden)
+	})
+
+	t.Run("an override is reported for its target", func(t *testing.T) {
+		t.Parallel()
+
+		overrides := []*models.AlertRuleThresholdOverride{{
+			RuleID: "rule-1", ParamName: "node-param", Scope: models.ThresholdScopeNode, Target: "node-id-1", Value: 95,
+		}}
+
+		thresholds := thresholdsForRule(rule, overrides, inv, "node-1", models.ThresholdScopeNode)
+
+		require.Len(t, thresholds, 1)
+		assert.InDelta(t, 95.0, thresholds[0].EffectiveValue, 0.0001)
+		assert.True(t, thresholds[0].IsOverridden)
 	})
 }

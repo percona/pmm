@@ -19,6 +19,7 @@ import (
 	"strings"
 	"testing"
 
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
@@ -135,11 +136,17 @@ func createThresholdNode(t *testing.T, db *reform.DB) *models.Node {
 }
 
 func TestThresholdCollectorEmitsNothingWithoutOverrides(t *testing.T) {
-	c, db := setupThresholdCollector(t)
-	createThresholdRule(t, db)
+	t.Parallel()
 
-	assert.Equal(t, 0, testutil.CollectAndCount(c, thresholdMetricName),
-		"a rule with no overrides must emit no series at all")
+	db, mock := newThresholdMockDB(t)
+
+	// With no overrides the collector stops after one query, without loading rules or inventory.
+	mock.ExpectBegin()
+	mock.ExpectQuery(`FROM "alert_rule_threshold_overrides"`).WillReturnRows(sqlmock.NewRows([]string{"id"}))
+	mock.ExpectCommit()
+
+	c := NewAlertThresholdMetricsCollector(db)
+	assert.Equal(t, 0, testutil.CollectAndCount(c, thresholdMetricName))
 }
 
 func TestThresholdCollectorEmitsOverride(t *testing.T) {

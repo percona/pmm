@@ -463,3 +463,16 @@ func TestUpsertThresholdOverrideNormalisesTimestamps(t *testing.T) {
 		assert.Equal(t, time.UTC, override.UpdatedAt.Location())
 	})
 }
+
+func TestAlertRuleParamOverridableAt(t *testing.T) {
+	t.Parallel()
+
+	nodeOnly := models.AlertRuleParam{Scopes: []string{string(models.ThresholdScopeNode)}}
+	serviceOnly := models.AlertRuleParam{Scopes: []string{string(models.ThresholdScopeService)}}
+
+	assert.True(t, nodeOnly.OverridableAt(models.ThresholdScopeNode))
+	assert.False(t, nodeOnly.OverridableAt(models.ThresholdScopeService))
+	assert.False(t, serviceOnly.OverridableAt(models.ThresholdScopeNode),
+		"a service-scoped parameter joins on service_name, so a node override could never match")
+	assert.False(t, models.AlertRuleParam{}.OverridableAt(models.ThresholdScopeNode))
+}

@@ -168,7 +168,9 @@ func incomingCtx(ctx context.Context) context.Context {
 
 func TestMaybeReconcile(t *testing.T) {
 	t.Run("no incoming metadata: never reaches the mock", func(t *testing.T) {
-		svc, m, _ := setupReconciler(t)
+		m := newMockGrafanaClient(t)
+		svc, err := NewService(nil, m)
+		require.NoError(t, err)
 
 		svc.maybeReconcile(t.Context())
 
