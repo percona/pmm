@@ -199,7 +199,7 @@ func (s *Service) ListThresholds(_ context.Context, req *alerting.ListThresholds
 			return err
 		}
 
-		overrides, err := thresholdOverridesFor(tx.Querier, req.RuleId)
+		overrides, err := thresholdOverridesFor(tx.Querier, scope, req.Target, req.RuleId)
 		if err != nil {
 			return err
 		}
@@ -235,13 +235,21 @@ func (s *Service) ListThresholds(_ context.Context, req *alerting.ListThresholds
 	return &alerting.ListThresholdsResponse{Thresholds: thresholds}, nil
 }
 
-// thresholdOverridesFor loads one rule's override rows, or every rule's when none is named.
-func thresholdOverridesFor(q *reform.Querier, ruleID string) ([]*models.AlertRuleThresholdOverride, error) {
-	if ruleID != "" {
+// thresholdOverridesFor loads the override rows a listing can report. Only a node target is
+// reached by nothing but its own rows; a service target is also reached by its cluster's.
+func thresholdOverridesFor(
+	q *reform.Querier,
+	scope models.ThresholdScope,
+	target, ruleID string,
+) ([]*models.AlertRuleThresholdOverride, error) {
+	switch {
+	case target != "" && scope == models.ThresholdScopeNode:
+		return models.FindThresholdOverridesByTarget(q, scope, target)
+	case ruleID != "":
 		return models.FindThresholdOverridesByRule(q, ruleID)
+	default:
+		return models.FindAllThresholdOverrides(q)
 	}
-
-	return models.FindAllThresholdOverrides(q)
 }
 
 // thresholdsForRule reports one registry row's thresholds. With no target it reports only
@@ -398,14 +406,14 @@ func (s *Service) SetThreshold(ctx context.Context, req *alerting.SetThresholdRe
 			return err
 		}
 
-		_, err = models.UpsertThresholdOverride(tx.Querier, req.RuleId, req.ParamName, scope, req.Target, req.Value)
+		override, err := models.UpsertThresholdOverride(tx.Querier, req.RuleId, req.ParamName, scope, req.Target, req.Value)
 		if err != nil {
 			return err
 		}
 
-		threshold, err = s.readThreshold(tx.Querier, req.RuleId, req.ParamName, param, scope, req.Target)
+		threshold = thresholdFromOverride(param, override)
 
-		return err
+		return nil
 	})
 	if errTx != nil {
 		return nil, errTx
@@ -416,8 +424,7 @@ func (s *Service) SetThreshold(ctx context.Context, req *alerting.SetThresholdRe
 	return &alerting.SetThresholdResponse{Threshold: threshold}, nil
 }
 
-// ClearThreshold removes an override so the target falls back to the rule's default, or
-// to a broader override still covering it.
+// ClearThreshold removes an override so the target falls back to the rule's default.
 func (s *Service) ClearThreshold(ctx context.Context, req *alerting.ClearThresholdRequest) (*alerting.ClearThresholdResponse, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
@@ -487,17 +494,12 @@ func (s *Service) BatchUpdateThresholds(ctx context.Context, req *alerting.Batch
 				continue
 			}
 
-			_, err = models.UpsertThresholdOverride(tx.Querier, update.RuleId, update.ParamName, scope, update.Target, *update.Value)
+			override, err := models.UpsertThresholdOverride(tx.Querier, update.RuleId, update.ParamName, scope, update.Target, *update.Value)
 			if err != nil {
 				return err
 			}
 
-			threshold, err := s.readThreshold(tx.Querier, update.RuleId, update.ParamName, param, scope, update.Target)
-			if err != nil {
-				return err
-			}
-
-			thresholds = append(thresholds, threshold)
+			thresholds = append(thresholds, thresholdFromOverride(param, override))
 		}
 
 		return nil
@@ -511,38 +513,8 @@ func (s *Service) BatchUpdateThresholds(ctx context.Context, req *alerting.Batch
 	return &alerting.BatchUpdateThresholdsResponse{Thresholds: thresholds}, nil
 }
 
-// readThreshold reports a parameter as it stands for one target after a write, resolved
-// through the same precedence the collector applies.
-func (s *Service) readThreshold(
-	q *reform.Querier,
-	ruleID, paramName string,
-	param models.AlertRuleParam,
-	scope models.ThresholdScope,
-	target string,
-) (*alerting.Threshold, error) {
-	overrides, err := models.FindThresholdOverridesByRule(q, ruleID)
-	if err != nil {
-		return nil, err
-	}
-
-	overrides = filterOverridesByParam(overrides, paramName)
-
-	inv, err := loadThresholdInventory(q, overrides)
-	if err != nil {
-		return nil, err
-	}
-
-	targetName, err := s.thresholdTargetName(q, scope, target, &inv)
-	if err != nil {
-		return nil, err
-	}
-
-	resolved := models.ResolveThresholds(overrides, inv)
-
-	entry, ok := resolved[targetName]
-	if !ok {
-		entry = models.ResolvedThreshold{Value: param.Default}
-	}
-
-	return thresholdFromResolved(ruleID, paramName, param, entry), nil
+// thresholdFromOverride reports a just-written override, the most specific one its target can have.
+func thresholdFromOverride(param models.AlertRuleParam, override *models.AlertRuleThresholdOverride) *alerting.Threshold {
+	return thresholdFromResolved(override.RuleID, override.ParamName, param,
+		models.ResolvedThreshold{Value: override.Value, Source: override})
 }
