@@ -111,54 +111,16 @@ func TestValidateOverridableTemplate(t *testing.T) {
 	require.NoError(t, template.Validate())
 }
 
-// singleExprTemplate returns a valid single-expression template whose one param is
-// overridable, so the desugaring constraints can be varied one at a time.
-func singleExprTemplate() Template {
+func TestValidateOverridableRejectsSingleExpression(t *testing.T) {
+	t.Parallel()
+
 	template := overridableTemplate()
-	template.Queries = nil
-	template.Expressions = nil
-	template.Condition = ""
+	template.Queries, template.Expressions, template.Condition = nil, nil, ""
 	template.Expr = "up > bool [[ .threshold ]]"
-
-	return template
-}
-
-func TestValidateOverridableAcceptsSplittableSingleExpression(t *testing.T) {
-	t.Parallel()
-
-	template := singleExprTemplate()
-	require.NoError(t, template.Validate())
-}
-
-// An expression that cannot be split must fail when the template is parsed. Accepting it
-// would produce a rule whose threshold silently never applies.
-func TestValidateOverridableRejectsUnsplittableSingleExpression(t *testing.T) {
-	t.Parallel()
-
-	template := singleExprTemplate()
-	template.Expr = "up > bool [[ .threshold ]] * 100"
 
 	err := template.Validate()
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "must be compared directly")
-}
-
-func TestValidateOverridableRejectsTwoParamsOnSingleExpression(t *testing.T) {
-	t.Parallel()
-
-	template := singleExprTemplate()
-	template.Expr = "up > bool [[ .threshold ]]"
-	template.Params = append(template.Params, Parameter{
-		Name:        "second",
-		Summary:     "second",
-		Type:        Float,
-		Value:       1,
-		Overridable: true,
-	})
-
-	err := template.Validate()
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "at most one overridable parameter")
+	assert.Contains(t, err.Error(), "requires the queries and expressions template form")
 }
 
 func TestValidateOverridableRejectsUnreferencedParam(t *testing.T) {
