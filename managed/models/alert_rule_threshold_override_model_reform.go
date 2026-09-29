@@ -34,7 +34,6 @@ func (v *alertRuleThresholdOverrideTableType) Columns() []string {
 		"scope",
 		"target",
 		"value",
-		"cleared_at",
 		"created_at",
 		"updated_at",
 	}
@@ -67,7 +66,6 @@ var AlertRuleThresholdOverrideTable = &alertRuleThresholdOverrideTableType{
 			{Name: "Scope", Type: "ThresholdScope", Column: "scope"},
 			{Name: "Target", Type: "string", Column: "target"},
 			{Name: "Value", Type: "float64", Column: "value"},
-			{Name: "ClearedAt", Type: "*time.Time", Column: "cleared_at"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 		},
@@ -78,16 +76,15 @@ var AlertRuleThresholdOverrideTable = &alertRuleThresholdOverrideTableType{
 
 // String returns a string representation of this struct or record.
 func (s AlertRuleThresholdOverride) String() string {
-	res := make([]string, 9)
+	res := make([]string, 8)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "RuleID: " + reform.Inspect(s.RuleID, true)
 	res[2] = "ParamName: " + reform.Inspect(s.ParamName, true)
 	res[3] = "Scope: " + reform.Inspect(s.Scope, true)
 	res[4] = "Target: " + reform.Inspect(s.Target, true)
 	res[5] = "Value: " + reform.Inspect(s.Value, true)
-	res[6] = "ClearedAt: " + reform.Inspect(s.ClearedAt, true)
-	res[7] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[8] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[6] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[7] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -101,7 +98,6 @@ func (s *AlertRuleThresholdOverride) Values() []interface{} {
 		s.Scope,
 		s.Target,
 		s.Value,
-		s.ClearedAt,
 		s.CreatedAt,
 		s.UpdatedAt,
 	}
@@ -117,7 +113,6 @@ func (s *AlertRuleThresholdOverride) Pointers() []interface{} {
 		&s.Scope,
 		&s.Target,
 		&s.Value,
-		&s.ClearedAt,
 		&s.CreatedAt,
 		&s.UpdatedAt,
 	}

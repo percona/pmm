@@ -108,7 +108,6 @@ func TestThresholdOverrides(t *testing.T) {
 		created, err := models.UpsertThresholdOverride(q, rule.RuleID, "threshold", models.ThresholdScopeNode, "node-id-1", 90)
 		require.NoError(t, err)
 		assert.InDelta(t, 90.0, created.Value, 0.0001)
-		assert.False(t, created.IsCleared())
 
 		updated, err := models.UpsertThresholdOverride(q, rule.RuleID, "threshold", models.ThresholdScopeNode, "node-id-1", 95)
 		require.NoError(t, err)
@@ -121,7 +120,7 @@ func TestThresholdOverrides(t *testing.T) {
 		require.Len(t, all, 1)
 	})
 
-	t.Run("clear tombstones the row rather than deleting it", func(t *testing.T) {
+	t.Run("clear deletes the row", func(t *testing.T) {
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		defer func() {
@@ -137,12 +136,10 @@ func TestThresholdOverrides(t *testing.T) {
 
 		all, err := models.FindThresholdOverridesByRule(q, rule.RuleID)
 		require.NoError(t, err)
-		require.Len(t, all, 1, "the row must survive so the emitted series keeps existing")
-		assert.True(t, all[0].IsCleared())
-		assert.InDelta(t, 90.0, all[0].Value, 0.0001, "the stale value is kept for audit")
+		assert.Empty(t, all)
 	})
 
-	t.Run("clear is idempotent", func(t *testing.T) {
+	t.Run("clearing an override that was never set is a no-op", func(t *testing.T) {
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		defer func() {
@@ -151,45 +148,7 @@ func TestThresholdOverrides(t *testing.T) {
 		q := tx.Querier
 
 		rule := createTestAlertRule(t, q)
-		_, err = models.UpsertThresholdOverride(q, rule.RuleID, "threshold", models.ThresholdScopeNode, "node-id-1", 90)
-		require.NoError(t, err)
-
 		require.NoError(t, models.ClearThresholdOverride(q, rule.RuleID, "threshold", models.ThresholdScopeNode, "node-id-1"))
-		require.NoError(t, models.ClearThresholdOverride(q, rule.RuleID, "threshold", models.ThresholdScopeNode, "node-id-1"))
-	})
-
-	t.Run("clearing an override that was never set is NotFound", func(t *testing.T) {
-		tx, err := db.Begin()
-		require.NoError(t, err)
-		defer func() {
-			require.NoError(t, tx.Rollback())
-		}()
-		q := tx.Querier
-
-		rule := createTestAlertRule(t, q)
-		err = models.ClearThresholdOverride(q, rule.RuleID, "threshold", models.ThresholdScopeNode, "node-id-1")
-		require.Error(t, err)
-		assert.Equal(t, codes.NotFound, status.Code(err))
-	})
-
-	t.Run("upsert revives a tombstone", func(t *testing.T) {
-		tx, err := db.Begin()
-		require.NoError(t, err)
-		defer func() {
-			require.NoError(t, tx.Rollback())
-		}()
-		q := tx.Querier
-
-		rule := createTestAlertRule(t, q)
-		created, err := models.UpsertThresholdOverride(q, rule.RuleID, "threshold", models.ThresholdScopeNode, "node-id-1", 90)
-		require.NoError(t, err)
-		require.NoError(t, models.ClearThresholdOverride(q, rule.RuleID, "threshold", models.ThresholdScopeNode, "node-id-1"))
-
-		revived, err := models.UpsertThresholdOverride(q, rule.RuleID, "threshold", models.ThresholdScopeNode, "node-id-1", 75)
-		require.NoError(t, err)
-		assert.Equal(t, created.ID, revived.ID)
-		assert.False(t, revived.IsCleared(), "writing a value must clear the tombstone")
-		assert.InDelta(t, 75.0, revived.Value, 0.0001)
 	})
 
 	t.Run("the unique key is rule, param, scope and target", func(t *testing.T) {

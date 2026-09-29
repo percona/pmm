@@ -192,12 +192,9 @@ func TestClearThreshold(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		// The row survives as a tombstone: that is what keeps the emitted series alive
-		// so the clear lands in one scrape rather than a lookbehind.
 		overrides, err := models.FindThresholdOverridesByRule(db.Querier, thresholdTestRuleID)
 		require.NoError(t, err)
-		require.Len(t, overrides, 1)
-		assert.True(t, overrides[0].IsCleared())
+		assert.Empty(t, overrides)
 
 		list, err := svc.ListThresholds(ctx, &alerting.ListThresholdsRequest{
 			Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
@@ -205,8 +202,7 @@ func TestClearThreshold(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, list.Thresholds, 1)
 		assert.InDelta(t, 80.0, list.Thresholds[0].EffectiveValue, 0.0001)
-		assert.False(t, list.Thresholds[0].IsOverridden,
-			"a tombstone must not read as an override, or every target ever tuned reads as tuned forever")
+		assert.False(t, list.Thresholds[0].IsOverridden)
 	})
 }
 
@@ -300,8 +296,7 @@ func TestBatchUpdateThresholds(t *testing.T) {
 
 		overrides, err := models.FindThresholdOverridesByRule(db.Querier, thresholdTestRuleID)
 		require.NoError(t, err)
-		require.Len(t, overrides, 1)
-		assert.True(t, overrides[0].IsCleared())
+		assert.Empty(t, overrides)
 	})
 
 	// The whole reason the batch endpoint exists: a client editing many rows at once

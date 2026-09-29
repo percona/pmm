@@ -71,8 +71,9 @@ curl --insecure -X POST \
 '
 ```
 
-Clearing an override that has already been cleared succeeds and changes nothing. Clearing a
-parameter that was never overridden returns `404 Not Found` — there is no override to clear.
+Clearing is idempotent: clearing a parameter that has no override for that target succeeds and
+changes nothing. The rule, parameter and target are still checked, so an unknown one returns an
+error.
 
 > 🚧 Clear rather than write the default back
 > 

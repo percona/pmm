@@ -18,13 +18,10 @@ package models
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-const testDefault = 80.0
 
 func testInventory() ThresholdInventory {
 	return ThresholdInventory{
@@ -51,14 +48,6 @@ func override(scope ThresholdScope, target string, value float64) *AlertRuleThre
 		Target:    target,
 		Value:     value,
 	}
-}
-
-func tombstone(scope ThresholdScope, target string, value float64) *AlertRuleThresholdOverride {
-	o := override(scope, target, value)
-	cleared := time.Now()
-	o.ClearedAt = &cleared
-
-	return o
 }
 
 func TestResolveThresholds(t *testing.T) {
@@ -113,40 +102,15 @@ func TestResolveThresholds(t *testing.T) {
 			},
 			expected: map[string]float64{},
 		},
-		{
-			name: "tombstone with no surviving override resolves to the default",
-			overrides: []*AlertRuleThresholdOverride{
-				tombstone(ThresholdScopeNode, "node-id-1", 90),
-			},
-			expected: map[string]float64{"node-1": testDefault},
-		},
-		{
-			name: "tombstone falls through to a covering cluster override, not the default",
-			overrides: []*AlertRuleThresholdOverride{
-				override(ThresholdScopeCluster, "prod", 70),
-				tombstone(ThresholdScopeService, "svc-id-1", 50),
-			},
-			expected: map[string]float64{"svc-1": 70, "svc-2": 70},
-		},
-		{
-			name: "tombstoned cluster override clears every service it covered",
-			overrides: []*AlertRuleThresholdOverride{
-				tombstone(ThresholdScopeCluster, "prod", 70),
-			},
-			expected: map[string]float64{"svc-1": testDefault, "svc-2": testDefault},
-		},
-		{
-			name: "a tombstone never contributes its stale value",
-			overrides: []*AlertRuleThresholdOverride{
-				tombstone(ThresholdScopeNode, "node-id-1", 12345),
-			},
-			expected: map[string]float64{"node-1": testDefault},
-		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			actual := ResolveThresholds(tc.overrides, testDefault, testInventory())
+			actual := make(map[string]float64)
+			for name, resolved := range ResolveThresholds(tc.overrides, testInventory()) {
+				actual[name] = resolved.Value
+			}
+
 			assert.Equal(t, tc.expected, actual)
 		})
 	}
@@ -171,8 +135,8 @@ func TestResolveThresholdsPrecedenceAcrossAllScopes(t *testing.T) {
 		override(ThresholdScopeNode, "node-id-3", 30),
 	}
 
-	resolved := ResolveThresholds(overrides, testDefault, inv)
-	assert.InDelta(t, 20.0, resolved["svc-1"], 0.0001, "service scope must win over node and cluster")
+	resolved := ResolveThresholds(overrides, inv)
+	assert.InDelta(t, 20.0, resolved["svc-1"].Value, 0.0001, "service scope must win over node and cluster")
 }
 
 // TestResolveThresholdsNodeBeatsCluster pins the conventional half of the order. Node and
@@ -189,8 +153,8 @@ func TestResolveThresholdsNodeBeatsCluster(t *testing.T) {
 		override(ThresholdScopeNode, "node-id-3", 30),
 	}
 
-	resolved := ResolveThresholds(overrides, testDefault, inv)
-	assert.InDelta(t, 30.0, resolved["svc-1"], 0.0001)
+	resolved := ResolveThresholds(overrides, inv)
+	assert.InDelta(t, 30.0, resolved["svc-1"].Value, 0.0001)
 }
 
 func TestResolveThresholdsIsOrderIndependent(t *testing.T) {
@@ -204,8 +168,8 @@ func TestResolveThresholdsIsOrderIndependent(t *testing.T) {
 
 	inv := testInventory()
 	assert.Equal(t,
-		ResolveThresholds(forward, testDefault, inv),
-		ResolveThresholds(reversed, testDefault, inv),
+		ResolveThresholds(forward, inv),
+		ResolveThresholds(reversed, inv),
 		"precedence must not depend on row order returned by the database")
 }
 
@@ -221,15 +185,13 @@ func TestResolveThresholdsEmitsOneValuePerTarget(t *testing.T) {
 	overrides := []*AlertRuleThresholdOverride{
 		override(ThresholdScopeCluster, "prod", 70),
 		override(ThresholdScopeNode, "node-id-1", 90),
-		tombstone(ThresholdScopeNode, "node-id-2", 60),
 	}
 
-	resolved := ResolveThresholds(overrides, testDefault, inv)
-	require.Len(t, resolved, 4)
-	assert.InDelta(t, 70.0, resolved["svc-1"], 0.0001)
-	assert.InDelta(t, 70.0, resolved["svc-2"], 0.0001)
-	assert.InDelta(t, 90.0, resolved["node-1"], 0.0001)
-	assert.InDelta(t, testDefault, resolved["node-2"], 0.0001)
+	resolved := ResolveThresholds(overrides, inv)
+	require.Len(t, resolved, 3)
+	assert.InDelta(t, 70.0, resolved["svc-1"].Value, 0.0001)
+	assert.InDelta(t, 70.0, resolved["svc-2"].Value, 0.0001)
+	assert.InDelta(t, 90.0, resolved["node-1"].Value, 0.0001)
 }
 
 func BenchmarkResolveThresholds(b *testing.B) {
@@ -257,7 +219,7 @@ func BenchmarkResolveThresholds(b *testing.B) {
 	}
 
 	for b.Loop() {
-		ResolveThresholds(overrides, testDefault, inv)
+		ResolveThresholds(overrides, inv)
 	}
 }
 

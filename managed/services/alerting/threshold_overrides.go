@@ -264,17 +264,11 @@ func thresholdsForRule(
 			continue
 		}
 
-		resolved := models.ResolveThresholdsDetailed(
-			filterOverridesByParam(overrides, paramName), param.Default, inv,
-		)
+		resolved := models.ResolveThresholds(filterOverridesByParam(overrides, paramName), inv)
 
 		if targetName == "" {
-			// With no target there is no bounded set of targets to enumerate, so
-			// only what has actually been overridden is reported.
 			for _, entry := range resolved {
-				if entry.IsOverridden() {
-					thresholds = append(thresholds, thresholdFromResolved(rule.RuleID, paramName, param, entry))
-				}
+				thresholds = append(thresholds, thresholdFromResolved(rule.RuleID, paramName, param, entry))
 			}
 
 			continue
@@ -543,7 +537,7 @@ func (s *Service) readThreshold(
 		return nil, err
 	}
 
-	resolved := models.ResolveThresholdsDetailed(overrides, param.Default, inv)
+	resolved := models.ResolveThresholds(overrides, inv)
 
 	entry, ok := resolved[targetName]
 	if !ok {

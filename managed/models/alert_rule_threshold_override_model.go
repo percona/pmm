@@ -54,11 +54,7 @@ func (s ThresholdScope) Validate() error {
 	return nil
 }
 
-// AlertRuleThresholdOverride is a per-target threshold for one parameter of one alert
-// rule. Clearing an override tombstones the row rather than deleting it: a deleted row
-// stops being emitted, and a series that stops being emitted keeps resolving for the
-// whole of VictoriaMetrics' lookbehind, so the clear would take minutes to take effect
-// instead of one scrape.
+// AlertRuleThresholdOverride is a per-target threshold for one parameter of one alert rule.
 //
 //reform:alert_rule_threshold_overrides
 type AlertRuleThresholdOverride struct {
@@ -67,19 +63,10 @@ type AlertRuleThresholdOverride struct {
 	ParamName string         `reform:"param_name"`
 	Scope     ThresholdScope `reform:"scope"`
 	// Target is a node_id, a service_id, or a cluster label value, depending on Scope.
-	Target string  `reform:"target"`
-	Value  float64 `reform:"value"`
-	// ClearedAt marks the row as a tombstone. The stale Value is kept for audit and
-	// must never be emitted: a cleared override resolves through the remaining scopes,
-	// falling back to the rule's default only when none apply.
-	ClearedAt *time.Time `reform:"cleared_at"`
-	CreatedAt time.Time  `reform:"created_at"`
-	UpdatedAt time.Time  `reform:"updated_at"`
-}
-
-// IsCleared reports whether the override has been cleared and is therefore a tombstone.
-func (o *AlertRuleThresholdOverride) IsCleared() bool {
-	return o.ClearedAt != nil
+	Target    string    `reform:"target"`
+	Value     float64   `reform:"value"`
+	CreatedAt time.Time `reform:"created_at"`
+	UpdatedAt time.Time `reform:"updated_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -102,10 +89,6 @@ func (o *AlertRuleThresholdOverride) BeforeUpdate() error {
 func (o *AlertRuleThresholdOverride) AfterFind() error {
 	o.CreatedAt = o.CreatedAt.UTC()
 	o.UpdatedAt = o.UpdatedAt.UTC()
-	if o.ClearedAt != nil {
-		cleared := o.ClearedAt.UTC()
-		o.ClearedAt = &cleared
-	}
 
 	return nil
 }

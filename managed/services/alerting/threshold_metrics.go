@@ -74,8 +74,8 @@ func NewAlertThresholdMetricsCollector(db *reform.DB) *AlertThresholdMetricsColl
 		desc: prom.NewDesc(
 			thresholdMetricName,
 			"Effective alert threshold for a rule parameter and target. Emitted only where an "+
-				"override or a tombstone exists; targets without either fall back to the rule's "+
-				"default, which the rule query materialises from its own observed expression.",
+				"override exists; other targets fall back to the rule's default, which the rule "+
+				"query materialises from its own observed expression.",
 			[]string{thresholdRuleIDLabel, thresholdParamLabel, thresholdTargetLabel},
 			nil,
 		),
@@ -150,12 +150,12 @@ func (c *AlertThresholdMetricsCollector) Collect(ch chan<- prom.Metric) {
 			continue
 		}
 
-		param, ok := rule.Params[group.paramName]
+		_, ok = rule.Params[group.paramName]
 		if !ok {
 			continue
 		}
 
-		for target, value := range models.ResolveThresholds(group.overrides, param.Default, inv) {
+		for target, resolved := range models.ResolveThresholds(group.overrides, inv) {
 			if emitted%thresholdCtxCheckInterval == 0 && ctx.Err() != nil {
 				c.l.Warnf("Alert threshold collection timed out after %d series", emitted)
 
@@ -163,7 +163,7 @@ func (c *AlertThresholdMetricsCollector) Collect(ch chan<- prom.Metric) {
 			}
 			emitted++
 
-			ch <- prom.MustNewConstMetric(c.desc, prom.GaugeValue, value, group.ruleID, group.paramName, target)
+			ch <- prom.MustNewConstMetric(c.desc, prom.GaugeValue, resolved.Value, group.ruleID, group.paramName, target)
 		}
 	}
 }

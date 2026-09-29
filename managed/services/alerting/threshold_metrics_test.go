@@ -156,24 +156,6 @@ func TestThresholdCollectorEmitsOverride(t *testing.T) {
 	require.NoError(t, testutil.CollectAndCompare(c, expected, thresholdMetricName))
 }
 
-// TestThresholdCollectorEmitsDefaultForTombstone is the behaviour that makes clearing an
-// override fast: the series keeps being emitted and merely changes value. If a cleared
-// override stopped being emitted instead, the clear would take a full VictoriaMetrics
-// lookbehind to become visible - measured at 309s, against 14-21s for a value change.
-func TestThresholdCollectorEmitsDefaultForTombstone(t *testing.T) {
-	c, db := setupThresholdCollector(t)
-	createThresholdRule(t, db)
-	node := createThresholdNode(t, db)
-
-	_, err := models.UpsertThresholdOverride(db.Querier, testRuleID, "threshold", models.ThresholdScopeNode, node.NodeID, 90)
-	require.NoError(t, err)
-	require.NoError(t, models.ClearThresholdOverride(db.Querier, testRuleID, "threshold", models.ThresholdScopeNode, node.NodeID))
-
-	expected := thresholdExposition(t, c,
-		`pmm_alert_threshold_override{param="threshold",rule_id="rule-fixed-for-tests",target="node-1"} 80`)
-	require.NoError(t, testutil.CollectAndCompare(c, expected, thresholdMetricName))
-}
-
 // TestThresholdCollectorSkipsDeletedTarget covers the backstop that keeps a row left
 // behind by a deleted node inert rather than wrong.
 func TestThresholdCollectorSkipsDeletedTarget(t *testing.T) {

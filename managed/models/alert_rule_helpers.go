@@ -81,14 +81,12 @@ func FindAlertRuleByID(q *reform.Querier, ruleID string) (*AlertRule, error) {
 	return rule, nil
 }
 
-// FindAllThresholdOverrides returns every threshold override row, tombstones included.
-// The collector needs the tombstones: they are what keeps a cleared target's series
-// alive at the rule's default.
+// FindAllThresholdOverrides returns every threshold override row.
 func FindAllThresholdOverrides(q *reform.Querier) ([]*AlertRuleThresholdOverride, error) {
 	return selectThresholdOverrides(q, "")
 }
 
-// FindThresholdOverridesByRule returns every override row for one rule, tombstones included.
+// FindThresholdOverridesByRule returns every override row for one rule.
 func FindThresholdOverridesByRule(q *reform.Querier, ruleID string) ([]*AlertRuleThresholdOverride, error) {
 	if ruleID == "" {
 		return nil, status.Error(codes.InvalidArgument, "Empty rule ID.")
@@ -97,7 +95,7 @@ func FindThresholdOverridesByRule(q *reform.Querier, ruleID string) ([]*AlertRul
 	return selectThresholdOverrides(q, whereAllEqual(q, "rule_id"), ruleID)
 }
 
-// FindThresholdOverridesByTarget returns every override row for one target, tombstones included.
+// FindThresholdOverridesByTarget returns every override row for one target.
 func FindThresholdOverridesByTarget(q *reform.Querier, scope ThresholdScope, target string) ([]*AlertRuleThresholdOverride, error) {
 	err := scope.Validate()
 	if err != nil {
@@ -139,18 +137,6 @@ func selectThresholdOverrides(q *reform.Querier, tail string, args ...any) ([]*A
 	return overrides, nil
 }
 
-func findThresholdOverride(q *reform.Querier, ruleID, paramName string, scope ThresholdScope, target string) (*AlertRuleThresholdOverride, error) {
-	tail := whereAllEqual(q, "rule_id", "param_name", "scope", "target")
-
-	override := &AlertRuleThresholdOverride{}
-	err := q.SelectOneTo(override, tail, ruleID, paramName, string(scope), target)
-	if err != nil {
-		return nil, err
-	}
-
-	return override, nil
-}
-
 // CreateAlertRuleParams are params for creating a new alert rule registry row.
 type CreateAlertRuleParams struct {
 	RuleID string
@@ -180,7 +166,7 @@ func CreateAlertRule(q *reform.Querier, params *CreateAlertRuleParams) (*AlertRu
 }
 
 // UpsertThresholdOverride sets the override for one parameter of one rule at one target,
-// creating the row if it does not exist. Writing to a tombstoned row revives it.
+// creating the row if it does not exist.
 func UpsertThresholdOverride(
 	q *reform.Querier,
 	ruleID, paramName string,
@@ -208,13 +194,12 @@ func UpsertThresholdOverride(
 	}
 
 	columns := AlertRuleThresholdOverrideTable.Columns()
-	// created_at stays out of the update list so reviving a tombstone keeps its creation time.
 	query := fmt.Sprintf(
 		`
 		INSERT INTO %s (%s)
 		VALUES (%s)
 		ON CONFLICT (rule_id, param_name, scope, target) DO UPDATE
-			SET value = EXCLUDED.value, cleared_at = NULL, updated_at = EXCLUDED.updated_at
+			SET value = EXCLUDED.value, updated_at = EXCLUDED.updated_at
 		RETURNING %s`,
 		AlertRuleThresholdOverrideTable.Name(),
 		strings.Join(columns, ", "),
@@ -236,30 +221,16 @@ func UpsertThresholdOverride(
 	return override, nil
 }
 
-// ClearThresholdOverride tombstones an override instead of deleting it, so the emitted
-// series keeps existing and merely changes value. Deleting the row would signal the
-// clear by absence, which takes a full VictoriaMetrics lookbehind to become visible.
+// ClearThresholdOverride deletes an override. Clearing one that does not exist is a no-op,
+// so a retried or concurrent clear succeeds.
 func ClearThresholdOverride(q *reform.Querier, ruleID, paramName string, scope ThresholdScope, target string) error {
 	err := checkThresholdOverrideKey(ruleID, paramName, scope, target)
 	if err != nil {
 		return err
 	}
 
-	override, err := findThresholdOverride(q, ruleID, paramName, scope, target)
-	if err != nil {
-		if errors.Is(err, reform.ErrNoRows) {
-			return status.Errorf(codes.NotFound, "Threshold override for rule '%s' parameter '%s' not found.", ruleID, paramName)
-		}
-
-		return fmt.Errorf("failed to look up threshold override: %w", err)
-	}
-
-	if override.IsCleared() {
-		return nil
-	}
-
-	override.ClearedAt = new(Now())
-	err = q.Update(override)
+	tail := whereAllEqual(q, "rule_id", "param_name", "scope", "target")
+	_, err = q.DeleteFrom(AlertRuleThresholdOverrideTable, tail, ruleID, paramName, string(scope), target)
 	if err != nil {
 		return fmt.Errorf("failed to clear threshold override: %w", err)
 	}
@@ -267,10 +238,7 @@ func ClearThresholdOverride(q *reform.Querier, ruleID, paramName string, scope T
 	return nil
 }
 
-// DeleteThresholdOverridesForTarget hard-deletes every override for a target, and is for
-// entity removal only. A user clearing an override tombstones it (the target still
-// exists and its series must keep resolving); a removed node or service has no target
-// left to emit for, so a tombstone there would be pure residue.
+// DeleteThresholdOverridesForTarget deletes every override for a target, for entity removal.
 //
 // Cluster scope is rejected: there is no "delete a cluster" operation to hook, and a
 // cluster override with no matching services is dormant rather than stale - services may

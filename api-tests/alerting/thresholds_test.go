@@ -189,9 +189,7 @@ func TestThresholdOverrideLifecycle(t *testing.T) {
 	assert.InDelta(t, 95, after[0].EffectiveValue, 0.0001)
 	assert.True(t, after[0].IsOverridden)
 
-	// Clearing returns the target to the default. The override row survives as a
-	// tombstone so the emitted series keeps existing and merely changes value, but that
-	// is invisible from here - what the API must report is "not overridden".
+	// Clearing deletes the override and returns the target to the default.
 	_, err = f.client.ClearThreshold(&alerting.ClearThresholdParams{
 		Body: alerting.ClearThresholdBody{
 			Scope:     new(scopeNode),

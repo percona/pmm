@@ -1210,7 +1210,6 @@ var databaseSchema = [][]string{
 			-- NaN equals itself in PostgreSQL, so <> 'NaN' is the check that rejects it.
 			value DOUBLE PRECISION NOT NULL
 				CHECK (value <> 'NaN'::float8 AND value > '-Infinity'::float8 AND value < 'Infinity'::float8),
-			cleared_at TIMESTAMP,
 			created_at TIMESTAMP NOT NULL,
 			updated_at TIMESTAMP NOT NULL,
 

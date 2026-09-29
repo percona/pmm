@@ -84,32 +84,8 @@ func (inv ThresholdInventory) targetNames(override *AlertRuleThresholdOverride) 
 	return nil
 }
 
-// ResolveThresholds returns the effective threshold for every target covered by an
-// override or a tombstone, keyed by the join-label value the rule matches on.
-//
-// This is the single implementation of precedence. Both the metrics collector and the
-// API must call it: if they resolved separately and drifted, the value the API reports
-// and the value the rule evaluates against would silently disagree.
-//
-// Tombstoned rows contribute no candidate for their own scope, so clearing a service
-// override correctly falls through to a covering cluster override rather than jumping
-// straight to the default. A tombstoned target with no surviving override at any scope
-// resolves to defaultValue - which is what makes clearing an override a value change on
-// an existing series rather than the series disappearing.
-func ResolveThresholds(overrides []*AlertRuleThresholdOverride, defaultValue float64, inv ThresholdInventory) map[string]float64 {
-	detailed := ResolveThresholdsDetailed(overrides, defaultValue, inv)
-
-	resolved := make(map[string]float64, len(detailed))
-	for name, threshold := range detailed {
-		resolved[name] = threshold.Value
-	}
-
-	return resolved
-}
-
 // ResolvedThreshold is the effective threshold for one target, with the override it came
-// from. Source is nil when the value is the rule's default, which happens when every
-// override covering the target has been cleared.
+// from. Source is nil when the value is the rule's default.
 type ResolvedThreshold struct {
 	Value  float64
 	Source *AlertRuleThresholdOverride
@@ -120,27 +96,20 @@ func (r ResolvedThreshold) IsOverridden() bool {
 	return r.Source != nil
 }
 
-// ResolveThresholdsDetailed applies precedence and reports which override won for each
-// target. It is the one implementation of precedence; ResolveThresholds is a thin view
-// over it, so the value the API reports and the value the collector emits cannot drift.
-func ResolveThresholdsDetailed(
-	overrides []*AlertRuleThresholdOverride,
-	defaultValue float64,
-	inv ThresholdInventory,
-) map[string]ResolvedThreshold {
+// ResolveThresholds returns the effective threshold, and the override that won, for every
+// target an override covers, keyed by the join-label value the rule matches on. Targets it
+// omits use the rule's default.
+//
+// This is the single implementation of precedence. Both the metrics collector and the
+// API must call it: if they resolved separately and drifted, the value the API reports
+// and the value the rule evaluates against would silently disagree.
+func ResolveThresholds(overrides []*AlertRuleThresholdOverride, inv ThresholdInventory) map[string]ResolvedThreshold {
 	resolved := make(map[string]ResolvedThreshold, len(overrides))
 	specificity := make(map[string]int, len(overrides))
-
-	var cleared []string
 
 	for _, override := range overrides {
 		names := inv.targetNames(override)
 		if len(names) == 0 {
-			continue
-		}
-
-		if override.IsCleared() {
-			cleared = append(cleared, names...)
 			continue
 		}
 
@@ -153,15 +122,6 @@ func ResolveThresholdsDetailed(
 
 			resolved[name] = ResolvedThreshold{Value: override.Value, Source: override}
 			specificity[name] = rank
-		}
-	}
-
-	// A cleared target keeps its series alive at the rule's default, unless a coarser
-	// override still applies to it.
-	for _, name := range cleared {
-		_, ok := resolved[name]
-		if !ok {
-			resolved[name] = ResolvedThreshold{Value: defaultValue}
 		}
 	}
 
