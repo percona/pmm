@@ -205,6 +205,13 @@ To assume a role:
 
     `--instance-id` is the DB instance identifier, not the endpoint hostname: `my-database`, not `my-database.abc123.eu-north-1.rds.amazonaws.com`. PMM passes it to CloudWatch as the `DBInstanceIdentifier` dimension, and an exporter without one starts, reports RUNNING and collects nothing. See [pmm-admin inventory add node remote-rds](../../../use/commands/pmm-admin/inventory.md#pmm-admin-inventory-add-node-remote-rds).
 
+!!! note alert alert-primary "STS region"
+    PMM Server assumes the role through a single AWS STS endpoint. By default that is the home region of the role's partition (`us-east-1` for standard AWS), so PMM Server needs outbound HTTPS to it even when your RDS instances are elsewhere.
+
+    If PMM Server's outbound access is limited to one region, set `AWS_REGION` (or `AWS_DEFAULT_REGION`) on the PMM Server container to that region, for example `-e AWS_REGION=eu-west-1` on `docker run`, or in `pmmEnv` for every replica when using the Helm chart. PMM Server then assumes the role through that region's STS endpoint. The region must belong to the role's partition, and its STS endpoint must be active for your account (all regions are active by default; check **Account settings** in the IAM console if discovery reports `RegionDisabledException`). A region outside the role's partition is refused up front with a message that names the variable.
+
+    `rds_exporter` is not affected by this setting: it always assumes the role through the region of the instance it monitors.
+
 !!! caution alert alert-warning "Mutually exclusive"
     A role ARN cannot be combined with an access key and secret key; supplying both is rejected. To move an instance PMM already monitors onto a role, see [Migrating an existing instance to an IAM role](#migrating-an-existing-instance-to-an-iam-role).
 
