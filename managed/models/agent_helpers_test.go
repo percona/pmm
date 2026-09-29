@@ -819,7 +819,7 @@ func TestAgentHelpers(t *testing.T) {
 
 				insertValkeyExporter(t, q, tc.stored)
 
-				agent, err := models.ChangeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{ValkeyOptions: &tc.change})
+				agent, err := changeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{ValkeyOptions: &tc.change})
 				tests.AssertGRPCError(t, errIncompleteValkeyKeyPair, err)
 				require.Nil(t, agent)
 			})
@@ -834,7 +834,7 @@ func TestAgentHelpers(t *testing.T) {
 
 		insertValkeyExporter(t, q, models.ValkeyOptions{SSLCa: "ca-pem", SSLCert: "cert-pem", SSLKey: "key-pem"})
 
-		agent, err := models.ChangeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{
+		agent, err := changeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{
 			ValkeyOptions: &models.ChangeValkeyOptions{SSLCert: new(""), SSLKey: new("")},
 		})
 		require.NoError(t, err)
@@ -865,7 +865,7 @@ func TestAgentHelpers(t *testing.T) {
 				insertValkeyExporter(t, q, tc.stored)
 
 				// Disabling the row is the change such an agent most needs to accept.
-				agent, err := models.ChangeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{
+				agent, err := changeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{
 					Enabled:       new(false),
 					ValkeyOptions: &models.ChangeValkeyOptions{},
 				})
@@ -875,7 +875,7 @@ func TestAgentHelpers(t *testing.T) {
 
 				// Replacing the certificate authority is a change to the other half of the
 				// material, and leaves the stored pair as it was.
-				agent, err = models.ChangeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{
+				agent, err = changeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{
 					ValkeyOptions: &models.ChangeValkeyOptions{SSLCa: new("ca-pem")},
 				})
 				require.NoError(t, err)
@@ -883,7 +883,7 @@ func TestAgentHelpers(t *testing.T) {
 				assert.Equal(t, tc.stored.SSLCert, agent.ValkeyOptions.SSLCert)
 				assert.Equal(t, tc.stored.SSLKey, agent.ValkeyOptions.SSLKey)
 
-				agent, err = models.ChangeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{ValkeyOptions: &tc.repair})
+				agent, err = changeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{ValkeyOptions: &tc.repair})
 				require.NoError(t, err)
 				assert.Equal(t, "cert-pem", agent.ValkeyOptions.SSLCert)
 				assert.Equal(t, "key-pem", agent.ValkeyOptions.SSLKey)
