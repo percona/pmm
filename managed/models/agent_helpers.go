@@ -54,7 +54,7 @@ func environmentVariableNamesError(err error) error {
 }
 
 // MySQLOptionsParams contains methods to create MySQLOptions object.
-type MySQLOptionsParams interface { //nolint:iface
+type MySQLOptionsParams interface {
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
@@ -84,7 +84,7 @@ func MySQLOptionsFromRequest(params MySQLOptionsParams) (MySQLOptions, error) {
 }
 
 // PostgreSQLOptionsParams contains methods to create PostgreSQLOptions object.
-type PostgreSQLOptionsParams interface { //nolint:iface
+type PostgreSQLOptionsParams interface {
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
