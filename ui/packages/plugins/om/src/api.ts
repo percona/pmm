@@ -34,7 +34,11 @@
  *   `EmitUnpopulated`, and `types.ts` describes exactly that shape.
  */
 
-import type { OmTopologyRunStatus } from './types';
+import type {
+  OmBootstrapHost,
+  OmGetBootstrapRunResponse,
+  OmTopologyRunStatus,
+} from './types';
 
 const OM_BASE = '/v1/om';
 
@@ -96,4 +100,29 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
  */
 export function isRunActive(status: OmTopologyRunStatus | undefined): boolean {
   return status === 'RUN_STATUS_RUNNING';
+}
+
+export function isBootstrapRunActive(
+  run: Pick<OmGetBootstrapRunResponse, 'status' | 'hosts'> | undefined
+): boolean {
+  if (!run) {
+    return false;
+  }
+  if (run.status === 'running') {
+    return true;
+  }
+  if (run.status !== 'succeeded') {
+    return false;
+  }
+  return run.hosts.some((host) =>
+    host.finalize_steps.some(
+      (step) =>
+        step.name === 'confirm_monitoring' &&
+        (step.status === 'running' || step.status === 'pending')
+    )
+  );
+}
+
+export function isHostRollingBack(host: OmBootstrapHost): boolean {
+  return host.rollback_steps.some((step) => step.status !== 'pending');
 }
