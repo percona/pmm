@@ -34,6 +34,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
+	"github.com/percona/pmm/utils/envvars"
 	"github.com/percona/pmm/version"
 )
 
@@ -471,11 +472,19 @@ func (a *Agent) GetEnvironmentVariableNames() ([]string, error) {
 	return names, nil
 }
 
-// SetEnvironmentVariableNames encodes shared environment variable names.
+// SetEnvironmentVariableNames encodes shared environment variable names. Names already stored
+// (e.g. from before this validation existed, or under since-tightened rules) are carried forward
+// as-is: this is a full-replace field, so a caller resending an existing name alongside a new one
+// must not be rejected because of a name it did not intend to change.
 func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 	if len(names) == 0 {
 		a.EnvironmentVariables = nil
 		return nil
+	}
+
+	names, err := envvars.NormalizeNamesAllowing(names, a.GrandfatheredEnvironmentVariableNames())
+	if err != nil {
+		return err
 	}
 
 	b, err := json.Marshal(names)
@@ -484,6 +493,37 @@ func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 	}
 	a.EnvironmentVariables = b
 	return nil
+}
+
+// GrandfatheredEnvironmentVariableNames returns the agent's currently-stored environment variable
+// names as the set the grandfathering checks compare against, normalized the same way
+// NormalizeNamesAllowing normalizes its input. Callers that use it to decide whether an update is
+// allowed must read the agent within the same transaction as that update, so the names it
+// grandfathers cannot go stale before the update applies them.
+//
+// Two stored values yield no grandfathering rather than an error. A column that cannot be decoded
+// holds nothing worth carrying forward, and failing here would make the row permanently unwritable:
+// every non-empty update would be rejected, contradicting the repair path ToAPIAgent documents. An
+// empty or whitespace-only entry is skipped for a related reason — grandfathering it would let the
+// empty string be written back for good, and pmm-agent can only skip it and warn on every state
+// update. Neither can be fixed by the caller, so neither is reported to them.
+func (a *Agent) GrandfatheredEnvironmentVariableNames() map[string]struct{} {
+	existing, err := a.GetEnvironmentVariableNames()
+	if err != nil {
+		return nil
+	}
+
+	grandfathered := make(map[string]struct{}, len(existing))
+	for _, name := range existing {
+		name = strings.TrimSpace(name)
+		if name == "" {
+			continue
+		}
+
+		grandfathered[name] = struct{}{}
+	}
+
+	return grandfathered
 }
 
 // GetAgentPassword returns agent password, if it is empty then agent ID.
