@@ -106,6 +106,7 @@ linters:
           - funlen           # tests may be long
           - gocognit         # triggered by subtests
           - gosec            # not critical, too many things to disable
+          - gosmopolitan     # tests use non-Latin data and local time on purpose
           - ireturn          # we have exceptions, so need to silence them in tests
           - lll              # tests often require long lines
           - maintidx         # not critical for tests
