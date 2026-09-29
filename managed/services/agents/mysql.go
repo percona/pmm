@@ -189,8 +189,10 @@ func mysqldExporterConfig(
 	return res, nil
 }
 
-// dbExporterDialTimeout returns the dial timeout of mysqld_exporter and postgres_exporter.
-// Unless set explicitly, databases on RDS and Azure get cloudDialTimeout.
+// dbExporterDialTimeout returns the dial timeout of mysqld_exporter and postgres_exporter, used by both the
+// exporter process and its connection check. An explicit timeout wins; otherwise Services on RDS and Azure Nodes
+// get cloudDialTimeout, and all others (or a nil serviceNode) the regular default. The result is rounded up to
+// whole seconds.
 func dbExporterDialTimeout(serviceNode *models.Node, exporter *models.Agent) time.Duration {
 	timeout := exporter.EffectiveDialTimeout()
 	if exporter.ExporterOptions.ConnectionTimeout == nil && serviceNode != nil &&

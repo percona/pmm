@@ -129,13 +129,15 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 
 	pmmAgentVersion := models.ExtractPmmAgentVersionFromAgent(q, agent)
 	var node *models.Node
+	// Only dbExporterDialTimeout uses the Service's Node, to pick the RDS/Azure default,
+	// so an explicit timeout makes the lookup unnecessary.
 	if (agent.AgentType == models.MySQLdExporterType || agent.AgentType == models.PostgresExporterType) &&
 		agent.ExporterOptions.ConnectionTimeout == nil &&
 		service.NodeID != "" {
 		var err error
 		node, err = models.FindNodeByID(q, service.NodeID)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get Node: %w", err)
+			return nil, fmt.Errorf("failed to get Node %s of Service %s: %w", service.NodeID, service.ServiceID, err)
 		}
 	}
 	dialTimeout := connectionCheckDialTimeout(node, agent)

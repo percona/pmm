@@ -46,6 +46,7 @@ func TestConnectionRequestUsesExporterConnectionTimeout(t *testing.T) {
 	connectionTimeout := 7 * time.Second
 	service := &models.Service{
 		ServiceType:  models.MySQLServiceType,
+		NodeID:       "node-id",
 		Address:      new("127.0.0.1"),
 		Port:         new(uint16(3306)),
 		DatabaseName: "mysql",
