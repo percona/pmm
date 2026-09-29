@@ -832,9 +832,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		interval = req.Interval.AsDuration().String()
 	}
 
-	// The registry row is written before the rule exists in Grafana. The other order
-	// would leave a rule whose thresholds cannot be overridden and whose row may never
-	// arrive; this order can only leave an orphaned row, which the reconciler reaps.
+	// Registered first and kept on failure: a lost response may hide a rule that exists.
 	if ruleID != "" {
 		err = s.db.InTransaction(func(tx *reform.TX) error {
 			_, err := models.CreateAlertRule(tx.Querier, &models.CreateAlertRuleParams{
@@ -851,29 +849,10 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 
 	err = s.grafanaClient.CreateAlertRule(ctx, req.FolderUid, req.Group, interval, &rule)
 	if err != nil {
-		// Best effort: a lost response drops the registry row of a rule that exists.
-		s.deleteRuleRegistration(ruleID)
-
 		return nil, err
 	}
 
 	return &alerting.CreateRuleResponse{RuleId: ruleID}, nil
-}
-
-// deleteRuleRegistration removes a registry row whose Grafana rule was never created.
-// Failure is logged rather than returned: the caller is already reporting the original
-// error, and a row left behind is reaped by the reconciler.
-func (s *Service) deleteRuleRegistration(ruleID string) {
-	if ruleID == "" {
-		return
-	}
-
-	err := s.db.InTransaction(func(tx *reform.TX) error {
-		return models.DeleteAlertRule(tx.Querier, ruleID)
-	})
-	if err != nil {
-		s.l.WithError(err).WithField("rule_id", ruleID).Warn("Failed to roll back alert rule registration")
-	}
 }
 
 // collectOverridableParams snapshots what an overridable parameter needs in order to be

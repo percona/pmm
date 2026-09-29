@@ -223,10 +223,7 @@ func TestCreateRuleRegistersOverridableRule(t *testing.T) {
 		assert.Len(t, after, len(before), "no registry row should have been written")
 	})
 
-	// TestCreateRule writes the registry row before creating the rule in Grafana, so a
-	// Grafana failure must not leave the row behind. The other ordering would be worse -
-	// a rule whose thresholds can never be overridden - but this one still has to clean up.
-	t.Run("a Grafana failure rolls the registry row back", func(t *testing.T) {
+	t.Run("a Grafana failure keeps the registry row", func(t *testing.T) {
 		svc, m := setup(t)
 		m.On("GetDatasourceUIDByName", mock.Anything, "Metrics").Return("metrics-uid", nil)
 		m.On("CreateAlertRule", mock.Anything, "folder-uid", "test-group", mock.Anything, mock.Anything).
@@ -240,7 +237,7 @@ func TestCreateRuleRegistersOverridableRule(t *testing.T) {
 
 		after, err := models.FindAlertRules(db.Querier)
 		require.NoError(t, err)
-		assert.Len(t, after, len(before), "the registry row must not outlive the failed creation")
+		assert.Len(t, after, len(before)+1, "a failed response may hide a rule that exists, so the row stays for the sweep")
 	})
 }
 
