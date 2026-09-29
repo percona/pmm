@@ -4684,7 +4684,7 @@
                 },
                 "definition": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\"}, set)",
                 "includeAll": true,
-                "label": "Replica Set",
+                "label": "Shard / Replica Set",
                 "multi": true,
                 "name": "set",
                 "options": [],
