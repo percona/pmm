@@ -459,14 +459,14 @@ func TestConvertReadOnlySettings(t *testing.T) {
 	s := &Server{}
 
 	t.Run("reports PMM Extensions as enabled when the process was started with it", func(t *testing.T) {
-		t.Setenv(pkgenv.EnableExtensions, "1")
+		t.Setenv(env.EnableExtensions, "1")
 
 		assert.True(t, s.convertReadOnlySettings(&models.Settings{}).ExtensionsEnabled)
 	})
 
 	t.Run("reports PMM Extensions as disabled when the variable is absent", func(t *testing.T) {
-		t.Setenv(pkgenv.EnableExtensions, "")
-		os.Unsetenv(pkgenv.EnableExtensions)
+		t.Setenv(env.EnableExtensions, "")
+		os.Unsetenv(env.EnableExtensions)
 
 		assert.False(t, s.convertReadOnlySettings(&models.Settings{}).ExtensionsEnabled)
 	})
