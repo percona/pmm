@@ -68,6 +68,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - PMM_DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
 //   - PMM_ENABLE_ACCESS_CONTROL enables Access control;
+//   - PMM_ENABLE_OM enables OpenManager;
 //   - the environment variables prefixed with GF_ are related to Grafana.
 //   - the environment variables prefixed with VMAGENT_ are forwarded to every vmagent PMM Server manages;
 //     VMAGENT_remoteWrite_url is validated by checkVMAgentRemoteWriteOverride.
@@ -131,6 +132,15 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			// PMM_ENABLE_EXTENSIONS is not a stored setting: it describes how this
 			// process was started, so it is read from the environment by
 			// env.ExtensionsEnabled instead of being persisted here.
+			continue
+		case "PMM_EXTENSIONS_URL", "PMM_EXTENSIONS_TOKEN":
+			// skip the env variables that are already handled by kingpin, as the
+			// Envar() backing --extensions-url and --extensions-token.
+			//
+			// Not merely noise: the warning below prints the whole KEY=VALUE, so
+			// leaving PMM_EXTENSIONS_TOKEN to reach it writes the bearer pmm-managed
+			// authenticates to PMM Extensions with into the server log in clear text, on
+			// every start of every deployment that sets it.
 			continue
 		case "PERCONA_TELEMETRY_DISABLE":
 			// skip the Pillars telemetry environment variable
@@ -213,6 +223,14 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 			envSettings.EnableBackupManagement = &b
+
+		case "PMM_ENABLE_OM":
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
+			}
+			envSettings.EnableOM = &b
 
 		case "PMM_ENABLE_NOMAD":
 			b, err := strconv.ParseBool(v)

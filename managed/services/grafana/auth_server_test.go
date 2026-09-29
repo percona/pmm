@@ -76,6 +76,43 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPut, "/v1/alerting/templates/foo", editor},    // UpdateTemplate
 		{http.MethodDelete, "/v1/alerting/templates/foo", editor}, // DeleteTemplate
 		{http.MethodPost, "/v1/alerting/rules", editor},           // CreateRule
+
+		// OM: reading the estate is a viewer's, changing it is not. Asserted per path
+		// rather than trusted, because whether a write rule applies depends on how
+		// resolveRule walks prefixes, and that is not obvious from the rule table. It
+		// tries methodRules then rules at each prefix, and nextPrefix strips a trailing
+		// "/" as its own step -- so "/v1/om/inventory/hosts/" and
+		// "/v1/om/inventory/hosts" both catch a DELETE of an id under them. What would
+		// silently fall through to the viewer rule at "/v1/om" is a write path with no
+		// rule at all.
+		{http.MethodGet, "/v1/om/topology", viewer},
+		{http.MethodGet, "/v1/om/inventory/hosts", viewer},
+		{http.MethodGet, "/v1/om/inventory/hosts/node-1", viewer},
+		{http.MethodGet, "/v1/om/inventory/services", viewer},
+		{http.MethodGet, "/v1/om/inventory/config", viewer},
+		{http.MethodPost, "/v1/om/inventory/runs:trigger", editor},
+		{http.MethodDelete, "/v1/om/inventory/hosts/node-1", admin},
+		{http.MethodDelete, "/v1/om/inventory/services/svc-1", admin},
+		{http.MethodPut, "/v1/om/inventory/config", admin},
+		{http.MethodDelete, "/v1/om/inventory/config/overrides/SCHEDULE__every", admin},
+		// The backstop: no such route today, but a DELETE under an app's configuration
+		// must not degrade to the viewer rule at "/v1/om" if one is ever added.
+		{http.MethodDelete, "/v1/om/inventory/config/anything-else", admin},
+		// PMM's own collection pass stays viewer: it recomputes a document from data PMM
+		// already holds and never reaches a host.
+		{http.MethodPost, "/v1/om/topology/runs:collect", viewer},
+
+		// The same surface over gRPC. methodRules cannot reach these -- a gRPC method
+		// name carries no HTTP verb -- so without exact entries every one of them walks
+		// past the write rules and lands on the viewer rule at "/om.".
+		{http.MethodPost, "/om.v1.OmService/GetTopology", viewer},
+		{http.MethodPost, "/om.v1.OmService/ListInventoryHosts", viewer},
+		{http.MethodPost, "/om.v1.OmService/TriggerInventoryRefresh", editor},
+		{http.MethodPost, "/om.v1.OmService/DeleteInventoryHost", admin},
+		{http.MethodPost, "/om.v1.OmService/DeleteInventoryService", admin},
+		{http.MethodPost, "/om.v1.OmService/UpdateInventoryConfig", admin},
+		{http.MethodPost, "/om.v1.OmService/DeleteInventoryConfigOverride", admin},
+
 		// No matching rule falls back to grafanaAdmin.
 		{http.MethodGet, "/v1/unknown", grafanaAdmin},
 	} {

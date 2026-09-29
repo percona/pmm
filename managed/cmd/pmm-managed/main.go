@@ -73,6 +73,7 @@ import (
 	hav1beta1 "github.com/percona/pmm/api/ha/v1beta1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
+	omv1 "github.com/percona/pmm/api/om/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
@@ -95,6 +96,7 @@ import (
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/nomad"
+	"github.com/percona/pmm/managed/services/om"
 	"github.com/percona/pmm/managed/services/qan"
 	"github.com/percona/pmm/managed/services/realtimeanalytics"
 	"github.com/percona/pmm/managed/services/scheduler"
@@ -235,6 +237,10 @@ type gRPCServerDeps struct {
 	vmdb                      *victoriametrics.Service
 	vmalert                   *vmalert.Service
 	internalNodePrefixes      []string
+
+	// Built in main so its collection timer can be registered as an HA leader service.
+	// runGRPCServer only exposes it.
+	omService *om.Service
 }
 
 // parseNodeNamePrefixes splits a comma-separated list of Node name prefixes.
@@ -339,6 +345,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
 	hav1beta1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
+
+	omv1.RegisterOmServiceServer(gRPCServer, deps.omService)
 
 	// Register RTA service with in-memory store
 	rtaStore := realtimeanalytics.NewStore()
@@ -446,6 +454,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		backupv1.RegisterRestoreServiceHandler,
 
 		dumpv1beta1.RegisterDumpServiceHandler,
+
+		omv1.RegisterOmServiceHandler,
 
 		rtav1.RegisterRealtimeAnalyticsServiceHandler,
 
@@ -693,6 +703,16 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	kingpin.Version(version.FullInfo())
 	kingpin.HelpFlag.Short('h')
+
+	// Where PMM Extensions is, not where any one of its apps is: OM's on-host facts come from
+	// the om_inventory app today and the actions apps will come from the same side-car, so
+	// each consumer appends its own /api/apps/<module> path. Optional -- with no URL
+	// the probe source reports itself disabled and the document is built from PMM's own
+	// inventory and metrics alone.
+	extensionsURLF := kingpin.Flag("extensions-url", "Base URL of the PMM Extensions API, e.g. http://127.0.0.1:8000").
+		Envar("PMM_EXTENSIONS_URL").String()
+	extensionsTokenF := kingpin.Flag("extensions-token", "Bearer token for the PMM Extensions API").
+		Envar("PMM_EXTENSIONS_TOKEN").String()
 
 	victoriaMetricsURLF := kingpin.Flag("victoriametrics-url", "VictoriaMetrics base URL").Envar("PMM_VM_URL").
 		Default(models.VMBaseURL).String()
@@ -1078,6 +1098,18 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		VMURL:         *victoriaMetricsURLF,
 	})
 
+	// Where PMM Extensions is, optional. Empty means OM builds its document from PMM's own inventory
+	// and metrics alone and records the probe source as disabled.
+	//
+	// Constructed here, ahead of serverParams below, so server.Server can hold it for the
+	// OpenManager enable/disable switch (Enabled gate, IsAvailable check).
+	omService := om.New(db, v1.NewAPI(vmClient), haService, logrus.WithField("component", "om"))
+	omService.WithProbeSource(*extensionsURLF, *extensionsTokenF)
+	omService.WithBootstrapSource(*extensionsURLF, *extensionsTokenF)
+	omService.WithAgentRegistry(agentsRegistry)
+	omService.WithStateUpdater(agentsStateUpdater)
+	prom.MustRegister(om.NewMetricsCollector(omService))
+
 	serverParams := &server.Params{
 		DB:                   db,
 		VMDB:                 vmdb,
@@ -1094,6 +1126,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		HAService:            haService,
 		Nomad:                nomad,
 		QANClient:            qanClient,
+		OmService:            omService,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -1206,6 +1239,25 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		return nil
 	}))
 
+	// Leader-only, like every other periodic writer here. A collection persists a run and
+	// its snapshot and then prunes the shared history, so running it on every node of an
+	// HA cluster would have each node writing runs and pruning the others' -- and the
+	// pruning is what makes that destructive rather than merely wasteful.
+	haService.AddLeaderService(ha.NewContextService("om", func(ctx context.Context) error {
+		omService.Run(ctx)
+		return nil
+	}))
+
+	// Leader-only, same reasoning as "om" above: two leaders driving the same
+	// bootstrap run would double-dispatch every step. Registered separately from
+	// "om" itself (rather than folded into Service.Run's own ticker) since the two
+	// run on independent cadences and neither's failure should stop the other --
+	// see PMM-15347/plan.md §4 item 9 for the state-machine split this implements.
+	haService.AddLeaderService(ha.NewContextService("om-bootstrap-stepper", func(ctx context.Context) error {
+		omService.RunBootstrapStepper(ctx)
+		return nil
+	}))
+
 	wg.Go(func() {
 		runGRPCServer(ctx,
 			&gRPCServerDeps{
@@ -1238,6 +1290,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				templatesService:          alertingService,
 				versionCache:              versionCache,
 				vmalert:                   vmalert,
+				omService:                 omService,
 				vmClient:                  &vmClient,
 				vmdb:                      vmdb,
 			})

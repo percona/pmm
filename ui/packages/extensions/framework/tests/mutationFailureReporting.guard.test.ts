@@ -81,6 +81,18 @@ const REPORTS_ITS_OWN_WAY: Record<string, string> = {
     'in-dialog alert reading the mutation error',
   'plugins/atw/src/IncidentListPage.tsx':
     'inline alert reading the incident-action error',
+  'plugins/om/src/HostsPage.tsx':
+    'inline Alert rendering the forget and refresh mutation errors',
+  'plugins/om/src/components/ConfigForm.tsx':
+    'inline Alert rendering the update and reset mutation errors',
+  'plugins/om/src/components/SyncButton.tsx':
+    'inline Typography rendering the trigger mutation error beside the button',
+  'plugins/om/src/inventoryHooks.ts':
+    'exposes mutation error state, rendered as inline Alerts by HostsPage.tsx and ConfigForm.tsx',
+  'plugins/om/src/BootstrapPage.tsx':
+    'inline Alert on the Review step rendering the trigger mutation error',
+  'plugins/om/src/components/RunProgress.tsx':
+    'in-dialog Alert rendering the abort mutation error, above the button that fired it',
 };
 
 const MUTATION_CALL = /\.(mutate|mutateAsync)\s*\(/;

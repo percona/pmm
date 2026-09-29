@@ -24,6 +24,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -81,6 +82,15 @@ var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 			{Name: "mongo_options", CustomEncryptHandler: EncryptMongoDBOptionsHandler, CustomDecryptHandler: DecryptMongoDBOptionsHandler},
 			{Name: "mysql_options", CustomEncryptHandler: EncryptMySQLOptionsHandler, CustomDecryptHandler: DecryptMySQLOptionsHandler},
 			{Name: "postgresql_options", CustomEncryptHandler: EncryptPostgreSQLOptionsHandler, CustomDecryptHandler: DecryptPostgreSQLOptionsHandler},
+		},
+	},
+	{
+		Name:        "om_bootstrap_secrets",
+		Identifiers: []string{"run_id"},
+		Columns: []encryption.Column{
+			{Name: "mongodb_username"},
+			{Name: "mongodb_password"},
+			{Name: "key_file"},
 		},
 	},
 }
@@ -1198,6 +1208,67 @@ var databaseSchema = [][]string{
 			WHERE environment_variables IS NOT NULL
 			AND agent_type <> 'mongodb_exporter'`,
 	},
+	120: {
+		// OM (OpenManager) topology collection: one row per pass, and the
+		// topology document it produced.
+		`CREATE TABLE om_topology_runs (
+			run_id            VARCHAR PRIMARY KEY,
+			started_at        TIMESTAMP NOT NULL,
+			finished_at       TIMESTAMP,
+			status            VARCHAR NOT NULL,
+			services_total    INTEGER NOT NULL DEFAULT 0,
+			services_resolved INTEGER NOT NULL DEFAULT 0,
+			services_orphaned INTEGER NOT NULL DEFAULT 0,
+			probes_ok         INTEGER NOT NULL DEFAULT 0,
+			services_stale    INTEGER NOT NULL DEFAULT 0,
+			origin_node       VARCHAR NOT NULL DEFAULT '',
+			sources           JSONB,
+			errors            JSONB,
+			created_at        TIMESTAMP NOT NULL
+		)`,
+		`CREATE INDEX om_topology_runs_started_at_idx ON om_topology_runs (started_at DESC)`,
+
+		// The document is JSONB rather than a relational tree because the topology model
+		// is still moving; schema_version is what a reader checks. It is deleted with its
+		// run, which is what bounds retention.
+		`CREATE TABLE om_topology_snapshots (
+			run_id         VARCHAR PRIMARY KEY REFERENCES om_topology_runs (run_id) ON DELETE CASCADE,
+			generated_at   TIMESTAMP NOT NULL,
+			observed_at    TIMESTAMP,
+			stale          BOOLEAN NOT NULL DEFAULT false,
+			schema_version INTEGER NOT NULL,
+			document       JSONB NOT NULL,
+			created_at     TIMESTAMP NOT NULL
+		)`,
+		`CREATE INDEX om_topology_snapshots_generated_at_idx ON om_topology_snapshots (generated_at DESC)`,
+	},
+	121: {
+		// PMM-15347's om_bootstrap stepper's one generated MongoDB user and shared
+		// keyFile for one PMM Extensions bootstrap run, encrypted at rest -- see
+		// OmBootstrapSecret's own doc comment for why this survives independently
+		// of PMM Extensions' own run state.
+		`CREATE TABLE om_bootstrap_secrets (
+			run_id           VARCHAR PRIMARY KEY,
+			mongodb_username VARCHAR NOT NULL,
+			mongodb_password VARCHAR NOT NULL,
+			key_file         VARCHAR NOT NULL,
+			created_at       TIMESTAMP NOT NULL
+		)`,
+	},
+	122: {
+		// PMM's own record of a bootstrap run: the environment and cluster it was
+		// triggered with, and when PMM finished registering its hosts -- see
+		// OmBootstrapRunConfig's own doc comment for why these live in PMM's own
+		// database rather than round-tripping through PMM Extensions, which has no use for
+		// them.
+		`CREATE TABLE om_bootstrap_run_configs (
+			run_id        VARCHAR PRIMARY KEY,
+			environment   VARCHAR NOT NULL,
+			cluster       VARCHAR NOT NULL,
+			created_at    TIMESTAMP NOT NULL,
+			registered_at TIMESTAMP
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
@@ -1325,6 +1396,29 @@ func DecryptDB(tx *reform.TX, database string, itemsToEncrypt []encryption.Table
 	return dbEncryption(tx, database, itemsToEncrypt, encryption.DecryptItems, false)
 }
 
+// recordedEncryptedItems returns what Settings.EncryptedItems has to say after a pass
+// that just encrypted (or decrypted) changed, given what it said before.
+//
+// The recorded set describes every encrypted column in the database, not the ones the
+// last pass happened to touch, and UpdateSettings replaces EncryptedItems rather than
+// merging it. Only the columns whose state differs from the one being applied are ever
+// prepared, so writing that list on its own drops everything an earlier pass
+// encrypted. Until a second table was added, every pass on a fresh database prepared
+// the whole set and the difference never showed; on an upgrade, the agents.* columns
+// were already recorded, so the write left only the new table's columns behind. The
+// next start then found agents.* unrecorded and encrypted the ciphertext again, one
+// layer per restart, until the application read back ciphertext it could not decrypt.
+func recordedEncryptedItems(recorded, changed []string, encrypting bool) []string {
+	items := make([]string, 0, len(recorded)+len(changed))
+	items = append(items, recorded...)
+	if encrypting {
+		return append(items, changed...)
+	}
+	return slices.DeleteFunc(items, func(item string) bool {
+		return slices.Contains(changed, item)
+	})
+}
+
 func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 	encryptionHandler func(tx *reform.TX, tables []encryption.Table) error,
 	expectedState bool,
@@ -1371,13 +1465,8 @@ func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 		return err
 	}
 
-	encryptedItems := []string{}
-	if expectedState {
-		encryptedItems = prepared
-	}
-
 	_, err = UpdateSettings(tx, &ChangeSettingsParams{
-		EncryptedItems: encryptedItems,
+		EncryptedItems: recordedEncryptedItems(settings.EncryptedItems, prepared, expectedState),
 	})
 	if err != nil {
 		return err
