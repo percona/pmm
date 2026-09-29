@@ -1962,7 +1962,7 @@
                         {
                             "targetBlank": true,
                             "title": "MongoDB ReplSet Summary - ${__series.name}",
-                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?var-replset=${__series.name}&$__url_time_range"
+                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?var-cluster=${cluster}&var-rs_nm=${__series.name}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
