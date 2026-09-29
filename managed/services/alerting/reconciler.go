@@ -95,6 +95,13 @@ func (s *Service) ReconcileAlertRules(ctx context.Context) error {
 		return err
 	}
 
+	// An empty list is far likelier a bad reply than a server with no PMM rules left.
+	if len(live) == 0 {
+		s.l.Warn("Grafana reported no PMM alert rules, skipping the registry sweep")
+
+		return nil
+	}
+
 	cutoff := models.Now().Add(-reconcileGracePeriod)
 
 	var reaped []string
@@ -129,7 +136,7 @@ func (s *Service) ReconcileAlertRules(ctx context.Context) error {
 		// Worth a log line: this deletes override configuration a user set by hand, so
 		// it should be explainable after the fact.
 		s.l.WithField("rule_ids", reaped).
-			Infof("Reaped %d alert rule registry rows whose rules no longer exist", len(reaped))
+			Warnf("Reaped %d alert rule registry rows whose rules no longer exist", len(reaped))
 	}
 
 	return nil

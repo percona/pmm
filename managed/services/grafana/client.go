@@ -797,6 +797,12 @@ func (c *Client) ListPMMRuleIDs(ctx context.Context) (map[string]struct{}, error
 		return nil, err
 	}
 
+	// do skips decoding an empty body, which must not read as "no rules": the sweep
+	// deletes whatever this omits.
+	if folders == nil {
+		return nil, errors.New("empty ruler response")
+	}
+
 	ids := make(map[string]struct{})
 	for _, groups := range folders {
 		for _, group := range groups {

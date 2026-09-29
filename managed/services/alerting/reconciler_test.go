@@ -71,7 +71,7 @@ func TestReconcileAlertRules(t *testing.T) {
 		svc, m, db := setupReconciler(t)
 		createRegistryRow(t, db, "gone-rule", time.Hour)
 
-		m.On("ListPMMRuleIDs", mock.Anything).Return(map[string]struct{}{}, nil)
+		m.On("ListPMMRuleIDs", mock.Anything).Return(map[string]struct{}{"other-rule": {}}, nil)
 
 		require.NoError(t, svc.ReconcileAlertRules(ctx))
 
@@ -102,7 +102,7 @@ func TestReconcileAlertRules(t *testing.T) {
 		svc, m, db := setupReconciler(t)
 		createRegistryRow(t, db, "just-created", time.Minute)
 
-		m.On("ListPMMRuleIDs", mock.Anything).Return(map[string]struct{}{}, nil)
+		m.On("ListPMMRuleIDs", mock.Anything).Return(map[string]struct{}{"other-rule": {}}, nil)
 
 		require.NoError(t, svc.ReconcileAlertRules(ctx))
 
@@ -119,13 +119,26 @@ func TestReconcileAlertRules(t *testing.T) {
 			models.ThresholdScopeNode, "node-id-1", 90)
 		require.NoError(t, err)
 
-		m.On("ListPMMRuleIDs", mock.Anything).Return(map[string]struct{}{}, nil)
+		m.On("ListPMMRuleIDs", mock.Anything).Return(map[string]struct{}{"other-rule": {}}, nil)
 
 		require.NoError(t, svc.ReconcileAlertRules(ctx))
 
 		overrides, err := models.FindAllThresholdOverrides(db.Querier)
 		require.NoError(t, err)
 		assert.Empty(t, overrides, "the foreign key cascade should have removed them")
+	})
+
+	t.Run("an empty rule list deletes nothing", func(t *testing.T) {
+		svc, m, db := setupReconciler(t)
+		createRegistryRow(t, db, "some-rule", time.Hour)
+
+		m.On("ListPMMRuleIDs", mock.Anything).Return(map[string]struct{}{}, nil)
+
+		require.NoError(t, svc.ReconcileAlertRules(ctx))
+
+		rules, err := models.FindAlertRules(db.Querier)
+		require.NoError(t, err)
+		require.Len(t, rules, 1)
 	})
 
 	// A failed lookup must not be read as "Grafana has no rules", which would reap the
@@ -167,7 +180,7 @@ func TestMaybeReconcile(t *testing.T) {
 		createRegistryRow(t, db, "gone-rule", time.Hour)
 
 		reqCtx, cancel := context.WithCancel(t.Context())
-		m.On("ListPMMRuleIDs", mock.Anything).Return(map[string]struct{}{}, nil)
+		m.On("ListPMMRuleIDs", mock.Anything).Return(map[string]struct{}{"other-rule": {}}, nil)
 
 		svc.maybeReconcile(incomingCtx(reqCtx))
 		// The triggering request finishes and cancels its own context immediately - the

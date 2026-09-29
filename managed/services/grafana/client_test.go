@@ -858,6 +858,15 @@ func TestListPMMRuleIDs(t *testing.T) {
 		assert.Empty(t, ids)
 	})
 
+	t.Run("an empty body is an error, not an empty Grafana", func(t *testing.T) {
+		t.Parallel()
+
+		c, ctx := newClient(t, ``)
+
+		_, err := c.ListPMMRuleIDs(ctx)
+		require.Error(t, err)
+	})
+
 	t.Run("an unauthenticated context never reaches Grafana", func(t *testing.T) {
 		t.Parallel()
 
