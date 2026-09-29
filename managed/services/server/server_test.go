@@ -17,7 +17,6 @@ package server
 
 import (
 	"context"
-	"errors"
 	"math"
 	"os"
 	"testing"
@@ -180,7 +179,7 @@ func TestServer(t *testing.T) {
 			})
 			require.Len(t, errs, 1)
 			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(errs[0], &errInvalidArgument))
+			require.ErrorAs(t, errs[0], &errInvalidArgument)
 			require.EqualError(t, errs[0], `invalid argument: hr: minimal resolution is 1s`)
 			assert.Zero(t, s.envSettings.MetricsResolutions.HR)
 		})
@@ -192,7 +191,7 @@ func TestServer(t *testing.T) {
 			})
 			require.Len(t, errs, 1)
 			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(errs[0], &errInvalidArgument))
+			require.ErrorAs(t, errs[0], &errInvalidArgument)
 			require.EqualError(t, errs[0], `invalid argument: data_retention: minimal resolution is 24h`)
 			assert.Zero(t, s.envSettings.DataRetention)
 		})
@@ -204,7 +203,7 @@ func TestServer(t *testing.T) {
 			})
 			require.Len(t, errs, 1)
 			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(errs[0], &errInvalidArgument))
+			require.ErrorAs(t, errs[0], &errInvalidArgument)
 			require.EqualError(t, errs[0], `invalid argument: data_retention: should be a natural number of days`)
 			assert.Zero(t, s.envSettings.DataRetention)
 		})

@@ -41,7 +41,7 @@ const (
 // RTAChannel encapsulates client-streaming gRPC stream from pmm-agent to pmm-managed.
 //
 // All exported methods are thread-safe.
-type RTAChannel struct { //nolint:maligned
+type RTAChannel struct {
 	s rtav1.CollectorService_CollectClient
 	l *logrus.Entry
 
