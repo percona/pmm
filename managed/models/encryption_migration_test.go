@@ -451,3 +451,63 @@ func TestMigrateEncryptionBackup(t *testing.T) {
 	require.NoError(t, err)
 	assert.Len(t, files, 1)
 }
+
+// TestMigrateEncryptionAfterOlderVersion covers PMM before the envelope
+// format started against an upgraded database: settings no longer list the
+// encrypted columns, so its startup wraps every envelope in a legacy layer.
+// The next migration must restore single envelopes of the original secrets.
+func TestMigrateEncryptionAfterOlderVersion(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+
+	cipher, err := encryption.DefaultCipher()
+	require.NoError(t, err)
+	olderVersionLayer := func(plaintext string) string {
+		envelope, err := cipher.Encrypt(plaintext)
+		require.NoError(t, err)
+		wrapped, err := cipher.Encrypt(envelope)
+		require.NoError(t, err)
+		return strings.TrimPrefix(wrapped, encryption.EnvelopePrefix)
+	}
+
+	const tlsKey = "-----BEGIN PRIVATE KEY-----\nkey\n-----END PRIVATE KEY-----\n"
+	mysqlOptions, err := json.Marshal(map[string]any{"tls_key": olderVersionLayer(tlsKey)})
+	require.NoError(t, err)
+
+	now := time.Now()
+	_, err = sqlDB.ExecContext(t.Context(),
+		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
+			"VALUES ('N1', 'generic', 'name', '', '', '', '', $1, $2)", now, now)
+	require.NoError(t, err)
+	//nolint:dupword
+	_, err = sqlDB.ExecContext(t.Context(),
+		`INSERT INTO agents (agent_id, agent_type, password, runs_on_node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, mysql_options) `+
+			`VALUES ('A1', 'pmm-agent', $1, 'N1', false, '', $2, $3, false, false, $4)`,
+		olderVersionLayer("password"), now, now, string(mysqlOptions))
+	require.NoError(t, err)
+
+	require.NoError(t, models.MigrateEncryption(q))
+
+	agent, err := models.FindAgentByID(q, "A1")
+	require.NoError(t, err)
+	assert.Equal(t, "password", agent.Password.Reveal())
+	assert.Equal(t, tlsKey, agent.MySQLOptions.TLSKey)
+
+	// stored values are single envelopes again: nothing left to rewrite
+	var password, rawOptions string
+	require.NoError(t, sqlDB.QueryRowContext(t.Context(), `SELECT password, mysql_options FROM agents WHERE agent_id = 'A1'`).Scan(&password, &rawOptions))
+	var stored models.MySQLOptions
+	require.NoError(t, json.Unmarshal([]byte(rawOptions), &stored))
+	for _, v := range []string{password, stored.TLSKey} {
+		insp, err := cipher.Inspect(v)
+		require.NoError(t, err)
+		assert.Zero(t, insp.ExtraLayers)
+		assert.True(t, encryption.IsEncrypted(v))
+	}
+	ids, err := models.AgentsNeedingReencryption(q, cipher)
+	require.NoError(t, err)
+	assert.Empty(t, ids)
+}

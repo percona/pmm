@@ -298,19 +298,21 @@ func (c *Cipher) decrypt(stored string) (string, int, error) {
 	v := stored
 	layers := 0
 	if IsEncrypted(stored) {
-		ciphertext, err := unwrapEnvelope(stored)
+		plaintext, err := c.openEnvelope(stored)
 		if err != nil {
 			return "", 0, err
 		}
-		plaintext, err := c.primitive.Decrypt(ciphertext, nil)
-		if err != nil {
-			return "", 0, fmt.Errorf("decryption failed: %w", err)
-		}
-		v = string(plaintext)
+		v = plaintext
 		layers = 1
 	}
 
 	for layers < maxLegacyLayers {
+		if plaintext, ok := c.innerEnvelope(v, layers); ok {
+			v = plaintext
+			layers++
+			continue
+		}
+
 		ciphertext, keyID, ok := legacyCiphertext(v)
 		if !ok {
 			break
@@ -342,6 +344,33 @@ func (c *Cipher) decrypt(stored string) (string, int, error) {
 	}
 
 	return v, layers, nil
+}
+
+// openEnvelope decrypts a value in the envelope format.
+func (c *Cipher) openEnvelope(stored string) (string, error) {
+	ciphertext, err := unwrapEnvelope(stored)
+	if err != nil {
+		return "", err
+	}
+	plaintext, err := c.primitive.Decrypt(ciphertext, nil)
+	if err != nil {
+		return "", fmt.Errorf("decryption failed: %w", err)
+	}
+
+	return string(plaintext), nil
+}
+
+// innerEnvelope opens an envelope found under an already removed layer. PMM
+// before the envelope format re-encrypts every column in the legacy format at
+// startup, so running it after an upgrade wraps envelopes in a legacy layer.
+// A value that only looks like an envelope is left to the caller.
+func (c *Cipher) innerEnvelope(v string, layers int) (string, bool) {
+	if layers == 0 || !IsEncrypted(v) {
+		return "", false
+	}
+	plaintext, err := c.openEnvelope(v)
+
+	return plaintext, err == nil
 }
 
 func decryptWithAny(keysets []tink.AEAD, ciphertext []byte) (string, bool) {

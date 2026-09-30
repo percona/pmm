@@ -437,3 +437,31 @@ func TestLegacyBackupKeyPath(t *testing.T) {
 	assert.Equal(t, "/srv/pmm-encryption_old.key", LegacyBackupKeyPath("/srv/pmm-encryption.key"))
 	assert.Equal(t, "/etc/custom-key_old.key", LegacyBackupKeyPath("/etc/custom-key"))
 }
+
+// TestLegacyLayerOverEnvelope covers PMM before the envelope format started
+// after an upgrade: at startup it re-encrypts every column in the legacy
+// format, wrapping envelopes. Reads must remove that layer and report it, so
+// the next migration rewrites the value, including values a migration without
+// this handling already wrapped in a second envelope.
+func TestLegacyLayerOverEnvelope(t *testing.T) {
+	c := newTestCipher(t)
+	envelope, err := c.Encrypt("secret")
+	require.NoError(t, err)
+	doubleEnvelope, err := c.Encrypt(envelope)
+	require.NoError(t, err)
+
+	for name, stored := range map[string]string{
+		"legacy layer added by an older version":     legacyLayer(t, c, envelope),
+		"envelope stored by a migration without fix": doubleEnvelope,
+	} {
+		t.Run(name, func(t *testing.T) {
+			decrypted, err := c.Decrypt(stored)
+			require.NoError(t, err)
+			assert.Equal(t, "secret", decrypted)
+
+			insp, err := c.Inspect(stored)
+			require.NoError(t, err)
+			assert.Equal(t, 1, insp.ExtraLayers)
+		})
+	}
+}
