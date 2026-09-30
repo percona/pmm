@@ -1,8 +1,8 @@
 # Peak UI
 
-> `@percona/peak-ui` is Percona's React component library built on MUI v7. It ships a Percona theme with light and dark modes, a theme wrapper every app mounts once, form inputs pre-wired to react-hook-form, and composite components that add behavior on top of MUI. Peak UI does not re-export MUI: a name that is not in this index comes from `@mui/material`, and the Peak UI theme already styles it.
+> `@percona/peak-ui` is Percona's React component library built on MUI v7: a Percona theme with light and dark modes, a theme wrapper every app mounts once, form inputs pre-wired to react-hook-form, and composite components that add behavior on top of MUI. A name that is not in this index comes from `@mui/material`.
 
-This file lists every export of `@percona/peak-ui`, one line each, with what it is for and when to prefer it over the alternative. The usage rules (theme wrapper, form binding, naming conventions, what to leave to MUI) live in `AGENTS.md` next to this file. Storybook is the coded source of truth; each component carries a maturity tag there (Stable, Beta, To review, Deprecated). Import everything from the package root, for example `import { TextInput } from '@percona/peak-ui'`. Components with no Storybook page yet link to their source file.
+This file lists every export of `@percona/peak-ui`, one line each, with what it is for and when to prefer it over the alternative. How to use the package (theme wrapper, form binding, naming conventions, what to leave to MUI) is in `AGENTS.md` next to this file, not here. Storybook is the coded source of truth; each component carries a maturity tag there (Stable, Beta, To review, Deprecated). Components with no Storybook page yet link to their source file.
 
 Icons: search `@mui/icons-material` first; the custom icons listed under Icons exist only for what MUI lacks, and all accept MUI `SvgIconProps` (`fontSize`, `color`, `sx`) and inherit the text color. Illustrations: larger artwork for a moment in the flow (empty result, error, feature off, work in progress), each an MUI `SvgIcon` on a 64px canvas; size it with `fontSize` and recolor named layers with `layerColors` (unset layers keep the text color).
 
@@ -152,8 +152,8 @@ Icons: search `@mui/icons-material` first; the custom icons listed under Icons e
 ## Not exported: use MUI
 
 - [Button and IconButton](https://percona.github.io/peak-ui/?path=/docs/inputs-button--docs): Come from `@mui/material`; Storybook shows the variants, colors, and sizes under the Percona theme.
-- [TextField](https://percona.github.io/peak-ui/?path=/docs/inputs-text-field--docs): Comes from `@mui/material` for values outside a form; inside a react-hook-form form use `TextInput`.
-- [Everything else](https://mui.com/material-ui/all-components/): `Box`, `Stack`, `Grid`, `Typography`, `Alert`, `Menu`, `MenuItem`, `Switch`, `Radio`, `Checkbox`, `Select`, `Autocomplete`, `Pagination`, and the rest come from `@mui/material`; toasts go through notistack with `NotistackMuiSnackbar`.
+- [TextField](https://percona.github.io/peak-ui/?path=/docs/inputs-text-field--docs): Comes from `@mui/material` for values outside a form; inside a react-hook-form form use the TextInput listed above.
+- [Everything else](https://mui.com/material-ui/all-components/): `Box`, `Stack`, `Grid`, `Typography`, `Alert`, `Menu`, `MenuItem`, `Switch`, `Radio`, `Checkbox`, `Select`, `Autocomplete`, `Pagination`, and the rest come from `@mui/material`; toasts go through notistack with the NotistackMuiSnackbar renderer listed above.
 
 ## Optional
 
