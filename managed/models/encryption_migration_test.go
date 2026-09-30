@@ -511,3 +511,84 @@ func TestMigrateEncryptionAfterOlderVersion(t *testing.T) {
 	require.NoError(t, err)
 	assert.Empty(t, ids)
 }
+
+// TestMigrateEncryptionAfterKeyLoss covers a PMM 3.x install that lost its key
+// file and silently generated a new one: rows written since use the current
+// key, untouched rows still hold ciphertext of the lost key. No key file reads
+// everything, so the migration must not refuse to start; it reports the lost
+// values, keeps them in the backup, and they become readable again if the
+// lost key is placed as the previous key.
+func TestMigrateEncryptionAfterKeyLoss(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+
+	dir := t.TempDir()
+	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, filepath.Join(dir, "encryption.key"))
+
+	current, err := encryption.DefaultCipher()
+	require.NoError(t, err)
+	lostProvider := encryption.NewFileKeyProvider(filepath.Join(t.TempDir(), "lost.key"))
+	lostKey, err := encryption.CreateCipher(lostProvider)
+	require.NoError(t, err)
+	legacy := func(c *encryption.Cipher, plaintext string) string {
+		stored, err := c.Encrypt(plaintext)
+		require.NoError(t, err)
+		return strings.TrimPrefix(stored, encryption.EnvelopePrefix)
+	}
+	stale := legacy(lostKey, "password-before-key-loss")
+
+	_, err = sqlDB.ExecContext(t.Context(),
+		`UPDATE settings SET settings = settings || '{"encrypted_items": ["pmm-managed.agents.password"]}'::jsonb`)
+	require.NoError(t, err)
+	now := time.Now()
+	_, err = sqlDB.ExecContext(t.Context(),
+		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
+			"VALUES ('N1', 'generic', 'name', '', '', '', '', $1, $2)", now, now)
+	require.NoError(t, err)
+	_, err = sqlDB.ExecContext(t.Context(),
+		`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify) `+
+			`VALUES ('PA', 'pmm-agent', 'N1', false, '', $1, $2, false, false)`, now, now)
+	require.NoError(t, err)
+	for id, password := range map[string]string{
+		"fresh": legacy(current, "password-after-key-loss"),
+		"stale": stale,
+	} {
+		_, err = sqlDB.ExecContext(t.Context(),
+			`INSERT INTO agents (agent_id, agent_type, password, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify) `+
+				`VALUES ($1, 'node_exporter', $2, 'PA', 'N1', false, '', $3, $4, false, false)`,
+			id, password, now, now)
+		require.NoError(t, err)
+	}
+
+	require.NoError(t, models.MigrateEncryption(q))
+
+	agent, err := models.FindAgentByID(q, "fresh")
+	require.NoError(t, err)
+	assert.Equal(t, "password-after-key-loss", agent.Password.Reveal())
+
+	// the lost value is rewritten, so the sweep converges, and kept in the backup
+	var storedStale string
+	require.NoError(t, sqlDB.QueryRowContext(t.Context(), `SELECT password FROM agents WHERE agent_id = 'stale'`).Scan(&storedStale))
+	assert.True(t, encryption.IsEncrypted(storedStale))
+	ids, err := models.AgentsNeedingReencryption(q, current)
+	require.NoError(t, err)
+	assert.Empty(t, ids)
+	files, err := filepath.Glob(filepath.Join(dir, models.MigrationBackupPattern))
+	require.NoError(t, err)
+	require.Len(t, files, 1)
+	data, err := os.ReadFile(files[0])
+	require.NoError(t, err)
+	assert.Contains(t, string(data), stale)
+
+	// placing the lost key as the previous key makes the value readable again
+	withLostKey, err := current.WithLegacyKeys(lostProvider)
+	require.NoError(t, err)
+	encryption.SetDefaultCipher(withLostKey)
+	t.Cleanup(func() { encryption.SetDefaultCipher(current) })
+	agent, err = models.FindAgentByID(q, "stale")
+	require.NoError(t, err)
+	assert.Equal(t, "password-before-key-loss", agent.Password.Reveal())
+}

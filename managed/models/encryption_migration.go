@@ -197,7 +197,8 @@ func MigrateEncryption(q *reform.Querier) error {
 	}
 
 	scans := make([]*secretsScan, len(secretTables))
-	var undecryptable, lost []error
+	var undecryptable, lost, unknownKey []error
+	var keyReadsData bool
 	backup := make(map[string][]map[string]any)
 	for i, t := range secretTables {
 		scans[i], err = scanSecrets(q, cipher, t)
@@ -206,17 +207,22 @@ func MigrateEncryption(q *reform.Querier) error {
 		}
 		undecryptable = append(undecryptable, scans[i].undecryptable...)
 		lost = append(lost, scans[i].lost...)
+		unknownKey = append(unknownKey, scans[i].unknownKey...)
+		keyReadsData = keyReadsData || scans[i].keyReadsData
 		if len(scans[i].backup) != 0 {
 			backup[t.name] = scans[i].backup
 		}
 	}
+	u, l := resolveUnknownKeys(unknownKey, keyReadsData)
+	undecryptable = append(undecryptable, u...)
+	lost = append(lost, l...)
 	if len(undecryptable) != 0 {
 		return errUndecryptable(undecryptable)
 	}
 	if len(lost) != 0 {
-		logrus.Warnf("%d stored credential(s) cannot be recovered: they were encrypted more than once "+
-			"by key rotation in PMM before 3.9.1 and the key of the inner layer is not available (%s). "+
-			"Place that key at %s and restart PMM Server, or re-enter the credentials of the affected services.",
+		logrus.Warnf("%d stored credential(s) cannot be recovered: they are encrypted with a key that is not available, "+
+			"either a key file that was lost before this upgrade or the inner layer added by key rotation in PMM before 3.9.1 (%s). "+
+			"Re-enter the credentials of the affected services; if you still have that key, place it at %s and restart PMM Server.",
 			len(lost), errors.Join(lost...), encryption.LegacyBackupKeyPath(encryption.DefaultKeyPath()))
 	}
 
@@ -330,11 +336,28 @@ func needingReencryption(q *reform.Querier, cipher *encryption.Cipher, t secretT
 	if err != nil {
 		return nil, err
 	}
-	if len(scan.undecryptable) != 0 {
-		return nil, errUndecryptable(scan.undecryptable)
+	undecryptable, _ := resolveUnknownKeys(scan.unknownKey, scan.keyReadsData)
+	undecryptable = append(undecryptable, scan.undecryptable...)
+	if len(undecryptable) != 0 {
+		return nil, errUndecryptable(undecryptable)
 	}
 
 	return scan.needs, nil
+}
+
+// resolveUnknownKeys decides about ciphertext of keys the keyset does not hold,
+// found in columns PMM 3.x recorded as encrypted. If the keyset reads none of
+// the stored ciphertext, the key file does not match the database: restoring
+// the right one fixes everything, so these values are undecryptable. If it
+// reads some, it is the key PMM 3.x silently generated after the original was
+// lost; no key file reads everything then, so refusing to start would only
+// take PMM Server down, and these values are reported as lost instead.
+func resolveUnknownKeys(unknownKey []error, keyReadsData bool) ([]error, []error) {
+	if keyReadsData {
+		return nil, unknownKey
+	}
+
+	return unknownKey, nil
 }
 
 // errUndecryptable explains that the key does not match the stored data.
@@ -375,6 +398,11 @@ type secretsScan struct {
 	// lost lists secrets whose innermost layer's key is gone; they cannot be
 	// recovered by PMM and are reported, not treated as a key mismatch
 	lost []error
+	// unknownKey lists ciphertext of keys the keyset does not hold, in columns
+	// PMM 3.x recorded as encrypted; see resolveUnknownKeys
+	unknownKey []error
+	// keyReadsData is set when the keyset decrypted at least one stored value
+	keyReadsData bool
 	// backup holds the stored columns of rows rewritten from the pre-envelope
 	// format, see writeMigrationBackup
 	backup []map[string]any
@@ -422,8 +450,12 @@ func scanSecrets(q *reform.Querier, cipher *encryption.Cipher, t secretTable) (*
 			stored[c.name] = storedValue(c, values[i])
 		}
 
+		scan.keyReadsData = scan.keyReadsData || insp.decrypted
 		for _, p := range insp.undecryptable {
 			scan.undecryptable = append(scan.undecryptable, fmt.Errorf("%s %s %s: %w", t.label, id, p.column, p.err))
+		}
+		for _, p := range insp.unknownKey {
+			scan.unknownKey = append(scan.unknownKey, fmt.Errorf("%s %s %s: %w", t.label, id, p.column, p.err))
 		}
 		if !insp.needs || len(insp.undecryptable) != 0 {
 			continue
@@ -470,6 +502,11 @@ type inspector struct {
 	needs         bool
 	undecryptable []columnProblem
 	lost          []columnProblem
+	// unknownKey holds ciphertext of keys the keyset does not hold in strict
+	// columns; whether that is a key mismatch is decided across all rows
+	unknownKey []columnProblem
+	// decrypted is set when the keyset decrypted one of the row's values
+	decrypted bool
 	// preEnvelope is set when a secret is not in the envelope format yet:
 	// the row is written by PMM before this migration existed
 	preEnvelope bool
@@ -486,11 +523,16 @@ func (i *inspector) value(column, stored string) {
 	if i.cipher.NeedsReencrypt(stored) || insp.ExtraLayers > 0 {
 		i.needs = true
 	}
+	if insp.Decrypted {
+		i.decrypted = true
+	}
 
 	switch {
 	case err == nil:
 	case errors.Is(err, encryption.ErrLegacyUnknownKey) && !i.strict[column]:
 		// plaintext that happens to look like ciphertext
+	case errors.Is(err, encryption.ErrLegacyUnknownKey):
+		i.unknownKey = append(i.unknownKey, columnProblem{column, err})
 	case errors.Is(err, encryption.ErrLegacyInnerKeyLost):
 		// the key matches; the secret was lost to stacked layers before
 		i.lost = append(i.lost, columnProblem{column, err})

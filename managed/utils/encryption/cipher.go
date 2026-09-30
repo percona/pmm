@@ -268,6 +268,9 @@ type Inspection struct {
 	// ExtraLayers is the number of stacked legacy layers removed under the
 	// outermost encryption layer; a value with extra layers needs a rewrite.
 	ExtraLayers int
+	// Decrypted reports whether the keyset removed at least one layer, i.e.
+	// the value is ciphertext of a key the cipher holds.
+	Decrypted bool
 }
 
 // Inspect reports how Decrypt reads a stored value. The error is nil for
@@ -277,11 +280,12 @@ type Inspection struct {
 // plaintext, and to report secrets lost to stacked layers.
 func (c *Cipher) Inspect(stored string) (Inspection, error) {
 	_, layers, err := c.decrypt(stored)
+	insp := Inspection{Decrypted: layers > 0}
 	if layers > 0 {
-		layers--
+		insp.ExtraLayers = layers - 1
 	}
 
-	return Inspection{ExtraLayers: layers}, err
+	return insp, err
 }
 
 // decrypt returns the plaintext and the number of encryption layers removed.

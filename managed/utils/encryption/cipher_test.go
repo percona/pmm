@@ -465,3 +465,23 @@ func TestLegacyLayerOverEnvelope(t *testing.T) {
 		})
 	}
 }
+
+// TestInspectDecrypted pins the evidence the startup migration uses to tell a
+// key file that does not match the database from one that reads part of it.
+func TestInspectDecrypted(t *testing.T) {
+	c := newTestCipher(t)
+	other := newTestCipher(t)
+	envelope, err := c.Encrypt("secret")
+	require.NoError(t, err)
+
+	for stored, want := range map[string]bool{
+		"":                            false,
+		"plain-password":              false,
+		envelope:                      true,
+		legacyLayer(t, c, "secret"):   true,
+		legacyLayer(t, other, "gone"): false,
+	} {
+		insp, _ := c.Inspect(stored)
+		assert.Equal(t, want, insp.Decrypted, stored)
+	}
+}
