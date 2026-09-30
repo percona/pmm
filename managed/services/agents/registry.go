@@ -218,6 +218,17 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 func (r *Registry) rebuildConnectionCache() {
 	newCache := make(map[string]struct{})
 
+	// Asked once per replica: it copies the member list under the HA service lock.
+	members := make(map[string]bool)
+	isMember := func(owner string) bool {
+		member, ok := members[owner]
+		if !ok {
+			member = r.haService.IsMember(owner)
+			members[owner] = member
+		}
+		return member
+	}
+
 	err := r.db.InTransaction(func(tx *reform.TX) error {
 		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: new(models.PMMAgentType)})
 		if err != nil {
@@ -230,7 +241,7 @@ func (r *Registry) rebuildConnectionCache() {
 			}
 			if agent.ConnectionID != nil {
 				owner, ok := models.ConnectionIDOwner(*agent.ConnectionID)
-				if ok && !r.haService.IsMember(owner) {
+				if ok && !isMember(owner) {
 					continue
 				}
 			}

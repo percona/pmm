@@ -367,13 +367,30 @@ func removeNode(q *reform.Querier, id string, mode RemoveMode, allowPMMServerNod
 func FindStaleHANodes(q *reform.Querier, localHANodeID string, haPeers []string) ([]*Node, error) {
 	l := logrus.WithFields(logrus.Fields{"component": "ha", "ha_node_id": localHANodeID})
 
-	expected, unreadable, err := haPeerNames(localHANodeID, haPeers)
-	if err != nil {
-		return nil, err
+	expected := make(map[string]struct{}, len(haPeers))
+	for _, peer := range haPeers {
+		// A trailing comma in PMM_HA_PEERS, or a blank element in the list the chart joins, yields an
+		// empty entry. It names no replica, so unlike an unreadable one it hides nothing.
+		if strings.TrimSpace(peer) == "" {
+			continue
+		}
+
+		name, ok := haPeerNodeName(peer)
+		if !ok {
+			// Trusting the rest would treat a partial list as the whole cluster and remove live replicas.
+			l.WithField("peer", peer).Warn("Can't read a node name from a PMM_HA_PEERS entry, so no stale HA nodes are reported.")
+			return nil, nil
+		}
+		expected[name] = struct{}{}
 	}
-	if unreadable != "" {
-		l.WithField("peer", unreadable).Warn("Can't read a node name from a PMM_HA_PEERS entry, so no stale HA nodes are reported.")
-		return nil, nil
+
+	// The chart lists every replica including the pod reading it, down to replicas=1, so neither
+	// case describes a cluster this replica belongs to.
+	if len(expected) == 0 {
+		return nil, errors.New("PMM_HA_PEERS names no peers")
+	}
+	if _, ok := expected[localHANodeID]; !ok {
+		return nil, fmt.Errorf("PMM_HA_PEERS (%s) doesn't list this node", strings.Join(haPeers, ","))
 	}
 
 	// Only PMM Server Nodes can be stale replicas; the rest are Nodes the user monitors.
@@ -431,37 +448,6 @@ func RemoveStaleHANode(q *reform.Querier, nodeID string) error {
 	}
 
 	return removeNode(q, nodeID, RemoveCascade, true)
-}
-
-// haPeerNames returns the HA node names PMM_HA_PEERS lists; see FindStaleHANodes. When an entry
-// names no replica it can read, it returns that entry instead of names: trusting the rest would treat
-// a partial list as the whole cluster, and act on live replicas as if they were gone.
-func haPeerNames(localHANodeID string, haPeers []string) (map[string]struct{}, string, error) {
-	expected := make(map[string]struct{}, len(haPeers))
-	for _, peer := range haPeers {
-		// A trailing comma in PMM_HA_PEERS, or a blank element in the list the chart joins, yields an
-		// empty entry. It names no replica, so unlike an unreadable one it hides nothing.
-		if strings.TrimSpace(peer) == "" {
-			continue
-		}
-
-		name, ok := haPeerNodeName(peer)
-		if !ok {
-			return nil, peer, nil
-		}
-		expected[name] = struct{}{}
-	}
-
-	// The chart lists every replica including the pod reading it, down to replicas=1, so neither
-	// case describes a cluster this replica belongs to.
-	if len(expected) == 0 {
-		return nil, "", errors.New("PMM_HA_PEERS names no peers")
-	}
-	if _, ok := expected[localHANodeID]; !ok {
-		return nil, "", fmt.Errorf("PMM_HA_PEERS (%s) doesn't list this node", strings.Join(haPeers, ","))
-	}
-
-	return expected, "", nil
 }
 
 // haPeerNodeName maps a PMM_HA_PEERS entry ("pmm-ha-0.pmm-ha.pmm.svc.cluster.local:9761") to a Node

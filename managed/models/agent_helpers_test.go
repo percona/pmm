@@ -1977,9 +1977,7 @@ func TestChangeAgentParamsAffectsConnection(t *testing.T) {
 	}
 }
 
-func TestFindStaleConnections(t *testing.T) {
-	const localHANodeID = "pmm-ha-0"
-
+func TestResetHANodeConnections(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -1989,51 +1987,35 @@ func TestFindStaleConnections(t *testing.T) {
 	node, err := models.CreateNode(db.Querier, models.ContainerNodeType, &models.CreateNodeParams{NodeName: "pmm-pmm-ha-client-0"})
 	require.NoError(t, err)
 
-	newAgent := func(t *testing.T, connected bool, connectionID *string) string {
+	newAgent := func(t *testing.T, connectionID *string) string {
 		t.Helper()
 
 		agent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
 		require.NoError(t, err)
-		agent.IsConnected = connected
+		agent.IsConnected = true
 		agent.ConnectionID = connectionID
 		require.NoError(t, db.Update(agent))
 
 		return agent.AgentID
 	}
 
-	own := newAgent(t, true, new(localHANodeID+"/1"))
-	departed := newAgent(t, true, new("pmm-ha-2/1"))
-	newAgent(t, true, new("pmm-ha-1/1"))
-	newAgent(t, true, nil)
-	// Written by an earlier version, without an owner.
-	newAgent(t, true, new("7c0e5a4e-1b7e-4f0c-9d3a-2a6f7e0b9c11"))
-	newAgent(t, false, new(localHANodeID+"/2"))
-
-	staleIDs := func(t *testing.T, haPeers []string) []string {
-		t.Helper()
-
-		agents, err := models.FindStaleConnections(db.Querier, localHANodeID, haPeers)
-		require.NoError(t, err)
-		ids := make([]string, 0, len(agents))
-		for _, agent := range agents {
-			ids = append(ids, agent.AgentID)
-		}
-
-		return ids
+	agents := map[string]bool{
+		newAgent(t, new("pmm-ha-0/1")): false,
+		newAgent(t, new("pmm-ha-1/1")): true,
+		// A node ID which only starts with this one names another replica.
+		newAgent(t, new("pmm-ha-01/1")): true,
+		newAgent(t, nil):                true,
+		// Written by an earlier version, without an owner.
+		newAgent(t, new("7c0e5a4e-1b7e-4f0c-9d3a-2a6f7e0b9c11")): true,
 	}
 
-	t.Run("reports the connections of this node and of nodes that left the cluster", func(t *testing.T) {
-		peers := []string{
-			"pmm-ha-0.monitoring-service.pmm.svc.cluster.local",
-			"pmm-ha-1.monitoring-service.pmm.svc.cluster.local",
-		}
-		assert.ElementsMatch(t, []string{own, departed}, staleIDs(t, peers))
-	})
+	reset, err := models.ResetHANodeConnections(db.Querier, "pmm-ha-0")
+	require.NoError(t, err)
+	assert.Equal(t, int64(1), reset)
 
-	// A peer list that can't be read describes no cluster, so no other node can be taken for gone.
-	t.Run("reports only the connections of this node without a peer list it can trust", func(t *testing.T) {
-		for _, peers := range [][]string{{"10.1.2.3"}, {"pmm-ha-1.monitoring-service"}, nil} {
-			assert.ElementsMatch(t, []string{own}, staleIDs(t, peers), peers)
-		}
-	})
+	for agentID, connected := range agents {
+		agent, err := models.FindAgentByID(db.Querier, agentID)
+		require.NoError(t, err)
+		assert.Equal(t, connected, agent.IsConnected, pointer.GetString(agent.ConnectionID))
+	}
 }
