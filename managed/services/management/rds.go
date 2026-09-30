@@ -49,7 +49,7 @@ import (
 
 const (
 	// Maximum time for AWS discover APIs calls.
-	awsDiscoverTimeout = 7 * time.Second
+	awsDiscoverTimeout = 20 * time.Second
 	rdsEndpointsID     = "rds"
 )
 
