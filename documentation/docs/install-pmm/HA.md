@@ -1,4 +1,4 @@
-# Install PMM in High Availability (HA) mode
+# Choose your HA deployment
 
 When your database monitoring goes down, you lose visibility into critical performance issues just when you need it most. HA ensures your PMM monitoring stays online even when servers fail, networks disconnect, or hardware breaks.
 
@@ -65,7 +65,7 @@ Choose the deployment option that matches your infrastructure and requirements:
     - You can tolerate 2-5 minutes of downtime
     - You want automatic recovery without complexity
 
-    [View Kubernetes HA installation guide](../install-pmm/HA-kubernetes-single-instance.md){.md-button} 
+    [View Kubernetes HA installation guide](../install-pmm/install-HA-kubernetes-single-instance.md){.md-button} 
 
 === "Kubernetes / OpenShift (HA Cluster)"
 
