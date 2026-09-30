@@ -352,4 +352,15 @@ func TestIsConnectedKeepsStatusesOnDatabaseError(t *testing.T) {
 
 	assert.True(t, r.IsConnected(models.PMMServerAgentID))
 	assert.True(t, isConnectedInDB(t, db))
+
+	// Every failed refresh moves the retry, so an unchanged one means the database was not queried:
+	// a lookup missing from the cache is answered from it until the retry is due.
+	retryAt := r.connectionCacheRetryAt
+	require.False(t, retryAt.IsZero())
+	assert.False(t, r.IsConnected("/agent_id/missing"))
+	assert.Equal(t, retryAt, r.connectionCacheRetryAt)
+
+	r.connectionCacheRetryAt = time.Now().Add(-time.Second)
+	assert.False(t, r.IsConnected("/agent_id/missing"))
+	assert.True(t, r.connectionCacheRetryAt.After(retryAt), "the refresh is not retried once due")
 }

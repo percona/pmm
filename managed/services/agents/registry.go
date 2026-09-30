@@ -42,6 +42,9 @@ const (
 	prometheusSubsystem = "agents"
 	// ConnectionCacheTTL is the duration for which agent connection status is cached in HA mode.
 	connectionCacheTTL = 10 * time.Second
+	// How long the connection statuses are served from the cache after they could not be fetched,
+	// so that a failing database is not queried by every status check.
+	connectionCacheRetryDelay = time.Second
 	// How long to wait for a pong when telling a still-alive connection apart from a stale one,
 	// on registration of an agent whose ID is already registered. It must stay well below
 	// pmm-agent's dial timeout (5s), otherwise the reconnecting agent gives up before we are
@@ -105,9 +108,10 @@ type Registry struct {
 	haService haService
 
 	// Cache for connection status in HA mode
-	connectionCache    map[string]struct{}
-	connectionCacheTTL time.Time
-	cacheMu            sync.RWMutex
+	connectionCache        map[string]struct{}
+	connectionCacheTTL     time.Time
+	connectionCacheRetryAt time.Time
+	cacheMu                sync.RWMutex
 
 	mConnects    prom.Counter
 	mDisconnects *prom.CounterVec
@@ -191,19 +195,20 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 	}
 
 	// HA mode: check cache first, then database
-	if !time.Now().After(r.connectionCacheTTL) {
-		r.cacheMu.RLock()
-		_, exists := r.connectionCache[pmmAgentID]
-		r.cacheMu.RUnlock()
-		if exists {
-			return true
-		}
+	now := time.Now()
+	r.cacheMu.RLock()
+	_, exists := r.connectionCache[pmmAgentID]
+	fresh := !now.After(r.connectionCacheTTL)
+	retrying := now.Before(r.connectionCacheRetryAt)
+	r.cacheMu.RUnlock()
+	if (fresh && exists) || retrying {
+		return exists
 	}
 
 	r.rebuildConnectionCache()
 
 	r.cacheMu.RLock()
-	_, exists := r.connectionCache[pmmAgentID]
+	_, exists = r.connectionCache[pmmAgentID]
 	r.cacheMu.RUnlock()
 
 	return exists
@@ -251,15 +256,21 @@ func (r *Registry) rebuildConnectionCache() {
 		return nil
 	})
 	if err != nil {
-		// The previous statuses are kept, and fetched again on the next call: an empty cache would
-		// report every agent as disconnected, and let the Nodes protected while it is connected go.
+		// The previous statuses are kept, and fetched again after connectionCacheRetryDelay: an empty
+		// cache would report every agent as disconnected, and let the Nodes protected while it is
+		// connected go.
 		logrus.WithField("component", "agents/registry").WithError(err).Warn("Failed to fetch agent connection statuses.")
+
+		r.cacheMu.Lock()
+		r.connectionCacheRetryAt = time.Now().Add(connectionCacheRetryDelay)
+		r.cacheMu.Unlock()
 		return
 	}
 
 	r.cacheMu.Lock()
 	r.connectionCache = newCache
 	r.connectionCacheTTL = time.Now().Add(connectionCacheTTL)
+	r.connectionCacheRetryAt = time.Time{}
 	r.cacheMu.Unlock()
 }
 
