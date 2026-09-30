@@ -1314,6 +1314,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 	}
 
 	removeStaleHANodes(ctx, db, params.HANodeID, params.HAPeers)
+	resetStaleConnections(ctx, db, params.HANodeID, params.HAPeers)
 
 	return db, nil
 }
@@ -1587,6 +1588,37 @@ func removeStaleHANodes(ctx context.Context, db *reform.DB, localHANodeID string
 		default:
 			nodeL.WithError(err).Warn("Failed to remove a stale HA node, keeping it.")
 		}
+	}
+}
+
+// resetStaleConnections persists as disconnected the pmm-agent connections FindStaleConnections
+// reports. It runs at startup, before any connection is served, for the same reasons as
+// removeStaleHANodes.
+func resetStaleConnections(ctx context.Context, db *reform.DB, localHANodeID string, haPeers []string) {
+	if localHANodeID == "" {
+		return
+	}
+
+	l := logrus.WithFields(logrus.Fields{"component": "ha", "ha_node_id": localHANodeID})
+
+	agents, err := FindStaleConnections(db.WithContext(ctx), localHANodeID, haPeers)
+	if err != nil {
+		l.WithError(err).Warn("Failed to look for stale agent connections.")
+		return
+	}
+
+	for _, agent := range agents {
+		agentL := l.WithFields(logrus.Fields{"agent_id": agent.AgentID, "connection_id": *agent.ConnectionID})
+
+		// Only the connection found stale: the agent may have connected again meanwhile.
+		_, err := db.WithContext(ctx).Exec(
+			"UPDATE agents SET is_connected = false WHERE agent_id = $1 AND connection_id = $2", agent.AgentID, *agent.ConnectionID,
+		)
+		if err != nil {
+			agentL.WithError(err).Warn("Failed to reset a stale agent connection.")
+			continue
+		}
+		agentL.Info("Reset a stale agent connection.")
 	}
 }
 

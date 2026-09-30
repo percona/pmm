@@ -39,13 +39,24 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 	res := &managementv1.RegisterNodeResponse{}
 
 	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		// Re-registration replaces the Node, taking its Services along. A protected Node's pmm-agent
+		// is not connected when its own pod registers again, which is how the chart recovers a pod
+		// that lost its volume, so only replacing a live one is rejected.
+		replace := func(node *models.Node) error {
+			err := services.CheckNodeRemovable(tx.Querier, s.r, node, s.protectedNodePrefixes)
+			if err != nil {
+				return err
+			}
+			return models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
+		}
+
 		node, err := models.FindNodeByName(tx.Querier, req.NodeName)
 		switch status.Code(err) { //nolint:exhaustive
 		case codes.OK:
 			if !req.Reregister {
 				return status.Errorf(codes.AlreadyExists, "Node with name %s already exists.", req.NodeName)
 			}
-			err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
+			err = replace(node)
 		case codes.NotFound:
 			err = nil
 		}
@@ -61,7 +72,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 			if !req.Reregister {
 				return err
 			}
-			err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
+			err = replace(node)
 		}
 		if err != nil {
 			return err

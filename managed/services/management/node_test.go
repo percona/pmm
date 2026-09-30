@@ -281,6 +281,7 @@ func TestNodeService(t *testing.T) {
 				NodeType: inventoryv1.NodeType_NODE_TYPE_CONTAINER_NODE,
 				NodeName: nodeName,
 				Address:  "10.1.2.3",
+				Region:   "region-1",
 			})
 			require.NoError(t, err)
 			nodeID := resRegister.ContainerNode.NodeId
@@ -299,12 +300,33 @@ func TestNodeService(t *testing.T) {
 			_, err = models.FindNodeByID(s.db.Querier, nodeID)
 			require.NoError(t, err)
 
-			// A forced registration replaces the Node, which is how the chart recovers a pod whose volume
-			// was lost, so it must not be mistaken for a removal by a user.
+			// A forced registration replaces the Node, found by name or by address, so a live one is kept.
+			for _, name := range []string{nodeName, "other-node"} {
+				_, err = s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+					NodeType:   inventoryv1.NodeType_NODE_TYPE_CONTAINER_NODE,
+					NodeName:   name,
+					Address:    "10.1.2.3",
+					Region:     "region-1",
+					Reregister: true,
+				})
+				assert.Equal(t, codes.FailedPrecondition, status.Code(err), name)
+			}
+			_, err = models.FindNodeByID(s.db.Querier, nodeID)
+			require.NoError(t, err)
+
+			// That is how the chart recovers a pod which lost its volume: the pod registers again once
+			// its previous pmm-agent is gone.
+			disconnected := &mockAgentsRegistry{}
+			disconnected.Test(t)
+			disconnected.On("IsConnected", resRegister.PmmAgent.AgentId).Return(false)
+			s.r = disconnected
+			defer disconnected.AssertExpectations(t)
+
 			_, err = s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
 				NodeType:   inventoryv1.NodeType_NODE_TYPE_CONTAINER_NODE,
 				NodeName:   nodeName,
 				Address:    "10.1.2.3",
+				Region:     "region-1",
 				Reregister: true,
 			})
 			require.NoError(t, err)

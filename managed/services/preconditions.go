@@ -52,11 +52,8 @@ func IsNodeProtected(q *reform.Querier, cc AgentConnectionChecker, node *models.
 		return false, fmt.Errorf("failed to find pmm-agent on node %s: %w", node.NodeID, err)
 	}
 
-	// In HA mode the connection status is persisted, and reading it along with the agent makes a
-	// failed read fail the removal. The registry alone would report a connected agent as
-	// disconnected when it cannot refresh its cache from the database.
 	return slices.ContainsFunc(agents, func(a *models.Agent) bool {
-		return a.IsConnected || cc.IsConnected(a.AgentID)
+		return cc.IsConnected(a.AgentID)
 	}), nil
 }
 

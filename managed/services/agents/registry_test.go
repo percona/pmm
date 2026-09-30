@@ -17,6 +17,7 @@ package agents
 
 import (
 	"context"
+	"database/sql"
 	"sync"
 	"testing"
 	"time"
@@ -35,9 +36,19 @@ import (
 
 const testAgentID = "/agent_id/00000000-0000-4000-8000-000000000001"
 
-// haServiceStub stands in for the HA service; nil params means HA is disabled.
+// haServiceStub stands in for the HA service; nil params means HA is disabled, and nil members
+// that every node is a member.
 type haServiceStub struct {
-	params *models.HAParams
+	params  *models.HAParams
+	members map[string]struct{}
+}
+
+func (s haServiceStub) IsMember(nodeID string) bool {
+	if s.members == nil {
+		return true
+	}
+	_, ok := s.members[nodeID]
+	return ok
 }
 
 func (s haServiceStub) Params() *models.HAParams {
@@ -300,4 +311,45 @@ func TestUnregisterKeepsANewerConnection(t *testing.T) {
 
 	assert.True(t, isConnectedInDB(t, db))
 	assert.True(t, r.IsConnected(models.PMMServerAgentID))
+}
+
+// TestIsConnectedIgnoresConnectionsOfLostReplicas covers a replica that is lost with its Kubernetes
+// node, or scaled away after crashing: it never persists the disconnects of its agents, so their
+// connections count only while it is a member of the cluster.
+func TestIsConnectedIgnoresConnectionsOfLostReplicas(t *testing.T) {
+	r, db, _ := newHATestRegistry(t)
+	r.haService = haServiceStub{params: &models.HAParams{Enabled: true}, members: map[string]struct{}{"pmm-ha-0": {}}}
+
+	for connectionID, expected := range map[string]bool{
+		"pmm-ha-0/1": true,
+		"pmm-ha-2/1": false,
+		// An ID written by an earlier version names no owner to check.
+		"connection-1": true,
+	} {
+		agent, err := models.FindAgentByID(db.Querier, models.PMMServerAgentID)
+		require.NoError(t, err)
+		agent.ConnectionID = new(connectionID)
+		require.NoError(t, db.Update(agent))
+
+		r.connectionCacheTTL = time.Time{}
+		assert.Equal(t, expected, r.IsConnected(models.PMMServerAgentID), connectionID)
+	}
+}
+
+// TestIsConnectedKeepsStatusesOnDatabaseError covers a failed refresh of the connection statuses:
+// reporting every agent as disconnected would let the Nodes protected while it is connected go.
+func TestIsConnectedKeepsStatusesOnDatabaseError(t *testing.T) {
+	r, db, _ := newHATestRegistry(t)
+	r.connectionCacheTTL = time.Time{}
+	require.True(t, r.IsConnected(models.PMMServerAgentID))
+
+	// A closed pool fails every query without touching the test database.
+	closedDB, err := sql.Open("postgres", "host=127.0.0.1")
+	require.NoError(t, err)
+	require.NoError(t, closedDB.Close())
+	r.db = reform.NewDB(closedDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	r.connectionCacheTTL = time.Time{}
+
+	assert.True(t, r.IsConnected(models.PMMServerAgentID))
+	assert.True(t, isConnectedInDB(t, db))
 }

@@ -24,8 +24,8 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/google/uuid"
 	prom "github.com/prometheus/client_golang/prometheus"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -90,6 +90,7 @@ type pmmAgentInfo struct {
 // haService is a subset of methods from ha.Service used by Registry.
 type haService interface {
 	Params() *models.HAParams
+	IsMember(nodeID string) bool
 }
 
 // Registry keeps track of all connected pmm-agents.
@@ -210,24 +211,40 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 
 // rebuildConnectionCache fetches all agent connection statuses from the database
 // and caches them for 10 seconds.
+//
+// A connection counts only while the replica holding it is a member of the cluster: one that is lost
+// with its Kubernetes node, or scaled away after crashing, never persists the disconnects of its
+// agents. A connection ID naming no owner predates this and is counted.
 func (r *Registry) rebuildConnectionCache() {
 	newCache := make(map[string]struct{})
 
-	// Fetch pmm-agents from the database, reset cache to empty on error.
-	_ = r.db.InTransaction(func(tx *reform.TX) error {
+	err := r.db.InTransaction(func(tx *reform.TX) error {
 		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: new(models.PMMAgentType)})
 		if err != nil {
 			return err
 		}
 
 		for _, agent := range agents {
-			if agent.IsConnected {
-				newCache[agent.AgentID] = struct{}{}
+			if !agent.IsConnected {
+				continue
 			}
+			if agent.ConnectionID != nil {
+				owner, ok := models.ConnectionIDOwner(*agent.ConnectionID)
+				if ok && !r.haService.IsMember(owner) {
+					continue
+				}
+			}
+			newCache[agent.AgentID] = struct{}{}
 		}
 
 		return nil
 	})
+	if err != nil {
+		// The previous statuses are kept, and fetched again on the next call: an empty cache would
+		// report every agent as disconnected, and let the Nodes protected while it is connected go.
+		logrus.WithField("component", "agents/registry").WithError(err).Warn("Failed to fetch agent connection statuses.")
+		return
+	}
 
 	r.cacheMu.Lock()
 	r.connectionCache = newCache
@@ -309,7 +326,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 		id:              agentMD.ID,
 		stateChangeChan: make(chan struct{}, 1),
 		kickChan:        make(chan struct{}),
-		connectionID:    uuid.NewString(),
+		connectionID:    models.NewConnectionID(r.haService.Params().NodeID),
 	}
 	r.agents[agentMD.ID] = agent
 

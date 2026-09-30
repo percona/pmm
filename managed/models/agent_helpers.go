@@ -1694,3 +1694,61 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 	}
 	return nil
 }
+
+// NewConnectionID returns the ID a pmm-agent connection is persisted with in HA mode, see
+// Agent.ConnectionID. It starts with the PMM_HA_NODE_ID of the replica holding the connection, so
+// that a replica can tell which persisted connections are its own.
+func NewConnectionID(haNodeID string) string {
+	return haNodeID + "/" + uuid.NewString()
+}
+
+// ConnectionIDOwner returns the PMM_HA_NODE_ID of the replica a connection ID was made by. An ID
+// made without one, by an earlier version, has no owner that can be told.
+func ConnectionIDOwner(connectionID string) (string, bool) {
+	owner, _, found := strings.Cut(connectionID, "/")
+	return owner, found
+}
+
+// FindStaleConnections returns the pmm-agents persisted as connected over a connection no replica
+// holds: one of the calling replica, which holds none yet when it starts, or of a replica that is not
+// a part of the cluster anymore. A replica that stops without unregistering its agents, being
+// OOM-killed or losing its Kubernetes node, would otherwise leave them connected until they connect
+// again, which an agent scaled away at that point never does, and a Node protected while its
+// pmm-agent is connected would stay protected for good.
+//
+// Without a peer list it can trust, only the calling replica's own connections are reported.
+// Connections persisted without an ID, or with one naming no owner, predate this and are never
+// reported: a replica running an earlier version may still hold them. The localHANodeID and haPeers arguments are as for
+// FindStaleHANodes.
+func FindStaleConnections(q *reform.Querier, localHANodeID string, haPeers []string) ([]*Agent, error) {
+	l := logrus.WithFields(logrus.Fields{"component": "ha", "ha_node_id": localHANodeID})
+
+	peers, unreadable, err := haPeerNames(localHANodeID, haPeers)
+	if err != nil || unreadable != "" {
+		l.WithError(err).WithField("peer", unreadable).Warn("Can't read the HA peers, only the connections of this node are reported as stale.")
+		peers = nil
+	}
+
+	agents, err := FindAgents(q, AgentFilters{AgentType: new(PMMAgentType)})
+	if err != nil {
+		return nil, fmt.Errorf("failed to list pmm-agents for stale connection cleanup: %w", err)
+	}
+
+	var stale []*Agent
+	for _, agent := range agents {
+		if !agent.IsConnected || agent.ConnectionID == nil {
+			continue
+		}
+
+		owner, ok := ConnectionIDOwner(*agent.ConnectionID)
+		if !ok {
+			continue
+		}
+		_, peer := peers[owner]
+		if owner == localHANodeID || (peers != nil && !peer) {
+			stale = append(stale, agent)
+		}
+	}
+
+	return stale, nil
+}

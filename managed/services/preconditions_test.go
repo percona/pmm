@@ -338,17 +338,6 @@ func TestCheckNodeRemovable(t *testing.T) {
 	t.Run("no prefixes configured", func(t *testing.T) {
 		assert.NoError(t, CheckNodeRemovable(db.Querier, connected, clientNode, nil))
 	})
-
-	// In HA mode the registry reports every agent as disconnected when it cannot refresh its cache,
-	// so the status persisted in the database must be enough to keep the Node.
-	t.Run("a protected Node with a persisted connection is rejected", func(t *testing.T) {
-		node, pmmAgent := newNode(t, clientNodePrefix+"2")
-		pmmAgent.IsConnected = true
-		require.NoError(t, db.Update(pmmAgent))
-
-		err := CheckNodeRemovable(db.Querier, disconnected, node, prefixes)
-		assert.Equal(t, codes.FailedPrecondition, status.Code(err), err)
-	})
 }
 
 func TestCheckPMMAgentRemovable(t *testing.T) {
