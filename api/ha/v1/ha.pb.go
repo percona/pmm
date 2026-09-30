@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: ha/v1beta1/ha.proto
+// source: ha/v1/ha.proto
 
-package hav1beta1
+package hav1
 
 import (
 	reflect "reflect"
@@ -58,11 +58,11 @@ func (x NodeRole) String() string {
 }
 
 func (NodeRole) Descriptor() protoreflect.EnumDescriptor {
-	return file_ha_v1beta1_ha_proto_enumTypes[0].Descriptor()
+	return file_ha_v1_ha_proto_enumTypes[0].Descriptor()
 }
 
 func (NodeRole) Type() protoreflect.EnumType {
-	return &file_ha_v1beta1_ha_proto_enumTypes[0]
+	return &file_ha_v1_ha_proto_enumTypes[0]
 }
 
 func (x NodeRole) Number() protoreflect.EnumNumber {
@@ -71,7 +71,7 @@ func (x NodeRole) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use NodeRole.Descriptor instead.
 func (NodeRole) EnumDescriptor() ([]byte, []int) {
-	return file_ha_v1beta1_ha_proto_rawDescGZIP(), []int{0}
+	return file_ha_v1_ha_proto_rawDescGZIP(), []int{0}
 }
 
 type ListNodesRequest struct {
@@ -82,7 +82,7 @@ type ListNodesRequest struct {
 
 func (x *ListNodesRequest) Reset() {
 	*x = ListNodesRequest{}
-	mi := &file_ha_v1beta1_ha_proto_msgTypes[0]
+	mi := &file_ha_v1_ha_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -94,7 +94,7 @@ func (x *ListNodesRequest) String() string {
 func (*ListNodesRequest) ProtoMessage() {}
 
 func (x *ListNodesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_ha_v1beta1_ha_proto_msgTypes[0]
+	mi := &file_ha_v1_ha_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -107,7 +107,7 @@ func (x *ListNodesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNodesRequest.ProtoReflect.Descriptor instead.
 func (*ListNodesRequest) Descriptor() ([]byte, []int) {
-	return file_ha_v1beta1_ha_proto_rawDescGZIP(), []int{0}
+	return file_ha_v1_ha_proto_rawDescGZIP(), []int{0}
 }
 
 // HANode represents a single node in the HA cluster.
@@ -116,7 +116,7 @@ type HANode struct {
 	// Human-readable name of the node.
 	NodeName string `protobuf:"bytes,1,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
 	// Role of the node in the cluster.
-	Role NodeRole `protobuf:"varint,2,opt,name=role,proto3,enum=ha.v1beta1.NodeRole" json:"role,omitempty"`
+	Role NodeRole `protobuf:"varint,2,opt,name=role,proto3,enum=ha.v1.NodeRole" json:"role,omitempty"`
 	// Current status of the node from MemberList.
 	Status        string `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -125,7 +125,7 @@ type HANode struct {
 
 func (x *HANode) Reset() {
 	*x = HANode{}
-	mi := &file_ha_v1beta1_ha_proto_msgTypes[1]
+	mi := &file_ha_v1_ha_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -137,7 +137,7 @@ func (x *HANode) String() string {
 func (*HANode) ProtoMessage() {}
 
 func (x *HANode) ProtoReflect() protoreflect.Message {
-	mi := &file_ha_v1beta1_ha_proto_msgTypes[1]
+	mi := &file_ha_v1_ha_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -150,7 +150,7 @@ func (x *HANode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HANode.ProtoReflect.Descriptor instead.
 func (*HANode) Descriptor() ([]byte, []int) {
-	return file_ha_v1beta1_ha_proto_rawDescGZIP(), []int{1}
+	return file_ha_v1_ha_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *HANode) GetNodeName() string {
@@ -186,7 +186,7 @@ type ListNodesResponse struct {
 
 func (x *ListNodesResponse) Reset() {
 	*x = ListNodesResponse{}
-	mi := &file_ha_v1beta1_ha_proto_msgTypes[2]
+	mi := &file_ha_v1_ha_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -198,7 +198,7 @@ func (x *ListNodesResponse) String() string {
 func (*ListNodesResponse) ProtoMessage() {}
 
 func (x *ListNodesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_ha_v1beta1_ha_proto_msgTypes[2]
+	mi := &file_ha_v1_ha_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -211,7 +211,7 @@ func (x *ListNodesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNodesResponse.ProtoReflect.Descriptor instead.
 func (*ListNodesResponse) Descriptor() ([]byte, []int) {
-	return file_ha_v1beta1_ha_proto_rawDescGZIP(), []int{2}
+	return file_ha_v1_ha_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ListNodesResponse) GetNodes() []*HANode {
@@ -236,7 +236,7 @@ type StatusRequest struct {
 
 func (x *StatusRequest) Reset() {
 	*x = StatusRequest{}
-	mi := &file_ha_v1beta1_ha_proto_msgTypes[3]
+	mi := &file_ha_v1_ha_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -248,7 +248,7 @@ func (x *StatusRequest) String() string {
 func (*StatusRequest) ProtoMessage() {}
 
 func (x *StatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_ha_v1beta1_ha_proto_msgTypes[3]
+	mi := &file_ha_v1_ha_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -261,7 +261,7 @@ func (x *StatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StatusRequest.ProtoReflect.Descriptor instead.
 func (*StatusRequest) Descriptor() ([]byte, []int) {
-	return file_ha_v1beta1_ha_proto_rawDescGZIP(), []int{3}
+	return file_ha_v1_ha_proto_rawDescGZIP(), []int{3}
 }
 
 type StatusResponse struct {
@@ -276,7 +276,7 @@ type StatusResponse struct {
 
 func (x *StatusResponse) Reset() {
 	*x = StatusResponse{}
-	mi := &file_ha_v1beta1_ha_proto_msgTypes[4]
+	mi := &file_ha_v1_ha_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -288,7 +288,7 @@ func (x *StatusResponse) String() string {
 func (*StatusResponse) ProtoMessage() {}
 
 func (x *StatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_ha_v1beta1_ha_proto_msgTypes[4]
+	mi := &file_ha_v1_ha_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -301,7 +301,7 @@ func (x *StatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StatusResponse.ProtoReflect.Descriptor instead.
 func (*StatusResponse) Descriptor() ([]byte, []int) {
-	return file_ha_v1beta1_ha_proto_rawDescGZIP(), []int{4}
+	return file_ha_v1_ha_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *StatusResponse) GetStatus() string {
@@ -318,19 +318,18 @@ func (x *StatusResponse) GetNamespace() string {
 	return ""
 }
 
-var File_ha_v1beta1_ha_proto protoreflect.FileDescriptor
+var File_ha_v1_ha_proto protoreflect.FileDescriptor
 
-const file_ha_v1beta1_ha_proto_rawDesc = "" +
+const file_ha_v1_ha_proto_rawDesc = "" +
 	"\n" +
-	"\x13ha/v1beta1/ha.proto\x12\n" +
-	"ha.v1beta1\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x12\n" +
-	"\x10ListNodesRequest\"g\n" +
+	"\x0eha/v1/ha.proto\x12\x05ha.v1\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x12\n" +
+	"\x10ListNodesRequest\"b\n" +
 	"\x06HANode\x12\x1b\n" +
-	"\tnode_name\x18\x01 \x01(\tR\bnodeName\x12(\n" +
-	"\x04role\x18\x02 \x01(\x0e2\x14.ha.v1beta1.NodeRoleR\x04role\x12\x16\n" +
-	"\x06status\x18\x03 \x01(\tR\x06status\"d\n" +
-	"\x11ListNodesResponse\x12(\n" +
-	"\x05nodes\x18\x01 \x03(\v2\x12.ha.v1beta1.HANodeR\x05nodes\x12%\n" +
+	"\tnode_name\x18\x01 \x01(\tR\bnodeName\x12#\n" +
+	"\x04role\x18\x02 \x01(\x0e2\x0f.ha.v1.NodeRoleR\x04role\x12\x16\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status\"_\n" +
+	"\x11ListNodesResponse\x12#\n" +
+	"\x05nodes\x18\x01 \x03(\v2\r.ha.v1.HANodeR\x05nodes\x12%\n" +
 	"\x0eexpected_nodes\x18\x02 \x01(\x05R\rexpectedNodes\"\x0f\n" +
 	"\rStatusRequest\"F\n" +
 	"\x0eStatusResponse\x12\x16\n" +
@@ -339,46 +338,44 @@ const file_ha_v1beta1_ha_proto_rawDesc = "" +
 	"\bNodeRole\x12\x19\n" +
 	"\x15NODE_ROLE_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10NODE_ROLE_LEADER\x10\x01\x12\x16\n" +
-	"\x12NODE_ROLE_FOLLOWER\x10\x022\x89\x03\n" +
-	"\tHAService\x12\xa4\x01\n" +
-	"\x06Status\x12\x19.ha.v1beta1.StatusRequest\x1a\x1a.ha.v1beta1.StatusResponse\"c\x92AK\x12\tHA Status\x1a>Returns whether High Availability mode is enabled or disabled.\x82\xd3\xe4\x93\x02\x0f\x12\r/v1/ha/status\x12\xd4\x01\n" +
-	"\tListNodes\x12\x1c.ha.v1beta1.ListNodesRequest\x1a\x1d.ha.v1beta1.ListNodesResponse\"\x89\x01\x92Ar\x12\rList HA Nodes\x1aaReturns a list of all nodes in the High Availability cluster with their current status and roles.\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/ha/nodesB\x93\x01\n" +
-	"\x0ecom.ha.v1beta1B\aHaProtoP\x01Z/github.com/percona/pmm/api/ha/v1beta1;hav1beta1\xa2\x02\x03HXX\xaa\x02\n" +
-	"Ha.V1beta1\xca\x02\n" +
-	"Ha\\V1beta1\xe2\x02\x16Ha\\V1beta1\\GPBMetadata\xea\x02\vHa::V1beta1b\x06proto3"
+	"\x12NODE_ROLE_FOLLOWER\x10\x022\xf5\x02\n" +
+	"\tHAService\x12\x9a\x01\n" +
+	"\x06Status\x12\x14.ha.v1.StatusRequest\x1a\x15.ha.v1.StatusResponse\"c\x92AK\x12\tHA Status\x1a>Returns whether High Availability mode is enabled or disabled.\x82\xd3\xe4\x93\x02\x0f\x12\r/v1/ha/status\x12\xca\x01\n" +
+	"\tListNodes\x12\x17.ha.v1.ListNodesRequest\x1a\x18.ha.v1.ListNodesResponse\"\x89\x01\x92Ar\x12\rList HA Nodes\x1aaReturns a list of all nodes in the High Availability cluster with their current status and roles.\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/ha/nodesBp\n" +
+	"\tcom.ha.v1B\aHaProtoP\x01Z%github.com/percona/pmm/api/ha/v1;hav1\xa2\x02\x03HXX\xaa\x02\x05Ha.V1\xca\x02\x05Ha\\V1\xe2\x02\x11Ha\\V1\\GPBMetadata\xea\x02\x06Ha::V1b\x06proto3"
 
 var (
-	file_ha_v1beta1_ha_proto_rawDescOnce sync.Once
-	file_ha_v1beta1_ha_proto_rawDescData []byte
+	file_ha_v1_ha_proto_rawDescOnce sync.Once
+	file_ha_v1_ha_proto_rawDescData []byte
 )
 
-func file_ha_v1beta1_ha_proto_rawDescGZIP() []byte {
-	file_ha_v1beta1_ha_proto_rawDescOnce.Do(func() {
-		file_ha_v1beta1_ha_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_ha_v1beta1_ha_proto_rawDesc), len(file_ha_v1beta1_ha_proto_rawDesc)))
+func file_ha_v1_ha_proto_rawDescGZIP() []byte {
+	file_ha_v1_ha_proto_rawDescOnce.Do(func() {
+		file_ha_v1_ha_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_ha_v1_ha_proto_rawDesc), len(file_ha_v1_ha_proto_rawDesc)))
 	})
-	return file_ha_v1beta1_ha_proto_rawDescData
+	return file_ha_v1_ha_proto_rawDescData
 }
 
 var (
-	file_ha_v1beta1_ha_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_ha_v1beta1_ha_proto_msgTypes  = make([]protoimpl.MessageInfo, 5)
-	file_ha_v1beta1_ha_proto_goTypes   = []any{
-		NodeRole(0),               // 0: ha.v1beta1.NodeRole
-		(*ListNodesRequest)(nil),  // 1: ha.v1beta1.ListNodesRequest
-		(*HANode)(nil),            // 2: ha.v1beta1.HANode
-		(*ListNodesResponse)(nil), // 3: ha.v1beta1.ListNodesResponse
-		(*StatusRequest)(nil),     // 4: ha.v1beta1.StatusRequest
-		(*StatusResponse)(nil),    // 5: ha.v1beta1.StatusResponse
+	file_ha_v1_ha_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_ha_v1_ha_proto_msgTypes  = make([]protoimpl.MessageInfo, 5)
+	file_ha_v1_ha_proto_goTypes   = []any{
+		NodeRole(0),               // 0: ha.v1.NodeRole
+		(*ListNodesRequest)(nil),  // 1: ha.v1.ListNodesRequest
+		(*HANode)(nil),            // 2: ha.v1.HANode
+		(*ListNodesResponse)(nil), // 3: ha.v1.ListNodesResponse
+		(*StatusRequest)(nil),     // 4: ha.v1.StatusRequest
+		(*StatusResponse)(nil),    // 5: ha.v1.StatusResponse
 	}
 )
 
-var file_ha_v1beta1_ha_proto_depIdxs = []int32{
-	0, // 0: ha.v1beta1.HANode.role:type_name -> ha.v1beta1.NodeRole
-	2, // 1: ha.v1beta1.ListNodesResponse.nodes:type_name -> ha.v1beta1.HANode
-	4, // 2: ha.v1beta1.HAService.Status:input_type -> ha.v1beta1.StatusRequest
-	1, // 3: ha.v1beta1.HAService.ListNodes:input_type -> ha.v1beta1.ListNodesRequest
-	5, // 4: ha.v1beta1.HAService.Status:output_type -> ha.v1beta1.StatusResponse
-	3, // 5: ha.v1beta1.HAService.ListNodes:output_type -> ha.v1beta1.ListNodesResponse
+var file_ha_v1_ha_proto_depIdxs = []int32{
+	0, // 0: ha.v1.HANode.role:type_name -> ha.v1.NodeRole
+	2, // 1: ha.v1.ListNodesResponse.nodes:type_name -> ha.v1.HANode
+	4, // 2: ha.v1.HAService.Status:input_type -> ha.v1.StatusRequest
+	1, // 3: ha.v1.HAService.ListNodes:input_type -> ha.v1.ListNodesRequest
+	5, // 4: ha.v1.HAService.Status:output_type -> ha.v1.StatusResponse
+	3, // 5: ha.v1.HAService.ListNodes:output_type -> ha.v1.ListNodesResponse
 	4, // [4:6] is the sub-list for method output_type
 	2, // [2:4] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
@@ -386,27 +383,27 @@ var file_ha_v1beta1_ha_proto_depIdxs = []int32{
 	0, // [0:2] is the sub-list for field type_name
 }
 
-func init() { file_ha_v1beta1_ha_proto_init() }
-func file_ha_v1beta1_ha_proto_init() {
-	if File_ha_v1beta1_ha_proto != nil {
+func init() { file_ha_v1_ha_proto_init() }
+func file_ha_v1_ha_proto_init() {
+	if File_ha_v1_ha_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_ha_v1beta1_ha_proto_rawDesc), len(file_ha_v1beta1_ha_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_ha_v1_ha_proto_rawDesc), len(file_ha_v1_ha_proto_rawDesc)),
 			NumEnums:      1,
 			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_ha_v1beta1_ha_proto_goTypes,
-		DependencyIndexes: file_ha_v1beta1_ha_proto_depIdxs,
-		EnumInfos:         file_ha_v1beta1_ha_proto_enumTypes,
-		MessageInfos:      file_ha_v1beta1_ha_proto_msgTypes,
+		GoTypes:           file_ha_v1_ha_proto_goTypes,
+		DependencyIndexes: file_ha_v1_ha_proto_depIdxs,
+		EnumInfos:         file_ha_v1_ha_proto_enumTypes,
+		MessageInfos:      file_ha_v1_ha_proto_msgTypes,
 	}.Build()
-	File_ha_v1beta1_ha_proto = out.File
-	file_ha_v1beta1_ha_proto_goTypes = nil
-	file_ha_v1beta1_ha_proto_depIdxs = nil
+	File_ha_v1_ha_proto = out.File
+	file_ha_v1_ha_proto_goTypes = nil
+	file_ha_v1_ha_proto_depIdxs = nil
 }
