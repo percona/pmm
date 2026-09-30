@@ -4,6 +4,8 @@ Contributor guide for anyone working on this repository (humans, Claude Code, Cu
 
 Not to be confused with the root `AGENTS.md`: that file is the **consumer-facing** guide shipped inside the npm package (listed in `package.json` `files`) so AI tools that install Peak UI know how to use it. When the public API, peer dependencies, theme wrapper, or usage rules change, update `AGENTS.md` too. `src/package-manifest.spec.ts` fails if it stops being published, or if the guides drift from `package.json` (README install command vs. peer dependencies, `pnpm` commands, theme option names). The fonts bullet in `AGENTS.md` documents a gap (the `@fontsource/*` dependencies are declared but never imported); delete it once the library loads its own fonts.
 
+The root `llms.txt` is the hand-written export index shipped next to `AGENTS.md`, in the [llms.txt](https://llmstxt.org) layout: a link list per section, one line per export with its purpose and when to prefer it over the alternative. When you add, rename, or remove an export, update its line (and its Storybook link when a story title changes). `src/llms-txt.spec.ts` fails if a public export is missing, if a Storybook or source link points nowhere, or if the file stops being published. Generating it from the exports and their JSDoc is a follow-up ticket under the same epic as PMM-15492.
+
 PEAK UI (`@percona/peak-ui`) is a React + MUI v7 component library published as an npm package (themed components, design tokens, form inputs). Zero infrastructure: no DB/Docker/services needed to build, test, or run Storybook.
 
 ## Commands
@@ -37,7 +39,7 @@ Pre-existing and cosmetic — do not treat as failures:
 
 - **Themes** — three variants (`base`, `pmm`, `sep`) under `src/design/themes/`. `getThemeOptions(themeName)` is **curried** — call it as `getThemeOptions(name)(mode)` (the return value is `(mode) => ThemeOptions`). PMM/SEP extend Base via `mergeThemeOptions` (`src/design/merge-theme-options.ts`).
 - **ThemeContextProvider** wraps MUI's `ThemeProvider` with a light/dark toggle (`ColorModeContext`), optionally persisting mode to localStorage.
-- **Components** — follow the existing folder layout for new ones: component file + `.types.ts` + `.stories.tsx` + `index.ts` barrel, with **both** named and default exports. Form inputs (`src/components/form/inputs/`) integrate with `react-hook-form`.
+- **Components** — follow the existing folder layout for new ones: component file + `.types.ts` + `.stories.tsx` + `index.ts` barrel, with **both** named and default exports, plus a line in `llms.txt`. Form inputs (`src/components/form/inputs/`) integrate with `react-hook-form`.
 
 ## Storybook maturity tags
 
