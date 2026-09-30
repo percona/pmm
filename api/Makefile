@@ -12,7 +12,6 @@ gen:            ## Generate PMM API
 		user/v1 \
 		inventory/v1 \
 		management/v1 \
-		management/v1/service \
 		actions/v1 \
 		advisors/v1 \
 		alerting/v1 \
@@ -21,7 +20,6 @@ gen:            ## Generate PMM API
 		accesscontrol/v1beta1 \
 		qan/v1 \
 		realtimeanalytics/v1 \
-		platform/v1 \
 		ha/v1beta1"; \
 	for API in $$SPECS; do \
 		set -x ; \
