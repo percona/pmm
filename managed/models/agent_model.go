@@ -177,6 +177,24 @@ func (c AWSOptions) Value() (driver.Value, error) { return encryptedJSONValue(c)
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *AWSOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
 
+// String implements fmt.Stringer; secrets are redacted.
+func (c AWSOptions) String() string {
+	type plain AWSOptions // no methods, so Sprintf does not recurse into String
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%+v", p)
+}
+
+// GoString implements fmt.GoStringer; secrets are redacted.
+func (c AWSOptions) GoString() string {
+	type plain AWSOptions
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%#v", p)
+}
+
 // IsEmpty returns true if all AWSOptions fields are unset or have zero values, otherwise returns false.
 func (c AWSOptions) IsEmpty() bool {
 	return c.AWSAccessKey == "" &&
@@ -199,6 +217,24 @@ func (c AzureOptions) Value() (driver.Value, error) { return encryptedJSONValue(
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *AzureOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
+
+// String implements fmt.Stringer; secrets are redacted.
+func (c AzureOptions) String() string {
+	type plain AzureOptions // no methods, so Sprintf does not recurse into String
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%+v", p)
+}
+
+// GoString implements fmt.GoStringer; secrets are redacted.
+func (c AzureOptions) GoString() string {
+	type plain AzureOptions
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%#v", p)
+}
 
 // IsEmpty returns true if all AzureOptions fields are unset or have zero values, otherwise returns false.
 func (c AzureOptions) IsEmpty() bool {
@@ -227,6 +263,24 @@ func (c MongoDBOptions) Value() (driver.Value, error) { return encryptedJSONValu
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *MongoDBOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
+
+// String implements fmt.Stringer; secrets are redacted.
+func (c MongoDBOptions) String() string {
+	type plain MongoDBOptions // no methods, so Sprintf does not recurse into String
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%+v", p)
+}
+
+// GoString implements fmt.GoStringer; secrets are redacted.
+func (c MongoDBOptions) GoString() string {
+	type plain MongoDBOptions
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%#v", p)
+}
 
 // IsEmpty returns true if all MongoDBOptions fields are unset or have zero values, otherwise returns false.
 func (c MongoDBOptions) IsEmpty() bool {
@@ -266,6 +320,24 @@ func (c MySQLOptions) Value() (driver.Value, error) { return encryptedJSONValue(
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *MySQLOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
 
+// String implements fmt.Stringer; secrets are redacted.
+func (c MySQLOptions) String() string {
+	type plain MySQLOptions // no methods, so Sprintf does not recurse into String
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%+v", p)
+}
+
+// GoString implements fmt.GoStringer; secrets are redacted.
+func (c MySQLOptions) GoString() string {
+	type plain MySQLOptions
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%#v", p)
+}
+
 // IsEmpty returns true if all MySQLOptions fields are unset or have zero values, otherwise returns false.
 func (c MySQLOptions) IsEmpty() bool {
 	return c.TLSCa == "" &&
@@ -292,6 +364,24 @@ func (c PostgreSQLOptions) Value() (driver.Value, error) { return encryptedJSONV
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *PostgreSQLOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
 
+// String implements fmt.Stringer; secrets are redacted.
+func (c PostgreSQLOptions) String() string {
+	type plain PostgreSQLOptions // no methods, so Sprintf does not recurse into String
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%+v", p)
+}
+
+// GoString implements fmt.GoStringer; secrets are redacted.
+func (c PostgreSQLOptions) GoString() string {
+	type plain PostgreSQLOptions
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%#v", p)
+}
+
 // IsEmpty returns true if all PostgreSQLOptions fields are unset or have zero values, otherwise returns false.
 func (c PostgreSQLOptions) IsEmpty() bool {
 	return c.SSLCa == "" &&
@@ -316,6 +406,24 @@ func (c ValkeyOptions) Value() (driver.Value, error) { return encryptedJSONValue
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *ValkeyOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
+
+// String implements fmt.Stringer; secrets are redacted.
+func (c ValkeyOptions) String() string {
+	type plain ValkeyOptions // no methods, so Sprintf does not recurse into String
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%+v", p)
+}
+
+// GoString implements fmt.GoStringer; secrets are redacted.
+func (c ValkeyOptions) GoString() string {
+	type plain ValkeyOptions
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%#v", p)
+}
 
 // IsEmpty returns true if all ValkeyOptions fields are unset or have zero values, otherwise returns false.
 func (c ValkeyOptions) IsEmpty() bool {

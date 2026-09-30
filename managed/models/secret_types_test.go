@@ -17,6 +17,7 @@ package models_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"strings"
 	"testing"
@@ -211,4 +212,73 @@ func TestEncryptedFieldsPinned(t *testing.T) {
 	assert.Equal(t, []string{"Username", "Password", "AgentPassword"}, agentSecrets)
 
 	assert.Equal(t, expected["S3LocationConfig"], taggedFields(reflect.TypeFor[models.S3LocationConfig]()))
+}
+
+// TestSecretsRedacted pins that secrets stay out of log lines and struct
+// dumps. The reform query logger prints the arguments of every write with %v,
+// and Agent.String() prints every column, so the options types must redact
+// their tagged fields themselves.
+func TestSecretsRedacted(t *testing.T) {
+	t.Parallel()
+
+	// fill sets every string field of the struct v points to: tagged secrets
+	// and the other fields get distinct markers
+	fill := func(v any) ([]string, []string) {
+		var secrets, visible []string
+		val := reflect.ValueOf(v).Elem()
+		for field := range val.Type().Fields() {
+			if field.Type.Kind() != reflect.String {
+				continue
+			}
+			marker := val.Type().Name() + "-" + field.Name
+			if field.Tag.Get("encrypt") == "true" {
+				marker = "secret-" + marker
+				secrets = append(secrets, marker)
+			} else {
+				marker = "visible-" + marker
+				visible = append(visible, marker)
+			}
+			val.FieldByIndex(field.Index).SetString(marker)
+		}
+		return secrets, visible
+	}
+
+	agent := &models.Agent{AgentID: "A1", Password: models.EncryptedStringOrNil("secret-password")}
+	location := &models.S3LocationConfig{}
+	secrets := []string{"secret-password"}
+	var visible []string
+	for _, target := range []any{
+		&agent.AWSOptions, &agent.AzureOptions, &agent.MongoDBOptions,
+		&agent.MySQLOptions, &agent.PostgreSQLOptions, &agent.ValkeyOptions, location,
+	} {
+		s, v := fill(target)
+		require.NotEmpty(t, s, "%T has no secrets", target)
+		secrets = append(secrets, s...)
+		visible = append(visible, v...)
+	}
+
+	var queryLog strings.Builder
+	logger := reform.NewPrintfLogger(func(format string, args ...any) { fmt.Fprintf(&queryLog, format, args...) })
+	logger.Before("UPDATE agents", agent.Values())
+
+	outputs := map[string]string{
+		"query log":    queryLog.String(),
+		"Agent.String": agent.String(),
+		"%v":           fmt.Sprintf("%v", agent),
+		"%+v":          fmt.Sprintf("%+v", *agent),
+		"%#v":          fmt.Sprintf("%#v", *agent),
+		"S3 %+v":       fmt.Sprintf("%+v", *location),
+		"S3 %#v":       fmt.Sprintf("%#v", *location),
+	}
+	for name, out := range outputs {
+		for _, secret := range secrets {
+			assert.NotContains(t, out, secret, name)
+		}
+	}
+
+	// redaction must not hide the rest of the struct
+	all := outputs["query log"] + outputs["S3 %+v"]
+	for _, v := range visible {
+		assert.Contains(t, all, v)
+	}
 }

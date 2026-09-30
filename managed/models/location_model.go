@@ -17,6 +17,7 @@ package models
 
 import (
 	"database/sql/driver"
+	"fmt"
 	"time"
 
 	"gopkg.in/reform.v1"
@@ -83,6 +84,24 @@ func (c S3LocationConfig) Value() (driver.Value, error) { return encryptedJSONVa
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *S3LocationConfig) Scan(src any) error { return encryptedJSONScan(c, src) }
+
+// String implements fmt.Stringer; secrets are redacted.
+func (c S3LocationConfig) String() string {
+	type plain S3LocationConfig // no methods, so Sprintf does not recurse into String
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%+v", p)
+}
+
+// GoString implements fmt.GoStringer; secrets are redacted.
+func (c S3LocationConfig) GoString() string {
+	type plain S3LocationConfig
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%#v", p)
+}
 
 // FilesystemLocationConfig contains require properties for accessing file system on pmm-client-node.
 type FilesystemLocationConfig struct {

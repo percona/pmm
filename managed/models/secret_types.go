@@ -128,6 +128,17 @@ func applyToSecretFields(v any, fn func(string) (string, error)) error {
 	return nil
 }
 
+// redactSecrets masks the tagged secret fields of the struct v points to, for
+// String and GoString: log lines and struct dumps must not carry secrets.
+func redactSecrets(v any) {
+	_ = applyToSecretFields(v, func(s string) (string, error) {
+		if s == "" {
+			return "", nil
+		}
+		return "***", nil
+	})
+}
+
 // encryptedJSONValue marshals v to JSON with its tagged secret fields
 // encrypted; the caller's struct is never mutated.
 func encryptedJSONValue[T any](v T) (driver.Value, error) {
