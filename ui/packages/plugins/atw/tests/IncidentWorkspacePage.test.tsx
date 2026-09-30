@@ -228,7 +228,7 @@ describe('IncidentWorkspacePage — write access', () => {
     await waitFor(() => expect(screen.getByText('Results')).toBeTruthy());
     expect(screen.queryByText('Collect')).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('combobox', { name: 'Snippets' })
+      screen.queryByRole('combobox', { name: 'Search scripts' })
     ).not.toBeInTheDocument();
     expect(screen.getByTestId('atw-collect-read-only')).toBeTruthy();
     expect(

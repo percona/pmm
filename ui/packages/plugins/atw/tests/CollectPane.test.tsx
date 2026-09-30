@@ -73,6 +73,8 @@ describe('CollectPane', () => {
     expect(
       screen.queryByRole('combobox', { name: 'Subcategory 1' })
     ).toBeNull();
-    expect(screen.getByRole('combobox', { name: 'Snippets' })).toBeDisabled();
+    expect(
+      screen.getByRole('combobox', { name: 'Search scripts' })
+    ).toBeDisabled();
   });
 });

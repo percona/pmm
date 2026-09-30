@@ -112,7 +112,7 @@ function searchCalls(): { search?: string; limit?: number; offset?: number }[] {
 
 /** Type the term into the picker one key at a time, inside one debounce window. */
 async function typeSearch(term: string): Promise<HTMLElement> {
-  const input = await screen.findByRole('combobox', { name: 'Snippets' });
+  const input = await screen.findByRole('combobox', { name: 'Search scripts' });
   await userEvent.type(input, term);
   return input;
 }
@@ -178,8 +178,8 @@ describe('CollectPane snippet search', () => {
     mockApis();
     renderPane(<CollectPane incidentId="inc-1" />);
 
-    // The category listing resolves, so the pane has settled without a search.
-    await screen.findByRole('combobox', { name: 'Subcategory 1' });
+    // Search is on the pane on arrival; settle past the debounce with an empty box.
+    await screen.findByRole('combobox', { name: 'Search scripts' });
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     expect(searchCalls()).toHaveLength(0);

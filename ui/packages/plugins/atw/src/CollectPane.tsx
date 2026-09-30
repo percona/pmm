@@ -16,11 +16,13 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import SearchIcon from '@mui/icons-material/Search';
 import {
   Alert,
   Autocomplete,
   Box,
   CircularProgress,
+  InputAdornment,
   TextField,
   Typography,
 } from '@mui/material';
@@ -583,10 +585,8 @@ export function CollectPane({
         </Alert>
       )}
 
-      {!isClosed && <CategoryBrowser onSnippetsChange={handleSnippetsChange} />}
-
       {searchQuery.error && debouncedSearch !== '' && (
-        <Alert severity="error" sx={{ mt: 3 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
           Snippet search failed: {searchQuery.error.message}
         </Alert>
       )}
@@ -599,7 +599,7 @@ export function CollectPane({
       {hiddenMatchCount > 0 && (
         // Polite, not the Alert default's assertive: this mounts and unmounts as
         // the user keeps typing, and must not interrupt a screen reader mid-word.
-        <Alert severity="info" role="status" sx={{ mt: 3 }}>
+        <Alert severity="info" role="status" sx={{ mb: 2 }}>
           Showing the first {searchResults.length} of {searchPagination?.total}{' '}
           snippets matching &ldquo;{debouncedSearch}&rdquo;. Type more of the
           name or description to narrow the results.
@@ -609,7 +609,6 @@ export function CollectPane({
       <Autocomplete
         multiple
         disabled={isClosed}
-        sx={{ mt: 3 }}
         options={options}
         value={selected}
         onChange={(_event, value) => {
@@ -628,7 +627,7 @@ export function CollectPane({
         loadingText="Searching snippets…"
         noOptionsText={
           searchInput.trim() === ''
-            ? 'Type to search every snippet, or pick a category above.'
+            ? 'Type to search every snippet, or filter by category below.'
             : 'No approved snippet matches this search.'
         }
         getOptionLabel={(option) => option.title}
@@ -657,28 +656,43 @@ export function CollectPane({
         renderInput={(params) => (
           <TextField
             {...params}
-            label="Snippets"
+            label="Search scripts"
             placeholder={
               selected.length === 0
-                ? 'Search or select snippets to run'
+                ? 'Search by name or description'
                 : undefined
             }
+            helperText={
+              selected.length === 0 && !isClosed
+                ? 'Search by name or description, or filter by category below, then select one or more scripts to build the execution form.'
+                : undefined
+            }
+            InputProps={{
+              ...params.InputProps,
+              startAdornment: (
+                <>
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" aria-hidden />
+                  </InputAdornment>
+                  {params.InputProps.startAdornment}
+                </>
+              ),
+            }}
           />
         )}
       />
+
+      {!isClosed && (
+        <Box sx={{ mt: 3 }}>
+          <CategoryBrowser onSnippetsChange={handleSnippetsChange} />
+        </Box>
+      )}
 
       {rerunResolveFailed && (
         <Alert severity="warning" sx={{ mt: 3 }}>
           Could not find “{rerunResolveFailed}” to reopen it — it may have been
           renamed, removed, or is no longer approved. Search for it above, or
           pick a replacement.
-        </Alert>
-      )}
-
-      {selected.length === 0 && (
-        <Alert severity="info" sx={{ mt: 3 }}>
-          Search for a snippet by name or description, or browse a category,
-          then select one or more snippets to build the execution form.
         </Alert>
       )}
 
