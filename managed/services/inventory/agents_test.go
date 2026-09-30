@@ -1511,6 +1511,34 @@ func TestChangeAgentRejectsAgentOfAnotherType(t *testing.T) {
 		require.NoError(t, err)
 		assert.False(t, stored.Disabled)
 	})
+
+	t.Run("PostgresExporterThroughNodeExporterDisableCollectors", func(t *testing.T) {
+		_, as, _, teardown, ctx, vmdb := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// The disabled-collector widening commits ahead of executeAgentChange, so it has to skip an
+		// agent of another type too, or the refused request would still reach the stored row and the
+		// scrape config.
+		pgExporters, err := models.FindAgents(as.db.Querier, models.AgentFilters{
+			PMMAgentID: models.PMMServerAgentID,
+			AgentType:  new(models.PostgresExporterType),
+		})
+		require.NoError(t, err)
+		require.Len(t, pgExporters, 1)
+
+		_, err = as.ChangeNodeExporter(ctx, pgExporters[0].AgentID, &inventoryv1.ChangeNodeExporterParams{
+			DisableCollectors: []string{"diskstats"},
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, fmt.Sprintf("Agent with ID %s has type %s, expected %s.",
+			pgExporters[0].AgentID, models.PostgresExporterType, models.NodeExporterType)), err)
+
+		assert.Zero(t, countCalls(vmdb, "ForceConfigurationUpdate"))
+		assert.Zero(t, countCalls(vmdb, "RequestConfigurationUpdate"))
+
+		stored, err := models.FindAgentByID(as.db.Querier, pgExporters[0].AgentID)
+		require.NoError(t, err)
+		assert.Equal(t, pgExporters[0].ExporterOptions.DisabledCollectors, stored.ExporterOptions.DisabledCollectors)
+	})
 }
 
 func TestChangeRTAMongoDBAgent(t *testing.T) {

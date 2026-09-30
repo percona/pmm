@@ -273,6 +273,12 @@ func (as *AgentsService) widenDisabledCollectors(ctx context.Context, agentID st
 			return err
 		}
 
+		// Leave another agent type untouched: executeAgentChange rejects the request next, and nothing
+		// may be committed before it does.
+		if current.AgentType != models.NodeExporterType {
+			return nil
+		}
+
 		// empty but non-nil, so that restoring it reads as "nothing disabled" rather than as
 		// "no change" in models.ChangeExporterOptions
 		previous := append([]string{}, current.ExporterOptions.DisabledCollectors...)
