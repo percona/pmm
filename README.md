@@ -196,7 +196,7 @@ No. Every feature is in the open source release. Percona sells [support](https:/
 <details>
 <summary><b>How do I upgrade?</b></summary>
 
-PMM Server: **Configuration → Updates → Upgrade now**, or pull the new image. PMM Client: your package manager. See the [upgrade guide](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/index.html).
+PMM Server: pull the new image (Docker, Podman, or Helm). PMM Client: your package manager. See the [upgrade guide](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/index.html).
 
 </details>
 
