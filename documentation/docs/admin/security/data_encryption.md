@@ -1,12 +1,35 @@
 # PMM data encryption
 
-Percona Monitoring and Management (PMM) implements robust encryption for sensitive data stored in its internal database, such as database access credentials, TLS certificates and keys, cloud credentials and backup location secrets.
+Percona Monitoring and Management (PMM) encrypts the credentials it stores in its internal database: database access credentials, TLS client certificates and keys, cloud credentials and backup location secrets. See [What PMM encrypts](#what-pmm-encrypts) for the exact list.
 
 ## Default encryption
 
 PMM automatically manages encryption using a keyset file located at `/srv/pmm-encryption.key`. PMM generates this file upon the initial launch of PMM 3 or when upgrading from the latest version of PMM 2.
 
 Encrypted values are stored with the `pmm1$` prefix followed by the base64-encoded ciphertext (AES-256-GCM). The ciphertext embeds the ID of the key it was encrypted with, so PMM always knows which key of the keyset to use for decryption — including during key rotation.
+
+## What PMM encrypts
+
+PMM encrypts these fields of its internal database (`pmm-managed`):
+
+| Data | Stored in | Encrypted fields |
+|------|-----------|------------------|
+| Service and agent credentials | `agents` | `username`, `password`, `agent_password` |
+| Amazon RDS credentials | `agents.aws_options` | `aws_access_key`, `aws_secret_key` |
+| Microsoft Azure credentials | `agents.azure_options` | `subscription_id`, `client_id`, `client_secret`, `tenant_id` |
+| MongoDB TLS client key | `agents.mongo_options` | `tls_certificate_key`, `tls_certificate_key_file_password` |
+| MySQL TLS client certificate and key | `agents.mysql_options` | `tls_cert`, `tls_key` |
+| PostgreSQL TLS client certificate and key | `agents.postgresql_options` | `ssl_cert`, `ssl_key` |
+| Valkey TLS client certificate and key | `agents.valkey_options` | `ssl_cert`, `ssl_key` |
+| Backup location S3 credentials | `backup_locations.s3_config` | `access_key`, `secret_key` |
+
+Not encrypted, because they are not secret:
+
+- CA certificates (`tls_ca`, `ssl_ca`): they only verify the database server's certificate and are public.
+- The SSH public key that can be set on AMI deployments: PMM writes it to the `authorized_keys` file, and it is public by design.
+- Other settings and inventory data, such as addresses, ports, service names and labels.
+
+Grafana stores its own secrets in its own database and encrypts them with its own key. To encrypt the PMM Client configuration file, see [Encrypt the PMM Client configuration file](client_config_encryption.md).
 
 ## Custom encryption key configuration
 
@@ -30,7 +53,7 @@ To set up a custom key location, configure the `PMM_ENCRYPTION_KEY_PATH` environ
 
 ### Key management requirements
 
-Once configured, PMM will use the keyset to encrypt and decrypt all sensitive data stored within the system.
+Once configured, PMM uses the keyset to encrypt and decrypt the fields listed in [What PMM encrypts](#what-pmm-encrypts).
 
 If the keyset file is unavailable or misplaced, PMM will be unable to access and decrypt the stored data, which will prevent it from running correctly.
 
@@ -60,7 +83,7 @@ During the first start, PMM Server:
 
 You may want to rotate the encryption key when the original key is compromised or as part of routine security maintenance. For this, you can use the **PMM Encryption Rotation Tool**.
 
-The tool adds a new key to the keyset and makes it the primary one; the previous keys remain in the keyset, so all stored data stays readable at every point of the rotation — the database is never held decrypted at rest. PMM Server is then restarted and re-encrypts all sensitive data with the new key during startup.
+The tool adds a new key to the keyset and makes it the primary one; the previous keys remain in the keyset, so all stored data stays readable at every point of the rotation — the database is never held decrypted at rest. PMM Server is then restarted and re-encrypts all encrypted fields with the new key during startup.
 
 To rotate the encryption key:
 {.power-number}
@@ -79,7 +102,7 @@ To rotate the encryption key:
 
 3. Verify PMM functionality all components are functioning properly to ensure that the encryption key rotation was successful.
 
-Once the rotation tool has completed, the keyset file (at the default location `/srv/pmm-encryption.key` or the path specified by `PMM_ENCRYPTION_KEY_PATH`) contains the new primary key and all sensitive data is re-encrypted with it.
+Once the rotation tool has completed, the keyset file (at the default location `/srv/pmm-encryption.key` or the path specified by `PMM_ENCRYPTION_KEY_PATH`) contains the new primary key and all encrypted fields are re-encrypted with it.
 
 ## Recovery after a corrupted rotation
 
