@@ -192,7 +192,12 @@ const AlertThresholds = () => {
             <Button
               type="submit"
               variant="contained"
-              disabled={rows.length === 0 || methods.formState.isSubmitting}
+              disabled={
+                isError ||
+                rulesError ||
+                rows.length === 0 ||
+                methods.formState.isSubmitting
+              }
             >
               {Messages.actions.submit}
             </Button>

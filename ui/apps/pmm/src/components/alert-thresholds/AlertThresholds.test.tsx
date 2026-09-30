@@ -177,6 +177,23 @@ describe('AlertThresholds', () => {
     ).toBeDisabled();
   });
 
+  // A failed refetch keeps the last successful data, so rows are not empty here.
+  it('disables Submit when a refetch fails after a successful load', () => {
+    mocks.useNodeThresholds.mockImplementation((nodeId: string) => ({
+      data: THRESHOLDS[nodeId],
+      isLoading: false,
+      isError: true,
+    }));
+
+    renderModal();
+    openFor('node-1');
+
+    expect(screen.getByText(Messages.error)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: Messages.actions.submit })
+    ).toBeDisabled();
+  });
+
   // A reopened node shows cached rows and refetches in the background; the refetch must
   // not throw away what the operator has typed in the meantime.
   it('keeps a typed value when the thresholds are refetched', () => {

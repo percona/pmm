@@ -239,10 +239,6 @@ export type ThresholdScope =
   | 'THRESHOLD_SCOPE_CLUSTER';
 
 // One overridable parameter of one rule, as it applies to one target.
-//
-// Numeric and boolean fields are optional because proto3 JSON omits zero values:
-// a threshold of 0, or a row that is not overridden, arrives with the field absent
-// rather than set to 0/false.
 export interface Threshold {
   ruleId: string;
   paramName: string;
@@ -253,7 +249,7 @@ export interface Threshold {
   // Effective value for the target: the winning override, otherwise the default.
   effectiveValue?: number;
   isOverridden?: boolean;
-  // Scope and target the winning override was set at; absent when not overridden.
+  // Scope and target the winning override was set at; unspecified and empty when not overridden.
   scope?: ThresholdScope;
   target?: string;
 }
