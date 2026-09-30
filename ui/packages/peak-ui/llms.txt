@@ -111,36 +111,36 @@ Icons: search `@mui/icons-material` first; the custom icons listed under Icons e
 - [ClusterDegradedIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Cluster topology in a degraded (warning) state.
 - [ClusterInoperationalIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Cluster topology that is down (error) state.
 - [ClusterTransitioningIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Cluster topology that is updating or transitioning.
-- [HomeIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Home or dashboard landing page.
-- [KnowledgeBaseIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Documentation, knowledge base, or help.
-- [BottomPanelOpenIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Expand a bottom panel or terminal drawer.
-- [BottomPanelCloseIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Collapse a bottom panel or terminal drawer.
+- [HomeIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Home page or landing page.
+- [KnowledgeBaseIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Documentation, knowledge base, or help information.
+- [BottomPanelOpenIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Expand a bottom panel/sheet or terminal drawer.
+- [BottomPanelCloseIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Collapse a bottom panel/sheet or terminal drawer.
 - [Graph4Icon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Node graph with four connected nodes, for topology or network visuals.
 - [Graph5Icon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Node graph with five connected nodes, for topology or network visuals.
-- [Graph6Icon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Node graph with six connected nodes, for topology or cluster visuals.
-- [CirclesExtIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Connected circles for groups, clusters, or relationships.
-- [NetworkNodeIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Single node in a topology tree or hierarchy.
-- [NetworkIntelligenceIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Smart routing or network intelligence.
+- [Graph6Icon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Node graph with six connected nodes, for topology or network visuals.
+- [CirclesExtIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Connected circles for groups, for topology, or network visuals, or relationships.
+- [NetworkNodeIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Single node graph in a topology tree of three elements, for topology, or network visuals, or relationships.
+- [NetworkIntelligenceIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Resembles a brain to signify network/artificial intelligence or insights.
 - [QueryStatsIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Query analytics and performance metrics.
 - [SearchInsightsIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Search-driven insights and exploration of analytics.
 - [ElectricBoltIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Power, speed, or an active fast mode.
-- [ElectricBoltOffIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Power or fast mode switched off.
+- [ElectricBoltOffIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Power, speed, or an active mode, switched off or deactivated.
 - [SupportDiagnosticsIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Support diagnostics and troubleshooting tools.
 - [ErrorIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/status/status.tsx): Deprecated legacy status icon; use `StatusIcon` with `severity="error"`. Legacy status icons take `LegacyStatusIconProps` (`SvgIconProps` plus `size`); `IconsProps` and `StatusIconProviderProps` are their internal shapes.
 - [WarningIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/status/status.tsx): Deprecated legacy status icon; use `StatusIcon` with `severity="warning"`.
 - [SuccessIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/status/status.tsx): Deprecated legacy status icon; use `StatusIcon` with `severity="success"`.
 - [UnknownIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/status/status.tsx): Deprecated legacy status icon; use `StatusIcon` with `severity="indeterminate"`.
-- [PendingIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/status/status.tsx): Deprecated legacy status icon for a pending state; no `StatusIcon` equivalent yet, so keep using it until one exists.
-- [PausedIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/status/status.tsx): Deprecated legacy status icon for a paused state; no `StatusIcon` equivalent yet, so keep using it until one exists.
+- [PendingIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/status/status.tsx): Deprecated legacy status icon for a pending state, do not adopt in new code; no `StatusIcon` equivalent, so find an alternative in MUI icons.
+- [PausedIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/status/status.tsx): Deprecated legacy status icon for a paused state, do not adopt in new code; no `StatusIcon` equivalent, so find an alternative in MUI icons.
 - [MySqlIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/db/db.tsx): Deprecated MySQL brand illustration pending migration to Illustrations; do not adopt in new code.
 - [MongoIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/db/db.tsx): Deprecated MongoDB brand illustration pending migration to Illustrations; do not adopt in new code.
 - [PostgreSqlIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/db/db.tsx): Deprecated PostgreSQL brand illustration pending migration to Illustrations; do not adopt in new code.
 
 ## Illustrations
 
-- [NothingFoundIllustration](https://percona.github.io/peak-ui/?path=/docs/foundations-illustrations-illustrations--docs): Empty search or filter result. Layers `NothingFoundLayer`: `swooshArrays`, `glass`, `questionMark`; props `NothingFoundIllustrationProps`.
+- [NothingFoundIllustration](https://percona.github.io/peak-ui/?path=/docs/foundations-illustrations-illustrations--docs): Empty search or empty filtering result. Layers `NothingFoundLayer`: `swooshArrays`, `glass`, `questionMark`; props `NothingFoundIllustrationProps`.
 - [RadarIllustration](https://percona.github.io/peak-ui/?path=/docs/foundations-illustrations-illustrations--docs): Scanning or a background process at work. Layers `RadarLayer`: `arrays`, `nodes`, `wiper`; props `RadarIllustrationProps`.
-- [RealTimeDatabaseOffIllustration](https://percona.github.io/peak-ui/?path=/docs/foundations-illustrations-illustrations--docs): Live data or a feature that is switched off. Layers `RealTimeDatabaseOffLayer`: `accent`, `base`, `liveBadge`; props `RealTimeDatabaseOffIllustrationProps`.
+- [RealTimeDatabaseOffIllustration](https://percona.github.io/peak-ui/?path=/docs/foundations-illustrations-illustrations--docs): Live data stream that is switched off. Layers `RealTimeDatabaseOffLayer`: `accent`, `base`, `liveBadge`; props `RealTimeDatabaseOffIllustrationProps`.
 - [UnknownErrorIllustration](https://percona.github.io/peak-ui/?path=/docs/foundations-illustrations-illustrations--docs): Unexpected error. Layers `UnknownErrorLayer`: `eyes`, `mouth`, `windowFrame`, `controls`, `nose`; props `UnknownErrorIllustrationProps`.
 
 ## Utilities
