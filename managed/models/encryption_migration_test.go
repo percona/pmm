@@ -592,3 +592,62 @@ func TestMigrateEncryptionAfterKeyLoss(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "password-before-key-loss", agent.Password.Reveal())
 }
+
+// TestMigrateEncryptionValkeyTLS covers PMM-15375: PMM 3.x stored the Valkey
+// exporter's TLS certificate and key in plaintext. The migration encrypts them
+// like the other TLS options; the CA certificate is public and stays readable.
+func TestMigrateEncryptionValkeyTLS(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+
+	const (
+		ca   = "-----BEGIN CERTIFICATE-----\nca\n-----END CERTIFICATE-----\n"
+		cert = "-----BEGIN CERTIFICATE-----\nclient\n-----END CERTIFICATE-----\n"
+		key  = "-----BEGIN PRIVATE KEY-----\nclient\n-----END PRIVATE KEY-----\n"
+	)
+	valkeyOptions, err := json.Marshal(map[string]any{"tls": true, "ssl_ca": ca, "ssl_cert": cert, "ssl_key": key})
+	require.NoError(t, err)
+
+	now := time.Now()
+	_, err = sqlDB.ExecContext(t.Context(),
+		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
+			"VALUES ('N1', 'generic', 'name', '', '', '', '', $1, $2)", now, now)
+	require.NoError(t, err)
+	_, err = sqlDB.ExecContext(t.Context(),
+		`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify) `+
+			`VALUES ('PA', 'pmm-agent', 'N1', false, '', $1, $2, false, false)`, now, now)
+	require.NoError(t, err)
+	_, err = sqlDB.ExecContext(t.Context(),
+		`INSERT INTO agents (agent_id, agent_type, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, valkey_options) `+
+			`VALUES ('V1', 'valkey_exporter', 'PA', 'N1', false, '', $1, $2, true, false, $3)`,
+		now, now, string(valkeyOptions))
+	require.NoError(t, err)
+
+	cipher, err := encryption.DefaultCipher()
+	require.NoError(t, err)
+	ids, err := models.AgentsNeedingReencryption(q, cipher)
+	require.NoError(t, err)
+	require.Equal(t, []string{"V1"}, ids)
+
+	require.NoError(t, models.MigrateEncryption(q))
+
+	var raw string
+	require.NoError(t, sqlDB.QueryRowContext(t.Context(), `SELECT valkey_options FROM agents WHERE agent_id = 'V1'`).Scan(&raw))
+	var stored models.ValkeyOptions
+	require.NoError(t, json.Unmarshal([]byte(raw), &stored))
+	assert.True(t, encryption.IsEncrypted(stored.SSLCert))
+	assert.True(t, encryption.IsEncrypted(stored.SSLKey))
+	assert.Equal(t, ca, stored.SSLCa)
+	assert.True(t, stored.TLS)
+
+	agent, err := models.FindAgentByID(q, "V1")
+	require.NoError(t, err)
+	assert.Equal(t, models.ValkeyOptions{TLS: true, SSLCa: ca, SSLCert: cert, SSLKey: key}, agent.ValkeyOptions)
+
+	ids, err = models.AgentsNeedingReencryption(q, cipher)
+	require.NoError(t, err)
+	assert.Empty(t, ids)
+}
