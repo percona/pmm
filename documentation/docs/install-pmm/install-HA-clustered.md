@@ -404,6 +404,79 @@ To install PMM HA:
       kubectl get vmcluster,postgrescluster,clickhouseinstallation -n pmm
       ```
 
+## Install PMM HA into multiple namespaces
+
+You can run more than one PMM HA Cluster on the same Kubernetes cluster, for example a disaster recovery target or an isolated test instance next to production. Each instance runs in its own namespace, with its own PMM Server replicas, databases, and PMM UI.
+
+### Requirements for each additional instance
+
+The operators you installed in [Step 1](#step-1-install-operators) watch all namespaces, so install them only once per cluster. Don't install the `pmm-ha-dependencies` chart again in the new namespace. The second installation fails with an `invalid ownership metadata` error.
+
+Each additional instance needs:
+
+- **Its own namespace**: Some PMM HA resources have fixed names, such as `pmm-ha-haproxy` and `monitoring-service`. Two instances in the same namespace conflict, whatever their release names are.
+- **A unique Helm release name**: The chart creates cluster-wide roles named after the release, so two instances can't share a release name, even in different namespaces. The name doesn't need to contain `pmm-ha`.
+- **Its own `pmm-secret`**: Create it in the new namespace before you install.
+- **Node exporter disabled**: The bundled node exporter uses host port 9100, so only one instance per cluster can run it. Disable it on every additional instance.
+
+!!! warning "Upgrade the operators first if you installed PMM HA before PMM 3.10.0"
+    In earlier versions, the PostgreSQL and ClickHouse operators watch only their own namespace. If you install a second instance before upgrading them, its PostgreSQL and ClickHouse clusters are never created, and the PMM pods stay in `Init:1/2` indefinitely.
+
+    To upgrade the operators:
+
+    1. Find the release name of your operators installation, usually `pmm-operators`:
+        ```sh
+        helm list --namespace pmm
+        ```
+
+    2. Upgrade it:
+        ```sh
+        helm upgrade pmm-operators percona/pmm-ha-dependencies --namespace pmm
+        ```
+
+    3. Wait for the new operator pods to roll out:
+        ```sh
+        kubectl rollout status deployment -l app.kubernetes.io/name=pg-operator -n pmm --timeout=300s
+        kubectl rollout status deployment -l app.kubernetes.io/name=altinity-clickhouse-operator -n pmm --timeout=300s
+        kubectl rollout status deployment -l app.kubernetes.io/name=victoria-metrics-operator -n pmm --timeout=300s
+        ```
+
+### Install an additional instance
+
+This example installs a second instance with the release name `pmm-dr` in the `pmm-dr` namespace.
+{.power-number}
+
+1. Create the namespace:
+    ```sh
+    kubectl create namespace pmm-dr
+    ```
+
+2. Create the `pmm-secret` in the new namespace, the same way as for your first instance. Replace `--namespace pmm` with `--namespace pmm-dr`.
+
+3. Install PMM HA with a unique release name and the node exporter disabled:
+    ```sh
+    helm install pmm-dr percona/pmm-ha --namespace pmm-dr \
+      --set prometheus-node-exporter.enabled=false \
+      --set kube-state-metrics.enabled=false
+    ```
+
+    Disabling `kube-state-metrics` is optional. Keep it if you want Kubernetes object metrics in this instance.
+
+    On OpenShift, install with the same `values-openshift.yaml` file as your first instance. It already disables the bundled node exporter and uses the OpenShift one, so every instance collects node metrics.
+
+4. Verify the installation:
+    ```sh
+    kubectl get pods -n pmm-dr
+    kubectl get vmcluster,postgrescluster,clickhouseinstallation -n pmm-dr
+    ```
+
+### What each instance monitors
+
+Each instance collects only from its own namespace. If you disable a monitoring component on an instance, that instance doesn't collect those metrics, and it doesn't reuse them from the first instance. Basic node and container metrics are still collected on every instance.
+
+!!! note "Namespaces are not a security boundary"
+    Each instance can read Kubernetes Secrets across the whole cluster, and each copy of `kube-state-metrics` sees the whole cluster. Don't use separate namespaces to isolate PMM HA instances between untrusted teams.
+
 ## Access PMM after installation
 
 ### Access via port-forward
