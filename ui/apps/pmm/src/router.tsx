@@ -11,24 +11,24 @@ import Providers from 'Providers';
 import {
   PMM_NEW_NAV_PATH,
   PMM_SERVICENOW_SETTINGS_PATH,
-  SEP_ATW_PATH,
-  SEP_MYSQL_BACKUPS_PATH,
+  EXTENSIONS_ATW_PATH,
+  EXTENSIONS_MYSQL_BACKUPS_PATH,
 } from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AlertsPage } from 'pages/alerting/status';
-import { AtwApp } from '@sep/plugins-atw';
-import { SchemaDrivenPlugin } from '@sep/framework';
+import { AtwApp } from '@pmm-extensions/plugins-atw';
+import { SchemaDrivenPlugin } from '@pmm-extensions/framework';
 import {
   getMysqlBackupsTaskExecuteActions,
   isMysqlRestorePluginName,
-} from './sep/mysql-backups/restoreExecuteConfirm';
-import { SepPage } from './sep/SepPage';
+} from './extensions/mysql-backups/restoreExecuteConfirm';
+import { ExtensionsPage } from './extensions/ExtensionsPage';
 
 // Route paths below are relative to the `PMM_NEW_NAV_PATH` parent, while the
-// shared SEP constants are absolute (the nav and each plugin's `routeBase` need
+// shared PMM Extensions constants are absolute (the nav and each plugin's `routeBase` need
 // them that way), so drop the parent prefix and its separator.
 const relativeToNav = (path: string) => path.slice(PMM_NEW_NAV_PATH.length + 1);
 
@@ -92,7 +92,7 @@ const router = createBrowserRouter(
                 },
               ],
             },
-            // SEP apps mounted as native routes. Both plugins compose their own
+            // PMM Extensions apps mounted as native routes. Both plugins compose their own
             // <Routes>, so the paths are splats.
             {
               // ATW ("Support diagnostics") is now incident-first: AtwApp
@@ -104,29 +104,29 @@ const router = createBrowserRouter(
               // connection; only the send action needs one. `deliverySettings`
               // hands the app the PMM route that fixes it, so the disabled send
               // control can point an administrator at the settings tab.
-              path: `${relativeToNav(SEP_ATW_PATH)}/*`,
+              path: `${relativeToNav(EXTENSIONS_ATW_PATH)}/*`,
               element: (
-                <SepPage>
+                <ExtensionsPage>
                   <AtwApp deliverySettingsPath={PMM_SERVICENOW_SETTINGS_PATH} />
-                </SepPage>
+                </ExtensionsPage>
               ),
             },
             {
-              path: `${relativeToNav(SEP_MYSQL_BACKUPS_PATH)}/*`,
+              path: `${relativeToNav(EXTENSIONS_MYSQL_BACKUPS_PATH)}/*`,
               // routeBase must match the mount path (basename-stripped) so the
               // plugin's absolute nav — detail back/edit/schedule links and the
-              // related-app (Restore) tab bar — resolves under /sep, not the
-              // SEP-default /apps/{name}. PMM_NEW_NAV_PATH is '' so this is the
+              // related-app (Restore) tab bar — resolves under /extensions, not
+              // the side-car's default /apps/{name}. PMM_NEW_NAV_PATH is '' so this is the
               // full path below the /pmm-ui basename.
               element: (
-                <SepPage>
+                <ExtensionsPage>
                   <SchemaDrivenPlugin
                     pluginName="mysql_backups"
-                    routeBase={SEP_MYSQL_BACKUPS_PATH}
+                    routeBase={EXTENSIONS_MYSQL_BACKUPS_PATH}
                     getTaskExecuteActions={getMysqlBackupsTaskExecuteActions}
                     disableScheduling={isMysqlRestorePluginName}
                   />
-                </SepPage>
+                </ExtensionsPage>
               ),
             },
             // Fallback

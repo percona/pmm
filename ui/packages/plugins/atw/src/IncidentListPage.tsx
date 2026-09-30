@@ -41,7 +41,7 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@sep/api';
+import { useAuth } from '@pmm-extensions/api';
 import {
   ATW_PAGE_SIZE,
   useAtwIncidentLifecycle,
