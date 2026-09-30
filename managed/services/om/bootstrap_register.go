@@ -29,6 +29,38 @@ import (
 // makes this configurable yet, so registration never needs to ask.
 const mongodExporterPort = 27017
 
+// pushMetricsFor reports whether a bootstrapped host's exporter should push its
+// metrics rather than wait to be scraped.
+//
+// This mirrors one decision that ManagementService.AddService makes and this
+// package deliberately does not call (see registerBootstrapHost's own comment on
+// why it uses the model functions directly). There, the request's metrics mode
+// runs through supportedMetricsMode and isPushMode
+// (services/management/management.go) before reaching models.CreateAgent; an
+// unset mode resolves to push for every agent except pmm-agent on PMM Server,
+// which cannot push and is sent back to pull. That is the whole rule, so it is
+// reproduced here rather than exporting two helpers out of that package for one
+// caller -- but the source of truth is there, and this should follow it if it
+// moves.
+//
+// Leaving it unset, as this did, is not a neutral default. CreateAgentParams'
+// zero value is pull, which makes every bootstrapped service depend on PMM
+// Server being able to open a connection *to* the host's exporter port. That
+// port is ephemeral -- pmm-agent allocates from ports-min 42000 upward -- so a
+// deployment has to allow a range inbound to each managed host for OM's own
+// bootstrap output to be monitored at all.
+//
+// Caught on a CHAOS deployment, where the network allows only the ports its
+// terraform names (4647 for Nomad, 27017 for MongoDB). Six hosts bootstrapped
+// successfully, registered correctly, reported every step green including
+// confirm_monitoring -- and then sat Down forever, with no mongodb_up series at
+// all, because nothing could reach :42003. The replica set deployed by
+// pmm-admin on the same network was Up throughout, and the only difference
+// between them in PMM's own database was push_metrics true against false.
+func pushMetricsFor(pmmAgentID string) bool {
+	return pmmAgentID != models.PMMServerAgentID
+}
+
 // registerBootstrapHost registers one bootstrapped host's mongod with PMM's own
 // inventory, as a MongoDB service monitored by that node's pmm-agent, authenticating
 // with the one user the stepper generated for this run (RunBootstrapStepper's own
@@ -93,6 +125,18 @@ func (s *Service) registerBootstrapHost(ctx context.Context, nodeID, host, repli
 		// exactly what a host registered before this function pushed updates at
 		// all is stuck in otherwise, permanently, with no other path back to a
 		// running exporter.
+		//
+		// Deliberately does *not* do the same for ExporterOptions.PushMetrics,
+		// though this is the only place that could. A host registered before
+		// pushMetricsFor existed keeps push_metrics false for good: its run is
+		// marked by MarkOmBootstrapRunRegistered, stepBootstrapRuns then drops it
+		// from the sweep, and nothing else revisits the agent row. That gap is
+		// real but its population is empty -- no PMM release before this one ever
+		// ran registerBootstrapHost, so the only hosts that can carry the old
+		// value are ones a pre-merge build of this branch registered on a dev or
+		// demo deployment. Repair those with `pmm-admin inventory change agent
+		// mongodb-exporter --push-metrics <agent-id>` rather than carrying
+		// reconcile code whose target set is empty from the day this merges.
 		if s.stateUpdater != nil {
 			s.stateUpdater.RequestStateUpdate(ctx, pmmAgentID)
 		}
@@ -126,6 +170,9 @@ func (s *Service) registerBootstrapHost(ctx context.Context, nodeID, host, repli
 			Password:            password,
 			MongoDBOptions:      models.MongoDBOptions{},
 			SkipConnectionCheck: true,
+			ExporterOptions: models.ExporterOptions{
+				PushMetrics: pushMetricsFor(pmmAgentID),
+			},
 		})
 		if err != nil {
 			return fmt.Errorf("failed to create the mongodb_exporter agent: %w", err)
