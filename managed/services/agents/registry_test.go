@@ -16,14 +16,19 @@
 package agents
 
 import (
+	"context"
 	"sync"
 	"testing"
 
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -187,4 +192,37 @@ func TestKickConn(t *testing.T) {
 			assert.False(t, isKicked(conn))
 		}
 	})
+}
+
+// TestUnregisterPersistsDisconnectInHA covers the usual way a pmm-agent goes away: its stream is
+// done, so the context unregister gets is already canceled. In HA mode IsConnected reads the
+// connection status from the database, so the disconnect must reach it all the same, otherwise
+// the agent is reported as connected until it connects again.
+func TestUnregisterPersistsDisconnectInHA(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	agent, err := models.FindAgentByID(db.Querier, models.PMMServerAgentID)
+	require.NoError(t, err)
+	agent.IsConnected = true
+	require.NoError(t, db.Update(agent))
+
+	r := newTestRegistry()
+	r.db = db
+	r.haService = haServiceStub{params: &models.HAParams{Enabled: true}}
+	r.connectionCache = map[string]struct{}{models.PMMServerAgentID: {}}
+	conn := &pmmAgentInfo{id: models.PMMServerAgentID}
+	r.agents[models.PMMServerAgentID] = conn
+
+	ctx, cancel := context.WithCancel(logger.SetEntry(t.Context(), logrus.WithField("test", t.Name())))
+	cancel()
+	assert.Same(t, conn, r.unregister(ctx, models.PMMServerAgentID, "done", conn))
+
+	agent, err = models.FindAgentByID(db.Querier, models.PMMServerAgentID)
+	require.NoError(t, err)
+	assert.False(t, agent.IsConnected)
+	assert.False(t, r.IsConnected(models.PMMServerAgentID))
 }

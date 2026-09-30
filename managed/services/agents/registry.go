@@ -46,6 +46,8 @@ const (
 	// pmm-agent's dial timeout (5s), otherwise the reconnecting agent gives up before we are
 	// done probing and can never take over. See PMM-15310.
 	staleConnectionProbeTimeout = 2 * time.Second
+	// How long to wait for the database when persisting that a pmm-agent disconnected in HA mode.
+	connectionStatusUpdateTimeout = 10 * time.Second
 )
 
 var (
@@ -418,7 +420,14 @@ func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason 
 	// Only persist connection status when HA is enabled
 	if r.haService.Params().Enabled {
 		l := logger.Get(ctx)
-		err := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+
+		// By now the stream the pmm-agent was connected over is usually done, and so is its context.
+		// The disconnect is persisted regardless: IsConnected reads it back from the database in HA
+		// mode, so a failed update keeps reporting the agent as connected until it connects again.
+		dbCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), connectionStatusUpdateTimeout)
+		defer cancel()
+
+		err := r.db.InTransactionContext(dbCtx, nil, func(tx *reform.TX) error {
 			a, err := models.FindAgentByID(tx.Querier, pmmAgentID)
 			if err != nil {
 				// Agent might have been deleted, which is fine
