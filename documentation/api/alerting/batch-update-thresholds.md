@@ -8,13 +8,9 @@ position: 3
 
 ## Batch update alert thresholds
 
-Applies several threshold changes in a **single transaction**: either every update lands or
-none does.
+Applies several threshold changes in a **single transaction**: either every update lands or none does.
 
-This is what a form editing several rows at once should use. Issuing the changes as separate
-[Set](ref:setthreshold) and [Clear](ref:clearthreshold) calls risks a partial result that the
-client cannot report coherently — some rows saved, one rejected, and no way to tell the user
-which state the system is now in.
+This is what a form editing several rows at once should use. Issuing the changes as separate [Set](ref:setthreshold) and [Clear](ref:clearthreshold) calls risks a partial result that the client cannot report coherently — some rows saved, one rejected, and no way to tell the user which state the system is now in.
 
 ```shell
 curl --insecure -X POST \
@@ -57,11 +53,6 @@ The second entry in the example above clears its threshold, because it has no `v
 
 ### Response
 
-The response lists the thresholds that are now overridden. **Cleared entries are omitted** —
-after a successful clear there is no override to report, so a request of three sets and two
-clears returns three thresholds.
+The response lists the thresholds that are now overridden. **Cleared entries are omitted** — after a successful clear there is no override to report, so a request of three sets and two clears returns three thresholds.
 
-At least one update is required. Validation is the same as for
-[Set Alert Threshold](ref:setthreshold), applied to every entry; one invalid entry rolls the
-whole batch back and nothing is written. Clearing a parameter that has no override for that
-target succeeds and changes nothing.
+At least one update is required. Validation is the same as for [Set Alert Threshold](ref:setthreshold), applied to every entry; one invalid entry rolls the whole batch back and nothing is written. Clearing a parameter that has no override for that target succeeds and changes nothing.

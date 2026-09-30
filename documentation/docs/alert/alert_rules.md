@@ -71,7 +71,7 @@ When creating custom templates, make sure to use the required template format be
     - **type** (required): PMM currently supports the `float` type. `string`, `bool`, and other types will be available in a future release.
     - **range** (optional): defines the boundaries for the value of a  float parameter
     - **value** (optional): default parameter value. Value strings must not include any of these special characters: `< > ! @ # $ % ^ & * ( ) _ / \ ' + - = (space)`
-    - **overridable** (optional): set to `true` to enable per-node overrides of this threshold without editing the alert rule. The template must use **queries** and **expressions**, and the parameter must be the whole right-hand side of a comparison, for example `$A > [[ .threshold ]]`.
+    - **overridable** (optional): set to `true` to enable per-node overrides of this threshold without editing the alert rule. The template must use **queries** and **expressions**, and the parameter must be the whole right-hand side of a comparison, for example `$A > [[ .threshold ]]`. For details, see [Dynamic alert thresholds](alert-thresholds.md).
 - **for** (required): specifies the duration of time that the expression must be met before the alert will be fired
 - **severity** (required): specifies default alert severity level
  - **labels** (optional): are additional labels to be added to generated alerts
@@ -147,6 +147,8 @@ If you want to learn about creating Grafana alerts instead, check out [Grafana's
     - **Label** must be an exact match. You can find a complete list of labels using the :material-compass-outline: **Explore** menu in PMM, or see [Labels reference](../reference/labels-reference.md).
 
 5. Click **Save and Exit** to close the page and go to the **Alert Rules** tab where you can review, edit and silence your new alert.
+
+If the template has a **Dynamic** badge, you can later change the threshold of the new alert rule for individual nodes. For details, see [Dynamic alert thresholds](alert-thresholds.md).
 
 ## Recording rules
 

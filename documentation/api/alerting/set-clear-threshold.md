@@ -8,8 +8,7 @@ position: 2
 
 ## Set an alert threshold
 
-Overrides one parameter of one rule for one target. The rule itself is not modified, and
-every other target it watches keeps evaluating against the default.
+Overrides one parameter of one rule for one target. The rule itself is not modified, and every other target it watches keeps evaluating against the default.
 
 ```shell
 curl --insecure -X POST \
@@ -27,11 +26,9 @@ curl --insecure -X POST \
 '
 ```
 
-The response returns the threshold as it now stands, in the same shape
-[List Alert Thresholds](ref:listthresholds) uses.
+The response returns the threshold as it now stands, in the same shape [List Alert Thresholds](ref:listthresholds) uses.
 
-Setting a threshold on a target that already has one replaces it. There is no separate
-create-versus-update call.
+Setting a threshold on a target that already has one replaces it. There is no separate create-versus-update call.
 
 ### Validation
 
@@ -46,15 +43,11 @@ create-versus-update call.
 | Parameter cannot be overridden at that scope | `400 Bad Request` |
 | Scope is service or cluster | `501 Not Implemented` |
 
-A parameter is only overridable if its template said so. A rule created before a template
-gained an overridable parameter does not acquire one — the range and default are captured
-when the rule is created, so an edit to the template afterwards does not change what an
-existing rule validates against.
+A parameter is only overridable if its template said so. A rule created before a template gained an overridable parameter does not acquire one — the range and default are captured when the rule is created, so an edit to the template afterwards does not change what an existing rule validates against.
 
 ## Clear an alert threshold
 
-Removes an override, returning the target to the rule's default or to a broader override that
-still covers it.
+Removes an override, returning the target to the rule's default or to a broader override that still covers it.
 
 ```shell
 curl --insecure -X POST \
@@ -71,9 +64,7 @@ curl --insecure -X POST \
 '
 ```
 
-Clearing is idempotent: clearing a parameter that has no override for that target succeeds and
-changes nothing. The rule, parameter and target are still checked, so an unknown one returns an
-error.
+Clearing is idempotent: clearing a parameter that has no override for that target succeeds and changes nothing. The rule, parameter and target are still checked, so an unknown one returns an error.
 
 > 🚧 Clear rather than write the default back
 > 
@@ -81,6 +72,8 @@ error.
 
 ### Removing a target
 
-Deleting a Node removes its overrides along with it. Cluster-scoped overrides are not
-removed this way, because a cluster is a label value rather than an inventory entity and has
-no removal event to hook.
+Deleting a Node removes its overrides along with it. Cluster-scoped overrides are not removed this way, because a cluster is a label value rather than an inventory entity and has no removal event to hook.
+
+### Removing a rule
+
+Deleting an alert rule in Grafana does not remove its overrides right away. PMM cleans them up on a later threshold write — a set, clear or batch update — once it finds the rule gone from Grafana. The cleanup runs at most once every 15 minutes and leaves rules created in the last 10 minutes alone. Until then, the leftover overrides are harmless: no rule evaluates them, and the List endpoint for a target still reports them.

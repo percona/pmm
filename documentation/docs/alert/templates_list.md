@@ -17,7 +17,7 @@ The table below lists all the alert templates available in Percona Monitoring an
 
 | Area | Template name | Description | Database technology |
 | :----|:------------- | :---------- | :------------------ |
-| OS | **Node high CPU load** | Monitors node CPU usage and alerts when it surpasses 80% (default threshold). Provides details about specific nodes experiencing high CPU load, indicating potential performance issues or scaling needs. | MySQL, MongoDB, PostgreSQL |
+| OS | **Node high CPU load** | Monitors node CPU usage and alerts when it surpasses 80% (default threshold). Provides details about specific nodes experiencing high CPU load, indicating potential performance issues or scaling needs. You can [override the threshold for individual nodes](alert-thresholds.md). | MySQL, MongoDB, PostgreSQL |
 | OS | **Memory available less than a threshold** | Tracks available memory on nodes and alerts when free memory drops below 20% (default threshold). Helps prevent system instability due to memory constraints. | MySQL, MongoDB, PostgreSQL |
 | OS | **Node high swap filling up** | Monitors node swap usage and alerts when it exceeds 80% (default threshold). Indicates potential memory pressure and performance degradation, allowing for timely intervention. | MySQL, MongoDB, PostgreSQL |
 

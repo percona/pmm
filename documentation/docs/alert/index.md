@@ -6,6 +6,8 @@ Percona Alerting is enabled by default in the PMM Settings. This feature adds th
 
 These options enable you to create alerts based on a set of Percona-supplied templates with common events and expressions for alerting. 
 
+Some templates also support [dynamic thresholds](alert-thresholds.md), which enable you to change the threshold of an alert rule for individual nodes.
+
 ## Alert types
 
 Percona Alerting is powered by Grafana infrastructure. It leverages Grafana's advanced alerting capabilities and provides pre-configured Alert templates that simplify creating powerful alerting rules.
