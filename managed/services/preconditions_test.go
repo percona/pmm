@@ -338,4 +338,58 @@ func TestCheckNodeRemovable(t *testing.T) {
 	t.Run("no prefixes configured", func(t *testing.T) {
 		assert.NoError(t, CheckNodeRemovable(db.Querier, connected, clientNode, nil))
 	})
+
+	// In HA mode the registry reports every agent as disconnected when it cannot refresh its cache,
+	// so the status persisted in the database must be enough to keep the Node.
+	t.Run("a protected Node with a persisted connection is rejected", func(t *testing.T) {
+		node, pmmAgent := newNode(t, clientNodePrefix+"2")
+		pmmAgent.IsConnected = true
+		require.NoError(t, db.Update(pmmAgent))
+
+		err := CheckNodeRemovable(db.Querier, disconnected, node, prefixes)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err), err)
+	})
+}
+
+func TestCheckPMMAgentRemovable(t *testing.T) {
+	const clientNodePrefix = "pmm-pmm-ha-client-"
+
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	node, err := models.CreateNode(db.Querier, models.ContainerNodeType, &models.CreateNodeParams{
+		NodeName: clientNodePrefix + "0",
+		Address:  clientNodePrefix + "0",
+	})
+	require.NoError(t, err)
+	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
+	require.NoError(t, err)
+	nodeExporter, err := models.CreateNodeExporter(db.Querier, pmmAgent.AgentID, nil, true, false, nil, nil, "")
+	require.NoError(t, err)
+
+	prefixes := []string{clientNodePrefix}
+	connected := connectedFunc(func(string) bool { return true })
+	disconnected := connectedFunc(func(string) bool { return false })
+
+	t.Run("the pmm-agent of a protected Node is rejected while connected", func(t *testing.T) {
+		expected := status.New(codes.FailedPrecondition, "pmm-agent runs on Node '"+node.NodeName+"', which is managed by "+
+			"this PMM deployment, and cannot be removed while it is connected. Scale the deployment down to remove it.")
+		tests.AssertGRPCError(t, expected, CheckPMMAgentRemovable(db.Querier, connected, pmmAgent, prefixes))
+	})
+
+	t.Run("the pmm-agent of a protected Node is removable once disconnected", func(t *testing.T) {
+		assert.NoError(t, CheckPMMAgentRemovable(db.Querier, disconnected, pmmAgent, prefixes))
+	})
+
+	// The exporters run by that pmm-agent can go: the pod keeps its identity without them.
+	t.Run("other Agents of a protected Node are removable", func(t *testing.T) {
+		assert.NoError(t, CheckPMMAgentRemovable(db.Querier, connected, nodeExporter, prefixes))
+	})
+
+	t.Run("no prefixes configured", func(t *testing.T) {
+		assert.NoError(t, CheckPMMAgentRemovable(db.Querier, connected, pmmAgent, nil))
+	})
 }

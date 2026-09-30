@@ -20,6 +20,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -51,9 +52,36 @@ func IsNodeProtected(q *reform.Querier, cc AgentConnectionChecker, node *models.
 		return false, fmt.Errorf("failed to find pmm-agent on node %s: %w", node.NodeID, err)
 	}
 
+	// In HA mode the connection status is persisted, and reading it along with the agent makes a
+	// failed read fail the removal. The registry alone would report a connected agent as
+	// disconnected when it cannot refresh its cache from the database.
 	return slices.ContainsFunc(agents, func(a *models.Agent) bool {
-		return cc.IsConnected(a.AgentID)
+		return a.IsConnected || cc.IsConnected(a.AgentID)
 	}), nil
+}
+
+// CheckPMMAgentRemovable rejects the removal of a pmm-agent running on a Node which IsNodeProtected
+// reports: that strands the pod just like removing the Node, and leaves the Node unprotected.
+func CheckPMMAgentRemovable(q *reform.Querier, cc AgentConnectionChecker, agent *models.Agent, protectedPrefixes []string) error {
+	if agent.AgentType != models.PMMAgentType || len(protectedPrefixes) == 0 {
+		return nil
+	}
+
+	node, err := models.FindNodeByID(q, pointer.GetString(agent.RunsOnNodeID))
+	if err != nil {
+		return err
+	}
+	protected, err := IsNodeProtected(q, cc, node, protectedPrefixes)
+	if err != nil {
+		return err
+	}
+	if !protected {
+		return nil
+	}
+
+	return status.Errorf(codes.FailedPrecondition,
+		"pmm-agent runs on Node '%s', which is managed by this PMM deployment, and cannot be removed while it is connected. "+
+			"Scale the deployment down to remove it.", node.NodeName)
 }
 
 // CheckNodeRemovable rejects the removal of a Node which IsNodeProtected reports.

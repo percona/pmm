@@ -301,6 +301,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	agentsSvc := inventory.NewAgentsService(
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
 		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService,
+		deps.protectedNodePrefixes,
 	)
 
 	mgmtBackupService := managementbackup.NewBackupsService(

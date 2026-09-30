@@ -296,12 +296,13 @@ func TestNodes(t *testing.T) {
 	t.Run("RemoveProtectedNode", func(t *testing.T) {
 		const nodeName = "pmm-pmm-ha-client-0"
 
-		newProtectedNode := func(t *testing.T) (*NodesService, context.Context, *mockPrometheusService, string, string) {
+		newProtectedNode := func(t *testing.T) (*NodesService, *AgentsService, context.Context, *mockPrometheusService, string, string) {
 			t.Helper()
 
-			_, _, ns, teardown, ctx, vmdb := setup(t)
+			_, as, ns, teardown, ctx, vmdb := setup(t)
 			t.Cleanup(func() { teardown(t) })
 			ns.protectedNodePrefixes = []string{"pmm-pmm-ha-client-"}
+			as.protectedNodePrefixes = ns.protectedNodePrefixes
 
 			addNodeResponse, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
 				Node: &inventoryv1.AddNodeRequest_Container{
@@ -313,12 +314,12 @@ func TestNodes(t *testing.T) {
 			pmmAgent, err := models.CreatePMMAgent(ns.db.Querier, nodeID, nil)
 			require.NoError(t, err)
 
-			return ns, ctx, vmdb, nodeID, pmmAgent.AgentID
+			return ns, as, ctx, vmdb, nodeID, pmmAgent.AgentID
 		}
 
 		// The Inventory page always removes with force, which would take every Service on the Node with it.
 		t.Run("is rejected while its pmm-agent is connected", func(t *testing.T) {
-			ns, ctx, _, nodeID, pmmAgentID := newProtectedNode(t)
+			ns, _, ctx, _, nodeID, pmmAgentID := newProtectedNode(t)
 
 			ns.r.(*mockAgentsRegistry).On("IsConnected", pmmAgentID).Return(true)
 			expected := status.New(codes.FailedPrecondition, "Node '"+nodeName+"' is managed by this PMM deployment "+
@@ -332,8 +333,20 @@ func TestNodes(t *testing.T) {
 			require.NoError(t, err)
 		})
 
+		// Removing the pmm-agent strands the pod the same way, and would leave the Node unprotected.
+		t.Run("keeps its pmm-agent while connected", func(t *testing.T) {
+			_, as, ctx, _, _, pmmAgentID := newProtectedNode(t)
+
+			as.r.(*mockAgentsRegistry).On("IsConnected", pmmAgentID).Return(true)
+			err := as.Remove(ctx, pmmAgentID, true)
+			assert.Equal(t, codes.FailedPrecondition, status.Code(err), err)
+
+			_, err = as.Get(ctx, pmmAgentID)
+			require.NoError(t, err)
+		})
+
 		t.Run("is removed once its pmm-agent is gone", func(t *testing.T) {
-			ns, ctx, vmdb, nodeID, pmmAgentID := newProtectedNode(t)
+			ns, _, ctx, vmdb, nodeID, pmmAgentID := newProtectedNode(t)
 
 			ns.r.(*mockAgentsRegistry).On("IsConnected", pmmAgentID).Return(false)
 			ns.r.(*mockAgentsRegistry).On("Kick", ctx, pmmAgentID).Once()
