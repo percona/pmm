@@ -405,9 +405,7 @@ func FindInternalPgQANAgent(q *reform.Querier) (*Agent, error) {
 		return nil, err
 	}
 
-	agent := DecryptAgent(*row)
-
-	return &agent, nil
+	return row, nil
 }
 
 // FindAgentByID finds Agent by ID.
@@ -442,8 +440,7 @@ func FindAgentByIDForUpdate(q *reform.Querier, id string) (*Agent, error) {
 		return nil, agentLookupError(err, id)
 	}
 
-	agent := row.(*Agent) //nolint:forcetypeassert
-	return new(DecryptAgent(*agent)), nil
+	return row.(*Agent), nil //nolint:forcetypeassert
 }
 
 // agentLookupError maps a failed single-agent lookup to the error both finders above return, so
@@ -1319,11 +1316,6 @@ func (p *ChangeAgentParams) AffectsConnection() bool {
 //
 // Callers that already had to load the row to inspect it before changing it (e.g. to check its
 // type or a precondition) pass it here directly, so the row is not fetched twice.
-//
-// The row must be decrypted, i.e. loaded through FindAgentByID, FindAgents or another helper that
-// runs DecryptAgent -- not read straight out of AgentTable. This function encrypts before writing,
-// so a still-encrypted row would have its credentials encrypted twice, and agentEncryption only
-// logs a failure rather than returning one.
 func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,gocognit,maintidx
 	// Applied to a copy: the caller's row must not end up carrying the requested values when the
 	// change does not become durable, e.g. when a connection check later in the same transaction

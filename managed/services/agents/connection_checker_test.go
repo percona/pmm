@@ -212,8 +212,8 @@ func newValkeyTLSRequestFixture(t *testing.T) valkeyTLSRequestFixture {
 		agent: &models.Agent{
 			AgentType:     models.ValkeyExporterType,
 			PMMAgentID:    new("pmm-agent-id"),
-			Username:      new("pmm-agent"),
-			Password:      new("password"),
+			Username:      new(models.EncryptedString("pmm-agent")),
+			Password:      new(models.EncryptedString("password")),
 			TLS:           true,
 			TLSSkipVerify: true,
 			ValkeyOptions: models.ValkeyOptions{SSLCa: "ca-pem"},
