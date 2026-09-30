@@ -19,10 +19,13 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"sync"
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -49,6 +52,33 @@ func (s *testServer) Connect(stream agentv1.AgentService_ConnectServer) error {
 }
 
 var _ agentv1.AgentServiceServer = (*testServer)(nil)
+
+// awaitClosed waits for ch to be closed, and fails instead of hanging.
+//
+// The tests below park a mock on a channel the server handler closes, or the other way round, and
+// every assertion in that handler runs on gRPC's goroutine - where a failing require calls Goexit,
+// so the close it was heading for never happens. Waiting unbounded on that turns one reported
+// failure into a package-wide -timeout panic covering every test in the file.
+func awaitClosed(t *testing.T, ch <-chan struct{}, what string) {
+	t.Helper()
+
+	select {
+	case <-ch:
+	case <-time.After(20 * time.Second):
+		t.Fatalf("timed out waiting for %s", what)
+	}
+}
+
+// awaitClosedInHandler is awaitClosed for the server handler's goroutine, which must not call
+// t.Fatalf: it ends the stream with an error instead, which unblocks the client and the test.
+func awaitClosedInHandler(ch <-chan struct{}, what string) error {
+	select {
+	case <-ch:
+		return nil
+	case <-time.After(20 * time.Second):
+		return fmt.Errorf("timed out waiting for %s", what)
+	}
+}
 
 func setup(t *testing.T, connect func(server agentv1.AgentService_ConnectServer) error) (port uint16, teardown func()) {
 	t.Helper()
@@ -291,6 +321,349 @@ func TestUnexpectedActionType(t *testing.T) {
 	err := client.Run(context.Background())
 	require.NoError(t, err)
 	assert.Equal(t, serverMD, client.GetServerConnectMetadata())
+}
+
+// TestSetStateDoesNotBlockRequestLoop is the regression test for PMM-15431: SetState used to be
+// applied inline on the request loop, so one that could not finish stopped the agent answering
+// anything at all, pings included, with no way back except restarting pmm-agent.
+func TestSetStateDoesNotBlockRequestLoop(t *testing.T) {
+	serverMD := &agentv1.ServerConnectMetadata{
+		ServerVersion: t.Name(),
+	}
+
+	applyingState := make(chan struct{})
+	releaseState := make(chan struct{})
+
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		// Deferred: the assertions below run on the server's goroutine, and a failing
+		// require there would otherwise leave the mock parked on releaseState and this
+		// test's own wait for it hanging the whole package until -timeout.
+		defer close(releaseState)
+
+		// establish the connection
+		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
+		require.NoError(t, err)
+		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		err = agentv1.SendServerConnectMetadata(stream, serverMD)
+		require.NoError(t, err)
+		msg, err := stream.Recv()
+		require.NoError(t, err)
+		require.NotNil(t, msg.GetPing())
+		err = stream.Send(&agentv1.ServerMessage{
+			Id:      msg.Id,
+			Payload: (&agentv1.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
+		})
+		require.NoError(t, err)
+
+		// a state that never finishes applying is still answered
+		err = stream.Send(&agentv1.ServerMessage{
+			Id:      4242,
+			Payload: (&agentv1.SetStateRequest{}).ServerMessageRequestPayload(),
+		})
+		require.NoError(t, err)
+		msg, err = stream.Recv()
+		require.NoError(t, err)
+		assert.EqualValues(t, 4242, msg.Id)
+		require.NotNil(t, msg.GetSetState())
+
+		// and while it is being applied, everything else is answered too
+		err = awaitClosedInHandler(applyingState, "SetState to start being applied")
+		if err != nil {
+			return err
+		}
+		err = stream.Send(&agentv1.ServerMessage{
+			Id:      4243,
+			Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
+		})
+		require.NoError(t, err)
+		msg, err = stream.Recv()
+		require.NoError(t, err)
+		assert.EqualValues(t, 4243, msg.Id)
+		require.NotNil(t, msg.GetPong())
+
+		return nil
+	}
+	port, teardown := setup(t, connect)
+	defer teardown()
+
+	cfgStorage := config.NewStorage(&config.Config{
+		ID: "agent_id",
+		Server: config.Server{
+			Address:    fmt.Sprintf("127.0.0.1:%d", port),
+			WithoutTLS: true,
+		},
+	})
+
+	s := &mockSupervisor{}
+	s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
+	s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
+	s.On("RTARequests").Return(make(<-chan *rtav1.CollectRequest))
+	s.On("AgentsList").Return([]*agentlocal.AgentInfo{})
+	s.On("ClearChangesChannel").Return()
+	s.On("SetState", mock.Anything, mock.Anything).Run(func(mock.Arguments) {
+		close(applyingState)
+		<-releaseState
+	}).Return()
+
+	r := runner.New(cfgStorage.Get().RunnerCapacity, cfgStorage.Get().RunnerMaxConnectionsPerService)
+	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+	require.NoError(t, client.Run(t.Context()))
+	awaitClosed(t, releaseState, "the server handler to finish")
+	s.AssertExpectations(t)
+}
+
+// TestActualStatusesDoNotBlockPings covers the other half of PMM-15431: reporting the actual
+// statuses starts by asking the supervisor for its Agents list, and a SetState from the connection
+// before this one can still be holding that lock for as long as the Agents it replaces take to
+// stop. A freshly connected agent that answers nothing meanwhile is dropped as stale.
+func TestActualStatusesDoNotBlockPings(t *testing.T) {
+	serverMD := &agentv1.ServerConnectMetadata{
+		ServerVersion: t.Name(),
+	}
+
+	listing := make(chan struct{})
+	release := make(chan struct{})
+
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		// Deferred: the assertions below run on the server's goroutine, and a failing
+		// require there would otherwise leave the mock parked on release and this
+		// test's own wait for it hanging the whole package until -timeout.
+		defer close(release)
+
+		// establish the connection
+		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
+		require.NoError(t, err)
+		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		err = agentv1.SendServerConnectMetadata(stream, serverMD)
+		require.NoError(t, err)
+		msg, err := stream.Recv()
+		require.NoError(t, err)
+		require.NotNil(t, msg.GetPing())
+		err = stream.Send(&agentv1.ServerMessage{
+			Id:      msg.Id,
+			Payload: (&agentv1.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
+		})
+		require.NoError(t, err)
+
+		// while the supervisor cannot even be asked what it is running
+		err = awaitClosedInHandler(listing, "the Agents list to be asked for")
+		if err != nil {
+			return err
+		}
+		err = stream.Send(&agentv1.ServerMessage{
+			Id:      4242,
+			Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
+		})
+		require.NoError(t, err)
+		msg, err = stream.Recv()
+		require.NoError(t, err)
+		assert.EqualValues(t, 4242, msg.Id)
+		require.NotNil(t, msg.GetPong())
+
+		return nil
+	}
+	port, teardown := setup(t, connect)
+	defer teardown()
+
+	cfgStorage := config.NewStorage(&config.Config{
+		ID: "agent_id",
+		Server: config.Server{
+			Address:    fmt.Sprintf("127.0.0.1:%d", port),
+			WithoutTLS: true,
+		},
+	})
+
+	s := &mockSupervisor{}
+	s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
+	s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
+	s.On("RTARequests").Return(make(<-chan *rtav1.CollectRequest))
+	s.On("ClearChangesChannel").Return()
+	listed := sync.OnceFunc(func() { close(listing) })
+	s.On("AgentsList").Run(func(mock.Arguments) {
+		listed()
+		<-release
+	}).Return([]*agentlocal.AgentInfo{})
+
+	r := runner.New(cfgStorage.Get().RunnerCapacity, cfgStorage.Get().RunnerMaxConnectionsPerService)
+	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+	require.NoError(t, client.Run(t.Context()))
+	awaitClosed(t, release, "the server handler to finish")
+	s.AssertExpectations(t)
+}
+
+// TestDoneClosesAfterCancel covers the handshake pmm-agent's reconnect depends on: run.go cancels
+// the client context and then waits on Done() before redialing, so a processor that does not exit
+// leaves the agent connected to nothing for good - which is how PMM-15431 presented.
+// TestDoneClosesWhileActualStatusesAreBlocked covers the reconnect path when reporting the actual
+// statuses cannot finish: it starts by asking the supervisor for its Agents list, and a SetState
+// from the connection before this one can still be holding that lock for as long as the Agents it
+// replaces take to stop. Acquiring a lock cannot be cancelled, so counting that goroutine towards
+// Done() would leave run.go waiting on it - no redial and no shutdown - which is the PMM-15431
+// outage in a new place. See runProcessors.
+func TestDoneClosesWhileActualStatusesAreBlocked(t *testing.T) {
+	serverMD := &agentv1.ServerConnectMetadata{
+		ServerVersion: t.Name(),
+	}
+
+	listing := make(chan struct{})
+	release := make(chan struct{})
+	// Released unconditionally, so a failing assertion below is reported instead of leaving the
+	// mock parked and hanging the package. See TestSetStateDoesNotBlockRequestLoop.
+	defer close(release)
+
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
+		require.NoError(t, err)
+		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		err = agentv1.SendServerConnectMetadata(stream, serverMD)
+		require.NoError(t, err)
+		msg, err := stream.Recv()
+		require.NoError(t, err)
+		require.NotNil(t, msg.GetPing())
+		err = stream.Send(&agentv1.ServerMessage{
+			Id:      msg.Id,
+			Payload: (&agentv1.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
+		})
+		require.NoError(t, err)
+
+		// Idle, with the stream healthy, until the client tears it down itself.
+		_, err = stream.Recv()
+		require.Error(t, err)
+
+		return nil
+	}
+	port, teardown := setup(t, connect)
+	defer teardown()
+
+	cfgStorage := config.NewStorage(&config.Config{
+		ID: "agent_id",
+		Server: config.Server{
+			Address:    fmt.Sprintf("127.0.0.1:%d", port),
+			WithoutTLS: true,
+		},
+	})
+
+	s := &mockSupervisor{}
+	s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
+	s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
+	s.On("RTARequests").Return(make(<-chan *rtav1.CollectRequest))
+	s.On("ClearChangesChannel").Return()
+
+	// Stands in for the supervisor lock a previous connection's SetState is holding.
+	listed := sync.OnceFunc(func() { close(listing) })
+	s.On("AgentsList").Run(func(mock.Arguments) {
+		listed()
+		<-release
+	}).Return([]*agentlocal.AgentInfo{})
+
+	r := runner.New(cfgStorage.Get().RunnerCapacity, cfgStorage.Get().RunnerMaxConnectionsPerService)
+	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+
+	ctx, cancel := context.WithCancel(t.Context())
+	runErr := make(chan error, 1)
+	go func() { runErr <- client.Run(ctx) }()
+
+	awaitClosed(t, listing, "the Agents list to be asked for")
+	cancel()
+
+	select {
+	case err := <-runErr:
+		require.NoError(t, err)
+	case <-time.After(10 * time.Second):
+		t.Fatal("Run did not return while the Agents list was blocked")
+	}
+
+	select {
+	case <-client.Done():
+	case <-time.After(10 * time.Second):
+		t.Fatal("Done() waited for the Agents list: pmm-agent would never reconnect")
+	}
+}
+
+func TestDoneClosesAfterCancel(t *testing.T) {
+	serverMD := &agentv1.ServerConnectMetadata{
+		ServerVersion: t.Name(),
+	}
+
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
+		require.NoError(t, err)
+		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		err = agentv1.SendServerConnectMetadata(stream, serverMD)
+		require.NoError(t, err)
+		msg, err := stream.Recv()
+		require.NoError(t, err)
+		require.NotNil(t, msg.GetPing())
+		err = stream.Send(&agentv1.ServerMessage{
+			Id:      msg.Id,
+			Payload: (&agentv1.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
+		})
+		require.NoError(t, err)
+
+		// Idle, with the stream healthy, until the client tears it down itself.
+		_, err = stream.Recv()
+		require.Error(t, err)
+
+		return nil
+	}
+	port, teardown := setup(t, connect)
+	defer teardown()
+
+	cfgStorage := config.NewStorage(&config.Config{
+		ID: "agent_id",
+		Server: config.Server{
+			Address:    fmt.Sprintf("127.0.0.1:%d", port),
+			WithoutTLS: true,
+		},
+	})
+
+	s := &mockSupervisor{}
+	s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
+	s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
+	s.On("RTARequests").Return(make(<-chan *rtav1.CollectRequest))
+	s.On("AgentsList").Return([]*agentlocal.AgentInfo{})
+	s.On("ClearChangesChannel").Return()
+
+	r := runner.New(cfgStorage.Get().RunnerCapacity, cfgStorage.Get().RunnerMaxConnectionsPerService)
+	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+
+	ctx, cancel := context.WithCancel(t.Context())
+	runErr := make(chan error, 1)
+	go func() { runErr <- client.Run(ctx) }()
+
+	require.Eventually(t, func() bool {
+		return client.GetServerConnectMetadata() != nil
+	}, 10*time.Second, 50*time.Millisecond, "client never connected")
+
+	cancel()
+
+	select {
+	case err := <-runErr:
+		require.NoError(t, err)
+	case <-time.After(10 * time.Second):
+		t.Fatal("Run did not return after its context was cancelled")
+	}
+
+	select {
+	case <-client.Done():
+	case <-time.After(10 * time.Second):
+		t.Fatal("Done() did not close after cancellation: pmm-agent would never reconnect")
+	}
+}
+
+func TestRequestSetState(t *testing.T) {
+	c := &Client{l: logrus.WithField("component", "client")}
+	setStates := make(chan *agentv1.SetStateRequest, setStatesCap)
+
+	first := &agentv1.SetStateRequest{}
+	second := &agentv1.SetStateRequest{}
+
+	c.requestSetState(setStates, first)
+	c.requestSetState(setStates, second)
+
+	// A SetStateRequest carries the whole desired state, so the first one is simply gone.
+	assert.Len(t, setStates, 1)
+	assert.Same(t, second, <-setStates)
 }
 
 func TestArgListFromPgParams(t *testing.T) {
