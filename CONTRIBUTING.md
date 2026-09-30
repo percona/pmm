@@ -110,7 +110,7 @@ Please make sure to read and agree to our [Code of Conduct](https://github.com/p
 
 ## Submitting a Bug
 
-If you find a bug in Percona Monitoring and Management or one of the related projects, you should submit a report to that project's [JIRA](https://perconadev.atlassian.net) issue tracker. Some of related projects also have GitHub Issues enabled, so you could also submit there.
+If you find a bug in Percona Monitoring and Management, submit a report to the PMM project in [JIRA](https://perconadev.atlassian.net).
 
 Your first step should be [to search](https://perconadev.atlassian.net/issues/?jql=project=PMM) the existing set of open tickets for a similar report. If you find that someone else has already reported your problem, then you can upvote that report to increase its visibility.
 

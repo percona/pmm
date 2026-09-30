@@ -70,6 +70,8 @@ sudo pmm-admin config --server-insecure-tls --server-url=https://admin:<password
 sudo pmm-admin add mysql --username=pmm --password=<pass> --query-source=perfschema
 ```
 
+This assumes a fresh server with its self-signed certificate. For production, use a trusted certificate (drop `--server-insecure-tls`) and register with a [service account token](https://docs.percona.com/percona-monitoring-and-management/3/api/authentication.html) instead of the admin password.
+
 Open **Query Analytics** and your queries appear within a minute. The `pmm` database user needs [these privileges](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql/mysql.html). Guides for RHEL, Docker, [PostgreSQL, MongoDB, Valkey/Redis, Amazon RDS/Aurora, Azure and Google Cloud](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/index.html) are in the [full quickstart](https://docs.percona.com/percona-monitoring-and-management/3/quickstart/quickstart.html).
 
 <sub>Other ways to run PMM Server: [Docker](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/docker/index.html) · [Podman](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/podman/index.html) · [Kubernetes (Helm)](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/helm/index.html) · [AWS Marketplace](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.html)</sub>
@@ -196,7 +198,7 @@ No. Every feature is in the open source release. Percona sells [support](https:/
 <details>
 <summary><b>How do I upgrade?</b></summary>
 
-PMM Server: pull the new image (Docker, Podman, or Helm). PMM Client: your package manager. See the [upgrade guide](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/index.html).
+PMM Server: pull the new image for Docker or Podman, or run `helm upgrade` for Helm. PMM Client: your package manager. See the [upgrade guide](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/index.html).
 
 </details>
 
