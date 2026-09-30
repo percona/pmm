@@ -304,12 +304,13 @@ When you notice problems, follow this approach to quickly figure out what's wron
 
 ## Built-in alerting rules
 
-The dashboard ships with four Prometheus alerting rules for HA failure scenarios:
+The dashboard ships with five Prometheus alerting rules for HA failure scenarios:
 
 | Alert | Condition | Meaning |
 |-------|-----------|---------|
 | **PMMHALeaderMissing** | `sum(pmm_ha_leader_status) == 0` | No pod holds the leader role; the cluster cannot serve requests |
 | **PMMHASplitBrain** | `sum(pmm_ha_leader_status) > 1` | More than one pod claims to be leader; inconsistent behavior is likely |
+| **PMMHANodeUnreachable** | Fewer nodes report HA metrics than configured in `PMM_HA_PEERS` | At least one PMM Server node is down or isolated |
 | **PMMHAQuorumAtRisk** | Fewer than 3 voter nodes are up | The cluster is one failure away from losing quorum |
 | **PMMHALeaderFlapping** | Raft term changes more than 5 times in 10 minutes | The leader is being elected and re-elected repeatedly, causing instability |
 
