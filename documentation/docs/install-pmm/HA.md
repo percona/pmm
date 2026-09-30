@@ -14,7 +14,7 @@ Critical systems requiring sub-second failover gain the most value from PMM HA, 
 
 - Continuous monitoring visibility during server failures, preventing blind spots when you need observability most
 - Automatic failover that restarts services or switches to backup systems without manual intervention
-- Zero metric loss during brief outages, thanks to PMM's client-side caching that preserves data until connectivity resumes
+- Metric data preserved during brief outages, as PMM clients cache and resend metrics once connectivity resumes
 - Reduced operational risk by maintaining monitoring coverage during critical incidents
 
 ### What PMM HA cannot solve
@@ -25,8 +25,6 @@ Critical systems requiring sub-second failover gain the most value from PMM HA, 
 
 ## Feature comparison
 
-Both options prevent data loss through PMM Client caching during outages.
-
 | Feature | [Kubernetes (Single-Instance)](../install-pmm/HA-kubernetes-single-instance.md) | [Kubernetes / OpenShift (HA Cluster)](../install-pmm/HA-clustered.md) |
 |---------|-------------------|---------------------|
 | **Kubernetes required** | Yes | Yes (Kubernetes or OpenShift) |
@@ -35,7 +33,7 @@ Both options prevent data loss through PMM Client caching during outages.
 | **Zero downtime** | No | Yes |
 | **Setup complexity** | Low | High |
 | **Resource overhead** | 1.2x | 3-5x |
-| **Monitoring data preserved** | Yes, stored on clients during outage | Yes, always available on multiple servers |
+| **Metric data during outage** | Cached on clients, resent on reconnect | Always available across multiple servers |
 
 !!! tip "No Kubernetes? Use Docker with auto-restart"
     If you don't have Kubernetes, run PMM Server with `--restart always` and Docker will automatically restart it after crashes or reboots. See [Install PMM Server with Docker](install-pmm-server/deployment-options/docker/index.md).

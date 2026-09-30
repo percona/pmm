@@ -9,14 +9,14 @@ Kubernetes provides enterprise-grade high availability through automated contain
 
 Kubernetes HA Single-Instance leverages Kubernetes' native pod management and self-healing capabilities to ensure PMM stays available even when infrastructure fails. 
 
-Combined with persistent volumes and PMM Client caching, this approach prevents data loss and maintains monitoring continuity with minimal operational overhead.
+Combined with persistent volumes and PMM Client caching, this approach preserves metric data during brief outages and maintains monitoring continuity with minimal operational overhead.
 
 ### Key benefits
 
 - **Automatic recovery**: Kubernetes reschedules failed pods to healthy nodes without manual intervention
 - **Persistent data**: All monitoring data, configurations, and dashboards survive pod restarts
 - **Health monitoring**: Liveness and readiness probes ensure only healthy instances receive traffic
-- **Zero data loss**: PMM Clients cache metrics locally during brief outages
+- **Metric data preserved**: PMM clients cache metrics locally during brief outages and resend them once connectivity resumes
 - **Production-tested**: Stable and battle-tested in production environments for years
 - **Simple operations**: Single PMM instance is easier to manage than distributed clusters
 
@@ -26,7 +26,7 @@ Kubernetes watches your PMM deployment and fixes problems automatically.
 
 If a pod crashes or a node fails, Kubernetes restarts it on a healthy node within a few minutes.
 
-Your persistent volume keeps all your data safe and it stays attached when the pod moves. Your PMM Clients cache metrics locally, so nothing gets lost during the restart. Once PMM comes back up, everything syncs automatically.
+Your persistent volume keeps all your data safe and it stays attached when the pod moves. Your PMM clients cache metrics locally during the restart and resend them once PMM comes back up.
 
 ### Limitations
 
