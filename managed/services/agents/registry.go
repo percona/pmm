@@ -395,6 +395,16 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 // A connection that took a long time to die must not evict the one that already replaced it,
 // or the agent stays connected while pmm-managed reports it as disconnected forever (PMM-15310).
 func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason string, conn *pmmAgentInfo) *pmmAgentInfo {
+	agent := r.removeConn(ctx, pmmAgentID, disconnectReason, conn)
+	if agent != nil && r.haService.Params().Enabled {
+		r.persistDisconnect(ctx, pmmAgentID)
+	}
+
+	return agent
+}
+
+// removeConn removes the connection of pmm-agent with given ID from the registry, see unregister.
+func (r *Registry) removeConn(ctx context.Context, pmmAgentID, disconnectReason string, conn *pmmAgentInfo) *pmmAgentInfo {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
@@ -417,43 +427,68 @@ func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason 
 	delete(r.agents, pmmAgentID)
 	r.roster.clear(pmmAgentID)
 
-	// Only persist connection status when HA is enabled
-	if r.haService.Params().Enabled {
-		l := logger.Get(ctx)
+	return agent
+}
 
-		// By now the stream the pmm-agent was connected over is usually done, and so is its context.
-		// The disconnect is persisted regardless: IsConnected reads it back from the database in HA
-		// mode, so a failed update keeps reporting the agent as connected until it connects again.
-		dbCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), connectionStatusUpdateTimeout)
-		defer cancel()
+// persistDisconnect records in HA mode that pmm-agent with given ID is no longer connected.
+//
+// The write happens outside the registry lock, so a slow database does not hold up every other
+// agent. The agent may connect again meanwhile, and register persists that under the lock, so the
+// status is checked again under the lock afterwards and restored if a newer connection exists.
+func (r *Registry) persistDisconnect(ctx context.Context, pmmAgentID string) {
+	l := logger.Get(ctx)
 
-		err := r.db.InTransactionContext(dbCtx, nil, func(tx *reform.TX) error {
-			a, err := models.FindAgentByID(tx.Querier, pmmAgentID)
-			if err != nil {
-				// Agent might have been deleted, which is fine
-				if status.Code(err) == codes.NotFound {
-					return nil
-				}
-				return fmt.Errorf("failed to find agent: %w", err)
-			}
-			a.IsConnected = false
-			err = tx.Update(a)
-			if err != nil {
-				return fmt.Errorf("failed to update agent: %w", err)
-			}
-			return nil
-		})
-		if err != nil {
-			// Log but don't fail - agent is already disconnected from the registry
-			l.Errorf("Failed to update the connection status for agent %s: %v", pmmAgentID, err)
-		}
+	// By now the stream the pmm-agent was connected over is usually done, and so is its context.
+	// The disconnect is persisted regardless: IsConnected reads it back from the database in HA
+	// mode, so a failed update keeps reporting the agent as connected until it connects again.
+	dbCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), connectionStatusUpdateTimeout)
+	defer cancel()
 
-		r.cacheMu.Lock()
-		delete(r.connectionCache, pmmAgentID)
-		r.cacheMu.Unlock()
+	err := r.persistConnectionStatus(dbCtx, pmmAgentID, false)
+	if err != nil {
+		// Log but don't fail - agent is already disconnected from the registry
+		l.Errorf("Failed to update the connection status for agent %s: %v", pmmAgentID, err)
 	}
 
-	return agent
+	r.rw.Lock()
+	defer r.rw.Unlock()
+
+	r.cacheMu.Lock()
+	delete(r.connectionCache, pmmAgentID)
+	r.cacheMu.Unlock()
+
+	if _, ok := r.agents[pmmAgentID]; !ok {
+		return
+	}
+
+	err = r.persistConnectionStatus(dbCtx, pmmAgentID, true)
+	if err != nil {
+		l.Errorf("Failed to restore the connection status for agent %s: %v", pmmAgentID, err)
+	}
+
+	r.cacheMu.Lock()
+	r.connectionCache[pmmAgentID] = struct{}{}
+	r.cacheMu.Unlock()
+}
+
+// persistConnectionStatus stores whether pmm-agent with given ID is connected. An agent which is
+// already gone from the database needs no status.
+func (r *Registry) persistConnectionStatus(ctx context.Context, pmmAgentID string, connected bool) error {
+	return r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		a, err := models.FindAgentByID(tx.Querier, pmmAgentID)
+		if err != nil {
+			if status.Code(err) == codes.NotFound {
+				return nil
+			}
+			return fmt.Errorf("failed to find agent: %w", err)
+		}
+		a.IsConnected = connected
+		err = tx.Update(a)
+		if err != nil {
+			return fmt.Errorf("failed to update agent: %w", err)
+		}
+		return nil
+	})
 }
 
 // ping sends Ping message to given Agent, waits for Pong and observes round-trip time and clock drift.

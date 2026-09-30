@@ -19,6 +19,7 @@ import (
 	"context"
 	"sync"
 	"testing"
+	"time"
 
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -194,11 +195,11 @@ func TestKickConn(t *testing.T) {
 	})
 }
 
-// TestUnregisterPersistsDisconnectInHA covers the usual way a pmm-agent goes away: its stream is
-// done, so the context unregister gets is already canceled. In HA mode IsConnected reads the
-// connection status from the database, so the disconnect must reach it all the same, otherwise
-// the agent is reported as connected until it connects again.
-func TestUnregisterPersistsDisconnectInHA(t *testing.T) {
+// newHATestRegistry returns an HA-mode registry with PMM Server's pmm-agent connected, as persisted
+// in the database, and that connection.
+func newHATestRegistry(t *testing.T) (*Registry, *reform.DB, *pmmAgentInfo) {
+	t.Helper()
+
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -217,12 +218,80 @@ func TestUnregisterPersistsDisconnectInHA(t *testing.T) {
 	conn := &pmmAgentInfo{id: models.PMMServerAgentID}
 	r.agents[models.PMMServerAgentID] = conn
 
+	return r, db, conn
+}
+
+func isConnectedInDB(t *testing.T, db *reform.DB) bool {
+	t.Helper()
+
+	agent, err := models.FindAgentByID(db.Querier, models.PMMServerAgentID)
+	require.NoError(t, err)
+
+	return agent.IsConnected
+}
+
+// TestUnregisterPersistsDisconnectInHA covers the usual way a pmm-agent goes away: its stream is
+// done, so the context unregister gets is already canceled. In HA mode IsConnected reads the
+// connection status from the database, so the disconnect must reach it all the same, otherwise
+// the agent is reported as connected until it connects again.
+func TestUnregisterPersistsDisconnectInHA(t *testing.T) {
+	r, db, conn := newHATestRegistry(t)
+
 	ctx, cancel := context.WithCancel(logger.SetEntry(t.Context(), logrus.WithField("test", t.Name())))
 	cancel()
 	assert.Same(t, conn, r.unregister(ctx, models.PMMServerAgentID, "done", conn))
 
-	agent, err = models.FindAgentByID(db.Querier, models.PMMServerAgentID)
-	require.NoError(t, err)
-	assert.False(t, agent.IsConnected)
+	assert.False(t, isConnectedInDB(t, db))
 	assert.False(t, r.IsConnected(models.PMMServerAgentID))
+}
+
+// TestUnregisterDoesNotHoldTheRegistryWhilePersisting covers a slow database: the disconnect of one
+// agent must not stop the registry from serving every other agent while it is written.
+func TestUnregisterDoesNotHoldTheRegistryWhilePersisting(t *testing.T) {
+	r, db, conn := newHATestRegistry(t)
+	ctx := logger.SetEntry(t.Context(), logrus.WithField("test", t.Name()))
+
+	// Hold the row, so that persisting the disconnect waits for it.
+	tx, err := db.Begin()
+	require.NoError(t, err)
+	_, err = tx.Exec("SELECT 1 FROM agents WHERE agent_id = $1 FOR UPDATE", models.PMMServerAgentID)
+	require.NoError(t, err)
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		r.unregister(ctx, models.PMMServerAgentID, "done", conn)
+	}()
+
+	require.Eventually(t, func() bool {
+		var waiting int
+		err := db.QueryRow("SELECT count(*) FROM pg_stat_activity WHERE wait_event_type = 'Lock' AND query LIKE 'UPDATE%agents%'").
+			Scan(&waiting)
+		return err == nil && waiting > 0
+	}, 5*time.Second, 10*time.Millisecond, "the disconnect is not waiting for the row")
+
+	locked := r.rw.TryLock()
+	if locked {
+		r.rw.Unlock()
+	}
+	assert.True(t, locked, "the registry is locked while the disconnect is persisted")
+
+	require.NoError(t, tx.Rollback())
+	<-done
+	assert.False(t, isConnectedInDB(t, db))
+}
+
+// TestPersistDisconnectKeepsANewerConnection covers an agent which connects again while its previous
+// disconnect is being written: registration persists the connection meanwhile, and the late
+// disconnect must not overwrite it.
+func TestPersistDisconnectKeepsANewerConnection(t *testing.T) {
+	r, db, _ := newHATestRegistry(t)
+	ctx := logger.SetEntry(t.Context(), logrus.WithField("test", t.Name()))
+
+	// The previous connection is already out of the map, and a newer one has taken its place.
+	r.agents[models.PMMServerAgentID] = &pmmAgentInfo{id: models.PMMServerAgentID}
+	r.persistDisconnect(ctx, models.PMMServerAgentID)
+
+	assert.True(t, isConnectedInDB(t, db))
+	assert.True(t, r.IsConnected(models.PMMServerAgentID))
 }
