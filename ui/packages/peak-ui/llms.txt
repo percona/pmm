@@ -152,8 +152,9 @@ Icons: search `@mui/icons-material` first; the custom icons listed under Icons e
 ## Not exported: use MUI
 
 - [Button and IconButton](https://percona.github.io/peak-ui/?path=/docs/inputs-button--docs): Come from `@mui/material`; Storybook shows the variants, colors, and sizes under the Percona theme.
-- [TextField](https://percona.github.io/peak-ui/?path=/docs/inputs-text-field--docs): Comes from `@mui/material` for values outside a form; inside a react-hook-form form use the TextInput listed above.
-- [Everything else](https://mui.com/material-ui/all-components/): `Box`, `Stack`, `Grid`, `Typography`, `Alert`, `Menu`, `MenuItem`, `Switch`, `Radio`, `Checkbox`, `Select`, `Autocomplete`, `Pagination`, and the rest come from `@mui/material`; toasts go through notistack with the NotistackMuiSnackbar renderer listed above.
+- [Form controls with a Peak UI counterpart](https://percona.github.io/peak-ui/?path=/docs/inputs-text-field--docs): MUI `TextField`, `Select`, `Autocomplete`, `Checkbox`, `Switch`, and `Radio` are only for values outside a form. When the value lives in a react-hook-form form, use the Peak UI counterpart from this index instead: TextInput, SelectInput, AutoCompleteInput, CheckboxInput, SwitchInput, or RadioGroup.
+- [Layout, text, and feedback with no Peak UI counterpart](https://mui.com/material-ui/all-components/): `Box`, `Stack`, `Grid`, `Typography`, `Alert`, `Menu`, `MenuItem`, `Pagination`, `Tabs`, `Drawer`, and the rest come from `@mui/material` and the Peak UI theme styles them; toasts go through notistack with the NotistackMuiSnackbar renderer listed above.
+- [Names that exist in neither library](https://mui.com/material-ui/all-components/): There is no `Heading` (use `Typography` with a heading `variant`), no `Input` (TextInput inside a form, `TextField` outside), and no `Toast` (notistack, above). Do not invent them.
 
 ## Optional
 
