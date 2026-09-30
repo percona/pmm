@@ -3,10 +3,13 @@ import { posix, resolve } from 'node:path';
 import { sanitize, storyNameFromExport, toId } from 'storybook/internal/csf';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
+import { MATURITY_TAGS } from '../.storybook/maturity-tags';
+import { DEFAULT_PAGE_MAX_WIDTH, DEFAULT_TABLE_STATE } from './index';
 
 const root = process.cwd();
 const read = (file: string) => readFileSync(resolve(root, file), 'utf8');
 const llms = read('llms.txt');
+const lines = llms.split('\n');
 const pkg = JSON.parse(read('package.json')) as { files: string[] };
 
 const STORYBOOK = 'https://percona.github.io/peak-ui/?path=/';
@@ -14,6 +17,12 @@ const SOURCE = 'https://github.com/percona/peak-ui/blob/main/';
 const LINK_ITEM = /^- \[[^\]]+\]\(https?:\/\/[^)\s]+\): \S/;
 
 const links = [...llms.matchAll(/\[[^\]]+\]\((https?:\/\/[^)\s]+)\)/g)].map((m) => m[1]);
+const lineFor = (name: string) => lines.find((line) => line.startsWith(`- [${name}](`)) ?? '';
+const section = (heading: string) => {
+  const start = lines.indexOf(`## ${heading}`);
+  const end = lines.findIndex((line, i) => i > start && line.startsWith('## '));
+  return lines.slice(start + 1, end === -1 ? undefined : end);
+};
 
 // Every name the entry point exports, values and types alike, as the compiler sees it.
 const publicExports = (() => {
@@ -26,9 +35,14 @@ const publicExports = (() => {
   const moduleSymbol = checker.getSymbolAtLocation(program.getSourceFile(entry)!)!;
   return checker.getExportsOfModule(moduleSymbol).map((symbol) => {
     const target = symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol;
-    return { name: symbol.name, isValue: (target.flags & ts.SymbolFlags.Value) !== 0 };
+    return {
+      name: symbol.name,
+      isValue: (target.flags & ts.SymbolFlags.Value) !== 0,
+      isDeprecated: target.getJsDocTags(checker).some((tag) => tag.name === 'deprecated'),
+    };
   });
 })();
+const publicNames = new Set(publicExports.map((e) => e.name));
 
 // Ids Storybook publishes: `<title>--docs` for autodocs metas and MDX pages, `<title>--<story>` per export.
 const storybookIds = (() => {
@@ -71,7 +85,6 @@ describe('llms.txt', () => {
   });
 
   it('follows the llms.txt layout: H1, blockquote, then H2 sections of link items', () => {
-    const lines = llms.split('\n');
     expect(lines[0]).toBe('# Peak UI');
     const firstSection = lines.findIndex((line) => line.startsWith('## '));
     expect(firstSection).toBeGreaterThan(0);
@@ -120,4 +133,50 @@ describe('llms.txt', () => {
       expect(existsSync(resolve(root, link.slice(SOURCE.length)))).toBe(true);
     }
   );
+});
+
+// Facts the prose repeats from code or from the other guides must match their source.
+describe('llms.txt stays in sync', () => {
+  it('finds the @deprecated exports', () => {
+    expect(publicExports.filter((e) => e.isDeprecated).length).toBeGreaterThan(0);
+  });
+
+  it.each(publicExports.filter((e) => e.isValue).map((e) => [e.name, e.isDeprecated] as const))(
+    'marks %s as deprecated only when its JSDoc says so (%s)',
+    (name, isDeprecated) => {
+      expect(/\): Deprecated\b/.test(lineFor(name))).toBe(isDeprecated);
+    }
+  );
+
+  it('names only non-exports in the "Not exported: use MUI" section', () => {
+    const named = section('Not exported: use MUI')
+      .flatMap((line) => [...line.matchAll(/`([A-Z]\w+)`/g)].map((m) => m[1]))
+      .concat(
+        section('Not exported: use MUI').flatMap(
+          (line) => line.match(/^- \[([^\]]+)\]/)?.[1].split(/,? and |, /) ?? []
+        )
+      );
+    expect(named.length).toBeGreaterThan(0);
+    named.forEach((name) => expect(publicNames.has(name), name).toBe(false));
+  });
+
+  it('quotes the real defaults', () => {
+    expect(lineFor('PageContainer')).toContain(`${DEFAULT_PAGE_MAX_WIDTH}px`);
+    expect(lineFor('DEFAULT_PAGE_MAX_WIDTH')).toContain(`(${DEFAULT_PAGE_MAX_WIDTH})`);
+    const { pageIndex, pageSize } = DEFAULT_TABLE_STATE.pagination;
+    expect(lineFor('DEFAULT_TABLE_STATE')).toContain(`page ${pageIndex} of ${pageSize} rows`);
+  });
+
+  it('lists the maturity tags exactly as Storybook labels them', () => {
+    expect(llms).toContain(`(${MATURITY_TAGS.map((tag) => tag.label).join(', ')})`);
+  });
+
+  it('carries every URL AGENTS.md links to', () => {
+    const agents = read('AGENTS.md');
+    const urls = [...agents.slice(agents.indexOf('## Links')).matchAll(/https?:\/\/\S+/g)]
+      .map((m) => m[0])
+      .filter((url) => !url.endsWith('/llms.txt'));
+    expect(urls.length).toBeGreaterThan(0);
+    urls.forEach((url) => expect(llms, url).toContain(url));
+  });
 });
