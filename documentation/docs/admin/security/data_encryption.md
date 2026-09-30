@@ -1,66 +1,41 @@
 # PMM data encryption
 
-Percona Monitoring and Management (PMM) implements robust encryption for sensitive data stored in its internal database, such as database access credentials, TLS certificates and keys, cloud credentials and backup location secrets.
+Percona Monitoring and Management (PMM) implements robust encryption for sensitive data stored in its internal database's `agent` table. This includes access credentials and configuration details.
 
 ## Default encryption
 
-PMM automatically manages encryption using a keyset file located at `/srv/pmm-encryption.key`. PMM generates this file upon the initial launch of PMM 3 or when upgrading from the latest version of PMM 2.
-
-Encrypted values are stored with the `pmm1$` prefix followed by the base64-encoded ciphertext (AES-256-GCM). The ciphertext embeds the ID of the key it was encrypted with, so PMM always knows which key of the keyset to use for decryption — including during key rotation.
+PMM automatically manages encryption using a key file located at `/srv/pmm-encryption.key`. PMM generates this file upon the initial launch of PMM 3 or when upgrading from the latest version of PMM 2.
 
 ## Custom encryption key configuration
 
-For enhanced security control, PMM supports a custom encryption keyset location.
+For enhanced security control, PMM supports custom encryption keys.
 
 **Key format requirements:**
 
-- The file must contain a base64-encoded serialized Tink keyset with an AES-256-GCM key, as produced by `pmm-encryption-rotation --generate-key`.
-- A raw 32-byte value is not a valid key file.
+- The key must be a 32-byte (256-bit) random value, suitable for AES-256-GCM encryption.
+- The file must contain exactly 32 raw bytes (not a hex-encoded or base64-encoded string).
 
-To generate a valid keyset file:
 
-```bash
-pmm-encryption-rotation --generate-key > /path/to/your/encryption.key
-```
+PMM uses this key with the TINK `AES256GCMKeyTemplate` output prefix type.
 
-To set up a custom key location, configure the `PMM_ENCRYPTION_KEY_PATH` environment variable to point to your key file.
+To set up a custom key, configure the `PMM_ENCRYPTION_KEY_PATH` environment variable to point to your custom key file.
 
 !!! hint alert alert-success "Important"
     Configure this **before** any data encryption occurs: either before upgrading to PMM 3 or before initially starting a new PMM 3.x instance.
 
 ### Key management requirements
 
-Once configured, PMM will use the keyset to encrypt and decrypt all sensitive data stored within the system.
+Once configured, PMM will use the custom key to encrypt and decrypt all sensitive data stored within the system.
 
-If the keyset file is unavailable or misplaced, PMM will be unable to access and decrypt the stored data, which will prevent it from running correctly.
+If the custom key is unavailable or misplaced, PMM will be unable to access and decrypt the stored data, which will prevent it from running correctly.
 
-Make sure to store and manage the encryption keyset securely to avoid potential loss of data access.
-
-## Upgrading from PMM 3.9.1 or earlier
-
-Earlier versions stored encrypted values without the `pmm1$` prefix, and some sensitive data (backup location S3 credentials, Valkey TLS certificates and keys) without encryption. The first start after the upgrade re-encrypts all of it in the new format with your existing key; the key file is used as is.
-
-Before you upgrade:
-{.power-number}
-
-1. Back up the key file (`/srv/pmm-encryption.key` or the path in `PMM_ENCRYPTION_KEY_PATH`) together with your PMM data. A database backup cannot be read without it.
-
-2. If PMM runs in [high availability mode](../../install-pmm/HA-docker.md), stop all PMM Server nodes, upgrade them, then start them. Nodes that still run the previous version cannot read data re-encrypted by upgraded nodes.
-
-During the first start, PMM Server:
-
-- Stores the values it is about to re-encrypt, exactly as they were stored, in `pmm-encryption-migration-backup-<timestamp>.json` next to the key file, or in `/srv` if that directory is read-only. The file is readable by its owner only and is as sensitive as the database; keep it until you have verified the upgrade, then delete it. If the first start is interrupted, the next one writes another backup file.
-- Refuses to start if it cannot decrypt stored data, for example when the key file was replaced by a different key. The error lists the affected agents. Restore the original key file and restart; no data is changed.
-- Repairs credentials corrupted by key rotation in PMM 3.9.0 and earlier (see [below](#recovery-after-a-corrupted-rotation)), using the previous key that the rotation left next to the key file (`pmm-encryption_old.key`, or `<name>_old.key` for a custom key path). Do not delete that file before upgrading.
-
-!!! caution alert alert-warning "Downgrading is not supported"
-    After the upgrade, earlier PMM versions cannot read the stored credentials. To go back, restore the PMM data backup taken before the upgrade.
+Make sure to store and manage the custom encryption key securely to avoid potential loss of data access.
 
 ## Rotating the encryption key
 
-You may want to rotate the encryption key when the original key is compromised or as part of routine security maintenance. For this, you can use the **PMM Encryption Rotation Tool**.
+You may want to generate a new encryption key or rotate it when the original key is compromised or as part of routine security maintenance. For this, you can use the **PMM Encryption Rotation Tool**.
 
-The tool adds a new key to the keyset and makes it the primary one; the previous keys remain in the keyset, so all stored data stays readable at every point of the rotation — the database is never held decrypted at rest. PMM Server is then restarted and re-encrypts all sensitive data with the new key during startup.
+This tool re-encrypts all existing sensitive data with a newly generated encryption key, ensuring continuous security with minimal disruption.
 
 To rotate the encryption key:
 {.power-number}
@@ -73,27 +48,22 @@ To rotate the encryption key:
      pmm-encryption-rotation
     ```
 
-    - Ensure `PMM_ENCRYPTION_KEY_PATH` is set to the current key file if using a custom location.
+    - Ensure `PMM_ENCRYPTION_KEY_PATH` is set to the current custom key if using one, so the tool can decrypt data before re-encryption.
     - If using custom credentials/SSL for the PMM internal database, provide them with the appropriate flags.
-    - Add `--prune` to remove the retired keys from the keyset once the tool has verified that no stored data references them anymore.
 
 3. Verify PMM functionality all components are functioning properly to ensure that the encryption key rotation was successful.
 
-Once the rotation tool has completed, the keyset file (at the default location `/srv/pmm-encryption.key` or the path specified by `PMM_ENCRYPTION_KEY_PATH`) contains the new primary key and all sensitive data is re-encrypted with it.
+Once the rotation tool has completed, a new encryption key will be generated and saved either in the default location (`/srv/pmm-encryption.key`) or in the path specified by `PMM_ENCRYPTION_KEY_PATH`. The tool will automatically re-encrypt all sensitive data with the new key.
 
 ## Recovery after a corrupted rotation
 
-PMM versions before 3.9.1 contained a bug that corrupted certain credentials during key rotation: TLS certificates and keys and cloud credentials were encrypted more than once.
-
-When you upgrade from such a version, PMM Server repairs them automatically with the previous key that the rotation left next to the key file. After more than one such rotation, the key of the innermost layer is no longer available; PMM Server then logs a warning during the upgrade that names the affected agents. Place that key at the `_old.key` path from the warning and restart PMM Server, or see [Corrupted credentials after encryption key rotation](../../troubleshoot/upgrade_issues.md#corrupted-credentials-after-encryption-key-rotation) to re-add the services.
+PMM versions before 3.9.1 contained a bug that corrupted certain credentials during key rotation. If you rotated the encryption key before upgrading to 3.9.1, see [Corrupted credentials after encryption key rotation](../../troubleshoot/upgrade_issues.md#corrupted-credentials-after-encryption-key-rotation) for recovery steps.
 
 ## Best practices for custom key management
 
-- Always keep a secure backup of your encryption keyset, especially when using `PMM_ENCRYPTION_KEY_PATH`, as it is critical to PMM’s data decryption process.
-- If PMM Server does not start because the key file is missing or was replaced, restore the original keyset. PMM Server refuses to generate a new key or re-encrypt data it cannot decrypt, so no data is lost while the original keyset is restored.
+- Always keep a secure backup of your encryption key, especially when using `PMM_ENCRYPTION_KEY_PATH`, as it is critical to PMM’s data decryption process.
 - In containerized environments, ensure `PMM_ENCRYPTION_KEY_PATH` is persistently set in the container configuration to avoid issues during restarts.
 - Test the encryption key rotation process in a staging environment before applying it in production to minimize potential downtime or configuration issues.
-- Keep retired keys in the keyset (do not use `--prune`) until you have verified that the rotation completed successfully.
 
 ## See also
 
