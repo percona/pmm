@@ -408,6 +408,8 @@ To install PMM HA:
 
 You can run more than one PMM HA Cluster on the same Kubernetes cluster, for example a disaster recovery target or an isolated test instance next to production. Each instance runs in its own namespace, with its own PMM Server replicas, databases, and PMM UI.
 
+To use a second instance as a disaster recovery target, see [Restore into another namespace](backup-restore-HA-clustered.md#restore-into-another-namespace). It requires copying the source's `pmm-secret` before you install.
+
 ### Requirements for each additional instance
 
 The operators you installed in [Step 1](#step-1-install-operators) watch all namespaces, so install them only once per cluster. Don't install the `pmm-ha-dependencies` chart again in the new namespace. The second installation fails with an `invalid ownership metadata` error.
@@ -1075,6 +1077,10 @@ View detailed role and health information for all PMM nodes in one place.
 Checking the High Availability page tells you the state of the cluster right now, but it does not notify you when that state changes. PMM creates and maintains alert rules for the failure modes of an HA cluster: no active leader, split-brain, a flapping leader, an unreachable node, and a quorum at risk.
 
 There is nothing to create: configure a [contact point](../alert/contact_points.md) so the notifications reach you. To turn the rules off, set `PMM_ENABLE_HA_ALERTS=false` and recreate the server. For the template list and the coverage limitations, see [PMM High Availability templates](../alert/templates_list.md#pmm_ha_alerts).
+
+### Back up your deployment
+
+Backups are turned off by default. To back up PMM HA to S3-compatible storage or a shared volume, and restore it in place or into another namespace, see [Back up and restore PMM HA Cluster](backup-restore-HA-clustered.md).
 
 ### Scale your deployment
 

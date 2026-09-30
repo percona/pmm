@@ -285,8 +285,76 @@ kubectl exec -n pmm pmm-ha-0 -c pmm-ha -- tail -100 /srv/logs/qan-api2.log
 !!! note ""
     The **Query Analytics for PMM Server** option under **Configuration > Settings > Advanced Settings** cannot be enabled in HA mode. It returns `QAN for internal PostgreSQL is already configured via an environment variable`. This is expected.
 
+## A backup or restore fails
+
+`pmm-backup.sh` exits with an error, or a scheduled backup Job fails.
+
+**Cause:** One of the components couldn't be backed up or restored, the storage isn't reachable, or an earlier run that didn't finish is still holding a lock.
+
+**Fix:** Check the log of the most recent run:
+
+```sh
+kubectl exec -n pmm deploy/pmm-ha-backup-tools -- sh -c 'ls -t /backups/logs | head'
+kubectl exec -n pmm deploy/pmm-ha-backup-tools -- tail -50 /backups/logs/<log-file>
+```
+
+Then check whether a lock is still held:
+
+```sh
+kubectl get leases -n pmm | grep pmm-backup
+```
+
+A lock from a run that was stopped expires after 15 minutes. A new run started before then is refused on purpose, so it can't interfere with the stopped one. Wait for the lock to expire, then run the backup or restore again.
+
+## A restore was interrupted and PMM stays down
+
+After a restore was stopped part-way, PMM is unreachable and the PMM Server pods don't come back.
+
+**Cause:** A restore scales PMM Server and VictoriaMetrics down to zero before replacing their data. If it's stopped before it scales them back up, for example because its node was replaced, they stay at zero. PMM Server is scaled back up by the next restore, but VictoriaMetrics is not, so the next restore refuses to start.
+
+**Fix:**
+{.power-number}
+
+1. Scale VictoriaMetrics back to the replica counts from your values file. The defaults are 3 `vmstorage` and 2 `vminsert` replicas:
+
+    ```sh
+    kubectl patch vmcluster pmm-ha-vmcluster -n pmm --type=merge \
+      -p '{"spec":{"vmstorage":{"replicaCount":3},"vminsert":{"replicaCount":2}}}'
+    ```
+
+2. Wait for any leftover restore locks to expire:
+
+    ```sh
+    kubectl get leases -n pmm | grep pmm-backup
+    ```
+
+3. Run the restore again. To avoid another interruption, run it as a Job. See [Restore in place](../install-pmm/backup-restore-HA-clustered.md#restore-in-place).
+
+## A backup or restore Job stays in Pending state
+
+A Job created from the `pmm-ha-backup` CronJob never starts.
+
+**Cause:** With S3 storage, the Job must run on the same node as the `pmm-ha-backup-tools` pod, because they share a `ReadWriteOnce` volume. If that node has no free CPU or memory, the Job can't be scheduled. The scheduler reports a pod affinity error rather than a resource shortage.
+
+**Fix:** Free resources on that node. Before a restore, scaling PMM Server to zero is usually enough, since the restore does this anyway:
+
+```sh
+kubectl scale statefulset pmm-ha -n pmm --replicas=0
+```
+
+To avoid this permanently, set `centralBackupStorage.accessMode: ReadWriteMany` in your values file, so the Job can run on any node.
+
+## PMM Client pods fail after a restore into another namespace
+
+After you restore a backup into another namespace, the `pmm-ha-client` or PostgreSQL `pmm-client` containers restart repeatedly with authentication errors.
+
+**Cause:** The restore replaced the Grafana database, so PMM now uses the source installation's admin password. The new namespace's `pmm-secret` still holds its own password, so the clients can't authenticate.
+
+**Fix:** Set `PMM_ADMIN_PASSWORD` in the new namespace's `pmm-secret` to the source installation's admin password, then restart the failing pods. See [Restore into another namespace](../install-pmm/backup-restore-HA-clustered.md#restore-into-another-namespace).
+
 ## See also
 
 - [Understand PMM High Availability Cluster](../install-pmm/HA-clustered.md)
 - [Install PMM HA Cluster](../install-pmm/install-HA-clustered.md)
+- [Back up and restore PMM HA Cluster](../install-pmm/backup-restore-HA-clustered.md)
 - [Upgrade PMM HA Cluster using Helm](../pmm-upgrade/upgrade_helm_ha.md)

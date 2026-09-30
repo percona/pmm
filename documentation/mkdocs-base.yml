@@ -226,6 +226,7 @@ nav:
         - Kubernetes / OpenShift (HA Cluster):
             - Understand PMM HA Cluster: install-pmm/HA-clustered.md
             - Install PMM HA Cluster: install-pmm/install-HA-clustered.md
+            - Back up and restore PMM HA Cluster: install-pmm/backup-restore-HA-clustered.md
             - Troubleshoot PMM HA Cluster: troubleshoot/ha_issues.md
 
   - Use:

@@ -19,19 +19,29 @@ Complete these steps before upgrading to avoid data loss or extended downtime:
     kubectl get pods -n <namespace> -l app.kubernetes.io/component=pmm-server
     ```
 
-2. Back up each database cluster separately before upgrading. Downgrades are not supported, so a backup is your only recovery option:
+2. Back up your PMM HA Cluster before upgrading. Downgrades are not supported, so a backup is your only recovery option:
 
-    === "PostgreSQL"
+    === "Built-in backups"
 
-        PostgreSQL is backed up automatically by default. Confirm a recent backup exists before you upgrade:
+        If you [turned on backups](../install-pmm/backup-restore-HA-clustered.md#turn-on-backups), take a backup of all components:
 
         ```sh
-        kubectl get perconapgbackup -n <namespace>
+        kubectl exec -n <namespace> deploy/<release>-backup-tools -- pmm-backup.sh backup
         ```
 
-    === "ClickHouse and VictoriaMetrics"
+        If the upgrade fails, you can [restore this backup](../install-pmm/backup-restore-HA-clustered.md#restore-pmm-ha-cluster).
 
-        ClickHouse and VictoriaMetrics have no automatic backup. Back them up manually before upgrading if you need to restore your query analytics data and metrics (for example with [clickhouse-backup](https://github.com/Altinity/clickhouse-backup) and VictoriaMetrics' [`vmbackup`](https://docs.victoriametrics.com/vmbackup/)).
+    === "Without built-in backups"
+
+        If you haven't turned on backups, back up each database cluster separately:
+
+        - **PostgreSQL** is backed up automatically by default. Confirm a recent backup exists:
+
+            ```sh
+            kubectl get perconapgbackup -n <namespace>
+            ```
+
+        - **ClickHouse and VictoriaMetrics** have no automatic backup. Back them up manually if you need to restore your Query Analytics data and metrics, for example with [clickhouse-backup](https://github.com/Altinity/clickhouse-backup) and VictoriaMetrics' [`vmbackup`](https://docs.victoriametrics.com/vmbackup/).
 
 3. Keep all custom settings in your `values.yaml` file. Settings applied with `kubectl patch` are silently reset on every upgrade.
 
@@ -116,9 +126,11 @@ If the upgrade causes issues, you can restore your previous Helm configuration. 
 
 To fully return to the pre-upgrade state, also restore your databases from the backups you took in [Before you begin](#before-you-begin):
 
-- [Restore PostgreSQL](https://docs.percona.com/percona-operator-for-postgresql/latest/backups-restore.html)
-- [Restore ClickHouse](https://github.com/Altinity/clickhouse-backup?tab=readme-ov-file#usage)
-- [Restore VictoriaMetrics](https://docs.victoriametrics.com/vmrestore/)
+- If you used built-in backups, roll back the Helm release first, then [restore the backup](../install-pmm/backup-restore-HA-clustered.md#restore-in-place). A backup can only be restored into the same PMM version it was taken from.
+- Otherwise, restore each database separately:
+    - [Restore PostgreSQL](https://docs.percona.com/percona-operator-for-postgresql/latest/backups-restore.html)
+    - [Restore ClickHouse](https://github.com/Altinity/clickhouse-backup?tab=readme-ov-file#usage)
+    - [Restore VictoriaMetrics](https://docs.victoriametrics.com/vmrestore/)
 
 To roll back the Helm release to the previous version:
 {.power-number}
