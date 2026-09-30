@@ -1355,6 +1355,7 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddR
 		AWSOptions: models.AWSOptions{
 			AWSAccessKey:               p.AwsAccessKey,
 			AWSSecretKey:               p.AwsSecretKey,
+			AWSRoleARN:                 p.AwsRoleArn,
 			RDSBasicMetricsDisabled:    p.DisableBasicMetrics,
 			RDSEnhancedMetricsDisabled: p.DisableEnhancedMetrics,
 		},
@@ -1399,6 +1400,7 @@ func (as *AgentsService) ChangeRDSExporter(ctx context.Context, agentID string, 
 	params.AWSOptions = &models.ChangeAWSOptions{
 		AWSAccessKey:               p.AwsAccessKey,
 		AWSSecretKey:               p.AwsSecretKey,
+		AWSRoleARN:                 p.AwsRoleArn,
 		RDSBasicMetricsDisabled:    p.DisableBasicMetrics,
 		RDSEnhancedMetricsDisabled: p.DisableEnhancedMetrics,
 	}
@@ -1418,6 +1420,14 @@ func (as *AgentsService) ChangeRDSExporter(ctx context.Context, agentID string, 
 	if !ok {
 		return nil, unexpectedAgentTypeError(agent)
 	}
+
+	// If the change left the exporter with neither a role ARN nor an access key, it now uses the
+	// pmm-agent host's ambient AWS credentials. Warn so this identity change is not silent.
+	if p.AwsRoleArn != nil && *p.AwsRoleArn == "" && rdsExporter.AwsRoleArn == "" && rdsExporter.AwsAccessKey == "" {
+		logger.Get(ctx).Warnf("rds_exporter %s has no role ARN or access key after this change; "+
+			"it will use the pmm-agent host's ambient AWS credentials.", agentID)
+	}
+
 	as.state.RequestStateUpdate(ctx, rdsExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{

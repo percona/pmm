@@ -17,7 +17,12 @@ package management
 
 import (
 	"context"
+	"io"
 	"net/http"
+	"net/http/httptest"
+	"regexp"
+	"sort"
+	"sync"
 	"testing"
 	"time"
 
@@ -153,6 +158,112 @@ func TestRDSService(t *testing.T) {
 
 			tests.AssertGRPCError(t, status.New(codes.DeadlineExceeded, "Request timeout."), err)
 			assert.Empty(t, instances)
+		})
+
+		t.Run("RoleARNPartitionNotEnabled", func(t *testing.T) {
+			ctx := logger.Set(t.Context(), t.Name())
+
+			// Default settings enable only the aws partition.
+			instances, err := s.DiscoverRDS(ctx, &managementv1.DiscoverRDSRequest{
+				AwsRoleArn: "arn:aws-cn:iam::123456789012:role/pmm-monitoring",
+			})
+
+			tests.AssertGRPCError(t, status.New(codes.FailedPrecondition,
+				"Role arn:aws-cn:iam::123456789012:role/pmm-monitoring belongs to AWS partition aws-cn, which is not enabled in PMM settings."), err)
+			assert.Nil(t, instances)
+		})
+
+		t.Run("RoleARNScansOnlyItsPartition", func(t *testing.T) {
+			ctx := logger.Set(t.Context(), t.Name())
+
+			settings, err := models.GetSettings(db.Querier)
+			require.NoError(t, err)
+			_, err = models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{AWSPartitions: []string{"aws", "aws-cn"}})
+			require.NoError(t, err)
+			t.Cleanup(func() {
+				_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{AWSPartitions: settings.AWSPartitions})
+				assert.NoError(t, err)
+			})
+
+			fake := setupRoleDiscovery(t)
+
+			instances, err := s.DiscoverRDS(ctx, &managementv1.DiscoverRDSRequest{
+				AwsRoleArn: "arn:aws:iam::123456789012:role/pmm-monitoring",
+			})
+			require.NoError(t, err)
+			assert.Equal(t, []*managementv1.DiscoverRDSInstance{
+				{
+					Region:        "eu-north-1",
+					Az:            "eu-north-1a",
+					InstanceId:    "pmm-mysql",
+					NodeModel:     "db.t4g.micro",
+					Address:       "pmm-mysql.abc.eu-north-1.rds.amazonaws.com",
+					Port:          3306,
+					Engine:        managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
+					EngineVersion: "8.0.36",
+				},
+			}, instances.RdsInstances)
+
+			// With no region configured on the server, the role is assumed once, against the
+			// partition's default region.
+			assert.Equal(t, []fakeAWSCall{{"sts", "us-east-1", "arn:aws:iam::123456789012:role/pmm-monitoring"}}, fake.calls("sts"))
+
+			// Only the role's partition is scanned; aws-cn is enabled in settings but never called.
+			assert.Equal(t, listRegions([]string{"aws"}), scannedRegions(fake))
+		})
+
+		t.Run("RoleARNUsesConfiguredRegion", func(t *testing.T) {
+			ctx := logger.Set(t.Context(), t.Name())
+
+			fake := setupRoleDiscovery(t)
+			t.Setenv("AWS_REGION", "eu-west-1")
+
+			instances, err := s.DiscoverRDS(ctx, &managementv1.DiscoverRDSRequest{
+				AwsRoleArn: "arn:aws:iam::123456789012:role/pmm-monitoring",
+			})
+			require.NoError(t, err)
+			require.Len(t, instances.RdsInstances, 1)
+			assert.Equal(t, "eu-north-1", instances.RdsInstances[0].Region)
+
+			// The role is assumed in the server's configured region, not the partition default.
+			assert.Equal(t, []fakeAWSCall{{"sts", "eu-west-1", "arn:aws:iam::123456789012:role/pmm-monitoring"}}, fake.calls("sts"))
+
+			// The configured region moves only the STS call; the whole partition is still scanned.
+			assert.Equal(t, listRegions([]string{"aws"}), scannedRegions(fake))
+		})
+
+		t.Run("RoleARNUsesDefaultRegionVariable", func(t *testing.T) {
+			ctx := logger.Set(t.Context(), t.Name())
+
+			fake := setupRoleDiscovery(t)
+			t.Setenv("AWS_DEFAULT_REGION", "eu-west-1")
+
+			instances, err := s.DiscoverRDS(ctx, &managementv1.DiscoverRDSRequest{
+				AwsRoleArn: "arn:aws:iam::123456789012:role/pmm-monitoring",
+			})
+			require.NoError(t, err)
+			require.Len(t, instances.RdsInstances, 1)
+
+			assert.Equal(t, []fakeAWSCall{{"sts", "eu-west-1", "arn:aws:iam::123456789012:role/pmm-monitoring"}}, fake.calls("sts"))
+		})
+
+		t.Run("RoleARNRejectsRegionOutsidePartition", func(t *testing.T) {
+			ctx := logger.Set(t.Context(), t.Name())
+
+			fake := setupRoleDiscovery(t)
+			t.Setenv("AWS_REGION", "cn-north-1")
+
+			instances, err := s.DiscoverRDS(ctx, &managementv1.DiscoverRDSRequest{
+				AwsRoleArn: "arn:aws:iam::123456789012:role/pmm-monitoring",
+			})
+			tests.AssertGRPCError(t, status.New(codes.FailedPrecondition,
+				"AWS region cn-north-1 configured on PMM Server is not in AWS partition aws of role "+
+					"arn:aws:iam::123456789012:role/pmm-monitoring; unset AWS_REGION or set it to a region of that partition."), err)
+			assert.Nil(t, instances)
+
+			// Rejected before any network call.
+			assert.Empty(t, fake.calls("sts"))
+			assert.Empty(t, fake.calls("rds"))
 		})
 
 		t.Run("Normal", func(t *testing.T) {
@@ -441,4 +552,214 @@ func TestRDSService(t *testing.T) {
 		}
 		assert.Equal(t, prototext.Format(expected), prototext.Format(resp)) // for better diffs
 	})
+}
+
+func TestAssumeRoleProvider(t *testing.T) {
+	t.Parallel()
+
+	provider := assumeRoleProvider(aws.Config{Region: "eu-west-1"}, "arn:aws:iam::123456789012:role/pmm-monitoring")
+	require.NotNil(t, provider)
+	assert.IsType(t, &aws.CredentialsCache{}, provider)
+}
+
+func TestSTSRegionForRoleARN(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name          string
+		roleARN       string
+		wantRegion    string
+		wantPartition string
+		wantErr       bool
+	}{
+		{
+			name:          "aws partition",
+			roleARN:       "arn:aws:iam::123456789012:role/pmm-monitoring",
+			wantRegion:    "us-east-1",
+			wantPartition: "aws",
+		},
+		{
+			name:          "aws-cn partition",
+			roleARN:       "arn:aws-cn:iam::123456789012:role/pmm-monitoring",
+			wantRegion:    "cn-north-1",
+			wantPartition: "aws-cn",
+		},
+		{
+			name:          "aws-us-gov partition",
+			roleARN:       "arn:aws-us-gov:iam::123456789012:role/pmm-monitoring",
+			wantRegion:    "us-gov-west-1",
+			wantPartition: "aws-us-gov",
+		},
+		{
+			name:          "aws-iso partition",
+			roleARN:       "arn:aws-iso:iam::123456789012:role/pmm-monitoring",
+			wantRegion:    "us-iso-east-1",
+			wantPartition: "aws-iso",
+		},
+		{
+			name:    "unsupported partition",
+			roleARN: "arn:aws-iso-b:iam::123456789012:role/pmm-monitoring",
+			wantErr: true,
+		},
+		{
+			name:    "malformed ARN",
+			roleARN: "not-an-arn",
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			region, partition, err := stsRegionForRoleARN(tt.roleARN)
+			if tt.wantErr {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.wantRegion, region)
+			assert.Equal(t, tt.wantPartition, partition)
+		})
+	}
+}
+
+// fakeAWSCall is one signed request fakeAWS received: the service and region come from the
+// SigV4 credential scope, roleARN is set for sts:AssumeRole.
+type fakeAWSCall struct {
+	service string
+	region  string
+	roleARN string
+}
+
+// fakeAWS stands in for the STS and RDS endpoints DiscoverRDS calls (query protocol), so a
+// role-based discovery runs without AWS. It returns one MySQL instance in eu-north-1 and
+// nothing elsewhere.
+type fakeAWS struct {
+	*httptest.Server
+
+	mu       sync.Mutex
+	received []fakeAWSCall
+}
+
+var sigV4Scope = regexp.MustCompile(`Credential=[^/]+/\d{8}/([^/]+)/([^/]+)/aws4_request`)
+
+const (
+	fakeSTSAssumeRoleResponse = `<AssumeRoleResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">
+  <AssumeRoleResult>
+    <Credentials>
+      <AccessKeyId>ASIAIOSFODNN7EXAMPLE</AccessKeyId>
+      <SecretAccessKey>assumed-secret</SecretAccessKey>
+      <SessionToken>assumed-session-token</SessionToken>
+      <Expiration>2099-01-01T00:00:00Z</Expiration>
+    </Credentials>
+    <AssumedRoleUser>
+      <Arn>arn:aws:sts::123456789012:assumed-role/pmm-monitoring/pmm</Arn>
+      <AssumedRoleId>AROAEXAMPLE:pmm</AssumedRoleId>
+    </AssumedRoleUser>
+  </AssumeRoleResult>
+  <ResponseMetadata><RequestId>fake</RequestId></ResponseMetadata>
+</AssumeRoleResponse>`
+
+	fakeRDSEmptyResponse = `<DescribeDBInstancesResponse xmlns="http://rds.amazonaws.com/doc/2014-10-31/">
+  <DescribeDBInstancesResult><DBInstances/></DescribeDBInstancesResult>
+  <ResponseMetadata><RequestId>fake</RequestId></ResponseMetadata>
+</DescribeDBInstancesResponse>`
+
+	fakeRDSOneInstanceResponse = `<DescribeDBInstancesResponse xmlns="http://rds.amazonaws.com/doc/2014-10-31/">
+  <DescribeDBInstancesResult>
+    <DBInstances>
+      <DBInstance>
+        <DBInstanceIdentifier>pmm-mysql</DBInstanceIdentifier>
+        <DBInstanceClass>db.t4g.micro</DBInstanceClass>
+        <Engine>mysql</Engine>
+        <EngineVersion>8.0.36</EngineVersion>
+        <AvailabilityZone>eu-north-1a</AvailabilityZone>
+        <Endpoint>
+          <Address>pmm-mysql.abc.eu-north-1.rds.amazonaws.com</Address>
+          <Port>3306</Port>
+        </Endpoint>
+      </DBInstance>
+    </DBInstances>
+  </DescribeDBInstancesResult>
+  <ResponseMetadata><RequestId>fake</RequestId></ResponseMetadata>
+</DescribeDBInstancesResponse>`
+)
+
+func newFakeAWS(t *testing.T) *fakeAWS {
+	t.Helper()
+
+	f := &fakeAWS{}
+	f.Server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		scope := sigV4Scope.FindStringSubmatch(r.Header.Get("Authorization"))
+		if scope == nil {
+			http.Error(w, "unsigned request", http.StatusBadRequest)
+			return
+		}
+		region, service := scope[1], scope[2]
+		action := r.PostFormValue("Action")
+
+		f.mu.Lock()
+		f.received = append(f.received, fakeAWSCall{service: service, region: region, roleARN: r.PostFormValue("RoleArn")})
+		f.mu.Unlock()
+
+		w.Header().Set("Content-Type", "text/xml")
+		switch {
+		case service == "sts" && action == "AssumeRole":
+			_, _ = io.WriteString(w, fakeSTSAssumeRoleResponse)
+		case service == "rds" && action == "DescribeDBInstances" && region == "eu-north-1":
+			_, _ = io.WriteString(w, fakeRDSOneInstanceResponse)
+		case service == "rds" && action == "DescribeDBInstances":
+			_, _ = io.WriteString(w, fakeRDSEmptyResponse)
+		default:
+			http.Error(w, "unexpected call "+service+" "+action, http.StatusBadRequest)
+		}
+	}))
+	t.Cleanup(f.Close)
+
+	return f
+}
+
+// calls returns the recorded calls to service, in arrival order.
+func (f *fakeAWS) calls(service string) []fakeAWSCall {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	var res []fakeAWSCall
+	for _, c := range f.received {
+		if c.service == service {
+			res = append(res, c)
+		}
+	}
+	return res
+}
+
+// scannedRegions returns the regions fakeAWS received RDS calls for, sorted.
+func scannedRegions(f *fakeAWS) []string {
+	calls := f.calls("rds")
+	res := make([]string, 0, len(calls))
+	for _, c := range calls {
+		res = append(res, c.region)
+	}
+	sort.Strings(res)
+	return res
+}
+
+// setupRoleDiscovery points DiscoverRDS at a fakeAWS with ambient credentials and no region
+// configured, so a subtest that sets AWS_REGION or AWS_DEFAULT_REGION is the only region source.
+// The shared config files are disabled too, so a developer's ~/.aws/config region cannot leak in.
+func setupRoleDiscovery(t *testing.T) *fakeAWS {
+	t.Helper()
+
+	fake := newFakeAWS(t)
+	t.Setenv("AWS_ENDPOINT_URL_STS", fake.URL)
+	t.Setenv("AWS_ENDPOINT_URL_RDS", fake.URL)
+	// The role is assumed with the server's ambient credentials.
+	t.Setenv("AWS_ACCESS_KEY_ID", "AKIAIOSFODNN7EXAMPLE")
+	t.Setenv("AWS_SECRET_ACCESS_KEY", "ambient-secret")
+	t.Setenv("AWS_REGION", "")
+	t.Setenv("AWS_DEFAULT_REGION", "")
+	t.Setenv("AWS_CONFIG_FILE", "/nonexistent")
+	t.Setenv("AWS_SHARED_CREDENTIALS_FILE", "/nonexistent")
+	return fake
 }
