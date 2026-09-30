@@ -1,7 +1,7 @@
 # Sourced by build-server-binaries.
 
-# https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.149.0
-victoriametrics_tag=pmm-6401-v1.149.0
+# https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.152.0
+victoriametrics_tag=pmm-6401-v1.152.0
 
 key() {
     echo ${victoriametrics_tag}

@@ -1,9 +1,11 @@
 # Sourced by build-server-binaries.
 
-# https://github.com/grafana/clickhouse-datasource/releases/tag/v4.20.0
-clickhouse_datasource_version=4.20.0
+# https://github.com/grafana/clickhouse-datasource/releases/tag/v4.21.3
+clickhouse_datasource_version=4.21.3
 # https://github.com/grafana/grafana-polystat-panel/releases/tag/v2.1.16
 polystat_panel_version=2.1.16
+# The Grafana plugin catalog names its builds linux-amd64 and linux-arm64.
+plugin_platform=linux-${go_arch}
 
 key() {
     echo ${pmm_version}-$(get_shortcommit pmm dashboards)
@@ -11,7 +13,7 @@ key() {
 
 build() {
     download \
-        https://github.com/grafana/clickhouse-datasource/releases/download/v${clickhouse_datasource_version}/grafana-clickhouse-datasource-${clickhouse_datasource_version}.${plugin_platform}.zip \
+        https://storage.googleapis.com/grafana-plugins-catalog/grafana-clickhouse-datasource/release/${clickhouse_datasource_version}/grafana-clickhouse-datasource-${clickhouse_datasource_version}.${plugin_platform}.zip \
         grafana-clickhouse-datasource-${clickhouse_datasource_version}.${plugin_platform}.zip
     download \
         https://github.com/grafana/grafana-polystat-panel/releases/download/v${polystat_panel_version}/grafana-polystat-panel-${polystat_panel_version}.zip \

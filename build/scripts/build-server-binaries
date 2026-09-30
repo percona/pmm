@@ -24,8 +24,8 @@ rootfs=/home/builder/rootfs
 build_dir=/home/builder/build
 
 case ${arch} in
-    x86_64)  go_arch=amd64; plugin_platform=linux_amd64 ;;
-    aarch64) go_arch=arm64; plugin_platform=linux_arm64 ;;
+    x86_64)  go_arch=amd64 ;;
+    aarch64) go_arch=arm64 ;;
     *)       echo "Unsupported architecture: ${arch}" >&2; exit 1 ;;
 esac
 
