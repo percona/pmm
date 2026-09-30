@@ -109,14 +109,18 @@ func (c *RTAChannel) close(err error) {
 		c.l.Debugf("Closing with error: %+v", err)
 		c.closeErr = err
 
+		// Signal the close before taking sendM: Send holds sendM across the blocking
+		// c.s.Send, and CloseAndRecv below waits for the server, so closing closeWait after
+		// either would leave Wait and the reconnect that depends on it hanging. Send re-checks
+		// closeWait under sendM, so a sender that has not started yet gives up instead.
+		close(c.closeWait)
+
 		c.sendM.Lock()
 		// Close stream and receive final response
 		_, closeErr := c.s.CloseAndRecv()
 		if closeErr != nil {
 			c.l.Errorf("Failed to receive final response: %v", closeErr)
 		}
-
-		close(c.closeWait)
 		c.sendM.Unlock()
 	})
 }
@@ -135,6 +139,7 @@ func (c *RTAChannel) Send(msg *rtav1.CollectRequest) {
 
 	select {
 	case <-c.closeWait:
+		c.sendM.Unlock()
 		return
 	default:
 	}
