@@ -200,6 +200,8 @@ func TestKickConn(t *testing.T) {
 func newHATestRegistry(t *testing.T) (*Registry, *reform.DB, *pmmAgentInfo) {
 	t.Helper()
 
+	const connectionID = "connection-1"
+
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -209,13 +211,14 @@ func newHATestRegistry(t *testing.T) (*Registry, *reform.DB, *pmmAgentInfo) {
 	agent, err := models.FindAgentByID(db.Querier, models.PMMServerAgentID)
 	require.NoError(t, err)
 	agent.IsConnected = true
+	agent.ConnectionID = new(connectionID)
 	require.NoError(t, db.Update(agent))
 
 	r := newTestRegistry()
 	r.db = db
 	r.haService = haServiceStub{params: &models.HAParams{Enabled: true}}
 	r.connectionCache = map[string]struct{}{models.PMMServerAgentID: {}}
-	conn := &pmmAgentInfo{id: models.PMMServerAgentID}
+	conn := &pmmAgentInfo{id: models.PMMServerAgentID, connectionID: connectionID}
 	r.agents[models.PMMServerAgentID] = conn
 
 	return r, db, conn
@@ -281,16 +284,19 @@ func TestUnregisterDoesNotHoldTheRegistryWhilePersisting(t *testing.T) {
 	assert.False(t, isConnectedInDB(t, db))
 }
 
-// TestPersistDisconnectKeepsANewerConnection covers an agent which connects again while its previous
-// disconnect is being written: registration persists the connection meanwhile, and the late
-// disconnect must not overwrite it.
-func TestPersistDisconnectKeepsANewerConnection(t *testing.T) {
-	r, db, _ := newHATestRegistry(t)
+// TestUnregisterKeepsANewerConnection covers an agent which connects again, to this PMM Server or
+// another one, before the disconnect of its previous connection is written: the newer connection is
+// persisted by then, and the late disconnect must not overwrite it.
+func TestUnregisterKeepsANewerConnection(t *testing.T) {
+	r, db, conn := newHATestRegistry(t)
 	ctx := logger.SetEntry(t.Context(), logrus.WithField("test", t.Name()))
 
-	// The previous connection is already out of the map, and a newer one has taken its place.
-	r.agents[models.PMMServerAgentID] = &pmmAgentInfo{id: models.PMMServerAgentID}
-	r.persistDisconnect(ctx, models.PMMServerAgentID)
+	agent, err := models.FindAgentByID(db.Querier, models.PMMServerAgentID)
+	require.NoError(t, err)
+	agent.ConnectionID = new("connection-2")
+	require.NoError(t, db.Update(agent))
+
+	assert.Same(t, conn, r.unregister(ctx, models.PMMServerAgentID, "done", conn))
 
 	assert.True(t, isConnectedInDB(t, db))
 	assert.True(t, r.IsConnected(models.PMMServerAgentID))
