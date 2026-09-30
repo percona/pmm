@@ -24,13 +24,13 @@ import type { ReactNode } from 'react';
 import { CollectPane } from '../src/CollectPane';
 import type { AtwSnippetSummary } from '../src/types';
 
-vi.mock('@sep/api', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@sep/api')>()),
+vi.mock('@pmm-extensions/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@pmm-extensions/api')>()),
   apiClient: { get: vi.fn(), post: vi.fn() },
   useAuth: () => ({ isAdmin: true, canMutate: true }),
 }));
 
-import { apiClient } from '@sep/api';
+import { apiClient } from '@pmm-extensions/api';
 const mockedApi = apiClient as unknown as { get: ReturnType<typeof vi.fn> };
 
 const PT_STALK: AtwSnippetSummary = {
@@ -55,7 +55,7 @@ const PT_MYSQL_SUMMARY: AtwSnippetSummary = {
 };
 
 /**
- * Executors as `GET /api/sep/hosts/` reports them: measured unable to elevate,
+ * Executors as `GET /api/extensions/hosts/` reports them: measured unable to elevate,
  * measured able, and never observed.
  */
 const HOSTS = [
@@ -66,8 +66,8 @@ const HOSTS = [
     can_elevate: false,
   },
   {
-    id: 'sep-mysql',
-    name: 'sep-mysql',
+    id: 'extensions-mysql',
+    name: 'extensions-mysql',
     address: '172.28.9.40',
     can_elevate: true,
   },
@@ -102,7 +102,7 @@ function schemaFor(snippets: AtwSnippetSummary[]) {
 
 function mockApis(snippets: AtwSnippetSummary[]) {
   mockedApi.get.mockImplementation((url: string) => {
-    if (url === '/sep/hosts/') {
+    if (url === '/extensions/hosts/') {
       return Promise.resolve({ data: HOSTS });
     }
     if (url.includes('/execution-schema/')) {
@@ -163,9 +163,11 @@ describe('CollectPane executor elevation warning', () => {
   it('stays silent on a host that can elevate', async () => {
     renderWithSelection([PT_STALK]);
 
-    await chooseHost('sep-mysql');
+    await chooseHost('extensions-mysql');
 
-    expect(await screen.findByDisplayValue('sep-mysql')).toBeInTheDocument();
+    expect(
+      await screen.findByDisplayValue('extensions-mysql')
+    ).toBeInTheDocument();
     expect(screen.queryByText(CANNOT_ELEVATE)).not.toBeInTheDocument();
   });
 
@@ -217,7 +219,7 @@ describe('CollectPane executor elevation warning', () => {
     await chooseHost('pmm-server');
     await screen.findByText(CANNOT_ELEVATE);
 
-    await chooseHost('sep-mysql');
+    await chooseHost('extensions-mysql');
 
     await waitFor(() => {
       expect(screen.queryByText(CANNOT_ELEVATE)).not.toBeInTheDocument();
