@@ -37,6 +37,7 @@ digraph packages {
 	"/services/management" -> "/pi/check";
 	"/services/management" -> "/pi/common";
 	"/services/management" -> "/services";
+	"/services/management" -> "/services/management/common";
 	"/services/management.test" -> "/services/management";
 	"/services/management/grpc" -> "/models";
 	"/services/management/grpc" -> "/services/agents";
