@@ -1962,7 +1962,7 @@
                         {
                             "targetBlank": true,
                             "title": "MongoDB ReplSet Summary - ${__field.labels.rs_nm}",
-                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?var-cluster=${cluster}&var-rs_nm=${__field.labels.rs_nm}&${__url_time_range}"
+                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?${cluster:queryparam}&var-rs_nm=${__field.labels.rs_nm}&${interval:queryparam}&${__url_time_range}&${environment:queryparam}"
                         }
                     ],
                     "mappings": [],
@@ -2231,7 +2231,7 @@
                         {
                             "targetBlank": true,
                             "title": "MongoDB ReplSet Summary - ${__field.labels.rs_nm}",
-                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?var-cluster=${cluster}&var-rs_nm=${__field.labels.rs_nm}&${__url_time_range}"
+                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?${cluster:queryparam}&var-rs_nm=${__field.labels.rs_nm}&${interval:queryparam}&${__url_time_range}&${environment:queryparam}"
                         }
                     ],
                     "mappings": [],
@@ -2335,7 +2335,7 @@
                         {
                             "targetBlank": true,
                             "title": "MongoDB ReplSet Summary - ${__field.labels.rs_nm}",
-                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?var-cluster=${cluster}&var-rs_nm=${__field.labels.rs_nm}&${__url_time_range}"
+                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?${cluster:queryparam}&var-rs_nm=${__field.labels.rs_nm}&${interval:queryparam}&${__url_time_range}&${environment:queryparam}"
                         }
                     ],
                     "mappings": [],
@@ -2439,7 +2439,7 @@
                         {
                             "targetBlank": true,
                             "title": "MongoDB ReplSet Summary - ${__field.labels.rs_nm}",
-                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?var-cluster=${cluster}&var-rs_nm=${__field.labels.rs_nm}&${__url_time_range}"
+                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?${cluster:queryparam}&var-rs_nm=${__field.labels.rs_nm}&${interval:queryparam}&${__url_time_range}&${environment:queryparam}"
                         }
                     ],
                     "mappings": [],
@@ -2544,7 +2544,7 @@
                         {
                             "targetBlank": true,
                             "title": "MongoDB ReplSet Summary - ${__field.labels.rs_nm}",
-                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?var-cluster=${cluster}&var-rs_nm=${__field.labels.rs_nm}&${__url_time_range}"
+                            "url": "/graph/d/mongodb-replicaset-summary/mongodb-replset-summary?${cluster:queryparam}&var-rs_nm=${__field.labels.rs_nm}&${interval:queryparam}&${__url_time_range}&${environment:queryparam}"
                         }
                     ],
                     "mappings": [],
