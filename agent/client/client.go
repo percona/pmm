@@ -1226,6 +1226,10 @@ func argListFromPgParams(pParams *agentv1.StartActionRequest_PTPgSummaryParams) 
 		args = append(args, "--password", pswd)
 	}
 
+	if pParams.Tls {
+		args = append(args, "--no-disable-ssl")
+	}
+
 	return args
 }
 
