@@ -761,27 +761,17 @@ kubectl describe pod -n monitoring -l app=pmm
 - **Cloud-native architectures** already using Kubernetes
 - **Environments with maintenance windows** for planned upgrades
 
-### When to consider PMM High Availability Cluster
+### When to consider PMM HA Cluster
 
-!!! warning "HA Clustered is Tech Preview only"
-    PMM Kubernetes HA Cluster is currently NOT production-ready. Only consider it for testing and evaluation purposes.
-
-Consider upgrading to [Kubernetes HA Cluster](HA-clustered.md) when you:
+Consider upgrading to [Kubernetes / OpenShift HA Cluster](HA-clustered.md) when you:
 
 - require **zero-downtime monitoring** (< 30 second failover)
-- can tolerate **Tech Preview status** with known issues
-- have **expert Kubernetes skills** to manage complex deployments
+- have **expert Kubernetes or OpenShift skills** to manage complex deployments
 - need **multiple active PMM instances** for load distribution
-- are **testing for future production** HA requirements
 
-### When to stay with Docker HA
+### When to use Docker instead
 
-Consider using [Docker HA](HA-docker.md) instead if:
-
-- don't have Kubernetes infrastructure
-- want the simplest possible setup
-- are in development or testing
-- can tolerate 1-3 minutes of downtime
+If you don't have Kubernetes, run PMM Server with `--restart always` and Docker handles automatic restarts after crashes or reboots. See [Install PMM Server with Docker](install-pmm-server/deployment-options/docker/index.md).
 
 
 ## Get help

@@ -42,8 +42,10 @@ Loss of keeper nodes (which handle coordination) is more critical than loss of a
 
 Shows the overall health status of VictoriaMetrics components. Green **Healthy** indicates all components are operational and metrics collection and querying are working properly. Red **Not Healthy** signals the time series infrastructure is degraded.
 
-VictoriaMetrics uses multiple components working together: 
-- `vminsert` receives metrics from monitored services, - `vmselect` processes dashboard queries
+VictoriaMetrics uses multiple components working together:
+
+- `vminsert` receives metrics from monitored services
+- `vmselect` processes dashboard queries
 - `vmstorage` stores time series data
 - `vmagent` scrapes metrics from targets
 - `vmauth` handles authentication
@@ -212,13 +214,11 @@ After a failover, verify that the new Primary is handling writes correctly.
 
 ### PMM Pods
 
-Shows each of your PMM server pods with their current status. Green UP means the pod is running normally. Red DOWN means the pod has failed or isn't running.
+Shows each PMM Server pod with its current status. Green UP means the pod is running normally. Red DOWN means the pod has failed or isn't running.
 
-If one pod shows DOWN, identify which replica is affected and investigate the cause. Two or more DOWN pods means your deployment is at serious risk—investigate immediately. 
+If one pod shows DOWN, identify which replica is affected and investigate the cause. Two or more DOWN pods means your deployment is at serious risk. If all three show DOWN, your entire PMM system is unavailable.
 
-If all three show DOWN, your entire PMM system is unavailable.
-
-Use this table to identify which specific PMM server pods need attention when the [**PMM**](#pmm) health indicator shows **Not Healthy**.
+Use this table to identify which specific PMM Server pods need attention when the [**PMM**](#pmm) health indicator shows **Not Healthy**.
 
 
 ### ClickHouse Pods
@@ -283,10 +283,6 @@ This dashboard auto-refreshes every 30 seconds to provide near real-time monitor
 ### Filters
 Use the namespace and Helm release variables at the top to focus on your specific PMM HA deployment if you have multiple installations.
 
-### How to find what's wrong
-
-When you notice problems, follow this  approach to quickly diagnose issues:
-
 ### Investigation workflow
 
 When you notice problems, follow this approach to quickly figure out what's wrong:
@@ -305,3 +301,16 @@ When you notice problems, follow this approach to quickly figure out what's wron
 - **Resource exhaustion**: High CPU/memory + pod restarts = increase resource limits
 - **Network issues**: Multiple components partially down + high restart counts = investigate cluster networking
 - **Single pod failure**: One component shows "Not Healthy" but no restarts = stuck pod requiring manual intervention
+
+## Built-in alerting rules
+
+The dashboard ships with four Prometheus alerting rules for HA failure scenarios:
+
+| Alert | Condition | Meaning |
+|-------|-----------|---------|
+| **PMMHALeaderMissing** | `sum(pmm_ha_leader_status) == 0` | No pod holds the leader role; the cluster cannot serve requests |
+| **PMMHASplitBrain** | `sum(pmm_ha_leader_status) > 1` | More than one pod claims to be leader; inconsistent behavior is likely |
+| **PMMHAQuorumAtRisk** | Fewer than 3 voter nodes are up | The cluster is one failure away from losing quorum |
+| **PMMHALeaderFlapping** | Raft term changes more than 5 times in 10 minutes | The leader is being elected and re-elected repeatedly, causing instability |
+
+These rules fire automatically when the conditions are met. You do not need to configure them manually.

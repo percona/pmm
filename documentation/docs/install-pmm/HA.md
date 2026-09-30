@@ -25,51 +25,26 @@ Critical systems requiring sub-second failover gain the most value from PMM HA, 
 
 ## Feature comparison
 
-All three options prevent data loss through PMM Client caching during outages.
+Both options prevent data loss through PMM Client caching during outages.
 
-| Feature | [Docker](../install-pmm/HA-docker.md) | [Kubernetes (Single-Instance)](../install-pmm/HA-kubernetes-single-instance.md) | [Kubernetes / OpenShift (Clustered)](../install-pmm/HA-clustered.md) |
-|---------|--------|-------------------|---------------------|
-| **Kubernetes required** | No | Yes | Yes (Kubernetes or OpenShift) |
-| **PMM instances** | 1 | 1 | 3 |
-| **Failover time** | 1-3 min | 2-5 min | < 30 sec |
-| **Zero downtime** | No | No | Yes |
-| **Setup complexity** | Very Low | Low | High |
-| **Resource overhead** | 1x | 1.2x | 3-5x |
-| **Monitoring data preserved** | Yes, stored on clients during outage | Yes, stored on clients during outage | Yes, always available on multiple servers |
+| Feature | [Kubernetes (Single-Instance)](../install-pmm/HA-kubernetes-single-instance.md) | [Kubernetes / OpenShift (HA Cluster)](../install-pmm/HA-clustered.md) |
+|---------|-------------------|---------------------|
+| **Kubernetes required** | Yes | Yes (Kubernetes or OpenShift) |
+| **PMM instances** | 1 | 3 |
+| **Failover time** | 2-5 min | < 30 sec |
+| **Zero downtime** | No | Yes |
+| **Setup complexity** | Low | High |
+| **Resource overhead** | 1.2x | 3-5x |
+| **Monitoring data preserved** | Yes, stored on clients during outage | Yes, always available on multiple servers |
+
+!!! tip "No Kubernetes? Use Docker with auto-restart"
+    If you don't have Kubernetes, run PMM Server with `--restart always` and Docker will automatically restart it after crashes or reboots. See [Install PMM Server with Docker](install-pmm-server/deployment-options/docker/index.md).
 
 ## HA deployment options
 
 Choose the deployment option that matches your infrastructure and requirements:
 
-=== "Docker HA (basic)"
-
-    Simple automatic restart capabilities using Docker's built-in recovery features. Perfect for development, testing, and single-server deployments.
-
-    **Key features**
-    
-    - Docker automatically restarts PMM Server after crashes
-    - PMM Clients buffer metrics locally during outages
-    - Minimal operational overhead
-    - No Kubernetes required
-
-    **Limitations**
-    
-    - 1-3 minutes downtime during container restarts
-    - Single point of failure
-    - Manual intervention required for host-level failures
-
-    **When to use this option**
-    
-    - You're in development or testing
-    - You don't have Kubernetes
-    - You want the simplest setup
-    - You can tolerate 1-3 minutes of downtime
-
-    ## Next step
-    
-    [View Docker HA installation guide](../install-pmm/HA-docker.md){.md-button} 
-
-=== "Kubernetes HA (Single-Instance)" 
+=== "Kubernetes (Single-Instance)"
 
     Enterprise-grade high availability through Kubernetes orchestration. Provides automatic pod rescheduling and persistent data across failures.
 
@@ -91,11 +66,10 @@ Choose the deployment option that matches your infrastructure and requirements:
     - You need production-ready HA
     - You can tolerate 2-5 minutes of downtime
     - You want automatic recovery without complexity
-    - choice for 90% of production deployments
 
     [View Kubernetes HA installation guide](../install-pmm/HA-kubernetes-single-instance.md){.md-button} 
 
-=== "Kubernetes / OpenShift HA (Clustered)"
+=== "Kubernetes / OpenShift (HA Cluster)"
 
     Zero-downtime high availability with multiple active PMM instances, distributed databases, and automatic load balancing. Supported on Amazon EKS and OpenShift 4.21+.
 
@@ -121,7 +95,6 @@ Choose the deployment option that matches your infrastructure and requirements:
 
     **When to use this option**
     
-    - You are evaluating zero-downtime architecture for future production, or testing environments where you need to validate continuous monitoring capabilities
     - You need continuous monitoring visibility (no 2-5 min gaps)
     - You have strict SLA requirements for sub-30-second failover
     - You need multiple active PMM instances for load distribution

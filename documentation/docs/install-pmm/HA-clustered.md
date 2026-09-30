@@ -50,8 +50,8 @@ Whether a server crashes, you're upgrading software, or scaling your infrastruct
 
 ### Check if your platform is supported
 
-!!! info "Tested Platform: Amazon EKS"
-    PMM HA Cluster has been validated on **Amazon EKS (Kubernetes 1.32+)**. Other platforms (GKE, AKS, on-premise, OpenShift) may work but are untested. VMware Tanzu is not supported.
+!!! info "Supported platforms"
+    PMM HA Cluster has been validated on **Amazon EKS (Kubernetes 1.32+)** and **OpenShift 4.21+** (including ROSA HCP). Other platforms (GKE, AKS, on-premise) may work but are untested. VMware Tanzu is not supported.
 
 ## Plan your resources
 

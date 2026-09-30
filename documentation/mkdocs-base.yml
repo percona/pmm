@@ -217,9 +217,8 @@ nav:
                   - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
               - External services monitoring:
                   - Connect external instance: install-pmm/install-pmm-client/connect-database/external.md
-      - Install PMM in HA mode: 
+      - Install PMM in HA mode:
         - Compare HA options: install-pmm/HA.md
-        - Docker HA: install-pmm/HA-docker.md
         - Kubernetes Single-Instance: install-pmm/HA-kubernetes-single-instance.md
         - Kubernetes Cluster: 
             - Understand PMM HA Cluster: install-pmm/HA-clustered.md
