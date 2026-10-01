@@ -37,7 +37,7 @@ import {
   type FormSection,
   type SectionField,
 } from '@pmm-extensions/api';
-import { CategoryBrowser } from './CategoryBrowser';
+import { CategoryFilters } from './CategoryFilters';
 import {
   useAtwBatchExecute,
   useAtwMergedSchema,
@@ -684,7 +684,7 @@ export function CollectPane({
 
       {!isClosed && (
         <Box sx={{ mt: 3 }}>
-          <CategoryBrowser onSnippetsChange={handleSnippetsChange} />
+          <CategoryFilters onSnippetsChange={handleSnippetsChange} />
         </Box>
       )}
 
