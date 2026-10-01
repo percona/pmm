@@ -228,6 +228,8 @@ Back up the key with the rest of your PMM configuration:
 kubectl get secret pmm-encryption-key -o jsonpath='{.data.key}' | base64 -d > pmm-encryption.key
 ```
 
+The file holds the key in the clear, so protect it as you would the secret.
+
 To supply your own key, [generate one](../../../../admin/security/data_encryption.md#custom-encryption-key-configuration) and create the secret before installing the chart:
 
 ```sh

@@ -639,6 +639,8 @@ Two things follow from this:
     kubectl get secret pg-encryption-key -n pmm -o jsonpath='{.data.key}' | base64 -d > pmm-encryption.key
     ```
 
+    The file holds the key in the clear, so protect it as you would the secret.
+
 - **Keep the secret when reinstalling against existing data.** The secret is not owned by the Helm release and survives `helm uninstall`. If you delete it but keep the PostgreSQL data, a fresh installation generates a new key, and the PMM replicas refuse to start because their key does not match the database. Restore the key from the backup before reinstalling:
 
     ```sh
