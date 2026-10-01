@@ -24,8 +24,8 @@ import { CollectPane } from '../src/CollectPane';
 /** Flipped per test to cover the read-only (non-admin) rendering. */
 let mockCanMutate = true;
 
-vi.mock('@sep/api', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@sep/api')>()),
+vi.mock('@pmm-extensions/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@pmm-extensions/api')>()),
   apiClient: { get: vi.fn(), post: vi.fn() },
   useAuth: () => ({ isAdmin: mockCanMutate, canMutate: mockCanMutate }),
 }));
@@ -34,7 +34,7 @@ beforeEach(() => {
   mockCanMutate = true;
 });
 
-import { apiClient } from '@sep/api';
+import { apiClient } from '@pmm-extensions/api';
 const mockedApi = apiClient as unknown as {
   get: ReturnType<typeof vi.fn>;
   post: ReturnType<typeof vi.fn>;

@@ -109,7 +109,7 @@ Choose the installation method that fits your needs and install PMM Server on Ku
 
     4. Get the external IP address:
       ```sh
-        kubectl get svc -n monitoring pmm-service
+        kubectl get svc -n monitoring monitoring-service
       ```
 
         The external IP may take a minute to provision. Look for the `EXTERNAL-IP` column.
@@ -180,7 +180,7 @@ Choose the installation method that fits your needs and install PMM Server on Ku
 
     5. Get the external IP address:
       ```sh
-        kubectl get svc -n monitoring pmm-service
+        kubectl get svc -n monitoring monitoring-service
       ```
 
         Look for the `EXTERNAL-IP` column. The IP may take a minute to provision.
@@ -270,7 +270,7 @@ Choose the service type that fits your environment and apply the configuration.
 
     3. Get the external IP address:
       ```sh
-        kubectl get svc -n monitoring pmm-service
+        kubectl get svc -n monitoring monitoring-service
       ```
 
         Look for the `EXTERNAL-IP` column and connect via `https://<EXTERNAL-IP>`.
@@ -298,7 +298,7 @@ Choose the service type that fits your environment and apply the configuration.
 
     3. Get the assigned NodePort:
       ```sh
-        kubectl get svc -n monitoring pmm-service
+        kubectl get svc -n monitoring monitoring-service
       ```
 
         Look for the `PORT(S)` column showing the NodePort number.
@@ -437,11 +437,11 @@ To monitor your databases, install PMM Client on each database host and connect 
 2. Get the PMM Server address:
   ```sh
   # For hostname-based load balancers
-  export PMM_SERVER=$(kubectl get svc -n monitoring pmm-service \
+  export PMM_SERVER=$(kubectl get svc -n monitoring monitoring-service \
     -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 
   # Or for IP-based load balancers, uncomment the following:
-  # export PMM_SERVER=$(kubectl get svc -n monitoring pmm-service \
+  # export PMM_SERVER=$(kubectl get svc -n monitoring monitoring-service \
   #   -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
   ```
 
@@ -673,10 +673,10 @@ kubectl logs -n monitoring -l app=pmm --previous
 **Solution**: Verify service configuration:
 ```sh
 # Check service status
-kubectl get svc -n monitoring pmm-service
+kubectl get svc -n monitoring monitoring-service
 
 # Check service endpoints
-kubectl get endpoints -n monitoring pmm-service
+kubectl get endpoints -n monitoring monitoring-service
 
 # For LoadBalancer pending:
 # - Verify cloud provider supports LoadBalancer
@@ -687,7 +687,7 @@ kubectl get endpoints -n monitoring pmm-service
 kubectl run -it --rm debug \
   --image=curlimages/curl \
   --restart=Never \
-  -- curl -k https://pmm-service.monitoring.svc.cluster.local
+  -- curl -k https://monitoring-service.monitoring.svc.cluster.local
 ```
 
 ### High memory usage

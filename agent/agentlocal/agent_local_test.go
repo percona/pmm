@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/durationpb"
 
@@ -93,7 +94,7 @@ func TestServerStatus(t *testing.T) {
 		agentInfo, supervisor, client, cfg := setup(t)
 		latency := 5 * time.Millisecond
 		clockDrift := time.Second
-		client.On("GetNetworkInformation").Return(latency, clockDrift, nil)
+		client.On("GetNetworkInformation", mock.Anything).Return(latency, clockDrift, nil)
 		defer supervisor.AssertExpectations(t)
 		defer client.AssertExpectations(t)
 		logStore := tailog.NewStore(500)
