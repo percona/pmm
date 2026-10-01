@@ -63,24 +63,24 @@ import {
 import { useDeliverySettingsPath } from './deliverySettings';
 import { SendDialog } from './SendDialog';
 import type {
-  AtwBatchExecuteResponse,
+  AtwDispatchHandler,
   AtwIncidentExecution,
   AtwRememberedDispatch,
   AtwSendLog,
   AtwSendLogExecution,
-  AtwSnippetSummary,
 } from './types';
 
 export interface ResultsPaneProps {
   incidentId: string;
   /** This tab's own dispatches, keyed by the execution's `task_history_id`. */
   remembered?: ReadonlyMap<number, AtwRememberedDispatch>;
+  /**
+   * Executions started moments ago, marked out in the list so a reader who
+   * pressed a button in the other pane can find what it produced.
+   */
+  highlightedTaskIds?: ReadonlySet<number>;
   /** Called once "Run again" dispatches successfully, to remember it too. */
-  onDispatched?: (
-    snippets: AtwSnippetSummary[],
-    values: Record<string, unknown>,
-    response: AtwBatchExecuteResponse
-  ) => void;
+  onDispatched?: AtwDispatchHandler;
   /** Reopen the Collect form pre-filled for this execution. */
   onEditParameters?: (execution: AtwIncidentExecution) => void;
 }
@@ -255,6 +255,7 @@ function SendUnavailableNotice() {
 export function ResultsPane({
   incidentId,
   remembered,
+  highlightedTaskIds,
   onDispatched,
   onEditParameters,
 }: ResultsPaneProps) {
@@ -264,6 +265,17 @@ export function ResultsPane({
   const { data: incident } = useAtwIncident(incidentId);
   const { data: config } = useAtwConfig();
   const { data: sendJobs, error: sendJobsError } = useAtwSendJobs(incidentId);
+
+  // A batch started from the Collect pane lands at the top of the list, which
+  // a reader parked on a later page would never see — the run would look as
+  // though it had produced nothing. Keyed on the set itself, not on whether it
+  // is empty: a second batch inside the first one's highlight window replaces
+  // the set without ever emptying it.
+  useEffect(() => {
+    if (highlightedTaskIds?.size) {
+      setPage((previous) => ({ ...previous, offset: 0 }));
+    }
+  }, [highlightedTaskIds]);
 
   const [filesForTask, setFilesForTask] = useState<number | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -286,7 +298,7 @@ export function ResultsPane({
     rerunError.clearError();
     rerunMutation.mutate(buildBatchPayload(record.values, record.snippets), {
       onSuccess: (response) => {
-        onDispatched?.(record.snippets, record.values, response);
+        onDispatched?.(record.snippets, record.values, response, 'results');
       },
       onError: (mutationError) => rerunError.reportError(mutationError),
     });
@@ -533,6 +545,9 @@ export function ResultsPane({
           key={execution.id}
           execution={execution}
           elapsedSeconds={runSeconds(execution, now)}
+          highlighted={Boolean(
+            highlightedTaskIds?.has(execution.task_history_id)
+          )}
           selected={selectedIds.has(execution.id)}
           onToggleSelected={() => toggleSelected(execution)}
           onOpenFiles={() => setFilesForTask(execution.task_history_id)}
@@ -700,6 +715,7 @@ function SendHistory({
 function ExecutionRow({
   execution,
   elapsedSeconds,
+  highlighted,
   selected,
   onToggleSelected,
   onOpenFiles,
@@ -710,6 +726,8 @@ function ExecutionRow({
 }: {
   execution: AtwIncidentExecution;
   elapsedSeconds: number | null;
+  /** Whether this execution was started moments ago from this tab. */
+  highlighted: boolean;
   selected: boolean;
   onToggleSelected: () => void;
   onOpenFiles: () => void;
@@ -764,7 +782,15 @@ function ExecutionRow({
   return (
     <Accordion
       disableGutters
-      sx={{ mb: 1 }}
+      data-testid={highlighted ? 'atw-execution-row-new' : undefined}
+      sx={[
+        { mb: 1 },
+        highlighted &&
+          ((theme) => ({
+            outline: `2px solid ${theme.palette.primary.main}`,
+            outlineOffset: -1,
+          })),
+      ]}
       slotProps={{ transition: { unmountOnExit: true } }}
     >
       <AccordionSummary
