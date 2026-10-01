@@ -1,10 +1,10 @@
-# Understand Kubernetes Single-Instance HA
+# Understand Single-Instance HA
 
 Kubernetes provides enterprise-grade high availability through automated container orchestration, self-healing capabilities, and intelligent workload distribution. This production-ready option combines simplicity with Kubernetes' built-in resilience for automatic recovery from failures.
 
 ## What it is
 
-Kubernetes Single-Instance HA leverages Kubernetes' native pod management and self-healing capabilities to ensure PMM stays available even when infrastructure fails.
+Single-Instance HA leverages Kubernetes' native pod management and self-healing capabilities to ensure PMM stays available even when infrastructure fails.
 
 Combined with persistent volumes and PMM Client caching, this approach preserves metric data during brief outages and maintains monitoring continuity with minimal operational overhead.
 

@@ -25,7 +25,7 @@ Critical systems requiring sub-second failover gain the most value from PMM HA, 
 
 ## Feature comparison
 
-| Feature | [Kubernetes (Single-Instance)](../install-pmm/HA-kubernetes-single-instance.md) | [Kubernetes / OpenShift (HA Cluster)](../install-pmm/HA-clustered.md) |
+| Feature | [Single-Instance HA](../install-pmm/HA-kubernetes-single-instance.md) | [HA Cluster](../install-pmm/HA-clustered.md) |
 |---------|-------------------|---------------------|
 | **Kubernetes required** | Yes | Yes (Kubernetes or OpenShift) |
 | **PMM instances** | 1 | 3 |
@@ -42,7 +42,7 @@ Critical systems requiring sub-second failover gain the most value from PMM HA, 
 
 Choose the deployment option that matches your infrastructure and requirements:
 
-=== "Kubernetes (Single-Instance)"
+=== "Single-Instance HA"
 
     Enterprise-grade high availability through Kubernetes orchestration. Provides automatic pod rescheduling and persistent data across failures.
 
@@ -65,9 +65,9 @@ Choose the deployment option that matches your infrastructure and requirements:
     - You can tolerate 2-5 minutes of downtime
     - You want automatic recovery without complexity
 
-    [View Kubernetes HA installation guide](../install-pmm/install-HA-kubernetes-single-instance.md){.md-button} 
+    [Install Single-Instance HA](../install-pmm/install-HA-kubernetes-single-instance.md){.md-button} 
 
-=== "Kubernetes / OpenShift (HA Cluster)"
+=== "HA Cluster"
 
     Zero-downtime high availability with multiple active PMM instances, distributed databases, and automatic load balancing. Supported on Amazon EKS and OpenShift 4.21+.
 

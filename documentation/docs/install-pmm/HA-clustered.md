@@ -13,7 +13,7 @@ Standard PMM monitoring goes offline for minutes during server failures. PMM HA 
 
 PMM HA Cluster keeps your database monitoring running continuously, even when servers fail or during maintenance windows.
 
-Unlike [Single-Instance deployments](../install-pmm/HA-kubernetes-single-instance.md) where a server failure means minutes of monitoring downtime, PMM HA Cluster immediately fails over to secondary servers, keeping your monitoring online.
+Unlike [Single-Instance HA](../install-pmm/HA-kubernetes-single-instance.md) where a server failure means minutes of monitoring downtime, PMM HA Cluster immediately fails over to secondary servers, keeping your monitoring online.
 
 Whether a server crashes, you're upgrading software, or scaling your infrastructure, your monitoring stays active with no blind spots or missed incidents.
 
@@ -137,12 +137,6 @@ PMM HA uses several mechanisms to ensure continuous operation:
 - **Health checks**: Comprehensive readiness and liveness probes on all components
 - **Rolling updates**: Upgrades restart each pod sequentially. Expect a brief interruption (around 5-10 seconds) when the active leader pod restarts and a new leader is elected.
 
-### Known issues
-
-- Attempting to add a remote database fails. Only databases deployed in the same Kubernetes cluster can be monitored. Remote database monitoring will be added in a future release.
-- Enabling **Query Analytics for PMM Server** under **Configuration > Settings > Advanced Settings** returns an error. In HA mode, QAN on the internal PostgreSQL database is configured through an environment variable and cannot be changed through the UI.
-- **[PMM-14742](https://perconadev.atlassian.net/browse/PMM-14742)**: The Inventory page shows inconsistent numbers of PostgreSQL services (4-5 instead of the expected 6 services).
-- Backups can only be restored into a PMM HA installation running the same PMM version, and turning on backups restarts the ClickHouse, VictoriaMetrics, and PMM Server pods. See [Back up and restore PMM HA Cluster](backup-restore-HA-clustered.md#limitations).
 
 ## Ready to deploy?
 

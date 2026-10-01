@@ -147,8 +147,9 @@ To roll back the Helm release to the previous version:
     helm rollback pmm-ha <revision-number> -n pmm
     ```
 
-!!! seealso alert alert-info "See also"
-    - [Understand PMM High Availability Cluster](../install-pmm/HA-clustered.md)
-    - [Install PMM HA Cluster](../install-pmm/install-HA-clustered.md)
-    - [Troubleshoot PMM HA Cluster issues](../troubleshoot/ha_issues.md)
-    - [Upgrade PMM Server using Helm](upgrade_helm.md) (single-instance deployments)
+## Related topics
+
+- [Understand PMM High Availability Cluster](../install-pmm/HA-clustered.md)
+- [Install PMM HA Cluster](../install-pmm/install-HA-clustered.md)
+- [Troubleshoot PMM HA Cluster issues](../troubleshoot/ha_issues.md)
+- [Upgrade PMM Server using Helm](upgrade_helm.md) (single-instance deployments)

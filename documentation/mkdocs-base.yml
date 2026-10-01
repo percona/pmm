@@ -219,11 +219,11 @@ nav:
                   - Connect external instance: install-pmm/install-pmm-client/connect-database/external.md
       - Install PMM in HA mode:
         - Choose your HA deployment: install-pmm/HA.md
-        - Kubernetes (Single-Instance):
+        - Single-Instance HA:
             - Understand: install-pmm/HA-kubernetes-single-instance.md
             - Install: install-pmm/install-HA-kubernetes-single-instance.md
             - Troubleshoot: troubleshoot/ha_single_instance_issues.md
-        - Kubernetes / OpenShift (HA Cluster):
+        - HA Cluster:
             - Understand PMM HA Cluster: install-pmm/HA-clustered.md
             - Install PMM HA Cluster: install-pmm/install-HA-clustered.md
             - Back up and restore PMM HA Cluster: install-pmm/backup-restore-HA-clustered.md

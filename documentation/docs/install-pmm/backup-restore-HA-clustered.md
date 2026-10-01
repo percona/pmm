@@ -2,12 +2,15 @@
 
 Back up your PMM HA Cluster to S3-compatible storage or a shared volume, and restore it in place or into another namespace for disaster recovery. Backups are optional and turned off by default.
 
-!!! note "Default values used in examples"
-    The examples assume the default namespace `pmm` and release name `pmm-ha`. If you used different values, replace `pmm` and `pmm-ha` in the commands. Resource names such as `pmm-ha-backup-tools` start with your release name.
+## Default values used in examples
+
+The examples assume the default namespace `pmm` and release name `pmm-ha`. If you used different values, replace `pmm` and `pmm-ha` in the commands. Resource names such as `pmm-ha-backup-tools` start with your release name.
 
 ## What gets backed up
 
-Each backup covers the whole HA installation. Every component is backed up with its own native tool:
+A backup counts as complete only when every selected component succeeds. If any component fails, the backup is marked `partial` and is never used as the latest backup.
+
+Each backup covers your whole HA installation. Every component is backed up with its own native tool:
 
 | Component | What it holds | Backup tool |
 |-----------|---------------|-------------|
@@ -17,7 +20,6 @@ Each backup covers the whole HA installation. Every component is backed up with 
 | PMM Server `/srv` | PMM Server data on each replica | `tar` |
 | Encryption key | The key PMM uses to encrypt stored credentials | Exported from its Kubernetes Secret |
 
-A backup counts as complete only when every selected component succeeds. If any component fails, the backup is marked `partial` and is never used as the latest backup.
 
 ## Before you begin
 
@@ -32,7 +34,7 @@ Choose where to store your backups, then add the matching settings to your `valu
 
 === "S3-compatible storage"
 
-    Use this option for any S3-compatible storage, including Amazon S3, MinIO, and Ceph.
+    Use this option for any S3-compatible storage, including Amazon S3, MinIO, and Ceph:
     {.power-number}
 
     1. Create a bucket and an access key with read, write, list, and delete permissions on it.
@@ -45,7 +47,7 @@ Choose where to store your backups, then add the matching settings to your `valu
           --from-literal=secret-key=<SECRET_KEY>
         ```
 
-    3. Add the backup settings to your `values.yaml` file:
+    3. Add the backup settings to your `values.yaml` file. ClickHouse and VictoriaMetrics inherit their S3 settings from `centralBackupStorage.s3`, so only `enabled: true` is needed for each:
 
         ```yaml
         centralBackupStorage:
@@ -67,8 +69,6 @@ Choose where to store your backups, then add the matching settings to your `valu
               s3:
                 enabled: true
         ```
-
-        ClickHouse and VictoriaMetrics reuse the bucket credentials, endpoint, and region from `centralBackupStorage.s3`, so you only need to enable them.
 
     4. Apply the changes:
 
@@ -142,25 +142,25 @@ Once backups are on, the chart creates a `pmm-ha-backup-tools` Deployment that r
 
 ## Back up PMM HA Cluster
 
-### Take a backup now
+=== "kubectl exec"
 
-To back up all components immediately:
+    To back up all components immediately:
 
-```sh
-kubectl exec -n pmm deploy/pmm-ha-backup-tools -- pmm-backup.sh backup
-```
+    ```sh
+    kubectl exec -n pmm deploy/pmm-ha-backup-tools -- pmm-backup.sh backup
+    ```
 
-The command prints a summary for each component and exits with an error if any component failed.
+    The command prints a summary for each component and exits with an error if any component failed.
 
-To back up only some components, add `--postgresql`, `--clickhouse`, `--victoriametrics`, or `--pmm-server`. To exclude a component instead, use the matching `--skip-` option, for example `--skip-victoriametrics`.
+    To back up only some components, add `--postgresql`, `--clickhouse`, `--victoriametrics`, or `--pmm-server`. To exclude a component instead, use the matching `--skip-` option, for example `--skip-victoriametrics`.
 
-### Run a backup as a Job
+=== "Kubernetes Job"
 
-For large installations, run the backup as a Kubernetes Job instead. A Job keeps running if the node it runs on is replaced, while an interactive `kubectl exec` session doesn't:
+    For large installations, run the backup as a Kubernetes Job instead. A Job keeps running if the node it runs on is replaced, while an interactive `kubectl exec` session doesn't:
 
-```sh
-kubectl create job --from=cronjob/pmm-ha-backup manual-$(date +%s) -n pmm
-```
+    ```sh
+    kubectl create job --from=cronjob/pmm-ha-backup manual-$(date +%s) -n pmm
+    ```
 
 ### Back up on a schedule
 
@@ -211,19 +211,18 @@ kubectl exec -n pmm deploy/pmm-ha-backup-tools -- \
   pmm-backup.sh restore --backup-id latest --dry-run --yes
 ```
 
-### Restore in place
+=== "Restore in place"
 
-To restore the latest backup into the same installation:
+    To restore the latest backup into the same installation:
 
-```sh
-kubectl exec -n pmm deploy/pmm-ha-backup-tools -- \
-  pmm-backup.sh restore --backup-id latest --yes
-```
+    ```sh
+    kubectl exec -n pmm deploy/pmm-ha-backup-tools -- \
+      pmm-backup.sh restore --backup-id latest --yes
+    ```
 
-To restore a specific backup, replace `latest` with its ID from `pmm-backup.sh list`. The `--yes` option confirms the restore and is required.
+    To restore a specific backup, replace `latest` with its ID from `pmm-backup.sh list`. The `--yes` option confirms the restore and is required.
 
-!!! tip "Run large restores as a Job"
-    If your `kubectl exec` session is interrupted, `kubectl` reports an error but the restore keeps running inside the cluster. Don't run it again. Check the result in the restore log instead. The restore has finished when the log ends with a `PMM-HA Restore Summary` block:
+    If your `kubectl exec` session is interrupted, `kubectl` reports an error but the restore keeps running inside the cluster. Don't run it again — check the restore log instead. The restore has finished when the log ends with a `PMM-HA Restore Summary` block:
 
     ```sh
     kubectl exec -n pmm deploy/pmm-ha-backup-tools -- \
@@ -232,40 +231,40 @@ To restore a specific backup, replace `latest` with its ID from `pmm-backup.sh l
 
     To avoid this, run the restore as a Job. The chart includes an example Job definition in `examples/restore-job.yaml`.
 
-### Restore into another namespace
+=== "Restore into another namespace"
 
-For disaster recovery, you can restore a backup into a separate PMM HA installation in another namespace, on the same or another Kubernetes cluster:
-{.power-number}
+    For disaster recovery, restore a backup into a separate PMM HA installation in another namespace, on the same or another Kubernetes cluster:
+    {.power-number}
 
-1. Copy the source installation's `pmm-secret` into the new namespace **before** you install PMM HA there. The PostgreSQL, ClickHouse, and VictoriaMetrics operators set their passwords from this Secret at installation time, so it must match the source:
+    1. Copy the source installation's `pmm-secret` into the new namespace **before** you install PMM HA there. The PostgreSQL, ClickHouse, and VictoriaMetrics operators set their passwords from this Secret at installation time, so it must match the source:
 
-    ```sh
-    kubectl create namespace pmm-dr
-    kubectl -n pmm get secret pmm-secret -o yaml \
-      | sed 's/namespace: pmm/namespace: pmm-dr/' \
-      | kubectl apply -f -
-    ```
+        ```sh
+        kubectl create namespace pmm-dr
+        kubectl -n pmm get secret pmm-secret -o yaml \
+          | sed 's/namespace: pmm/namespace: pmm-dr/' \
+          | kubectl apply -f -
+        ```
 
-2. [Install PMM HA in the new namespace](install-HA-clustered.md#install-pmm-ha-into-multiple-namespaces) with backups turned on and pointing to the same storage as the source.
+    2. [Install PMM HA in the new namespace](install-HA-clustered.md#install-pmm-ha-into-multiple-namespaces) with backups turned on and pointing to the same storage as the source.
 
-3. Restore the source installation's backup. Run the command in the new namespace, and point `--s3-prefix` at the source installation, in the format `<source-namespace>/<source-release>`:
+    3. Restore the source installation's backup. Run the command in the new namespace, and point `--s3-prefix` at the source installation, in the format `<source-namespace>/<source-release>`:
 
-    ```sh
-    kubectl exec -n pmm-dr deploy/pmm-dr-backup-tools -- \
-      pmm-backup.sh restore --backup-id latest \
-        --s3-prefix pmm/pmm-ha --yes
-    ```
+        ```sh
+        kubectl exec -n pmm-dr deploy/pmm-dr-backup-tools -- \
+          pmm-backup.sh restore --backup-id latest \
+            --s3-prefix pmm/pmm-ha --yes
+        ```
 
-    If you store backups on a shared volume, use `--shared-source-path pmm/pmm-ha` instead of `--s3-prefix`.
+        If you store backups on a shared volume, use `--shared-source-path pmm/pmm-ha` instead of `--s3-prefix`.
 
-4. Log in with the source installation's admin password. The restore replaces the Grafana database, so the admin password is now the source's. If the new namespace's `pmm-secret` holds a different admin password, update it to match, otherwise the PMM Client pods fail to register:
+    4. Log in with the source installation's admin password. The restore replaces the Grafana database, so the admin password is now the source's. If the new namespace's `pmm-secret` holds a different admin password, update it to match, otherwise the PMM Client pods fail to register:
 
-    ```sh
-    kubectl -n pmm-dr patch secret pmm-secret --type=merge \
-      -p "{\"data\":{\"PMM_ADMIN_PASSWORD\":\"$(printf %s '<source-password>' | base64)\"}}"
-    ```
+        ```sh
+        kubectl -n pmm-dr patch secret pmm-secret --type=merge \
+          -p "{\"data\":{\"PMM_ADMIN_PASSWORD\":\"$(printf %s '<source-password>' | base64)\"}}"
+        ```
 
-The restore also resets the PMM Client pods in the new namespace so they register again, and lists them in its summary. External PMM Clients keep working after you point them at the new installation.
+    The restore also resets the PMM Client pods in the new namespace so they register again, and lists them in its summary. External PMM Clients keep working after you point them at the new installation.
 
 ## Limitations
 
