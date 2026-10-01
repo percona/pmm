@@ -122,6 +122,21 @@ type Service struct {
 	// start it -- see agentStateUpdater's doc comment).
 	stateUpdater agentStateUpdater
 
+	// syncRequested debounces triggerInventorySync, which is global rather than
+	// per-run: one pull covers every run finishing in the same window, and
+	// completeSucceededRun would otherwise ask once per 15s tick for as long as
+	// refreshRetryWindowOpen holds a run. Zero means "never asked".
+	syncRequested   time.Time
+	syncRequestedMu sync.Mutex
+
+	// refreshRequested debounces triggerScopedInventoryRefresh per node, which
+	// the same every-15s-tick hold would otherwise re-probe twenty times over one
+	// run's retry window. Per node rather than global so a run that finishes
+	// while another is held still gets its own first probe immediately. Pruned on
+	// read -- see refreshDue.
+	refreshRequested   map[string]time.Time
+	refreshRequestedMu sync.Mutex
+
 	// restored guards the one-time read of the stored document on a cold start.
 	restored sync.Once
 
