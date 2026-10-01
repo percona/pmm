@@ -1,4 +1,4 @@
-import { Button, Stack, Typography } from '@mui/material';
+import { Button, Stack, Typography, useTheme } from '@mui/material';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 import { NothingFoundIllustration } from '@percona/peak-ui';
 import { Page } from 'components/page';
@@ -10,6 +10,7 @@ import { Messages } from './NotFoundPage.messages';
 export const NotFoundPage: FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const theme = useTheme();
   // React Router assigns the key 'default' to the first entry of a session,
   // i.e. when the user landed here directly from a bookmark or external link.
   const canGoBack = location.key !== 'default';
@@ -24,7 +25,7 @@ export const NotFoundPage: FC = () => {
         }}
       >
         <Stack
-          gap={4}
+          gap={3}
           sx={{
             p: 2,
             width: '100%',
@@ -37,7 +38,7 @@ export const NotFoundPage: FC = () => {
           <NothingFoundIllustration
             color="primary"
             aria-hidden
-            sx={{ height: 160, width: 160, mb: -4 }}
+            sx={{ height: 160, width: 160, mb: -3 }}
           />
           <Stack gap={1}>
             <Typography variant="h3" component="h1">
