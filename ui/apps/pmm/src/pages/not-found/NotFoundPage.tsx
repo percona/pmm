@@ -36,6 +36,7 @@ export const NotFoundPage: FC = () => {
         >
           <NothingFoundIllustration
             color="primary"
+            aria-hidden
             sx={{ height: 160, width: 160, mb: -4 }}
           />
           <Stack gap={1}>
