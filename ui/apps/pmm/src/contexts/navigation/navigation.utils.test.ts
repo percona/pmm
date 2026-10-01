@@ -5,7 +5,12 @@ import {
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
 import { createAnonymousUser } from 'contexts/user/user.utils';
-import { addAlerting, addSection, addExtensionsApps } from './navigation.utils';
+import {
+  addAlerting,
+  addSection,
+  addExtensionsApps,
+  addOm,
+} from './navigation.utils';
 import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
@@ -144,5 +149,14 @@ describe('addSection', () => {
 
   it('contributes nothing rather than an empty expandable shell', () => {
     expect(addSection({ id: 'section' }, [])).toEqual([]);
+  });
+});
+
+describe('addOm', () => {
+  it('marks OpenManager as a Tech Preview in the sidebar', () => {
+    const [om] = addOm();
+
+    expect(om.badge).toMatchObject({ label: 'Tech Preview' });
+    expect(om.badgeAlwaysVisible).toBe(true);
   });
 });

@@ -47,7 +47,7 @@ import {
   missingRowReason,
   type OmEstateStatus,
 } from './inventory';
-import { formatCompactDuration } from './format';
+import { formatCompactDuration, pluralize } from './format';
 import { ProbeValue } from './components/ProbeValue';
 import type { OmInventoryService, OmServiceInventoryRow } from './types';
 
@@ -323,9 +323,12 @@ const Counts = ({
   return (
     <Stack direction="row" spacing={3} sx={{ mb: 2, alignItems: 'center' }}>
       <Typography variant="body2">
-        <strong>{total}</strong> services
+        <strong>{total}</strong> {pluralize(total, 'service')}
       </Typography>
-      <Typography variant="body2" color="success.main">
+      <Typography
+        variant="body2"
+        color={up ? 'success.main' : 'text.secondary'}
+      >
         <strong>{up}</strong> up
       </Typography>
       <Typography

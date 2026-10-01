@@ -21,6 +21,7 @@ import {
   formatCompactDuration,
   formatRunDuration,
   formatTimestamp,
+  pluralize,
 } from '../src/format';
 
 describe('formatCompactDuration', () => {
@@ -105,5 +106,17 @@ describe('formatRunDuration', () => {
     expect(
       formatRunDuration('2026-08-07T09:59:27Z', '2026-08-07T09:58:48Z')
     ).toBe('');
+  });
+});
+
+describe('pluralize', () => {
+  it('uses the singular only for exactly one', () => {
+    expect(pluralize(1, 'cluster')).toBe('cluster');
+    expect(pluralize(0, 'cluster')).toBe('clusters');
+    expect(pluralize(2, 'cluster')).toBe('clusters');
+  });
+
+  it('takes an irregular plural', () => {
+    expect(pluralize(3, 'entry', 'entries')).toBe('entries');
   });
 });

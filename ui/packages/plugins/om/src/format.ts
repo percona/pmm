@@ -147,3 +147,12 @@ export function formatRunDuration(
   }
   return formatCompactDuration(seconds) || '0s';
 }
+
+/** The noun for a count: `cluster` at 1, `clusters` otherwise (including 0). */
+export function pluralize(
+  count: number,
+  singular: string,
+  plural = `${singular}s`
+): string {
+  return count === 1 ? singular : plural;
+}

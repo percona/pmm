@@ -339,6 +339,18 @@ export const addOm = (): NavItem[] => [
     icon: MongoIcon,
     url: OM_PATH,
     matches: [OM_PATH],
+    // Always visible, so a collapsed parent does not turn the preview status into an
+    // "attention" dot. Compact, so it fits beside the label inside the drawer width.
+    badge: {
+      label: 'Tech Preview',
+      sx: {
+        ml: 1,
+        height: 18,
+        flexShrink: 0,
+        '& .MuiChip-label': { px: 0.75, fontSize: 10, lineHeight: 1 },
+      },
+    },
+    badgeAlwaysVisible: true,
     children: [
       {
         id: 'om-overview',

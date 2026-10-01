@@ -45,7 +45,7 @@ import {
 } from './constants';
 import { OmHeader } from './components/OmHeader';
 import { Unavailable } from './components/Unavailable';
-import { formatCompactDuration } from './format';
+import { formatCompactDuration, pluralize } from './format';
 import { ageSeconds, isFailing, toHostRows } from './inventory';
 import {
   useForgetHost,
@@ -678,7 +678,7 @@ export const HostsPage = () => {
             isHostBusy(row.original)
               ? 'Already part of a bootstrap run in progress.'
               : row.original.automation_eligible
-                ? 'Install MongoDB on this host and initialize a single-member replica set (PoC).'
+                ? 'Install MongoDB on this host and initialize a single-member replica set.'
                 : automationBlockedTitle(
                     row.original.automation_blocked_reasons
                   )
@@ -774,9 +774,9 @@ export const HostsPage = () => {
       )}
       <Stack direction="row" spacing={3} sx={{ mb: 2, alignItems: 'center' }}>
         <Typography variant="body2">
-          <strong>{counts.total}</strong> hosts
+          <strong>{counts.total}</strong> {pluralize(counts.total, 'host')}
         </Typography>
-        <Tooltip title="PMM-Client connected, and the Nomad executor reachable and driver-healthy.">
+        <Tooltip title="PMM Client connected, and the host's automation agent reachable and healthy.">
           <Typography variant="body2" sx={{ cursor: 'help' }}>
             <strong>{counts.automationEligible}</strong> eligible for automation
           </Typography>
@@ -836,7 +836,7 @@ export const HostsPage = () => {
                   ? 'A selected host is already part of a bootstrap run in progress.'
                   : selectedRows.some((row) => !row.automation_eligible)
                     ? 'Every selected host must be eligible for automation.'
-                    : 'Install MongoDB on the selected hosts and initialize them as one replica set (PoC).'
+                    : 'Install MongoDB on the selected hosts and initialize them as one replica set.'
             }
           >
             <Box component="span">

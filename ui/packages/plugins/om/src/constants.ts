@@ -254,7 +254,7 @@ export const SETTING_HELP: Record<string, string> = {
     'How long to wait for one dispatched probe job before giving up on it.',
   POLL_INTERVAL: 'How often a dispatched job is checked for completion.',
   MAX_CONCURRENT_PROBES:
-    'Ceiling on probe jobs at once. Every dispatch is a Nomad job, so this is cluster capacity.',
+    'Ceiling on probe jobs at once. Each probe runs as a job on its host, so this caps the load on PMM and on the hosts.',
   RUN_RETENTION: 'How many refresh rows to keep before the oldest are pruned.',
   STALE_RUN_AFTER:
     'How long a refresh may stay running before its worker is presumed gone. Must exceed the slowest legitimate sweep.',

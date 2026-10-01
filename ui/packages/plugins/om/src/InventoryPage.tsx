@@ -45,6 +45,7 @@ import {
   formatCompactDuration,
   formatRunDuration,
   formatTimestamp,
+  pluralize,
   runDurationSeconds,
 } from './format';
 import {
@@ -257,11 +258,13 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
       </Typography>
       <Typography variant="body2">
         <strong>{run.counts.answered_hosts}</strong> of{' '}
-        {run.counts.probeable_hosts} hosts answered
+        {run.counts.probeable_hosts}{' '}
+        {pluralize(run.counts.probeable_hosts, 'host')} answered
       </Typography>
       <Typography variant="body2">
         <strong>{run.counts.answered_services}</strong> of{' '}
-        {run.counts.resolved_services} services answered
+        {run.counts.resolved_services}{' '}
+        {pluralize(run.counts.resolved_services, 'service')} answered
       </Typography>
       {run.scope.length > 0 && (
         <Tooltip title={run.scope.join(', ')}>
