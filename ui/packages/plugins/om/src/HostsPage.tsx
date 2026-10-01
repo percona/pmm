@@ -776,7 +776,7 @@ export const HostsPage = () => {
         <Typography variant="body2">
           <strong>{counts.total}</strong> {pluralize(counts.total, 'host')}
         </Typography>
-        <Tooltip title="PMM Client connected, and the host's automation agent reachable and healthy.">
+        <Tooltip title="PMM Client is connected, and the host's automation agent is reachable and healthy.">
           <Typography variant="body2" sx={{ cursor: 'help' }}>
             <strong>{counts.automationEligible}</strong> eligible for automation
           </Typography>
