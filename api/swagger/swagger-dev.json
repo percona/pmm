@@ -13756,6 +13756,21 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 22
+                    },
+                    "environment_variable_names": {
+                      "description": "A wrapper for a string array. This type allows to distinguish between an empty array and a null value.",
+                      "type": "object",
+                      "properties": {
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 0
+                        }
+                      },
+                      "x-nullable": true,
+                      "x-order": 23
                     }
                   },
                   "x-order": 2
@@ -32455,8 +32470,8 @@
                       "type": "boolean",
                       "x-order": 17
                     },
-                    "sep_enabled": {
-                      "description": "True if the SEP integration is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
+                    "extensions_enabled": {
+                      "description": "True if PMM Extensions is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
                       "type": "boolean",
                       "x-order": 18
                     }
@@ -32778,8 +32793,8 @@
                       "type": "boolean",
                       "x-order": 17
                     },
-                    "sep_enabled": {
-                      "description": "True if the SEP integration is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
+                    "extensions_enabled": {
+                      "description": "True if PMM Extensions is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
                       "type": "boolean",
                       "x-order": 18
                     }
@@ -32883,8 +32898,8 @@
                       "type": "boolean",
                       "x-order": 7
                     },
-                    "sep_enabled": {
-                      "description": "True if the SEP integration is enabled.",
+                    "extensions_enabled": {
+                      "description": "True if PMM Extensions is enabled.",
                       "type": "boolean",
                       "x-order": 8
                     }
