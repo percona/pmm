@@ -46,6 +46,7 @@ export function useCopyToClipboard(): CopyToClipboard {
   const [failed, setFailed] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const mountedRef = useRef(true);
+  const attemptRef = useRef(0);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -58,6 +59,8 @@ export function useCopyToClipboard(): CopyToClipboard {
   }, []);
 
   const copy = useCallback(async (text: string) => {
+    attemptRef.current += 1;
+    const attempt = attemptRef.current;
     let ok = false;
     // `isSecureContext` is checked as well as the API's presence: some browsers
     // expose `navigator.clipboard` on an insecure origin but reject every write.
@@ -74,6 +77,12 @@ export function useCopyToClipboard(): CopyToClipboard {
     // Reporting into an unmounted tree would both warn and leave a timer
     // scheduled after the cleanup that was supposed to cancel it.
     if (!mountedRef.current) {
+      return ok;
+    }
+    // Two clicks can overlap, and the first `writeText` may settle last. Only
+    // the newest attempt reports, so an older result cannot replace its
+    // feedback.
+    if (attempt !== attemptRef.current) {
       return ok;
     }
 

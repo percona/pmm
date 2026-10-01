@@ -29,7 +29,6 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import Alert from '@mui/material/Alert';
 import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
-import Dialog from '@mui/material/Dialog';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
@@ -43,6 +42,7 @@ import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import FocusTrap from '@mui/material/Unstable_TrapFocus';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { RUNNING_STATUSES, type TaskHistoryStatus } from '@pmm-extensions/api';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
@@ -581,279 +581,285 @@ export function TaskLogViewer({
     return effectiveTailLines !== undefined && maxLines >= effectiveTailLines;
   }, [running, streamStatus, textByStep, effectiveTailLines]);
 
-  const body = (
-    <Paper
-      variant="outlined"
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        // Full screen the Paper owns the dialog surface: no rounded corners or
-        // border floating against the viewport edge, and a definite height so
-        // the output pane's `100%` has something to resolve against.
-        ...(fullScreen && { height: '100%', border: 0, borderRadius: 0 }),
-      }}
-    >
-      <Stack
-        direction="row"
-        alignItems="center"
-        flexWrap="wrap"
-        rowGap={1}
-        sx={{ px: 1, pt: 1, borderBottom: 1, borderColor: 'divider' }}
+  // Full screen pins the same Paper over the viewport rather than moving it
+  // into a Dialog. A Dialog portals its children, so the viewer would remount
+  // on every transition — LazyLog losing both its search and the reader's
+  // scroll position, a finished report jumping back to the top. Keeping one
+  // tree means the overlay supplies what a Dialog would: the focus trap below,
+  // Escape to leave, and the dialog role while it covers the page.
+  return (
+    <FocusTrap open={fullScreen}>
+      <Paper
+        variant="outlined"
+        tabIndex={fullScreen ? -1 : undefined}
+        role={fullScreen ? 'dialog' : undefined}
+        aria-modal={fullScreen ? true : undefined}
+        aria-label={fullScreen ? 'Log output, full screen' : undefined}
+        onKeyDown={(event) => {
+          if (fullScreen && event.key === 'Escape') {
+            event.stopPropagation();
+            setFullScreen(false);
+          }
+        }}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          // No rounded corners or border floating against the viewport edge,
+          // and a definite height so the output pane's `100%` resolves.
+          ...(fullScreen && {
+            position: 'fixed',
+            inset: 0,
+            zIndex: (theme) => theme.zIndex.modal,
+            border: 0,
+            borderRadius: 0,
+            outline: 0,
+          }),
+        }}
       >
-        <Tabs
-          value={topTab}
-          onChange={(_, v: LogType) => handleTopTab(v)}
-          sx={{ minHeight: 40, flexShrink: 0 }}
+        <Stack
+          direction="row"
+          alignItems="center"
+          flexWrap="wrap"
+          rowGap={1}
+          sx={{ px: 1, pt: 1, borderBottom: 1, borderColor: 'divider' }}
         >
-          <Tab
-            value="stdout"
-            sx={TAB_LABEL_SX}
-            label={
-              <Badge
-                color="primary"
-                variant="dot"
-                invisible={!unreadTypes.has('stdout')}
-              >
-                <span>stdout</span>
-              </Badge>
-            }
-          />
-          <Tab
-            value="stderr"
-            sx={TAB_LABEL_SX}
-            label={
-              <Badge
-                color="primary"
-                variant="dot"
-                invisible={!unreadTypes.has('stderr')}
-              >
-                <span>stderr</span>
-              </Badge>
-            }
-          />
-        </Tabs>
-        <Box sx={{ flex: 1 }} />
-        <Stack direction="row" alignItems="center" spacing={1} sx={{ pr: 1 }}>
-          {badgeStatus && <StatusBadge status={badgeStatus} />}
-          {showLogTailSelect && (
-            <Tooltip
-              title={
-                running
-                  ? `Line cap applies to finished ${itemName} logs only`
-                  : 'Limit how many lines are loaded from the server'
-              }
-            >
-              <FormControl
-                size="small"
-                sx={{ minWidth: 128 }}
-                disabled={running}
-              >
-                {/*
-                  A visible label, not just the `aria-label` this replaced: on
-                  its own, "Last 1000" names neither what is being counted nor
-                  that it can be changed.
-                */}
-                <InputLabel id={logTailLabelId}>Lines loaded</InputLabel>
-                <Select
-                  labelId={logTailLabelId}
-                  label="Lines loaded"
-                  value={logTailChoice}
-                  onChange={(event) =>
-                    handleLogTailChange(event.target.value as LogTailLineChoice)
-                  }
-                  disabled={running}
-                  renderValue={(value) => (
-                    <Typography variant="body2" component="span">
-                      {value === 'all' ? 'All lines' : `Last ${value}`}
-                    </Typography>
-                  )}
-                  sx={{
-                    '& .MuiSelect-select': {
-                      py: 0.75,
-                      display: 'flex',
-                      alignItems: 'center',
-                    },
-                  }}
-                >
-                  {LOG_TAIL_LINE_OPTIONS.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label === 'All'
-                        ? 'All lines'
-                        : `Last ${option.label}`}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Tooltip>
-          )}
-          <FormControlLabel
-            control={
-              <Switch
-                size="small"
-                checked={wrap}
-                onChange={(_, checked) => setWrap(checked)}
-              />
-            }
-            label="Wrap"
-            slotProps={{ typography: { variant: 'body2' } }}
-          />
-          <Tooltip
-            title={
-              clipboard.copied
-                ? 'Copied'
-                : clipboard.failed
-                  ? 'Could not copy — use Download instead'
-                  : 'Copy this output'
-            }
+          <Tabs
+            value={topTab}
+            onChange={(_, v: LogType) => handleTopTab(v)}
+            sx={{ minHeight: 40, flexShrink: 0 }}
           >
-            <span>
-              <IconButton
-                size="small"
-                onClick={handleCopy}
-                disabled={!currentPaneText}
-                aria-label={clipboard.copied ? 'Copied' : 'Copy log'}
-                color={clipboard.failed ? 'error' : undefined}
+            <Tab
+              value="stdout"
+              sx={TAB_LABEL_SX}
+              label={
+                <Badge
+                  color="primary"
+                  variant="dot"
+                  invisible={!unreadTypes.has('stdout')}
+                >
+                  <span>stdout</span>
+                </Badge>
+              }
+            />
+            <Tab
+              value="stderr"
+              sx={TAB_LABEL_SX}
+              label={
+                <Badge
+                  color="primary"
+                  variant="dot"
+                  invisible={!unreadTypes.has('stderr')}
+                >
+                  <span>stderr</span>
+                </Badge>
+              }
+            />
+          </Tabs>
+          <Box sx={{ flex: 1 }} />
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ pr: 1 }}>
+            {badgeStatus && <StatusBadge status={badgeStatus} />}
+            {showLogTailSelect && (
+              <Tooltip
+                title={
+                  running
+                    ? `Line cap applies to finished ${itemName} logs only`
+                    : 'Limit how many lines are loaded from the server'
+                }
               >
-                {clipboard.copied ? (
-                  <CheckIcon fontSize="small" color="success" />
-                ) : (
-                  <ContentCopyIcon fontSize="small" />
-                )}
-              </IconButton>
-            </span>
-          </Tooltip>
-          <Tooltip title="Download log">
-            <span>
-              <IconButton
-                size="small"
-                onClick={handleDownload}
-                disabled={!currentPaneText}
-                aria-label="Download log"
-              >
-                <DownloadIcon fontSize="small" />
-              </IconButton>
-            </span>
-          </Tooltip>
-          {!fullScreen && fittable && (
+                <FormControl
+                  size="small"
+                  sx={{ minWidth: 128 }}
+                  disabled={running}
+                >
+                  {/*
+                    A visible label, not just the `aria-label` this replaced: on
+                    its own, "Last 1000" names neither what is being counted nor
+                    that it can be changed.
+                  */}
+                  <InputLabel id={logTailLabelId}>Lines loaded</InputLabel>
+                  <Select
+                    labelId={logTailLabelId}
+                    label="Lines loaded"
+                    value={logTailChoice}
+                    onChange={(event) =>
+                      handleLogTailChange(
+                        event.target.value as LogTailLineChoice
+                      )
+                    }
+                    disabled={running}
+                    renderValue={(value) => (
+                      <Typography variant="body2" component="span">
+                        {value === 'all' ? 'All lines' : `Last ${value}`}
+                      </Typography>
+                    )}
+                    sx={{
+                      '& .MuiSelect-select': {
+                        py: 0.75,
+                        display: 'flex',
+                        alignItems: 'center',
+                      },
+                    }}
+                  >
+                    {LOG_TAIL_LINE_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label === 'All'
+                          ? 'All lines'
+                          : `Last ${option.label}`}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Tooltip>
+            )}
+            <FormControlLabel
+              control={
+                <Switch
+                  size="small"
+                  checked={wrap}
+                  onChange={(_, checked) => setWrap(checked)}
+                />
+              }
+              label="Wrap"
+              slotProps={{ typography: { variant: 'body2' } }}
+            />
             <Tooltip
               title={
-                expanded
-                  ? 'Collapse to the default height'
-                  : contentOverflows
-                    ? 'Expand the output'
-                    : 'The whole output already fits'
+                clipboard.copied
+                  ? 'Copied'
+                  : clipboard.failed
+                    ? 'Could not copy — use Download instead'
+                    : 'Copy this output'
               }
             >
               <span>
                 <IconButton
                   size="small"
-                  onClick={() => setExpanded((previous) => !previous)}
-                  disabled={!expanded && !contentOverflows}
-                  aria-label={expanded ? 'Collapse output' : 'Expand output'}
+                  onClick={handleCopy}
+                  disabled={!currentPaneText}
+                  aria-label={clipboard.copied ? 'Copied' : 'Copy log'}
+                  color={clipboard.failed ? 'error' : undefined}
                 >
-                  {expanded ? (
-                    <CloseFullscreenIcon fontSize="small" />
+                  {clipboard.copied ? (
+                    <CheckIcon fontSize="small" color="success" />
                   ) : (
-                    <OpenInFullIcon fontSize="small" />
+                    <ContentCopyIcon fontSize="small" />
                   )}
                 </IconButton>
               </span>
             </Tooltip>
-          )}
-          <Tooltip title={fullScreen ? 'Exit full screen' : 'Full screen'}>
-            <IconButton
-              size="small"
-              onClick={() => setFullScreen((previous) => !previous)}
-              aria-label={fullScreen ? 'Exit full screen' : 'Full screen'}
-            >
-              {fullScreen ? (
-                <FullscreenExitIcon fontSize="small" />
-              ) : (
-                <FullscreenIcon fontSize="small" />
-              )}
-            </IconButton>
-          </Tooltip>
+            <Tooltip title="Download log">
+              <span>
+                <IconButton
+                  size="small"
+                  onClick={handleDownload}
+                  disabled={!currentPaneText}
+                  aria-label="Download log"
+                >
+                  <DownloadIcon fontSize="small" />
+                </IconButton>
+              </span>
+            </Tooltip>
+            {!fullScreen && fittable && (
+              <Tooltip
+                title={
+                  expanded
+                    ? 'Collapse to the default height'
+                    : contentOverflows
+                      ? 'Expand the output'
+                      : 'The whole output already fits'
+                }
+              >
+                <span>
+                  <IconButton
+                    size="small"
+                    onClick={() => setExpanded((previous) => !previous)}
+                    disabled={!expanded && !contentOverflows}
+                    aria-label={expanded ? 'Collapse output' : 'Expand output'}
+                  >
+                    {expanded ? (
+                      <CloseFullscreenIcon fontSize="small" />
+                    ) : (
+                      <OpenInFullIcon fontSize="small" />
+                    )}
+                  </IconButton>
+                </span>
+              </Tooltip>
+            )}
+            <Tooltip title={fullScreen ? 'Exit full screen' : 'Full screen'}>
+              <IconButton
+                size="small"
+                onClick={() => setFullScreen((previous) => !previous)}
+                aria-label={fullScreen ? 'Exit full screen' : 'Full screen'}
+              >
+                {fullScreen ? (
+                  <FullscreenExitIcon fontSize="small" />
+                ) : (
+                  <FullscreenIcon fontSize="small" />
+                )}
+              </IconButton>
+            </Tooltip>
+          </Stack>
         </Stack>
-      </Stack>
 
-      {error && (
-        <Box sx={{ p: 1 }}>
-          <StreamErrorBlock error={error} />
-        </Box>
-      )}
-
-      {!error && nonFailureNote && (
-        <Box sx={{ p: 1 }}>
-          <Alert severity="warning" data-testid="task-log-viewer-note">
-            {nonFailureNote}
-          </Alert>
-        </Box>
-      )}
-
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 1 }}>
-        <LogStepTabs
-          steps={stepOrder}
-          activeStep={activeStep}
-          unreadSteps={unreadSteps}
-          onSelect={handleStepSelect}
-        />
-      </Box>
-
-      <Box sx={{ flex: fullScreen ? 1 : 'none', minHeight: 0 }}>
-        <LogOutputPane
-          text={currentPaneText}
-          wrap={wrap}
-          height={paneHeight}
-          follow={!hasFinished}
-          emptyLabel={hasFinished ? 'No output' : 'No output yet.'}
-        />
-      </Box>
-
-      <Accordion
-        disableGutters
-        sx={{ flexShrink: 0, '&:before': { display: 'none' } }}
-      >
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="body2" color="text.secondary">
-            Technical details
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails sx={{ p: 0 }}>
-          <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 1 }}>
-            <LogStepTabs
-              steps={eventStepOrder}
-              activeStep={activeEventStep}
-              unreadSteps={NO_UNREAD_STEPS}
-              onSelect={setActiveEventStep}
-            />
+        {error && (
+          <Box sx={{ p: 1 }}>
+            <StreamErrorBlock error={error} />
           </Box>
-          <ExecutionEventsPanel
-            eventsByStep={eventsByStep}
-            activeStep={activeEventStep}
-            height={240}
+        )}
+
+        {!error && nonFailureNote && (
+          <Box sx={{ p: 1 }}>
+            <Alert severity="warning" data-testid="task-log-viewer-note">
+              {nonFailureNote}
+            </Alert>
+          </Box>
+        )}
+
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 1 }}>
+          <LogStepTabs
+            steps={stepOrder}
+            activeStep={activeStep}
+            unreadSteps={unreadSteps}
+            onSelect={handleStepSelect}
           />
-        </AccordionDetails>
-      </Accordion>
-    </Paper>
+        </Box>
+
+        <Box sx={{ flex: fullScreen ? 1 : 'none', minHeight: 0 }}>
+          <LogOutputPane
+            text={currentPaneText}
+            wrap={wrap}
+            height={paneHeight}
+            follow={!hasFinished}
+            emptyLabel={hasFinished ? 'No output' : 'No output yet.'}
+          />
+        </Box>
+
+        <Accordion
+          disableGutters
+          sx={{ flexShrink: 0, '&:before': { display: 'none' } }}
+        >
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="body2" color="text.secondary">
+              Technical details
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ p: 0 }}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 1 }}>
+              <LogStepTabs
+                steps={eventStepOrder}
+                activeStep={activeEventStep}
+                unreadSteps={NO_UNREAD_STEPS}
+                onSelect={setActiveEventStep}
+              />
+            </Box>
+            <ExecutionEventsPanel
+              eventsByStep={eventsByStep}
+              activeStep={activeEventStep}
+              height={240}
+            />
+          </AccordionDetails>
+        </Accordion>
+      </Paper>
+    </FocusTrap>
   );
-
-  // Moving the whole viewer into the dialog — rather than overlaying a copy of
-  // the pane — keeps one set of tabs, one search and one selected step, so
-  // nothing has to be re-found after going full screen. The cost is that the
-  // pane remounts across the transition, dropping whatever was typed into
-  // LazyLog's search box.
-  if (fullScreen) {
-    return (
-      <Dialog
-        fullScreen
-        open
-        onClose={() => setFullScreen(false)}
-        aria-label="Log output, full screen"
-      >
-        {body}
-      </Dialog>
-    );
-  }
-
-  return body;
 }

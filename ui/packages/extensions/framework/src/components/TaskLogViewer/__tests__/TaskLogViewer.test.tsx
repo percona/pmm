@@ -1430,6 +1430,9 @@ describe('TaskLogViewer', () => {
   it('takes the whole viewer full screen and back', async () => {
     await renderWithOutput('506', 'SUCCESS', 'payload\n');
     expect(screen.queryByRole('dialog')).toBeNull();
+    // The log's own node, held across both transitions: a remount would
+    // throw away LazyLog's search and the reader's scroll position with it.
+    const log = screen.getByTestId('log-output');
 
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: /^full screen$/i }));
@@ -1441,12 +1444,28 @@ describe('TaskLogViewer', () => {
       'payload'
     );
     expect(screen.getAllByTestId('log-output')).toHaveLength(1);
+    expect(within(dialog).getByTestId('log-output')).toBe(log);
 
     await user.click(
       within(dialog).getByRole('button', { name: /exit full screen/i })
     );
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(screen.getByTestId('log-output')).toHaveTextContent('payload');
+    expect(screen.getByTestId('log-output')).toBe(log);
+    expect(log).toHaveTextContent('payload');
+  });
+
+  it('leaves full screen on Escape', async () => {
+    await renderWithOutput('506', 'SUCCESS', 'payload\n');
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: /^full screen$/i }));
+    await screen.findByRole('dialog');
+
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(
+      screen.getByRole('button', { name: /^full screen$/i })
+    ).toBeInTheDocument();
   });
 
   it('copies the visible output without a download', async () => {
