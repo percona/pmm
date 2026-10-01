@@ -69,7 +69,14 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
     items.push(NAV_DIVIDERS.home);
 
-    items.push(...addDashboardItems(currentServiceTypes, folders, user));
+    // Served by pmm-managed, so it is not gated with the PMM Extensions group --
+    // gated on the settings flag alone.
+    const mongoExtras =
+      user?.isPMMAdmin && settings?.omEnabled ? [addOm()] : [];
+
+    items.push(
+      ...addDashboardItems(currentServiceTypes, folders, user, mongoExtras)
+    );
 
     items.push(NAV_QAN);
 
@@ -114,12 +121,6 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
       }
 
       if (user.isPMMAdmin) {
-        // Served by pmm-managed, so it is not gated with the PMM Extensions
-        // group -- gated on the settings flag alone.
-        if (settings?.omEnabled) {
-          items.push(...addOm());
-        }
-
         if (settings?.backupManagementEnabled) {
           items.push(NAV_BACKUPS);
         }
