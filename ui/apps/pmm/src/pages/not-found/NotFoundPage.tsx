@@ -1,8 +1,8 @@
 import { Button, Link, Stack, Typography } from '@mui/material';
 import ArrowBack from '@mui/icons-material/ArrowBack';
-import { CodeBlock, NothingFoundIllustration } from '@percona/peak-ui';
+import { NothingFoundIllustration } from '@percona/peak-ui';
 import { Page } from 'components/page';
-import { PMM_BASE_PATH, PMM_NEW_NAV_HOME_URL } from 'lib/constants';
+import { PMM_NEW_NAV_HOME_URL } from 'lib/constants';
 import type { FC } from 'react';
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import { Messages } from './NotFoundPage.messages';
@@ -11,7 +11,6 @@ import { QUICK_LINKS } from './NotFoundPage.constants';
 export const NotFoundPage: FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const requestedPath = `${PMM_BASE_PATH}${location.pathname}${location.search}`;
   // React Router assigns the key 'default' to the first entry of a session,
   // i.e. when the user landed here directly from a bookmark or external link.
   const canGoBack = location.key !== 'default';
@@ -47,16 +46,6 @@ export const NotFoundPage: FC = () => {
             <Typography variant="body1" color="text.secondary">
               {Messages.description}
             </Typography>
-          </Stack>
-          <Stack gap={0.5} sx={{ width: '100%', textAlign: 'left' }}>
-            <Typography variant="overline" color="text.secondary">
-              {Messages.requestedPath}
-            </Typography>
-            <CodeBlock
-              content={requestedPath}
-              wrap
-              data-testid="not-found-requested-path"
-            />
           </Stack>
           <Stack
             direction={{ xs: 'column', sm: 'row' }}

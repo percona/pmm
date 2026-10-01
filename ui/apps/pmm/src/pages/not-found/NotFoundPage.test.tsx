@@ -17,7 +17,7 @@ const renderAt = (initialEntries: string[]) =>
   );
 
 describe('NotFoundPage', () => {
-  it('shows the heading, explanation and requested address', () => {
+  it('shows the heading and explanation', () => {
     renderAt(['/feed?tab=1']);
 
     expect(
@@ -25,9 +25,6 @@ describe('NotFoundPage', () => {
     ).toBeInTheDocument();
     expect(screen.getAllByText(Messages.title)).toHaveLength(1);
     expect(screen.getByText(Messages.description)).toBeInTheDocument();
-    expect(screen.getByTestId('not-found-requested-path')).toHaveTextContent(
-      '/pmm-ui/feed?tab=1'
-    );
   });
 
   it('does not show the version footer', () => {
