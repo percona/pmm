@@ -14,6 +14,8 @@ sudo dnf install -y fontconfig
 
 make build-go
 make deps-js
+# Same heap limit as Grafana's own Dockerfile: webpack needs more than Node's default.
+export NODE_OPTIONS=--max_old_space_size=8000
 make build-js
 
 install -d ${rootfs}/usr/share/grafana
