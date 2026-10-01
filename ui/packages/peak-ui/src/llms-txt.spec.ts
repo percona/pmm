@@ -113,6 +113,18 @@ describe('llms.txt', () => {
     }
   );
 
+  it('lists only names the entry point exports', () => {
+    const notExports = new Set(['Guides', 'Not exported: use MUI', 'Optional']);
+    let heading = '';
+    const listed = lines.flatMap((line) => {
+      if (line.startsWith('## ')) heading = line.slice(3);
+      const name = line.match(/^- \[(\w+)\]\(/)?.[1];
+      return name && !notExports.has(heading) ? [name] : [];
+    });
+    expect(listed.length).toBeGreaterThan(100);
+    listed.forEach((name) => expect(publicNames.has(name), name).toBe(true));
+  });
+
   it('discovers the Storybook pages', () => {
     expect(storybookIds.size).toBeGreaterThan(0);
   });
