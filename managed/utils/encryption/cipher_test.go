@@ -485,3 +485,48 @@ func TestInspectDecrypted(t *testing.T) {
 		assert.Equal(t, want, insp.Decrypted, stored)
 	}
 }
+
+func TestCipherNotInitialized(t *testing.T) {
+	var c *Cipher
+	_, err := c.Encrypt("secret")
+	require.ErrorIs(t, err, ErrEncryptionNotInitialized)
+	_, err = c.Decrypt("secret")
+	require.ErrorIs(t, err, ErrEncryptionNotInitialized)
+	_, err = c.Inspect("secret")
+	require.ErrorIs(t, err, ErrEncryptionNotInitialized)
+
+	defaultCipherMu.RLock()
+	saved := defaultCipher
+	defaultCipherMu.RUnlock()
+	t.Cleanup(func() { SetDefaultCipher(saved) })
+	SetDefaultCipher(nil)
+	_, err = DefaultCipher()
+	require.ErrorIs(t, err, ErrEncryptionNotInitialized)
+}
+
+// TestLookAlikeUnderLayer covers a decrypted value that has the shape of legacy
+// ciphertext of a key in the keyset but does not authenticate: it is the
+// secret itself, not another layer, and is returned unchanged.
+func TestLookAlikeUnderLayer(t *testing.T) {
+	c := newTestCipher(t)
+
+	raw := make([]byte, minLegacyCiphertextLen+8)
+	raw[0] = tinkPrefixByte
+	raw[1], raw[2], raw[3], raw[4] = byte(c.primaryID>>24), byte(c.primaryID>>16), byte(c.primaryID>>8), byte(c.primaryID)
+	lookAlike := base64.StdEncoding.EncodeToString(raw)
+
+	// on its own it is a hard error: a known key ID that fails authentication
+	_, err := c.Decrypt(lookAlike)
+	require.ErrorIs(t, err, ErrLegacyAuthFailed)
+
+	// under an envelope it is the secret
+	stored, err := c.Encrypt(lookAlike)
+	require.NoError(t, err)
+	decrypted, err := c.Decrypt(stored)
+	require.NoError(t, err)
+	assert.Equal(t, lookAlike, decrypted)
+	insp, err := c.Inspect(stored)
+	require.NoError(t, err)
+	assert.Zero(t, insp.ExtraLayers)
+	assert.True(t, insp.Decrypted)
+}
