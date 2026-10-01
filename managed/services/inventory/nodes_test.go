@@ -292,6 +292,73 @@ func TestNodes(t *testing.T) {
 		require.NoError(t, err)
 		assert.Empty(t, warning)
 	})
+
+	t.Run("RemoveProtectedNode", func(t *testing.T) {
+		const nodeName = "pmm-pmm-ha-client-0"
+
+		newProtectedNode := func(t *testing.T) (*NodesService, *AgentsService, context.Context, *mockPrometheusService, string, string) {
+			t.Helper()
+
+			_, as, ns, teardown, ctx, vmdb := setup(t)
+			t.Cleanup(func() { teardown(t) })
+			ns.protectedNodePrefixes = []string{"pmm-pmm-ha-client-"}
+			as.protectedNodePrefixes = ns.protectedNodePrefixes
+
+			addNodeResponse, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
+				Node: &inventoryv1.AddNodeRequest_Container{
+					Container: &inventoryv1.AddContainerNodeParams{NodeName: nodeName},
+				},
+			})
+			require.NoError(t, err)
+			nodeID := addNodeResponse.GetContainer().NodeId
+			pmmAgent, err := models.CreatePMMAgent(ns.db.Querier, nodeID, nil)
+			require.NoError(t, err)
+
+			return ns, as, ctx, vmdb, nodeID, pmmAgent.AgentID
+		}
+
+		// The Inventory page always removes with force, which would take every Service on the Node with it.
+		t.Run("is rejected while its pmm-agent is connected", func(t *testing.T) {
+			ns, _, ctx, _, nodeID, pmmAgentID := newProtectedNode(t)
+
+			ns.r.(*mockAgentsRegistry).On("IsConnected", pmmAgentID).Return(true)
+			expected := status.New(codes.FailedPrecondition, "Node '"+nodeName+"' is managed by this PMM deployment "+
+				"and cannot be removed while its pmm-agent is connected. Scale the deployment down to remove it.")
+			for _, force := range []bool{false, true} {
+				_, err := ns.Remove(ctx, nodeID, force)
+				tests.AssertGRPCError(t, expected, err)
+			}
+
+			_, err := ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID})
+			require.NoError(t, err)
+		})
+
+		// Removing the pmm-agent strands the pod the same way, and would leave the Node unprotected.
+		t.Run("keeps its pmm-agent while connected", func(t *testing.T) {
+			_, as, ctx, _, _, pmmAgentID := newProtectedNode(t)
+
+			as.r.(*mockAgentsRegistry).On("IsConnected", pmmAgentID).Return(true)
+			err := as.Remove(ctx, pmmAgentID, true)
+			assert.Equal(t, codes.FailedPrecondition, status.Code(err), err)
+
+			_, err = as.Get(ctx, pmmAgentID)
+			require.NoError(t, err)
+		})
+
+		t.Run("is removed once its pmm-agent is gone", func(t *testing.T) {
+			ns, _, ctx, vmdb, nodeID, pmmAgentID := newProtectedNode(t)
+
+			ns.r.(*mockAgentsRegistry).On("IsConnected", pmmAgentID).Return(false)
+			ns.r.(*mockAgentsRegistry).On("Kick", ctx, pmmAgentID).Once()
+			vmdb.Mock.On("RequestConfigurationUpdate").Once().Return()
+			ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, nodeName, false).Return("", nil)
+			_, err := ns.Remove(ctx, nodeID, true)
+			require.NoError(t, err)
+
+			_, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID})
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID)), err)
+		})
+	})
 }
 
 func TestAddNode(t *testing.T) {

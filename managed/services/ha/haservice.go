@@ -26,6 +26,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -336,10 +337,14 @@ func (s *Service) Run(ctx context.Context) error {
 	memberlistConfig.LogOutput = newMemberlistLogWriter(s.l.WithField("subsystem", "memberlist"))
 
 	// Create the memberlist
-	s.memberlist, err = memberlist.Create(memberlistConfig)
+	ml, err := memberlist.Create(memberlistConfig)
 	if err != nil {
 		return fmt.Errorf("failed to create memberlist: %w", err)
 	}
+	// Under the lock, since IsMember reads it from other goroutines.
+	s.rw.Lock()
+	s.memberlist = ml
+	s.rw.Unlock()
 	defer func() {
 		err := s.memberlist.Leave(defaultLeaveTimeout)
 		if err != nil {
@@ -598,6 +603,21 @@ func (s *Service) IsLeader() bool {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 	return !s.params.Enabled || (s.raftNode != nil && s.raftNode.State() == raft.Leader)
+}
+
+// IsMember reports whether the HA node with given ID is a live member of the cluster, as memberlist
+// sees it. Until memberlist starts, membership is unknown, and every node is reported as a member.
+func (s *Service) IsMember(nodeID string) bool {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+
+	if s.memberlist == nil {
+		return true
+	}
+
+	return slices.ContainsFunc(s.memberlist.Members(), func(member *memberlist.Node) bool {
+		return member.Name == nodeID
+	})
 }
 
 // Params returns HA parameters.

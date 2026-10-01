@@ -179,7 +179,7 @@ func TestListNodesMarksInternalNodes(t *testing.T) {
 	vmClient.Test(t)
 	vmClient.On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil)
 
-	s := NewManagementService(db, ar, nil, nil, nil, vmdb, nil, nil, vmClient, []string{internalNodePrefix}, false)
+	s := NewManagementService(db, ar, nil, nil, nil, vmdb, nil, nil, vmClient, []string{internalNodePrefix}, nil, false)
 
 	res, err := s.ListNodes(ctx, &managementv1.ListNodesRequest{})
 	require.NoError(t, err)
@@ -222,7 +222,7 @@ func TestListNodesMarksPMMServerNodesInternalInHA(t *testing.T) {
 		vmClient.Test(t)
 		vmClient.On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil)
 
-		return NewManagementService(db, ar, nil, nil, nil, vmdb, nil, nil, vmClient, nil, haEnabled)
+		return NewManagementService(db, ar, nil, nil, nil, vmdb, nil, nil, vmClient, nil, nil, haEnabled)
 	}
 
 	listNodes := func(t *testing.T, haEnabled bool) map[string]bool {
@@ -252,6 +252,62 @@ func TestListNodesMarksPMMServerNodesInternalInHA(t *testing.T) {
 	})
 }
 
+// TestNodesMarkProtectedNodes covers the flag the UI uses to keep users from removing a Node which
+// the API would refuse to remove, so it has to follow the same rule: protected while connected.
+func TestNodesMarkProtectedNodes(t *testing.T) {
+	const clientNodePrefix = "pmm-pmm-ha-client-"
+
+	ctx := logger.Set(t.Context(), t.Name())
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	node, err := models.CreateNode(db.Querier, models.ContainerNodeType, &models.CreateNodeParams{
+		NodeName: clientNodePrefix + "0",
+		Address:  "10.1.2.5",
+	})
+	require.NoError(t, err)
+	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
+	require.NoError(t, err)
+
+	newService := func(t *testing.T, connected bool) *ManagementService {
+		t.Helper()
+
+		ar := &mockAgentsRegistry{}
+		ar.Test(t)
+		ar.On("IsConnected", pmmAgent.AgentID).Return(connected)
+		ar.On("IsConnected", mock.Anything).Return(false)
+
+		vmClient := &mockVictoriaMetricsClient{}
+		vmClient.Test(t)
+		vmClient.On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil)
+
+		return NewManagementService(db, ar, nil, nil, nil, nil, nil, nil, vmClient, nil, []string{clientNodePrefix}, false)
+	}
+
+	for _, connected := range []bool{true, false} {
+		t.Run(fmt.Sprintf("connected=%t", connected), func(t *testing.T) {
+			s := newService(t, connected)
+
+			listRes, err := s.ListNodes(ctx, &managementv1.ListNodesRequest{})
+			require.NoError(t, err)
+			isProtected := make(map[string]bool, len(listRes.Nodes))
+			for _, n := range listRes.Nodes {
+				isProtected[n.NodeName] = n.IsPmmProtectedNode
+			}
+			assert.Equal(t, connected, isProtected[node.NodeName], node.NodeName)
+			assert.False(t, isProtected["pmm-server"])
+
+			getRes, err := s.GetNode(ctx, &managementv1.GetNodeRequest{NodeId: node.NodeID})
+			require.NoError(t, err)
+			assert.Equal(t, connected, getRes.Node.IsPmmProtectedNode)
+		})
+	}
+}
+
 func TestCheckNodeIsEligible(t *testing.T) {
 	ctx := logger.Set(t.Context(), t.Name())
 
@@ -269,7 +325,7 @@ func TestCheckNodeIsEligible(t *testing.T) {
 	agent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
 	require.NoError(t, err)
 
-	s := NewManagementService(db, nil, nil, nil, nil, nil, nil, nil, nil, []string{internalNodePrefix}, false)
+	s := NewManagementService(db, nil, nil, nil, nil, nil, nil, nil, nil, []string{internalNodePrefix}, nil, false)
 	expectedErr := status.New(codes.FailedPrecondition, fmt.Sprintf(
 		"Node '%s' is a part of the internal infrastructure of this PMM deployment and cannot monitor other services.", node.NodeName,
 	))
@@ -290,7 +346,7 @@ func TestCheckNodeIsEligible(t *testing.T) {
 	})
 
 	t.Run("no prefixes configured", func(t *testing.T) {
-		s := NewManagementService(db, nil, nil, nil, nil, nil, nil, nil, nil, nil, false)
+		s := NewManagementService(db, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, false)
 		assert.NoError(t, s.checkNodeIsEligible(ctx, agent.AgentID, "mysql.example.com"))
 	})
 

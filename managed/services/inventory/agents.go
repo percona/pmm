@@ -45,6 +45,10 @@ type AgentsService struct {
 	db    *reform.DB
 	cc    connectionChecker
 	sib   serviceInfoBroker
+
+	// protectedNodePrefixes holds the Node name prefixes of the Nodes this PMM deployment
+	// provisioned for itself, whose pmm-agents users cannot remove, see services.CheckPMMAgentRemovable.
+	protectedNodePrefixes []string
 }
 
 // NewAgentsService creates new AgentsService.
@@ -56,15 +60,17 @@ func NewAgentsService(
 	cc connectionChecker,
 	sib serviceInfoBroker,
 	a agentService,
+	protectedNodePrefixes []string,
 ) *AgentsService {
 	return &AgentsService{
-		r:     r,
-		a:     a,
-		state: state,
-		vmdb:  vmdb,
-		db:    db,
-		cc:    cc,
-		sib:   sib,
+		r:                     r,
+		a:                     a,
+		state:                 state,
+		vmdb:                  vmdb,
+		db:                    db,
+		cc:                    cc,
+		sib:                   sib,
+		protectedNodePrefixes: protectedNodePrefixes,
 	}
 }
 
@@ -1884,7 +1890,15 @@ func (as *AgentsService) ChangeRTAMongoDBAgent(
 func (as *AgentsService) Remove(ctx context.Context, id string, force bool) error {
 	var removedAgent *models.Agent
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		var err error
+		agent, err := models.FindAgentByID(tx.Querier, id)
+		if err != nil {
+			return err
+		}
+		err = services.CheckPMMAgentRemovable(tx.Querier, as.r, agent, as.protectedNodePrefixes)
+		if err != nil {
+			return err
+		}
+
 		mode := models.RemoveRestrict
 		if force {
 			mode = models.RemoveCascade
