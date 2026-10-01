@@ -68,6 +68,15 @@ func TestDisableDefaultEnabledCollectors(t *testing.T) {
 			},
 			want: []string{},
 		},
+		{
+			name: "Repeated collector yields its flag once",
+			args: args{
+				prefix:             "--no-collector.",
+				defaultCollectors:  []string{"a", "b", "c"},
+				disabledCollectors: []string{"a", "b", "a"},
+			},
+			want: []string{"--no-collector.a", "--no-collector.b"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
