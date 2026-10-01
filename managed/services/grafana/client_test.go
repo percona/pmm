@@ -867,6 +867,24 @@ func TestListPMMRuleIDs(t *testing.T) {
 		require.Error(t, err)
 	})
 
+	t.Run("lists the PMM org's rules whatever org the caller is in", func(t *testing.T) {
+		t.Parallel()
+
+		var orgID string
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			orgID = r.Header.Get("X-Grafana-Org-Id")
+			_, _ = fmt.Fprint(w, `{}`)
+		}))
+		t.Cleanup(ts.Close)
+
+		ctx := metadata.NewIncomingContext(t.Context(),
+			metadata.Pairs("Authorization", "Basic YWRtaW46YWRtaW4="))
+
+		_, err := NewClient(strings.TrimPrefix(ts.URL, "http://")).ListPMMRuleIDs(ctx)
+		require.NoError(t, err)
+		assert.Equal(t, "1", orgID)
+	})
+
 	t.Run("an unauthenticated context never reaches Grafana", func(t *testing.T) {
 		t.Parallel()
 

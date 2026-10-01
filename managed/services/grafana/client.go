@@ -56,6 +56,9 @@ const (
 	// lookups Grafana can process in parallel, so a larger client-side pool would never drain.
 	defaultMaxIdleConns        = 100
 	defaultMaxIdleConnsPerHost = 100
+
+	// PMM supports a single Grafana organization, hard-coded to ID 1.
+	pmmOrgID = "1"
 )
 
 // Client represents a client for Grafana API.
@@ -785,9 +788,14 @@ func (c *Client) ListPMMRuleIDs(ctx context.Context) (map[string]struct{}, error
 		Rules []rulerRule `json:"rules"`
 	}
 
+	// Pinned to PMM's org: the ruler otherwise answers for the caller's current org, and
+	// the sweep would reap every row whose rule lives in the org it did not see.
+	headers := authHeaders.Clone()
+	headers.Set("X-Grafana-Org-Id", pmmOrgID)
+
 	var folders map[string][]rulerGroup
 
-	err = c.do(ctx, http.MethodGet, "/api/ruler/grafana/api/v1/rules", "", authHeaders, nil, &folders)
+	err = c.do(ctx, http.MethodGet, "/api/ruler/grafana/api/v1/rules", "", headers, nil, &folders)
 	if err != nil {
 		return nil, err
 	}
