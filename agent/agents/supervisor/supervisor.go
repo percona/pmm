@@ -809,7 +809,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 
 	version, err := s.version(agentProcess.Type, processParams.Path)
 	if err != nil {
-		l.Warnf("Cannot parse version for type %s", agentType)
+		l.WithError(err).Warnf("Cannot parse version for type %s", agentType)
 	}
 
 	done := make(chan struct{})
