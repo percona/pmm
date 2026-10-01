@@ -175,8 +175,8 @@ func TestConnectionRequestDialTimeoutMySQLCloudDefaults(t *testing.T) {
 			agent := &models.Agent{
 				AgentType:  models.MySQLdExporterType,
 				PMMAgentID: new("pmm-agent-id"),
-				Username:   new("pmm-agent"),
-				Password:   new("password"),
+				Username:   new(models.EncryptedString("pmm-agent")),
+				Password:   new(models.EncryptedString("password")),
 			}
 
 			request, err := connectionRequest(db.Querier, service, agent)

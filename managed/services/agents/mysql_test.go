@@ -694,8 +694,8 @@ func TestMySQLdExporterConfigCloudDialTimeout(t *testing.T) {
 			exporter := &models.Agent{
 				AgentID:       "agent-id",
 				AgentType:     models.MySQLdExporterType,
-				Username:      new("username"),
-				AgentPassword: new("agent-password"),
+				Username:      new(models.EncryptedString("username")),
+				AgentPassword: new(models.EncryptedString("agent-password")),
 				ExporterOptions: models.ExporterOptions{
 					ConnectionTimeout: tc.connectionTimeout,
 				},
