@@ -25,7 +25,7 @@ export const NotFoundPage: FC = () => {
         }}
       >
         <Stack
-          gap={3}
+          gap={4}
           sx={{
             p: 2,
             width: '100%',
@@ -37,7 +37,7 @@ export const NotFoundPage: FC = () => {
         >
           <NothingFoundIllustration
             color="primary"
-            sx={{ height: 192, width: 192, mb: -3 }}
+            sx={{ height: 160, width: 160, mb: -4 }}
           />
           <Stack gap={1}>
             <Typography variant="h3" component="h1">
@@ -48,12 +48,13 @@ export const NotFoundPage: FC = () => {
             </Typography>
           </Stack>
           <Stack
-            direction={{ xs: 'column', sm: 'row' }}
+            direction={{ xs: 'column', sm: 'row-reverse' }}
             gap={1}
             sx={{ width: { xs: '100%', sm: 'auto' } }}
           >
             <Button
               variant="contained"
+              size="large"
               component={RouterLink}
               to={PMM_NEW_NAV_HOME_URL}
               data-testid="not-found-home-button"
@@ -63,6 +64,7 @@ export const NotFoundPage: FC = () => {
             {canGoBack && (
               <Button
                 variant="outlined"
+                size="large"
                 startIcon={<ArrowBack />}
                 onClick={() => navigate(-1)}
                 data-testid="not-found-back-button"
@@ -73,22 +75,30 @@ export const NotFoundPage: FC = () => {
           </Stack>
           <Stack
             direction="row"
-            gap={1}
+            gap={0.5}
+            pb={4}
             sx={{ flexWrap: 'wrap', justifyContent: 'center' }}
           >
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body1" color="text.secondary">
               {Messages.quickLinks}
             </Typography>
-            {QUICK_LINKS.map((link) => (
-              <Link
+            {QUICK_LINKS.map((link, index) => (
+              <Typography
                 key={link.id}
-                component={RouterLink}
-                to={link.to}
-                variant="body2"
-                data-testid={`not-found-link-${link.id}`}
+                component="span"
+                variant="body1"
+                color="text.secondary"
               >
-                {link.label}
-              </Link>
+                <Link
+                  component={RouterLink}
+                  to={link.to}
+                  variant="body1"
+                  data-testid={`not-found-link-${link.id}`}
+                >
+                  {link.label}
+                </Link>
+                {index < QUICK_LINKS.length - 1 && ','}
+              </Typography>
             ))}
           </Stack>
         </Stack>
