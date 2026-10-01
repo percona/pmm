@@ -45,12 +45,12 @@ import {
   NAV_HIGH_AVAILABILITY,
   NAV_USERS_AND_ACCESS,
   NAV_ACCESS_CONTROL,
-  NAV_HIGH_AVAILABILITY_LEADER,
   NAV_HIGH_AVAILABILITY_NODES,
+  NAV_HIGH_AVAILABILITY_OVERVIEW,
   NAV_HOME_PAGE,
   NAV_MANAGEMENT,
-  NAV_SEP_ATW,
-  NAV_SEP_MYSQL_BACKUPS,
+  NAV_EXTENSIONS_ATW,
+  NAV_EXTENSIONS_MYSQL_BACKUPS,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/text.utils';
@@ -264,20 +264,21 @@ export const addConfiguration = (
   return NAV_CONFIGURATION;
 };
 
-export const addHighAvailability = ({ health, leader }: HAInfo): NavItem => {
+export const addHighAvailability = ({ health, namespace }: HAInfo): NavItem => {
   const item = { ...NAV_HIGH_AVAILABILITY };
+  const overview = { ...NAV_HIGH_AVAILABILITY_OVERVIEW };
+
+  if (namespace) {
+    const namespaceParam = `var-namespace=${encodeURIComponent(namespace)}`;
+    item.url = `${item.url}?${namespaceParam}`;
+    overview.url = `${overview.url}?${namespaceParam}`;
+  }
 
   item.badge = <HighAvailabilityBadge health={health} />;
   item.icon = <HighAvailabilityIcon health={health} />;
   item.badgeAlwaysVisible = true;
 
-  item.children = [
-    {
-      ...NAV_HIGH_AVAILABILITY_LEADER,
-      secondaryText: leader?.nodeName || 'Unknown',
-    },
-    NAV_HIGH_AVAILABILITY_NODES,
-  ];
+  item.children = [overview, NAV_HIGH_AVAILABILITY_NODES];
 
   return item;
 };
@@ -307,8 +308,8 @@ export const addHomePage = (preferences?: UserPreferences): NavItem => {
   return NAV_HOME_PAGE;
 };
 
-// SEP apps mounted as native PMM routes (migration). Metadata (icons/labels/routes)
-// is lifted from SEP's appNavConfig as data only — no SEP nav component is used.
+// PMM Extensions apps mounted as native PMM routes (migration). Metadata (icons/labels/routes)
+// is lifted from the side-car's appNavConfig as data only — no PMM Extensions nav component is used.
 // Deliberately unconditional: reachability is not the gate, the per-control
 // mutation capability is (PMM-15358, and NavigationProvider for placement).
 // A collapsible with no children renders as an expandable shell that opens on
@@ -317,5 +318,8 @@ export const addHomePage = (preferences?: UserPreferences): NavItem => {
 export const addSection = (section: NavItem, children: NavItem[]): NavItem[] =>
   children.length ? [{ ...section, children }] : [];
 
-export const addSepApps = (): NavItem[] =>
-  addSection(NAV_MANAGEMENT, [NAV_SEP_MYSQL_BACKUPS, NAV_SEP_ATW]);
+export const addExtensionsApps = (): NavItem[] =>
+  addSection(NAV_MANAGEMENT, [
+    NAV_EXTENSIONS_MYSQL_BACKUPS,
+    NAV_EXTENSIONS_ATW,
+  ]);

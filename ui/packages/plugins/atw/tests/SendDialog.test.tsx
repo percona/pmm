@@ -28,12 +28,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { SendDialog } from '../src/SendDialog';
 
-vi.mock('@sep/api', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@sep/api')>()),
+vi.mock('@pmm-extensions/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@pmm-extensions/api')>()),
   apiClient: { get: vi.fn(), post: vi.fn() },
 }));
 
-import { apiClient } from '@sep/api';
+import { apiClient } from '@pmm-extensions/api';
 
 const mockedApi = apiClient as unknown as {
   get: ReturnType<typeof vi.fn>;
@@ -101,7 +101,7 @@ function mockApis({
 /** The term of every case-search request issued so far, in order. */
 function caseSearchTerms(): string[] {
   // Indexed rather than destructured with a tuple annotation: PMM typechecks
-  // these tests where SEP does not, and mock.calls is not a fixed-length tuple.
+  // these tests where PMM Extensions does not, and mock.calls is not a fixed-length tuple.
   return mockedApi.get.mock.calls
     .filter((call) => String(call[0]).startsWith('/apps/atw/case-search/'))
     .map((call) => (call[1] as { params: { term: string } }).params.term);

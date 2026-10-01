@@ -114,7 +114,7 @@ export const wrapWithSettings = (
         backupManagementEnabled: false,
         azurediscoverEnabled: false,
         enableAccessControl: false,
-        sepEnabled: false,
+        extensionsEnabled: false,
         ...props?.settings,
         frontend: {
           anonymousEnabled: false,
