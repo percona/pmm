@@ -17,7 +17,7 @@ export const NotFoundPage: FC = () => {
   const canGoBack = location.key !== 'default';
 
   return (
-    <Page title={Messages.title} surface="paper" footer={null}>
+    <Page title={Messages.title} hideTitle surface="paper" footer={null}>
       <Stack
         sx={{
           flex: 1,
@@ -41,7 +41,9 @@ export const NotFoundPage: FC = () => {
             sx={{ height: 192, width: 192, mb: -3 }}
           />
           <Stack gap={1}>
-            <Typography variant="h6">{Messages.heading}</Typography>
+            <Typography variant="h3" component="h1">
+              {Messages.title}
+            </Typography>
             <Typography variant="body1" color="text.secondary">
               {Messages.description}
             </Typography>

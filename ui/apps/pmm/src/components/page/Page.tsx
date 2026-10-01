@@ -19,6 +19,7 @@ import { Link as RouterLink } from 'react-router-dom';
 
 export const Page: FC<PageProps> = ({
   title,
+  hideTitle,
   topBar,
   footer,
   children,
@@ -50,7 +51,7 @@ export const Page: FC<PageProps> = ({
       )}
       <PageContainer maxWidth={resolvedMaxWidth}>
         {topBar}
-        {!!title && <Typography variant="h2">{title}</Typography>}
+        {!!title && !hideTitle && <Typography variant="h2">{title}</Typography>}
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {user?.isAuthorized && hasAccess ? (
             children

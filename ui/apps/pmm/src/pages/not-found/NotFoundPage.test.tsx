@@ -20,8 +20,10 @@ describe('NotFoundPage', () => {
   it('shows the heading, explanation and requested address', () => {
     renderAt(['/feed?tab=1']);
 
-    expect(screen.getByText(Messages.title)).toBeInTheDocument();
-    expect(screen.getByText(Messages.heading)).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: Messages.title })
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(Messages.title)).toHaveLength(1);
     expect(screen.getByText(Messages.description)).toBeInTheDocument();
     expect(screen.getByTestId('not-found-requested-path')).toHaveTextContent(
       '/pmm-ui/feed?tab=1'
