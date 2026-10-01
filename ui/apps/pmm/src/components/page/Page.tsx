@@ -5,7 +5,6 @@ import {
   Box,
   Card,
   CardActions,
-  Divider,
   GlobalStyles,
   Link,
   Typography,
@@ -71,12 +70,7 @@ export const Page: FC<PageProps> = ({
             </Card>
           )}
         </Box>
-        {footer !== null && (
-          <>
-            <Divider />
-            {footer !== undefined ? footer : <Footer />}
-          </>
-        )}
+        {footer !== undefined ? footer : <Footer />}
       </PageContainer>
     </>
   );
