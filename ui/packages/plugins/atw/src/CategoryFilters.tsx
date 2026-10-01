@@ -24,9 +24,18 @@ import {
   CircularProgress,
   Stack,
   Typography,
+  type ChipOwnProps,
 } from '@mui/material';
 import { useAtwCategories } from './hooks';
 import type { AtwCategoryListing, AtwSnippetSummary } from './types';
+
+/**
+ * Chip color for selected vs idle. Asserted: atw sees two MUI Chip color
+ * unions, so a plain ternary fails tsc even though both literals are valid.
+ */
+function filterChipColor(selected: boolean): ChipOwnProps['color'] {
+  return (selected ? 'primary' : 'default') as ChipOwnProps['color'];
+}
 
 export interface CategoryFiltersProps {
   /**
@@ -217,7 +226,7 @@ export function CategoryFilters({ onSnippetsChange }: CategoryFiltersProps) {
                 label={`${option.root} (${option.count})`}
                 size="small"
                 clickable
-                color={selected ? 'primary' : 'default'}
+                color={filterChipColor(selected)}
                 variant={selected ? 'filled' : 'outlined'}
                 aria-pressed={selected}
                 onClick={() => {
@@ -255,7 +264,7 @@ export function CategoryFilters({ onSnippetsChange }: CategoryFiltersProps) {
                   label={`${option.label} (${option.count})`}
                   size="small"
                   clickable
-                  color={selected ? 'primary' : 'default'}
+                  color={filterChipColor(selected)}
                   variant={selected ? 'filled' : 'outlined'}
                   aria-pressed={selected}
                   onClick={() => {
