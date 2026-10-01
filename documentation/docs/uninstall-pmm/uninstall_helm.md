@@ -31,6 +31,8 @@ kubectl delete pvc <pvc-name>
 
 # Delete secrets (if no longer needed)
 kubectl delete secret pmm-secret
+# The copy of the encryption key; delete it only together with the data it encrypts
+kubectl delete secret pmm-encryption-key
 
 # Delete any remaining config maps
 kubectl get configmap | grep pmm
