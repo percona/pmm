@@ -161,6 +161,25 @@ export function CategoryFilters({ onSnippetsChange }: CategoryFiltersProps) {
     onSnippetsChange(availableSnippets);
   }, [availableSnippets, onSnippetsChange]);
 
+  // A refetch can drop roots/parents that were selected. Clear them so we do not
+  // keep an invisible filter with no chips and no Clear control.
+  useEffect(() => {
+    if (selectedRoot === '') {
+      return;
+    }
+    if (!roots.some((option) => option.root === selectedRoot)) {
+      setSelectedRoot('');
+      setSelectedParent('');
+      return;
+    }
+    if (
+      selectedParent !== '' &&
+      !parents.some((option) => option.value === selectedParent)
+    ) {
+      setSelectedParent('');
+    }
+  }, [roots, parents, selectedRoot, selectedParent]);
+
   if (categoriesQuery.isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>

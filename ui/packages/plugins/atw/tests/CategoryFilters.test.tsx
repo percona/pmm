@@ -75,9 +75,12 @@ function renderFilters(ui: ReactNode) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
   });
-  return render(
-    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
-  );
+  return {
+    queryClient,
+    ...render(
+      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+    ),
+  };
 }
 
 describe('rootFilterOptions / parentFilterOptions / snippetsForFilters', () => {
@@ -212,6 +215,34 @@ describe('CategoryFilters', () => {
     expect(
       screen.queryByRole('button', { name: /Performance Issues/ })
     ).toBeNull();
+  });
+
+  it('clears selection when the selected root disappears from the listing', async () => {
+    mockedApi.get.mockResolvedValue({
+      data: [mysqlLeaf, postgresLeaf],
+    });
+    const onSnippetsChange = vi.fn();
+    const { queryClient } = renderFilters(
+      <CategoryFilters onSnippetsChange={onSnippetsChange} />
+    );
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'MySQL (1)' })
+    );
+    await waitFor(() => {
+      expect(onSnippetsChange).toHaveBeenLastCalledWith(mysqlLeaf.snippets);
+    });
+
+    queryClient.setQueryData(['atw', 'categories'], [postgresLeaf]);
+
+    await waitFor(() => {
+      expect(onSnippetsChange).toHaveBeenLastCalledWith([]);
+    });
+    expect(screen.queryByRole('button', { name: 'Clear filters' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /MySQL/ })).toBeNull();
+    expect(
+      screen.getByRole('button', { name: 'PostgreSQL (1)' })
+    ).toBeTruthy();
   });
 
   it('surfaces a load error', async () => {
