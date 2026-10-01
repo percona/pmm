@@ -794,25 +794,24 @@ To create additional service tokens manually, see the [PMM documentation on serv
 
 #### Monitor cluster health
 
-Use the **PMM HA Health Overview** dashboard to monitor your entire HA deployment from a single view. 
+Use the **PMM HA Health Overview** dashboard to monitor your entire HA deployment from a single view.
 
-This dashboard shows real-time health status for all critical components including PMM server replicas, PostgreSQL, ClickHouse, VictoriaMetrics, and HAProxy.
+This dashboard shows alive versus expected instance counts, active or primary nodes, replication health, and real-time status for PMM, PostgreSQL, ClickHouse, VictoriaMetrics, and HAProxy.
 
-Access the dashboard from **All Dashboards > Browse all dashboards > Experimental > PMM HA Health Overview**.
+Access the dashboard from **PMM HA > Overview** in the main menu, or from **All Dashboards > Browse all dashboards > PMM Health > PMM HA Health Overview**.
 
 The dashboard helps you quickly identify component failures, resource constraints, and stability issues across your high-availability infrastructure. 
 
 For detailed information about each panel and what to check, see the [PMM HA Health Overview dashboard reference](../reference/dashboards/dashboard-ha-health-overview.md).
 
-#### Identify the leader node
+#### Identify the health status
 
-PMM displays a visual badge on the side menu and displays the name of the active PMM instance that's currently handling all monitoring operations. For example, `pmm-ha-0`, `pmm-ha-1`, or `pmm-ha-2`.
+PMM displays a visual badge on the side menu.
 
-Check this to quickly identify which server is active without needing to query the cluster directly:
 
 ![PMM HA Status badge](../images/HA-Status.png)
 
-The badge also includes a health status indicator that reflects the overall cluster state based on how many nodes are responding:
+The badge includes a health status indicator that reflects the overall cluster state based on how many nodes are responding:
 
 - **Healthy** indicates all nodes are in "alive" status and functioning normally
 - **Degraded** means approximately one-third of your nodes are not responding
