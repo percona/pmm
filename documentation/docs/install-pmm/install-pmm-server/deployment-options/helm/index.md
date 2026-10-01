@@ -211,6 +211,33 @@ pmmEnv:
   PMM_ENABLE_UPDATES: "0"
 ```
 
+### Encryption key
+
+PMM encrypts the credentials of monitored services with a key stored on the PMM data volume. For details, see [PMM data encryption](../../../../admin/security/data_encryption.md). The chart also keeps a copy of that key in a Kubernetes secret, named `pmm-encryption-key` for a release named `pmm`. The copy keeps the credentials readable if the data volume is lost while the database survives, which is possible when PMM uses an external PostgreSQL.
+
+The chart manages the copy as follows:
+
+- The key on the data volume always wins. The chart only uses the copy to restore a key onto a volume that has none, and refreshes the copy to match the volume each time the pod starts, for example after the key has been [rotated](../../../../admin/security/data_encryption.md#rotating-the-encryption-key).
+- The secret is not owned by the Helm release, so it survives `helm uninstall`.
+- The key has to stay on the data volume. If `pmmEnv.PMM_ENCRYPTION_KEY_PATH` or `extraVolumeMounts` put it anywhere else, installing or upgrading the chart fails. In that case, set `encryptionKey.backupToSecret: false` to keep the key without a copy.
+- The pod's service account can create secrets in the namespace, and read and update this secret. Unless `serviceAccount.create` is set, that is the namespace's `default` service account.
+
+Back up the key with the rest of your PMM configuration:
+
+```sh
+kubectl get secret pmm-encryption-key -o jsonpath='{.data.key}' | base64 -d > pmm-encryption.key
+```
+
+The file holds the key in the clear, so protect it as you would the secret.
+
+To supply your own key, [generate one](../../../../admin/security/data_encryption.md#custom-encryption-key-configuration) and create the secret before installing the chart:
+
+```sh
+kubectl create secret generic pmm-encryption-key --from-file=key=pmm-encryption.key
+```
+
+For the chart parameters, see [PMM encryption key](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-encryption-key).
+
 ### SSL certificates
 
 PMM comes with [self-signed SSL certificates](../../../../admin/security/ssl_encryption.md), ensuring a secure connection between the Client and Server. However, since these certificates are not issued by a trusted authority, you may encounter a security warning when connecting to PMM.
