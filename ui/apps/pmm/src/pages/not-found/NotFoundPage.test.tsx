@@ -40,24 +40,12 @@ describe('NotFoundPage', () => {
     expect(document.title).toBe(`${Messages.title} - ${PMM_TITLE}`);
   });
 
-  it('links to PMM Home and the quick links', () => {
+  it('links to PMM Home', () => {
     renderAt(['/feed']);
 
     expect(screen.getByTestId('not-found-home-button')).toHaveAttribute(
       'href',
       '/graph/d/pmm-home'
-    );
-    expect(screen.getByTestId('not-found-link-inventory')).toHaveAttribute(
-      'href',
-      '/graph/inventory'
-    );
-    expect(screen.getByTestId('not-found-link-settings')).toHaveAttribute(
-      'href',
-      '/settings'
-    );
-    expect(screen.getByTestId('not-found-link-help')).toHaveAttribute(
-      'href',
-      '/help'
     );
   });
 

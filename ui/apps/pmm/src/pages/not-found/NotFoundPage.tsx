@@ -1,4 +1,4 @@
-import { Button, Link, Stack, Typography } from '@mui/material';
+import { Button, Stack, Typography } from '@mui/material';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 import { NothingFoundIllustration } from '@percona/peak-ui';
 import { Page } from 'components/page';
@@ -6,7 +6,6 @@ import { PMM_NEW_NAV_HOME_URL } from 'lib/constants';
 import type { FC } from 'react';
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import { Messages } from './NotFoundPage.messages';
-import { QUICK_LINKS } from './NotFoundPage.constants';
 
 export const NotFoundPage: FC = () => {
   const location = useLocation();
@@ -72,34 +71,6 @@ export const NotFoundPage: FC = () => {
                 {Messages.goBack}
               </Button>
             )}
-          </Stack>
-          <Stack
-            direction="row"
-            gap={0.5}
-            pb={4}
-            sx={{ flexWrap: 'wrap', justifyContent: 'center' }}
-          >
-            <Typography variant="body1" color="text.secondary">
-              {Messages.quickLinks}
-            </Typography>
-            {QUICK_LINKS.map((link, index) => (
-              <Typography
-                key={link.id}
-                component="span"
-                variant="body1"
-                color="text.secondary"
-              >
-                <Link
-                  component={RouterLink}
-                  to={link.to}
-                  variant="body1"
-                  data-testid={`not-found-link-${link.id}`}
-                >
-                  {link.label}
-                </Link>
-                {index < QUICK_LINKS.length - 1 && ','}
-              </Typography>
-            ))}
           </Stack>
         </Stack>
       </Stack>
