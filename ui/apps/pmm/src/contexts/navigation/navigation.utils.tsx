@@ -1,6 +1,6 @@
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
-import { MongoIcon } from '@percona/peak-ui';
+import Tune from '@mui/icons-material/Tune';
 import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
 import { User, UserPreferences } from 'types/user.types';
@@ -104,10 +104,16 @@ export const addAllDashboardItem = (
   return { ...NAV_DASHBOARDS, children };
 };
 
+/**
+ * `mongoExtras` are appended to the MongoDB menu, and keep it in the sidebar when no
+ * MongoDB service is monitored yet: OM's Hosts and Bootstrap pages exist for exactly
+ * that estate, so hiding the menu with the dashboards would hide them too.
+ */
 export const addDashboardItems = (
   types: ServiceType[],
   folders: DashboardFolder[],
-  user?: User
+  user?: User,
+  mongoExtras: NavItem[] = []
 ): NavItem[] => {
   const children: NavItem[] = [];
 
@@ -118,7 +124,17 @@ export const addDashboardItems = (
 
   if (types.includes(ServiceType.mongodb)) {
     addOtherDashboardsItem(NAV_MONGO, folders);
-    children.push(NAV_MONGO);
+    // A copy, so the extras never accumulate on the shared constant.
+    children.push({
+      ...NAV_MONGO,
+      children: [...(NAV_MONGO.children ?? []), ...mongoExtras],
+    });
+  } else if (mongoExtras.length) {
+    children.push({
+      ...NAV_MONGO,
+      url: mongoExtras[0].url,
+      children: mongoExtras,
+    });
   }
 
   if (types.includes(ServiceType.posgresql)) {
@@ -326,51 +342,62 @@ export const addExtensionsApps = (): NavItem[] =>
   ]);
 
 /**
- * OM's navigation, deliberately not part of `addExtensionsApps`.
+ * OM's navigation, deliberately not part of `addExtensionsApps`. Shown inside the
+ * MongoDB menu, through `addDashboardItems`' `mongoExtras`.
  *
  * Those entries are gated as a group on PMM Extensions, and the group is expected to gain a
  * flag gate with real auth. OM is served by pmm-managed and reads PMM's own data,
  * so hiding it when PMM Extensions is off or unreachable would hide a working page.
  */
-export const addOm = (): NavItem[] => [
-  {
-    id: 'om',
-    text: 'OpenManager',
-    icon: MongoIcon,
-    url: OM_PATH,
-    matches: [OM_PATH],
-    children: [
-      {
-        id: 'om-overview',
-        text: 'Overview',
-        url: OM_PATH,
-      },
-      {
-        id: 'om-services',
-        text: 'Services',
-        url: `${OM_PATH}/services`,
-        matches: [`${OM_PATH}/services`],
-      },
-      {
-        // The page a host with no database appears on, which no other OM page can
-        // show: it has no service to be listed through.
-        id: 'om-hosts',
-        text: 'Hosts',
-        url: `${OM_PATH}/hosts`,
-        matches: [`${OM_PATH}/hosts`],
-      },
-      {
-        id: 'om-inventory',
-        text: 'Inventory',
-        url: `${OM_PATH}/inventory`,
-        matches: [`${OM_PATH}/inventory`],
-      },
-      {
-        id: 'om-automations',
-        text: 'Automations',
-        url: `${OM_PATH}/automations`,
-        matches: [`${OM_PATH}/automations`],
-      },
-    ],
+export const addOm = (): NavItem => ({
+  id: 'om',
+  text: 'Operations',
+  icon: Tune,
+  url: OM_PATH,
+  matches: [OM_PATH],
+  // Always visible, so a collapsed parent does not turn the preview status into an
+  // "attention" dot. Compact, so it fits beside the label inside the drawer width.
+  badge: {
+    label: 'Preview',
+    sx: {
+      ml: 1,
+      height: 18,
+      flexShrink: 0,
+      '& .MuiChip-label': { px: 0.75, fontSize: 10, lineHeight: 1 },
+    },
   },
-];
+  badgeAlwaysVisible: true,
+  children: [
+    {
+      id: 'om-overview',
+      text: 'Overview',
+      url: OM_PATH,
+    },
+    {
+      id: 'om-services',
+      text: 'Services',
+      url: `${OM_PATH}/services`,
+      matches: [`${OM_PATH}/services`],
+    },
+    {
+      // The page a host with no database appears on, which no other OM page can
+      // show: it has no service to be listed through.
+      id: 'om-hosts',
+      text: 'Hosts',
+      url: `${OM_PATH}/hosts`,
+      matches: [`${OM_PATH}/hosts`],
+    },
+    {
+      id: 'om-inventory',
+      text: 'Inventory',
+      url: `${OM_PATH}/inventory`,
+      matches: [`${OM_PATH}/inventory`],
+    },
+    {
+      id: 'om-automations',
+      text: 'Automations',
+      url: `${OM_PATH}/automations`,
+      matches: [`${OM_PATH}/automations`],
+    },
+  ],
+});

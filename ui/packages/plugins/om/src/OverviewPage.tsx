@@ -51,6 +51,7 @@ import { SyncButton } from './components/SyncButton';
 import { Duration, Percent } from './components/Metric';
 import { Unavailable } from './components/Unavailable';
 import { useOmTopology } from './topologyHooks';
+import { pluralize } from './format';
 import { toEnvironmentSections } from './topology';
 import type {
   OmClusterRow,
@@ -60,7 +61,7 @@ import type {
 } from './types';
 
 /** Label for an environment or cluster the services carry no name for. */
-const UNNAMED_ENVIRONMENT = 'No environment';
+const UNNAMED_ENVIRONMENT = 'Unassigned environment';
 
 /** `3 mongod · 1 Router`, in the document's own role order. */
 function describeRoles(roles: Partial<Record<OmProcessRole, number>>): string {
@@ -348,12 +349,17 @@ const EnvironmentTable = ({ section }: { section: OmEnvironmentSection }) => {
         </ButtonBase>
         <Stack direction="row" spacing={2} flexWrap="wrap">
           <Typography variant="body2" color="text.secondary">
-            <strong>{section.clusters.length}</strong> clusters
+            <strong>{section.clusters.length}</strong>{' '}
+            {pluralize(section.clusters.length, 'cluster')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            <strong>{section.total_services}</strong> services
+            <strong>{section.total_services}</strong>{' '}
+            {pluralize(section.total_services, 'service')}
           </Typography>
-          <Typography variant="body2" color="success.main">
+          <Typography
+            variant="body2"
+            color={section.up_services ? 'success.main' : 'text.secondary'}
+          >
             <strong>{section.up_services}</strong> up
           </Typography>
           <Typography
@@ -391,15 +397,18 @@ const Counts = ({
   return (
     <Stack direction="row" spacing={3} flexWrap="wrap">
       <Typography variant="body2">
-        <strong>{environments}</strong> environments
+        <strong>{environments}</strong> {pluralize(environments, 'environment')}
       </Typography>
       <Typography variant="body2">
-        <strong>{clusters}</strong> clusters
+        <strong>{clusters}</strong> {pluralize(clusters, 'cluster')}
       </Typography>
       <Typography variant="body2">
-        <strong>{total}</strong> services
+        <strong>{total}</strong> {pluralize(total, 'service')}
       </Typography>
-      <Typography variant="body2" color="success.main">
+      <Typography
+        variant="body2"
+        color={up ? 'success.main' : 'text.secondary'}
+      >
         <strong>{up}</strong> up
       </Typography>
       <Typography

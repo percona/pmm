@@ -326,7 +326,7 @@ export const ConfigForm = () => {
                 without this file knowing about it. */}
             <Typography variant="caption" color="text.secondary">
               Timeouts, concurrency and retention. Raising concurrency or
-              lowering timeouts changes how hard a sweep leans on Nomad and on
+              lowering timeouts increases the load a sweep puts on PMM and on
               the hosts.
             </Typography>
             <Box sx={{ mt: 1 }}>{advanced.map(render)}</Box>

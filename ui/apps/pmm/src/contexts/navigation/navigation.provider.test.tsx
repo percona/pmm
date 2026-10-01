@@ -6,6 +6,7 @@ import { User } from 'types/user.types';
 import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
+  OM_PATH,
 } from 'lib/constants';
 import { findActiveNavItem } from 'utils/navigation.utils';
 import {
@@ -133,30 +134,6 @@ describe('NavigationProvider', () => {
         'inventory-divider',
         'inventory',
         'management',
-        'om',
-        'backups',
-        'backups-divider',
-        'configuration',
-        'users-and-access',
-        'account',
-        'help',
-      ]);
-    });
-
-    it('withholds OpenManager when the switch is off, leaving the block otherwise intact', () => {
-      // OM is gated on its own settings flag rather than on the PMM Extensions
-      // group beside it: it is served by pmm-managed, so the side-car being
-      // enabled says nothing about whether this entry should render (PMM-15360).
-      const ids = renderNavTree(TEST_USER_ADMIN, undefined, {
-        omEnabled: false,
-      }).map((item) => item.id);
-
-      expect(ids).not.toContain('om');
-      const block = ids.slice(ids.indexOf('inventory-divider'));
-      expect(block).toEqual([
-        'inventory-divider',
-        'inventory',
-        'management',
         'backups',
         'backups-divider',
         'configuration',
@@ -189,6 +166,49 @@ describe('NavigationProvider', () => {
       expect(ids.indexOf('management')).toBe(
         ids.indexOf('inventory-divider') + 1
       );
+    });
+  });
+
+  describe('Operations (OpenManager)', () => {
+    const mongoChildIds = (navTree: NavItem[]) =>
+      findById(navTree, 'mongo')?.children?.map((child) => child.id);
+
+    it('is nested in the MongoDB menu, not a top-level entry', () => {
+      const navTree = renderNavTree();
+
+      expect(navTree.map((item) => item.id)).not.toContain('om');
+      // No MongoDB service is monitored here, so the menu exists for OM alone.
+      expect(mongoChildIds(navTree)).toEqual(['om']);
+    });
+
+    it('is withheld when the switch is off', () => {
+      // Gated on its own settings flag rather than on the PMM Extensions group:
+      // it is served by pmm-managed (PMM-15360).
+      const navTree = renderNavTree(TEST_USER_ADMIN, undefined, {
+        omEnabled: false,
+      });
+
+      expect(findById(navTree, 'mongo')).toBeUndefined();
+    });
+
+    it('is withheld from a non-admin', () => {
+      expect(
+        findById(renderNavTree(TEST_USER_EDITOR), 'mongo')
+      ).toBeUndefined();
+    });
+
+    it.each([
+      ['om-overview', OM_PATH],
+      ['om-hosts', `${OM_PATH}/hosts`],
+    ])('marks %s active inside the MongoDB menu', (childId, path) => {
+      const navTree = renderNavTree(TEST_USER_ADMIN, {
+        initialEntries: [path],
+      });
+      const om = findById(findById(navTree, 'mongo')?.children ?? [], 'om');
+      const active = findActiveNavItem(navTree, path);
+
+      expect(active?.id).toBe(childId);
+      expect(om?.children).toContain(active);
     });
   });
 

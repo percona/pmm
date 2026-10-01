@@ -24,11 +24,8 @@ import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
 import { useReadonlySettings } from 'hooks/api/useSettings';
-import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 import { OrgRole } from 'types/user.types';
 import { Messages } from './OmPage.messages';
-
-const TECHNICAL_PREVIEW_DISMISSED_KEY = 'pmm-ui.om.technicalPreviewDismissed';
 
 /**
  * Host chrome for the OM page.
@@ -52,25 +49,13 @@ const TECHNICAL_PREVIEW_DISMISSED_KEY = 'pmm-ui.om.technicalPreviewDismissed';
  * not the unauthorized card above, which would misreport a disabled feature as a
  * permissions problem to an admin who has every right to be here (PMM-15360 AC1/AC2/AC7).
  *
- * The technical-preview banner is dismissible, and remembered per browser rather than
- * per PMM account or installation -- it is a "you've seen this" acknowledgement, not a
- * setting with a right answer for every viewer, so localStorage is enough and needs no
- * round trip to pmm-managed.
- *
- * The close button's `sx` override exists because `@percona/peak-ui`'s MuiAlert theme
- * (`styleOverrides.icon`/`.message`) sets `color: theme.palette[severity].contrastText`
- * on the icon and message slots, but not on `.MuiAlert-action` -- so the close button
- * MUI renders for `onClose` falls back to the alert root's own `color`, which this
- * theme leaves close to the warning background itself. Nothing else in this app uses a
- * dismissible Alert, which is presumably why that gap was never hit before.
+ * The technical-preview banner cannot be dismissed. It is the only in-app marker of the
+ * preview status, and anyone reaching the page from a shared link never saw the
+ * Settings warning, so it has to be there on every visit.
  */
 export const OmPage: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
   const { data: settings, isLoading } = useReadonlySettings();
-  const [previewDismissed, setPreviewDismissed] = useLocalStorage<boolean>(
-    TECHNICAL_PREVIEW_DISMISSED_KEY,
-    false
-  );
 
   return (
     <Page
@@ -84,23 +69,12 @@ export const OmPage: FC<PropsWithChildren> = ({ children }) => {
           </Stack>
         ) : settings?.omEnabled ? (
           <>
-            {!previewDismissed && (
-              <Alert
-                severity="warning"
-                onClose={() => setPreviewDismissed(true)}
-                data-testid="om-technical-preview"
-                sx={{
-                  '& .MuiAlert-action': {
-                    color: (theme) => theme.palette.warning.contrastText,
-                  },
-                }}
-              >
-                <Typography variant="body2">
-                  <strong>{Messages.technicalPreview}</strong>{' '}
-                  {Messages.technicalPreviewBody}
-                </Typography>
-              </Alert>
-            )}
+            <Alert severity="warning" data-testid="om-technical-preview">
+              <Typography variant="body2">
+                <strong>{Messages.technicalPreview}</strong>{' '}
+                {Messages.technicalPreviewBody}
+              </Typography>
+            </Alert>
             <div>{children}</div>
           </>
         ) : (

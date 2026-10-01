@@ -81,7 +81,7 @@ function isSupportedHostCount(count: number): boolean {
  */
 const SecurityTab = () => (
   <Stack spacing={2}>
-    <Tooltip title="The only intra-cluster authentication mechanism this proof of concept builds.">
+    <Tooltip title="The only intra-cluster authentication mechanism available in this Tech Preview.">
       <TextField
         label="Intra-cluster authentication"
         value="keyFile"
@@ -89,18 +89,18 @@ const SecurityTab = () => (
         fullWidth
       />
     </Tooltip>
-    <Tooltip title="LDAP integration is out of scope for this proof of concept.">
+    <Tooltip title="LDAP integration is not available in this Tech Preview.">
       <TextField
         label="LDAP"
-        value="Disabled for this POC"
+        value="Not available in this Tech Preview"
         disabled
         fullWidth
       />
     </Tooltip>
-    <Tooltip title="KMIP/KMS integration is out of scope for this proof of concept.">
+    <Tooltip title="KMIP/KMS integration is not available in this Tech Preview.">
       <TextField
         label="KMIP / KMS"
-        value="Disabled for this POC"
+        value="Not available in this Tech Preview"
         disabled
         fullWidth
       />
@@ -506,9 +506,10 @@ export const BootstrapPage = () => {
       {activeStep === 1 && (
         <Stack spacing={2} sx={{ maxWidth: hosts.length > 1 ? 720 : 480 }}>
           <Typography variant="body2" color="text.secondary">
-            Percona Server for MongoDB, installed through the Nomad client and
-            initialized as a {hosts.length}-member replica set. Proof-of-concept
-            scope only — keyFile auth, TLS off.
+            Percona Server for MongoDB, installed and initialized as a{' '}
+            {hosts.length}-member replica set. In this Tech Preview, members
+            authenticate with a shared keyFile and connections are not encrypted
+            (TLS off).
           </Typography>
           <Tabs
             value={configTab}
