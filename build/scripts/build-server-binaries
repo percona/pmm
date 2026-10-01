@@ -168,10 +168,10 @@ main() {
         unset -f key build
         . ${bin_dir}/server/${component}
 
-        # The recipe holds the build instructions and the version pins that
-        # used to live in the spec file, so its own commit is part of the key.
+        # The recipe, this driver and vars decide how a component is built,
+        # so the last commit touching any of them is part of the key.
         local recipe=build/scripts/server/${component}
-        cached_build ${component} $(key)-$(get_shortcommit pmm ${recipe})
+        cached_build ${component} $(key)-$(get_shortcommit pmm ${recipe} build/scripts/build-server-binaries build/scripts/vars)
     done
 }
 

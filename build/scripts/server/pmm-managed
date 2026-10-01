@@ -1,7 +1,7 @@
 # Sourced by build-server-binaries.
 
 key() {
-    echo ${pmm_version}-$(get_shortcommit pmm)
+    echo ${full_pmm_version}-$(get_shortcommit pmm)
 }
 
 build() {
