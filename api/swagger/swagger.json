@@ -4350,6 +4350,11 @@
                   "description": "Status of HA mode: \"Enabled\" or \"Disabled\".",
                   "type": "string",
                   "x-order": 0
+                },
+                "namespace": {
+                  "description": "Kubernetes namespace this instance is running in.",
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -12778,6 +12783,21 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 22
+                    },
+                    "environment_variable_names": {
+                      "description": "A wrapper for a string array. This type allows to distinguish between an empty array and a null value.",
+                      "type": "object",
+                      "properties": {
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 0
+                        }
+                      },
+                      "x-nullable": true,
+                      "x-order": 23
                     }
                   },
                   "x-order": 2
@@ -17868,7 +17888,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "warning": {
+                  "description": "Warning message if there are more service tokens attached to service account.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
@@ -31469,6 +31496,11 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "extensions_enabled": {
+                      "description": "True if PMM Extensions is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -31787,6 +31819,11 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "extensions_enabled": {
+                      "description": "True if PMM Extensions is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -31887,6 +31924,11 @@
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
                       "x-order": 7
+                    },
+                    "extensions_enabled": {
+                      "description": "True if PMM Extensions is enabled.",
+                      "type": "boolean",
+                      "x-order": 8
                     }
                   },
                   "x-order": 0
