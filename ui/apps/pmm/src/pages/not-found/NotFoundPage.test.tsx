@@ -28,6 +28,13 @@ describe('NotFoundPage', () => {
     );
   });
 
+  it('does not show the version footer', () => {
+    renderAt(['/feed']);
+
+    expect(screen.queryByTestId('pmm-footer')).toBeNull();
+    expect(screen.queryByRole('separator')).toBeNull();
+  });
+
   it('sets the document title', () => {
     renderAt(['/feed']);
 

@@ -17,7 +17,7 @@ export const NotFoundPage: FC = () => {
   const canGoBack = location.key !== 'default';
 
   return (
-    <Page title={Messages.title} surface="paper">
+    <Page title={Messages.title} surface="paper" footer={null}>
       <Stack
         sx={{
           flex: 1,

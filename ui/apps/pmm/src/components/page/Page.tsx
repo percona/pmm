@@ -71,8 +71,12 @@ export const Page: FC<PageProps> = ({
             </Card>
           )}
         </Box>
-        <Divider />
-        {footer !== undefined ? footer : <Footer />}
+        {footer !== null && (
+          <>
+            <Divider />
+            {footer !== undefined ? footer : <Footer />}
+          </>
+        )}
       </PageContainer>
     </>
   );
