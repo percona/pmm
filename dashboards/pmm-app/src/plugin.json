@@ -120,6 +120,16 @@
     },
     {
       "type": "dashboard",
+      "name": "MongoDB Search Details",
+      "path": "dashboards/MongoDB/MongoDB_Search_Details.json"
+    },
+    {
+      "type": "dashboard",
+      "name": "MongoDB Search Health",
+      "path": "dashboards/MongoDB/MongoDB_Search_Health.json"
+    },
+    {
+      "type": "dashboard",
       "name": "MySQL Performance Schema Details",
       "path": "dashboards/MySQL/MySQL_Performance_Schema_Details.json"
     },
