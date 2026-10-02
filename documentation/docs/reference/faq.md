@@ -13,7 +13,7 @@ See our detailed guides:
 - [Setting up PMM Server](../install-pmm/install-pmm-server/index.md) for server installation  
 - [Setting up PMM Client](../install-pmm/install-pmm-client/index.md) for client setup
 
-Quick reference for typical deployment (up to 30 nodes):
+Quick reference for typical deployments (1-30 nodes):
 
 - **Server**:
 
@@ -26,7 +26,7 @@ Quick reference for typical deployment (up to 30 nodes):
     - Supports x86_64 and ARM64 architectures
 
 !!! note alert alert-info "Note"
-    For larger deployments (200+ nodes) or longer retention periods, see our [Hardware and system requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md) for detailed sizing recommendations.
+    For larger deployments (200+ nodes), see our [Hardware and system requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md) for sizing recommendations, or [contact Percona experts](../get-help.md) if you're running 500+ nodes.
 
 ## How can I upgrade from version 2?
 
