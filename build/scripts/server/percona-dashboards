@@ -1,0 +1,41 @@
+# Sourced by build-server-binaries.
+
+# https://github.com/grafana/clickhouse-datasource/releases/tag/v4.21.3
+clickhouse_datasource_version=4.21.3
+# https://github.com/grafana/grafana-polystat-panel/releases/tag/v2.1.16
+polystat_panel_version=2.1.16
+# The Grafana plugin catalog names its builds linux-amd64 and linux-arm64.
+plugin_platform=linux-${go_arch}
+
+key() {
+    echo ${pmm_version}-$(get_shortcommit pmm dashboards)
+}
+
+build() {
+    download \
+        https://storage.googleapis.com/grafana-plugins-catalog/grafana-clickhouse-datasource/release/${clickhouse_datasource_version}/grafana-clickhouse-datasource-${clickhouse_datasource_version}.${plugin_platform}.zip \
+        grafana-clickhouse-datasource-${clickhouse_datasource_version}.${plugin_platform}.zip
+    download \
+        https://github.com/grafana/grafana-polystat-panel/releases/download/v${polystat_panel_version}/grafana-polystat-panel-${polystat_panel_version}.zip \
+        grafana-polystat-panel-${polystat_panel_version}.zip
+
+    run_in_container $1 pmm <<EOF
+sudo dnf install -y unzip
+
+cd ${build_dir}
+node -v
+npm version
+make -C dashboards release
+
+install -d ${rootfs}/usr/share/percona-dashboards/panels/pmm-app
+cp -pa dashboards/pmm-app/dist ${rootfs}/usr/share/percona-dashboards/panels/pmm-app/
+unzip -q /home/builder/downloads/grafana-clickhouse-datasource-${clickhouse_datasource_version}.${plugin_platform}.zip -d ${rootfs}/usr/share/percona-dashboards/panels
+unzip -q /home/builder/downloads/grafana-polystat-panel-${polystat_panel_version}.zip -d ${rootfs}/usr/share/percona-dashboards/panels
+echo ${pmm_version} > ${rootfs}/usr/share/percona-dashboards/VERSION
+
+install -D -p -m 0644 dashboards/LICENSE ${rootfs}/usr/share/licenses/percona-dashboards/LICENSE
+install -D -p -m 0644 dashboards/README.md ${rootfs}/usr/share/doc/percona-dashboards/README.md
+EOF
+}
+
+# vim: expandtab shiftwidth=4 tabstop=4

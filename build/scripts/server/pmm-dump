@@ -1,0 +1,20 @@
+# Sourced by build-server-binaries.
+
+key() {
+    echo ${pmm_version}-$(get_shortcommit pmm-dump)
+}
+
+build() {
+    run_in_container $1 pmm-dump <<EOF
+cd ${build_dir}
+make build BRANCH="main" COMMIT="$(get_shortcommit pmm-dump)" VERSION="${pmm_version}"
+
+install -d ${rootfs}/usr/sbin
+install -p -m 0755 pmm-dump ${rootfs}/usr/sbin/pmm-dump
+
+install -D -p -m 0644 LICENSE ${rootfs}/usr/share/licenses/pmm-dump/LICENSE
+install -D -p -m 0644 README.md ${rootfs}/usr/share/doc/pmm-dump/README.md
+EOF
+}
+
+# vim: expandtab shiftwidth=4 tabstop=4
