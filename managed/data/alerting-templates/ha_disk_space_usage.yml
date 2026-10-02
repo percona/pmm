@@ -1,0 +1,38 @@
+---
+templates:
+  - name: pmm_ha_disk_space_usage
+    version: 1
+    summary: PMM HA disk space usage is high
+    # Every PVC in PMM's own namespace (pmm_ha_node_info); without volume stats it stays Normal.
+    # job="kubelet" drops the namespace="default" copies k3s also serves from the apiserver.
+    queries:
+      - ref_id: A
+        expr: |-
+          max by(namespace, persistentvolumeclaim) (100 * (1 - kubelet_volume_stats_available_bytes{job="kubelet"} / kubelet_volume_stats_capacity_bytes{job="kubelet"}))
+          and on(namespace) group by(namespace) (pmm_ha_node_info)
+    expressions:
+      - ref_id: C
+        type: math
+        expression: "$A > [[ .threshold ]]"
+    condition: C
+    params:
+      - name: threshold
+        summary: Percentage of the volume in use
+        unit: "%"
+        type: float
+        range: [1, 100]
+        value: 80
+    for: 10m
+    severity: warning
+    annotations:
+      summary: PMM HA volume '{{ $labels.persistentvolumeclaim }}' is {{ printf "%.0f" $values.A.Value }}% full
+      description: |-
+        Volume '{{ $labels.persistentvolumeclaim }}' in namespace '{{ $labels.namespace }}' is {{ printf "%.1f" $values.A.Value }}% full, above the threshold of [[ .threshold ]]%.
+        When a PMM HA volume fills up, VictoriaMetrics stops accepting metrics, ClickHouse loses new Query Analytics data,
+        PostgreSQL shuts down and takes PMM Server with it, and PostgreSQL backups fail.
+
+        Remediation steps:
+          1. Identify the store from the volume name: vmstorage, ClickHouse or Keeper, PostgreSQL (pg-db), the pgBackRest repository (repo1) or PMM Server.
+          2. Increase that volume's size in the pmm-ha chart values and run helm upgrade. The storage class must allow volume expansion.
+          3. Lowering dataRetentionDays also frees space, but it permanently deletes the older data.
+          4. Open the HA Health Overview dashboard to watch the Storage Usage gauges return below the threshold.

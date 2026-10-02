@@ -177,6 +177,7 @@ func TestProvisionedRuleContract(t *testing.T) {
 		"pmm-ha-quorum-at-risk":    {haBundleID, haFolderTitle, "PMM HA quorum at risk", "critical", 3 * time.Minute},
 		"pmm-ha-leader-flapping":   {haBundleID, haFolderTitle, "PMM HA leader is flapping", "warning", 5 * time.Minute},
 		"pmm-ha-node-unreachable":  {haBundleID, haFolderTitle, "PMM HA node unreachable", "warning", 5 * time.Minute},
+		"pmm-ha-disk-space-usage":  {haBundleID, haFolderTitle, "PMM HA disk space usage is high", "warning", 10 * time.Minute},
 		"pmm-victoriametrics-down": {componentsBundleID, componentsFolderTitle, "PMM VictoriaMetrics is down", "critical", 5 * time.Minute},
 		"pmm-clickhouse-down":      {componentsBundleID, componentsFolderTitle, "PMM ClickHouse is down", "critical", 5 * time.Minute},
 		"pmm-grafana-down":         {componentsBundleID, componentsFolderTitle, "PMM Grafana is down", "critical", 5 * time.Minute},
