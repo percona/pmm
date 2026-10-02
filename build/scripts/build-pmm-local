@@ -1,0 +1,52 @@
+#!/bin/bash
+
+set -euo pipefail
+
+declare WORKSPACE="${WORKSPACE:-$(pwd)/pmm-workspace}"
+if [ ! -d "${WORKSPACE}" ]; then
+    mkdir -p "${WORKSPACE}"
+fi
+
+echo -n > "${WORKSPACE}/build.log"
+exec >  >(tee -a "${WORKSPACE}/build.log")
+exec 2> >(tee -a "${WORKSPACE}/build.log" >&2)
+
+declare GIT_BRANCH="${GIT_BRANCH:-v3}"
+declare SCRIPTS="${WORKSPACE}/sources/pmm/src/github.com/percona/pmm/build/scripts"
+export DOCKER_TAG="${DOCKER_TAG:-pmm-server:local}"
+export DOCKERFILE="Dockerfile.el9"
+export ROOT_DIR="${WORKSPACE}"  # override the build scripts relative-path-walking
+export FORCE_REBUILD=1          # skip the public S3 build cache lookup
+
+if [ ! -d "${WORKSPACE}/.git" ]; then
+    echo "Cloning pmm-submodules (${GIT_BRANCH}) into ${WORKSPACE}"
+    git clone --single-branch --branch "${GIT_BRANCH}" https://github.com/Percona-Lab/pmm-submodules "${WORKSPACE}"
+fi
+
+cd "${WORKSPACE}"
+
+echo "Initializing submodules"
+git submodule update --init --jobs 10
+
+echo "[1/6] Building pmm-client source tarball"
+"${SCRIPTS}/build-client-source"
+
+echo "[2/6] Building pmm-client binary tarball"
+"${SCRIPTS}/build-client-binary"
+
+echo "[3/6] Building pmm-client source RPM"
+"${SCRIPTS}/build-client-srpm"
+
+echo "[4/6] Building pmm-client binary RPM"
+"${SCRIPTS}/build-client-rpm"
+mkdir -p "${WORKSPACE}/tmp/pmm-server/RPMS"
+cp "${WORKSPACE}/results/rpm/"pmm*-client-*.rpm "${WORKSPACE}/tmp/pmm-server/RPMS/"
+
+echo "[5/6] Building server component RPMs"
+"${SCRIPTS}/build-server-rpm-all"
+
+echo "[6/6] Building pmm-server Docker image: ${DOCKER_TAG}"
+"${SCRIPTS}/build-server-docker"
+
+echo
+echo "Image: ${DOCKER_TAG}"
