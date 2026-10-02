@@ -83,28 +83,33 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersio
 	return db
 }
 
-var encryptionOnce sync.Once
+var (
+	encryptionOnce    sync.Once
+	encryptionKeyPath string
+)
 
-// SetupEncryption points the models field codec at a per-process temporary
-// key file (respecting PMM_ENCRYPTION_KEY_PATH if set).
+// SetupEncryption points the models field codec, and PMM_ENCRYPTION_KEY_PATH
+// unless the test has set it, at a per-process temporary key file, so that no
+// test reads or creates the key of the PMM Server it runs on.
 func SetupEncryption(tb testing.TB) {
 	tb.Helper()
 
 	encryptionOnce.Do(func() {
-		path := os.Getenv(encryption.CustomEncryptionKeyPathEnvVar)
-		if path == "" {
-			// the key and env var must outlive the test that triggers Once,
-			// so tb.TempDir and tb.Setenv cannot be used here
-			dir, err := os.MkdirTemp("", "pmm-encryption-test") //nolint:usetesting
-			require.NoError(tb, err)
-			path = filepath.Join(dir, "encryption.key")
-			require.NoError(tb, os.Setenv(encryption.CustomEncryptionKeyPathEnvVar, path)) //nolint:usetesting
-		}
+		// the key must outlive the test that triggers Once, so tb.TempDir
+		// cannot be used here
+		dir, err := os.MkdirTemp("", "pmm-encryption-test") //nolint:usetesting
+		require.NoError(tb, err)
+		encryptionKeyPath = filepath.Join(dir, "encryption.key")
 
-		cipher, err := encryption.LoadOrCreateCipher(encryption.NewFileKeyProvider(path))
+		cipher, err := encryption.LoadOrCreateCipher(encryption.NewFileKeyProvider(encryptionKeyPath))
 		require.NoError(tb, err)
 		encryption.SetDefaultCipher(cipher)
 	})
+
+	// set again on every call: tb.Setenv of an earlier test is undone when it ends
+	if os.Getenv(encryption.CustomEncryptionKeyPathEnvVar) == "" {
+		require.NoError(tb, os.Setenv(encryption.CustomEncryptionKeyPathEnvVar, encryptionKeyPath)) //nolint:usetesting
+	}
 }
 
 // SetupDB runs PostgreSQL database migrations and optionally adds initial data for testing DB.

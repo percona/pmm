@@ -425,7 +425,8 @@ func TestMigrateEncryptionBackup(t *testing.T) {
 	files, err := filepath.Glob(filepath.Join(dir, models.MigrationBackupPattern))
 	require.NoError(t, err)
 	require.Len(t, files, 1)
-	assert.Equal(t, files, models.MigrationBackupFiles())
+	// PMM Server's data directory is listed too and may hold backups of its own
+	assert.Contains(t, models.MigrationBackupFiles(), files[0])
 	info, err := os.Stat(files[0])
 	require.NoError(t, err)
 	assert.Equal(t, os.FileMode(0o600), info.Mode().Perm())
