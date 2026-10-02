@@ -24,7 +24,6 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -1489,28 +1488,6 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 
 		return nil
 	})
-}
-
-// encryptOnMigration encrypts the columns that are not encrypted yet. It runs before anything else
-// in migrateDB encrypts or writes Agents, so that a node with a foreign key leaves the shared
-// database untouched.
-func encryptOnMigration(tx *reform.TX, params SetupDBParams) error {
-	err := VerifyEncryptionKey(tx)
-	switch {
-	case err == nil:
-		return EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
-	case errors.Is(err, ErrEncryptionKeyMismatch) && params.HANodeID == "":
-		// A standalone server keeps booting and reports the mismatch once started. Columns not
-		// encrypted yet are left for the first start with a matching or adopted key.
-		adopted, err := adoptEncryptionKey(tx)
-		if err != nil || !adopted {
-			return err
-		}
-
-		return EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
-	default:
-		return err
-	}
 }
 
 // removeStaleHANodes drops the Inventory Nodes of HA replicas that were scaled away. Those rows are

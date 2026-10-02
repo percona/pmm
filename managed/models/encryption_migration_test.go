@@ -230,7 +230,9 @@ func TestMigrateEncryptionWrongKey(t *testing.T) {
 		assert.Contains(t, err.Error(), "agent A1 password")
 		assert.NotContains(t, err.Error(), "agent PA")
 
-		require.ErrorIs(t, models.MigrateEncryption(q), encryption.ErrLegacyUnknownKey)
+		err = models.MigrateEncryption(q)
+		require.ErrorIs(t, err, encryption.ErrLegacyUnknownKey)
+		require.ErrorIs(t, err, models.ErrEncryptionKeyMismatch)
 
 		for _, id := range []string{"A1", "PA"} {
 			var password string

@@ -360,6 +360,11 @@ func resolveUnknownKeys(unknownKey []error, keyReadsData bool) ([]error, []error
 	return unknownKey, nil
 }
 
+// ErrEncryptionKeyMismatch is returned when the encryption key cannot decrypt
+// the stored data. Nothing is changed, and retrying does not help until the
+// key the data was encrypted with is in place.
+var ErrEncryptionKeyMismatch = errors.New("encryption key does not match the database")
+
 // errUndecryptable explains that the key does not match the stored data.
 // Its causes can be matched with errors.Is, e.g. encryption.ErrLegacyUnknownKey.
 func errUndecryptable(problems []error) error {
@@ -389,6 +394,11 @@ func (e *undecryptableError) Error() string {
 
 func (e *undecryptableError) Unwrap() []error {
 	return e.problems
+}
+
+// Is reports the error as ErrEncryptionKeyMismatch.
+func (e *undecryptableError) Is(target error) bool {
+	return target == ErrEncryptionKeyMismatch
 }
 
 type secretsScan struct {
