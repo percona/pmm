@@ -26,10 +26,13 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/testdb"
 )
 
 func TestCheckPortChanged(t *testing.T) {
 	t.Parallel()
+	// FindAgentByID scans the encrypted columns, which needs the default cipher.
+	testdb.SetupEncryption(t)
 
 	// Define the columns that reform expects when querying the agents table
 	agentColumns := []string{

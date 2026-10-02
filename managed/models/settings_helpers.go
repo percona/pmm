@@ -99,12 +99,6 @@ type ChangeSettingsParams struct {
 
 	// DefaultRoleID sets a default role to be assigned to new users.
 	DefaultRoleID *int
-
-	// List of items in format 'db.table.column' to be encrypted.
-	EncryptedItems []string
-
-	// EncryptionKeyFingerprint identifies the key the data was encrypted with. Empty clears it.
-	EncryptionKeyFingerprint *string
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -240,14 +234,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.DefaultRoleID != nil {
 		settings.DefaultRoleID = *params.DefaultRoleID
-	}
-
-	if params.EncryptedItems != nil {
-		settings.EncryptedItems = params.EncryptedItems
-	}
-
-	if params.EncryptionKeyFingerprint != nil {
-		settings.EncryptionKeyFingerprint = *params.EncryptionKeyFingerprint
 	}
 
 	err = SaveSettings(q, settings)
