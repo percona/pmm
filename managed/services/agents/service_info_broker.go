@@ -195,7 +195,7 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	case models.MySQLServiceType:
 		agent.MySQLOptions.TableCount = &sInfo.TableCount
 		l.Debugf("Updating table count: %d.", sInfo.TableCount)
-		err = q.Update(new(models.EncryptAgent(*agent)))
+		err = models.UpdateAgent(q, agent)
 		if err != nil {
 			return fmt.Errorf("failed to update table count: %w", err)
 		}
@@ -214,10 +214,10 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 			}
 		}
 		agent.PostgreSQLOptions.PGSMVersion = sInfo.PgsmVersion
-		agent.PostgreSQLOptions.DatabaseCount = int32(databaseCount - excludedDatabaseCount)
+		agent.PostgreSQLOptions.DatabaseCount = int32(databaseCount - excludedDatabaseCount) //nolint:gosec
 
 		l.Debugf("Updating PostgreSQL options, database count: %d.", agent.PostgreSQLOptions.DatabaseCount)
-		err = q.Update(new(models.EncryptAgent(*agent)))
+		err = models.UpdateAgent(q, agent)
 		if err != nil {
 			return fmt.Errorf("failed to update database count: %w", err)
 		}

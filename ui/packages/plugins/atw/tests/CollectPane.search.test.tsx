@@ -472,6 +472,16 @@ describe('CollectPane — write access', () => {
     );
     await userEvent.click(option);
 
+    // Script sections open collapsed (PMM-15511) and a collapsed shell mounts
+    // none of its children, so the picker exists only once it is expanded.
+    await userEvent.click(
+      await screen.findByRole(
+        'button',
+        { name: /PT Summary/, expanded: false },
+        { timeout: 3000 }
+      )
+    );
+
     const input = await screen.findByTestId(
       'text-input-overrides.snip0.since',
       undefined,
