@@ -1,4 +1,4 @@
-import { Button, Stack, Typography, useTheme } from '@mui/material';
+import { Button, Stack, Typography } from '@mui/material';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 import { NothingFoundIllustration } from '@percona/peak-ui';
 import { Page } from 'components/page';
@@ -10,7 +10,6 @@ import { Messages } from './NotFoundPage.messages';
 export const NotFoundPage: FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const theme = useTheme();
   // React Router assigns the key 'default' to the first entry of a session,
   // i.e. when the user landed here directly from a bookmark or external link.
   const canGoBack = location.key !== 'default';
