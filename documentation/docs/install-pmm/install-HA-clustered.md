@@ -766,8 +766,10 @@ done
 
 A replica that warns about `dataRetentionDays` is running without `PMM_DATA_RETENTION`. It keeps whatever period was already stored, and nothing can change that until the chart supplies a value, so set `dataRetentionDays` and upgrade.
 
-!!! note "Shortening retention deletes data immediately"
-    Metrics are removed one whole month partition at a time and Query Analytics data one whole day partition at a time, so a shorter period starts purging as soon as the replicas restart. Increasing the period afterwards does not bring back what was already removed.
+!!! note "Shortening retention deletes data, but not at an exact cut-off"
+    A shorter period starts purging as soon as the replicas restart. Increasing the period afterwards does not bring back what was already removed.
+
+    Expired metrics do not disappear at the exact retention boundary, so dashboards can keep showing data older than the period for a while. VictoriaMetrics removes metrics in stored blocks rather than sample by sample, and hides a block only once all of its data has expired. Metrics collected less often, such as low-resolution metrics and the Kubernetes metrics the chart's VMAgent collects, can stay visible longer. Disk space is freed gradually, as whole month partitions expire.
 
 ### Review Helm parameters reference
 
