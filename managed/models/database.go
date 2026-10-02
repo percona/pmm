@@ -1199,6 +1199,39 @@ var databaseSchema = [][]string{
 			WHERE environment_variables IS NOT NULL
 			AND agent_type <> 'mongodb_exporter'`,
 	},
+	120: {
+		`CREATE TABLE alert_rules (
+			rule_id VARCHAR NOT NULL CHECK (rule_id <> ''),
+			params JSONB NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (rule_id)
+		)`,
+
+		// target is polymorphic - a node_id, a service_id, or a cluster label value -
+		// so it carries no foreign key: cluster is a label value with no referent table.
+		// Rows for a deleted node or service are removed by the removal API instead.
+		`CREATE TABLE alert_rule_threshold_overrides (
+			id VARCHAR NOT NULL,
+			rule_id VARCHAR NOT NULL,
+			param_name VARCHAR NOT NULL CHECK (param_name <> ''),
+			scope VARCHAR NOT NULL CHECK (scope <> ''),
+			target VARCHAR NOT NULL CHECK (target <> ''),
+			-- NaN equals itself in PostgreSQL, so <> 'NaN' is the check that rejects it.
+			value DOUBLE PRECISION NOT NULL
+				CHECK (value <> 'NaN'::float8 AND value > '-Infinity'::float8 AND value < 'Infinity'::float8),
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id),
+			UNIQUE (rule_id, param_name, scope, target),
+			FOREIGN KEY (rule_id) REFERENCES alert_rules (rule_id) ON DELETE CASCADE
+		)`,
+
+		`CREATE INDEX alert_rule_threshold_overrides_target_idx
+			ON alert_rule_threshold_overrides (scope, target)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

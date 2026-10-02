@@ -44,6 +44,7 @@ export class CrossFrameMessenger {
 
   addListener<T extends MessageType, V>(listener: MessageListener<T, V>) {
     this.listeners.push(listener);
+    return listener;
   }
 
   removeListener<T extends MessageType, V>(listener: MessageListener<T, V>) {

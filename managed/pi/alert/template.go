@@ -146,6 +146,11 @@ func (r *Template) Validate() error {
 		return err
 	}
 
+	err = r.validateOverridableParams()
+	if err != nil {
+		return err
+	}
+
 	return r.Severity.Validate()
 }
 
