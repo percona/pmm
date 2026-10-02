@@ -1,13 +1,20 @@
 ---
 name: PMM Docs 3.x
 
+# Publishes from the release branch of the latest GA version, never from main,
+# so documentation merged with unreleased code stays private until it ships.
 on:
   push:
     branches:
-      - main
+      - pmm-3.*
+    tags:
+      - v3.*
     paths:
       - "documentation/**"
       - "!documentation/api/**"
+
+  schedule:
+    - cron: '0 6 * * 1-5'
 
   workflow_dispatch:
 
@@ -15,15 +22,57 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  release:
+    name: Resolve the published release
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      publish: ${{ steps.release.outputs.publish }}
+    steps:
+      - name: Find the latest GA version
+        id: release
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          # create-tags pushes vX.Y.Z at GA, from pmm3-release, so the highest one is the live version.
+          version=$(git ls-remote --tags --refs "https://github.com/${GITHUB_REPOSITORY}" 'v3.*' \
+            | sed 's#.*refs/tags/v##' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+          if [ -z "$version" ]; then
+            echo "::error::No GA tag found"
+            exit 1
+          fi
+
+          # Pushing to an older release branch would overwrite the single "3" alias with older docs.
+          publish=false
+          case "$EVENT_NAME/$REF_TYPE" in
+            push/branch) [ "$REF_NAME" = "pmm-$version" ] && publish=true ;;
+            push/tag) [ "$REF_NAME" = "v$version" ] && publish=true ;;
+            workflow_dispatch/*) publish=true ;;
+          esac
+
+          echo "Latest GA: $version, publish: $publish"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "publish=$publish" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: release
+    if: needs.release.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: docs-publish
+      cancel-in-progress: false
     permissions:
       contents: write  # for git push operations
+    env:
+      VERSION: ${{ needs.release.outputs.version }}
 
     steps:
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: pmm-${{ env.VERSION }}
           fetch-depth: 0 # read more about why this is necessary at https://github.com/jimporter/mike/issues/60
           sparse-checkout: |
             .github
@@ -60,7 +109,47 @@ jobs:
       # Builds Material-themed static web site in 'publish' branch
       - name: Build a themed site (3.x)
         working-directory: documentation
+        env:
+          EDIT_URI: edit/pmm-${{ env.VERSION }}/documentation/docs/
         run: |
           mike deploy 3 -b publish -p
           mike set-default 3 -b publish -p
           mike retitle 3 "3.x (LATEST)" -b publish -p
+
+  main-has-fixes:
+    name: Documentation fixes reached main
+    needs: release
+    if: github.ref_type != 'tag'
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.release.outputs.version }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Find fixes missing from main
+        run: |
+          release="origin/pmm-${VERSION}"
+          since=$(git log -1 --format=%cI "v${VERSION}")
+          index=$(mktemp)
+          GIT_INDEX_FILE="$index" git read-tree origin/main
+          missing=0
+
+          # Present means main has the commit, already has its content (the diff reverse-applies),
+          # or has a `git cherry-pick -x` of it that was edited afterwards.
+          for sha in $(git rev-list --reverse --no-merges "v${VERSION}..${release}" -- documentation/); do
+            git merge-base --is-ancestor "$sha" origin/main && continue
+            git diff --binary "${sha}^" "$sha" -- documentation/ | GIT_INDEX_FILE="$index" git apply --cached --check -R 2>/dev/null && continue
+            git log origin/main --since="$since" --fixed-strings --grep="cherry picked from commit $sha" --format=%h | grep -q . && continue
+            echo "::error::$(git log -1 --format='%h %s' "$sha") is on pmm-${VERSION} but not on main"
+            missing=$((missing + 1))
+          done
+
+          if [ "$missing" -gt 0 ]; then
+            echo "Open a PR to main with: git cherry-pick -x <sha>"
+            exit 1
+          fi
+          echo "Every documentation fix on pmm-${VERSION} since v${VERSION} is on main."
