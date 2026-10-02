@@ -107,7 +107,7 @@ func TestBuildRuleDataInjectsThresholdQuery(t *testing.T) {
 		t,
 		`max by (node_name) (label_replace(`+override+`, "node_name", "$1", "target", "(.*)"))`+
 			` or (max by (node_name) (label_replace(last_over_time(`+override+`[5m]), "node_name", "$1", "target", "(.*)"))`+
-			` unless on() (up{job="pmm-managed"} == 1))`+
+			` unless on() (pmm_alert_threshold_collect_success == 1))`+
 			` or (group by (node_name) (`+testObservedExpr+`) * 80)`,
 		exprOf(t, byRef["T_threshold"]),
 	)

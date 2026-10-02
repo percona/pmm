@@ -32,9 +32,6 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-// PMMManagedJobName is the scrape job for pmm-managed's own metrics.
-const PMMManagedJobName = "pmm-managed"
-
 // ScrapeTimeout - wraps scrapeTimeout and makes it public for victoriametrics package.
 func ScrapeTimeout(interval time.Duration) config.Duration {
 	return scrapeTimeout(interval)
@@ -82,7 +79,7 @@ func scrapeConfigForGrafana(interval time.Duration, pmmServerNodeName string) *c
 
 func scrapeConfigForPMMManaged(interval time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
-		JobName:        PMMManagedJobName,
+		JobName:        "pmm-managed",
 		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
 		MetricsPath:    "/debug/metrics",

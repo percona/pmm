@@ -16,8 +16,10 @@
 package alerting
 
 import (
+	"errors"
 	"strings"
 	"testing"
+	"time"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	prom "github.com/prometheus/client_golang/prometheus"
@@ -33,13 +35,13 @@ import (
 
 const testRuleID = "rule-fixed-for-tests"
 
-// thresholdExpositionHeader is the HELP/TYPE preamble CollectAndCompare requires. It is
-// derived from the live descriptor rather than restated, so a help-text edit does not
-// break these tests.
-func thresholdExposition(t *testing.T, c *AlertThresholdMetricsCollector, samples ...string) *strings.Reader {
+// gaugeExposition renders a gauge's samples with the HELP/TYPE preamble CollectAndCompare
+// requires. The help is read from the live descriptor rather than restated, so a
+// help-text edit does not break these tests.
+func gaugeExposition(t *testing.T, d *prom.Desc, name string, samples ...string) string {
 	t.Helper()
 
-	desc := c.desc.String()
+	desc := d.String()
 	start := strings.Index(desc, `help: "`)
 	require.GreaterOrEqual(t, start, 0)
 	help := desc[start+len(`help: "`):]
@@ -47,11 +49,9 @@ func thresholdExposition(t *testing.T, c *AlertThresholdMetricsCollector, sample
 	require.GreaterOrEqual(t, end, 0)
 	help = help[:end]
 
-	body := "\n# HELP " + thresholdMetricName + " " + help +
-		"\n# TYPE " + thresholdMetricName + " gauge\n" +
+	return "\n# HELP " + name + " " + help +
+		"\n# TYPE " + name + " gauge\n" +
 		strings.Join(samples, "\n") + "\n"
-
-	return strings.NewReader(body)
 }
 
 // TestThresholdCollectorDescribeDoesNotQuery passes a nil database on purpose: if
@@ -62,12 +62,13 @@ func TestThresholdCollectorDescribeDoesNotQuery(t *testing.T) {
 
 	c := NewAlertThresholdMetricsCollector(nil)
 
-	ch := make(chan *prom.Desc, 1)
+	ch := make(chan *prom.Desc, 2)
 	c.Describe(ch)
 	close(ch)
 
-	require.Len(t, ch, 1)
+	require.Len(t, ch, 2)
 	assert.Contains(t, (<-ch).String(), thresholdMetricName)
+	assert.Contains(t, (<-ch).String(), thresholdCollectSuccessMetricName)
 }
 
 func TestGroupThresholdOverrides(t *testing.T) {
@@ -145,8 +146,57 @@ func TestThresholdCollectorEmitsNothingWithoutOverrides(t *testing.T) {
 	mock.ExpectQuery(`FROM "alert_rule_threshold_overrides"`).WillReturnRows(sqlmock.NewRows([]string{"id"}))
 	mock.ExpectCommit()
 
-	c := NewAlertThresholdMetricsCollector(db)
-	assert.Equal(t, 0, testutil.CollectAndCount(c, thresholdMetricName))
+	// ToFloat64 collects once and requires a single metric, so no override was emitted.
+	assert.InDelta(t, 1.0, testutil.ToFloat64(NewAlertThresholdMetricsCollector(db)), 0,
+		"no overrides is a complete set, not a failure")
+}
+
+// A failed read publishes no overrides and reports 0, so rules keep the last known ones.
+func TestThresholdCollectorReportsFailedRead(t *testing.T) {
+	t.Parallel()
+
+	t.Run("a query error", func(t *testing.T) {
+		t.Parallel()
+
+		db, mock := newThresholdMockDB(t)
+		mock.ExpectBegin()
+		mock.ExpectQuery(`FROM "alert_rule_threshold_overrides"`).WillReturnError(errors.New("connection reset"))
+		mock.ExpectRollback()
+
+		assert.InDelta(t, 0.0, testutil.ToFloat64(NewAlertThresholdMetricsCollector(db)), 0)
+	})
+
+	t.Run("a failure after the overrides are read", func(t *testing.T) {
+		t.Parallel()
+
+		db, mock := newThresholdMockDB(t)
+		mock.ExpectBegin()
+		mock.ExpectQuery(`FROM "alert_rule_threshold_overrides"`).WillReturnRows(
+			sqlmock.NewRows([]string{"id", "rule_id", "param_name", "scope", "target", "value", "created_at", "updated_at"}).
+				AddRow("o1", testRuleID, "threshold", "node", "node-1", 90, time.Now(), time.Now()),
+		)
+		mock.ExpectQuery(`FROM "alert_rules"`).WillReturnError(errors.New("connection reset"))
+		mock.ExpectRollback()
+
+		assert.InDelta(t, 0.0, testutil.ToFloat64(NewAlertThresholdMetricsCollector(db)), 0)
+	})
+
+	t.Run("a read past the timeout", func(t *testing.T) {
+		t.Parallel()
+
+		db, mock := newThresholdMockDB(t)
+		mock.ExpectBegin()
+		mock.ExpectQuery(`FROM "alert_rule_threshold_overrides"`).
+			WillDelayFor(time.Second).
+			WillReturnRows(sqlmock.NewRows([]string{"id"}))
+
+		c := NewAlertThresholdMetricsCollector(db)
+		c.timeout = 50 * time.Millisecond
+
+		start := time.Now()
+		assert.InDelta(t, 0.0, testutil.ToFloat64(c), 0)
+		assert.Less(t, time.Since(start), 500*time.Millisecond, "the timeout must cut the read short")
+	})
 }
 
 func TestThresholdCollectorEmitsOverride(t *testing.T) {
@@ -157,9 +207,11 @@ func TestThresholdCollectorEmitsOverride(t *testing.T) {
 	_, err := models.UpsertThresholdOverride(db.Querier, testRuleID, "threshold", models.ThresholdScopeNode, node.NodeID, 90)
 	require.NoError(t, err)
 
-	expected := thresholdExposition(t, c,
-		`pmm_alert_threshold_override{param="threshold",rule_id="rule-fixed-for-tests",target="node-1"} 90`)
-	require.NoError(t, testutil.CollectAndCompare(c, expected, thresholdMetricName))
+	expected := gaugeExposition(t, c.desc, thresholdMetricName,
+		`pmm_alert_threshold_override{param="threshold",rule_id="rule-fixed-for-tests",target="node-1"} 90`) +
+		gaugeExposition(t, c.successDesc, thresholdCollectSuccessMetricName, thresholdCollectSuccessMetricName+" 1")
+	require.NoError(t, testutil.CollectAndCompare(c, strings.NewReader(expected),
+		thresholdMetricName, thresholdCollectSuccessMetricName))
 }
 
 // TestThresholdCollectorSkipsDeletedTarget covers the backstop that keeps a row left

@@ -24,7 +24,6 @@ import (
 	alertingv1 "github.com/percona/pmm/api/alerting/v1"
 	"github.com/percona/pmm/managed/pi/alert"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/services/victoriametrics"
 )
 
 const (
@@ -40,7 +39,7 @@ const (
 	// Prefixes the ref ID of each injected threshold query.
 	thresholdRefIDPrefix = "T_"
 
-	// How long the threshold keeps an override while pmm-managed cannot be scraped.
+	// How long the threshold keeps an override while the overrides are not being published.
 	thresholdOutageBridge = "5m"
 
 	// The label the injected threshold query joins the observed query on. It follows
@@ -321,8 +320,8 @@ func planThresholdInjections(template *alert.Template, ruleID string, params map
 }
 
 // thresholdQueryExpr renders the injected threshold step: the override, else the last
-// override seen while pmm-managed is down, else the default fanned out over the observed
-// query. Every clause is reduced to the join label so `or` prefers the left.
+// override seen while they are not being published, else the default fanned out over the
+// observed query. Every clause is reduced to the join label so `or` prefers the left.
 func thresholdQueryExpr(ruleID, paramName, joinLabel, observedExpr, defaultValue string) string {
 	override := fmt.Sprintf(`%s{%s=%q, %s=%q}`,
 		thresholdMetricName, thresholdRuleIDLabel, ruleID, thresholdParamLabel, paramName)
@@ -333,10 +332,10 @@ func thresholdQueryExpr(ruleID, paramName, joinLabel, observedExpr, defaultValue
 	}
 
 	return fmt.Sprintf(
-		`%s or (%s unless on() (up{job=%q} == 1)) or (group by (%s) (%s) * %s)`,
+		`%s or (%s unless on() (%s == 1)) or (group by (%s) (%s) * %s)`,
 		byJoinLabel(override),
 		byJoinLabel(fmt.Sprintf("last_over_time(%s[%s])", override, thresholdOutageBridge)),
-		victoriametrics.PMMManagedJobName,
+		thresholdCollectSuccessMetricName,
 		joinLabel, observedExpr, defaultValue,
 	)
 }

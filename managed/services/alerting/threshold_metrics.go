@@ -32,16 +32,14 @@ const (
 	// would take those down too.
 	thresholdCollectTimeout = 3 * time.Second
 
-	// How often the emission loop re-checks the deadline. The queries are bounded by
-	// the context, but the loop that follows them is not, so without this a large
-	// enough result set could run past the scrape budget with nothing stopping it.
-	thresholdCtxCheckInterval = 1000
-
 	// The gauge the injected threshold query reads. Shared with rule_builder.go on
 	// purpose: the metric name and its label set are a contract between the collector
 	// and the generated PromQL, and a rule pointing at a metric nobody emits fails
 	// silently - it simply never fires.
 	thresholdMetricName = "pmm_alert_threshold_override"
+
+	// 1 when a scrape published every override; otherwise the rule query keeps the last known ones.
+	thresholdCollectSuccessMetricName = "pmm_alert_threshold_collect_success"
 
 	thresholdRuleIDLabel = "rule_id"
 	thresholdParamLabel  = "param"
@@ -60,17 +58,20 @@ const (
 // for this shape. Targets with no override get their threshold from the default clause
 // of the rule query instead.
 type AlertThresholdMetricsCollector struct {
-	db *reform.DB
-	l  *logrus.Entry
+	db      *reform.DB
+	l       *logrus.Entry
+	timeout time.Duration
 
-	desc *prom.Desc
+	desc        *prom.Desc
+	successDesc *prom.Desc
 }
 
 // NewAlertThresholdMetricsCollector creates a new instance of AlertThresholdMetricsCollector.
 func NewAlertThresholdMetricsCollector(db *reform.DB) *AlertThresholdMetricsCollector {
 	return &AlertThresholdMetricsCollector{
-		db: db,
-		l:  logrus.WithField("component", "alerting/threshold-metrics"),
+		db:      db,
+		l:       logrus.WithField("component", "alerting/threshold-metrics"),
+		timeout: thresholdCollectTimeout,
 		desc: prom.NewDesc(
 			thresholdMetricName,
 			"Effective alert threshold for a rule parameter and target. Emitted only where an "+
@@ -79,15 +80,22 @@ func NewAlertThresholdMetricsCollector(db *reform.DB) *AlertThresholdMetricsColl
 			[]string{thresholdRuleIDLabel, thresholdParamLabel, thresholdTargetLabel},
 			nil,
 		),
+		successDesc: prom.NewDesc(
+			thresholdCollectSuccessMetricName,
+			"1 if this scrape published every alert threshold override, 0 if reading them failed.",
+			nil,
+			nil,
+		),
 	}
 }
 
-// Describe sends the metric description to the provided channel.
+// Describe sends the metric descriptions to the provided channel.
 //
 // This deliberately does not use prom.DescribeByCollect, which would run a full Collect,
 // and therefore a database query, merely to describe the collector.
 func (c *AlertThresholdMetricsCollector) Describe(ch chan<- *prom.Desc) {
 	ch <- c.desc
+	ch <- c.successDesc
 }
 
 // thresholdGroup is the set of override rows sharing one rule and parameter, which is
@@ -98,10 +106,26 @@ type thresholdGroup struct {
 	overrides []*models.AlertRuleThresholdOverride
 }
 
-// Collect sends the collected metrics to the provided channel. A failure is logged and
-// yields no threshold metrics for that scrape rather than failing the whole response.
+// Collect sends every override and a success gauge of 1, or only a success gauge of 0.
 func (c *AlertThresholdMetricsCollector) Collect(ch chan<- prom.Metric) {
-	ctx, cancelCtx := context.WithTimeout(context.Background(), thresholdCollectTimeout)
+	metrics, err := c.collect()
+	if err != nil {
+		c.l.WithError(err).Error("Failed to collect alert thresholds; rules keep the last known overrides.")
+		ch <- prom.MustNewConstMetric(c.successDesc, prom.GaugeValue, 0)
+
+		return
+	}
+
+	for _, metric := range metrics {
+		ch <- metric
+	}
+
+	ch <- prom.MustNewConstMetric(c.successDesc, prom.GaugeValue, 1)
+}
+
+// collect builds the full set of override metrics within the timeout, or fails.
+func (c *AlertThresholdMetricsCollector) collect() ([]prom.Metric, error) {
+	ctx, cancelCtx := context.WithTimeout(context.Background(), c.timeout)
 	defer cancelCtx()
 
 	var (
@@ -138,13 +162,16 @@ func (c *AlertThresholdMetricsCollector) Collect(ch chan<- prom.Metric) {
 		return err
 	})
 	if errTx != nil {
-		c.l.Warnf("Failed to collect alert thresholds: %v", errTx)
-
-		return
+		return nil, errTx
 	}
 
-	emitted := 0
+	var metrics []prom.Metric
 	for _, group := range groups {
+		err := ctx.Err()
+		if err != nil {
+			return nil, err
+		}
+
 		rule, ok := rules[group.ruleID]
 		if !ok {
 			continue
@@ -156,16 +183,12 @@ func (c *AlertThresholdMetricsCollector) Collect(ch chan<- prom.Metric) {
 		}
 
 		for target, resolved := range models.ResolveThresholds(group.overrides, inv) {
-			if emitted%thresholdCtxCheckInterval == 0 && ctx.Err() != nil {
-				c.l.Warnf("Alert threshold collection timed out after %d series", emitted)
-
-				return
-			}
-			emitted++
-
-			ch <- prom.MustNewConstMetric(c.desc, prom.GaugeValue, resolved.Value, group.ruleID, group.paramName, target)
+			metrics = append(metrics,
+				prom.MustNewConstMetric(c.desc, prom.GaugeValue, resolved.Value, group.ruleID, group.paramName, target))
 		}
 	}
+
+	return metrics, nil
 }
 
 // groupThresholdOverrides partitions rows by rule and parameter, which is the unit
