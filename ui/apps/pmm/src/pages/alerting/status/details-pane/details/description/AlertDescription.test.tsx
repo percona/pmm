@@ -19,7 +19,7 @@ describe('AlertDescription', () => {
     const lines = Array.from(container.firstElementChild?.children ?? []);
     expect(lines).toHaveLength(3);
     expect(lines[0]).toHaveTextContent('First paragraph.');
-    expect(lines[1].textContent).toBe(' ');
+    expect(lines[1].textContent).toBe('\u00a0');
     expect(lines[2]).toHaveTextContent('Second paragraph.');
   });
 

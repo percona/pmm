@@ -35,7 +35,7 @@ const AlertDescription: FC<Props> = ({ description }) => {
 
         return (
           <Box key={index} sx={{ whiteSpace: 'pre-wrap' }}>
-            {line || ' '}
+            {line || '\u00a0'}
           </Box>
         );
       })}
