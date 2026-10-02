@@ -382,7 +382,7 @@ PMM collects metrics at different intervals based on collector performance:
 
 ### Environment variables
 
-Pass environment variables to the MongoDB exporter using `--agent-env-vars`. Only variables already set in the `pmm-agent` environment will be passed:
+Pass environment variables from the `pmm-agent` environment to the MongoDB exporter using `--agent-env-vars`. PMM stores only the names, and `pmm-agent` skips a name that isn't set in its environment. For the naming rules, and to change the list later without re-adding the service, see [Pass environment variables to the exporter](inventory.md#pass-environment-variables-to-the-exporter).
 
 ```bash
 pmm-admin add mongodb \
