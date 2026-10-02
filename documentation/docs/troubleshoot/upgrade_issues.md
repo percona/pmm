@@ -12,7 +12,9 @@ If the issue persists, restore from a backup and retry the upgrade. See [Restore
 
 ## Corrupted credentials after encryption key rotation
 
-If you ran `pmm-encryption-rotation` before upgrading to PMM 3.9.1, TLS/SSL certificates and keys or cloud credentials for some services may be corrupted. Remove and re-add the affected services to recreate them:
+If you ran `pmm-encryption-rotation` before upgrading to PMM 3.9.1, TLS/SSL certificates and keys or cloud credentials for some services may be corrupted.
+
+Upgrading PMM Server repairs them automatically if the previous encryption key is still next to the key file (`/srv/pmm-encryption_old.key`, or `<name>_old.key` for a custom `PMM_ENCRYPTION_KEY_PATH`). If PMM Server logs that credentials cannot be recovered, remove and re-add the affected services to recreate them:
 
 ```sh
 pmm-admin remove <service-type> <service-name>
