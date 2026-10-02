@@ -475,7 +475,7 @@ export const ServicesPage = () => {
           subtitle={
             <Typography variant="body2" color="text.secondary">
               Every monitored MongoDB service: what PMM sees over the wire, and
-              what OM&apos;s probe found on the host.
+              what the Operations probe found on the host.
             </Typography>
           }
           actions={<SyncButton />}
@@ -494,7 +494,7 @@ export const ServicesPage = () => {
         subtitle={
           <Typography variant="body2" color="text.secondary">
             Every monitored MongoDB service: what PMM sees over the wire, and
-            what OM&apos;s probe found on the host.
+            what the Operations probe found on the host.
           </Typography>
         }
         actions={<SyncButton />}

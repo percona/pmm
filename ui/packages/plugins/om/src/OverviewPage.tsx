@@ -447,7 +447,7 @@ export const OverviewPage = () => {
     return (
       <Stack gap={1}>
         <OmHeader
-          title="OpenManager"
+          title="Operations for MongoDB"
           subtitle={
             <Typography variant="body2" color="text.secondary">
               Every monitored MongoDB cluster, one table per environment. Unfold
@@ -467,7 +467,7 @@ export const OverviewPage = () => {
     <Stack gap={3}>
       <Stack gap={1}>
         <OmHeader
-          title="OpenManager"
+          title="Operations for MongoDB"
           subtitle={
             <Typography variant="body2" color="text.secondary">
               Every monitored MongoDB cluster, one table per environment. Unfold

@@ -49,7 +49,7 @@ import { Messages } from './OmPage.messages';
  * not the unauthorized card above, which would misreport a disabled feature as a
  * permissions problem to an admin who has every right to be here (PMM-15360 AC1/AC2/AC7).
  *
- * The technical-preview banner cannot be dismissed. It is the only in-app marker of the
+ * The developer-preview banner cannot be dismissed. It is the only in-app marker of the
  * preview status, and anyone reaching the page from a shared link never saw the
  * Settings warning, so it has to be there on every visit.
  */
@@ -69,10 +69,10 @@ export const OmPage: FC<PropsWithChildren> = ({ children }) => {
           </Stack>
         ) : settings?.omEnabled ? (
           <>
-            <Alert severity="warning" data-testid="om-technical-preview">
+            <Alert severity="warning" data-testid="om-developer-preview">
               <Typography variant="body2">
-                <strong>{Messages.technicalPreview}</strong>{' '}
-                {Messages.technicalPreviewBody}
+                <strong>{Messages.developerPreview}</strong>{' '}
+                {Messages.developerPreviewBody}
               </Typography>
             </Alert>
             <div>{children}</div>

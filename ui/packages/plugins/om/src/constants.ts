@@ -158,21 +158,21 @@ export const UNAVAILABLE_PHRASE: Record<OmUnavailableReason, string> = {
   // apart because they need different things done about them: one is a service OM
   // has never been asked about, the other is a host the probe cannot reach.
   not_in_inventory:
-    'Not in the inventory yet — OM has no row for this service, so no probe has ever been dispatched for it. The next sweep will create one.',
+    'Not in the inventory yet — Operations has no row for this service, so no probe has ever been dispatched for it. The next sweep will create one.',
   probe_never_succeeded:
-    'Never collected — OM has a row for this service but no probe has ever succeeded against it. Its host may have no executor, or every attempt may have failed.',
+    'Never collected — Operations has a row for this service but no probe has ever succeeded against it. Its host may have no executor, or every attempt may have failed.',
   // Distinct from not_in_inventory on purpose. That one is a statement about the
   // estate; this one is an admission that the estate could not be read, and the two
   // must not look the same -- reporting "not in the inventory" for every row because
   // one request failed is a confident wrong answer.
   inventory_unavailable:
-    'Inventory unavailable — OM could not read the estate, so nothing is known about this service either way. The topology columns are unaffected.',
+    'Inventory unavailable — Operations could not read the estate, so nothing is known about this service either way. The topology columns are unaffected.',
   // The third of the same family, and it exists for the same reason the second does.
   // The topology document answers in a tenth of a second while the estate is a second
   // request that may still be in flight; reporting "not in the inventory yet" during
   // that window states a fact about the estate before the estate has answered.
   inventory_pending:
-    'Loading the inventory — OM has not answered yet, so whether it has a row for this service is not known. The topology columns come from PMM and are already current.',
+    'Loading the inventory — Operations has not answered yet, so whether it has a row for this service is not known. The topology columns come from PMM and are already current.',
 };
 
 /** Fallback for a reason code the frontend has not been taught. */

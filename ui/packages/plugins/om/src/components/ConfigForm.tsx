@@ -264,7 +264,7 @@ export const ConfigForm = () => {
   if (isError) {
     return (
       <Alert severity="warning" sx={{ mt: 2 }}>
-        Could not read OM&apos;s configuration: {(error as Error).message}
+        Could not read the Operations configuration: {(error as Error).message}
       </Alert>
     );
   }

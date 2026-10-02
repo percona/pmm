@@ -28,11 +28,11 @@ describe('OmPage', () => {
     localStorage.clear();
   });
 
-  it('shows a technical preview banner that cannot be dismissed', () => {
+  it('shows a developer preview banner that cannot be dismissed', () => {
     render(<OmPage>content</OmPage>);
 
-    const banner = screen.getByTestId('om-technical-preview');
-    expect(banner).toHaveTextContent(Messages.technicalPreviewBody);
+    const banner = screen.getByTestId('om-developer-preview');
+    expect(banner).toHaveTextContent(Messages.developerPreviewBody);
     expect(banner).toHaveTextContent('not recommended for production');
     expect(screen.queryByRole('button', { name: /close/i })).toBeNull();
   });
@@ -42,10 +42,10 @@ describe('OmPage', () => {
 
     render(<OmPage>content</OmPage>);
 
-    expect(screen.getByTestId('om-technical-preview')).toBeInTheDocument();
+    expect(screen.getByTestId('om-developer-preview')).toBeInTheDocument();
   });
 
-  it('shows the switched-off notice instead when OpenManager is off', () => {
+  it('shows the switched-off notice instead when Operations for MongoDB is off', () => {
     useReadonlySettings.mockReturnValue({
       data: { omEnabled: false },
       isLoading: false,
@@ -54,6 +54,6 @@ describe('OmPage', () => {
     render(<OmPage>content</OmPage>);
 
     expect(screen.getByTestId('om-switched-off')).toBeInTheDocument();
-    expect(screen.queryByTestId('om-technical-preview')).toBeNull();
+    expect(screen.queryByTestId('om-developer-preview')).toBeNull();
   });
 });

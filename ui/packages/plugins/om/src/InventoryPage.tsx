@@ -235,7 +235,7 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
   if (!run) {
     return (
       <Alert severity="info">
-        No refresh has run yet. OM has nothing to show until one does.
+        No refresh has run yet. Operations has nothing to show until one does.
       </Alert>
     );
   }

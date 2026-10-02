@@ -25,6 +25,7 @@ import {
   MIN_DAYS,
   MIN_STT_CHECK_INTERVAL,
   STT_CHECK_INTERVALS,
+  DEVELOPER_PREVIEW_DOC_URL,
   TECHNICAL_PREVIEW_DOC_URL,
 } from './Advanced.constants';
 import { MAX_LABEL_WIDTH } from '../../Settings.constants';
@@ -52,6 +53,10 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   });
 
   const { handleSubmit, reset, watch, setValue } = methods;
+
+  // Operations for MongoDB reads its inventory from PMM Extensions' om_inventory app, so with
+  // Extensions off the switch can be flipped but the pages have no source to answer from.
+  const extensionsEnabled = settings.extensionsEnabled;
 
   const sttEnabled = watch('stt');
   const [telemetryDialogOpen, setTelemetryDialogOpen] = useState(false);
@@ -406,36 +411,68 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
                 </IconButton>
               </Tooltip>
             </Stack>
-            <Stack
-              direction="row"
-              alignItems="center"
-              data-testid="advanced-open-manager"
-            >
-              <SwitchInput name="openManager" label={m.openManagerLabel} />
-              <Tooltip
-                title={
-                  <Box data-testid="info-tooltip">
-                    <Typography variant="caption">
-                      {m.openManagerTooltip}{' '}
-                      <Link
-                        href={m.openManagerLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        color="inherit"
-                        sx={{ textDecorationColor: 'inherit' }}
-                      >
-                        {Messages.tooltipLinkText}
-                      </Link>
-                    </Typography>
-                  </Box>
-                }
-                arrow
+          </Stack>
+        </Stack>
+
+        {/* Operations for MongoDB sits in its own section rather than beside the technical
+            previews: it ships at an earlier stage than they do, and the warning that
+            applies to it is a stronger one. Its help is rendered inline instead of inside
+            a hover tooltip -- the tooltip pattern the toggles above use puts a link
+            somewhere a keyboard cannot reach, and opens it over the Apply button. */}
+        <Stack gap={2}>
+          <SettingsFieldLabel
+            data-testid="advanced-developer-preview"
+            label={
+              <>
+                <WarningIcon
+                  color="warning"
+                  sx={{ fontSize: 26, verticalAlign: '-6px' }}
+                />{' '}
+                {m.developerPreviewLegend}
+              </>
+            }
+            description={
+              <>
+                {m.developerPreviewDescription}
+                <strong>{m.developerPreviewWarning}</strong>
+                {m.developerPreviewDescriptionSuffix}{' '}
+              </>
+            }
+            readMoreLink={DEVELOPER_PREVIEW_DOC_URL}
+            readMoreText={m.developerPreviewLinkText}
+          />
+          <Stack
+            gap={0.5}
+            sx={{
+              [`.${formControlLabelClasses.root}`]: {
+                marginRight: 0,
+              },
+            }}
+            data-testid="advanced-open-manager"
+          >
+            {/* `labelCaption` rather than a separate caption node: it is the slot the
+                component already renders help into, so the text stays tied to the
+                control for a screen reader. The "read more" link lives on the section
+                header above instead of being repeated per toggle. */}
+            <SwitchInput
+              name="openManager"
+              label={m.openManagerLabel}
+              labelCaption={m.openManagerTooltip}
+              switchFieldProps={{ disabled: !extensionsEnabled }}
+            />
+            {/* The server refuses to enable it without the inventory app anyway
+                (validateEnableOm), so saying so here turns a failed save into a
+                precondition the reader can act on before pressing Apply. */}
+            {!extensionsEnabled && (
+              <Typography
+                variant="caption"
+                color="warning.main"
+                maxWidth={MAX_LABEL_WIDTH}
+                data-testid="advanced-open-manager-blocked"
               >
-                <IconButton size="small" data-testid="info-icon">
-                  <InfoOutlinedIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            </Stack>
+                {m.openManagerRequiresExtensions}
+              </Typography>
+            )}
           </Stack>
         </Stack>
 

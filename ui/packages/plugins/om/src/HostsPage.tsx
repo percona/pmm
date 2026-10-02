@@ -528,7 +528,7 @@ const ForgetDialog = ({
       <DialogContent>
         <DialogContentText component="div">
           <p>
-            This clears OM&apos;s row for{' '}
+            This clears the Operations row for{' '}
             {rows.length === 1 ? 'this host' : 'these hosts'} and the{' '}
             {totalServices} service row(s) on{' '}
             {rows.length === 1 ? 'it' : 'them'}, along with their probe history.
@@ -737,8 +737,8 @@ export const HostsPage = () => {
         title="Hosts"
         subtitle={
           <Typography variant="body2" color="text.secondary">
-            Every host OM knows about, including the ones with no database on
-            them.
+            Every host Operations knows about, including the ones with no
+            database on them.
           </Typography>
         }
         actions={
