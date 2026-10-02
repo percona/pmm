@@ -54,6 +54,7 @@ import {
   toEnvironmentSections,
 } from './topology';
 import type {
+  OmClusterHealth,
   OmClusterRow,
   OmEnvironmentSection,
   OmProcessRole,
@@ -108,9 +109,9 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
         accessorKey: 'health',
         header: 'Health',
         // Worst first ascending, so one click brings trouble to the top.
-        sortingFn: (a, b) =>
-          clusterHealthRank(a.original.health) -
-          clusterHealthRank(b.original.health),
+        sortingFn: (a, b, columnId) =>
+          clusterHealthRank(a.getValue<OmClusterHealth>(columnId)) -
+          clusterHealthRank(b.getValue<OmClusterHealth>(columnId)),
         Cell: ({ row: { original } }) => (
           <ClusterHealthBadge health={original.health} />
         ),

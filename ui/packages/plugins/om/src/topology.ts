@@ -71,7 +71,7 @@ const CLUSTER_HEALTH_RANK: Record<OmClusterHealth, number> = {
 
 /** Rank of a cluster's health for sorting, worst first. */
 export function clusterHealthRank(health: OmClusterHealth): number {
-  return CLUSTER_HEALTH_RANK[health];
+  return CLUSTER_HEALTH_RANK[health] ?? CLUSTER_HEALTH_RANK.unknown;
 }
 
 /**

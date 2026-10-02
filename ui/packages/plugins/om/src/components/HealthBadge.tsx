@@ -62,16 +62,17 @@ const CLUSTER_HEALTH_ICON: Record<OmClusterHealth, ReactElement> = {
  * own icon and word, so none of them depends on colour to be read.
  */
 export const StatusBadge = ({ status }: { status: OmServiceStatus }) => {
+  // A value this build does not know reads as unknown throughout, so the icon, the
+  // word and the colour cannot disagree.
+  const known: OmServiceStatus =
+    status in SERVICE_STATUS_LABEL ? status : 'SERVICE_STATUS_UNSPECIFIED';
   return (
     <Chip
       size="small"
-      icon={
-        SERVICE_STATUS_ICON[status] ??
-        SERVICE_STATUS_ICON.SERVICE_STATUS_UNSPECIFIED
-      }
-      label={SERVICE_STATUS_LABEL[status] ?? status}
-      color={SERVICE_STATUS_COLOR[status] ?? 'default'}
-      variant={status === 'SERVICE_STATUS_DOWN' ? 'filled' : 'outlined'}
+      icon={SERVICE_STATUS_ICON[known]}
+      label={SERVICE_STATUS_LABEL[known]}
+      color={SERVICE_STATUS_COLOR[known]}
+      variant={known === 'SERVICE_STATUS_DOWN' ? 'filled' : 'outlined'}
       data-testid="om-service-status"
     />
   );

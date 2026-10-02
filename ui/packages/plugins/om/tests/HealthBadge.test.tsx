@@ -36,6 +36,16 @@ describe('StatusBadge', () => {
     }
   );
 
+  it('reads a status it does not know as unknown, icon and word alike', () => {
+    render(<StatusBadge status={'SOMETHING_NEW' as OmServiceStatus} />);
+
+    const chip = screen.getByTestId('om-service-status');
+    expect(chip).toHaveTextContent('Unknown');
+    expect(
+      chip.querySelector('[data-testid="HelpOutlineIcon"]')
+    ).not.toBeNull();
+  });
+
   it('gives Down the filled chip and Up the outlined one', () => {
     render(
       <>

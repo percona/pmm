@@ -51,7 +51,11 @@ import {
 } from './inventory';
 import { formatCompactDuration, pluralize } from './format';
 import { ProbeValue } from './components/ProbeValue';
-import type { OmInventoryService, OmServiceInventoryRow } from './types';
+import type {
+  OmInventoryService,
+  OmServiceInventoryRow,
+  OmServiceStatus,
+} from './types';
 
 /** A full `mongod` command line is a paragraph; the cell shows it on hover. */
 const TRUNCATED = {
@@ -121,9 +125,9 @@ function useColumns(
         accessorKey: 'status',
         header: 'Status',
         // Worst first ascending, by rank rather than by the enum's spelling.
-        sortingFn: (a, b) =>
-          serviceStatusRank(a.original.status) -
-          serviceStatusRank(b.original.status),
+        sortingFn: (a, b, columnId) =>
+          serviceStatusRank(a.getValue<OmServiceStatus>(columnId)) -
+          serviceStatusRank(b.getValue<OmServiceStatus>(columnId)),
         Cell: ({ row: { original } }) => (
           <StatusBadge status={original.status} />
         ),
