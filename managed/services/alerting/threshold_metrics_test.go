@@ -16,6 +16,7 @@
 package alerting
 
 import (
+	"database/sql"
 	"errors"
 	"strings"
 	"testing"
@@ -196,6 +197,11 @@ func TestThresholdCollectorReportsFailedRead(t *testing.T) {
 		start := time.Now()
 		assert.InDelta(t, 0.0, testutil.ToFloat64(c), 0)
 		assert.Less(t, time.Since(start), 500*time.Millisecond, "the timeout must cut the read short")
+
+		// database/sql rolls back a cancelled transaction on its own goroutine; wait for it
+		// to release the connection so it does not race the mock's cleanup.
+		sqlDB := db.DBInterface().(*sql.DB)
+		require.Eventually(t, func() bool { return sqlDB.Stats().InUse == 0 }, time.Second, time.Millisecond)
 	})
 }
 
