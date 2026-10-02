@@ -48,6 +48,14 @@ describe('AlertDescription', () => {
     }
   );
 
+  it('keeps whitespace inside list item text', () => {
+    render(<AlertDescription description={'  1. Run:\tpmm-admin   list'} />);
+
+    expect(screen.getByText('Run:\tpmm-admin   list', exact)).toHaveStyle({
+      whiteSpace: 'pre-wrap',
+    });
+  });
+
   it('does not treat a version number as a list marker', () => {
     render(<AlertDescription description="5.0 is end of life" />);
 

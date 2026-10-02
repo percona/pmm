@@ -26,7 +26,9 @@ const AlertDescription: FC<Props> = ({ description }) => {
               <Box component="span" sx={{ whiteSpace: 'pre', flexShrink: 0 }}>
                 {listItem[1]}
               </Box>
-              <span>{listItem[2]}</span>
+              <Box component="span" sx={{ whiteSpace: 'pre-wrap' }}>
+                {listItem[2]}
+              </Box>
             </Stack>
           );
         }
