@@ -30,8 +30,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/admin/pkg/flags"
-	serverClient "github.com/percona/pmm/api/server/v1/json/client"
-	"github.com/percona/pmm/api/server/v1/json/client/server_service"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	"github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 func newTestServer(t *testing.T, failures int32, failStatus int) (*httptest.Server, *atomic.Int32, *[]string) {
@@ -129,12 +129,20 @@ func TestRetryTransport(t *testing.T) {
 }
 
 func TestSetupClientsRetriesUnavailable(t *testing.T) {
-	srv, calls, _ := newTestServer(t, 1, http.StatusServiceUnavailable)
+	srv, calls, bodies := newTestServer(t, 1, http.StatusServiceUnavailable)
 	u, err := url.Parse(srv.URL)
 	require.NoError(t, err)
 
 	SetupClients(&flags.GlobalFlags{ServerURL: u})
-	_, err = serverClient.Default.ServerService.Version(&server_service.VersionParams{Context: context.Background()})
+	_, err = managementClient.Default.ManagementService.AddService(&management_service.AddServiceParams{
+		Body: management_service.AddServiceBody{
+			External: &management_service.AddServiceParamsBodyExternal{ServiceName: "pg-patroni-external"},
+		},
+		Context: t.Context(),
+	})
 	require.NoError(t, err)
 	assert.Equal(t, int32(2), calls.Load())
+	require.Len(t, *bodies, 2)
+	assert.Contains(t, (*bodies)[0], `"service_name":"pg-patroni-external"`)
+	assert.Equal(t, (*bodies)[0], (*bodies)[1])
 }

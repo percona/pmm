@@ -27,4 +27,8 @@ var (
 	ErrRoleNotFound = errors.New("role not found")
 	// ErrRoleIsDefaultRole is returned when trying to delete a default role.
 	ErrRoleIsDefaultRole = errors.New("role is a default role")
+
+	// ErrDatabaseUnavailable is returned when a connection to PostgreSQL cannot be established
+	// (e.g. during a restart or HA failover). No statement was executed, so the request can be retried.
+	ErrDatabaseUnavailable = errors.New("database is unavailable")
 )

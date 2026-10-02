@@ -16,18 +16,16 @@
 package interceptors
 
 import (
-	"database/sql/driver"
 	"errors"
 	"fmt"
-	"net"
-	"syscall"
 	"testing"
 
-	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/percona/pmm/managed/models"
 )
 
 func TestLogRequest(t *testing.T) {
@@ -43,15 +41,7 @@ func TestLogRequest(t *testing.T) {
 		{"nil", nil, codes.OK},
 		{"gRPC error is kept", status.Error(codes.NotFound, "not found"), codes.NotFound},
 		{"unexpected error", errors.New("boom"), codes.Internal},
-		{"unrelated pq error", &pq.Error{Code: "23505"}, codes.Internal},
-		{"database is shutting down", fmt.Errorf("query: %w", &pq.Error{Code: "57P03"}), codes.Unavailable},
-		{"admin shutdown", &pq.Error{Code: "57P01"}, codes.Unavailable},
-		{"bad connection", fmt.Errorf("query: %w", driver.ErrBadConn), codes.Unavailable},
-		{
-			"connection refused",
-			fmt.Errorf("query: %w", &net.OpError{Op: "dial", Net: "tcp", Err: syscall.ECONNREFUSED}),
-			codes.Unavailable,
-		},
+		{"database unavailable", fmt.Errorf("query: %w", models.ErrDatabaseUnavailable), codes.Unavailable},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()

@@ -76,7 +76,8 @@ func (t *retryTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		_, _ = io.Copy(io.Discard, resp.Body)
 		_ = resp.Body.Close()
 
-		logrus.Warnf("PMM Server is unavailable, retrying in %s (%d/%d)...", delay, attempt+1, t.maxRetries)
+		logrus.Warnf("PMM Server is unavailable for %s %s, retrying in %s (%d/%d)...",
+			req.Method, req.URL.Path, delay, attempt+1, t.maxRetries)
 		select {
 		case <-time.After(delay):
 		case <-req.Context().Done():

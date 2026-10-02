@@ -18,6 +18,7 @@ package models
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"net"
@@ -1231,10 +1232,11 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	}
 	dsn := uri.String()
 
-	db, err := sql.Open("postgres", dsn)
+	pqConnector, err := pq.NewConnector(dsn)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create a connection pool to PostgreSQL: %w", err)
 	}
+	db := sql.OpenDB(connector{Connector: pqConnector})
 
 	db.SetConnMaxLifetime(0)
 	db.SetConnMaxIdleTime(5 * time.Minute) //nolint:mnd
@@ -1245,6 +1247,29 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	db.SetMaxOpenConns(50) //nolint:mnd
 
 	return db, nil
+}
+
+// connector marks connection failures that are safe to retry with ErrDatabaseUnavailable.
+type connector struct {
+	driver.Connector
+}
+
+// Connect implements driver.Connector.
+func (c connector) Connect(ctx context.Context) (driver.Conn, error) {
+	conn, err := c.Connector.Connect(ctx)
+	if err != nil && isConnectUnavailable(err) {
+		return nil, fmt.Errorf("%w: %w", ErrDatabaseUnavailable, err)
+	}
+	return conn, err
+}
+
+func isConnectUnavailable(err error) bool {
+	if _, ok := errors.AsType[*net.OpError](err); ok {
+		return true
+	}
+
+	pqErr, ok := errors.AsType[*pq.Error](err)
+	return ok && pqErr.Code == "57P03" // cannot_connect_now: shutting down, starting up, or in recovery
 }
 
 // SetupFixturesMode defines if SetupDB adds initial data to the database or not.
