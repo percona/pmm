@@ -411,6 +411,36 @@ You can also use `pmm-admin list` to see agents alongside their services.
       --enable
     ```
 
+### Disable collectors for node-exporter
+
+Use `--disable-collectors` with the `node-exporter` agent type to stop individual `node_exporter` collectors on a node, for example to reduce the load on the node or the number of series that PMM stores:
+
+```bash
+pmm-admin inventory change agent node-exporter <AGENT_ID> \
+  --disable-collectors=diskstats,meminfo
+```
+
+To find the agent ID, run `pmm-admin inventory list agents --agent-type=node-exporter`.
+
+PMM applies the list as follows:
+
+- The list replaces the stored one, so a collector that you leave out goes back to the PMM default.
+- If you omit the flag, the stored list doesn't change.
+- An empty value (`--disable-collectors=`) returns all collectors to the PMM default.
+- Each name matches exactly one `node_exporter` collector, such as `cpu`, `diskstats` or `processes`.
+
+Starting with PMM 3.10.0, this also stops the collectors that `node_exporter` enables on its own, such as `cpu`, `diskstats`, `filesystem`, `meminfo` and `netdev`. PMM starts `node_exporter` with a `--no-collector.<name>` flag for each of them. The same applies to collectors that you disable when you register the node with `pmm-admin config --disable-collectors`.
+
+Before `node_exporter` restarts without a collector, PMM removes that collector from the scrape configuration, so the other metrics of the node keep flowing during the change.
+
+Keep in mind:
+
+- `textfile` is the base `node_exporter` collector, which PMM doesn't use. To stop custom metrics from the [textfile collector](../../metrics/extend_metrics.md), disable `textfile.hr`, `textfile.mr` or `textfile.lr`, one name per resolution.
+- PMM adds the `--no-collector.<name>` flags only on Linux nodes with PMM Client 3.0.0 or later. The `node_exporter` shipped with PMM Client 2.x doesn't support all of these flags, so collectors that it enables by default keep running there.
+
+??? info "Collectors that `node_exporter` enables by default on Linux"
+    `arp`, `bcache`, `bonding`, `btrfs`, `conntrack`, `cpu`, `cpufreq`, `diskstats`, `dmi`, `edac`, `entropy`, `fibrechannel`, `filefd`, `filesystem`, `hwmon`, `infiniband`, `ipvs`, `loadavg`, `mdadm`, `meminfo`, `netclass`, `netdev`, `netstat`, `nfs`, `nfsd`, `nvme`, `os`, `powersupplyclass`, `pressure`, `rapl`, `schedstat`, `selinux`, `sockstat`, `softnet`, `stat`, `tapestats`, `textfile`, `thermal_zone`, `time`, `timex`, `udp_queues`, `uname`, `vmstat`, `watchdog`, `xfs`, `zfs`
+
 ### Error handling
 
 The command returns a clear error message in these cases:
