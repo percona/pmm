@@ -33,35 +33,65 @@ import (
 // initDefaultCipher loads the encryption keyset from the default path
 // (PMM_ENCRYPTION_KEY_PATH or DefaultEncryptionKeyPath) and installs it as
 // the process-wide cipher. It must run after the database connection is
-// bootstrapped and before migrations: a missing keyset is generated only when
-// the database contains no encrypted data; otherwise startup is refused to
-// avoid making that data permanently unreadable.
-func initDefaultCipher(ctx context.Context, db *sql.DB) error {
+// bootstrapped and before migrations. A missing keyset is generated only when
+// the database holds no data encrypted with the missing key (see keyInUse);
+// otherwise startup is refused to avoid making that data permanently
+// unreadable, unless the administrator has accepted that the key is lost (see
+// encryption.AcceptKeyLossEnvVar). It returns whether a keyset was generated.
+func initDefaultCipher(ctx context.Context, db *sql.DB, ha bool) (bool, error) {
 	keyPath := encryption.DefaultKeyPath()
 	provider := encryption.NewFileKeyProvider(keyPath)
+	acceptKeyLoss := encryption.AcceptKeyLoss()
+	if acceptKeyLoss {
+		logrus.Warnf("%s is set: stored values the encryption key cannot decrypt are treated as lost. "+
+			"Unset it once PMM Server has started.", encryption.AcceptKeyLossEnvVar)
+	}
 
+	var created bool
 	cipher, err := encryption.LoadCipher(provider)
 	if errors.Is(err, encryption.ErrKeysetNotFound) {
-		var hasEncryptedData bool
-		hasEncryptedData, err = DatabaseHasEncryptedData(ctx, db)
+		var inUse bool
+		inUse, err = keyInUse(ctx, db, ha)
 		if err != nil {
-			return err
+			return false, err
 		}
-		if hasEncryptedData {
-			return fmt.Errorf("encryption key not found at %s, but the database contains encrypted data; "+
-				"restore the key file or point %s at it — generating a new key would make that data unreadable",
-				keyPath, encryption.CustomEncryptionKeyPathEnvVar)
+		if inUse && !acceptKeyLoss {
+			return false, &keyError{fmt.Sprintf("encryption key not found at %s, but the database contains data encrypted with it; "+
+				"restore the key file or point %s at it — generating a new key would make that data unreadable. "+
+				"If the key is lost for good, set %s=1 and restart: a new key is generated, and the values encrypted "+
+				"with the lost one are kept in a backup file but can no longer be decrypted by PMM",
+				keyPath, encryption.CustomEncryptionKeyPathEnvVar, encryption.AcceptKeyLossEnvVar)}
+		}
+		if inUse {
+			logrus.Warnf("Encryption key not found at %s; generating a new one, as %s is set.", keyPath, encryption.AcceptKeyLossEnvVar)
 		}
 		cipher, err = encryption.CreateCipher(provider)
+		created = err == nil
 	}
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	cipher = withLegacyBackupKey(cipher, keyPath)
+	if acceptKeyLoss {
+		cipher = cipher.AcceptingKeyLoss()
+	}
 	encryption.SetDefaultCipher(cipher)
 
-	return nil
+	return created, nil
+}
+
+// keyInUse reports whether the database holds data encrypted with a missing
+// key: encrypted values, or in HA the key check of the node that set the
+// database up, whose key every node must share. A standalone server that
+// holds no encrypted values loses nothing with a new key.
+func keyInUse(ctx context.Context, db *sql.DB, ha bool) (bool, error) {
+	hasEncryptedData, err := DatabaseHasEncryptedData(ctx, db)
+	if err != nil || hasEncryptedData || !ha {
+		return hasEncryptedData, err
+	}
+
+	return databaseHasKeyCheck(ctx, db)
 }
 
 // withLegacyBackupKey adds the key PMM 3.x rotation left next to the key file
@@ -184,7 +214,17 @@ func isUndefinedTable(err error) bool {
 // migration across HA nodes, and each row is locked and only its secret
 // columns are written, so concurrent changes to other columns by live nodes
 // are kept.
+//
+// The key check in the settings (see keyCheckPlaintext) must decrypt with the
+// key; it is written on the first start and follows key rotation.
 func MigrateEncryption(q *reform.Querier) error {
+	return migrateEncryption(q, false)
+}
+
+// migrateEncryption is MigrateEncryption. The keyCreated argument tells that
+// the key was generated at this start because the key file was missing and the
+// database held no data encrypted with it; see checkKey.
+func migrateEncryption(q *reform.Querier, keyCreated bool) error {
 	cipher, err := encryption.DefaultCipher()
 	if err != nil {
 		return err
@@ -196,8 +236,16 @@ func MigrateEncryption(q *reform.Querier) error {
 		return fmt.Errorf("failed to lock encryption migration: %w", err)
 	}
 
-	scans := make([]*secretsScan, len(secretTables))
 	var undecryptable, lost, unknownKey []error
+	writeCheck, keyMismatch, err := checkKey(q, cipher, keyCreated)
+	if err != nil {
+		return err
+	}
+	if keyMismatch {
+		undecryptable = append(undecryptable, errors.New("settings encryption key check: the key this database was set up with is required"))
+	}
+
+	scans := make([]*secretsScan, len(secretTables))
 	var keyReadsData bool
 	backup := make(map[string][]map[string]any)
 	for i, t := range secretTables {
@@ -213,7 +261,7 @@ func MigrateEncryption(q *reform.Querier) error {
 			backup[t.name] = scans[i].backup
 		}
 	}
-	u, l := resolveUnknownKeys(unknownKey, keyReadsData)
+	u, l := resolveUnknownKeys(unknownKey, keyReadsData || cipher.AcceptsKeyLoss())
 	undecryptable = append(undecryptable, u...)
 	lost = append(lost, l...)
 	if len(undecryptable) != 0 {
@@ -221,7 +269,8 @@ func MigrateEncryption(q *reform.Querier) error {
 	}
 	if len(lost) != 0 {
 		logrus.Warnf("%d stored credential(s) cannot be recovered: they are encrypted with a key that is not available, "+
-			"either a key file that was lost before this upgrade or the inner layer added by key rotation in PMM before 3.9.1 (%s). "+
+			"either a lost key file or the inner layer added by key rotation in PMM before 3.9.1 (%s). "+
+			"Their stored values are kept in the migration backup. "+
 			"Re-enter the credentials of the affected services; if you still have that key, place it at %s and restart PMM Server.",
 			len(lost), errors.Join(lost...), encryption.LegacyBackupKeyPath(encryption.DefaultKeyPath()))
 	}
@@ -248,6 +297,10 @@ func MigrateEncryption(q *reform.Querier) error {
 				return fmt.Errorf("failed to re-encrypt %s %s: %w", t.label, id, err)
 			}
 		}
+	}
+
+	if writeCheck {
+		return writeKeyCheck(q, cipher)
 	}
 
 	return nil
@@ -361,9 +414,24 @@ func resolveUnknownKeys(unknownKey []error, keyReadsData bool) ([]error, []error
 }
 
 // ErrEncryptionKeyMismatch is returned when the encryption key cannot decrypt
-// the stored data. Nothing is changed, and retrying does not help until the
-// key the data was encrypted with is in place.
+// the stored data, or is missing while the database holds data encrypted with
+// it. Nothing is changed, and retrying does not help until the key the data
+// was encrypted with is in place.
 var ErrEncryptionKeyMismatch = errors.New("encryption key does not match the database")
+
+// keyError is a refusal to start that only the right key file resolves.
+type keyError struct {
+	msg string
+}
+
+func (e *keyError) Error() string {
+	return e.msg
+}
+
+// Is reports the error as ErrEncryptionKeyMismatch.
+func (e *keyError) Is(target error) bool {
+	return target == ErrEncryptionKeyMismatch
+}
 
 // errUndecryptable explains that the key does not match the stored data.
 // Its causes can be matched with errors.Is, e.g. encryption.ErrLegacyUnknownKey.
@@ -388,8 +456,11 @@ func (e *undecryptableError) Error() string {
 
 	return fmt.Sprintf("the encryption key at %s cannot decrypt stored credentials (%s%s): "+
 		"the key file does not match this database, or the values are corrupted; "+
-		"if the key file was replaced, restore the original one (or point %s at it) and restart — no data was changed",
-		encryption.DefaultKeyPath(), strings.Join(list, "; "), more, encryption.CustomEncryptionKeyPathEnvVar)
+		"if the key file was replaced, restore the original one (or point %s at it) and restart — no data was changed. "+
+		"If the key is lost for good, set %s=1 and restart: the values encrypted with it are kept in a backup file "+
+		"but can no longer be decrypted by PMM",
+		encryption.DefaultKeyPath(), strings.Join(list, "; "), more, encryption.CustomEncryptionKeyPathEnvVar,
+		encryption.AcceptKeyLossEnvVar)
 }
 
 func (e *undecryptableError) Unwrap() []error {
@@ -414,7 +485,7 @@ type secretsScan struct {
 	// keyReadsData is set when the keyset decrypted at least one stored value
 	keyReadsData bool
 	// backup holds the stored columns of rows rewritten from the pre-envelope
-	// format, see writeMigrationBackup
+	// format or holding lost secrets, see writeMigrationBackup
 	backup []map[string]any
 }
 
@@ -476,7 +547,7 @@ func scanSecrets(q *reform.Querier, cipher *encryption.Cipher, t secretTable) (*
 			scan.lost = append(scan.lost, fmt.Errorf("%s %s %s", t.label, id, p.column))
 		}
 		scan.needs = append(scan.needs, id)
-		if insp.preEnvelope {
+		if insp.preEnvelope || len(insp.lost) != 0 {
 			scan.backup = append(scan.backup, stored)
 		}
 	}
@@ -545,6 +616,9 @@ func (i *inspector) value(column, stored string) {
 		i.unknownKey = append(i.unknownKey, columnProblem{column, err})
 	case errors.Is(err, encryption.ErrLegacyInnerKeyLost):
 		// the key matches; the secret was lost to stacked layers before
+		i.lost = append(i.lost, columnProblem{column, err})
+	case errors.Is(err, encryption.ErrUnknownKey) && i.cipher.AcceptsKeyLoss():
+		// the administrator has accepted that its key is gone
 		i.lost = append(i.lost, columnProblem{column, err})
 	default:
 		i.undecryptable = append(i.undecryptable, columnProblem{column, err})

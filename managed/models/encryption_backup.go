@@ -46,15 +46,8 @@ func writeMigrationBackup(rows map[string][]map[string]any) (string, error) {
 		return "", err
 	}
 
-	// the key's directory may be read-only (e.g. a mounted secret); /srv is
-	// PMM Server's data directory and always writable
-	dirs := []string{filepath.Dir(encryption.DefaultKeyPath())}
-	if srv := filepath.Dir(encryption.DefaultEncryptionKeyPath); srv != dirs[0] {
-		dirs = append(dirs, srv)
-	}
-
 	var errs []error
-	for _, dir := range dirs {
+	for _, dir := range migrationBackupDirs() {
 		path, err := writeFileAtomically(dir, data)
 		if err == nil {
 			return path, nil
@@ -63,6 +56,29 @@ func writeMigrationBackup(rows map[string][]map[string]any) (string, error) {
 	}
 
 	return "", errors.Join(errs...)
+}
+
+// migrationBackupDirs returns where migration backups are written: next to
+// the key file, or, as that directory may be read-only (e.g. a mounted
+// secret), in /srv, PMM Server's data directory, which is always writable.
+func migrationBackupDirs() []string {
+	dirs := []string{filepath.Dir(encryption.DefaultKeyPath())}
+	if srv := filepath.Dir(encryption.DefaultEncryptionKeyPath); srv != dirs[0] {
+		dirs = append(dirs, srv)
+	}
+
+	return dirs
+}
+
+// MigrationBackupFiles returns the migration backups written so far.
+func MigrationBackupFiles() []string {
+	var files []string
+	for _, dir := range migrationBackupDirs() {
+		matches, _ := filepath.Glob(filepath.Join(dir, MigrationBackupPattern))
+		files = append(files, matches...)
+	}
+
+	return files
 }
 
 func writeFileAtomically(dir string, data []byte) (string, error) {

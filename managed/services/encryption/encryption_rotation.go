@@ -21,7 +21,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 
@@ -54,7 +56,15 @@ const (
 // with the new primary key, which this function waits for. With prune, the
 // retired keys are removed from the keyset once no stored value references
 // them.
+//
+// Rotation is refused in HA: it restarts only the local pmm-managed, and the
+// other nodes cannot read values encrypted with a key they do not hold.
 func RotateEncryptionKey(sqlDB *sql.DB, prune bool) (int, error) {
+	if ha, _ := strconv.ParseBool(os.Getenv("PMM_HA_ENABLE")); ha {
+		return codeRotationFailed, errors.New("encryption key rotation is not supported in HA mode: it restarts only " +
+			"this node's pmm-managed, and the other nodes could not read values encrypted with the new key")
+	}
+
 	provider := encryption.NewFileKeyProvider(encryption.DefaultKeyPath())
 
 	newKeyID, err := encryption.AddNewPrimaryKey(provider)
@@ -81,6 +91,11 @@ func RotateEncryptionKey(sqlDB *sql.DB, prune bool) (int, error) {
 	logrus.Infoln("All stored secrets are re-encrypted with the new key")
 
 	if prune {
+		backups := models.MigrationBackupFiles()
+		if len(backups) != 0 {
+			logrus.Warnf("Pruning removes the keys the values in %s are encrypted with; "+
+				"keep a copy of the key file from before this rotation to read them later.", strings.Join(backups, ", "))
+		}
 		retired, err := encryption.PruneRetiredKeys(provider)
 		if err != nil {
 			return codePruneFailed, fmt.Errorf("failed to prune retired encryption keys: %w", err)
@@ -141,11 +156,18 @@ func waitForReencryption(q *reform.Querier, cipher *encryption.Cipher) error {
 		if err != nil {
 			return err
 		}
-		if len(agentIDs)+len(locationIDs) == 0 {
+		checkStale, err := models.KeyCheckNeedsReencryption(q, cipher)
+		if err != nil {
+			return err
+		}
+		lastCount = len(agentIDs) + len(locationIDs)
+		if checkStale {
+			lastCount++
+		}
+		if lastCount == 0 {
 			return nil
 		}
 
-		lastCount = len(agentIDs) + len(locationIDs)
 		logrus.Infof("%d row(s) still need re-encryption, waiting...", lastCount)
 		time.Sleep(sweepInterval)
 	}

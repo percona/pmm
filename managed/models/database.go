@@ -1286,12 +1286,12 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	err := initDefaultCipher(ctx, sqlDB)
+	keyCreated, err := initDefaultCipher(ctx, sqlDB, params.HANodeID != "")
 	if err != nil {
 		return nil, err
 	}
 
-	err = migrateDB(db, params)
+	err = migrateDB(db, params, keyCreated)
 	if err != nil {
 		return nil, err
 	}
@@ -1426,8 +1426,9 @@ func schemaVersion(q *reform.Querier) (int, error) {
 	return version, nil
 }
 
-// migrateDB runs PostgreSQL database migrations.
-func migrateDB(db *reform.DB, params SetupDBParams) error {
+// migrateDB runs PostgreSQL database migrations. The keyCreated argument tells
+// that the encryption key was generated at this start, see migrateEncryption.
+func migrateDB(db *reform.DB, params SetupDBParams, keyCreated bool) error {
 	latestVersion := len(databaseSchema) - 1 // skip item 0
 	if params.MigrationVersion != nil {
 		latestVersion = *params.MigrationVersion
@@ -1457,7 +1458,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 		// data migration relies on the latest schema; skip it when an older
 		// schema version is explicitly requested (only done in tests)
 		if latestVersion == len(databaseSchema)-1 {
-			err := MigrateEncryption(tx.Querier)
+			err := migrateEncryption(tx.Querier, keyCreated)
 			if err != nil {
 				return err
 			}

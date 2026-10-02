@@ -530,3 +530,53 @@ func TestLookAlikeUnderLayer(t *testing.T) {
 	assert.Zero(t, insp.ExtraLayers)
 	assert.True(t, insp.Decrypted)
 }
+
+// TestUnknownKey pins how an envelope of a key the keyset does not hold is
+// read: an error, unless the cipher accepts key loss.
+func TestUnknownKey(t *testing.T) {
+	lost := newTestCipher(t)
+	stored, err := lost.Encrypt("secret")
+	require.NoError(t, err)
+	c := newTestCipher(t)
+
+	_, err = c.Decrypt(stored)
+	require.ErrorIs(t, err, ErrUnknownKey)
+	_, err = c.Inspect(stored)
+	require.ErrorIs(t, err, ErrUnknownKey)
+
+	accepting := c.AcceptingKeyLoss()
+	assert.True(t, accepting.AcceptsKeyLoss())
+	assert.False(t, c.AcceptsKeyLoss(), "the original cipher is unchanged")
+	decrypted, err := accepting.Decrypt(stored)
+	require.NoError(t, err)
+	assert.Equal(t, stored, decrypted)
+	_, err = accepting.Inspect(stored)
+	require.ErrorIs(t, err, ErrUnknownKey, "the migration still sees the loss")
+}
+
+// TestLostEnvelopeRecovered covers an envelope of a lost key that the startup
+// migration wrapped in one of the primary key: placing the lost key next to
+// the key file makes the secret readable again.
+func TestLostEnvelopeRecovered(t *testing.T) {
+	lostPath := filepath.Join(t.TempDir(), "lost.key")
+	lost, err := CreateCipher(NewFileKeyProvider(lostPath))
+	require.NoError(t, err)
+	inner, err := lost.Encrypt("secret")
+	require.NoError(t, err)
+	c := newTestCipher(t)
+	wrapped, err := c.Encrypt(inner)
+	require.NoError(t, err)
+
+	decrypted, err := c.Decrypt(wrapped)
+	require.NoError(t, err)
+	assert.Equal(t, inner, decrypted, "without the lost key")
+
+	withLost, err := c.WithLegacyKeys(NewFileKeyProvider(lostPath))
+	require.NoError(t, err)
+	decrypted, err = withLost.Decrypt(wrapped)
+	require.NoError(t, err)
+	assert.Equal(t, "secret", decrypted)
+	insp, err := withLost.Inspect(wrapped)
+	require.NoError(t, err)
+	assert.Equal(t, 1, insp.ExtraLayers, "the next migration rewrites it as a single envelope")
+}

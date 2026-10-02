@@ -53,6 +53,9 @@ func TestSettings(t *testing.T) {
 			},
 			DefaultRoleID: 1,
 		}
+		// stored by the startup migration, see TestKeyCheckRefusesAnotherKey
+		assert.NotEmpty(t, actual.EncryptionKeyCheck)
+		expected.EncryptionKeyCheck = actual.EncryptionKeyCheck
 		assert.Equal(t, expected, actual)
 	})
 

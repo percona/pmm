@@ -103,6 +103,25 @@ func corruptEnvelope(t *testing.T, stored string) string {
 	return encryption.EnvelopePrefix + base64.StdEncoding.EncodeToString(raw)
 }
 
+// forgetKeyCheck removes the encryption key check that testdb's setup stored
+// with the test key, so that the database can be started with another key,
+// like one set up before the key check existed.
+func forgetKeyCheck(t *testing.T, sqlDB *sql.DB) {
+	t.Helper()
+
+	_, err := sqlDB.ExecContext(t.Context(), "UPDATE settings SET settings = settings - 'encryption_key_check'")
+	require.NoError(t, err)
+}
+
+func storedKeyCheck(t *testing.T, sqlDB *sql.DB) string {
+	t.Helper()
+
+	var check sql.NullString
+	require.NoError(t, sqlDB.QueryRowContext(t.Context(), "SELECT settings->>'encryption_key_check' FROM settings").Scan(&check))
+
+	return check.String
+}
+
 func storedPassword(t *testing.T, sqlDB *sql.DB, id string) string {
 	t.Helper()
 
@@ -117,8 +136,11 @@ func TestSetupDBCreatesMissingKey(t *testing.T) {
 	keepDefaultCipher(t)
 	path := filepath.Join(t.TempDir(), "encryption.key")
 	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, path)
+	previousCheck := storedKeyCheck(t, sqlDB)
+	require.NotEmpty(t, previousCheck)
 
-	// nothing is encrypted yet, so a new key is generated
+	// nothing is encrypted yet, so a new key is generated, and the key check
+	// of the previous one is replaced
 	require.NoError(t, setupDB(t, sqlDB))
 
 	info, err := os.Stat(path)
@@ -129,6 +151,10 @@ func TestSetupDBCreatesMissingKey(t *testing.T) {
 	active, err := encryption.DefaultCipher()
 	require.NoError(t, err)
 	assert.Equal(t, created.PrimaryKeyID(), active.PrimaryKeyID())
+	assert.NotEqual(t, previousCheck, storedKeyCheck(t, sqlDB))
+	stale, err := models.KeyCheckNeedsReencryption(reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier, created)
+	require.NoError(t, err)
+	assert.False(t, stale)
 }
 
 func TestSetupDBLoadsExistingKey(t *testing.T) {
@@ -140,6 +166,7 @@ func TestSetupDBLoadsExistingKey(t *testing.T) {
 	before, err := os.ReadFile(path)
 	require.NoError(t, err)
 	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, path)
+	forgetKeyCheck(t, sqlDB)
 
 	require.NoError(t, setupDB(t, sqlDB))
 
@@ -180,6 +207,7 @@ func TestSetupDBUsesPreviousKey(t *testing.T) {
 	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, keyPath)
 
 	// written before the previous PMM 3.x rotation, with the key it kept as *_old.key
+	forgetKeyCheck(t, sqlDB)
 	insertExporter(t, sqlDB, "E1", legacyCiphertext(t, previous, "password-before-rotation"), "")
 
 	require.NoError(t, setupDB(t, sqlDB))
@@ -204,6 +232,7 @@ func TestSetupDBIgnoresBrokenPreviousKey(t *testing.T) {
 	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, keyPath)
 
 	// the previous key is optional: a broken one is logged and ignored
+	forgetKeyCheck(t, sqlDB)
 	require.NoError(t, setupDB(t, sqlDB))
 
 	active, err := encryption.DefaultCipher()

@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/tink-crypto/tink-go/v2/aead"
@@ -61,6 +62,21 @@ func DefaultKeyPath() string {
 	}
 
 	return DefaultEncryptionKeyPath
+}
+
+// AcceptKeyLossEnvVar is an environment variable that lets pmm-managed start
+// when the key the stored data was encrypted with is lost for good: a new key
+// is generated if the key file is missing, and values the key cannot decrypt
+// are kept in the migration backup and rewritten as unrecoverable instead of
+// refusing to start. Placing the lost key next to the key file later makes
+// them readable again (see LegacyBackupKeyPath).
+const AcceptKeyLossEnvVar = "PMM_ENCRYPTION_ACCEPT_KEY_LOSS"
+
+// AcceptKeyLoss reports whether AcceptKeyLossEnvVar is set to a true value.
+func AcceptKeyLoss() bool {
+	accept, _ := strconv.ParseBool(os.Getenv(AcceptKeyLossEnvVar))
+
+	return accept
 }
 
 // Load reads and parses the keyset file.

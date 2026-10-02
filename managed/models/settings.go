@@ -115,6 +115,10 @@ type Settings struct {
 		// Enabled is true if access control is enabled.
 		Enabled *bool `json:"enabled"`
 	} `json:"access_control"`
+
+	// EncryptionKeyCheck is a known value encrypted with the key the database
+	// was set up with; see keyCheckPlaintext.
+	EncryptionKeyCheck string `json:"encryption_key_check,omitempty"`
 }
 
 // IsAlertingEnabled returns true if alerting is enabled.

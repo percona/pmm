@@ -122,3 +122,10 @@ func TestNonAEADKeyset(t *testing.T) {
 	_, err = c.WithLegacyKeys(NewFileKeyProvider(filepath.Join(t.TempDir(), "missing.key")))
 	require.ErrorIs(t, err, ErrKeysetNotFound)
 }
+
+func TestAcceptKeyLoss(t *testing.T) {
+	for value, accept := range map[string]bool{"": false, "0": false, "false": false, "yes": false, "1": true, "true": true} {
+		t.Setenv(AcceptKeyLossEnvVar, value)
+		assert.Equal(t, accept, AcceptKeyLoss(), value)
+	}
+}

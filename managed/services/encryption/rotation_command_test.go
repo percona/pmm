@@ -78,6 +78,10 @@ func TestRotateEncryptionKeyCommand(t *testing.T) {
 	})
 	// still live when a subtest's cleanup runs, unlike the subtest's own
 	ctx := t.Context()
+	// set up with the test key, unlike the subtests' key files; the restart is
+	// fake, so no startup migration re-encrypts the key check
+	_, err := sqlDB.ExecContext(ctx, "UPDATE settings SET settings = settings - 'encryption_key_check'")
+	require.NoError(t, err)
 
 	t.Run("adds a primary key and keeps the old one", func(t *testing.T) {
 		fakeSupervisorctl(t, 0)
@@ -141,6 +145,17 @@ func TestRotateEncryptionKeyCommand(t *testing.T) {
 		code, err := RotateEncryptionKey(sqlDB, true)
 		require.ErrorContains(t, err, "cannot decrypt stored credentials")
 		assert.Equal(t, codeSweepFailed, code)
+	})
+
+	t.Run("refused in HA", func(t *testing.T) {
+		fakeSupervisorctl(t, 0)
+		path, oldKeyID := keyFile(t)
+		t.Setenv("PMM_HA_ENABLE", "1")
+
+		code, err := RotateEncryptionKey(sqlDB, false)
+		require.ErrorContains(t, err, "not supported in HA mode")
+		assert.Equal(t, codeRotationFailed, code)
+		assert.Equal(t, []uint32{oldKeyID}, keysetIDs(t, path), "the keyset is unchanged")
 	})
 
 	t.Run("no key file", func(t *testing.T) {

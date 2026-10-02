@@ -52,6 +52,10 @@ var (
 	// fields (PMM-15188); without the key of the inner layer the secret
 	// cannot be recovered.
 	ErrLegacyInnerKeyLost = errors.New("secret is wrapped in an extra encryption layer whose key is not available")
+	// ErrUnknownKey is returned for an envelope encrypted with a key that is
+	// not in the keyset. Decrypt fails on it unless the cipher accepts key
+	// loss (see AcceptingKeyLoss).
+	ErrUnknownKey = errors.New("ciphertext encrypted with a key that is not in the keyset")
 )
 
 const (
@@ -102,9 +106,12 @@ type Cipher struct {
 	handle    *keyset.Handle
 	primitive tink.AEAD
 	primaryID uint32
+	keyIDs    map[uint32]bool
 	// legacyKeys decrypt legacy ciphertext: the keyset itself first, then
 	// decrypt-only keys added with WithLegacyKeys
 	legacyKeys []legacyKeyset
+	// acceptKeyLoss passes envelopes of unknown keys through, see AcceptingKeyLoss
+	acceptKeyLoss bool
 }
 
 type legacyKeyset struct {
@@ -175,6 +182,7 @@ func newCipher(p KeyProvider, handle *keyset.Handle) (*Cipher, error) {
 		handle:     handle,
 		primitive:  primitive,
 		primaryID:  primary.KeyID(),
+		keyIDs:     keyIDs,
 		legacyKeys: []legacyKeyset{{keyIDs: keyIDs, primitive: primitive}},
 	}, nil
 }
@@ -202,6 +210,24 @@ func (c *Cipher) WithLegacyKeys(p KeyProvider) (*Cipher, error) {
 	cp.legacyKeys = append(slices.Clone(c.legacyKeys), legacyKeyset{keyIDs: keyIDs, primitive: primitive})
 
 	return &cp, nil
+}
+
+// AcceptingKeyLoss returns a copy of the cipher whose Decrypt passes an
+// envelope of a key it does not hold through unchanged, as it does with legacy
+// ciphertext of an unknown key, instead of failing. The startup migration
+// rewrites such values as lost once the administrator has accepted that their
+// key is gone (see AcceptKeyLossEnvVar); placing the key next to the key file
+// later makes them readable again (see WithLegacyKeys).
+func (c *Cipher) AcceptingKeyLoss() *Cipher {
+	cp := *c
+	cp.acceptKeyLoss = true
+
+	return &cp
+}
+
+// AcceptsKeyLoss reports whether the cipher was created by AcceptingKeyLoss.
+func (c *Cipher) AcceptsKeyLoss() bool {
+	return c.acceptKeyLoss
 }
 
 // LegacyBackupKeyPath returns where PMM 3.x rotation left the previous key
@@ -242,7 +268,9 @@ func (c *Cipher) Encrypt(plaintext string) (string, error) {
 }
 
 // Decrypt returns the plaintext for a stored value:
-//   - envelope format: decrypted with the keyset; any failure is an error
+//   - envelope format: decrypted with the keyset; any failure is an error,
+//     except that a cipher accepting key loss returns an envelope of a key it
+//     does not hold unchanged (see AcceptingKeyLoss)
 //   - legacy format (base64 Tink ciphertext): decrypted; a value carrying the
 //     ID of a key in the keyset that fails authentication is an error
 //     (ErrLegacyAuthFailed), a value carrying an unknown key ID is returned
@@ -256,6 +284,8 @@ func (c *Cipher) Decrypt(stored string) (string, error) {
 	switch {
 	case errors.Is(err, ErrLegacyUnknownKey), errors.Is(err, ErrLegacyInnerKeyLost):
 		return plaintext, nil
+	case errors.Is(err, ErrUnknownKey) && c.acceptKeyLoss:
+		return stored, nil
 	case err != nil:
 		return "", err
 	}
@@ -356,6 +386,9 @@ func (c *Cipher) openEnvelope(stored string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if id, ok := tinkKeyID(ciphertext); ok && !c.keyIDs[id] {
+		return "", fmt.Errorf("%w (key ID %d)", ErrUnknownKey, id)
+	}
 	plaintext, err := c.primitive.Decrypt(ciphertext, nil)
 	if err != nil {
 		return "", fmt.Errorf("decryption failed: %w", err)
@@ -366,15 +399,25 @@ func (c *Cipher) openEnvelope(stored string) (string, error) {
 
 // innerEnvelope opens an envelope found under an already removed layer. PMM
 // before the envelope format re-encrypts every column in the legacy format at
-// startup, so running it after an upgrade wraps envelopes in a legacy layer.
-// A value that only looks like an envelope is left to the caller.
+// startup, so running it after an upgrade wraps envelopes in a legacy layer;
+// the startup migration wraps an envelope of a lost key in one of the primary
+// key (see AcceptingKeyLoss). Decrypt-only keys open it too, so that such a
+// value is readable again once its key is placed next to the key file. A
+// value that only looks like an envelope is left to the caller.
 func (c *Cipher) innerEnvelope(v string, layers int) (string, bool) {
 	if layers == 0 || !IsEncrypted(v) {
 		return "", false
 	}
-	plaintext, err := c.openEnvelope(v)
+	ciphertext, err := unwrapEnvelope(v)
+	if err != nil {
+		return "", false
+	}
+	keysets := make([]tink.AEAD, len(c.legacyKeys))
+	for i, k := range c.legacyKeys {
+		keysets[i] = k.primitive
+	}
 
-	return plaintext, err == nil
+	return decryptWithAny(keysets, ciphertext)
 }
 
 func decryptWithAny(keysets []tink.AEAD, ciphertext []byte) (string, bool) {
