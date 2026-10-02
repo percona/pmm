@@ -48,7 +48,7 @@ describe('Page', () => {
 
   describe('surface', () => {
     it('renders on the paper surface when a page specifies none', () => {
-      const stage = measurePageSurface('default');
+      const stage = measurePageSurface('canvas');
       const paper = measurePageSurface('paper');
 
       // Guards the assertion below: it only means anything while the two
@@ -68,13 +68,13 @@ describe('Page', () => {
       expect(unspecified).toBe(paper);
     });
 
-    it('renders on the default surface when a page opts out', () => {
+    it('renders on the canvas surface when a page opts out', () => {
       const paper = measurePageSurface('paper');
 
       const optedOut = measureSurface(() =>
         render(
           <TestWrapper>
-            <Page surface="default">
+            <Page surface="canvas">
               <div>Page Content</div>
             </Page>
           </TestWrapper>
@@ -82,7 +82,7 @@ describe('Page', () => {
       );
 
       expect(optedOut).not.toBe(paper);
-      expect(optedOut).toBe(measurePageSurface('default'));
+      expect(optedOut).toBe(measurePageSurface('canvas'));
     });
   });
 });

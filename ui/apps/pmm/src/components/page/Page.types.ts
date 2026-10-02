@@ -18,10 +18,10 @@ export interface PageProps extends PropsWithChildren {
   fullWidth?: boolean;
   /**
    * Background the page paints behind its content. A plain content page sits
-   * on `'paper'`. A page composed of cards opts out with `'default'`, where
+   * on `'paper'`. A page composed of cards opts out with `'canvas'`, where
    * the darker tone makes the cards stand out.
    * @default 'paper'
    */
-  surface?: 'default' | 'paper';
+  surface?: 'canvas' | 'paper';
   roles?: OrgRole[];
 }

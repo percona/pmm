@@ -38,7 +38,7 @@ export const Updates: FC = () => {
   return (
     <Page
       title={settings?.newUIEnabled ? Messages.titleNewUI : Messages.title}
-      surface="default"
+      surface="canvas"
     >
       {!settings?.newUIEnabled && (
         <Card variant="outlined">
