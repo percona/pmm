@@ -711,7 +711,9 @@ func TestAgentHelpers(t *testing.T) {
 			TLS:           true,
 			ValkeyOptions: options,
 		}
-		require.NoError(t, q.Insert(new(models.EncryptAgent(row))))
+		encrypted, err := models.EncryptAgent(row)
+		require.NoError(t, err)
+		require.NoError(t, q.Insert(&encrypted))
 	}
 
 	t.Run("CreateAgentRejectsIncompleteValkeyKeyPair", func(t *testing.T) {
