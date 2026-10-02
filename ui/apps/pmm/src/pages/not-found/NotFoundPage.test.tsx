@@ -17,6 +17,10 @@ const renderAt = (initialEntries: string[]) =>
   );
 
 describe('NotFoundPage', () => {
+  beforeEach(() => {
+    window.history.replaceState(null, '');
+  });
+
   it('shows the heading and explanation', () => {
     renderAt(['/feed?tab=1']);
 
@@ -55,7 +59,15 @@ describe('NotFoundPage', () => {
     expect(screen.queryByTestId('not-found-back-button')).toBeNull();
   });
 
+  it('hides "Go back" when a redirect replaced the first entry', () => {
+    window.history.replaceState({ idx: 0 }, '');
+    renderAt(['/help', '/feed']);
+
+    expect(screen.queryByTestId('not-found-back-button')).toBeNull();
+  });
+
   it('shows "Go back" and returns to the previous page when there is history', () => {
+    window.history.replaceState({ idx: 1 }, '');
     renderAt(['/help', '/feed']);
 
     fireEvent.click(screen.getByTestId('not-found-back-button'));

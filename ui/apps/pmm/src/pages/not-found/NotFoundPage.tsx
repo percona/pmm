@@ -4,15 +4,15 @@ import { NothingFoundIllustration } from '@percona/peak-ui';
 import { Page } from 'components/page';
 import { PMM_NEW_NAV_HOME_URL } from 'lib/constants';
 import type { FC } from 'react';
-import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Messages } from './NotFoundPage.messages';
 
 export const NotFoundPage: FC = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  // React Router assigns the key 'default' to the first entry of a session,
-  // i.e. when the user landed here directly from a bookmark or external link.
-  const canGoBack = location.key !== 'default';
+  // React Router stores the position of the current entry in history state.
+  // Index 0 means the user landed here directly (bookmark, external link, or
+  // a redirect that replaced the first entry), so there is nothing to go back to.
+  const canGoBack = (window.history.state?.idx ?? 0) > 0;
 
   return (
     <Page title={Messages.title} hideTitle surface="paper" footer={null}>
