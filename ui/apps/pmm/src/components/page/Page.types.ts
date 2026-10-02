@@ -16,6 +16,12 @@ export interface PageProps extends PropsWithChildren {
    * `maxWidth="full"` when `maxWidth` is not set.
    */
   fullWidth?: boolean;
+  /**
+   * Background the page paints behind its content. A plain content page sits
+   * on `'paper'`. A page composed of cards opts out with `'default'`, where
+   * the darker tone makes the cards stand out.
+   * @default 'paper'
+   */
   surface?: 'default' | 'paper';
   roles?: OrgRole[];
 }

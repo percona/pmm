@@ -36,7 +36,10 @@ export const Updates: FC = () => {
   }
 
   return (
-    <Page title={settings?.newUIEnabled ? Messages.titleNewUI : Messages.title}>
+    <Page
+      title={settings?.newUIEnabled ? Messages.titleNewUI : Messages.title}
+      surface="default"
+    >
       {!settings?.newUIEnabled && (
         <Card variant="outlined">
           <Stack sx={{ position: 'relative' }}>
