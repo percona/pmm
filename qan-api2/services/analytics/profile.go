@@ -21,6 +21,9 @@ import (
 	"fmt"
 	"strings"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 )
@@ -28,18 +31,18 @@ import (
 // GetReport implements rpc to get report for given filtering.
 func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*qanpb.GetReportResponse, error) { //nolint:gocognit
 	if in.PeriodStartFrom == nil || in.PeriodStartTo == nil {
-		return nil, fmt.Errorf("from-date: %v or to-date: %v cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
+		return nil, status.Errorf(codes.InvalidArgument, "from-date: %v or to-date: %v cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
 	}
 
 	periodStartFromSec := in.PeriodStartFrom.Seconds
 	periodStartToSec := in.PeriodStartTo.Seconds
 	if periodStartFromSec > periodStartToSec {
-		return nil, fmt.Errorf("from-date %v cannot be later then to-date %v", in.PeriodStartFrom, in.PeriodStartTo)
+		return nil, status.Errorf(codes.InvalidArgument, "from-date %v cannot be later then to-date %v", in.PeriodStartFrom, in.PeriodStartTo)
 	}
-	periodDurationSec := periodStartToSec - periodStartFromSec
+	periodDurationSec := models.PeriodDuration(periodStartFromSec, periodStartToSec)
 
 	if _, ok := standartDimensions[in.GroupBy]; !ok {
-		return nil, fmt.Errorf("unknown group dimension: %#q", in.GroupBy)
+		return nil, status.Errorf(codes.InvalidArgument, "unknown group dimension: '%s'", in.GroupBy)
 	}
 	group := in.GroupBy
 
@@ -110,7 +113,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 
 	order, orderCol := getOrderBy(in.OrderBy, uniqColumns[0])
 	if _, ok := uniqColumnsMap[orderCol]; !ok {
-		return nil, fmt.Errorf("order column %#q not in selected columns: [%s]", orderCol, strings.Join(uniqColumns, ", "))
+		return nil, status.Errorf(codes.InvalidArgument, "order column '%s' not in selected columns: [%s]", orderCol, strings.Join(uniqColumns, ", "))
 	}
 
 	resp := &qanpb.GetReportResponse{}

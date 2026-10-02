@@ -31,6 +31,7 @@ Tests are grouped by API domain, mirroring the `/api` directory structure:
 | `management/` | Management API | Add/remove MySQL, PostgreSQL, MongoDB, etc. |
 | `management/action/` | Actions API | Explain, PT summary |
 | `management/services/` | Management Services | Agent management |
+| `qan/` | Query Analytics API | Report/metrics/filters request handling, period-range validation |
 | `server/` | Server API | Version, auth, settings |
 | `user/` | User API | User preferences |
 
