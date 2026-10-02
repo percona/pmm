@@ -16,6 +16,7 @@
 package grafana
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -107,7 +108,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "admin")
 
-		_, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		_, res := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
 		assert.Nil(t, res)
 	})
 
@@ -117,7 +118,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 		require.NoError(t, err)
 
-		_, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		_, res := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
 		assert.Equal(t, &authError{code: codes.Unauthenticated, message: "Unauthorized"}, res)
 	})
 
@@ -141,7 +142,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 				require.NoError(t, err)
 				req.SetBasicAuth(login, login)
 
-				_, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+				_, res := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
 				if minRole <= role {
 					assert.Nil(t, res)
 				} else {
@@ -166,7 +167,7 @@ func TestServerClientConnection(t *testing.T) {
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "admin")
 
-		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		_, authError := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
 		assert.Nil(t, authError)
 	})
 
@@ -178,7 +179,7 @@ func TestServerClientConnection(t *testing.T) {
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "wrong")
 
-		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		_, authError := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
 		assert.Equal(t, codes.Unauthenticated, authError.code)
 	})
 
@@ -202,7 +203,7 @@ func TestServerClientConnection(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Authorization", "Bearer "+serviceToken)
 
-		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		_, authError := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
 		assert.Nil(t, authError)
 	})
 
@@ -213,7 +214,7 @@ func TestServerClientConnection(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Authorization", "Bearer wrong")
 
-		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		_, authError := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
 		assert.Equal(t, codes.Internal, authError.code)
 	})
 }
@@ -286,6 +287,23 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 			"/graph/api/ds/query":        true,
 			"/v1/qan/metrics:getFilters": true,
 			"/v1/qan/query:exists":       true,
+			// Every route to a data source must be filtered, whatever the id and sub-path.
+			"/graph/api/datasources/proxy/1/api/v1/query":                         true,
+			"/graph/api/datasources/proxy/137/api/v1/query":                       true,
+			"/graph/api/datasources/proxy/uid/PA58DA793C7250F1B/api/v1/query":     true,
+			"/graph/api/datasources/proxy/1/api/v1/export":                        true,
+			"/graph/api/datasources/proxy/1/snapshot/create":                      true,
+			"/graph/api/datasources/1/resources/api/v1/query":                     true,
+			"/graph/api/datasources/uid/PA58DA793C7250F1B/resources/api/v1/query": true,
+			// Grafana routes the decoded path, so an escaped separator must not evade
+			// the prefixes.
+			"/graph/api/datasources%2Fproxy/1/api/v1/query":                           true,
+			"/graph/api/datasources%2Fuid%2FPA58DA793C7250F1B/resources/api/v1/query": true,
+			// Alerting runs a rule's queries on the caller's behalf to preview it.
+			"/graph/api/v1/eval":                    true,
+			"/graph/api/v1/rule/test/grafana":       true,
+			"/graph/api/v1/rule/backtest":           true,
+			"/graph/api/ruler/grafana/api/v1/rules": false,
 		} {
 			for _, userID := range []int{0, 1337, 1338} {
 				t.Run(fmt.Sprintf("uri=%s userID=%d", uri, userID), func(t *testing.T) {
@@ -297,7 +315,12 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 						req.SetBasicAuth("admin", "admin")
 					}
 
-					err = s.maybeAddLBACFilters(ctx, rw, req, userID, logrus.WithField("test", t.Name()))
+					// The handler matches the cleaned path, so the test feeds
+					// the raw URI through the same step.
+					cleanedPath, err := cleanPath(uri)
+					require.NoError(t, err)
+
+					err = s.maybeAddLBACFilters(ctx, rw, req, cleanedPath, userID, logrus.WithField("test", t.Name()))
 					require.NoError(t, err)
 
 					headerString := rw.Header().Get(lbacHeaderName)
@@ -318,7 +341,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/prometheus/api/v1/", nil)
 		require.NoError(t, err)
 
-		err = s.maybeAddLBACFilters(ctx, rw, req, 1338, logrus.WithField("test", t.Name()))
+		err = s.maybeAddLBACFilters(ctx, rw, req, req.URL.Path, 1338, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
 		headerString := rw.Header().Get(lbacHeaderName)
@@ -337,16 +360,59 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 
 	//nolint:paralleltest
 	t.Run("shall not add any filters if at least one role has full access", func(t *testing.T) {
-		rw := httptest.NewRecorder()
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/prometheus/api/v1/", nil)
-		require.NoError(t, err)
+		for _, uri := range []string{
+			"/prometheus/api/v1/",
+			"/graph/api/datasources/proxy/1/api/v1/query",
+			"/graph/api/datasources/proxy/uid/PA58DA793C7250F1B/api/v1/query",
+			"/graph/api/datasources/1/resources/api/v1/query",
+		} {
+			rw := httptest.NewRecorder()
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
+			require.NoError(t, err)
 
-		err = s.maybeAddLBACFilters(ctx, rw, req, 1339, logrus.WithField("test", t.Name()))
-		require.NoError(t, err)
+			err = s.maybeAddLBACFilters(ctx, rw, req, uri, 1339, logrus.WithField("test", t.Name()))
+			require.NoError(t, err)
 
-		headerString := rw.Header().Get(lbacHeaderName)
-		require.Empty(t, headerString)
+			headerString := rw.Header().Get(lbacHeaderName)
+			require.Emptyf(t, headerString, "uri=%s", uri)
+		}
 	})
+
+	// Grafana tests a data source-managed rule through a request of its own, without the
+	// filter header, so a filtered user must be refused rather than served unfiltered.
+	//nolint:paralleltest
+	t.Run("shall refuse a filtered user a route that drops the filters", func(t *testing.T) {
+		const uri = "/graph/api/v1/rule/test/PA58DA793C7250F1B"
+
+		for userID, wantErr := range map[int]bool{1337: true, 1339: false} {
+			rw := httptest.NewRecorder()
+			req, err := http.NewRequestWithContext(ctx, http.MethodPost, uri, nil)
+			require.NoError(t, err)
+
+			err = s.maybeAddLBACFilters(ctx, rw, req, uri, userID, logrus.WithField("test", t.Name()))
+			if wantErr {
+				require.ErrorIsf(t, err, errFiltersDropped, "userID=%d", userID)
+			} else {
+				require.NoErrorf(t, err, "userID=%d", userID)
+			}
+			require.Emptyf(t, rw.Header().Get(lbacHeaderName), "userID=%d", userID)
+		}
+	})
+}
+
+func TestDropsFilters(t *testing.T) {
+	t.Parallel()
+
+	for p, want := range map[string]bool{
+		"/graph/api/v1/rule/test/PA58DA793C7250F1B": true,
+		"/graph/api/v1/rule/test/":                  true,
+		"/graph/api/v1/rule/test/grafana":           false,
+		"/graph/api/v1/rule/test/grafana/":          false,
+		"/graph/api/v1/eval":                        false,
+		"/graph/api/ds/query":                       false,
+	} {
+		assert.Equalf(t, want, dropsFilters(p), "dropsFilters(%s)", p)
+	}
 }
 
 func TestCleanPath(t *testing.T) {
@@ -356,17 +422,33 @@ func TestCleanPath(t *testing.T) {
 		expected string
 	}{
 		{
-			"/v1/server/AWSInstanceCheck/..%2f..%2finventory/Services/List",
-			"/v1/inventory/Services/List",
-		}, {
-			"/v1/server/AWSInstanceCheck/..%2f..%2f..%2fmanaged/logs.zip",
-			"/managed/logs.zip",
-		}, {
-			"/v1/server/AWSInstanceCheck/..%2f..%2f..%2f/logs.zip",
-			"/logs.zip",
-		}, {
 			"/graph/api/datasources/proxy/8/?query=WITH%20(%0A%20%20%20%20CASE%20%0A%20%20%20%20%20%20%20%20WHEN%20(3000%20%25%2060)%20%3D%200%20THEN%203000%0A%20%20%20%20ELSE%2060%20END%0A)%20AS%20scale%0ASELECT%0A%20%20%20%20(intDiv(toUInt32(timestamp)%2C%203000)%20*%203000)%20*%201000%20as%20t%2C%0A%20%20%20%20hostname%20h%2C%0A%20%20%20%20status%20s%2C%0A%20%20%20%20SUM(req_count)%20as%20req_count%0AFROM%20pinba.report_by_all%0AWHERE%0A%20%20%20%20timestamp%20%3E%3D%20toDateTime(1707139680)%20AND%20timestamp%20%3C%3D%20toDateTime(1707312480)%0A%20%20%20%20AND%20status%20%3E%3D%20400%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20schema%20%3D%20%27all%27%20ELSE%201%20END%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20hostname%20%3D%20%27all%27%20ELSE%201%20END%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20server_name%20%3D%20%27all%27%20ELSE%201%20END%0AGROUP%20BY%20t%2C%20h%2C%20s%0AORDER%20BY%20t%20FORMAT%20JSON",
 			"/graph/api/datasources/proxy/8/",
+		}, {
+			// A "../" in the query string must not walk the path: cleaned together,
+			// this authenticates as /ping, which needs no role at all.
+			"/prometheus/api/v1/query?query=up&x=/../../../../ping",
+			"/prometheus/api/v1/query",
+		}, {
+			"/graph/api/datasources/proxy/1/api/v1/query?query=up&x=/../../../../../../ping",
+			"/graph/api/datasources/proxy/1/api/v1/query",
+		}, {
+			"/v1/server/logs.zip#/../../ping",
+			"/v1/server/logs.zip",
+		}, {
+			// Grafana puts an alert rule group name in the path, so an encoded '?' or '#'
+			// is an ordinary character there.
+			"/graph/api/ruler/grafana/api/v1/rules/folder/PMM-15379%20%231",
+			"/graph/api/ruler/grafana/api/v1/rules/folder/PMM-15379 #1",
+		}, {
+			"/graph/api/ruler/grafana/api/v1/rules/folder/PMM-15379%20%3F2",
+			"/graph/api/ruler/grafana/api/v1/rules/folder/PMM-15379 ?2",
+		}, {
+			"/graph/api/datasources/proxy/1/./api/v1/query",
+			"/graph/api/datasources/proxy/1/api/v1/query",
+		}, {
+			"/graph/api/datasources/proxy/1/api/v1/..query",
+			"/graph/api/datasources/proxy/1/api/v1/..query",
 		},
 	}
 	for _, tt := range tests {
@@ -375,6 +457,74 @@ func TestCleanPath(t *testing.T) {
 			cleanedPath, err := cleanPath(tt.path)
 			require.NoError(t, err)
 			assert.Equalf(t, tt.expected, cleanedPath, "cleanPath(%v)", tt.path)
+		})
+	}
+
+	// Grafana routes on the path as sent, and only the data source resolves a ".." within
+	// its sub-path, so resolving it here would authorize and filter a different path than
+	// the one served -- out of the data source prefix, and out of a role-free one.
+	for _, p := range []string{
+		"/graph/api/datasources/proxy/1/api/v1/query/../../../../../../api/v1/query",
+		"/graph/api/datasources/proxy/1/api/v1/query/%2E%2E/%2e%2e/../../../../api/v1/query",
+		"/graph/api/datasources/proxy/1/api/v1/query%2F..%2F..%2F..%2F..%2F..%2F..%2Fapi/v1/query",
+		"/graph/api/datasources/proxy/1/api/v1/query%3Fa=/../../../../../../api/v1/query",
+		"/graph/api/datasources/proxy/1/api/v1/query%23a=/../../../../../../api/v1/query",
+		"/graph%3F/../../v1/server/logs.zip",
+		"/v1/server/AWSInstanceCheck/..%2f..%2finventory/Services/List",
+		"/v1/server/AWSInstanceCheck/..%2f..%2f..%2f/logs.zip",
+		"/graph/..",
+	} {
+		t.Run(p, func(t *testing.T) {
+			t.Parallel()
+			_, err := cleanPath(p)
+			require.ErrorIs(t, err, errDotDotSegment)
+		})
+	}
+}
+
+// stubClient stands in for Grafana so the admin marker can be tested without one.
+type stubClient struct {
+	user authUser
+}
+
+func (s stubClient) getAuthUser(context.Context, http.Header, *logrus.Entry) (authUser, error) {
+	return s.user, nil
+}
+
+// The marker tells vmproxy that pmm-managed authenticated this caller as an admin, which is
+// what lets the admin-only VictoriaMetrics diagnostics through. Granting it to the wrong role
+// hands every dashboard user the scrape configuration.
+func TestAuthServerAdminHeader(t *testing.T) {
+	t.Parallel()
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() { assert.NoError(t, sqlDB.Close()) })
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	for _, tc := range []struct {
+		role     role
+		expected string
+	}{
+		{role: viewer, expected: ""},
+		{role: editor, expected: ""},
+		{role: admin, expected: "1"},
+		{role: grafanaAdmin, expected: "1"},
+	} {
+		t.Run(tc.role.String(), func(t *testing.T) {
+			t.Parallel()
+
+			s := NewAuthServer(stubClient{user: authUser{role: tc.role, userID: 1}}, db)
+
+			rw := httptest.NewRecorder()
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth_request", nil)
+			// A path whose rule requires a role, so the user is actually resolved.
+			req.Header.Set("X-Original-Uri", "/prometheus/api/v1/status/config")
+			req.Header.Set("X-Original-Method", http.MethodGet)
+			req.SetBasicAuth("user", "password")
+
+			s.ServeHTTP(rw, req)
+
+			assert.Equal(t, tc.expected, rw.Header().Get(adminHeaderName))
 		})
 	}
 }
