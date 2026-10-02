@@ -1,0 +1,2941 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "datasource",
+                    "uid": "grafana"
+                },
+                "enable": true,
+                "hide": false,
+                "iconColor": "#e0752d",
+                "limit": 100,
+                "matchAny": true,
+                "name": "PMM Annotations",
+                "showIn": 0,
+                "tags": [
+                    "pmm_annotation",
+                    "$service_name"
+                ],
+                "target": {
+                    "limit": 100,
+                    "matchAny": true,
+                    "tags": [
+                        "pmm_annotation",
+                        "$service_name"
+                    ],
+                    "type": "tags"
+                },
+                "type": "tags"
+            },
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "datasource",
+                    "uid": "grafana"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "#6ed0e0",
+                "limit": 100,
+                "name": "Annotations & Alerts",
+                "showIn": 0,
+                "tags": [],
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
+                "type": "dashboard"
+            }
+        ]
+    },
+    "description": "Percona ClusterSync for MongoDB (PCSM): sync lag, change replication, initial sync, HA roles and process health.",
+    "editable": false,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "id": null,
+    "links": [],
+    "panels": [
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 1,
+            "panels": [],
+            "title": "Overview",
+            "type": "row"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Whether PMM can scrape each PCSM instance's /metrics endpoint (1 = UP, 0 = DOWN). An instance that has been unreachable for the whole selected time range is not listed in the Service Name variable and is not shown here. If the PCSM host or its pmm-agent is down, no scrape result exists and the stat shows \"unknown\"; use the Node Summary dashboard for host health.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "targetBlank": false,
+                            "title": "Node Summary for ${__field.labels.node_name}",
+                            "url": "/graph/d/node-instance-summary/node-summary?var-node_name=${__field.labels.node_name}&$__url_time_range"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "red",
+                                    "index": 0,
+                                    "text": "DOWN"
+                                },
+                                "1": {
+                                    "color": "green",
+                                    "index": 1,
+                                    "text": "UP"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "noValue": "unknown",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red"
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 0,
+                "y": 1
+            },
+            "id": 2,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "up{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\",service_name!=\"\"}",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Exporter Up",
+            "type": "stat"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "The PCSM instance that currently holds the HA lease (ACTIVE) and runs the sync. Requires PCSM 1.0.0 or later.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [],
+                    "mappings": [
+                        {
+                            "options": {
+                                "1": {
+                                    "color": "green",
+                                    "index": 0,
+                                    "text": "ACTIVE"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "noValue": "none",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text"
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 6,
+                "y": 1
+            },
+            "id": 3,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 1)",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Active Instance",
+            "type": "stat"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Lag between the source and target clusters, in logical seconds, reported by the ACTIVE instance. A value of 0 is also reported before replication has started.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 10
+                            },
+                            {
+                                "color": "red",
+                                "value": 60
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 12,
+                "y": 1
+            },
+            "id": 4,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Replication Lag",
+            "type": "stat"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Remaining logical seconds until the initial sync catches up, reported by the ACTIVE instance. After the initial sync completes, PCSM keeps reporting the last value until the process restarts.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 10
+                            },
+                            {
+                                "color": "red",
+                                "value": 60
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 18,
+                "y": 1
+            },
+            "id": 5,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_initial_sync_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Initial Sync Lag",
+            "type": "stat"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Replication lag and initial-sync lag of the ACTIVE instance, in logical seconds.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 5
+            },
+            "id": 6,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Replication lag - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_initial_sync_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Initial sync lag - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Lag Time",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Change events read from the source and applied to the target per second by the ACTIVE instance. Read persistently above applied means a growing backlog.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "ops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 5
+            },
+            "id": 7,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (rate(percona_clustersync_mongodb_events_read_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Read - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (rate(percona_clustersync_mongodb_events_applied_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Applied - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Change Events Rate",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 13
+            },
+            "id": 8,
+            "panels": [],
+            "title": "High Availability",
+            "type": "row"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Role of each PCSM instance over time: ACTIVE holds the lease and runs the sync, STANDBY waits to take over. Requires PCSM 1.0.0 or later.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "fixed"
+                    },
+                    "custom": {
+                        "fillOpacity": 70,
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineWidth": 0,
+                        "spanNulls": false
+                    },
+                    "links": [],
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "blue",
+                                    "index": 0,
+                                    "text": "STANDBY"
+                                },
+                                "1": {
+                                    "color": "green",
+                                    "index": 1,
+                                    "text": "ACTIVE"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue"
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 14
+            },
+            "id": 9,
+            "options": {
+                "alignValue": "left",
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": false
+                },
+                "mergeValues": true,
+                "rowHeight": 0.9,
+                "showValue": "auto",
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Instance Roles",
+            "type": "state-timeline"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Current HA lease term per cluster (HA group). It increases every time a different instance takes over the lease.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 0,
+                    "links": [],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 12,
+                "y": 14
+            },
+            "id": 10,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (cluster) (percona_clustersync_mongodb_ha_term{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "{{cluster}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Lease Term",
+            "type": "stat"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "HA role changes per instance in the selected time range. An instance that starts and becomes ACTIVE counts one transition (STANDBY to ACTIVE at startup).",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 0,
+                    "links": [],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 18,
+                "y": 14
+            },
+            "id": 11,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (increase(percona_clustersync_mongodb_ha_role_transitions_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}[$__range]))",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Role Transitions",
+            "type": "stat"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 22
+            },
+            "id": 12,
+            "panels": [],
+            "title": "Change Replication",
+            "type": "row"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Events waiting in the reader-to-dispatcher queue of the ACTIVE instance.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 0,
+                "y": 23
+            },
+            "id": 13,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_repl_event_queue_size{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Dispatcher Queue",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Events waiting in the replication workers' inbound queues of the ACTIVE instance: total across workers, and the fullest single worker.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 8,
+                "y": 23
+            },
+            "id": 14,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (percona_clustersync_mongodb_repl_worker_event_queue_size{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Total - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_repl_worker_event_queue_size{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Fullest worker - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Worker Event Queues",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Sealed bulk writes waiting in the workers' async queues of the ACTIVE instance: total, and the fullest single worker.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 16,
+                "y": 23
+            },
+            "id": 15,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (percona_clustersync_mongodb_repl_worker_bulk_queue_size{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Total - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_repl_worker_bulk_queue_size{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Fullest worker - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Worker Bulk Queues",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Events applied per second by all replication workers of the ACTIVE instance.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "ops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 0,
+                "y": 31
+            },
+            "id": 16,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (rate(percona_clustersync_mongodb_repl_worker_events_applied_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Worker Events Applied",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "99th percentile duration of bulk write flushes to the target, across all workers of the ACTIVE instance. Shows no data while the source has no writes, because there are no flushes to measure.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 8,
+                "y": 31
+            },
+            "id": 17,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "histogram_quantile(0.99, sum by (service_name, le) (rate(percona_clustersync_mongodb_repl_worker_flush_duration_seconds_bucket{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)))",
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Flush Duration (p99)",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "99th percentile number of operations per bulk write flush, across all workers of the ACTIVE instance. Shows no data while the source has no writes, because there are no flushes to measure.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 16,
+                "y": 31
+            },
+            "id": 18,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "histogram_quantile(0.99, sum by (service_name, le) (rate(percona_clustersync_mongodb_repl_worker_flush_batch_size_bucket{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)))",
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Flush Batch Size (p99)",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 39
+            },
+            "id": 22,
+            "panels": [
+                {
+                    "datasource": "Metrics",
+                    "description": "Top 10 workers by inbound queue size over the selected range (ACTIVE instance only).",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 0,
+                        "y": 40
+                    },
+                    "id": 19,
+                    "maxPerRow": 2,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "repeat": "service_name",
+                    "repeatDirection": "h",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "topk_max(10, (percona_clustersync_mongodb_repl_worker_event_queue_size{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)))",
+                            "interval": "$interval",
+                            "legendFormat": "w{{worker}}",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Worker Event Queue - $service_name",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "Top 10 workers by events applied per second over the selected range (ACTIVE instance only).",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "ops"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 0,
+                        "y": 48
+                    },
+                    "id": 20,
+                    "maxPerRow": 2,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "repeat": "service_name",
+                    "repeatDirection": "h",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "topk_max(10, (rate(percona_clustersync_mongodb_repl_worker_events_applied_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)))",
+                            "interval": "$interval",
+                            "legendFormat": "w{{worker}}",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Worker Events Applied - $service_name",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "Top 10 workers by p99 bulk write flush duration over the selected range (ACTIVE instance only). Workers that did not flush in the interval are not shown.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "s"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 0,
+                        "y": 56
+                    },
+                    "id": 21,
+                    "maxPerRow": 2,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "repeat": "service_name",
+                    "repeatDirection": "h",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "topk_max(10, histogram_quantile(0.99, sum by (worker, le) (rate(percona_clustersync_mongodb_repl_worker_flush_duration_seconds_bucket{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))))",
+                            "interval": "$interval",
+                            "legendFormat": "w{{worker}}",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Worker Flush Duration (p99) - $service_name",
+                    "type": "timeseries"
+                }
+            ],
+            "title": "Per-Worker Detail",
+            "type": "row"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 40
+            },
+            "id": 23,
+            "panels": [],
+            "title": "Initial Sync",
+            "type": "row"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Share of the estimated data size inserted into the target by the ACTIVE instance. Only meaningful during an uninterrupted clone: the estimate is set when a clone starts, and the counters reset when PCSM restarts or fails over.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 1,
+                    "links": [],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue"
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 0,
+                "y": 41
+            },
+            "id": 24,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_copy_insert_size_bytes_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)) / max by (service_name) ((percona_clustersync_mongodb_estimated_total_size_bytes{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)) > 0)",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Copy Progress",
+            "type": "stat"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Bytes inserted into the target during the initial clone, against the estimated total size to copy (ACTIVE instance). The copy counters belong to each PCSM process, so an instance that became ACTIVE after a restart or failover shows no clone data.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 9,
+                "x": 6,
+                "y": 41
+            },
+            "id": 25,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_copy_insert_size_bytes_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Inserted - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_estimated_total_size_bytes{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Estimated total - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Copied vs Estimated Size",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Bytes per second read from the source and inserted into the target during the initial clone (ACTIVE instance). The copy counters belong to each PCSM process, so an instance that became ACTIVE after a restart or failover shows no clone data.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "Bps"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 9,
+                "x": 15,
+                "y": 41
+            },
+            "id": 26,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (rate(percona_clustersync_mongodb_copy_read_size_bytes_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Read - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (rate(percona_clustersync_mongodb_copy_insert_size_bytes_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Insert - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Copy Throughput",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Documents per second read from the source and inserted into the target during the initial clone (ACTIVE instance). The copy counters belong to each PCSM process, so an instance that became ACTIVE after a restart or failover shows no clone data.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 49
+            },
+            "id": 27,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (rate(percona_clustersync_mongodb_copy_read_document_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Read - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (rate(percona_clustersync_mongodb_copy_insert_document_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Inserted - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Documents Copied per Second",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Duration of the most recent read and insert batch during the initial clone (ACTIVE instance).",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 49
+            },
+            "id": 28,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_copy_read_batch_duration_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Read - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_copy_insert_batch_duration_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Insert - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Batch Duration",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 57
+            },
+            "id": 35,
+            "panels": [
+                {
+                    "datasource": "Metrics",
+                    "description": "CPU used by each PCSM process (100% = one full core).",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "percentunit"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 8,
+                        "x": 0,
+                        "y": 58
+                    },
+                    "id": 29,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "rate(percona_clustersync_mongodb_process_cpu_seconds_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                            "interval": "$interval",
+                            "legendFormat": "{{service_name}}",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "CPU Usage",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "Resident memory (RSS) of each PCSM process.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "bytes"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 8,
+                        "x": 8,
+                        "y": 58
+                    },
+                    "id": 30,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "percona_clustersync_mongodb_process_resident_memory_bytes{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}",
+                            "interval": "$interval",
+                            "legendFormat": "{{service_name}}",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Resident Memory",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "Open and maximum file descriptors of each PCSM process.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 8,
+                        "x": 16,
+                        "y": 58
+                    },
+                    "id": 31,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "percona_clustersync_mongodb_process_open_fds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}",
+                            "interval": "$interval",
+                            "legendFormat": "Open - {{service_name}}",
+                            "range": true,
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "percona_clustersync_mongodb_process_max_fds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}",
+                            "interval": "$interval",
+                            "legendFormat": "Max - {{service_name}}",
+                            "range": true,
+                            "refId": "B"
+                        }
+                    ],
+                    "title": "File Descriptors",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "Go runtime goroutines and OS threads of each PCSM process.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 8,
+                        "x": 0,
+                        "y": 66
+                    },
+                    "id": 32,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "(go_goroutines{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} and on(service_name) percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                            "interval": "$interval",
+                            "legendFormat": "Goroutines - {{service_name}}",
+                            "range": true,
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "(go_threads{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} and on(service_name) percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                            "interval": "$interval",
+                            "legendFormat": "Threads - {{service_name}}",
+                            "range": true,
+                            "refId": "B"
+                        }
+                    ],
+                    "title": "Goroutines and Threads",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "Go heap memory of each PCSM process.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "bytes"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 8,
+                        "x": 8,
+                        "y": 66
+                    },
+                    "id": 33,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "(go_memstats_heap_inuse_bytes{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} and on(service_name) percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                            "interval": "$interval",
+                            "legendFormat": "In use - {{service_name}}",
+                            "range": true,
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "(go_memstats_heap_idle_bytes{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} and on(service_name) percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                            "interval": "$interval",
+                            "legendFormat": "Idle - {{service_name}}",
+                            "range": true,
+                            "refId": "B"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "(go_memstats_sys_bytes{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} and on(service_name) percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                            "interval": "$interval",
+                            "legendFormat": "Obtained from OS - {{service_name}}",
+                            "range": true,
+                            "refId": "C"
+                        }
+                    ],
+                    "title": "Go Heap",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "Median and maximum Go garbage-collection pause of each PCSM process.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "s"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 8,
+                        "x": 16,
+                        "y": 66
+                    },
+                    "id": 34,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "(go_gc_duration_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\",quantile=\"0.5\"} and on(service_name) percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                            "interval": "$interval",
+                            "legendFormat": "p50 - {{service_name}}",
+                            "range": true,
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "(go_gc_duration_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\",quantile=\"1\"} and on(service_name) percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                            "interval": "$interval",
+                            "legendFormat": "Max - {{service_name}}",
+                            "range": true,
+                            "refId": "B"
+                        }
+                    ],
+                    "title": "GC Pause Duration",
+                    "type": "timeseries"
+                }
+            ],
+            "title": "Process",
+            "type": "row"
+        }
+    ],
+    "refresh": false,
+    "schemaVersion": 41,
+    "tags": [
+        "MongoDB",
+        "Percona"
+    ],
+    "templating": {
+        "list": [
+            {
+                "auto": true,
+                "auto_count": 200,
+                "auto_min": "1s",
+                "current": {
+                    "text": "$__auto",
+                    "value": "$__auto"
+                },
+                "hide": 0,
+                "label": "Interval",
+                "name": "interval",
+                "options": [
+                    {
+                        "selected": false,
+                        "text": "1s",
+                        "value": "1s"
+                    },
+                    {
+                        "selected": false,
+                        "text": "5s",
+                        "value": "5s"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1m",
+                        "value": "1m"
+                    },
+                    {
+                        "selected": false,
+                        "text": "5m",
+                        "value": "5m"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1h",
+                        "value": "1h"
+                    },
+                    {
+                        "selected": false,
+                        "text": "6h",
+                        "value": "6h"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1d",
+                        "value": "1d"
+                    }
+                ],
+                "query": "1s,5s,1m,5m,1h,6h,1d",
+                "refresh": 2,
+                "skipUrlSync": false,
+                "type": "interval"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "datasource": "Metrics",
+                "definition": "label_values(percona_clustersync_mongodb_lag_time_seconds, environment)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "Environment",
+                "multi": true,
+                "name": "environment",
+                "options": [],
+                "query": {
+                    "query": "label_values(percona_clustersync_mongodb_lag_time_seconds, environment)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "datasource": "Metrics",
+                "definition": "label_values(percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\"}, cluster)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "Cluster",
+                "multi": true,
+                "name": "cluster",
+                "options": [],
+                "query": {
+                    "query": "label_values(percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\"}, cluster)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "datasource": "Metrics",
+                "definition": "label_values(percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\"}, service_name)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "Service Name",
+                "multi": true,
+                "name": "service_name",
+                "options": [],
+                "query": {
+                    "query": "label_values(percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\"}, service_name)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-12h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "MongoDB ClusterSync Details",
+    "uid": "mongodb-clustersync-details",
+    "version": 1,
+    "weekStart": ""
+}
