@@ -94,6 +94,20 @@ func TestOpenDBUnavailable(t *testing.T) {
 		assert.ErrorContains(t, err, "the database system is shutting down")
 	})
 
+	t.Run("database system is shutting down after startup began", func(t *testing.T) {
+		t.Parallel()
+
+		err := ping(t, fakePostgres(t, "57P01", "terminating connection due to administrator command"))
+		require.ErrorIs(t, err, models.ErrDatabaseUnavailable)
+	})
+
+	t.Run("too many connections", func(t *testing.T) {
+		t.Parallel()
+
+		err := ping(t, fakePostgres(t, "53300", "sorry, too many clients already"))
+		require.ErrorIs(t, err, models.ErrDatabaseUnavailable)
+	})
+
 	t.Run("authentication failure is not retryable", func(t *testing.T) {
 		t.Parallel()
 

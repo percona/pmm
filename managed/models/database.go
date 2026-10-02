@@ -21,6 +21,7 @@ import (
 	"database/sql/driver"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/url"
 	"os"
@@ -1267,9 +1268,20 @@ func isConnectUnavailable(err error) bool {
 	if _, ok := errors.AsType[*net.OpError](err); ok {
 		return true
 	}
+	if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) {
+		return true
+	}
 
 	pqErr, ok := errors.AsType[*pq.Error](err)
-	return ok && pqErr.Code == "57P03" // cannot_connect_now: shutting down, starting up, or in recovery
+	if !ok {
+		return false
+	}
+	switch pqErr.Code.Class() {
+	case "08", "53", "57": // connection exception, insufficient resources, operator intervention
+		return true
+	default:
+		return false
+	}
 }
 
 // SetupFixturesMode defines if SetupDB adds initial data to the database or not.

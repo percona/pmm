@@ -29,6 +29,6 @@ var (
 	ErrRoleIsDefaultRole = errors.New("role is a default role")
 
 	// ErrDatabaseUnavailable is returned when a connection to PostgreSQL cannot be established
-	// (e.g. during a restart or HA failover). No statement was executed, so the request can be retried.
+	// (e.g. during a restart or HA failover). The statement that needed it was not executed.
 	ErrDatabaseUnavailable = errors.New("database is unavailable")
 )

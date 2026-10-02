@@ -30,8 +30,8 @@ const (
 )
 
 // retryTransport retries requests that PMM Server rejected with 503 Service Unavailable,
-// which pmm-managed returns when its database cannot serve the request (e.g. during a PostgreSQL
-// failover in HA). Such requests were not applied, so replaying them is safe.
+// which pmm-managed returns when it cannot connect to its database (e.g. during a PostgreSQL
+// failover in HA), and nginx returns during maintenance.
 type retryTransport struct {
 	next       http.RoundTripper
 	maxRetries int
