@@ -725,36 +725,206 @@ func (s *Service) inventoryHostsByExecutor(ctx context.Context) (map[string]exte
 	return byExecutor, nil
 }
 
+// inventorySyncAppModule is where PMM Extensions mounts the app PMMSyncer
+// belongs to -- a different module from probeAppModule, reached through the same
+// client and the same `/api/apps/<module>` convention.
+const inventorySyncAppModule = "inventory"
+
+// pmmSyncerName is the one syncer triggerInventorySync asks for by name. Syncing
+// only PMMSyncer rather than every configured syncer keeps an unrelated source's
+// cost off a path that runs when a bootstrap finishes.
+const pmmSyncerName = "app.extensions.sync.syncers.pmm.PMMSyncer"
+
+// inventorySyncDebounce is how often triggerInventorySync will actually ask.
+//
+// The sync is global, not per-run, so one pull serves every run that finished in
+// the same window -- and completeSucceededRun reaches this on every 15s tick for
+// as long as refreshRetryWindowOpen holds a run, which would otherwise be twenty
+// full inventory pulls for one bootstrap.
+//
+// A run registering *during* an in-flight pull is not served by it: the pull
+// snapshots PMM's inventory when it starts. That run waits out the rest of the
+// window and is synced by the first tick that gets through, so the debounce
+// costs it at most one window -- well inside bootstrapInventoryRefreshWindow,
+// and still a different order of magnitude from the app's own schedule.
+const inventorySyncDebounce = 45 * time.Second
+
+// inventoryRefreshDebounce is how often triggerScopedInventoryRefresh will
+// re-probe the same node.
+//
+// Shorter than inventorySyncDebounce, because the refresh exists to observe a
+// sync that completed since the last attempt: the pull answers 202 and fills the
+// app's copy in the background, so the probe fired straight after it is the one
+// that finds nothing. Longer than the 15s tick, because nothing the probe reads
+// can change faster than the sync feeding it -- without this, one held run costs
+// twenty probe runs where ten do the same job.
+const inventoryRefreshDebounce = 30 * time.Second
+
+// triggerInventorySync asks PMM Extensions to pull PMM's current services into
+// its own inventory now, instead of waiting for PMMSyncer's schedule.
+//
+// This is the step that was missing between registering a bootstrapped host and
+// re-probing it. The registerBootstrapHost call creates the service in *PMM's*
+// inventory; the estate's probe resolves a host's services from *PMM Extensions'*
+// copy, which only PMMSyncer fills. So triggerScopedInventoryRefresh on its own
+// re-probes a host whose service the app has not heard of yet, and finds
+// nothing -- by construction, since it fires the moment registration completes.
+//
+// Observed on a real deployment: two runs finished at 08:40:31 and 08:41:31, each
+// fired its scoped refresh at exactly that second, and both found no service.
+// The confirm_monitoring step stayed "running" until the app's own 10-minute
+// sweep at 08:50:58, so a pair of entirely successful bootstraps read as hung
+// for nine minutes.
+//
+// Best-effort, and nothing for the caller to decide on: a failure leaves
+// confirm_monitoring to the app's own schedule, which is exactly where it stood
+// before this existed. The caller holds the run on the estate's answer instead
+// -- see completeSucceededRun's doc comment.
+func (s *Service) triggerInventorySync(ctx context.Context) {
+	probe, err := s.inventoryProbe()
+	if err != nil {
+		return
+	}
+
+	stamped := time.Now()
+	s.syncRequestedMu.Lock()
+	if stamped.Sub(s.syncRequested) < inventorySyncDebounce {
+		s.syncRequestedMu.Unlock()
+		return
+	}
+	previous := s.syncRequested
+	s.syncRequested = stamped
+	s.syncRequestedMu.Unlock()
+
+	err = s.postInventorySync(ctx, probe)
+	if err != nil {
+		// Hand the window back. The debounce is armed before the request so two
+		// runs completing in one tick cannot both ask, but the pull it was armed
+		// for never started -- holding the next 45s of ticks off on its behalf
+		// would spend a sixth of the retry window standing down for nothing.
+		s.syncRequestedMu.Lock()
+		if s.syncRequested.Equal(stamped) {
+			s.syncRequested = previous
+		}
+		s.syncRequestedMu.Unlock()
+		s.l.Warnf("failed to trigger an inventory sync after a bootstrap: %s", err)
+	}
+}
+
+// postInventorySync asks the inventory app for one pull by syncer name, falling
+// back to every configured syncer when the app does not recognise the name.
+//
+// The pmmSyncerName constant is a Python dotted path sitting on the far side of
+// a release boundary: PMM Extensions renamed the package holding it (app.sep ->
+// app.extensions), and a side-car older than that rename answers 400 -- the
+// route rejects an unknown syncer rather than no-opping. Without the fallback
+// that 400 costs one Warnf and silently restores the nine-minute hang this whole
+// path exists to remove. With it, the mismatch costs the unrelated syncers' work
+// on a path that runs when a bootstrap finishes, which is the cheaper of the two.
+func (s *Service) postInventorySync(ctx context.Context, probe extensionsApp) error {
+	app := probe.client.app(inventorySyncAppModule)
+	// Trailing slash: the app answers 307 without it, and a redirect is refused
+	// rather than followed so the bearer is never replayed (see refuseRedirect).
+	call := inventoryCall{
+		method: http.MethodPost,
+		path:   "sync/",
+		body:   map[string]any{"syncer": pmmSyncerName},
+	}
+	err := app.call(ctx, call, nil)
+	if status.Code(err) != codes.InvalidArgument {
+		return err
+	}
+
+	s.l.Warnf("the inventory app does not know syncer %s, so asking it to run every configured syncer instead: %s",
+		pmmSyncerName, err)
+	// An absent syncer runs every configured one in declaration order -- the
+	// route's own documented behaviour, not a guess.
+	call.body = map[string]any{}
+	return app.call(ctx, call, nil)
+}
+
 // triggerScopedInventoryRefresh asks the inventory app to re-probe exactly
 // nodeIDs now, rather than leaving confirmMonitoringStep to wait out however
 // long the app's own schedule takes to get there on its own -- called by
 // completeSucceededRun once a run's hosts are registered.
 //
-// Reports whether the app took the request, which is the caller's cue to stop
-// asking.
+// Best-effort, and debounced per node by inventoryRefreshDebounce: the caller
+// reaches this on every tick for as long as the run is held, and probing a node
+// again before the sync that feeds the probe can have delivered anything is
+// work for no new answer.
 //
 // A 409 (Aborted here -- see extensionsStatusError) means some other refresh already
 // holds one of these hosts, and is expected rather than broken: the app judges
 // conflict per host, and the estate sweep it runs on its own schedule holds
 // every host it is walking. That makes a refusal likely exactly when a run
 // finishes, not rare -- a sweep occupies a sizeable fraction of every schedule
-// period -- so it is reported rather than swallowed, and completeSucceededRun
-// decides how long to keep asking. It stays un-logged either way: a conflict is
-// a normal outcome, and this is called on every tick until it lands.
-func (s *Service) triggerScopedInventoryRefresh(ctx context.Context, nodeIDs []string) bool {
+// period -- so it stays un-logged, and starts the debounce window just as
+// acceptance does: either way the re-probe this tick wanted is under way. The
+// caller holds the run on the estate's answer rather than on this outcome.
+func (s *Service) triggerScopedInventoryRefresh(ctx context.Context, nodeIDs []string) {
 	probe, err := s.inventoryProbe()
 	if err != nil {
-		return false
+		return
 	}
-	call := inventoryCall{method: http.MethodPost, path: "runs", body: map[string]any{"node_ids": nodeIDs}}
+	due := s.refreshDue(nodeIDs, time.Now())
+	if len(due) == 0 {
+		return
+	}
+
+	call := inventoryCall{method: http.MethodPost, path: "runs", body: map[string]any{"node_ids": due}}
 	err = probe.call(ctx, call, nil)
-	if err == nil {
-		return true
+	if err != nil && status.Code(err) != codes.Aborted {
+		s.l.Warnf("failed to trigger a scoped inventory refresh for %v: %s", due, err)
+		return
 	}
-	if status.Code(err) != codes.Aborted {
-		s.l.Warnf("failed to trigger a scoped inventory refresh for %v: %s", nodeIDs, err)
+	s.markRefreshed(due, time.Now())
+}
+
+// refreshDue returns the nodes among nodeIDs that have not been handed to the
+// app within inventoryRefreshDebounce of now.
+//
+// Each node's own stamp decides, rather than its presence in the map: pruning
+// below is then a memory bound and nothing more, and losing it costs entries
+// that outlive their window instead of nodes that are never refreshed again.
+// The difference matters because the failure is silent and permanent -- a node
+// held for the life of the server makes every later run on it wait out the whole
+// bootstrapInventoryRefreshWindow before confirm_monitoring resolves.
+func (s *Service) refreshDue(nodeIDs []string, now time.Time) []string {
+	s.refreshRequestedMu.Lock()
+	defer s.refreshRequestedMu.Unlock()
+
+	// Bounded by the nodes under bootstrap in one window rather than by every
+	// node the server has ever refreshed.
+	for nodeID, at := range s.refreshRequested {
+		if now.Sub(at) >= inventoryRefreshDebounce {
+			delete(s.refreshRequested, nodeID)
+		}
 	}
-	return false
+	due := make([]string, 0, len(nodeIDs))
+	for _, nodeID := range nodeIDs {
+		at, held := s.refreshRequested[nodeID]
+		if !held || now.Sub(at) >= inventoryRefreshDebounce {
+			due = append(due, nodeID)
+		}
+	}
+	return due
+}
+
+// markRefreshed opens the inventoryRefreshDebounce window for nodeIDs. Stamped
+// after the call rather than before it, unlike triggerInventorySync's own
+// debounce: this one is per node and the caller is the single-leader stepper, so
+// there is no second asker to coalesce, and a request that never reached the app
+// must not hold the next one off.
+func (s *Service) markRefreshed(nodeIDs []string, now time.Time) {
+	s.refreshRequestedMu.Lock()
+	defer s.refreshRequestedMu.Unlock()
+
+	if s.refreshRequested == nil {
+		s.refreshRequested = make(map[string]time.Time, len(nodeIDs))
+	}
+	for _, nodeID := range nodeIDs {
+		s.refreshRequested[nodeID] = now
+	}
 }
 
 // nodeIDForExecutorHost resolves a Nomad executor host name back to the PMM

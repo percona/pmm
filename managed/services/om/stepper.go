@@ -31,20 +31,20 @@ import (
 const bootstrapPollInterval = 15 * time.Second
 
 // bootstrapInventoryRefreshWindow bounds how long completeSucceededRun keeps a
-// fully registered run in the sweep waiting for the inventory app to accept its
-// scoped refresh.
+// fully registered run in the sweep waiting for the inventory app to show the
+// service it registered.
 //
-// Generous against the conflict it exists to outlast -- an estate sweep holding
-// these hosts -- and finite against the one it must not outlast: a host the app
-// will never accept a refresh for keeps the run out of RegisteredAt, and with it
-// in a list re-read every bootstrapPollInterval for the life of the server. When
-// the window closes the run leaves anyway; confirm_monitoring then resolves on
-// the app's own schedule, which is exactly where it stood before the nudge
-// existed.
+// Generous against the delay it exists to outlast -- an estate sweep holding
+// these hosts, and a sync that answers 202 and lands later -- and finite against
+// the one it must not outlast: a host whose service never shows up keeps the run
+// out of RegisteredAt, and with it in a list re-read every bootstrapPollInterval
+// for the life of the server. When the window closes the run leaves anyway;
+// confirm_monitoring then resolves on the app's own schedule, which is exactly
+// where it stood before the nudge existed.
 const bootstrapInventoryRefreshWindow = 5 * time.Minute
 
 // refreshRetryWindowOpen reports whether run finished recently enough to be worth
-// holding in the sweep for another refresh attempt.
+// holding in the sweep for the registered service to appear.
 //
 // A run with no finish time cannot be aged, so it is not held: PMM Extensions sets
 // finished_at with the terminal status, making this unreachable for a SUCCEEDED
@@ -285,12 +285,14 @@ func (s *Service) finishBootstrapRun(ctx context.Context, run *extensionsBootstr
 // however long the app's own schedule takes to get there unprompted. Scoped to
 // exactly this run's hosts.
 //
-// A refused nudge holds the run in the sweep rather than being dropped. The
-// refusal to expect is a 409 from a sweep already walking these hosts, and a run
-// that has just finished is precisely when one is likely to be in flight -- so
-// the single attempt this used to make was lost often, not rarely, and lost
-// silently: registration succeeds either way, and the only visible symptom is
-// confirm_monitoring sitting unconfirmed until the app's own schedule comes
+// A host the app still shows no service for holds the run in the sweep rather
+// than letting it be marked registered. Holding on whether the nudges were
+// *accepted* is what this replaced, and it was wrong in the direction that
+// matters: both requests can be taken and still leave the host unconfirmed,
+// because the sync answers 202 and completes in the background, so the probe
+// fired straight after it runs before the service it is looking for arrives.
+// Registration succeeds either way, and the only visible symptom was
+// confirm_monitoring sitting unconfirmed until the app's own schedule came
 // round. Bounded by refreshRetryWindowOpen, because a host that can never be
 // refreshed must not pin the run here forever -- that is the cost
 // OmBootstrapRunConfig.RegisteredAt exists to avoid.
@@ -328,9 +330,14 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *extensionsBoots
 		}
 	}
 
-	refreshed := true
 	if len(unconfirmed) > 0 {
-		refreshed = s.triggerScopedInventoryRefresh(ctx, unconfirmed)
+		// Sync first, then re-probe. The service these hosts are waiting to be
+		// confirmed by was created in PMM's inventory a few lines up; the probe
+		// resolves services from PMM Extensions' own copy, which only PMMSyncer
+		// fills. Refreshing without syncing re-probes a host whose service the
+		// app has not heard of yet -- see triggerInventorySync.
+		s.triggerInventorySync(ctx)
+		s.triggerScopedInventoryRefresh(ctx, unconfirmed)
 	}
 
 	if done < len(run.Hosts) {
@@ -338,11 +345,19 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *extensionsBoots
 		// idempotent, so the next tick picks up only what is left.
 		return
 	}
-	if !refreshed && refreshRetryWindowOpen(run, time.Now()) {
-		// Registration is already complete; what is left is the nudge, and the
-		// run has to stay in the sweep to get another go at it. Nothing else
-		// would: marking it registered here is what takes it out for good, so
-		// "ask again next tick" is only true while this branch holds it.
+	if len(unconfirmed) > 0 && refreshRetryWindowOpen(run, time.Now()) {
+		// Registration is already complete; what is left is confirmation, and
+		// the run has to stay in the sweep to get it. Nothing else would:
+		// marking it registered here is what takes it out for good, so "look
+		// again next tick" is only true while this branch holds it.
+		//
+		// Held on the estate still lacking a service rather than on whether the
+		// nudge was accepted. Both requests can be taken and still leave the
+		// host unconfirmed -- the sync answers 202 and completes in the
+		// background, so the probe this tick can easily run before the service
+		// it is looking for arrives. Holding on the outcome instead lets the
+		// next tick see the synced service and finish, which is what turns a
+		// nine-minute wait into one that ends as soon as the data is there.
 		return
 	}
 	// The last thing PMM owed this run is done, so it leaves the sweep: see

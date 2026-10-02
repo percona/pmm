@@ -137,6 +137,41 @@ func TestRegisterBootstrapHost(t *testing.T) {
 		assert.Len(t, services, 1, "a second call must not create a duplicate service")
 	})
 
+	t.Run("gives the exporter push metrics mode", func(t *testing.T) {
+		// The regression this guards. CreateAgentParams' zero value is pull,
+		// which makes the service depend on PMM Server reaching the host's
+		// exporter port inbound -- an ephemeral one, from ports-min 42000 up.
+		//
+		// Caught on a CHAOS deployment whose network allows only the ports its
+		// terraform names: six hosts bootstrapped green, registered correctly,
+		// and stayed Down forever with no mongodb_up series at all, while a
+		// replica set added by pmm-admin on the same network was Up throughout.
+		// The only difference in PMM's own database was this flag.
+		db := storeTestDB(t)
+		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
+		nodeID, _ := registerTestNode(t, db, "node00")
+
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "", "", "admin", "secret"))
+
+		services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: nodeID})
+		require.NoError(t, err)
+		require.Len(t, services, 1)
+		agents, err := models.FindAgents(db.Querier, models.AgentFilters{ServiceID: services[0].ServiceID})
+		require.NoError(t, err)
+		require.Len(t, agents, 1)
+		assert.True(t, agents[0].ExporterOptions.PushMetrics,
+			"a bootstrapped host's exporter must push; pull needs inbound reachability OM cannot assume")
+	})
+
+	t.Run("keeps pull mode for an exporter on PMM Server's own agent", func(t *testing.T) {
+		// The one exception, and the reason this is not an unconditional true:
+		// supportedMetricsMode refuses push for pmm-agent on PMM Server, so a
+		// bootstrap target that happens to be PMM Server's own node must stay on
+		// pull rather than be registered in a mode it cannot serve.
+		assert.False(t, pushMetricsFor(models.PMMServerAgentID))
+		assert.True(t, pushMetricsFor("some-other-agent-id"))
+	})
+
 	t.Run("pushes a state update for the host's pmm-agent on a fresh registration", func(t *testing.T) {
 		// The bug this guards: pmm-agent only ever starts an exporter in response
 		// to this push, never merely because its Agent row now exists in

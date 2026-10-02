@@ -1847,3 +1847,42 @@ func TestInventoryFixturesAreValid(t *testing.T) {
 		assert.NotEmpty(t, parsed)
 	})
 }
+
+// TestNudgeDebouncesExpire covers the half of each debounce the end-to-end tests
+// in TestCompleteSucceededRun cannot reach: they prove a second ask inside the
+// window is suppressed, but nothing proved the window ever reopens. Both
+// failures are silent and permanent -- a node or a server that stops asking
+// leaves every later run waiting out bootstrapInventoryRefreshWindow before
+// confirm_monitoring resolves.
+func TestNudgeDebouncesExpire(t *testing.T) {
+	t.Parallel()
+
+	t.Run("a node whose refresh window has passed is due again", func(t *testing.T) {
+		t.Parallel()
+
+		svc := &Service{refreshRequested: map[string]time.Time{
+			"node00": time.Now().Add(-inventoryRefreshDebounce),
+			"node01": time.Now(),
+		}}
+
+		assert.Equal(t, []string{"node00"}, svc.refreshDue([]string{"node00", "node01"}, time.Now()),
+			"node00's stamp is exactly one window old, node01's is fresh")
+		assert.NotContains(t, svc.refreshRequested, "node00",
+			"the aged-out entry is pruned, so the map stays bounded by the nodes under bootstrap")
+		assert.Contains(t, svc.refreshRequested, "node01")
+	})
+
+	t.Run("a sync whose window has passed is sent again", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusAccepted, "")
+		svc := (&Service{l: logrus.WithField("test", t.Name())}).
+			WithProbeSource(stub.server.URL, "test-token")
+		svc.syncRequested = time.Now().Add(-inventorySyncDebounce)
+
+		svc.triggerInventorySync(t.Context())
+
+		require.Len(t, stub.calls, 1, "a stamp one window old must not hold the next sync off")
+		assert.Equal(t, "/api/apps/inventory/sync/", stub.calls[0].path)
+	})
+}
