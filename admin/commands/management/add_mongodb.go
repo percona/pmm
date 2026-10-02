@@ -84,6 +84,7 @@ type AddMongoDBCommand struct {
 	AuthenticationDatabase         string            `help:"Authentication database. Default is empty. Use $external for ssl certificates"`
 	EnableAllCollectors            bool              `help:"Enable all collectors"`
 	EnableDiagnosticDataHistograms bool              `help:"Enable collecting histogram bucket metrics from getDiagnosticData"`
+	DisableDirectConnection        bool              `help:"Disable direct connection to the MongoDB node so the exporter discovers the topology (e.g., for MongoDB Atlas)"`
 	DisableCollectors              []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	StatsCollections               []string          `help:"Collections for collstats & indexstats"`
 	CollectionsLimit               int32             `name:"max-collections-limit" default:"-1" help:"Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, which let PMM automatically set this value"`
@@ -204,6 +205,7 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 
 				EnableAllCollectors:            cmd.EnableAllCollectors,
 				EnableDiagnosticDataHistograms: cmd.EnableDiagnosticDataHistograms,
+				DisableDirectConnection:        cmd.DisableDirectConnection,
 				DisableCollectors:              commands.ParseDisableCollectors(cmd.DisableCollectors),
 				StatsCollections:               commands.ParseDisableCollectors(cmd.StatsCollections),
 				CollectionsLimit:               cmd.CollectionsLimit,

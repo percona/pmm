@@ -90,6 +90,7 @@ type ChangeAgentMongodbExporterCommand struct {
 	StatsCollections               *string `help:"List of comma-separated collection names to collect"`
 	CollectionsLimit               *int32  `help:"Collections limit"`
 	EnableDiagnosticDataHistograms *bool   `help:"Enable collecting histogram bucket metrics from getDiagnosticData"`
+	DisableDirectConnection        *bool   `help:"Disable direct connection to the MongoDB node so the exporter discovers the topology (e.g., for MongoDB Atlas)"`
 
 	// Exporter options
 	DisableCollectors []string       `help:"List of collector names to disable"`
@@ -173,6 +174,7 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 		StatsCollections:               statsCollections,
 		CollectionsLimit:               cmd.CollectionsLimit,
 		EnableDiagnosticDataHistograms: cmd.EnableDiagnosticDataHistograms,
+		DisableDirectConnection:        cmd.DisableDirectConnection,
 		DisableCollectors:              cmd.DisableCollectors,
 		ExposeExporter:                 cmd.ExposeExporter,
 		EnablePushMetrics:              cmd.PushMetrics,
@@ -263,6 +265,13 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 			changes = append(changes, "enabled diagnostic data histograms")
 		} else {
 			changes = append(changes, "disabled diagnostic data histograms")
+		}
+	}
+	if cmd.DisableDirectConnection != nil {
+		if *cmd.DisableDirectConnection {
+			changes = append(changes, "disabled direct connection")
+		} else {
+			changes = append(changes, "enabled direct connection")
 		}
 	}
 	if cmd.DisableCollectors != nil {

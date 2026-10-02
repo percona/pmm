@@ -157,6 +157,7 @@ type MongoDBExtendedOptionsParams interface {
 	GetCollectionsLimit() int32
 	GetEnableAllCollectors() bool
 	GetEnableDiagnosticDataHistograms() bool
+	GetDisableDirectConnection() bool
 }
 
 // MongoDBOptionsFromRequest creates MongoDBOptionsParams object from request.
@@ -177,6 +178,7 @@ func MongoDBOptionsFromRequest(params MongoDBOptionsParams) MongoDBOptions {
 			mdbOptions.CollectionsLimit = extendedOptions.GetCollectionsLimit()
 			mdbOptions.EnableAllCollectors = extendedOptions.GetEnableAllCollectors()
 			mdbOptions.EnableDiagnosticDataHistograms = extendedOptions.GetEnableDiagnosticDataHistograms()
+			mdbOptions.DisableDirectConnection = extendedOptions.GetDisableDirectConnection()
 		}
 	}
 
@@ -1203,6 +1205,7 @@ type ChangeMongoDBOptions struct {
 	CollectionsLimit               *int32
 	EnableAllCollectors            *bool
 	EnableDiagnosticDataHistograms *bool
+	DisableDirectConnection        *bool
 }
 
 // ChangeMySQLOptions contains MySQLOptions fields that can be changed.
@@ -1571,6 +1574,9 @@ func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) 
 		}
 		if params.MongoDBOptions.EnableDiagnosticDataHistograms != nil {
 			row.MongoDBOptions.EnableDiagnosticDataHistograms = *params.MongoDBOptions.EnableDiagnosticDataHistograms
+		}
+		if params.MongoDBOptions.DisableDirectConnection != nil {
+			row.MongoDBOptions.DisableDirectConnection = *params.MongoDBOptions.DisableDirectConnection
 		}
 	}
 

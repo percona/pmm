@@ -155,6 +155,11 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 		}
 		args = append(args, fmt.Sprintf("--collector.collstats-limit=%d", collstatsLimit))
 
+		// The flag takes precedence over directConnection=true that is always set in the DSN.
+		if exporter.MongoDBOptions.DisableDirectConnection {
+			args = append(args, "--no-mongodb.direct-connect")
+		}
+
 	case !pmmAgentVersion.Less(newMongoExporterPMMVersion): // >= 2.10.0
 		args = buildBaseArgs(listenAddress, tdp)
 
