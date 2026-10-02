@@ -15,15 +15,39 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import type { ReactElement } from 'react';
 import Chip from '@mui/material/Chip';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import {
+  CLUSTER_HEALTH_COLOR,
+  CLUSTER_HEALTH_LABEL,
   RUN_STATUS_COLOR,
   RUN_STATUS_LABEL,
   SERVICE_STATUS_COLOR,
   SERVICE_STATUS_LABEL,
 } from '../constants';
 import { isRunActive } from '../api';
-import type { OmTopologyRunStatus, OmServiceStatus } from '../types';
+import type {
+  OmClusterHealth,
+  OmServiceStatus,
+  OmTopologyRunStatus,
+} from '../types';
+
+const SERVICE_STATUS_ICON: Record<OmServiceStatus, ReactElement> = {
+  SERVICE_STATUS_UP: <CheckCircleOutlineIcon />,
+  SERVICE_STATUS_DOWN: <ErrorOutlineIcon />,
+  SERVICE_STATUS_UNSPECIFIED: <HelpOutlineIcon />,
+};
+
+const CLUSTER_HEALTH_ICON: Record<OmClusterHealth, ReactElement> = {
+  healthy: <CheckCircleOutlineIcon />,
+  degraded: <WarningAmberIcon />,
+  down: <ErrorOutlineIcon />,
+  unknown: <HelpOutlineIcon />,
+};
 
 /**
  * Service reachability as a chip.
@@ -32,13 +56,43 @@ import type { OmTopologyRunStatus, OmServiceStatus } from '../types';
  * all" — the worker collapses them deliberately, because from the estate's point of
  * view an unreachable service and an unmonitored one are the same problem.
  */
+/**
+ * Down is the filled chip and Up the outlined one: a failure has to be the loudest
+ * thing on the page, and the healthy state the quietest. Each state also carries its
+ * own icon and word, so none of them depends on colour to be read.
+ */
 export const StatusBadge = ({ status }: { status: OmServiceStatus }) => {
+  // A value this build does not know reads as unknown throughout, so the icon, the
+  // word and the colour cannot disagree.
+  const known: OmServiceStatus =
+    status in SERVICE_STATUS_LABEL ? status : 'SERVICE_STATUS_UNSPECIFIED';
   return (
     <Chip
       size="small"
-      label={SERVICE_STATUS_LABEL[status] ?? status}
-      color={SERVICE_STATUS_COLOR[status] ?? 'default'}
-      variant={status === 'SERVICE_STATUS_DOWN' ? 'outlined' : 'filled'}
+      icon={SERVICE_STATUS_ICON[known]}
+      label={SERVICE_STATUS_LABEL[known]}
+      color={SERVICE_STATUS_COLOR[known]}
+      variant={known === 'SERVICE_STATUS_DOWN' ? 'filled' : 'outlined'}
+      data-testid="om-service-status"
+    />
+  );
+};
+
+/**
+ * A cluster's state as a chip. Filled only for the states that need someone: a
+ * degraded or down cluster, never a healthy one.
+ */
+export const ClusterHealthBadge = ({ health }: { health: OmClusterHealth }) => {
+  return (
+    <Chip
+      size="small"
+      icon={CLUSTER_HEALTH_ICON[health]}
+      label={CLUSTER_HEALTH_LABEL[health]}
+      color={CLUSTER_HEALTH_COLOR[health]}
+      variant={
+        health === 'down' || health === 'degraded' ? 'filled' : 'outlined'
+      }
+      data-testid="om-cluster-health"
     />
   );
 };

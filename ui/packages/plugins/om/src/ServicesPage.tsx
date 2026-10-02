@@ -34,11 +34,13 @@ import { PROCESS_ROLE_LABEL } from './constants';
 import { OmHeader } from './components/OmHeader';
 import { SnapshotBar } from './components/SnapshotBar';
 import { StatusBadge } from './components/HealthBadge';
+import { MemberState } from './components/MemberState';
+import { ServiceLink } from './components/ServiceLink';
 import { SyncButton } from './components/SyncButton';
 import { Duration, Percent } from './components/Metric';
 import { Unavailable } from './components/Unavailable';
 import { useOmTopology } from './topologyHooks';
-import { toServiceRows } from './topology';
+import { serviceStatusRank, toServiceRows } from './topology';
 import { useOmInventoryServices } from './inventoryHooks';
 import {
   ageSeconds,
@@ -49,7 +51,11 @@ import {
 } from './inventory';
 import { formatCompactDuration, pluralize } from './format';
 import { ProbeValue } from './components/ProbeValue';
-import type { OmInventoryService, OmServiceInventoryRow } from './types';
+import type {
+  OmInventoryService,
+  OmServiceInventoryRow,
+  OmServiceStatus,
+} from './types';
 
 /** A full `mongod` command line is a paragraph; the cell shows it on hover. */
 const TRUNCATED = {
@@ -95,7 +101,13 @@ function useColumns(
         Cell: ({ row: { original } }) =>
           original.cluster_name ?? <Unavailable reason="not_applicable" />,
       },
-      { accessorKey: 'service_name', header: 'Service' },
+      {
+        accessorKey: 'service_name',
+        header: 'Service',
+        Cell: ({ row: { original } }) => (
+          <ServiceLink serviceName={original.service_name} />
+        ),
+      },
       {
         accessorKey: 'host',
         header: 'Host',
@@ -112,22 +124,24 @@ function useColumns(
       {
         accessorKey: 'status',
         header: 'Status',
+        // Worst first ascending, by rank rather than by the enum's spelling.
+        sortingFn: (a, b, columnId) =>
+          serviceStatusRank(a.getValue<OmServiceStatus>(columnId)) -
+          serviceStatusRank(b.getValue<OmServiceStatus>(columnId)),
         Cell: ({ row: { original } }) => (
           <StatusBadge status={original.status} />
         ),
       },
       {
         accessorKey: 'process_role',
-        header: 'Role',
+        header: 'Process',
         Cell: ({ row: { original } }) =>
           PROCESS_ROLE_LABEL[original.process_role] ?? original.process_role,
       },
       {
         accessorKey: 'state',
         header: 'Member state',
-        Cell: ({ row: { original } }) =>
-          // A router and a standalone are not replica-set members at all.
-          original.state ?? <Unavailable reason="not_applicable" />,
+        Cell: ({ row: { original } }) => <MemberState service={original} />,
       },
       {
         accessorKey: 'version',
@@ -452,7 +466,9 @@ export const ServicesPage = () => {
     initialState: {
       density: 'compact',
       columnVisibility: HIDDEN_BY_DEFAULT,
+      // Down services first, so a failure is the first row a reader sees.
       sorting: [
+        { id: 'status', desc: false },
         { id: 'cluster_name', desc: false },
         { id: 'service_name', desc: false },
       ],
