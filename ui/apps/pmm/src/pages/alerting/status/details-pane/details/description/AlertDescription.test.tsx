@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import AlertDescription from './AlertDescription';
 
-// The default normalizer collapses whitespace, which would hide the bug.
+// The default normalizer collapses whitespace, which would hide indentation.
 const exact = { normalizer: (value: string) => value };
 
 describe('AlertDescription', () => {
@@ -11,13 +11,47 @@ describe('AlertDescription', () => {
     expect(screen.getByText('Unavailable')).toBeInTheDocument();
   });
 
-  it('keeps line breaks and indentation of the description', () => {
-    const description =
-      'ClickHouse is not responding.\n\nRemediation steps:\n  1. Restart it.\n  2. Check free disk space.';
+  it('renders each line separately and keeps blank lines', () => {
+    const { container } = render(
+      <AlertDescription description={'First paragraph.\n\nSecond paragraph.'} />
+    );
 
-    render(<AlertDescription description={description} />);
+    const lines = Array.from(container.firstElementChild?.children ?? []);
+    expect(lines).toHaveLength(3);
+    expect(lines[0]).toHaveTextContent('First paragraph.');
+    expect(lines[1].textContent).toBe(' ');
+    expect(lines[2]).toHaveTextContent('Second paragraph.');
+  });
 
-    expect(screen.getByText(description, exact)).toHaveStyle({
+  it('keeps the indentation of a plain line', () => {
+    render(<AlertDescription description="  indented note" />);
+
+    expect(screen.getByText('  indented note', exact)).toHaveStyle({
+      whiteSpace: 'pre-wrap',
+    });
+  });
+
+  it.each([
+    ['  4. ', 'Confirm PMM Server can reach PMM_CLICKHOUSE_ADDR.'],
+    ['2) ', 'Restart the service.'],
+    ['  - ', 'Check free disk space.'],
+    ['* ', 'Review the logs.'],
+    ['• ', 'Upgrade to a patched version.'],
+  ])(
+    'puts the list marker %j in its own column next to the text',
+    (marker, text) => {
+      render(<AlertDescription description={`${marker}${text}`} />);
+
+      const markerElement = screen.getByText(marker, exact);
+      expect(markerElement).toHaveStyle({ whiteSpace: 'pre', flexShrink: '0' });
+      expect(markerElement.nextElementSibling).toHaveTextContent(text);
+    }
+  );
+
+  it('does not treat a version number as a list marker', () => {
+    render(<AlertDescription description="5.0 is end of life" />);
+
+    expect(screen.getByText('5.0 is end of life')).toHaveStyle({
       whiteSpace: 'pre-wrap',
     });
   });
