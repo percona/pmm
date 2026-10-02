@@ -36,6 +36,34 @@ To obtain the logs:
 
 2. Save the downloaded file to share with our support team if needed.
 
+### Monitoring stops while pmm-agent is running
+
+A PMM Client node can stop sending metrics and Query Analytics data while `pmm-agent` and its exporters keep running. Inventory operations for the services on that node fail with `pmm-agent with ID <AGENT_ID> is not currently connected`.
+
+Starting with PMM 3.10.0, `pmm-agent` recovers from this state without a restart:
+
+- It keeps answering the connection checks of PMM Server while it applies a configuration change, so a slow change doesn't disconnect the node.
+- If an agent doesn't stop within 60 seconds while `pmm-agent` restarts or removes it, `pmm-agent` stops waiting for that agent and applies the rest of the configuration.
+- If `pmm-agent` can't process the requests from PMM Server for 2 minutes, it drops the connection and reconnects.
+
+The recovery is part of PMM Client. On PMM Client 3.9 and earlier, restart `pmm-agent` to recover: run `sudo systemctl restart pmm-agent`, or restart the PMM Client container.
+
+The following messages in the `pmm-agent` log show that a recovery took place:
+
+| Message | Meaning |
+|---------|---------|
+| `Agent <AGENT_ID> did not report itself stopped, proceeding without it.` | The agent didn't stop within 60 seconds. `pmm-agent` continued without it. |
+| `Request queue full for 2m0s, giving up on the connection.` | `pmm-agent` couldn't keep up with PMM Server for 2 minutes and reconnects. |
+
+If the first message keeps appearing for the same agent ID, that agent doesn't stop. Before you restart `pmm-agent`, collect a goroutine dump on the PMM Client host and share it with Percona Support together with the `pmm-admin summary` archive:
+
+```bash
+curl -s "http://127.0.0.1:7777/debug/pprof/goroutine?debug=2" > pmm-agent-goroutines.txt
+pmm-admin summary
+```
+
+If you changed the `pmm-agent` listen port, replace `7777` with that port.
+
 ## Connection difficulties
 
 ### Passwords
