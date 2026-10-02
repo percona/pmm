@@ -25,7 +25,15 @@ Nomad requires **both** of the following to start:
 - `PMM_ENABLE_NOMAD=1`: enables the Nomad feature flag
 - `PMM_PUBLIC_ADDRESS=<your-pmm-server-address>`: the publicly reachable address of your PMM Server
 
-Setting `PMM_ENABLE_NOMAD=1` alone is not sufficient. If `PMM_PUBLIC_ADDRESS` is not set, PMM silently skips starting the Nomad server process with no error or warning.
+Setting `PMM_ENABLE_NOMAD=1` alone is not sufficient. If no public address is set, PMM Server starts without the Nomad server process.
+
+Starting with PMM 3.10.0, PMM Server logs a warning at startup when `PMM_ENABLE_NOMAD` is set but `PMM_PUBLIC_ADDRESS` is not. The warning appears in the container log (`docker logs pmm-server`) and in `/srv/logs/pmm-managed.log`:
+
+```txt
+PMM_ENABLE_NOMAD is set but PMM_PUBLIC_ADDRESS is not; Nomad will not start unless a public address is configured in PMM settings
+```
+
+If you set the public address in **Configuration > Settings > Advanced settings** instead, you can ignore the warning: PMM checks only the environment variables at this point.
 
 You can set the public address either as an environment variable at container start, or later via **Configuration > Settings > Advanced settings** in the PMM UI (though setting it via the UI requires restarting the container for Nomad to pick it up).
 
@@ -86,6 +94,8 @@ To verify that Nomad is running correctly:
    ```
 
 2. Confirm that Nomad agents appear in the node list.
+
+If the Nomad API isn't available, check the PMM Server log for the public address warning described in [Set a public address](#set-a-public-address).
 
 ## Internal architecture
 
