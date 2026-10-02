@@ -23,6 +23,7 @@ import {
   getBackupMongoExecuteActions,
   getBackupMongoHistoryTaskNames,
 } from './backupMongoTaskDetail';
+import { ClusterSwitcher } from './ClusterSwitcher';
 import { backupMongoCreateRenderField } from './backupMongoCreateForm';
 import {
   getRestoreMongoExecuteActions,
@@ -98,6 +99,12 @@ function MongoBackupTabs({ basePath }: { basePath: string }) {
 export function BackupMongoApp({ basePath }: { basePath: string }) {
   return (
     <div>
+      {/*
+        Above the tabs because the cluster scopes all three of them. PBM's own
+        configuration is cluster-wide rather than per-node, so "which deployment"
+        is a question that precedes "configure, back up or restore".
+      */}
+      <ClusterSwitcher />
       <MongoBackupTabs basePath={basePath} />
       <Routes>
         <Route index element={<Navigate to="backups" replace />} />

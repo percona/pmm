@@ -31,10 +31,16 @@ export default defineConfig({
     css: false,
     server: {
       deps: {
+        fallbackCJS: true,
         inline: [
           'react-dom',
           '@testing-library/react',
           '@percona/percona-ui',
+          // Peak's ESM entry imports '@mui/x-date-pickers/DatePicker' as a directory,
+          // which Node cannot resolve on its own -- Vite's transform can. The PMM
+          // app's own vitest config inlines Peak for the same reason.
+          '@percona/peak-ui',
+          '@mui/x-date-pickers',
           '@mui/material',
           '@mui/system',
           '@mui/utils',
