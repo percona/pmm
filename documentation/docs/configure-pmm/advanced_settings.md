@@ -10,10 +10,7 @@ The setting applies to both stores PMM writes to: metrics in VictoriaMetrics, an
 
 ### When data is actually removed
 
-Neither store deletes data the moment it passes the retention period, and the two differ in granularity:
-
-- **Metrics** are removed one whole month partition at a time. A retention period shorter than roughly one month therefore does not remove anything from the current month, and disk usage is bounded by the retention period plus one month rather than by the retention period alone. Setting one day of retention does not make yesterday's metrics disappear.
-- **Query Analytics** data is removed one whole day partition at a time, so it follows the configured period closely.
+Metrics are not deleted the moment they pass the retention period. They are removed in stored blocks rather than sample by sample, and a block is hidden from queries only once all of its data has expired. Dashboards can therefore keep showing metrics older than the retention period for a while, and longer for metrics collected less often, such as low-resolution metrics. Disk space is freed as whole month partitions expire, so disk usage is bounded by the retention period plus one month rather than by the retention period alone.
 
 !!! note alert alert-primary ""
     Increasing the retention period does not restore data that has already been removed.
