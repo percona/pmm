@@ -324,6 +324,7 @@ func TestAgents(t *testing.T) {
 				StatsCollections:               nil,
 				CollectionsLimit:               0, // no limit
 				EnableDiagnosticDataHistograms: true,
+				DisableDirectConnection:        true,
 			})
 			require.NoError(t, err)
 			expectedMongoDBExporter = &inventoryv1.MongoDBExporter{
@@ -333,6 +334,7 @@ func TestAgents(t *testing.T) {
 				Username:                       "username",
 				Status:                         inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 				EnableDiagnosticDataHistograms: true,
+				DisableDirectConnection:        true,
 			}
 			assert.Equal(t, expectedMongoDBExporter, actualAgent.GetMongodbExporter())
 

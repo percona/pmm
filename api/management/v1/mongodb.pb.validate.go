@@ -202,6 +202,8 @@ func (m *AddMongoDBServiceParams) validate(all bool) error {
 
 	// no validation rules for EnableDiagnosticDataHistograms
 
+	// no validation rules for DisableDirectConnection
+
 	if len(errors) > 0 {
 		return AddMongoDBServiceParamsMultiError(errors)
 	}
