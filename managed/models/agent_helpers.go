@@ -263,6 +263,31 @@ type AgentFilters struct {
 	Disabled *bool
 }
 
+// decryptAgents decrypts Agent rows as returned by reform.
+func decryptAgents(structs []reform.Struct) []*Agent {
+	agents := make([]*Agent, len(structs))
+	for i, s := range structs {
+		agents[i] = new(DecryptAgent(*s.(*Agent))) //nolint:forcetypeassert
+	}
+
+	return agents
+}
+
+// insertAgent encrypts the Agent, inserts it and returns it decrypted again.
+func insertAgent(q *reform.Querier, agent Agent) (*Agent, error) {
+	encryptedAgent, err := EncryptAgent(agent)
+	if err != nil {
+		return nil, err
+	}
+
+	err = q.Insert(&encryptedAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	return new(DecryptAgent(encryptedAgent)), nil
+}
+
 // FindAgents returns Agents by filters.
 //
 // An empty PMMAgentIDs matches every Agent, not none. An unknown PMMAgentID fails with NotFound; an

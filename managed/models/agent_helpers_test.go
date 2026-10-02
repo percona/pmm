@@ -1218,7 +1218,9 @@ func TestAgentHelpers(t *testing.T) {
 				CreatedAt: now,
 				UpdatedAt: now,
 			}
-			err := q.Insert(awsAgent)
+			encryptedAgent, err := models.EncryptAgent(*awsAgent)
+			require.NoError(t, err)
+			err = q.Insert(&encryptedAgent)
 			require.NoError(t, err)
 
 			// Test changing AWS options
@@ -1265,7 +1267,9 @@ func TestAgentHelpers(t *testing.T) {
 				CreatedAt: now,
 				UpdatedAt: now,
 			}
-			err := q.Insert(mysqlAgent)
+			encryptedAgent, err := models.EncryptAgent(*mysqlAgent)
+			require.NoError(t, err)
+			err = q.Insert(&encryptedAgent)
 			require.NoError(t, err)
 
 			// Test changing MySQL options
@@ -1421,7 +1425,9 @@ func TestAgentHelpers(t *testing.T) {
 				CreatedAt: now,
 				UpdatedAt: now,
 			}
-			err := q.Insert(azureAgent)
+			encryptedAgent, err := models.EncryptAgent(*azureAgent)
+			require.NoError(t, err)
+			err = q.Insert(&encryptedAgent)
 			require.NoError(t, err)
 
 			// Test changing Azure options

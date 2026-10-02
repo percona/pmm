@@ -268,7 +268,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		// Need to update CreatedAt to reflect the new session start time.
 		rtaAgent.CreatedAt = time.Now()
 
-		err = tx.Update(rtaAgent)
+		err = models.UpdateAgent(tx.Querier, rtaAgent)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Failed to update Real-Time Analytics agent %s: %v", rtaAgent.AgentID, err)
 		}
@@ -431,7 +431,7 @@ func (s *Service) StopSession(ctx context.Context, req *rtav1.StopSessionRequest
 		rtaAgent := existingRTAAgents[0]
 		rtaAgent.Disabled = true
 
-		err = tx.Update(rtaAgent)
+		err = models.UpdateAgent(tx.Querier, rtaAgent)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Failed to update Real-Time Analytics agent %s: %v", rtaAgent.AgentID, err)
 		}
