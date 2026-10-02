@@ -227,14 +227,22 @@ pmm-admin inventory change agent <AGENT_TYPE> <AGENT_ID> [FLAGS]
 
 ### How `inventory change agent` works
 
-Currently supports MongoDB agent types only:
+`<AGENT_TYPE>` is one of the agent types in the following table:
 
-- `mongodb-exporter`
-- `qan-mongodb-profiler-agent`
-- `qan-mongodb-mongolog-agent`
-- `rta-mongodb-agent`
+| Technology | Agent types |
+|------------|-------------|
+| Node | `node-exporter`, `nomad-agent` |
+| MySQL | `mysqld-exporter`, `qan-mysql-perfschema-agent`, `qan-mysql-slowlog-agent` |
+| MongoDB | `mongodb-exporter`, `qan-mongodb-profiler-agent`, `qan-mongodb-mongolog-agent`, `rta-mongodb-agent` |
+| PostgreSQL | `postgres-exporter`, `qan-postgresql-pgstatements-agent`, `qan-postgresql-pgstatmonitor-agent` |
+| ProxySQL | `proxysql-exporter` |
+| Valkey | `valkey-exporter` |
+| Amazon RDS and Azure | `rds-exporter`, `azure-database-exporter` |
+| External exporters | `external-exporter` |
 
-Only the flags you specify are updated — all other settings remain unchanged. Changes take effect immediately without restarting the agent. The command fails with a clear error if the agent ID doesn't exist or the type doesn't match.
+Each agent type has its own flags. This page describes the flags for MongoDB agents. To see the flags of another agent type, run `pmm-admin inventory change agent <AGENT_TYPE> --help`.
+
+Only the flags you specify are updated — all other settings remain unchanged. Changes take effect immediately without restarting the agent. The agent ID must belong to the agent type that you name. If the agent ID doesn't exist or belongs to another agent type, the command fails and nothing is changed.
 
 When you change connection-affecting parameters (username, password, TLS settings, etc.), PMM verifies the new settings by connecting to the database before saving them. If the connection fails (for example, wrong credentials), the command returns an error and **no changes are applied**. Use `--skip-connection-check` to bypass this verification (see [Connection and authentication](#connection-and-authentication)).
 
@@ -416,7 +424,8 @@ You can also use `pmm-admin list` to see agents alongside their services.
 The command returns a clear error message in these cases:
 
 - **Non-existent agent ID**: The specified agent ID does not exist in PMM inventory.
-- **Mismatched agent type**: The agent ID exists but belongs to a different agent type (e.g., using a `mysqld-exporter` ID with the `mongodb-exporter` subcommand).
+- **Mismatched agent type**: The agent ID exists but belongs to a different agent type, for example a `qan-postgresql-pgstatmonitor-agent` ID used with the `qan-postgresql-pgstatements-agent` subcommand. The agent is left unchanged, and the error names both types: `Agent with ID <AGENT_ID> has type qan_postgresql_pgstatmonitor_agent, expected qan_postgresql_pgstatements_agent.`
+- **QAN for PMM Server's PostgreSQL set by an environment variable**: PMM Server was started with `PMM_ENABLE_INTERNAL_PG_QAN`, and the command tries to enable or disable the QAN agent of PMM Server's own PostgreSQL against that value, for example: `QAN for PMM's internal PostgreSQL server is set to false via an environment variable.` Other changes to that agent are accepted. To control this QAN agent from PMM, start PMM Server without the variable. See [Monitor PMM Server's internal PostgreSQL](../../qan/QAN-stored-metrics.md#monitor-pmm-servers-internal-postgresql).
 - **Invalid flag value**: A flag receives a value outside its allowed range (e.g., an invalid log level).
 - **Connection check failure**: PMM could not validate the new connection-affecting settings (credentials, TLS) against the database. No changes are saved. If the database is intentionally unreachable (down, in maintenance, or you are setting a password PMM does not yet have), re-run the command with `--skip-connection-check`.
 
