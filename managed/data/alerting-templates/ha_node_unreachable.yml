@@ -1,0 +1,33 @@
+---
+templates:
+  - name: pmm_ha_node_unreachable
+    version: 1
+    summary: PMM HA node unreachable
+    # A node that goes down stops emitting pmm_ha_up entirely, so it cannot be named from a
+    # live series. The first half names a node seen in the last 6h but not the last 2m, and
+    # absent() supplies an unnamed instance when nobody can be named: a node that never
+    # reported, or that has been gone longer than 6h.
+    #
+    # The 'and on()' gate makes both conditional on the cluster actually being short of
+    # nodes, so removing a node on purpose and updating PMM_HA_PEERS clears the alert
+    # instead of leaving it stuck for the rest of the 6h window. That gate must stay a bare
+    # comparison: with '< bool' it would always produce a series, and 'and' filters on a
+    # series existing rather than on its value, so it would never gate anything.
+    expr: |-
+      ((max by(node_id) (last_over_time(pmm_ha_up[6h])) unless max by(node_id) (last_over_time(pmm_ha_up[2m])))
+      or absent(max by(node_id) (last_over_time(pmm_ha_up[6h])) unless max by(node_id) (last_over_time(pmm_ha_up[2m]))))
+      and on() (count(max by(node_id) (last_over_time(pmm_ha_up[2m]))) < max(last_over_time(pmm_ha_expected_nodes[2m])))
+    for: 5m
+    severity: warning
+    annotations:
+      summary: "{{ if $labels.node_id }}PMM HA node '{{ $labels.node_id }}' is unreachable{{ else }}A PMM HA node is unreachable, fewer nodes are reporting than configured{{ end }}"
+      description: |-
+        {{ if $labels.node_id }}PMM Server node '{{ $labels.node_id }}' has stopped reporting HA metrics.{{ else }}Fewer PMM Server nodes are reporting HA metrics than the number configured for this cluster.{{ end }}
+        A node is down, restarting repeatedly, or unable to reach the shared metrics storage.
+
+        Remediation steps:
+          1. Open the High Availability page to see which nodes are still reporting.
+          2. Check the status of the PMM Server container or pod on every node.
+          3. Check that the missing node can still write metrics to the shared VictoriaMetrics storage.
+          4. Check network connectivity between nodes on the configured Raft and gossip ports (PMM_HA_RAFT_PORT and PMM_HA_GOSSIP_PORT).
+          5. If the node was removed on purpose, update PMM_HA_PEERS on the remaining nodes so that the expected node count matches.

@@ -966,6 +966,20 @@ telemetry:
       - metric_name: "pmm_server_ha_enable"
         column: "PMM_HA_ENABLE"
 
+  - id: PMMServerHAAlertsEnabled
+    source: ENV_VARS
+    summary: "PMM Server built-in High Availability alert rules enabled/disabled"
+    data:
+      - metric_name: "pmm_server_ha_alerts_enabled"
+        column: "PMM_ENABLE_HA_ALERTS"
+
+  - id: PMMServerComponentAlertsEnabled
+    source: ENV_VARS
+    summary: "PMM Server built-in component alert rules enabled/disabled"
+    data:
+      - metric_name: "pmm_server_component_alerts_enabled"
+        column: "PMM_ENABLE_COMPONENT_ALERTS"
+
   - id: PMMServerBuiltinDatabaseDisabled
     source: ENV_VARS
     summary: "Use of external PMM database"

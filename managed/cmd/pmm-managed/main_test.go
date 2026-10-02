@@ -18,6 +18,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"slices"
@@ -25,6 +26,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/tools/go/packages"
@@ -33,6 +35,38 @@ import (
 const dotFile = "packages.dot"
 
 var updateF = flag.Bool("update", false, "update "+dotFile)
+
+func TestParseHAPeers(t *testing.T) {
+	t.Parallel()
+
+	// The duplicate case logs a warning; keep it out of the test output.
+	logger := logrus.New()
+	logger.Out = io.Discard
+	l := logrus.NewEntry(logger)
+
+	for _, tt := range []struct {
+		name  string
+		peers string
+		want  []string
+	}{
+		{"empty", "", nil},
+		{"single node", "node-1", []string{"node-1"}},
+		{"three nodes", "node-1,node-2,node-3", []string{"node-1", "node-2", "node-3"}},
+		// A trailing comma used to yield an extra empty element, inflating the
+		// expected node count and firing the quorum alert on a healthy cluster.
+		{"trailing comma", "node-1,node-2,node-3,", []string{"node-1", "node-2", "node-3"}},
+		{"surrounding whitespace", " node-1 , node-2 ", []string{"node-1", "node-2"}},
+		{"only separators", ",,,", nil},
+		{"duplicates", "node-1,node-2,node-1", []string{"node-1", "node-2"}},
+		{"host and port preserved", "node-1:9761,node-2:9761", []string{"node-1:9761", "node-2:9761"}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.want, parseHAPeers(l, tt.peers))
+		})
+	}
+}
 
 func TestPackages(t *testing.T) {
 	cmd := exec.CommandContext(t.Context(), "pmm-managed", "-h")
