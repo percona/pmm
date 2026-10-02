@@ -135,8 +135,9 @@ build {
       "ss -ltn | grep -q ':22 ' || { echo 'nothing listening on :22'; exit 1; }",
       "test -s /home/ec2-user/.ssh/authorized_keys || { echo 'cloud-init did not inject the launch key for ec2-user'; exit 1; }",
       "case \"$(systemctl show -p UnitFileState --value dnf-makecache.timer)\" in disabled|masked) ;; *) echo 'dnf-makecache.timer is enabled (boot lock contention)'; exit 1 ;; esac",
-      "for tool in kubectl helm eksctl doctl yq aws node npm docker-compose bats git svn jq wget unzip envsubst bc chromium-browser; do command -v \"$${tool}\" >/dev/null || { echo \"missing tool: $${tool}\"; exit 1; }; done",
+      "for tool in kubectl helm eksctl doctl yq aws node npm bats git svn jq wget unzip envsubst bc chromium-browser; do command -v \"$${tool}\" >/dev/null || { echo \"missing tool: $${tool}\"; exit 1; }; done",
       "docker buildx version >/dev/null || { echo 'docker buildx plugin missing'; exit 1; }",
+      "docker compose version >/dev/null || { echo 'docker compose plugin missing'; exit 1; }",
       "getent hosts repo.ci.percona.com | grep -q '^10.30.6.9 ' || { echo 'repo.ci.percona.com is not pinned in /etc/hosts'; exit 1; }",
       "echo \"smoke ok: $(java -version 2>&1 | head -1), docker $(docker --version)\"",
     ]
