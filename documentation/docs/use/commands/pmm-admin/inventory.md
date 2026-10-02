@@ -328,6 +328,9 @@ You can also use `pmm-admin list` to see agents alongside their services.
 - `--custom-labels`
 :   Custom user-assigned labels in `key=value,key=value` format
 
+- `--agent-env-vars`
+:   `mongodb-exporter` only. Comma-separated list of environment variable names to pass from the `pmm-agent` environment to the exporter, for example `KRB5_KTNAME,KRB5_CONFIG`. The list replaces the stored one, and an empty value removes all names. See [Pass environment variables to the exporter](#pass-environment-variables-to-the-exporter).
+
 - `--enable`
 :   Re-enable a disabled agent
 
@@ -336,6 +339,53 @@ You can also use `pmm-admin list` to see agents alongside their services.
 
 - `--log-level`
 :   Set agent log level (e.g., `info`, `debug`, `warn`, `error`)
+
+### Pass environment variables to the exporter
+
+Use `--agent-env-vars` when `mongodb-exporter` needs an environment variable that PMM doesn't set, for example `KRB5_KTNAME` and `KRB5_CONFIG` for Kerberos authentication. PMM stores only the variable names. `pmm-agent` reads the values from its own environment each time it starts the exporter, so the values stay on the PMM Client host.
+
+The flag is available only for `mongodb-exporter`. The QAN and RTA agents for MongoDB run inside `pmm-agent` and already use its environment.
+
+PMM applies the list as follows:
+
+- The list replaces the stored one, so a name that you leave out is removed.
+- If you omit the flag, the stored list doesn't change.
+- An empty value (`--agent-env-vars=""`) removes all names.
+- Surrounding whitespace is trimmed, and a repeated name is stored once.
+
+PMM Server checks the names on every request, whichever client sends it, and rejects the change if a name breaks one of these rules:
+
+- Use only letters, digits, and underscores, and don't start with a digit (`[A-Za-z_][A-Za-z0-9_]*`). Pass the name only, not `NAME=value`.
+- Don't use the `PMM_AGENT_` prefix. It is reserved for the configuration and credentials of `pmm-agent`, such as `PMM_AGENT_SERVER_PASSWORD`.
+- Don't use `MONGODB_URI`, in any letter case. PMM sets this variable for the exporter itself.
+- Pass at most 32 names, each at most 256 characters long.
+
+Saving a change restarts the exporter with the new environment. If a name isn't set in the `pmm-agent` environment, `pmm-agent` skips it, logs `Environment variable not found in pmm-agent environment.`, and starts the exporter without it.
+
+To set a variable in the `pmm-agent` environment:
+
+=== "systemd"
+
+    Add the variable to the `pmm-agent` service, then restart the service:
+
+    ```bash
+    sudo systemctl edit pmm-agent
+    ```
+
+    ```ini
+    [Service]
+    Environment="KRB5_KTNAME=/etc/krb5.keytab"
+    ```
+
+    ```bash
+    sudo systemctl restart pmm-agent
+    ```
+
+=== "Docker"
+
+    Pass the variable to the PMM Client container with `-e`, for example `-e KRB5_KTNAME=/etc/krb5.keytab`, then recreate the container.
+
+To check which names are stored, run `pmm-admin inventory change agent mongodb-exporter <AGENT_ID>` with no flags. The command changes nothing and prints the agent, including the **Environment variables** line.
 
 ### Examples
 
@@ -395,6 +445,20 @@ You can also use `pmm-admin list` to see agents alongside their services.
     ```bash
     pmm-admin inventory change agent mongodb-exporter 12345-67890 \
       --stats-collections=db1,db2.collection1
+    ```
+
+- Pass Kerberos environment variables to the exporter:
+
+    ```bash
+    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
+      --agent-env-vars=KRB5_KTNAME,KRB5_CONFIG
+    ```
+
+- Remove all environment variables from the exporter:
+
+    ```bash
+    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
+      --agent-env-vars=""
     ```
 
 - Disable an agent (stops metric collection without removing it):

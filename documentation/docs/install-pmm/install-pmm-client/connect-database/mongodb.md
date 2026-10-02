@@ -421,7 +421,7 @@ After configuring your database server, add a MongoDB service using either the u
     --agent-env-vars="LOG_LEVEL,OTHER_VAR"
     ```
     
-    Only variables already set in the `pmm-agent` environment will be passed to the exporter.
+    Only variables already set in the `pmm-agent` environment will be passed to the exporter. To change the list later without re-adding the service, see [Pass environment variables to the exporter](../../../use/commands/pmm-admin/inventory.md#pass-environment-variables-to-the-exporter).
 
 ## Step 4: Verify MongoDB service configuration
 
