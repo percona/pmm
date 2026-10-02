@@ -31,20 +31,20 @@ import (
 const bootstrapPollInterval = 15 * time.Second
 
 // bootstrapInventoryRefreshWindow bounds how long completeSucceededRun keeps a
-// fully registered run in the sweep waiting for the inventory app to accept its
-// scoped refresh.
+// fully registered run in the sweep waiting for the inventory app to show the
+// service it registered.
 //
-// Generous against the conflict it exists to outlast -- an estate sweep holding
-// these hosts -- and finite against the one it must not outlast: a host the app
-// will never accept a refresh for keeps the run out of RegisteredAt, and with it
-// in a list re-read every bootstrapPollInterval for the life of the server. When
-// the window closes the run leaves anyway; confirm_monitoring then resolves on
-// the app's own schedule, which is exactly where it stood before the nudge
-// existed.
+// Generous against the delay it exists to outlast -- an estate sweep holding
+// these hosts, and a sync that answers 202 and lands later -- and finite against
+// the one it must not outlast: a host whose service never shows up keeps the run
+// out of RegisteredAt, and with it in a list re-read every bootstrapPollInterval
+// for the life of the server. When the window closes the run leaves anyway;
+// confirm_monitoring then resolves on the app's own schedule, which is exactly
+// where it stood before the nudge existed.
 const bootstrapInventoryRefreshWindow = 5 * time.Minute
 
 // refreshRetryWindowOpen reports whether run finished recently enough to be worth
-// holding in the sweep for another refresh attempt.
+// holding in the sweep for the registered service to appear.
 //
 // A run with no finish time cannot be aged, so it is not held: PMM Extensions sets
 // finished_at with the terminal status, making this unreachable for a SUCCEEDED

@@ -881,13 +881,20 @@ func (s *Service) triggerScopedInventoryRefresh(ctx context.Context, nodeIDs []s
 }
 
 // refreshDue returns the nodes among nodeIDs that have not been handed to the
-// app within inventoryRefreshDebounce of now, pruning the entries that have aged
-// out as it goes -- the map is then bounded by the nodes under bootstrap in one
-// window rather than by every node the server has ever refreshed.
+// app within inventoryRefreshDebounce of now.
+//
+// Each node's own stamp decides, rather than its presence in the map: pruning
+// below is then a memory bound and nothing more, and losing it costs entries
+// that outlive their window instead of nodes that are never refreshed again.
+// The difference matters because the failure is silent and permanent -- a node
+// held for the life of the server makes every later run on it wait out the whole
+// bootstrapInventoryRefreshWindow before confirm_monitoring resolves.
 func (s *Service) refreshDue(nodeIDs []string, now time.Time) []string {
 	s.refreshRequestedMu.Lock()
 	defer s.refreshRequestedMu.Unlock()
 
+	// Bounded by the nodes under bootstrap in one window rather than by every
+	// node the server has ever refreshed.
 	for nodeID, at := range s.refreshRequested {
 		if now.Sub(at) >= inventoryRefreshDebounce {
 			delete(s.refreshRequested, nodeID)
@@ -895,8 +902,8 @@ func (s *Service) refreshDue(nodeIDs []string, now time.Time) []string {
 	}
 	due := make([]string, 0, len(nodeIDs))
 	for _, nodeID := range nodeIDs {
-		_, held := s.refreshRequested[nodeID]
-		if !held {
+		at, held := s.refreshRequested[nodeID]
+		if !held || now.Sub(at) >= inventoryRefreshDebounce {
 			due = append(due, nodeID)
 		}
 	}
