@@ -1250,7 +1250,7 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	return db, nil
 }
 
-// connector marks connection failures that are safe to retry with ErrDatabaseUnavailable.
+// connector marks connection failures that are likely transient with ErrDatabaseUnavailable.
 type connector struct {
 	driver.Connector
 }
@@ -1265,8 +1265,9 @@ func (c connector) Connect(ctx context.Context) (driver.Conn, error) {
 }
 
 func isConnectUnavailable(err error) bool {
-	if _, ok := errors.AsType[*net.OpError](err); ok {
-		return true
+	opErr, ok := errors.AsType[*net.OpError](err)
+	if ok {
+		return opErr.Op != "remote error" // TLS alert from the server, e.g. a rejected client certificate
 	}
 	if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) {
 		return true
@@ -1276,12 +1277,8 @@ func isConnectUnavailable(err error) bool {
 	if !ok {
 		return false
 	}
-	switch pqErr.Code.Class() {
-	case "08", "53", "57": // connection exception, insufficient resources, operator intervention
-		return true
-	default:
-		return false
-	}
+	// insufficient resources (e.g. too many connections), operator intervention (e.g. shutting down)
+	return strings.HasPrefix(string(pqErr.Code), "53") || strings.HasPrefix(string(pqErr.Code), "57")
 }
 
 // SetupFixturesMode defines if SetupDB adds initial data to the database or not.
