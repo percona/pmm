@@ -47,7 +47,7 @@ export const ExtensionsPage: FC<PropsWithChildren> = ({ children }) => {
 
   if (isLoading || !settings) {
     return (
-      <Page maxWidth="full" surface="paper">
+      <Page maxWidth="full">
         <Stack alignItems="center" py={4}>
           <CircularProgress data-testid="extensions-settings-loading" />
         </Stack>
@@ -57,7 +57,7 @@ export const ExtensionsPage: FC<PropsWithChildren> = ({ children }) => {
 
   if (!settings.extensionsEnabled) {
     return (
-      <Page maxWidth="full" surface="paper">
+      <Page maxWidth="full">
         <Alert severity="info">
           This feature is not enabled. Contact your administrator.
         </Alert>
@@ -66,7 +66,7 @@ export const ExtensionsPage: FC<PropsWithChildren> = ({ children }) => {
   }
 
   return (
-    <Page maxWidth="full" surface="paper">
+    <Page maxWidth="full">
       <Stack gap={3} sx={{ flex: 1 }}>
         <ExtensionsAuthProvider>
           <ExtensionsAuthGate>

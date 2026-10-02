@@ -116,7 +116,7 @@ describe('ExtensionsPage', () => {
   });
 
   it('renders every state on the paper surface Settings uses', () => {
-    const stage = measurePageSurface('default');
+    const stage = measurePageSurface('canvas');
     const paper = measurePageSurface('paper');
 
     // Guards the rest of the assertions: they only mean anything while the two

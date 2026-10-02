@@ -21,7 +21,7 @@ export const HelpCenter: FC = () => {
   );
 
   return (
-    <Page topBar={<WelcomeCard />} title={Messages.pageTitle}>
+    <Page topBar={<WelcomeCard />} title={Messages.pageTitle} surface="canvas">
       <Box
         sx={{
           display: 'grid',
