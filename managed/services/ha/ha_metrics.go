@@ -45,6 +45,7 @@ const (
 //     namespace this replica runs in. Every other series the HA dashboard
 //     reads comes from kube-state-metrics, which is cluster-wide, so this is
 //     the only way the dashboard can tell which namespace is PMM's own.
+//     The pmm_ha_disk_space_usage template scopes its PVCs the same way.
 //     Emitted only when the namespace is known (PMM_HA_NAMESPACE is set).
 type HAMetricsCollector struct { //nolint:revive
 	haService *Service
