@@ -17,12 +17,16 @@ package interceptors
 
 import (
 	"context"
+	"database/sql/driver"
+	"errors"
+	"net"
 	"regexp"
 	"runtime/debug"
 	"runtime/pprof"
 	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -66,6 +70,9 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 			}
 		case gRPCError:
 			l.Warnf("%s done in %s with gRPC error: %+v", prefix, dur, err)
+		case isDatabaseUnavailable(err):
+			l.Errorf("%s done in %s with database error: %+v", prefix, dur, err)
+			err = status.Error(codes.Unavailable, "Database is unavailable, please retry.")
 		default:
 			l.Errorf("%s done in %s with unexpected error: %+v", prefix, dur, err)
 			err = status.Error(codes.Internal, "Internal server error.")
@@ -74,6 +81,27 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 
 	err = f()
 	return err
+}
+
+// isDatabaseUnavailable reports whether err means the database could not serve the request at all,
+// so nothing was committed and the client may safely retry (e.g. during a PostgreSQL failover in HA).
+func isDatabaseUnavailable(err error) bool {
+	pqErr, ok := errors.AsType[*pq.Error](err)
+	if ok {
+		switch pqErr.Code {
+		case "57P01", "57P02", "57P03": // admin_shutdown, crash_shutdown, cannot_connect_now
+			return true
+		default:
+			return false
+		}
+	}
+
+	opErr, ok := errors.AsType[*net.OpError](err)
+	if ok && opErr.Op == "dial" {
+		return true
+	}
+
+	return errors.Is(err, driver.ErrBadConn)
 }
 
 // UnaryInterceptorType represents the type of a unary gRPC interceptor.

@@ -124,6 +124,8 @@ func SetupClients(globalFlags *flags.GlobalFlags) {
 		httpTransport.TLSClientConfig.InsecureSkipVerify = globalFlags.SkipTLSCertificateCheck
 	}
 
+	transport.Transport = newRetryTransport(httpTransport)
+
 	inventoryClient.Default.SetTransport(transport)
 	managementClient.Default.SetTransport(transport)
 	serverClient.Default.SetTransport(transport)
