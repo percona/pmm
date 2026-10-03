@@ -354,6 +354,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 ## Global Development Conventions
 
 ### Code Style
+- Follow YAGNI and KISS: build only what the ticket needs — no speculative options, abstractions, or helpers for a single call site; choose the simplest code that works, readable over clever
 - Format with `gofumpt -s`; run `make format`
 - Import grouping: stdlib, then external (`github.com/percona`, third-party), then internal (this repo)
 - Use `any` instead of `interface{}`
