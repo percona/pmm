@@ -86,7 +86,7 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
     header: 'Scope',
     Cell: ({ row: { original } }) =>
       original.scope.length === 0 ? (
-        <Tooltip title="The whole estate">
+        <Tooltip title="Every node">
           <Box component="span" sx={{ color: 'text.disabled' }}>
             all
           </Box>
@@ -103,13 +103,13 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
   {
     accessorFn: (row) => row.counts.answered_hosts,
     id: 'hosts',
-    header: 'Hosts',
+    header: 'Nodes',
     Cell: ({ row: { original } }) => (
       // total / probeable / answered in one cell. The gap between the first two is
       // the estate nothing can be dispatched to, which is an onboarding fact rather
       // than a failed run, and the gap between the last two is what actually failed.
       <Tooltip
-        title={`${original.counts.total_hosts} in scope, ${original.counts.probeable_hosts} with somewhere to run a probe, ${original.counts.answered_hosts} answered`}
+        title={`${original.counts.total_hosts} in scope, ${original.counts.probeable_hosts} reachable, ${original.counts.answered_hosts} answered`}
       >
         <Box component="span">
           {original.counts.answered_hosts}/{original.counts.probeable_hosts}
@@ -131,7 +131,7 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
     id: 'resolved',
     header: 'Resolved',
     Cell: ({ row: { original } }) => (
-      <Tooltip title="Services that mapped to a live executor host">
+      <Tooltip title="Services on a node with a working automation agent">
         <Box component="span">{original.counts.resolved_services}</Box>
       </Tooltip>
     ),
@@ -144,7 +144,7 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
       // The diagnostic pair: resolved says the mapping worked, answered says the
       // node ran the payload. resolved=9 / answered=0 is a healthy mapping and
       // broken executors — a distinction a single "failed" count would hide.
-      <Tooltip title="Services whose node ran the probe payload">
+      <Tooltip title="Services whose node ran the scan">
         <Box component="span">{original.counts.answered_services}</Box>
       </Tooltip>
     ),
@@ -154,7 +154,7 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
     id: 'orphaned',
     header: 'Orphaned',
     Cell: ({ row: { original } }) => (
-      <Tooltip title="Services with no live executor host — not an error">
+      <Tooltip title="Services with no automation agent — not an error">
         <Box component="span">{original.counts.orphaned_services}</Box>
       </Tooltip>
     ),
@@ -188,7 +188,7 @@ const RefreshButton = () => {
 
   return (
     <Stack direction="row" alignItems="center" gap={1}>
-      <Tooltip title="Probe every host in the estate and collect what no metric carries">
+      <Tooltip title="Scan every node now, collecting what no metric carries">
         <span>
           <Button
             variant="contained"
@@ -198,7 +198,7 @@ const RefreshButton = () => {
             disabled={running || trigger.isPending}
             onClick={() => trigger.refreshAll()}
           >
-            {running ? 'Refreshing…' : 'Refresh estate'}
+            {running ? 'Scanning…' : 'Scan all nodes'}
           </Button>
         </span>
       </Tooltip>
@@ -209,7 +209,7 @@ const RefreshButton = () => {
       )}
       {failure && (
         <Typography variant="body2" color="error">
-          Could not start a refresh: {failure.message}
+          Could not start a scan: {failure.message}
         </Typography>
       )}
     </Stack>
@@ -231,7 +231,7 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
   if (!run) {
     return (
       <Alert severity="info">
-        No refresh has run yet. Operations has nothing to show until one does.
+        No scan has run yet. Operations has nothing to show until one does.
       </Alert>
     );
   }
@@ -255,7 +255,7 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
       <Typography variant="body2">
         <strong>{run.counts.answered_hosts}</strong> of{' '}
         {run.counts.probeable_hosts}{' '}
-        {pluralize(run.counts.probeable_hosts, 'host')} answered
+        {pluralize(run.counts.probeable_hosts, 'node')} answered
       </Typography>
       <Typography variant="body2">
         <strong>{run.counts.answered_services}</strong> of{' '}
@@ -358,8 +358,8 @@ export const AutomationsScansTab = () => {
   return (
     <Stack gap={2}>
       {/* The scan-specific controls, in the tab rather than the page header: a period
-          filter over installs would mean nothing, and the refresh action starts a scan,
-          not an install. */}
+          filter over installs would mean nothing, and this action scans the nodes
+          rather than starting an install. */}
       <Stack
         direction="row"
         alignItems="center"
@@ -373,14 +373,14 @@ export const AutomationsScansTab = () => {
       {error && (
         <Alert severity="error">
           {/* Rendered inside the page rather than replacing it: PMM Extensions being
-                  unwell is a fact about the estate, and the settings tab still
+                  unwell is a fact about the fleet, and the installs tab still
                   reads. */}
-          Could not load refreshes: {(error as Error).message}
+          Could not load scans: {(error as Error).message}
         </Alert>
       )}
 
       {/* Only once the query has actually answered. LastRun reads an absent run as
-              "no refresh has run yet", which is a claim about the estate - not something
+              "no scan has run yet", which is a claim about the fleet - not something
               to assert while the first request is still in flight or has failed with no
               cached rows to fall back on. */}
       {(!latest.isLoading || latest.data) && !latest.error && (
@@ -392,7 +392,7 @@ export const AutomationsScansTab = () => {
           <CircularProgress />
         </Box>
       ) : rows.length === 0 && !error ? (
-        <Alert severity="info">No refreshes in this period.</Alert>
+        <Alert severity="info">No scans in this period.</Alert>
       ) : (
         <Table
           tableName="om-inventory-runs"

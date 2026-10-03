@@ -221,7 +221,7 @@ describe('RunProgress', () => {
     expect(screen.getByText('enable_auth')).toBeInTheDocument();
     expect(screen.getByText('stop_service')).toBeInTheDocument();
     expect(screen.getByText('Rollback')).toBeInTheDocument();
-    expect(screen.getByText('Rolling back every host.')).toBeInTheDocument();
+    expect(screen.getByText('Rolling back every node.')).toBeInTheDocument();
   });
 
   it('offers an Abort button while the run is still running', () => {

@@ -96,7 +96,7 @@ function useColumns(
       { accessorKey: 'service_name', header: 'Service' },
       {
         accessorKey: 'host',
-        header: 'Host',
+        header: 'Node',
         Cell: ({ row: { original } }) =>
           original.host ?? <Unavailable reason="service_not_observed" />,
       },
@@ -156,7 +156,7 @@ function useColumns(
       {
         id: 'probe_status',
         accessorFn: (row) => row.inventory?.probe_status ?? null,
-        header: 'Probe',
+        header: 'Scan',
         Cell: ({ row: { original } }) =>
           original.inventory ? (
             <ProbeStatus inventory={original.inventory} />
@@ -338,15 +338,15 @@ const Counts = ({
       {failing === null ? (
         <Typography variant="body2" color="text.secondary">
           {estate === 'pending'
-            ? 'reading probe status…'
-            : 'probe status unavailable'}
+            ? 'reading scan status…'
+            : 'scan status unavailable'}
         </Typography>
       ) : failing > 0 || failingOnly ? (
         <Chip
           size="small"
           color={failingOnly ? 'error' : 'default'}
           variant={failingOnly ? 'filled' : 'outlined'}
-          label={`${failing} failing a probe`}
+          label={`${failing} failing a scan`}
           onClick={onToggleFailing}
         />
       ) : null}
@@ -370,7 +370,7 @@ const ProbeStatus = ({ inventory }: { inventory: OmInventoryService }) => {
     <Tooltip
       title={
         inventory.freshness.last_error ??
-        'The last probe against this service failed.'
+        'The last scan of this service failed.'
       }
     >
       <Box component="span" sx={{ color: 'error.main', cursor: 'help' }}>
@@ -478,9 +478,9 @@ export const FleetServicesTab = () => {
       <SnapshotBar envelope={data.snapshot} />
       {inventoryFailed && (
         <Alert severity="warning" sx={{ mb: 2 }}>
-          The inventory estate could not be read, so the probe columns are blank
-          and no probe count is shown. The topology columns come from PMM&apos;s
-          own data and are unaffected.
+          Scan results could not be read, so the scan columns are blank and no
+          scan count is shown. The monitoring columns come from PMM&apos;s own
+          data and are unaffected.
           {inventoryError instanceof Error ? ` ${inventoryError.message}` : ''}
         </Alert>
       )}

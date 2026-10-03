@@ -157,40 +157,40 @@ export const HOST_DATABASE_STATE_COLOR: Record<
 };
 
 export const HOST_DATABASE_STATE_PHRASE: Record<OmHostDatabaseState, string> = {
-  has_service: 'PMM has at least one registered MongoDB service on this host',
+  has_service: 'PMM has at least one registered MongoDB service on this node',
   unregistered_only:
-    'No service PMM knows about, but the probe found a mongod running - an arbiter, most likely, since PMM cannot authenticate against one. Not an empty host.',
+    'No service PMM knows about, but a scan found a mongod running - an arbiter, most likely, since PMM cannot authenticate against one. Not an empty node.',
   installable:
     'No registered service and no mongod found. This is where a database can be installed.',
 };
 
 export const UNAVAILABLE_PHRASE: Record<OmUnavailableReason, string> = {
   service_not_observed:
-    'Not observed — the service has no live executor, or it did not answer this run',
+    'Not observed — the service has no automation agent, or it did not answer this run',
   metric_not_collected: 'Not collected — no collector produces this metric yet',
   no_version_catalog:
     'No version catalog yet — PMM has no PSMDB release data to compare against',
   not_applicable:
     'Not applicable — a standalone or a router has no replica-set oplog, and a single-member set has no peer to lag behind',
-  // The two the estate adds. Both mean "the probe has no answer", and they are kept
-  // apart because they need different things done about them: one is a service OM
-  // has never been asked about, the other is a host the probe cannot reach.
+  // The two the fleet view adds. Both mean "no scan has an answer", and they are kept
+  // apart because they need different things done about them: one is a service
+  // Operations has never been asked about, the other is a node a scan cannot reach.
   not_in_inventory:
-    'Not in the inventory yet — Operations has no row for this service, so no probe has ever been dispatched for it. The next sweep will create one.',
+    'Not scanned yet — Operations has no row for this service, so no scan has ever been sent for it. The next scan will create one.',
   probe_never_succeeded:
-    'Never collected — Operations has a row for this service but no probe has ever succeeded against it. Its host may have no executor, or every attempt may have failed.',
+    'Never collected — Operations has a row for this service but no scan has ever succeeded against it. Its node may have no automation agent, or every attempt may have failed.',
   // Distinct from not_in_inventory on purpose. That one is a statement about the
-  // estate; this one is an admission that the estate could not be read, and the two
-  // must not look the same -- reporting "not in the inventory" for every row because
-  // one request failed is a confident wrong answer.
+  // fleet; this one is an admission that the fleet could not be read, and the two
+  // must not look the same -- reporting "not scanned yet" for every row because one
+  // request failed is a confident wrong answer.
   inventory_unavailable:
-    'Inventory unavailable — Operations could not read the estate, so nothing is known about this service either way. The topology columns are unaffected.',
+    'Scan results unavailable — Operations could not read them, so nothing is known about this service either way. The monitoring columns are unaffected.',
   // The third of the same family, and it exists for the same reason the second does.
-  // The topology document answers in a tenth of a second while the estate is a second
-  // request that may still be in flight; reporting "not in the inventory yet" during
-  // that window states a fact about the estate before the estate has answered.
+  // The fleet document answers in a tenth of a second while the scan results are a
+  // second request that may still be in flight; reporting "not scanned yet" during
+  // that window states a fact about them before they have answered.
   inventory_pending:
-    'Loading the inventory — Operations has not answered yet, so whether it has a row for this service is not known. The topology columns come from PMM and are already current.',
+    'Loading scan results — Operations has not answered yet, so whether it has a row for this service is not known. The monitoring columns come from PMM and are already current.',
 };
 
 /** Fallback for a reason code the frontend has not been taught. */
@@ -227,17 +227,17 @@ export const RUN_STATUS_COLOR: Record<OmTopologyRunStatus, ChipProps['color']> =
  * in PMM Extensions still renders rather than disappearing from the form.
  */
 export const SETTING_LABEL: Record<string, string> = {
-  SCHEDULE__every: 'Sweep every',
+  SCHEDULE__every: 'Scan every',
   SCHEDULE__period: 'Period',
   PROBE_DATABASE: 'Connect to MongoDB',
   REPO_URL: 'Repository check URL',
   REPO_TIMEOUT: 'Repository timeout',
   CONNECT_TIMEOUT: 'MongoDB connect timeout',
-  TASK_TIMEOUT: 'Probe job timeout',
+  TASK_TIMEOUT: 'Scan job timeout',
   POLL_INTERVAL: 'Job poll interval',
-  MAX_CONCURRENT_PROBES: 'Concurrent probes',
-  RUN_RETENTION: 'Refreshes kept',
-  STALE_RUN_AFTER: 'Consider a refresh wedged after',
+  MAX_CONCURRENT_PROBES: 'Concurrent scans',
+  RUN_RETENTION: 'Scans kept',
+  STALE_RUN_AFTER: 'Consider a scan stuck after',
 };
 
 /**
@@ -253,29 +253,28 @@ export const SETTING_UNIT: Record<string, string> = {
   TASK_TIMEOUT: 'seconds',
   POLL_INTERVAL: 'seconds',
   STALE_RUN_AFTER: 'seconds',
-  MAX_CONCURRENT_PROBES: 'jobs in flight',
+  MAX_CONCURRENT_PROBES: 'jobs at once',
   RUN_RETENTION: 'rows',
 };
 
 /** What each field costs or protects, for the reader deciding whether to touch it. */
 export const SETTING_HELP: Record<string, string> = {
   SCHEDULE__every:
-    'How often the whole estate is swept. Each sweep dispatches a job to every host.',
+    'How often every node is scanned. Each scan sends a job to every node.',
   PROBE_DATABASE:
     'Off collects process and OS facts only, which needs no credentials - and still yields the installed version.',
   REPO_URL:
-    'The file each host fetches to prove it can install packages. Point it at a mirror on an air-gapped estate, or every host reports as broken.',
+    'The file each node fetches to prove it can install packages. Point it at a mirror on an air-gapped network, or every node reports as failing.',
   REPO_TIMEOUT:
     'Short on purpose: a repository slower than this is not usable by a package manager either.',
   CONNECT_TIMEOUT: 'Per-target connect and server-selection timeout.',
-  TASK_TIMEOUT:
-    'How long to wait for one dispatched probe job before giving up on it.',
-  POLL_INTERVAL: 'How often a dispatched job is checked for completion.',
+  TASK_TIMEOUT: 'How long to wait for one scan job before giving up on it.',
+  POLL_INTERVAL: 'How often a running job is checked for completion.',
   MAX_CONCURRENT_PROBES:
-    'Ceiling on probe jobs at once. Each probe runs as a job on its host, so this caps the load on PMM and on the hosts.',
-  RUN_RETENTION: 'How many refresh rows to keep before the oldest are pruned.',
+    'Ceiling on scan jobs at once. Each scan runs as a job on its node, so this caps the load on PMM and on the nodes.',
+  RUN_RETENTION: 'How many scan rows to keep before the oldest are removed.',
   STALE_RUN_AFTER:
-    'How long a refresh may stay running before its worker is presumed gone. Must exceed the slowest legitimate sweep.',
+    'How long a scan may stay running before its worker is presumed gone. Must exceed the slowest legitimate scan.',
 };
 
 /** One bootstrap step's status, as a short label. */

@@ -88,7 +88,7 @@ const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
   {
     accessorFn: (row) => row.hosts.length,
     id: 'hosts',
-    header: 'Hosts',
+    header: 'Nodes',
   },
   {
     accessorKey: 'started_at',
@@ -145,7 +145,7 @@ const AutomationsInstallsTab = () => {
   if (error) {
     return (
       <Alert severity="error">
-        Could not load bootstrap runs: {(error as Error).message}
+        Could not load installs: {(error as Error).message}
       </Alert>
     );
   }
