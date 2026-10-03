@@ -32,9 +32,13 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+const cloudDialTimeout = 5 * time.Second
+
 // mysqldExporterConfig returns desired configuration of mysqld_exporter process.
+// The node argument is the pmm-agent's Node, serviceNode is the monitored Service's Node.
 func mysqldExporterConfig(
 	node *models.Node,
+	serviceNode *models.Node,
 	service *models.Service,
 	exporter *models.Agent,
 	redactMode redactMode,
@@ -152,7 +156,7 @@ func mysqldExporterConfig(
 		TextFiles:          textFiles,
 	}
 
-	connectionTimeout := mysqlExporterDialTimeout(exporter)
+	connectionTimeout := dbExporterDialTimeout(serviceNode, exporter)
 
 	if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
 		if textFiles == nil {
@@ -185,8 +189,18 @@ func mysqldExporterConfig(
 	return res, nil
 }
 
-func mysqlExporterDialTimeout(exporter *models.Agent) time.Duration {
-	return roundUpToSecond(exporter.EffectiveDialTimeout())
+// dbExporterDialTimeout returns the dial timeout of mysqld_exporter and postgres_exporter, used by both the
+// exporter process and its connection check. An explicit timeout wins; otherwise Services on RDS and Azure Nodes
+// get cloudDialTimeout, and all others (or a nil serviceNode) the regular default. The result is rounded up to
+// whole seconds.
+func dbExporterDialTimeout(serviceNode *models.Node, exporter *models.Agent) time.Duration {
+	timeout := exporter.EffectiveDialTimeout()
+	if exporter.ExporterOptions.ConnectionTimeout == nil && serviceNode != nil &&
+		(serviceNode.NodeType == models.RemoteRDSNodeType || serviceNode.NodeType == models.RemoteAzureDatabaseNodeType) {
+		timeout = cloudDialTimeout
+	}
+
+	return roundUpToSecond(timeout)
 }
 
 func roundUpToSecond(timeout time.Duration) time.Duration {
