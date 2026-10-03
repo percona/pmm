@@ -177,7 +177,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "100 * (min by (service_name)(redis_memory_used_bytes{service_name=~\"$service_name\"})) / (min by (service_name)(redis_memory_max_bytes{service_name=~\"$service_name\"}) > 0 OR min by (service_name) (node_memory_MemTotal_bytes + on(node_name) group_left(service_name) redis_instance_info{service_name =~\"$service_name\"}))",
+                    "expr": "100 * (min by (service_name)(redis_memory_used_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"})) / (min by (service_name)(redis_memory_max_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}) > 0 OR min by (service_name) (node_memory_MemTotal_bytes + on(node_name) group_left(service_name) redis_instance_info{service_name =~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}))",
                     "format": "time_series",
                     "hide": false,
                     "intervalFactor": 2,
@@ -362,7 +362,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (service_name) (redis_db_keys{service_name=~\"$service_name\"})",
+                    "expr": "min by (service_name) (redis_db_keys{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"})",
                     "format": "table",
                     "instant": true,
                     "intervalFactor": 1,
@@ -499,7 +499,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "redis_memory_used_bytes{service_name=~\"$service_name\"}",
+                    "expr": "redis_memory_used_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "used, {{ service_name}}",
@@ -512,7 +512,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "redis_memory_max_bytes{service_name=~\"$service_name\"}",
+                    "expr": "redis_memory_max_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}",
                     "format": "time_series",
                     "hide": false,
                     "intervalFactor": 2,
@@ -668,7 +668,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum(rate(redis_expired_keys_total{service_name=~\"$service_name\"}[5m])) by (service_name)",
+                    "expr": "sum(rate(redis_expired_keys_total{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}[5m])) by (service_name)",
                     "format": "time_series",
                     "hide": false,
                     "interval": "",
@@ -683,7 +683,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum(rate(redis_evicted_keys_total{service_name=~\"$service_name\"}[5m])) by (service_name)",
+                    "expr": "sum(rate(redis_evicted_keys_total{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}[5m])) by (service_name)",
                     "format": "time_series",
                     "interval": "",
                     "intervalFactor": 2,
@@ -780,7 +780,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum (redis_db_keys{service_name=~\"$service_name\"}) by (service_name) - sum (redis_db_keys_expiring{service_name=~\"$service_name\"}) by (service_name)",
+                    "expr": "sum (redis_db_keys{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}) by (service_name) - sum (redis_db_keys_expiring{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}) by (service_name)",
                     "format": "time_series",
                     "interval": "",
                     "intervalFactor": 1,
@@ -793,7 +793,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum (redis_db_keys_expiring{service_name=~\"$service_name\"}) by (service_name)",
+                    "expr": "sum (redis_db_keys_expiring{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}) by (service_name)",
                     "format": "time_series",
                     "interval": "",
                     "intervalFactor": 2,
@@ -891,7 +891,8 @@
                 "refresh": 2,
                 "regex": "",
                 "sort": 1,
-                "type": "query"
+                "type": "query",
+                "allValue": ".+"
             },
             {
                 "allowCustomValue": false,
@@ -902,7 +903,7 @@
                     ]
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(redis_up{node_name=~\"$node_name\"},service_name)",
+                "definition": "label_values(redis_up{node_name=~\"$node_name\",cluster=~\"$cluster\"},service_name)",
                 "includeAll": true,
                 "label": "Service Name",
                 "multi": true,
@@ -910,13 +911,14 @@
                 "options": [],
                 "query": {
                     "qryType": 1,
-                    "query": "label_values(redis_up{node_name=~\"$node_name\"},service_name)",
+                    "query": "label_values(redis_up{node_name=~\"$node_name\",cluster=~\"$cluster\"},service_name)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 2,
                 "regex": "",
                 "sort": 1,
-                "type": "query"
+                "type": "query",
+                "allValue": ".+"
             }
         ]
     },

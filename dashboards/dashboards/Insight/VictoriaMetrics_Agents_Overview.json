@@ -3679,7 +3679,7 @@
                 "type": "datasource"
             },
             {
-                "allValue": "",
+                "allValue": ".+",
                 "current": {
                     "selected": true,
                     "text": [

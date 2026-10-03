@@ -162,7 +162,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "rate(redis_net_input_bytes_total{service_name=~\"$service_name\"}[$__interval]) or irate(redis_net_input_bytes_total{service_name=~\"$service_name\"}[5m])",
+                    "expr": "rate(redis_net_input_bytes_total{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}[$__interval]) or irate(redis_net_input_bytes_total{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}[5m])",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "{{service_name}}",
@@ -267,7 +267,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "rate(redis_net_output_bytes_total{service_name=~\"$service_name\"}[$__interval]) or irate(redis_net_output_bytes_total{service_name=~\"$service_name\"}[5m])",
+                    "expr": "rate(redis_net_output_bytes_total{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}[$__interval]) or irate(redis_net_output_bytes_total{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}[5m])",
                     "format": "time_series",
                     "interval": "",
                     "intervalFactor": 2,
@@ -425,13 +425,14 @@
                 "refresh": 2,
                 "regex": "",
                 "sort": 1,
-                "type": "query"
+                "type": "query",
+                "allValue": ".+"
             },
             {
                 "allowCustomValue": false,
                 "current": {},
                 "datasource": "Metrics",
-                "definition": "label_values(redis_up{node_name=~\"$node_name\"},service_name)",
+                "definition": "label_values(redis_up{node_name=~\"$node_name\",cluster=~\"$cluster\"},service_name)",
                 "includeAll": true,
                 "label": "Service Name",
                 "multi": true,
@@ -439,13 +440,14 @@
                 "options": [],
                 "query": {
                     "qryType": 1,
-                    "query": "label_values(redis_up{node_name=~\"$node_name\"},service_name)",
+                    "query": "label_values(redis_up{node_name=~\"$node_name\",cluster=~\"$cluster\"},service_name)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 2,
                 "regex": "",
                 "sort": 1,
-                "type": "query"
+                "type": "query",
+                "allValue": ".+"
             }
         ]
     },
