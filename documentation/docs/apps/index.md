@@ -3,9 +3,7 @@
 !!! warning "Tech Preview"
     These apps are not production-ready. Use for testing and feedback only.
 
-PMM is expanding beyond monitoring into database management. Through the Apps integration, you can now trigger and track database operations on your hosts directly from PMM, without SSH access or extra software on those hosts.
-
-More apps are coming, so you can handle more of your database work without leaving PMM.
+PMM Apps extend PMM with database management capabilities, allowing you to run and track operations on your database hosts directly from PMM, without SSH access. 
 
 ## Available apps
 
@@ -13,3 +11,7 @@ More apps are coming, so you can handle more of your database work without leavi
 - [Support Diagnostics](support-diagnostics.md): collect diagnostic data from your hosts and send it directly to your Percona support case in ServiceNow.
 
 More operations and database types will be added in future releases.
+
+## Get Started 
+
+To enable the available apps and the **Apps** menu, [deploy PMM Extensions](deploy-pmm-extensions.md), the service that connects PMM to your database hosts.

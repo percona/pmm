@@ -40,7 +40,7 @@ Find your binary below to see which compression algorithms you can select when c
 Complete the following steps before creating your first backup.
 {.power-number}
 
-1. Enable Nomad on PMM Server by starting it with both `PMM_ENABLE_NOMAD=1` and `PMM_PUBLIC_ADDRESS` set. See [Configure Nomad](../reference/nomad.md).
+1. Deploy PMM Extensions alongside PMM Server. See [Deploy PMM Extensions](deploy-pmm-extensions.md).
 
 2. Install the Nomad client on the execution host. The host needs PMM Client 3.2 or later, registered to this PMM Server. PMM Client ships with the Nomad client, so if you deploy PMM Client with Nomad enabled, it's already installed. PMM Client itself doesn't need to run on the execution host, only the Nomad client does.
 

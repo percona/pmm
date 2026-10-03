@@ -415,6 +415,7 @@ nav:
           - backup/delete_a_backup.md
       - Apps:
           - apps/index.md
+          - apps/deploy-pmm-extensions.md
           - apps/mysql-backup.md
           - apps/support-diagnostics.md
   - Configure:
