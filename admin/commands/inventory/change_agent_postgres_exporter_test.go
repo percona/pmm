@@ -46,10 +46,8 @@ func TestPostgresExporterChangeAgent(t *testing.T) {
 				DisableCollectors: []string{"locks", "replication"},
 				ExposeExporter:    new(true),
 				PushMetrics:       new(false),
-				LogLevelNoFatalChangeFlags: flags.LogLevelNoFatalChangeFlags{
-					LogLevel: new(flags.LogLevel("debug")),
-				},
-				CustomLabels: &map[string]string{"environment": "test", "team": "backend"},
+				LogLevel:          new(flags.LogLevel("debug")),
+				CustomLabels:      &map[string]string{"environment": "test", "team": "backend"},
 			}
 
 			result, err := cmd.RunCmd()

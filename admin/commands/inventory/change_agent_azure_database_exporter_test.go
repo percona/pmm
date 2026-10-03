@@ -45,10 +45,8 @@ func TestAzureDatabaseExporterChangeAgent(t *testing.T) {
 				AzureSubscriptionID: new("11111111-2222-3333-4444-555555555555"),
 				AzureResourceGroup:  new("pmm-rg"),
 				PushMetrics:         new(true),
-				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: new(flags.LogLevel("debug")),
-				},
-				CustomLabels: &map[string]string{"environment": "production", "cloud": "azure"},
+				LogLevel:            new(flags.LogLevel("debug")),
+				CustomLabels:        &map[string]string{"environment": "production", "cloud": "azure"},
 			}
 
 			result, err := cmd.RunCmd()

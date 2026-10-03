@@ -92,9 +92,7 @@ func TestConfigCommandArgs(t *testing.T) {
 			NodeAddress: "1.2.3.4",
 			NodeType:    "generic",
 			NodeName:    "node1",
-			LogLevelFatalFlags: flags.LogLevelFatalFlags{
-				LogLevel: "info",
-			},
+			LogLevel:    "info",
 		}
 
 		u, err := url.Parse("http://admin:admin@127.0.0.1")
