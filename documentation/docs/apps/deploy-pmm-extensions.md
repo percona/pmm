@@ -1,29 +1,29 @@
 # Deploy PMM Extensions with Docker
 
 !!! warning "Tech Preview"
-    This feature is not production-ready. Use for testing and feedback only.
+    This feature is not yet production-ready. Use it only for testing and feedback.
 
-Deploy PMM Extensions to enable [database management apps](index.md) in PMM. Apps let you run operations on your database hosts directly from PMM, without SSH access.
+Deploy PMM Extensions to enable [database management apps](index.md) in PMM. These apps let you run operations on your database hosts directly from PMM, without SSH access.
 
 ## Limitations
 
-PMM Extensions cannot be deployed on:
+You cannot deploy PMM Extensions on:
 
-- AMI deployments as it is only available as a Docker container.
-- a separate host from PMM Server because traffic between the two containers is not encrypted.
-- arm64 or other non-amd64 architectures. Only amd64 binaries are available.
-- [PMM HA](../install-pmm/HA.md) or [external PostgreSQL](../install-pmm/install-pmm-server/deployment-options/docker/docker.md) deployments since PMM Extensions relies on PMM's built-in PostgreSQL database.
+- AMI deployments, because PMM Extensions is only available as a Docker container.
+- A separate host from PMM Server, because traffic between the two containers is not encrypted.
+- arm64 or other non-amd64 architectures.
+- [PMM HA](../install-pmm/HA.md) or [external PostgreSQL](../install-pmm/install-pmm-server/deployment-options/docker/docker.md) deployments.
 
 ## Before you start
 
-Make sure your PMM Server and PMM Extensions images run the same version. If they don't match, the **Apps** pages will be missing from the sidebar but no error is displayed.
+Make sure the PMM Server and PMM Extensions images use the same version. If the versions don’t match, the **Apps** menu won’t appear in the sidebar, and PMM won’t display an error.
 
 ## Scenario 1: Add PMM Extensions to an existing install
 
-PMM Extensions cannot be added to a running PMM container. PMM sets everything up at startup, so you need to recreate the pmm-server container with the new settings. Downtime is one PMM restart.
+You can't add PMM Extensions to a running PMM container, because PMM applies its configuration at startup. Instead, recreate the `pmm-server` container with the new settings. Your existing data volume stays as it is, and the only downtime is a single PMM restart:
 {.power-number}
 
-1. Add these environment variables to your pmm-server container:
+1. Add these environment variables to your `pmm-server` container:
 
     ```ini
     PMM_ENABLE_EXTENSIONS=1
@@ -31,11 +31,12 @@ PMM Extensions cannot be added to a running PMM container. PMM sets everything u
     PMM_PUBLIC_ADDRESS=<address PMM Clients use to reach this server>
     ```
 
-2. Add a new, empty `pmm-extensions` volume mounted at `/srv/extensions` on the pmm-server container. The volume must be empty before PMM Server starts: PMM writes credentials into it at startup, and PMM Extensions reads them on launch. If the volume already contains files, PMM Extensions exits.
+2. Add an empty `pmm-extensions` volume to the `pmm-server` container and mount it at `/srv/extensions`.
+PMM uses this volume to share the credentials that PMM Extensions needs to start. Make sure the volume is empty before starting the container.
 
-3. Recreate pmm-server. Your existing data volume (`pmm-data`) is unaffected.
+3. Recreate the `pmm-server` container to apply the new settings. Your data in the `pmm-data` volume stays intact.
 
-4. Once pmm-server is healthy, start the PMM Extensions container. Use the `pmm-extensions` service definition from `docker-compose.yml` as reference:
+4. Once `pmm-server` is healthy, start the PMM Extensions container. Use the `pmm-extensions` service definition from `docker-compose.yml` as reference:
 
     === "Docker Compose"
     
@@ -60,26 +61,19 @@ PMM Extensions cannot be added to a running PMM container. PMM sets everything u
           percona/pmm-extensions:3.10.0
         ```
 
-    If you have changed the PMM admin password from the default, pass it as `GF_SECURITY_ADMIN_PASSWORD`. PMM Extensions uses it to create its own access token on first start. If the password is wrong, PMM Extensions starts but sign-in and inventory sync silently fail.
-
+    If you changed the default PMM admin password, pass the new one to the PMM Extensions container as `GF_SECURITY_ADMIN_PASSWORD`. PMM Extensions uses it to create its own access token. If the password is wrong, the container still starts, but sign-in and PMM inventory sync fail without any error.
+    
 ## Scenario 2: New Docker Compose install
-
-The `docker-compose.yml` in the PMM repository ships PMM Extensions under the `extensions` profile.
+Use this option for a new installation. The `docker-compose.yml` file in the PMM repository includes PMM Extensions under the `extensions` profile, so you can start both containers with a single command:
 {.power-number}
 
-1. Copy `.env.example` to `.env` and set:
+1. Copy `.env.example` to `.env` and set these variables. `PMM_ENABLE_NOMAD` and `PMM_PUBLIC_ADDRESS` are both required: without them, PMM Extensions can't run tasks, and no error is shown. Set `PMM_EXTENSIONS_BASE_URL` only if PMM Client nodes on other hosts will run app tasks:
 
     ```ini
     PMM_ENABLE_EXTENSIONS=1
     PMM_ENABLE_NOMAD=1
     PMM_PUBLIC_ADDRESS=<address PMM Clients use to reach this server>
-    ```
-
-    Both `PMM_ENABLE_NOMAD=1` and `PMM_PUBLIC_ADDRESS` are required. If either is missing, Nomad does not start, and no error is reported.
-
-    If PMM Client nodes on other hosts will run Apps tasks, also set:
-
-    ```ini
+    # Only if PMM Client nodes on other hosts will run app tasks:
     PMM_EXTENSIONS_BASE_URL=https://<PMM_PUBLIC_ADDRESS>/extensions
     ```
 
@@ -97,28 +91,31 @@ The `docker-compose.yml` in the PMM repository ships PMM Extensions under the `e
     docker ps
     ```
 
-2. Check the PMM Extensions health endpoint:
+2. Check that PMM Extensions is running. If the command returns `200`, PMM Extensions is running:
 
     ```bash
-    curl -sk https://<PMM_SERVER_ADDRESS>/extensions/health
+    curl -sk -o /dev/null -w "%{http_code}\n" https://<PMM_SERVER_ADDRESS>/extensions/health
     ```
 
-    A `200` response confirms PMM Extensions is running.
-
-3. Open PMM. **MySQL Backups** and **Support Diagnostics** should appear under **Apps** in the sidebar.
+3. Open PMM and check that the **Apps** menu appears in the sidebar, with **MySQL Backups** and **Support Diagnostics** listed under it.
 
 ## Back up the PMM Extensions state volume
 
-PMM Extensions stores its access token and the encryption key for its settings in the `pmm-extensions-state` volume. Back it up alongside your `pmm-data` volume. If the state volume is lost, PMM Extensions cannot read its saved settings.
+PMM Extensions stores its settings in PMM's built-in PostgreSQL database, inside `pmm-data`, but keeps the key that decrypts them in `pmm-extensions-state`. 
+
+A `pmm-data` backup is only usable if you also have the matching key, so back up `pmm-extensions-state` whenever you [back up `pmm-data`](../install-pmm/install-pmm-server/deployment-options/docker/backup_container.md).
 
 ## Disable PMM Extensions
 
-1. Unset `PMM_ENABLE_EXTENSIONS` and recreate pmm-server.
+Disabling PMM Extensions doesn't delete its data. PMM keeps the `pmm_extensions` database and its role on purpose, so you can turn PMM Extensions back on later without losing data.
+
+To disable PMM Extensions:
+{.power-number}
+
+1. Unset `PMM_ENABLE_EXTENSIONS` and recreate the `pmm-server` container.
 
 2. Stop and remove the PMM Extensions container:
 
-    ```bash
+```bash
     docker compose --profile extensions down
-    ```
-
-The `pmm_extensions` database and its role are kept intentionally, so re-enabling PMM Extensions later preserves all saved data.
+```
