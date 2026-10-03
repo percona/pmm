@@ -741,7 +741,8 @@
                 "skipUrlSync": false,
                 "sort": 5,
                 "type": "query",
-                "useTags": false
+                "useTags": false,
+                "allValue": ".*"
             },
             {
                 "datasource": "Metrics",
