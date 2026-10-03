@@ -68,7 +68,7 @@ func TestProxy(t *testing.T) {
 		handler := setup(t, nil, nil)
 
 		rec := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodGet, targetURL, nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, targetURL, nil)
 		uri, err := url.Parse(targetURL)
 		require.NoError(t, err)
 
@@ -156,7 +156,7 @@ func TestProxy(t *testing.T) {
 				handler := setup(t, tc.expectedFilters, tc.expectedHeader)
 
 				rec := httptest.NewRecorder()
-				req := httptest.NewRequest(http.MethodGet, testTargetURL, nil)
+				req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, testTargetURL, nil)
 
 				uri, err := url.Parse(testTargetURL)
 				require.NoError(t, err)
@@ -202,7 +202,7 @@ func TestProxy(t *testing.T) {
 				url, err := url.Parse(tc.targetURL)
 				require.NoError(t, err)
 				expectedHost := url.Host
-				req := httptest.NewRequest(http.MethodGet, targetURL, nil)
+				req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, targetURL, nil)
 
 				prepareRequest(req, url, headerName)
 
@@ -222,7 +222,7 @@ func TestProxy(t *testing.T) {
 		password := "password"
 		uri.User = url.UserPassword(username, password)
 
-		req := httptest.NewRequest(http.MethodGet, targetURL, nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, targetURL, nil)
 		prepareRequest(req, uri, headerName)
 
 		require.Equal(t, "Basic dXNlcjpwYXNzd29yZA==", req.Header.Get("Authorization"))

@@ -86,7 +86,7 @@ func setup(t *testing.T, connect func(server agentv1.AgentService_ConnectServer)
 	// logrus.SetLevel(logrus.DebugLevel)
 
 	// start server with given connect handler
-	lis, err := net.Listen("tcp", "127.0.0.1:0")
+	lis, err := (&net.ListenConfig{}).Listen(t.Context(), "tcp", "127.0.0.1:0")
 	require.NoError(t, err)
 	port = uint16(lis.Addr().(*net.TCPAddr).Port)
 	server := grpc.NewServer()

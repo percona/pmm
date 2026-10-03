@@ -47,10 +47,8 @@ func TestQANMongoDBMongologAgentChangeAgent(t *testing.T) {
 				AuthenticationMechanism:       new("SCRAM-SHA-256"),
 				AuthenticationDatabase:        new("admin"),
 				MaxQueryLength:                new(int32(2048)),
-				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: new(flags.LogLevel("debug")),
-				},
-				CustomLabels: &map[string]string{"service": "mongodb", "environment": "production"},
+				LogLevel:                      new(flags.LogLevel("debug")),
+				CustomLabels:                  &map[string]string{"service": "mongodb", "environment": "production"},
 			}
 
 			result, err := cmd.RunCmd()
