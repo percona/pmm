@@ -567,7 +567,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "time() - max(mongodb_mongod_replset_member_election_date{environment=~\"$environment\", cluster=~\"$cluster\", set=~\"$rs_nm\", service_name=~\"$service_name\"})",
+                    "expr": "time() - max((mongodb_mongod_replset_member_election_date{environment=~\"$environment\", cluster=~\"$cluster\", set=~\"$rs_nm\", service_name=~\"$service_name\"} and on (service_name) group by (service_name) (mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",set=~\"$rs_nm\"})))",
                     "interval": "5m",
                     "intervalFactor": 1,
                     "legendFormat": "",
