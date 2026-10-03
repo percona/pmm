@@ -4430,8 +4430,7 @@
                 "tagValuesQuery": "",
                 "tagsQuery": "",
                 "type": "query",
-                "useTags": false,
-                "allValue": ".+"
+                "useTags": false
             },
             {
                 "allValue": ".*",

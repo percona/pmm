@@ -159,7 +159,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "redis_slowlog_length{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}",
+                    "expr": "redis_slowlog_length{service_name=~\"$service_name\"}",
                     "format": "time_series",
                     "instant": false,
                     "intervalFactor": 2,
@@ -257,7 +257,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "redis_config_value{key=\"slowlog-max-len\", service_name=~\"$service_name\", node_name=~\"$node_name\", cluster=~\"$cluster\"}",
+                    "expr": "redis_config_value{key=\"slowlog-max-len\", service_name=~\"$service_name\"}",
                     "format": "table",
                     "instant": true,
                     "intervalFactor": 2,
@@ -391,7 +391,7 @@
                     "command": "slowlogGet",
                     "disableTextWrap": false,
                     "editorMode": "code",
-                    "expr": "sum by(service_name) (redis_slowlog_length{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"})",
+                    "expr": "sum by(service_name) (redis_slowlog_length{service_name=~\"$service_name\"})",
                     "fullMetaSearch": false,
                     "includeNullMetadata": true,
                     "legendFormat": "__auto",
@@ -481,7 +481,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "redis_config_value{key=\"slowlog-log-slower-than\", service_name=~\"$service_name\", node_name=~\"$node_name\", cluster=~\"$cluster\"} / 1000",
+                    "expr": "redis_config_value{key=\"slowlog-log-slower-than\", service_name=~\"$service_name\"} / 1000",
                     "format": "table",
                     "instant": true,
                     "intervalFactor": 2,
@@ -606,8 +606,7 @@
                 "refresh": 2,
                 "regex": "",
                 "sort": 1,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
             },
             {
                 "allowCustomValue": false,
@@ -618,7 +617,7 @@
                     ]
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(redis_up{node_name=~\"$node_name\",cluster=~\"$cluster\"},service_name)",
+                "definition": "label_values(redis_up{node_name=~\"$node_name\"},service_name)",
                 "includeAll": true,
                 "label": "Service Name",
                 "multi": true,
@@ -626,14 +625,13 @@
                 "options": [],
                 "query": {
                     "qryType": 1,
-                    "query": "label_values(redis_up{node_name=~\"$node_name\",cluster=~\"$cluster\"},service_name)",
+                    "query": "label_values(redis_up{node_name=~\"$node_name\"},service_name)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 2,
                 "regex": "",
                 "sort": 1,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
             }
         ]
     },

@@ -742,7 +742,7 @@
                 "sort": 5,
                 "type": "query",
                 "useTags": false,
-                "allValue": ".+"
+                "allValue": ".*"
             },
             {
                 "datasource": "Metrics",

@@ -1328,8 +1328,7 @@
                 "refresh": 2,
                 "regex": "",
                 "sort": 5,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
             },
             {
                 "allValue": ".*",
@@ -1337,7 +1336,7 @@
                     "text": "All",
                     "value": "$__all"
                 },
-                "definition": "label_values(pg_stat_database_tup_fetched{service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"},datname)",
+                "definition": "label_values(pg_stat_database_tup_fetched{service_name=~\"$service_name\",datname!~\"template.*|postgres\"},datname)",
                 "hide": 2,
                 "includeAll": true,
                 "label": "DB",
@@ -1345,7 +1344,7 @@
                 "name": "database",
                 "options": [],
                 "query": {
-                    "query": "label_values(pg_stat_database_tup_fetched{service_name=~\"$service_name\",datname!~\"template.*|postgres\",node_name=~\"$node_name\",environment=~\"$environment\"},datname)",
+                    "query": "label_values(pg_stat_database_tup_fetched{service_name=~\"$service_name\",datname!~\"template.*|postgres\"},datname)",
                     "refId": "Metrics-database-Variable-Query"
                 },
                 "refresh": 2,
@@ -1364,7 +1363,7 @@
                 "name": "work_mem",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_work_mem_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_work_mem_bytes{service_name=~\"$service_name\"})",
                     "refId": "Metrics-work_mem-Variable-Query"
                 },
                 "refresh": 2,
@@ -1383,7 +1382,7 @@
                 "name": "version",
                 "options": [],
                 "query": {
-                    "query": "label_values(pg_static{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"},version)",
+                    "query": "label_values(pg_static{service_name=~\"$service_name\"},version)",
                     "refId": "Metrics-version-Variable-Query"
                 },
                 "refresh": 2,
@@ -1396,13 +1395,13 @@
                     "text": "100",
                     "value": "100"
                 },
-                "definition": "query_result(pg_settings_max_connections{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                "definition": "query_result(pg_settings_max_connections{service_name=~\"$service_name\"})",
                 "hide": 2,
                 "includeAll": false,
                 "name": "max_connections",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_max_connections{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_max_connections{service_name=~\"$service_name\"})",
                     "refId": "StandardVariableQuery"
                 },
                 "refresh": 2,
@@ -1421,7 +1420,7 @@
                 "name": "shared_buffers",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_shared_buffers_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_shared_buffers_bytes{service_name=~\"$service_name\"})",
                     "refId": "Metrics-shared_buffers-Variable-Query"
                 },
                 "refresh": 2,
@@ -1440,7 +1439,7 @@
                 "name": "wal_buffers",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_wal_buffers_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_wal_buffers_bytes{service_name=~\"$service_name\"})",
                     "refId": "Metrics-wal_buffers-Variable-Query"
                 },
                 "refresh": 2,
@@ -1459,7 +1458,7 @@
                 "name": "wal_segment_size",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_wal_segment_size_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_wal_segment_size_bytes{service_name=~\"$service_name\"})",
                     "refId": "Metrics-wal_segment_size-Variable-Query"
                 },
                 "refresh": 2,
@@ -1478,7 +1477,7 @@
                 "name": "maintenance_work_mem",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_maintenance_work_mem_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_maintenance_work_mem_bytes{service_name=~\"$service_name\"})",
                     "refId": "Metrics-maintenance_work_mem-Variable-Query"
                 },
                 "refresh": 2,
@@ -1497,7 +1496,7 @@
                 "name": "block_size",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_block_size{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_block_size{service_name=~\"$service_name\"})",
                     "refId": "Metrics-block_size-Variable-Query"
                 },
                 "refresh": 2,
@@ -1516,7 +1515,7 @@
                 "name": "checkpoint_segments",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_checkpoint_segments{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_checkpoint_segments{service_name=~\"$service_name\"})",
                     "refId": "Metrics-checkpoint_segments-Variable-Query"
                 },
                 "refresh": 2,
@@ -1535,7 +1534,7 @@
                 "name": "checkpoint_timeout",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_checkpoint_timeout_seconds{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_checkpoint_timeout_seconds{service_name=~\"$service_name\"})",
                     "refId": "Metrics-checkpoint_timeout-Variable-Query"
                 },
                 "refresh": 2,
@@ -1554,7 +1553,7 @@
                 "name": "default_statistics_target",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_default_statistics_target{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_default_statistics_target{service_name=~\"$service_name\"})",
                     "refId": "Metrics-default_statistics_target-Variable-Query"
                 },
                 "refresh": 2,
@@ -1573,7 +1572,7 @@
                 "name": "seq_page_cost",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_seq_page_cost{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_seq_page_cost{service_name=~\"$service_name\"})",
                     "refId": "Metrics-seq_page_cost-Variable-Query"
                 },
                 "refresh": 2,
@@ -1592,7 +1591,7 @@
                 "name": "random_page_cost",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_random_page_cost{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_random_page_cost{service_name=~\"$service_name\"})",
                     "refId": "Metrics-random_page_cost-Variable-Query"
                 },
                 "refresh": 2,
@@ -1611,7 +1610,7 @@
                 "name": "effective_cache_size",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_effective_cache_size_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_effective_cache_size_bytes{service_name=~\"$service_name\"})",
                     "refId": "Metrics-effective_cache_size-Variable-Query"
                 },
                 "refresh": 2,
@@ -1630,7 +1629,7 @@
                 "name": "effective_io_concurrency",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_effective_io_concurrency{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_effective_io_concurrency{service_name=~\"$service_name\"})",
                     "refId": "Metrics-effective_io_concurrency-Variable-Query"
                 },
                 "refresh": 2,
@@ -1649,7 +1648,7 @@
                 "name": "fsync",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_fsync{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_fsync{service_name=~\"$service_name\"})",
                     "refId": "Metrics-fsync-Variable-Query"
                 },
                 "refresh": 2,
@@ -1668,7 +1667,7 @@
                 "name": "autovacuum",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_autovacuum{service_name=~\"$service_name\"})",
                     "refId": "Metrics-autovacuum-Variable-Query"
                 },
                 "refresh": 2,
@@ -1687,7 +1686,7 @@
                 "name": "autovacuum_analyze_scale_factor",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_analyze_scale_factor{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_autovacuum_analyze_scale_factor{service_name=~\"$service_name\"})",
                     "refId": "Metrics-autovacuum_analyze_scale_factor-Variable-Query"
                 },
                 "refresh": 2,
@@ -1706,7 +1705,7 @@
                 "name": "autovacuum_analyze_threshold",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_analyze_threshold{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_autovacuum_analyze_threshold{service_name=~\"$service_name\"})",
                     "refId": "Metrics-autovacuum_analyze_threshold-Variable-Query"
                 },
                 "refresh": 2,
@@ -1725,7 +1724,7 @@
                 "name": "autovacuum_vacuum_scale_factor",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_vacuum_scale_factor{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_autovacuum_vacuum_scale_factor{service_name=~\"$service_name\"})",
                     "refId": "Metrics-autovacuum_vacuum_scale_factor-Variable-Query"
                 },
                 "refresh": 2,
@@ -1744,7 +1743,7 @@
                 "name": "autovacuum_vacuum_threshold",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_vacuum_threshold{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_autovacuum_vacuum_threshold{service_name=~\"$service_name\"})",
                     "refId": "Metrics-autovacuum_vacuum_threshold-Variable-Query"
                 },
                 "refresh": 2,
@@ -1763,7 +1762,7 @@
                 "name": "autovacuum_vacuum_cost_limit",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_vacuum_cost_limit{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_autovacuum_vacuum_cost_limit{service_name=~\"$service_name\"})",
                     "refId": "Metrics-autovacuum_vacuum_cost_limit-Variable-Query"
                 },
                 "refresh": 2,
@@ -1782,7 +1781,7 @@
                 "name": "autovacuum_vacuum_cost_delay",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_vacuum_cost_delay_seconds{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_autovacuum_vacuum_cost_delay_seconds{service_name=~\"$service_name\"})",
                     "refId": "Metrics-autovacuum_vacuum_cost_delay-Variable-Query"
                 },
                 "refresh": 2,
@@ -1801,7 +1800,7 @@
                 "name": "autovacuum_max_workers",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_max_workers{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_autovacuum_max_workers{service_name=~\"$service_name\"})",
                     "refId": "Metrics-autovacuum_max_workers-Variable-Query"
                 },
                 "refresh": 2,
@@ -1820,7 +1819,7 @@
                 "name": "autovacuum_naptime",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_naptime_seconds{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_autovacuum_naptime_seconds{service_name=~\"$service_name\"})",
                     "refId": "Metrics-autovacuum_naptime-Variable-Query"
                 },
                 "refresh": 2,
@@ -1839,7 +1838,7 @@
                 "name": "autovacuum_freeze_max_age",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_freeze_max_age{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_autovacuum_freeze_max_age{service_name=~\"$service_name\"})",
                     "refId": "Metrics-autovacuum_freeze_max_age-Variable-Query"
                 },
                 "refresh": 2,
@@ -1858,7 +1857,7 @@
                 "name": "logging_collector",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_logging_collector{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_logging_collector{service_name=~\"$service_name\"})",
                     "refId": "Metrics-logging_collector-Variable-Query"
                 },
                 "refresh": 2,
@@ -1877,7 +1876,7 @@
                 "name": "log_min_duration_statement",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_log_min_duration_statement_seconds{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_log_min_duration_statement_seconds{service_name=~\"$service_name\"})",
                     "refId": "Metrics-log_min_duration_statement-Variable-Query"
                 },
                 "refresh": 2,
@@ -1896,7 +1895,7 @@
                 "name": "log_duration",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_log_duration{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_log_duration{service_name=~\"$service_name\"})",
                     "refId": "Metrics-log_duration-Variable-Query"
                 },
                 "refresh": 2,
@@ -1915,7 +1914,7 @@
                 "name": "log_lock_waits",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_log_lock_waits{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_log_lock_waits{service_name=~\"$service_name\"})",
                     "refId": "Metrics-log_lock_waits-Variable-Query"
                 },
                 "refresh": 2,
@@ -1934,7 +1933,7 @@
                 "name": "max_wal_senders",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_max_wal_senders{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_max_wal_senders{service_name=~\"$service_name\"})",
                     "refId": "Metrics-max_wal_senders-Variable-Query"
                 },
                 "refresh": 2,
@@ -1953,7 +1952,7 @@
                 "name": "max_wal_size",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_max_wal_size_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_max_wal_size_bytes{service_name=~\"$service_name\"})",
                     "refId": "Metrics-max_wal_size-Variable-Query"
                 },
                 "refresh": 2,
@@ -1972,7 +1971,7 @@
                 "name": "min_wal_size",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_min_wal_size_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_min_wal_size_bytes{service_name=~\"$service_name\"})",
                     "refId": "Metrics-min_wal_size-Variable-Query"
                 },
                 "refresh": 2,
@@ -1991,7 +1990,7 @@
                 "name": "wal_compression",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_wal_compression{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_wal_compression{service_name=~\"$service_name\"})",
                     "refId": "Metrics-wal_compression-Variable-Query"
                 },
                 "refresh": 2,
@@ -2010,7 +2009,7 @@
                 "name": "max_worker_processes",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_max_worker_processes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_max_worker_processes{service_name=~\"$service_name\"})",
                     "refId": "Metrics-max_worker_processes-Variable-Query"
                 },
                 "refresh": 2,
@@ -2029,7 +2028,7 @@
                 "name": "max_parallel_workers_per_gather",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_max_parallel_workers_per_gather{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_max_parallel_workers_per_gather{service_name=~\"$service_name\"})",
                     "refId": "Metrics-max_parallel_workers_per_gather-Variable-Query"
                 },
                 "refresh": 2,
@@ -2048,7 +2047,7 @@
                 "name": "max_parallel_workers",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_max_parallel_workers_per_gather{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_max_parallel_workers_per_gather{service_name=~\"$service_name\"})",
                     "refId": "Metrics-max_parallel_workers-Variable-Query"
                 },
                 "refresh": 2,
@@ -2067,7 +2066,7 @@
                 "name": "autovacuum_work_mem",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_work_mem_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_autovacuum_work_mem_bytes{service_name=~\"$service_name\"})",
                     "refId": "Metrics-autovacuum_work_mem-Variable-Query"
                 },
                 "refresh": 2,
@@ -2086,7 +2085,7 @@
                 "name": "autovacuum_multixact_freeze_max_age",
                 "options": [],
                 "query": {
-                    "query": "query_result(pg_settings_autovacuum_multixact_freeze_max_age{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"})",
+                    "query": "query_result(pg_settings_autovacuum_multixact_freeze_max_age{service_name=~\"$service_name\"})",
                     "refId": "Metrics-autovacuum_multixact_freeze_max_age-Variable-Query"
                 },
                 "refresh": 2,
@@ -2166,7 +2165,7 @@
                     "text": "All",
                     "value": "$__all"
                 },
-                "definition": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"},user)",
+                "definition": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=\"$service_name\"},user)",
                 "hide": 2,
                 "includeAll": true,
                 "label": "Username",
@@ -2174,7 +2173,7 @@
                 "name": "username",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\"},user)",
+                    "query": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=\"$service_name\"},user)",
                     "refId": "Metrics-username-Variable-Query"
                 },
                 "refresh": 1,

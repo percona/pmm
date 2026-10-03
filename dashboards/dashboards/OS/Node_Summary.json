@@ -4988,8 +4988,7 @@
                 "refresh": 2,
                 "regex": "",
                 "sort": 5,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
             },
             {
                 "current": {
