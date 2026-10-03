@@ -24,8 +24,6 @@ import {
   Chip,
   CircularProgress,
   Stack,
-  Tab,
-  Tabs,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -37,10 +35,8 @@ import {
   useRefreshInventory,
 } from './inventoryHooks';
 import { isRunActive, OmApiError } from './api';
-import { ConfigForm } from './components/ConfigForm';
 import { RunStatusBadge } from './components/HealthBadge';
 import { RunEntities } from './components/RunEntities';
-import { OmHeader } from './components/OmHeader';
 import {
   formatCompactDuration,
   formatRunDuration,
@@ -74,7 +70,7 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
   },
   {
     // Sorts on elapsed seconds, not the formatted string -- lexicographically "9s"
-    // lands after "10m". HostsPage's age column already does it this way.
+    // lands after "10m". NodesPage's age column already does it this way.
     accessorFn: (row) => runDurationSeconds(row.start_time, row.end_time),
     id: 'duration',
     header: 'Duration',
@@ -283,10 +279,6 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
   );
 };
 
-/** The tabs, and the query-parameter values that address them. */
-const TABS = ['runs', 'settings'] as const;
-type TabId = (typeof TABS)[number];
-
 /**
  * One chip per `RUN_PERIODS` entry, in that order — adding a quick filter there is
  * the whole change; nothing here names a period.
@@ -313,30 +305,25 @@ const PeriodFilter = ({
 );
 
 /**
- * OM's refresh history, and the schedule that drives it.
+ * The scan history: every pass Operations made over the nodes, and what each found.
  *
- * These are the app's refreshes, not pmm-managed's collection pass: one runs a payload
- * on every host over Nomad and takes tens of seconds, the other recomputes a document
- * from data PMM already holds. They are two different things called a "run", which is
- * why they live at two different paths and on two different pages.
+ * These are the app's scans, not pmm-managed's collection pass: one runs a payload on
+ * every node and takes tens of seconds, the other recomputes a document from data PMM
+ * already holds. Two different things once both called a "run", which is why the fleet
+ * reading and this one are different pages.
  *
- * Read through pmm-managed rather than from PMM Extensions directly, which is what lets this page
+ * Read through pmm-managed rather than from PMM Extensions directly, which is what lets this tab
  * render its own error when PMM Extensions is unwell instead of being blanked by a gate that
  * fails closed.
  *
- * The two halves are tabs rather than one column because they answer different
- * questions on different clocks: "did the last refresh work" is asked often and
- * skimmed, "how often should it run" is asked rarely and read carefully. Stacked, the
- * second sat below a table of twenty-five rows and was found by scrolling.
+ * A tab on Automations, beside installs: both answer "what has run, and did it work",
+ * and the page that used to hold this one was called Inventory, which collided with
+ * PMM's own and told a reader nothing about what was on it.
  */
-export const InventoryPage = () => {
-  // In the query string rather than component state, so a link to the settings tab is
-  // shareable and a reload does not silently put the reader back on Runs.
+export const AutomationsScansTab = () => {
+  // In the query string rather than component state, so a link to a window is
+  // shareable and a reload does not silently put the reader back on the default.
   const [params, setParams] = useSearchParams();
-  const requested = params.get('tab');
-  const tab: TabId = TABS.includes(requested as TabId)
-    ? (requested as TabId)
-    : 'runs';
   // Same reason the tab lives in the URL: a link to "last month" should open last
   // month. Default is the week window — All is still the uncapped-history view, and
   // that is the one that becomes unreadable.
@@ -370,86 +357,56 @@ export const InventoryPage = () => {
 
   return (
     <Stack gap={2}>
-      <OmHeader
-        title="Inventory"
-        subtitle={
-          <Typography variant="body2" color="text.secondary">
-            Every refresh probes each host for what no metric carries, and
-            stores it against the estate.
-          </Typography>
-        }
-        // Stays in the header rather than inside the Runs tab: it is the page's
-        // action, and hiding it while someone reads the schedule would mean going
-        // back a tab to act on what they just changed.
-        actions={
-          <Stack direction="row" alignItems="center" gap={2}>
-            {tab === 'runs' && (
-              <PeriodFilter value={period} onChange={setPeriod} />
-            )}
-            <RefreshButton />
-          </Stack>
-        }
-      />
-
-      <Tabs
-        value={tab}
-        onChange={(_event, next: TabId) =>
-          setParams((current) => {
-            const updated = new URLSearchParams(current);
-            updated.set('tab', next);
-            return updated;
-          })
-        }
+      {/* The scan-specific controls, in the tab rather than the page header: a period
+          filter over installs would mean nothing, and the refresh action starts a scan,
+          not an install. */}
+      <Stack
+        direction="row"
+        alignItems="center"
+        gap={2}
+        justifyContent="flex-end"
       >
-        <Tab value="runs" label="Runs" />
-        <Tab value="settings" label="Settings" />
-      </Tabs>
+        <PeriodFilter value={period} onChange={setPeriod} />
+        <RefreshButton />
+      </Stack>
 
-      {tab === 'runs' ? (
-        <>
-          {error && (
-            <Alert severity="error">
-              {/* Rendered inside the page rather than replacing it: PMM Extensions being
+      {error && (
+        <Alert severity="error">
+          {/* Rendered inside the page rather than replacing it: PMM Extensions being
                   unwell is a fact about the estate, and the settings tab still
                   reads. */}
-              Could not load refreshes: {(error as Error).message}
-            </Alert>
-          )}
+          Could not load refreshes: {(error as Error).message}
+        </Alert>
+      )}
 
-          {/* Only once the query has actually answered. LastRun reads an absent run as
+      {/* Only once the query has actually answered. LastRun reads an absent run as
               "no refresh has run yet", which is a claim about the estate - not something
               to assert while the first request is still in flight or has failed with no
               cached rows to fall back on. */}
-          {(!latest.isLoading || latest.data) && !latest.error && (
-            <LastRun run={latest.data?.[0]} />
-          )}
+      {(!latest.isLoading || latest.data) && !latest.error && (
+        <LastRun run={latest.data?.[0]} />
+      )}
 
-          {isLoading && !runs ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
-              <CircularProgress />
-            </Box>
-          ) : rows.length === 0 && !error ? (
-            <Alert severity="info">No refreshes in this period.</Alert>
-          ) : (
-            <Table
-              tableName="om-inventory-runs"
-              columns={RUN_COLUMNS}
-              data={rows}
-              getRowId={(row) => row.run_id}
-              enableGlobalFilter={false}
-              enableColumnFilters={false}
-              enableHiding={false}
-              enablePagination={false}
-              enableStickyHeader
-              enableExpanding
-              renderDetailPanel={({ row }) => (
-                <RunEntities run={row.original} />
-              )}
-            />
-          )}
-        </>
+      {isLoading && !runs ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+          <CircularProgress />
+        </Box>
+      ) : rows.length === 0 && !error ? (
+        <Alert severity="info">No refreshes in this period.</Alert>
       ) : (
-        <ConfigForm />
+        <Table
+          tableName="om-inventory-runs"
+          columns={RUN_COLUMNS}
+          data={rows}
+          getRowId={(row) => row.run_id}
+          enableGlobalFilter={false}
+          enableColumnFilters={false}
+          enableHiding={false}
+          enablePagination={false}
+          enableStickyHeader
+          enableExpanding
+          renderDetailPanel={({ row }) => <RunEntities run={row.original} />}
+        />
       )}
     </Stack>
   );

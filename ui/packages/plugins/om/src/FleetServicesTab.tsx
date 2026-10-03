@@ -31,10 +31,8 @@ import {
   type MRT_ColumnDef,
 } from 'material-react-table';
 import { PROCESS_ROLE_LABEL } from './constants';
-import { OmHeader } from './components/OmHeader';
 import { SnapshotBar } from './components/SnapshotBar';
 import { StatusBadge } from './components/HealthBadge';
-import { SyncButton } from './components/SyncButton';
 import { Duration, Percent } from './components/Metric';
 import { Unavailable } from './components/Unavailable';
 import { useOmTopology } from './topologyHooks';
@@ -398,7 +396,7 @@ const ProbeStatus = ({ inventory }: { inventory: OmInventoryService }) => {
  * survives as the two leading columns. Grouping is available on them if a reader wants
  * the tree back, and Overview is the same snapshot already read that way.
  */
-export const ServicesPage = () => {
+export const FleetServicesTab = () => {
   const { data, isPending, isError, error } = useOmTopology();
   // Deliberately not gated on the estate loading or failing. The snapshot is PMM's own
   // and always available; the estate is a second service that may be unwell, and a
@@ -464,41 +462,19 @@ export const ServicesPage = () => {
   }
 
   if (isError) {
-    // The header stays, with its Sync action. A 503 here is the expected first-run
-    // state - the API says so when no collection has completed - and Sync is the way
-    // out, so a branch that rendered the alert alone left the reader on a page that
-    // named the fix and did not offer it.
+    // Just the alert now: the page's header, and the Sync action that is the way out
+    // of the expected first-run 503, belong to FleetPage and are rendered whichever
+    // tab is open. A branch that named the fix without offering it was the bug here,
+    // and hoisting the header is what fixes it for both tabs at once.
     return (
-      <Box>
-        <OmHeader
-          title="Services"
-          subtitle={
-            <Typography variant="body2" color="text.secondary">
-              Every monitored MongoDB service: what PMM sees over the wire, and
-              what the Operations probe found on the host.
-            </Typography>
-          }
-          actions={<SyncButton />}
-        />
-        <Alert severity="error" sx={{ mt: 2 }}>
-          {(error as Error)?.message ?? 'Could not load the topology.'}
-        </Alert>
-      </Box>
+      <Alert severity="error">
+        {(error as Error)?.message ?? 'Could not load the fleet.'}
+      </Alert>
     );
   }
 
   return (
     <Box>
-      <OmHeader
-        title="Services"
-        subtitle={
-          <Typography variant="body2" color="text.secondary">
-            Every monitored MongoDB service: what PMM sees over the wire, and
-            what the Operations probe found on the host.
-          </Typography>
-        }
-        actions={<SyncButton />}
-      />
       <SnapshotBar envelope={data.snapshot} />
       {inventoryFailed && (
         <Alert severity="warning" sx={{ mb: 2 }}>

@@ -39,7 +39,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { OM_ROUTE_AUTOMATIONS, OM_ROUTE_HOSTS } from './constants';
+import { OM_ROUTE_AUTOMATIONS, OM_ROUTE_NODES } from './constants';
 import { OmHeader } from './components/OmHeader';
 import { toHostRows } from './inventory';
 import { useOmInventoryHosts, useTriggerHostBootstrap } from './inventoryHooks';
@@ -273,7 +273,7 @@ const ElectionSettingsTable = ({
 
 /**
  * Configure -> Review -> Bootstrap for a set of hosts already selected on
- * {@link HostsPage} — a page rather than a modal (PMM-15347/plan.md §6 Phase A)
+ * {@link NodesPage} — a page rather than a modal (PMM-15347/plan.md §6 Phase A)
  * so an in-flight run keeps a URL, survives a refresh, and reads like the rest
  * of OM's pages rather than a form floating over them.
  *
@@ -281,7 +281,7 @@ const ElectionSettingsTable = ({
  * (comma-separated node ids) rather than router state, precisely so a refresh
  * doesn't lose it — this page's own "Hosts" step is a read-only recap of that
  * selection, not a second place to make it, so it never duplicates
- * `HostsPage`'s eligibility table.
+ * `NodesPage`'s eligibility table.
  *
  * PMM-15347 PoC only: one or three hosts, keyFile auth, TLS off. Once
  * bootstrap is triggered this navigates to Automations with the new run's row
@@ -311,7 +311,7 @@ export const BootstrapPage = () => {
     [hostsQuery.data, selectedIds]
   );
 
-  const backToHosts = () => navigate(`${omBase}/${OM_ROUTE_HOSTS}`);
+  const backToHosts = () => navigate(`${omBase}/${OM_ROUTE_NODES}`);
 
   const [activeStep, setActiveStep] = useState(0);
   const [configTab, setConfigTab] = useState<'general' | 'security'>('general');

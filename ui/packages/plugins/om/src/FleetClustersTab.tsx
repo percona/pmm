@@ -44,10 +44,8 @@ import {
   PROCESS_ROLE_LABEL,
   type OmMemberBadge,
 } from './constants';
-import { OmHeader } from './components/OmHeader';
 import { SnapshotBar } from './components/SnapshotBar';
 import { StatusBadge } from './components/HealthBadge';
-import { SyncButton } from './components/SyncButton';
 import { Duration, Percent } from './components/Metric';
 import { Unavailable } from './components/Unavailable';
 import { useOmTopology } from './topologyHooks';
@@ -430,7 +428,7 @@ const Counts = ({
  * row per service and every field it carries, for anyone who needs to sort or filter
  * across the estate rather than read it by environment.
  */
-export const OverviewPage = () => {
+export const FleetClustersTab = () => {
   const { data, isPending, isError, error } = useOmTopology();
   const sections = useMemo(() => toEnvironmentSections(data), [data]);
 
@@ -439,43 +437,19 @@ export const OverviewPage = () => {
   }
 
   if (isError) {
-    // The header stays, with its Sync action, exactly as ServicesPage does. A 503 here
-    // is the expected first-run state - the API says so when no collection has
-    // completed - and Sync is the way out. It matters more on this page than on that
-    // one: Overview is the index route, so a fresh install lands here first, and an
-    // alert on its own named the fix without offering it.
+    // Just the alert: the header, and the Sync action that is the way out of the
+    // expected first-run 503, belong to FleetPage and render above whichever tab is
+    // open. This tab is the index route, so a fresh install lands here first.
     return (
-      <Stack gap={1}>
-        <OmHeader
-          title="Operations for MongoDB"
-          subtitle={
-            <Typography variant="body2" color="text.secondary">
-              Every monitored MongoDB cluster, one table per environment. Unfold
-              a cluster to see its services.
-            </Typography>
-          }
-          actions={<SyncButton />}
-        />
-        <Alert severity="error">
-          {(error as Error)?.message ?? 'Could not load the topology.'}
-        </Alert>
-      </Stack>
+      <Alert severity="error">
+        {(error as Error)?.message ?? 'Could not load the fleet.'}
+      </Alert>
     );
   }
 
   return (
     <Stack gap={3}>
       <Stack gap={1}>
-        <OmHeader
-          title="Operations for MongoDB"
-          subtitle={
-            <Typography variant="body2" color="text.secondary">
-              Every monitored MongoDB cluster, one table per environment. Unfold
-              a cluster to see its services.
-            </Typography>
-          }
-          actions={<SyncButton />}
-        />
         <SnapshotBar envelope={data.snapshot} />
         <Counts
           environments={data.summary.environments}

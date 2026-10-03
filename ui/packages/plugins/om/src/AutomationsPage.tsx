@@ -23,6 +23,8 @@ import {
   Chip,
   CircularProgress,
   Stack,
+  Tab,
+  Tabs,
   Typography,
 } from '@mui/material';
 import { Table, type MRT_ColumnDef } from '@percona/percona-ui';
@@ -30,6 +32,7 @@ import { bootstrapRunDisplayStatus } from './api';
 import { BOOTSTRAP_RUN_COLOR, BOOTSTRAP_RUN_LABEL } from './constants';
 import { OmHeader } from './components/OmHeader';
 import { RunProgress } from './components/RunProgress';
+import { AutomationsScansTab } from './AutomationsScansTab';
 import {
   formatRunDuration,
   formatTimestamp,
@@ -93,7 +96,7 @@ const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
     Cell: ({ row: { original } }) => formatTimestamp(original.started_at),
   },
   {
-    // Sorts on elapsed seconds, not the formatted string -- see InventoryPage's own
+    // Sorts on elapsed seconds, not the formatted string -- see AutomationsScansTab's own
     // duration column for why.
     accessorFn: (row) => runDurationSeconds(row.started_at, row.finished_at),
     id: 'duration',
@@ -117,7 +120,7 @@ const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
  * bootstrap goes straight to watching it live rather than to a page that
  * still requires an extra click to find the run just started.
  */
-export const AutomationsPage = () => {
+const AutomationsInstallsTab = () => {
   const {
     data: runs,
     isLoading,
@@ -137,7 +140,7 @@ export const AutomationsPage = () => {
 
   // Returns rather than rendering above the table: a failed load has no rows to
   // show, and an empty table under the error reads as "there are no runs", which
-  // is a different thing from "we could not find out". Same shape as HostsPage's
+  // is a different thing from "we could not find out". Same shape as NodesPage's
   // own isError branch.
   if (error) {
     return (
@@ -149,18 +152,11 @@ export const AutomationsPage = () => {
 
   return (
     <Stack gap={2}>
-      <OmHeader
-        title="Automations"
-        subtitle={
-          <Typography variant="body2" color="text.secondary">
-            Every bootstrap run this server has driven, newest first. Expand a
-            row to watch it live or review what happened.
-          </Typography>
-        }
-      />
-
       {rows.length === 0 ? (
-        <Alert severity="info">No bootstrap runs yet.</Alert>
+        <Alert severity="info">
+          No installs yet. Operations records every install here, so you can
+          watch one run and come back to what it did.
+        </Alert>
       ) : (
         <Table
           tableName="om-automations-runs"
@@ -180,5 +176,67 @@ export const AutomationsPage = () => {
         />
       )}
     </Stack>
+  );
+};
+
+/** The tabs, and the query-parameter values that address them. */
+const TABS = ['installs', 'scans'] as const;
+
+type TabId = (typeof TABS)[number];
+
+const SUBTITLE: Record<TabId, string> = {
+  installs:
+    'Every MongoDB install this server has driven, newest first. Expand one to watch it live or review what it did.',
+  scans: 'Every pass Operations made over your nodes, and what each one found.',
+};
+
+/**
+ * Everything Operations has run, in one place.
+ *
+ * Installs and scans were two pages, and the scan half was called "Inventory" -- a page
+ * that was not an inventory, sitting directly below PMM's own Inventory, which is the
+ * single worst naming collision the design review found. They are the same job at heart
+ * ("what has run, and did it work"), so they are tabs on one entry, and the entry is
+ * named for the job rather than for either half.
+ *
+ * The tab is in the query string so a link to a particular run's kind survives being
+ * pasted into a ticket, and so the legacy `inventory` route can redirect straight to
+ * the scans reading.
+ */
+export const AutomationsPage = () => {
+  const [params, setParams] = useSearchParams();
+  const requested = params.get('tab');
+  const tab: TabId = TABS.includes(requested as TabId)
+    ? (requested as TabId)
+    : 'installs';
+
+  return (
+    <Box>
+      <OmHeader
+        title="Automations"
+        subtitle={
+          <Typography variant="body2" color="text.secondary">
+            {SUBTITLE[tab]}
+          </Typography>
+        }
+      />
+      <Tabs
+        value={tab}
+        onChange={(_event, next: TabId) => {
+          const nextParams = new URLSearchParams(params);
+          nextParams.set('tab', next);
+          setParams(nextParams, { replace: true });
+        }}
+        sx={{ mb: 2 }}
+      >
+        <Tab value="installs" label="Installs" />
+        <Tab value="scans" label="Scans" />
+      </Tabs>
+      {tab === 'installs' ? (
+        <AutomationsInstallsTab />
+      ) : (
+        <AutomationsScansTab />
+      )}
+    </Box>
   );
 };

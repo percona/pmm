@@ -17,10 +17,10 @@
 
 export { OmApp } from './OmApp';
 export { omBase, useOmBase } from './useOmBase';
-export { OverviewPage } from './OverviewPage';
-export { ServicesPage } from './ServicesPage';
-export { HostsPage } from './HostsPage';
-export { InventoryPage } from './InventoryPage';
+export { FleetPage } from './FleetPage';
+export { NodesPage } from './NodesPage';
+export { AutomationsPage } from './AutomationsPage';
+export { SettingsPage } from './SettingsPage';
 export { StatusBadge, RunStatusBadge } from './components/HealthBadge';
 export { Duration, Percent } from './components/Metric';
 export { RunEntities } from './components/RunEntities';
@@ -44,10 +44,10 @@ export {
   OM_TOPOLOGY_RUNS_LIMIT,
 } from './topologyHooks';
 export {
-  OM_ROUTE_OVERVIEW,
-  OM_ROUTE_SERVICES,
-  OM_ROUTE_HOSTS,
-  OM_ROUTE_INVENTORY,
+  OM_ROUTE_FLEET,
+  OM_ROUTE_NODES,
+  OM_ROUTE_INSTALL,
+  OM_ROUTE_SETTINGS,
   HOST_DATABASE_STATE_LABEL,
   HOST_DATABASE_STATE_COLOR,
   SETTING_LABEL,

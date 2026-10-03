@@ -260,7 +260,7 @@ function isStarting(run: OmGetBootstrapRunResponse): boolean {
  * Ask for confirmation, then request cancellation of `run`.
  *
  * A separate confirm step because this is destructive in the same sense
- * HostsPage's Forget dialog is: an operator's second thought should be caught
+ * NodesPage's Forget dialog is: an operator's second thought should be caught
  * before the request goes out, not after. Renders nothing once the run is no
  * longer cancellable (`canCancelBootstrapRun`) - once cancellation has already
  * been requested, {@link RunProgress} shows that as a warning line instead;

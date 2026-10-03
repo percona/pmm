@@ -15,47 +15,53 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import {
+  OM_LEGACY_REDIRECTS,
   OM_ROUTE_AUTOMATIONS,
-  OM_ROUTE_BOOTSTRAP,
-  OM_ROUTE_INVENTORY,
-  OM_ROUTE_HOSTS,
-  OM_ROUTE_SERVICES,
+  OM_ROUTE_INSTALL,
+  OM_ROUTE_NODES,
+  OM_ROUTE_SETTINGS,
 } from './constants';
 import { AutomationsPage } from './AutomationsPage';
 import { BootstrapPage } from './BootstrapPage';
-import { InventoryPage } from './InventoryPage';
-import { HostsPage } from './HostsPage';
-import { OverviewPage } from './OverviewPage';
-import { ServicesPage } from './ServicesPage';
+import { FleetPage } from './FleetPage';
+import { NodesPage } from './NodesPage';
+import { SettingsPage } from './SettingsPage';
 
 /**
- * OM app router. The shell mounts this at ``om/*``; the cluster overview is the
- * index route, with the service, host, refresh and automations pages beside it.
+ * Operations' router. The shell mounts this at ``operations/*``; the fleet is the index
+ * route, with nodes, automations and settings beside it.
  *
- * **The estate pages all mount here now.** Discovery used to live on its own route wrapped in
- * ``ExtensionsPage``, because it read PMM Extensions' app directly and needed a bearer minted from the
- * PMM session that no other OM page did. Reading it through pmm-managed removes the
- * bearer, and with it the gate: ``ExtensionsAuthGate`` fails closed, so a PMM Extensions that was down,
- * unconfigured or refusing the exchange blanked the page entirely rather than letting
- * it render its own error.
+ * Four routes, one per job, each owning its own tabs -- so the two readings of the
+ * snapshot live on Fleet, and a scan's history lives beside an install's on
+ * Automations rather than on a page called Inventory, which collided with PMM's own.
+ * See om-design-review/structure-and-glossary-proposal.md for why that is the rule.
  *
  * There is no per-cluster or per-run route: every table renders what it holds and
  * expands in place, so a detail page would only re-show rows the reader already has.
- * `bootstrap` is the one exception -- it needs the host selection `HostsPage` made,
- * carried across as a `?hosts=` query param rather than duplicated as a second
+ * The install wizard is the one exception -- it needs the node selection `NodesPage`
+ * made, carried across as a `?nodes=` query param rather than duplicated as a second
  * selection UI (see {@link BootstrapPage}'s own doc comment).
+ *
+ * The legacy redirects exist because the feature build is already out with people
+ * clicking round it; see {@link OM_LEGACY_REDIRECTS}.
  */
 export const OmApp = () => {
   return (
     <Routes>
-      <Route index element={<OverviewPage />} />
-      <Route path={OM_ROUTE_SERVICES} element={<ServicesPage />} />
-      <Route path={OM_ROUTE_HOSTS} element={<HostsPage />} />
-      <Route path={OM_ROUTE_BOOTSTRAP} element={<BootstrapPage />} />
-      <Route path={OM_ROUTE_INVENTORY} element={<InventoryPage />} />
+      <Route index element={<FleetPage />} />
+      <Route path={OM_ROUTE_NODES} element={<NodesPage />} />
+      <Route path={OM_ROUTE_INSTALL} element={<BootstrapPage />} />
       <Route path={OM_ROUTE_AUTOMATIONS} element={<AutomationsPage />} />
+      <Route path={OM_ROUTE_SETTINGS} element={<SettingsPage />} />
+      {Object.entries(OM_LEGACY_REDIRECTS).map(([from, to]) => (
+        <Route
+          key={from}
+          path={from}
+          element={<Navigate to={`/${to}`} replace />}
+        />
+      ))}
     </Routes>
   );
 };

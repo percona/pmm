@@ -35,7 +35,7 @@ export const PERCONA_SUPPORT_CONTACT_URL = 'https://per.co.na/support';
 // OM (OpenManager) is a PMM page, not a PMM Extensions one. Its API is pmm-managed's own
 // `/v1/om`, authorised by the Grafana session, and no request it makes needs a PMM Extensions
 // bearer -- which is why it sits beside the PMM Extensions mounts above rather than under them.
-export const OM_PATH = `${PMM_NEW_NAV_PATH}/om`;
+export const OM_PATH = `${PMM_NEW_NAV_PATH}/operations`;
 
 export const INTERVALS_MS = {
   // 5 mins

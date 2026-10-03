@@ -26,20 +26,38 @@ import type {
   OmUnavailableReason,
 } from './types';
 
-/** OM's own routes, relative to wherever the shell mounts the plugin. */
-export const OM_ROUTE_OVERVIEW = '';
 /**
- * Renamed from `topology`: the page now joins PMM's snapshot to OM's estate, and
- * "Services" is what it lists either way. Free while nothing has shipped.
+ * Operations' own routes, relative to wherever the shell mounts the plugin.
+ *
+ * One route per *job*, with tabs inside for the flavours of it -- the rule the whole
+ * structure follows (see om-design-review/structure-and-glossary-proposal.md). So the
+ * cluster and service readings of one snapshot are two tabs on {@link OM_ROUTE_FLEET}
+ * rather than two routes, and a scan's history sits beside an install's on
+ * {@link OM_ROUTE_AUTOMATIONS} rather than on a page called Inventory, which collided
+ * with PMM's own.
  */
-export const OM_ROUTE_SERVICES = 'services';
-export const OM_ROUTE_HOSTS = 'hosts';
-/** The bootstrap page, given a host selection made on {@link OM_ROUTE_HOSTS}. */
-export const OM_ROUTE_BOOTSTRAP = 'hosts/bootstrap';
-/** Renamed from `runs`, so the route matches the nav label. */
-export const OM_ROUTE_INVENTORY = 'inventory';
-/** Renamed from `operations`, so the route matches the nav label. */
+export const OM_ROUTE_FLEET = '';
+/** The machines, and the only page carrying actions that change one. */
+export const OM_ROUTE_NODES = 'nodes';
+/** The install wizard, given a node selection made on {@link OM_ROUTE_NODES}. */
+export const OM_ROUTE_INSTALL = 'nodes/install';
 export const OM_ROUTE_AUTOMATIONS = 'automations';
+/** This app's own configuration. PMM's on/off switch stays in PMM's settings. */
+export const OM_ROUTE_SETTINGS = 'settings';
+
+/**
+ * The routes that existed before the structure changed, kept only to redirect.
+ *
+ * Nothing has shipped, so these owe nobody a URL -- but the feature build is already
+ * out with people clicking round it, and a dead link in a review is a bug report that
+ * costs more to answer than the three lines it takes to avoid.
+ */
+export const OM_LEGACY_REDIRECTS: Record<string, string> = {
+  services: `${OM_ROUTE_FLEET}?tab=services`,
+  hosts: OM_ROUTE_NODES,
+  'hosts/bootstrap': OM_ROUTE_INSTALL,
+  inventory: `${OM_ROUTE_AUTOMATIONS}?tab=scans`,
+};
 
 export const SERVICE_STATUS_LABEL: Record<OmServiceStatus, string> = {
   SERVICE_STATUS_UNSPECIFIED: 'Unknown',

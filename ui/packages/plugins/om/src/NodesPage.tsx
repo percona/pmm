@@ -41,7 +41,7 @@ import {
   HOST_DATABASE_STATE_COLOR,
   HOST_DATABASE_STATE_LABEL,
   HOST_DATABASE_STATE_PHRASE,
-  OM_ROUTE_BOOTSTRAP,
+  OM_ROUTE_INSTALL,
 } from './constants';
 import { OmHeader } from './components/OmHeader';
 import { Unavailable } from './components/Unavailable';
@@ -443,7 +443,7 @@ const HostDetail = ({ row }: { row: OmHostRow }) => {
  * `onClose` is "the reader backed out" -- Cancel and the dialog's own dismissal
  * (backdrop, Escape). `onForgotten` is "it worked" -- only called once every target
  * host is actually gone. They are two different callbacks because they mean two
- * different things to the caller: HostsPage clears the row-selection on the second,
+ * different things to the caller: NodesPage clears the row-selection on the second,
  * never the first. Conflating them into one `onClose` was the bug -- backing out of
  * a destructive confirmation is not the same event as the destruction succeeding.
  */
@@ -566,10 +566,10 @@ const ForgetDialog = ({
  * where a database can be installed, and it has no service to be discovered through,
  * which is why the estate keys hosts separately at all.
  */
-export const HostsPage = () => {
+export const NodesPage = () => {
   const { data, isPending, isError, error } = useOmInventoryHosts();
   const refresh = useRefreshInventory();
-  // Any active run, matching InventoryPage's button: firing an estate-wide sweep into
+  // Any active run, matching AutomationsScansTab's button: firing an estate-wide sweep into
   // one already in flight only earns a 409, and the row actions below cannot succeed
   // against a host that sweep already holds. The refetch when a sweep lands is the
   // estate query's own business now, so this page no longer arranges it.
@@ -692,7 +692,7 @@ export const HostsPage = () => {
               }
               onClick={() =>
                 navigate(
-                  `${omBase}/${OM_ROUTE_BOOTSTRAP}?hosts=${row.original.node_id}`
+                  `${omBase}/${OM_ROUTE_INSTALL}?hosts=${row.original.node_id}`
                 )
               }
             >
@@ -850,7 +850,7 @@ export const HostsPage = () => {
                 }
                 onClick={() =>
                   navigate(
-                    `${omBase}/${OM_ROUTE_BOOTSTRAP}?hosts=${selectedRows
+                    `${omBase}/${OM_ROUTE_INSTALL}?hosts=${selectedRows
                       .map((row) => row.node_id)
                       .join(',')}`
                   )

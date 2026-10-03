@@ -237,7 +237,7 @@ export function useOmInventoryRuns(filters: OmRunFilters = {}) {
     refetchIntervalInBackground: true,
     // Switching period keeps the old page on screen instead of blanking to the
     // spinner: the filters change the query key, and with no placeholder the table
-    // would flash empty on every chip click the way HostsPage's and ServicesPage's
+    // would flash empty on every chip click the way NodesPage's and FleetServicesTab's
     // queries do not.
     placeholderData: keepPreviousData,
   });
