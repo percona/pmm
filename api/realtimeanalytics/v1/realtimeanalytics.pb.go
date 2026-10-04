@@ -750,6 +750,7 @@ var (
 		(*QueryData)(nil),             // 17: realtimeanalytics.v1.QueryData
 	}
 )
+
 var file_realtimeanalytics_v1_realtimeanalytics_proto_depIdxs = []int32{
 	12, // 0: realtimeanalytics.v1.ListServicesRequest.service_type:type_name -> inventory.v1.ServiceType
 	13, // 1: realtimeanalytics.v1.ListServicesResponse.mongodb:type_name -> inventory.v1.MongoDBService
