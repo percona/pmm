@@ -18,9 +18,12 @@ Rather than checking a version number, RTA asks the server at session start whet
 | ------ | ------ |
 | MySQL 8.0 and later | Fully supported |
 | Percona Server for MySQL 8.0 and later | Fully supported |
-| MariaDB 11.8, 12.3, 13.0 | Supported, with the lock-detail difference noted below |
+| MySQL 5.7 | Supported. The metadata-lock instrument is off by default, so metadata-lock waits show as **Blocked unknown** until you enable it — see [Get complete data on MariaDB and MySQL 5.7](#get-complete-data-on-mariadb-and-mysql-57) |
+| MariaDB 10.11, 11.4, 11.8, 12.3, 13.0 | Supported, with the lock-detail difference noted in [The two kinds of lock](#the-two-kinds-of-lock) |
 
-Other MariaDB releases work if they provide the required tables, but only the versions above are regularly tested.
+Other MariaDB releases work if they provide the required tables, but only the versions in the table are tested.
+
+Managed services such as Amazon RDS for MySQL have not been tested with RTA. They can work only when `performance_schema` is enabled on the instance, which you might need to turn on in the instance's parameter group.
 
 ### Service requirements
 
@@ -42,9 +45,11 @@ You need:
 
 Starting and stopping RTA sessions requires the **Admin** role. Users with other roles have View-only access to sessions that an Admin has already started. For details, see [Standard role permissions](../../admin/roles/index.md).
 
-## Get complete data on MariaDB
+## Get complete data on MariaDB and MySQL 5.7
 
-MySQL and Percona Server enable everything RTA uses by default, so there is nothing to configure.
+MySQL and Percona Server 8.0 and later enable everything RTA uses by default, so there is nothing to configure.
+
+**On MySQL 5.7, the `wait/lock/metadata/sql/mdl` instrument is off by default.** Everything else works, but a statement waiting on a metadata lock shows as **Blocked unknown** instead of naming its blocker. Enable the instrument with the `setup_instruments` statement in this section, or add `performance_schema_instrument = 'wait/lock/metadata/sql/mdl=ON'` to the configuration file.
 
 **MariaDB ships three Performance Schema switches turned off.** RTA still works without them — you get query text, user, database, command, state and elapsed time — but latency, row counts and metadata-lock detection are missing. The agent writes a warning to its log at session start naming each one.
 
@@ -106,7 +111,9 @@ Each row is one statement currently executing. The default columns are:
 | **Operation ID** | The connection ID — the value you pass to `KILL` |
 | **Elapsed time** | How long the statement has been running |
 
-Click **Show/Hide columns** to add **Database**, **User**, **State**, **Command**, **Rows examined**, **Rows sent**, **Full scan** and **Program name**. Columns can be pinned left or right so they stay visible while you scroll.
+Click **Show/Hide columns** to add **Database** and **User**. **Elapsed time** stays pinned to the right edge so it remains visible while you scroll.
+
+State, command, rows examined, rows sent, full scan and program name are not table columns. To see them, click the row and open the **Details** tab.
 
 !!! note alert alert-primary ""
     **Operation ID is the connection ID, not a per-statement identifier.** Consecutive statements on the same connection share it. This is inherent to how MySQL reports the process list.
@@ -119,7 +126,15 @@ Click **Show/Hide columns** to add **Database**, **User**, **State**, **Command*
 
 ### Control the refresh rate
 
-Use **Auto-refresh** to adjust how often the view updates, from 1 to 5 seconds. The default is 2 seconds. Faster updates show more activity but add a small load to your database.
+Use **Auto-refresh** to adjust how often the view updates, from 1 to 5 seconds. The default is 2 seconds. The refresh rate only controls how often your browser reads the data that PMM Server already holds, so a faster refresh adds no load to your database.
+
+The database is polled by the PMM Client at its own collect interval, 2 seconds by default. To change it, run the following command on the monitored host:
+
+```sh
+pmm-admin inventory change agent rta-mysql-agent <agent-id> --collect-interval=5s
+```
+
+Run `pmm-admin list` to find the agent ID of the `rta_mysql_agent`.
 
 ### Pause the stream
 
@@ -154,7 +169,7 @@ A statement waiting on a metadata lock appears in neither `SHOW ENGINE INNODB ST
 
 ### Blocked unknown
 
-A statement shown as **Blocked unknown** means RTA could not read one of its two lock sources, so it will not claim the statement is healthy. The most common cause is the `wait/lock/metadata/sql/mdl` instrument being disabled — see [Get complete data on MariaDB](#get-complete-data-on-mariadb). Check the PMM Client log for the reason.
+A statement shown as **Blocked unknown** means RTA could not read one of its two lock sources, so it will not claim the statement is healthy. The most common cause is the `wait/lock/metadata/sql/mdl` instrument being disabled — see [Get complete data on MariaDB and MySQL 5.7](#get-complete-data-on-mariadb-and-mysql-57). Check the PMM Client log for the reason.
 
 ### Stop a problematic query
 
@@ -202,6 +217,13 @@ The **Export** button is hidden while auto-refresh is active and appears once yo
 
 The export includes all records across all pages and respects active filters and sort order.
 
+## Known limitations
+
+RTA reads what MySQL exposes while a statement runs, which has the following limits:
+
+- **Rows examined and Rows sent show `0` while a statement is running.** MySQL fills these counters when the statement ends, so a running statement reports `0` even if it has read millions of rows.
+- **A finished statement can stay in the view for up to about 30 seconds on an idle server.** The PMM Client sends no update while nothing is running, so the last snapshot stays visible until the data expires.
+
 ## Privacy considerations
 
 !!! caution alert alert-warning "Sensitive data may be visible"
@@ -235,7 +257,7 @@ RTA shows only statements that are executing at the moment of collection. Idle c
 
 ### Row counts and full-scan show "Unavailable"
 
-The `events_statements_current` consumer is disabled, so the server never measured them. This is the default on MariaDB — see [Get complete data on MariaDB](#get-complete-data-on-mariadb).
+The `events_statements_current` consumer is disabled, so the server never measured them. This is the default on MariaDB — see [Get complete data on MariaDB and MySQL 5.7](#get-complete-data-on-mariadb-and-mysql-57).
 
 RTA reports these as unavailable rather than as zero, so a statement nobody measured is never mistaken for a cheap, well-indexed one. Elapsed time still works: it falls back to the process list, which counts whole seconds.
 
