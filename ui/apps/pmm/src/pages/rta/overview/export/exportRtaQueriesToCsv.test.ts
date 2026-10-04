@@ -164,6 +164,22 @@ describe('exportRtaQueriesToCsv', () => {
     ]);
   });
 
+  it('exports lock time as a number of milliseconds', () => {
+    const row = mapQueryToCsvRow({
+      ...TEST_MYSQL_QUERY,
+      mySqlPayload: {
+        ...TEST_MYSQL_QUERY.mySqlPayload!,
+        lockTime: '0.000003s',
+      },
+    });
+
+    expect(row.lock_time_ms).toBeCloseTo(0.003);
+    expect(row).not.toHaveProperty('lock_time');
+    expect(mapQueryToCsvRow(TEST_MYSQL_QUERY)).not.toHaveProperty(
+      'lock_time_ms'
+    );
+  });
+
   it('says whether each MySQL statement text is complete', () => {
     const truncated = mapQueryToCsvRow({
       ...TEST_MYSQL_QUERY,

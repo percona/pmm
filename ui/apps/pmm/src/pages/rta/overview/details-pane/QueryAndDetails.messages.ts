@@ -19,6 +19,7 @@ export const Messages = {
     rowsExamined: 'Rows examined',
     rowsSent: 'Rows sent',
     fullScan: 'Full scan',
+    lockTime: 'Lock time',
   },
   tooltips: {
     operationId: "The database's internal identifier for this operation.",
@@ -53,5 +54,7 @@ export const Messages = {
     rowsSent: 'The number of rows the statement has returned so far.',
     fullScan:
       'Whether the statement performed a full table scan instead of using an index.',
+    lockTime:
+      'How long the statement has waited for table locks, in milliseconds (LOCK_TIME in performance_schema).',
   },
 };

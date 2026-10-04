@@ -433,8 +433,11 @@ type QueryMySQLData struct {
 	// most 64 KiB. MySQL does not mark the cut, so a statement exactly as long as the limit is
 	// reported as truncated too.
 	QueryTextTruncated bool `protobuf:"varint,16,opt,name=query_text_truncated,json=queryTextTruncated,proto3" json:"query_text_truncated,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Time the statement has spent waiting for table locks, from
+	// events_statements_current.LOCK_TIME. Unset when the server did not measure it.
+	LockTime      *durationpb.Duration `protobuf:"bytes,17,opt,name=lock_time,json=lockTime,proto3" json:"lock_time,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *QueryMySQLData) Reset() {
@@ -577,6 +580,13 @@ func (x *QueryMySQLData) GetQueryTextTruncated() bool {
 		return x.QueryTextTruncated
 	}
 	return false
+}
+
+func (x *QueryMySQLData) GetLockTime() *durationpb.Duration {
+	if x != nil {
+		return x.LockTime
+	}
+	return nil
 }
 
 // QueryData represents a single Real-Time Analytics query data point.
@@ -764,7 +774,7 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\x1cblocker_transaction_duration\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\x1ablockerTransactionDuration\x12\x12\n" +
 	"\x04root\x18\a \x01(\bR\x04root\x12,\n" +
 	"\x12blocking_lock_mode\x18\b \x01(\tR\x10blockingLockMode\x128\n" +
-	"\x18blocking_query_truncated\x18\t \x01(\bR\x16blockingQueryTruncated\"\xf1\x05\n" +
+	"\x18blocking_query_truncated\x18\t \x01(\bR\x16blockingQueryTruncated\"\xa9\x06\n" +
 	"\x0eQueryMySQLData\x12.\n" +
 	"\x13db_instance_address\x18\x01 \x01(\tR\x11dbInstanceAddress\x12!\n" +
 	"\fprogram_name\x18\x02 \x01(\tR\vprogramName\x12#\n" +
@@ -783,7 +793,8 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\flocked_index\x18\r \x01(\tR\vlockedIndex\x12;\n" +
 	"\tlock_type\x18\x0e \x01(\x0e2\x1e.realtimeanalytics.v1.LockTypeR\blockType\x12.\n" +
 	"\x13requested_lock_mode\x18\x0f \x01(\tR\x11requestedLockMode\x120\n" +
-	"\x14query_text_truncated\x18\x10 \x01(\bR\x12queryTextTruncatedB\x10\n" +
+	"\x14query_text_truncated\x18\x10 \x01(\bR\x12queryTextTruncated\x126\n" +
+	"\tlock_time\x18\x11 \x01(\v2\x19.google.protobuf.DurationR\blockTimeB\x10\n" +
 	"\x0e_rows_examinedB\f\n" +
 	"\n" +
 	"_rows_sentB\f\n" +
@@ -848,15 +859,16 @@ var file_realtimeanalytics_v1_query_proto_depIdxs = []int32{
 	0,  // 3: realtimeanalytics.v1.QueryMySQLData.blocked_status:type_name -> realtimeanalytics.v1.BlockedStatus
 	3,  // 4: realtimeanalytics.v1.QueryMySQLData.blocked_by:type_name -> realtimeanalytics.v1.BlockingTransaction
 	1,  // 5: realtimeanalytics.v1.QueryMySQLData.lock_type:type_name -> realtimeanalytics.v1.LockType
-	7,  // 6: realtimeanalytics.v1.QueryData.query_execution_duration:type_name -> google.protobuf.Duration
-	6,  // 7: realtimeanalytics.v1.QueryData.query_collect_time:type_name -> google.protobuf.Timestamp
-	2,  // 8: realtimeanalytics.v1.QueryData.mongo_db_payload:type_name -> realtimeanalytics.v1.QueryMongoDBData
-	4,  // 9: realtimeanalytics.v1.QueryData.my_sql_payload:type_name -> realtimeanalytics.v1.QueryMySQLData
-	10, // [10:10] is the sub-list for method output_type
-	10, // [10:10] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	7,  // 6: realtimeanalytics.v1.QueryMySQLData.lock_time:type_name -> google.protobuf.Duration
+	7,  // 7: realtimeanalytics.v1.QueryData.query_execution_duration:type_name -> google.protobuf.Duration
+	6,  // 8: realtimeanalytics.v1.QueryData.query_collect_time:type_name -> google.protobuf.Timestamp
+	2,  // 9: realtimeanalytics.v1.QueryData.mongo_db_payload:type_name -> realtimeanalytics.v1.QueryMongoDBData
+	4,  // 10: realtimeanalytics.v1.QueryData.my_sql_payload:type_name -> realtimeanalytics.v1.QueryMySQLData
+	11, // [11:11] is the sub-list for method output_type
+	11, // [11:11] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_realtimeanalytics_v1_query_proto_init() }

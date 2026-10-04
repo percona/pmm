@@ -434,6 +434,35 @@ func (m *QueryMySQLData) validate(all bool) error {
 
 	// no validation rules for QueryTextTruncated
 
+	if all {
+		switch v := interface{}(m.GetLockTime()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, QueryMySQLDataValidationError{
+					field:  "LockTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, QueryMySQLDataValidationError{
+					field:  "LockTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetLockTime()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return QueryMySQLDataValidationError{
+				field:  "LockTime",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if m.RowsExamined != nil {
 		// no validation rules for RowsExamined
 	}

@@ -1742,6 +1742,7 @@ func (m *MySQLRTA) buildQueryData(row map[string]any, graph *blockingGraph) *rta
 		RowsExamined:       mapOptionalInt(row, "rows_examined"),
 		RowsSent:           mapOptionalInt(row, "rows_sent"),
 		FullScan:           mapOptionalFullScan(row),
+		LockTime:           mapOptionalPicos(row, "lock_latency"),
 		BlockedStatus:      blockedStatus,
 		BlockedBy:          blockedBy,
 		LockedTable:        lockedTable,
@@ -1794,6 +1795,16 @@ func mapOptionalInt(row map[string]any, key string) *int64 {
 	value := mapInt(row, key)
 
 	return &value
+}
+
+// mapOptionalPicos reads a picosecond timer the server may not have measured, leaving it unset
+// for NULL for the same reason mapOptionalInt does.
+func mapOptionalPicos(row map[string]any, key string) *durationpb.Duration {
+	if row[key] == nil {
+		return nil
+	}
+
+	return picosToDuration(sql.NullInt64{Int64: mapInt(row, key), Valid: true})
 }
 
 // mapOptionalFullScan reads the full-scan flag the same way. The query returns NULL when the

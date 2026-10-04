@@ -32422,6 +32422,11 @@
                             "description": "True when query_text is not the whole statement. The processlist keeps 1024 bytes of a\nrunning statement; with the events_statements_current consumer on, the agent reads up to\nperformance_schema_max_sql_text_length bytes (1024 by default) instead. The agent sends at\nmost 64 KiB. MySQL does not mark the cut, so a statement exactly as long as the limit is\nreported as truncated too.",
                             "type": "boolean",
                             "x-order": 15
+                          },
+                          "lock_time": {
+                            "description": "Time the statement has spent waiting for table locks, from\nevents_statements_current.LOCK_TIME. Unset when the server did not measure it.",
+                            "type": "string",
+                            "x-order": 16
                           }
                         },
                         "x-order": 9

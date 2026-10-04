@@ -137,4 +137,17 @@ describe('QueryAndDetails', () => {
       screen.queryByTestId('query-text-truncated')
     ).not.toBeInTheDocument();
   });
+
+  it('shows lock time in milliseconds', () => {
+    renderComponent(TEST_USER_ADMIN, {
+      ...TEST_MYSQL_QUERY_DATA,
+      mySqlPayload: {
+        ...TEST_MYSQL_QUERY_DATA.mySqlPayload!,
+        lockTime: '0.000003s',
+      },
+    });
+
+    expect(screen.getByText('Lock time')).toBeInTheDocument();
+    expect(screen.getByTestId('lock-time-value')).toHaveTextContent('0.003 ms');
+  });
 });

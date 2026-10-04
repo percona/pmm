@@ -1566,3 +1566,32 @@ func TestBlockingQueryTruncationIsReported(t *testing.T) {
 	require.Len(t, graph.blockers["412"], 1)
 	assert.False(t, graph.blockers["412"][0].BlockingQueryTruncated)
 }
+
+func TestLockTimeIsConvertedFromPicoseconds(t *testing.T) {
+	t.Parallel()
+
+	m := &MySQLRTA{}
+	for _, tc := range []struct {
+		picos    any
+		expected time.Duration
+	}{
+		// MySQL computes LOCK_TIME in microseconds and reports it in picoseconds, so real values
+		// are whole microseconds: 3 µs is 0.003 ms.
+		{picos: int64(3_000_000), expected: 3 * time.Microsecond},
+		{picos: int64(1_250_000_000), expected: 1250 * time.Microsecond},
+		{picos: int64(2_000_000_000_000), expected: 2 * time.Second},
+		{picos: int64(0), expected: 0},
+	} {
+		qd := m.buildQueryData(map[string]any{"conn_id": int64(1), "current_statement": "SELECT 1", "lock_latency": tc.picos}, nil)
+		lockTime := qd.GetMySqlPayload().GetLockTime()
+		require.NotNil(t, lockTime, "a measured zero is a value, not an absence")
+		assert.Equal(t, tc.expected, lockTime.AsDuration())
+	}
+}
+
+func TestLockTimeIsUnsetWhenNotMeasured(t *testing.T) {
+	t.Parallel()
+
+	qd := (&MySQLRTA{}).buildQueryData(map[string]any{"conn_id": int64(1), "current_statement": "SELECT 1", "lock_latency": nil}, nil)
+	assert.Nil(t, qd.GetMySqlPayload().GetLockTime())
+}

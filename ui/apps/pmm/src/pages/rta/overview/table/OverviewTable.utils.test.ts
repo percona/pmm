@@ -4,6 +4,8 @@ import { BlockedStatus, QueryData, RawQueryData } from 'types/rta.types';
 import {
   filterCommaSeparated,
   formatElapsedTime,
+  formatLockTimeMs,
+  lockTimeMs,
   isBlocked,
   isTransactionControl,
   queryDatabaseName,
@@ -278,5 +280,21 @@ describe('rtaRowId', () => {
     const b: RawQueryData = { ...TEST_MYSQL_QUERY_DATA, queryId: '412' };
 
     expect(rtaRowId(a)).not.toBe(rtaRowId(b));
+  });
+});
+
+describe('formatLockTimeMs', () => {
+  it('renders microsecond lock waits in milliseconds', () => {
+    // 3000000 ps from LOCK_TIME arrives as "0.000003s".
+    expect(formatLockTimeMs('0.000003s')).toBe('0.003 ms');
+    expect(formatLockTimeMs('0.001250s')).toBe('1.25 ms');
+    expect(formatLockTimeMs('2s')).toBe('2000 ms');
+    expect(formatLockTimeMs('0s')).toBe('0 ms');
+  });
+
+  it('leaves an unmeasured lock time blank', () => {
+    expect(formatLockTimeMs(undefined)).toBe('');
+    expect(formatLockTimeMs(null)).toBe('');
+    expect(lockTimeMs(undefined)).toBeUndefined();
   });
 });

@@ -6,6 +6,7 @@ import {
   RawQueryData,
 } from 'types/rta.types';
 import { CodeLanguage } from 'types/util.types';
+import { parseDuration } from 'utils/duration.utils';
 
 // queryLanguage returns the syntax-highlighting language for a query
 // based on which database-specific payload it carries.
@@ -50,6 +51,19 @@ export const elapsedTimeValue = (seconds: number): string => {
 // word, for the width-constrained overview column.
 export const formatElapsedTime = (seconds: number): string =>
   `${elapsedTimeValue(seconds)}s`;
+
+// lockTimeMs converts the protobuf duration the API sends into milliseconds,
+// or undefined when the server did not measure it.
+export const lockTimeMs = (lockTime?: string | null): number | undefined =>
+  lockTime ? parseDuration(lockTime) : undefined;
+
+// formatLockTimeMs renders lock time in milliseconds. MySQL measures it in
+// whole microseconds, so three decimals keep a 3µs wait visible as 0.003 ms.
+export const formatLockTimeMs = (lockTime?: string | null): string => {
+  const ms = lockTimeMs(lockTime);
+
+  return ms === undefined ? '' : `${Number(ms.toFixed(3))} ms`;
+};
 
 // Transaction-control statements that add little value to Real-Time Analytics
 // and can dominate the list under transactional workloads (e.g. sysbench).

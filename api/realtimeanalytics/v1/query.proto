@@ -141,6 +141,9 @@ message QueryMySQLData {
   // most 64 KiB. MySQL does not mark the cut, so a statement exactly as long as the limit is
   // reported as truncated too.
   bool query_text_truncated = 16;
+  // Time the statement has spent waiting for table locks, from
+  // events_statements_current.LOCK_TIME. Unset when the server did not measure it.
+  google.protobuf.Duration lock_time = 17;
 }
 
 // QueryData represents a single Real-Time Analytics query data point.

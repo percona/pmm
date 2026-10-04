@@ -932,6 +932,10 @@ type SearchQueriesOKBodyQueriesItems0MySQLPayload struct {
 	// most 64 KiB. MySQL does not mark the cut, so a statement exactly as long as the limit is
 	// reported as truncated too.
 	QueryTextTruncated bool `json:"query_text_truncated,omitempty"`
+
+	// Time the statement has spent waiting for table locks, from
+	// events_statements_current.LOCK_TIME. Unset when the server did not measure it.
+	LockTime string `json:"lock_time,omitempty"`
 }
 
 // Validate validates this search queries OK body queries items0 my SQL payload

@@ -15,6 +15,7 @@ import { useUser } from 'contexts/user';
 import {
   codeBlockLanguage,
   elapsedTimeValue,
+  formatLockTimeMs,
   isBlocked,
   queryLanguage,
 } from '../table/OverviewTable.utils';
@@ -339,6 +340,18 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
                     }
                     size="small"
                     dataTestId="full-scan-value"
+                  />
+                </DetailsMetric>
+              </GridItem>
+              <GridItem>
+                <DetailsMetric
+                  title={Messages.titles.lockTime}
+                  tooltip={Messages.tooltips.lockTime}
+                >
+                  <BigNumberMetric
+                    mainText={formatLockTimeMs(mySqlPayload.lockTime)}
+                    size="small"
+                    dataTestId="lock-time-value"
                   />
                 </DetailsMetric>
               </GridItem>

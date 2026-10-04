@@ -107,6 +107,9 @@ export interface QueryMySQLData {
   // The statement text is incomplete: MySQL keeps only the beginning of a long
   // statement and marks no cut of its own.
   queryTextTruncated?: boolean;
+  // Time spent waiting for table locks, as a protobuf duration ("0.000003s").
+  // Absent when the server did not measure it.
+  lockTime?: string | null;
 }
 
 export enum BlockedStatus {

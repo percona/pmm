@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { download, generateCsv, mkConfig } from 'export-to-csv';
 import { QueryData } from 'types/rta.types';
-import { soleBlocker } from '../table/OverviewTable.utils';
+import { lockTimeMs, soleBlocker } from '../table/OverviewTable.utils';
 import { isPlainObject } from 'utils/object.utils';
 
 const CSV_FORMULA_PREFIX = /^[=+\-@\t\r]/;
@@ -56,6 +56,7 @@ const CSV_COLUMN_ORDER = [
   'rowsExamined',
   'rowsSent',
   'fullScan',
+  'lockTimeMs',
   'blockedStatus',
   'lockedTable',
   'lockedIndex',
@@ -115,6 +116,13 @@ export const mapQueryToCsvRow = (query: QueryData): CsvRow => {
   // filled only when one transaction is actually the answer; blocked_status stays BLOCKED
   // either way, so a statement held up by several is still findable.
   delete row[toCsvHeader('blockedBy')];
+
+  // A spreadsheet can sum milliseconds; it cannot sum "0.000003s".
+  delete row[toCsvHeader('lockTime')];
+  const lockTime = lockTimeMs(query.mySqlPayload?.lockTime);
+  if (lockTime !== undefined) {
+    row[toCsvHeader('lockTimeMs')] = lockTime;
+  }
 
   // The API omits a false flag, so it is written out for every MySQL row: an empty cell
   // would not say whether the text is complete.
