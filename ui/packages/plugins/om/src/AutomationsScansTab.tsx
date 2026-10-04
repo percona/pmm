@@ -27,6 +27,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { EmptyState } from './components/EmptyState';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { Table, type MRT_ColumnDef } from '@percona/percona-ui';
 import {
@@ -230,9 +231,11 @@ const RefreshButton = () => {
 const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
   if (!run) {
     return (
-      <Alert severity="info">
-        No scan has run yet. Operations has nothing to show until one does.
-      </Alert>
+      <EmptyState title="No scans yet">
+        Operations scans your nodes on a schedule to collect what no metric
+        carries - the installed version, the command line, the config file.
+        Nothing has run yet, so there is nothing to show.
+      </EmptyState>
     );
   }
   const age = ageSeconds(run.start_time);
@@ -392,7 +395,10 @@ export const AutomationsScansTab = () => {
           <CircularProgress />
         </Box>
       ) : rows.length === 0 && !error ? (
-        <Alert severity="info">No scans in this period.</Alert>
+        <EmptyState title="No scans in this period">
+          Scans run on a schedule, so a short window can be empty while
+          everything is working. Widen the period, or scan now.
+        </EmptyState>
       ) : (
         <Table
           tableName="om-inventory-runs"

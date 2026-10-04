@@ -25,6 +25,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { EmptyState } from './components/EmptyState';
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -493,7 +494,15 @@ export const FleetServicesTab = () => {
         failingOnly={failingOnly}
         onToggleFailing={() => setFailingOnly((on) => !on)}
       />
-      <MaterialReactTable table={table} />
+      {rows.length === 0 ? (
+        <EmptyState title="No MongoDB services yet">
+          The same fleet as the Clusters tab, one row per MongoDB service. It is
+          empty because PMM has no MongoDB services registered yet - add one,
+          and it appears here on the next refresh.
+        </EmptyState>
+      ) : (
+        <MaterialReactTable table={table} />
+      )}
     </Box>
   );
 };

@@ -29,8 +29,13 @@ import {
 } from '@mui/material';
 import { Table, type MRT_ColumnDef } from '@percona/percona-ui';
 import { bootstrapRunDisplayStatus } from './api';
-import { BOOTSTRAP_RUN_COLOR, BOOTSTRAP_RUN_LABEL } from './constants';
+import {
+  BOOTSTRAP_RUN_COLOR,
+  BOOTSTRAP_RUN_LABEL,
+  OM_ROUTE_NODES,
+} from './constants';
 import { OmHeader } from './components/OmHeader';
+import { EmptyState } from './components/EmptyState';
 import { RunProgress } from './components/RunProgress';
 import { AutomationsScansTab } from './AutomationsScansTab';
 import {
@@ -39,6 +44,7 @@ import {
   runDurationSeconds,
 } from './format';
 import { useOmBootstrapRuns } from './inventoryHooks';
+import { useOmBase } from './useOmBase';
 import type { OmGetBootstrapRunResponse } from './types';
 
 /**
@@ -121,6 +127,7 @@ const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
  * still requires an extra click to find the run just started.
  */
 const AutomationsInstallsTab = () => {
+  const omBase = useOmBase();
   const {
     data: runs,
     isLoading,
@@ -153,10 +160,13 @@ const AutomationsInstallsTab = () => {
   return (
     <Stack gap={2}>
       {rows.length === 0 ? (
-        <Alert severity="info">
-          No installs yet. Operations records every install here, so you can
-          watch one run and come back to what it did.
-        </Alert>
+        <EmptyState
+          title="No installs yet"
+          action={{ label: 'Go to Nodes', to: `${omBase}/${OM_ROUTE_NODES}` }}
+        >
+          Every MongoDB install Operations runs is recorded here, so you can
+          watch one happen and come back to what it did. Start one from a node.
+        </EmptyState>
       ) : (
         <Table
           tableName="om-automations-runs"

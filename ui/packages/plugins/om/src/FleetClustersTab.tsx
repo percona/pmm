@@ -32,6 +32,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { EmptyState } from './components/EmptyState';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   MaterialReactTable,
@@ -461,9 +462,12 @@ export const FleetClustersTab = () => {
       </Stack>
 
       {sections.length === 0 ? (
-        <Alert severity="info">
-          The snapshot has no environments. Sync to rebuild it.
-        </Alert>
+        <EmptyState title="No MongoDB clusters yet">
+          This page shows every MongoDB cluster PMM monitors, and the health of
+          each one&apos;s members. It is empty because PMM has no MongoDB
+          services registered yet - add one, and it appears here on the next
+          refresh.
+        </EmptyState>
       ) : (
         // Indexed fallback: two sibling sections with no env_name would otherwise
         // share a React key. Environments carry no server-issued id the way clusters

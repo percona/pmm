@@ -43,6 +43,7 @@ import {
   HOST_DATABASE_STATE_PHRASE,
   OM_ROUTE_INSTALL,
 } from './constants';
+import { EmptyState } from './components/EmptyState';
 import { OmHeader } from './components/OmHeader';
 import { Unavailable } from './components/Unavailable';
 import { formatCompactDuration, pluralize } from './format';
@@ -870,7 +871,15 @@ export const NodesPage = () => {
           </Button>
         </Stack>
       )}
-      <MaterialReactTable table={table} />
+      {filteredRows.length === 0 ? (
+        <EmptyState title="No nodes to show">
+          {rows.length === 0
+            ? 'This page lists every machine PMM monitors, including the ones with no database on them - which is where an install can go. PMM has no nodes registered yet.'
+            : 'Every node is filtered out by the filter above. Clear it to see them.'}
+        </EmptyState>
+      ) : (
+        <MaterialReactTable table={table} />
+      )}
       <ForgetDialog
         rows={forgetting}
         onClose={() => setForgetting([])}
