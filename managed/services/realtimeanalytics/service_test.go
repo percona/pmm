@@ -278,6 +278,49 @@ func TestListSessions(t *testing.T) {
 		require.Len(t, resp.Sessions, 1)
 		assert.Equal(t, rtav1.SessionStatus_SESSION_STATUS_UNSPECIFIED, resp.Sessions[0].Status)
 	})
+
+	t.Run("report agent on pmm-agent without the collector as error", func(t *testing.T) {
+		nodeOld, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+			NodeName: "test-node-old",
+		})
+		require.NoError(t, err)
+
+		pmmAgentOld, err := models.CreatePMMAgent(db.Querier, nodeOld.NodeID, nil)
+		require.NoError(t, err)
+
+		// 3.9.1 was released without the MySQL collector.
+		pmmAgentOld.Version = new("3.9.1")
+		err = db.Update(pmmAgentOld)
+		require.NoError(t, err)
+
+		serviceMySQL, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mysql-old",
+			NodeID:      nodeOld.NodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
+			Cluster:     "old-cluster",
+		})
+		require.NoError(t, err)
+
+		_, err = models.CreateAgent(db.Querier, models.RTAMySQLAgentType, &models.CreateAgentParams{
+			PMMAgentID: pmmAgentOld.AgentID,
+			ServiceID:  serviceMySQL.ServiceID,
+			Username:   "test-user",
+			Password:   "test-pass",
+		})
+		require.NoError(t, err)
+
+		registry := newMockAgentsRegistry(t)
+		registry.On("IsConnected", pmmAgentOld.AgentID).Return(true)
+		svc := NewService(db, registry, stateUpdater, store)
+
+		resp, err := svc.ListSessions(t.Context(), &rtav1.ListSessionsRequest{ClusterName: "old-cluster"})
+		require.NoError(t, err)
+		require.Len(t, resp.Sessions, 1)
+		assert.Equal(t, rtav1.SessionStatus_SESSION_STATUS_ERROR, resp.Sessions[0].Status)
+		assert.Equal(t, fmt.Sprintf("Service %s has pmm-agent with version 3.9.1 not supporting Real-Time Analytics; "+
+			"pmm-agent 3.10.0 or later is required.", serviceMySQL.ServiceID), resp.Sessions[0].StatusMessage)
+	})
 }
 
 func TestStartSession(t *testing.T) {
@@ -488,8 +531,8 @@ func TestStartSession(t *testing.T) {
 		})
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Convert(err).Code())
-		assert.Equal(t, status.Convert(err).Message(), fmt.Sprintf("Service %s has pmm-agent with version not supporting Real-Time Analytics.",
-			serviceOld.ServiceID))
+		assert.Equal(t, fmt.Sprintf("Service %s has pmm-agent with version 3.6.0 not supporting Real-Time Analytics; "+
+			"pmm-agent 3.7.0 or later is required.", serviceOld.ServiceID), status.Convert(err).Message())
 	})
 
 	t.Run("existing RTA agent on pmm-agent that doesn't support RTA", func(t *testing.T) {
@@ -533,8 +576,8 @@ func TestStartSession(t *testing.T) {
 		})
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Convert(err).Code())
-		assert.Equal(t, status.Convert(err).Message(), fmt.Sprintf("Service %s has pmm-agent with version not supporting Real-Time Analytics.",
-			serviceMySQL.ServiceID))
+		assert.Equal(t, fmt.Sprintf("Service %s has pmm-agent with version 3.8.0 not supporting Real-Time Analytics; "+
+			"pmm-agent 3.10.0 or later is required.", serviceMySQL.ServiceID), status.Convert(err).Message())
 
 		// The agent must remain disabled.
 		agents, err := models.FindAgents(db.Querier, models.AgentFilters{

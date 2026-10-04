@@ -94,7 +94,8 @@ export interface QueryMySQLData {
   rowsSent?: number | string;
   fullScan?: boolean;
   // Whether the statement is waiting for a lock. UNSPECIFIED means the agent could
-  // not read the lock graph at all, which must not be shown as "not blocked".
+  // not read the lock graph at all, which must not be shown as "not blocked";
+  // UNATTRIBUTED means the wait found belonged to a later statement on the connection.
   blockedStatus?: BlockedStatus;
   blockedBy?: BlockingTransaction[];
   // The lock the statement itself is waiting for. A property of the waiter: every
@@ -137,6 +138,10 @@ export enum BlockedStatus {
   unspecified = 'BLOCKED_STATUS_UNSPECIFIED',
   notBlocked = 'BLOCKED_STATUS_NOT_BLOCKED',
   blocked = 'BLOCKED_STATUS_BLOCKED',
+  // The connection was waiting for a lock, but for a statement later than the one sampled:
+  // it moved on between the statement read and the lock read. Unlike unspecified, the lock
+  // sources were readable, so a refresh rather than a configuration change resolves it.
+  unattributed = 'BLOCKED_STATUS_UNATTRIBUTED',
 }
 
 // Which of MySQL's two independent locking mechanisms a statement is waiting on. They
@@ -154,7 +159,8 @@ export interface BlockingTransaction {
   blockingConnId: number | string;
   blockingQuery: string;
   // "Sleep" means the blocker is idle inside an open transaction and is running
-  // nothing at all, so blockingQuery is the statement that took the lock.
+  // nothing at all, so blockingQuery is the last statement it ran. The lock may have been
+  // taken by an earlier statement in the same transaction.
   blockingCommand: string;
   blockingUsername: string;
   waitDuration?: string | null;

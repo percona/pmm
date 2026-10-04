@@ -7,12 +7,16 @@ import { QueryCell } from './query-cell';
 import UnavailableText from 'components/unavailable-text';
 import Stack from '@mui/material/Stack';
 import { Chip } from '@percona/peak-ui';
-import { BlockedChip } from 'pages/rta/components/blocked-chip';
+import {
+  BlockedChip,
+  BlockedUnknownChip,
+} from 'pages/rta/components/blocked-chip';
 import { TruncatedChip } from 'pages/rta/components/truncated-chip';
 import {
   formatElapsedTime,
   isBlocked,
   sqlPayload,
+  isBlockingUnattributed,
   queryDatabaseName,
   queryLanguage,
   queryUsername,
@@ -32,6 +36,7 @@ const QUERY_TEXT_COLUMN: MRT_ColumnDef<QueryData> = {
       {isBlocked(row.original) && (
         <BlockedChip blockers={sqlPayload(row.original)?.blockedBy ?? []} />
       )}
+      {isBlockingUnattributed(row.original) && <BlockedUnknownChip />}
       <QueryCell
         query={row.original.queryText}
         language={queryLanguage(row.original)}
@@ -121,9 +126,15 @@ const OPERATION_ID_COLUMN: MRT_ColumnDef<QueryData> = {
 const ELAPSED_TIME_COLUMN: MRT_ColumnDef<QueryData> = {
   header: Messages.columns.elapsedTime,
   accessorKey: 'queryExecutionDurationMs',
-  // Pinned to the right edge, so every pixel here is taken from the query
-  // text; the compact value format is what keeps the column this narrow.
-  size: 120,
+  // Pinned to the right edge, so every pixel here is taken from the query text.
+  // The width is set by the header, not the compact value: "Elapsed time" plus
+  // the sort and column-menu icons needs about 160px, and 120 truncated it to
+  // "Elapsed t…". minSize is what MRT's grid layout holds as the floor
+  // (min-width is max(size, minSize)), so it stays readable when the Database
+  // and User columns compete for the row; grow is off so it takes no more.
+  size: 170,
+  minSize: 170,
+  grow: false,
   filterVariant: 'range',
   filterFn: 'timeRangeFilterFn',
   muiFilterTextFieldProps: {

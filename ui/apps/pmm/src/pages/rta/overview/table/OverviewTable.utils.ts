@@ -157,6 +157,13 @@ export const isBlockingUnknown = (query: RawQueryData): boolean =>
   (sqlPayload(query)?.blockedStatus === undefined ||
     sqlPayload(query)?.blockedStatus === BlockedStatus.unspecified);
 
+// isBlockingUnattributed reports that the connection was waiting for a lock, but for a later
+// statement than the one sampled, so this refresh cannot say whether this statement waited.
+// Kept apart from isBlockingUnknown: here every lock source answered, so the reader needs a
+// refresh rather than a configuration change.
+export const isBlockingUnattributed = (query: RawQueryData): boolean =>
+  query.mySqlPayload?.blockedStatus === BlockedStatus.unattributed;
+
 // blockingRoots returns the blockers that are not themselves waiting. Several can hold up one
 // statement at once, so this is a list: naming one of them as the culprit would be wrong
 // whenever there is more than one.
@@ -198,3 +205,23 @@ export const soleBlocker = (
 // keying on it alone makes the pane navigate to a row on the wrong server.
 export const rtaRowId = (query: RawQueryData): string =>
   `${query.serviceId}:${query.queryId}`;
+
+// isSameStatement reports whether candidate is the statement selected earlier, still running.
+// A MySQL row is keyed by connection id, and a connection that finishes one statement moves on
+// to the next under the same id, so the id alone would hand the details pane a different
+// statement. A running statement keeps its text and only grows older; a later run of the same
+// text started afresh and is younger.
+export const isSameStatement = (
+  selected: QueryData,
+  candidate: QueryData
+): boolean =>
+  rtaRowId(selected) === rtaRowId(candidate) &&
+  selected.queryText === candidate.queryText &&
+  (candidate.queryExecutionDurationMs ?? 0) >=
+    (selected.queryExecutionDurationMs ?? 0);
+
+// statementRowId identifies a statement rather than a connection, for the details pane's
+// previous and next: once the selected statement has finished, its connection's next
+// statement must not stand in for it as the anchor.
+export const statementRowId = (query: RawQueryData): string =>
+  `${rtaRowId(query)}:${query.queryText}`;

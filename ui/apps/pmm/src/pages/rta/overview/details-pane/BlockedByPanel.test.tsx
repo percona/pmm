@@ -91,6 +91,16 @@ describe('BlockedByPanel', () => {
     ).toBeInTheDocument();
   });
 
+  it('does not claim the statement shown took the lock', () => {
+    // The lock may come from an earlier statement in the same transaction.
+    renderPanel([IDLE_ROOT]);
+
+    expect(
+      screen.getByText(/Shown is the last statement it ran/)
+    ).toHaveTextContent(/may have been taken by an earlier statement/);
+    expect(screen.queryByText(/statement that took/)).not.toBeInTheDocument();
+  });
+
   it('omits the idle explanation for a blocker that is actually executing', () => {
     renderPanel([MIDDLE_OF_CHAIN]);
 

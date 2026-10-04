@@ -223,6 +223,8 @@ curl -X GET "https://your-pmm-server/v1/realtimeanalytics/sessions?cluster_name=
 
 You're unable to start an RTA session. This typically happens when the service doesn't exist in PMM inventory, the PMM Client version is too old (**< 3.7.0** for MongoDB, **< 3.10.0** for MySQL), or the exporter is not configured.
 
+When the PMM Client is too old, the request fails with `FAILED_PRECONDITION` and a message naming the required version, for example `Service ... has pmm-agent with version 3.9.1 not supporting Real-Time Analytics; pmm-agent 3.10.0 or later is required.` Adding an RTA agent through the inventory API (`POST /v1/inventory/agents` with `rta_mysql_agent` or `rta_mongodb_agent`) is refused with the same error when the target PMM Agent has reported an older version.
+
 For MySQL services, a session also fails to start when `performance_schema` is disabled on the monitored server, or when the PMM monitoring user lacks the `SELECT` and `PROCESS` privileges. The session error message names the check that failed.
 
 **Solutions:**
@@ -241,6 +243,8 @@ For MySQL services, `status_message` names the reason the agent reported, for ex
 "status": "SESSION_STATUS_ERROR",
 "status_message": "Real-Time Analytics is not supported for this instance: performance_schema is disabled; it is required for Real-Time Analytics"
 ```
+
+A session whose RTA agent sits on a PMM Agent too old to run it, for example one added through the inventory API before that PMM Agent first connected, is listed with `SESSION_STATUS_ERROR` and a `status_message` naming the required version.
 
 **Solutions:**
 

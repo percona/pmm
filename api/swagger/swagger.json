@@ -31542,13 +31542,14 @@
                             "x-order": 8
                           },
                           "blocked_status": {
-                            "description": "BlockedStatus says whether a statement is waiting for a lock, keeping \"we could not\nfind out\" distinct from \"we checked and it is not waiting\". Collapsing the two would let a\nmonitoring gap look like a healthy server during the incident the feature exists for.\n\n - BLOCKED_STATUS_UNSPECIFIED: The lock graph could not be read, so nothing is known about this statement's waiting.\n - BLOCKED_STATUS_NOT_BLOCKED: The lock graph was read and this statement is not waiting for a lock.\n - BLOCKED_STATUS_BLOCKED: The statement is waiting for a lock; blocked_by names the transactions holding it and\nlock_type says which kind of lock is being waited on.",
+                            "description": "BlockedStatus says whether a statement is waiting for a lock, keeping \"we could not\nfind out\" distinct from \"we checked and it is not waiting\". Collapsing the two would let a\nmonitoring gap look like a healthy server during the incident the feature exists for.\n\n - BLOCKED_STATUS_UNSPECIFIED: The lock graph could not be read, so nothing is known about this statement's waiting.\n - BLOCKED_STATUS_NOT_BLOCKED: The lock graph was read and this statement is not waiting for a lock.\n - BLOCKED_STATUS_BLOCKED: The statement is waiting for a lock; blocked_by names the transactions holding it and\nlock_type says which kind of lock is being waited on.\n - BLOCKED_STATUS_UNATTRIBUTED: The connection was waiting for a lock, but for a later statement than the one reported:\nit moved on between the statement read and the lock read, so this refresh cannot say\nwhether the statement reported was blocked. Unlike UNSPECIFIED, the lock sources answered.",
                             "type": "string",
                             "default": "BLOCKED_STATUS_UNSPECIFIED",
                             "enum": [
                               "BLOCKED_STATUS_UNSPECIFIED",
                               "BLOCKED_STATUS_NOT_BLOCKED",
-                              "BLOCKED_STATUS_BLOCKED"
+                              "BLOCKED_STATUS_BLOCKED",
+                              "BLOCKED_STATUS_UNATTRIBUTED"
                             ],
                             "x-order": 9
                           },
@@ -31711,13 +31712,14 @@
                             "x-order": 10
                           },
                           "blocked_status": {
-                            "description": "BlockedStatus says whether a statement is waiting for a lock, keeping \"we could not\nfind out\" distinct from \"we checked and it is not waiting\". Collapsing the two would let a\nmonitoring gap look like a healthy server during the incident the feature exists for.\n\n - BLOCKED_STATUS_UNSPECIFIED: The lock graph could not be read, so nothing is known about this statement's waiting.\n - BLOCKED_STATUS_NOT_BLOCKED: The lock graph was read and this statement is not waiting for a lock.\n - BLOCKED_STATUS_BLOCKED: The statement is waiting for a lock; blocked_by names the transactions holding it and\nlock_type says which kind of lock is being waited on.",
+                            "description": "BlockedStatus says whether a statement is waiting for a lock, keeping \"we could not\nfind out\" distinct from \"we checked and it is not waiting\". Collapsing the two would let a\nmonitoring gap look like a healthy server during the incident the feature exists for.\n\n - BLOCKED_STATUS_UNSPECIFIED: The lock graph could not be read, so nothing is known about this statement's waiting.\n - BLOCKED_STATUS_NOT_BLOCKED: The lock graph was read and this statement is not waiting for a lock.\n - BLOCKED_STATUS_BLOCKED: The statement is waiting for a lock; blocked_by names the transactions holding it and\nlock_type says which kind of lock is being waited on.\n - BLOCKED_STATUS_UNATTRIBUTED: The connection was waiting for a lock, but for a later statement than the one reported:\nit moved on between the statement read and the lock read, so this refresh cannot say\nwhether the statement reported was blocked. Unlike UNSPECIFIED, the lock sources answered.",
                             "type": "string",
                             "default": "BLOCKED_STATUS_UNSPECIFIED",
                             "enum": [
                               "BLOCKED_STATUS_UNSPECIFIED",
                               "BLOCKED_STATUS_NOT_BLOCKED",
-                              "BLOCKED_STATUS_BLOCKED"
+                              "BLOCKED_STATUS_BLOCKED",
+                              "BLOCKED_STATUS_UNATTRIBUTED"
                             ],
                             "x-order": 11
                           },

@@ -279,8 +279,8 @@ var optionalProcesslistSources = []struct {
 //
 // The blocking statement is read as the thread's live statement, falling back to the last one
 // performance_schema recorded for it, because the head of a blocking chain is typically idle
-// inside an open transaction and is running nothing at all -- its last statement is the one
-// that took the lock.
+// inside an open transaction and is running nothing at all -- its last statement is often, but
+// not always, the one that took the lock: an earlier statement in the transaction may have.
 //
 // The two LOCK_MODE columns say what was asked for and what is held ("X,REC_NOT_GAP",
 // "S,GAP", ...). They are what separates a wait on the row itself from a wait on the gap
@@ -1752,10 +1752,12 @@ func (m *MySQLRTA) buildQueryData(row map[string]any, graph *blockingGraph) *rta
 		// The wait may belong to a later statement on this connection: the statement list and
 		// the lock graph are read by separate queries. Attaching it to the statement sampled
 		// earlier would report a statement that never waited as blocked by a lock it never asked
-		// for, so the statement is left unknown instead.
+		// for, so the statement is reported as unattributed instead. That is kept apart from a
+		// missing lock source: the remedy for one is a refresh, for the other a configuration change.
 		otherStatement := waiting && !waitingStatementMatches(row, lock)
 		switch {
 		case otherStatement:
+			blockedStatus = rtav1.BlockedStatus_BLOCKED_STATUS_UNATTRIBUTED
 		case waiting:
 			blockedStatus = rtav1.BlockedStatus_BLOCKED_STATUS_BLOCKED
 			blockedBy = graph.blockers[connID]

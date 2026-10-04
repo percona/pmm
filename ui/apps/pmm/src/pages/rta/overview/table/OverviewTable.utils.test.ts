@@ -12,6 +12,9 @@ import {
   formatLockTimeMs,
   lockTimeMs,
   isBlocked,
+  isBlockingUnattributed,
+  isBlockingUnknown,
+  isSameStatement,
   isTransactionControl,
   queryDatabaseName,
   queryLanguage,
@@ -19,6 +22,7 @@ import {
   blockingRoots,
   rtaRowId,
   soleBlocker,
+  statementRowId,
   UNAVAILABLE_VALUE,
 } from './OverviewTable.utils';
 import {
@@ -326,5 +330,64 @@ describe('PostgreSQL queries', () => {
         },
       })
     ).toBe(false);
+  });
+});
+
+describe('isBlockingUnattributed', () => {
+  const withStatus = (blockedStatus?: BlockedStatus): RawQueryData => ({
+    ...TEST_MYSQL_QUERY_DATA,
+    mySqlPayload: { ...TEST_MYSQL_QUERY_DATA.mySqlPayload!, blockedStatus },
+  });
+
+  it('is true only for a wait that belonged to a later statement', () => {
+    expect(isBlockingUnattributed(withStatus(BlockedStatus.unattributed))).toBe(
+      true
+    );
+    expect(isBlockingUnattributed(withStatus(BlockedStatus.unspecified))).toBe(
+      false
+    );
+    expect(isBlockingUnattributed(withStatus(BlockedStatus.blocked))).toBe(
+      false
+    );
+    expect(isBlockingUnattributed(TEST_MONGO_DB_QUERY_DATA)).toBe(false);
+  });
+
+  it('is not mistaken for an unreadable lock source', () => {
+    const row = withStatus(BlockedStatus.unattributed);
+
+    expect(isBlockingUnknown(row)).toBe(false);
+    expect(isBlocked(row)).toBe(false);
+  });
+});
+
+describe('isSameStatement', () => {
+  const running: QueryData = {
+    ...TEST_MYSQL_QUERY_DATA,
+    queryText: 'SELECT SLEEP(100)',
+    queryExecutionDurationMs: 10_000,
+  };
+
+  it('follows a statement that is still running', () => {
+    expect(
+      isSameStatement(running, { ...running, queryExecutionDurationMs: 12_000 })
+    ).toBe(true);
+  });
+
+  it('does not mistake the connection running something else for it', () => {
+    expect(isSameStatement(running, { ...running, queryText: 'COMMIT' })).toBe(
+      false
+    );
+  });
+
+  it('does not mistake a later run of the same text for it', () => {
+    expect(
+      isSameStatement(running, { ...running, queryExecutionDurationMs: 500 })
+    ).toBe(false);
+  });
+
+  it('keys navigation on the statement, not only the connection', () => {
+    expect(statementRowId(running)).not.toBe(
+      statementRowId({ ...running, queryText: 'COMMIT' })
+    );
   });
 });

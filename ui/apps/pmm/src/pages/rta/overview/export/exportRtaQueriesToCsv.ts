@@ -66,6 +66,7 @@ const CSV_COLUMN_ORDER = [
   'lockedIndex',
   'blockingConnId',
   'blockingQuery',
+  'blockingQueryTruncated',
   'queryTextTruncated',
   'queryCollectTime',
   'queryRawJson',
@@ -141,6 +142,11 @@ export const mapQueryToCsvRow = (query: QueryData): CsvRow => {
   if (blocker) {
     row[toCsvHeader('blockingConnId')] = toCsvValue(blocker.blockingConnId);
     row[toCsvHeader('blockingQuery')] = toCsvValue(blocker.blockingQuery);
+    // Written out like query_text_truncated: the API omits a false flag, and an empty cell
+    // would not say whether blocking_query is complete.
+    row[toCsvHeader('blockingQueryTruncated')] = Boolean(
+      blocker.blockingQueryTruncated
+    );
   }
 
   return row;

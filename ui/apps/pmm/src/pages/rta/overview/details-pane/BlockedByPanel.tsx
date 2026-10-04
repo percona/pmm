@@ -44,8 +44,8 @@ const lockTypeLabel = (lockType?: LockType): string | undefined => {
 };
 
 // MySQL reports an idle connection as "Sleep" and PostgreSQL a session in an open transaction as
-// "idle in transaction": it is running nothing, so its statement is the one that took the lock
-// rather than a current one.
+// "idle in transaction": it is running nothing, so its statement is the last one it ran rather than
+// a current one. That is often, not always, the one that took the lock.
 const IDLE_COMMAND = 'Sleep';
 const isIdleCommand = (command: string) =>
   command === IDLE_COMMAND || command.startsWith('idle in transaction');
@@ -246,6 +246,8 @@ const BlockedByPanel: FC<Props> = ({
               wrap
               copyable
               content={primary.blockingQuery}
+              // Room for the floating copy button, which otherwise covers the first line's end.
+              sx={{ pr: 5 }}
               data-testid="blocker-query"
             />
             {isIdle && (
