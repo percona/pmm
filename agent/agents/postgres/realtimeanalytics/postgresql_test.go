@@ -20,8 +20,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/percona/pmm/agent/agents"
+	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
 func TestActivityQueryIsTagged(t *testing.T) {
@@ -74,4 +76,39 @@ func TestToBlockers(t *testing.T) {
 		_, err := toBlockers([]byte(`{`), nil)
 		require.Error(t, err)
 	})
+}
+
+func TestWithBlockingChains(t *testing.T) {
+	t.Parallel()
+
+	session := func(pid int32, blockers ...*rtav1.BlockingTransaction) *rtav1.QueryData {
+		return &rtav1.QueryData{Payload: &rtav1.QueryData_PostgresqlPayload{
+			PostgresqlPayload: &rtav1.QueryPostgreSQLData{Pid: pid, BlockedBy: blockers},
+		}}
+	}
+	blocker := func(pid int64, root bool, waited time.Duration) *rtav1.BlockingTransaction {
+		return &rtav1.BlockingTransaction{BlockingConnId: pid, Root: root, WaitDuration: durationpb.New(waited)}
+	}
+
+	// 7 is idle in transaction; 8 waits for 7, 9 waits for 8.
+	queries := []*rtav1.QueryData{
+		session(7),
+		session(8, blocker(7, true, 10*time.Second)),
+		session(9, blocker(8, false, 5*time.Second)),
+	}
+	withBlockingChains(queries)
+
+	assert.Empty(t, queries[0].GetPostgresqlPayload().BlockedBy)
+	assert.Len(t, queries[1].GetPostgresqlPayload().BlockedBy, 1)
+
+	chain := queries[2].GetPostgresqlPayload().BlockedBy
+	require.Len(t, chain, 2)
+	assert.Equal(t, int64(7), chain[0].BlockingConnId)
+	assert.True(t, chain[0].Root)
+	assert.Equal(t, 5*time.Second, chain[0].WaitDuration.AsDuration(), "the waiter's own wait")
+	assert.Equal(t, int64(8), chain[1].BlockingConnId)
+	assert.False(t, chain[1].Root)
+
+	// the shared blocker of session 8 is not modified
+	assert.Equal(t, 10*time.Second, queries[1].GetPostgresqlPayload().BlockedBy[0].WaitDuration.AsDuration())
 }

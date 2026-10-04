@@ -16,15 +16,18 @@
 package realtimeanalytics
 
 import (
+	"cmp"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strconv"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -215,7 +218,53 @@ func (m *PostgreSQLRTA) collect(ctx context.Context) ([]*rtav1.QueryData, error)
 		res = append(res, &q)
 	}
 
-	return res, rows.Err()
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	withBlockingChains(res)
+
+	return res, nil
+}
+
+// withBlockingChains extends each waiter's direct blockers (pg_blocking_pids) with the blockers of those blockers,
+// so that, as for MySQL, blocked_by lists every transaction ahead in the chain and root marks its head.
+// The chain is read from the same snapshot; each entry keeps the waiter's own wait duration.
+func withBlockingChains(queries []*rtav1.QueryData) {
+	direct := make(map[int64][]*rtav1.BlockingTransaction)
+	for _, q := range queries {
+		p := q.GetPostgresqlPayload()
+		if len(p.GetBlockedBy()) != 0 {
+			direct[int64(p.Pid)] = p.BlockedBy
+		}
+	}
+
+	for _, q := range queries {
+		p := q.GetPostgresqlPayload()
+		if len(p.GetBlockedBy()) == 0 {
+			continue
+		}
+
+		waited := p.BlockedBy[0].WaitDuration
+		seen := make(map[int64]bool)
+		var chain []*rtav1.BlockingTransaction
+		for queue := p.BlockedBy; len(queue) != 0; queue = queue[1:] {
+			b := queue[0]
+			if seen[b.BlockingConnId] {
+				continue
+			}
+			seen[b.BlockingConnId] = true
+
+			b = proto.CloneOf(b)
+			b.WaitDuration = waited
+			chain = append(chain, b)
+			queue = append(queue, direct[b.BlockingConnId]...)
+		}
+
+		slices.SortFunc(chain, func(a, b *rtav1.BlockingTransaction) int { return cmp.Compare(a.BlockingConnId, b.BlockingConnId) })
+		p.BlockedBy = chain
+	}
 }
 
 // toBlockers converts the blockers JSON built by activityQuery; waited is how long the waiting session has waited.
