@@ -79,20 +79,6 @@ const (
 	maxQueryTextLength = 64 * 1024
 )
 
-// QueryTag marks the queries this agent polls with, so the QAN agents can leave them out: RTA
-// runs them every collect interval on the very server QAN is watching. Each query selects
-// NULL AS pmm_agent_rta as its first column, because the statement digest that the perfschema QAN
-// agent reads keeps identifiers but strips comments, and is cut at max_digest_length (1024 bytes
-// by default) -- these queries are longer than that, so the tag has to come first. The
-// /* pmm-agent:rta */ comment next to it is for whoever reads the processlist or the slow log.
-const QueryTag = "pmm_agent_rta"
-
-// IsOwnQuery reports whether a query text, or its digest text, is one of this agent's polling
-// queries.
-func IsOwnQuery(query string) bool {
-	return strings.Contains(query, QueryTag)
-}
-
 // currentQueriesSQLTemplate fetches currently running queries from the performance_schema
 // tables sys.x$processlist is built on. The row is preserved in the raw payload, mirroring how
 // the MongoDB RTA agent dumps the whole currentOp document, and background threads, idle
@@ -1326,7 +1312,7 @@ var rowLockSources = []struct {
 
 // scanRowLockEdge reads one row-lock edge, from either source: the two queries are written to
 // return the same fourteen columns in the same order precisely so this can be shared. The first
-// is the QueryTag column, which carries nothing.
+// is the agents.RTAQueryTag column, which carries nothing.
 func scanRowLockEdge(rows *sql.Rows) (*lockEdge, error) {
 	var edge lockEdge
 	var waitMicros, blockerTrxMicros sql.NullInt64
@@ -1787,7 +1773,7 @@ func (m *MySQLRTA) buildQueryData(row map[string]any, graph *blockingGraph) *rta
 	// statement, up to performance_schema_max_sql_text_length long, in every raw payload.
 	delete(row, "current_sql_text")
 	// The tag column carries nothing; it is there for the statement digest only.
-	delete(row, QueryTag)
+	delete(row, agents.RTAQueryTag)
 
 	mysqlPayload := &rtav1.QueryMySQLData{
 		DbInstanceAddress:  m.dbInstanceAddress,

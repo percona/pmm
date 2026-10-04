@@ -37,7 +37,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/agents"
-	"github.com/percona/pmm/agent/agents/mysql/realtimeanalytics"
 	"github.com/percona/pmm/agent/agents/mysql/slowlog/parser"
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
@@ -439,7 +438,7 @@ func makeBuckets(
 
 		// Real-Time Analytics polls this server every few seconds. That is PMM's own load, not
 		// the workload Query Analytics describes. The fingerprint is still the whole query here.
-		if realtimeanalytics.IsOwnQuery(v.Fingerprint) {
+		if agents.IsRTAQuery(v.Fingerprint) {
 			continue
 		}
 

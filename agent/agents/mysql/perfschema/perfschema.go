@@ -32,7 +32,6 @@ import (
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/cache"
-	"github.com/percona/pmm/agent/agents/mysql/realtimeanalytics"
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/truncate"
@@ -436,7 +435,7 @@ func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32
 	for digest, currentESS := range current {
 		// Real-Time Analytics polls this server every few seconds. That is PMM's own load, not
 		// the workload Query Analytics describes.
-		if realtimeanalytics.IsOwnQuery(*currentESS.DigestText) {
+		if agents.IsRTAQuery(*currentESS.DigestText) {
 			l.Tracef("Skipped a Real-Time Analytics query: %s.", currentESS)
 			continue
 		}

@@ -1741,10 +1741,10 @@ func TestEveryPollingQueryIsTagged(t *testing.T) {
 		"metadata":   metadataLockWaitsSQL,
 	} {
 		assert.Contains(t, query, "/* pmm-agent:rta */", name)
-		assert.True(t, IsOwnQuery(digestLike.ReplaceAllString(query, "")), "%s must stay recognisable without its comment", name)
+		assert.True(t, agents.IsRTAQuery(digestLike.ReplaceAllString(query, "")), "%s must stay recognisable without its comment", name)
 	}
 
-	assert.False(t, IsOwnQuery("SELECT THREAD_ID FROM performance_schema.threads t"))
+	assert.False(t, agents.IsRTAQuery("SELECT THREAD_ID FROM performance_schema.threads t"))
 }
 
 func TestQueryTagIsTheFirstColumn(t *testing.T) {
@@ -1758,10 +1758,10 @@ func TestQueryTagIsTheFirstColumn(t *testing.T) {
 		"innodb":     innodbLockWaitsSQL,
 		"metadata":   metadataLockWaitsSQL,
 	} {
-		assert.Equal(t, "AS "+QueryTag, selectListAliases(query)[0], name)
+		assert.Equal(t, "AS "+agents.RTAQueryTag, selectListAliases(query)[0], name)
 	}
 
 	// The tag column carries nothing and must not reach the raw payload.
-	qd := (&MySQLRTA{}).buildQueryData(map[string]any{QueryTag: nil, "conn_id": int64(1), "current_statement": "SELECT 1"}, nil)
-	assert.NotContains(t, qd.QueryRawJson, QueryTag)
+	qd := (&MySQLRTA{}).buildQueryData(map[string]any{agents.RTAQueryTag: nil, "conn_id": int64(1), "current_statement": "SELECT 1"}, nil)
+	assert.NotContains(t, qd.QueryRawJson, agents.RTAQueryTag)
 }
