@@ -59,11 +59,24 @@ import { isBootstrapRunActive, OmApiError } from './api';
 import { useOmBase } from './useOmBase';
 import type { OmHostRow } from './types';
 
-/** Identifiers and long text the table carries but does not open with. */
+/**
+ * The columns a row opens with: which node, what is on it, whether Operations can
+ * work with it, and when it was last seen.
+ *
+ * Eleven columns plus select, expand and a three-button action column pushed the
+ * actions off-screen behind horizontal scrolling -- including the red Forget, which
+ * is the one a reader should never meet by accident while hunting for it (design
+ * review P17). Everything hidden here is still a column-chooser away, and the agent
+ * detail is in the row's own panel.
+ */
 const HIDDEN_BY_DEFAULT = {
   node_id: false,
   address: false,
   kernel: false,
+  executor: false,
+  repo: false,
+  os: false,
+  executor_host: false,
 };
 
 /**

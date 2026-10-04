@@ -48,6 +48,7 @@ import {
 } from './inventory';
 import { formatCompactDuration, pluralize } from './format';
 import { ProbeValue } from './components/ProbeValue';
+import { uniformColumnVisibility } from './columnBudget';
 import type { OmInventoryService, OmServiceInventoryRow } from './types';
 
 /** A full `mongod` command line is a paragraph; the cell shows it on hover. */
@@ -67,7 +68,26 @@ const TRUNCATED = {
  * (`edition`), internal identifiers, or long enough to push the load columns off
  * screen. They stay one click away in the column-visibility menu.
  */
+/**
+ * The columns a row opens with: what it is, where it runs, whether it is healthy, and
+ * the two numbers a DBA checks first. Everything else is a column-chooser away, or in
+ * the row's own detail panel.
+ *
+ * Eighteen of twenty-four used to be visible -- about four screen widths at 1440px,
+ * which is wide enough that a row cannot be read as a row, so the page could not
+ * answer "which one needs attention" at all (design review P17).
+ */
 const HIDDEN_BY_DEFAULT = {
+  env_name: false,
+  cluster_name: false,
+  replication_set: false,
+  process_role: false,
+  installed_version: false,
+  probe_status: false,
+  vendor: false,
+  endpoint: false,
+  cpu_usage_percent: false,
+  connections_free_percent: false,
   service_id: false,
   service_type: false,
   edition: false,
@@ -442,6 +462,12 @@ export const FleetServicesTab = () => {
     [joined, estate]
   );
 
+  // A column carrying one value down every row is a column that answers nothing, and
+  // there are usually several: one environment, one cluster, one version. Hidden only
+  // with more than one row, since with a single row *every* column is uniform and
+  // hiding them all would empty the table.
+  const uniformColumns = useMemo(() => uniformColumnVisibility(rows), [rows]);
+
   const table = useMaterialReactTable({
     columns,
     data: rows,
@@ -450,7 +476,7 @@ export const FleetServicesTab = () => {
     enableDensityToggle: false,
     initialState: {
       density: 'compact',
-      columnVisibility: HIDDEN_BY_DEFAULT,
+      columnVisibility: { ...HIDDEN_BY_DEFAULT, ...uniformColumns },
       sorting: [
         { id: 'cluster_name', desc: false },
         { id: 'service_name', desc: false },
