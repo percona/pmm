@@ -70,6 +70,7 @@ Starting a session for a MySQL service returns the same shape with `service_type
 | `session.collect_interval` | string | Query collection interval |
 | `session.status` | string | Session status (see status values below) |
 | `session.service_type` | string | `SERVICE_TYPE_MONGODB_SERVICE` or `SERVICE_TYPE_MYSQL_SERVICE` |
+| `session.status_message` | string | Why the session failed to start when `status` is `SESSION_STATUS_ERROR`, or what it cannot collect when `status` is `SESSION_STATUS_RUNNING`. Reported for MySQL services by PMM Client 3.10.0 and later; omitted when there is nothing to report |
 
 ### Example
 ```bash
@@ -171,6 +172,7 @@ Returns the list of all currently running Real-time Analytics sessions with thei
 | `sessions[].collect_interval` | string | Query collection interval |
 | `sessions[].status` | string | Session status |
 | `sessions[].service_type` | string | `SERVICE_TYPE_MONGODB_SERVICE` or `SERVICE_TYPE_MYSQL_SERVICE` |
+| `sessions[].status_message` | string | The agent's explanation of `status`; see `session.status_message` in [Start session](#start-session) |
 
 ### Examples
 
@@ -232,6 +234,13 @@ For MySQL services, a session also fails to start when `performance_schema` is d
 ### Session shows ERROR status
 
 A session was started successfully but now shows ERROR status. This usually indicates that the PMM agent connection was lost or the database user has insufficient permissions.
+
+For MySQL services, `status_message` names the reason the agent reported, for example:
+
+```json
+"status": "SESSION_STATUS_ERROR",
+"status_message": "Real-Time Analytics is not supported for this instance: performance_schema is disabled; it is required for Real-Time Analytics"
+```
 
 **Solutions:**
 

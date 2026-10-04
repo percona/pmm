@@ -84,6 +84,8 @@ Queries from a MySQL service carry `my_sql_payload` instead. This example shows 
         "rows_examined": "0",
         "rows_sent": "0",
         "full_scan": false,
+        "lock_time": "0.000004s",
+        "query_text_truncated": false,
         "blocked_status": "BLOCKED_STATUS_BLOCKED",
         "blocked_by": [
           {
@@ -181,6 +183,8 @@ A statement queued behind a DDL reports a metadata lock instead. Metadata-lock w
 | `queries[].my_sql_payload.rows_examined` | string (int64) | Rows read to produce the result. Absent when the server did not measure it |
 | `queries[].my_sql_payload.rows_sent` | string (int64) | Rows returned to the client. Absent when the server did not measure it |
 | `queries[].my_sql_payload.full_scan` | boolean | Whether the statement scanned without a usable index. Absent when the server did not measure it |
+| `queries[].my_sql_payload.lock_time` | string | Time the statement has waited for table locks (`LOCK_TIME` from `events_statements_current`). Absent when the server did not measure it |
+| `queries[].my_sql_payload.query_text_truncated` | boolean | `query_text` is not the whole statement. MySQL keeps 1024 bytes of a running statement in the process list, and up to `performance_schema_max_sql_text_length` bytes while the `events_statements_current` consumer is enabled; PMM sends at most 64 KiB. A statement exactly as long as the limit is reported as truncated too |
 | `queries[].my_sql_payload.blocked_status` | string | `BLOCKED_STATUS_BLOCKED`, `BLOCKED_STATUS_NOT_BLOCKED`, or `BLOCKED_STATUS_UNSPECIFIED` when a lock source could not be read |
 | `queries[].my_sql_payload.lock_type` | string | `LOCK_TYPE_ROW` or `LOCK_TYPE_METADATA` |
 | `queries[].my_sql_payload.locked_table` | string | Contended table (`schema.table`) |
@@ -189,6 +193,7 @@ A statement queued behind a DDL reports a metadata lock instead. Metadata-lock w
 | `queries[].my_sql_payload.blocked_by` | array | Transactions blocking this statement |
 | `queries[].my_sql_payload.blocked_by[].blocking_conn_id` | string (int64) | Connection ID of the blocker |
 | `queries[].my_sql_payload.blocked_by[].blocking_query` | string | Statement the blocker is running, or its last statement |
+| `queries[].my_sql_payload.blocked_by[].blocking_query_truncated` | boolean | `blocking_query` is not the whole statement; see `query_text_truncated` |
 | `queries[].my_sql_payload.blocked_by[].blocking_command` | string | Blocker's process list command |
 | `queries[].my_sql_payload.blocked_by[].blocking_username` | string | Blocker's MySQL user |
 | `queries[].my_sql_payload.blocked_by[].blocking_lock_mode` | string | Lock mode the blocker holds |

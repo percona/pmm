@@ -51,7 +51,7 @@ MySQL and Percona Server 8.0 and later enable everything RTA uses by default, so
 
 **On MySQL 5.7, the `wait/lock/metadata/sql/mdl` instrument is off by default.** Everything else works, but a statement waiting on a metadata lock shows as **Blocked unknown** instead of naming its blocker. Enable the instrument with the `setup_instruments` statement in this section, or add `performance_schema_instrument = 'wait/lock/metadata/sql/mdl=ON'` to the configuration file.
 
-**MariaDB ships three Performance Schema switches turned off.** RTA still works without them — you get query text, user, database, command, state and elapsed time — but latency, row counts and metadata-lock detection are missing. The agent writes a warning to its log at session start naming each one.
+**MariaDB ships three Performance Schema switches turned off.** RTA still works without them — you get query text, user, database, command, state and elapsed time — but latency, row counts and metadata-lock detection are missing. RTA names each one at session start: hover over the session status in the sessions list to see them.
 
 To get the complete picture, enable them:
 
@@ -136,6 +136,8 @@ pmm-admin inventory change agent rta-mysql-agent <agent-id> --collect-interval=5
 
 Run `pmm-admin list` to find the agent ID of the `rta_mysql_agent`.
 
+RTA's own polling queries are marked with a `/* pmm-agent:rta */` comment and are left out of Query Analytics for the service, so they don't appear as part of your workload.
+
 ### Pause the stream
 
 Click **Pause** to freeze the current view so an operation doesn't disappear on the next refresh. The agent keeps collecting in the background. Pausing also makes the **Export** button available.
@@ -169,7 +171,9 @@ A statement waiting on a metadata lock appears in neither `SHOW ENGINE INNODB ST
 
 ### Blocked unknown
 
-A statement shown as **Blocked unknown** means RTA could not read one of its two lock sources, so it will not claim the statement is healthy. The most common cause is the `wait/lock/metadata/sql/mdl` instrument being disabled — see [Get complete data on MariaDB and MySQL 5.7](#get-complete-data-on-mariadb-and-mysql-57). Check the PMM Client log for the reason.
+A statement shown as **Blocked unknown** means RTA could not read one of its two lock sources, so it will not claim the statement is healthy. The most common cause is the `wait/lock/metadata/sql/mdl` instrument being disabled — see [Get complete data on MariaDB and MySQL 5.7](#get-complete-data-on-mariadb-and-mysql-57). To see what RTA cannot collect, hover over the session status in the sessions list, or check the PMM Client log.
+
+**Blocked unknown** can also appear on a single statement for one refresh. RTA reads running statements and locks with two separate queries, and if a connection moves on to its next statement in between, RTA does not attach the lock to the statement that did not request it.
 
 ### Stop a problematic query
 
@@ -198,6 +202,19 @@ In the **Details** tab, **Program name**, **User name** and **Client address** i
 
 **Rows examined** far exceeding **Rows sent** means the server is reading much more than it returns. Combined with **Full scan**, that usually points at a missing index.
 
+**Lock time** in the **Details** tab is how long the statement has waited for table locks, in milliseconds.
+
+### Long statements are truncated
+
+MySQL keeps only the beginning of a long statement, so RTA can show only that part. A statement that was cut short carries a **Truncated** label in the table, in the **Details** tab and in the blocker's statement.
+
+How much MySQL keeps depends on server settings:
+
+- The process list keeps 1024 bytes of a running statement.
+- When the `events_statements_current` consumer is enabled, RTA reads up to `performance_schema_max_sql_text_length` bytes instead. The default is 1024 bytes. To see longer statements, raise this variable in the MySQL configuration file and restart the server, because it can't be changed at runtime.
+
+RTA shows at most 64 KiB of any statement.
+
 ### View raw data
 
 The **Raw data** tab shows the complete process list row for the statement, exactly as the server reported it — including fields not surfaced in **Details**. Use it when you need something RTA does not display, or to confirm what the server actually said.
@@ -215,7 +232,7 @@ The **Export** button is hidden while auto-refresh is active and appears once yo
 3. Apply any filters or sort order you want reflected in the export.
 4. Click **Export**.
 
-The export includes all records across all pages and respects active filters and sort order.
+The export includes all records across all pages and respects active filters and sort order. For MySQL, the `lock_time_ms` column holds the lock time in milliseconds, and `query_text_truncated` says whether the statement text was cut short.
 
 ## Known limitations
 
@@ -249,7 +266,7 @@ Check each requirement:
 - **Grants**: the monitoring user needs `SELECT` and `PROCESS`. See [Service requirements](#service-requirements).
 - **Admin role**: only users with the **Admin** [role](../../admin/roles/index.md) can start or stop sessions.
 
-The session error message names the specific check that failed.
+If a session can't start, its status shows **Error**. Hover over the status in the sessions list to see the reason, which names the check that failed. The Real-time view shows the same reason instead of an empty table.
 
 ### No queries appear
 
@@ -263,7 +280,7 @@ RTA reports these as unavailable rather than as zero, so a statement nobody meas
 
 ### A blocked query doesn't name its blocker
 
-Either the metadata-lock instrument is off (see above), or the monitoring user lacks `PROCESS`. Check the PMM Client log: the agent reports the reason once at session start rather than on every collection.
+Either the metadata-lock instrument is off (see above), or the monitoring user lacks `PROCESS`. Hover over the session status in the sessions list: RTA names what it cannot collect at session start.
 
 ### Lock information stops updating during a large pile-up
 
