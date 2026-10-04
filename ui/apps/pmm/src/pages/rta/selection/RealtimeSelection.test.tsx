@@ -120,6 +120,9 @@ describe('RealtimeSelection', () => {
       await waitFor(() => {
         expect(screen.getByText(RtaMessages.disclaimer)).toBeInTheDocument();
       });
+      expect(
+        screen.getByText(/MySQL \(PMM Client 3\.10\.0\+\)/)
+      ).toBeInTheDocument();
     });
   });
 

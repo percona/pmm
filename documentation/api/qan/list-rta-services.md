@@ -13,7 +13,7 @@ category:
 
 Returns a list of services that support Real-time Analytics. Use this endpoint to discover which services can be monitored with RTA before starting a session.
 
-This endpoint only returns services whose PMM Agent is new enough to run the RTA collector for that database: **3.7.0 or later for MongoDB**, **3.9.0 or later for MySQL**. Services monitored by older PMM Agents won't appear in the results, even if they're registered in PMM.
+This endpoint only returns services whose PMM Agent is new enough to run the RTA collector for that database: **3.7.0 or later for MongoDB**, **3.10.0 or later for MySQL**. Services monitored by older PMM Agents won't appear in the results, even if they're registered in PMM.
 
 ### Query parameters
 

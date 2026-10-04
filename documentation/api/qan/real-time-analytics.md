@@ -30,7 +30,7 @@ Use the RTA API to:
 | Database | Minimum PMM Client | Notes |
 |----------|--------------------|-------|
 | MongoDB | 3.7.0 | |
-| MySQL | 3.9.0 | Includes Percona Server for MySQL and MariaDB |
+| MySQL | 3.10.0 | Includes Percona Server for MySQL and MariaDB |
 | PostgreSQL | — | Planned for a future release |
 
 MySQL, Percona Server for MySQL and MariaDB are all registered in PMM as MySQL services and use `SERVICE_TYPE_MYSQL_SERVICE`. There is no separate service type for MariaDB.

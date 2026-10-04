@@ -219,7 +219,7 @@ curl -X GET "https://your-pmm-server/v1/realtimeanalytics/sessions?cluster_name=
 
 ### Session won't start
 
-You're unable to start an RTA session. This typically happens when the service doesn't exist in PMM inventory, the PMM Client version is too old (**< 3.7.0** for MongoDB, **< 3.9.0** for MySQL), or the exporter is not configured.
+You're unable to start an RTA session. This typically happens when the service doesn't exist in PMM inventory, the PMM Client version is too old (**< 3.7.0** for MongoDB, **< 3.10.0** for MySQL), or the exporter is not configured.
 
 For MySQL services, a session also fails to start when `performance_schema` is disabled on the monitored server, or when the PMM monitoring user lacks the `SELECT` and `PROCESS` privileges. The session error message names the check that failed.
 

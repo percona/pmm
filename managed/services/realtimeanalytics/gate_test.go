@@ -31,13 +31,15 @@ func TestIsRtaFeatureSupported(t *testing.T) {
 	assert.True(t, isRtaFeatureSupported("3.8.0", models.MongoDBServiceType))
 	assert.False(t, isRtaFeatureSupported("3.6.0", models.MongoDBServiceType))
 
-	// MySQL RTA shipped in 3.9.0 — an agent in [3.7.0, 3.9.0) supports MongoDB RTA but
+	// MySQL RTA ships in 3.10.0 — an agent in [3.7.0, 3.10.0) supports MongoDB RTA but
 	// would not understand the MySQL builtin, so it must be reported as unsupported.
+	// 3.9.0 and 3.9.1 were released without the MySQL collector.
 	assert.False(t, isRtaFeatureSupported("3.7.0", models.MySQLServiceType))
 	assert.False(t, isRtaFeatureSupported("3.8.0", models.MySQLServiceType))
-	assert.False(t, isRtaFeatureSupported("3.8.99", models.MySQLServiceType))
-	assert.True(t, isRtaFeatureSupported("3.9.0", models.MySQLServiceType))
+	assert.False(t, isRtaFeatureSupported("3.9.0", models.MySQLServiceType))
+	assert.False(t, isRtaFeatureSupported("3.9.1", models.MySQLServiceType))
 	assert.True(t, isRtaFeatureSupported("3.10.0", models.MySQLServiceType))
+	assert.True(t, isRtaFeatureSupported("3.10.1", models.MySQLServiceType))
 
 	// Service types that do not support RTA are never reported as supported,
 	// regardless of agent version.
