@@ -104,6 +104,9 @@ export interface QueryMySQLData {
   lockedIndex?: string;
   lockType?: LockType;
   requestedLockMode?: string;
+  // The statement text is incomplete: MySQL keeps only the beginning of a long
+  // statement and marks no cut of its own.
+  queryTextTruncated?: boolean;
 }
 
 export enum BlockedStatus {
@@ -138,6 +141,8 @@ export interface BlockingTransaction {
   // The mode this transaction holds on the contended object: "X,REC_NOT_GAP" and the
   // like for a row lock, "SHARED_READ" and the like for a metadata lock.
   blockingLockMode?: string;
+  // blockingQuery is incomplete; see QueryMySQLData.queryTextTruncated.
+  blockingQueryTruncated?: boolean;
 }
 
 // TODO: Add other service types when available

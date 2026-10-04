@@ -115,4 +115,26 @@ describe('QueryAndDetails', () => {
     expect(screen.getByTestId('full-scan-value')).not.toHaveTextContent('No');
     expect(screen.getByTestId('full-scan-value')).not.toHaveTextContent('Yes');
   });
+
+  it('marks statement text that MySQL cut short', () => {
+    renderComponent(TEST_USER_ADMIN, {
+      ...TEST_MYSQL_QUERY_DATA,
+      mySqlPayload: {
+        ...TEST_MYSQL_QUERY_DATA.mySqlPayload!,
+        queryTextTruncated: true,
+      },
+    });
+
+    expect(screen.getByTestId('query-text-truncated')).toHaveTextContent(
+      'Truncated'
+    );
+  });
+
+  it('does not mark complete statement text', () => {
+    renderComponent(TEST_USER_ADMIN, TEST_MYSQL_QUERY_DATA);
+
+    expect(
+      screen.queryByTestId('query-text-truncated')
+    ).not.toBeInTheDocument();
+  });
 });

@@ -105,6 +105,7 @@ describe('exportRtaQueriesToCsv', () => {
       rows_sent: 10,
       full_scan: true,
       blocked_status: 'BLOCKED_STATUS_NOT_BLOCKED',
+      query_text_truncated: false,
       data_capture_time: '2021-01-01T00:00:00Z',
       raw_query: '{"current_statement": "SELECT * FROM my_table"}',
       service_id: 'service-3',
@@ -132,6 +133,7 @@ describe('exportRtaQueriesToCsv', () => {
       'rows_sent',
       'full_scan',
       'blocked_status',
+      'query_text_truncated',
       'data_capture_time',
       'raw_query',
       'service_id',
@@ -160,6 +162,23 @@ describe('exportRtaQueriesToCsv', () => {
       'service_id',
       'query_text',
     ]);
+  });
+
+  it('says whether each MySQL statement text is complete', () => {
+    const truncated = mapQueryToCsvRow({
+      ...TEST_MYSQL_QUERY,
+      mySqlPayload: {
+        ...TEST_MYSQL_QUERY.mySqlPayload!,
+        queryTextTruncated: true,
+      },
+    });
+
+    expect(truncated.query_text_truncated).toBe(true);
+    expect(mapQueryToCsvRow(TEST_MYSQL_QUERY).query_text_truncated).toBe(false);
+    // MongoDB has no such flag, so it gets no column.
+    expect(mapQueryToCsvRow(TEST_QUERY)).not.toHaveProperty(
+      'query_text_truncated'
+    );
   });
 
   it('exports fields the api adds without any mapping', () => {

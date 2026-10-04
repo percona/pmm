@@ -28,6 +28,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+	"unicode/utf8"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/prometheus/client_golang/prometheus"
@@ -66,6 +67,16 @@ const (
 	// waiters on one object -- 51 open readers behind one DDL already produce 2600 edges -- so
 	// a limit is needed, and hitting it is reported rather than passed off as a complete graph.
 	lockGraphRowLimit = 5000
+	// The running statement's text comes from performance_schema.threads.PROCESSLIST_INFO, a fixed
+	// 1024-byte column whatever performance_schema_max_sql_text_length says. Measured
+	// with a 3024-byte statement on MySQL 5.7.44, 8.0.46, 8.4.11 and MariaDB 11.4.13, with that
+	// variable at both 1024 and 4096: PROCESSLIST_INFO was 1024 bytes every time, while on MySQL
+	// events_statements_current.SQL_TEXT followed the variable.
+	processlistInfoMaxLength = 1024
+	// The statement text sent to PMM Server is bounded by maxQueryTextLength. The server's
+	// performance_schema_max_sql_text_length goes up to 1MB, and a statement that long would otherwise
+	// be resent in full every collect interval.
+	maxQueryTextLength = 64 * 1024
 )
 
 // currentQueriesSQLTemplate fetches currently running queries from the performance_schema
@@ -131,6 +142,7 @@ SELECT
     pps.PROCESSLIST_STATE AS state,
     pps.PROCESSLIST_TIME AS time,
     pps.PROCESSLIST_INFO AS current_statement,
+    IF(sel.END_EVENT_ID IS NULL, sel.SQL_TEXT, NULL) AS current_sql_text,
     IF(sel.END_EVENT_ID IS NULL, sel.TIMER_WAIT, NULL) AS statement_latency,
     sel.LOCK_TIME AS lock_latency,
     sel.ROWS_EXAMINED AS rows_examined,
@@ -463,6 +475,10 @@ type MySQLRTA struct {
 	// goes back to 5.7, so a server that can never serve one may serve the other perfectly.
 	rowLocks      lockSourceState
 	metadataLocks lockSourceState
+	// sqlTextMaxLength is the server's performance_schema_max_sql_text_length, the most of a
+	// statement events_statements_current keeps, read once at startup. Zero when it could not be
+	// read, in which case only the fixed PROCESSLIST_INFO limit is recognised as truncation.
+	sqlTextMaxLength int
 	// warnings are what the startup checks found this server cannot provide, in the words logged
 	// for them. They are reported with the RUNNING status so the session can say why some details
 	// are missing without anyone having to read the agent log.
@@ -676,6 +692,8 @@ func (m *MySQLRTA) checkPrerequisites(ctx context.Context) error {
 		return errors.New("performance_schema is disabled; it is required for Real-Time Analytics")
 	}
 
+	m.readSQLTextMaxLength(checkCtx)
+
 	// Assemble the statement query for the columns this server has, then run it, so missing
 	// schema or privileges fail fast at startup instead of once per collection.
 	m.currentQueriesSQL, err = m.buildCurrentQueriesSQL(checkCtx)
@@ -886,6 +904,59 @@ func (m *MySQLRTA) selectRowLockSource(ctx context.Context) bool {
 		"nor information_schema.INNODB_LOCK_WAITS, so row-lock waits cannot be detected")
 
 	return false
+}
+
+// readSQLTextMaxLength reads performance_schema_max_sql_text_length, which decides how much of a
+// statement can be shown and so when its text has to be reported as truncated. Failing to read it
+// is not fatal: only the fixed PROCESSLIST_INFO limit is recognised then.
+func (m *MySQLRTA) readSQLTextMaxLength(ctx context.Context) {
+	var length sql.NullInt64
+	err := m.db.QueryRowContext(ctx, "SELECT @@performance_schema_max_sql_text_length").Scan(&length)
+	if err != nil {
+		m.l.Debugf("Could not read performance_schema_max_sql_text_length: %v", err)
+
+		return
+	}
+
+	m.sqlTextMaxLength = int(length.Int64)
+}
+
+// statementText picks the most complete text available for a running statement and reports
+// whether it is still incomplete.
+//
+// The processlist text is cut at a fixed 1024 bytes, while events_statements_current.SQL_TEXT keeps up to
+// performance_schema_max_sql_text_length bytes of the same statement, so when the processlist text
+// hit its limit and SQL_TEXT carries it further, SQL_TEXT is used. SQL_TEXT is only taken when it
+// starts with the processlist text: inside a stored program it describes the statement the program
+// is running, not the CALL the processlist reports.
+func (m *MySQLRTA) statementText(processlistText, statementText string) (string, bool) {
+	text := processlistText
+	if len(text) >= processlistInfoMaxLength && len(statementText) > len(text) && strings.HasPrefix(statementText, text) {
+		text = statementText
+	}
+
+	return m.boundedQueryText(text)
+}
+
+// boundedQueryText reports whether the server cut text short, and cuts it to maxQueryTextLength
+// itself when it is longer than that.
+//
+// MySQL marks neither cut, so a text exactly as long as one of the limits is reported as
+// truncated. A statement that happens to be exactly that long is reported too; that is the price
+// of never presenting a cut statement as complete.
+func (m *MySQLRTA) boundedQueryText(text string) (string, bool) {
+	truncated := len(text) == processlistInfoMaxLength || (m.sqlTextMaxLength > 0 && len(text) >= m.sqlTextMaxLength)
+
+	if len(text) > maxQueryTextLength {
+		cut := maxQueryTextLength
+		for cut > 0 && !utf8.RuneStart(text[cut]) {
+			cut--
+		}
+
+		return text[:cut], true
+	}
+
+	return text, truncated
 }
 
 // probeCurrentQueries runs the statement query once so missing schema or privileges fail at
@@ -1460,9 +1531,11 @@ func (m *MySQLRTA) readLockEdges(ctx context.Context, source lockSource) (*sourc
 		}
 		seen[pair] = struct{}{}
 
+		blockingQuery, blockingQueryTruncated := m.boundedQueryText(edge.blockingQuery)
 		found.blockers[key] = append(found.blockers[key], &rtav1.BlockingTransaction{
 			BlockingConnId:             edge.blockingConnID.Int64,
-			BlockingQuery:              edge.blockingQuery,
+			BlockingQuery:              blockingQuery,
+			BlockingQueryTruncated:     blockingQueryTruncated,
 			BlockingCommand:            edge.blockingCommand,
 			BlockingUsername:           edge.blockingUser,
 			WaitDuration:               edge.waitDuration,
@@ -1653,22 +1726,28 @@ func (m *MySQLRTA) buildQueryData(row map[string]any, graph *blockingGraph) *rta
 		}
 	}
 
+	queryText, queryTextTruncated := m.statementText(mapString(row, "current_statement"), mapString(row, "current_sql_text"))
+	// Only read to complete current_statement above. Keeping it would put a second copy of the
+	// statement, up to performance_schema_max_sql_text_length long, in every raw payload.
+	delete(row, "current_sql_text")
+
 	mysqlPayload := &rtav1.QueryMySQLData{
-		DbInstanceAddress: m.dbInstanceAddress,
-		ProgramName:       mapString(row, "program_name"),
-		DatabaseName:      mapString(row, "db"),
-		Command:           mapString(row, "command"),
-		State:             mapString(row, "state"),
-		Username:          mapString(row, "user"),
-		RowsExamined:      mapOptionalInt(row, "rows_examined"),
-		RowsSent:          mapOptionalInt(row, "rows_sent"),
-		FullScan:          mapOptionalFullScan(row),
-		BlockedStatus:     blockedStatus,
-		BlockedBy:         blockedBy,
-		LockedTable:       lockedTable,
-		LockedIndex:       lockedIndex,
-		LockType:          lockType,
-		RequestedLockMode: requestedLockMode,
+		DbInstanceAddress:  m.dbInstanceAddress,
+		QueryTextTruncated: queryTextTruncated,
+		ProgramName:        mapString(row, "program_name"),
+		DatabaseName:       mapString(row, "db"),
+		Command:            mapString(row, "command"),
+		State:              mapString(row, "state"),
+		Username:           mapString(row, "user"),
+		RowsExamined:       mapOptionalInt(row, "rows_examined"),
+		RowsSent:           mapOptionalInt(row, "rows_sent"),
+		FullScan:           mapOptionalFullScan(row),
+		BlockedStatus:      blockedStatus,
+		BlockedBy:          blockedBy,
+		LockedTable:        lockedTable,
+		LockedIndex:        lockedIndex,
+		LockType:           lockType,
+		RequestedLockMode:  requestedLockMode,
 	}
 
 	rawJSON, err := json.MarshalIndent(row, "", "    ")
@@ -1680,7 +1759,7 @@ func (m *MySQLRTA) buildQueryData(row map[string]any, graph *blockingGraph) *rta
 		ServiceId:              m.serviceID,
 		ServiceName:            m.serviceName,
 		QueryId:                connID,
-		QueryText:              mapString(row, "current_statement"),
+		QueryText:              queryText,
 		QueryRawJson:           string(rawJSON),
 		QueryExecutionDuration: execDuration,
 		Payload: &rtav1.QueryData_MySqlPayload{

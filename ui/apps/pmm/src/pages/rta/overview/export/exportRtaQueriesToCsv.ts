@@ -61,6 +61,7 @@ const CSV_COLUMN_ORDER = [
   'lockedIndex',
   'blockingConnId',
   'blockingQuery',
+  'queryTextTruncated',
   'queryCollectTime',
   'queryRawJson',
 ].map(toCsvHeader);
@@ -114,6 +115,14 @@ export const mapQueryToCsvRow = (query: QueryData): CsvRow => {
   // filled only when one transaction is actually the answer; blocked_status stays BLOCKED
   // either way, so a statement held up by several is still findable.
   delete row[toCsvHeader('blockedBy')];
+
+  // The API omits a false flag, so it is written out for every MySQL row: an empty cell
+  // would not say whether the text is complete.
+  if (query.mySqlPayload) {
+    row[toCsvHeader('queryTextTruncated')] = Boolean(
+      query.mySqlPayload.queryTextTruncated
+    );
+  }
 
   const blocker = soleBlocker(query);
   if (blocker) {

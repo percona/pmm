@@ -925,6 +925,13 @@ type SearchQueriesOKBodyQueriesItems0MySQLPayload struct {
 	// The lock mode the waiting statement asked for, in the same vocabulary as
 	// BlockingTransaction.blocking_lock_mode. Empty unless blocked_status is BLOCKED.
 	RequestedLockMode string `json:"requested_lock_mode,omitempty"`
+
+	// True when query_text is not the whole statement. The processlist keeps 1024 bytes of a
+	// running statement; with the events_statements_current consumer on, the agent reads up to
+	// performance_schema_max_sql_text_length bytes (1024 by default) instead. The agent sends at
+	// most 64 KiB. MySQL does not mark the cut, so a statement exactly as long as the limit is
+	// reported as truncated too.
+	QueryTextTruncated bool `json:"query_text_truncated,omitempty"`
 }
 
 // Validate validates this search queries OK body queries items0 my SQL payload
@@ -1166,6 +1173,9 @@ type SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0 struct {
 	// "X,REC_NOT_GAP" or "S,GAP" for a row lock, or an MDL mode such as "SHARED_READ" or
 	// "SHARED_UPGRADABLE" for a metadata lock. Empty when the server did not report one.
 	BlockingLockMode string `json:"blocking_lock_mode,omitempty"`
+
+	// True when blocking_query is not the whole statement; see QueryMySQLData.query_text_truncated.
+	BlockingQueryTruncated bool `json:"blocking_query_truncated,omitempty"`
 }
 
 // Validate validates this search queries OK body queries items0 my SQL payload blocked by items0

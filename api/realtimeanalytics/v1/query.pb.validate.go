@@ -271,6 +271,8 @@ func (m *BlockingTransaction) validate(all bool) error {
 
 	// no validation rules for BlockingLockMode
 
+	// no validation rules for BlockingQueryTruncated
+
 	if len(errors) > 0 {
 		return BlockingTransactionMultiError(errors)
 	}
@@ -429,6 +431,8 @@ func (m *QueryMySQLData) validate(all bool) error {
 	// no validation rules for LockType
 
 	// no validation rules for RequestedLockMode
+
+	// no validation rules for QueryTextTruncated
 
 	if m.RowsExamined != nil {
 		// no validation rules for RowsExamined

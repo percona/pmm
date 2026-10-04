@@ -869,4 +869,29 @@ describe('RealtimeOverview', () => {
     ).toBeInTheDocument();
     expect(screen.queryByText('No queries available')).not.toBeInTheDocument();
   });
+
+  it('marks a statement whose text MySQL cut short in the table', async () => {
+    getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+    searchQueries.mockResolvedValue({
+      queries: [
+        {
+          ...TEST_RAW_MYSQL_QUERY_DATA,
+          mySqlPayload: {
+            ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+            queryTextTruncated: true,
+          },
+        },
+      ],
+    });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    expect(
+      await screen.findByTestId(
+        `query-${TEST_RAW_MYSQL_QUERY_DATA.queryId}-truncated-chip`
+      )
+    ).toHaveTextContent('Truncated');
+  });
 });

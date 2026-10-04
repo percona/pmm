@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { RealtimeSessionStatus } from 'types/rta.types';
-import { SessionRow } from '../SessionsTable.types';
+import type { SessionRow } from '../SessionsTable.types';
 import SessionStatus from './SessionStatus';
 
 const row = (overrides: Partial<SessionRow>): SessionRow => ({

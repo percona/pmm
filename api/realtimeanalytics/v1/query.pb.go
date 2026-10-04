@@ -279,8 +279,10 @@ type BlockingTransaction struct {
 	// "X,REC_NOT_GAP" or "S,GAP" for a row lock, or an MDL mode such as "SHARED_READ" or
 	// "SHARED_UPGRADABLE" for a metadata lock. Empty when the server did not report one.
 	BlockingLockMode string `protobuf:"bytes,8,opt,name=blocking_lock_mode,json=blockingLockMode,proto3" json:"blocking_lock_mode,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// True when blocking_query is not the whole statement; see QueryMySQLData.query_text_truncated.
+	BlockingQueryTruncated bool `protobuf:"varint,9,opt,name=blocking_query_truncated,json=blockingQueryTruncated,proto3" json:"blocking_query_truncated,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *BlockingTransaction) Reset() {
@@ -369,6 +371,13 @@ func (x *BlockingTransaction) GetBlockingLockMode() string {
 	return ""
 }
 
+func (x *BlockingTransaction) GetBlockingQueryTruncated() bool {
+	if x != nil {
+		return x.BlockingQueryTruncated
+	}
+	return false
+}
+
 // QueryMySQLData holds MySQL-specific Real-Time Analytics query information.
 // The data is read from performance_schema: the threads table and the current statement,
 // stage, transaction and wait tables keyed by thread.
@@ -418,8 +427,14 @@ type QueryMySQLData struct {
 	// The lock mode the waiting statement asked for, in the same vocabulary as
 	// BlockingTransaction.blocking_lock_mode. Empty unless blocked_status is BLOCKED.
 	RequestedLockMode string `protobuf:"bytes,15,opt,name=requested_lock_mode,json=requestedLockMode,proto3" json:"requested_lock_mode,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// True when query_text is not the whole statement. The processlist keeps 1024 bytes of a
+	// running statement; with the events_statements_current consumer on, the agent reads up to
+	// performance_schema_max_sql_text_length bytes (1024 by default) instead. The agent sends at
+	// most 64 KiB. MySQL does not mark the cut, so a statement exactly as long as the limit is
+	// reported as truncated too.
+	QueryTextTruncated bool `protobuf:"varint,16,opt,name=query_text_truncated,json=queryTextTruncated,proto3" json:"query_text_truncated,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *QueryMySQLData) Reset() {
@@ -555,6 +570,13 @@ func (x *QueryMySQLData) GetRequestedLockMode() string {
 		return x.RequestedLockMode
 	}
 	return ""
+}
+
+func (x *QueryMySQLData) GetQueryTextTruncated() bool {
+	if x != nil {
+		return x.QueryTextTruncated
+	}
+	return false
 }
 
 // QueryData represents a single Real-Time Analytics query data point.
@@ -732,7 +754,7 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\toperation\x18\x05 \x01(\tR\toperation\x12L\n" +
 	"\x14operation_start_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x12operationStartTime\x12 \n" +
 	"\busername\x18\a \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12!\n" +
-	"\fplan_summary\x18\b \x01(\tR\vplanSummary\"\xa3\x03\n" +
+	"\fplan_summary\x18\b \x01(\tR\vplanSummary\"\xdd\x03\n" +
 	"\x13BlockingTransaction\x12(\n" +
 	"\x10blocking_conn_id\x18\x01 \x01(\x03R\x0eblockingConnId\x12%\n" +
 	"\x0eblocking_query\x18\x02 \x01(\tR\rblockingQuery\x12)\n" +
@@ -741,7 +763,8 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\rwait_duration\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\fwaitDuration\x12[\n" +
 	"\x1cblocker_transaction_duration\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\x1ablockerTransactionDuration\x12\x12\n" +
 	"\x04root\x18\a \x01(\bR\x04root\x12,\n" +
-	"\x12blocking_lock_mode\x18\b \x01(\tR\x10blockingLockMode\"\xbf\x05\n" +
+	"\x12blocking_lock_mode\x18\b \x01(\tR\x10blockingLockMode\x128\n" +
+	"\x18blocking_query_truncated\x18\t \x01(\bR\x16blockingQueryTruncated\"\xf1\x05\n" +
 	"\x0eQueryMySQLData\x12.\n" +
 	"\x13db_instance_address\x18\x01 \x01(\tR\x11dbInstanceAddress\x12!\n" +
 	"\fprogram_name\x18\x02 \x01(\tR\vprogramName\x12#\n" +
@@ -759,7 +782,8 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\flocked_table\x18\f \x01(\tR\vlockedTable\x12!\n" +
 	"\flocked_index\x18\r \x01(\tR\vlockedIndex\x12;\n" +
 	"\tlock_type\x18\x0e \x01(\x0e2\x1e.realtimeanalytics.v1.LockTypeR\blockType\x12.\n" +
-	"\x13requested_lock_mode\x18\x0f \x01(\tR\x11requestedLockModeB\x10\n" +
+	"\x13requested_lock_mode\x18\x0f \x01(\tR\x11requestedLockMode\x120\n" +
+	"\x14query_text_truncated\x18\x10 \x01(\bR\x12queryTextTruncatedB\x10\n" +
 	"\x0e_rows_examinedB\f\n" +
 	"\n" +
 	"_rows_sentB\f\n" +
@@ -817,7 +841,6 @@ var (
 		(*durationpb.Duration)(nil),   // 7: google.protobuf.Duration
 	}
 )
-
 var file_realtimeanalytics_v1_query_proto_depIdxs = []int32{
 	6,  // 0: realtimeanalytics.v1.QueryMongoDBData.operation_start_time:type_name -> google.protobuf.Timestamp
 	7,  // 1: realtimeanalytics.v1.BlockingTransaction.wait_duration:type_name -> google.protobuf.Duration

@@ -14,6 +14,7 @@ import {
   soleBlockerOf,
 } from 'pages/rta/overview/table/OverviewTable.utils';
 import { Messages } from './BlockedByPanel.messages';
+import { TruncatedChip } from 'pages/rta/components/truncated-chip';
 
 export interface Props {
   // Every transaction the agent reported as holding this statement up. May be empty: the
@@ -224,9 +225,14 @@ const BlockedByPanel: FC<Props> = ({
       <Stack gap={2} sx={{ p: 2 }}>
         {primary.blockingQuery && (
           <Stack gap={1}>
-            <Typography variant="caption" color="text.secondary">
-              {Messages.blockerStatement}
-            </Typography>
+            <Stack direction="row" alignItems="center" gap={1}>
+              <Typography variant="caption" color="text.secondary">
+                {Messages.blockerStatement}
+              </Typography>
+              {primary.blockingQueryTruncated && (
+                <TruncatedChip dataTestId="blocker-query-truncated" />
+              )}
+            </Stack>
             <CodeBlock
               language="sql"
               wrap

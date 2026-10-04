@@ -24,6 +24,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-sql-driver/mysql"
@@ -1464,4 +1465,104 @@ func TestConnectionFailureIsReportedWithItsReason(t *testing.T) {
 	assert.Contains(t, last.StatusMessage, "Cannot connect to MySQL")
 	assert.Contains(t, last.StatusMessage, "127.0.0.1:1")
 	assert.NotContains(t, last.StatusMessage, "secret", "the password must never reach the UI")
+}
+
+func TestStatementTextTakesTheLongerStatementText(t *testing.T) {
+	t.Parallel()
+
+	statement := "SELECT '" + strings.Repeat("x", 3000) + "'"
+	processlist := statement[:processlistInfoMaxLength]
+
+	m := &MySQLRTA{sqlTextMaxLength: 4096}
+	text, truncated := m.statementText(processlist, statement)
+	assert.Equal(t, statement, text, "SQL_TEXT carries the statement past the processlist's fixed limit")
+	assert.False(t, truncated)
+
+	// With the server default both sources stop at 1024 bytes.
+	m = &MySQLRTA{sqlTextMaxLength: 1024}
+	text, truncated = m.statementText(processlist, statement[:1024])
+	assert.Equal(t, processlist, text)
+	assert.True(t, truncated)
+
+	// The events_statements_current consumer is off: only the processlist text is there.
+	text, truncated = (&MySQLRTA{}).statementText(processlist, "")
+	assert.Equal(t, processlist, text)
+	assert.True(t, truncated, "a processlist text at its fixed limit is cut, whatever the variable says")
+}
+
+func TestStatementTextIgnoresAnUnrelatedStatementText(t *testing.T) {
+	t.Parallel()
+
+	// Inside a stored program, SQL_TEXT describes the statement the program runs, not the CALL
+	// the processlist reports.
+	call := "CALL p('" + strings.Repeat("x", 1100) + "')"
+	inner := "UPDATE t SET a = 1 WHERE b = '" + strings.Repeat("y", 2000) + "'"
+
+	m := &MySQLRTA{sqlTextMaxLength: 4096}
+	text, truncated := m.statementText(call[:processlistInfoMaxLength], inner)
+	assert.Equal(t, call[:processlistInfoMaxLength], text)
+	assert.True(t, truncated)
+}
+
+func TestShortStatementTextIsNotTruncated(t *testing.T) {
+	t.Parallel()
+
+	m := &MySQLRTA{sqlTextMaxLength: 1024}
+	text, truncated := m.statementText("SELECT 1", "SELECT 1")
+	assert.Equal(t, "SELECT 1", text)
+	assert.False(t, truncated)
+}
+
+func TestQueryTextIsBoundedOnARuneBoundary(t *testing.T) {
+	t.Parallel()
+
+	// An odd-length prefix and two-byte runes put maxQueryTextLength in the middle of one.
+	statement := "SELECT 'a" + strings.Repeat("é", maxQueryTextLength) + "'"
+	require.False(t, utf8.RuneStart(statement[maxQueryTextLength]))
+	m := &MySQLRTA{sqlTextMaxLength: 1048576}
+
+	text, truncated := m.statementText(statement[:processlistInfoMaxLength], statement)
+	assert.True(t, truncated)
+	assert.LessOrEqual(t, len(text), maxQueryTextLength)
+	assert.Greater(t, len(text), maxQueryTextLength-utf8.UTFMax)
+	assert.True(t, utf8.ValidString(text), "the text must not end in half a character")
+	assert.True(t, strings.HasPrefix(statement, text))
+}
+
+func TestBuildQueryDataReportsTruncatedText(t *testing.T) {
+	t.Parallel()
+
+	statement := "SELECT '" + strings.Repeat("x", 2000) + "'"
+	m := &MySQLRTA{sqlTextMaxLength: 1024}
+	row := map[string]any{
+		"conn_id":           int64(7),
+		"current_statement": statement[:processlistInfoMaxLength],
+		"current_sql_text":  statement[:1024],
+	}
+
+	qd := m.buildQueryData(row, nil)
+	assert.Len(t, qd.QueryText, processlistInfoMaxLength)
+	assert.True(t, qd.GetMySqlPayload().GetQueryTextTruncated())
+
+	var parsed map[string]any
+	require.NoError(t, json.Unmarshal([]byte(qd.QueryRawJson), &parsed))
+	assert.NotContains(t, parsed, "current_sql_text", "the helper column must not duplicate the statement in the raw payload")
+	assert.Contains(t, parsed, "current_statement")
+}
+
+func TestBlockingQueryTruncationIsReported(t *testing.T) {
+	t.Parallel()
+
+	m, mock := newMockedRTA(t)
+	m.sqlTextMaxLength = 1024
+	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
+		AddRow(411, 409, 1_500_000, 2_000_000, "Query", "u@h", strings.Repeat("x", processlistInfoMaxLength), "db.t", "PRIMARY", "X", "X").
+		AddRow(412, 410, 1_500_000, 2_000_000, "Query", "u@h", "SELECT 1 FOR UPDATE", "db.t", "PRIMARY", "X", "X"))
+
+	graph, err := readRowLocks(t, m)
+	require.NoError(t, err)
+	require.Len(t, graph.blockers["411"], 1)
+	assert.True(t, graph.blockers["411"][0].BlockingQueryTruncated)
+	require.Len(t, graph.blockers["412"], 1)
+	assert.False(t, graph.blockers["412"][0].BlockingQueryTruncated)
 }

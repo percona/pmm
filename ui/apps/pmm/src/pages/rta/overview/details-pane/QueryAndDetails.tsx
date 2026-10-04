@@ -7,6 +7,8 @@ import { QueryData } from 'types/rta.types';
 import DetailsMetric from 'components/details-pane/DataPoint';
 import BigNumberMetric from './BigNumberMetric';
 import BlockedByPanel from './BlockedByPanel';
+import Stack from '@mui/material/Stack';
+import { TruncatedChip } from 'pages/rta/components/truncated-chip';
 import { Messages } from './QueryAndDetails.messages';
 import { TIME_FORMAT } from 'lib/constants';
 import { useUser } from 'contexts/user';
@@ -359,14 +361,19 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
         </Grid>
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
-        <CodeBlock
-          language={codeBlockLanguage(language)}
-          copyable
-          wrap
-          content={queryText}
-          sx={{ maxHeight: '70vh', overflow: 'auto' }}
-          data-testid="query-text"
-        />
+        <Stack gap={1} alignItems="flex-start">
+          {mySqlPayload?.queryTextTruncated && (
+            <TruncatedChip dataTestId="query-text-truncated" />
+          )}
+          <CodeBlock
+            language={codeBlockLanguage(language)}
+            copyable
+            wrap
+            content={queryText}
+            sx={{ maxHeight: '70vh', overflow: 'auto', width: '100%' }}
+            data-testid="query-text"
+          />
+        </Stack>
       </Grid>
     </Grid>
   );

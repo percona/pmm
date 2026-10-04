@@ -7,6 +7,7 @@ import { QueryCell } from './query-cell';
 import UnavailableText from 'components/unavailable-text';
 import Stack from '@mui/material/Stack';
 import { BlockedChip } from 'pages/rta/components/blocked-chip';
+import { TruncatedChip } from 'pages/rta/components/truncated-chip';
 import {
   formatElapsedTime,
   isBlocked,
@@ -33,6 +34,11 @@ const QUERY_TEXT_COLUMN: MRT_ColumnDef<QueryData> = {
         query={row.original.queryText}
         language={queryLanguage(row.original)}
       />
+      {row.original.mySqlPayload?.queryTextTruncated && (
+        <TruncatedChip
+          dataTestId={`query-${row.original.queryId}-truncated-chip`}
+        />
+      )}
     </Stack>
   ),
   // @ts-expect-error - muiTableBodyCellProps is not typed correctly

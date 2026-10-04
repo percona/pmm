@@ -364,4 +364,18 @@ describe('BlockedByPanel', () => {
 
     expect(screen.getByText(/holding a transaction open/)).toBeInTheDocument();
   });
+
+  it('marks a blocker statement that MySQL cut short', () => {
+    renderPanel([{ ...IDLE_ROOT, blockingQueryTruncated: true }]);
+
+    expect(screen.getByTestId('blocker-query-truncated')).toBeInTheDocument();
+  });
+
+  it('does not mark a complete blocker statement', () => {
+    renderPanel([IDLE_ROOT]);
+
+    expect(
+      screen.queryByTestId('blocker-query-truncated')
+    ).not.toBeInTheDocument();
+  });
 });
