@@ -227,6 +227,10 @@ export const RUN_STATUS_COLOR: Record<OmTopologyRunStatus, ChipProps['color']> =
  * in PMM Extensions still renders rather than disappearing from the form.
  */
 export const SETTING_LABEL: Record<string, string> = {
+  // Not "ENABLED". The raw key rendered in capitals, and said nothing about what it
+  // switches -- a reader could not tell it from PMM's own switch for the whole
+  // feature, which is a different control on a different page.
+  ENABLED: 'Automatic node scans',
   SCHEDULE__every: 'Scan every',
   SCHEDULE__period: 'Period',
   PROBE_DATABASE: 'Connect to MongoDB',
@@ -259,10 +263,12 @@ export const SETTING_UNIT: Record<string, string> = {
 
 /** What each field costs or protects, for the reader deciding whether to touch it. */
 export const SETTING_HELP: Record<string, string> = {
+  ENABLED:
+    'Scan every node on a schedule. Off stops the schedule only - you can still scan from the Nodes page, and nothing already collected is removed.',
   SCHEDULE__every:
     'How often every node is scanned. Each scan sends a job to every node.',
   PROBE_DATABASE:
-    'Off collects process and OS facts only, which needs no credentials - and still yields the installed version.',
+    'On also asks each mongod for its replica-set state and running version, using the monitoring credentials PMM already holds for that service. Off collects process and OS facts only, which needs no credentials - and still yields the installed version.',
   REPO_URL:
     'The file each node fetches to prove it can install packages. Point it at a mirror on an air-gapped network, or every node reports as failing.',
   REPO_TIMEOUT:
@@ -315,4 +321,28 @@ export const BOOTSTRAP_RUN_COLOR: Record<
   succeeded: 'success',
   failed: 'error',
   rolled_back: 'warning',
+};
+
+/**
+ * Which Settings tab a field belongs on.
+ *
+ * Grouped by who the field is for, not by what it configures. **General** is the two
+ * switches a DBA reasons about. **Scanning** is the handful that change what they
+ * then see -- a wrong repository URL makes every node report as failing, with nothing
+ * on the Nodes page pointing back here. Everything else is the job runner's own
+ * plumbing: real settings, but ones a DBA has no basis for choosing, so they sit
+ * behind a tab that says so rather than beside the two that matter.
+ *
+ * Anything a future release adds lands in Advanced by default, which is the safe end
+ * to be wrong at: an unknown setting shown late is a worse outcome than one shown
+ * beside a warning.
+ */
+export const SETTING_GROUP: Record<string, 'general' | 'scanning'> = {
+  ENABLED: 'general',
+  SCHEDULE__every: 'general',
+  SCHEDULE__period: 'general',
+  PROBE_DATABASE: 'general',
+  REPO_URL: 'scanning',
+  REPO_TIMEOUT: 'scanning',
+  CONNECT_TIMEOUT: 'scanning',
 };

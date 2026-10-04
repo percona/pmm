@@ -17,9 +17,6 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Alert,
   Box,
   Button,
@@ -32,14 +29,21 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { SETTING_HELP, SETTING_LABEL, SETTING_UNIT } from '../constants';
+import {
+  SETTING_GROUP,
+  SETTING_HELP,
+  SETTING_LABEL,
+  SETTING_UNIT,
+} from '../constants';
 import {
   useOmInventoryConfig,
   useResetOmInventoryConfig,
   useUpdateOmInventoryConfig,
 } from '../inventoryHooks';
 import type { OmInventorySetting } from '../types';
+
+/** The tabs this form is split across. */
+export type SettingGroup = 'general' | 'scanning' | 'advanced';
 
 /** The periods `SCHEDULE__period` accepts, from `sqlalchemy_celery_beat`. */
 const PERIODS = ['seconds', 'minutes', 'hours', 'days'] as const;
@@ -187,6 +191,15 @@ const SettingField = ({
             {help}
           </Typography>
         )}
+        {/* The deployed value, shown only where it differs from what is in the box --
+            so "what would Reset give me back" is answerable without reading the
+            deployment's YAML, and an untouched field stays one line. */}
+        {setting.has_override && setting.default_value != null && (
+          <Typography variant="caption" color="text.secondary">
+            Default: {String(setting.default_value)}
+            {SETTING_UNIT[setting.key] ? ` ${SETTING_UNIT[setting.key]}` : ''}
+          </Typography>
+        )}
         {/* Only when it is an override. Saying "from the deployment's configuration"
             on every unoverridden field is the same sentence thirteen times, which
             carries no information and buries the two or three rows that do. */}
@@ -227,7 +240,12 @@ const SettingField = ({
  * Saved as one batch, because the app applies one: a single bad key rejects all of it
  * and writes nothing, so per-field saves would misrepresent what the API does.
  */
-export const ConfigForm = () => {
+export const ConfigForm = ({
+  group,
+}: {
+  /** Which tab's fields to render. The drafts and Save span all of them. */
+  group: SettingGroup;
+}) => {
   const { data: settings, isPending, isError, error } = useOmInventoryConfig();
   const update = useUpdateOmInventoryConfig();
   const reset = useResetOmInventoryConfig();
@@ -299,43 +317,38 @@ export const ConfigForm = () => {
     />
   );
 
-  const basic = editable.filter((setting) => !setting.is_advanced);
-  const advanced = editable.filter((setting) => setting.is_advanced);
+  // Partitioned for display only. `dirty`, `invalid` and `save` above still span every
+  // field, so an edit made on one tab is not lost by looking at another and Save means
+  // the same thing wherever it is pressed.
+  const shown = editable.filter(
+    (setting) => (SETTING_GROUP[setting.key] ?? 'advanced') === group
+  );
 
   return (
     <Stack gap={1}>
       {/* No heading: the tab is already labelled, and a second "Configuration"
           under it would be the same word twice. */}
       <Typography variant="body2" color="text.secondary">
-        Everything here takes effect without a restart. Values come from the
+        Changes take effect without a restart. Values come from the
         deployment&apos;s configuration unless marked as overridden.
       </Typography>
 
-      <Box>{basic.map(render)}</Box>
-
-      {advanced.length > 0 && (
-        <Accordion disableGutters elevation={0} sx={{ bgcolor: 'transparent' }}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="subtitle2">
-              Advanced ({advanced.length})
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            {/* Collapsed, and grouped by the app's own `is_advanced` flag rather than
-                a list kept here - so a setting PMM Extensions adds lands in the right section
-                without this file knowing about it. */}
-            <Typography variant="caption" color="text.secondary">
-              Timeouts, concurrency and retention. Raising concurrency or
-              lowering timeouts increases the load a scan puts on PMM and on
-              your nodes.
-            </Typography>
-            <Box sx={{ mt: 1 }}>{advanced.map(render)}</Box>
-          </AccordionDetails>
-        </Accordion>
+      {group === 'advanced' && (
+        <Alert severity="warning" sx={{ mt: 1 }}>
+          How hard a scan leans on PMM and on your nodes. Raising concurrency or
+          lowering a timeout can make scans fail, and a failing scan shows up on
+          the Nodes page as a node that cannot be reached - not as a setting
+          that was changed here.
+        </Alert>
       )}
 
-      {update.isError && <Alert severity="error">{update.error.message}</Alert>}
-      {reset.isError && <Alert severity="error">{reset.error.message}</Alert>}
+      {shown.length === 0 ? (
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+          Nothing to configure here.
+        </Typography>
+      ) : (
+        <Box>{shown.map(render)}</Box>
+      )}
 
       <Stack direction="row" gap={2} alignItems="center" sx={{ mt: 1 }}>
         <Button

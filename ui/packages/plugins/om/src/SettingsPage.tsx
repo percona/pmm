@@ -15,9 +15,19 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Typography } from '@mui/material';
+import { useSearchParams } from 'react-router-dom';
+import { Box, Tab, Tabs, Typography } from '@mui/material';
 import { OmHeader } from './components/OmHeader';
-import { ConfigForm } from './components/ConfigForm';
+import { ConfigForm, type SettingGroup } from './components/ConfigForm';
+
+/** The tabs, and the query-parameter values that address them. */
+const TABS: SettingGroup[] = ['general', 'scanning', 'advanced'];
+
+const TAB_LABEL: Record<SettingGroup, string> = {
+  general: 'General',
+  scanning: 'Scanning',
+  advanced: 'Advanced',
+};
 
 /**
  * This app's own configuration, on its own page.
@@ -32,6 +42,12 @@ import { ConfigForm } from './components/ConfigForm';
  * how it behaves.
  */
 export const SettingsPage = () => {
+  const [params, setParams] = useSearchParams();
+  const requested = params.get('tab');
+  const tab: SettingGroup = TABS.includes(requested as SettingGroup)
+    ? (requested as SettingGroup)
+    : 'general';
+
   return (
     <Box>
       <OmHeader
@@ -42,7 +58,22 @@ export const SettingsPage = () => {
           </Typography>
         }
       />
-      <ConfigForm />
+      <Tabs
+        value={tab}
+        onChange={(_event, next: SettingGroup) => {
+          const nextParams = new URLSearchParams(params);
+          nextParams.set('tab', next);
+          setParams(nextParams, { replace: true });
+        }}
+        sx={{ mb: 2 }}
+      >
+        {TABS.map((id) => (
+          <Tab key={id} value={id} label={TAB_LABEL[id]} />
+        ))}
+      </Tabs>
+      {/* One instance across the tabs, deliberately: the drafts and the Save button
+          live inside it, so a value typed on General survives a look at Advanced. */}
+      <ConfigForm group={tab} />
     </Box>
   );
 };
