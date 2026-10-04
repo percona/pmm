@@ -10,6 +10,7 @@ Run from the repo root:  python3 -m unittest discover -s dashboards/misc -p 'tes
 import glob
 import json
 import os
+import re
 import unittest
 
 REPO = os.environ.get('PMM_REPO', os.getcwd())
@@ -71,6 +72,56 @@ class TestFleetVariablesHaveAllValue(unittest.TestCase):
             if not var or not var.get('includeAll'):
                 stale.append(f'{rel}: {name} no longer offers All')
         self.assertEqual(stale, [], 'Remove stale BOUNDED entries:\n' + '\n'.join(stale))
+
+    def test_sql_uses_conditional_all(self):
+        """Grafana substitutes a custom allValue raw, so "IN (.+)" is a SQL error.
+
+        Wrap the filter as $__conditionalAll(col IN (${var:singlequote}), $var):
+        the ClickHouse plugin drops it on All, and singlequote escapes quotes.
+        """
+        bad = []
+        for path in sorted(glob.glob(os.path.join(DASH_DIR, '**', '*.json'), recursive=True)):
+            rel = os.path.relpath(path, DASH_DIR)
+            with open(path, encoding='utf-8') as f:
+                dashboard = json.load(f)
+            custom = {n for n, v in first_variables(dashboard).items() if v.get('allValue')}
+            for sql in raw_sql(dashboard.get('panels', [])):
+                for name in sorted(custom):
+                    if re.search(VAR_REF.format(name=re.escape(name)), strip_conditional_all(sql, name)):
+                        bad.append(f'{rel}: ${name}')
+        self.assertEqual(sorted(set(bad)), [], 'Wrap these in $__conditionalAll(col IN '
+                         '(${var:singlequote}), $var):\n' + '\n'.join(sorted(set(bad))))
+
+
+VAR_REF = r'\$(?:\{{{name}(?::\w+)?\}}|{name}\b)'
+
+
+def raw_sql(panels):
+    for panel in panels:
+        yield from raw_sql(panel.get('panels', []))
+        for target in panel.get('targets', []):
+            if target.get('rawSql'):
+                yield target['rawSql']
+
+
+def strip_conditional_all(sql, name):
+    """Remove each $__conditionalAll(...) whose last argument is $name."""
+    macro = '$__conditionalAll('
+    out, i = [], 0
+    while (start := sql.find(macro, i)) != -1:
+        depth, end = 0, start + len(macro) - 1
+        for end in range(end, len(sql)):
+            depth += {'(': 1, ')': -1}.get(sql[end], 0)
+            if depth == 0:
+                break
+        call = sql[start:end + 1]
+        last_arg = call[len(macro):-1].rsplit(',', 1)[-1].strip()
+        out.append(sql[i:start])
+        if last_arg not in (f'${name}', f'${{{name}}}'):
+            out.append(call)
+        i = end + 1
+    out.append(sql[i:])
+    return ''.join(out)
 
 
 if __name__ == '__main__':
