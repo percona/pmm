@@ -1813,6 +1813,11 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 		params.RTAOptions = *models.RTAOptionsFromRequest(p.RtaOptions)
 	}
 
+	err := as.checkRTASupported(ctx, p.PmmAgentId, p.ServiceId, models.MongoDBServiceType)
+	if err != nil {
+		return nil, err
+	}
+
 	agent, err := as.executeAgentAdd(ctx, models.RTAMongoDBAgentType, params, true)
 	if err != nil {
 		return nil, err
@@ -1831,6 +1836,24 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 	}
 
 	return res, nil
+}
+
+// checkRTASupported refuses an RTA agent on a pmm-agent whose reported version has no collector for
+// the service type: that pmm-agent would log the agent type as unhandled and never run it. A pmm-agent
+// that has not connected yet has no version and is accepted; the sessions list reports the problem
+// if it turns out to be too old.
+func (as *AgentsService) checkRTASupported(ctx context.Context, pmmAgentID, serviceID string, serviceType models.ServiceType) error {
+	pmmAgent, err := models.FindAgentByID(as.db.WithContext(ctx), pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	pmmAgentVersion := pointer.GetString(pmmAgent.Version)
+	if pmmAgentVersion != "" && !models.IsRTASupported(pmmAgentVersion, serviceType) {
+		return models.RTANotSupportedError(serviceID, pmmAgentVersion, serviceType)
+	}
+
+	return nil
 }
 
 // ChangeRTAMongoDBAgent updates MongoDB Real-Time Analytics Agent with given parameters.
@@ -1902,6 +1925,11 @@ func (as *AgentsService) AddRTAMySQLAgent(ctx context.Context, p *inventoryv1.Ad
 	// Set RTA options if provided
 	if p.RtaOptions != nil {
 		params.RTAOptions = *models.RTAOptionsFromRequest(p.RtaOptions)
+	}
+
+	err := as.checkRTASupported(ctx, p.PmmAgentId, p.ServiceId, models.MySQLServiceType)
+	if err != nil {
+		return nil, err
 	}
 
 	agent, err := as.executeAgentAdd(ctx, models.RTAMySQLAgentType, params, true)

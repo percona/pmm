@@ -43,7 +43,6 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/utils/logger"
-	"github.com/percona/pmm/version"
 )
 
 // Service provides API for managing Real-Time Analytics.
@@ -137,7 +136,7 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 
 		// PMM Agent that is linked to the requested service may be outdated and doesn't support RTA.
 		// In this case we cannot start RTA session for this service and should return an error.
-		if !isRtaFeatureSupported(pointer.GetString(pmmAgents[0].Version), svc.ServiceType) {
+		if !models.IsRTASupported(pointer.GetString(pmmAgents[0].Version), svc.ServiceType) {
 			continue // skip services with unsupported pmm-agent version
 		}
 
@@ -213,7 +212,24 @@ func (s *Service) ListSessions(ctx context.Context, req *rtav1.ListSessionsReque
 				continue
 			}
 
-			response.Sessions = append(response.Sessions, s.convertAgentToSession(agent, service))
+			session := s.convertAgentToSession(agent, service)
+
+			// An RTA agent added through the inventory API before its pmm-agent reported a version can
+			// sit on a pmm-agent without the collector, which never reports a status for it.
+			if agent.PMMAgentID != nil {
+				pmmAgent, err := models.FindAgentByID(dbWithCtx, *agent.PMMAgentID)
+				if err != nil {
+					return nil, err
+				}
+
+				pmmAgentVersion := pointer.GetString(pmmAgent.Version)
+				if pmmAgentVersion != "" && !models.IsRTASupported(pmmAgentVersion, service.ServiceType) {
+					session.Status = rtav1.SessionStatus_SESSION_STATUS_ERROR
+					session.StatusMessage = models.RTANotSupportedMessage(service.ServiceID, pmmAgentVersion, service.ServiceType)
+				}
+			}
+
+			response.Sessions = append(response.Sessions, session)
 		}
 	}
 
@@ -275,9 +291,8 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		if err != nil {
 			return err
 		}
-		if !isRtaFeatureSupported(pointer.GetString(pmmAgent.Version), service.ServiceType) {
-			return status.Errorf(codes.FailedPrecondition,
-				"Service %s has pmm-agent with version not supporting Real-Time Analytics.", service.ServiceID)
+		if !models.IsRTASupported(pointer.GetString(pmmAgent.Version), service.ServiceType) {
+			return models.RTANotSupportedError(service.ServiceID, pointer.GetString(pmmAgent.Version), service.ServiceType)
 		}
 
 		if !rtaAgent.Disabled {
@@ -375,9 +390,8 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 
 	// PMM Agent that is linked to the requested service may be outdated and doesn't support RTA.
 	// In this case we cannot start RTA session for this service and should return an error.
-	if !isRtaFeatureSupported(pointer.GetString(pmmAgent.Version), service.ServiceType) {
-		return nil, status.Errorf(codes.FailedPrecondition,
-			"Service %s has pmm-agent with version not supporting Real-Time Analytics.", service.ServiceID)
+	if !models.IsRTASupported(pointer.GetString(pmmAgent.Version), service.ServiceType) {
+		return nil, models.RTANotSupportedError(service.ServiceID, pointer.GetString(pmmAgent.Version), service.ServiceType)
 	}
 
 	err = s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -669,38 +683,6 @@ func getRTAAgentTypeForServiceType(serviceType models.ServiceType) (models.Agent
 	default:
 		return "", fmt.Errorf("service of type %s does not support Real-Time Analytics", serviceType)
 	}
-}
-
-// rtaMinAgentVersion returns the minimum pmm-agent version that ships the RTA
-// collector for the given service type, and whether RTA is supported for that
-// type at all. Different database collectors landed in different releases, so
-// the gate must be per-service-type; unsupported types return ok=false.
-func rtaMinAgentVersion(serviceType models.ServiceType) (version.FeatureVersion, bool) {
-	switch serviceType {
-	case models.MongoDBServiceType:
-		return version.MongoDBRtaAgentSupportVersion, true
-	case models.MySQLServiceType:
-		return version.MySQLRtaAgentSupportVersion, true
-	default:
-		return nil, false
-	}
-}
-
-// isRtaFeatureSupported checks if the passed pmm-agent's version supports RTA for
-// the given service type. It returns false for service types that do not support
-// RTA at all, rather than assuming a default version.
-func isRtaFeatureSupported(pmmAgentVersion string, serviceType models.ServiceType) bool {
-	minVersion, ok := rtaMinAgentVersion(serviceType)
-	if !ok {
-		return false
-	}
-
-	versionParsed, versionParseErr := version.Parse(pmmAgentVersion)
-	if versionParseErr != nil {
-		return false
-	}
-
-	return versionParsed.IsFeatureSupported(minVersion)
 }
 
 // check interfaces.
