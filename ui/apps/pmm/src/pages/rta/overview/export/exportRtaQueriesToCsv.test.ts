@@ -298,6 +298,28 @@ describe('blocking columns', () => {
     expect(row.blocking_query).toBe(
       'SELECT id,k FROM sbtest1 WHERE id=1 FOR UPDATE'
     );
+    // Written out even when false: an empty cell would not say whether it is complete.
+    expect(row.blocking_query_truncated).toBe(false);
+  });
+
+  it('says when the blocker statement was cut short', () => {
+    const truncated = {
+      ...blockedQuery,
+      mySqlPayload: {
+        ...blockedQuery.mySqlPayload!,
+        blockedBy: blockedQuery.mySqlPayload!.blockedBy!.map((b) => ({
+          ...b,
+          blockingQueryTruncated: b.root,
+        })),
+      },
+    };
+    const row = mapQueryToCsvRow(truncated);
+
+    expect(row.blocking_query_truncated).toBe(true);
+    const columns = collectCsvColumns([row]);
+    expect(columns.indexOf('blocking_query_truncated')).toBe(
+      columns.indexOf('blocking_query') + 1
+    );
   });
 
   it('never emits the blocker array as a JSON cell', () => {
@@ -327,5 +349,6 @@ describe('blocking columns', () => {
 
     expect(row).not.toHaveProperty('blocking_conn_id');
     expect(row).not.toHaveProperty('blocking_query');
+    expect(row).not.toHaveProperty('blocking_query_truncated');
   });
 });
