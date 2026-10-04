@@ -561,7 +561,7 @@
                         }
                     },
                     "queryType": "sql",
-                    "rawSql": "SELECT period_start, service_name, avg(m_query_time_sum) \"Execution_time\" FROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' AND (('${service_name:pipe}' IN ('', '.+') OR has(splitByChar('|', '${service_name:pipe}'), service_name)) AND ('${environment:pipe}' IN ('', '.*') OR has(splitByChar('|', '${environment:pipe}'), environment)) AND ('${cluster:pipe}' IN ('', '.*') OR has(splitByChar('|', '${cluster:pipe}'), cluster)) AND ('${node_name:pipe}' IN ('', '.*') OR has(splitByChar('|', '${node_name:pipe}'), node_name))) AND (node_name IN ($node_name)) AND (cluster IN ($cluster)) AND (environment IN ($environment)) GROUP BY period_start, service_name ORDER BY period_start ASC LIMIT 10000",
+                    "rawSql": "SELECT period_start, service_name, avg(m_query_time_sum) \"Execution_time\" FROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' AND (('${service_name:pipe}' IN ('', '.+') OR has(splitByChar('|', '${service_name:pipe}'), service_name)) AND ('${environment:pipe}' IN ('', '.*') OR has(splitByChar('|', '${environment:pipe}'), environment)) AND ('${cluster:pipe}' IN ('', '.*') OR has(splitByChar('|', '${cluster:pipe}'), cluster)) AND ('${node_name:pipe}' IN ('', '.*') OR has(splitByChar('|', '${node_name:pipe}'), node_name))) GROUP BY period_start, service_name ORDER BY period_start ASC LIMIT 10000",
                     "refId": "A",
                     "selectedFormat": 0
                 },

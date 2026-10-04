@@ -15,7 +15,8 @@ import unittest
 REPO = os.environ.get('PMM_REPO', os.getcwd())
 DASH_DIR = os.path.join(REPO, 'dashboards', 'dashboards')
 
-FLEET_VARIABLES = ('node_name', 'service_name')
+# Node_Temperature_Details names its hidden service variable "service".
+FLEET_VARIABLES = ('node_name', 'service_name', 'service')
 
 # Lists already narrowed by a single-select parent, so they stay small.
 BOUNDED = {

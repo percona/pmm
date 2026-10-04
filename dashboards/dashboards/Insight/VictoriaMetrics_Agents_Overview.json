@@ -580,7 +580,7 @@
             "pluginVersion": "7.1.3",
             "targets": [
                 {
-                    "expr": "sort(sum((up{node_name=~\"$node_name\",agent_type=\"vmagent\"} offset 3s and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by (node_name))",
+                    "expr": "sort(sum(up{node_name=~\"$node_name\",agent_type=\"vmagent\"} offset 3s) by (node_name))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "$interval",
