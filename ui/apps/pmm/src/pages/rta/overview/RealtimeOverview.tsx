@@ -11,6 +11,7 @@ import { useRealtimeQueries, useRealtimeSessions } from 'hooks/api/useRealtime';
 import OverviewTable from './table/OverviewTable';
 import {
   isBlocked,
+  isBlockingUnattributed,
   isBlockingUnknown,
   isTransactionControl,
   rtaRowId,
@@ -38,6 +39,7 @@ import { ServiceType } from 'types/services.types';
 import {
   resolveSelection,
   sessionErrorsMessage,
+  blockedOnlyTooltip,
 } from './RealtimeOverview.utils';
 
 const EMPTY_QUERIES: QueryData[] = [];
@@ -124,16 +126,24 @@ const RealtimeOverviewPage: FC = () => {
     () => visibleQueries.filter(isBlocked),
     [visibleQueries]
   );
-  // What the filter shows. With a partial graph the undecided rows stay visible, so the
-  // filter never hides a statement that may be waiting.
+  // The connection was waiting, but for a later statement than the one sampled. Counted apart
+  // from blockingPartial: every lock source answered, so the reader needs a refresh, not a
+  // configuration change, and the tooltip must not send them to fix one.
+  const unattributedCount = useMemo(
+    () => visibleQueries.filter(isBlockingUnattributed).length,
+    [visibleQueries]
+  );
+  // What the filter shows. Undecided rows stay visible, so the filter never hides a statement
+  // that may be waiting.
   const filteredQueries = useMemo(
     () =>
-      blockingPartial
-        ? visibleQueries.filter(
-            (query) => isBlocked(query) || isBlockingUnknown(query)
-          )
-        : blockedQueries,
-    [blockingPartial, visibleQueries, blockedQueries]
+      visibleQueries.filter(
+        (query) =>
+          isBlocked(query) ||
+          isBlockingUnknown(query) ||
+          isBlockingUnattributed(query)
+      ),
+    [visibleQueries]
   );
   const tableQueries = showBlockedOnly ? filteredQueries : visibleQueries;
   const noDataMessage = useMemo(
@@ -322,9 +332,7 @@ const RealtimeOverviewPage: FC = () => {
                     title={
                       blockingUnknown
                         ? Messages.blockedUnknownTooltip
-                        : blockingPartial
-                          ? Messages.blockedPartialTooltip
-                          : Messages.blockedOnlyTooltip
+                        : blockedOnlyTooltip(blockingPartial, unattributedCount)
                     }
                     arrow
                   >

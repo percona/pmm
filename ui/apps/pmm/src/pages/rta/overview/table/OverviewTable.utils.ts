@@ -147,6 +147,13 @@ export const isBlockingUnknown = (query: RawQueryData): boolean =>
   (query.mySqlPayload.blockedStatus === undefined ||
     query.mySqlPayload.blockedStatus === BlockedStatus.unspecified);
 
+// isBlockingUnattributed reports that the connection was waiting for a lock, but for a later
+// statement than the one sampled, so this refresh cannot say whether this statement waited.
+// Kept apart from isBlockingUnknown: here every lock source answered, so the reader needs a
+// refresh rather than a configuration change.
+export const isBlockingUnattributed = (query: RawQueryData): boolean =>
+  query.mySqlPayload?.blockedStatus === BlockedStatus.unattributed;
+
 // blockingRoots returns the blockers that are not themselves waiting. Several can hold up one
 // statement at once, so this is a list: naming one of them as the culprit would be wrong
 // whenever there is more than one.

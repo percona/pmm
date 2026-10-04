@@ -62,3 +62,27 @@ export const sessionErrorsMessage = (
 
   return reasons.length > 0 ? reasons.join('\n') : undefined;
 };
+
+// blockedOnlyTooltip explains what the Blocked only filter keeps. Rows nobody could judge are
+// kept for two different reasons with two different remedies: a lock source that could not be
+// read needs a configuration change, while a connection that moved on between the statement
+// read and the lock read needs only a refresh. Saying the first when the second is true sends
+// the reader to fix a configuration that is fine.
+export const blockedOnlyTooltip = (
+  sourcesMissing: boolean,
+  unattributedCount: number
+): string => {
+  if (sourcesMissing && unattributedCount > 0) {
+    return `${Messages.blockedPartialTooltip} ${Messages.blockedUnattributedNote(unattributedCount)}`;
+  }
+
+  if (sourcesMissing) {
+    return Messages.blockedPartialTooltip;
+  }
+
+  if (unattributedCount > 0) {
+    return Messages.blockedUnattributedTooltip(unattributedCount);
+  }
+
+  return Messages.blockedOnlyTooltip;
+};

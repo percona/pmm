@@ -37,6 +37,10 @@ enum BlockedStatus {
   // The statement is waiting for a lock; blocked_by names the transactions holding it and
   // lock_type says which kind of lock is being waited on.
   BLOCKED_STATUS_BLOCKED = 2;
+  // The connection was waiting for a lock, but for a later statement than the one reported:
+  // it moved on between the statement read and the lock read, so this refresh cannot say
+  // whether the statement reported was blocked. Unlike UNSPECIFIED, the lock sources answered.
+  BLOCKED_STATUS_UNATTRIBUTED = 3;
 }
 
 // LockType says which of MySQL's two independent locking mechanisms a statement is waiting on.
@@ -116,7 +120,8 @@ message QueryMySQLData {
   // Whether the statement is waiting for a lock; lock_type says which kind. UNSPECIFIED means
   // the agent could not read the lock graph at all (missing privilege, unsupported server, or a
   // graph too large to return in full), which is not the same as having checked and found
-  // nothing -- a client must not report "not blocked" for it.
+  // nothing -- a client must not report "not blocked" for it. UNATTRIBUTED means the lock
+  // sources answered but the wait found belonged to a later statement on the connection.
   BlockedStatus blocked_status = 10;
   // Transactions blocking this statement, ordered by connection id. Empty whenever
   // blocked_status is not BLOCKED.

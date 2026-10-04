@@ -39,6 +39,10 @@ const (
 	// The statement is waiting for a lock; blocked_by names the transactions holding it and
 	// lock_type says which kind of lock is being waited on.
 	BlockedStatus_BLOCKED_STATUS_BLOCKED BlockedStatus = 2
+	// The connection was waiting for a lock, but for a later statement than the one reported:
+	// it moved on between the statement read and the lock read, so this refresh cannot say
+	// whether the statement reported was blocked. Unlike UNSPECIFIED, the lock sources answered.
+	BlockedStatus_BLOCKED_STATUS_UNATTRIBUTED BlockedStatus = 3
 )
 
 // Enum value maps for BlockedStatus.
@@ -47,11 +51,13 @@ var (
 		0: "BLOCKED_STATUS_UNSPECIFIED",
 		1: "BLOCKED_STATUS_NOT_BLOCKED",
 		2: "BLOCKED_STATUS_BLOCKED",
+		3: "BLOCKED_STATUS_UNATTRIBUTED",
 	}
 	BlockedStatus_value = map[string]int32{
-		"BLOCKED_STATUS_UNSPECIFIED": 0,
-		"BLOCKED_STATUS_NOT_BLOCKED": 1,
-		"BLOCKED_STATUS_BLOCKED":     2,
+		"BLOCKED_STATUS_UNSPECIFIED":  0,
+		"BLOCKED_STATUS_NOT_BLOCKED":  1,
+		"BLOCKED_STATUS_BLOCKED":      2,
+		"BLOCKED_STATUS_UNATTRIBUTED": 3,
 	}
 )
 
@@ -408,7 +414,8 @@ type QueryMySQLData struct {
 	// Whether the statement is waiting for a lock; lock_type says which kind. UNSPECIFIED means
 	// the agent could not read the lock graph at all (missing privilege, unsupported server, or a
 	// graph too large to return in full), which is not the same as having checked and found
-	// nothing -- a client must not report "not blocked" for it.
+	// nothing -- a client must not report "not blocked" for it. UNATTRIBUTED means the lock
+	// sources answered but the wait found belonged to a later statement on the connection.
 	BlockedStatus BlockedStatus `protobuf:"varint,10,opt,name=blocked_status,json=blockedStatus,proto3,enum=realtimeanalytics.v1.BlockedStatus" json:"blocked_status,omitempty"`
 	// Transactions blocking this statement, ordered by connection id. Empty whenever
 	// blocked_status is not BLOCKED.
@@ -814,11 +821,12 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\x10mongo_db_payload\x18\t \x01(\v2&.realtimeanalytics.v1.QueryMongoDBDataH\x00R\x0emongoDbPayload\x12L\n" +
 	"\x0emy_sql_payload\x18\n" +
 	" \x01(\v2$.realtimeanalytics.v1.QueryMySQLDataH\x00R\fmySqlPayloadB\t\n" +
-	"\apayload*k\n" +
+	"\apayload*\x8c\x01\n" +
 	"\rBlockedStatus\x12\x1e\n" +
 	"\x1aBLOCKED_STATUS_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aBLOCKED_STATUS_NOT_BLOCKED\x10\x01\x12\x1a\n" +
-	"\x16BLOCKED_STATUS_BLOCKED\x10\x02*P\n" +
+	"\x16BLOCKED_STATUS_BLOCKED\x10\x02\x12\x1f\n" +
+	"\x1bBLOCKED_STATUS_UNATTRIBUTED\x10\x03*P\n" +
 	"\bLockType\x12\x19\n" +
 	"\x15LOCK_TYPE_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rLOCK_TYPE_ROW\x10\x01\x12\x16\n" +

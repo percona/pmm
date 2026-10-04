@@ -892,7 +892,10 @@ type SearchQueriesOKBodyQueriesItems0MySQLPayload struct {
 	//  - BLOCKED_STATUS_NOT_BLOCKED: The lock graph was read and this statement is not waiting for a lock.
 	//  - BLOCKED_STATUS_BLOCKED: The statement is waiting for a lock; blocked_by names the transactions holding it and
 	// lock_type says which kind of lock is being waited on.
-	// Enum: ["BLOCKED_STATUS_UNSPECIFIED","BLOCKED_STATUS_NOT_BLOCKED","BLOCKED_STATUS_BLOCKED"]
+	//  - BLOCKED_STATUS_UNATTRIBUTED: The connection was waiting for a lock, but for a later statement than the one reported:
+	// it moved on between the statement read and the lock read, so this refresh cannot say
+	// whether the statement reported was blocked. Unlike UNSPECIFIED, the lock sources answered.
+	// Enum: ["BLOCKED_STATUS_UNSPECIFIED","BLOCKED_STATUS_NOT_BLOCKED","BLOCKED_STATUS_BLOCKED","BLOCKED_STATUS_UNATTRIBUTED"]
 	BlockedStatus *string `json:"blocked_status,omitempty"`
 
 	// Transactions blocking this statement, ordered by connection id. Empty whenever
@@ -964,7 +967,7 @@ var searchQueriesOkBodyQueriesItems0MySqlPayloadTypeBlockedStatusPropEnum []any
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["BLOCKED_STATUS_UNSPECIFIED","BLOCKED_STATUS_NOT_BLOCKED","BLOCKED_STATUS_BLOCKED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BLOCKED_STATUS_UNSPECIFIED","BLOCKED_STATUS_NOT_BLOCKED","BLOCKED_STATUS_BLOCKED","BLOCKED_STATUS_UNATTRIBUTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -982,6 +985,9 @@ const (
 
 	// SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedStatusBLOCKEDSTATUSBLOCKED captures enum value "BLOCKED_STATUS_BLOCKED"
 	SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedStatusBLOCKEDSTATUSBLOCKED string = "BLOCKED_STATUS_BLOCKED"
+
+	// SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedStatusBLOCKEDSTATUSUNATTRIBUTED captures enum value "BLOCKED_STATUS_UNATTRIBUTED"
+	SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedStatusBLOCKEDSTATUSUNATTRIBUTED string = "BLOCKED_STATUS_UNATTRIBUTED"
 )
 
 // prop value enum

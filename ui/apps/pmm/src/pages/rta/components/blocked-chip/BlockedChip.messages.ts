@@ -17,6 +17,10 @@ export const Messages = {
     count === 1
       ? 'This statement is waiting for a lock. Open the row to see which transaction holds it.'
       : `This statement is waiting for a lock held by ${count} transactions. Open the row to see them.`,
+  // The connection moved on between the statement read and the lock read.
+  blockedUnattributed: 'Blocked: unknown',
+  tooltipUnattributed:
+    'This connection was waiting for a lock, but by the time PMM read the locks it had moved on from this statement to a later one. PMM cannot tell whether this statement was blocked, so it is not counted as blocked. The next refresh reads both again.',
   tooltipUnknownHolder:
     'This statement is waiting for a lock. The transaction holding it was not in this snapshot; the next refresh should show it.',
 };

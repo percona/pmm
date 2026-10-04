@@ -1616,6 +1616,11 @@ func waitOnConnection411(waitingEventID sql.NullInt64, waitingQuery string) *blo
 	}
 }
 
+func incomplete(graph *blockingGraph) *blockingGraph {
+	graph.complete = false
+	return graph
+}
+
 func TestWaitIsAttachedOnlyToTheStatementThatWaited(t *testing.T) {
 	t.Parallel()
 
@@ -1633,14 +1638,14 @@ func TestWaitIsAttachedOnlyToTheStatementThatWaited(t *testing.T) {
 			name:     "LaterStatementByEventID",
 			row:      map[string]any{"conn_id": int64(411), "current_statement": "SELECT c FROM sbtest2 WHERE id=7", "statement_event_id": int64(850)},
 			graph:    waitOnConnection411(sql.NullInt64{Int64: 900, Valid: true}, update),
-			expected: rtav1.BlockedStatus_BLOCKED_STATUS_UNSPECIFIED,
+			expected: rtav1.BlockedStatus_BLOCKED_STATUS_UNATTRIBUTED,
 		},
 		{
 			// The same text run again is still a different statement event.
 			name:     "SameTextDifferentEventID",
 			row:      map[string]any{"conn_id": int64(411), "current_statement": update, "statement_event_id": int64(850)},
 			graph:    waitOnConnection411(sql.NullInt64{Int64: 900, Valid: true}, update),
-			expected: rtav1.BlockedStatus_BLOCKED_STATUS_UNSPECIFIED,
+			expected: rtav1.BlockedStatus_BLOCKED_STATUS_UNATTRIBUTED,
 		},
 		{
 			name:     "SameEventID",
@@ -1653,7 +1658,7 @@ func TestWaitIsAttachedOnlyToTheStatementThatWaited(t *testing.T) {
 			name:     "LaterStatementByText",
 			row:      map[string]any{"conn_id": int64(411), "current_statement": "SELECT c FROM sbtest2 WHERE id=7"},
 			graph:    waitOnConnection411(sql.NullInt64{}, update),
-			expected: rtav1.BlockedStatus_BLOCKED_STATUS_UNSPECIFIED,
+			expected: rtav1.BlockedStatus_BLOCKED_STATUS_UNATTRIBUTED,
 		},
 		{
 			name:     "SameText",
@@ -1667,6 +1672,14 @@ func TestWaitIsAttachedOnlyToTheStatementThatWaited(t *testing.T) {
 			row:      map[string]any{"conn_id": int64(411), "current_statement": update},
 			graph:    waitOnConnection411(sql.NullInt64{}, update[:12]),
 			expected: rtav1.BlockedStatus_BLOCKED_STATUS_BLOCKED,
+		},
+		{
+			// A wait from a later statement is unattributed even when the other lock source is
+			// missing: the source that answered did see this connection waiting.
+			name:     "LaterStatementIncompleteGraph",
+			row:      map[string]any{"conn_id": int64(411), "current_statement": "SELECT c FROM sbtest2 WHERE id=7", "statement_event_id": int64(850)},
+			graph:    incomplete(waitOnConnection411(sql.NullInt64{Int64: 900, Valid: true}, update)),
+			expected: rtav1.BlockedStatus_BLOCKED_STATUS_UNATTRIBUTED,
 		},
 		{
 			// Nothing to compare: the wait is kept rather than discarded on no evidence.

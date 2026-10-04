@@ -6,11 +6,15 @@ import { Messages } from './OverviewTable.messages';
 import { QueryCell } from './query-cell';
 import UnavailableText from 'components/unavailable-text';
 import Stack from '@mui/material/Stack';
-import { BlockedChip } from 'pages/rta/components/blocked-chip';
+import {
+  BlockedChip,
+  BlockedUnknownChip,
+} from 'pages/rta/components/blocked-chip';
 import { TruncatedChip } from 'pages/rta/components/truncated-chip';
 import {
   formatElapsedTime,
   isBlocked,
+  isBlockingUnattributed,
   queryDatabaseName,
   queryLanguage,
   queryUsername,
@@ -30,6 +34,7 @@ const QUERY_TEXT_COLUMN: MRT_ColumnDef<QueryData> = {
       {isBlocked(row.original) && (
         <BlockedChip blockers={row.original.mySqlPayload?.blockedBy ?? []} />
       )}
+      {isBlockingUnattributed(row.original) && <BlockedUnknownChip />}
       <QueryCell
         query={row.original.queryText}
         language={queryLanguage(row.original)}

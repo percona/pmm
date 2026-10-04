@@ -350,6 +350,57 @@ describe('RealtimeOverview', () => {
     expect(screen.getByTestId('query-412-host-cell')).toBeInTheDocument();
   });
 
+  it('marks an unattributed row and keeps it under the blocked-only filter', async () => {
+    // The connection moved on between the statement read and the lock read. Every lock source
+    // answered, so this is not the partial-capability case and must not be described as one.
+    const unattributed = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '414',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.unattributed,
+      },
+    };
+    const notBlocked = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '413',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.notBlocked,
+      },
+    };
+    getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+    searchQueries.mockResolvedValue({ queries: [unattributed, notBlocked] });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    await waitFor(() =>
+      expect(screen.getByTestId('blocked-unknown-chip')).toBeInTheDocument()
+    );
+    expect(screen.queryByTestId('blocked-chip')).not.toBeInTheDocument();
+
+    const toggle = screen.getByTestId('overview-table-blocked-only-toggle');
+    // Not counted as blocked, and the control still works.
+    expect(toggle).toHaveTextContent('Blocked only');
+    expect(toggle).not.toHaveTextContent('(');
+
+    fireEvent.mouseOver(toggle);
+    const tooltip = await screen.findByRole('tooltip');
+    expect(tooltip).toHaveTextContent('1 statement could not be attributed');
+    expect(tooltip).not.toHaveTextContent('could not read every kind of lock');
+
+    fireEvent.click(toggle.querySelector('input[type="checkbox"]')!);
+
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('query-413-host-cell')
+      ).not.toBeInTheDocument()
+    );
+    expect(screen.getByTestId('query-414-host-cell')).toBeInTheDocument();
+  });
+
   it('should chip the blocked row and filter to it when the toggle is on', async () => {
     const blocked = {
       ...TEST_RAW_MYSQL_QUERY_DATA,

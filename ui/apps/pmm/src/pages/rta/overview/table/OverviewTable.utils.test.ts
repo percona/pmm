@@ -7,6 +7,8 @@ import {
   formatLockTimeMs,
   lockTimeMs,
   isBlocked,
+  isBlockingUnattributed,
+  isBlockingUnknown,
   isTransactionControl,
   queryDatabaseName,
   queryLanguage,
@@ -296,5 +298,32 @@ describe('formatLockTimeMs', () => {
     expect(formatLockTimeMs(undefined)).toBe('');
     expect(formatLockTimeMs(null)).toBe('');
     expect(lockTimeMs(undefined)).toBeUndefined();
+  });
+});
+
+describe('isBlockingUnattributed', () => {
+  const withStatus = (blockedStatus?: BlockedStatus): RawQueryData => ({
+    ...TEST_MYSQL_QUERY_DATA,
+    mySqlPayload: { ...TEST_MYSQL_QUERY_DATA.mySqlPayload!, blockedStatus },
+  });
+
+  it('is true only for a wait that belonged to a later statement', () => {
+    expect(isBlockingUnattributed(withStatus(BlockedStatus.unattributed))).toBe(
+      true
+    );
+    expect(isBlockingUnattributed(withStatus(BlockedStatus.unspecified))).toBe(
+      false
+    );
+    expect(isBlockingUnattributed(withStatus(BlockedStatus.blocked))).toBe(
+      false
+    );
+    expect(isBlockingUnattributed(TEST_MONGO_DB_QUERY_DATA)).toBe(false);
+  });
+
+  it('is not mistaken for an unreadable lock source', () => {
+    const row = withStatus(BlockedStatus.unattributed);
+
+    expect(isBlockingUnknown(row)).toBe(false);
+    expect(isBlocked(row)).toBe(false);
   });
 });
