@@ -238,6 +238,8 @@ const BlockedByPanel: FC<Props> = ({
               wrap
               copyable
               content={primary.blockingQuery}
+              // Room for the floating copy button, which otherwise covers the first line's end.
+              sx={{ pr: 5 }}
               data-testid="blocker-query"
             />
             {isIdle && (

@@ -152,7 +152,13 @@ const DetailsPane: FC<Props> = ({
                   content={query.queryRawJson}
                   copyable
                   wrap
-                  sx={{ position: 'absolute', inset: 0, overflowY: 'auto' }}
+                  // pr keeps the first line clear of the floating copy button.
+                  sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    overflowY: 'auto',
+                    pr: 5,
+                  }}
                   data-testid="query-raw-data"
                 />
               </Box>

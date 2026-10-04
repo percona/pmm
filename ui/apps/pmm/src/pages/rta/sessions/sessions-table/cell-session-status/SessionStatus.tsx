@@ -1,3 +1,4 @@
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import { useTheme } from '@mui/material/styles';
 import Tooltip from '@mui/material/Tooltip';
@@ -16,12 +17,46 @@ interface Props {
   session: SessionRow;
 }
 
-// The agent's messages can span several lines, one per finding.
-const StatusMessageTooltip: FC<{ title: ReactNode; children: ReactNode }> = ({
-  title,
-  children,
-}) => (
-  <Tooltip title={<span style={{ whiteSpace: 'pre-line' }}>{title}</span>}>
+// The agent sends one finding per line. A MariaDB instance can report several long ones, so
+// they are listed apart, and the tooltip scrolls rather than running off a short viewport.
+const StatusMessageTitle: FC<{ intro?: string; message: string }> = ({
+  intro,
+  message,
+}) => {
+  const findings = message.split('\n').filter((line) => line.trim() !== '');
+
+  return (
+    <Box
+      data-testid="session-status-message-tooltip"
+      sx={{ maxHeight: '60vh', overflowY: 'auto', pr: 0.5 }}
+    >
+      {intro && (
+        <Typography variant="inherit" component="p" sx={{ mb: 1 }}>
+          {intro}
+        </Typography>
+      )}
+      {findings.length === 1 && !intro ? (
+        findings[0]
+      ) : (
+        <Box component="ul" sx={{ m: 0, pl: 2, '& > li + li': { mt: 1 } }}>
+          {findings.map((finding, index) => (
+            <li key={index}>{finding}</li>
+          ))}
+        </Box>
+      )}
+    </Box>
+  );
+};
+
+const StatusMessageTooltip: FC<{
+  intro?: string;
+  message: string;
+  children: ReactNode;
+}> = ({ intro, message, children }) => (
+  <Tooltip
+    title={<StatusMessageTitle intro={intro} message={message} />}
+    slotProps={{ tooltip: { sx: { maxWidth: 480 } } }}
+  >
     <Stack
       direction="row"
       alignItems="center"
@@ -49,7 +84,8 @@ const SessionStatus: FC<Props> = ({ session }) => {
 
     return (
       <StatusMessageTooltip
-        title={`${Messages.runningWithWarnings}\n${session.statusMessage}`}
+        intro={Messages.runningWithWarnings}
+        message={session.statusMessage}
       >
         {runningFor}
         <Icon name="status-at-risk" sx={styles.icon} />
@@ -68,7 +104,7 @@ const SessionStatus: FC<Props> = ({ session }) => {
 
   if (session.statusMessage) {
     return (
-      <StatusMessageTooltip title={session.statusMessage}>
+      <StatusMessageTooltip message={session.statusMessage}>
         {status}
       </StatusMessageTooltip>
     );

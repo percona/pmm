@@ -25,7 +25,7 @@ export const Messages = {
     Messages.blockedUnattributedNote(count),
   blockedUnattributedNote: (count: number) =>
     `${count === 1 ? '1 statement' : `${count} statements`} could not be attributed this refresh: the connection moved on to a later statement between PMM reading the statements and reading the locks. ${count === 1 ? 'It is' : 'They are'} marked Blocked: unknown and shown as well rather than hidden; the next refresh reads them again.`,
-  export: 'Export',
+  exportTooltip: 'Export to CSV',
   sessionError: (serviceName: string, reason: string) =>
     `Real-Time Analytics could not start for ${serviceName}: ${reason}`,
 };

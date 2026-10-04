@@ -383,7 +383,9 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
             copyable
             wrap
             content={queryText}
-            sx={{ maxHeight: '70vh', overflow: 'auto', width: '100%' }}
+            // The copy button floats over the block's top-right corner; the right padding
+            // keeps the end of the first line clear of it.
+            sx={{ maxHeight: '70vh', overflow: 'auto', width: '100%', pr: 5 }}
             data-testid="query-text"
           />
         </Stack>

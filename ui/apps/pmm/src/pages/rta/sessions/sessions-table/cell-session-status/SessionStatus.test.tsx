@@ -74,3 +74,24 @@ describe('SessionStatus', () => {
     ).not.toBeInTheDocument();
   });
 });
+
+describe('SessionStatus warnings', () => {
+  it('lists each finding apart in a scrollable tooltip', async () => {
+    renderStatus(
+      row({
+        status: RealtimeSessionStatus.running,
+        statusMessage:
+          'The events_statements_current consumer is disabled, so rows examined are not collected.\nThe wait/lock/metadata/sql/mdl instrument is disabled, so metadata lock waits cannot be detected.',
+      })
+    );
+
+    fireEvent.mouseOver(screen.getByTestId('session-status-message'));
+
+    const content = await screen.findByTestId('session-status-message-tooltip');
+    const items = content.querySelectorAll('li');
+    expect(items).toHaveLength(2);
+    expect(items[0]).toHaveTextContent('events_statements_current');
+    expect(items[1]).toHaveTextContent('wait/lock/metadata/sql/mdl');
+    expect(content).toHaveStyle({ overflowY: 'auto' });
+  });
+});

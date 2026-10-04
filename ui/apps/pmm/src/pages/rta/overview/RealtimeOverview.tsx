@@ -29,6 +29,7 @@ import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import Tooltip from '@mui/material/Tooltip';
@@ -37,9 +38,9 @@ import { AutoRefreshSelect } from './auto-refresh-select';
 import { exportRtaQueriesToCsv } from './export/exportRtaQueriesToCsv';
 import { ServiceType } from 'types/services.types';
 import {
+  blockedOnlyTooltip,
   resolveSelection,
   sessionErrorsMessage,
-  blockedOnlyTooltip,
 } from './RealtimeOverview.utils';
 
 const EMPTY_QUERIES: QueryData[] = [];
@@ -217,7 +218,9 @@ const RealtimeOverviewPage: FC = () => {
           <Stack
             flex={1}
             direction="row"
-            flexWrap="wrap"
+            // On wide screens the controls wrap within their own group instead, so "All
+            // sessions" keeps its place at the right end rather than dropping to a new row.
+            flexWrap={{ xs: 'wrap', lg: 'nowrap' }}
             alignItems="flex-start"
             alignContent="flex-start"
             rowGap={0}
@@ -251,7 +254,7 @@ const RealtimeOverviewPage: FC = () => {
               flexWrap="wrap"
               alignItems="center"
               gap={1}
-              sx={{ mt: 1 }}
+              sx={{ mt: 1, minWidth: 0, flex: { lg: '0 1 auto' } }}
             >
               <AutoRefreshSelect
                 isFetching={fetching}
@@ -279,44 +282,45 @@ const RealtimeOverviewPage: FC = () => {
               >
                 {fetching ? Messages.pause : Messages.resume}
               </Button>
+              {/* Refresh and Export only appear while paused. As labelled buttons they
+                  pushed the toolbar past one line at common widths, dropping "All
+                  sessions" to a second row, so they are icons with tooltips. */}
               {!fetching && serviceIds.length !== 0 && (
-                <Button
-                  data-testid="overview-table-refresh-button"
-                  size="medium"
-                  startIcon={<Refresh />}
-                  onClick={() => refetch()}
-                  color="inherit"
-                  disableElevation
-                >
-                  {Messages.refresh}
-                </Button>
+                <Tooltip title={Messages.refresh} arrow>
+                  <IconButton
+                    data-testid="overview-table-refresh-button"
+                    aria-label={Messages.refresh}
+                    onClick={() => refetch()}
+                    color="inherit"
+                  >
+                    <Refresh />
+                  </IconButton>
+                </Tooltip>
               )}
               {!fetching && (
-                <Button
-                  data-testid="overview-table-export-button"
-                  size="small"
-                  variant="text"
-                  startIcon={<FileDownloadOutlined />}
-                  disabled={
-                    serviceIds.length === 0 ||
-                    table.getPrePaginationRowModel().rows.length === 0
-                  }
-                  onClick={() =>
-                    exportRtaQueriesToCsv(
-                      table
-                        .getPrePaginationRowModel()
-                        .rows.map((row) => row.original)
-                    )
-                  }
-                  color="inherit"
-                  disableElevation
-                  sx={{
-                    width: 100,
-                    height: 36,
-                  }}
-                >
-                  {Messages.export}
-                </Button>
+                <Tooltip title={Messages.exportTooltip} arrow>
+                  {/* A disabled button fires no events, so the tooltip hangs off a span. */}
+                  <span>
+                    <IconButton
+                      data-testid="overview-table-export-button"
+                      aria-label={Messages.exportTooltip}
+                      disabled={
+                        serviceIds.length === 0 ||
+                        table.getPrePaginationRowModel().rows.length === 0
+                      }
+                      onClick={() =>
+                        exportRtaQueriesToCsv(
+                          table
+                            .getPrePaginationRowModel()
+                            .rows.map((row) => row.original)
+                        )
+                      }
+                      color="inherit"
+                    >
+                      <FileDownloadOutlined />
+                    </IconButton>
+                  </span>
+                </Tooltip>
               )}
               {/* This filters the rows, it does not drive live updates: keep it
                   out of the auto-refresh / playback group so that group reads as
@@ -378,7 +382,14 @@ const RealtimeOverviewPage: FC = () => {
                 </>
               )}
             </Stack>
-            <Box sx={{ flex: '0 0 auto', ml: { md: 'auto' }, my: 1 }}>
+            <Box
+              sx={{
+                flex: '0 0 auto',
+                ml: { md: 'auto' },
+                my: 1,
+                whiteSpace: 'nowrap',
+              }}
+            >
               <Button
                 color="inherit"
                 data-testid="overview-table-all-sessions-button"
