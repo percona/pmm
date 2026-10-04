@@ -30,6 +30,11 @@ var (
 	// version) prevents enabling it against agents that would not understand the
 	// AGENT_TYPE_RTA_MYSQL_AGENT builtin and would dead-end in their supervisor.
 	MySQLRtaAgentSupportVersion FeatureVersion = MustParse("3.9.0-0")
+
+	// NodeExporterV1_8 is the first pmm-agent shipping node_exporter 1.8, the oldest build that knows
+	// every collector we may have to disable explicitly. In pmm-agent 2.x, which ships 1.4.0, flags
+	// such as "--no-collector.watchdog" do not exist and would make the exporter exit.
+	NodeExporterV1_8 FeatureVersion = MustParse("3.0.0-0")
 )
 
 // IsFeatureSupported checks if the feature is supported by the version.
