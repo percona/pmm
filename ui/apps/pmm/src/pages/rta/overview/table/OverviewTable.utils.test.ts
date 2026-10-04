@@ -9,6 +9,7 @@ import {
   isBlocked,
   isBlockingUnattributed,
   isBlockingUnknown,
+  isSameStatement,
   isTransactionControl,
   queryDatabaseName,
   queryLanguage,
@@ -16,6 +17,7 @@ import {
   blockingRoots,
   rtaRowId,
   soleBlocker,
+  statementRowId,
   UNAVAILABLE_VALUE,
 } from './OverviewTable.utils';
 import {
@@ -325,5 +327,37 @@ describe('isBlockingUnattributed', () => {
 
     expect(isBlockingUnknown(row)).toBe(false);
     expect(isBlocked(row)).toBe(false);
+  });
+});
+
+describe('isSameStatement', () => {
+  const running: QueryData = {
+    ...TEST_MYSQL_QUERY_DATA,
+    queryText: 'SELECT SLEEP(100)',
+    queryExecutionDurationMs: 10_000,
+  };
+
+  it('follows a statement that is still running', () => {
+    expect(
+      isSameStatement(running, { ...running, queryExecutionDurationMs: 12_000 })
+    ).toBe(true);
+  });
+
+  it('does not mistake the connection running something else for it', () => {
+    expect(isSameStatement(running, { ...running, queryText: 'COMMIT' })).toBe(
+      false
+    );
+  });
+
+  it('does not mistake a later run of the same text for it', () => {
+    expect(
+      isSameStatement(running, { ...running, queryExecutionDurationMs: 500 })
+    ).toBe(false);
+  });
+
+  it('keys navigation on the statement, not only the connection', () => {
+    expect(statementRowId(running)).not.toBe(
+      statementRowId({ ...running, queryText: 'COMMIT' })
+    );
   });
 });

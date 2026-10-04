@@ -13,8 +13,9 @@ import {
   isBlocked,
   isBlockingUnattributed,
   isBlockingUnknown,
+  isSameStatement,
   isTransactionControl,
-  rtaRowId,
+  statementRowId,
 } from './table/OverviewTable.utils';
 import { DetailsPane } from './details-pane';
 import type { QueryData } from 'types/rta.types';
@@ -167,11 +168,24 @@ const RealtimeOverviewPage: FC = () => {
     setFetching(previousFetchingState.current && serviceIds.length > 0);
   };
 
+  // The pane keeps showing the statement that was opened. When a later read no longer has it
+  // running, the pane says so rather than swapping in whatever its connection ran next (a
+  // MySQL row is keyed by connection id) -- the same outcome as for a MongoDB operation, whose
+  // row simply disappears when it ends.
+  const selectedFinished = useMemo(
+    () =>
+      !!selectedQuery &&
+      !(queries ?? EMPTY_QUERIES).some((query) =>
+        isSameStatement(selectedQuery, query)
+      ),
+    [selectedQuery, queries]
+  );
+
   const { isFirst, isLast, next, previous } =
     useDetailsPaneNavigation<QueryData>({
       rows: navigableQueries,
       selected: selectedQuery,
-      getRowId: rtaRowId,
+      getRowId: statementRowId,
       onSelect: handleQuerySelected,
     });
 
@@ -406,6 +420,7 @@ const RealtimeOverviewPage: FC = () => {
       />
       <DetailsPane
         query={selectedQuery}
+        finished={selectedFinished}
         onClose={handleCloseDetails}
         isFirstQuery={isFirst}
         isLastQuery={isLast}

@@ -771,6 +771,48 @@ describe('RealtimeOverview', () => {
     ).toBeInTheDocument();
   });
 
+  it('keeps the opened statement in the pane once its connection moves on', async () => {
+    // A MySQL row is keyed by connection id. When the statement ends, the connection's next
+    // statement arrives under the same id and must not silently replace the one opened.
+    const sleeping = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '411',
+      queryText: 'SELECT SLEEP(100)',
+      queryExecutionDuration: '10s',
+    };
+    getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+    searchQueries.mockResolvedValue({ queries: [sleeping] });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    fireEvent.click(await screen.findByTestId('query-411-host-cell'));
+    await waitFor(() =>
+      expect(screen.getByTestId('query-details-pane')).toHaveAttribute(
+        'aria-hidden',
+        'false'
+      )
+    );
+    expect(
+      screen.queryByTestId('details-pane-finished')
+    ).not.toBeInTheDocument();
+
+    searchQueries.mockResolvedValue({
+      queries: [
+        { ...sleeping, queryText: 'COMMIT', queryExecutionDuration: '0.001s' },
+      ],
+    });
+    fireEvent.click(screen.getByTestId('overview-table-refresh-button'));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('details-pane-finished')).toBeInTheDocument()
+    );
+    expect(screen.getByTestId('query-text')).toHaveTextContent(
+      'SELECT SLEEP(100)'
+    );
+  });
+
   it('refresh button fetches queries', async () => {
     renderComponent({
       initialEntry:

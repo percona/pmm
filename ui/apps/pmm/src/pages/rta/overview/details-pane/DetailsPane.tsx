@@ -9,6 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
+import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Slide from '@mui/material/Slide';
 import { QueryData } from 'types/rta.types';
@@ -19,6 +20,8 @@ import { CodeBlock } from '@percona/peak-ui';
 
 interface Props {
   query?: QueryData;
+  // The statement is no longer running: the pane shows it as last seen.
+  finished?: boolean;
   isFirstQuery: boolean;
   isLastQuery: boolean;
   onClose: () => void;
@@ -28,6 +31,7 @@ interface Props {
 
 const DetailsPane: FC<Props> = ({
   query,
+  finished = false,
   isFirstQuery,
   isLastQuery,
   onClose,
@@ -135,6 +139,15 @@ const DetailsPane: FC<Props> = ({
               overflowX: 'hidden',
             }}
           >
+            {finished && (
+              <Alert
+                severity="info"
+                data-testid="details-pane-finished"
+                sx={{ mb: 2 }}
+              >
+                {Messages.finished}
+              </Alert>
+            )}
             {tab === 'details' && <QueryAndDetails queryData={query} />}
             {tab === 'raw-data' && (
               <Box
