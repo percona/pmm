@@ -76,10 +76,12 @@ const RealtimeOverviewPage: FC = () => {
   );
   const [hideCommit, setHideCommit] = useState(false);
   const [blockedOnly, setBlockedOnly] = useState(false);
-  // Transaction-control statements and lock waits are SQL concerns, so the toggles
-  // are only offered while MySQL or PostgreSQL services are being watched.
-  const isMySqlSelection =
-    serviceType === ServiceType.mysql || serviceType === ServiceType.posgresql;
+  // Lock waits are reported for MySQL and PostgreSQL. Hiding transaction-control statements
+  // is MySQL-only: PostgreSQL lists a session idle in transaction by its last statement,
+  // often BEGIN, and hiding it would hide a session holding a transaction open.
+  const isMySqlSelection = serviceType === ServiceType.mysql;
+  const isSqlSelection =
+    isMySqlSelection || serviceType === ServiceType.posgresql;
   // Synced from the table after filters; details-pane arrows use this list, not the full API result.
   const [navigableQueries, setNavigableQueries] = useState<QueryData[]>([]);
   const [selectedQuery, setSelectedQuery] = useState<QueryData>();
@@ -89,9 +91,9 @@ const RealtimeOverviewPage: FC = () => {
   // the control unmounts, and a filter nobody can see must not keep hiding rows
   // (nor silently shrink the CSV export, which exports the filtered rows).
   const hideTransactionControl = hideCommit && isMySqlSelection;
-  // Gated the same way as the transaction-control toggle: lock waits are reported for
-  // MySQL only, and a filter that has left the screen must not keep hiding rows.
-  const showBlockedOnly = blockedOnly && isMySqlSelection;
+  // Gated the same way as the transaction-control toggle: a filter that has left the screen
+  // must not keep hiding rows.
+  const showBlockedOnly = blockedOnly && isSqlSelection;
   // Split out so the toggle label counts the rows switching it on would leave, rather than
   // every blocked row in the response. It is still counted before the table's own column
   // filters, which live inside MRT and are not visible here, so a Database or User filter can
@@ -312,7 +314,7 @@ const RealtimeOverviewPage: FC = () => {
               {/* This filters the rows, it does not drive live updates: keep it
                   out of the auto-refresh / playback group so that group reads as
                   one control. */}
-              {isMySqlSelection && (
+              {isSqlSelection && (
                 <>
                   <Divider
                     orientation="vertical"
@@ -349,25 +351,27 @@ const RealtimeOverviewPage: FC = () => {
                       sx={{ whiteSpace: 'nowrap', mr: 1 }}
                     />
                   </Tooltip>
-                  <Tooltip title={Messages.hideCommitTooltip} arrow>
-                    <FormControlLabel
-                      data-testid="overview-table-hide-commit-toggle"
-                      control={
-                        <Switch
-                          size="small"
-                          checked={hideCommit}
-                          onChange={(event) =>
-                            setHideCommit(event.target.checked)
-                          }
-                        />
-                      }
-                      label={Messages.hideCommit}
-                      // ml resets the negative margin FormControlLabel applies to align a
-                      // standalone switch; left in place it pulls this control flush against
-                      // the previous label, so the two toggles read as one run of text.
-                      sx={{ whiteSpace: 'nowrap', ml: 0, mr: 0 }}
-                    />
-                  </Tooltip>
+                  {isMySqlSelection && (
+                    <Tooltip title={Messages.hideCommitTooltip} arrow>
+                      <FormControlLabel
+                        data-testid="overview-table-hide-commit-toggle"
+                        control={
+                          <Switch
+                            size="small"
+                            checked={hideCommit}
+                            onChange={(event) =>
+                              setHideCommit(event.target.checked)
+                            }
+                          />
+                        }
+                        label={Messages.hideCommit}
+                        // ml resets the negative margin FormControlLabel applies to align a
+                        // standalone switch; left in place it pulls this control flush against
+                        // the previous label, so the two toggles read as one run of text.
+                        sx={{ whiteSpace: 'nowrap', ml: 0, mr: 0 }}
+                      />
+                    </Tooltip>
+                  )}
                 </>
               )}
             </Stack>
