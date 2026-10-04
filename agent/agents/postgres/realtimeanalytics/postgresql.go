@@ -46,12 +46,13 @@ import (
 //   - For sessions idle in transaction the duration is the transaction's, not the last query's.
 //   - Sessions of other users without pg_read_all_stats have a NULL state; they are kept, and show
 //     PostgreSQL's "<insufficient privilege>" as their query.
-//   - The whole pg_stat_activity row goes to the raw data, and its columns differ between versions.
+//   - The whole pg_stat_activity row goes to the raw data, pretty-printed as for MySQL and without the blk
+//     helper column; its columns differ between versions.
 //
 //nolint:unqueryvet
 const activityQuery = `WITH a AS (SELECT *, CASE WHEN wait_event_type = 'Lock' THEN pg_blocking_pids(pid) END AS blk FROM pg_stat_activity)
 SELECT NULL AS ` + agents.RTAQueryTag + `,
-  w.pid, to_jsonb(w)::text, COALESCE(w.datname, ''), COALESCE(w.usename, ''), COALESCE(w.application_name, ''),
+  w.pid, jsonb_pretty(to_jsonb(w) - 'blk'), COALESCE(w.datname, ''), COALESCE(w.usename, ''), COALESCE(w.application_name, ''),
   COALESCE(w.state, ''), COALESCE(w.wait_event_type, ''), COALESCE(w.wait_event, ''),
   COALESCE(host(w.client_addr) || ':' || w.client_port, ''), COALESCE(w.query, ''),
   COALESCE(to_jsonb(w)->>'query_id', ''), w.xact_start, w.query_start,
