@@ -79,6 +79,20 @@ const (
 	maxQueryTextLength = 64 * 1024
 )
 
+// QueryTag marks the queries this agent polls with, so the QAN agents can leave them out: RTA
+// runs them every collect interval on the very server QAN is watching. Each query selects
+// NULL AS pmm_agent_rta as its first column, because the statement digest that the perfschema QAN
+// agent reads keeps identifiers but strips comments, and is cut at max_digest_length (1024 bytes
+// by default) -- these queries are longer than that, so the tag has to come first. The
+// /* pmm-agent:rta */ comment next to it is for whoever reads the processlist or the slow log.
+const QueryTag = "pmm_agent_rta"
+
+// IsOwnQuery reports whether a query text, or its digest text, is one of this agent's polling
+// queries.
+func IsOwnQuery(query string) bool {
+	return strings.Contains(query, QueryTag)
+}
+
 // currentQueriesSQLTemplate fetches currently running queries from the performance_schema
 // tables sys.x$processlist is built on. The row is preserved in the raw payload, mirroring how
 // the MongoDB RTA agent dumps the whole currentOp document, and background threads, idle
@@ -131,7 +145,8 @@ const (
 // Row order beyond that is not depended on: the raw payload is a JSON object keyed by column name
 // and the collector maps rows by connection id.
 const currentQueriesSQLTemplate = `
-SELECT
+SELECT /* pmm-agent:rta */
+    NULL AS pmm_agent_rta,
     pps.THREAD_ID AS thd_id,
     pps.PROCESSLIST_ID AS conn_id,
     IF(pps.NAME IN ('thread/sql/one_connection', 'thread/thread_pool/tp_one_connection'),
@@ -298,7 +313,8 @@ var optionalProcesslistSources = []struct {
 // alone and a wait is over-reported by up to one second. Treat these as "about this long",
 // accurate to a second, not as microsecond measurements.
 const blockingTransactionsSQL = `
-SELECT STRAIGHT_JOIN
+SELECT /* pmm-agent:rta */ STRAIGHT_JOIN
+    NULL AS pmm_agent_rta,
     r.trx_mysql_thread_id AS waiting_conn_id,
     b.trx_mysql_thread_id AS blocking_conn_id,
     TIMESTAMPDIFF(MICROSECOND, r.trx_wait_started, NOW(6)) AS wait_micros,
@@ -330,7 +346,7 @@ LIMIT 5000`
 // tables in 8.0 and MariaDB never gained the replacements, so between them the two queries
 // cover every server that can report row-lock waits at all.
 //
-// The shape of the result is identical to blockingTransactionsSQL's -- same thirteen columns in
+// The shape of the result is identical to blockingTransactionsSQL's -- same fourteen columns in
 // the same order -- so both sources share one scan function and everything downstream is
 // unaware of which one produced an edge.
 //
@@ -352,7 +368,8 @@ LIMIT 5000`
 // gives the contended table and index, and the blocking lock gives the mode that is holding
 // everything up.
 const innodbLockWaitsSQL = `
-SELECT STRAIGHT_JOIN
+SELECT /* pmm-agent:rta */ STRAIGHT_JOIN
+    NULL AS pmm_agent_rta,
     r.trx_mysql_thread_id AS waiting_conn_id,
     b.trx_mysql_thread_id AS blocking_conn_id,
     TIMESTAMPDIFF(MICROSECOND, r.trx_wait_started, NOW(6)) AS wait_micros,
@@ -420,7 +437,8 @@ LIMIT 5000`
 // events_transactions_current row survives commit with its final timer intact, and reporting
 // that would age a finished transaction as though it were still open.
 const metadataLockWaitsSQL = `
-SELECT STRAIGHT_JOIN
+SELECT /* pmm-agent:rta */ STRAIGHT_JOIN
+    NULL AS pmm_agent_rta,
     tw.PROCESSLIST_ID AS waiting_conn_id,
     tg.PROCESSLIST_ID AS blocking_conn_id,
     w.LOCK_TYPE AS requested_mode,
@@ -1307,14 +1325,15 @@ var rowLockSources = []struct {
 }
 
 // scanRowLockEdge reads one row-lock edge, from either source: the two queries are written to
-// return the same thirteen columns in the same order precisely so this can be shared.
+// return the same fourteen columns in the same order precisely so this can be shared. The first
+// is the QueryTag column, which carries nothing.
 func scanRowLockEdge(rows *sql.Rows) (*lockEdge, error) {
 	var edge lockEdge
 	var waitMicros, blockerTrxMicros sql.NullInt64
 	var blockingCommand, blockingUser, blockingQuery sql.NullString
 	var lockedTable, lockedIndex, requestedMode, blockingMode, waitingQuery sql.NullString
 
-	err := rows.Scan(&edge.waitingConnID, &edge.blockingConnID, &waitMicros, &blockerTrxMicros,
+	err := rows.Scan(new(sql.RawBytes), &edge.waitingConnID, &edge.blockingConnID, &waitMicros, &blockerTrxMicros,
 		&blockingCommand, &blockingUser, &blockingQuery, &lockedTable, &lockedIndex,
 		&requestedMode, &blockingMode, &edge.waitingEventID, &waitingQuery)
 	if err != nil {
@@ -1351,7 +1370,7 @@ var metadataLockSource = lockSource{
 		var requestedMode, blockingMode sql.NullString
 		var blockingCommand, blockingUser, blockingQuery, lockedTable, waitingQuery sql.NullString
 
-		err := rows.Scan(&edge.waitingConnID, &edge.blockingConnID, &requestedMode, &blockingMode,
+		err := rows.Scan(new(sql.RawBytes), &edge.waitingConnID, &edge.blockingConnID, &requestedMode, &blockingMode,
 			&blockingCommand, &blockingUser, &blockerTrxPicos, &blockingQuery, &lockedTable,
 			&edge.waitingEventID, &waitingQuery)
 		if err != nil {
@@ -1767,6 +1786,8 @@ func (m *MySQLRTA) buildQueryData(row map[string]any, graph *blockingGraph) *rta
 	// Only read to complete current_statement above. Keeping it would put a second copy of the
 	// statement, up to performance_schema_max_sql_text_length long, in every raw payload.
 	delete(row, "current_sql_text")
+	// The tag column carries nothing; it is there for the statement digest only.
+	delete(row, QueryTag)
 
 	mysqlPayload := &rtav1.QueryMySQLData{
 		DbInstanceAddress:  m.dbInstanceAddress,
