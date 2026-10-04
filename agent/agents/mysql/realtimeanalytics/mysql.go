@@ -143,6 +143,7 @@ SELECT
     pps.PROCESSLIST_TIME AS time,
     pps.PROCESSLIST_INFO AS current_statement,
     IF(sel.END_EVENT_ID IS NULL, sel.SQL_TEXT, NULL) AS current_sql_text,
+    IF(sel.END_EVENT_ID IS NULL, sel.EVENT_ID, NULL) AS statement_event_id,
     IF(sel.END_EVENT_ID IS NULL, sel.TIMER_WAIT, NULL) AS statement_latency,
     sel.LOCK_TIME AS lock_latency,
     sel.ROWS_EXAMINED AS rows_examined,
@@ -163,7 +164,7 @@ SELECT
     conattr_pid.ATTR_VALUE AS pid,
     conattr_progname.ATTR_VALUE AS program_name{{outer_columns}}
 FROM (
-    SELECT t.THREAD_ID, s.END_EVENT_ID, s.TIMER_WAIT, s.LOCK_TIME, s.ROWS_EXAMINED, s.ROWS_SENT,
+    SELECT t.THREAD_ID, s.EVENT_ID, s.END_EVENT_ID, s.TIMER_WAIT, s.LOCK_TIME, s.ROWS_EXAMINED, s.ROWS_SENT,
            s.ROWS_AFFECTED, s.CREATED_TMP_TABLES, s.CREATED_TMP_DISK_TABLES,
            s.NO_GOOD_INDEX_USED, s.NO_INDEX_USED, s.SQL_TEXT{{inner_columns}}
     FROM performance_schema.threads t
@@ -286,6 +287,11 @@ var optionalProcesslistSources = []struct {
 // The blocking lock is looked up by its own ENGINE_LOCK_ID, a primary-key lookup into a table
 // the query already reads, measured at 0.8ms on top of the query's other work.
 //
+// The waiting statement's own event id and text come back too. The statement list is read by a
+// separate query a moment earlier, and the waiting connection may have moved on to another
+// statement in between; waitingStatementMatches uses them so the wait is not attached to a
+// statement that never asked for the lock.
+//
 // Latencies are taken in microseconds rather than seconds so a wait shorter than a second is
 // not truncated to "0s". The precision is not real, though: innodb_trx.trx_wait_started and
 // trx_started are second-granularity DATETIME columns, so the fractional part comes from NOW(6)
@@ -305,7 +311,9 @@ SELECT STRAIGHT_JOIN
     CONCAT(rl.OBJECT_SCHEMA, '.', rl.OBJECT_NAME) AS locked_table,
     rl.INDEX_NAME AS locked_index,
     rl.LOCK_MODE AS requested_mode,
-    bl.LOCK_MODE AS blocking_mode
+    bl.LOCK_MODE AS blocking_mode,
+    IF(ws.END_EVENT_ID IS NULL, ws.EVENT_ID, NULL) AS waiting_event_id,
+    r.trx_query AS waiting_query
 FROM performance_schema.data_lock_waits w
 JOIN information_schema.innodb_trx r ON r.trx_id = w.REQUESTING_ENGINE_TRANSACTION_ID
 JOIN information_schema.innodb_trx b ON b.trx_id = w.BLOCKING_ENGINE_TRANSACTION_ID
@@ -313,6 +321,7 @@ JOIN performance_schema.data_locks rl ON rl.ENGINE_LOCK_ID = w.REQUESTING_ENGINE
 JOIN performance_schema.data_locks bl ON bl.ENGINE_LOCK_ID = w.BLOCKING_ENGINE_LOCK_ID
 LEFT JOIN performance_schema.threads bt ON bt.PROCESSLIST_ID = b.trx_mysql_thread_id
 LEFT JOIN performance_schema.events_statements_current bs ON bs.THREAD_ID = bt.THREAD_ID
+LEFT JOIN performance_schema.events_statements_current ws ON ws.THREAD_ID = w.REQUESTING_THREAD_ID
 ORDER BY waiting_conn_id, locked_index IS NULL, locked_index, blocking_conn_id
 LIMIT 5000`
 
@@ -321,7 +330,7 @@ LIMIT 5000`
 // tables in 8.0 and MariaDB never gained the replacements, so between them the two queries
 // cover every server that can report row-lock waits at all.
 //
-// The shape of the result is identical to blockingTransactionsSQL's -- same eleven columns in
+// The shape of the result is identical to blockingTransactionsSQL's -- same thirteen columns in
 // the same order -- so both sources share one scan function and everything downstream is
 // unaware of which one produced an edge.
 //
@@ -356,7 +365,9 @@ SELECT STRAIGHT_JOIN
     REPLACE(rl.lock_table, '` + "`" + `', '') AS locked_table,
     rl.lock_index AS locked_index,
     rl.lock_mode AS requested_mode,
-    bl.lock_mode AS blocking_mode
+    bl.lock_mode AS blocking_mode,
+    IF(ws.END_EVENT_ID IS NULL, ws.EVENT_ID, NULL) AS waiting_event_id,
+    r.trx_query AS waiting_query
 FROM information_schema.INNODB_LOCK_WAITS w
 JOIN information_schema.INNODB_TRX r ON r.trx_id = w.requesting_trx_id
 JOIN information_schema.INNODB_TRX b ON b.trx_id = w.blocking_trx_id
@@ -364,6 +375,8 @@ JOIN information_schema.INNODB_LOCKS rl ON rl.lock_id = w.requested_lock_id
 JOIN information_schema.INNODB_LOCKS bl ON bl.lock_id = w.blocking_lock_id
 LEFT JOIN performance_schema.threads bt ON bt.PROCESSLIST_ID = b.trx_mysql_thread_id
 LEFT JOIN performance_schema.events_statements_current bs ON bs.THREAD_ID = bt.THREAD_ID
+LEFT JOIN performance_schema.threads wt ON wt.PROCESSLIST_ID = r.trx_mysql_thread_id
+LEFT JOIN performance_schema.events_statements_current ws ON ws.THREAD_ID = wt.THREAD_ID
 ORDER BY waiting_conn_id, locked_index IS NULL, locked_index, blocking_conn_id
 LIMIT 5000`
 
@@ -422,7 +435,9 @@ SELECT STRAIGHT_JOIN
         WHEN w.OBJECT_NAME IS NOT NULL THEN CONCAT(w.OBJECT_SCHEMA, '.', w.OBJECT_NAME)
         WHEN w.OBJECT_SCHEMA IS NOT NULL THEN w.OBJECT_SCHEMA
         ELSE w.OBJECT_TYPE
-    END AS locked_table
+    END AS locked_table,
+    IF(ws.END_EVENT_ID IS NULL, ws.EVENT_ID, NULL) AS waiting_event_id,
+    tw.PROCESSLIST_INFO AS waiting_query
 FROM performance_schema.metadata_locks w
 JOIN performance_schema.metadata_locks g
   ON g.OBJECT_TYPE <=> w.OBJECT_TYPE
@@ -434,6 +449,7 @@ JOIN performance_schema.threads tw ON tw.THREAD_ID = w.OWNER_THREAD_ID
 JOIN performance_schema.threads tg ON tg.THREAD_ID = g.OWNER_THREAD_ID
 LEFT JOIN performance_schema.events_statements_current st ON st.THREAD_ID = tg.THREAD_ID
 LEFT JOIN performance_schema.events_transactions_current tx ON tx.THREAD_ID = tg.THREAD_ID
+LEFT JOIN performance_schema.events_statements_current ws ON ws.THREAD_ID = w.OWNER_THREAD_ID
 WHERE w.LOCK_STATUS = 'PENDING'
   AND tw.PROCESSLIST_ID IS NOT NULL
 ORDER BY waiting_conn_id, blocking_conn_id
@@ -1187,6 +1203,12 @@ type waiterLock struct {
 	lockedTable   string
 	lockedIndex   string
 	requestedMode string
+	// waitingEventID and waitingQuery identify the statement that was waiting when the lock
+	// graph was read: its events_statements_current EVENT_ID, when that consumer is on, and its
+	// text. The statement list is read by a separate query, so the connection may have moved on
+	// to another statement in between; these are what tell the two apart.
+	waitingEventID sql.NullInt64
+	waitingQuery   string
 }
 
 // blockingGraph is what one collection learned about which statements are waiting. A nil
@@ -1231,6 +1253,8 @@ type lockEdge struct {
 	lockedIndex        string
 	requestedMode      string
 	blockingMode       string
+	waitingEventID     sql.NullInt64
+	waitingQuery       string
 }
 
 // lockSource is one of the two independent ways a MySQL statement can be stuck.
@@ -1283,19 +1307,21 @@ var rowLockSources = []struct {
 }
 
 // scanRowLockEdge reads one row-lock edge, from either source: the two queries are written to
-// return the same eleven columns in the same order precisely so this can be shared.
+// return the same thirteen columns in the same order precisely so this can be shared.
 func scanRowLockEdge(rows *sql.Rows) (*lockEdge, error) {
 	var edge lockEdge
 	var waitMicros, blockerTrxMicros sql.NullInt64
 	var blockingCommand, blockingUser, blockingQuery sql.NullString
-	var lockedTable, lockedIndex, requestedMode, blockingMode sql.NullString
+	var lockedTable, lockedIndex, requestedMode, blockingMode, waitingQuery sql.NullString
 
 	err := rows.Scan(&edge.waitingConnID, &edge.blockingConnID, &waitMicros, &blockerTrxMicros,
 		&blockingCommand, &blockingUser, &blockingQuery, &lockedTable, &lockedIndex,
-		&requestedMode, &blockingMode)
+		&requestedMode, &blockingMode, &edge.waitingEventID, &waitingQuery)
 	if err != nil {
 		return nil, err
 	}
+
+	edge.waitingQuery = waitingQuery.String
 
 	edge.waitDuration = microsToDuration(waitMicros)
 	edge.blockerTrxDuration = microsToDuration(blockerTrxMicros)
@@ -1323,13 +1349,16 @@ var metadataLockSource = lockSource{
 		var edge lockEdge
 		var blockerTrxPicos sql.NullInt64
 		var requestedMode, blockingMode sql.NullString
-		var blockingCommand, blockingUser, blockingQuery, lockedTable sql.NullString
+		var blockingCommand, blockingUser, blockingQuery, lockedTable, waitingQuery sql.NullString
 
 		err := rows.Scan(&edge.waitingConnID, &edge.blockingConnID, &requestedMode, &blockingMode,
-			&blockingCommand, &blockingUser, &blockerTrxPicos, &blockingQuery, &lockedTable)
+			&blockingCommand, &blockingUser, &blockerTrxPicos, &blockingQuery, &lockedTable,
+			&edge.waitingEventID, &waitingQuery)
 		if err != nil {
 			return nil, err
 		}
+
+		edge.waitingQuery = waitingQuery.String
 
 		edge.blockerTrxDuration = picosToDuration(blockerTrxPicos)
 		edge.blockingCommand = blockingCommand.String
@@ -1510,10 +1539,12 @@ func (m *MySQLRTA) readLockEdges(ctx context.Context, source lockSource) (*sourc
 		// is a fact about this statement either way.
 		if _, ok := found.waiters[key]; !ok {
 			found.waiters[key] = waiterLock{
-				lockType:      source.lockType,
-				lockedTable:   edge.lockedTable,
-				lockedIndex:   edge.lockedIndex,
-				requestedMode: edge.requestedMode,
+				lockType:       source.lockType,
+				lockedTable:    edge.lockedTable,
+				lockedIndex:    edge.lockedIndex,
+				requestedMode:  edge.requestedMode,
+				waitingEventID: edge.waitingEventID,
+				waitingQuery:   edge.waitingQuery,
 			}
 		}
 
@@ -1713,7 +1744,13 @@ func (m *MySQLRTA) buildQueryData(row map[string]any, graph *blockingGraph) *rta
 		// holder can be a thread with no connection id, and reading "no blockers" as "not
 		// waiting" would turn that into a clean bill of health.
 		lock, waiting := graph.waiters[connID]
+		// The wait may belong to a later statement on this connection: the statement list and
+		// the lock graph are read by separate queries. Attaching it to the statement sampled
+		// earlier would report a statement that never waited as blocked by a lock it never asked
+		// for, so the statement is left unknown instead.
+		otherStatement := waiting && !waitingStatementMatches(row, lock)
 		switch {
+		case otherStatement:
 		case waiting:
 			blockedStatus = rtav1.BlockedStatus_BLOCKED_STATUS_BLOCKED
 			blockedBy = graph.blockers[connID]
@@ -1767,6 +1804,25 @@ func (m *MySQLRTA) buildQueryData(row map[string]any, graph *blockingGraph) *rta
 			MySqlPayload: mysqlPayload,
 		},
 	}
+}
+
+// waitingStatementMatches reports whether the statement in row is the one the lock graph found
+// waiting on its connection. The statement event ids are compared when both reads have one,
+// which takes the events_statements_current consumer. Otherwise the texts are, allowing either to
+// be a truncated prefix of the other, since the processlist and information_schema.INNODB_TRX cut
+// a statement at different lengths. When neither identifier is available nothing contradicts the
+// match, so the wait is kept.
+func waitingStatementMatches(row map[string]any, lock waiterLock) bool {
+	if row["statement_event_id"] != nil && lock.waitingEventID.Valid {
+		return mapInt(row, "statement_event_id") == lock.waitingEventID.Int64
+	}
+
+	statement := mapString(row, "current_statement")
+	if statement == "" || lock.waitingQuery == "" {
+		return true
+	}
+
+	return strings.HasPrefix(statement, lock.waitingQuery) || strings.HasPrefix(lock.waitingQuery, statement)
 }
 
 // mapString reads a column from the row as a string regardless of its scanned type.

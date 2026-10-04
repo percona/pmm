@@ -287,7 +287,7 @@ func blockingRows() *sqlmock.Rows {
 	return sqlmock.NewRows([]string{
 		"waiting_conn_id", "blocking_conn_id", "wait_micros", "blocker_trx_micros",
 		"blocking_command", "blocking_user", "blocking_query", "locked_table", "locked_index",
-		"requested_mode", "blocking_mode",
+		"requested_mode", "blocking_mode", "waiting_event_id", "waiting_query",
 	})
 }
 
@@ -298,6 +298,7 @@ func metadataRows() *sqlmock.Rows {
 	return sqlmock.NewRows([]string{
 		"waiting_conn_id", "blocking_conn_id", "requested_mode", "blocking_mode",
 		"blocking_command", "blocking_user", "blocker_trx_picos", "blocking_query", "locked_table",
+		"waiting_event_id", "waiting_query",
 	})
 }
 
@@ -356,8 +357,8 @@ func TestCollectBlockingTransactionsDeduplicates(t *testing.T) {
 	// "GEN_CLUST_INDEX" sorts before "PRIMARY" -- so the assertion below pins the value the
 	// server would really deliver rather than an arbitrary one.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
-		AddRow(411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "SELECT 1 FOR UPDATE", "db.t", "GEN_CLUST_INDEX", "X,REC_NOT_GAP", "X,REC_NOT_GAP").
-		AddRow(411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "SELECT 1 FOR UPDATE", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP"))
+		AddRow(411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "SELECT 1 FOR UPDATE", "db.t", "GEN_CLUST_INDEX", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil).
+		AddRow(411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "SELECT 1 FOR UPDATE", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil))
 
 	graph, err := readRowLocks(t, m)
 	require.NoError(t, err)
@@ -373,7 +374,7 @@ func TestCollectBlockingTransactionsSubSecondWait(t *testing.T) {
 	m, mock := newMockedRTA(t)
 	// 900ms: whole-second truncation would report this as a zero-length wait.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
-		AddRow(411, 409, 900_000, 3_400_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP"))
+		AddRow(411, 409, 900_000, 3_400_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil))
 
 	graph, err := readRowLocks(t, m)
 	require.NoError(t, err)
@@ -388,7 +389,7 @@ func TestCollectBlockingTransactionsNullDurations(t *testing.T) {
 	m, mock := newMockedRTA(t)
 	// The wait ended between the two reads inside the query: no value is not zero seconds.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
-		AddRow(411, 409, nil, nil, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP"))
+		AddRow(411, 409, nil, nil, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil))
 
 	graph, err := readRowLocks(t, m)
 	require.NoError(t, err)
@@ -404,7 +405,7 @@ func TestCollectBlockingTransactionsKeepsEdgeWithoutProcesslistRow(t *testing.T)
 	// The blocking thread is gone, so the LEFT JOIN yields NULL columns. The relationship
 	// still explains the wait and must survive.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
-		AddRow(411, 409, 1_000_000, 2_000_000, nil, nil, nil, "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP"))
+		AddRow(411, 409, 1_000_000, 2_000_000, nil, nil, nil, "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil))
 
 	graph, err := readRowLocks(t, m)
 	require.NoError(t, err)
@@ -426,7 +427,7 @@ func TestCollectBlockingTransactionsOrWarnStopsOnMissingTable(t *testing.T) {
 		Message: "Table 'performance_schema.data_lock_waits' doesn't exist",
 	})
 	mock.ExpectQuery("metadata_locks").WillReturnRows(metadataRows().
-		AddRow(411, 409, "EXCLUSIVE", "SHARED_READ", "Sleep", "u@h", nil, "SELECT 1", "db.t"))
+		AddRow(411, 409, "EXCLUSIVE", "SHARED_READ", "Sleep", "u@h", nil, "SELECT 1", "db.t", nil, nil))
 
 	graph := m.collectBlockingTransactionsOrWarn(t.Context())
 	require.NotNil(t, graph, "one dead source must not discard what the other found")
@@ -449,7 +450,7 @@ func TestCollectBlockingTransactionsOrWarnRetriesTransientErrors(t *testing.T) {
 	mock.ExpectQuery("data_lock_waits").WillReturnError(errors.New("connection reset"))
 	expectNoMetadataLocks(mock)
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
-		AddRow(411, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP"))
+		AddRow(411, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil))
 	expectNoMetadataLocks(mock)
 
 	partial := m.collectBlockingTransactionsOrWarn(t.Context())
@@ -512,8 +513,8 @@ func TestCollectBlockingTransactionsRecordsWaiterLockOnce(t *testing.T) {
 	// Two blockers of one waiter contend over the same requested lock: it is a property of
 	// the waiting statement, recorded once, not repeated per blocker.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
-		AddRow(411, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP").
-		AddRow(411, 410, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 2", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP"))
+		AddRow(411, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil).
+		AddRow(411, 410, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 2", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil))
 
 	graph, err := readRowLocks(t, m)
 	require.NoError(t, err)
@@ -533,8 +534,8 @@ func TestCollectBlockingTransactionsPrefersARowThatNamesAnIndex(t *testing.T) {
 	// with conn 410 over a record lock on PRIMARY. The query orders the row that names an
 	// index first precisely so the lower-numbered blocker cannot leave the waiter with none.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
-		AddRow(411, 410, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP").
-		AddRow(411, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 2", "db.t", nil, "X,REC_NOT_GAP", "X,REC_NOT_GAP"))
+		AddRow(411, 410, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil).
+		AddRow(411, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 2", "db.t", nil, "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil))
 
 	graph, err := readRowLocks(t, m)
 	require.NoError(t, err)
@@ -550,9 +551,9 @@ func TestCollectMetadataLockWaits(t *testing.T) {
 	// The ALTER pile-up: 409 holds SHARED_READ inside an open transaction, the ALTER on 411
 	// wants EXCLUSIVE and cannot have it, and 412's plain SELECT is queued behind the ALTER.
 	mock.ExpectQuery("metadata_locks").WillReturnRows(metadataRows().
-		AddRow(411, 409, "EXCLUSIVE", "SHARED_READ", "Sleep", "u@h", 154_000_000_000_000, "SELECT COUNT(*) FROM t", "db.t").
-		AddRow(412, 409, "SHARED_READ", "SHARED_READ", "Sleep", "u@h", 154_000_000_000_000, "SELECT COUNT(*) FROM t", "db.t").
-		AddRow(412, 411, "SHARED_READ", "SHARED_UPGRADABLE", "Query", "u@h", 20_000_000_000_000, "ALTER TABLE t ADD COLUMN c INT", "db.t"))
+		AddRow(411, 409, "EXCLUSIVE", "SHARED_READ", "Sleep", "u@h", 154_000_000_000_000, "SELECT COUNT(*) FROM t", "db.t", nil, nil).
+		AddRow(412, 409, "SHARED_READ", "SHARED_READ", "Sleep", "u@h", 154_000_000_000_000, "SELECT COUNT(*) FROM t", "db.t", nil, nil).
+		AddRow(412, 411, "SHARED_READ", "SHARED_UPGRADABLE", "Query", "u@h", 20_000_000_000_000, "ALTER TABLE t ADD COLUMN c INT", "db.t", nil, nil))
 
 	graph := m.collectBlockingTransactionsOrWarn(t.Context())
 	require.NotNil(t, graph)
@@ -590,9 +591,9 @@ func TestCollectBlockingTransactionsKeepsLockTypesApart(t *testing.T) {
 	// source must not append blockers held under a mechanism the reported lock type does not
 	// describe, which would send the reader after the wrong remedy.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
-		AddRow(411, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP"))
+		AddRow(411, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil))
 	mock.ExpectQuery("metadata_locks").WillReturnRows(metadataRows().
-		AddRow(411, 500, "EXCLUSIVE", "SHARED_READ", "Sleep", "u@h", nil, "SELECT 2", "db.t"))
+		AddRow(411, 500, "EXCLUSIVE", "SHARED_READ", "Sleep", "u@h", nil, "SELECT 2", "db.t", nil, nil))
 
 	graph := m.collectBlockingTransactionsOrWarn(t.Context())
 	require.NotNil(t, graph)
@@ -855,7 +856,7 @@ func TestTruncatedLockGraphIsNotCalledComplete(t *testing.T) {
 	// and calling the graph complete would publish every one of them as NOT_BLOCKED.
 	rows := blockingRows()
 	for i := range lockGraphRowLimit {
-		rows.AddRow(1000+i, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X", "X")
+		rows.AddRow(1000+i, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X", "X", nil, nil)
 	}
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(rows)
 	expectNoMetadataLocks(mock)
@@ -877,7 +878,7 @@ func TestBlockerWithoutConnectionIdStillReportsTheWait(t *testing.T) {
 	// row would leave the waiter looking unblocked, which is the wait dressed up as health.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows())
 	mock.ExpectQuery("metadata_locks").WillReturnRows(metadataRows().
-		AddRow(411, nil, "EXCLUSIVE", "SHARED_READ", "Daemon", "sql/main", nil, nil, "db.t"))
+		AddRow(411, nil, "EXCLUSIVE", "SHARED_READ", "Daemon", "sql/main", nil, nil, "db.t", nil, nil))
 
 	graph := m.collectBlockingTransactionsOrWarn(t.Context())
 	require.NotNil(t, graph)
@@ -897,11 +898,11 @@ func TestFailedSourceLeavesNothingBehind(t *testing.T) {
 	// The row-lock source streams one edge and then fails. Those rows must not claim waiter 411
 	// and lock it out of the metadata source, which has the answer that is actually current.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
-		AddRow(411, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X", "X").
-		AddRow(412, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X", "X").
+		AddRow(411, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X", "X", nil, nil).
+		AddRow(412, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X", "X", nil, nil).
 		RowError(1, errors.New("connection reset")))
 	mock.ExpectQuery("metadata_locks").WillReturnRows(metadataRows().
-		AddRow(411, 500, "EXCLUSIVE", "SHARED_READ", "Query", "u@h", nil, "ALTER TABLE t", "db.t"))
+		AddRow(411, 500, "EXCLUSIVE", "SHARED_READ", "Query", "u@h", nil, "ALTER TABLE t", "db.t", nil, nil))
 
 	graph := m.collectBlockingTransactionsOrWarn(t.Context())
 	require.NotNil(t, graph)
@@ -1037,7 +1038,7 @@ func TestInnodbLockWaitsSourceParsesTheSameEdges(t *testing.T) {
 	// the record, and lock_table arrives quoted -- the query strips the backticks, so what
 	// reaches the scanner is the same "db.t" the other source produces.
 	mock.ExpectQuery("INNODB_LOCK_WAITS").WillReturnRows(blockingRows().
-		AddRow(411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "UPDATE t SET v=1", "db.t", "PRIMARY", "X", "X"))
+		AddRow(411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "UPDATE t SET v=1", "db.t", "PRIMARY", "X", "X", nil, nil))
 
 	graph, err := readRowLocksFrom(t, m, innodbLockWaitsSource)
 	require.NoError(t, err)
@@ -1318,7 +1319,7 @@ func TestCollectBlockingTransactionsRetriesSourceSelection(t *testing.T) {
 	m, mock := newMockedRTAWithSource(t, lockSource{})
 	expectRowLockProbe(mock, 0, 1)
 	mock.ExpectQuery("INNODB_LOCK_WAITS").WillReturnRows(blockingRows().
-		AddRow(411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "UPDATE t SET v=1", "db.t", "PRIMARY", "X", "X"))
+		AddRow(411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "UPDATE t SET v=1", "db.t", "PRIMARY", "X", "X", nil, nil))
 	expectNoMetadataLocks(mock)
 
 	graph := m.collectBlockingTransactionsOrWarn(t.Context())
@@ -1556,8 +1557,8 @@ func TestBlockingQueryTruncationIsReported(t *testing.T) {
 	m, mock := newMockedRTA(t)
 	m.sqlTextMaxLength = 1024
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
-		AddRow(411, 409, 1_500_000, 2_000_000, "Query", "u@h", strings.Repeat("x", processlistInfoMaxLength), "db.t", "PRIMARY", "X", "X").
-		AddRow(412, 410, 1_500_000, 2_000_000, "Query", "u@h", "SELECT 1 FOR UPDATE", "db.t", "PRIMARY", "X", "X"))
+		AddRow(411, 409, 1_500_000, 2_000_000, "Query", "u@h", strings.Repeat("x", processlistInfoMaxLength), "db.t", "PRIMARY", "X", "X", nil, nil).
+		AddRow(412, 410, 1_500_000, 2_000_000, "Query", "u@h", "SELECT 1 FOR UPDATE", "db.t", "PRIMARY", "X", "X", nil, nil))
 
 	graph, err := readRowLocks(t, m)
 	require.NoError(t, err)
@@ -1594,4 +1595,134 @@ func TestLockTimeIsUnsetWhenNotMeasured(t *testing.T) {
 
 	qd := (&MySQLRTA{}).buildQueryData(map[string]any{"conn_id": int64(1), "current_statement": "SELECT 1", "lock_latency": nil}, nil)
 	assert.Nil(t, qd.GetMySqlPayload().GetLockTime())
+}
+
+// waitOnConnection411 is the lock graph seen live under sysbench: connection 411 waiting on an
+// X,REC_NOT_GAP row lock that 409 holds, identified by the statement that was waiting.
+func waitOnConnection411(waitingEventID sql.NullInt64, waitingQuery string) *blockingGraph {
+	return &blockingGraph{
+		blockers: map[string][]*rtav1.BlockingTransaction{
+			"411": {{BlockingConnId: 409, BlockingCommand: "Sleep", Root: true}},
+		},
+		waiters: map[string]waiterLock{"411": {
+			lockType:       rtav1.LockType_LOCK_TYPE_ROW,
+			lockedTable:    "sbtest.sbtest1",
+			lockedIndex:    "PRIMARY",
+			requestedMode:  "X,REC_NOT_GAP",
+			waitingEventID: waitingEventID,
+			waitingQuery:   waitingQuery,
+		}},
+		complete: true,
+	}
+}
+
+func TestWaitIsAttachedOnlyToTheStatementThatWaited(t *testing.T) {
+	t.Parallel()
+
+	const update = "UPDATE sbtest1 SET k=k+1 WHERE id=1"
+
+	for _, tc := range []struct {
+		name     string
+		row      map[string]any
+		graph    *blockingGraph
+		expected rtav1.BlockedStatus
+	}{
+		{
+			// The connection ran a plain SELECT when the statements were read and had moved on
+			// to the UPDATE by the time the lock graph was read.
+			name:     "LaterStatementByEventID",
+			row:      map[string]any{"conn_id": int64(411), "current_statement": "SELECT c FROM sbtest2 WHERE id=7", "statement_event_id": int64(850)},
+			graph:    waitOnConnection411(sql.NullInt64{Int64: 900, Valid: true}, update),
+			expected: rtav1.BlockedStatus_BLOCKED_STATUS_UNSPECIFIED,
+		},
+		{
+			// The same text run again is still a different statement event.
+			name:     "SameTextDifferentEventID",
+			row:      map[string]any{"conn_id": int64(411), "current_statement": update, "statement_event_id": int64(850)},
+			graph:    waitOnConnection411(sql.NullInt64{Int64: 900, Valid: true}, update),
+			expected: rtav1.BlockedStatus_BLOCKED_STATUS_UNSPECIFIED,
+		},
+		{
+			name:     "SameEventID",
+			row:      map[string]any{"conn_id": int64(411), "current_statement": update, "statement_event_id": int64(900)},
+			graph:    waitOnConnection411(sql.NullInt64{Int64: 900, Valid: true}, update),
+			expected: rtav1.BlockedStatus_BLOCKED_STATUS_BLOCKED,
+		},
+		{
+			// MariaDB ships events_statements_current off, so only the texts can be compared.
+			name:     "LaterStatementByText",
+			row:      map[string]any{"conn_id": int64(411), "current_statement": "SELECT c FROM sbtest2 WHERE id=7"},
+			graph:    waitOnConnection411(sql.NullInt64{}, update),
+			expected: rtav1.BlockedStatus_BLOCKED_STATUS_UNSPECIFIED,
+		},
+		{
+			name:     "SameText",
+			row:      map[string]any{"conn_id": int64(411), "current_statement": update},
+			graph:    waitOnConnection411(sql.NullInt64{}, update),
+			expected: rtav1.BlockedStatus_BLOCKED_STATUS_BLOCKED,
+		},
+		{
+			// The processlist and INNODB_TRX cut a long statement at different lengths.
+			name:     "TruncatedText",
+			row:      map[string]any{"conn_id": int64(411), "current_statement": update},
+			graph:    waitOnConnection411(sql.NullInt64{}, update[:12]),
+			expected: rtav1.BlockedStatus_BLOCKED_STATUS_BLOCKED,
+		},
+		{
+			// Nothing to compare: the wait is kept rather than discarded on no evidence.
+			name:     "NoIdentifiers",
+			row:      map[string]any{"conn_id": int64(411), "current_statement": update},
+			graph:    waitOnConnection411(sql.NullInt64{}, ""),
+			expected: rtav1.BlockedStatus_BLOCKED_STATUS_BLOCKED,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			payload := (&MySQLRTA{}).buildQueryData(tc.row, tc.graph).GetMySqlPayload()
+			assert.Equal(t, tc.expected, payload.BlockedStatus)
+
+			if tc.expected == rtav1.BlockedStatus_BLOCKED_STATUS_BLOCKED {
+				require.Len(t, payload.BlockedBy, 1)
+				assert.Equal(t, "sbtest.sbtest1", payload.LockedTable)
+
+				return
+			}
+
+			assert.Empty(t, payload.BlockedBy, "a statement that never waited must not name a blocker")
+			assert.Empty(t, payload.LockedTable)
+			assert.Equal(t, rtav1.LockType_LOCK_TYPE_UNSPECIFIED, payload.LockType)
+		})
+	}
+}
+
+func TestLockEdgesCarryTheWaitingStatement(t *testing.T) {
+	t.Parallel()
+
+	m, mock := newMockedRTA(t)
+	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
+		AddRow(411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "SELECT 1 FOR UPDATE", "db.t", "PRIMARY", "X", "X", 900, "UPDATE t SET v=1"))
+	mock.ExpectQuery("metadata_locks").WillReturnRows(metadataRows().
+		AddRow(412, 409, "SHARED_WRITE", "SHARED_READ", "Sleep", "u@h", nil, "SELECT 1", "db.t", 950, "INSERT INTO t VALUES (1)"))
+
+	graph := m.collectBlockingTransactionsOrWarn(t.Context())
+	require.NotNil(t, graph)
+	assert.Equal(t, sql.NullInt64{Int64: 900, Valid: true}, graph.waiters["411"].waitingEventID)
+	assert.Equal(t, "UPDATE t SET v=1", graph.waiters["411"].waitingQuery)
+	assert.Equal(t, sql.NullInt64{Int64: 950, Valid: true}, graph.waiters["412"].waitingEventID)
+	assert.Equal(t, "INSERT INTO t VALUES (1)", graph.waiters["412"].waitingQuery)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestEveryLockQueryReturnsTheWaitingStatement(t *testing.T) {
+	t.Parallel()
+
+	for _, query := range []string{blockingTransactionsSQL, innodbLockWaitsSQL, metadataLockWaitsSQL} {
+		aliases := selectListAliases(query)
+		require.GreaterOrEqual(t, len(aliases), 2)
+		assert.Equal(t, []string{"AS waiting_event_id", "AS waiting_query"}, aliases[len(aliases)-2:],
+			"the scanners read the waiting statement from the last two columns")
+	}
+
+	assert.Contains(t, currentQueriesSQLTemplate, "AS statement_event_id")
 }
