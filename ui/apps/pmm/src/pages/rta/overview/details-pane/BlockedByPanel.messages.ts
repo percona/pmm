@@ -9,10 +9,12 @@ export const Messages = {
   blockerStatement: "Blocker's statement",
   // Only when a transaction really is open. LOCK TABLES holds a metadata lock outside any
   // transaction, so claiming one would send the reader looking for something that is not there.
+  // The statement shown is the connection's last one, which is not necessarily the one that
+  // took the lock: any earlier statement in the same transaction may have.
   idleNote:
-    'Not executing anything right now — it is holding a transaction open. This is the statement that took the lock.',
+    'Not executing anything right now — it is holding a transaction open. Shown is the last statement it ran; the lock may have been taken by an earlier statement in the same transaction.',
   idleNoteNoTransaction:
-    'Not executing anything right now, but still holding the lock. This is the statement that took it.',
+    'Not executing anything right now, but still holding the lock. Shown is the last statement it ran; the lock may have been taken by an earlier one.',
   titles: {
     blockerState: 'Blocker state',
     blockerUser: 'Blocker user',

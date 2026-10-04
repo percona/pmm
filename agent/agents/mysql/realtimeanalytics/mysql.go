@@ -279,8 +279,8 @@ var optionalProcesslistSources = []struct {
 //
 // The blocking statement is read as the thread's live statement, falling back to the last one
 // performance_schema recorded for it, because the head of a blocking chain is typically idle
-// inside an open transaction and is running nothing at all -- its last statement is the one
-// that took the lock.
+// inside an open transaction and is running nothing at all -- its last statement is often, but
+// not always, the one that took the lock: an earlier statement in the transaction may have.
 //
 // The two LOCK_MODE columns say what was asked for and what is held ("X,REC_NOT_GAP",
 // "S,GAP", ...). They are what separates a wait on the row itself from a wait on the gap

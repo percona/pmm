@@ -133,7 +133,8 @@ export interface BlockingTransaction {
   blockingConnId: number | string;
   blockingQuery: string;
   // "Sleep" means the blocker is idle inside an open transaction and is running
-  // nothing at all, so blockingQuery is the statement that took the lock.
+  // nothing at all, so blockingQuery is the last statement it ran. The lock may have been
+  // taken by an earlier statement in the same transaction.
   blockingCommand: string;
   blockingUsername: string;
   waitDuration?: string | null;

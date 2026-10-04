@@ -42,8 +42,8 @@ const lockTypeLabel = (lockType?: LockType): string | undefined => {
   }
 };
 
-// MySQL reports an idle connection as "Sleep": it is inside an open transaction and is
-// running nothing, so its statement is the one that took the lock rather than a current one.
+// MySQL reports an idle connection as "Sleep": it is running nothing, so its statement is the
+// last one it ran rather than a current one. That is often, not always, the one that took the lock.
 const IDLE_COMMAND = 'Sleep';
 
 const durationText = (duration?: string | null): string =>
