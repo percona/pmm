@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { BlockingTransaction, LockType } from 'types/rta.types';
 import BlockedByPanel from './BlockedByPanel';
+import { Messages } from './BlockedByPanel.messages';
 
 // Modelled on a real pile-up: 409 sits idle inside an open transaction and heads the
 // chain, 412 is queued in the middle of it and is waiting itself.
@@ -377,5 +378,18 @@ describe('BlockedByPanel', () => {
     expect(
       screen.queryByTestId('blocker-query-truncated')
     ).not.toBeInTheDocument();
+  });
+
+  it('treats a PostgreSQL session idle in transaction as idle', () => {
+    renderPanel(
+      [{ ...IDLE_ROOT, blockingCommand: 'idle in transaction' }],
+      undefined,
+      undefined,
+      undefined,
+      undefined
+    );
+
+    expect(screen.getByText(Messages.idleNote)).toBeInTheDocument();
+    expect(screen.getByText('idle in transaction 2m 34s')).toBeInTheDocument();
   });
 });

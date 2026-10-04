@@ -92,7 +92,7 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 		}
 	} else {
 		// No service type filter specified - return all services that support RTA
-		// (currently MongoDB and MySQL), filtered by service type.
+		// (currently MongoDB, MySQL and PostgreSQL), filtered by service type.
 		for _, modelServiceType := range services.ServiceTypes {
 			_, err := getRTAAgentTypeForServiceType(modelServiceType)
 			if err != nil {
@@ -152,6 +152,8 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 			res.Mongodb = append(res.Mongodb, apiSvc)
 		case *inventoryv1.MySQLService:
 			res.Mysql = append(res.Mysql, apiSvc)
+		case *inventoryv1.PostgreSQLService:
+			res.Postgresql = append(res.Postgresql, apiSvc)
 		// Add other service types once RTA is supported for them
 		default:
 			return nil, fmt.Errorf("unhandled inventory Service type %T", apiSvc)
@@ -163,6 +165,10 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 	})
 
 	slices.SortStableFunc(res.Mysql, func(a, b *inventoryv1.MySQLService) int {
+		return strings.Compare(a.ServiceName, b.ServiceName)
+	})
+
+	slices.SortStableFunc(res.Postgresql, func(a, b *inventoryv1.PostgreSQLService) int {
 		return strings.Compare(a.ServiceName, b.ServiceName)
 	})
 
@@ -332,6 +338,12 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 			models.MySQLdExporterType,
 			models.QANMySQLPerfSchemaAgentType,
 			models.QANMySQLSlowlogAgentType,
+		}
+	case models.PostgreSQLServiceType:
+		agentTypes = []models.AgentType{
+			models.PostgresExporterType,
+			models.QANPostgreSQLPgStatementsAgentType,
+			models.QANPostgreSQLPgStatMonitorAgentType,
 		}
 		// Add other service types once RTA is supported for them
 	default:
@@ -655,6 +667,8 @@ func getProtoServiceType(serviceType models.ServiceType) inventoryv1.ServiceType
 		return inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE
 	case models.MySQLServiceType:
 		return inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE
+	case models.PostgreSQLServiceType:
+		return inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE
 	default:
 		return inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED
 	}
@@ -666,6 +680,8 @@ func getRTAAgentTypeForServiceType(serviceType models.ServiceType) (models.Agent
 		return models.RTAMongoDBAgentType, nil
 	case models.MySQLServiceType:
 		return models.RTAMySQLAgentType, nil
+	case models.PostgreSQLServiceType:
+		return models.RTAPostgreSQLAgentType, nil
 	default:
 		return "", fmt.Errorf("service of type %s does not support Real-Time Analytics", serviceType)
 	}
@@ -681,6 +697,8 @@ func rtaMinAgentVersion(serviceType models.ServiceType) (version.FeatureVersion,
 		return version.MongoDBRtaAgentSupportVersion, true
 	case models.MySQLServiceType:
 		return version.MySQLRtaAgentSupportVersion, true
+	case models.PostgreSQLServiceType:
+		return version.PostgreSQLRtaAgentSupportVersion, true
 	default:
 		return nil, false
 	}

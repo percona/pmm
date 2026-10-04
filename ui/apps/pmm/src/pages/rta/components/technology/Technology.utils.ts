@@ -6,6 +6,7 @@ import { Messages } from './Technology.messages';
 const TECHNOLOGY_LABELS: Partial<Record<ServiceType, string>> = {
   [ServiceType.mongodb]: Messages.mongodb,
   [ServiceType.mysql]: Messages.mysql,
+  [ServiceType.posgresql]: Messages.postgresql,
 };
 
 export const technologyLabel = (serviceType?: ServiceType): string =>

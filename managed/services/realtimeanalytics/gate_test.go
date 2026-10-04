@@ -41,10 +41,13 @@ func TestIsRtaFeatureSupported(t *testing.T) {
 	assert.True(t, isRtaFeatureSupported("3.10.0", models.MySQLServiceType))
 	assert.True(t, isRtaFeatureSupported("3.10.1", models.MySQLServiceType))
 
+	// PostgreSQL RTA ships in 3.10.0 as well.
+	assert.False(t, isRtaFeatureSupported("3.9.1", models.PostgreSQLServiceType))
+	assert.True(t, isRtaFeatureSupported("3.10.0", models.PostgreSQLServiceType))
+
 	// Service types that do not support RTA are never reported as supported,
 	// regardless of agent version.
-	assert.False(t, isRtaFeatureSupported("3.9.0", models.ValkeyServiceType))
-	assert.False(t, isRtaFeatureSupported("3.9.0", models.PostgreSQLServiceType))
+	assert.False(t, isRtaFeatureSupported("3.10.0", models.ValkeyServiceType))
 
 	// Unparsable version is never supported.
 	assert.False(t, isRtaFeatureSupported("not-a-version", models.MySQLServiceType))

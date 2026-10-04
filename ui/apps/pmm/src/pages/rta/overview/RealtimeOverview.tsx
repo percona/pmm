@@ -76,9 +76,10 @@ const RealtimeOverviewPage: FC = () => {
   );
   const [hideCommit, setHideCommit] = useState(false);
   const [blockedOnly, setBlockedOnly] = useState(false);
-  // Transaction-control statements are a MySQL concern, so the toggle is only
-  // offered while MySQL services are being watched.
-  const isMySqlSelection = serviceType === ServiceType.mysql;
+  // Transaction-control statements and lock waits are SQL concerns, so the toggles
+  // are only offered while MySQL or PostgreSQL services are being watched.
+  const isMySqlSelection =
+    serviceType === ServiceType.mysql || serviceType === ServiceType.posgresql;
   // Synced from the table after filters; details-pane arrows use this list, not the full API result.
   const [navigableQueries, setNavigableQueries] = useState<QueryData[]>([]);
   const [selectedQuery, setSelectedQuery] = useState<QueryData>();

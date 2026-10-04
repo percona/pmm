@@ -4,12 +4,19 @@ import { Messages } from './TruncatedChip.messages';
 
 export interface Props {
   dataTestId?: string;
+  postgresql?: boolean;
 }
 
-// Marks statement text that MySQL cut short. MySQL leaves no marker of its own, so
+// Marks statement text that MySQL or PostgreSQL cut short. Neither leaves a marker of its own, so
 // without this a cut statement reads as a complete one.
-const TruncatedChip: FC<Props> = ({ dataTestId = 'truncated-chip' }) => (
-  <Tooltip title={Messages.tooltip} arrow>
+const TruncatedChip: FC<Props> = ({
+  dataTestId = 'truncated-chip',
+  postgresql,
+}) => (
+  <Tooltip
+    title={postgresql ? Messages.tooltipPostgreSql : Messages.tooltip}
+    arrow
+  >
     <Chip
       size="small"
       color="default"

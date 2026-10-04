@@ -27,6 +27,7 @@ export interface Props {
   lockedIndex?: string;
   lockType?: LockType;
   requestedLockMode?: string;
+  postgresql?: boolean;
 }
 
 // Which mechanism the wait is on, in the reader's words. Unknown lock types render nothing
@@ -42,9 +43,12 @@ const lockTypeLabel = (lockType?: LockType): string | undefined => {
   }
 };
 
-// MySQL reports an idle connection as "Sleep": it is inside an open transaction and is
-// running nothing, so its statement is the one that took the lock rather than a current one.
+// MySQL reports an idle connection as "Sleep" and PostgreSQL a session in an open transaction as
+// "idle in transaction": it is running nothing, so its statement is the one that took the lock
+// rather than a current one.
 const IDLE_COMMAND = 'Sleep';
+const isIdleCommand = (command: string) =>
+  command === IDLE_COMMAND || command.startsWith('idle in transaction');
 
 const durationText = (duration?: string | null): string =>
   duration ? formatDurationSeconds(parseDuration(duration) / 1000) : '';
@@ -126,6 +130,7 @@ const BlockedByPanel: FC<Props> = ({
   lockedIndex,
   lockType,
   requestedLockMode,
+  postgresql,
 }) => {
   // Transactions that are not themselves waiting. Resolving those is what frees the
   // statement — but there can be several, and then no single one is the answer.
@@ -176,7 +181,7 @@ const BlockedByPanel: FC<Props> = ({
     );
   }
 
-  const isIdle = primary.blockingCommand === IDLE_COMMAND;
+  const isIdle = isIdleCommand(primary.blockingCommand);
   const blockerAge = durationText(primary.blockerTransactionDuration);
   const waitText = durationText(primary.waitDuration);
 
@@ -230,7 +235,10 @@ const BlockedByPanel: FC<Props> = ({
                 {Messages.blockerStatement}
               </Typography>
               {primary.blockingQueryTruncated && (
-                <TruncatedChip dataTestId="blocker-query-truncated" />
+                <TruncatedChip
+                  dataTestId="blocker-query-truncated"
+                  postgresql={postgresql}
+                />
               )}
             </Stack>
             <CodeBlock
@@ -255,7 +263,10 @@ const BlockedByPanel: FC<Props> = ({
             title={Messages.titles.blockerState}
             value={
               isIdle && blockerAge
-                ? Messages.idleInTransaction(blockerAge)
+                ? Messages.idleInTransaction(
+                    primary.blockingCommand,
+                    blockerAge
+                  )
                 : primary.blockingCommand
             }
           />

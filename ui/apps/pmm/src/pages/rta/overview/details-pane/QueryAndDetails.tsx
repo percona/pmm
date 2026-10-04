@@ -18,6 +18,7 @@ import {
   formatLockTimeMs,
   isBlocked,
   queryLanguage,
+  sqlPayload,
 } from '../table/OverviewTable.utils';
 
 type Props = {
@@ -30,6 +31,25 @@ const GridItem = ({ children }: { children: React.ReactNode }) => (
   </Grid>
 );
 
+const Metric = ({
+  name,
+  value,
+  testId,
+}: {
+  name: keyof typeof Messages.titles & keyof typeof Messages.tooltips;
+  value?: string;
+  testId: string;
+}) => (
+  <GridItem>
+    <DetailsMetric
+      title={Messages.titles[name]}
+      tooltip={Messages.tooltips[name]}
+    >
+      <BigNumberMetric mainText={value} size="small" dataTestId={testId} />
+    </DetailsMetric>
+  </GridItem>
+);
+
 const QueryAndDetails: FC<Props> = ({ queryData }) => {
   const {
     queryText,
@@ -40,19 +60,24 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
     clientAddress,
     mongoDbPayload,
     mySqlPayload,
+    postgresqlPayload: pg,
   } = queryData;
 
   const language = queryLanguage(queryData);
+  const { user } = useUser();
+  const timezone = user?.preferences?.timezone || 'UTC';
 
   // Fields common to all database types are resolved from whichever payload is present.
   const dbInstanceAddress =
     mongoDbPayload?.dbInstanceAddress ?? mySqlPayload?.dbInstanceAddress;
   const databaseName =
-    mongoDbPayload?.databaseName ?? mySqlPayload?.databaseName;
-  const username = mongoDbPayload?.username ?? mySqlPayload?.username;
-
-  const { user } = useUser();
-  const timezone = user?.preferences?.timezone || 'UTC';
+    mongoDbPayload?.databaseName ??
+    mySqlPayload?.databaseName ??
+    pg?.databaseName;
+  const username =
+    mongoDbPayload?.username ?? mySqlPayload?.username ?? pg?.username;
+  const formatTime = (time?: string) =>
+    time ? format(new Date(time), TIME_FORMAT, { in: tz(timezone) }) : '';
 
   // A duration of 0 is a duration like any other - a statement that has just
   // started - so only a missing value renders blank. The number matches the
@@ -70,7 +95,7 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
   // that shows as blocked always opens a pane that explains it -- even when the holder was
   // not in the same snapshot, which the panel renders as its unknown-holder state.
   const blocked = isBlocked(queryData);
-  const blockers = mySqlPayload?.blockedBy ?? [];
+  const blockers = sqlPayload(queryData)?.blockedBy ?? [];
 
   return (
     <Grid container spacing={3}>
@@ -84,6 +109,7 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
             lockedIndex={mySqlPayload?.lockedIndex}
             lockType={mySqlPayload?.lockType}
             requestedLockMode={mySqlPayload?.requestedLockMode}
+            postgresql={!!pg}
           />
         </Grid>
       )}
@@ -95,7 +121,9 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
               tooltip={
                 mySqlPayload
                   ? Messages.tooltips.operationIdMySql
-                  : Messages.tooltips.operationId
+                  : pg
+                    ? Messages.tooltips.operationIdPostgreSql
+                    : Messages.tooltips.operationId
               }
             >
               <BigNumberMetric
@@ -357,6 +385,38 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
               </GridItem>
             </>
           )}
+          {pg && (
+            <>
+              <Metric name="state" value={pg.state} testId="state-value" />
+              <Metric
+                name="waitEvent"
+                value={[pg.waitEventType, pg.waitEvent]
+                  .filter(Boolean)
+                  .join(': ')}
+                testId="wait-event-value"
+              />
+              <Metric
+                name="clientAppName"
+                value={pg.applicationName}
+                testId="client-app-name-value"
+              />
+              <Metric
+                name="queryId"
+                value={pg.queryId}
+                testId="query-id-value"
+              />
+              <Metric
+                name="operationStartTime"
+                value={formatTime(pg.queryStartTime)}
+                testId="operation-start-time-value"
+              />
+              <Metric
+                name="transactionStartTime"
+                value={formatTime(pg.transactionStartTime)}
+                testId="transaction-start-time-value"
+              />
+            </>
+          )}
           <GridItem>
             <DetailsMetric
               title={Messages.titles.dataCaptureTime}
@@ -375,8 +435,11 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
         <Stack gap={1} alignItems="flex-start">
-          {mySqlPayload?.queryTextTruncated && (
-            <TruncatedChip dataTestId="query-text-truncated" />
+          {sqlPayload(queryData)?.queryTextTruncated && (
+            <TruncatedChip
+              dataTestId="query-text-truncated"
+              postgresql={!!pg}
+            />
           )}
           <CodeBlock
             language={codeBlockLanguage(language)}

@@ -26,8 +26,8 @@ import (
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
-// RTAQueryTag marks the queries the MySQL Real-Time Analytics agent polls with, so the QAN agents
-// can leave them out: RTA runs them every collect interval on the very server QAN is watching.
+// RTAQueryTag marks the queries the MySQL and PostgreSQL Real-Time Analytics agents poll with, so the QAN
+// agents can leave them out: RTA runs them every collect interval on the very server QAN is watching.
 // Each query selects NULL AS pmm_agent_rta as its first column, because the statement digest that
 // the perfschema QAN agent reads keeps identifiers but strips comments, and is cut at
 // max_digest_length (1024 bytes by default) -- these queries are longer than that, so the tag has

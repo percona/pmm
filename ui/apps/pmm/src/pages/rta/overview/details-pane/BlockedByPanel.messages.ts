@@ -28,7 +28,10 @@ export const Messages = {
     row: 'Row lock (InnoDB)',
     metadata: 'Metadata lock (MDL)',
   },
-  idleInTransaction: (age: string) => `Sleep · idle in transaction ${age}`,
+  idleInTransaction: (command: string, age: string) =>
+    command === 'Sleep'
+      ? `Sleep · idle in transaction ${age}`
+      : `${command} ${age}`,
   // Queued in front of this statement, but not the cause: they clear on their own.
   otherBlockers: (count: number) =>
     count === 1

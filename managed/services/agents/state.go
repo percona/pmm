@@ -327,7 +327,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			models.ValkeyExporterType, models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType,
 			models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType,
 			models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType,
-			models.RTAMongoDBAgentType, models.RTAMySQLAgentType:
+			models.RTAMongoDBAgentType, models.RTAMySQLAgentType, models.RTAPostgreSQLAgentType:
 			service, err := getService(pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
@@ -380,6 +380,8 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				builtinAgents[row.AgentID] = rtaMongoDBAgentConfig(service, row, pmmAgentVersion)
 			case models.RTAMySQLAgentType:
 				builtinAgents[row.AgentID] = rtaMySQLAgentConfig(service, row, pmmAgentVersion)
+			case models.RTAPostgreSQLAgentType:
+				builtinAgents[row.AgentID] = rtaPostgreSQLAgentConfig(service, row, pmmAgentVersion)
 			}
 
 		default:
