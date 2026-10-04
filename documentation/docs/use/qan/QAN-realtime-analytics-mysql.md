@@ -18,7 +18,7 @@ Rather than checking a version number, RTA asks the server at session start whet
 | ------ | ------ |
 | MySQL 8.0 and later | Fully supported |
 | Percona Server for MySQL 8.0 and later | Fully supported |
-| MySQL 5.7 | Supported. The metadata-lock instrument is off by default, so metadata-lock waits show as **Blocked unknown** until you enable it — see [Get complete data on MariaDB and MySQL 5.7](#get-complete-data-on-mariadb-and-mysql-57) |
+| MySQL 5.7 | Supported. The metadata-lock and transaction instrumentation is off by default, so metadata-lock waits show as **Blocked unknown** and transaction details are empty until you enable it — see [Get complete data on MariaDB and MySQL 5.7](#get-complete-data-on-mariadb-and-mysql-57) |
 | MariaDB 10.11, 11.4, 11.8, 12.3, 13.0 | Supported, with the lock-detail difference noted in [The two kinds of lock](#the-two-kinds-of-lock) |
 
 Other MariaDB releases work if they provide the required tables, but only the versions in the table are tested.
@@ -49,7 +49,12 @@ Starting and stopping RTA sessions requires the **Admin** role. Users with other
 
 MySQL and Percona Server 8.0 and later enable everything RTA uses by default, so there is nothing to configure.
 
-**On MySQL 5.7, the `wait/lock/metadata/sql/mdl` instrument is off by default.** Everything else works, but a statement waiting on a metadata lock shows as **Blocked unknown** instead of naming its blocker. Enable the instrument with the `setup_instruments` statement in this section, or add `performance_schema_instrument = 'wait/lock/metadata/sql/mdl=ON'` to the configuration file.
+**On MySQL 5.7, the `wait/lock/metadata/sql/mdl` instrument, the `events_transactions_current` consumer and the `transaction` instrument are off by default.** Everything else works, but you lose two things:
+
+- A statement waiting on a metadata lock shows as **Blocked unknown** instead of naming its blocker.
+- Transaction details are empty: the `trx_state`, `trx_latency` and `trx_autocommit` fields in the **Raw data** tab, and how long a metadata-lock blocker has been idle in its transaction.
+
+To enable all three, run the `setup_consumers` and `setup_instruments` statements in this section, or add the `events_transactions_current` and `performance_schema_instrument` lines from the configuration example to your MySQL configuration file and restart the server. RTA names each switch that is off at session start: hover over the session status in the sessions list to see them.
 
 **MariaDB ships three Performance Schema switches turned off.** RTA still works without them — you get query text, user, database, command, state and elapsed time — but latency, row counts and metadata-lock detection are missing. RTA names each one at session start: hover over the session status in the sessions list to see them.
 
@@ -120,7 +125,7 @@ State, command, rows examined, rows sent, full scan and program name are not tab
 
 ### Filter the view
 
-- **Blocked only** — show just the statements that are waiting on a lock. The count next to the toggle tells you how many there are without filtering.
+- **Blocked only** — show just the statements that are waiting on a lock. The count next to the toggle tells you how many there are without filtering. Statements that RTA could not judge, shown as **Blocked unknown** or **Blocked: unknown**, stay visible when the filter is on, so a statement that may be waiting is never hidden. Hover over the toggle to see why some statements could not be judged.
 - **Hide transaction control** — hide bare `BEGIN`, `COMMIT` and `ROLLBACK` statements, which dominate the view under a transactional workload and rarely tell you anything.
 - **Cluster/Service** — narrow to specific services when several sessions are running.
 
@@ -140,7 +145,9 @@ RTA's own polling queries are marked with a `/* pmm-agent:rta */` comment and ar
 
 ### Pause the stream
 
-Click **Pause** to freeze the current view so an operation doesn't disappear on the next refresh. The agent keeps collecting in the background. Pausing also makes the **Export** button available.
+Click **Pause** to freeze the current view so an operation doesn't disappear on the next refresh. The agent keeps collecting in the background. Pausing also makes the **Refresh** and **Export to CSV** buttons available.
+
+Opening a row also pauses the view. If the statement you opened finishes and you refresh, the **Details** pane keeps showing it and marks it as no longer running. It does not switch to the next statement that the same connection runs.
 
 ## Find out what is blocking a query
 
@@ -148,7 +155,7 @@ This is what RTA is for. A blocked statement carries a **Blocked by** badge nami
 
 | Field | Meaning |
 | ----- | ------- |
-| **Blocker's statement** | What the blocking connection is running. For the head of a chain this is often the statement that took the lock, not what it is doing now |
+| **Blocker's statement** | What the blocking connection is running. When the blocker is idle, this is the last statement it ran, which is often, but not always, the statement that took the lock: an earlier statement in the same transaction may have taken it |
 | **Blocker state** | The blocker's current command — `Sleep` here means an open transaction sitting idle |
 | **Blocker user** | Who owns the blocking connection |
 | **Locked table** / **Locked index** | What is contended |
@@ -171,9 +178,11 @@ A statement waiting on a metadata lock appears in neither `SHOW ENGINE INNODB ST
 
 ### Blocked unknown
 
-A statement shown as **Blocked unknown** means RTA could not read one of its two lock sources, so it will not claim the statement is healthy. The most common cause is the `wait/lock/metadata/sql/mdl` instrument being disabled — see [Get complete data on MariaDB and MySQL 5.7](#get-complete-data-on-mariadb-and-mysql-57). To see what RTA cannot collect, hover over the session status in the sessions list, or check the PMM Client log.
+RTA does not claim a statement is healthy when it cannot tell. There are two cases, and they need different responses.
 
-**Blocked unknown** can also appear on a single statement for one refresh. RTA reads running statements and locks with two separate queries, and if a connection moves on to its next statement in between, RTA does not attach the lock to the statement that did not request it.
+**A lock source could not be read.** If RTA cannot read one of its two lock sources, the **Blocked only** toggle says so in its tooltip, and if it can read neither, the toggle shows **Blocked unknown** and is disabled. The most common cause is the `wait/lock/metadata/sql/mdl` instrument being disabled — see [Get complete data on MariaDB and MySQL 5.7](#get-complete-data-on-mariadb-and-mysql-57). To see what RTA cannot collect, hover over the session status in the sessions list, or check the PMM Client log.
+
+**The connection moved on.** A single statement can carry a **Blocked: unknown** label for one refresh. RTA reads running statements and locks with two separate queries. If a connection moves on to its next statement in between and that statement waits for a lock, RTA does not attach the lock to the statement that did not request it, and labels the statement **Blocked: unknown** instead. Nothing needs fixing: the next refresh reads both again. The **Blocked only** tooltip counts these statements separately from a missing lock source.
 
 ### Stop a problematic query
 
@@ -223,16 +232,16 @@ The **Raw data** tab shows the complete process list row for the statement, exac
 
 You can export a snapshot of the current view to CSV. This is useful for capturing queries that are still in progress and may never appear in QAN — a long-running statement that is killed before it completes never reaches QAN, because QAN only records queries that finish.
 
-The **Export** button is hidden while auto-refresh is active and appears once you pause.
+The **Export to CSV** button is hidden while auto-refresh is active and appears once you pause.
 
 {.power-number}
 
 1. Go to **Query Analytics > Real-time**.
 2. Click **Pause**.
 3. Apply any filters or sort order you want reflected in the export.
-4. Click **Export**.
+4. Click **Export to CSV**.
 
-The export includes all records across all pages and respects active filters and sort order. For MySQL, the `lock_time_ms` column holds the lock time in milliseconds, and `query_text_truncated` says whether the statement text was cut short.
+The export includes all records across all pages and respects active filters and sort order. For MySQL, the `lock_time_ms` column holds the lock time in milliseconds, and `query_text_truncated` says whether the statement text was cut short. When one transaction is blocking a statement, `blocking_conn_id` and `blocking_query` name it, and `blocking_query_truncated` says whether its statement text was cut short.
 
 ## Known limitations
 
@@ -261,7 +270,7 @@ RTA displays what the server returns and exposes nothing beyond what `SHOW PROCE
 
 Check each requirement:
 
-- **PMM Client version**: 3.10.0 or later. Run `pmm-admin status` on the monitored host.
+- **PMM Client version**: 3.10.0 or later. Run `pmm-admin status` on the monitored host. A service monitored by an older PMM Client does not appear in the **Cluster/Service** drop-down, and adding the RTA agent with `pmm-admin inventory add agent rta-mysql-agent` or the inventory API is refused with an error that names the required version. If an RTA agent was added before its PMM Client reported a version, the sessions list shows the session as **Error** with the same explanation.
 - **`performance_schema`**: must be enabled. Run `SELECT @@performance_schema;` — it must return `1`. This is set at startup and cannot be changed at runtime.
 - **Grants**: the monitoring user needs `SELECT` and `PROCESS`. See [Service requirements](#service-requirements).
 - **Admin role**: only users with the **Admin** [role](../../admin/roles/index.md) can start or stop sessions.

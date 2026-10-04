@@ -148,6 +148,8 @@ A statement queued behind a DDL reports a metadata lock instead. Metadata-lock w
 > `rows_examined`, `rows_sent` and `full_scan` are omitted from the payload when the server did not measure them, which is the default on MariaDB because the `events_statements_current` consumer ships disabled. Absent means unknown: treat it as "not measured" rather than as zero rows or no full scan. A server that did measure reports a real `0` or `false`, so the two are distinguishable.
 > 
 > `blocked_status` is `BLOCKED_STATUS_UNSPECIFIED` when RTA could not read one of its two lock sources, and therefore cannot say whether the statement is waiting. Treat it as "unknown", not as "not blocked". The most common cause is the `wait/lock/metadata/sql/mdl` instrument being disabled, which is the default on MariaDB.
+>
+> `blocked_status` is `BLOCKED_STATUS_UNATTRIBUTED` when the lock sources were read, but the connection was waiting for a lock on behalf of a later statement than the one reported: it moved on between the statement read and the lock read. Treat it as "unknown for this refresh"; the next collection reads both again. No configuration change is needed.
 > 
 > On MySQL and Percona Server, lock modes distinguish a record lock from a gap lock (`X,REC_NOT_GAP`, `X,GAP`). MariaDB reports plain `X` or `S`.
 
@@ -185,7 +187,7 @@ A statement queued behind a DDL reports a metadata lock instead. Metadata-lock w
 | `queries[].my_sql_payload.full_scan` | boolean | Whether the statement scanned without a usable index. Absent when the server did not measure it |
 | `queries[].my_sql_payload.lock_time` | string | Time the statement has waited for table locks (`LOCK_TIME` from `events_statements_current`). Absent when the server did not measure it |
 | `queries[].my_sql_payload.query_text_truncated` | boolean | `query_text` is not the whole statement. MySQL keeps 1024 bytes of a running statement in the process list, and up to `performance_schema_max_sql_text_length` bytes while the `events_statements_current` consumer is enabled; PMM sends at most 64 KiB. A statement exactly as long as the limit is reported as truncated too |
-| `queries[].my_sql_payload.blocked_status` | string | `BLOCKED_STATUS_BLOCKED`, `BLOCKED_STATUS_NOT_BLOCKED`, or `BLOCKED_STATUS_UNSPECIFIED` when a lock source could not be read |
+| `queries[].my_sql_payload.blocked_status` | string | `BLOCKED_STATUS_BLOCKED`, `BLOCKED_STATUS_NOT_BLOCKED`, `BLOCKED_STATUS_UNSPECIFIED` when a lock source could not be read, or `BLOCKED_STATUS_UNATTRIBUTED` when the wait found belonged to a later statement on the same connection |
 | `queries[].my_sql_payload.lock_type` | string | `LOCK_TYPE_ROW` or `LOCK_TYPE_METADATA` |
 | `queries[].my_sql_payload.locked_table` | string | Contended table (`schema.table`) |
 | `queries[].my_sql_payload.locked_index` | string | Contended index; empty for table- and metadata-level locks |
