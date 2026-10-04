@@ -1,5 +1,6 @@
-import { RealtimeSession } from 'types/rta.types';
+import { RealtimeSession, RealtimeSessionStatus } from 'types/rta.types';
 import { ServiceType } from 'types/services.types';
+import { Messages } from './RealtimeOverview.messages';
 
 interface Selection {
   serviceIds: string[];
@@ -39,4 +40,25 @@ export const resolveSelection = (
     ),
     serviceType,
   };
+};
+
+// sessionErrorsMessage explains an empty view whose sessions failed to start, in
+// the words the agent reported, instead of letting it read as an idle server.
+// Undefined when no selected session failed with a reason.
+export const sessionErrorsMessage = (
+  serviceIds: string[],
+  sessions: RealtimeSession[]
+): string | undefined => {
+  const reasons = sessions
+    .filter(
+      (session) =>
+        serviceIds.includes(session.serviceId) &&
+        session.status === RealtimeSessionStatus.error &&
+        !!session.statusMessage
+    )
+    .map((session) =>
+      Messages.sessionError(session.serviceName, session.statusMessage ?? '')
+    );
+
+  return reasons.length > 0 ? reasons.join('\n') : undefined;
 };

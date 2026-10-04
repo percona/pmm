@@ -32,6 +32,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/durationpb"
 
+	"github.com/percona/pmm/agent/agents"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
@@ -1392,4 +1394,74 @@ func TestDescribeDisabledNamesTheHalfThatIsOff(t *testing.T) {
 	both := m.describeDisabled("c", false, "i", false)
 	assert.Contains(t, both, "c consumer")
 	assert.Contains(t, both, "i instrument")
+}
+
+func TestStartupWarningsAreKeptForTheRunningStatus(t *testing.T) {
+	t.Parallel()
+
+	m, mock := newMockedRTA(t)
+	mock.ExpectQuery("setup_consumers").WithArgs("events_statements_current").
+		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("NO"))
+	mock.ExpectQuery("setup_consumers").WithArgs("events_transactions_current").
+		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("YES"))
+	mock.ExpectQuery("setup_instruments").WithArgs("transaction").
+		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("YES"))
+	mock.ExpectQuery("setup_instruments").WithArgs(metadataLockInstrument).
+		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("NO"))
+
+	m.checkStatementConsumers(t.Context())
+	m.checkMetadataLockInstrument(t.Context())
+
+	require.NoError(t, mock.ExpectationsWereMet())
+	require.Len(t, m.warnings, 2)
+	assert.Contains(t, m.warnings[0], "The events_statements_current consumer is disabled")
+	assert.Contains(t, m.warnings[1], "The "+metadataLockInstrument+" instrument is disabled")
+}
+
+func TestStartupWarningsAreEmptyWhenEverythingIsEnabled(t *testing.T) {
+	t.Parallel()
+
+	m, mock := newMockedRTA(t)
+	mock.ExpectQuery("setup_consumers").WithArgs("events_statements_current").
+		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("YES"))
+	mock.ExpectQuery("setup_consumers").WithArgs("events_transactions_current").
+		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("YES"))
+	mock.ExpectQuery("setup_instruments").WithArgs("transaction").
+		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("YES"))
+	mock.ExpectQuery("setup_instruments").WithArgs(metadataLockInstrument).
+		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("YES"))
+
+	m.checkStatementConsumers(t.Context())
+	m.checkMetadataLockInstrument(t.Context())
+
+	require.NoError(t, mock.ExpectationsWereMet())
+	assert.Empty(t, m.warnings)
+}
+
+func TestConnectionFailureIsReportedWithItsReason(t *testing.T) {
+	t.Parallel()
+
+	// Nothing listens on port 1, so the ping fails at once with "connection refused".
+	m := New(&Params{
+		AgentID:         "agent-id",
+		DSN:             "pmm:secret@tcp(127.0.0.1:1)/?timeout=2s",
+		CollectInterval: time.Second,
+	}, logrus.NewEntry(logrus.New()))
+
+	go m.Run(t.Context())
+
+	var changes []agents.Change
+	for change := range m.Changes() {
+		changes = append(changes, change)
+	}
+
+	require.Len(t, changes, 2)
+	assert.Equal(t, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, changes[0].Status)
+	assert.Empty(t, changes[0].StatusMessage)
+
+	last := changes[1]
+	assert.Equal(t, inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, last.Status)
+	assert.Contains(t, last.StatusMessage, "Cannot connect to MySQL")
+	assert.Contains(t, last.StatusMessage, "127.0.0.1:1")
+	assert.NotContains(t, last.StatusMessage, "secret", "the password must never reach the UI")
 }

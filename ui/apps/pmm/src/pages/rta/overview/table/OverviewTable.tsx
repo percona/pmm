@@ -52,6 +52,8 @@ interface Props {
   queries: QueryData[];
   // Technology of the services being watched; the selection cannot mix them.
   serviceType?: ServiceType;
+  // Replaces the default empty-state text, e.g. with why a session failed.
+  noDataMessage?: string;
   onQuerySelected: (query: QueryData) => void;
   onNavigableQueriesChange: (queries: QueryData[]) => void;
   actions?: MaterialReactTableProps<QueryData>['renderTopToolbarCustomActions'];
@@ -61,6 +63,7 @@ interface Props {
 const OverviewTable: FC<Props> = ({
   queries,
   serviceType,
+  noDataMessage = Messages.noData,
   onQuerySelected,
   onNavigableQueriesChange,
   actions,
@@ -88,7 +91,7 @@ const OverviewTable: FC<Props> = ({
         tableName="realtime-overview-table"
         columns={columns}
         data={queries}
-        noDataMessage={Messages.noData}
+        noDataMessage={noDataMessage}
         muiTopToolbarProps={{
           sx: {
             mb: 0.5,

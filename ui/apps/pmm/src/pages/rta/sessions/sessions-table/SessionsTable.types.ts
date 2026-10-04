@@ -11,6 +11,8 @@ export interface SessionRow {
   serviceType?: ServiceType;
   startTime: string;
   status: RealtimeSessionStatus;
+  // Only service rows carry one; see RealtimeSession.statusMessage.
+  statusMessage?: string;
   serviceSessions: SessionRow[];
 }
 

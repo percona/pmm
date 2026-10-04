@@ -61,6 +61,7 @@ const serviceToSessionRow = (serviceSession: RealtimeSession): SessionRow => ({
   sessionName: serviceSession.serviceName,
   serviceType: serviceSession.serviceType,
   status: serviceSession.status,
+  statusMessage: serviceSession.statusMessage,
   startTime: serviceSession.startTime,
   serviceSessions: [],
 });

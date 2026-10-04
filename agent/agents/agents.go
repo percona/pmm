@@ -30,6 +30,9 @@ type Change struct {
 	Status           inventoryv1.AgentStatus
 	MetricsBucket    []*agentv1.MetricsBucket
 	RTAQueriesBucket []*rtav1.QueryData
+
+	// StatusMessage explains Status to the user, e.g. why initialization failed. Optional.
+	StatusMessage string
 }
 
 // BuiltinAgent is a common interface for all built-in Agents.

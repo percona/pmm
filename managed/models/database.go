@@ -1199,6 +1199,9 @@ var databaseSchema = [][]string{
 			WHERE environment_variables IS NOT NULL
 			AND agent_type <> 'mongodb_exporter'`,
 	},
+	120: {
+		`ALTER TABLE agents ADD COLUMN status_message TEXT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

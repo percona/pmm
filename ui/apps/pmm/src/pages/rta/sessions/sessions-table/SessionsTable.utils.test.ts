@@ -46,3 +46,20 @@ describe('getSessionRows', () => {
     expect(row.serviceType).toBeUndefined();
   });
 });
+
+describe('getSessionRows status message', () => {
+  it('carries the agent status message onto the service row', () => {
+    const [cluster] = getSessionRows([
+      {
+        ...TEST_REAL_TIME_SESSION_MYSQL,
+        status: RealtimeSessionStatus.error,
+        statusMessage: 'performance_schema is disabled',
+      },
+    ]);
+
+    expect(cluster.statusMessage).toBeUndefined();
+    expect(cluster.serviceSessions[0].statusMessage).toBe(
+      'performance_schema is disabled'
+    );
+  });
+});

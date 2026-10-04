@@ -16,6 +16,10 @@ export interface RealtimeSession {
   clusterName: string;
   startTime: string;
   status: RealtimeSessionStatus;
+  // The agent's explanation of the status: why the session failed to start, or
+  // what it cannot collect while running. Absent when there is nothing to say,
+  // and always absent from agents that predate it.
+  statusMessage?: string;
 }
 
 // A service that can have an RTA session started for it, carrying the

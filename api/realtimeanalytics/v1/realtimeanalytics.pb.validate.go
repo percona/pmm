@@ -404,6 +404,8 @@ func (m *Session) validate(all bool) error {
 
 	// no validation rules for ServiceType
 
+	// no validation rules for StatusMessage
+
 	if len(errors) > 0 {
 		return SessionMultiError(errors)
 	}

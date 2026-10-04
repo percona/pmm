@@ -463,6 +463,10 @@ type MySQLRTA struct {
 	// goes back to 5.7, so a server that can never serve one may serve the other perfectly.
 	rowLocks      lockSourceState
 	metadataLocks lockSourceState
+	// warnings are what the startup checks found this server cannot provide, in the words logged
+	// for them. They are reported with the RUNNING status so the session can say why some details
+	// are missing without anyone having to read the agent log.
+	warnings []string
 	// rowLockSource is the row-lock query this server can actually answer. Which one that is
 	// depends on the tables it has rather than on its version string, and it cannot change
 	// while the agent is connected, so it is chosen once at startup.
@@ -542,10 +546,13 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 	// start (connection failure or unmet prerequisites), so the session surfaces a
 	// clear error instead of sitting in RUNNING with no data.
 	terminalStatus := inventoryv1.AgentStatus_AGENT_STATUS_DONE
+	// terminalMessage says why initialization failed, so the session can show the reason instead
+	// of a bare error status.
+	var terminalMessage string
 	defer func() {
 		collectors.Wait()
 
-		m.changes <- agents.Change{Status: terminalStatus}
+		m.changes <- agents.Change{Status: terminalStatus, StatusMessage: terminalMessage}
 
 		close(m.changes)
 	}()
@@ -558,6 +565,7 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 		}
 		m.l.Errorf("Can't run Real-Time Analytics agent, reason: %v", err)
 		terminalStatus = inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR
+		terminalMessage = fmt.Sprintf("Cannot connect to MySQL: %v", err)
 		return
 	}
 
@@ -578,10 +586,14 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 		}
 		m.l.Errorf("Real-Time Analytics is not supported for this instance: %v", err)
 		terminalStatus = inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR
+		terminalMessage = fmt.Sprintf("Real-Time Analytics is not supported for this instance: %v", err)
 		return
 	}
 
-	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
+	m.changes <- agents.Change{
+		Status:        inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
+		StatusMessage: strings.Join(m.warnings, "\n"),
+	}
 
 	ticker := time.NewTicker(m.collectInterval)
 	defer ticker.Stop()
@@ -763,9 +775,17 @@ func (m *MySQLRTA) checkStatementConsumers(ctx context.Context) {
 			config += fmt.Sprintf(" and performance_schema_instrument='%s=ON'", consumer.instrument)
 		}
 
-		m.l.Warnf("%s, so %s are not collected. Enable it (%s, or %s in the config) and restart the agent",
+		m.warnUserf("%s, so %s are not collected. Enable it (%s, or %s in the config) and restart the Real-Time Analytics session",
 			m.describeDisabled(consumer.name, consumerOn, consumer.instrument, instrumentOn), consumer.lost, remedy, config)
 	}
+}
+
+// warnUserf logs a startup finding that limits what is collected and keeps it for the RUNNING
+// status, so the user sees it in the session rather than only in the agent log.
+func (m *MySQLRTA) warnUserf(format string, args ...any) {
+	message := fmt.Sprintf(format, args...)
+	m.l.Warn(message)
+	m.warnings = append(m.warnings, message)
 }
 
 // describeDisabled names whichever half of the switch is off, so the warning points at the one
@@ -790,7 +810,7 @@ func (m *MySQLRTA) switchEnabled(ctx context.Context, query, name, kind, lost st
 	var enabled string
 	err := m.db.QueryRowContext(ctx, query, name).Scan(&enabled)
 	if errors.Is(err, sql.ErrNoRows) {
-		m.l.Warnf("This server has no %s %s, so %s are not collected", name, kind, lost)
+		m.warnUserf("This server has no %s %s, so %s are not collected", name, kind, lost)
 
 		return false, false
 	}
@@ -862,7 +882,7 @@ func (m *MySQLRTA) selectRowLockSource(ctx context.Context) bool {
 	}
 
 	m.rowLocks.unsupported = true
-	m.l.Warn("This server records InnoDB row-lock waits in neither performance_schema.data_lock_waits " +
+	m.warnUserf("This server records InnoDB row-lock waits in neither performance_schema.data_lock_waits " +
 		"nor information_schema.INNODB_LOCK_WAITS, so row-lock waits cannot be detected")
 
 	return false
@@ -909,7 +929,7 @@ func (m *MySQLRTA) checkMetadataLockInstrument(ctx context.Context) {
 	if errors.Is(err, sql.ErrNoRows) {
 		// The instrument does not exist on this server, so metadata locks are never recorded.
 		m.metadataLocks.unsupported = true
-		m.l.Warnf("This server has no %s instrument, so metadata lock waits cannot be detected", metadataLockInstrument)
+		m.warnUserf("This server has no %s instrument, so metadata lock waits cannot be detected", metadataLockInstrument)
 
 		return
 	}
@@ -919,7 +939,7 @@ func (m *MySQLRTA) checkMetadataLockInstrument(ctx context.Context) {
 		// tables themselves need -- keeps collecting statements and row locks instead of
 		// having the agent refuse to start.
 		m.metadataLocks.unsupported = true
-		m.l.Warnf("Could not read the %s instrument state, so metadata lock waits will not be collected: %v",
+		m.warnUserf("Could not read the %s instrument state, so metadata lock waits will not be collected: %v",
 			metadataLockInstrument, err)
 
 		return
@@ -927,9 +947,9 @@ func (m *MySQLRTA) checkMetadataLockInstrument(ctx context.Context) {
 
 	if !strings.EqualFold(enabled, "YES") {
 		m.metadataLocks.unsupported = true
-		m.l.Warnf("The %s instrument is disabled, so metadata lock waits cannot be detected. "+
+		m.warnUserf("The %s instrument is disabled, so metadata lock waits cannot be detected. "+
 			"Enable it (UPDATE performance_schema.setup_instruments SET ENABLED='YES', TIMED='YES' WHERE NAME='%s', "+
-			"or performance_schema_instrument='%s=ON' in the config) and restart the agent",
+			"or performance_schema_instrument='%s=ON' in the config) and restart the Real-Time Analytics session",
 			metadataLockInstrument, metadataLockInstrument, metadataLockInstrument)
 	}
 }

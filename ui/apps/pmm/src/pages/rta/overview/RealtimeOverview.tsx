@@ -35,7 +35,10 @@ import { ServicesAutocompleteInput } from '../components/services-autocomplete-i
 import { AutoRefreshSelect } from './auto-refresh-select';
 import { exportRtaQueriesToCsv } from './export/exportRtaQueriesToCsv';
 import { ServiceType } from 'types/services.types';
-import { resolveSelection } from './RealtimeOverview.utils';
+import {
+  resolveSelection,
+  sessionErrorsMessage,
+} from './RealtimeOverview.utils';
 
 const EMPTY_QUERIES: QueryData[] = [];
 
@@ -47,7 +50,11 @@ const RealtimeOverviewPage: FC = () => {
     () => searchParams.getAll('serviceIds').filter(Boolean),
     [searchParams]
   );
-  const { data: sessions = [], isLoading } = useRealtimeSessions();
+  // Polled like the sessions list: a session that fails to start does so after the
+  // view has opened, and its reason is what the empty state shows.
+  const { data: sessions = [], isLoading } = useRealtimeSessions({
+    refetchInterval: 5000,
+  });
   // One view of live queries shows one technology. The picker enforces that, but
   // a URL can still name services of both (starting sessions is not restricted),
   // so the first service's technology wins and the rest are ignored.
@@ -129,6 +136,10 @@ const RealtimeOverviewPage: FC = () => {
     [blockingPartial, visibleQueries, blockedQueries]
   );
   const tableQueries = showBlockedOnly ? filteredQueries : visibleQueries;
+  const noDataMessage = useMemo(
+    () => sessionErrorsMessage(serviceIds, sessions),
+    [serviceIds, sessions]
+  );
   const blockedCount = blockedQueries.length;
 
   const handleQuerySelected = (query: QueryData) => {
@@ -189,6 +200,7 @@ const RealtimeOverviewPage: FC = () => {
       <OverviewTable
         queries={tableQueries}
         serviceType={serviceType}
+        noDataMessage={noDataMessage}
         onQuerySelected={handleQuerySelected}
         onNavigableQueriesChange={setNavigableQueries}
         actions={({ table }) => (

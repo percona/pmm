@@ -4,7 +4,11 @@ import {
   TEST_REAL_TIME_SESSION,
   TEST_REAL_TIME_SESSION_MYSQL,
 } from 'utils/testStubs';
-import { resolveSelection } from './RealtimeOverview.utils';
+import { RealtimeSessionStatus } from 'types/rta.types';
+import {
+  resolveSelection,
+  sessionErrorsMessage,
+} from './RealtimeOverview.utils';
 
 const MONGO_ID = TEST_REAL_TIME_SESSION.serviceId;
 const MYSQL_ID = TEST_REAL_TIME_SESSION_MYSQL.serviceId;
@@ -47,5 +51,43 @@ describe('resolveSelection', () => {
 
   it('returns an empty selection unchanged', () => {
     expect(resolveSelection([], SESSIONS)).toEqual({ serviceIds: [] });
+  });
+});
+
+describe('sessionErrorsMessage', () => {
+  const failed = {
+    ...TEST_REAL_TIME_SESSION_MYSQL,
+    status: RealtimeSessionStatus.error,
+    statusMessage: 'Cannot connect to MySQL: connection refused',
+  };
+
+  it('names the service and the reason of a selected session that failed', () => {
+    expect(
+      sessionErrorsMessage([MYSQL_ID], [TEST_REAL_TIME_SESSION, failed])
+    ).toBe(
+      'Real-Time Analytics could not start for Service 3: Cannot connect to MySQL: connection refused'
+    );
+  });
+
+  it('ignores sessions outside the selection', () => {
+    expect(sessionErrorsMessage([MONGO_ID], [failed])).toBeUndefined();
+  });
+
+  it('ignores a running session that only carries warnings', () => {
+    expect(
+      sessionErrorsMessage(
+        [MYSQL_ID],
+        [{ ...failed, status: RealtimeSessionStatus.running }]
+      )
+    ).toBeUndefined();
+  });
+
+  it('keeps the default text for an error without a reason', () => {
+    expect(
+      sessionErrorsMessage(
+        [MYSQL_ID],
+        [{ ...failed, statusMessage: undefined }]
+      )
+    ).toBeUndefined();
   });
 });

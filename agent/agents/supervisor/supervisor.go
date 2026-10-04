@@ -1064,8 +1064,9 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 				s.storeLastStatus(agentID, instance, change.Status) {
 				l.Infof("Sending status: %s.", change.Status)
 				if !forward(s.ctx, s.changes, &agentv1.StateChangedRequest{
-					AgentId: agentID,
-					Status:  change.Status,
+					AgentId:       agentID,
+					Status:        change.Status,
+					StatusMessage: change.StatusMessage,
 				}) {
 					return
 				}

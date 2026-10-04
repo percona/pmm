@@ -381,6 +381,8 @@ type Agent struct {
 	Version         *string `reform:"version"`
 	ProcessExecPath *string `reform:"process_exec_path"`
 	IsConnected     bool    `reform:"is_connected"`
+	// StatusMessage is the agent's own explanation of Status, e.g. why it failed to initialize.
+	StatusMessage *string `reform:"status_message"`
 
 	Username      *string `reform:"username"`
 	Password      *string `reform:"password"`

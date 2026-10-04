@@ -11,7 +11,7 @@ import {
   TEST_REAL_TIME_SESSION_MYSQL,
 } from 'utils/testStubs';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { BlockedStatus } from 'types/rta.types';
+import { BlockedStatus, RealtimeSessionStatus } from 'types/rta.types';
 import { Messages } from './RealtimeOverview.messages';
 
 const { exportRtaQueriesToCsv } = vi.hoisted(() => ({
@@ -845,5 +845,28 @@ describe('RealtimeOverview', () => {
 
     await waitFor(() => expect(getRunningSessions).toHaveBeenCalled());
     expect(searchQueries).not.toHaveBeenCalled();
+  });
+
+  it('explains an empty view with the reason its session failed', async () => {
+    getRunningSessions.mockResolvedValue([
+      {
+        ...TEST_REAL_TIME_SESSION_MYSQL,
+        status: RealtimeSessionStatus.error,
+        statusMessage:
+          'Real-Time Analytics is not supported for this instance: performance_schema is disabled; it is required for Real-Time Analytics',
+      },
+    ]);
+    searchQueries.mockResolvedValue({ queries: [] });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    expect(
+      await screen.findByText(
+        /Real-Time Analytics could not start for Service 3: .*performance_schema is disabled/
+      )
+    ).toBeInTheDocument();
+    expect(screen.queryByText('No queries available')).not.toBeInTheDocument();
   });
 });

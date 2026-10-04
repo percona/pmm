@@ -640,6 +640,11 @@
                           "SERVICE_TYPE_EXTERNAL_SERVICE"
                         ],
                         "x-order": 6
+                      },
+                      "status_message": {
+                        "description": "Human-readable explanation reported by the agent: why the session failed to start when status\nis ERROR, or what it cannot collect when status is RUNNING. Empty when there is nothing to report.",
+                        "type": "string",
+                        "x-order": 7
                       }
                     }
                   },
@@ -773,6 +778,11 @@
                         "SERVICE_TYPE_EXTERNAL_SERVICE"
                       ],
                       "x-order": 6
+                    },
+                    "status_message": {
+                      "description": "Human-readable explanation reported by the agent: why the session failed to start when status\nis ERROR, or what it cannot collect when status is RUNNING. Empty when there is nothing to report.",
+                      "type": "string",
+                      "x-order": 7
                     }
                   },
                   "x-order": 0

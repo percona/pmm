@@ -199,7 +199,10 @@ type Session struct {
 	Status SessionStatus `protobuf:"varint,6,opt,name=status,proto3,enum=realtimeanalytics.v1.SessionStatus" json:"status,omitempty"`
 	// Type of the service the session is running for. Lets clients tell MySQL and
 	// MongoDB sessions apart without a second lookup in the inventory.
-	ServiceType   v1.ServiceType `protobuf:"varint,7,opt,name=service_type,json=serviceType,proto3,enum=inventory.v1.ServiceType" json:"service_type,omitempty"`
+	ServiceType v1.ServiceType `protobuf:"varint,7,opt,name=service_type,json=serviceType,proto3,enum=inventory.v1.ServiceType" json:"service_type,omitempty"`
+	// Human-readable explanation reported by the agent: why the session failed to start when status
+	// is ERROR, or what it cannot collect when status is RUNNING. Empty when there is nothing to report.
+	StatusMessage string `protobuf:"bytes,8,opt,name=status_message,json=statusMessage,proto3" json:"status_message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -281,6 +284,13 @@ func (x *Session) GetServiceType() v1.ServiceType {
 		return x.ServiceType
 	}
 	return v1.ServiceType(0)
+}
+
+func (x *Session) GetStatusMessage() string {
+	if x != nil {
+		return x.StatusMessage
+	}
+	return ""
 }
 
 // ListSessionsRequest contains optional filters for listing active Real-Time Analytics Sessions for a particular cluster.
@@ -659,7 +669,7 @@ const file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc = "" +
 	"\fservice_type\x18\x01 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\vserviceType\"\x80\x01\n" +
 	"\x14ListServicesResponse\x126\n" +
 	"\amongodb\x18\x01 \x03(\v2\x1c.inventory.v1.MongoDBServiceR\amongodb\x120\n" +
-	"\x05mysql\x18\x02 \x03(\v2\x1a.inventory.v1.MySQLServiceR\x05mysql\"\xea\x02\n" +
+	"\x05mysql\x18\x02 \x03(\v2\x1a.inventory.v1.MySQLServiceR\x05mysql\"\x91\x03\n" +
 	"\aSession\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
@@ -669,7 +679,8 @@ const file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc = "" +
 	"start_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x12D\n" +
 	"\x10collect_interval\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\x0fcollectInterval\x12;\n" +
 	"\x06status\x18\x06 \x01(\x0e2#.realtimeanalytics.v1.SessionStatusR\x06status\x12<\n" +
-	"\fservice_type\x18\a \x01(\x0e2\x19.inventory.v1.ServiceTypeR\vserviceType\"8\n" +
+	"\fservice_type\x18\a \x01(\x0e2\x19.inventory.v1.ServiceTypeR\vserviceType\x12%\n" +
+	"\x0estatus_message\x18\b \x01(\tR\rstatusMessage\"8\n" +
 	"\x13ListSessionsRequest\x12!\n" +
 	"\fcluster_name\x18\x01 \x01(\tR\vclusterName\"Q\n" +
 	"\x14ListSessionsResponse\x129\n" +
@@ -739,7 +750,6 @@ var (
 		(*QueryData)(nil),             // 17: realtimeanalytics.v1.QueryData
 	}
 )
-
 var file_realtimeanalytics_v1_realtimeanalytics_proto_depIdxs = []int32{
 	12, // 0: realtimeanalytics.v1.ListServicesRequest.service_type:type_name -> inventory.v1.ServiceType
 	13, // 1: realtimeanalytics.v1.ListServicesResponse.mongodb:type_name -> inventory.v1.MongoDBService

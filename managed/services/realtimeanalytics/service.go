@@ -630,6 +630,13 @@ func (s *Service) convertAgentToSession(agent *models.Agent, service *models.Ser
 		collectInterval = durationpb.New(*agent.RTAOptions.CollectInterval)
 	}
 
+	// The message explains the agent's last reported status, so it is only shown while that status
+	// is what the session reports. A disconnected or stopped agent's last words would be stale.
+	var statusMessage string
+	if sessionStatus == rtav1.SessionStatus_SESSION_STATUS_RUNNING || sessionStatus == rtav1.SessionStatus_SESSION_STATUS_ERROR {
+		statusMessage = pointer.GetString(agent.StatusMessage)
+	}
+
 	return &rtav1.Session{
 		ServiceId:       service.ServiceID,
 		ServiceName:     service.ServiceName,
@@ -638,6 +645,7 @@ func (s *Service) convertAgentToSession(agent *models.Agent, service *models.Ser
 		StartTime:       timestamppb.New(agent.CreatedAt),
 		CollectInterval: collectInterval,
 		Status:          sessionStatus,
+		StatusMessage:   statusMessage,
 	}
 }
 

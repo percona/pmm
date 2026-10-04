@@ -556,6 +556,10 @@ type ListSessionsOKBodySessionsItems0 struct {
 	// ServiceType describes supported Service types.
 	// Enum: ["SERVICE_TYPE_UNSPECIFIED","SERVICE_TYPE_MYSQL_SERVICE","SERVICE_TYPE_MONGODB_SERVICE","SERVICE_TYPE_POSTGRESQL_SERVICE","SERVICE_TYPE_VALKEY_SERVICE","SERVICE_TYPE_PROXYSQL_SERVICE","SERVICE_TYPE_HAPROXY_SERVICE","SERVICE_TYPE_EXTERNAL_SERVICE"]
 	ServiceType *string `json:"service_type,omitempty"`
+
+	// Human-readable explanation reported by the agent: why the session failed to start when status
+	// is ERROR, or what it cannot collect when status is RUNNING. Empty when there is nothing to report.
+	StatusMessage string `json:"status_message,omitempty"`
 }
 
 // Validate validates this list sessions OK body sessions items0

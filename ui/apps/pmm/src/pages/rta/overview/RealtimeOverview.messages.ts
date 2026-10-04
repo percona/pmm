@@ -19,4 +19,6 @@ export const Messages = {
   blockedPartialTooltip:
     'Show statements waiting for a lock. PMM could not read every kind of lock on this instance, so statements it could not judge are shown as well rather than hidden; the count is of those it could confirm. The agent log says which lock information is missing.',
   export: 'Export',
+  sessionError: (serviceName: string, reason: string) =>
+    `Real-Time Analytics could not start for ${serviceName}: ${reason}`,
 };

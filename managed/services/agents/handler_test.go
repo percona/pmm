@@ -19,13 +19,17 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func TestCheckPortChanged(t *testing.T) {
@@ -35,7 +39,7 @@ func TestCheckPortChanged(t *testing.T) {
 	agentColumns := []string{
 		"agent_id", "agent_type", "runs_on_node_id", "service_id", "node_id",
 		"pmm_agent_id", "custom_labels", "environment_variables", "created_at", "updated_at",
-		"disabled", "status", "listen_port", "version", "process_exec_path", "is_connected",
+		"disabled", "status", "listen_port", "version", "process_exec_path", "is_connected", "status_message",
 		"username", "password", "agent_password", "tls", "tls_skip_verify",
 		"log_level", "exporter_options", "qan_options", "rta_options",
 		"aws_options", "azure_options", "mongo_options", "mysql_options", "postgresql_options", "valkey_options",
@@ -96,6 +100,7 @@ func TestCheckPortChanged(t *testing.T) {
 				nil,                         // version
 				nil,                         // process_exec_path
 				false,                       // is_connected
+				nil,                         // status_message
 				nil,                         // username
 				nil,                         // password
 				nil,                         // agent_password
@@ -151,6 +156,7 @@ func TestCheckPortChanged(t *testing.T) {
 				nil,                         // version
 				nil,                         // process_exec_path
 				false,                       // is_connected
+				nil,                         // status_message
 				nil,                         // username
 				nil,                         // password
 				nil,                         // agent_password
@@ -206,6 +212,7 @@ func TestCheckPortChanged(t *testing.T) {
 				nil,                         // version
 				nil,                         // process_exec_path
 				false,                       // is_connected
+				nil,                         // status_message
 				nil,                         // username
 				nil,                         // password
 				nil,                         // agent_password
@@ -261,6 +268,7 @@ func TestCheckPortChanged(t *testing.T) {
 				nil,                         // version
 				nil,                         // process_exec_path
 				false,                       // is_connected
+				nil,                         // status_message
 				nil,                         // username
 				nil,                         // password
 				nil,                         // agent_password
@@ -291,7 +299,7 @@ func TestCheckPortChanged(t *testing.T) {
 				"test-node-4",
 				nil, nil, nil, nil, nil,
 				time.Now(), time.Now(),
-				false, "", 42000, nil, nil, false,
+				false, "", 42000, nil, nil, false, nil,
 				nil, nil, nil, false, false, nil,
 				`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
 			))
@@ -302,4 +310,36 @@ func TestCheckPortChanged(t *testing.T) {
 
 		require.NoError(t, mock.ExpectationsWereMet())
 	})
+}
+
+func TestUpdateAgentStatusMessage(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{NodeName: "status-message-node"})
+	require.NoError(t, err)
+	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
+	require.NoError(t, err)
+
+	ctx := logger.Set(t.Context(), t.Name())
+
+	err = updateAgentStatus(ctx, db.Querier, pmmAgent.AgentID,
+		inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, 0, nil, nil, new("performance_schema is disabled"))
+	require.NoError(t, err)
+
+	agent, err := models.FindAgentByID(db.Querier, pmmAgent.AgentID)
+	require.NoError(t, err)
+	assert.Equal(t, inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR.String(), agent.Status)
+	assert.Equal(t, "performance_schema is disabled", pointer.GetString(agent.StatusMessage))
+
+	// A later report without a message - from an agent that has recovered, or one too old to send
+	// messages at all - must not leave the previous explanation attached to the new status.
+	err = updateAgentStatus(ctx, db.Querier, pmmAgent.AgentID,
+		inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, 0, nil, nil, nil)
+	require.NoError(t, err)
+
+	agent, err = models.FindAgentByID(db.Querier, pmmAgent.AgentID)
+	require.NoError(t, err)
+	assert.Equal(t, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING.String(), agent.Status)
+	assert.Nil(t, agent.StatusMessage)
 }
