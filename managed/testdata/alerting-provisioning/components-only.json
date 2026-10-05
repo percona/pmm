@@ -10,7 +10,7 @@
         {
           "uid": "pmm-victoriametrics-down",
           "title": "PMM VictoriaMetrics is down",
-          "condition": "A",
+          "condition": "C",
           "for": "5m",
           "noDataState": "OK",
           "execErrState": "OK",
@@ -21,8 +21,8 @@
             "template_name": "pmm_victoriametrics_down"
           },
           "annotations": {
-            "description": "The VictoriaMetrics component '{{ $labels.job }}' on '{{ $labels.instance }}' is not responding.\nDepending on which component is affected, PMM may stop storing new metrics, stop answering\nqueries, or both. Dashboards and metric-based alerts become unreliable while this lasts.\n\nRemediation steps:\n  1. Check the process or pod for that component and restart it if it has stopped.\n  2. Check free disk space. VictoriaMetrics stops accepting writes when its storage fills up.\n  3. Review the component's logs for out-of-memory kills, which are the most common cause under load.\n  4. Confirm PMM Server can reach the address configured in PMM_VM_URL.\n  5. Once it is back, confirm metrics are arriving again on any dashboard.",
-            "summary": "PMM VictoriaMetrics component '{{ $labels.job }}' is down on '{{ $labels.instance }}'"
+            "description": "{{ if $labels.node_name }}VictoriaMetrics on '{{ $labels.node_name }}' is not responding.{{ else }}{{ $values.A.Value }} of the {{ $values.B.Value }} pods of the VictoriaMetrics component '{{ $labels.job }}' are not responding.{{ end }}\nDepending on which component is affected, PMM may stop storing new metrics, stop answering\nqueries, or both. Dashboards and metric-based alerts become unreliable while this lasts.\n\nRemediation steps:\n  1. Find the process or pod of that component that is not running (in Kubernetes, list the pods of that component) and restart it.\n  2. Check free disk space. VictoriaMetrics stops accepting writes when its storage fills up.\n  3. Review the component's logs for out-of-memory kills, which are the most common cause under load.\n  4. Confirm PMM Server can reach the address configured in PMM_VM_URL.\n  5. Once it is back, confirm metrics are arriving again on any dashboard.",
+            "summary": "{{ if $labels.node_name }}PMM VictoriaMetrics is down on '{{ $labels.node_name }}'{{ else }}{{ $values.A.Value }} of {{ $values.B.Value }} PMM VictoriaMetrics '{{ $labels.job }}' pods are down{{ end }}"
           },
           "data": [
             {
@@ -33,9 +33,45 @@
                 "to": 0
               },
               "model": {
-                "expr": "last_over_time(up{job=~\"victoriametrics|vmselect|vminsert|vmstorage|vmagent\"}[2m]) == bool 0",
+                "expr": "label_replace(sum by(job) (last_over_time(up{job=~\"vmselect|vminsert|vmstorage|vmagent\",pod!=\"\"}[2m]) == bool 0), \"service_name\", \"$1\", \"job\", \"(.*)\")\nor label_replace(last_over_time(up{job=\"victoriametrics\",pod=\"\"}[2m]) == bool 0, \"node_name\", \"$1\", \"instance\", \"(.*)\")",
                 "refId": "A",
                 "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "PA58DA793C7250F1B",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "expr": "label_replace(count by(job) (last_over_time(up{job=~\"vmselect|vminsert|vmstorage|vmagent\",pod!=\"\"}[2m])), \"service_name\", \"$1\", \"job\", \"(.*)\")\nor label_replace(count by(job, instance) (last_over_time(up{job=\"victoriametrics\",pod=\"\"}[2m])), \"node_name\", \"$1\", \"instance\", \"(.*)\")",
+                "refId": "B",
+                "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "type": "math",
+                "expression": "$A \u003e 0",
+                "refId": "C",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
                 "hide": false,
                 "intervalMs": 1000,
                 "maxDataPoints": 43200
@@ -46,7 +82,7 @@
         {
           "uid": "pmm-clickhouse-down",
           "title": "PMM ClickHouse is down",
-          "condition": "A",
+          "condition": "C",
           "for": "5m",
           "noDataState": "OK",
           "execErrState": "OK",
@@ -57,8 +93,8 @@
             "template_name": "pmm_clickhouse_down"
           },
           "annotations": {
-            "description": "The ClickHouse instance '{{ $labels.instance }}' that PMM Server stores Query Analytics data in is not responding.\nQuery Analytics stops collecting and existing QAN data cannot be read while this lasts. Metrics are unaffected.\n\nRemediation steps:\n  1. Check the ClickHouse process or pod on that node and restart it if it has stopped.\n  2. Check free disk space. ClickHouse refuses writes and can shut down when its data directory fills up.\n  3. Review the ClickHouse logs for startup failures, corrupted parts or out-of-memory kills.\n  4. Confirm PMM Server can reach the configured address in PMM_CLICKHOUSE_ADDR.\n  5. Once it is back, confirm new data is arriving on the Query Analytics page.",
-            "summary": "PMM ClickHouse is down on '{{ $labels.instance }}'"
+            "description": "{{ if $labels.node_name }}The ClickHouse instance on '{{ $labels.node_name }}' that PMM Server stores Query Analytics data in is not responding.{{ else }}{{ $values.A.Value }} of the {{ $values.B.Value }} ClickHouse replicas that PMM stores Query Analytics data in are not responding.{{ end }}\nQuery Analytics may stop collecting and existing QAN data may not be readable while this lasts. Metrics are unaffected.\n\nRemediation steps:\n  1. Find the ClickHouse process or pod that is not running (in Kubernetes, list the ClickHouse pods) and restart it.\n  2. Check free disk space. ClickHouse refuses writes and can shut down when its data directory fills up.\n  3. Review the ClickHouse logs for startup failures, corrupted parts or out-of-memory kills.\n  4. Confirm PMM Server can reach the configured address in PMM_CLICKHOUSE_ADDR.\n  5. Once it is back, confirm new data is arriving on the Query Analytics page.",
+            "summary": "{{ if $labels.node_name }}PMM ClickHouse is down on '{{ $labels.node_name }}'{{ else }}{{ $values.A.Value }} of {{ $values.B.Value }} PMM ClickHouse replicas are down{{ end }}"
           },
           "data": [
             {
@@ -69,9 +105,45 @@
                 "to": 0
               },
               "model": {
-                "expr": "last_over_time(up{job=\"clickhouse\"}[2m]) == bool 0",
+                "expr": "label_replace(sum by(job) (last_over_time(up{job=\"clickhouse\",pod!=\"\"}[2m]) == bool 0), \"service_name\", \"$1\", \"job\", \"(.*)\")\nor label_replace(last_over_time(up{job=\"clickhouse\",pod=\"\"}[2m]) == bool 0, \"node_name\", \"$1\", \"instance\", \"(.*)\")",
                 "refId": "A",
                 "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "PA58DA793C7250F1B",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "expr": "label_replace(count by(job) (last_over_time(up{job=\"clickhouse\",pod!=\"\"}[2m])), \"service_name\", \"$1\", \"job\", \"(.*)\")\nor label_replace(count by(job, instance) (last_over_time(up{job=\"clickhouse\",pod=\"\"}[2m])), \"node_name\", \"$1\", \"instance\", \"(.*)\")",
+                "refId": "B",
+                "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "type": "math",
+                "expression": "$A \u003e 0",
+                "refId": "C",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
                 "hide": false,
                 "intervalMs": 1000,
                 "maxDataPoints": 43200
