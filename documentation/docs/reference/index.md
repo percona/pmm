@@ -2,8 +2,8 @@
 
 Percona Monitoring and Management (PMM) is a client/server application. PMM Client collects metrics and query data from the systems that you monitor and sends them to PMM Server. PMM Server stores the data and presents it in its web interface.
 
-![PMM Client collects metrics and query data from monitored systems and sends them to PMM Server](../images/arch/C_S_Architecture-light.png#only-light)
-![PMM Client collects metrics and query data from monitored systems and sends them to PMM Server](../images/arch/C_S_Architecture-dark.png#only-dark)
+![PMM Client collects metrics and query data from monitored systems and sends them to PMM Server](../images/arch/C_S_Architecture-light.png){ .only-light }
+![PMM Client collects metrics and query data from monitored systems and sends them to PMM Server](../images/arch/C_S_Architecture-dark.png){ .only-dark }
 
 You can also monitor remote databases and cloud services, such as [Amazon RDS](../install-pmm/install-pmm-client/connect-database/aws.md) and [Azure](../install-pmm/install-pmm-client/connect-database/azure.md), without installing PMM Client on their hosts. In that case, the `pmm-agent` built into PMM Server collects the data. For details, see [Connect remote instance to PMM](../install-pmm/install-pmm-client/connect-database/remote.md).
 
@@ -11,8 +11,8 @@ You can also monitor remote databases and cloud services, such as [Amazon RDS](.
 
 PMM Server receives data from PMM Clients, stores it, and presents it in [dashboards](../use/dashboards-panels/index.md) and other views of the [web interface](../reference/ui/ui_components.md). In a standard deployment, PMM Server runs as a single container that holds all of the components in this section.
 
-![PMM Server components: the web interface, Nginx, pmm-managed, QAN API, VictoriaMetrics, vmproxy, vmalert, Grafana and the data stores](../images/arch/PMM-Server-Component-Based-View-light.png#only-light)
-![PMM Server components: the web interface, Nginx, pmm-managed, QAN API, VictoriaMetrics, vmproxy, vmalert, Grafana and the data stores](../images/arch/PMM-Server-Component-Based-View-dark.png#only-dark)
+![PMM Server components: the web interface, Nginx, pmm-managed, QAN API, VictoriaMetrics, vmproxy, vmalert, Grafana and the data stores](../images/arch/PMM-Server-Component-Based-View-light.png){ .only-light }
+![PMM Server components: the web interface, Nginx, pmm-managed, QAN API, VictoriaMetrics, vmproxy, vmalert, Grafana and the data stores](../images/arch/PMM-Server-Component-Based-View-dark.png){ .only-dark }
 
 ### Web interface
 
@@ -51,8 +51,8 @@ You can run PostgreSQL, ClickHouse and VictoriaMetrics outside PMM Server. For d
 
 PMM Client is a set of programs that runs on, or next to, each system that you monitor. It collects metrics and query data, and sends them to PMM Server. To install it, see [PMM Client installation overview](../install-pmm/install-pmm-client/index.md).
 
-![PMM Client components: pmm-admin, pmm-agent with its built-in agents, the exporters, vmagent, and the systems they monitor](../images/arch/PMM-Client-Component-Based-View-light.png#only-light)
-![PMM Client components: pmm-admin, pmm-agent with its built-in agents, the exporters, vmagent, and the systems they monitor](../images/arch/PMM-Client-Component-Based-View-dark.png#only-dark)
+![PMM Client components: pmm-admin, pmm-agent with its built-in agents, the exporters, vmagent, and the systems they monitor](../images/arch/PMM-Client-Component-Based-View-light.png){ .only-light }
+![PMM Client components: pmm-admin, pmm-agent with its built-in agents, the exporters, vmagent, and the systems they monitor](../images/arch/PMM-Client-Component-Based-View-dark.png){ .only-dark }
 
 PMM Client includes the following components:
 
@@ -92,8 +92,8 @@ You can also add an [external exporter](../install-pmm/install-pmm-client/connec
 
 The following diagram shows the connections between the PMM Client and PMM Server components.
 
-![PMM Client and PMM Server interactions: the gRPC streams between pmm-agent and pmm-managed, the metrics push from vmagent, and the read paths of the web interface](../images/arch/C_S_Interactions-light.png#only-light)
-![PMM Client and PMM Server interactions: the gRPC streams between pmm-agent and pmm-managed, the metrics push from vmagent, and the read paths of the web interface](../images/arch/C_S_Interactions-dark.png#only-dark)
+![PMM Client and PMM Server interactions: the gRPC streams between pmm-agent and pmm-managed, the metrics push from vmagent, and the read paths of the web interface](../images/arch/C_S_Interactions-light.png){ .only-light }
+![PMM Client and PMM Server interactions: the gRPC streams between pmm-agent and pmm-managed, the metrics push from vmagent, and the read paths of the web interface](../images/arch/C_S_Interactions-dark.png){ .only-dark }
 
 PMM Client and PMM Server communicate over these connections:
 
@@ -108,7 +108,7 @@ Inside PMM Server, the web interface reads metrics from VictoriaMetrics through 
 
 All traffic from PMM Client to PMM Server goes through Nginx over HTTPS, on port 443 or 8443. Nginx asks `pmm-managed` to authorize requests before it passes them on. To use your own certificates, see [SSL encryption](../admin/security/ssl_encryption.md).
 
-Each exporter requires HTTP basic authentication, with a password that's unique to that exporter. In pull mode, VictoriaMetrics connects to the exporters directly, on ports 42000–51999 by default, so PMM Server must be able to reach those ports. When you enable Nomad, `nomad-agent` also connects to PMM Server directly, on port 4647.
+`node_exporter`, `mysqld_exporter`, `postgres_exporter`, `mongodb_exporter` and `proxysql_exporter` require HTTP basic authentication, each with its own password by default. `valkey_exporter`, `rds_exporter` and `azure_database_exporter` don't require authentication. In pull mode, VictoriaMetrics connects to the exporters directly, on ports 42000–51999 by default, so PMM Server must be able to reach those ports. When you enable Nomad, `nomad-agent` also connects to PMM Server directly, on port 4647.
 
 Exporters and QAN agents can use TLS to connect to the databases that they monitor.
 
