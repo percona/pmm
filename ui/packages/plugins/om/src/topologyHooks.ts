@@ -74,8 +74,18 @@ export function useOmTopology() {
     queryFn: () => request<OmTopologyResponse>('/topology'),
     // pmm-managed rebuilds the document on its own timer, so a page left open goes
     // stale against a fleet that has moved on. Nothing else refetches it: the trigger's
-    // invalidation only covers a sync the reader started themselves.
+    // invalidation only covers a refresh the reader started themselves.
     refetchInterval: SNAPSHOT_POLL_MS,
+    // Keep polling while the tab is hidden, which is what `refetchInterval` alone does
+    // *not* do -- TanStack skips the fetch unless `focusManager.isFocused()`, and that
+    // reads `document.visibilityState`. Measured on this branch: a hidden tab made zero
+    // requests in 90 seconds while a member came back up, then showed it down for 25
+    // seconds more after being brought forward, because `refetchOnWindowFocus` is off
+    // globally (`App.tsx`) so nothing fetches on return either. A health page that
+    // stops being a health page the moment it is not the active tab is worse than one
+    // that never claimed to refresh. The inventory hooks already set this on all six
+    // of their polling queries; this one was the outlier.
+    refetchIntervalInBackground: true,
   });
 }
 
@@ -105,6 +115,9 @@ export function useOmTopologyRuns(limit: number = OM_TOPOLOGY_RUNS_LIMIT) {
       isRunActive(query.state.data?.[0]?.status)
         ? RUN_POLL_MS
         : SNAPSHOT_POLL_MS,
+    // Same reason as the document above: a run that finishes while the tab is hidden
+    // should be finished when the reader comes back, not still spinning.
+    refetchIntervalInBackground: true,
   });
 }
 

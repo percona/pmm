@@ -209,6 +209,15 @@ export interface OmServiceRow extends OmService {
  * derived from the same document the topology table renders, so the two can never
  * disagree -- there is no second endpoint and no second snapshot.
  */
+/**
+ * A cluster's state, read off its members' statuses.
+ *
+ * `unknown` is a cluster with no members in the snapshot, or with members whose status
+ * was not reported and none down: it is not healthy, and calling it so would be a
+ * claim the snapshot does not make.
+ */
+export type OmClusterHealth = 'healthy' | 'degraded' | 'down' | 'unknown';
+
 export interface OmClusterRow {
   env_name?: string | null;
   cluster_name?: string | null;
@@ -220,6 +229,7 @@ export interface OmClusterRow {
   total_services: number;
   up_services: number;
   down_services: number;
+  health: OmClusterHealth;
   by_process_role: Partial<Record<OmProcessRole, number>>;
   /** Replica-set member states, counted. Empty for routers and standalones. */
   by_state: Record<string, number>;

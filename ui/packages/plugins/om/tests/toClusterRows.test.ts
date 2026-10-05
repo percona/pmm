@@ -16,7 +16,14 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { toClusterRows, toEnvironmentSections } from '../src/topology';
+import {
+  clusterHealth,
+  clusterHealthRank,
+  downFirst,
+  serviceStatusRank,
+  toClusterRows,
+  toEnvironmentSections,
+} from '../src/topology';
 import type {
   OmCluster,
   OmService,
@@ -322,5 +329,81 @@ describe('toEnvironmentSections', () => {
     expect(sections).toHaveLength(1);
     expect(sections[0].env_name).toBeNull();
     expect(sections[0].total_services).toBe(0);
+  });
+});
+
+describe('clusterHealth', () => {
+  it.each([
+    ['healthy', 3, 3, 0],
+    ['degraded', 3, 2, 1],
+    ['degraded', 3, 0, 1],
+    ['down', 3, 0, 3],
+    ['down', 1, 0, 1],
+    ['unknown', 0, 0, 0],
+    ['unknown', 3, 2, 0],
+  ])('is %s with %i members, %i up and %i down', (health, total, up, down) => {
+    expect(clusterHealth(total, up, down)).toBe(health);
+  });
+
+  it('lands on each rolled-up row', () => {
+    const [row] = toClusterRows(
+      topology([
+        {
+          env_name: 'prod',
+          clusters: [
+            cluster({
+              name: 'rs0',
+              services: [
+                service({}),
+                service({ status: 'SERVICE_STATUS_DOWN' }),
+              ],
+            }),
+          ],
+        },
+      ])
+    );
+
+    expect(row.health).toBe('degraded');
+  });
+
+  it('ranks the worst state first', () => {
+    const order = (['healthy', 'unknown', 'down', 'degraded'] as const)
+      .slice()
+      .sort((a, b) => clusterHealthRank(a) - clusterHealthRank(b));
+
+    expect(order).toEqual(['down', 'degraded', 'unknown', 'healthy']);
+  });
+});
+
+describe('downFirst', () => {
+  it('moves down members to the front and keeps everyone else in order', () => {
+    const members = [
+      service({ service_name: 'a' }),
+      service({ service_name: 'b', status: 'SERVICE_STATUS_DOWN' }),
+      service({ service_name: 'c', status: 'SERVICE_STATUS_UNSPECIFIED' }),
+      service({ service_name: 'd' }),
+      service({ service_name: 'e', status: 'SERVICE_STATUS_DOWN' }),
+    ];
+
+    expect(downFirst(members).map((m) => m.service_name)).toEqual([
+      'b',
+      'e',
+      'c',
+      'a',
+      'd',
+    ]);
+    expect(members.map((m) => m.service_name)).toEqual([
+      'a',
+      'b',
+      'c',
+      'd',
+      'e',
+    ]);
+  });
+
+  it('ranks an unrecognised status as unknown, not as up', () => {
+    expect(serviceStatusRank('SOMETHING_NEW' as OmServiceStatus)).toBe(
+      serviceStatusRank('SERVICE_STATUS_UNSPECIFIED')
+    );
   });
 });
