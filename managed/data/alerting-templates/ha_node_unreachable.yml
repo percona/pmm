@@ -13,10 +13,17 @@ templates:
     # instead of leaving it stuck for the rest of the 6h window. That gate must stay a bare
     # comparison: with '< bool' it would always produce a series, and 'and' filters on a
     # series existing rather than on its value, so it would never gate anything.
+    #
+    # The trailing 'or on() vector(0)' gives a healthy cluster one Normal instance instead of an
+    # empty result, which Grafana would show as one or more No Data rows. node_name repeats
+    # node_id so the named instance fills the Node column.
     expr: |-
-      ((max by(node_id) (last_over_time(pmm_ha_up[6h])) unless max by(node_id) (last_over_time(pmm_ha_up[2m])))
-      or absent(max by(node_id) (last_over_time(pmm_ha_up[6h])) unless max by(node_id) (last_over_time(pmm_ha_up[2m]))))
-      and on() (count(max by(node_id) (last_over_time(pmm_ha_up[2m]))) < max(last_over_time(pmm_ha_expected_nodes[2m])))
+      (
+        (label_replace(max by(node_id) (last_over_time(pmm_ha_up[6h])) unless max by(node_id) (last_over_time(pmm_ha_up[2m])), "node_name", "$1", "node_id", "(.*)")
+        or absent(max by(node_id) (last_over_time(pmm_ha_up[6h])) unless max by(node_id) (last_over_time(pmm_ha_up[2m]))))
+        and on() (count(max by(node_id) (last_over_time(pmm_ha_up[2m]))) < max(last_over_time(pmm_ha_expected_nodes[2m])))
+      )
+      or on() vector(0)
     for: 5m
     severity: warning
     annotations:

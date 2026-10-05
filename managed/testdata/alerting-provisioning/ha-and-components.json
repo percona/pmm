@@ -197,7 +197,7 @@
                 "to": 0
               },
               "model": {
-                "expr": "((max by(node_id) (last_over_time(pmm_ha_up[6h])) unless max by(node_id) (last_over_time(pmm_ha_up[2m])))\nor absent(max by(node_id) (last_over_time(pmm_ha_up[6h])) unless max by(node_id) (last_over_time(pmm_ha_up[2m]))))\nand on() (count(max by(node_id) (last_over_time(pmm_ha_up[2m]))) \u003c max(last_over_time(pmm_ha_expected_nodes[2m])))",
+                "expr": "(\n  (label_replace(max by(node_id) (last_over_time(pmm_ha_up[6h])) unless max by(node_id) (last_over_time(pmm_ha_up[2m])), \"node_name\", \"$1\", \"node_id\", \"(.*)\")\n  or absent(max by(node_id) (last_over_time(pmm_ha_up[6h])) unless max by(node_id) (last_over_time(pmm_ha_up[2m]))))\n  and on() (count(max by(node_id) (last_over_time(pmm_ha_up[2m]))) \u003c max(last_over_time(pmm_ha_expected_nodes[2m])))\n)\nor on() vector(0)",
                 "refId": "A",
                 "instant": true,
                 "hide": false,
