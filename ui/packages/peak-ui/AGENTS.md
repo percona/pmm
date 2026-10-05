@@ -1,6 +1,6 @@
 # Peak UI — guide for AI coding agents
 
-This guide explains how to use Peak UI correctly inside an app that depends on it. It contains rules and boundaries only; the component catalog lives in Storybook.
+This guide explains how to use Peak UI correctly inside an app that depends on it. It contains rules and boundaries only; `llms.txt` next to this file indexes every export with a one-line purpose, and the full catalog lives in Storybook.
 
 Working on Peak UI itself (the `percona/peak-ui` repository), i.e., contributing to it? Then read the `CONTRIBUTING.md` file instead.
 
@@ -18,7 +18,7 @@ Storybook is the definitive, coded source of truth: **https://percona.github.io/
 ## Where Peak UI ends and MUI begins
 
 - **Peak UI does not re-export MUI.** Buttons, layout (`Box`, `Stack`, `Grid`), `Typography`, menus, alerts, etc. come from `@mui/material`; icons from `@mui/icons-material`.
-- **Peak UI exports only what adds value over MUI.** Before writing a component, check whether `@percona/peak-ui` already exports it. If it does, use it. If not, use MUI directly — the Peak UI theme already styles every MUI component to "look like Percona".
+- **Peak UI exports only what adds value over MUI.** Before writing a component, check whether `@percona/peak-ui` already exports it (`llms.txt` lists every export with its purpose). If it does, use it. If not, use MUI directly — the Peak UI theme already styles every MUI component to "look like Percona".
 - **Never hand-style MUI to "look like Percona", and never override the theme in the app.** No hex colors, no custom fonts, no border radius tweaks. If something looks off, the theme is wrong or missing: do not patch it locally; ask the user what to do or help them file an issue against Peak UI.
 - **Import from the package root only:** `import { TextInput } from '@percona/peak-ui'`. Never deep-import from `@percona/peak-ui/dist/...`.
 - **Customize through the exposed surface.** Peak UI components expose dedicated `*Props` slot props for the MUI component they wrap (for example `textFieldProps`), and some also accept `sx`; many expose only the slots, so check the props type. Do not target internal class names or wrap a Peak UI component just to restyle it.
@@ -88,6 +88,7 @@ const methods = useForm<Values>({ defaultValues: { host: '' } });
 
 ## Links
 
+- Export index, one line per export: `llms.txt` in this package, or https://github.com/percona/peak-ui/blob/main/llms.txt
 - Storybook (components, tokens, usage): https://percona.github.io/peak-ui/
 - Source and issues: https://github.com/percona/peak-ui
 - Figma kit (design intent): https://www.figma.com/design/08jGF3GZAUGmazlQtk0UQk/Peak-Design-Kit

@@ -1,0 +1,170 @@
+# Peak UI
+
+> `@percona/peak-ui` is Percona's React component library built on MUI v7: a Percona theme with light and dark modes, a theme wrapper every app mounts once, form inputs pre-wired to react-hook-form, and composite components that add behavior on top of MUI. A name that is not in this index comes from `@mui/material`.
+
+This file lists every export of `@percona/peak-ui`, one line each, with what it is for and when to prefer it over the alternative. How to use the package (theme wrapper, form binding, naming conventions, what to leave to MUI) is in `AGENTS.md` next to this file, not here. Storybook is the coded source of truth; each component carries a maturity tag there (Stable, Beta, To review, Deprecated). Components with no Storybook page yet link to their source file.
+
+Icons: search `@mui/icons-material` first; the custom icons listed under Icons exist only for what MUI lacks, and all accept MUI `SvgIconProps` (`fontSize`, `color`, `sx`) and inherit the text color. Illustrations: larger artwork for a moment in the flow (empty result, error, feature off, work in progress), each an MUI `SvgIcon` on a 64px canvas; size it with `fontSize` and recolor named layers with `layerColors` (unset layers keep the text color).
+
+## Guides
+
+- [AGENTS.md](https://github.com/percona/peak-ui/blob/main/AGENTS.md): Usage rules for AI coding agents; also readable at `node_modules/@percona/peak-ui/AGENTS.md`.
+- [README.md](https://github.com/percona/peak-ui/blob/main/README.md): Install command with every peer dependency, and the minimal app setup.
+- [Storybook](https://percona.github.io/peak-ui/): Live examples, props tables, and maturity tags for every component.
+- [Source and issues](https://github.com/percona/peak-ui): Repository, issue tracker, and this file's history.
+
+## Theme and design tokens
+
+- [ThemeContextProvider](https://github.com/percona/peak-ui/blob/main/src/design/theme-context-provider/theme-context-provider.tsx): Mounts the MUI theme, `CssBaseline`, and light/dark mode once at the app root; pass one of the theme option functions as `themeOptions` and set `saveColorModeOnLocalStorage` to remember the mode. Never add your own `ThemeProvider` or `createTheme`. Props type `ThemeContextProviderProps`.
+- [ColorModeContext](https://github.com/percona/peak-ui/blob/main/src/design/theme-context-provider/theme-contexts.ts): React context with `colorMode` and `toggleColorMode`; read it with `useContext` to build a light/dark switch.
+- [baseThemeOptions](https://github.com/percona/peak-ui/blob/main/src/design/themes/base/BaseTheme.tsx): Percona default theme as `(mode) => ThemeOptions`; the base that PMM and SEP extend. Use for a product without its own brand variant.
+- [pmmThemeOptions](https://github.com/percona/peak-ui/blob/main/src/design/themes/pmm/PmmTheme.tsx): Theme for Percona Monitoring and Management (PMM); same shape as `baseThemeOptions`.
+- [sepThemeOptions](https://github.com/percona/peak-ui/blob/main/src/design/themes/sep/SepTheme.tsx): Theme for the Services Enablement Platform (SEP); same shape as `baseThemeOptions`.
+- [getThemeOptions](https://github.com/percona/peak-ui/blob/main/src/design/utils.ts): Returns the theme option function for a name (`'base'`, `'pmm'`, `'sep'`), falling back to base; use when the theme name comes from configuration.
+- [primitives](https://percona.github.io/peak-ui/?path=/docs/foundations-colors-primitives--docs): Raw color scales (`primary`, `tech` for database technologies, `extra`, `pure`) as a plain object; type `Primitives`. Use for concrete color values such as illustration layers or charts; UI colors come from the theme palette instead.
+- [semanticTokensLight](https://percona.github.io/peak-ui/?path=/docs/foundations-colors-structural-ui--docs): Light-mode semantic colors (`surfaces`, `text`, `lines`, `action`, `success`, `informative`, `warning`, `error`, `neutral`, `charts`) that the theme palette is built from; type `SemanticTokens`. Read them through `useTheme().palette` in components.
+- [semanticTokensDark](https://percona.github.io/peak-ui/?path=/docs/foundations-colors-structural-ui--docs): Dark-mode counterpart of `semanticTokensLight`, same keys.
+- [sepPrimaryLight](https://github.com/percona/peak-ui/blob/main/src/design/themes/sep/SepTheme.tsx): SEP purple primary palette for light mode (`main`, `dark`, `light`, `contrastText`, and the `hover`, `selected`, `focus`, `focusVisible`, `outlinedBorder` state tints).
+- [sepPrimaryDark](https://github.com/percona/peak-ui/blob/main/src/design/themes/sep/SepTheme.tsx): Dark-mode counterpart of `sepPrimaryLight`, same keys.
+- [sepTechnologyColors](https://github.com/percona/peak-ui/blob/main/src/design/themes/sep/SepTheme.tsx): SEP brand colors for `mysql`, `postgresql`, `mongodb`, `kubernetes`, `redis`, and `valkey`.
+
+## Layout
+
+- [PageContainer](https://percona.github.io/peak-ui/?path=/docs/layout-pagecontainer--docs): Centered page content column with side padding; caps the width at `maxWidth` (default `DEFAULT_PAGE_MAX_WIDTH`, 1000px, applied from the `lg` breakpoint up) or stretches with `maxWidth="full"`. It is an MUI `Stack`, so it accepts `spacing`. Use it as the root of every page instead of MUI `Container`. Types `PageContainerProps`, `PageContainerMaxWidth`.
+- [DEFAULT_PAGE_MAX_WIDTH](https://github.com/percona/peak-ui/blob/main/src/components/page-container/page-container.tsx): The default `PageContainer` width in pixels (1000).
+
+## Form inputs bound to react-hook-form
+
+- [TextInput](https://percona.github.io/peak-ui/?path=/docs/to-be-reviewed-textinput--docs): Single-line or multi-line text field bound to a form field by `name`; shows the field error as helper text. MUI `TextField` props go through `textFieldProps`; a `textFieldProps.onBlur` that returns a value replaces what is stored, so trim or normalize there (a returning `onChange` does not change the stored value). Use instead of MUI `TextField` whenever the value lives in a form. Type `TextInputProps`.
+- [SelectInput](https://percona.github.io/peak-ui/?path=/docs/to-be-reviewed-select--docs): Dropdown for one value from a fixed list; pass MUI `MenuItem` children, and it shows "No options" when there are none and a spinner while `loading`. Marks the field red on a validation error; pass `helperText` yourself. MUI props via `selectFieldProps` and `formControlProps`. Type `SelectInputProps`.
+- [AutoCompleteInput](https://percona.github.io/peak-ui/?path=/docs/to-be-reviewed-autocomplete--docs): Searchable dropdown over `options`, for long lists or typeahead; shows the field error as helper text, a spinner while `loading`, and a `tooltipText` on hover. MUI props via `autoCompleteProps` and `textFieldProps`. Prefer `SelectInput` when the list is so short that it doesn't require a user to search and scroll more than 2 or 3 heights. Type `AutoCompleteInputProps`.
+- [CheckboxInput](https://percona.github.io/peak-ui/?path=/docs/to-be-reviewed-checkbox--docs): Single boolean checkbox bound to a field, with an optional `label` rendered above it through `LabeledContent`; MUI props via `checkboxProps`. It does not render the field error.
+- [SwitchInput](https://github.com/percona/peak-ui/blob/main/src/components/form/inputs/switch/switch.tsx): On/off toggle with a required `label` and optional `labelCaption` beneath it, for settings that apply as a whole; MUI props via `switchFieldProps` and `formControlLabelProps`. It does not render the field error. Type `SwitchInputProps`.
+- [RadioGroup](https://percona.github.io/peak-ui/?path=/story/to-be-reviewed-radiogroup--basic): Pick one of a few visible `options` (`label`, `value`, `disabled`), laid out side by side in a row (pass `radioGroupFieldProps={{ row: false }}` to stack them), with an optional `label` and required asterisk; prefer it over `SelectInput` when all choices should stay visible. It does not render the field error. Type `RadioGroupProps`.
+- [ToggleButtonGroupInput](https://percona.github.io/peak-ui/?path=/story/to-be-reviewed-togglebuttongroupinput--basic): Full-width, exclusive segmented control that stores the selected child's value; children are MUI `ToggleButton` or `ToggleCard`. MUI props via `toggleButtonGroupProps`. Type `ToggleButtonGroupInputProps`.
+- [ToggleButtonGroupInputRegular](https://github.com/percona/peak-ui/blob/main/src/components/form/inputs/toggle-button-group-regular/toggle-button-group-regular.tsx): `ToggleButtonGroupInput` meant to render as a compact pill with `ToggleRegularButton` children for toolbar-style switches. Known issue: its pill styling is currently dropped, so it renders full width like `ToggleButtonGroupInput`.
+- [DateTimePickerInput](https://percona.github.io/peak-ui/?path=/story/to-be-reviewed-datetimepickerinput--default): MUI X `DateTimePicker` bound to a field; choose how the value is stored with `valueFormat` (`'date'`, `'iso-string'`, `'unix-ms'`) or a custom `transform`. Needs MUI X `LocalizationProvider` with a date adapter above it. Type `DateTimePickerInputProps`.
+- [FileInput](https://github.com/percona/peak-ui/blob/main/src/components/form/inputs/file/file.tsx): Read-only text field showing the chosen file name with an upload icon button; stores the `File` object in the field and shows the field error as helper text.
+- [TextArray](https://percona.github.io/peak-ui/?path=/story/to-be-reviewed-textarray--basic): Growable list of text fields for a field array (`fieldName` is the array, `fieldKey` the property of each row), with an "Add new" button and a delete button per row; for lists such as hostnames or emails. Type `TextArrayProps`.
+- [MultipleTextInput](https://github.com/percona/peak-ui/blob/main/src/components/form/inputs/multiple-text-input/multiple-text-input.tsx): Growable list of key/value text pairs for a field array of `{ key, value }` rows, with add and delete; for labels, tags, or environment variables.
+
+## Labels and grouping
+
+- [LabeledContent](https://github.com/percona/peak-ui/blob/main/src/components/labeled-content/labeled-content.tsx): Section-heading `label` with an optional `caption`, a required asterisk, and a slot beside the label (`horizontalStackChildrenSlot`); children stack below it. `CheckboxInput`, `RadioGroup`, and `ToggleButtonGroupInput` use it for their label and pass their `labelProps` to it; `TextInput`, `SelectInput`, and `AutoCompleteInput` use the MUI floating label and ignore `labelProps`. Type `LabeledContentProps`.
+- [ActionableLabeledContent](https://percona.github.io/peak-ui/?path=/docs/to-be-reviewed-actionablelabeledcontent--docs): `LabeledContent` with an "Add new" text button on the right (`actionButtonProps`) and an optional "Technical preview" chip (`techPreview`); the header for lists the user can extend. Type `ActionableLabeledContentProps`.
+
+## Buttons and actions
+
+- [MenuButton](https://percona.github.io/peak-ui/?path=/story/to-be-reviewed-menu-button--basic): Contained button with a dropdown arrow that opens an MUI `Menu`; pass `children` as `(handleClose) => <MenuItem onClick={...} />` so items close the menu. MUI props via `buttonProps` and `menuProps`. Type `MenuButtonProps`.
+- [CopyToClipboardButton](https://percona.github.io/peak-ui/?path=/docs/inputs-copy-to-clipboard--docs): Icon button, or a labeled button when `showCopyButtonText` (label `copyCommand`, default "Copy code"), that copies `textToCopy` and confirms with a "Copied" tooltip; disabled with an explanation when the Clipboard API is unavailable. MUI props via `buttonProps`.
+- [ToggleCard](https://github.com/percona/peak-ui/blob/main/src/components/buttons/toggle-card/toggle-card.tsx): Card-like MUI `ToggleButton` (elevated, outlined when selected) for choosing among a few rich options inside `ToggleButtonGroupInput`. Type `ToggleCardProps`.
+- [ToggleRegularButton](https://github.com/percona/peak-ui/blob/main/src/components/buttons/toggle-regular-button/toggle-regular-button.tsx): Text MUI `ToggleButton` with a primary border that fills when selected, for compact segmented controls inside `ToggleButtonGroupInputRegular`. Type `ToggleRegularButtonProps`.
+
+## Data display
+
+- [Table](https://percona.github.io/peak-ui/?path=/docs/data-display-table--docs): Themed wrapper around Material React Table for product data tables (global search, column filters, sorting, pagination, row selection, expanding rows, row actions, empty states, and column visibility persisted under `tableName`); replaces MUI `Table`. Peak UI props: `tableName`, `noDataMessage`, `emptyFilterResultsMessage`, `emptyState`, `noDataAlertProps`, `enableRowHoverAction` with `rowHoverAction`, `hideExpandAllIcon`, `tableInstanceRef`; everything else is a Material React Table option. Type `TableProps`.
+- [useNavigableRows](https://percona.github.io/peak-ui/?path=/story/data-display-table--with-details-pane-navigation): Hook that owns a table's filter and sort state and returns `navigableRows` (the filtered and sorted rows across all pages, or the visible page with `scope: 'currentPage'`), `tableProps` to spread onto `Table`, and `refresh()`. Use it to step through rows in a details pane. Types `UseNavigableRowsOptions`, `UseNavigableRowsResult`, `UseNavigableRowsTableProps`, `NavigableRowsScope`.
+- [useDetailsPaneNavigation](https://percona.github.io/peak-ui/?path=/story/data-display-table--with-details-pane-navigation): Hook that turns a row list and the selected row into `next` and `previous` actions with `isFirst`, `isLast`, `hasPrevious`, `hasNext` flags; navigation disables itself when the selection is filtered out. Types `UseDetailsPaneNavigationOptions`, `UseDetailsPaneNavigationResult`.
+- [usePerconaTableUrlState](https://percona.github.io/peak-ui/?path=/story/data-display-table--with-url-state): Hook that syncs filters, sort, pagination, and global search with URL query params so table views are shareable; pass `searchParams` and `setSearchParams` from your router, and `paramPrefix` when a page has several tables. Returns `tableProps` for `Table` and `tableState` for `useNavigableRows`. Types `UsePerconaTableUrlStateOptions`, `UsePerconaTableUrlStateResult`.
+- [parseTableUrlState](https://github.com/percona/peak-ui/blob/main/src/components/table/tableUrlState.utils.ts): Reads table state (column filters, global filter, sorting, pagination) from `URLSearchParams`; the inverse of `serializeTableUrlState`. Options type `TableUrlStateOptions` (`paramPrefix`, `defaults`, and `sync` flags per `TableUrlSyncKey`).
+- [serializeTableUrlState](https://github.com/percona/peak-ui/blob/main/src/components/table/tableUrlState.utils.ts): Writes table state into `URLSearchParams`, leaving out values equal to the defaults.
+- [buildTableUrlParamKeys](https://github.com/percona/peak-ui/blob/main/src/components/table/tableUrlState.utils.ts): Returns the query param names a table uses (`q`, `sort`, `page`, `pageSize`, and the filter prefix) for an optional `paramPrefix`; use it to build links into a filtered table.
+- [hasActiveColumnFilters](https://github.com/percona/peak-ui/blob/main/src/components/table/tableUrlState.utils.ts): True when any column filter holds a non-empty value.
+- [DEFAULT_TABLE_STATE](https://github.com/percona/peak-ui/blob/main/src/components/table/tableState.types.ts): Empty filters and sorting with page 0 of 10 rows; the baseline for controlled table state. Types `TableStateValues`, `TableControlledState`, `NavigableTableState`.
+- [resolveUpdater](https://github.com/percona/peak-ui/blob/main/src/components/table/tableState.utils.ts): Applies a Material React Table updater (a value or a function of the previous value) to the previous state.
+- [mergePerconaTableState](https://github.com/percona/peak-ui/blob/main/src/components/table/tableState.utils.ts): Merges URL-driven table state with other controlled state, such as `rowSelection`, into one object for `Table`'s `state` prop.
+- [isSameTableState](https://github.com/percona/peak-ui/blob/main/src/components/table/tableState.utils.ts): Deep-compares two table states.
+- [cloneColumnFilters](https://github.com/percona/peak-ui/blob/main/src/components/table/tableState.utils.ts): Copies column filters before handing them to the table, because range filters mutate their arrays in place.
+- [stableDependencyKey](https://github.com/percona/peak-ui/blob/main/src/components/table/tableState.utils.ts): Stable JSON key for any value, for effect dependencies and memoization of table state.
+- [Material React Table types](https://www.material-react-table.com/docs/api/table-options): Re-exported so apps never import the transitive dependency: `MRT_Cell`, `MRT_ColumnDef`, `MRT_ColumnFiltersState`, `MRT_PaginationState`, `MRT_Row`, `MRT_RowSelectionState`, `MRT_SortingState`, `MRT_TableInstance`, `MRT_Updater`, `MRT_VisibilityState`, `MaterialReactTableProps`.
+- [Chip](https://percona.github.io/peak-ui/?path=/docs/data-display-chip--docs): MUI `Chip` limited to Percona usage: semantic colors only (no primary or secondary), no leading icon, and a circled-x delete icon when `onDelete` is set; for statuses, tags, and removable filters. Type `ChipProps`.
+- [Tooltip](https://percona.github.io/peak-ui/?path=/docs/data-display-tooltip--docs): MUI `Tooltip` with the same API, exported so apps use one tooltip; the theme renders it on the inverted surface (dark tooltip on a light app and vice versa). Type `TooltipProps`.
+- [CodeBlock](https://percona.github.io/peak-ui/?path=/docs/data-display-code-block--docs): Monospace `<pre>` block for commands, logs, and configuration, with optional syntax highlighting via `language`, line wrapping via `wrap`, and a copy button (`copyable`, `showCopyButtonText`, `value` for the text to copy). Type `CodeBlockProps`.
+- [CodeCopyBlock](https://percona.github.io/peak-ui/?path=/story/to-be-reviewed-buttons-codecopyblock--with-copy-button-command): One-line command inside an info-styled alert with a copy button. Prefer `CodeBlock` for all new work, including single commands; this stays for existing uses. Type `CodeCopyBlockProps`.
+- [Card](https://github.com/percona/peak-ui/blob/main/src/components/cards/card/card.tsx): 320px-wide MUI `Card` that lays out a `title`, `content`, and optional `cardActions` buttons (`ActionProps`: MUI `Button` props plus `text`); requires `dataTestId`. Not documented in Storybook yet and has no design guidance, so check with the design team before building new work on it. Types `CardProps`, `ActionProps`.
+- [OverviewCard](https://github.com/percona/peak-ui/blob/main/src/components/cards/overview-card/overview-card.tsx): 368px-wide grey MUI `Card` with an optional header (`cardHeaderProps.title`) and free-form children; requires `dataTestId`. Not documented in Storybook yet and has no design guidance, so check with the design team before building new work on it. Type `OverviewCardProps`.
+- [LoadableChildren](https://github.com/percona/peak-ui/blob/main/src/components/loadable-children/loadable-children.tsx): Renders an MUI `Skeleton` in place of each child while `loading`; wrap values that arrive asynchronously. Type `LoadableChildrenProps`.
+- [ProgressBar](https://github.com/percona/peak-ui/blob/main/src/components/progress-bar/progress-bar.tsx): Labeled buffer bar showing `value` and `buffer` against a `total`, for usage and quotas; the buffer turns warning-colored when it exceeds the total. Type `ProgressBarProps`.
+
+## Feedback and status
+
+- [StatusIcon](https://percona.github.io/peak-ui/?path=/docs/feedback-status-icon--docs): Status badge with a locked glyph and color per `severity` (`success`, `info`, `indeterminate`, `warning`, `error`). Pair it with text; on its own only with a tooltip. Prefer `size` medium (32px symbol in a tinted circle); small (22px bare symbol) is for very limited space. Replaces the deprecated legacy status icons below. Types `StatusIconProps`, `StatusIconSeverity`, `StatusIconSize`.
+- [NotistackMuiSnackbar](https://github.com/percona/peak-ui/blob/main/src/components/notistack-mui-snackbar/NotistackMuiSnackbar.tsx): notistack renderer that draws each toast as an MUI `Alert` of the matching severity; register it once in `SnackbarProvider`'s `Components` and call `enqueueSnackbar` as usual.
+- [Dialog](https://github.com/percona/peak-ui/blob/main/src/components/dialog/dialog.tsx): MUI `Dialog` plus a `loading` prop that shows a progress bar along the top while an action runs; use with `DialogTitle`.
+- [DialogTitle](https://github.com/percona/peak-ui/blob/main/src/components/dialog-title/dialog-title.tsx): MUI `DialogTitle` plus a close icon button in the corner when `onClose` is given. Type `DialogTitleProps`.
+
+## Navigation
+
+- [NavItem](https://percona.github.io/peak-ui/?path=/docs/navigation-navigation-item--docs): Sidebar navigation row (MUI `ListItemButton`) with `icon`, `text`, `secondaryText`, a `badge` slot, and a status dot (`showDot`, `dotColor`); pass `component={RouterLink}` and `selected` for routing. Types `NavItemProps`, `NavItemDotColor`.
+- [Stepper](https://percona.github.io/peak-ui/?path=/docs/to-be-reviewed-stepper--docs): MUI `Stepper` with Percona active and completed step colors, plus `noConnector` to drop the lines between steps for compact wizards. Type `StepperProps`.
+
+## Icons
+
+- [PerconaIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Percona brand mark.
+- [PerconaMyIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Percona for MySQL product mark.
+- [PerconaMoIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Percona for MongoDB product mark.
+- [PerconaPoIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Percona for PostgreSQL product mark.
+- [PerconaVaIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Percona for Valkey (Redis-compatible) product mark.
+- [ProxyIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Proxy or ProxySQL routing node.
+- [HaproxyIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): HAProxy load balancer node.
+- [ClusterHealthyIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Cluster topology in a healthy state.
+- [ClusterDegradedIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Cluster topology in a degraded (warning) state.
+- [ClusterInoperationalIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Cluster topology that is down (error) state.
+- [ClusterTransitioningIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Cluster topology that is updating or transitioning.
+- [HomeIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Home page or landing page.
+- [KnowledgeBaseIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Documentation, knowledge base, or help information.
+- [BottomPanelOpenIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Expand a bottom panel/sheet or terminal drawer.
+- [BottomPanelCloseIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Collapse a bottom panel/sheet or terminal drawer.
+- [Graph4Icon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Node graph with four connected nodes, for topology or network visuals.
+- [Graph5Icon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Node graph with five connected nodes, for topology or network visuals.
+- [Graph6Icon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Node graph with six connected nodes, for topology or network visuals.
+- [CirclesExtIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Connected circles for groups, for topology, or network visuals, or relationships.
+- [NetworkNodeIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Single node graph in a topology tree of three elements, for topology, or network visuals, or relationships.
+- [NetworkIntelligenceIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Resembles a brain to signify network/artificial intelligence or insights.
+- [QueryStatsIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Query analytics and performance metrics.
+- [SearchInsightsIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Search-driven insights and exploration of analytics.
+- [ElectricBoltIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Power, speed, or an active fast mode.
+- [ElectricBoltOffIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Power, speed, or an active mode, switched off or deactivated.
+- [SupportDiagnosticsIcon](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-custom-icons--docs): Support diagnostics and troubleshooting tools.
+- [ErrorIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/status/status.tsx): Deprecated legacy status icon; use `StatusIcon` with `severity="error"`. Legacy status icons take `LegacyStatusIconProps` (`SvgIconProps` plus `size`); `IconsProps` and `StatusIconProviderProps` are their internal shapes.
+- [WarningIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/status/status.tsx): Deprecated legacy status icon; use `StatusIcon` with `severity="warning"`.
+- [SuccessIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/status/status.tsx): Deprecated legacy status icon; use `StatusIcon` with `severity="success"`.
+- [UnknownIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/status/status.tsx): Deprecated legacy status icon; use `StatusIcon` with `severity="indeterminate"`.
+- [PendingIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/status/status.tsx): Deprecated legacy status icon for a pending state, do not adopt in new code; no `StatusIcon` equivalent, so find an alternative in MUI icons.
+- [PausedIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/status/status.tsx): Deprecated legacy status icon for a paused state, do not adopt in new code; no `StatusIcon` equivalent, so find an alternative in MUI icons.
+- [MySqlIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/db/db.tsx): Deprecated MySQL brand illustration pending migration to Illustrations; do not adopt in new code.
+- [MongoIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/db/db.tsx): Deprecated MongoDB brand illustration pending migration to Illustrations; do not adopt in new code.
+- [PostgreSqlIcon](https://github.com/percona/peak-ui/blob/main/src/components/icons/db/db.tsx): Deprecated PostgreSQL brand illustration pending migration to Illustrations; do not adopt in new code.
+
+## Illustrations
+
+- [NothingFoundIllustration](https://percona.github.io/peak-ui/?path=/docs/foundations-illustrations-illustrations--docs): Empty search or empty filtering result. Layers `NothingFoundLayer`: `swooshArrays`, `glass`, `questionMark`; props `NothingFoundIllustrationProps`.
+- [RadarIllustration](https://percona.github.io/peak-ui/?path=/docs/foundations-illustrations-illustrations--docs): Scanning or a background process at work. Layers `RadarLayer`: `arrays`, `nodes`, `wiper`; props `RadarIllustrationProps`.
+- [RealTimeDatabaseOffIllustration](https://percona.github.io/peak-ui/?path=/docs/foundations-illustrations-illustrations--docs): Live data stream that is switched off. Layers `RealTimeDatabaseOffLayer`: `accent`, `base`, `liveBadge`; props `RealTimeDatabaseOffIllustrationProps`.
+- [UnknownErrorIllustration](https://percona.github.io/peak-ui/?path=/docs/foundations-illustrations-illustrations--docs): Unexpected error. Layers `UnknownErrorLayer`: `eyes`, `mouth`, `windowFrame`, `controls`, `nose`; props `UnknownErrorIllustrationProps`.
+
+## Utilities
+
+- [kebabize](https://github.com/percona/peak-ui/blob/main/src/utils/string.ts): Converts camelCase or spaced text to kebab-case; Peak UI builds `data-testid` values from field names with it (for example `text-input-<kebabize(name)>`), so tests can predict them.
+- [mergeSx](https://github.com/percona/peak-ui/blob/main/src/utils/sx.ts): Merges a default `sx` with a consumer `sx` of any shape (object, array, or function of the theme) so the consumer wins; for components that wrap MUI and expose `sx`.
+- [flattenSx](https://github.com/percona/peak-ui/blob/main/src/utils/sx.ts): Resolves any `sx` shape to a plain style object for a given theme; the primitive `mergeSx` is built on.
+
+## Not exported: use MUI
+
+- [Button and IconButton](https://percona.github.io/peak-ui/?path=/docs/inputs-button--docs): Come from `@mui/material`; Storybook shows the variants, colors, and sizes under the Percona theme.
+- [Form controls with a Peak UI counterpart](https://percona.github.io/peak-ui/?path=/docs/inputs-text-field--docs): MUI `TextField`, `Select`, `Autocomplete`, `Checkbox`, `Switch`, and `Radio` are only for values outside a form. When the value lives in a react-hook-form form, use the Peak UI counterpart from this index instead: TextInput, SelectInput, AutoCompleteInput, CheckboxInput, SwitchInput, or RadioGroup.
+- [Layout, text, and feedback with no Peak UI counterpart](https://mui.com/material-ui/all-components/): `Box`, `Stack`, `Grid`, `Typography`, `Alert`, `Menu`, `MenuItem`, `Pagination`, `Tabs`, `Drawer`, and the rest come from `@mui/material` and the Peak UI theme styles them; toasts go through notistack with the NotistackMuiSnackbar renderer listed above.
+- [Names that exist in neither library](https://mui.com/material-ui/all-components/): There is no `Heading` (use `Typography` with a heading `variant`), no `Input` (TextInput inside a form, `TextField` outside), and no `Toast` (notistack, above). Do not invent them.
+
+## Optional
+
+- [Typography](https://percona.github.io/peak-ui/?path=/docs/foundations-typography--docs): Type scale, fonts, and the custom variants `sectionHeading`, `helperText`, and `menuText`.
+- [Shape](https://percona.github.io/peak-ui/?path=/docs/foundations-shape--docs): Border radius tokens (`borderRadiusSm`, `borderRadius`, `borderRadiusXl`, `borderRadiusFull`).
+- [Colors: Primary](https://percona.github.io/peak-ui/?path=/docs/foundations-colors-primary--docs): Primary palette and state tints per theme.
+- [Colors: Messaging](https://percona.github.io/peak-ui/?path=/docs/foundations-colors-messaging--docs): Success, informative, warning, error, and neutral palettes.
+- [Colors: Charts](https://percona.github.io/peak-ui/?path=/docs/foundations-colors-charts--docs): Categorical chart palette.
+- [Icons overview](https://percona.github.io/peak-ui/?path=/docs/foundations-icons-overview--docs): When to use an MUI icon and when a custom one is added to Peak UI.
+- [Illustrations overview](https://percona.github.io/peak-ui/?path=/docs/foundations-illustrations-overview--docs): Sizing and per-layer coloring of illustrations.
+- [Material React Table docs](https://www.material-react-table.com/docs/api/table-options): Every option `Table` accepts beyond the Peak UI props.
+- [MUI docs](https://mui.com/material-ui/): The library Peak UI builds on.
+- [Figma kit](https://www.figma.com/design/08jGF3GZAUGmazlQtk0UQk/Peak-Design-Kit): Design intent; Storybook is the coded source of truth.

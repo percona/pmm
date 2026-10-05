@@ -33,7 +33,7 @@ export const App = () => (
 );
 ```
 
-Using an AI coding assistant? The package ships an [`AGENTS.md`](./AGENTS.md) with the usage rules agents need (theme wrapper, form binding, where Peak UI ends and MUI begins). It is readable straight from `node_modules/@percona/peak-ui/AGENTS.md`.
+Using an AI coding assistant? The package ships an [`AGENTS.md`](./AGENTS.md) with the usage rules agents need (theme wrapper, form binding, where Peak UI ends and MUI begins). It is readable straight from `node_modules/@percona/peak-ui/AGENTS.md`. Next to it, [`llms.txt`](./llms.txt) indexes every export with a one-line purpose and a link to its documentation.
 
 ## Development
 
