@@ -60,6 +60,10 @@ export function ConfigTab({
       pluginName={CONFIG_APP_NAME}
       routeBase={routeBase}
       renderField={renderField}
+      // The tabs above already offer Configuration, Backups and Restores; the
+      // bar this plugin derives from `related_apps` is a second control to the
+      // same three places, rendered below the switcher that scopes them.
+      hideRelatedAppTabs
     />
   );
 

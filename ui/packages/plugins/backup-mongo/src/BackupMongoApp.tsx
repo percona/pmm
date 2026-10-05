@@ -145,6 +145,7 @@ export function BackupMongoApp({ basePath }: { basePath: string }) {
               <SchemaDrivenPlugin
                 pluginName={BACKUP_APP_NAME}
                 routeBase={`${basePath}/backups`}
+                hideRelatedAppTabs
                 getTaskExecuteActions={getBackupMongoExecuteActions}
                 getTaskHistoryNames={getBackupMongoHistoryTaskNames}
                 suppressDetailKeys={BACKUP_DETAIL_SUPPRESS_KEYS}
@@ -161,6 +162,7 @@ export function BackupMongoApp({ basePath }: { basePath: string }) {
               <SchemaDrivenPlugin
                 pluginName={RESTORE_APP_NAME}
                 routeBase={`${basePath}/restores`}
+                hideRelatedAppTabs
                 getTaskExecuteActions={getRestoreMongoExecuteActions}
                 getTaskHistoryNames={getRestoreMongoHistoryTaskNames}
                 suppressDetailKeys={RESTORE_DETAIL_SUPPRESS_KEYS}
