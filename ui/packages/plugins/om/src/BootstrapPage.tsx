@@ -180,8 +180,8 @@ function hasNonDefaultMemberConfig(
  * matching mockup `02-configure-general.png`'s table.
  *
  * Every edit goes through {@link constrainMemberConfig}, which applies MongoDB's
- * own member rules (a delayed member cannot vote or become primary; a hidden or
- * non-voting one cannot become primary) in the same action, rather than leaving
+ * own member rules (a delayed member cannot vote or become primary and is kept
+ * hidden; a hidden or non-voting one cannot become primary) in the same action, rather than leaving
  * an operator to discover them once `rs.initiate()` rejects the set minutes into a
  * run. The controls a rule holds grey out, and the Effect column says which rule,
  * in words, so the side effect never lives only in a hover.
@@ -247,6 +247,7 @@ const ElectionSettingsTable = ({
             <TableCell align="center">
               <Checkbox
                 checked={config.hidden}
+                disabled={constraint === 'delayed'}
                 onChange={(event) => update({ hidden: event.target.checked })}
                 slotProps={{
                   input: { 'aria-label': `Hidden for ${host.name}` },

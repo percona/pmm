@@ -43,10 +43,21 @@ describe('constrainMemberConfig', () => {
     });
   });
 
-  it('turns a delayed member into a non-voting, priority-0 one', () => {
+  it('turns a delayed member into a hidden, non-voting, priority-0 one', () => {
     expect(
       constrainMemberConfig({ ...defaultMemberConfig(), delay_secs: 3600 })
-    ).toMatchObject({ priority: 0, votes: false, delay_secs: 3600 });
+    ).toEqual({ priority: 0, votes: false, hidden: true, delay_secs: 3600 });
+  });
+
+  it('keeps a delayed member hidden when Hidden is cleared', () => {
+    expect(
+      constrainMemberConfig({
+        priority: 0,
+        votes: false,
+        hidden: false,
+        delay_secs: 3600,
+      }).hidden
+    ).toBe(true);
   });
 
   it.each([
@@ -116,7 +127,12 @@ describe('validateElectionPlan', () => {
       validateElectionPlan([
         member('a'),
         member('b', { priority: 0, hidden: true }),
-        member('c', { priority: 0, votes: false, delay_secs: 60 }),
+        member('c', {
+          priority: 0,
+          votes: false,
+          hidden: true,
+          delay_secs: 60,
+        }),
       ]).errors
     ).toEqual([]);
   });
@@ -136,11 +152,23 @@ describe('validateElectionPlan', () => {
   it('blocks a delayed member that still votes', () => {
     const { errors } = validateElectionPlan([
       member('a'),
-      member('b', { priority: 0, delay_secs: 60 }),
+      member('b', { priority: 0, hidden: true, delay_secs: 60 }),
       member('c'),
     ]);
 
-    expect(errors).toContain('b: a delayed member cannot vote.');
+    expect(errors).toEqual(['b: a delayed member cannot vote.']);
+  });
+
+  it('blocks a delayed member that applications can still see', () => {
+    const { errors } = validateElectionPlan([
+      member('a'),
+      member('b', { priority: 0, votes: false, delay_secs: 3600 }),
+      member('c'),
+    ]);
+
+    expect(errors).toEqual([
+      'b: a delayed member must be hidden, so applications are not served its delayed data.',
+    ]);
   });
 
   it('blocks a plan where nobody votes', () => {

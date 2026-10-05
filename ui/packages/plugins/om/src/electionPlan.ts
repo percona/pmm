@@ -34,8 +34,10 @@ export function defaultMemberConfig(): OmBootstrapMemberConfig {
 /**
  * Apply MongoDB's member rules to an edited config, the moment it is edited.
  *
- * A delayed member cannot vote or become primary; a hidden member and a
- * non-voting member cannot become primary. Each rule forces the dependent field
+ * A delayed member cannot vote or become primary, and is hidden: its copy is
+ * deliberately behind, so an application reading from secondaries must not be
+ * served it. A hidden member and a non-voting member cannot become primary.
+ * Each rule forces the dependent field
  * rather than letting the form hold a value `rs.initiate()` would reject, and the
  * Configure step says which rule is holding a row (see {@link memberConstraint}).
  */
@@ -44,10 +46,12 @@ export function constrainMemberConfig(
 ): OmBootstrapMemberConfig {
   const delayed = config.delay_secs > 0;
   const votes = delayed ? false : config.votes;
-  const canBePrimary = !delayed && !config.hidden && votes;
+  const hidden = delayed || config.hidden;
+  const canBePrimary = !delayed && !hidden && votes;
   return {
     ...config,
     votes,
+    hidden,
     priority: canBePrimary ? config.priority : 0,
   };
 }
@@ -76,7 +80,7 @@ export const MEMBER_CONSTRAINT_PHRASE: Record<
   string
 > = {
   delayed:
-    'Priority set to 0 and votes turned off: a delayed member cannot vote or become primary.',
+    'Priority set to 0, votes turned off and hidden: a delayed member cannot vote or become primary, and applications must not read its delayed data.',
   hidden: 'Priority set to 0: a hidden member cannot become primary.',
   non_voting:
     'Priority set to 0: a member without a vote cannot become primary.',
@@ -145,6 +149,14 @@ export function validateElectionPlan(
   if (delayedVoters.length) {
     errors.push(
       `${listNames(delayedVoters.map((m) => m.name))}: a delayed member cannot vote.`
+    );
+  }
+  const visibleDelayed = members.filter(
+    ({ config }) => config.delay_secs > 0 && !config.hidden
+  );
+  if (visibleDelayed.length) {
+    errors.push(
+      `${listNames(visibleDelayed.map((m) => m.name))}: a delayed member must be hidden, so applications are not served its delayed data.`
     );
   }
 

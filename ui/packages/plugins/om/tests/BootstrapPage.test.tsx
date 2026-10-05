@@ -167,11 +167,14 @@ describe('BootstrapPage election settings', () => {
 
     expect(screen.getByLabelText('Priority for db03')).toBeDisabled();
     expect(screen.getByLabelText('Votes for db03')).not.toBeChecked();
+    expect(screen.getByLabelText('Hidden for db03')).toBeChecked();
+    expect(screen.getByLabelText('Hidden for db03')).toBeDisabled();
     expect(
       screen.getByText(
-        'Priority set to 0 and votes turned off: a delayed member cannot vote or become primary.'
+        'Priority set to 0, votes turned off and hidden: a delayed member cannot vote or become primary, and applications must not read its delayed data.'
       )
     ).toBeInTheDocument();
+    expect(screen.queryByTestId('om-election-error')).toBeNull();
   });
 
   it('warns on an even number of voters but keeps Review available', () => {
