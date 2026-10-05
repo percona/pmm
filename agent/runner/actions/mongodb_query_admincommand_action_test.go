@@ -203,7 +203,8 @@ func buildInfoAssertions(t *testing.T, b []byte) { //nolint:thelper
 	assert.LessOrEqual(t, 1000, len(b))
 	objxM := convertToObjxMap(t, b)
 	assert.InDelta(t, 1.0, objxM.Get("ok").Data(), 0.0001)
-	assert.Equal(t, "mozjs", objxM.Get("javascriptEngine").Data())
+	// MongoDB 9.0 ships SpiderMonkey compiled to WebAssembly.
+	assert.Contains(t, []any{"mozjs", "mozjs-wasm"}, objxM.Get("javascriptEngine").Data())
 	assert.Equal(t, "x86_64", objxM.Get("buildEnvironment.distarch").Data())
 }
 
