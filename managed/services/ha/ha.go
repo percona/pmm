@@ -20,12 +20,12 @@ import (
 
 	"github.com/hashicorp/memberlist"
 
-	hav1beta1 "github.com/percona/pmm/api/ha/v1beta1"
+	hav1 "github.com/percona/pmm/api/ha/v1"
 )
 
 // HAServer implements the HAService gRPC API.
 type HAServer struct { //nolint:revive
-	hav1beta1.UnimplementedHAServiceServer
+	hav1.UnimplementedHAServiceServer
 
 	service *Service
 }
@@ -38,18 +38,18 @@ func NewHAServer(service *Service) *HAServer {
 }
 
 // Status returns the current HA mode status.
-func (s *HAServer) Status(_ context.Context, _ *hav1beta1.StatusRequest) (*hav1beta1.StatusResponse, error) { //nolint:unparam
+func (s *HAServer) Status(_ context.Context, _ *hav1.StatusRequest) (*hav1.StatusResponse, error) { //nolint:unparam
 	status := "Disabled"
 	if s.service.params.Enabled {
 		status = "Enabled"
 	}
-	return &hav1beta1.StatusResponse{Status: status, Namespace: s.service.params.Namespace}, nil
+	return &hav1.StatusResponse{Status: status, Namespace: s.service.params.Namespace}, nil
 }
 
 // ListNodes returns a list of all nodes in the High Availability cluster.
-func (s *HAServer) ListNodes(_ context.Context, _ *hav1beta1.ListNodesRequest) (*hav1beta1.ListNodesResponse, error) { //nolint:unparam
+func (s *HAServer) ListNodes(_ context.Context, _ *hav1.ListNodesRequest) (*hav1.ListNodesResponse, error) { //nolint:unparam
 	if !s.service.params.Enabled {
-		return &hav1beta1.ListNodesResponse{Nodes: []*hav1beta1.HANode{}}, nil
+		return &hav1.ListNodesResponse{Nodes: []*hav1.HANode{}}, nil
 	}
 
 	// Default to 1 for single-node deployment where no peers are configured.
@@ -61,32 +61,32 @@ func (s *HAServer) ListNodes(_ context.Context, _ *hav1beta1.ListNodesRequest) (
 	s.service.rw.RUnlock()
 
 	if memberlist == nil {
-		return &hav1beta1.ListNodesResponse{
-			Nodes:         []*hav1beta1.HANode{},
+		return &hav1.ListNodesResponse{
+			Nodes:         []*hav1.HANode{},
 			ExpectedNodes: int32(expectedNodes), //nolint:gosec
 		}, nil
 	}
 
 	_, leaderID := raftNode.LeaderWithID()
 	members := memberlist.Members()
-	nodes := []*hav1beta1.HANode{}
+	nodes := []*hav1.HANode{}
 
 	for _, member := range members {
-		role := hav1beta1.NodeRole_NODE_ROLE_FOLLOWER
+		role := hav1.NodeRole_NODE_ROLE_FOLLOWER
 		if member.Name == string(leaderID) {
-			role = hav1beta1.NodeRole_NODE_ROLE_LEADER
+			role = hav1.NodeRole_NODE_ROLE_LEADER
 		}
 
 		status := memberlistStateToString(member.State)
 
-		nodes = append(nodes, &hav1beta1.HANode{
+		nodes = append(nodes, &hav1.HANode{
 			NodeName: member.Name,
 			Role:     role,
 			Status:   status,
 		})
 	}
 
-	return &hav1beta1.ListNodesResponse{
+	return &hav1.ListNodesResponse{
 		Nodes:         nodes,
 		ExpectedNodes: int32(expectedNodes), //nolint:gosec
 	}, nil

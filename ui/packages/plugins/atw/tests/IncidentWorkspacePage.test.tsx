@@ -20,6 +20,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { SnackbarProvider } from 'notistack';
 import { IncidentWorkspacePage } from '../src/IncidentWorkspacePage';
 
 /** Flipped per test to cover the read-only (non-admin) rendering. */
@@ -58,11 +59,16 @@ function renderWorkspace() {
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={[`/atw/${incidentId}`]}>
-        <Routes>
-          <Route path="/atw/:incidentId" element={<IncidentWorkspacePage />} />
-        </Routes>
-      </MemoryRouter>
+      <SnackbarProvider>
+        <MemoryRouter initialEntries={[`/atw/${incidentId}`]}>
+          <Routes>
+            <Route
+              path="/atw/:incidentId"
+              element={<IncidentWorkspacePage />}
+            />
+          </Routes>
+        </MemoryRouter>
+      </SnackbarProvider>
     </QueryClientProvider>
   );
 }
@@ -317,5 +323,106 @@ describe('IncidentWorkspacePage — edit parameters and run again', () => {
       },
       { timeout: 3000 }
     );
+  });
+});
+
+describe('IncidentWorkspacePage — feedback for a run that just started', () => {
+  const SNIPPET = {
+    name: 'diag/vmstat.sh',
+    title: 'VM Stat Snapshot',
+    description: 'Captures vmstat output.',
+  };
+  const EXECUTION = {
+    id: 'exec-1',
+    snippet_filename: 'diag/vmstat.sh',
+    task_history_id: 55,
+    created_at: '2026-07-22T10:00:00Z',
+    task_status: 'running',
+    started_at: '2026-07-22T10:00:01Z',
+    finished_at: null,
+    has_logs: false,
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockedApi.get.mockImplementation(async (url: string) => {
+      if (url.startsWith('/apps/atw/snippets/')) {
+        return { data: { items: [SNIPPET], total: 1, offset: 0, limit: 50 } };
+      }
+      if (url.includes('/execution-schema/')) {
+        return { data: { shared: [], per_snippet: [] } };
+      }
+      if (url.includes('/executions/')) {
+        return { data: { items: [EXECUTION], total: 1, offset: 0, limit: 20 } };
+      }
+      if (url.includes('/send-jobs/')) {
+        return { data: { items: [], total: 0, offset: 0, limit: 20 } };
+      }
+      if (url.includes('/config/')) {
+        return { data: { send_disabled_reasons: [] } };
+      }
+      if (url === '/apps/atw/') {
+        return { data: [] };
+      }
+      return { data: openIncident };
+    });
+    mockedApi.post.mockResolvedValue({
+      data: {
+        items: [
+          {
+            snippet_filename: SNIPPET.name,
+            task_history_id: EXECUTION.task_history_id,
+            error: null,
+          },
+        ],
+      },
+    });
+  });
+
+  /** Pick the one searchable snippet and press the run button. */
+  async function runOneSnippet() {
+    const user = userEvent.setup();
+    await user.type(
+      await screen.findByRole('combobox', { name: 'Snippets' }),
+      'vmstat'
+    );
+    await user.click(
+      await screen.findByRole(
+        'option',
+        { name: /VM Stat Snapshot/ },
+        { timeout: 3000 }
+      )
+    );
+    await user.click(
+      await screen.findByRole(
+        'button',
+        { name: 'Execute batch' },
+        { timeout: 3000 }
+      )
+    );
+  }
+
+  it('names how many scripts started, and brings Results into view', async () => {
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+
+    renderWorkspace();
+    await runOneSnippet();
+
+    expect(await screen.findByText('Started 1 script')).toBeVisible();
+    await waitFor(() => expect(scrollIntoView).toHaveBeenCalled());
+  });
+
+  it('marks out the executions the run produced', async () => {
+    Element.prototype.scrollIntoView = vi.fn();
+
+    renderWorkspace();
+    await runOneSnippet();
+
+    expect(
+      await screen.findByTestId('atw-execution-row-new', undefined, {
+        timeout: 3000,
+      })
+    ).toBeVisible();
   });
 });

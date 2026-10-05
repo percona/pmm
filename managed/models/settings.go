@@ -118,6 +118,11 @@ type Settings struct {
 
 	// Contains all encrypted tables in format 'db.table.column'.
 	EncryptedItems []string `json:"encrypted_items"`
+
+	// EncryptionKeyFingerprint identifies the encryption key the data in this database was
+	// encrypted with. In HA all nodes share the database but keep their own key file, so a node
+	// compares this against its own key to detect that it cannot read the stored credentials.
+	EncryptionKeyFingerprint string `json:"encryption_key_fingerprint"`
 }
 
 // IsAlertingEnabled returns true if alerting is enabled.
@@ -188,6 +193,18 @@ func (s *Settings) IsVictoriaMetricsCacheEnabled() bool {
 		return *s.VictoriaMetrics.CacheEnabled
 	}
 	return VictoriaMetricsCacheEnabledDefault
+}
+
+// DataRetentionDays returns the retention period in whole days, which is the unit both
+// VictoriaMetrics and qan-api2 take it in. Validation keeps DataRetention a whole number of
+// days, see validators.DataRetentionMultipleOf, so the truncation is a formality.
+func (s *Settings) DataRetentionDays() int {
+	return DurationToDays(s.DataRetention)
+}
+
+// DurationToDays returns the number of whole days in d; any part of a day left over is dropped.
+func DurationToDays(d time.Duration) int {
+	return int(d.Hours() / 24) //nolint:mnd
 }
 
 // AdvisorsRunIntervals represents intervals between Advisors checks.
