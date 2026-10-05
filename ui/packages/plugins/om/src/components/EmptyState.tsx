@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
