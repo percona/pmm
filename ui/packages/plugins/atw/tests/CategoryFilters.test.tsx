@@ -86,7 +86,7 @@ function renderFilters(ui: ReactNode) {
 describe('rootFilterOptions / parentFilterOptions / snippetsForFilters', () => {
   const listing = [mysqlLeaf, mysqlLocksLeaf, postgresLeaf];
 
-  it('sums snippet_count per root from the listing only', () => {
+  it('counts unique snippet filenames per root from the listing only', () => {
     expect(rootFilterOptions(listing)).toEqual([
       { root: 'MySQL', count: 3 },
       { root: 'PostgreSQL', count: 1 },
@@ -99,7 +99,7 @@ describe('rootFilterOptions / parentFilterOptions / snippetsForFilters', () => {
     ).not.toContain('ProxySQL');
   });
 
-  it('sums snippet_count per problem area under a root', () => {
+  it('counts unique snippet filenames per problem area under a root', () => {
     expect(parentFilterOptions(listing, 'MySQL')).toEqual([
       {
         value: 'PERFORMANCE_ISSUES',
@@ -107,6 +107,61 @@ describe('rootFilterOptions / parentFilterOptions / snippetsForFilters', () => {
         count: 1,
       },
       { value: 'LOCKS', label: 'Locks', count: 2 },
+    ]);
+  });
+
+  it('does not double-count a script that appears on several leaves', () => {
+    const crashRestartOk: AtwCategoryListing = {
+      category_root: 'MySQL',
+      parent_category: 'CRASHES',
+      parent_category_label: 'Crashes',
+      category: 'SERVER_CRASHED_RESTART_SUCCESSFUL',
+      category_label: 'Server crashed - Restart Successful',
+      snippet_count: 2,
+      snippets: [
+        { name: 'pt-mysql-summary.sh', title: 'pt-mysql-summary', description: '' },
+        {
+          name: 'mysql_log_extractor.sh',
+          title: 'MySQL Log Extractor',
+          description: '',
+        },
+      ],
+    };
+    const crashRestartFail: AtwCategoryListing = {
+      category_root: 'MySQL',
+      parent_category: 'CRASHES',
+      parent_category_label: 'Crashes',
+      category: 'SERVER_CRASHED_RESTART_NOT_SUCCESSFUL',
+      category_label: 'Server crashed - Restart Not Successful',
+      snippet_count: 2,
+      snippets: [
+        {
+          name: 'mysql_config_files.sh',
+          title: 'MySQL Config File Discovery Script',
+          description: '',
+        },
+        {
+          name: 'mysql_log_extractor.sh',
+          title: 'MySQL Log Extractor',
+          description: '',
+        },
+      ],
+    };
+    const overlapping = [crashRestartOk, crashRestartFail];
+
+    // Summing snippet_count would be 4; the picker shows 3 unique scripts.
+    expect(parentFilterOptions(overlapping, 'MySQL')).toEqual([
+      { value: 'CRASHES', label: 'Crashes', count: 3 },
+    ]);
+    expect(rootFilterOptions(overlapping)).toEqual([
+      { root: 'MySQL', count: 3 },
+    ]);
+    expect(
+      snippetsForFilters(overlapping, 'MySQL', 'CRASHES').map((s) => s.name)
+    ).toEqual([
+      'pt-mysql-summary.sh',
+      'mysql_log_extractor.sh',
+      'mysql_config_files.sh',
     ]);
   });
 

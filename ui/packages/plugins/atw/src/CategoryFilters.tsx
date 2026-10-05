@@ -58,46 +58,63 @@ interface ParentFilterOption {
 }
 
 /**
- * Aggregate `snippet_count` per category root from the listing response.
- * Roots that never appear in the response (empty sidecar cells) stay omitted.
+ * Unique snippet filenames per category root from the listing response.
+ * Counts match what the Collect picker shows after leaf-union dedupe — the same
+ * script can sit on several leaves under one root, so summing `snippet_count`
+ * would overstate the chip. Roots absent from the response stay omitted.
  */
 export function rootFilterOptions(
   listing: readonly AtwCategoryListing[]
 ): RootFilterOption[] {
-  const counts = new Map<string, number>();
+  const namesByRoot = new Map<string, Set<string>>();
   for (const item of listing) {
-    counts.set(
-      item.category_root,
-      (counts.get(item.category_root) ?? 0) + item.snippet_count
-    );
+    let names = namesByRoot.get(item.category_root);
+    if (!names) {
+      names = new Set();
+      namesByRoot.set(item.category_root, names);
+    }
+    for (const snippet of item.snippets) {
+      names.add(snippet.name);
+    }
   }
-  return [...counts.entries()].map(([root, count]) => ({ root, count }));
+  return [...namesByRoot.entries()].map(([root, names]) => ({
+    root,
+    count: names.size,
+  }));
 }
 
 /**
- * Aggregate `snippet_count` per problem area under the selected root.
+ * Unique snippet filenames per problem area under the selected root.
  */
 export function parentFilterOptions(
   listing: readonly AtwCategoryListing[],
   root: string
 ): ParentFilterOption[] {
-  const byParent = new Map<string, ParentFilterOption>();
+  const byParent = new Map<
+    string,
+    { label: string; names: Set<string> }
+  >();
   for (const item of listing) {
     if (item.category_root !== root) {
       continue;
     }
-    const existing = byParent.get(item.parent_category);
-    if (existing) {
-      existing.count += item.snippet_count;
-      continue;
+    let entry = byParent.get(item.parent_category);
+    if (!entry) {
+      entry = {
+        label: item.parent_category_label,
+        names: new Set(),
+      };
+      byParent.set(item.parent_category, entry);
     }
-    byParent.set(item.parent_category, {
-      value: item.parent_category,
-      label: item.parent_category_label,
-      count: item.snippet_count,
-    });
+    for (const snippet of item.snippets) {
+      entry.names.add(snippet.name);
+    }
   }
-  return [...byParent.values()];
+  return [...byParent.entries()].map(([value, entry]) => ({
+    value,
+    label: entry.label,
+    count: entry.names.size,
+  }));
 }
 
 /**
