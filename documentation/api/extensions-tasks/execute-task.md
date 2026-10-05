@@ -17,7 +17,7 @@ POST /api/apps/{app}/{task_name}/execute
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `app` | string | The app that owns the task (for example, `mysql_backups`). |
-| `task_name` | string | The name of the task to execute. Use [List tasks](ref:extensions-list-tasks) to find available task names. |
+| `task_name` | string | The name of the task to execute. |
 
 ## Request body
 
@@ -37,36 +37,23 @@ POST /api/apps/{app}/{task_name}/execute
 
 ## Response
 
-Returns the task history record created for this execution.
+Returns HTTP 201 with the dispatched run details.
 
 ```json
 {
-  "id": 42,
-  "created_at": "2026-09-08T12:00:00Z",
-  "updated_at": "2026-09-08T12:00:01Z",
+  "task_name": "mysql-backup-xtrabackup",
+  "task_id": 42,
   "status": "pending",
-  "started_at": null,
-  "finished_at": null,
-  "executed_by": "user123",
-  "task": {
-    "id": 7,
-    "name": "mysql-backup-xtrabackup",
-    "backend": "nomad",
-    "owner": "mysql-backups"
-  },
-  "has_logs": false,
-  "log_capture": "unknown",
-  "duration": null,
-  "display_name": "MySQL XtraBackup"
+  "created_at": "2026-09-08T12:00:00Z"
 }
 ```
 
-Use the returned `id` to [monitor the run](ref:extensions-task-history).
+Use the returned `task_id` to [monitor the run](ref:extensions-task-history).
 
 ## Example
 
 ```shell
-curl -sk -X POST https://<pmm-server>/extensions/api/apps/mysql-backups/mysql-backup-xtrabackup/execute \
+curl -sk -X POST https://<pmm-server>/extensions/api/apps/mysql_backups/<task_name>/execute \
      -H "Authorization: Bearer <token>" \
      -H "Content-Type: application/json" \
      -d '{}'

@@ -1,66 +1,59 @@
 ---
-title: Check connectivity
+title: Check service connectivity
 slug: extensions-connectivity-check
 category:
   uri: extensions-tasks-api
 position: 4
 ---
 
-Before running a task, verify that an executor host can reach the target database.
+Probes the inter-service connections PMM Extensions depends on and reports their status. Admin only.
 
 ```
-POST /connectivity-check/
+POST /extensions/api/extensions/admin/connectivity-check/
 ```
 
-Runs a lightweight check on the specified executor host that attempts to connect to the database host and port, then returns immediately with the result.
+Runs the selected probes concurrently and returns one result per requested service. Always returns HTTP 200; failures are reported in the result, not as HTTP errors.
 
 ## Request body
 
 ```json
 {
-  "target": "db-host-01",
-  "host": "10.0.0.5",
-  "port": 3306,
-  "service_type": "mysql",
-  "timeout": 30
+  "targets": ["pmm", "inventory", "tasks", "nomad", "delivery"]
 }
 ```
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `target` | string | The executor host to run the check on. |
-| `host` | string | The database host address to connect to. |
-| `port` | integer | The database port number. |
-| `service_type` | string | Database type: `mysql`, `postgresql`, or `mongodb`. |
-| `timeout` | integer | How long to wait for the connection, in seconds (1 to 60). Default: 30. |
+| `targets` | array of strings | Services to probe. At least one required. Duplicates are ignored. |
+
+**Supported targets:**
+
+| Value | What is probed |
+|-------|----------------|
+| `pmm` | PMM Server API |
+| `inventory` | Inventory service |
+| `tasks` | Tasks service |
+| `nomad` | Nomad executor backend (probed via the Tasks service) |
+| `delivery` | Diagnostics delivery receiver |
 
 ## Response
 
+Returns a list of connectivity results in the same order as `targets`.
+
 ```json
-{
-  "success": true,
-  "error": null,
-  "task_history_id": 99
-}
+[
+  {"service": "tasks", "status": "reachable"},
+  {"service": "nomad", "status": "reachable"}
+]
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `success` | boolean | Whether the connectivity check succeeded. |
-| `error` | string | Error message if the check failed. `null` on success. |
-| `task_history_id` | integer | ID of the history record for this check. Use it to retrieve logs if you need to investigate a failure. |
+**Status values:** `reachable`, `unreachable`, `not_configured`, `inputs_drifted`, `probe_undeclared`.
 
 ## Example
 
 ```shell
-curl -sk -X POST https://<pmm-server>/extensions/connectivity-check/ \
+curl -sk -X POST https://<pmm-server>/extensions/api/extensions/admin/connectivity-check/ \
      -H "Authorization: Bearer <token>" \
      -H "Content-Type: application/json" \
-     -d '{
-       "target": "db-host-01",
-       "host": "10.0.0.5",
-       "port": 3306,
-       "service_type": "mysql",
-       "timeout": 30
-     }'
+     -d '{"targets": ["tasks", "nomad"]}'
 ```

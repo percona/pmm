@@ -6,121 +6,82 @@ category:
 position: 2
 ---
 
-After [executing a task](ref:extensions-execute-task), use the history endpoints to track status, stream logs, browse output files, and stop a run in progress.
+After [executing a task](ref:extensions-execute-task), use these endpoints to list runs, stream logs, and stop a run in progress.
 
-## List runs for a task
+## List runs
 
 ```
-GET /{task}/history/
+GET /extensions/api/extensions/task-history/
 ```
 
-Returns paginated execution history for a task, newest first.
+Returns a paginated list of task history records, newest first.
 
 **Query parameters:**
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `status` | string | none | Filter by status: `failed`, `pending`, `running`, `success`, `stopped`, `lost`, `stale`, `unlaunchable` |
+| `task_names` | string (repeatable) | none | Filter to one or more task names. Repeat the parameter for multiple names. Omit to list all history. |
+| `status` | string | none | Filter by status: `pending`, `running`, `success`, `failed`, `stopped`, `lost`, `stale`, `unlaunchable` |
+| `exclude_internal` | boolean | `false` | Exclude internal maintenance tasks |
 | `offset` | integer | 0 | Pagination offset |
-| `limit` | integer | 50 | Results per page (max 200) |
-| `sort` | string | `-created_at` | Sort key. Prefix with `-` for descending. Options: `created_at`, `executed_by`, `finished_at`, `started_at`, `status` |
-| `search` | string | none | Case-insensitive search across searchable columns |
+| `limit` | integer | 50 | Results per page |
 
-**Example:**
+**Example — list failed runs for a task:**
 
 ```shell
-curl -sk "https://<pmm-server>/extensions/mysql-backup-xtrabackup/history/?status=failed&limit=10" \
-     -H "Authorization: Bearer <token>"
-```
-
-## Get a single run
-
-```
-GET /history/{task_history_id}
-```
-
-Returns the full record for one execution, identified by the `id` returned when the task was executed.
-
-**Example:**
-
-```shell
-curl -sk https://<pmm-server>/extensions/history/42 \
-     -H "Authorization: Bearer <token>"
-```
-
-## Stream logs
-
-```
-GET /history/{task_history_id}/logs/
-```
-
-Streams log output for a run. While the task is running, returns a live stream. For finished tasks, returns stored logs.
-
-**Query parameters:**
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `step` | string | none | Filter to a specific step name within the run |
-| `tail` | integer | none | For finished tasks only: return only the last N lines |
-| `backend` | string | `nomad` | Executor backend: `nomad`, `proxy`, or `celery` |
-
-**Example:**
-
-```shell
-curl -sk "https://<pmm-server>/extensions/history/42/logs/" \
-     -H "Authorization: Bearer <token>"
-```
-
-## List execution events
-
-```
-GET /history/{task_history_id}/events
-```
-
-Returns lifecycle events from the executor in chronological order. Each event has a `timestamp`, `type`, `description`, and optional `step` name. Useful for tracing what happened during a run step by step.
-
-## List output files
-
-```
-GET /history/{task_history_id}/files/
-```
-
-Lists files written by the task, with their size and whether they are directories.
-
-## Download an output file
-
-```
-GET /history/{task_history_id}/file/?path=<path>
-```
-
-Streams a specific file from the task's output. Use the `path` value returned by [List output files](#list-output-files).
-
-## Get task statistics
-
-```
-GET /stats/{task}
-```
-
-Returns aggregate statistics for all runs of a task: total run count, counts by status, duration breakdown, and the last finished timestamp.
-
-**Example:**
-
-```shell
-curl -sk https://<pmm-server>/extensions/stats/mysql-backup-xtrabackup \
+curl -sk "https://<pmm-server>/extensions/api/extensions/task-history/?task_names=mysql-backup-xtrabackup&status=failed" \
      -H "Authorization: Bearer <token>"
 ```
 
 ## Stop a run
 
 ```
-POST /history/{task_history_id}/stop/
+POST /extensions/api/extensions/task-history/{task_history_id}/stop/
 ```
 
-Stops a running task. Returns the updated history record with `status: stopped`.
+Stops a running task. Returns the updated history record with `status: stopped`. Returns HTTP 400 if the task is not running.
 
 **Example:**
 
 ```shell
-curl -sk -X POST https://<pmm-server>/extensions/history/42/stop/ \
+curl -sk -X POST https://<pmm-server>/extensions/api/extensions/task-history/42/stop/ \
      -H "Authorization: Bearer <token>"
 ```
+
+## Get task statistics
+
+```
+GET /extensions/api/extensions/task-stats/{task_name}
+```
+
+Returns aggregate statistics for all runs of a task: total count, counts by status, and the last finished timestamp.
+
+**Example:**
+
+```shell
+curl -sk https://<pmm-server>/extensions/api/extensions/task-stats/mysql-backup-xtrabackup \
+     -H "Authorization: Bearer <token>"
+```
+
+## Stream logs
+
+```
+GET /extensions/stream-logs/{task_history_id}
+```
+
+Streams log output as [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events). While the task is running, events arrive live. For finished tasks, stored logs are replayed and then a `finish` event is emitted.
+
+**Example:**
+
+```shell
+curl -sk https://<pmm-server>/extensions/stream-logs/42 \
+     -H "Authorization: Bearer <token>"
+```
+
+## Stream execution events
+
+```
+GET /extensions/stream-logs/{task_history_id}/execution-events
+```
+
+Streams lifecycle events (start, step transitions, completion) as server-sent events. Useful for tracking which step of a multi-step task is currently running.

@@ -42,7 +42,7 @@ Complete the following steps before creating your first backup.
 
 1. Deploy PMM Extensions alongside PMM Server. See [Deploy PMM Extensions](deploy-pmm-extensions.md).
 
-2. Install the Nomad client on the execution host. The host needs PMM Client 3.2 or later, registered to this PMM Server. PMM Client ships with the Nomad client, so if you deploy PMM Client with Nomad enabled, it's already installed. PMM Client itself doesn't need to run on the execution host, only the Nomad client does.
+2. Make sure PMM Client 3.10.0 or later is installed on the execution host, registered to this PMM Server, and deployed with Nomad enabled. PMM Client ships the Nomad client, so no separate installation is needed. If PMM Client is not yet installed, see [Install PMM Client](../install-pmm/install-pmm-client/index.md).    
 
 3. Install the tool for your backup type and make sure it is available on `$PATH`:
 

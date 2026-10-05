@@ -6,54 +6,6 @@ category:
 position: 5
 ---
 
-List registered tasks to find the task names you need for [execute](ref:extensions-execute-task) and [schedule](ref:extensions-list-periodic-tasks) calls.
+The task registry is managed internally by PMM Extensions and is not exposed as a public REST endpoint in 3.10.0. To find available task names, refer to the [Apps documentation](https://docs.percona.com/percona-monitoring-and-management/3/apps/index.html) for each installed app.
 
-## List all tasks
-
-```
-GET /
-```
-
-Returns a paginated list of all tasks registered in PMM Extensions.
-
-**Query parameters:**
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `owner` | string | none | Filter by the app that owns the task (for example, `mysql-backups`) |
-| `target` | string | none | Filter by target |
-| `backup_type` | string | none | Filter by backup type |
-| `search` | string | none | Case-insensitive search across task names and other searchable columns |
-| `offset` | integer | 0 | Pagination offset |
-| `limit` | integer | 50 | Results per page (max 200) |
-| `sort` | string | `-created_at` | Sort key. Prefix with `-` for descending. Options: `backend`, `created_at`, `name`, `owner`, `updated_at` |
-
-**Example:**
-
-```shell
-curl -sk "https://<pmm-server>/extensions/?owner=mysql-backups" \
-     -H "Authorization: Bearer <token>"
-```
-
-## Get a specific task
-
-```
-GET /{task_name}
-```
-
-Returns the full record for a single task by name.
-
-**Example:**
-
-```shell
-curl -sk https://<pmm-server>/extensions/mysql-backup-xtrabackup \
-     -H "Authorization: Bearer <token>"
-```
-
-## List executor hosts
-
-```
-GET /hosts/
-```
-
-Returns the available executor hosts where tasks can run. Use this to find valid `target` values for the [execute](ref:extensions-execute-task) and [connectivity check](ref:extensions-connectivity-check) endpoints.
+To list the executor hosts available for task execution, see [Executor hosts](ref:extensions-list-hosts).

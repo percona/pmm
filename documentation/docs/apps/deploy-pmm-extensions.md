@@ -12,7 +12,7 @@ You cannot deploy PMM Extensions on:
 - AMI deployments, because PMM Extensions is only available as a Docker container.
 - A separate host from PMM Server, because traffic between the two containers is not encrypted.
 - arm64 or other non-amd64 architectures.
-- [PMM HA](../install-pmm/HA.md) or [external PostgreSQL](../install-pmm/install-pmm-server/deployment-options/docker/docker.md) deployments.
+- [PMM HA](../install-pmm/HA.md) or external PostgreSQL
 
 ## Before you start
 
