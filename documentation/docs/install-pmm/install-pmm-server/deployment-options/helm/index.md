@@ -211,32 +211,52 @@ pmmEnv:
   PMM_ENABLE_UPDATES: "0"
 ```
 
-### Encryption key
+### Manage the encryption key
 
-PMM encrypts the credentials of monitored services with a key stored on the PMM data volume. For details, see [PMM data encryption](../../../../admin/security/data_encryption.md). The chart also keeps a copy of that key in a Kubernetes secret, named `pmm-encryption-key` for a release named `pmm`. The copy keeps the credentials readable if the data volume is lost while the database survives, which is possible when PMM uses an external PostgreSQL.
+PMM [encrypts the credentials](../../../../admin/security/data_encryption.md) of monitored services with a key stored on the PMM data volume.
 
-The chart manages the copy as follows:
+The chart also keeps a backup copy of the key in a Kubernetes secret. With this copy, PMM can still read the stored credentials if the data volume is lost but the database survives. This can happen, for example, when PMM uses an external PostgreSQL database.
 
-- The key on the data volume always wins. The chart only uses the copy to restore a key onto a volume that has none, and refreshes the copy to match the volume each time the pod starts, for example after the key has been [rotated](../../../../admin/security/data_encryption.md#rotating-the-encryption-key).
-- The secret is not owned by the Helm release, so it survives `helm uninstall`.
-- The key has to stay on the data volume. If `pmmEnv.PMM_ENCRYPTION_KEY_PATH` or `extraVolumeMounts` put it anywhere else, installing or upgrading the chart fails. In that case, set `encryptionKey.backupToSecret: false` to keep the key without a copy.
-- The pod's service account can create secrets in the namespace, and read and update this secret. Unless `serviceAccount.create` is set, that is the namespace's `default` service account.
+To keep the key and its backup copy in sync, the chart:
 
-Back up the key with the rest of your PMM configuration:
+- uses the copy only to restore a key onto a data volume that has none. The key on the data volume always takes precedence.
+- updates the copy each time the pod starts. After you [rotate the key](../../../../admin/security/data_encryption.md#rotate-the-encryption-key), restart the pod so the chart updates the copy.
+- keeps the secret after `helm uninstall`, because the secret isn't owned by the Helm release.
+- requires the key to stay on the data volume. If `pmmEnv.PMM_ENCRYPTION_KEY_PATH` or `extraVolumeMounts` moves the key elsewhere, installing or upgrading the chart fails. To keep the key elsewhere, set `encryptionKey.backupToSecret: false` to turn off the backup copy.
+
+The secret is named `<fullname>-encryption-key`, for example `pmm-encryption-key` for a release named `pmm`. To use a different name, set `encryptionKey.secretName`.
+
+#### Limit service account permissions
+
+To manage the key secret, the chart lets the pod's service account create secrets in the namespace and read and update the key secret. By default, this is the namespace's `default` service account, so every pod that uses it gets the same permissions.
+
+To limit these permissions to PMM, set `serviceAccount.create: true`. The chart then creates a dedicated service account for PMM.
+
+#### Back up the key
+
+Without the key, PMM can't decrypt the stored credentials after a restore. The backup file contains the key in plain text, so store it as securely as the secret itself and separately from your PMM data backups.
+
+To save the key to a file, run the following command. Replace `pmm-encryption-key` with your secret name if you changed it with `encryptionKey.secretName` or use a release name other than `pmm`:
 
 ```sh
-kubectl get secret pmm-encryption-key -o jsonpath='{.data.key}' | base64 -d > pmm-encryption.key
+kubectl get secret pmm-encryption-key -n <namespace> -o jsonpath='{.data.key}' | base64 -d > pmm-encryption.key
 ```
 
-The file holds the key in the clear, so protect it as you would the secret.
+#### Use your own key
 
-To supply your own key, [generate one](../../../../admin/security/data_encryption.md#custom-encryption-key-configuration) and create the secret before installing the chart:
+To use your own key instead of the one the chart generates:
+{.power-number}
 
-```sh
-kubectl create secret generic pmm-encryption-key --from-file=key=pmm-encryption.key
-```
+1. [Generate a key](../../../../admin/security/data_encryption.md#set-up-a-custom-key).
 
-For the chart parameters, see [PMM encryption key](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-encryption-key).
+2. Create the secret from the key file. Use the same [secret name](#back-up-the-key) as for the backup:
+    ```sh
+    kubectl create secret generic pmm-encryption-key -n <namespace> --from-file=key=pmm-encryption.key
+    ```
+
+3. [Install the chart](#install-pmm-server-on-your-kubernetes-clusteropenshift-clusters). The chart detects the existing secret and uses your key.
+
+To change how the chart handles the key, [set the encryption key parameters](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-encryption-key).
 
 ### SSL certificates
 
