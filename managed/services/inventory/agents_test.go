@@ -1682,7 +1682,7 @@ func TestAddRTAAgentPMMAgentVersion(t *testing.T) {
 			}
 
 			tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, fmt.Sprintf(
-				"Service %s has pmm-agent with version %s not supporting Real-Time Analytics; pmm-agent %s or later is required.",
+				"Service test-rta-version (id %s) has pmm-agent with version %s not supporting Real-Time Analytics; pmm-agent %s or later is required.",
 				serviceID, tc.pmmAgentVersion, tc.wantErr,
 			)), err)
 

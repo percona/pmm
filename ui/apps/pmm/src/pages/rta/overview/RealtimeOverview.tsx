@@ -5,7 +5,6 @@ import {
   Link as RouterLink,
   useSearchParams,
 } from 'react-router-dom';
-import { useDetailsPaneNavigation } from '@percona/peak-ui';
 import { RealtimePage } from '../components/rta-page';
 import { useRealtimeQueries, useRealtimeSessions } from 'hooks/api/useRealtime';
 import OverviewTable from './table/OverviewTable';
@@ -15,8 +14,8 @@ import {
   isBlockingUnknown,
   isSameStatement,
   isTransactionControl,
-  statementRowId,
 } from './table/OverviewTable.utils';
+import { useStatementNavigation } from './useStatementNavigation';
 import { DetailsPane } from './details-pane';
 import type { QueryData } from 'types/rta.types';
 import DynamicFeed from '@mui/icons-material/DynamicFeed';
@@ -155,8 +154,12 @@ const RealtimeOverviewPage: FC = () => {
   const blockedCount = blockedQueries.length;
 
   const handleQuerySelected = (query: QueryData) => {
+    // Only on opening the pane. Previous and next select through here too, while the view is
+    // already paused by the pane, and saving then would make closing it leave the view paused.
+    if (!selectedQuery) {
+      previousFetchingState.current = fetching;
+    }
     setSelectedQuery(query);
-    previousFetchingState.current = fetching;
     setFetching(false);
   };
 
@@ -181,13 +184,11 @@ const RealtimeOverviewPage: FC = () => {
     [selectedQuery, queries]
   );
 
-  const { isFirst, isLast, next, previous } =
-    useDetailsPaneNavigation<QueryData>({
-      rows: navigableQueries,
-      selected: selectedQuery,
-      getRowId: statementRowId,
-      onSelect: handleQuerySelected,
-    });
+  const { isFirst, isLast, next, previous } = useStatementNavigation({
+    rows: navigableQueries,
+    selected: selectedQuery,
+    onSelect: handleQuerySelected,
+  });
 
   const handleServiceIdsChange = (newServiceIds: string[]) => {
     // start fetching if previous state was empty
@@ -426,6 +427,9 @@ const RealtimeOverviewPage: FC = () => {
         isLastQuery={isLast}
         onNext={next}
         onPrevious={previous}
+        // The pane covers the toolbar, so it carries its own refresh. The view is paused while
+        // the pane is open; this reads once, as the toolbar's Refresh does.
+        onRefresh={serviceIds.length > 0 ? () => refetch() : undefined}
       />
     </RealtimePage>
   );

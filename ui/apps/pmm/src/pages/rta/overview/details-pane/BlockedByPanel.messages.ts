@@ -15,6 +15,11 @@ export const Messages = {
     'Not executing anything right now — it is holding a transaction open. Shown is the last statement it ran; the lock may have been taken by an earlier statement in the same transaction.',
   idleNoteNoTransaction:
     'Not executing anything right now, but still holding the lock. Shown is the last statement it ran; the lock may have been taken by an earlier one.',
+  noStatementIdleInTransaction:
+    'No current statement (connection idle in transaction). The server reported no last statement for it either; enable the events_statements_current consumer to see the last statement an idle connection ran.',
+  noStatementIdle:
+    'No current statement (connection idle). The server reported no last statement for it either; enable the events_statements_current consumer to see the last statement an idle connection ran.',
+  noStatement: 'The server did not report a statement for this connection.',
   titles: {
     blockerState: 'Blocker state',
     blockerUser: 'Blocker user',

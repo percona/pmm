@@ -9,6 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
+import Refresh from '@mui/icons-material/Refresh';
 import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Slide from '@mui/material/Slide';
@@ -27,6 +28,8 @@ interface Props {
   onClose: () => void;
   onNext: () => void;
   onPrevious: () => void;
+  // Re-reads the list once. Omitted when there is nothing to read, and the button with it.
+  onRefresh?: () => void;
 }
 
 const DetailsPane: FC<Props> = ({
@@ -37,6 +40,7 @@ const DetailsPane: FC<Props> = ({
   onClose,
   onNext,
   onPrevious,
+  onRefresh,
 }) => {
   useEscapeKey(onClose);
   const [tab, setTab] = useState<'details' | 'raw-data'>('details');
@@ -94,6 +98,17 @@ const DetailsPane: FC<Props> = ({
             />
           </Tabs>
           <Stack direction="row" alignItems="center" sx={{ mr: -1.5 }}>
+            {onRefresh && (
+              <Tooltip title={Messages.tooltips.refresh} arrow>
+                <IconButton
+                  data-testid="details-pane-refresh-button"
+                  aria-label={Messages.actions.refresh}
+                  onClick={onRefresh}
+                >
+                  <Refresh />
+                </IconButton>
+              </Tooltip>
+            )}
             <Tooltip title={Messages.tooltips.previous} arrow>
               <IconButton
                 data-testid="details-pane-prev-button"

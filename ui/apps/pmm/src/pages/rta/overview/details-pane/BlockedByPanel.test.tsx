@@ -388,4 +388,35 @@ describe('BlockedByPanel', () => {
       screen.queryByTestId('blocker-query-truncated')
     ).not.toBeInTheDocument();
   });
+
+  it('says an idle blocker has no current statement instead of leaving it blank', () => {
+    renderPanel([{ ...IDLE_ROOT, blockingQuery: '' }]);
+
+    expect(screen.queryByTestId('blocker-query')).not.toBeInTheDocument();
+    expect(screen.getByTestId('blocker-query-unavailable')).toHaveTextContent(
+      'No current statement (connection idle in transaction)'
+    );
+  });
+
+  it('does not claim an open transaction for an idle blocker without one', () => {
+    renderPanel([
+      {
+        ...IDLE_ROOT,
+        blockingQuery: '',
+        blockerTransactionDuration: undefined,
+      },
+    ]);
+
+    expect(screen.getByTestId('blocker-query-unavailable')).toHaveTextContent(
+      'No current statement (connection idle).'
+    );
+  });
+
+  it('does not call an executing blocker without a statement idle', () => {
+    renderPanel([{ ...MIDDLE_OF_CHAIN, blockingQuery: '', root: true }]);
+
+    expect(
+      screen.getByTestId('blocker-query-unavailable')
+    ).not.toHaveTextContent(/idle/);
+  });
 });

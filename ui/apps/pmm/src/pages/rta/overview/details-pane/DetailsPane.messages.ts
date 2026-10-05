@@ -6,11 +6,13 @@ export const Messages = {
     rawData: 'Raw data',
   },
   actions: {
+    refresh: 'Refresh',
     previous: 'Previous query',
     next: 'Next query',
     close: 'Close details pane',
   },
   tooltips: {
+    refresh: 'Refresh',
     previous: 'Previous query',
     next: 'Next query',
     close: 'Close details',
