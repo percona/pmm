@@ -20,7 +20,8 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist",
-    "AGENTS.md"
+    "AGENTS.md",
+    "llms.txt"
   ],
   "exports": {
     ".": {
