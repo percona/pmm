@@ -318,9 +318,8 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		idx++
 	}
 	if filters.AWSAccessKey != "" {
-		conditions = append(conditions, fmt.Sprintf("(aws_options ? 'aws_access_key' AND aws_options->>'aws_access_key' = %s)", q.Placeholder(idx)))
-		args = append(args, filters.AWSAccessKey)
-		idx++
+		// the key is stored encrypted, so it is compared after decryption below
+		conditions = append(conditions, "aws_options ? 'aws_access_key'")
 	}
 	if filters.IgnoreNomad {
 		conditions = append(conditions, "agent_type != "+q.Placeholder(idx))
@@ -348,9 +347,13 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		return nil, err
 	}
 
-	agents := make([]*Agent, len(structs))
-	for i, s := range structs {
-		agents[i] = s.(*Agent) //nolint:forcetypeassert
+	agents := make([]*Agent, 0, len(structs))
+	for _, s := range structs {
+		agent := s.(*Agent) //nolint:forcetypeassert
+		if filters.AWSAccessKey != "" && agent.AWSOptions.AWSAccessKey != filters.AWSAccessKey {
+			continue
+		}
+		agents = append(agents, agent)
 	}
 
 	return agents, nil
