@@ -1,10 +1,35 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { TestWrapper } from 'utils/testWrapper';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 import { SETTINGS_MOCK } from 'api/__mocks__/settings';
 import { Settings } from 'types/settings.types';
 import { Messages } from '../../Settings.messages';
 import { AdvancedSettingsForm } from './AdvancedSettingsForm';
+
+const enqueueSnackbar = vi.fn();
+vi.mock('notistack', () => ({
+  enqueueSnackbar: (...args: unknown[]) => enqueueSnackbar(...args),
+}));
+
+// The real mutation would need a server. Only `onSuccess` matters here: what the
+// form says once a save has landed.
+const mutateAsync = vi.fn(
+  async (
+    _payload: unknown,
+    options?: { onSuccess?: () => void; onError?: (error: Error) => void }
+  ) => {
+    options?.onSuccess?.();
+  }
+);
+vi.mock('hooks/api/useSettings', () => ({
+  useUpdateSettings: () => ({ mutateAsync }),
+}));
 
 const m = Messages.advanced;
 
@@ -86,5 +111,80 @@ describe('AdvancedSettingsForm: Operations for MongoDB', () => {
 
     expect(operationsSwitch()).toBeEnabled();
     expect(screen.queryByTestId('advanced-open-manager-blocked')).toBeNull();
+  });
+
+  // "Settings updated" names neither what was switched on nor where it went, which
+  // is the whole of the design review's first-run complaint (P9). Turning it on is
+  // the one moment the reader needs both.
+  describe('feedback once the save lands', () => {
+    beforeEach(() => {
+      enqueueSnackbar.mockClear();
+      mutateAsync.mockClear();
+    });
+
+    // The real button, not a synthetic submit on the form: it is disabled until
+    // the form is dirty, so submitting the element directly would exercise a path
+    // no user can reach. The wait is not incidental either - the form is
+    // `mode: 'onChange'`, so `isDirty` and `isValid` land a tick after the change
+    // event, and a click before that hits a disabled button and does nothing.
+    const apply = async () => {
+      const button = screen.getByRole('button', {
+        name: Messages.applyChanges,
+      });
+      await waitFor(() => expect(button).toBeEnabled());
+      fireEvent.click(button);
+    };
+
+    it('names the feature and links to it when it is switched on', async () => {
+      renderForm({ extensionsEnabled: true, omEnabled: false });
+
+      fireEvent.click(operationsSwitch());
+      await apply();
+
+      await waitFor(() => expect(enqueueSnackbar).toHaveBeenCalled());
+
+      // The message is a node, not a string, so it is rendered to be read -
+      // asserting on the element tree would test JSX shape rather than what a
+      // user sees.
+      const [message] = enqueueSnackbar.mock.calls[0];
+      const { getByRole, getByText } = render(<>{message}</>);
+
+      getByText(m.openManagerEnabled, { exact: false });
+      expect(
+        getByRole('link', { name: m.openManagerEnabledAction })
+      ).toHaveAttribute('href', '/pmm-ui/operations');
+    });
+
+    // Saving an unrelated field while it is already on must not tell someone
+    // again where to find something they have been using. The public address is
+    // dirtied only to make the form submittable.
+    it('stays generic when it was already on', async () => {
+      renderForm({ extensionsEnabled: true, omEnabled: true });
+
+      // By test id: the field's label is a sibling node rather than a `for=`/`id=`
+      // pair, so the input has no accessible name to query it by.
+      fireEvent.change(screen.getByTestId('publicAddress-text-input'), {
+        target: { value: 'pmm.example.com' },
+      });
+      await apply();
+
+      await waitFor(() => expect(enqueueSnackbar).toHaveBeenCalled());
+      expect(enqueueSnackbar).toHaveBeenCalledWith(Messages.service.success, {
+        variant: 'success',
+      });
+    });
+
+    // Turning it off is not an onboarding moment either.
+    it('stays generic when it is switched off', async () => {
+      renderForm({ extensionsEnabled: true, omEnabled: true });
+
+      fireEvent.click(operationsSwitch());
+      await apply();
+
+      await waitFor(() => expect(enqueueSnackbar).toHaveBeenCalled());
+      expect(enqueueSnackbar).toHaveBeenCalledWith(Messages.service.success, {
+        variant: 'success',
+      });
+    });
   });
 });

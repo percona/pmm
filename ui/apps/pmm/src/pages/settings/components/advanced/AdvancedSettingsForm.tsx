@@ -29,6 +29,7 @@ import {
   TECHNICAL_PREVIEW_DOC_URL,
 } from './Advanced.constants';
 import { MAX_LABEL_WIDTH } from '../../Settings.constants';
+import { OM_PATH, PMM_BASE_PATH } from 'lib/constants';
 import { AdvancedSettingsFormProps } from './AdvancedSettingsForm.types';
 import {
   AdvancedSettingsFormValues,
@@ -64,15 +65,39 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
 
   const sttEnabled = watch('stt');
   const [telemetryDialogOpen, setTelemetryDialogOpen] = useState(false);
+  const m = Messages.advanced;
 
   useEffect(() => {
     reset(toFormValues(settings));
   }, [settings, reset]);
 
   const onSubmit = async (values: AdvancedSettingsFormValues) => {
+    // Only on the transition, and read from the saved settings rather than the
+    // form's own dirty state: re-applying an unrelated field while Operations is
+    // already on is not the moment to tell someone where to find it.
+    const omJustEnabled = values.openManager && !settings.omEnabled;
     await updateSettings(toPayload(values), {
       onSuccess: () => {
-        enqueueSnackbar(Messages.service.success, { variant: 'success' });
+        enqueueSnackbar(
+          omJustEnabled ? (
+            <>
+              {m.openManagerEnabled}{' '}
+              {/* A plain href, not a router Link: SnackbarProvider is mounted
+                  outside RouterProvider (App.tsx), so a routed link rendered in
+                  a snackbar has no router context to resolve against. */}
+              <Link
+                href={`${PMM_BASE_PATH}${OM_PATH}`}
+                color="inherit"
+                underline="always"
+              >
+                {m.openManagerEnabledAction}
+              </Link>
+            </>
+          ) : (
+            Messages.service.success
+          ),
+          { variant: 'success' }
+        );
         reset(values);
       },
       onError: (error) => {
@@ -83,8 +108,6 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
       },
     });
   };
-
-  const m = Messages.advanced;
 
   return (
     <FormProvider {...methods}>

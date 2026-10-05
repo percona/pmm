@@ -54,6 +54,11 @@ export const Messages = {
       'Fleet management for Percona Server for MongoDB: the health of every MongoDB cluster PMM monitors, the hosts behind them, and provisioning. Appears under MongoDB in the menu. Turning it off hides those pages and stops the periodic collection; nothing already collected is deleted.',
     openManagerRequiresExtensions:
       'Needs PMM Extensions, which is not enabled on this server. Enable it first, then turn on Operations for MongoDB.',
+    // Said instead of the generic "Settings updated" the first time it is turned
+    // on. A toggle that reports success by naming nothing leaves the reader to
+    // guess both what they enabled and where it went (P9).
+    openManagerEnabled: 'Operations for MongoDB is now enabled.',
+    openManagerEnabledAction: 'Open it',
     publicAddressLabel: 'Public address',
     publicAddressTooltip:
       'The address or hostname PMM Server will be accessible at.',
