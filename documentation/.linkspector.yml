@@ -21,4 +21,5 @@ ignorePatterns:
   - pattern: "#postgresql_alerts$"
   - pattern: "#proxysql_alerts$"
   - pattern: "release-notes/\\{\\{release\\}\\}\\.md"
+  - pattern: "#only-(light|dark)$"
 

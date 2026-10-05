@@ -113,3 +113,17 @@
 .md-banner * {
   font-family: "Poppins", sans-serif !important;
 }
+
+/* Light and dark image pairs (![...](image-light.png#only-light), ![...](image-dark.png#only-dark)):
+   Material's built-in rules cover only its default schemes, so hide the other copy for PMM's schemes.
+   The PDF build has no theme switch and keeps the light copy. */
+[data-md-color-scheme="percona-light"] img[src$="#only-dark"],
+[data-md-color-scheme="percona-dark"] img[src$="#only-light"] {
+  display: none;
+}
+
+@media print {
+  img[src$="#only-dark"] {
+    display: none;
+  }
+}
