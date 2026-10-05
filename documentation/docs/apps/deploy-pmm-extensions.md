@@ -85,6 +85,8 @@ Use this option for a new installation. The `docker-compose.yml` file in the PMM
 
 ## Verify the deployment
 
+ After the containers start, confirm that PMM Extensions is running and integrated with PMM: 
+
 1. Check that both containers are running and healthy:
 
     ```bash
@@ -117,5 +119,5 @@ To disable PMM Extensions:
 2. Stop and remove the PMM Extensions container:
 
 ```bash
-    docker compose --profile extensions down
+docker compose --profile extensions down
 ```
