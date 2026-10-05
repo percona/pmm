@@ -20,10 +20,93 @@ import {
 import { useQuery } from '@tanstack/react-query';
 
 import { fetchPbmConfigStatus } from './pbmConfigStatus';
-import type { PbmCluster } from './pbmClusters';
+import { pickExecutor, type PbmCluster, type PbmMember } from './pbmClusters';
 
 /** Matches the switcher's cadence: PBM's own view changes slowly. */
 const REFETCH_MS = 30_000;
+
+/**
+ * One member, as a line in the topology list.
+ *
+ * Reads left to right the way the question does: is its agent up, what is it called,
+ * what role does it hold, and is it the one that will be asked to run `pbm`.
+ */
+function MemberLine({
+  member,
+  isExecutor,
+}: {
+  member: PbmMember;
+  isExecutor: boolean;
+}) {
+  const role = member.role === 'P' ? 'PRIMARY' : 'SECONDARY';
+  return (
+    <Stack direction="row" spacing={1} alignItems="center">
+      <Tooltip title={member.healthy ? 'PBM agent healthy' : 'PBM agent lost'}>
+        {member.healthy ? (
+          <ClusterHealthyIcon fontSize="small" />
+        ) : (
+          <ClusterInoperationalIcon fontSize="small" />
+        )}
+      </Tooltip>
+      <Typography variant="body2">{member.serviceName}</Typography>
+      <Typography variant="caption" color="text.secondary">
+        {role}
+      </Typography>
+      {isExecutor && (
+        <Chip size="small" variant="outlined" label="runs pbm" color="info" />
+      )}
+    </Stack>
+  );
+}
+
+/**
+ * The cluster's shape, for reference rather than for choosing.
+ *
+ * Informative only: nothing here is a control. It answers the questions the status
+ * chips above raise but cannot settle -- which member is down, whether the executor
+ * is a secondary as intended, how many shards PBM is coordinating across -- and it
+ * belongs beside the configuration because that is the configuration's subject.
+ *
+ * The executor is derived here rather than read from the form, so this panel says
+ * the same thing whether or not a form is open.
+ */
+function Topology({ cluster }: { cluster: PbmCluster }) {
+  const executor = pickExecutor(cluster);
+  const sets = cluster.replicaSets.length > 0 ? cluster.replicaSets : [''];
+
+  return (
+    <Stack spacing={1}>
+      <Typography variant="caption" color="text.secondary">
+        Topology
+      </Typography>
+      {sets.map((set) => {
+        const members = cluster.members.filter(
+          (member) => member.replicaSet === set
+        );
+        const isConfigSet = members.some((member) => member.configServer);
+        return (
+          <Stack key={set || cluster.name} spacing={0.5}>
+            {cluster.sharded && (
+              <Typography variant="caption" color="text.secondary">
+                {set}
+                {isConfigSet && ' · config servers'}
+              </Typography>
+            )}
+            <Stack direction="row" spacing={3} flexWrap="wrap" useFlexGap>
+              {members.map((member) => (
+                <MemberLine
+                  key={member.serviceId}
+                  member={member}
+                  isExecutor={member.serviceId === executor?.serviceId}
+                />
+              ))}
+            </Stack>
+          </Stack>
+        );
+      })}
+    </Stack>
+  );
+}
 
 /**
  * Render the status panel for one cluster.
@@ -99,6 +182,8 @@ export function PbmConfigStatusPanel({ cluster }: { cluster?: PbmCluster }) {
           {cluster.sharded && ` · ${cluster.replicaSets.length} replica sets`}
         </Typography>
       </Stack>
+
+      <Topology cluster={cluster} />
     </Box>
   );
 }
