@@ -21,6 +21,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -98,4 +99,13 @@ func TestGetExporterListenAddress(t *testing.T) {
 
 		assert.Equal(t, "0.0.0.0", getExporterListenAddress(nil, exporter))
 	})
+}
+
+// models cannot import the agent API, so it spells the TLS text file names out a second
+// time. Renaming one of them on either side breaks every already-deployed agent, which
+// this package can see because it is the one that puts the names on the wire.
+func TestTLSFileNamesMatchAgentAPI(t *testing.T) {
+	assert.Equal(t, agentv1.TLSCaFileName, models.TLSCaFileName)
+	assert.Equal(t, agentv1.TLSCertFileName, models.TLSCertFileName)
+	assert.Equal(t, agentv1.TLSKeyFileName, models.TLSKeyFileName)
 }

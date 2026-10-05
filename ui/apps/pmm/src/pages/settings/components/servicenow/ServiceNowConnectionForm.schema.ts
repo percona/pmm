@@ -13,10 +13,10 @@ const isAbsoluteUrl = (value: string) => {
 };
 
 /**
- * Client-side validation is deliberately thin: SEP validates the whole object
+ * Client-side validation is deliberately thin: the side-car validates the whole object
  * on write and is the only authority on which secret names are acceptable, so
  * the schema checks presence and an endpoint that could never be a URL, and
- * leaves the rest to SEP's 422 — which the form surfaces verbatim.
+ * leaves the rest to the side-car's 422 — which the form surfaces verbatim.
  *
  * Every declared secret is required. The form is only ever reached to supply
  * credentials — nothing stored, stored values the plan no longer accepts, or a

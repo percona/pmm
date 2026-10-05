@@ -15,6 +15,7 @@
 package logger
 
 import (
+	"regexp"
 	"strings"
 	"sync"
 
@@ -191,8 +192,22 @@ func maskString(s string) string {
 	}
 }
 
+// envSecretRe matches KEY=value environment entries whose key names a secret. The key may contain
+// anything but "=", "@" and whitespace: a process inherits host variables with names outside the
+// shell alphabet, while a DSN with credentials always carries "@" before its first "=", so a
+// database or user called "tokens" cannot turn a DSN into a key and echo its password. The value
+// may span lines (the s flag), so a multiline secret cannot fall through to the DSN heuristic
+// unmasked.
+var envSecretRe = regexp.MustCompile(`(?is)^([^=@\s]*(?:password|passwd|secret|token)[^=@\s]*)=(.+)$`)
+
 // MaskDSN returns a masked copy of DSN string, which masks username and password in DSN.
+// It also masks the value of a KEY=value environment entry whose key names a secret.
 func MaskDSN(s string) string {
+	// Before the DSN heuristics: a secret value may itself contain "@".
+	if m := envSecretRe.FindStringSubmatch(s); m != nil {
+		return m[1] + "=" + maskedString
+	}
+
 	at := strings.LastIndex(s, "@")
 	if at <= 0 {
 		return s

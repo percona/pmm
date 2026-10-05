@@ -356,6 +356,85 @@ func TestDatabaseChecks(t *testing.T) {
 }
 
 func TestDatabaseMigrations(t *testing.T) {
+	t.Run("environment variable names are cleared for agents that cannot receive them", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, new(118))
+		t.Cleanup(func() {
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		now := models.Now()
+		kept := `["KRB5_CONFIG"]`
+
+		_, err := sqlDB.ExecContext(
+			t.Context(),
+			`INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at)
+			VALUES ('node_id', 'generic', 'node_name', 'distro', 'node_model', 'az', 'address', $1, $1)`,
+			now,
+		)
+		require.NoError(t, err)
+
+		_, err = sqlDB.ExecContext(
+			t.Context(),
+			`INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, external_group, created_at, updated_at)
+			VALUES ('service_id', 'mongodb', 'service_name', 'node_id', '', '', '', '127.0.0.1', 27017, NULL, '', $1, $1)`,
+			now,
+		)
+		require.NoError(t, err)
+
+		_, err = sqlDB.ExecContext(
+			t.Context(),
+			`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options)
+			VALUES ('pmm_agent_id', 'pmm-agent', 'node_id', NULL, NULL, NULL, false, '', $1, $1, false, false, '{}', '{}', '{}', '{}')`,
+			now,
+		)
+		require.NoError(t, err)
+
+		// Every agent type addMongoDB used to copy the names onto, plus the one that legitimately
+		// receives them.
+		for _, agentType := range []string{
+			"mongodb_exporter",
+			"qan-mongodb-profiler-agent",
+			"qan-mongodb-mongolog-agent",
+			"rta-mongodb-agent",
+		} {
+			_, err = sqlDB.ExecContext(
+				t.Context(),
+				`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options, environment_variables)
+				VALUES ($1, $2, NULL, 'pmm_agent_id', NULL, 'service_id', false, '', $3, $3, false, false, '{}', '{}', '{}', '{}', $4)`,
+				agentType, agentType, now, `["KRB5_CONFIG"]`,
+			)
+			require.NoError(t, err)
+		}
+
+		// A non-mongodb agent that never had names, to prove the migration does not touch NULLs.
+		_, err = sqlDB.ExecContext(
+			t.Context(),
+			`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options, environment_variables)
+			VALUES ('node_exporter', 'node_exporter', NULL, 'pmm_agent_id', 'node_id', NULL, false, '', $1, $1, false, false, '{}', '{}', '{}', '{}', NULL)`,
+			now,
+		)
+		require.NoError(t, err)
+
+		// Apply migration 119.
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, new(119))
+
+		for agentID, expected := range map[string]*string{
+			"mongodb_exporter":           &kept,
+			"qan-mongodb-profiler-agent": nil,
+			"qan-mongodb-mongolog-agent": nil,
+			"rta-mongodb-agent":          nil,
+			"node_exporter":              nil,
+		} {
+			var actual *string
+			err = sqlDB.QueryRowContext(
+				t.Context(),
+				`SELECT environment_variables FROM agents WHERE agent_id = $1`, agentID,
+			).Scan(&actual)
+			require.NoError(t, err, agentID)
+			assert.Equal(t, expected, actual, agentID)
+		}
+	})
+
 	t.Run("push metrics field migration: from root to exporter_options", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, new(58))
 		t.Cleanup(func() {

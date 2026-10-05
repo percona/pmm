@@ -73,6 +73,12 @@ type Server struct {
 	envRW       sync.RWMutex
 	envSettings *models.ChangeSettingsParams
 
+	// UpdateConfigurations reports the retention it applies, and the SIGHUP handler calls it
+	// without envRW, so it keeps its own copy of the environment value.
+	retentionM          sync.Mutex
+	retentionFromEnv    time.Duration
+	retentionLoggedDays int
+
 	sshKeyM sync.Mutex
 }
 
@@ -146,11 +152,74 @@ func (s *Server) UpdateSettingsFromEnv(ctx context.Context, env []string) []erro
 		return []error{err}
 	}
 	s.envSettings = envSettings
+
+	s.retentionM.Lock()
+	s.retentionFromEnv = envSettings.DataRetention
+	s.retentionM.Unlock()
+
 	err = s.UpdateConfigurations(ctx)
 	if err != nil {
 		return []error{err}
 	}
 	return nil
+}
+
+// reportDataRetention logs the retention period that was just applied, unless it is the one
+// already reported. Start-up retries UpdateSettingsFromEnv every few seconds until it succeeds,
+// and the line must not repeat on every retry, but it must follow a later change.
+func (s *Server) reportDataRetention(settings *models.Settings) {
+	s.retentionM.Lock()
+	defer s.retentionM.Unlock()
+
+	days := settings.DataRetentionDays()
+	if days == s.retentionLoggedDays {
+		return
+	}
+	s.retentionLoggedDays = days
+
+	s.logDataRetention(days, s.retentionFromEnv)
+}
+
+// logDataRetention reports the retention period in force and where it came from.
+//
+// A boot-time setting has no other feedback channel. In an HA cluster the value cannot be read
+// back out of the UI as confirmation that it took effect, because the field is not writable
+// there, so this line is what answers "what is this replica actually enforcing".
+func (s *Server) logDataRetention(days int, fromEnv time.Duration) {
+	l := s.l.WithField("days", days)
+	if !s.haService.Params().Enabled {
+		if fromEnv != 0 {
+			l.Info("Data retention: set by PMM_DATA_RETENTION.")
+			return
+		}
+		l.Info("Data retention: changeable through the settings API.")
+
+		return
+	}
+
+	// Every replica writes its own environment to the shared settings row when it starts, and
+	// this one applies whatever that row holds whenever it re-renders its configuration: on its
+	// own start, a settings change it serves, or a SIGHUP. So the value applied here can be one
+	// that another replica wrote.
+	envDays := models.DurationToDays(fromEnv)
+	if fromEnv != 0 && envDays != days {
+		l.WithField("env_days", envDays).Warn("Data retention: written to the shared settings by another replica, " +
+			"and different from this replica's PMM_DATA_RETENTION. High availability is enabled, so replicas " +
+			"disagree until every replica runs with the same pmm-ha chart dataRetentionDays value.")
+		return
+	}
+
+	if fromEnv != 0 {
+		l.Info("Data retention: set by PMM_DATA_RETENTION. High availability is enabled, " +
+			"so it cannot be changed through the settings API; every replica takes it from the environment when it starts.")
+		return
+	}
+
+	// Warned rather than corrected. Substituting the default would silently shorten retention
+	// for a deployment that had a longer period stored, and deleted metrics do not come back.
+	l.Warn("Data retention: carried over from the stored settings. High availability is enabled " +
+		"and PMM_DATA_RETENTION is not set, so it cannot be changed through the settings API. " +
+		"The pmm-ha chart is expected to supply it through dataRetentionDays.")
 }
 
 // Version returns PMM Server version.
@@ -378,7 +447,7 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 		EnableAccessControl: settings.IsAccessControlEnabled(),
 		DefaultRoleId:       convertDefaultRoleID(settings.DefaultRoleID),
 
-		SepEnabled: pkgenv.SEPEnabled(),
+		ExtensionsEnabled: pkgenv.ExtensionsEnabled(),
 	}
 
 	return res
@@ -403,7 +472,7 @@ func (s *Server) convertReadOnlySettings(settings *models.Settings) *serverv1.Re
 		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
 		AzurediscoverEnabled:    settings.IsAzureDiscoverEnabled(),
 		EnableAccessControl:     settings.IsAccessControlEnabled(),
-		SepEnabled:              pkgenv.SEPEnabled(),
+		ExtensionsEnabled:       pkgenv.ExtensionsEnabled(),
 	}
 
 	return res
@@ -420,19 +489,7 @@ func (s *Server) GetSettings(ctx context.Context, _ *serverv1.GetSettingsRequest
 		return nil, err
 	}
 
-	var disabledInternalPgQan bool
-	if s.haService.Params().Enabled {
-		// In HA mode, internal QAN is always disabled as PostgreSQL is external
-		disabledInternalPgQan = true
-	} else {
-		internalPgQanAgent, err := s.getInternalPgQANAgent(dbCtx)
-		if err != nil {
-			// if we can't get the agent, log the error and set it to disabled.
-			s.l.Errorf("failed to get internal pgQAN agent: %v", err)
-		} else {
-			disabledInternalPgQan = internalPgQanAgent.Disabled
-		}
-	}
+	disabledInternalPgQan := s.internalPgQANDisabled(dbCtx)
 
 	return &serverv1.GetSettingsResponse{
 		Settings: s.convertSettings(settings, disabledInternalPgQan),
@@ -501,11 +558,35 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Low resolution for metrics is set via PMM_METRICS_RESOLUTION_LR environment variable.")
 	}
 
-	if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
+	// In HA the stored value can come from another replica's environment, so the lock is checked
+	// against the stored row instead; see refuseDataRetentionChangeInHA.
+	if !s.haService.Params().Enabled && !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
 		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
 	}
 
 	return nil
+}
+
+// refuseDataRetentionChangeInHA refuses a request for a data retention other than the stored one
+// in HA, where the value comes only from the pmm-ha chart. It runs after models.UpdateSettings,
+// inside the same transaction, so malformed input has already been rejected with the usual
+// InvalidArgument. Repeating the value in force, or leaving it out, is not a change, so a client
+// that sends the whole settings form back is not blocked on every other setting.
+//
+// It checks what the request asked for rather than comparing two reads of the row: at READ
+// COMMITTED another replica can commit a retention change between them, and a request that never
+// mentioned retention would then be refused. That race still exists for the write itself, since
+// the settings row is rewritten whole: a request repeating the old value while another replica
+// writes a new one can put the old value back. The same holds for every other setting in HA;
+// locking the settings row is tracked in PMM-15600.
+func (s *Server) refuseDataRetentionChangeInHA(requested time.Duration, stored *models.Settings) error {
+	if !s.haService.Params().Enabled || requested == 0 || requested == stored.DataRetention {
+		return nil
+	}
+
+	return status.Error(codes.FailedPrecondition,
+		"Data retention cannot be changed at runtime when high availability is enabled. "+
+			"Set it with the pmm-ha chart's dataRetentionDays value (rendered as PMM_DATA_RETENTION) and apply it with helm upgrade.")
 }
 
 // ChangeSettings changes PMM Server settings.
@@ -519,6 +600,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 
 	var newSettings, oldSettings *models.Settings
 	var disableInternalPgQan bool
+	var internalPgQANAgentID string
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		oldSettings, err = models.GetSettings(tx)
@@ -567,6 +649,12 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 			return fmt.Errorf("failed to update server settings: %w", err)
 		}
 
+		// Before the SSH key write below: returning an error rolls back the row, not that file.
+		err = s.refuseDataRetentionChangeInHA(settingsParams.DataRetention, oldSettings)
+		if err != nil {
+			return err
+		}
+
 		// absent value means "do not change"
 		if req.SshKey != nil {
 			err = s.writeSSHKey(pointer.GetString(req.SshKey))
@@ -579,11 +667,16 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 
 		// if QAN for internal PostgreSQL is toggled, we need to update the agent's disabled status
 		if req.EnableInternalPgQan != nil {
-			disabled, err := s.handleInternalQANToggle(ctx, tx.Querier, req.EnableInternalPgQan)
+			disabled, pmmAgentID, err := s.handleInternalQANToggle(tx.Querier, req.EnableInternalPgQan)
 			if err != nil {
 				return err
 			}
 			disableInternalPgQan = disabled
+			internalPgQANAgentID = pmmAgentID
+		} else {
+			// Report the state as stored. Left at its zero value it would say "enabled" on every
+			// request that omits the field.
+			disableInternalPgQan = s.internalPgQANDisabled(tx.Querier)
 		}
 
 		return nil
@@ -591,6 +684,14 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	if errTX != nil {
 		return nil, errTX
 	}
+
+	// Signalled after the transaction commits, the way the inventory path does it: the handler
+	// reads agent state a second later, so a signal sent from inside the transaction can be built
+	// from pre-commit state.
+	if internalPgQANAgentID != "" {
+		s.agentsState.RequestStateUpdate(ctx, internalPgQANAgentID)
+	}
+
 	err = s.UpdateConfigurations(ctx)
 	if err != nil {
 		return nil, err
@@ -634,47 +735,56 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	}, nil
 }
 
-func (s *Server) getInternalPgQANAgent(q *reform.Querier) (*models.Agent, error) {
-	agents, err := models.FindAgents(q, models.AgentFilters{
-		PMMAgentID: models.PMMServerAgentID,
-		AgentType:  new(models.QANPostgreSQLPgStatementsAgentType),
-	})
+// internalPgQANDisabled reports whether QAN on PMM Server's own PostgreSQL is currently off.
+//
+// It defaults to true when that cannot be determined: the Service may not exist at all, which is
+// the normal state in HA mode, and reporting QAN as enabled in that case is the wrong way to be
+// wrong -- a UI rendering the toggle from the response would show it on.
+func (s *Server) internalPgQANDisabled(q *reform.Querier) bool {
+	if s.haService.Params().Enabled {
+		// In HA mode, internal QAN is always disabled as PostgreSQL is external.
+		return true
+	}
+
+	agent, err := models.FindInternalPgQANAgent(q)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find agents: %w", err)
+		s.l.Errorf("failed to get internal pgQAN agent: %v", err)
+
+		return true
 	}
-	if len(agents) == 0 {
-		return nil, errors.New("internal pgQAN agent not found")
-	}
-	return agents[0], nil
+
+	return agent.Disabled
 }
 
-func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier, enableInternalPgQan *bool) (bool, error) {
+// handleInternalQANToggle applies the requested state to the QAN Agent of PMM Server's own
+// PostgreSQL and reports the resulting disabled state, plus the pmm-agent that the caller should
+// signal once the transaction has committed.
+func (s *Server) handleInternalQANToggle(q *reform.Querier, enableInternalPgQan *bool) (bool, string, error) {
 	if s.haService.Params().Enabled {
 		if *enableInternalPgQan {
-			return false, status.Error(codes.FailedPrecondition, "Enabling QAN on PMM's own database is not supported in HA mode.")
+			return false, "", status.Error(codes.FailedPrecondition, "Enabling QAN on PMM's own database is not supported in HA mode.")
 		}
 
 		// If trying to disable in HA mode, it's already disabled, so just skip
-		return true, nil
+		return true, "", nil
 	}
 
-	internalQanAgent, err := s.getInternalPgQANAgent(q)
+	// Returned unwrapped: FindInternalPgQANAgent returns a gRPC status, and status.FromError
+	// unwraps through %w and then replaces the message with the whole wrapped string, so a wrap
+	// here would put "rpc error: code = ... desc = ..." in front of the client.
+	internalQanAgent, err := models.FindInternalPgQANAgent(q)
 	if err != nil {
-		return false, fmt.Errorf("failed to get QAN agent: %w", err)
-	}
-	if internalQanAgent == nil {
-		return false, errors.New("internal QAN agent not found")
+		return false, "", err
 	}
 
-	newAgent, err := models.ChangeAgent(q, internalQanAgent.AgentID, &models.ChangeAgentParams{
+	newAgent, err := models.ApplyAgentChange(q, internalQanAgent, &models.ChangeAgentParams{
 		Enabled: enableInternalPgQan,
 	})
 	if err != nil {
-		return false, fmt.Errorf("failed to change QAN agent state: %w", err)
+		return false, "", fmt.Errorf("failed to change QAN agent state: %w", err)
 	}
 
-	s.agentsState.RequestStateUpdate(ctx, internalQanAgent.AgentID)
-	return newAgent.Disabled, nil
+	return newAgent.Disabled, pointer.GetString(internalQanAgent.PMMAgentID), nil
 }
 
 // UpdateConfigurations updates supervisor config and requests configuration update for VictoriaMetrics components.
@@ -692,6 +802,11 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to update supervisord configuration: %w", err)
 	}
+	// qan-api2 takes its retention from the supervisord configuration, and so does VictoriaMetrics
+	// when it runs inside PMM; an external VictoriaMetrics, as in HA, is configured outside PMM. So
+	// the value is in force from here on, whatever happens below.
+	s.reportDataRetention(settings)
+
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
 
@@ -699,6 +814,7 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to update agents state: %w", err)
 	}
+
 	return nil
 }
 

@@ -1,5 +1,5 @@
 {
-  "name": "@sep/plugins-atw",
+  "name": "@pmm-extensions/plugins-atw",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -14,8 +14,8 @@
     "format": "oxfmt --write src"
   },
   "dependencies": {
-    "@sep/api": "workspace:*",
-    "@sep/framework": "workspace:*"
+    "@pmm-extensions/api": "workspace:*",
+    "@pmm-extensions/framework": "workspace:*"
   },
   "devDependencies": {
     "@emotion/react": "^11.11.4",

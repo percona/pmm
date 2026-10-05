@@ -33,8 +33,8 @@ export const Settings: FC = () => {
   });
   const navigate = useNavigate();
   const showSshKeyTab = version?.distributionMethod === DistributionMethod.ami;
-  const showServiceNowTab = settings?.sepEnabled === true;
-  const isSepDisabled = settings?.sepEnabled === false;
+  const showServiceNowTab = settings?.extensionsEnabled === true;
+  const isExtensionsDisabled = settings?.extensionsEnabled === false;
 
   if (isLoading || isVersionLoading || (isEnabled && !settings)) {
     return (
@@ -52,7 +52,7 @@ export const Settings: FC = () => {
     return <Navigate to="/settings" replace />;
   }
 
-  if (isSepDisabled && tab === 'servicenow-connection') {
+  if (isExtensionsDisabled && tab === 'servicenow-connection') {
     return <Navigate to="/settings" replace />;
   }
 

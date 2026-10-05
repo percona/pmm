@@ -90,7 +90,7 @@ func ReceiveAgentConnectMetadata(stream grpc.ServerStream) (*AgentConnectMetadat
 	return &AgentConnectMetadata{
 		ID:          agentID,
 		Version:     getValue(md, mdAgentVersion),
-		MetricsPort: uint16(mp), //nolint:gosec // port is uint16
+		MetricsPort: uint16(mp),
 	}, nil
 }
 

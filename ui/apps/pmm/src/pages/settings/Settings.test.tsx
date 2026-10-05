@@ -1,7 +1,7 @@
 import { ComponentProps } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import { useSettingsList } from '@sep/api';
+import { useSettingsList } from '@pmm-extensions/api';
 import { Settings } from './Settings';
 import { TestWrapper } from 'utils/testWrapper';
 import {
@@ -26,14 +26,14 @@ vi.mock('./components/advanced/AdvancedSettingsForm', () => ({
 vi.mock('./components/ssh-key/SshKeyForm', () => ({
   SshKeyForm: () => null,
 }));
-vi.mock('@sep/api', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@sep/api')>()),
+vi.mock('@pmm-extensions/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@pmm-extensions/api')>()),
   useSettingsList: vi.fn(),
 }));
-// The stub stands in for the tab's SEP read (the real one reaches
+// The stub stands in for the tab's side-car read (the real one reaches
 // `useSettingsList` through `useServiceNowConnection`), so the disabled case
-// can assert the route fires no SEP request rather than only that the tab is
-// absent from the DOM.
+// can assert the route fires no side-car request rather than only that the tab
+// is absent from the DOM.
 vi.mock('./components/servicenow', () => ({
   ServiceNowConnectionTab: () => {
     useSettingsList();
@@ -160,8 +160,11 @@ describe('Settings', () => {
       );
     });
 
-    it('activates the ServiceNow tab for /settings/servicenow-connection when SEP is enabled', async () => {
-      getSettingsMock.mockResolvedValue({ ...SETTINGS_MOCK, sepEnabled: true });
+    it('activates the ServiceNow tab for /settings/servicenow-connection when PMM Extensions is enabled', async () => {
+      getSettingsMock.mockResolvedValue({
+        ...SETTINGS_MOCK,
+        extensionsEnabled: true,
+      });
 
       renderWithRoute('/settings/servicenow-connection');
       await waitFor(() =>
@@ -174,8 +177,11 @@ describe('Settings', () => {
       expect(useSettingsListMock).toHaveBeenCalled();
     });
 
-    it('shows the ServiceNow tab when SEP is enabled', async () => {
-      getSettingsMock.mockResolvedValue({ ...SETTINGS_MOCK, sepEnabled: true });
+    it('shows the ServiceNow tab when PMM Extensions is enabled', async () => {
+      getSettingsMock.mockResolvedValue({
+        ...SETTINGS_MOCK,
+        extensionsEnabled: true,
+      });
 
       renderWithRoute('/settings/metrics-resolution');
 
@@ -186,7 +192,7 @@ describe('Settings', () => {
       );
     });
 
-    it('does not show the ServiceNow tab when SEP is disabled', async () => {
+    it('does not show the ServiceNow tab when PMM Extensions is disabled', async () => {
       renderWithRoute('/settings/metrics-resolution');
 
       await screen.findByTestId('settings-tab-metrics');
@@ -196,7 +202,7 @@ describe('Settings', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('redirects from /settings/servicenow-connection to default when SEP is disabled', async () => {
+    it('redirects from /settings/servicenow-connection to default when PMM Extensions is disabled', async () => {
       renderWithRoute('/settings/servicenow-connection');
 
       await waitFor(() =>

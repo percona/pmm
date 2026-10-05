@@ -37,20 +37,22 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import SendIcon from '@mui/icons-material/Send';
 import { Link as RouterLink } from 'react-router-dom';
-import { useAuth } from '@sep/api';
+import { useAuth } from '@pmm-extensions/api';
 import {
   ActionErrorAlert,
   TaskFilesDialog,
   TaskHistoryStatusBadge,
   TaskLogViewer,
+  formatDuration,
   formatTimestamp,
   isTaskHistoryStatus,
   useActionError,
   useHasDownloadableFiles,
-} from '@sep/framework';
+} from '@pmm-extensions/framework';
 import { buildBatchPayload } from './CollectPane';
 import {
   ATW_PAGE_SIZE,
+  RUNNING_TASK_STATUSES,
   sendJobDetail,
   useAtwBatchExecute,
   useAtwConfig,
@@ -61,24 +63,24 @@ import {
 import { useDeliverySettingsPath } from './deliverySettings';
 import { SendDialog } from './SendDialog';
 import type {
-  AtwBatchExecuteResponse,
+  AtwDispatchHandler,
   AtwIncidentExecution,
   AtwRememberedDispatch,
   AtwSendLog,
   AtwSendLogExecution,
-  AtwSnippetSummary,
 } from './types';
 
 export interface ResultsPaneProps {
   incidentId: string;
   /** This tab's own dispatches, keyed by the execution's `task_history_id`. */
   remembered?: ReadonlyMap<number, AtwRememberedDispatch>;
+  /**
+   * Executions started moments ago, marked out in the list so a reader who
+   * pressed a button in the other pane can find what it produced.
+   */
+  highlightedTaskIds?: ReadonlySet<number>;
   /** Called once "Run again" dispatches successfully, to remember it too. */
-  onDispatched?: (
-    snippets: AtwSnippetSummary[],
-    values: Record<string, unknown>,
-    response: AtwBatchExecuteResponse
-  ) => void;
+  onDispatched?: AtwDispatchHandler;
   /** Reopen the Collect form pre-filled for this execution. */
   onEditParameters?: (execution: AtwIncidentExecution) => void;
 }
@@ -88,6 +90,21 @@ interface ResendContext {
   executions: AtwSendLogExecution[];
   caseRef: string;
 }
+
+/** How often a running row's elapsed time is repainted, in milliseconds. */
+const ELAPSED_TICK_MS = 1000;
+
+/**
+ * Column widths for the execution row, so every row lines up whatever it
+ * carries. Each is a minimum as well as a basis: the row wraps rather than
+ * truncates on a narrow viewport, and a column with nothing in it still holds
+ * its place so the ones after it do not slide.
+ */
+const ROW_COLUMN_WIDTHS = {
+  host: 150,
+  started: 150,
+  duration: 84,
+} as const;
 
 /**
  * Task statuses whose execution is finished and therefore sendable.
@@ -106,6 +123,72 @@ const SEND_STATUS_COLORS = {
   running: 'info',
   pending: 'default',
 } as const;
+
+/**
+ * Whether this execution is still going, by the same status set the pane polls
+ * on. Drives the elapsed-time ticker, so a row counts up exactly as long as the
+ * list keeps refetching it.
+ */
+function isRunning(execution: AtwIncidentExecution): boolean {
+  const status = execution.task_status;
+  return (
+    status !== null && status !== undefined && RUNNING_TASK_STATUSES.has(status)
+  );
+}
+
+/**
+ * How long the run took, in seconds, or `null` when it cannot be known.
+ *
+ * A finished run is measured between the two recorded instants, so it never
+ * moves again. A running one is measured against `now`, which the caller ticks
+ * — the wire carries no elapsed time, and a row that reports nothing while a
+ * pt-summary works through a large instance is the complaint this answers.
+ */
+function runSeconds(
+  execution: AtwIncidentExecution,
+  now: number
+): number | null {
+  if (!execution.started_at) {
+    return null;
+  }
+  const started = new Date(execution.started_at).getTime();
+  if (Number.isNaN(started)) {
+    return null;
+  }
+  if (execution.finished_at) {
+    const finished = new Date(execution.finished_at).getTime();
+    if (!Number.isNaN(finished)) {
+      return (finished - started) / 1000;
+    }
+  }
+  // Still going: measure against the ticking clock. Anything else ended
+  // without recording when, and has nothing honest to subtract.
+  return isRunning(execution) ? (now - started) / 1000 : null;
+}
+
+/**
+ * A clock that ticks only while `active`.
+ *
+ * Returning a frozen value when nothing is running keeps a page of finished
+ * executions from re-rendering once a second forever, which is the state this
+ * pane sits in almost all of the time.
+ */
+function useTickingNow(active: boolean): number {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!active) {
+      return;
+    }
+    // Re-read immediately: a run that just started would otherwise show the
+    // timestamp from whenever this component last mounted.
+    setNow(Date.now());
+    const timer = setInterval(() => setNow(Date.now()), ELAPSED_TICK_MS);
+    return () => clearInterval(timer);
+  }, [active]);
+
+  return now;
+}
 
 function isSelectable(execution: AtwIncidentExecution): boolean {
   const status = execution.task_status;
@@ -172,6 +255,7 @@ function SendUnavailableNotice() {
 export function ResultsPane({
   incidentId,
   remembered,
+  highlightedTaskIds,
   onDispatched,
   onEditParameters,
 }: ResultsPaneProps) {
@@ -181,6 +265,17 @@ export function ResultsPane({
   const { data: incident } = useAtwIncident(incidentId);
   const { data: config } = useAtwConfig();
   const { data: sendJobs, error: sendJobsError } = useAtwSendJobs(incidentId);
+
+  // A batch started from the Collect pane lands at the top of the list, which
+  // a reader parked on a later page would never see — the run would look as
+  // though it had produced nothing. Keyed on the set itself, not on whether it
+  // is empty: a second batch inside the first one's highlight window replaces
+  // the set without ever emptying it.
+  useEffect(() => {
+    if (highlightedTaskIds?.size) {
+      setPage((previous) => ({ ...previous, offset: 0 }));
+    }
+  }, [highlightedTaskIds]);
 
   const [filesForTask, setFilesForTask] = useState<number | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -203,7 +298,7 @@ export function ResultsPane({
     rerunError.clearError();
     rerunMutation.mutate(buildBatchPayload(record.values, record.snippets), {
       onSuccess: (response) => {
-        onDispatched?.(record.snippets, record.values, response);
+        onDispatched?.(record.snippets, record.values, response, 'results');
       },
       onError: (mutationError) => rerunError.reportError(mutationError),
     });
@@ -222,6 +317,12 @@ export function ResultsPane({
   }, [data]);
 
   const rows = data?.items;
+
+  // One clock for the page: each running row reads the same tick, so they never
+  // disagree by a second, and a page of finished runs stops it entirely.
+  const anyRunning = (rows ?? []).some(isRunning);
+  const now = useTickingNow(anyRunning);
+
   const knownExecutions = useMemo(() => {
     const map = new Map<string, AtwSendLogExecution>();
     for (const execution of rows ?? []) {
@@ -323,13 +424,18 @@ export function ResultsPane({
     );
 
   const disabledReasons = config?.send_disabled_reasons ?? [];
-  const sendDisabled =
-    selectedExecutions.length === 0 || disabledReasons.length > 0;
-  const sendTooltip = disabledReasons.length
-    ? disabledReasons.join('; ')
-    : selectedExecutions.length === 0
-      ? 'Select one or more finished executions to send.'
-      : '';
+  // Every unmet condition, not the first one found. Send is routinely blocked by
+  // both an unconfigured receiver and an empty selection at once, and a tooltip
+  // that names only one leaves the operator fixing that one and finding the
+  // button still grey.
+  const sendBlockers = [
+    ...disabledReasons,
+    ...(selectedExecutions.length === 0
+      ? ['Select one or more finished executions to send.']
+      : []),
+  ];
+  const sendDisabled = sendBlockers.length > 0;
+  const sendTooltip = sendBlockers.join(' ');
 
   const openSend = (context: ResendContext | null) => {
     setResend(context);
@@ -438,6 +544,10 @@ export function ResultsPane({
         <ExecutionRow
           key={execution.id}
           execution={execution}
+          elapsedSeconds={runSeconds(execution, now)}
+          highlighted={Boolean(
+            highlightedTaskIds?.has(execution.task_history_id)
+          )}
           selected={selectedIds.has(execution.id)}
           onToggleSelected={() => toggleSelected(execution)}
           onOpenFiles={() => setFilesForTask(execution.task_history_id)}
@@ -604,6 +714,8 @@ function SendHistory({
 
 function ExecutionRow({
   execution,
+  elapsedSeconds,
+  highlighted,
   selected,
   onToggleSelected,
   onOpenFiles,
@@ -613,6 +725,9 @@ function ExecutionRow({
   onEditParameters,
 }: {
   execution: AtwIncidentExecution;
+  elapsedSeconds: number | null;
+  /** Whether this execution was started moments ago from this tab. */
+  highlighted: boolean;
   selected: boolean;
   onToggleSelected: () => void;
   onOpenFiles: () => void;
@@ -626,8 +741,12 @@ function ExecutionRow({
   const { canMutate } = useAuth();
   const {
     snippet_filename,
+    snippet_title,
+    executor_host,
     task_status,
     task_history_id,
+    created_at,
+    started_at,
     has_logs,
     masked_args,
     args_withheld,
@@ -636,17 +755,42 @@ function ExecutionRow({
   // Probed only once the run is finished: a running task's file listing is
   // not yet meaningful, and the endpoint's answer for it is not stable.
   const hasFiles = useHasDownloadableFiles(task_history_id, selectable);
-  // `has_logs` reports only the log SEP has already captured, which trails a
+  // `has_logs` reports only the log PMM Extensions has already captured, which trails a
   // running execution — sometimes by its whole length — so while it runs the
   // viewer's own stream is what shows the output. Not while it is pending: the
   // log route refuses a pending run, and the viewer does not reconnect once it
   // starts, so it mounts when the polled status reaches `running`.
   const logsUnavailable = has_logs === false && task_status !== 'running';
 
+  const displayName = snippet_title?.trim() || snippet_filename;
+
+  // A queued run has no start time, so the row falls back to when it was
+  // recorded and labels it as such rather than leaving the column blank.
+  const startStamp = formatTimestamp(started_at ?? created_at);
+  const startIsQueue = !started_at;
+  const startTitle = startStamp
+    ? startIsQueue
+      ? `Queued ${startStamp.title}; not started yet`
+      : startStamp.title
+    : undefined;
+  const startLabel = startStamp
+    ? startIsQueue
+      ? `Queued ${startStamp.display}`
+      : startStamp.display
+    : '—';
+
   return (
     <Accordion
       disableGutters
-      sx={{ mb: 1 }}
+      data-testid={highlighted ? 'atw-execution-row-new' : undefined}
+      sx={[
+        { mb: 1 },
+        highlighted &&
+          ((theme) => ({
+            outline: `2px solid ${theme.palette.primary.main}`,
+            outlineOffset: -1,
+          })),
+      ]}
       slotProps={{ transition: { unmountOnExit: true } }}
     >
       <AccordionSummary
@@ -657,7 +801,7 @@ function ExecutionRow({
           direction="row"
           spacing={1}
           alignItems="center"
-          sx={{ width: '100%', pr: 1, flexWrap: 'wrap' }}
+          sx={{ width: '100%', pr: 1, flexWrap: 'wrap', rowGap: 1 }}
         >
           {/* Selection exists only to feed the send action, so both go together. */}
           {canMutate && (
@@ -671,30 +815,54 @@ function ExecutionRow({
                   disabled={!selectable}
                   onChange={onToggleSelected}
                   onClick={(event) => event.stopPropagation()}
-                  inputProps={{ 'aria-label': `Select ${snippet_filename}` }}
+                  inputProps={{ 'aria-label': `Select ${displayName}` }}
                 />
               </span>
             </Tooltip>
           )}
-          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-            <Typography variant="subtitle2" sx={{ wordBreak: 'break-all' }}>
-              {snippet_filename}
+          <Box sx={{ flexGrow: 1, flexBasis: 200, minWidth: 0 }}>
+            <Typography variant="subtitle2" sx={{ wordBreak: 'break-word' }}>
+              {displayName}
             </Typography>
-            {masked_args && (
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  fontFamily: 'monospace',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {masked_args}
-              </Typography>
-            )}
           </Box>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            title={executor_host ?? undefined}
+            sx={{
+              width: ROW_COLUMN_WIDTHS.host,
+              flexShrink: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {executor_host || '—'}
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            title={startTitle}
+            sx={{ width: ROW_COLUMN_WIDTHS.started, flexShrink: 0 }}
+          >
+            {startLabel}
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            title={
+              elapsedSeconds === null
+                ? 'This run has no recorded duration'
+                : `Ran for ${formatDuration(elapsedSeconds)}`
+            }
+            sx={{
+              width: ROW_COLUMN_WIDTHS.duration,
+              flexShrink: 0,
+              fontFamily: 'monospace',
+            }}
+          >
+            {formatDuration(elapsedSeconds)}
+          </Typography>
           {isTaskHistoryStatus(task_status) ? (
             <TaskHistoryStatusBadge status={task_status} />
           ) : (
@@ -743,6 +911,23 @@ function ExecutionRow({
             color="text.secondary"
             sx={{ display: 'block' }}
           >
+            Snippet
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ fontFamily: 'monospace', wordBreak: 'break-all' }}
+          >
+            {snippet_filename}
+          </Typography>
+        </Box>
+
+        <Box sx={{ mb: 2 }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: 'block' }}
+          >
             Arguments
           </Typography>
           {masked_args ? (
@@ -774,7 +959,7 @@ function ExecutionRow({
           <TaskLogViewer
             taskHistoryId={task_history_id}
             taskStatus={task_status ?? undefined}
-            height={360}
+            maxHeight={360}
           />
         )}
       </AccordionDetails>

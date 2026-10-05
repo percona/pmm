@@ -63,12 +63,12 @@ domain/v1/
 | `RealtimeAnalyticsService` | `realtimeanalytics/v1/` | RTA sessions and queries |
 | `AgentService` | `agent/v1/` | Bidirectional agent ↔ server stream |
 | `AgentLocalService` | `agentlocal/v1/` | Agent local status and reload |
-| `HAService` | `ha/v1beta1/` | HA cluster status |
+| `HAService` | `ha/v1/` | HA cluster status |
 
 ## Versioning Convention
 
 - **`v1`** — stable API, backward-compatible changes only
-- **`v1beta1`** — beta API, may have breaking changes (e.g., `dump/v1beta1/`, `accesscontrol/v1beta1/`, `ha/v1beta1/`)
+- **`v1beta1`** — beta API, may have breaking changes (e.g., `dump/v1beta1/`, `accesscontrol/v1beta1/`)
 
 ## REST Path Naming
 

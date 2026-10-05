@@ -15,9 +15,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import type { SectionField, SepComponents } from '@sep/api';
+import type { SectionField, ExtensionsComponents } from '@pmm-extensions/api';
 
-type Schemas = SepComponents['schemas'];
+type Schemas = ExtensionsComponents['schemas'];
 
 // ── Category browser ─────────────────────────────────────────────────────
 
@@ -87,6 +87,24 @@ export type AtwBatchExecuteItemResponse =
  * dispatched, has nothing remembered for it, and the caller falls back to
  * reselecting the snippet with no parameter values.
  */
+/**
+ * Which pane started a batch.
+ *
+ * The workspace reacts to a dispatch by bringing the new executions into view,
+ * which is only a move for a reader who is looking at the Collect form —
+ * scrolling the Results pane to itself under someone who just pressed a button
+ * inside it moves the ground they are standing on.
+ */
+export type AtwDispatchSource = 'collect' | 'results';
+
+/** Called once a batch dispatches successfully, so a caller can remember it. */
+export type AtwDispatchHandler = (
+  snippets: AtwSnippetSummary[],
+  values: Record<string, unknown>,
+  response: AtwBatchExecuteResponse,
+  source: AtwDispatchSource
+) => void;
+
 export interface AtwRememberedDispatch {
   /** The batch's snippets, in the order the form rendered them. */
   snippets: AtwSnippetSummary[];
@@ -110,7 +128,25 @@ export interface AtwRerunRequest {
 
 // ── Incident execution history ───────────────────────────────────────────
 
-export type AtwIncidentExecution = Schemas['atw__ATWIncidentExecutionResponse'];
+/**
+ * One recorded execution, as the Results pane renders it.
+ *
+ * `snippet_title` and `executor_host` are widened onto the generated schema
+ * rather than waiting for it: the side-car adds both under PMM-15520, and
+ * neither can be reached from this pane any other way. The title lives on a
+ * different resource, and no endpoint that serves titles yields a complete
+ * filename-to-title map — the category listing is filtered by a presentation
+ * tag and the search endpoint is paginated, so an execution can name a snippet
+ * neither returns. The host is recorded on the batch, not the execution, and
+ * `/api/sep/task-history/` filters only by task name and status. So both are
+ * optional, and every reader falls back: the title to the filename, the host to
+ * showing nothing. Drop these two once the regenerated spec carries them.
+ */
+export type AtwIncidentExecution =
+  Schemas['atw__ATWIncidentExecutionResponse'] & {
+    snippet_title?: string | null;
+    executor_host?: string | null;
+  };
 
 // ── Diagnostics send ─────────────────────────────────────────────────────
 

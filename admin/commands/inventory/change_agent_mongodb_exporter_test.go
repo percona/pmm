@@ -139,6 +139,7 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 					"env": "prod",
 					"team": "db"
 				},
+				"environment_variable_names": ["KRB5_KTNAME", "KRB5_CONFIG"],
 				"process_exec_path": "/usr/bin/mongodb_exporter",
 				"log_level": "LOG_LEVEL_INFO"
 			}
@@ -165,6 +166,7 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 			"--push-metrics",
 			"--log-level=info",
 			"--custom-labels=env=prod,team=db",
+			"--agent-env-vars=KRB5_KTNAME,KRB5_CONFIG",
 		}
 
 		var cmd ChangeAgentMongodbExporterCommand
@@ -201,6 +203,9 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 						"env": "prod",
 						"team": "db"
 					}
+				},
+				"environment_variable_names": {
+					"values": ["KRB5_KTNAME", "KRB5_CONFIG"]
 				}
 			}
 		}`
@@ -223,6 +228,7 @@ Expose exporter       : true
 
 Disabled              : false
 Custom labels         : env=prod, team=db
+Environment variables : KRB5_KTNAME, KRB5_CONFIG
 Process exec path     : /usr/bin/mongodb_exporter
 Log level             : info
 Configuration changes applied:
@@ -242,9 +248,110 @@ Configuration changes applied:
   - enabled push metrics
   - changed log level to info
   - updated custom labels
+  - updated environment variable names: KRB5_KTNAME, KRB5_CONFIG
 `
 
 		assert.Equal(t, expectedOutput, output)
+	})
+
+	t.Run("EnvironmentVariableNames", func(t *testing.T) {
+		t.Parallel()
+
+		// The result template dereferences log_level, so the mock response has to carry it.
+		mockResponse := `{"mongodb_exporter": {"agent_id": "test-agent-id", "log_level": "LOG_LEVEL_INFO"}}`
+
+		t.Run("Updated", func(t *testing.T) {
+			t.Parallel()
+
+			var capturedRequestBody string
+			cleanup := setupChangeAgentTestServer(t, "test-agent-id", mockResponse, &capturedRequestBody)
+			defer cleanup()
+
+			cmd := &ChangeAgentMongodbExporterCommand{
+				AgentID:      "test-agent-id",
+				AgentEnvVars: &[]string{" KRB5_KTNAME ", " KRB5_CONFIG "},
+			}
+
+			result, err := cmd.RunCmd()
+			require.NoError(t, err)
+			assert.NotNil(t, result)
+
+			expectedJSON := `{
+				"mongodb_exporter": {
+					"disable_collectors": null,
+					"stats_collections": null,
+					"environment_variable_names": {
+						"values": ["KRB5_KTNAME", "KRB5_CONFIG"]
+					}
+				}
+			}`
+			assert.JSONEq(t, expectedJSON, capturedRequestBody)
+			assert.Contains(t, result.String(), "updated environment variable names: KRB5_KTNAME, KRB5_CONFIG")
+		})
+
+		t.Run("RemovedWhenEmpty", func(t *testing.T) {
+			t.Parallel()
+
+			var capturedRequestBody string
+			cleanup := setupChangeAgentTestServer(t, "test-agent-id", mockResponse, &capturedRequestBody)
+			defer cleanup()
+
+			cmd := &ChangeAgentMongodbExporterCommand{
+				AgentID:      "test-agent-id",
+				AgentEnvVars: &[]string{},
+			}
+
+			result, err := cmd.RunCmd()
+			require.NoError(t, err)
+			assert.NotNil(t, result)
+
+			// An empty (but present) wrapper tells the server to remove all environment variable names.
+			expectedJSON := `{
+				"mongodb_exporter": {
+					"disable_collectors": null,
+					"stats_collections": null,
+					"environment_variable_names": {
+						"values": null
+					}
+				}
+			}`
+			assert.JSONEq(t, expectedJSON, capturedRequestBody)
+			assert.Contains(t, result.String(), "environment variable names are removed")
+		})
+
+		t.Run("NotSentWhenFlagOmitted", func(t *testing.T) {
+			t.Parallel()
+
+			var capturedRequestBody string
+			cleanup := setupChangeAgentTestServer(t, "test-agent-id", mockResponse, &capturedRequestBody)
+			defer cleanup()
+
+			cmd := &ChangeAgentMongodbExporterCommand{
+				AgentID: "test-agent-id",
+				Enable:  new(true),
+			}
+
+			result, err := cmd.RunCmd()
+			require.NoError(t, err)
+			assert.NotNil(t, result)
+
+			assert.NotContains(t, capturedRequestBody, "environment_variable_names")
+			assert.NotContains(t, result.String(), "environment variable names are removed")
+		})
+
+		t.Run("InvalidName", func(t *testing.T) {
+			t.Parallel()
+
+			cmd := &ChangeAgentMongodbExporterCommand{
+				AgentID:      "test-agent-id",
+				AgentEnvVars: &[]string{"krb5-ktname"},
+			}
+
+			result, err := cmd.RunCmd()
+			require.Error(t, err)
+			assert.Nil(t, result)
+			assert.Contains(t, err.Error(), "invalid environment variable name: krb5-ktname")
+		})
 	})
 
 	t.Run("ErrorHandling", func(t *testing.T) {

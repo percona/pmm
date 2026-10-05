@@ -58,7 +58,6 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -70,7 +69,7 @@ import (
 	alertingv1 "github.com/percona/pmm/api/alerting/v1"
 	backupv1 "github.com/percona/pmm/api/backup/v1"
 	dumpv1beta1 "github.com/percona/pmm/api/dump/v1beta1"
-	hav1beta1 "github.com/percona/pmm/api/ha/v1beta1"
+	hav1 "github.com/percona/pmm/api/ha/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
@@ -107,6 +106,7 @@ import (
 	"github.com/percona/pmm/managed/services/vmalert"
 	"github.com/percona/pmm/managed/utils/clean"
 	"github.com/percona/pmm/managed/utils/distribution"
+	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
@@ -145,6 +145,14 @@ const (
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
+
+// mEncryptionKeyMismatch makes the condition visible to monitoring, since standalone PMM keeps
+// running with a mismatched key.
+var mEncryptionKeyMismatch = prom.NewGauge(prom.GaugeOpts{
+	Namespace: "pmm_managed",
+	Name:      "encryption_key_mismatch",
+	Help:      "1 if the local encryption key does not match the key the database was encrypted with, 0 otherwise.",
+})
 
 func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	l := logrus.WithField("component", "logs.zip")
@@ -338,7 +346,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
-	hav1beta1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
+	hav1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
 
 	// Register RTA service with in-memory store
 	rtaStore := realtimeanalytics.NewStore()
@@ -390,15 +398,11 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	l.Infof("Starting server on http://%s/ ...", http1Addr)
 
 	marshaller := &grpc_gateway.JSONPb{
-		MarshalOptions: protojson.MarshalOptions{
-			UseEnumNumbers:  false,
-			EmitUnpopulated: true,
-			UseProtoNames:   true,
-			Indent:          "  ",
-		},
-		UnmarshalOptions: protojson.UnmarshalOptions{
-			DiscardUnknown: true,
-		},
+		UseEnumNumbers:  false,
+		EmitUnpopulated: true,
+		UseProtoNames:   true,
+		Indent:          "  ",
+		DiscardUnknown:  true,
 	}
 
 	proxyMux := grpc_gateway.NewServeMux(
@@ -451,7 +455,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		userv1.RegisterUserServiceHandler,
 
-		hav1beta1.RegisterHAServiceHandler,
+		hav1.RegisterHAServiceHandler,
 	} {
 		err := r(ctx, proxyMux, sharedConn)
 		if err != nil {
@@ -662,10 +666,33 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 			l.Infof("Database migration completed.")
 			return
 		}
+		if errors.Is(err, models.ErrEncryptionKeyMismatch) {
+			// Only returned in HA: a standalone server migrates anyway and reports it later.
+			l.Fatalf("%s. Every PMM Server node in an HA cluster must use the same encryption key: "+
+				"copy %s from a node that works and restart this one.", err, encryption.KeyPath())
+		}
 
 		l.Warnf("Failed to migrate database: %s.", err)
 		time.Sleep(time.Second)
 	}
+}
+
+// checkEncryptionKey reports a standalone server whose encryption key does not match the
+// database. It keeps running, so that an upgrade cannot turn an installation whose key went
+// missing into one that no longer boots; HA nodes are stopped by migrateDB instead.
+func checkEncryptionKey(l *logrus.Entry, db *reform.DB) {
+	err := models.CheckEncryptionKey(db)
+	if err == nil {
+		return
+	}
+	if !errors.Is(err, models.ErrEncryptionKeyMismatch) {
+		l.Panicf("Failed to check encryption key: %+v", err)
+	}
+
+	mEncryptionKeyMismatch.Set(1)
+	l.Errorf("%s. Stored credentials cannot be decrypted, so monitoring will not work until the "+
+		"matching key is restored to %s, or the credentials of every affected Agent are re-entered "+
+		"and PMM Server is restarted.", err, encryption.KeyPath())
 }
 
 // newClickhouseDB return a new Clickhouse db.
@@ -916,6 +943,14 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	if *haEnabled {
 		models.AgentConfigFilePath = "/srv/pmm-agent/config/pmm-agent.yaml"
+		info := agents.HARemoteWriteInfo(vmParams)
+		if info != "" {
+			l.Info(info)
+		}
+		warning := agents.HARemoteWriteWarning(vmParams)
+		if warning != "" {
+			l.Warn(warning)
+		}
 	}
 
 	migrateDB(ctx, sqlDB, setupParams)
@@ -924,6 +959,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	reformL := sqlmetrics.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
 	prom.MustRegister(reformL)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
+
+	prom.MustRegister(mEncryptionKeyMismatch)
+	checkEncryptionKey(l, db)
 
 	// Generate unique PMM Server ID if it's not already.
 	err = models.SetPMMServerID(db)
