@@ -80,6 +80,10 @@ var (
 	pmmAgentInvalid = version.MustParse("3.0.0-invalid")
 
 	b64 = base64.StdEncoding
+
+	// An arbiter stores no users, so it rejects every query that needs authentication,
+	// and a check with such a query can't run on it. This marks that rejection.
+	errMongoDBArbiter = errors.New(agentv1.MongoDBArbiterUnauthorized)
 )
 
 // Service is responsible for interactions with Percona Check service.
@@ -510,11 +514,20 @@ func (s *Service) waitForResult(ctx context.Context, resultID string) ([]byte, e
 		}
 
 		if res.Error != "" {
-			return nil, fmt.Errorf("action %s failed: %s", resultID, res.Error)
+			return nil, actionError(resultID, res.Error)
 		}
 
 		return []byte(res.Output), nil
 	}
+}
+
+// actionError returns the error of a failed Action, recognizable with errors.Is as errMongoDBArbiter
+// if pmm-agent reported that an arbiter rejected the query.
+func actionError(resultID, msg string) error {
+	if rest, ok := strings.CutPrefix(msg, agentv1.MongoDBArbiterUnauthorized); ok {
+		return fmt.Errorf("action %s failed: %w%s", resultID, errMongoDBArbiter, rest)
+	}
+	return fmt.Errorf("action %s failed: %s", resultID, msg)
 }
 
 func (s *Service) minPMMAgentVersion(c check.Check) *version.Parsed {
@@ -688,6 +701,11 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 
 		for _, target := range targets {
 			results, err := s.executeCheck(ctx, target, c)
+			if errors.Is(err, errMongoDBArbiter) {
+				s.l.Debugf("Skipped check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
+				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "skipped").Inc()
+				continue
+			}
 			if err != nil {
 				s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
 				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "error").Inc()
