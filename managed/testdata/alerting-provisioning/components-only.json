@@ -177,7 +177,7 @@
                 "to": 0
               },
               "model": {
-                "expr": "last_over_time(up{job=\"grafana\"}[2m]) == bool 0",
+                "expr": "label_replace(last_over_time(up{job=\"grafana\"}[2m]) == bool 0, \"node_name\", \"$1\", \"instance\", \"(.*)\")",
                 "refId": "A",
                 "instant": true,
                 "hide": false,
@@ -213,7 +213,7 @@
                 "to": 0
               },
               "model": {
-                "expr": "last_over_time(up{job=\"qan-api2\"}[2m]) == bool 0",
+                "expr": "label_replace(last_over_time(up{job=\"qan-api2\"}[2m]) == bool 0, \"node_name\", \"$1\", \"instance\", \"(.*)\")",
                 "refId": "A",
                 "instant": true,
                 "hide": false,

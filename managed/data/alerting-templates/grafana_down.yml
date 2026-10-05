@@ -6,7 +6,8 @@ templates:
     # Grafana evaluates the alert rules, so this cannot fire when Grafana is down everywhere.
     # It covers the case that matters in a clustered deployment: Grafana failing on one node
     # while another node still evaluates rules. See the coverage limitations in the docs.
-    expr: 'last_over_time(up{job="grafana"}[2m]) == bool 0'
+    # instance carries the PMM Server node name; copying it to node_name fills the Node column.
+    expr: 'label_replace(last_over_time(up{job="grafana"}[2m]) == bool 0, "node_name", "$1", "instance", "(.*)")'
     for: 5m
     severity: critical
     annotations:

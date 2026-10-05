@@ -5,7 +5,8 @@ templates:
     summary: PMM Query Analytics API is down
     # qan-api2 is scraped by PMM in every topology, and the metrics database stays up to
     # record the failure, so this alert observes a total outage of the component correctly.
-    expr: 'last_over_time(up{job="qan-api2"}[2m]) == bool 0'
+    # instance carries the PMM Server node name; copying it to node_name fills the Node column.
+    expr: 'label_replace(last_over_time(up{job="qan-api2"}[2m]) == bool 0, "node_name", "$1", "instance", "(.*)")'
     for: 5m
     severity: warning
     annotations:
