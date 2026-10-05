@@ -72,7 +72,7 @@ Before you upgrade:
 
 During the first start, PMM Server:
 
-- Stores the values it is about to re-encrypt, exactly as they were stored, in `pmm-encryption-migration-backup-<timestamp>.json` next to the key file, or in `/srv` if that directory is read-only. The file is readable by its owner only and is as sensitive as the database; keep it until you have verified the upgrade, then delete it. If the first start is interrupted, the next one writes another backup file.
+- Stores the values it is about to re-encrypt in `pmm-encryption-migration-backup-<timestamp>.json`, exactly as they were stored. The file goes next to the key file. If that directory is read-only, for example a key mounted from a secret, the file goes to `/srv`. If PMM Server can't write the file, it refuses to start and changes nothing. The file is readable by its owner only and is as sensitive as the database. Keep it until you have verified the upgrade, then delete it. If the first start is interrupted, the next one writes another backup file.
 - Refuses to start if it cannot decrypt stored data, for example when the key file was replaced by a different key. The error lists the affected agents. Restore the original key file and restart; no data is changed. See [When PMM Server refuses to start](#when-pmm-server-refuses-to-start).
 - Repairs credentials corrupted by key rotation in PMM 3.9.0 and earlier (see [below](#recovery-after-a-corrupted-rotation)), using the previous key that the rotation left next to the key file (`pmm-encryption_old.key`, or `<name>_old.key` for a custom key path). Do not delete that file before upgrading.
 
@@ -90,7 +90,7 @@ In both cases, restore the original key file, or point `PMM_ENCRYPTION_KEY_PATH`
 
 ### Recover from a lost encryption key
 
-If the original key is lost for good, you can start a standalone PMM Server without it. The credentials encrypted with the lost key can't be decrypted, so PMM Server keeps them in a migration backup file, and you re-enter them afterwards. This recovery isn't available in high availability mode, because the other nodes still hold the key.
+If the original key is lost for good, you can start a standalone PMM Server without it. The credentials encrypted with the lost key can't be decrypted. PMM Server keeps them in a migration backup file, and you re-enter them afterwards. This recovery isn't available in high availability mode, because the other nodes still hold the key.
 
 To start PMM Server without the lost key:
 {.power-number}
@@ -119,7 +119,7 @@ If you find the lost key later, place it next to the key file as `pmm-encryption
 
 You may want to rotate the encryption key when the original key is compromised or as part of routine security maintenance. For this, you can use the **PMM Encryption Rotation Tool**.
 
-The tool adds a new key to the keyset and makes it the primary one; the previous keys remain in the keyset, so all stored data stays readable at every point of the rotation — the database is never held decrypted at rest. PMM Server is then restarted and re-encrypts all encrypted fields with the new key during startup.
+The tool adds a new key to the keyset and makes it the primary key. The previous keys stay in the keyset, so all stored data stays readable during the rotation. The database is never held decrypted at rest. The tool then restarts PMM Server, which re-encrypts all encrypted fields with the new key during startup.
 
 To rotate the encryption key:
 {.power-number}
@@ -161,12 +161,12 @@ To rotate the key in high availability mode:
 
 PMM versions before 3.9.1 contained a bug that corrupted certain credentials during key rotation: TLS certificates and keys and cloud credentials were encrypted more than once.
 
-When you upgrade from such a version, PMM Server repairs them automatically with the previous key that the rotation left next to the key file. After more than one such rotation, the key of the innermost layer is no longer available; PMM Server then logs a warning during the upgrade that names the affected agents. Place that key at the `_old.key` path from the warning and restart PMM Server, or see [Corrupted credentials after encryption key rotation](../../troubleshoot/upgrade_issues.md#corrupted-credentials-after-encryption-key-rotation) to re-add the services.
+When you upgrade from such a version, PMM Server repairs these credentials automatically. It uses the previous key that the rotation left next to the key file. After more than one such rotation, the key of the innermost layer is no longer available. PMM Server then logs a warning during the upgrade that names the affected agents. If you have that key, place it at the `_old.key` path from the warning and restart PMM Server. Otherwise, re-add the services as described in [Corrupted credentials after encryption key rotation](../../troubleshoot/upgrade_issues.md#corrupted-credentials-after-encryption-key-rotation).
 
 ## Best practices for custom key management
 
 - Always keep a secure backup of your encryption keyset, especially when using `PMM_ENCRYPTION_KEY_PATH`, as it is critical to PMM’s data decryption process.
-- If PMM Server does not start because the key file is missing or was replaced, restore the original keyset. PMM Server refuses to generate a new key or re-encrypt data it cannot decrypt, so no data is lost while the original keyset is restored. See [When PMM Server refuses to start](#when-pmm-server-refuses-to-start).
+- If PMM Server doesn't start because the key file is missing or was replaced, restore the original keyset. PMM Server doesn't generate a new key or re-encrypt data that it can't decrypt. No data is lost while you restore the original keyset. See [When PMM Server refuses to start](#when-pmm-server-refuses-to-start).
 - In containerized environments, ensure `PMM_ENCRYPTION_KEY_PATH` is persistently set in the container configuration to avoid issues during restarts.
 - Test the encryption key rotation process in a staging environment before applying it in production to minimize potential downtime or configuration issues.
 - Keep retired keys in the keyset (do not use `--prune`) until you have verified that the rotation completed successfully.
