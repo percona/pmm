@@ -320,3 +320,14 @@ export const SETTING_GROUP: Record<string, 'general' | 'scanning'> = {
  * a restart, and the client-side requirements are listed there too.
  */
 export const NOMAD_DOC_URL = 'https://per.co.na/pmm-nomad';
+
+/**
+ * The pmm-agent version that first carries an automation agent.
+ *
+ * Mirrors `NomadAgentSupportVersion` in pmm's own `version/features.go`. The
+ * server creates a node's automation agent when its pmm-agent registers, and
+ * skips it entirely below this version - so an older client is onboarded to PMM
+ * and still has nothing Operations can dispatch to, with nothing on either side
+ * saying why.
+ */
+export const PMM_AGENT_AUTOMATION_MIN_VERSION = '3.2.0';

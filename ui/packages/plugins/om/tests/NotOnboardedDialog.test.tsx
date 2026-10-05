@@ -18,7 +18,10 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { NotOnboardedDialog } from '../src/components/NotOnboardedDialog';
-import { NOMAD_DOC_URL } from '../src/constants';
+import {
+  NOMAD_DOC_URL,
+  PMM_AGENT_AUTOMATION_MIN_VERSION,
+} from '../src/constants';
 
 const renderDialog = (
   props: Partial<React.ComponentProps<typeof NotOnboardedDialog>> = {}
@@ -69,6 +72,13 @@ describe('NotOnboardedDialog', () => {
       screen.getByText(/Its agent is failing to start/)
     ).toBeInTheDocument();
     expect(screen.getByText(/iproute/)).toBeInTheDocument();
+    // The version gate is exact server-side, so the dialog states it rather than
+    // saying "recent enough" and leaving the reader to find out which.
+    expect(
+      screen.getByText(
+        new RegExp(PMM_AGENT_AUTOMATION_MIN_VERSION.replace(/\./g, '\\.'))
+      )
+    ).toBeInTheDocument();
     expect(screen.queryByText(/No node here has an agent/)).toBeNull();
   });
 

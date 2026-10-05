@@ -25,7 +25,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { NOMAD_DOC_URL } from '../constants';
+import { NOMAD_DOC_URL, PMM_AGENT_AUTOMATION_MIN_VERSION } from '../constants';
 
 /**
  * What to do about a node Operations cannot run anything on.
@@ -106,7 +106,9 @@ export const NotOnboardedDialog = ({
               </li>
               <li>cgroup access is available to the agent.</li>
               <li>
-                pmm-agent is recent enough to carry an automation agent at all.
+                pmm-agent is {PMM_AGENT_AUTOMATION_MIN_VERSION} or newer. An
+                older one is given no automation agent at all, so this is the
+                check worth doing first on a node that has never had one.
               </li>
             </Typography>
           </>
