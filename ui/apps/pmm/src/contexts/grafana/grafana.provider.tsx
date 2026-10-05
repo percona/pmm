@@ -161,6 +161,8 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     // Cleanup once provider unmounts
     return () => {
       messenger.unregister();
+      // The iframe unmounts with isLoaded, so the next one has to announce GRAFANA_READY again
+      setGrafanaReady(false);
     };
 
     // setFromGrafana changes every render; as a dep, unregister() would drop every pending listener
