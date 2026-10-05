@@ -119,7 +119,11 @@ describe('rootFilterOptions / parentFilterOptions / snippetsForFilters', () => {
       category_label: 'Server crashed - Restart Successful',
       snippet_count: 2,
       snippets: [
-        { name: 'pt-mysql-summary.sh', title: 'pt-mysql-summary', description: '' },
+        {
+          name: 'pt-mysql-summary.sh',
+          title: 'pt-mysql-summary',
+          description: '',
+        },
         {
           name: 'mysql_log_extractor.sh',
           title: 'MySQL Log Extractor',
@@ -172,11 +176,7 @@ describe('rootFilterOptions / parentFilterOptions / snippetsForFilters', () => {
   it('unions every leaf under a root when no problem area is selected', () => {
     expect(
       snippetsForFilters(listing, 'MySQL', '').map((snippet) => snippet.name)
-    ).toEqual([
-      'diag/slow-query.sh',
-      'diag/deadlock.sh',
-      'diag/lock-wait.sh',
-    ]);
+    ).toEqual(['diag/slow-query.sh', 'diag/deadlock.sh', 'diag/lock-wait.sh']);
   });
 
   it('narrows to one problem area when a parent is selected', () => {
@@ -203,9 +203,7 @@ describe('CategoryFilters', () => {
     expect(
       await screen.findByRole('button', { name: 'MySQL (3)' })
     ).toBeTruthy();
-    expect(
-      screen.getByRole('button', { name: 'PostgreSQL (1)' })
-    ).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'PostgreSQL (1)' })).toBeTruthy();
     expect(screen.queryByRole('combobox')).toBeNull();
     expect(screen.queryByText('ProxySQL')).toBeNull();
     // Problem-area chips wait for a root selection.
@@ -262,7 +260,9 @@ describe('CategoryFilters', () => {
       expect(onSnippetsChange).toHaveBeenLastCalledWith(mysqlLeaf.snippets);
     });
 
-    await userEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Clear filters' })
+    );
 
     await waitFor(() => {
       expect(onSnippetsChange).toHaveBeenLastCalledWith([]);
@@ -295,9 +295,7 @@ describe('CategoryFilters', () => {
     });
     expect(screen.queryByRole('button', { name: 'Clear filters' })).toBeNull();
     expect(screen.queryByRole('button', { name: /MySQL/ })).toBeNull();
-    expect(
-      screen.getByRole('button', { name: 'PostgreSQL (1)' })
-    ).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'PostgreSQL (1)' })).toBeTruthy();
   });
 
   it('surfaces a load error', async () => {

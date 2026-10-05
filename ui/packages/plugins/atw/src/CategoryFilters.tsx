@@ -90,10 +90,7 @@ export function parentFilterOptions(
   listing: readonly AtwCategoryListing[],
   root: string
 ): ParentFilterOption[] {
-  const byParent = new Map<
-    string,
-    { label: string; names: Set<string> }
-  >();
+  const byParent = new Map<string, { label: string; names: Set<string> }>();
   for (const item of listing) {
     if (item.category_root !== root) {
       continue;
