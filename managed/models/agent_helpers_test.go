@@ -34,6 +34,17 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+// changeAgent is the fetch-then-apply pair that models.ChangeAgent used to wrap. That wrapper was
+// dropped once it had no production caller left; the tests still need both steps.
+func changeAgent(q *reform.Querier, agentID string, params *models.ChangeAgentParams) (*models.Agent, error) {
+	row, err := models.FindAgentByID(q, agentID)
+	if err != nil {
+		return nil, err
+	}
+
+	return models.ApplyAgentChange(q, row, params)
+}
+
 func TestAgentHelpers(t *testing.T) {
 	now, origNowF := models.Now(), models.Now
 	models.Now = func() time.Time {
@@ -205,7 +216,9 @@ func TestAgentHelpers(t *testing.T) {
 			},
 		} {
 			if v, ok := str.(*models.Agent); ok {
-				str = new(models.EncryptAgent(*v))
+				encrypted, err := models.EncryptAgent(*v)
+				require.NoError(t, err)
+				str = new(encrypted)
 			}
 			require.NoError(t, q.Insert(str))
 		}
@@ -698,7 +711,9 @@ func TestAgentHelpers(t *testing.T) {
 			TLS:           true,
 			ValkeyOptions: options,
 		}
-		require.NoError(t, q.Insert(new(models.EncryptAgent(row))))
+		encrypted, err := models.EncryptAgent(row)
+		require.NoError(t, err)
+		require.NoError(t, q.Insert(&encrypted))
 	}
 
 	t.Run("CreateAgentRejectsIncompleteValkeyKeyPair", func(t *testing.T) {
@@ -808,7 +823,7 @@ func TestAgentHelpers(t *testing.T) {
 
 				insertValkeyExporter(t, q, tc.stored)
 
-				agent, err := models.ChangeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{ValkeyOptions: &tc.change})
+				agent, err := changeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{ValkeyOptions: &tc.change})
 				tests.AssertGRPCError(t, errIncompleteValkeyKeyPair, err)
 				require.Nil(t, agent)
 			})
@@ -823,7 +838,7 @@ func TestAgentHelpers(t *testing.T) {
 
 		insertValkeyExporter(t, q, models.ValkeyOptions{SSLCa: "ca-pem", SSLCert: "cert-pem", SSLKey: "key-pem"})
 
-		agent, err := models.ChangeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{
+		agent, err := changeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{
 			ValkeyOptions: &models.ChangeValkeyOptions{SSLCert: new(""), SSLKey: new("")},
 		})
 		require.NoError(t, err)
@@ -854,7 +869,7 @@ func TestAgentHelpers(t *testing.T) {
 				insertValkeyExporter(t, q, tc.stored)
 
 				// Disabling the row is the change such an agent most needs to accept.
-				agent, err := models.ChangeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{
+				agent, err := changeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{
 					Enabled:       new(false),
 					ValkeyOptions: &models.ChangeValkeyOptions{},
 				})
@@ -864,7 +879,7 @@ func TestAgentHelpers(t *testing.T) {
 
 				// Replacing the certificate authority is a change to the other half of the
 				// material, and leaves the stored pair as it was.
-				agent, err = models.ChangeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{
+				agent, err = changeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{
 					ValkeyOptions: &models.ChangeValkeyOptions{SSLCa: new("ca-pem")},
 				})
 				require.NoError(t, err)
@@ -872,7 +887,7 @@ func TestAgentHelpers(t *testing.T) {
 				assert.Equal(t, tc.stored.SSLCert, agent.ValkeyOptions.SSLCert)
 				assert.Equal(t, tc.stored.SSLKey, agent.ValkeyOptions.SSLKey)
 
-				agent, err = models.ChangeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{ValkeyOptions: &tc.repair})
+				agent, err = changeAgent(q, valkeyExporterAgentID, &models.ChangeAgentParams{ValkeyOptions: &tc.repair})
 				require.NoError(t, err)
 				assert.Equal(t, "cert-pem", agent.ValkeyOptions.SSLCert)
 				assert.Equal(t, "key-pem", agent.ValkeyOptions.SSLKey)
@@ -886,7 +901,7 @@ func TestAgentHelpers(t *testing.T) {
 			defer teardown(t)
 
 			// Test changing enabled status
-			agent, err := models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
+			agent, err := changeAgent(q, "A2", &models.ChangeAgentParams{
 				Enabled: new(false),
 			})
 			require.NoError(t, err)
@@ -898,7 +913,7 @@ func TestAgentHelpers(t *testing.T) {
 			assert.True(t, persistedAgent.Disabled)
 
 			// Change it back
-			agent, err = models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
+			agent, err = changeAgent(q, "A2", &models.ChangeAgentParams{
 				Enabled: new(true),
 			})
 			require.NoError(t, err)
@@ -919,7 +934,7 @@ func TestAgentHelpers(t *testing.T) {
 				"environment": "test",
 				"team":        "qa",
 			}
-			agent, err := models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
+			agent, err := changeAgent(q, "A2", &models.ChangeAgentParams{
 				CustomLabels: &customLabels,
 			})
 			require.NoError(t, err)
@@ -936,7 +951,7 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, customLabels, persistedLabels)
 
 			// Clear custom labels
-			agent, err = models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
+			agent, err = changeAgent(q, "A2", &models.ChangeAgentParams{
 				CustomLabels: new(make(map[string]string)),
 			})
 			require.NoError(t, err)
@@ -958,7 +973,7 @@ func TestAgentHelpers(t *testing.T) {
 			defer teardown(t)
 
 			// Test changing push metrics
-			agent, err := models.ChangeAgent(q, "A5", &models.ChangeAgentParams{
+			agent, err := changeAgent(q, "A5", &models.ChangeAgentParams{
 				ExporterOptions: &models.ChangeExporterOptions{
 					PushMetrics: new(false),
 				},
@@ -973,7 +988,7 @@ func TestAgentHelpers(t *testing.T) {
 
 			// Test changing disabled collectors
 			disabledCollectors := []string{"collector1", "collector2"}
-			agent, err = models.ChangeAgent(q, "A5", &models.ChangeAgentParams{
+			agent, err = changeAgent(q, "A5", &models.ChangeAgentParams{
 				ExporterOptions: &models.ChangeExporterOptions{
 					DisabledCollectors: disabledCollectors,
 				},
@@ -987,7 +1002,7 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, disabledCollectors, []string(persistedAgent.ExporterOptions.DisabledCollectors))
 
 			// Test changing expose exporter
-			agent, err = models.ChangeAgent(q, "A5", &models.ChangeAgentParams{
+			agent, err = changeAgent(q, "A5", &models.ChangeAgentParams{
 				ExporterOptions: &models.ChangeExporterOptions{
 					ExposeExporter: new(true),
 				},
@@ -1001,7 +1016,7 @@ func TestAgentHelpers(t *testing.T) {
 			assert.True(t, persistedAgent.ExporterOptions.ExposeExporter)
 
 			// Test changing metrics scheme and path
-			agent, err = models.ChangeAgent(q, "A5", &models.ChangeAgentParams{
+			agent, err = changeAgent(q, "A5", &models.ChangeAgentParams{
 				ExporterOptions: &models.ChangeExporterOptions{
 					MetricsScheme: new("https"),
 					MetricsPath:   new("/custom-metrics"),
@@ -1023,7 +1038,7 @@ func TestAgentHelpers(t *testing.T) {
 			defer teardown(t)
 
 			// Test changing metrics resolutions
-			agent, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+			agent, err := changeAgent(q, "A7", &models.ChangeAgentParams{
 				ExporterOptions: &models.ChangeExporterOptions{
 					MetricsResolutions: &models.ChangeMetricsResolutionsParams{
 						HR: new(30 * time.Second),
@@ -1045,7 +1060,7 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, 10*time.Minute, persistedAgent.ExporterOptions.MetricsResolutions.LR)
 
 			// Test clearing all metrics resolutions (should set to nil)
-			agent, err = models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+			agent, err = changeAgent(q, "A7", &models.ChangeAgentParams{
 				ExporterOptions: &models.ChangeExporterOptions{
 					MetricsResolutions: &models.ChangeMetricsResolutionsParams{
 						HR: new(time.Duration(0)),
@@ -1068,7 +1083,7 @@ func TestAgentHelpers(t *testing.T) {
 			defer teardown(t)
 
 			// Test changing username and password
-			agent, err := models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
+			agent, err := changeAgent(q, "A2", &models.ChangeAgentParams{
 				Username:      new("new_user"),
 				Password:      new("new_password"),
 				AgentPassword: new("agent_pass"),
@@ -1091,7 +1106,7 @@ func TestAgentHelpers(t *testing.T) {
 			defer teardown(t)
 
 			// Test changing PostgreSQL options
-			agent, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+			agent, err := changeAgent(q, "A7", &models.ChangeAgentParams{
 				PostgreSQLOptions: &models.ChangePostgreSQLOptions{
 					SSLCa:                  new("new_ca"),
 					SSLCert:                new("new_cert"),
@@ -1123,7 +1138,7 @@ func TestAgentHelpers(t *testing.T) {
 
 			// Test changing MongoDB options
 			statsCollections := []string{"stats1", "stats2"}
-			agent, err := models.ChangeAgent(q, "A8", &models.ChangeAgentParams{
+			agent, err := changeAgent(q, "A8", &models.ChangeAgentParams{
 				MongoDBOptions: &models.ChangeMongoDBOptions{
 					TLSCertificateKey:              new("new_cert_key"),
 					TLSCertificateKeyFilePassword:  new("new_password"),
@@ -1166,7 +1181,7 @@ func TestAgentHelpers(t *testing.T) {
 			defer teardown(t)
 
 			// Test changing QAN options
-			agent, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+			agent, err := changeAgent(q, "A7", &models.ChangeAgentParams{
 				QANOptions: &models.ChangeQANOptions{
 					MaxQueryLength:          new(int32(2048)),
 					QueryExamplesDisabled:   new(true),
@@ -1209,11 +1224,13 @@ func TestAgentHelpers(t *testing.T) {
 				CreatedAt: now,
 				UpdatedAt: now,
 			}
-			err := q.Insert(awsAgent)
+			encryptedAgent, err := models.EncryptAgent(*awsAgent)
+			require.NoError(t, err)
+			err = q.Insert(&encryptedAgent)
 			require.NoError(t, err)
 
 			// Test changing AWS options
-			agent, err := models.ChangeAgent(q, "AWS1", &models.ChangeAgentParams{
+			agent, err := changeAgent(q, "AWS1", &models.ChangeAgentParams{
 				AWSOptions: &models.ChangeAWSOptions{
 					AWSAccessKey:               new("new-access-key"),
 					AWSSecretKey:               new("new-secret-key"),
@@ -1256,11 +1273,13 @@ func TestAgentHelpers(t *testing.T) {
 				CreatedAt: now,
 				UpdatedAt: now,
 			}
-			err := q.Insert(mysqlAgent)
+			encryptedAgent, err := models.EncryptAgent(*mysqlAgent)
+			require.NoError(t, err)
+			err = q.Insert(&encryptedAgent)
 			require.NoError(t, err)
 
 			// Test changing MySQL options
-			agent, err := models.ChangeAgent(q, "MYSQL1", &models.ChangeAgentParams{
+			agent, err := changeAgent(q, "MYSQL1", &models.ChangeAgentParams{
 				MySQLOptions: &models.ChangeMySQLOptions{
 					TLSCa:                          new("new-mysql-ca"),
 					TLSCert:                        new("new-mysql-cert"),
@@ -1306,7 +1325,7 @@ func TestAgentHelpers(t *testing.T) {
 			require.NoError(t, err)
 
 			// Test changing Valkey options
-			agent, err := models.ChangeAgent(q, "VALKEY1", &models.ChangeAgentParams{
+			agent, err := changeAgent(q, "VALKEY1", &models.ChangeAgentParams{
 				ValkeyOptions: &models.ChangeValkeyOptions{
 					SSLCa:   new("new-valkey-ca"),
 					SSLCert: new("new-valkey-cert"),
@@ -1331,7 +1350,7 @@ func TestAgentHelpers(t *testing.T) {
 			defer teardown(t)
 
 			// Test changing TLS fields
-			agent, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+			agent, err := changeAgent(q, "A7", &models.ChangeAgentParams{
 				TLS:           new(false),
 				TLSSkipVerify: new(false),
 			})
@@ -1351,7 +1370,7 @@ func TestAgentHelpers(t *testing.T) {
 			defer teardown(t)
 
 			// Test changing log level
-			agent, err := models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
+			agent, err := changeAgent(q, "A2", &models.ChangeAgentParams{
 				LogLevel: new("debug"),
 			})
 			require.NoError(t, err)
@@ -1368,7 +1387,7 @@ func TestAgentHelpers(t *testing.T) {
 			defer teardown(t)
 
 			// Test changing listen port (for external exporter)
-			agent, err := models.ChangeAgent(q, "A5", &models.ChangeAgentParams{
+			agent, err := changeAgent(q, "A5", &models.ChangeAgentParams{
 				ListenPort: new(uint32(9999)),
 			})
 			require.NoError(t, err)
@@ -1385,7 +1404,7 @@ func TestAgentHelpers(t *testing.T) {
 			defer teardown(t)
 
 			// Test with non-existent agent ID
-			_, err := models.ChangeAgent(q, "INVALID", &models.ChangeAgentParams{
+			_, err := changeAgent(q, "INVALID", &models.ChangeAgentParams{
 				Enabled: new(false),
 			})
 			tests.AssertGRPCError(t, status.New(codes.NotFound, "Agent with ID INVALID not found."), err)
@@ -1412,11 +1431,13 @@ func TestAgentHelpers(t *testing.T) {
 				CreatedAt: now,
 				UpdatedAt: now,
 			}
-			err := q.Insert(azureAgent)
+			encryptedAgent, err := models.EncryptAgent(*azureAgent)
+			require.NoError(t, err)
+			err = q.Insert(&encryptedAgent)
 			require.NoError(t, err)
 
 			// Test changing Azure options
-			agent, err := models.ChangeAgent(q, "AZURE1", &models.ChangeAgentParams{
+			agent, err := changeAgent(q, "AZURE1", &models.ChangeAgentParams{
 				AzureOptions: &models.ChangeAzureOptions{
 					SubscriptionID: new("new-subscription"),
 					ClientID:       new("new-client-id"),
@@ -1448,7 +1469,7 @@ func TestAgentHelpers(t *testing.T) {
 
 			// Test changing multiple fields at once
 			customLabels := map[string]string{"env": "prod"}
-			agent, err := models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
+			agent, err := changeAgent(q, "A2", &models.ChangeAgentParams{
 				Enabled:      new(false),
 				Username:     new("multi_user"),
 				Password:     new("multi_pass"),
@@ -1487,7 +1508,7 @@ func TestAgentHelpers(t *testing.T) {
 
 			// First, set up agent A7 (PostgreSQL exporter) with some initial values
 			initialCustomLabels := map[string]string{"initial": "value", "env": "test"}
-			_, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+			_, err := changeAgent(q, "A7", &models.ChangeAgentParams{
 				Username:     new("initial_user"),
 				Password:     new("initial_pass"),
 				CustomLabels: &initialCustomLabels,
@@ -1519,7 +1540,7 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, initialCustomLabels, initialLabels)
 
 			// Now change only the username - all other fields should remain unchanged
-			agent, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+			agent, err := changeAgent(q, "A7", &models.ChangeAgentParams{
 				Username: new("changed_user"),
 			})
 			require.NoError(t, err)
@@ -1551,7 +1572,7 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, initialCustomLabels, persistedLabels)
 
 			// Test changing only exporter options - other fields should remain unchanged
-			agent, err = models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+			agent, err = changeAgent(q, "A7", &models.ChangeAgentParams{
 				ExporterOptions: &models.ChangeExporterOptions{
 					PushMetrics: new(false), // Change this
 					// Don't specify ExposeExporter - it should remain true
@@ -1577,7 +1598,7 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, "info", pointer.GetString(persistedAgent.LogLevel))
 
 			// Test changing only PostgreSQL options - other fields should remain unchanged
-			agent, err = models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+			agent, err = changeAgent(q, "A7", &models.ChangeAgentParams{
 				PostgreSQLOptions: &models.ChangePostgreSQLOptions{
 					AutoDiscoveryLimit: new(int32(500)), // Change this
 					// Don't specify MaxExporterConnections - it should remain 10
@@ -1704,7 +1725,7 @@ func TestAgentHelpers(t *testing.T) {
 				},
 			}
 
-			agent, err := models.ChangeAgent(q, "A7", changeParams)
+			agent, err := changeAgent(q, "A7", changeParams)
 			require.NoError(t, err)
 
 			// Build expected agent structure for comparison
