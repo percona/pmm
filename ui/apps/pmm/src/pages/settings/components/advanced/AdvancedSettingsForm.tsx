@@ -54,9 +54,13 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
 
   const { handleSubmit, reset, watch, setValue } = methods;
 
-  // Operations for MongoDB reads its inventory from PMM Extensions' om_inventory app, so with
-  // Extensions off the switch can be flipped but the pages have no source to answer from.
-  const extensionsEnabled = settings.extensionsEnabled;
+  // Operations for MongoDB reads its inventory from PMM Extensions' om_inventory app, so
+  // with Extensions off there is nothing to turn it on against. Only turning it *on*
+  // needs Extensions, though: validateEnableOm lets a switch-off through
+  // regardless, so a feature already on stays switchable off. Keyed on the saved value,
+  // not the form draft, or flipping it off would disable the switch before Apply and
+  // leave no way to undo the flip.
+  const omSwitchBlocked = !settings.extensionsEnabled && !settings.omEnabled;
 
   const sttEnabled = watch('stt');
   const [telemetryDialogOpen, setTelemetryDialogOpen] = useState(false);
@@ -458,12 +462,12 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
               name="openManager"
               label={m.openManagerLabel}
               labelCaption={m.openManagerTooltip}
-              switchFieldProps={{ disabled: !extensionsEnabled }}
+              switchFieldProps={{ disabled: omSwitchBlocked }}
             />
             {/* The server refuses to enable it without the inventory app anyway
                 (validateEnableOm), so saying so here turns a failed save into a
                 precondition the reader can act on before pressing Apply. */}
-            {!extensionsEnabled && (
+            {omSwitchBlocked && (
               <Typography
                 variant="caption"
                 color="warning.main"
