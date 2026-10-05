@@ -803,7 +803,8 @@ describe('RealtimeOverview', () => {
         { ...sleeping, queryText: 'COMMIT', queryExecutionDuration: '0.001s' },
       ],
     });
-    fireEvent.click(screen.getByTestId('overview-table-refresh-button'));
+    // The pane covers the toolbar, so it is refreshed from the pane itself.
+    fireEvent.click(screen.getByTestId('details-pane-refresh-button'));
 
     await waitFor(() =>
       expect(screen.getByTestId('details-pane-finished')).toBeInTheDocument()

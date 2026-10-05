@@ -453,6 +453,9 @@ const RealtimeOverviewPage: FC = () => {
         isLastQuery={isLast}
         onNext={next}
         onPrevious={previous}
+        // The pane covers the toolbar, so it carries its own refresh. The view is paused while
+        // the pane is open; this reads once, as the toolbar's Refresh does.
+        onRefresh={serviceIds.length > 0 ? () => refetch() : undefined}
       />
     </RealtimePage>
   );
