@@ -18,6 +18,8 @@
 import { Children, type ReactElement } from 'react';
 import { describe, expect, it } from 'vitest';
 import { BackupMongoApp } from './BackupMongoApp';
+import { showsList } from './ConfigTab';
+import { CONFIG_APP_NAME } from './routes';
 import {
   restoreMongoCreateForm,
   restoreMongoEditForm,
@@ -99,7 +101,9 @@ describe('BackupMongoApp route wiring', () => {
   it('derives every tab routeBase from the host-supplied basePath', () => {
     const byPath = schemaAppPropsByRoutePath();
 
-    expect(byPath['config/*'].routeBase).toBe(`${BASE_PATH}/config`);
+    // ConfigTab takes basePath and derives `${basePath}/config` itself, so the
+    // guarantee moves with it -- asserted directly below.
+    expect(byPath['config/*'].basePath).toBe(BASE_PATH);
     expect(byPath['backups/*'].routeBase).toBe(`${BASE_PATH}/backups`);
     expect(byPath['restores/*'].routeBase).toBe(`${BASE_PATH}/restores`);
   });
@@ -109,9 +113,34 @@ describe('BackupMongoApp route wiring', () => {
   // way the restores tab does. Getting this wrong yields an empty tab rather
   // than an error, because the schema fetch simply 404s.
   it('addresses the config child app by its key', () => {
-    expect(schemaAppPropsByRoutePath()['config/*'].pluginName).toBe(
-      'backup_mongo/config'
-    );
+    // Asserted against the constant ConfigTab passes through, since the tab now
+    // owns the SchemaDrivenPlugin rather than the route doing so.
+    expect(CONFIG_APP_NAME).toBe('backup_mongo/config');
+  });
+
+  it('derives the config routeBase from basePath', () => {
+    // The other half of the routeBase guarantee, now that ConfigTab builds it:
+    // only the list collapses, so the derivation has to agree with the plugin's
+    // own routes or the accordion would swallow the create form.
+    expect(showsList(`${BASE_PATH}/config`, `${BASE_PATH}/config`)).toBe(true);
+    expect(
+      showsList(
+        `${BASE_PATH}/config/backup_mongo_config`,
+        `${BASE_PATH}/config`
+      )
+    ).toBe(true);
+    expect(
+      showsList(
+        `${BASE_PATH}/config/backup_mongo_config/new`,
+        `${BASE_PATH}/config`
+      )
+    ).toBe(false);
+    expect(
+      showsList(
+        `${BASE_PATH}/config/backup_mongo_config/42`,
+        `${BASE_PATH}/config`
+      )
+    ).toBe(false);
   });
 
   // Nothing custom is passed for configuration: the app declares update=False /

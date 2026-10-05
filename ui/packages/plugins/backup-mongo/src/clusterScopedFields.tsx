@@ -210,6 +210,15 @@ export function ClusterScopeProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Read the selected cluster from anywhere below the provider.
+ *
+ * @returns The selection, empty until topology has loaded.
+ */
+export function useClusterScope(): ClusterScope {
+  return useContext(ClusterScopeContext);
+}
+
 /** Fill the hidden fields and show what they were set to. */
 function ClusterScopeFields() {
   const { cluster, executor } = useContext(ClusterScopeContext);

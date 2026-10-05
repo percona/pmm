@@ -27,6 +27,7 @@ import {
   ClusterScopeProvider,
   clusterScopedRenderField,
 } from './clusterScopedFields';
+import { ConfigTab } from './ConfigTab';
 import { backupMongoCreateRenderField } from './backupMongoCreateForm';
 import {
   getRestoreMongoExecuteActions,
@@ -38,7 +39,7 @@ import {
   restoreMongoCreateRenderField,
   restoreMongoEditForm,
 } from './restoreMongoCreateForm';
-import { BACKUP_APP_NAME, CONFIG_APP_NAME, RESTORE_APP_NAME } from './routes';
+import { BACKUP_APP_NAME, RESTORE_APP_NAME } from './routes';
 
 const BACKUP_DETAIL_SUPPRESS_KEYS = ['derived_tasks', 'latest_pbm_status'];
 const RESTORE_DETAIL_SUPPRESS_KEYS = ['derived_tasks'];
@@ -132,9 +133,8 @@ export function BackupMongoApp({ basePath }: { basePath: string }) {
             // overrides the way the backups and restores forms do.
             path="config/*"
             element={
-              <SchemaDrivenPlugin
-                pluginName={CONFIG_APP_NAME}
-                routeBase={`${basePath}/config`}
+              <ConfigTab
+                basePath={basePath}
                 renderField={CONFIG_RENDER_FIELD}
               />
             }
