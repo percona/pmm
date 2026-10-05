@@ -47,10 +47,8 @@ func TestChangeAgentRTAMongoDBAgentCommand(t *testing.T) {
 				TLSCertificateKeyFilePassword: new("cert_password"),
 				AuthenticationMechanism:       new("SCRAM-SHA-256"),
 				CollectInterval:               new(3 * time.Second),
-				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: new(flags.LogLevel("debug")),
-				},
-				CustomLabels: &map[string]string{"service": "mongodb", "environment": "production"},
+				LogLevel:                      new(flags.LogLevel("debug")),
+				CustomLabels:                  &map[string]string{"service": "mongodb", "environment": "production"},
 			}
 
 			result, err := cmd.RunCmd()
