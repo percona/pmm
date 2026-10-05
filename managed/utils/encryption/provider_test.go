@@ -122,3 +122,8 @@ func TestNonAEADKeyset(t *testing.T) {
 	_, err = c.WithLegacyKeys(NewFileKeyProvider(filepath.Join(t.TempDir(), "missing.key")))
 	require.ErrorIs(t, err, ErrKeysetNotFound)
 }
+
+func TestSyncDir(t *testing.T) {
+	require.NoError(t, syncDir(t.TempDir()))
+	require.ErrorIs(t, syncDir(filepath.Join(t.TempDir(), "missing")), os.ErrNotExist, "a failure is reported")
+}

@@ -23,6 +23,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	"github.com/tink-crypto/tink-go/v2/aead"
 	"github.com/tink-crypto/tink-go/v2/insecurecleartextkeyset"
@@ -156,20 +157,30 @@ func (p *FileKeyProvider) Store(handle *keyset.Handle) error {
 	if err != nil {
 		return fmt.Errorf("failed to store encryption keyset: %w", err)
 	}
-	syncDir(filepath.Dir(p.path))
+	err = syncDir(filepath.Dir(p.path))
+	if err != nil {
+		return fmt.Errorf("failed to store encryption keyset: %w", err)
+	}
 
 	return nil
 }
 
 // syncDir makes a rename in the directory durable: after a crash, the data
-// encrypted with a new key must not find the old key file. Not every file
-// system can sync a directory, and the keyset is already in place, so a
-// failure is not reported.
-func syncDir(path string) {
+// encrypted with a new key must not find the old key file, so a failure
+// stops the caller before anything is encrypted with that key. A file system
+// that cannot sync a directory at all says so (EINVAL, ENOTSUP); there the
+// rename is as durable as it gets.
+func syncDir(path string) error {
 	dir, err := os.Open(path) //nolint:gosec
 	if err != nil {
-		return
+		return err
 	}
-	_ = dir.Sync()
-	_ = dir.Close()
+	defer dir.Close() //nolint:errcheck
+
+	err = dir.Sync()
+	if errors.Is(err, errors.ErrUnsupported) || errors.Is(err, syscall.EINVAL) {
+		return nil
+	}
+
+	return err
 }
