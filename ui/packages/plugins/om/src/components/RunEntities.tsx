@@ -31,6 +31,7 @@ import {
 } from '@mui/material';
 import { useOmInventoryRun } from '../inventoryHooks';
 import { formatCompactDuration } from '../format';
+import { NESTED_TABLE_WRAPPER, STICKY_IDENTITY_CELL } from '../nestedTable';
 import { Unavailable } from './Unavailable';
 import type { OmExecutorResolution, OmInventoryRun } from '../types';
 
@@ -98,11 +99,11 @@ export const RunEntities = ({ run }: { run: OmInventoryRun }) => {
   }
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box sx={NESTED_TABLE_WRAPPER}>
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell>Node</TableCell>
+            <TableCell sx={STICKY_IDENTITY_CELL}>Node</TableCell>
             <TableCell>Agent name</TableCell>
             <TableCell>Matched</TableCell>
             <TableCell>Answered</TableCell>
@@ -115,7 +116,9 @@ export const RunEntities = ({ run }: { run: OmInventoryRun }) => {
         <TableBody>
           {entities.map((entity) => (
             <TableRow key={entity.node_id}>
-              <TableCell>{entity.host_name ?? entity.node_id}</TableCell>
+              <TableCell sx={STICKY_IDENTITY_CELL}>
+                {entity.host_name ?? entity.node_id}
+              </TableCell>
               <TableCell>
                 {entity.executor_host ?? (
                   <Unavailable reason="not_applicable" />
