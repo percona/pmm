@@ -19,6 +19,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Box, Tab, Tabs, Typography } from '@mui/material';
 import { OmHeader } from './components/OmHeader';
 import { SyncButton } from './components/SyncButton';
+import { tabPanelProps, tabProps } from './tabA11y';
 import { FleetClustersTab } from './FleetClustersTab';
 import { FleetServicesTab } from './FleetServicesTab';
 
@@ -86,10 +87,20 @@ export const FleetPage = () => {
         }}
         sx={{ mb: 2 }}
       >
-        <Tab value="clusters" label="Clusters" />
-        <Tab value="services" label="Services" />
+        <Tab
+          value="clusters"
+          label="Clusters"
+          {...tabProps('fleet', 'clusters')}
+        />
+        <Tab
+          value="services"
+          label="Services"
+          {...tabProps('fleet', 'services')}
+        />
       </Tabs>
-      {tab === 'clusters' ? <FleetClustersTab /> : <FleetServicesTab />}
+      <Box {...tabPanelProps('fleet', tab)}>
+        {tab === 'clusters' ? <FleetClustersTab /> : <FleetServicesTab />}
+      </Box>
     </Box>
   );
 };

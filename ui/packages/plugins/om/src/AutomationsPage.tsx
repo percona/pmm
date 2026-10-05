@@ -44,6 +44,7 @@ import {
   runDurationSeconds,
 } from './format';
 import { useOmBootstrapRuns } from './inventoryHooks';
+import { tabPanelProps, tabProps } from './tabA11y';
 import { useOmBase } from './useOmBase';
 import type { OmGetBootstrapRunResponse } from './types';
 
@@ -239,14 +240,24 @@ export const AutomationsPage = () => {
         }}
         sx={{ mb: 2 }}
       >
-        <Tab value="installs" label="Installs" />
-        <Tab value="scans" label="Scans" />
+        <Tab
+          value="installs"
+          label="Installs"
+          {...tabProps('automations', 'installs')}
+        />
+        <Tab
+          value="scans"
+          label="Scans"
+          {...tabProps('automations', 'scans')}
+        />
       </Tabs>
-      {tab === 'installs' ? (
-        <AutomationsInstallsTab />
-      ) : (
-        <AutomationsScansTab />
-      )}
+      <Box {...tabPanelProps('automations', tab)}>
+        {tab === 'installs' ? (
+          <AutomationsInstallsTab />
+        ) : (
+          <AutomationsScansTab />
+        )}
+      </Box>
     </Box>
   );
 };

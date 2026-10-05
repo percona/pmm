@@ -19,6 +19,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Box, Tab, Tabs, Typography } from '@mui/material';
 import { OmHeader } from './components/OmHeader';
 import { ConfigForm, type SettingGroup } from './components/ConfigForm';
+import { tabPanelProps, tabProps } from './tabA11y';
 
 /** The tabs, and the query-parameter values that address them. */
 const TABS: SettingGroup[] = ['general', 'scanning', 'advanced'];
@@ -68,12 +69,19 @@ export const SettingsPage = () => {
         sx={{ mb: 2 }}
       >
         {TABS.map((id) => (
-          <Tab key={id} value={id} label={TAB_LABEL[id]} />
+          <Tab
+            key={id}
+            value={id}
+            label={TAB_LABEL[id]}
+            {...tabProps('settings', id)}
+          />
         ))}
       </Tabs>
       {/* One instance across the tabs, deliberately: the drafts and the Save button
           live inside it, so a value typed on General survives a look at Advanced. */}
-      <ConfigForm group={tab} />
+      <Box {...tabPanelProps('settings', tab)}>
+        <ConfigForm group={tab} />
+      </Box>
     </Box>
   );
 };
