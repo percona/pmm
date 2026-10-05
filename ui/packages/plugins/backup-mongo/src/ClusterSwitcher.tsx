@@ -10,27 +10,41 @@
  * the same view, and a cluster someone is midway through configuring is exactly what
  * they would bookmark.
  *
- * Peak supplies the vocabulary -- the toggle button, the cluster health icons and the
- * tooltip -- while MUI supplies the grouping primitive Peak builds on
- * (`ToggleRegularButton` is a styled `ToggleButton`). That mix is what the PMM app
- * itself does. Peak's `ToggleButtonGroupInput` and `SelectInput` are react-hook-form
- * fields taking `name` and `control`; this switcher is URL-driven and belongs to no
- * form, so the plain components are the right ones.
+ * **Why a search box and not a row of buttons.** A segmented toggle shows the whole
+ * estate at once, which is pleasant at three clusters and unusable at three hundred --
+ * it wraps into a wall, every cluster costs a button, and finding one means reading.
+ * Typing is the only selection gesture whose cost does not grow with the estate, so
+ * the switcher is a combobox at every size rather than changing shape at a threshold.
+ * Two things make it work at the top end: degraded clusters are grouped first, because
+ * in a large estate those are what someone is hunting for, and the rendered list is
+ * capped (see `OPTION_LIMIT`) so the listbox stays bounded however many clusters
+ * exist.
+ *
+ * Peak supplies the vocabulary -- the cluster health icons and the tooltip -- while
+ * MUI supplies the primitive Peak builds on. Peak's `AutoCompleteInput` is a
+ * react-hook-form field taking `name` and `control`; this switcher is URL-driven and
+ * belongs to no form, and giving it a form purely to host one field would make the URL
+ * and the form state two things to keep in sync. The plain component is the right one,
+ * as it already was for the toggle this replaces.
+ *
+ * Topology -- who is primary, which member runs `pbm` -- is deliberately *not* here.
+ * It is reference material for someone already looking at a cluster, not something to
+ * read while choosing between clusters, so it lives in the Configuration tab's status
+ * panel.
  */
 import { useMemo } from 'react';
 
 import {
+  Autocomplete,
   Box,
-  MenuItem,
   Skeleton,
   TextField,
-  ToggleButtonGroup,
   Typography,
+  createFilterOptions,
 } from '@mui/material';
 import {
   ClusterHealthyIcon,
   ClusterInoperationalIcon,
-  ToggleRegularButton,
   Tooltip,
 } from '@percona/peak-ui';
 import { useQuery } from '@tanstack/react-query';
@@ -42,11 +56,14 @@ import { fetchPbmClusters, type PbmCluster } from './pbmClusters';
 export const CLUSTER_PARAM = 'cluster';
 
 /**
- * Above this many clusters a segmented control stops being readable and starts
- * wrapping; a select degrades gracefully where buttons do not. Chosen for legibility
- * rather than measured -- adjust it when a real estate says otherwise.
+ * How many options to render at once.
+ *
+ * Not a limit on the estate -- every cluster remains reachable by typing, and the
+ * filter runs over all of them. It bounds the *listbox*, which is what would otherwise
+ * grow a DOM node per cluster on every open. Past a screenful nobody scrolls a
+ * combobox anyway; they type.
  */
-const MAX_SEGMENTED = 4;
+const OPTION_LIMIT = 50;
 
 /**
  * How often to re-read PBM state.
@@ -61,6 +78,11 @@ const REFETCH_MS = 30_000;
 
 export const PBM_CLUSTERS_QUERY_KEY = ['backup-mongo:pbm-clusters'];
 
+const filterClusters = createFilterOptions<PbmCluster>({
+  limit: OPTION_LIMIT,
+  stringify: (cluster) => cluster.name,
+});
+
 /** Summarise a cluster's agent health for a tooltip and for assistive technology. */
 function healthLabel(cluster: PbmCluster) {
   const total = cluster.members.length;
@@ -68,6 +90,14 @@ function healthLabel(cluster: PbmCluster) {
   return healthy === total
     ? `${total} PBM agent${total === 1 ? '' : 's'}, all healthy`
     : `${healthy} of ${total} PBM agents healthy`;
+}
+
+/** The one line under a cluster's name: shape first, then agent count. */
+function shapeLabel(cluster: PbmCluster) {
+  const shape = cluster.sharded
+    ? `sharded · ${cluster.replicaSets.length} replica sets`
+    : 'replica set';
+  return `${shape} · ${healthLabel(cluster)}`;
 }
 
 /**
@@ -108,9 +138,24 @@ export function ClusterSwitcher({ onChange }: ClusterSwitcherProps) {
   const clusters = useMemo(() => data ?? [], [data]);
   const requested = searchParams.get(CLUSTER_PARAM);
   // Fall back to the first cluster rather than to "none": the tabs below are useless
-  // without one, and someone with a single cluster should never have to pick it.
+  // without one, and someone with a single cluster should never have to pick it. The
+  // fallback reads the name-ordered list, not the display order below, so a cluster
+  // going degraded never silently moves the default selection.
   const selected =
     clusters.find((cluster) => cluster.name === requested) ?? clusters[0];
+
+  // Degraded first. At three clusters this is cosmetic; at three hundred it is the
+  // difference between finding the broken one and scrolling for it.
+  const options = useMemo(
+    () =>
+      [...clusters].sort(
+        (a, b) =>
+          Number(a.allHealthy) - Number(b.allHealthy) ||
+          a.name.localeCompare(b.name)
+      ),
+    [clusters]
+  );
+  const degraded = clusters.filter((cluster) => !cluster.allHealthy).length;
 
   useMemo(() => onChange?.(selected), [selected, onChange]);
 
@@ -124,7 +169,7 @@ export function ClusterSwitcher({ onChange }: ClusterSwitcherProps) {
 
   if (isLoading) {
     return (
-      <Skeleton variant="rounded" width={320} height={40} sx={{ mb: 2 }} />
+      <Skeleton variant="rounded" width={360} height={40} sx={{ mb: 2 }} />
     );
   }
 
@@ -140,56 +185,75 @@ export function ClusterSwitcher({ onChange }: ClusterSwitcherProps) {
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-      {clusters.length <= MAX_SEGMENTED ? (
-        <ToggleButtonGroup
-          exclusive
-          size="small"
-          value={selected?.name ?? null}
-          onChange={(_event, name) => name && select(name)}
-          aria-label="MongoDB cluster"
-        >
-          {clusters.map((cluster) => (
-            <ToggleRegularButton
-              key={cluster.name}
-              value={cluster.name}
-              dataTestId={`cluster-toggle-${cluster.name}`}
-              sx={{ gap: 1 }}
+      <Autocomplete
+        options={options}
+        value={selected ?? null}
+        // There is always a selection; clearing it would leave the tabs below
+        // scoped to nothing, which is not a state the page can render.
+        disableClearable
+        openOnFocus
+        autoHighlight
+        blurOnSelect
+        size="small"
+        sx={{ width: 360 }}
+        filterOptions={filterClusters}
+        getOptionLabel={(cluster) => cluster.name}
+        isOptionEqualToValue={(option, value) => option.name === value.name}
+        groupBy={(cluster) =>
+          cluster.allHealthy ? 'Healthy' : 'Needs attention'
+        }
+        onChange={(_event, cluster) => cluster && select(cluster.name)}
+        data-testid="cluster-select"
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Cluster"
+            slotProps={{
+              input: {
+                ...params.InputProps,
+                startAdornment: selected ? (
+                  <Box sx={{ display: 'flex', pl: 0.5 }}>
+                    <ClusterHealth cluster={selected} />
+                  </Box>
+                ) : null,
+              },
+            }}
+          />
+        )}
+        renderOption={(props, cluster) => {
+          const { key, ...rest } = props as typeof props & { key?: string };
+          return (
+            <Box
+              component="li"
+              key={key ?? cluster.name}
+              {...rest}
+              sx={{ gap: 1, alignItems: 'flex-start !important' }}
             >
-              <ClusterHealth cluster={cluster} />
-              {cluster.name}
-            </ToggleRegularButton>
-          ))}
-        </ToggleButtonGroup>
-      ) : (
-        <TextField
-          select
-          size="small"
-          label="Cluster"
-          value={selected?.name ?? ''}
-          onChange={(event) => select(event.target.value)}
-          sx={{ minWidth: 260 }}
-        >
-          {clusters.map((cluster) => (
-            <MenuItem key={cluster.name} value={cluster.name}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ display: 'flex', pt: 0.25 }}>
                 <ClusterHealth cluster={cluster} />
-                {cluster.name}
               </Box>
-            </MenuItem>
-          ))}
-        </TextField>
-      )}
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="body2" noWrap>
+                  {cluster.name}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" noWrap>
+                  {shapeLabel(cluster)}
+                </Typography>
+              </Box>
+            </Box>
+          );
+        }}
+      />
 
-      {selected && (
-        <Typography variant="body2" color="text.secondary">
-          {selected.members
-            .map(
-              (member) =>
-                `${member.serviceName} ${member.role === 'P' ? 'PRIMARY' : 'SECONDARY'}`
-            )
-            .join(' · ')}
-        </Typography>
-      )}
+      {/*
+        The estate at a glance, so the search box is not the only clue to how much
+        it is hiding -- and so a degraded cluster announces itself without the list
+        being open.
+      */}
+      <Typography variant="body2" color="text.secondary">
+        {clusters.length} cluster{clusters.length === 1 ? '' : 's'}
+        {degraded > 0 && ` · ${degraded} need attention`}
+      </Typography>
     </Box>
   );
 }
