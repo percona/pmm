@@ -14,4 +14,4 @@ More operations and database types will be added in future releases.
 
 ## Get Started 
 
-To enable the available apps and the **Apps** menu, [deploy PMM Extensions](deploy-pmm-extensions.md), the service that connects PMM to your database hosts.
+To enable the available apps and the **Apps** menu, [deploy PMM Extensions](deploy-pmm-extensions.md) to enable the **Apps** menu.

@@ -40,7 +40,7 @@ Find your binary below to see which compression algorithms you can select when c
 Complete the following steps before creating your first backup.
 {.power-number}
 
-1. Deploy PMM Extensions alongside PMM Server. See [Deploy PMM Extensions](deploy-pmm-extensions.md).
+1. Deploy PMM Extensions alongside PMM Server. See [Set up Apps: Deploy PMM Extensions with Docker](deploy-pmm-extensions.md).
 
 2. Make sure PMM Client 3.10.0 or later is installed on the execution host, registered to this PMM Server, and deployed with Nomad enabled. PMM Client ships the Nomad client, so no separate installation is needed. If PMM Client is not yet installed, see [Install PMM Client](../install-pmm/install-pmm-client/index.md).    
 
