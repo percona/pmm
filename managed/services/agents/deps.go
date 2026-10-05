@@ -67,9 +67,7 @@ type jobsService interface {
 // We use it instead of real type to avoid dependency cycle.
 type victoriaMetricsParams interface {
 	ExternalVM() bool
-	URLFor(path string) (*url.URL, error)
-	URL() string
-	VMAgentArgs() []string
+	ParsedURL() *url.URL
 }
 
 // victoriaMetricsClient is a subset of methods of prometheus' API used by this package.

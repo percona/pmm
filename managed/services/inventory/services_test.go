@@ -40,9 +40,6 @@ import (
 )
 
 // setup returns vmdb for the custom-label tests (currently skipped via t.Skip).
-// Keep it for future work; suppress unparam which otherwise reports the return value is unused.
-//
-//nolint:unparam
 func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(t *testing.T), context.Context, *mockPrometheusService) {
 	t.Helper()
 
@@ -72,6 +69,9 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 	sib := &mockServiceInfoBroker{}
 	sib.Test(t)
 
+	gc := &mockGrafanaClient{}
+	gc.Test(t)
+
 	mgmtServices := &common.MgmtServices{
 		BackupService:  nil, // FIXME: &backup.mockBackupService{} is not public
 		RestoreService: nil, // FIXME: &backup.mockRestoreService{} does not exist
@@ -88,11 +88,12 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 		state.AssertExpectations(t)
 		cc.AssertExpectations(t)
 		sib.AssertExpectations(t)
+		gc.AssertExpectations(t)
 	}
 
 	return NewServicesService(db, r, state, vmdb, vc, mgmtServices),
 		NewAgentsService(db, r, state, vmdb, cc, sib, as),
-		NewNodesService(db, r, state, vmdb),
+		NewNodesService(db, r, state, vmdb, gc),
 		teardown,
 		logger.Set(t.Context(), t.Name()),
 		vmdb
