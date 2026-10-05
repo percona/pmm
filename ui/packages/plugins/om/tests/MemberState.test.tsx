@@ -24,7 +24,6 @@ const member = {
   state: null,
   status: 'SERVICE_STATUS_UP',
   process_role: 'PROCESS_ROLE_MONGOD',
-  replication_set: 'rs0',
 } as const;
 
 describe('MemberState', () => {
@@ -34,7 +33,9 @@ describe('MemberState', () => {
     expect(screen.getByText('SECONDARY')).toBeInTheDocument();
   });
 
-  it('calls a down member unobserved, not a non-member', () => {
+  // replication_set is optional at registration, so a down member registered with
+  // only --cluster looks like a down standalone; neither reports a state this run.
+  it('calls a down mongod unobserved, whatever its replica-set label', () => {
     render(
       <MemberState service={{ ...member, status: 'SERVICE_STATUS_DOWN' }} />
     );
@@ -45,23 +46,15 @@ describe('MemberState', () => {
   });
 
   it.each([
-    [
-      'an up router',
-      { process_role: 'PROCESS_ROLE_MONGOS', replication_set: null },
-    ],
+    ['an up router', { process_role: 'PROCESS_ROLE_MONGOS' }],
     [
       'a down router',
       {
         process_role: 'PROCESS_ROLE_MONGOS',
-        replication_set: null,
         status: 'SERVICE_STATUS_DOWN',
       },
     ],
-    ['an up standalone', { replication_set: null }],
-    [
-      'a down standalone',
-      { replication_set: null, status: 'SERVICE_STATUS_DOWN' },
-    ],
+    ['an up mongod with no state', {}],
   ] as const)('calls %s not applicable', (_name, overrides) => {
     render(<MemberState service={{ ...member, ...overrides }} />);
 

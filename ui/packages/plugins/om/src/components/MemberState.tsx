@@ -21,30 +21,25 @@ import type { OmService } from '../types';
 /**
  * A service's replica-set member state, as MongoDB names it (PRIMARY, SECONDARY...).
  *
- * No state has two causes that need different words. A router or a standalone is no
- * replica-set member at all, up or down; a member that is down reports nothing this
- * run, so its state is unobserved.
+ * A router is no replica-set member, up or down. Any other service that is down
+ * reports nothing this run, so its state is unobserved: `replication_set` comes from
+ * the optional `--replication-set` flag, so a down member registered with only
+ * `--cluster` cannot be told apart from a down standalone.
  */
 export const MemberState = ({
   service,
 }: {
-  service: Pick<
-    OmService,
-    'state' | 'status' | 'process_role' | 'replication_set'
-  >;
+  service: Pick<OmService, 'state' | 'status' | 'process_role'>;
 }) => {
   if (service.state) {
     return <>{service.state}</>;
   }
-  const isMember =
-    service.process_role !== 'PROCESS_ROLE_MONGOS' && !!service.replication_set;
+  const unobserved =
+    service.process_role !== 'PROCESS_ROLE_MONGOS' &&
+    service.status === 'SERVICE_STATUS_DOWN';
   return (
     <Unavailable
-      reason={
-        isMember && service.status === 'SERVICE_STATUS_DOWN'
-          ? 'service_not_observed'
-          : 'not_applicable'
-      }
+      reason={unobserved ? 'service_not_observed' : 'not_applicable'}
     />
   );
 };
