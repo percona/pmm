@@ -1,18 +1,19 @@
 import { describe, expect, it } from 'vitest';
 
-import { toPbmClusters } from './pbmClusters';
+import { pickExecutor, toPbmClusters } from './pbmClusters';
 
-/** One series as VictoriaMetrics returns it, trimmed to the labels the shaper reads. */
-const series = (
+const agent = (
   service: string,
   role: string,
-  value: string,
-  replicaSet = 'replicaset-cluster'
+  replicaSet: string,
+  cluster: string,
+  value = '0'
 ) => ({
   metric: {
     service_id: `id-${service}`,
     service_name: service,
     replica_set: replicaSet,
+    cluster,
     host: `${service}:27017`,
     role,
     self: '1',
@@ -20,82 +21,141 @@ const series = (
   value: [1790800000, value] as [number, string],
 });
 
-describe('toPbmClusters', () => {
-  it('groups members by replica set', () => {
-    const clusters = toPbmClusters([
-      series('node00', 'P', '0'),
-      series('node01', 'S', '0'),
-      series('single00', 'P', '0', 'replicaset-single'),
-    ]);
+const configsvr = (service: string) => ({
+  metric: { service_name: service },
+  value: [1790800000, '1'] as [number, string],
+});
 
-    expect(clusters.map((cluster) => cluster.name)).toEqual([
+/** The sandbox's real sharded topology, as PMM reports it. */
+const SHARDED = [
+  agent('cfg00', 'P', 'sharded-cluster-cfg', 'sharded-cluster'),
+  agent('cfg01', 'S', 'sharded-cluster-cfg', 'sharded-cluster'),
+  agent('cfg02', 'S', 'sharded-cluster-cfg', 'sharded-cluster'),
+  agent('shard00svr0', 'P', 'sharded-cluster-shard00', 'sharded-cluster'),
+  agent('shard00svr1', 'S', 'sharded-cluster-shard00', 'sharded-cluster'),
+  agent('shard01svr0', 'P', 'sharded-cluster-shard01', 'sharded-cluster'),
+  agent('shard01svr1', 'S', 'sharded-cluster-shard01', 'sharded-cluster'),
+];
+const SHARDED_CONFIGS = [
+  configsvr('cfg00'),
+  configsvr('cfg01'),
+  configsvr('cfg02'),
+];
+
+describe('toPbmClusters', () => {
+  it('treats a sharded cluster as one deployment, not one per shard', () => {
+    // The whole point of keying on `cluster` rather than `replica_set`: PBM's
+    // configuration is per deployment, so a sharded cluster is one thing to
+    // configure even though it spans three replica sets.
+    const clusters = toPbmClusters(SHARDED, SHARDED_CONFIGS);
+    expect(clusters).toHaveLength(1);
+    expect(clusters[0].name).toBe('sharded-cluster');
+    expect(clusters[0].sharded).toBe(true);
+    expect(clusters[0].replicaSets).toEqual([
+      'sharded-cluster-cfg',
+      'sharded-cluster-shard00',
+      'sharded-cluster-shard01',
+    ]);
+  });
+
+  it('keeps separate clusters separate', () => {
+    const clusters = toPbmClusters(
+      [
+        ...SHARDED,
+        agent('node00', 'P', 'replicaset-cluster', 'replicaset-cluster'),
+        agent('single00', 'P', 'replicaset-single', 'replicaset-single'),
+      ],
+      SHARDED_CONFIGS
+    );
+    expect(clusters.map((c) => c.name)).toEqual([
       'replicaset-cluster',
       'replicaset-single',
+      'sharded-cluster',
     ]);
-    expect(clusters[0].members).toHaveLength(2);
+    expect(clusters[0].sharded).toBe(false);
   });
 
-  it('puts the primary first so an election reshuffles one row, not the list', () => {
-    const clusters = toPbmClusters([
-      series('node02', 'S', '0'),
-      series('node00', 'P', '0'),
-      series('node01', 'S', '0'),
-    ]);
-
-    expect(clusters[0].members.map((member) => member.serviceName)).toEqual([
-      'node00',
-      'node01',
-      'node02',
-    ]);
+  it('marks config-server members from the metric, not from the name', () => {
+    const clusters = toPbmClusters(SHARDED, SHARDED_CONFIGS);
+    const cfg = clusters[0].members
+      .filter((m) => m.configServer)
+      .map((m) => m.serviceName);
+    expect(cfg).toEqual(['cfg00', 'cfg01', 'cfg02']);
   });
 
-  it('treats any non-zero status as unhealthy', () => {
-    // 2 is a lost agent, established by stopping one and watching the metric. 1 has
-    // never been observed, so the rule is "not 0" rather than an enumeration.
-    const clusters = toPbmClusters([
-      series('node00', 'P', '0'),
-      series('node01', 'S', '2'),
-    ]);
+  it('falls back to the replica set when no cluster label is present', () => {
+    const clusters = toPbmClusters([agent('a', 'P', 'rs0', '')]);
+    expect(clusters[0].name).toBe('rs0');
+  });
 
+  it('treats any non-zero agent status as unhealthy', () => {
+    const clusters = toPbmClusters([
+      agent('node00', 'P', 'rs0', 'c', '0'),
+      agent('node01', 'S', 'rs0', 'c', '2'),
+    ]);
     expect(clusters[0].allHealthy).toBe(false);
-    expect(
-      clusters[0].members.find((m) => m.serviceName === 'node01')?.healthy
-    ).toBe(false);
-  });
-
-  it('reports a fully healthy cluster as such', () => {
-    const clusters = toPbmClusters([series('node00', 'P', '0')]);
-    expect(clusters[0].allHealthy).toBe(true);
   });
 
   it('skips a series that cannot be placed or keyed', () => {
-    const noSet = {
-      metric: { service_id: 'x', role: 'S' },
-      value: [0, '0'] as [number, string],
-    };
-    const noId = {
-      metric: { replica_set: 'rs0', role: 'S' },
-      value: [0, '0'] as [number, string],
-    };
-    expect(toPbmClusters([noSet, noId])).toEqual([]);
+    expect(
+      toPbmClusters([
+        { metric: { role: 'S' }, value: [0, '0'] as [number, string] },
+      ])
+    ).toEqual([]);
+  });
+});
+
+describe('pickExecutor', () => {
+  it('prefers a config-server secondary on a sharded cluster', () => {
+    // PBM's metadata lives on the config replica set, so that is the closest thing
+    // to where the coordination happens.
+    const [cluster] = toPbmClusters(SHARDED, SHARDED_CONFIGS);
+    expect(pickExecutor(cluster)?.serviceName).toBe('cfg01');
   });
 
-  it('falls back to replication_set when replica_set is absent', () => {
-    const clusters = toPbmClusters([
-      {
-        metric: {
-          service_id: 'id-a',
-          service_name: 'a',
-          replication_set: 'rs-legacy',
-          role: 'P',
-        },
-        value: [0, '0'] as [number, string],
-      },
+  it('falls back to a shard secondary when no config secondary is healthy', () => {
+    const degraded = SHARDED.map((s) =>
+      s.metric.service_name.startsWith('cfg') && s.metric.role === 'S'
+        ? { ...s, value: [s.value[0], '2'] as [number, string] }
+        : s
+    );
+    const [cluster] = toPbmClusters(degraded, SHARDED_CONFIGS);
+    expect(pickExecutor(cluster)?.serviceName).toBe('shard00svr1');
+  });
+
+  it('never picks the primary when a secondary is available', () => {
+    const [cluster] = toPbmClusters([
+      agent('node00', 'P', 'rs0', 'c'),
+      agent('node01', 'S', 'rs0', 'c'),
+      agent('node02', 'S', 'rs0', 'c'),
     ]);
-    expect(clusters[0].name).toBe('rs-legacy');
+    expect(pickExecutor(cluster)?.role).toBe('S');
   });
 
-  it('returns nothing for an estate with no PBM metrics', () => {
-    expect(toPbmClusters([])).toEqual([]);
+  it('is deterministic when several secondaries tie', () => {
+    const [cluster] = toPbmClusters([
+      agent('node02', 'S', 'rs0', 'c'),
+      agent('node01', 'S', 'rs0', 'c'),
+      agent('node00', 'P', 'rs0', 'c'),
+    ]);
+    // Stable by name, so an election reshuffles one row rather than the choice.
+    expect(pickExecutor(cluster)?.serviceName).toBe('node01');
+  });
+
+  it('accepts the primary when it is the only live member', () => {
+    // A single-node set is a cluster of one; refusing it would make the common
+    // development topology unusable.
+    const [cluster] = toPbmClusters([
+      agent('single00', 'P', 'rs0', 'replicaset-single'),
+    ]);
+    expect(pickExecutor(cluster)?.serviceName).toBe('single00');
+  });
+
+  it('returns nothing when no member has a live agent', () => {
+    const [cluster] = toPbmClusters([
+      agent('node00', 'P', 'rs0', 'c', '2'),
+      agent('node01', 'S', 'rs0', 'c', '2'),
+    ]);
+    expect(pickExecutor(cluster)).toBeUndefined();
   });
 });

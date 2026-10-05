@@ -35,16 +35,35 @@ function schemaAppPropsByRoutePath(): Record<string, AnyProps> {
   const tree = BackupMongoApp({ basePath: BASE_PATH }) as ReactElement<{
     children: ReactElement[];
   }>;
-  const children = Children.toArray(
-    tree.props.children
-  ) as ReactElement<AnyProps>[];
-  const routesEl = children.find(
-    (child) =>
-      Array.isArray(child.props.children) &&
-      (child.props.children as ReactElement<AnyProps>[]).some(
-        (route) => route?.props?.path !== undefined
-      )
-  ) as ReactElement<{ children: ReactElement<AnyProps>[] }>;
+  // Search depth-first rather than scanning the root's direct children: the
+  // routes sit inside ClusterScopeProvider, and any future wrapper would move
+  // them again. What identifies <Routes> is that its children carry `path`.
+  const findRoutes = (
+    node: ReactElement<AnyProps>
+  ): ReactElement<{ children: ReactElement<AnyProps>[] }> | undefined => {
+    for (const child of Children.toArray(
+      node?.props?.children as ReactElement<AnyProps>[] | undefined
+    ) as ReactElement<AnyProps>[]) {
+      if (!child?.props) {
+        continue;
+      }
+      const kids = Children.toArray(
+        child.props.children as ReactElement<AnyProps>[] | undefined
+      ) as ReactElement<AnyProps>[];
+      if (kids.some((route) => route?.props?.path !== undefined)) {
+        return child as ReactElement<{ children: ReactElement<AnyProps>[] }>;
+      }
+      const nested = findRoutes(child);
+      if (nested) {
+        return nested;
+      }
+    }
+    return undefined;
+  };
+
+  const routesEl = findRoutes(tree as ReactElement<AnyProps>) as ReactElement<{
+    children: ReactElement<AnyProps>[];
+  }>;
 
   const byPath: Record<string, AnyProps> = {};
   for (const route of Children.toArray(
@@ -99,10 +118,15 @@ describe('BackupMongoApp route wiring', () => {
   // delete=False so the framework derives the surface, and the form needs none of
   // the field overrides the backups and restores forms do. Asserted so that
   // adding one later is a deliberate act.
-  it('leaves the config tab entirely on the framework defaults', () => {
+  it('gives the config tab the cluster scope and nothing else', () => {
+    // The config form carries the same Task-section trio as the other two
+    // (task_name, service_id, hostname), so it needs the cluster to supply the
+    // service and executor just as they do. Every other slot stays on the
+    // framework defaults -- this app declares update=False/delete=False, so the
+    // framework derives the rest of its surface.
     const props = schemaAppPropsByRoutePath()['config/*'];
 
-    expect(props.renderField).toBeUndefined();
+    expect(props.renderField).toBeDefined();
     expect(props.renderCreateForm).toBeUndefined();
     expect(props.renderEditForm).toBeUndefined();
     expect(props.renderTaskDetailChildren).toBeUndefined();

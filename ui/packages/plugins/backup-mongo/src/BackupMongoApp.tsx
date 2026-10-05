@@ -23,7 +23,10 @@ import {
   getBackupMongoExecuteActions,
   getBackupMongoHistoryTaskNames,
 } from './backupMongoTaskDetail';
-import { ClusterSwitcher } from './ClusterSwitcher';
+import {
+  ClusterScopeProvider,
+  clusterScopedRenderField,
+} from './clusterScopedFields';
 import { backupMongoCreateRenderField } from './backupMongoCreateForm';
 import {
   getRestoreMongoExecuteActions,
@@ -96,67 +99,82 @@ function MongoBackupTabs({ basePath }: { basePath: string }) {
  *   them -- a mismatch breaks the plugins' absolute nav (detail back/edit links
  *   and the related-app tab bar) in ways that look like routing bugs.
  */
+/**
+ * Overrides built once at module scope.
+ *
+ * Identity-stable and closing over nothing, which is what lets this component stay
+ * free of hooks -- its route tree is introspected by calling it as a plain function.
+ */
+const CONFIG_RENDER_FIELD = clusterScopedRenderField();
+const BACKUPS_RENDER_FIELD = clusterScopedRenderField(
+  backupMongoCreateRenderField
+);
+const RESTORES_RENDER_FIELD = clusterScopedRenderField(
+  restoreMongoCreateRenderField
+);
+
 export function BackupMongoApp({ basePath }: { basePath: string }) {
   return (
     <div>
       {/*
-        Above the tabs because the cluster scopes all three of them. PBM's own
-        configuration is cluster-wide rather than per-node, so "which deployment"
-        is a question that precedes "configure, back up or restore".
+        Wraps the tabs *and* the routes: the switcher renders above the tabs, and
+        the forms the routes render read the same selection through context.
       */}
-      <ClusterSwitcher />
-      <MongoBackupTabs basePath={basePath} />
-      <Routes>
-        <Route index element={<Navigate to="backups" replace />} />
-        <Route
-          // PBM's cluster-wide configuration: storage, point-in-time recovery and
-          // the backup options that describe the deployment rather than one run.
-          // Nothing custom is passed -- the app declares update=False/delete=False,
-          // so the framework derives the surface, and the form needs no field
-          // overrides the way the backups and restores forms do.
-          path="config/*"
-          element={
-            <SchemaDrivenPlugin
-              pluginName={CONFIG_APP_NAME}
-              routeBase={`${basePath}/config`}
-            />
-          }
-        />
-        <Route
-          path="backups/*"
-          element={
-            <SchemaDrivenPlugin
-              pluginName={BACKUP_APP_NAME}
-              routeBase={`${basePath}/backups`}
-              getTaskExecuteActions={getBackupMongoExecuteActions}
-              getTaskHistoryNames={getBackupMongoHistoryTaskNames}
-              suppressDetailKeys={BACKUP_DETAIL_SUPPRESS_KEYS}
-              renderField={backupMongoCreateRenderField}
-              renderTaskDetailChildren={({ task }) => (
-                <BackupMongoTaskDetailExtras task={task} />
-              )}
-            />
-          }
-        />
-        <Route
-          path="restores/*"
-          element={
-            <SchemaDrivenPlugin
-              pluginName={RESTORE_APP_NAME}
-              routeBase={`${basePath}/restores`}
-              getTaskExecuteActions={getRestoreMongoExecuteActions}
-              getTaskHistoryNames={getRestoreMongoHistoryTaskNames}
-              suppressDetailKeys={RESTORE_DETAIL_SUPPRESS_KEYS}
-              renderField={restoreMongoCreateRenderField}
-              renderCreateForm={restoreMongoCreateForm}
-              renderEditForm={restoreMongoEditForm}
-              renderTaskDetailChildren={({ task }) => (
-                <RestoreMongoTaskDetailExtras task={task} />
-              )}
-            />
-          }
-        />
-      </Routes>
+      <ClusterScopeProvider>
+        <MongoBackupTabs basePath={basePath} />
+        <Routes>
+          <Route index element={<Navigate to="backups" replace />} />
+          <Route
+            // PBM's cluster-wide configuration: storage, point-in-time recovery and
+            // the backup options that describe the deployment rather than one run.
+            // Nothing custom is passed -- the app declares update=False/delete=False,
+            // so the framework derives the surface, and the form needs no field
+            // overrides the way the backups and restores forms do.
+            path="config/*"
+            element={
+              <SchemaDrivenPlugin
+                pluginName={CONFIG_APP_NAME}
+                routeBase={`${basePath}/config`}
+                renderField={CONFIG_RENDER_FIELD}
+              />
+            }
+          />
+          <Route
+            path="backups/*"
+            element={
+              <SchemaDrivenPlugin
+                pluginName={BACKUP_APP_NAME}
+                routeBase={`${basePath}/backups`}
+                getTaskExecuteActions={getBackupMongoExecuteActions}
+                getTaskHistoryNames={getBackupMongoHistoryTaskNames}
+                suppressDetailKeys={BACKUP_DETAIL_SUPPRESS_KEYS}
+                renderField={BACKUPS_RENDER_FIELD}
+                renderTaskDetailChildren={({ task }) => (
+                  <BackupMongoTaskDetailExtras task={task} />
+                )}
+              />
+            }
+          />
+          <Route
+            path="restores/*"
+            element={
+              <SchemaDrivenPlugin
+                pluginName={RESTORE_APP_NAME}
+                routeBase={`${basePath}/restores`}
+                getTaskExecuteActions={getRestoreMongoExecuteActions}
+                getTaskHistoryNames={getRestoreMongoHistoryTaskNames}
+                suppressDetailKeys={RESTORE_DETAIL_SUPPRESS_KEYS}
+                renderField={RESTORES_RENDER_FIELD}
+                renderCreateForm={restoreMongoCreateForm}
+                renderEditForm={restoreMongoEditForm}
+                renderTaskDetailChildren={({ task }) => (
+                  <RestoreMongoTaskDetailExtras task={task} />
+                )}
+              />
+            }
+          />
+        </Routes>
+      </ClusterScopeProvider>
     </div>
   );
 }
