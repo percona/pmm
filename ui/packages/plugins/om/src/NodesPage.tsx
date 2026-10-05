@@ -44,6 +44,7 @@ import {
   OM_ROUTE_INSTALL,
 } from './constants';
 import { EmptyState } from './components/EmptyState';
+import { NotOnboardedDialog } from './components/NotOnboardedDialog';
 import { OmHeader } from './components/OmHeader';
 import { Unavailable } from './components/Unavailable';
 import { formatCompactDuration, pluralize } from './format';
@@ -140,13 +141,38 @@ const HostFilterChips = ({
  * conclusion is work the page should do for its reader. The distinction that matters
  * is what to go and do, so that is what the cell says.
  */
-const ExecutorCell = ({ row }: { row: OmHostRow }) => {
+const ExecutorCell = ({
+  row,
+  anyNodeOnboarded,
+}: {
+  row: OmHostRow;
+  anyNodeOnboarded: boolean;
+}) => {
   const { registered, reachable, driver_healthy, detail } = row.executor;
+  const [helpOpen, setHelpOpen] = useState(false);
   if (!registered) {
     return (
-      <Tooltip title="No automation agent is registered for this node, so nothing can be run on it. It has never been onboarded, or its registration was removed.">
-        <Chip size="small" variant="outlined" label="Not onboarded" />
-      </Tooltip>
+      <>
+        {/* Clickable, because this is the one state on the page with nothing to
+            press and no way forward -- the reader used to leave the app here
+            (F17). The others name a machine to go and look at; this one needs
+            explaining before anyone knows where to look. */}
+        <Tooltip title="No automation agent is registered for this node, so nothing can be run on it. Open for what to check.">
+          <Chip
+            size="small"
+            variant="outlined"
+            label="Not onboarded"
+            onClick={() => setHelpOpen(true)}
+          />
+        </Tooltip>
+        <NotOnboardedDialog
+          open={helpOpen}
+          onClose={() => setHelpOpen(false)}
+          nodeName={row.name}
+          pmmAgentConnected={row.pmm_agent_connected}
+          anyNodeOnboarded={anyNodeOnboarded}
+        />
+      </>
     );
   }
   if (!reachable) {
@@ -264,7 +290,11 @@ const DatabaseCell = ({ row }: { row: OmHostRow }) => {
 };
 
 function useColumns(
-  busyExecutorHosts: Set<string>
+  busyExecutorHosts: Set<string>,
+  // A fleet-level fact, needed by a single cell: whether *any* node has an agent
+  // is what tells a reader whether "not onboarded" is about this node or about
+  // the server. See NotOnboardedDialog.
+  anyNodeOnboarded: boolean
 ): MRT_ColumnDef<OmHostRow>[] {
   return useMemo(
     () => [
@@ -294,7 +324,9 @@ function useColumns(
                 ? 'Driver unhealthy'
                 : 'Ready',
         header: 'Automation agent',
-        Cell: ({ row: { original } }) => <ExecutorCell row={original} />,
+        Cell: ({ row: { original } }) => (
+          <ExecutorCell row={original} anyNodeOnboarded={anyNodeOnboarded} />
+        ),
       },
       {
         id: 'automation_eligible',
@@ -375,7 +407,7 @@ function useColumns(
           original.executor_host ?? <Unavailable reason="not_applicable" />,
       },
     ],
-    [busyExecutorHosts]
+    [busyExecutorHosts, anyNodeOnboarded]
   );
 }
 
@@ -617,8 +649,15 @@ export const NodesPage = () => {
   }, [bootstrapRuns.data]);
   const isHostBusy = (row: OmHostRow) =>
     Boolean(row.executor_host && busyExecutorHosts.has(row.executor_host));
-  const columns = useColumns(busyExecutorHosts);
   const rows = useMemo(() => toHostRows(data), [data]);
+  // Whole fleet, not the filtered view: "is it only this node" is a question
+  // about the estate, and filtering to the broken nodes must not turn the answer
+  // into "none of them are onboarded".
+  const anyNodeOnboarded = useMemo(
+    () => rows.some((row) => row.executor.registered),
+    [rows]
+  );
+  const columns = useColumns(busyExecutorHosts, anyNodeOnboarded);
   // Filtered for the table only — the counts below stay whole-estate so switching
   // filters does not make the headline numbers look like they changed too.
   const filteredRows = useMemo(

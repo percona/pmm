@@ -311,3 +311,12 @@ export const SETTING_GROUP: Record<string, 'general' | 'scanning'> = {
   REPO_TIMEOUT: 'scanning',
   CONNECT_TIMEOUT: 'scanning',
 };
+
+/**
+ * Where a reader goes to fix a node with no automation agent.
+ *
+ * The product documentation rather than a deep link into settings: both halves
+ * of the fix (the feature flag and the public address) are server-side and need
+ * a restart, and the client-side requirements are listed there too.
+ */
+export const NOMAD_DOC_URL = 'https://per.co.na/pmm-nomad';
