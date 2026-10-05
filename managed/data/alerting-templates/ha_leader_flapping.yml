@@ -6,7 +6,7 @@ templates:
     queries:
       - ref_id: A
         expr: |-
-          max by(node_id) (changes(pmm_ha_raft_term[10m]))
+          max(changes(pmm_ha_raft_term[10m]))
     expressions:
       - ref_id: C
         type: math

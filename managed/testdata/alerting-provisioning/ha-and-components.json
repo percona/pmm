@@ -141,7 +141,7 @@
                 "to": 0
               },
               "model": {
-                "expr": "max by(node_id) (changes(pmm_ha_raft_term[10m]))",
+                "expr": "max(changes(pmm_ha_raft_term[10m]))",
                 "refId": "A",
                 "instant": true,
                 "hide": false,
