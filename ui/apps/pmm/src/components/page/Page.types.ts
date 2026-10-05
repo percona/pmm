@@ -4,6 +4,9 @@ import { OrgRole } from 'types/user.types';
 
 export interface PageProps extends PropsWithChildren {
   title?: string;
+  // Keep the document title but do not render the heading, for pages whose
+  // content carries its own centered heading (empty states, error pages).
+  hideTitle?: boolean;
   footer?: ReactNode;
   topBar?: ReactNode;
   /**

@@ -12,6 +12,14 @@ describe('Footer', () => {
     );
 
     expect(screen.queryByTestId('pmm-footer')).toBeNull();
+    expect(screen.queryByRole('separator')).toBeNull();
+  });
+
+  it('renders the divider together with the version', () => {
+    render(wrapWithUpdatesProvider(<Footer />));
+
+    expect(screen.getByTestId('pmm-footer')).toBeDefined();
+    expect(screen.getByRole('separator')).toBeDefined();
   });
 
   it('shows  correct checked date', () => {
