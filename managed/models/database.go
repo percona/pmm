@@ -1236,7 +1236,9 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to create a connection pool to PostgreSQL: %w", err)
 	}
 
-	db.SetConnMaxLifetime(0)
+	// Recycle connections so that, after a PostgreSQL failover in HA, a pool left
+	// on the demoted primary (now a read-only replica) moves to the new primary.
+	db.SetConnMaxLifetime(5 * time.Minute) //nolint:mnd
 	db.SetConnMaxIdleTime(5 * time.Minute) //nolint:mnd
 	// Sized to give DB-bound auth/role/settings paths enough headroom during
 	// a reconnect storm from a fleet of agents, while staying well within
