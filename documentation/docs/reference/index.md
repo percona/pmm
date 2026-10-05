@@ -1,85 +1,115 @@
-# PMM Architecture
+# PMM architecture
 
-PMM is a client/server application built by Percona comprising its own and third-party components and tools.
+Percona Monitoring and Management (PMM) is a client/server application. PMM Client collects metrics and query data from the systems that you monitor and sends them to PMM Server. PMM Server stores the data and presents it in its web interface.
 
-<!-- The source of this image is maintained at https://miro.com/app/board/uXjVOPgKgrE=/ -->
+![PMM Client collects metrics and query data from monitored systems and sends them to PMM Server](../images/arch/C_S_Architecture.jpg)
 
-![Client-Server Architecture](../images/arch/C_S_Architecture.jpg)
+You can also monitor remote databases and cloud services, such as [Amazon RDS](../install-pmm/install-pmm-client/connect-database/aws.md) and [Azure](../install-pmm/install-pmm-client/connect-database/azure.md), without installing PMM Client on their hosts. In that case, the `pmm-agent` built into PMM Server collects the data. For details, see [Connect remote instance to PMM](../install-pmm/install-pmm-client/connect-database/remote.md).
 
 ## PMM Server
 
-PMM Server is the heart of PMM. It receives data from clients, collects it, and stores it. Metrics are drawn as tables, charts and graphs within [_dashboards_](../use/dashboards-panels/index.md), each a part of the web-based [user interface](../reference/ui/ui_components.md).
+PMM Server receives data from PMM Clients, stores it, and presents it in [dashboards](../use/dashboards-panels/index.md) and other views of the [web interface](../reference/ui/ui_components.md). In a standard deployment, PMM Server runs as a single container that holds all of the components in this section.
+
+![PMM Server components: the web interface, Nginx, pmm-managed, QAN API, VictoriaMetrics, vmproxy, vmalert, Grafana and the data stores](../images/arch/PMM-Server-Component-Based-View.jpg)
+
+### Web interface
+
+The web interface, also called the PMM UI, is a web application that embeds Grafana. It brings together [dashboards](../use/dashboards-panels/index.md), [Query Analytics (QAN)](../use/qan/index.md), [Real-Time Query Analytics (RTA)](../use/qan/QAN-realtime-analytics.md) for MongoDB, [Advisors](../advisors/advisors.md), [Percona Alerting](../alert/index.md), the inventory of monitored services, and [PMM Dump](../troubleshoot/pmm_dump.md).
+
+### Server components
+
+PMM Server runs the following services:
+
+- **Nginx** receives every request on port 8443 inside the container, which you usually publish as port 443. It asks `pmm-managed` to authorize requests, then routes them to the other services.
+- **`pmm-managed`** manages the PMM Server configuration, the inventory of monitored services, and the connected PMM Clients. It forwards QAN data from PMM Clients to QAN API, and keeps RTA data in memory.
+- **QAN API** stores and serves Query Analytics data.
+- **[VictoriaMetrics](third-party/victoria.md)** stores metrics. It receives the metrics that PMM Clients push, and scrapes exporters that run in pull mode.
+- **vmproxy** applies [label-based access control (LBAC)](../admin/roles/access-control/intro.md) filters to metrics queries before they reach VictoriaMetrics.
+- **vmalert** evaluates alerting and recording rules against VictoriaMetrics.
+- **[Grafana](https://grafana.com/docs/grafana/latest/)** renders dashboards, runs Percona Alerting, and authenticates users.
+
+PMM Server also runs these supporting processes:
+
+- **supervisord** runs as process 1, and starts and restarts every other process.
+- **`pmm-agent`** monitors PMM Server itself, and collects data from remote databases and cloud services in pull mode.
+- **[Nomad](nomad.md)** is a workload orchestrator for future PMM extensions. It's disabled by default.
+
+### Data storage
+
+PMM Server keeps its data in the following stores:
+
+- **[ClickHouse](third-party/clickhouse.md)** stores Query Analytics data. `pmm-managed` and Grafana also read from it.
+- **[PostgreSQL](third-party/postgresql.md)** stores the `pmm-managed` state and the Grafana database.
+- **VictoriaMetrics** stores metrics in its own storage.
+- **Files under `/srv`** hold configuration, logs and, when you use the built-in databases, all stored data.
+
+You can run PostgreSQL, ClickHouse and VictoriaMetrics outside PMM Server. For details, see [external PostgreSQL](third-party/postgresql.md), [external ClickHouse](third-party/clickhouse.md) and [external VictoriaMetrics](third-party/victoria.md#using-victoriametrics-external-database-instance), which is in Technical Preview. To run more than one PMM Server instance, see [Install PMM in High Availability (HA) mode](../install-pmm/HA.md).
 
 ## PMM Client
 
-PMM Client is a collection of agents and exporters that run on the host being monitored.
+PMM Client is a set of programs that runs on, or next to, each system that you monitor. It collects metrics and query data, and sends them to PMM Server. To install it, see [PMM Client installation overview](../install-pmm/install-pmm-client/index.md).
 
-PMM Client runs on every database host or node you want to monitor. The client collects server metrics, general system metrics, query analytics and sends it to the server. Except when monitoring AWS RDS instances, a PMM Client must be running on the host to be monitored.
+![PMM Client components: pmm-admin, pmm-agent with its built-in agents, the exporters, vmagent, and the systems they monitor](../images/arch/PMM-Client-Component-Based-View.jpg)
 
-## PMM context
+PMM Client includes the following components:
 
-The PMM Client package provides:
+- **[`pmm-admin`](../use/commands/pmm-admin/pmm-admin.md)** is the command-line tool for adding and removing monitored services. It talks to the local `pmm-agent` on port 7777 and to the PMM Server API.
+- **`pmm-agent`** is the daemon that connects PMM Client to PMM Server. It receives its configuration from PMM Server, then starts and stops the exporters and other agents.
+- **Exporters** collect metrics from each monitored service and expose them for scraping.
+- **`vmagent`** scrapes the local exporters and pushes the metrics to PMM Server in push mode, the default.
+- **Built-in agents** run inside the `pmm-agent` process, and collect query data or run on-demand tasks.
+- **`nomad-agent`** connects to the Nomad server when you [enable Nomad](nomad.md).
 
-- Exporters for each database and service type. When an exporter runs, it connects to the database or service instance, runs the metrics collection routines, and sends the results to PMM Server.
-- `pmm-agent`: Run as a daemon process, it starts and stops exporters when instructed.
-- `vmagent`: A VictoriaMetrics daemon process that sends metrics data (_pushes_) to PMM Server.
+### Exporters
 
-The PMM Server package provides:
+PMM Client includes an exporter for each supported service type:
 
-- `pmm-managed`
-- Query Analytics
-- Grafana
-- VictoriaMetrics
+| Exporter | Collects metrics from |
+|----------|-----------------------|
+| `node_exporter` | The host: CPU, memory, disk and network |
+| `mysqld_exporter` | MySQL |
+| `postgres_exporter` | PostgreSQL |
+| `mongodb_exporter` | MongoDB |
+| `valkey_exporter` | Valkey and Redis |
+| `proxysql_exporter` | ProxySQL |
+| `rds_exporter` | Amazon RDS, through Amazon CloudWatch |
+| `azure_database_exporter` | Azure databases, through Azure Monitor |
 
-### PMM Server
+You can also add an [external exporter](../install-pmm/install-pmm-client/connect-database/external.md) that you run yourself. PMM scrapes it like any other exporter.
 
-<!-- The source of this image is maintained at https://miro.com/app/board/uXjVOPgKgrE=/ -->
+### Built-in agents
 
-![PMM Server](../images/arch/PMM-Server-Component-Based-View.jpg)
+`pmm-agent` runs the following agents in its own process:
 
-PMM Server includes the following tools:
+- **QAN agents** collect query data from MySQL (Performance Schema, slow query log), PostgreSQL (`pg_stat_statements`, `pg_stat_monitor`) and MongoDB (profiler, log file).
+- **The RTA agent** streams the queries that are running on MongoDB right now.
+- **Actions** run on-demand tasks, such as `EXPLAIN`, `SHOW CREATE TABLE` and `pt-summary`.
 
-- Query Analytics (QAN) enables you to analyze database query performance over periods of time. In addition to the client-side QAN agent, it includes the following:
+## How PMM Client and PMM Server interact
 
-    - QAN API is the back-end for storing and accessing query data collected by the QAN agent running on a PMM Client.
-    - QAN App is a web application for visualizing collected Query Analytics data, which is part of the PMM Server's UI.
+The following diagram shows the connections between the PMM Client and PMM Server components.
 
+![PMM Client and PMM Server interactions: the gRPC streams between pmm-agent and pmm-managed, the metrics push from vmagent, and the read paths of the web interface](../images/arch/C_S_Interactions.jpg)
 
-- Metrics Monitoring provides a historical view of and analysis of metrics that are critical to PostgreSQL, MySQL, MongoDB or Valkey/Redis server instances. It includes the following:
+PMM Client and PMM Server communicate over these connections:
 
-  - [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics) is a scalable time-series database. 
-  - [ClickHouse](https://clickhouse.com) is a third-party column-oriented database that facilitates the Query Analytics functionality.
-  - [Grafana](http://docs.grafana.org) is a third-party dashboard and graph engine for visualizing data aggregated in an intuitive web interface.
-  - [PMM Dashboards](https://github.com/percona/pmm/tree/main/dashboards) is a set of monitoring dashboards developed by Percona.
+- **Control stream**: `pmm-agent` keeps a two-way gRPC stream open to `pmm-managed`. `pmm-managed` sends configuration and on-demand actions, and `pmm-agent` sends status and QAN data. RTA data travels on a separate gRPC stream.
+- **Metrics in push mode** (default): `vmagent` scrapes the local exporters and pushes the metrics to VictoriaMetrics.
+- **Metrics in pull mode**: VictoriaMetrics scrapes each exporter directly. To choose the mode, use the `--metrics-mode` flag. For details, see [Push/Pull modes](third-party/victoria.md#pushpull-modes).
+- **Commands**: `pmm-admin` calls the local `pmm-agent` on port 7777 and the PMM Server API.
 
-### PMM Client
+Inside PMM Server, the web interface reads metrics from VictoriaMetrics through vmproxy, and query data from QAN API. It reads RTA data from `pmm-managed`, which keeps that data in memory only.
 
-![PMM Client](../images/arch/PMM-Client-Component-Based-View.jpg)
+### Connection security
 
-The PMM Client package consists of the following:
+All traffic from PMM Client to PMM Server goes through Nginx over HTTPS, on port 443 or 8443. Nginx asks `pmm-managed` to authorize requests before it passes them on. To use your own certificates, see [SSL encryption](../admin/security/ssl_encryption.md).
 
-- `pmm-admin` is a command-line tool for managing PMM Client, for example, adding and removing database instances that you want to monitor. For more information, see [pmm-admin command overview](../use/commands/pmm-admin/pmm-admin.md).
+Each exporter requires HTTP basic authentication, with a password that's unique to that exporter. In pull mode, VictoriaMetrics connects to the exporters directly, on ports 42000–51999 by default, so PMM Server must be able to reach those ports. When you enable Nomad, `nomad-agent` also connects to PMM Server directly, on port 4647.
 
-- `pmm-agent` is a client-side component of a minimal command-line interface, which is a central entry point in charge of bringing the client functionality: it carries on client’s authentication, gets the client configuration stored on the PMM Server, manages exporters and other agents.
+Exporters and QAN agents can use TLS to connect to the databases that they monitor.
 
-- `node_exporter` is an exporter that collects general system metrics.
+## Next steps
 
-- `mysqld_exporter` is an exporter that collects MySQL server metrics.
-
-- `mongodb_exporter` is an exporter that collects MongoDB server metrics.
-
-- `postgres_exporter` is an exporter that collects PostgreSQL performance metrics.
-
-- `valkey_exporter` is an exporter that collects Valkey and Redis performance metrics.
-
-- `proxysql_exporter` is an exporter that collects ProxySQL performance metrics.
-
-- `rds_exporter` is an exporter that collects Amazon RDS performance metrics.
-
-- `azure_database_exporter` is an exporter that collects Azure database performance metrics.
-
-To make data transfer from PMM Client to PMM Server secure, all exporters are able to use SSL/TLS encrypted connections, and their communication with PMM Server is protected by the HTTP basic authentication.
-
-<!-- The source of this image is maintained at https://miro.com/app/board/uXjVOPgKgrE=/ -->
-
-![Client Server Interactions](../images/arch/C_S_Interactions.jpg)
+- [PMM Server installation overview](../install-pmm/install-pmm-server/index.md)
+- [PMM Client installation overview](../install-pmm/install-pmm-client/index.md)
+- [Network and firewall requirements](../install-pmm/plan-pmm-installation/network_and_firewall.md)
