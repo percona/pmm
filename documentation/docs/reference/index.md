@@ -106,7 +106,7 @@ Inside PMM Server, the web interface reads metrics from VictoriaMetrics through 
 
 ### Connection security
 
-Except for Nomad RPC, all traffic from PMM Client to PMM Server goes through Nginx over HTTPS, on port 443 or 8443. Nginx asks `pmm-managed` to authorize requests before it passes them on. To use your own certificates, see [SSL encryption](../admin/security/ssl_encryption.md).
+Except for Nomad RPC, `pmm-agent` and its managed `vmagent` use HTTPS by default to connect to PMM Server on port 443 or 8443. Direct `pmm-admin` API calls can use HTTP when you specify an `http://` server URL. The default vmagent write endpoint follows the PMM Client's server URL. In development and testing, `without-tls` selects HTTP and sends metric samples and authentication credentials over that path (PMM Server credentials in standalone internal-VM mode; `PMM_VM_URL` credentials for HA clients). If you expose port 8080, Nginx serves API routes over HTTP without redirecting requests to HTTPS. Use HTTPS for authenticated requests. Nginx asks `pmm-managed` to authorize requests before it passes them on. To use your own certificates, see [SSL encryption](../admin/security/ssl_encryption.md).
 
 `node_exporter`, `mysqld_exporter`, `postgres_exporter`, `mongodb_exporter` and `proxysql_exporter` require HTTP basic authentication, each with its own password by default. `valkey_exporter`, `rds_exporter` and `azure_database_exporter` don't require authentication. In pull mode, VictoriaMetrics connects to the exporters directly, on ports 42000–51999 by default, so PMM Server must be able to reach those ports. When you enable Nomad, `nomad-agent` also connects to PMM Server directly, on port 4647.
 
