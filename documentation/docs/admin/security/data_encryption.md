@@ -73,11 +73,47 @@ Before you upgrade:
 During the first start, PMM Server:
 
 - Stores the values it is about to re-encrypt, exactly as they were stored, in `pmm-encryption-migration-backup-<timestamp>.json` next to the key file, or in `/srv` if that directory is read-only. The file is readable by its owner only and is as sensitive as the database; keep it until you have verified the upgrade, then delete it. If the first start is interrupted, the next one writes another backup file.
-- Refuses to start if it cannot decrypt stored data, for example when the key file was replaced by a different key. The error lists the affected agents. Restore the original key file and restart; no data is changed.
+- Refuses to start if it cannot decrypt stored data, for example when the key file was replaced by a different key. The error lists the affected agents. Restore the original key file and restart; no data is changed. See [When PMM Server refuses to start](#when-pmm-server-refuses-to-start).
 - Repairs credentials corrupted by key rotation in PMM 3.9.0 and earlier (see [below](#recovery-after-a-corrupted-rotation)), using the previous key that the rotation left next to the key file (`pmm-encryption_old.key`, or `<name>_old.key` for a custom key path). Do not delete that file before upgrading.
 
 !!! caution alert alert-warning "Downgrading is not supported"
     After the upgrade, earlier PMM versions cannot read the stored credentials. To go back, restore the PMM data backup taken before the upgrade.
+
+## When PMM Server refuses to start
+
+PMM Server checks at every start that its encryption key is the key that the stored data was encrypted with. It refuses to start, and changes nothing, in these cases:
+
+- The key file is missing, but the database contains data encrypted with the key. PMM Server doesn't generate a new key, because that would make the stored data unreadable.
+- The key file contains a different key. The error lists the affected agents. PMM Server also stores a known value encrypted with the key, so it detects a different key even before any credentials are stored.
+
+In both cases, restore the original key file, or point `PMM_ENCRYPTION_KEY_PATH` at it, and restart PMM Server. In [high availability mode](../../install-pmm/HA-docker.md), copy the key file from a node that works.
+
+### Recover from a lost encryption key
+
+If the original key is lost for good, you can start a standalone PMM Server without it. The credentials encrypted with the lost key can't be decrypted, so PMM Server keeps them in a migration backup file, and you re-enter them afterwards. This recovery isn't available in high availability mode, because the other nodes still hold the key.
+
+To start PMM Server without the lost key:
+{.power-number}
+
+1. If the key file is missing, create a new key file in its place in the container that runs PMM Server:
+
+    ```bash
+    pmm-encryption-rotation --generate-key > /srv/pmm-encryption.key
+    ```
+
+    For a custom location, use the path in `PMM_ENCRYPTION_KEY_PATH`.
+
+2. Restart PMM Server. It refuses to start, and `/srv/logs/pmm-managed.log` names the setting that accepts the loss for the current key, for example `PMM_ENCRYPTION_ACCEPT_KEY_LOSS=3749982648`.
+
+3. Start PMM Server with that environment variable set to the value from the log. With Docker, re-create the container with the same data volume and add `-e PMM_ENCRYPTION_ACCEPT_KEY_LOSS=<ID from the log>`.
+
+    PMM Server starts, keeps the values that it can't decrypt in `pmm-encryption-migration-backup-<timestamp>.json`, and logs the affected agents.
+
+4. Re-enter the credentials of the affected services, or remove and re-add the services.
+
+5. Remove `PMM_ENCRYPTION_ACCEPT_KEY_LOSS` from the container configuration. The setting accepts the loss only for the key that it names, so a key file that is replaced later is refused again.
+
+If you find the lost key later, place it next to the key file as `pmm-encryption_old.key` (or `<name>_old.key` for a custom key path) and restart PMM Server. The credentials become readable again.
 
 ## Rotating the encryption key
 
@@ -98,11 +134,28 @@ To rotate the encryption key:
 
     - Ensure `PMM_ENCRYPTION_KEY_PATH` is set to the current key file if using a custom location.
     - If using custom credentials/SSL for the PMM internal database, provide them with the appropriate flags.
-    - Add `--prune` to remove the retired keys from the keyset once the tool has verified that no stored data references them anymore.
+    - Add `--prune` to remove the retired keys from the keyset once the tool has verified that no stored data references them anymore. Migration backup files can hold values encrypted with retired keys, so keep a copy of the key file from before the rotation while you need those files.
 
 3. Verify PMM functionality all components are functioning properly to ensure that the encryption key rotation was successful.
 
 Once the rotation tool has completed, the keyset file (at the default location `/srv/pmm-encryption.key` or the path specified by `PMM_ENCRYPTION_KEY_PATH`) contains the new primary key and all encrypted fields are re-encrypted with it.
+
+### Rotate the key in high availability mode
+
+In [high availability mode](../../install-pmm/HA-docker.md), the tool restarts PMM Server only on the node it runs on, and the other nodes can't read data encrypted with the new key. The tool therefore refuses to run until you confirm that PMM Server is stopped on every other node.
+
+To rotate the key in high availability mode:
+{.power-number}
+
+1. Stop PMM Server on every node except one.
+
+2. On the remaining node, run the Encryption Rotation Tool:
+
+    ```bash
+    pmm-encryption-rotation --ha-other-nodes-stopped
+    ```
+
+3. Copy the key file from that node to every other node, then start PMM Server on them.
 
 ## Recovery after a corrupted rotation
 
@@ -113,7 +166,7 @@ When you upgrade from such a version, PMM Server repairs them automatically with
 ## Best practices for custom key management
 
 - Always keep a secure backup of your encryption keyset, especially when using `PMM_ENCRYPTION_KEY_PATH`, as it is critical to PMM’s data decryption process.
-- If PMM Server does not start because the key file is missing or was replaced, restore the original keyset. PMM Server refuses to generate a new key or re-encrypt data it cannot decrypt, so no data is lost while the original keyset is restored.
+- If PMM Server does not start because the key file is missing or was replaced, restore the original keyset. PMM Server refuses to generate a new key or re-encrypt data it cannot decrypt, so no data is lost while the original keyset is restored. See [When PMM Server refuses to start](#when-pmm-server-refuses-to-start).
 - In containerized environments, ensure `PMM_ENCRYPTION_KEY_PATH` is persistently set in the container configuration to avoid issues during restarts.
 - Test the encryption key rotation process in a staging environment before applying it in production to minimize potential downtime or configuration issues.
 - Keep retired keys in the keyset (do not use `--prune`) until you have verified that the rotation completed successfully.
