@@ -20,7 +20,6 @@ import {
   Alert,
   Box,
   ButtonBase,
-  Chip,
   Collapse,
   LinearProgress,
   Stack,
@@ -38,26 +37,27 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from 'material-react-table';
-import {
-  MEMBER_STATE_BADGE,
-  MONGOS_MEMBER_BADGE,
-  PROCESS_ROLE_LABEL,
-  type OmMemberBadge,
-} from './constants';
+import { PROCESS_ROLE_LABEL } from './constants';
 import { OmHeader } from './components/OmHeader';
 import { SnapshotBar } from './components/SnapshotBar';
-import { StatusBadge } from './components/HealthBadge';
+import { ClusterHealthBadge, StatusBadge } from './components/HealthBadge';
+import { MemberState } from './components/MemberState';
+import { ServiceLink } from './components/ServiceLink';
 import { SyncButton } from './components/SyncButton';
 import { Duration, Percent } from './components/Metric';
 import { Unavailable } from './components/Unavailable';
 import { useOmTopology } from './topologyHooks';
 import { pluralize } from './format';
-import { toEnvironmentSections } from './topology';
+import {
+  clusterHealthRank,
+  downFirst,
+  toEnvironmentSections,
+} from './topology';
 import type {
+  OmClusterHealth,
   OmClusterRow,
   OmEnvironmentSection,
   OmProcessRole,
-  OmService,
 } from './types';
 
 /** Label for an environment or cluster the services carry no name for. */
@@ -72,53 +72,6 @@ function describeRoles(roles: Partial<Record<OmProcessRole, number>>): string {
     )
     .join(' · ');
 }
-
-/**
- * A service's badge, or none for one that carries no replica-set state and is not
- * a router either - a standalone, or a role OM has not observed yet.
- *
- * mongos is checked first and does not consult `state` at all: PMM never asks a
- * router for `replSetGetStatus`, so `state` is always absent for one regardless.
- * An unrecognised non-null state (a MongoDB release adding an eleventh value, say)
- * still renders - its own first letter, neutral colour - rather than silently
- * showing nothing, with the raw value always in the tooltip either way.
- */
-function memberBadge(service: OmService): OmMemberBadge | null {
-  if (service.process_role === 'PROCESS_ROLE_MONGOS') {
-    return MONGOS_MEMBER_BADGE;
-  }
-  if (!service.state) {
-    return null;
-  }
-  return (
-    MEMBER_STATE_BADGE[service.state] ?? {
-      letter: service.state.charAt(0).toUpperCase(),
-      color: 'default',
-    }
-  );
-}
-
-const MemberBadge = ({ service }: { service: OmService }) => {
-  const badge = memberBadge(service);
-  if (!badge) {
-    return null;
-  }
-  const title =
-    service.process_role === 'PROCESS_ROLE_MONGOS'
-      ? 'Router (mongos) - not a replica-set member'
-      : (service.state ?? '');
-  return (
-    <Tooltip title={title}>
-      <Chip
-        size="small"
-        variant="filled"
-        color={badge.color}
-        label={badge.letter}
-        sx={{ ml: 1, minWidth: 24, '& .MuiChip-label': { px: 0.75 } }}
-      />
-    </Tooltip>
-  );
-};
 
 /**
  * A count that stays legible when it is zero.
@@ -152,6 +105,17 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
         Cell: ({ row: { original } }) =>
           original.cluster_name ?? <Unavailable reason="not_applicable" />,
       },
+      {
+        accessorKey: 'health',
+        header: 'Health',
+        // Worst first ascending, so one click brings trouble to the top.
+        sortingFn: (a, b, columnId) =>
+          clusterHealthRank(a.getValue<OmClusterHealth>(columnId)) -
+          clusterHealthRank(b.getValue<OmClusterHealth>(columnId)),
+        Cell: ({ row: { original } }) => (
+          <ClusterHealthBadge health={original.health} />
+        ),
+      },
       { accessorKey: 'total_services', header: 'Services' },
       {
         accessorKey: 'up_services',
@@ -170,7 +134,7 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
       {
         accessorFn: (row) => describeRoles(row.by_process_role),
         id: 'roles',
-        header: 'Roles',
+        header: 'Process',
       },
       {
         accessorFn: (row) => row.versions.join(', '),
@@ -236,7 +200,8 @@ const ClusterServices = ({ cluster }: { cluster: OmClusterRow }) => {
             <TableCell>Service</TableCell>
             <TableCell>Host</TableCell>
             <TableCell>Status</TableCell>
-            <TableCell>Role</TableCell>
+            <TableCell>Member state</TableCell>
+            <TableCell>Process</TableCell>
             <TableCell>Version</TableCell>
             <TableCell>CPU</TableCell>
             <TableCell>Conn. free</TableCell>
@@ -245,17 +210,19 @@ const ClusterServices = ({ cluster }: { cluster: OmClusterRow }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {cluster.services.map((service) => (
+          {downFirst(cluster.services).map((service) => (
             <TableRow key={service.service_name}>
               <TableCell>
-                {service.service_name}
-                <MemberBadge service={service} />
+                <ServiceLink serviceName={service.service_name} />
               </TableCell>
               <TableCell>
                 {service.host ?? <Unavailable reason="service_not_observed" />}
               </TableCell>
               <TableCell>
                 <StatusBadge status={service.status} />
+              </TableCell>
+              <TableCell>
+                <MemberState service={service} />
               </TableCell>
               <TableCell>
                 {PROCESS_ROLE_LABEL[service.process_role] ??
@@ -317,7 +284,11 @@ const EnvironmentTable = ({ section }: { section: OmEnvironmentSection }) => {
     renderDetailPanel: ({ row }) => <ClusterServices cluster={row.original} />,
     initialState: {
       density: 'compact',
-      sorting: [{ id: 'cluster_name', desc: false }],
+      // Trouble first: a degraded or down cluster leads its environment.
+      sorting: [
+        { id: 'health', desc: false },
+        { id: 'cluster_name', desc: false },
+      ],
     },
   });
 

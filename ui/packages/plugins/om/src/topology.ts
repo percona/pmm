@@ -26,12 +26,77 @@
 
 import type {
   OmCluster,
+  OmClusterHealth,
   OmClusterRow,
   OmEnvironmentSection,
   OmProcessRole,
+  OmService,
   OmServiceRow,
+  OmServiceStatus,
   OmTopologyResponse,
 } from './types';
+
+/** Worst first: the order a reader looking for trouble wants services in. */
+const SERVICE_STATUS_RANK: Record<OmServiceStatus, number> = {
+  SERVICE_STATUS_DOWN: 0,
+  SERVICE_STATUS_UNSPECIFIED: 1,
+  SERVICE_STATUS_UP: 2,
+};
+
+/** Rank of a status for sorting, worst first. An unrecognised value sorts as unknown. */
+export function serviceStatusRank(status: OmServiceStatus): number {
+  return (
+    SERVICE_STATUS_RANK[status] ??
+    SERVICE_STATUS_RANK.SERVICE_STATUS_UNSPECIFIED
+  );
+}
+
+/** A cluster's members with the down ones first, otherwise in the document's order. */
+export function downFirst<T extends Pick<OmService, 'status'>>(
+  services: T[]
+): T[] {
+  // Array.prototype.sort is stable, so members of equal status keep their order.
+  return [...services].sort(
+    (a, b) => serviceStatusRank(a.status) - serviceStatusRank(b.status)
+  );
+}
+
+/** Worst first, as {@link SERVICE_STATUS_RANK} is. */
+const CLUSTER_HEALTH_RANK: Record<OmClusterHealth, number> = {
+  down: 0,
+  degraded: 1,
+  unknown: 2,
+  healthy: 3,
+};
+
+/** Rank of a cluster's health for sorting, worst first. */
+export function clusterHealthRank(health: OmClusterHealth): number {
+  return CLUSTER_HEALTH_RANK[health] ?? CLUSTER_HEALTH_RANK.unknown;
+}
+
+/**
+ * Name a cluster's state from how many of its members are up and down.
+ *
+ * Down needs every member down; one up member still serves, which is what a DBA
+ * means by degraded. Healthy needs every member up, so a member whose status was not
+ * reported holds the cluster at unknown rather than letting it read as fine.
+ */
+export function clusterHealth(
+  total: number,
+  up: number,
+  down: number
+): OmClusterHealth {
+  if (total === 0) {
+    return 'unknown';
+  }
+  if (down === total) {
+    return 'down';
+  }
+  if (down > 0) {
+    return 'degraded';
+  }
+  return up === total ? 'healthy' : 'unknown';
+}
 
 /**
  * Flatten the tree into one row per service, carrying its grouping keys.
@@ -102,18 +167,23 @@ function rollUpCluster(
     }
   }
 
+  const total = cluster.services.length;
+  const up = cluster.services.filter(
+    (service) => service.status === 'SERVICE_STATUS_UP'
+  ).length;
+  const down = cluster.services.filter(
+    (service) => service.status === 'SERVICE_STATUS_DOWN'
+  ).length;
+
   return {
     env_name: envName,
     cluster_name: cluster.name,
     id: cluster.id,
     services: cluster.services,
-    total_services: cluster.services.length,
-    up_services: cluster.services.filter(
-      (service) => service.status === 'SERVICE_STATUS_UP'
-    ).length,
-    down_services: cluster.services.filter(
-      (service) => service.status === 'SERVICE_STATUS_DOWN'
-    ).length,
+    total_services: total,
+    up_services: up,
+    down_services: down,
+    health: clusterHealth(total, up, down),
     by_process_role: byProcessRole,
     by_state: byState,
     versions: [...versions].sort(),

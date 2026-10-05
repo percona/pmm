@@ -21,7 +21,11 @@ export { OverviewPage } from './OverviewPage';
 export { ServicesPage } from './ServicesPage';
 export { HostsPage } from './HostsPage';
 export { InventoryPage } from './InventoryPage';
-export { StatusBadge, RunStatusBadge } from './components/HealthBadge';
+export {
+  StatusBadge,
+  RunStatusBadge,
+  ClusterHealthBadge,
+} from './components/HealthBadge';
 export { Duration, Percent } from './components/Metric';
 export { RunEntities } from './components/RunEntities';
 export { ProbeValue } from './components/ProbeValue';
