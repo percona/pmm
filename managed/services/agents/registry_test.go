@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -142,6 +143,40 @@ func TestUnregister(t *testing.T) {
 	})
 }
 
+// TestUnregisterPersistsDisconnectInHA guards against the connection status staying true after a
+// disconnect: the handler unregisters with the context of the stream that just ended, which is
+// already canceled.
+func TestUnregisterPersistsDisconnectInHA(t *testing.T) {
+	t.Parallel()
+
+	sqlDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		assert.NoError(t, mock.ExpectationsWereMet())
+		_ = mock.ExpectClose()
+		assert.NoError(t, sqlDB.Close())
+	})
+
+	r := newTestRegistry()
+	r.haService = haServiceStub{params: &models.HAParams{Enabled: true}}
+	r.db = reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	r.connectionCache = map[string]struct{}{testAgentID: {}}
+	current := newTestConn()
+	current.connectionID = "pmm-ha-0/1"
+	r.agents[testAgentID] = current
+
+	// Only the connection being unregistered: the agent may have connected again meanwhile.
+	mock.ExpectExec(`UPDATE agents SET is_connected = false, updated_at = \$1 WHERE agent_id = \$2 AND connection_id = \$3`).
+		WithArgs(sqlmock.AnyArg(), testAgentID, "pmm-ha-0/1").
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	ctx, cancel := context.WithCancel(logger.SetEntry(t.Context(), logrus.WithField("test", t.Name())))
+	cancel()
+
+	assert.Same(t, current, r.unregister(ctx, testAgentID, "done", current))
+	assert.Empty(t, r.connectionCache)
+}
+
 func TestKickConn(t *testing.T) {
 	t.Parallel()
 
@@ -242,21 +277,6 @@ func isConnectedInDB(t *testing.T, db *reform.DB) bool {
 	require.NoError(t, err)
 
 	return agent.IsConnected
-}
-
-// TestUnregisterPersistsDisconnectInHA covers the usual way a pmm-agent goes away: its stream is
-// done, so the context unregister gets is already canceled. In HA mode IsConnected reads the
-// connection status from the database, so the disconnect must reach it all the same, otherwise
-// the agent is reported as connected until it connects again.
-func TestUnregisterPersistsDisconnectInHA(t *testing.T) {
-	r, db, conn := newHATestRegistry(t)
-
-	ctx, cancel := context.WithCancel(logger.SetEntry(t.Context(), logrus.WithField("test", t.Name())))
-	cancel()
-	assert.Same(t, conn, r.unregister(ctx, models.PMMServerAgentID, "done", conn))
-
-	assert.False(t, isConnectedInDB(t, db))
-	assert.False(t, r.IsConnected(models.PMMServerAgentID))
 }
 
 // TestUnregisterDoesNotHoldTheRegistryWhilePersisting covers a slow database: the disconnect of one

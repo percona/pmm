@@ -50,8 +50,9 @@ const (
 	// pmm-agent's dial timeout (5s), otherwise the reconnecting agent gives up before we are
 	// done probing and can never take over. See PMM-15310.
 	staleConnectionProbeTimeout = 2 * time.Second
-	// How long to wait for the database when persisting that a pmm-agent disconnected in HA mode.
-	connectionStatusUpdateTimeout = 10 * time.Second
+
+	// Bounds persisting that a pmm-agent disconnected in HA mode.
+	connectionStatusTimeout = 5 * time.Second
 )
 
 var (
@@ -361,7 +362,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 			}
 			a.IsConnected = true
 			a.ConnectionID = &agent.connectionID
-			err = tx.Update(a)
+			err = tx.UpdateColumns(a, "is_connected", "connection_id", "updated_at")
 			if err != nil {
 				return fmt.Errorf("failed to update agent: %w", err)
 			}
@@ -420,7 +421,7 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 	}
 
 	agent.Version = &md.Version
-	err = q.Update(agent)
+	err = q.UpdateColumns(agent, "version", "updated_at")
 	if err != nil {
 		return nil, fmt.Errorf("failed to update agent: %w", err)
 	}
@@ -483,11 +484,12 @@ func (r *Registry) persistDisconnect(ctx context.Context, conn *pmmAgentInfo) {
 	// By now the stream the pmm-agent was connected over is usually done, and so is its context.
 	// The disconnect is persisted regardless: IsConnected reads it back from the database in HA
 	// mode, so a failed update keeps reporting the agent as connected until it connects again.
-	dbCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), connectionStatusUpdateTimeout)
+	dbCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), connectionStatusTimeout)
 	defer cancel()
 
 	_, err := r.db.WithContext(dbCtx).Exec(
-		"UPDATE agents SET is_connected = false WHERE agent_id = $1 AND connection_id = $2", conn.id, conn.connectionID,
+		"UPDATE agents SET is_connected = false, updated_at = $1 WHERE agent_id = $2 AND connection_id = $3",
+		models.Now(), conn.id, conn.connectionID,
 	)
 	if err != nil {
 		// Log but don't fail - agent is already disconnected from the registry

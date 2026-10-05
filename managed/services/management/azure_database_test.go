@@ -84,10 +84,58 @@ func TestAddAzureDatabaseRunsOnRequestedAgent(t *testing.T) {
 	agentTypes := make([]models.AgentType, 0, len(agents))
 	for _, a := range agents {
 		agentTypes = append(agentTypes, a.AgentType)
+		if a.AgentType != models.QANMySQLPerfSchemaAgentType {
+			assert.True(t, a.ExporterOptions.PushMetrics, "%s must push metrics from a client pmm-agent", a.AgentType)
+		}
 	}
 	assert.ElementsMatch(t, []models.AgentType{
 		models.AzureDatabaseExporterType,
 		models.MySQLdExporterType,
 		models.QANMySQLPerfSchemaAgentType,
 	}, agentTypes)
+}
+
+// TestAddAzureDatabaseOnPMMServerPullsMetrics covers the default delegate, PMM Server's own pmm-agent,
+// whose exporters are scraped rather than pushing.
+func TestAddAzureDatabaseOnPMMServerPullsMetrics(t *testing.T) {
+	ctx := logger.Set(t.Context(), t.Name())
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+		EnableAzurediscover: new(true),
+	})
+	require.NoError(t, err)
+
+	state := &mockAgentsStateUpdater{}
+	state.Test(t)
+	state.On("RequestStateUpdate", ctx, models.PMMServerAgentID).Once()
+	t.Cleanup(func() {
+		state.AssertExpectations(t)
+	})
+
+	s := NewManagementService(db, nil, state, nil, nil, nil, nil, nil, nil, nil, nil, false)
+
+	_, err = s.AddAzureDatabase(ctx, &managementv1.AddAzureDatabaseRequest{
+		Region:                "westeurope",
+		InstanceId:            "azure-mysql-instance",
+		Address:               "test.mysql.database.azure.com",
+		Port:                  3306,
+		Username:              "azure-user",
+		Type:                  managementv1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_MYSQL,
+		AzureDatabaseExporter: true,
+		SkipConnectionCheck:   true,
+	})
+	require.NoError(t, err)
+
+	for _, agentType := range []models.AgentType{models.AzureDatabaseExporterType, models.MySQLdExporterType} {
+		agents, err := models.FindAgents(db.Querier, models.AgentFilters{PMMAgentID: models.PMMServerAgentID, AgentType: &agentType})
+		require.NoError(t, err)
+		require.Len(t, agents, 1, agentType)
+		assert.False(t, agents[0].ExporterOptions.PushMetrics, "%s must be scraped on PMM Server", agentType)
+	}
 }

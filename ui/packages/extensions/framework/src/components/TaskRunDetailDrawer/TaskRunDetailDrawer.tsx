@@ -245,7 +245,7 @@ export function TaskRunDetailDrawer({
           {!run && showLog && (
             <TaskLogViewer
               taskHistoryId={logId}
-              height={LOG_HEIGHT}
+              maxHeight={LOG_HEIGHT}
               itemName={itemName}
             />
           )}
@@ -309,7 +309,7 @@ export function TaskRunDetailDrawer({
                 <TaskLogViewer
                   taskHistoryId={logId}
                   taskStatus={run.status}
-                  height={LOG_HEIGHT}
+                  maxHeight={LOG_HEIGHT}
                   itemName={itemName}
                 />
               ) : (
