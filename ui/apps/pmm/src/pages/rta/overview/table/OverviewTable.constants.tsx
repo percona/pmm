@@ -19,6 +19,7 @@ import {
   formatElapsedTime,
   isBlocked,
   isBlockingUnattributed,
+  isLockWaitUnreadable,
   queryDatabaseName,
   queryLanguage,
   queryUsername,
@@ -38,7 +39,12 @@ const QUERY_TEXT_COLUMN: MRT_ColumnDef<QueryData> = {
       {isBlocked(row.original) && (
         <BlockedChip blockers={row.original.mySqlPayload?.blockedBy ?? []} />
       )}
-      {isBlockingUnattributed(row.original) && <BlockedUnknownChip />}
+      {isBlockingUnattributed(row.original) && (
+        <BlockedUnknownChip reason="unattributed" />
+      )}
+      {isLockWaitUnreadable(row.original) && (
+        <BlockedUnknownChip reason="unreadable" />
+      )}
       <QueryCell
         query={row.original.queryText}
         language={queryLanguage(row.original)}

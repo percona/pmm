@@ -299,6 +299,50 @@ describe('RealtimeOverview', () => {
     expect(screen.getByTestId('query-412-host-cell')).toBeInTheDocument();
   });
 
+  it('labels an undecided row only when its state says it is waiting for a lock', async () => {
+    // MySQL 5.7 and a stock MariaDB cannot read metadata locks, so a statement queued behind a
+    // DDL comes back undecided. Its thread state still says it is waiting; the row next to it,
+    // undecided for the same reason, is not waiting at all and must not be labelled.
+    const waiting = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '421',
+      queryText: 'SELECT * FROM accounts',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        state: 'Waiting for table metadata lock',
+        blockedStatus: BlockedStatus.unspecified,
+      },
+    };
+    const running = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '422',
+      queryText: 'SELECT SLEEP(10)',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        state: 'User sleep',
+        blockedStatus: BlockedStatus.unspecified,
+      },
+    };
+    getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+    searchQueries.mockResolvedValue({ queries: [waiting, running] });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    const waitingCell = await screen.findByTestId('query-421-query-text-cell');
+    const chip = waitingCell.querySelector(
+      '[data-testid="blocked-unknown-chip"]'
+    );
+    expect(chip).toHaveTextContent('Blocked: unknown');
+    expect(chip).toHaveAttribute('data-reason', 'unreadable');
+    expect(
+      screen
+        .getByTestId('query-422-query-text-cell')
+        .querySelector('[data-testid="blocked-unknown-chip"]')
+    ).toBeNull();
+  });
+
   it('drops decided non-blocked rows while keeping undecided ones', async () => {
     // The undecided row is kept because it may be waiting; the row known not to be waiting is
     // not, or the filter would stop filtering.
