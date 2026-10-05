@@ -18,6 +18,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Alert,
   Autocomplete,
   Box,
@@ -39,7 +42,15 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { OM_ROUTE_AUTOMATIONS, OM_ROUTE_HOSTS } from './constants';
+import {
+  MEMBER_CONSTRAINT_PHRASE,
+  constrainMemberConfig,
+  defaultMemberConfig,
+  memberConstraint,
+  validateElectionPlan,
+} from './electionPlan';
 import { OmHeader } from './components/OmHeader';
 import { toHostRows } from './inventory';
 import { useOmInventoryHosts, useTriggerHostBootstrap } from './inventoryHooks';
@@ -111,11 +122,6 @@ const SecurityTab = () => (
   </Stack>
 );
 
-/** MongoDB's own defaults for a member `rs.initiate()` names no override for. */
-function defaultMemberConfig(): OmBootstrapMemberConfig {
-  return { priority: 1, votes: true, hidden: false, delay_secs: 0 };
-}
-
 /** BootstrapMemberConfig.priority's own ceiling in om.proto. */
 const MAX_MEMBER_PRIORITY = 1000;
 
@@ -173,11 +179,12 @@ function hasNonDefaultMemberConfig(
  * Per-host replica-set election settings (PMM-15347/plan.md §6 Phase B),
  * matching mockup `02-configure-general.png`'s table.
  *
- * A delayed member (`delay_secs > 0`) forces priority to 0 and votes off in
- * the same action that sets the delay, rather than leaving an operator to
- * discover MongoDB's own rule (`rs.initiate()` rejects a delayed member that
- * can vote or become primary) only once TriggerHostBootstrap rejects the
- * request server-side - the two controls grey out to show why they moved.
+ * Every edit goes through {@link constrainMemberConfig}, which applies MongoDB's
+ * own member rules (a delayed member cannot vote or become primary and is kept
+ * hidden; a hidden or non-voting one cannot become primary) in the same action, rather than leaving
+ * an operator to discover them once `rs.initiate()` rejects the set minutes into a
+ * run. The controls a rule holds grey out, and the Effect column says which rule,
+ * in words, so the side effect never lives only in a hover.
  */
 const ElectionSettingsTable = ({
   hosts,
@@ -196,73 +203,82 @@ const ElectionSettingsTable = ({
         <TableCell align="center">Votes</TableCell>
         <TableCell align="center">Hidden</TableCell>
         <TableCell align="right">Delay (seconds)</TableCell>
+        <TableCell>Effect</TableCell>
       </TableRow>
     </TableHead>
     <TableBody>
       {hosts.map((host) => {
         const config = memberConfigs[host.node_id] ?? defaultMemberConfig();
-        const delayed = config.delay_secs > 0;
+        const constraint = memberConstraint(config);
+        const update = (next: Partial<OmBootstrapMemberConfig>) =>
+          onChange(host.node_id, constrainMemberConfig({ ...config, ...next }));
         return (
-          <TableRow key={host.node_id}>
+          <TableRow key={host.node_id} data-testid="om-election-row">
             <TableCell>{host.name}</TableCell>
             <TableCell align="right">
               <TextField
                 type="number"
                 size="small"
                 value={config.priority}
-                disabled={delayed}
+                disabled={constraint !== null}
                 onChange={(event) =>
-                  onChange(host.node_id, {
-                    ...config,
-                    priority: Number(event.target.value),
-                  })
+                  update({ priority: Number(event.target.value) })
                 }
                 slotProps={{
-                  htmlInput: { min: 0, max: 1000, style: { width: 64 } },
+                  htmlInput: {
+                    min: 0,
+                    max: 1000,
+                    style: { width: 64 },
+                    'aria-label': `Priority for ${host.name}`,
+                  },
                 }}
               />
             </TableCell>
             <TableCell align="center">
               <Checkbox
                 checked={config.votes}
-                disabled={delayed}
-                onChange={(event) =>
-                  onChange(host.node_id, {
-                    ...config,
-                    votes: event.target.checked,
-                  })
-                }
+                disabled={constraint === 'delayed'}
+                onChange={(event) => update({ votes: event.target.checked })}
+                slotProps={{
+                  input: { 'aria-label': `Votes for ${host.name}` },
+                }}
               />
             </TableCell>
             <TableCell align="center">
               <Checkbox
                 checked={config.hidden}
-                onChange={(event) =>
-                  onChange(host.node_id, {
-                    ...config,
-                    hidden: event.target.checked,
-                  })
-                }
+                disabled={constraint === 'delayed'}
+                onChange={(event) => update({ hidden: event.target.checked })}
+                slotProps={{
+                  input: { 'aria-label': `Hidden for ${host.name}` },
+                }}
               />
             </TableCell>
             <TableCell align="right">
-              <Tooltip title="A delayed member cannot vote or become primary - setting this also turns those off.">
-                <TextField
-                  type="number"
-                  size="small"
-                  value={config.delay_secs}
-                  onChange={(event) => {
-                    const delaySecs = Math.max(0, Number(event.target.value));
-                    onChange(host.node_id, {
-                      ...config,
-                      delay_secs: delaySecs,
-                      priority: delaySecs > 0 ? 0 : config.priority,
-                      votes: delaySecs > 0 ? false : config.votes,
-                    });
-                  }}
-                  slotProps={{ htmlInput: { min: 0, style: { width: 80 } } }}
-                />
-              </Tooltip>
+              <TextField
+                type="number"
+                size="small"
+                value={config.delay_secs}
+                onChange={(event) =>
+                  update({
+                    delay_secs: Math.max(0, Number(event.target.value)),
+                  })
+                }
+                slotProps={{
+                  htmlInput: {
+                    min: 0,
+                    style: { width: 80 },
+                    'aria-label': `Delay for ${host.name}`,
+                  },
+                }}
+              />
+            </TableCell>
+            <TableCell>
+              {constraint && (
+                <Typography variant="body2" color="text.secondary">
+                  {MEMBER_CONSTRAINT_PHRASE[constraint]}
+                </Typography>
+              )}
             </TableCell>
           </TableRow>
         );
@@ -270,6 +286,20 @@ const ElectionSettingsTable = ({
     </TableBody>
   </Table>
 );
+
+/** What each election setting means, for a reader who has not set one before. */
+const ELECTION_SETTING_HELP = [
+  [
+    'Priority',
+    'How likely the member is to become primary. 0 means it never will.',
+  ],
+  ['Votes', 'Whether the member takes part in electing the primary.'],
+  ['Hidden', 'Applications cannot see or read from the member.'],
+  [
+    'Delay',
+    'Keeps the member deliberately behind the primary by this many seconds, as a safety net.',
+  ],
+] as const;
 
 /**
  * Configure -> Review -> Bootstrap for a set of hosts already selected on
@@ -360,8 +390,20 @@ export const BootstrapPage = () => {
     ).sort();
   }, [topology.data, environment]);
 
+  const electionPlan = useMemo(
+    () =>
+      validateElectionPlan(
+        hosts.map((host) => ({
+          name: host.name,
+          config: memberConfigs[host.node_id] ?? defaultMemberConfig(),
+        }))
+      ),
+    [hosts, memberConfigs]
+  );
+
   const portNumber = Number(port);
   const isConfigValid =
+    electionPlan.errors.length === 0 &&
     replicaSetName.trim() !== '' &&
     mongodbVersion.trim() !== '' &&
     dataPath.trim() !== '' &&
@@ -598,22 +640,78 @@ export const BootstrapPage = () => {
             </Stack>
           )}
           {configTab === 'general' && hosts.length > 1 && (
-            <Stack spacing={1} sx={{ maxWidth: 'none' }}>
-              <Typography variant="subtitle2">
-                Replica set election settings
-              </Typography>
-              <ElectionSettingsTable
-                hosts={hosts}
-                memberConfigs={memberConfigs}
-                onChange={(nodeId, config) =>
-                  setMemberConfigs((current) => ({
-                    ...current,
-                    [nodeId]: config,
-                  }))
-                }
-              />
-            </Stack>
+            <Accordion
+              variant="outlined"
+              disableGutters
+              sx={{ maxWidth: 'none' }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                id="om-election-settings-header"
+                aria-controls="om-election-settings"
+              >
+                <Stack>
+                  <Typography variant="subtitle2">
+                    Advanced: election settings
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Defaults: priority 1, votes on, not hidden, no delay.
+                  </Typography>
+                </Stack>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Stack spacing={2}>
+                  <Stack component="dl" spacing={0.5} sx={{ m: 0 }}>
+                    {ELECTION_SETTING_HELP.map(([setting, help]) => (
+                      <Box key={setting} sx={{ display: 'flex', gap: 0.5 }}>
+                        <Typography
+                          component="dt"
+                          variant="body2"
+                          sx={{ fontWeight: 600 }}
+                        >
+                          {setting}:
+                        </Typography>
+                        <Typography
+                          component="dd"
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ m: 0 }}
+                        >
+                          {help}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Stack>
+                  <ElectionSettingsTable
+                    hosts={hosts}
+                    memberConfigs={memberConfigs}
+                    onChange={(nodeId, config) =>
+                      setMemberConfigs((current) => ({
+                        ...current,
+                        [nodeId]: config,
+                      }))
+                    }
+                  />
+                </Stack>
+              </AccordionDetails>
+            </Accordion>
           )}
+          {/* Outside the accordion: a plan that cannot run has to say so even
+              when the settings causing it are folded away. */}
+          {electionPlan.errors.map((error) => (
+            <Alert severity="error" key={error} data-testid="om-election-error">
+              {error}
+            </Alert>
+          ))}
+          {electionPlan.warnings.map((warning) => (
+            <Alert
+              severity="warning"
+              key={warning}
+              data-testid="om-election-warning"
+            >
+              {warning}
+            </Alert>
+          ))}
           {configTab === 'security' && <SecurityTab />}
         </Stack>
       )}
