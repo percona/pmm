@@ -17,6 +17,7 @@ import {
   cleanupVariables,
   getLinkWithVariables,
   shouldIncludeVars,
+  waitForDashboardScene,
 } from './variables';
 
 const prefixes = {
@@ -90,6 +91,53 @@ describe('shouldIncludeVars', () => {
     mockLocation(dashboards.node);
     const result = shouldIncludeVars(dashboards.pg);
     expect(result).toBe(false);
+  });
+});
+
+describe('waitForDashboardScene', () => {
+  const sceneWindow = window as {
+    __grafanaSceneContext?: { isActive: boolean };
+  };
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    delete sceneWindow.__grafanaSceneContext;
+  });
+
+  const isSettled = async (promise: Promise<void>) => {
+    let settled = false;
+    promise.then(() => (settled = true));
+    await jest.advanceTimersByTimeAsync(0);
+    return settled;
+  };
+
+  it('should resolve immediately when not on a dashboard', async () => {
+    mockLocation('/alerting/list');
+    expect(await isSettled(waitForDashboardScene())).toBe(true);
+  });
+
+  it('should wait until the dashboard scene is active', async () => {
+    mockLocation(dashboards.pg);
+    const promise = waitForDashboardScene();
+
+    await jest.advanceTimersByTimeAsync(1_000);
+    expect(await isSettled(promise)).toBe(false);
+
+    sceneWindow.__grafanaSceneContext = { isActive: true };
+    await jest.advanceTimersByTimeAsync(50);
+    expect(await isSettled(promise)).toBe(true);
+  });
+
+  it('should give up when the dashboard scene never activates', async () => {
+    mockLocation(dashboards.pg);
+    const promise = waitForDashboardScene();
+
+    await jest.advanceTimersByTimeAsync(5_000);
+    expect(await isSettled(promise)).toBe(true);
   });
 });
 

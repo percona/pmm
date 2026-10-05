@@ -25,7 +25,11 @@ import {
 import { applyCustomStyles } from 'styles';
 import { changeTheme } from 'theme';
 import { adjustToolbar } from 'compat/toolbar';
-import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
+import {
+  isWithinIframe,
+  getLinkWithVariables,
+  waitForDashboardScene,
+} from 'lib/utils';
 import {
   documentTitleObserver,
   updateBodyClassByLocation,
@@ -132,8 +136,6 @@ export const initialize = () => {
   });
   // --------------------------------------------------------------
 
-  messenger.sendMessage({ type: 'GRAFANA_READY' });
-
   // PMM → Grafana: location changes
   messenger.addListener({
     type: 'LOCATION_CHANGE',
@@ -189,11 +191,12 @@ export const initialize = () => {
   // PMM → Grafana: expand dashboard URL with variables and echo back
   messenger.addListener({
     type: 'DASHBOARD_VARIABLES',
-    onMessage: (msg: DashboardVariablesMessage) => {
+    onMessage: async (msg: DashboardVariablesMessage) => {
       if (!msg.payload?.url) {
         return;
       }
 
+      await waitForDashboardScene();
       const url = getLinkWithVariables(msg.payload.url);
 
       messenger.sendMessage({
@@ -241,4 +244,6 @@ export const initialize = () => {
   });
 
   handleExternalLinks();
+
+  messenger.sendMessage({ type: 'GRAFANA_READY' });
 };

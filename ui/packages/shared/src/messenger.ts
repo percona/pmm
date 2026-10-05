@@ -26,7 +26,7 @@ export class CrossFrameMessenger {
     return this;
   }
 
-  setTargetWindow(window: Window, fallbackSelector?: string) {
+  setTargetWindow(window?: Window, fallbackSelector?: string) {
     this.targetWindow = window;
     this.fallbackSelector = fallbackSelector;
     return this;

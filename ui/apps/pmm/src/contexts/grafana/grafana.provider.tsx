@@ -59,6 +59,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   isGrafanaPageRef.current = isGrafanaPage;
 
   const [isLoaded, setIsLoaded] = useState(false);
+  const [grafanaReady, setGrafanaReady] = useState(false);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const kioskMode = useKioskMode();
 
@@ -75,10 +76,8 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   useEffect(() => {
     if (!isLoaded || !isBrowser()) return;
 
-    const target = frameRef.current?.contentWindow;
-    if (target) {
-      messenger.setTargetWindow(target, '#grafana-iframe');
-    }
+    // Look the iframe up on each send so the iframe is looked up each time a message is sent
+    messenger.setTargetWindow(undefined, '#grafana-iframe');
     messenger.register();
 
     // -------- INCOMING FROM GRAFANA --------
@@ -94,6 +93,11 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
           console.warn('[GrafanaProvider] setFromGrafana failed:', err);
         });
       },
+    });
+
+    messenger.addListener({
+      type: 'GRAFANA_READY',
+      onMessage: () => setGrafanaReady(true),
     });
 
     // Location: navigate PMM when Grafana pushes/replace (skip POP/back)
@@ -159,8 +163,9 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
       messenger.unregister();
     };
 
+    // setFromGrafana changes every render; as a dep, unregister() would drop every pending listener
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, setFromGrafana, navigate]);
+  }, [isLoaded, navigate]);
 
   // -------- OUTGOING TO GRAFANA --------
 
@@ -200,6 +205,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     <GrafanaContext.Provider
       value={{
         frameRef,
+        grafanaReady,
         isFrameLoaded: isLoaded,
         isOnGrafanaPage: isGrafanaPage,
         isFullScreen: kioskMode.active,
