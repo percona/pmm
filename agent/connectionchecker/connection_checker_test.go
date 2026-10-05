@@ -100,7 +100,6 @@ func TestConnectionChecker(t *testing.T) {
 				Timeout: durationpb.New(3 * time.Second),
 			},
 			expectedErr: `\(Unauthorized\) (?:command getDiagnosticData requires authentication|` +
-				`Command buildInfo requires authentication|` +
 				`there are no users authenticated|` +
 				`not authorized on admin to execute command \{ getDiagnosticData\: 1 \})`,
 		},
@@ -131,6 +130,15 @@ func TestConnectionChecker(t *testing.T) {
 				Timeout: durationpb.New(3 * time.Second),
 			},
 			expectedErr: `error parsing uri: must have a / before the query \?`,
+		},
+		{
+			// An arbiter stores no users, so it is added without credentials even with authentication enabled.
+			name: "MongoDB arbiter",
+			req: &agentv1.CheckConnectionRequest{
+				Dsn:     "mongodb://127.0.0.1:27025/admin?connectTimeoutMS=1000&directConnection=true",
+				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
+				Timeout: durationpb.New(3 * time.Second),
+			},
 		},
 
 		{
