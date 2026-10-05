@@ -667,6 +667,11 @@ export const NodesPage = () => {
     // A host already part of an in-flight bootstrap run cannot be selected
     // for another one -- see `busyExecutorHosts`'s own comment.
     enableRowSelection: (row) => !isHostBusy(row.original),
+    // MRT's own banner says only how many rows are selected, which the bar below
+    // the header already says -- and it said it in a second place, so a selected
+    // row showed two bars with the same count (P17). Ours is the one that stays,
+    // because it carries the actions that selection exists for.
+    positionToolbarAlertBanner: 'none',
     positionActionsColumn: 'last',
     onRowSelectionChange: setRowSelection,
     state: { rowSelection },
