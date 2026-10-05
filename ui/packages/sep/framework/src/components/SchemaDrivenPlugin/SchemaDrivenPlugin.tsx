@@ -94,6 +94,15 @@ interface SchemaDrivenPluginProps {
   /** Hide multi-entity tab bar (e.g. inventory uses breadcrumbs instead). */
   hideEntityTabs?: boolean;
   /**
+   * Suppress the sibling-app tab bar this plugin derives from `related_apps`.
+   *
+   * For a host that already renders its own tabs over the same apps, the derived
+   * bar is a second control offering the places the user just came from. The
+   * metadata stays -- the sibling routes are still mounted -- only the bar is
+   * withheld, so deep links keep working.
+   */
+  hideRelatedAppTabs?: boolean;
+  /**
    * When true, entity list tables that declare an ``actions`` column show a per-row delete
    * control (inventory uses this with browse-only detail chrome).
    */
@@ -280,6 +289,7 @@ export function SchemaDrivenPlugin({
   getTaskHistoryNames,
   renderTaskDetailChildren,
   hideEntityTabs = false,
+  hideRelatedAppTabs = false,
   allowListEntityDelete = false,
   renderEntityDetailChildren,
   renderField,
@@ -503,7 +513,7 @@ export function SchemaDrivenPlugin({
     </Routes>
   );
 
-  if (hasRelatedApps) {
+  if (hasRelatedApps && !hideRelatedAppTabs) {
     return (
       <Box>
         <RelatedAppTabBar
