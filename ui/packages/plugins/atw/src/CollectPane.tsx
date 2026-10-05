@@ -15,11 +15,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Autocomplete,
   Box,
+  Button,
   CircularProgress,
   TextField,
   Typography,
@@ -44,6 +45,7 @@ import {
 import type {
   AtwBatchExecuteResponse,
   AtwBatchExecuteWrite,
+  AtwDispatchHandler,
   AtwRerunRequest,
   AtwSnippetSummary,
 } from './types';
@@ -59,11 +61,7 @@ export interface CollectPaneProps {
    */
   rerunRequest?: AtwRerunRequest | null;
   /** Called once a batch dispatches successfully, so a caller can remember it. */
-  onDispatched?: (
-    snippets: AtwSnippetSummary[],
-    values: Record<string, unknown>,
-    response: AtwBatchExecuteResponse
-  ) => void;
+  onDispatched?: AtwDispatchHandler;
 }
 
 /** Pause after the last keystroke before the snippet search fires (ms). */
@@ -173,6 +171,48 @@ export function omitCliUsageTrapFields(fields: SectionField[]): SectionField[] {
     out.push(field);
   }
   return out;
+}
+
+/**
+ * Whether one field forces its section to open rather than start collapsed.
+ *
+ * A collapsed shell mounts none of its children, while the renderer seeds
+ * every leaf in the schema into the form regardless. So anything whose
+ * correctness depends on a mounted component is wrong inside a closed section:
+ *
+ * - a required field with no default is neither validated nor visible, and the
+ *   batch goes out missing an argument nobody was shown;
+ * - a `one_of` group's inactive branches are unregistered by the group's own
+ *   slot, so a closed section submits every branch's seeded default at once;
+ * - a gated field's `requires` / `forbidden` predicates are evaluated by the
+ *   field's own slot, so a gate that would make it required does nothing.
+ */
+function fieldForcesOpenSection(field: SectionField): boolean {
+  if (field.type === 'one_of') {
+    return true;
+  }
+  if (fieldDeclaresGate(field)) {
+    return true;
+  }
+  return (
+    Boolean(field.required) &&
+    (field.default === undefined ||
+      field.default === null ||
+      field.default === '')
+  );
+}
+
+/** Whether a script's section must open, per {@link fieldForcesOpenSection}. */
+export function sectionMustStayOpen(fields: SectionField[]): boolean {
+  return fields.some(fieldForcesOpenSection);
+}
+
+/** How many of a batch's items the server actually launched. */
+export function startedCount(response: AtwBatchExecuteResponse): number {
+  return response.items.filter(
+    (item) =>
+      item.task_history_id !== null && item.task_history_id !== undefined
+  ).length;
 }
 
 /** Drop reserved UI fields and empty optional values from an args bag. */
@@ -334,6 +374,13 @@ export function CollectPane({
   const [rerunResolveFailed, setRerunResolveFailed] = useState<string | null>(
     null
   );
+  // How many scripts the last batch started, set only while its confirmation
+  // is standing in for the form. Non-null is what collapses the form.
+  const [dispatchedCount, setDispatchedCount] = useState<number | null>(null);
+  // The selection as it stands now, for an in-flight batch to compare its own
+  // against. Identity is the test: every path that changes the selection
+  // assigns a new array.
+  const selectionRef = useRef<AtwSnippetSummary[]>([]);
 
   const handleSnippetsChange = useCallback((snippets: AtwSnippetSummary[]) => {
     setAvailable(snippets);
@@ -355,7 +402,12 @@ export function CollectPane({
     setSelected([]);
     setAvailable([]);
     setItemErrors([]);
+    setDispatchedCount(null);
   }, [isClosed]);
+
+  useEffect(() => {
+    selectionRef.current = selected;
+  }, [selected]);
 
   const selectedNames = useMemo(
     () => selected.map((snippet) => snippet.name),
@@ -393,6 +445,7 @@ export function CollectPane({
     setItemErrors([]);
     setAppliedRerunNonce(rerunRequest.nonce);
     setRerunResolveFailed(null);
+    setDispatchedCount(null);
     if (rerunRequest.remembered) {
       setSelected(rerunRequest.remembered.snippets);
       setFormDefaults(rerunRequest.remembered.values);
@@ -507,6 +560,11 @@ export function CollectPane({
         title: snippet.title,
         description: snippet.description || undefined,
         collapsible: true,
+        // Closed unless the reader has to type something: a batch of two
+        // scripts used to open two screens' worth of expanded parameters,
+        // pushing the run button off the bottom of the page. The header names
+        // the values it holds, so a closed section still reads.
+        collapsed_by_default: !sectionMustStayOpen(fields),
         fields: fields.map((field) =>
           namespaceField(field, snippetPrefix(index))
         ),
@@ -554,8 +612,27 @@ export function CollectPane({
     const snippetsAtSubmit = selected;
     batchMutation.mutate(buildBatchPayload(values, snippetsAtSubmit), {
       onSuccess: (response) => {
-        setItemErrors(batchItemErrors(response));
-        onDispatched?.(snippetsAtSubmit, values, response);
+        // The picker stays live while a batch is in flight, and a rerun
+        // request or a close can replace the selection too. Anything that
+        // describes the submitted batch — its errors, its confirmation, its
+        // values — belongs to the selection it was submitted against, and
+        // would otherwise be pinned onto whatever is selected now.
+        const stillCurrent = selectionRef.current === snippetsAtSubmit;
+        const started = startedCount(response);
+        if (stillCurrent) {
+          setItemErrors(batchItemErrors(response));
+          if (started > 0) {
+            // Seeded so reopening the confirmation's form comes back filled:
+            // the collapse unmounts the form, and `defaultValues` is the only
+            // way its values survive that. Same shape the Results pane's rerun
+            // already round-trips.
+            setFormDefaults(values);
+            setDispatchedCount(started);
+          }
+        }
+        // Reported whatever is selected now: the tasks did start, and the
+        // workspace has to remember, announce and mark them out regardless.
+        onDispatched?.(snippetsAtSubmit, values, response, 'collect');
       },
     });
   };
@@ -620,6 +697,7 @@ export function CollectPane({
           setItemErrors([]);
           setFormDefaults(undefined);
           setRerunResolveFailed(null);
+          setDispatchedCount(null);
         }}
         inputValue={searchInput}
         onInputChange={(_event, value) => setSearchInput(value)}
@@ -713,20 +791,54 @@ export function CollectPane({
         </Alert>
       )}
 
-      {selected.length > 0 && schemaQuery.data && !isClosed && canMutate && (
-        <Box sx={{ mt: 3 }}>
-          <SchemaFormRenderer
-            key={formKey}
-            sections={sections}
-            defaultValues={formDefaults}
-            onSubmit={handleSubmit}
-            renderField={renderField}
-            submitLabel="Execute batch"
-            loading={batchMutation.isPending}
-            submitError={submitError}
-          />
-        </Box>
+      {dispatchedCount !== null && (
+        <Alert
+          severity="success"
+          sx={{ mt: 3 }}
+          data-testid="atw-collect-dispatched"
+        >
+          Started {dispatchedCount}{' '}
+          {dispatchedCount === 1 ? 'script' : 'scripts'}. Their progress is in
+          Results.
+          <Box sx={{ mt: 1 }}>
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => setDispatchedCount(null)}
+            >
+              Change parameters and run again
+            </Button>
+          </Box>
+        </Alert>
       )}
+
+      {selected.length > 0 &&
+        schemaQuery.data &&
+        !isClosed &&
+        canMutate &&
+        dispatchedCount === null && (
+          <Box sx={{ mt: 3 }}>
+            <SchemaFormRenderer
+              key={formKey}
+              sections={sections}
+              defaultValues={formDefaults}
+              onSubmit={handleSubmit}
+              renderField={renderField}
+              submitLabel={
+                batchMutation.isPending ? 'Starting…' : 'Execute batch'
+              }
+              loading={batchMutation.isPending}
+              submitError={submitError}
+              submitPlacement="sticky-top"
+              // The height of PMM's own app bar, which is sticky at the top of
+              // the viewport: MUI's default Toolbar, 56px below the `sm`
+              // breakpoint and 64px from it up. Without the offset the run
+              // button pins underneath the bar instead of below it.
+              stickySubmitOffset={{ xs: 56, sm: 64 }}
+              sectionValueSummary
+            />
+          </Box>
+        )}
     </Box>
   );
 }
