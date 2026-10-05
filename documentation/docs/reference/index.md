@@ -5,7 +5,7 @@ Percona Monitoring and Management (PMM) is a client/server application. PMM Clie
 ![PMM Client collects metrics and query data from monitored systems and sends them to PMM Server](../images/arch/C_S_Architecture-light.png){ .only-light }
 ![PMM Client collects metrics and query data from monitored systems and sends them to PMM Server](../images/arch/C_S_Architecture-dark.png){ .only-dark }
 
-You can also monitor remote databases and cloud services, such as [Amazon RDS](../install-pmm/install-pmm-client/connect-database/aws.md) and [Azure](../install-pmm/install-pmm-client/connect-database/azure.md), without installing PMM Client on their hosts. In that case, the `pmm-agent` built into PMM Server collects the data. For details, see [Connect remote instance to PMM](../install-pmm/install-pmm-client/connect-database/remote.md).
+You can also monitor remote databases and cloud services, such as [Amazon RDS](../install-pmm/install-pmm-client/connect-database/aws.md) and [Azure](../install-pmm/install-pmm-client/connect-database/azure.md), without installing PMM Client on their hosts. In that case, the `pmm-agent` built into PMM Server, or a PMM Client on another host, collects the data. For details, see [Connect remote instance to PMM](../install-pmm/install-pmm-client/connect-database/remote.md).
 
 ## PMM Server
 
@@ -22,7 +22,7 @@ The web interface, also called the PMM UI, is a web application that embeds Graf
 
 PMM Server runs the following services:
 
-- **Nginx** receives every request on port 8443 inside the container, which you usually publish as port 443. It asks `pmm-managed` to authorize requests, then routes them to the other services.
+- **Nginx** receives every request, on port 8443 (HTTPS) or 8080 (HTTP) inside the container. You usually publish port 8443 as 443. It asks `pmm-managed` to authorize requests, then routes them to the other services.
 - **`pmm-managed`** manages the PMM Server configuration, the inventory of monitored services, and the connected PMM Clients. It forwards QAN data from PMM Clients to QAN API, and keeps RTA data in memory.
 - **QAN API** stores and serves Query Analytics data.
 - **[VictoriaMetrics](third-party/victoria.md)** stores metrics. It receives the metrics that PMM Clients push, and scrapes exporters that run in pull mode.
@@ -106,13 +106,15 @@ Inside PMM Server, the web interface reads metrics from VictoriaMetrics through 
 
 ### Connection security
 
-All traffic from PMM Client to PMM Server goes through Nginx over HTTPS, on port 443 or 8443. Nginx asks `pmm-managed` to authorize requests before it passes them on. To use your own certificates, see [SSL encryption](../admin/security/ssl_encryption.md).
+Except for Nomad RPC, all traffic from PMM Client to PMM Server goes through Nginx over HTTPS, on port 443 or 8443. Nginx asks `pmm-managed` to authorize requests before it passes them on. To use your own certificates, see [SSL encryption](../admin/security/ssl_encryption.md).
 
 `node_exporter`, `mysqld_exporter`, `postgres_exporter`, `mongodb_exporter` and `proxysql_exporter` require HTTP basic authentication, each with its own password by default. `valkey_exporter`, `rds_exporter` and `azure_database_exporter` don't require authentication. In pull mode, VictoriaMetrics connects to the exporters directly, on ports 42000–51999 by default, so PMM Server must be able to reach those ports. When you enable Nomad, `nomad-agent` also connects to PMM Server directly, on port 4647.
 
 Exporters and QAN agents can use TLS to connect to the databases that they monitor.
 
 ## Next steps
+
+To install PMM and plan its network access, continue with these pages:
 
 - [PMM Server installation overview](../install-pmm/install-pmm-server/index.md)
 - [PMM Client installation overview](../install-pmm/install-pmm-client/index.md)
