@@ -1458,7 +1458,7 @@ func migrateDB(db *reform.DB, params SetupDBParams, keyCreated bool) error {
 		// data migration relies on the latest schema; skip it when an older
 		// schema version is explicitly requested (only done in tests)
 		if latestVersion == len(databaseSchema)-1 {
-			err := migrateEncryption(tx.Querier, keyCreated)
+			err := migrateEncryption(tx.Querier, migrationParams{keyCreated: keyCreated, ha: params.HANodeID != ""})
 			if err != nil {
 				return err
 			}

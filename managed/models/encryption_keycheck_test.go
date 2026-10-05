@@ -16,8 +16,10 @@
 package models_test
 
 import (
+	"database/sql"
 	"os"
 	"path/filepath"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -41,6 +43,34 @@ func newKeyFile(t *testing.T) (string, *encryption.Cipher) {
 	return path, c
 }
 
+// acceptKeyLoss is the setting that accepts the loss of the key the data was
+// encrypted with, for the key of the cipher.
+func acceptKeyLoss(c *encryption.Cipher) string {
+	return encryption.AcceptKeyLossEnvVar + "=" + strconv.FormatUint(uint64(c.PrimaryKeyID()), 10)
+}
+
+// setAcceptKeyLoss accepts the loss for the key of the cipher.
+func setAcceptKeyLoss(t *testing.T, c *encryption.Cipher) {
+	t.Helper()
+
+	t.Setenv(encryption.AcceptKeyLossEnvVar, strconv.FormatUint(uint64(c.PrimaryKeyID()), 10))
+}
+
+// setupHADB runs pmm-managed's startup as a node of an HA cluster.
+func setupHADB(t *testing.T, sqlDB *sql.DB) error {
+	t.Helper()
+
+	_, err := models.SetupDB(t.Context(), sqlDB, models.SetupDBParams{
+		Logf:          t.Logf,
+		Address:       models.DefaultPostgreSQLAddr,
+		Username:      "postgres",
+		HANodeID:      "pmm-server-2",
+		SetupFixtures: models.SkipFixtures,
+	})
+
+	return err
+}
+
 func backupFiles(t *testing.T, dir string) []string {
 	t.Helper()
 
@@ -62,13 +92,17 @@ func TestKeyCheckRefusesAnotherKey(t *testing.T) {
 	check := storedKeyCheck(t, sqlDB)
 	require.NotEmpty(t, check, "stored at the first start")
 
-	otherKey, _ := newKeyFile(t)
+	otherKey, other := newKeyFile(t)
 	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, otherKey)
 	err := setupDB(t, sqlDB)
 	require.ErrorIs(t, err, models.ErrEncryptionKeyMismatch)
 	require.ErrorContains(t, err, "encryption key check")
-	require.ErrorContains(t, err, encryption.AcceptKeyLossEnvVar)
+	require.ErrorContains(t, err, acceptKeyLoss(other), "names the setting that accepts the loss")
 	assert.Equal(t, check, storedKeyCheck(t, sqlDB), "nothing is changed")
+
+	err = setupHADB(t, sqlDB)
+	require.ErrorIs(t, err, models.ErrEncryptionKeyMismatch)
+	assert.NotContains(t, err.Error(), encryption.AcceptKeyLossEnvVar, "never offered in HA")
 
 	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, firstNodeKey)
 	require.NoError(t, setupDB(t, sqlDB), "a node with the shared key starts")
@@ -84,15 +118,10 @@ func TestKeyCheckHANodeWithoutKey(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "pmm-encryption.key")
 	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, path)
 
-	_, err := models.SetupDB(t.Context(), sqlDB, models.SetupDBParams{
-		Logf:          t.Logf,
-		Address:       models.DefaultPostgreSQLAddr,
-		Username:      "postgres",
-		HANodeID:      "pmm-server-2",
-		SetupFixtures: models.SkipFixtures,
-	})
+	err := setupHADB(t, sqlDB)
 	require.ErrorIs(t, err, models.ErrEncryptionKeyMismatch)
 	require.ErrorContains(t, err, "encryption key not found")
+	assert.NotContains(t, err.Error(), encryption.AcceptKeyLossEnvVar, "never offered in HA")
 	_, err = os.Stat(path)
 	require.ErrorIs(t, err, os.ErrNotExist, "no key must be generated")
 }
@@ -147,7 +176,7 @@ func TestAcceptKeyLossReplacesKeyCheck(t *testing.T) {
 	check := storedKeyCheck(t, sqlDB)
 	path, newKey := newKeyFile(t)
 	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, path)
-	t.Setenv(encryption.AcceptKeyLossEnvVar, "1")
+	setAcceptKeyLoss(t, newKey)
 
 	require.NoError(t, setupDB(t, sqlDB))
 	assert.NotEqual(t, check, storedKeyCheck(t, sqlDB))
@@ -181,10 +210,10 @@ func TestAcceptKeyLossLegacy(t *testing.T) {
 
 	err = setupDB(t, sqlDB)
 	require.ErrorIs(t, err, models.ErrEncryptionKeyMismatch)
-	require.ErrorContains(t, err, encryption.AcceptKeyLossEnvVar)
+	require.ErrorContains(t, err, acceptKeyLoss(current))
 	assert.Equal(t, stale, storedPassword(t, sqlDB, "E1"), "nothing is changed")
 
-	t.Setenv(encryption.AcceptKeyLossEnvVar, "1")
+	setAcceptKeyLoss(t, current)
 	require.NoError(t, setupDB(t, sqlDB))
 	keyID, ok := encryption.StoredKeyID(storedPassword(t, sqlDB, "E1"))
 	require.True(t, ok)
@@ -207,7 +236,8 @@ func TestAcceptKeyLossLegacy(t *testing.T) {
 }
 
 // TestAcceptKeyLossMissingKey covers a server whose key file is gone for good
-// after the upgrade: its secrets are envelopes of the lost key.
+// after the upgrade: its secrets are envelopes of the lost key. Accepting the
+// loss takes a key to accept it for, so the administrator creates one first.
 func TestAcceptKeyLossMissingKey(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	keepDefaultCipher(t)
@@ -231,14 +261,20 @@ func TestAcceptKeyLossMissingKey(t *testing.T) {
 	err = setupDB(t, sqlDB)
 	require.ErrorIs(t, err, models.ErrEncryptionKeyMismatch)
 	require.ErrorContains(t, err, "encryption key not found")
+	require.ErrorContains(t, err, "--generate-key")
 	require.ErrorContains(t, err, encryption.AcceptKeyLossEnvVar)
 	_, err = os.Stat(path)
 	require.ErrorIs(t, err, os.ErrNotExist, "no key must be generated")
 
-	t.Setenv(encryption.AcceptKeyLossEnvVar, "1")
-	require.NoError(t, setupDB(t, sqlDB))
-	created, err := encryption.LoadCipher(encryption.NewFileKeyProvider(path))
+	created, err := encryption.CreateCipher(encryption.NewFileKeyProvider(path))
 	require.NoError(t, err)
+	err = setupDB(t, sqlDB)
+	require.ErrorIs(t, err, models.ErrEncryptionKeyMismatch)
+	require.ErrorContains(t, err, acceptKeyLoss(created))
+	assert.Equal(t, stored, storedPassword(t, sqlDB, "E1"), "nothing is changed")
+
+	setAcceptKeyLoss(t, created)
+	require.NoError(t, setupDB(t, sqlDB))
 	keyID, ok := encryption.StoredKeyID(storedPassword(t, sqlDB, "E1"))
 	require.True(t, ok)
 	assert.Equal(t, created.PrimaryKeyID(), keyID)
@@ -261,4 +297,39 @@ func TestAcceptKeyLossMissingKey(t *testing.T) {
 	keyID, ok = encryption.StoredKeyID(storedPassword(t, sqlDB, "E1"))
 	require.True(t, ok)
 	assert.Equal(t, created.PrimaryKeyID(), keyID)
+}
+
+// TestAcceptKeyLossNamesTheKey covers the setting left behind after a
+// recovery: it accepts the loss for the key it names only, so a key file
+// replaced later is refused again.
+func TestAcceptKeyLossNamesTheKey(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	keepDefaultCipher(t)
+	check := storedKeyCheck(t, sqlDB)
+	path, newKey := newKeyFile(t)
+	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, path)
+	_, earlier := newKeyFile(t)
+
+	for _, value := range []string{"1", "true", strconv.FormatUint(uint64(earlier.PrimaryKeyID()), 10)} {
+		t.Setenv(encryption.AcceptKeyLossEnvVar, value)
+		err := setupDB(t, sqlDB)
+		require.ErrorIs(t, err, models.ErrEncryptionKeyMismatch, value)
+		require.ErrorContains(t, err, acceptKeyLoss(newKey), value)
+		assert.Equal(t, check, storedKeyCheck(t, sqlDB), "nothing is changed with %s", value)
+	}
+}
+
+// TestAcceptKeyLossIgnoredInHA covers the setting on an HA node with a key of
+// its own: the other nodes still hold the database's key, so accepting its
+// loss would rewrite the data they read. The node refuses like without it.
+func TestAcceptKeyLossIgnoredInHA(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	keepDefaultCipher(t)
+	check := storedKeyCheck(t, sqlDB)
+	path, other := newKeyFile(t)
+	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, path)
+	setAcceptKeyLoss(t, other)
+
+	require.ErrorIs(t, setupHADB(t, sqlDB), models.ErrEncryptionKeyMismatch)
+	assert.Equal(t, check, storedKeyCheck(t, sqlDB), "nothing is changed")
 }
