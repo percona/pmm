@@ -291,7 +291,7 @@ func migrateEncryption(q *reform.Querier, params migrationParams) error {
 	}
 
 	var undecryptable, lost, unknownKey []error
-	writeCheck, keyMismatch, err := checkKey(q, cipher, params.keyCreated)
+	writeCheck, keyMismatch, err := checkKey(q, cipher, params)
 	if err != nil {
 		return err
 	}

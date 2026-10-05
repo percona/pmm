@@ -71,10 +71,13 @@ func writeKeyCheck(q reform.DBTX, cipher *encryption.Cipher) error {
 
 // checkKey compares the stored key check with the cipher. It returns whether
 // to store a new key check, and whether the key is not the one the database
-// was set up with. A key generated at this start (keyCreated) replaces the key
-// check of the missing one, as the database held no data encrypted with it; so
-// does a key the administrator accepted after losing the original one.
-func checkKey(q *reform.Querier, cipher *encryption.Cipher, keyCreated bool) (bool, bool, error) {
+// was set up with. On a standalone server, a key generated at this start
+// replaces the key check of the missing one, as the database held no data
+// encrypted with it; so does a key the administrator accepted after losing
+// the original one. In HA a generated key never does: another node set the
+// database up after this one found no key check (keyInUse runs before the
+// migration lock), and this node must use that node's key.
+func checkKey(q *reform.Querier, cipher *encryption.Cipher, params migrationParams) (bool, bool, error) {
 	check, hasSettings, err := readKeyCheck(q)
 	switch {
 	case err != nil:
@@ -85,7 +88,7 @@ func checkKey(q *reform.Querier, cipher *encryption.Cipher, keyCreated bool) (bo
 		return true, false, nil
 	case keyCheckMatches(cipher, check):
 		return cipher.NeedsReencrypt(check), false, nil
-	case keyCreated:
+	case params.keyCreated && !params.ha:
 		logrus.Infof("Replacing the encryption key check of the missing encryption key.")
 		return true, false, nil
 	case cipher.AcceptsKeyLoss():
