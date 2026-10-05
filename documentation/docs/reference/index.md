@@ -14,7 +14,7 @@ PMM Server receives data from PMM Clients, stores it, and presents it in [dashbo
 
 ### Web interface
 
-The web interface, also called the PMM UI, is a web application that embeds Grafana. It brings together [dashboards](../use/dashboards-panels/index.md), [Query Analytics (QAN)](../use/qan/index.md), [Real-Time Query Analytics (RTA)](../use/qan/QAN-realtime-analytics.md) for MongoDB, [Advisors](../advisors/advisors.md), [Percona Alerting](../alert/index.md), the inventory of monitored services, and [PMM Dump](../troubleshoot/pmm_dump.md).
+The web interface, also called the PMM UI, is a web application that embeds Grafana. It brings together [Metrics Dashboards](../use/dashboards-panels/index.md), [Query Analytics (QAN)](../use/qan/index.md), [Real-Time Query Analytics (RTA)](../use/qan/QAN-realtime-analytics.md) for MongoDB, [Advisors](../advisors/advisors.md), [Alerting](../alert/index.md), [Inventory](../use/dashboard-inventory.md), [Updates](../pmm-upgrade/index.md) & [Settings](../configure-pmm/configure.md), and [PMM Dump](../troubleshoot/pmm_dump.md).
 
 ### Server components
 
@@ -26,22 +26,22 @@ PMM Server runs the following services:
 - **[VictoriaMetrics](third-party/victoria.md)** stores metrics. It receives the metrics that PMM Clients push, and scrapes exporters that run in pull mode.
 - **vmproxy** applies [label-based access control (LBAC)](../admin/roles/access-control/intro.md) filters to metrics queries before they reach VictoriaMetrics.
 - **vmalert** evaluates alerting and recording rules against VictoriaMetrics.
-- **[Grafana](https://grafana.com/docs/grafana/latest/)** renders dashboards, runs Percona Alerting, and authenticates users.
+- **[Grafana](https://grafana.com/docs/grafana/latest/)** renders dashboards, runs Alerting, and authenticates users.
 
 PMM Server also runs these supporting processes:
 
 - **supervisord** runs as process 1, and starts and restarts every other process.
 - **`pmm-agent`** monitors PMM Server itself, and collects data from remote databases and cloud services in pull mode.
-- **[Nomad](nomad.md)** is a workload orchestrator for future PMM extensions. It's disabled by default.
+- **[Nomad server](nomad.md)** runs the Nomad workload orchestrator for future PMM extensions. It's disabled by default.
 
-### Data storage
+### Persistence layer
 
 PMM Server keeps its data in the following stores:
 
 - **[ClickHouse](third-party/clickhouse.md)** stores Query Analytics data. `pmm-managed` and Grafana also read from it.
 - **[PostgreSQL](third-party/postgresql.md)** stores the `pmm-managed` state and the Grafana database.
-- **VictoriaMetrics** stores metrics in its own storage.
-- **Files under `/srv`** hold configuration, logs and, when you use the built-in databases, all stored data.
+- **VM DB**, the VictoriaMetrics storage, holds metrics.
+- **State files** under `/srv` hold configuration, logs and, when you use the built-in databases, all stored data.
 
 You can run PostgreSQL, ClickHouse and VictoriaMetrics outside PMM Server. For details, see [external PostgreSQL](third-party/postgresql.md), [external ClickHouse](third-party/clickhouse.md) and [external VictoriaMetrics](third-party/victoria.md#using-victoriametrics-external-database-instance), which is in Technical Preview. To run more than one PMM Server instance, see [Install PMM in High Availability (HA) mode](../install-pmm/HA.md).
 
