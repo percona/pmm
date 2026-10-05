@@ -49,23 +49,38 @@ const (
 	codePruneFailed    = 5
 )
 
+// RotationParams configure RotateEncryptionKey.
+type RotationParams struct {
+	// Prune removes the retired keys from the keyset once no stored value
+	// references them.
+	Prune bool
+	// OtherHANodesStopped confirms that PMM Server is stopped on every other
+	// node of an HA cluster; rotation is refused in HA without it.
+	OtherHANodesStopped bool
+}
+
 // RotateEncryptionKey adds a new primary key to the encryption keyset — the
 // previous keys stay in the keyset, so all stored values remain readable and
 // the database is never held decrypted at rest. pmm-managed is then restarted
 // to reload the keyset; its startup migration re-encrypts every stored secret
-// with the new primary key, which this function waits for. With prune, the
+// with the new primary key, which this function waits for. With Prune, the
 // retired keys are removed from the keyset once no stored value references
 // them.
 //
-// Rotation is refused in HA: it restarts only the local pmm-managed, and the
-// other nodes cannot read values encrypted with a key they do not hold.
-func RotateEncryptionKey(sqlDB *sql.DB, prune bool) (int, error) {
-	if ha, _ := strconv.ParseBool(os.Getenv("PMM_HA_ENABLE")); ha {
-		return codeRotationFailed, errors.New("encryption key rotation is not supported in HA mode: it restarts only " +
-			"this node's pmm-managed, and the other nodes could not read values encrypted with the new key")
+// In HA, every other node must be stopped first (OtherHANodesStopped): only
+// this node's pmm-managed is restarted, and the other nodes cannot read values
+// encrypted with the new key until the key file is copied to them.
+func RotateEncryptionKey(sqlDB *sql.DB, params RotationParams) (int, error) {
+	keyPath := encryption.DefaultKeyPath()
+	ha, _ := strconv.ParseBool(os.Getenv("PMM_HA_ENABLE"))
+	if ha && !params.OtherHANodesStopped {
+		return codeRotationFailed, fmt.Errorf("in HA mode, stop PMM Server on every other node first: rotation restarts only "+
+			"this node's pmm-managed, and the other nodes could not read values encrypted with the new key. "+
+			"Then run pmm-encryption-rotation --ha-other-nodes-stopped on this node, copy %s to every other node and start them",
+			keyPath)
 	}
 
-	provider := encryption.NewFileKeyProvider(encryption.DefaultKeyPath())
+	provider := encryption.NewFileKeyProvider(keyPath)
 
 	newKeyID, err := encryption.AddNewPrimaryKey(provider)
 	if err != nil {
@@ -90,7 +105,7 @@ func RotateEncryptionKey(sqlDB *sql.DB, prune bool) (int, error) {
 	}
 	logrus.Infoln("All stored secrets are re-encrypted with the new key")
 
-	if prune {
+	if params.Prune {
 		backups := models.MigrationBackupFiles()
 		if len(backups) != 0 {
 			logrus.Warnf("Pruning removes the keys the values in %s are encrypted with; "+
@@ -101,6 +116,11 @@ func RotateEncryptionKey(sqlDB *sql.DB, prune bool) (int, error) {
 			return codePruneFailed, fmt.Errorf("failed to prune retired encryption keys: %w", err)
 		}
 		logrus.Infof("Removed %d retired encryption key(s) from the keyset", len(retired))
+	}
+
+	if ha {
+		logrus.Warnf("Copy %s to every other PMM Server node before starting them: they cannot read values encrypted with the new key.",
+			keyPath)
 	}
 
 	return codeOK, nil

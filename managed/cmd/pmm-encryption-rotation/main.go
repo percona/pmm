@@ -73,7 +73,10 @@ func main() {
 		os.Exit(codeDBConnectionFailed)
 	}
 
-	statusCode, err := encryptionService.RotateEncryptionKey(sqlDB, opts.Prune)
+	statusCode, err := encryptionService.RotateEncryptionKey(sqlDB, encryptionService.RotationParams{
+		Prune:               opts.Prune,
+		OtherHANodesStopped: opts.HAOtherNodesStopped,
+	})
 	sqlDB.Close() //nolint:errcheck
 	if err != nil {
 		logrus.Error(err)
@@ -93,6 +96,8 @@ type flags struct {
 	SSLCertPath string `name:"postgres-ssl-cert-path" help:"PostgreSQL SSL certificate path" type:"path"`
 	GenerateKey bool   `name:"generate-key" help:"Only generate a new encryption key and print to stdout"`
 	Prune       bool   `name:"prune" help:"Remove retired keys from the keyset after all data is re-encrypted with the new key"`
+	// HA mode
+	HAOtherNodesStopped bool `name:"ha-other-nodes-stopped" help:"In HA mode, confirm that PMM Server is stopped on every other node; copy the key file to them before starting them again"`
 }
 
 func setupParams(opts flags) models.SetupDBParams {

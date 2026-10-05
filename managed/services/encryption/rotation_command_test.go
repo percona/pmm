@@ -87,7 +87,7 @@ func TestRotateEncryptionKeyCommand(t *testing.T) {
 		fakeSupervisorctl(t, 0)
 		path, oldKeyID := keyFile(t)
 
-		code, err := RotateEncryptionKey(sqlDB, false)
+		code, err := RotateEncryptionKey(sqlDB, RotationParams{})
 		require.NoError(t, err)
 		assert.Equal(t, codeOK, code)
 
@@ -103,7 +103,7 @@ func TestRotateEncryptionKeyCommand(t *testing.T) {
 		fakeSupervisorctl(t, 0)
 		path, oldKeyID := keyFile(t)
 
-		code, err := RotateEncryptionKey(sqlDB, true)
+		code, err := RotateEncryptionKey(sqlDB, RotationParams{Prune: true})
 		require.NoError(t, err)
 		assert.Equal(t, codeOK, code)
 
@@ -116,7 +116,7 @@ func TestRotateEncryptionKeyCommand(t *testing.T) {
 		fakeSupervisorctl(t, 1)
 		keyFile(t)
 
-		code, err := RotateEncryptionKey(sqlDB, false)
+		code, err := RotateEncryptionKey(sqlDB, RotationParams{})
 		require.Error(t, err)
 		assert.Equal(t, codeRestartFailed, code)
 	})
@@ -142,27 +142,41 @@ func TestRotateEncryptionKeyCommand(t *testing.T) {
 			assert.NoError(t, err)
 		})
 
-		code, err := RotateEncryptionKey(sqlDB, true)
+		code, err := RotateEncryptionKey(sqlDB, RotationParams{Prune: true})
 		require.ErrorContains(t, err, "cannot decrypt stored credentials")
 		assert.Equal(t, codeSweepFailed, code)
 	})
 
-	t.Run("refused in HA", func(t *testing.T) {
+	t.Run("refused in HA while other nodes may run", func(t *testing.T) {
 		fakeSupervisorctl(t, 0)
 		path, oldKeyID := keyFile(t)
 		t.Setenv("PMM_HA_ENABLE", "1")
 
-		code, err := RotateEncryptionKey(sqlDB, false)
-		require.ErrorContains(t, err, "not supported in HA mode")
+		code, err := RotateEncryptionKey(sqlDB, RotationParams{Prune: true})
+		require.ErrorContains(t, err, "stop PMM Server on every other node first")
+		require.ErrorContains(t, err, "--ha-other-nodes-stopped")
 		assert.Equal(t, codeRotationFailed, code)
 		assert.Equal(t, []uint32{oldKeyID}, keysetIDs(t, path), "the keyset is unchanged")
+	})
+
+	t.Run("HA with the other nodes stopped", func(t *testing.T) {
+		fakeSupervisorctl(t, 0)
+		path, oldKeyID := keyFile(t)
+		t.Setenv("PMM_HA_ENABLE", "1")
+
+		code, err := RotateEncryptionKey(sqlDB, RotationParams{OtherHANodesStopped: true})
+		require.NoError(t, err)
+		assert.Equal(t, codeOK, code)
+		ids := keysetIDs(t, path)
+		assert.Len(t, ids, 2)
+		assert.Contains(t, ids, oldKeyID)
 	})
 
 	t.Run("no key file", func(t *testing.T) {
 		fakeSupervisorctl(t, 0)
 		t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, filepath.Join(t.TempDir(), "missing.key"))
 
-		code, err := RotateEncryptionKey(sqlDB, false)
+		code, err := RotateEncryptionKey(sqlDB, RotationParams{})
 		require.ErrorIs(t, err, encryption.ErrKeysetNotFound)
 		assert.Equal(t, codeRotationFailed, code)
 	})
