@@ -46,6 +46,11 @@ import {
 
 const EMPTY_QUERIES: QueryData[] = [];
 
+// The widest the paused MySQL toolbar needs to sit on one row, with the navigation sidebar
+// expanded: the service picker, playback controls with Refresh and Export, both row filters and
+// "All sessions". Measured at 1680px with 16px to spare.
+const TOOLBAR_ONE_ROW = '@media (min-width: 1600px)';
+
 const RealtimeOverviewPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   // Blanks are dropped: "?serviceIds=" yields one empty string, which is not a selection
@@ -232,9 +237,6 @@ const RealtimeOverviewPage: FC = () => {
           <Stack
             flex={1}
             direction="row"
-            // On wide screens the controls wrap within their own group instead, so "All
-            // sessions" keeps its place at the right end rather than dropping to a new row.
-            flexWrap={{ xs: 'wrap', lg: 'nowrap' }}
             alignItems="flex-start"
             alignContent="flex-start"
             rowGap={0}
@@ -242,6 +244,11 @@ const RealtimeOverviewPage: FC = () => {
             sx={{
               width: '100%',
               minWidth: 0,
+              // One row where everything fits, paused or live. Narrower, the row filters
+              // take a second row of their own (see TOOLBAR_ONE_ROW), so "All sessions"
+              // keeps its place at the right end of the first.
+              flexWrap: 'wrap',
+              [TOOLBAR_ONE_ROW]: { flexWrap: 'nowrap' },
             }}
           >
             <Box
@@ -265,10 +272,9 @@ const RealtimeOverviewPage: FC = () => {
             </Box>
             <Stack
               direction="row"
-              flexWrap="wrap"
               alignItems="center"
               gap={1}
-              sx={{ mt: 1, minWidth: 0, flex: { lg: '0 1 auto' } }}
+              sx={{ mt: 1, minWidth: 0, flex: '0 0 auto' }}
             >
               <AutoRefreshSelect
                 isFetching={fetching}
@@ -336,72 +342,92 @@ const RealtimeOverviewPage: FC = () => {
                   </span>
                 </Tooltip>
               )}
-              {/* This filters the rows, it does not drive live updates: keep it
-                  out of the auto-refresh / playback group so that group reads as
-                  one control. */}
-              {isMySqlSelection && (
-                <>
-                  <Divider
-                    orientation="vertical"
-                    flexItem
-                    sx={{ my: 1, mx: 0.5 }}
-                  />
-                  <Tooltip
-                    title={
-                      blockingUnknown
-                        ? Messages.blockedUnknownTooltip
-                        : blockedOnlyTooltip(blockingPartial, unattributedCount)
-                    }
-                    arrow
-                  >
-                    <FormControlLabel
-                      data-testid="overview-table-blocked-only-toggle"
-                      disabled={blockingUnknown}
-                      control={
-                        <Switch
-                          size="small"
-                          checked={blockedOnly && !blockingUnknown}
-                          onChange={(event) =>
-                            setBlockedOnly(event.target.checked)
-                          }
-                        />
-                      }
-                      label={
-                        blockingUnknown
-                          ? Messages.blockedUnknown
-                          : Messages.blockedOnly(blockedCount)
-                      }
-                      sx={{ whiteSpace: 'nowrap', mr: 1 }}
-                    />
-                  </Tooltip>
-                  <Tooltip title={Messages.hideCommitTooltip} arrow>
-                    <FormControlLabel
-                      data-testid="overview-table-hide-commit-toggle"
-                      control={
-                        <Switch
-                          size="small"
-                          checked={hideCommit}
-                          onChange={(event) =>
-                            setHideCommit(event.target.checked)
-                          }
-                        />
-                      }
-                      label={Messages.hideCommit}
-                      // ml resets the negative margin FormControlLabel applies to align a
-                      // standalone switch; left in place it pulls this control flush against
-                      // the previous label, so the two toggles read as one run of text.
-                      sx={{ whiteSpace: 'nowrap', ml: 0, mr: 0 }}
-                    />
-                  </Tooltip>
-                </>
-              )}
             </Stack>
+            {/* These filter the rows, they do not drive live updates: kept out of the
+                auto-refresh / playback group so that group reads as one control, and
+                wrapped as one unit so a narrow toolbar never splits them. */}
+            {isMySqlSelection && (
+              <Stack
+                direction="row"
+                alignItems="center"
+                gap={1}
+                sx={{
+                  mt: 1,
+                  flex: '0 0 auto',
+                  order: 3,
+                  flexBasis: '100%',
+                  [TOOLBAR_ONE_ROW]: { order: 0, flexBasis: 'auto' },
+                }}
+              >
+                <Divider
+                  orientation="vertical"
+                  flexItem
+                  sx={{
+                    my: 1,
+                    mx: 0.5,
+                    display: 'none',
+                    [TOOLBAR_ONE_ROW]: { display: 'block' },
+                  }}
+                />
+                <Tooltip
+                  title={
+                    blockingUnknown
+                      ? Messages.blockedUnknownTooltip
+                      : blockedOnlyTooltip(blockingPartial, unattributedCount)
+                  }
+                  arrow
+                >
+                  <FormControlLabel
+                    data-testid="overview-table-blocked-only-toggle"
+                    disabled={blockingUnknown}
+                    control={
+                      <Switch
+                        size="small"
+                        checked={blockedOnly && !blockingUnknown}
+                        onChange={(event) =>
+                          setBlockedOnly(event.target.checked)
+                        }
+                      />
+                    }
+                    label={
+                      blockingUnknown
+                        ? Messages.blockedUnknown
+                        : Messages.blockedOnly(blockedCount)
+                    }
+                    // ml: see the toggle below. On a row of its own the group lines
+                    // up with the service picker above it.
+                    sx={{ whiteSpace: 'nowrap', ml: 0, mr: 1 }}
+                  />
+                </Tooltip>
+                <Tooltip title={Messages.hideCommitTooltip} arrow>
+                  <FormControlLabel
+                    data-testid="overview-table-hide-commit-toggle"
+                    control={
+                      <Switch
+                        size="small"
+                        checked={hideCommit}
+                        onChange={(event) =>
+                          setHideCommit(event.target.checked)
+                        }
+                      />
+                    }
+                    label={Messages.hideCommit}
+                    // ml resets the negative margin FormControlLabel applies to align a
+                    // standalone switch; left in place it pulls this control flush against
+                    // the previous label, so the two toggles read as one run of text.
+                    sx={{ whiteSpace: 'nowrap', ml: 0, mr: 0 }}
+                  />
+                </Tooltip>
+              </Stack>
+            )}
             <Box
               sx={{
                 flex: '0 0 auto',
                 ml: { md: 'auto' },
                 my: 1,
                 whiteSpace: 'nowrap',
+                order: 2,
+                [TOOLBAR_ONE_ROW]: { order: 0 },
               }}
             >
               <Button

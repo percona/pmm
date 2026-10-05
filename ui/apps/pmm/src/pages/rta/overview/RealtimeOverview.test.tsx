@@ -195,7 +195,7 @@ describe('RealtimeOverview', () => {
     await waitFor(() =>
       expect(
         screen.getByTestId('overview-table-hide-commit-toggle')
-      ).toHaveTextContent('Hide transaction control')
+      ).toHaveTextContent('Hide BEGIN/COMMIT')
     );
   });
 
