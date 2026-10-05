@@ -8,16 +8,22 @@ import {
 
 const { required, retentionRange, intervalMin } = Messages.advanced.validation;
 
-const retentionField = z
-  .string()
-  .refine((v) => v !== '' && !isNaN(parseFloat(v)), { message: required })
-  .refine(
-    (v) => {
-      const n = parseFloat(v);
-      return n >= MIN_DAYS && n <= MAX_DAYS;
-    },
-    { message: retentionRange(MIN_DAYS, MAX_DAYS) }
-  );
+// The value loaded from the server is accepted as it is: it is only sent once the user changes it,
+// and the pmm-ha chart may set one outside the range a user can type here.
+const retentionField = (loaded?: string) =>
+  z
+    .string()
+    .refine((v) => v === loaded || (v !== '' && !isNaN(parseFloat(v))), {
+      message: required,
+    })
+    .refine(
+      (v) => {
+        if (v === loaded) return true;
+        const n = parseFloat(v);
+        return n >= MIN_DAYS && n <= MAX_DAYS;
+      },
+      { message: retentionRange(MIN_DAYS, MAX_DAYS) }
+    );
 
 const intervalFields = [
   'rareInterval',
@@ -25,41 +31,44 @@ const intervalFields = [
   'frequentInterval',
 ] as const;
 
-export const advancedSettingsSchema = z
-  .object({
-    retention: retentionField,
-    telemetry: z.boolean(),
-    updates: z.boolean(),
-    alerting: z.boolean(),
-    backup: z.boolean(),
-    enableInternalPgQan: z.boolean(),
-    publicAddress: z.string(),
-    stt: z.boolean(),
-    rareInterval: z.string(),
-    standardInterval: z.string(),
-    frequentInterval: z.string(),
-    azureDiscover: z.boolean(),
-    accessControl: z.boolean(),
-  })
-  .superRefine((data, ctx) => {
-    if (!data.stt) return;
-    for (const field of intervalFields) {
-      const v = data[field];
-      const n = parseFloat(v);
-      if (v === '' || isNaN(n)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: required,
-          path: [field],
-        });
-      } else if (n < MIN_STT_CHECK_INTERVAL) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: intervalMin(MIN_STT_CHECK_INTERVAL),
-          path: [field],
-        });
+export const createAdvancedSettingsSchema = (loadedRetention?: string) =>
+  z
+    .object({
+      retention: retentionField(loadedRetention),
+      telemetry: z.boolean(),
+      updates: z.boolean(),
+      alerting: z.boolean(),
+      backup: z.boolean(),
+      enableInternalPgQan: z.boolean(),
+      publicAddress: z.string(),
+      stt: z.boolean(),
+      rareInterval: z.string(),
+      standardInterval: z.string(),
+      frequentInterval: z.string(),
+      azureDiscover: z.boolean(),
+      accessControl: z.boolean(),
+    })
+    .superRefine((data, ctx) => {
+      if (!data.stt) return;
+      for (const field of intervalFields) {
+        const v = data[field];
+        const n = parseFloat(v);
+        if (v === '' || isNaN(n)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: required,
+            path: [field],
+          });
+        } else if (n < MIN_STT_CHECK_INTERVAL) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: intervalMin(MIN_STT_CHECK_INTERVAL),
+            path: [field],
+          });
+        }
       }
-    }
-  });
+    });
 
-export type AdvancedSettingsFormValues = z.infer<typeof advancedSettingsSchema>;
+export type AdvancedSettingsFormValues = z.infer<
+  ReturnType<typeof createAdvancedSettingsSchema>
+>;
