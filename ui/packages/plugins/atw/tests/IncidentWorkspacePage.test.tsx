@@ -383,7 +383,7 @@ describe('IncidentWorkspacePage — feedback for a run that just started', () =>
   async function runOneSnippet() {
     const user = userEvent.setup();
     await user.type(
-      await screen.findByRole('combobox', { name: 'Snippets' }),
+      await screen.findByRole('combobox', { name: 'Search scripts' }),
       'vmstat'
     );
     await user.click(
