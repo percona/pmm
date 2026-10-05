@@ -10,7 +10,7 @@
  * unfiltered array. RealtimeOverview.test.tsx keeps the real table for other behavior.
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { FC, useEffect } from 'react';
+import { FC, ReactNode, useEffect } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 import {
@@ -63,13 +63,18 @@ vi.mock('./table/OverviewTable', () => {
   const MockOverviewTable: FC<{
     onQuerySelected: (query: QueryData) => void;
     onNavigableQueriesChange: (queries: QueryData[]) => void;
-  }> = ({ onQuerySelected, onNavigableQueriesChange }) => {
+    actions?: (props: { table: unknown }) => ReactNode;
+  }> = ({ onQuerySelected, onNavigableQueriesChange, actions }) => {
     useEffect(() => {
       onNavigableQueriesChange(mockNavigableQueries.get());
     }, [onNavigableQueriesChange]);
 
     return (
       <>
+        {/* The toolbar, so the pause state can be read. Only the export reads the table. */}
+        {actions?.({
+          table: { getPrePaginationRowModel: () => ({ rows: [] }) },
+        })}
         <button
           type="button"
           data-testid="mock-select-first-query"
@@ -180,23 +185,75 @@ describe('RealtimeOverview details pane navigation', () => {
     });
   });
 
-  it('disables navigation when the selected query is not in navigableQueries', async () => {
+  it('navigates from where a finished statement was last seen', async () => {
     renderComponent();
     await openDetailsPaneOnFirstQuery();
 
     expect(getOperationId()).toHaveTextContent('query-1');
 
+    // query-1 was first; once it is gone, query-2 holds its slot. Next goes there, and there is
+    // nothing above it to go back to.
     fireEvent.click(screen.getByTestId('mock-drop-selected-from-navigable'));
 
     await waitFor(() => {
       expect(screen.getByTestId('details-pane-prev-button')).toBeDisabled();
-      expect(screen.getByTestId('details-pane-next-button')).toBeDisabled();
+      expect(screen.getByTestId('details-pane-next-button')).not.toBeDisabled();
     });
 
     fireEvent.click(screen.getByTestId('details-pane-next-button'));
 
     await waitFor(() => {
+      expect(getOperationId()).toHaveTextContent('query-2');
+    });
+  });
+
+  it('resumes live updates on close after navigating with previous and next', async () => {
+    renderComponent();
+    await waitFor(() =>
+      expect(
+        screen.getByTestId('overview-table-pause-button')
+      ).toBeInTheDocument()
+    );
+    await openDetailsPaneOnFirstQuery();
+
+    expect(
+      screen.getByTestId('overview-table-resume-button')
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('details-pane-next-button'));
+    await waitFor(() => {
+      expect(getOperationId()).toHaveTextContent('query-2');
+    });
+    fireEvent.click(screen.getByTestId('details-pane-prev-button'));
+    await waitFor(() => {
       expect(getOperationId()).toHaveTextContent('query-1');
     });
+
+    fireEvent.click(screen.getByTestId('details-pane-close-button'));
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId('overview-table-pause-button')
+      ).toBeInTheDocument()
+    );
+  });
+
+  it('stays paused on close when the view was paused before opening', async () => {
+    renderComponent();
+    fireEvent.click(await screen.findByTestId('overview-table-pause-button'));
+    await openDetailsPaneOnFirstQuery();
+
+    fireEvent.click(screen.getByTestId('details-pane-next-button'));
+    await waitFor(() => {
+      expect(getOperationId()).toHaveTextContent('query-2');
+    });
+
+    fireEvent.click(screen.getByTestId('details-pane-close-button'));
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId('overview-table-resume-button')
+      ).toBeInTheDocument()
+    );
   });
 });
