@@ -813,7 +813,7 @@ export const NodesPage = () => {
         )}
         {counts.unusable > 0 && (
           <Typography variant="body2" color="error.main">
-            <strong>{counts.unusable}</strong> cannot be probed
+            <strong>{counts.unusable}</strong> cannot be scanned
           </Typography>
         )}
         {counts.failing > 0 && (
