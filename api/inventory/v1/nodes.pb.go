@@ -1762,7 +1762,9 @@ func (x *RemoveNodeRequest) GetForce() bool {
 }
 
 type RemoveNodeResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Warning message if there are more service tokens attached to service account.
+	Warning       string `protobuf:"bytes,1,opt,name=warning,proto3" json:"warning,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1795,6 +1797,13 @@ func (x *RemoveNodeResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use RemoveNodeResponse.ProtoReflect.Descriptor instead.
 func (*RemoveNodeResponse) Descriptor() ([]byte, []int) {
 	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *RemoveNodeResponse) GetWarning() string {
+	if x != nil {
+		return x.Warning
+	}
+	return ""
 }
 
 var File_inventory_v1_nodes_proto protoreflect.FileDescriptor
@@ -1975,8 +1984,9 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"K\n" +
 	"\x11RemoveNodeRequest\x12 \n" +
 	"\anode_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\x12\x14\n" +
-	"\x05force\x18\x02 \x01(\bR\x05force\"\x14\n" +
-	"\x12RemoveNodeResponse*\xc3\x01\n" +
+	"\x05force\x18\x02 \x01(\bR\x05force\".\n" +
+	"\x12RemoveNodeResponse\x12\x18\n" +
+	"\awarning\x18\x01 \x01(\tR\awarning*\xc3\x01\n" +
 	"\bNodeType\x12\x19\n" +
 	"\x15NODE_TYPE_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16NODE_TYPE_GENERIC_NODE\x10\x01\x12\x1c\n" +

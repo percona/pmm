@@ -30,6 +30,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/utils/envvars"
 	"github.com/percona/pmm/version"
 )
 
@@ -38,8 +39,22 @@ const (
 	pushMetricsFalse = "(NOT (exporter_options ? 'push_metrics') OR (exporter_options->>'push_metrics')::boolean = false)"
 )
 
+// environmentVariableNamesError maps a SetEnvironmentVariableNames failure onto a gRPC status. Only
+// a name the caller actually sent is the caller's fault; anything else is a server-side failure and
+// must not be returned as InvalidArgument, which would have the caller retry different names
+// forever without ever succeeding. The wrapped error is preserved in that case so errors.Is and
+// errors.As keep matching upstream.
+func environmentVariableNamesError(err error) error {
+	_, ok := errors.AsType[*envvars.InvalidNameError](err)
+	if ok {
+		return status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	return err
+}
+
 // MySQLOptionsParams contains methods to create MySQLOptions object.
-type MySQLOptionsParams interface { //nolint:iface
+type MySQLOptionsParams interface {
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
@@ -69,7 +84,7 @@ func MySQLOptionsFromRequest(params MySQLOptionsParams) (MySQLOptions, error) {
 }
 
 // PostgreSQLOptionsParams contains methods to create PostgreSQLOptions object.
-type PostgreSQLOptionsParams interface { //nolint:iface
+type PostgreSQLOptionsParams interface {
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
@@ -114,6 +129,17 @@ func ValkeyOptionsFromRequest(params ValkeyOptionsParams) ValkeyOptions {
 	res.SSLKey = params.GetTlsKey()
 
 	return res
+}
+
+// Validate rejects a half TLS client key pair. The exporter calls log.Fatal when given one
+// half without the other, and the connection check cannot use one either, so the service
+// would otherwise be registered only to monitor with weaker authentication than was asked for.
+func (c ValkeyOptions) Validate() error {
+	if c.clientKeyPairIncomplete() {
+		return status.Error(codes.InvalidArgument, "TLS certificate and key must both be provided.")
+	}
+
+	return nil
 }
 
 // MongoDBOptionsParams contains methods to create MongoDBOptions object.
@@ -237,6 +263,31 @@ type AgentFilters struct {
 	Disabled *bool
 }
 
+// decryptAgents decrypts Agent rows as returned by reform.
+func decryptAgents(structs []reform.Struct) []*Agent {
+	agents := make([]*Agent, len(structs))
+	for i, s := range structs {
+		agents[i] = new(DecryptAgent(*s.(*Agent))) //nolint:forcetypeassert
+	}
+
+	return agents
+}
+
+// insertAgent encrypts the Agent, inserts it and returns it decrypted again.
+func insertAgent(q *reform.Querier, agent Agent) (*Agent, error) {
+	encryptedAgent, err := EncryptAgent(agent)
+	if err != nil {
+		return nil, err
+	}
+
+	err = q.Insert(&encryptedAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	return new(DecryptAgent(encryptedAgent)), nil
+}
+
 // FindAgents returns Agents by filters.
 //
 // An empty PMMAgentIDs matches every Agent, not none. An unknown PMMAgentID fails with NotFound; an
@@ -322,13 +373,61 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		return nil, err
 	}
 
-	agents := make([]*Agent, len(structs))
-	for i, s := range structs {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		agents[i] = &decryptedAgent
+	return decryptAgents(structs), nil
+}
+
+// IsInternalPgQANAgent reports whether the Agent is the QAN Agent of PMM Server's own PostgreSQL
+// Service.
+//
+// Keyed on the Service alone, not the pmm-agent: Service names are unique, so the name already
+// excludes a remote instance's QAN Agent (RDS/Azure discovery attaches those to PMM Server's own
+// pmm-agent too). Adding pmm_agent_id == PMMServerAgentID would also be wrong, because
+// PMMServerAgentID is a mutable process global, reassigned in HA setup and from the pmm-agent
+// config file.
+func IsInternalPgQANAgent(q *reform.Querier, agent *Agent) (bool, error) {
+	if agent.AgentType != QANPostgreSQLPgStatementsAgentType {
+		return false, nil
 	}
 
-	return agents, nil
+	serviceID := pointer.GetString(agent.ServiceID)
+	if serviceID == "" {
+		return false, nil
+	}
+
+	service, err := FindServiceByID(q, serviceID)
+	if err != nil {
+		return false, err
+	}
+
+	return service.ServiceName == PMMServerPostgreSQLServiceName, nil
+}
+
+// FindInternalPgQANAgent returns the QAN Agent of PMM Server's own PostgreSQL Service.
+//
+// It returns NotFound when PMM Server has no such Service, which is the normal state in HA mode
+// where PMM Server runs against an external PostgreSQL and the fixtures do not create it.
+func FindInternalPgQANAgent(q *reform.Querier) (*Agent, error) {
+	// One statement: the Service is matched by name in a subquery rather than fetched first, so
+	// this costs the same single round trip as the pmm_agent_id lookup it replaced. A subquery
+	// rather than a JOIN because reform selects unqualified columns, and service_id and node_id
+	// exist on both tables.
+	row := &Agent{}
+	tail := "WHERE agent_type = $1 AND service_id = (SELECT service_id FROM services WHERE service_name = $2) " +
+		"ORDER BY agent_id LIMIT 1"
+
+	err := q.SelectOneTo(row, tail, QANPostgreSQLPgStatementsAgentType, PMMServerPostgreSQLServiceName)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			// Also the HA case, where PMM Server runs against an external PostgreSQL and the
+			// fixtures never create this Service.
+			return nil, status.Errorf(codes.NotFound, "QAN Agent for the '%s' Service not found.", PMMServerPostgreSQLServiceName)
+		}
+		return nil, err
+	}
+
+	agent := DecryptAgent(*row)
+
+	return &agent, nil
 }
 
 // FindAgentByID finds Agent by ID.
@@ -340,12 +439,41 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 	agent := &Agent{AgentID: id}
 	err := q.Reload(agent)
 	if err != nil {
-		if errors.Is(err, reform.ErrNoRows) {
-			return nil, status.Errorf(codes.NotFound, "Agent with ID %s not found.", id)
-		}
-		return nil, err
+		return nil, agentLookupError(err, id)
 	}
 	return new(DecryptAgent(*agent)), nil
+}
+
+// FindAgentByIDForUpdate finds Agent by ID and locks its row (SELECT ... FOR UPDATE) for the
+// duration of the caller's transaction. Use this instead of FindAgentByID when the caller reads
+// the row to decide whether a subsequent write in the same transaction is allowed: without the
+// lock, a concurrent transaction could commit a conflicting write in between, so the decision
+// would be based on data that is no longer current by the time it is acted on.
+//
+// It cannot reuse FindAgentByID's q.Reload: Reload builds the whole statement itself and leaves
+// nowhere to append FOR UPDATE, so the locking read needs its own SelectOneFrom.
+func FindAgentByIDForUpdate(q *reform.Querier, id string) (*Agent, error) {
+	if id == "" {
+		return nil, status.Error(codes.InvalidArgument, "Empty Agent ID.")
+	}
+
+	row, err := q.SelectOneFrom(AgentTable, "WHERE agent_id = $1 FOR UPDATE", id)
+	if err != nil {
+		return nil, agentLookupError(err, id)
+	}
+
+	agent := row.(*Agent) //nolint:forcetypeassert
+	return new(DecryptAgent(*agent)), nil
+}
+
+// agentLookupError maps a failed single-agent lookup to the error both finders above return, so
+// the not-found status stays defined in one place.
+func agentLookupError(err error, id string) error {
+	if errors.Is(err, reform.ErrNoRows) {
+		return status.Errorf(codes.NotFound, "Agent with ID %s not found.", id)
+	}
+
+	return err
 }
 
 // FindAgentsByIDs finds Agents by IDs.
@@ -365,12 +493,7 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 		return nil, err
 	}
 
-	res := make([]*Agent, len(structs))
-	for i, s := range structs {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		res[i] = &decryptedAgent
-	}
-	return res, nil
+	return decryptAgents(structs), nil
 }
 
 // FindDBConfigForService find DB config from agents running on service specified by serviceID.
@@ -418,11 +541,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 		return nil, err
 	}
 
-	res := make([]*Agent, len(structs))
-	for i, s := range structs {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		res[i] = &decryptedAgent
-	}
+	res := decryptAgents(structs)
 
 	if len(res) == 0 {
 		return nil, status.Error(codes.FailedPrecondition, "No agents available.")
@@ -446,13 +565,7 @@ func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, err
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get agents by runs_on_node_id, %s", nodeID)
 	}
 
-	res := make([]*Agent, 0, len(structs))
-	for _, str := range structs {
-		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
-		res = append(res, &decryptedAgent)
-	}
-
-	return res, nil
+	return decryptAgents(structs), nil
 }
 
 // FindPMMAgentsForService gets pmm-agents for service.
@@ -491,13 +604,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get pmm-agents for service %s", serviceID)
 	}
-	res := make([]*Agent, 0, len(pmmAgentRecords))
-	for _, str := range pmmAgentRecords {
-		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
-		res = append(res, &decryptedAgent)
-	}
-
-	return res, nil
+	return decryptAgents(pmmAgentRecords), nil
 }
 
 // FindPMMAgentsForServicesOnNode gets pmm-agents for Services running on Node.
@@ -573,12 +680,7 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 		return nil, err
 	}
 
-	res := make([]*Agent, len(allAgents))
-	for i, s := range allAgents {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		res[i] = &decryptedAgent
-	}
-	return res, nil
+	return decryptAgents(allAgents), nil
 }
 
 // FindAllPMMAgentsIDs returns pmm-agents-ids with agents.
@@ -620,7 +722,12 @@ func FindPmmAgentIDToRunActionOrJob(pmmAgentID string, agents []*Agent) (string,
 
 // UpdateAgent updates the Agent in the database.
 func UpdateAgent(q *reform.Querier, agent *Agent) error {
-	err := q.Update(new(EncryptAgent(*agent)))
+	encryptedAgent, err := EncryptAgent(*agent)
+	if err != nil {
+		return err
+	}
+
+	err = q.Update(new(encryptedAgent))
 	if err != nil {
 		return fmt.Errorf("failed to update Agent: %w", err)
 	}
@@ -734,12 +841,7 @@ func CreateNodeExporter(q *reform.Querier,
 		return nil, err
 	}
 
-	encryptedAgent := EncryptAgent(*row)
-	err = q.Insert(&encryptedAgent)
-	if err != nil {
-		return nil, err
-	}
-	return new(DecryptAgent(encryptedAgent)), nil
+	return insertAgent(q, *row)
 }
 
 // CreateExternalExporterParams params for add external exporter.
@@ -824,12 +926,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		return nil, err
 	}
 
-	encryptedAgent := EncryptAgent(*row)
-	err = q.Insert(&encryptedAgent)
-	if err != nil {
-		return nil, err
-	}
-	return new(DecryptAgent(encryptedAgent)), nil
+	return insertAgent(q, *row)
 }
 
 // CreateAgentParams params for add common exporter.
@@ -976,6 +1073,11 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		}
 	}
 
+	err = params.ValkeyOptions.Validate()
+	if err != nil {
+		return nil, err
+	}
+
 	exporterOptions := params.ExporterOptions
 	if pointer.Get(exporterOptions.ConnectionTimeout) == 0 {
 		exporterOptions.ConnectionTimeout = nil
@@ -1010,7 +1112,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	}
 	err = row.SetEnvironmentVariableNames(params.EnvironmentVariableNames)
 	if err != nil {
-		return nil, err
+		return nil, environmentVariableNamesError(err)
 	}
 
 	switch agentType {
@@ -1026,12 +1128,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		// do nothing
 	}
 
-	encryptedAgent := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
-	err = q.Insert(&encryptedAgent)
-	if err != nil {
-		return nil, err
-	}
-	return new(DecryptAgent(encryptedAgent)), nil
+	return insertAgent(q, trimUnicodeNilsInCertFiles(*row))
 }
 
 func trimUnicodeNilsInCertFiles(agent Agent) Agent {
@@ -1137,6 +1234,8 @@ type ChangeAgentParams struct {
 	// Common fields for all agents
 	Enabled      *bool              // true - enable, false - disable, nil - no change
 	CustomLabels *map[string]string // empty map - remove all custom labels, non-empty - change, nil - no change
+	// empty slice - remove all environment variable names, non-empty - change, nil - no change
+	EnvironmentVariableNames *[]string
 
 	// Database connection fields
 	Username      *string
@@ -1207,12 +1306,33 @@ func (p *ChangeAgentParams) AffectsConnection() bool {
 	return false
 }
 
-// ChangeAgent changes agent parameters based on agent type.
-func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,maintidx
-	row, err := FindAgentByID(q, agentID)
-	if err != nil {
-		return nil, err
+// ApplyAgentChange changes agent parameters on an already-loaded Agent row, based on agent type.
+//
+// Callers that already had to load the row to inspect it before changing it (e.g. to check its
+// type or a precondition) pass it here directly, so the row is not fetched twice.
+//
+// The row must be decrypted, i.e. loaded through FindAgentByID, FindAgents or another helper that
+// runs DecryptAgent -- not read straight out of AgentTable. This function encrypts before writing,
+// so a still-encrypted row would have its credentials encrypted twice, and agentEncryption only
+// logs a failure rather than returning one.
+func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,gocognit,maintidx
+	// Applied to a copy: the caller's row must not end up carrying the requested values when the
+	// change does not become durable, e.g. when a connection check later in the same transaction
+	// fails and rolls it back.
+	//
+	// The *Options fields are value structs, so copying the Agent copies them too, and the
+	// reference-typed fields inside them (DisabledCollectors, StatsCollections,
+	// ConnectionTimeout) are replaced wholesale rather than written into. MetricsResolutions is
+	// the exception: it is a pointer, and the block below assigns to its HR/MR/LR fields, so it
+	// needs a copy of its own or those writes would reach the caller's row.
+	rowCopy := *row
+	row = &rowCopy
+	if row.ExporterOptions.MetricsResolutions != nil {
+		resolutions := *row.ExporterOptions.MetricsResolutions
+		row.ExporterOptions.MetricsResolutions = &resolutions
 	}
+
+	var err error
 
 	// Handle common fields first
 	if params.Enabled != nil {
@@ -1230,6 +1350,14 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 			if err != nil {
 				return nil, err
 			}
+		}
+	}
+
+	// An empty slice removes all environment variable names, SetEnvironmentVariableNames treats it the same as nil.
+	if params.EnvironmentVariableNames != nil {
+		err = row.SetEnvironmentVariableNames(*params.EnvironmentVariableNames)
+		if err != nil {
+			return nil, environmentVariableNamesError(err)
 		}
 	}
 
@@ -1307,6 +1435,16 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		}
 		if params.ValkeyOptions.SSLKey != nil {
 			row.ValkeyOptions.SSLKey = *params.ValkeyOptions.SSLKey
+		}
+
+		// Only the change that touches the key pair is validated: rows stored before this
+		// validation existed may already hold half a pair, and validating the merged row on
+		// every call would make them permanently un-editable, including back into a valid shape.
+		if params.ValkeyOptions.SSLCert != nil || params.ValkeyOptions.SSLKey != nil {
+			err = row.ValkeyOptions.Validate()
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -1459,7 +1597,12 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 	row.RTAOptions.Merge(params.RTAOptions)
 
 	// need to encrypt Agent's sensitive data before update
-	row = new(EncryptAgent(*row))
+	encryptedAgent, err := EncryptAgent(*row)
+	if err != nil {
+		return nil, err
+	}
+
+	row = new(encryptedAgent)
 	err = q.Update(row)
 	if err != nil {
 		return nil, err

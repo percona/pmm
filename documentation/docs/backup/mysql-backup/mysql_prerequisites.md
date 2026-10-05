@@ -40,3 +40,4 @@ When installing `xtrabackup`, use a version of [Percona XtraBackup (PXB)](https:
 - MySQL 8.0.34+ — PXB 8.0.34+
 - MySQL 8.1.x, 8.2.x, 8.3.x — matching PXB version (supports only the matching MySQL Innovation release)
 - MySQL 8.4.x — any PXB 8.4.x release (supports MySQL 8.4 LTS, including future patch releases; does not support MySQL 8.0 or 9.x)
+- MySQL 8.5.x and later Innovation releases, including MySQL 9.7.x — a PXB release from the same major and minor series, for example PXB 9.7.x for MySQL 9.7.x. Each series supports only its matching MySQL release: [PXB 9.7](https://docs.percona.com/percona-xtrabackup/9.7/) does not support MySQL 8.0 or 8.4

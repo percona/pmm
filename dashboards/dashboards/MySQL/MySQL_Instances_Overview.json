@@ -5665,7 +5665,7 @@
             "type": "stat"
         },
         {
-            "description": "",
+            "description": "Query Cache was removed in Oracle MySQL 8.0 and Percona Server 8.0, so no data is expected there. MariaDB still ships a query cache, but it is disabled by default, so data appears only when `query_cache_type` is enabled.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -6177,6 +6177,22 @@
             "id": 391,
             "panels": [
                 {
+                    "gridPos": {
+                        "h": 3,
+                        "w": 24,
+                        "x": 0,
+                        "y": 29
+                    },
+                    "id": 9001,
+                    "options": {
+                        "content": "ℹ️ **Query Cache was removed in Oracle MySQL 8.0 and Percona Server 8.0, so empty charts are expected there. MariaDB still ships a query cache, but it is disabled by default, so charts stay empty unless `query_cache_type` is enabled.**",
+                        "mode": "markdown"
+                    },
+                    "pluginVersion": "8.3.5",
+                    "transparent": true,
+                    "type": "text"
+                },
+                {
                     "aliasColors": {},
                     "bars": true,
                     "dashLength": 10,
@@ -6198,7 +6214,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 30
+                        "y": 32
                     },
                     "hiddenSeries": false,
                     "id": 46,
@@ -6324,7 +6340,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 30
+                        "y": 32
                     },
                     "id": 421,
                     "links": [],

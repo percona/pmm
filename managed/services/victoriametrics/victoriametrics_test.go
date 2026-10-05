@@ -287,7 +287,9 @@ func TestVictoriaMetrics(t *testing.T) {
 			},
 		} {
 			if str, ok := str.(*models.Agent); ok {
-				*str = models.EncryptAgent(*str)
+				encrypted, err := models.EncryptAgent(*str)
+				check.NoError(err)
+				*str = encrypted
 			}
 
 			err := db.Insert(str)
@@ -578,6 +580,7 @@ scrape_configs:
             - perf_schema.eventsstatements
             - perf_schema.file_instances
             - perf_schema.indexiowaits
+            - perf_schema.memory_events
             - perf_schema.tableiowaits
             - plugins
       scrape_interval: 1m
@@ -690,6 +693,7 @@ scrape_configs:
             - perf_schema.eventsstatements
             - perf_schema.file_instances
             - perf_schema.indexiowaits
+            - perf_schema.memory_events
             - perf_schema.tableiowaits
             - plugins
       scrape_interval: 1m

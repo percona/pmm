@@ -24,6 +24,8 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -44,6 +46,115 @@ func TestAgent(t *testing.T) {
 			"foo":      "bar",
 		}
 		require.Equal(t, expected, actual)
+	})
+
+	t.Run("EnvironmentVariableNames", func(t *testing.T) {
+		t.Run("round-trips valid names", func(t *testing.T) {
+			agent := &models.Agent{}
+			require.NoError(t, agent.SetEnvironmentVariableNames([]string{"KRB5_KTNAME", "https_proxy"}))
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Equal(t, []string{"KRB5_KTNAME", "https_proxy"}, names)
+		})
+
+		t.Run("empty slice clears stored names", func(t *testing.T) {
+			agent := &models.Agent{}
+			require.NoError(t, agent.SetEnvironmentVariableNames([]string{"KRB5_KTNAME"}))
+			require.NoError(t, agent.SetEnvironmentVariableNames(nil))
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Empty(t, names)
+		})
+
+		t.Run("rejects pmm-agent's own reserved namespace", func(t *testing.T) {
+			agent := &models.Agent{}
+			err := agent.SetEnvironmentVariableNames([]string{"PMM_AGENT_SERVER_PASSWORD"})
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "reserved for pmm-agent")
+			assert.Nil(t, agent.EnvironmentVariables)
+		})
+
+		t.Run("rejects malformed names", func(t *testing.T) {
+			agent := &models.Agent{}
+			err := agent.SetEnvironmentVariableNames([]string{"KRB5-KTNAME"})
+			require.Error(t, err)
+			assert.Nil(t, agent.EnvironmentVariables)
+		})
+
+		t.Run("duplicate input round-trips as one stored name", func(t *testing.T) {
+			agent := &models.Agent{}
+			require.NoError(t, agent.SetEnvironmentVariableNames([]string{"KRB5_KTNAME", " KRB5_KTNAME "}))
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Equal(t, []string{"KRB5_KTNAME"}, names)
+		})
+
+		t.Run("grandfathers an already-stored name that would now fail validation", func(t *testing.T) {
+			agent := &models.Agent{EnvironmentVariables: []byte(`["krb5-ktname"]`)}
+
+			// Resending the pre-existing (now-invalid) name alongside a new, valid one must not
+			// fail: the caller only intended to add KRB5_CONFIG, and this field is full-replace.
+			require.NoError(t, agent.SetEnvironmentVariableNames([]string{"krb5-ktname", "KRB5_CONFIG"}))
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Equal(t, []string{"krb5-ktname", "KRB5_CONFIG"}, names)
+		})
+
+		t.Run("grandfathers a whitespace-padded legacy name stored before validation existed", func(t *testing.T) {
+			agent := &models.Agent{EnvironmentVariables: []byte(`[" krb5-ktname "]`)}
+
+			// The stored name carries whitespace from before any validation trimmed it; resending
+			// it trimmed (as any normal caller would) must still match the grandfathered value.
+			require.NoError(t, agent.SetEnvironmentVariableNames([]string{"krb5-ktname", "KRB5_CONFIG"}))
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Equal(t, []string{"krb5-ktname", "KRB5_CONFIG"}, names)
+		})
+
+		t.Run("an undecodable stored value is repaired by sending a new list", func(t *testing.T) {
+			agent := &models.Agent{EnvironmentVariables: []byte(`{"not":"an array"}`)}
+
+			// ToAPIAgent reports an undecodable column as empty and documents that sending a new
+			// list repairs the row; grandfathering must not turn that into a permanent failure.
+			require.NoError(t, agent.SetEnvironmentVariableNames([]string{"KRB5_CONFIG"}))
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Equal(t, []string{"KRB5_CONFIG"}, names)
+		})
+
+		t.Run("an undecodable stored value grandfathers nothing", func(t *testing.T) {
+			agent := &models.Agent{EnvironmentVariables: []byte(`{"not":"an array"}`)}
+
+			err := agent.SetEnvironmentVariableNames([]string{"krb5-ktname"})
+			require.Error(t, err)
+		})
+
+		t.Run("a blank stored name is not grandfathered", func(t *testing.T) {
+			agent := &models.Agent{EnvironmentVariables: []byte(`["   ", "KRB5_KTNAME"]`)}
+
+			// A blank entry written before validation existed must not let the empty string be
+			// stored again: pmm-agent cannot resolve it and warns on every state update.
+			err := agent.SetEnvironmentVariableNames([]string{"   ", "KRB5_CONFIG"})
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "cannot be empty")
+		})
+
+		t.Run("still rejects a new invalid name even with a grandfathered one present", func(t *testing.T) {
+			agent := &models.Agent{EnvironmentVariables: []byte(`["krb5-ktname"]`)}
+
+			err := agent.SetEnvironmentVariableNames([]string{"krb5-ktname", "also-bad"})
+			require.Error(t, err)
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Equal(t, []string{"krb5-ktname"}, names, "a rejected update must not overwrite the stored value")
+		})
 	})
 
 	t.Run("DSN", func(t *testing.T) {
@@ -286,7 +397,11 @@ func TestPostgresAgentTLS(t *testing.T) {
 }
 
 func TestValkey(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Redis DSN", func(t *testing.T) {
+		t.Parallel()
+
 		agent := &models.Agent{
 			Username:        new("username"),
 			Password:        new("s3cur3 p@$$w0r4."),
@@ -305,6 +420,8 @@ func TestValkey(t *testing.T) {
 	})
 
 	t.Run("Valkey DSN with TLS", func(t *testing.T) {
+		t.Parallel()
+
 		agent := &models.Agent{
 			Username:        new("username"),
 			Password:        new("s3cur3 p@$$w0r4."),
@@ -325,6 +442,82 @@ func TestValkey(t *testing.T) {
 		expected := "rediss://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345"
 
 		require.Equal(t, expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
+	})
+
+	t.Run("Files", func(t *testing.T) {
+		t.Parallel()
+
+		all := models.ValkeyOptions{SSLCa: "aa", SSLCert: "bb", SSLKey: "cc"}
+
+		for name, tc := range map[string]struct {
+			tls      bool
+			options  models.ValkeyOptions
+			expected map[string]string
+		}{
+			"all":              {true, all, map[string]string{"tlsCa": "aa", "tlsCert": "bb", "tlsKey": "cc"}},
+			"ca":               {true, models.ValkeyOptions{SSLCa: "aa"}, map[string]string{"tlsCa": "aa"}},
+			"pair":             {true, models.ValkeyOptions{SSLCert: "bb", SSLKey: "cc"}, map[string]string{"tlsCert": "bb", "tlsKey": "cc"}},
+			"cert without key": {true, models.ValkeyOptions{SSLCa: "aa", SSLCert: "bb"}, map[string]string{"tlsCa": "aa"}},
+			"key without cert": {true, models.ValkeyOptions{SSLKey: "cc"}, nil},
+			"none":             {true, models.ValkeyOptions{}, nil},
+			"tls disabled":     {false, all, nil},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				agent := models.Agent{AgentType: models.ValkeyExporterType, TLS: tc.tls, ValkeyOptions: tc.options}
+
+				require.Equal(t, tc.expected, agent.Files())
+			})
+		}
+	})
+
+	t.Run("Validate", func(t *testing.T) {
+		t.Parallel()
+
+		for name, tc := range map[string]struct {
+			options models.ValkeyOptions
+			valid   bool
+		}{
+			"no material":   {models.ValkeyOptions{}, true},
+			"ca only":       {models.ValkeyOptions{SSLCa: "aa"}, true},
+			"complete pair": {models.ValkeyOptions{SSLCert: "bb", SSLKey: "cc"}, true},
+			"cert only":     {models.ValkeyOptions{SSLCert: "bb"}, false},
+			"key only":      {models.ValkeyOptions{SSLKey: "cc"}, false},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				err := tc.options.Validate()
+				if tc.valid {
+					require.NoError(t, err)
+					return
+				}
+
+				require.Error(t, err)
+				require.Equal(t, codes.InvalidArgument, status.Code(err))
+			})
+		}
+	})
+
+	t.Run("TemplateDelimiters avoid certificate content", func(t *testing.T) {
+		t.Parallel()
+
+		service := &models.Service{ServiceType: models.ValkeyServiceType, Address: new("1.2.3.4")}
+
+		for name, options := range map[string]models.ValkeyOptions{
+			"ca":   {SSLCa: "aa {{ bb"},
+			"cert": {SSLCert: "aa {{ bb"},
+			"key":  {SSLKey: "aa {{ bb"},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				agent := models.Agent{AgentType: models.ValkeyExporterType, ValkeyOptions: options}
+
+				require.Equal(t, &models.DelimiterPair{Left: "[[", Right: "]]"}, agent.TemplateDelimiters(service))
+			})
+		}
 	})
 }
 
@@ -588,7 +781,9 @@ func TestExporterURL(t *testing.T) {
 			},
 		} {
 			if v, ok := str.(*models.Agent); ok {
-				str = new(models.EncryptAgent(*v))
+				encrypted, err := models.EncryptAgent(*v)
+				require.NoError(t, err)
+				str = new(encrypted)
 			}
 			require.NoError(t, q.Insert(str), "failed to INSERT %+v", str)
 		}
