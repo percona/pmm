@@ -16,11 +16,18 @@ import { LabeledContentProps } from '../../../labeled-content';
 import { Control, FieldPath, FieldValues, UseControllerProps } from 'react-hook-form';
 
 export type ToggleButtonGroupInputProps<T extends FieldValues = FieldValues> = {
+  /** Form field the selected value is stored under; also drives the test id. */
   name: FieldPath<T>;
+  /** Heading shown above the group; without it only the buttons render. */
   label?: string;
+  /** Settings for the heading rendered by `LabeledContent`, such as a caption or required asterisk. */
   labelProps?: LabeledContentProps;
+  /** react-hook-form control; only needed when the input sits outside a `FormProvider`. */
   control?: Control<T>;
+  /** Validation rules and other react-hook-form Controller settings for this field. */
   controllerProps?: Omit<UseControllerProps<T>, 'name' | 'control'>;
+  /** MUI ToggleButtonGroup props, such as size or orientation; its onChange fires with the picked value. */
   toggleButtonGroupProps?: ToggleButtonGroupProps;
+  /** The options, as MUI ToggleButton or ToggleCard elements; each one's `value` is what gets stored. */
   children: React.ReactNode;
 };

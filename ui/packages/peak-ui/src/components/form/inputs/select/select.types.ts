@@ -17,15 +17,26 @@ import { FormControlProps, SelectProps } from '@mui/material';
 import { Control, FieldPath, FieldValues, UseControllerProps } from 'react-hook-form';
 
 export type SelectInputProps<T extends FieldValues = FieldValues> = {
+  /** react-hook-form control; only needed when the input sits outside a `FormProvider`. */
   control?: Control<T>;
+  /** Validation rules and other react-hook-form Controller settings for this field. */
   controllerProps?: Omit<UseControllerProps<T>, 'name' | 'control'>;
+  /** Form field the selected value is stored under; also drives the test ids. */
   name: FieldPath<T>;
+  /** Floating label shown inside the field. */
   label?: string;
+  /** Hint shown under the field. Validation errors only turn the field red, so pass the message here. */
   helperText?: React.ReactNode;
+  /** Not used: this input renders the MUI floating label. Kept for API symmetry with `CheckboxInput` and `RadioGroup`. */
   labelProps?: LabeledContentProps;
+  /** MUI Select props forwarded to the dropdown, such as multiple or renderValue. */
   selectFieldProps?: SelectProps;
+  /** MUI FormControl props for the wrapper, such as fullWidth or size (defaults to small). */
   formControlProps?: FormControlProps;
+  /** The choices, as MUI MenuItem elements; with none, a disabled "No options" item is shown. */
   children?: React.ReactNode | React.ReactNode[];
+  /** Accepted but not rendered today: no required marker is shown. Put required validation in `controllerProps.rules`. */
   isRequired?: boolean;
+  /** Replaces the dropdown arrow with a spinner while the choices are being fetched. */
   loading?: boolean;
 };

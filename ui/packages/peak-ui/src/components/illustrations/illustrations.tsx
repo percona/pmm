@@ -2,6 +2,7 @@ import { type ReactNode } from 'react';
 import SvgIcon, { type SvgIconProps } from '@mui/material/SvgIcon';
 
 interface IllustrationRootProps extends Omit<SvgIconProps, 'children'> {
+  /** The artwork layers, drawn on a 64px canvas. */
   children: ReactNode;
 }
 
@@ -20,8 +21,11 @@ const IllustrationRoot = ({ sx, fontSize, children, ...props }: IllustrationRoot
 };
 
 interface LayerProps {
+  /** Offset of the layer on the canvas, as an SVG translate value such as "8 12". */
   translate: string;
+  /** Fill of the layer; defaults to the text color. */
   color?: string;
+  /** The layer's SVG shapes. */
   children: ReactNode;
 }
 
