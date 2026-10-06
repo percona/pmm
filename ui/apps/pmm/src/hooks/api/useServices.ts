@@ -1,10 +1,28 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import {
+  type QueryClient,
+  useMutation,
+  type UseMutationOptions,
+  useQuery,
+  useQueryClient,
+  type UseQueryOptions,
+} from '@tanstack/react-query';
+import {
+  addAzureService,
+  addService,
+  discoverAzure,
+  discoverRDS,
   getServiceTypes,
   listServices,
   listManagedServices,
 } from 'api/services';
-import {
+import { NODES_QUERY_KEY } from './useNodes';
+import type {
+  AddAzureDatabasePayload,
+  AddServicePayload,
+  DiscoverAzurePayload,
+  DiscoverAzureResponse,
+  DiscoverRDSPayload,
+  DiscoverRDSResponse,
   ListServicesParams,
   ListServicesResponse,
   ListTypesResponse,
@@ -39,5 +57,69 @@ export const useManagedServices = (
     queryKey: ['services:managed', params],
     queryFn: ({ queryKey: [, params] }) =>
       listManagedServices(params as ListServicesParams),
+    ...options,
+  });
+
+const invalidateInventory = (queryClient: QueryClient) =>
+  Promise.all(
+    [
+      ['services:getTypes'],
+      ['services:list'],
+      ['services:managed'],
+      NODES_QUERY_KEY,
+    ].map((queryKey) => queryClient.invalidateQueries({ queryKey }))
+  );
+
+export const useAddService = (
+  options?: Partial<UseMutationOptions<void, Error, AddServicePayload>>
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ['services:add'],
+    mutationFn: addService,
+    ...options,
+    onSuccess: async (data, variables, onMutate, context) => {
+      await invalidateInventory(queryClient);
+      await options?.onSuccess?.(data, variables, onMutate, context);
+    },
+  });
+};
+
+export const useAddAzureService = (
+  options?: Partial<UseMutationOptions<void, Error, AddAzureDatabasePayload>>
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ['services:add-azure'],
+    mutationFn: addAzureService,
+    ...options,
+    onSuccess: async (data, variables, onMutate, context) => {
+      await invalidateInventory(queryClient);
+      await options?.onSuccess?.(data, variables, onMutate, context);
+    },
+  });
+};
+
+export const useDiscoverRDS = (
+  options?: Partial<
+    UseMutationOptions<DiscoverRDSResponse, Error, DiscoverRDSPayload>
+  >
+) =>
+  useMutation({
+    mutationKey: ['services:discover-rds'],
+    mutationFn: discoverRDS,
+    ...options,
+  });
+
+export const useDiscoverAzure = (
+  options?: Partial<
+    UseMutationOptions<DiscoverAzureResponse, Error, DiscoverAzurePayload>
+  >
+) =>
+  useMutation({
+    mutationKey: ['services:discover-azure'],
+    mutationFn: discoverAzure,
     ...options,
   });
