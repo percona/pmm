@@ -97,9 +97,9 @@ const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
   {
     accessorKey: 'started_at',
     header: 'Started',
-    // Room for a full en-US date and time ("9/13/2026, 4:57:01 PM"): the cell does not
-    // wrap, and the table ellipsizes anything wider.
-    size: 210,
+    // Room for the widest en-US date and time ("12/28/2025, 10:57:01 PM"): the cell
+    // does not wrap, and the table ellipsizes anything wider.
+    size: 230,
     muiTableBodyCellProps: { sx: { whiteSpace: 'nowrap' } },
     Cell: ({ row: { original } }) => <RunTime value={original.started_at} />,
   },
