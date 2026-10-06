@@ -3,9 +3,7 @@
 [![CI](https://github.com/percona/pmm/actions/workflows/main.yml/badge.svg)](https://github.com/percona/pmm/actions/workflows/main.yml)
 [![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm)](https://cla-assistant.percona.com/percona/pmm)
 [![Code coverage](https://codecov.io/gh/percona/pmm/branch/main/graph/badge.svg)](https://codecov.io/gh/percona/pmm)
-[![Go Report Card](https://goreportcard.com/badge/github.com/percona/pmm)](https://goreportcard.com/report/github.com/percona/pmm)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/percona/pmm/badge)](https://scorecard.dev/viewer/?uri=github.com/percona/pmm)
-[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9702/badge)](https://www.bestpractices.dev/projects/9702)
 [![Forum](https://img.shields.io/badge/Forum-join-brightgreen)](https://forums.percona.com/)
 
 ![PMM](documentation/docs/assets/pmm-logo.png)
@@ -32,11 +30,20 @@ See the [PMM Documentation](https://docs.percona.com/percona-monitoring-and-mana
 
 ## Architecture
 
-![Overall Architecture](./documentation/docs/images/arch/C_S_Architecture.jpg "Client Server Architecture")
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./documentation/docs/images/arch/C_S_Architecture-dark.png">
+  <img alt="Overall Architecture" title="Client Server Architecture" src="./documentation/docs/images/arch/C_S_Architecture-light.png">
+</picture>
 
-![PMM Server](./documentation/docs/images/arch/PMM-Server-Component-Based-View.jpg 'PMM Server Architecture')
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./documentation/docs/images/arch/PMM-Server-Component-Based-View-dark.png">
+  <img alt="PMM Server" title="PMM Server Architecture" src="./documentation/docs/images/arch/PMM-Server-Component-Based-View-light.png">
+</picture>
 
-![PMM Client](./documentation/docs/images/arch/PMM-Client-Component-Based-View.jpg 'PMM Client Architecture')
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./documentation/docs/images/arch/PMM-Client-Component-Based-View-dark.png">
+  <img alt="PMM Client" title="PMM Client Architecture" src="./documentation/docs/images/arch/PMM-Client-Component-Based-View-light.png">
+</picture>
 
 ## Installation
 
