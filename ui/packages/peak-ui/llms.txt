@@ -50,7 +50,7 @@ Icons: search `@mui/icons-material` first; the custom icons listed under Icons e
 
 ## Labels and grouping
 
-- [LabeledContent](https://github.com/percona/peak-ui/blob/main/src/components/labeled-content/labeled-content.tsx): Section-heading `label` with an optional `caption`, a required asterisk, and a slot beside the label (`horizontalStackChildrenSlot`); children stack below it. `CheckboxInput`, `RadioGroup`, and `ToggleButtonGroupInput` use it for their label and pass their `labelProps` to it; `TextInput`, `SelectInput`, and `AutoCompleteInput` use the MUI floating label and ignore `labelProps`. Type `LabeledContentProps`.
+- [LabeledContent](https://github.com/percona/peak-ui/blob/main/src/components/labeled-content/labeled-content.tsx): Section-heading `label` with an optional `caption`, a required asterisk, and a slot beside the label (`horizontalStackChildrenSlot`); children stack below it. `CheckboxInput`, `RadioGroup`, and `ToggleButtonGroupInput` use it for their label and pass their `labelProps` to it; `TextInput`, `SelectInput`, and `AutoCompleteInput` use the MUI floating label instead and take no `labelProps`. Type `LabeledContentProps`.
 - [ActionableLabeledContent](https://percona.github.io/peak-ui/?path=/docs/to-be-reviewed-actionablelabeledcontent--docs): `LabeledContent` with an "Add new" text button on the right (`actionButtonProps`) and an optional "Technical preview" chip (`techPreview`); the header for lists the user can extend. Type `ActionableLabeledContentProps`.
 
 ## Buttons and actions
