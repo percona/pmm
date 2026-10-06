@@ -2326,8 +2326,20 @@ type InventoryHost struct {
 	// False when eligible, so it never has to be read alongside automation_eligible to
 	// mean anything.
 	AutomationBlockedByDesign bool `protobuf:"varint,15,opt,name=automation_blocked_by_design,json=automationBlockedByDesign,proto3" json:"automation_blocked_by_design,omitempty"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
+	// Whether this is the node PMM Server itself runs on.
+	//
+	// Carried as its own field rather than left to be inferred from
+	// automation_blocked_reasons, because a consumer that matched on the sentence would
+	// break the first time it is reworded, and automation_blocked_by_design cannot say
+	// it: a registered replica-set member sets that flag too, and Forget is a perfectly
+	// reasonable thing to offer on one of those.
+	//
+	// What it is for: Operations offers no automation action on this node at all, Forget
+	// included. Forgetting it would clear Operations' record of the machine PMM runs on,
+	// the next scan would put it straight back, and in between the fleet would be wrong.
+	IsPmmServerNode bool `protobuf:"varint,16,opt,name=is_pmm_server_node,json=isPmmServerNode,proto3" json:"is_pmm_server_node,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *InventoryHost) Reset() {
@@ -2461,6 +2473,13 @@ func (x *InventoryHost) GetAutomationBlockedReasons() []string {
 func (x *InventoryHost) GetAutomationBlockedByDesign() bool {
 	if x != nil {
 		return x.AutomationBlockedByDesign
+	}
+	return false
+}
+
+func (x *InventoryHost) GetIsPmmServerNode() bool {
+	if x != nil {
+		return x.IsPmmServerNode
 	}
 	return false
 }
@@ -5219,7 +5238,7 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\r_probe_statusB\x11\n" +
 	"\x0f_server_runningB\x11\n" +
 	"\x0f_uptime_secondsB\x12\n" +
-	"\x10_replication_set\"\xee\x05\n" +
+	"\x10_replication_set\"\x9b\x06\n" +
 	"\rInventoryHost\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -5236,7 +5255,8 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x13pmm_agent_connected\x18\f \x01(\bR\x11pmmAgentConnected\x12/\n" +
 	"\x13automation_eligible\x18\r \x01(\bR\x12automationEligible\x12<\n" +
 	"\x1aautomation_blocked_reasons\x18\x0e \x03(\tR\x18automationBlockedReasons\x12?\n" +
-	"\x1cautomation_blocked_by_design\x18\x0f \x01(\bR\x19automationBlockedByDesignB\n" +
+	"\x1cautomation_blocked_by_design\x18\x0f \x01(\bR\x19automationBlockedByDesign\x12+\n" +
+	"\x12is_pmm_server_node\x18\x10 \x01(\bR\x0fisPmmServerNodeB\n" +
 	"\n" +
 	"\b_addressB\x10\n" +
 	"\x0e_executor_hostB\x05\n" +

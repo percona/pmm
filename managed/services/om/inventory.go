@@ -18,12 +18,14 @@ package om
 import (
 	"context"
 	"errors"
+	"fmt"
 	"maps"
 	"math"
 	"net/http"
 	"net/url"
 	"slices"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -576,6 +578,17 @@ func executorUnusable(host extensionsHost) string {
 // _require_package_manager -- PMM Extensions remains the actual source of truth, so a
 // third OS lands here only after (never instead of) that enum gaining it.
 var supportedBootstrapOSIDs = map[string]bool{"ubuntu": true, "rocky": true}
+
+// supportedBootstrapOSNames lists them for a message, sorted so the sentence a user
+// reads does not change between two runs over the same map.
+func supportedBootstrapOSNames() string {
+	names := make([]string, 0, len(supportedBootstrapOSIDs))
+	for id := range supportedBootstrapOSIDs {
+		names = append(names, id)
+	}
+	slices.Sort(names)
+	return strings.Join(names, ", ")
+}
 
 // resolveBootstrapHostOSID validates one host's OS against the run's OS chosen
 // so far (osID, empty for the first host in the loop) and returns the OS to
@@ -1362,6 +1375,7 @@ func inventoryHostToProto(host extensionsHost, pmmAgentConnected bool, isPMMServ
 		AutomationEligible:        eligible,
 		AutomationBlockedReasons:  reasons,
 		AutomationBlockedByDesign: byDesign,
+		IsPmmServerNode:           isPMMServer,
 	}
 	for _, service := range host.Services {
 		out.Services = append(out.Services, inventoryServiceToProto(service))
@@ -1394,9 +1408,14 @@ func automationEligibility(
 	// database onto, and listing the reachability complaints alongside would read as
 	// though fixing them would help.
 	if isPMMServer {
-		byDesign = true
-		reasons = append(reasons,
-			"this is the node PMM Server itself runs on, which Operations never installs onto")
+		// The only reason, not the first of several. Everything below describes
+		// something a user could go and fix, and none of it would make this node a
+		// target: PMM Server's own image reports os_id "ol", so without this the row
+		// also claimed Operations "cannot install onto ol (supported: rocky, ubuntu)",
+		// which invites someone to reinstall the machine PMM is running on.
+		return false, []string{
+			"this is the node PMM Server itself runs on, which Operations never installs onto",
+		}, true
 	}
 	if len(host.Services) > 0 {
 		byDesign = true
@@ -1410,12 +1429,35 @@ func automationEligibility(
 			"a scan found a mongod running here that PMM has no service for")
 	}
 	if !pmmAgentConnected {
-		reasons = append(reasons, "PMM-Client is not installed or not connected")
+		reasons = append(reasons, "PMM Client is not installed or not connected")
 	}
+	// Worded in the glossary the UI agreed on (PMM-15659), not in Nomad's terms.
+	// These strings are not diagnostics: automationBlockedTitle joins them straight
+	// into the tooltip on the Nodes page, so "the Nomad client" and "raw_exec" were
+	// user-facing text naming our scheduler, which PMM-15623 set out to remove.
 	if executor == nil || !executor.GetReachable() {
-		reasons = append(reasons, "host is not reachable by the Nomad client")
+		reasons = append(reasons, "this node has no automation agent that answers")
 	} else if !executor.GetDriverHealthy() {
-		reasons = append(reasons, "Nomad's raw_exec driver is not healthy on this host")
+		reasons = append(reasons, "this node's automation agent cannot run jobs")
+	}
+	// The same map the trigger checks against, so eligibility and TriggerHostBootstrap
+	// cannot disagree about which OS an install supports. Both are preconditions P1
+	// names, and both failed on the wizard's final button until now.
+	switch osID, _ := host.Observed["os_id"].(string); {
+	case osID == "":
+		reasons = append(reasons, "no scan has reported this node's operating system yet")
+	case !supportedBootstrapOSIDs[osID]:
+		// By design: nothing is wrong with the node. Operations installs onto two
+		// distributions, and this is not one of them -- "Needs attention" would send
+		// a reader looking for a fault on a machine that is working perfectly.
+		byDesign = true
+		reasons = append(reasons, fmt.Sprintf(
+			"this node runs %s, which Operations cannot install onto (supported: %s)",
+			osID, supportedBootstrapOSNames(),
+		))
+	}
+	if host.Address == nil || *host.Address == "" {
+		reasons = append(reasons, "PMM has no address for this node")
 	}
 	eligible := len(reasons) == 0
 	// Only meaningful when something is blocking. An eligible node reporting "blocked

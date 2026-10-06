@@ -3277,6 +3277,8 @@ func (m *InventoryHost) validate(all bool) error {
 
 	// no validation rules for AutomationBlockedByDesign
 
+	// no validation rules for IsPmmServerNode
+
 	if m.Address != nil {
 		// no validation rules for Address
 	}

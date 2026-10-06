@@ -22,6 +22,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -297,17 +298,17 @@ func TestListInventoryHosts(t *testing.T) {
 		assert.False(t, healthyExecutor.GetPmmAgentConnected())
 		assert.False(t, healthyExecutor.GetAutomationEligible())
 		assert.Contains(t, healthyExecutor.GetAutomationBlockedReasons(),
-			"PMM-Client is not installed or not connected")
+			"PMM Client is not installed or not connected")
 		assert.NotContains(t, healthyExecutor.GetAutomationBlockedReasons(),
-			"host is not reachable by the Nomad client",
+			"this node has no automation agent that answers",
 			"n1's executor is fully healthy -- only the missing agent signal should block it")
 
 		noExecutor := response.GetHosts()[1]
 		assert.False(t, noExecutor.GetAutomationEligible())
 		assert.Contains(t, noExecutor.GetAutomationBlockedReasons(),
-			"PMM-Client is not installed or not connected")
+			"PMM Client is not installed or not connected")
 		assert.Contains(t, noExecutor.GetAutomationBlockedReasons(),
-			"host is not reachable by the Nomad client")
+			"this node has no automation agent that answers")
 	})
 
 	t.Run("the automation_eligible filter excludes every host when nothing is eligible", func(t *testing.T) {
@@ -482,10 +483,26 @@ func TestAutomationEligibility(t *testing.T) {
 	healthyExecutor := &omv1.InventoryExecutor{Registered: true, Reachable: true, DriverHealthy: true}
 	reachableOnlyExecutor := &omv1.InventoryExecutor{Registered: true, Reachable: true, DriverHealthy: false}
 
+	// A host that passes every check this function makes, so each case below isolates
+	// the one condition it names. Built by a helper rather than written as
+	// `extensionsHost{}`: os_id and the address are now checked too, so the zero value
+	// fails three ways at once and every assertion would be about all of them.
+	installable := func(mutate ...func(*extensionsHost)) extensionsHost {
+		address := "node-1.example"
+		host := extensionsHost{
+			Address:  &address,
+			Observed: map[string]any{"os_id": "ubuntu"},
+		}
+		for _, m := range mutate {
+			m(&host)
+		}
+		return host
+	}
+
 	t.Run("connected agent and healthy executor is eligible with no reasons", func(t *testing.T) {
 		t.Parallel()
 
-		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, extensionsHost{})
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, installable())
 
 		assert.True(t, eligible)
 		assert.Empty(t, reasons)
@@ -495,11 +512,11 @@ func TestAutomationEligibility(t *testing.T) {
 	t.Run("a disconnected agent blocks even a healthy executor", func(t *testing.T) {
 		t.Parallel()
 
-		eligible, reasons, byDesign := automationEligibility(healthyExecutor, false, false, extensionsHost{})
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, false, false, installable())
 
 		assert.False(t, eligible)
 		assert.False(t, byDesign, "a disconnected agent is a fault, not a property of the node")
-		assert.Equal(t, []string{"PMM-Client is not installed or not connected"}, reasons)
+		assert.Equal(t, []string{"PMM Client is not installed or not connected"}, reasons)
 	})
 
 	t.Run("no executor block at all blocks on reachability, not driver health", func(t *testing.T) {
@@ -509,44 +526,59 @@ func TestAutomationEligibility(t *testing.T) {
 		// dispatched to -- see inventory_test.go's "a host with no probe reports
 		// absent, not false". Reporting a driver-health failure on top of that would
 		// claim a health check ran when none did.
-		eligible, reasons, byDesign := automationEligibility(nil, true, false, extensionsHost{})
+		eligible, reasons, byDesign := automationEligibility(nil, true, false, installable())
 
 		assert.False(t, eligible)
 		assert.False(t, byDesign)
-		assert.Equal(t, []string{"host is not reachable by the Nomad client"}, reasons)
+		assert.Equal(t, []string{"this node has no automation agent that answers"}, reasons)
 	})
 
 	t.Run("reachable but unhealthy driver blocks on the driver, not reachability", func(t *testing.T) {
 		t.Parallel()
 
-		eligible, reasons, byDesign := automationEligibility(reachableOnlyExecutor, true, false, extensionsHost{})
+		eligible, reasons, byDesign := automationEligibility(reachableOnlyExecutor, true, false, installable())
 
 		assert.False(t, eligible)
 		assert.False(t, byDesign)
-		assert.Equal(t, []string{"Nomad's raw_exec driver is not healthy on this host"}, reasons)
+		assert.Equal(t, []string{"this node's automation agent cannot run jobs"}, reasons)
 	})
 
-	t.Run("every condition unmet reports every reason", func(t *testing.T) {
+	// No user-facing reason names Nomad. These strings are joined straight into the
+	// tooltip on the Nodes page, so they are product copy, and PMM-15623 set out to
+	// keep the scheduler's name out of it (P16).
+	t.Run("no reason names the scheduler", func(t *testing.T) {
 		t.Parallel()
 
-		eligible, reasons, byDesign := automationEligibility(nil, false, false, extensionsHost{})
+		for _, executor := range []*omv1.InventoryExecutor{nil, reachableOnlyExecutor} {
+			_, reasons, _ := automationEligibility(executor, false, false, extensionsHost{})
+			for _, reason := range reasons {
+				assert.NotContains(t, strings.ToLower(reason), "nomad")
+				assert.NotContains(t, strings.ToLower(reason), "raw_exec")
+			}
+		}
+	})
+
+	t.Run("every reachability condition unmet reports every reason", func(t *testing.T) {
+		t.Parallel()
+
+		eligible, reasons, byDesign := automationEligibility(nil, false, false, installable())
 
 		assert.False(t, eligible)
 		assert.Equal(t, []string{
-			"PMM-Client is not installed or not connected",
-			"host is not reachable by the Nomad client",
+			"PMM Client is not installed or not connected",
+			"this node has no automation agent that answers",
 		}, reasons)
 		assert.False(t, byDesign)
 	})
 
-	// Every condition above asks whether OM *can* reach this machine. The three below
+	// Every condition above asks whether OM *can* reach this machine. Those below
 	// ask whether it *should* touch it, which is a different question and the one
-	// PMM-15664 exists to start answering: a perfectly reachable node can still be
-	// the last thing anyone wants a database installed onto.
+	// PMM-15664 exists to answer: a perfectly reachable node can still be the last
+	// thing anyone wants a database installed onto.
 	t.Run("the PMM Server's own node is never eligible, however healthy", func(t *testing.T) {
 		t.Parallel()
 
-		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, true, extensionsHost{})
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, true, installable())
 
 		assert.False(t, eligible)
 		assert.Equal(t, []string{
@@ -555,10 +587,32 @@ func TestAutomationEligibility(t *testing.T) {
 		assert.True(t, byDesign, "the server's own node is a fact about it, not a fault on it")
 	})
 
+	// It is the only reason, not the first of several. PMM Server's own image reports
+	// os_id "ol", so without the short circuit the row also advised that Operations
+	// cannot install onto "ol" -- which reads as though a different OS would help.
+	t.Run("the PMM Server's node reports that reason alone", func(t *testing.T) {
+		t.Parallel()
+
+		host := installable(func(h *extensionsHost) {
+			h.Address = nil
+			h.Observed = map[string]any{"os_id": "ol"}
+			h.Services = []extensionsService{{ServiceID: "30"}}
+		})
+		eligible, reasons, byDesign := automationEligibility(nil, false, true, host)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{
+			"this is the node PMM Server itself runs on, which Operations never installs onto",
+		}, reasons)
+		assert.True(t, byDesign)
+	})
+
 	t.Run("a node with a registered MongoDB service is not eligible", func(t *testing.T) {
 		t.Parallel()
 
-		host := extensionsHost{Services: []extensionsService{{ServiceID: "30"}}}
+		host := installable(func(h *extensionsHost) {
+			h.Services = []extensionsService{{ServiceID: "30"}}
+		})
 		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, host)
 
 		assert.False(t, eligible)
@@ -571,9 +625,9 @@ func TestAutomationEligibility(t *testing.T) {
 	t.Run("a mongod a scan found but PMM has no service for also blocks", func(t *testing.T) {
 		t.Parallel()
 
-		host := extensionsHost{Observed: map[string]any{
-			"unregistered_mongods": []any{map[string]any{"port": 27017}},
-		}}
+		host := installable(func(h *extensionsHost) {
+			h.Observed["unregistered_mongods"] = []any{map[string]any{"port": 27017}}
+		})
 		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, host)
 
 		assert.False(t, eligible)
@@ -588,12 +642,10 @@ func TestAutomationEligibility(t *testing.T) {
 	t.Run("a registered service suppresses the unregistered-mongod reason", func(t *testing.T) {
 		t.Parallel()
 
-		host := extensionsHost{
-			Services: []extensionsService{{ServiceID: "30"}},
-			Observed: map[string]any{
-				"unregistered_mongods": []any{map[string]any{"port": 27017}},
-			},
-		}
+		host := installable(func(h *extensionsHost) {
+			h.Services = []extensionsService{{ServiceID: "30"}}
+			h.Observed["unregistered_mongods"] = []any{map[string]any{"port": 27017}}
+		})
 		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, host)
 
 		assert.False(t, eligible)
@@ -603,22 +655,65 @@ func TestAutomationEligibility(t *testing.T) {
 		assert.True(t, byDesign)
 	})
 
-	// The PMM Server's reason leads, because it is the one that cannot be fixed by
-	// going and looking at the machine.
-	t.Run("the PMM Server reason leads when several apply", func(t *testing.T) {
+	// The two preconditions P1 names that used to fail on the wizard's last click,
+	// inside TriggerHostBootstrap, after the whole form was filled in.
+	t.Run("a node no scan has reported an OS for is not eligible", func(t *testing.T) {
 		t.Parallel()
 
-		host := extensionsHost{Services: []extensionsService{{ServiceID: "30"}}}
-		eligible, reasons, byDesign := automationEligibility(nil, false, true, host)
+		host := installable(func(h *extensionsHost) { h.Observed = map[string]any{} })
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, host)
 
 		assert.False(t, eligible)
 		assert.Equal(t, []string{
-			"this is the node PMM Server itself runs on, which Operations never installs onto",
-			"a MongoDB service is already registered on this node",
-			"PMM-Client is not installed or not connected",
-			"host is not reachable by the Nomad client",
+			"no scan has reported this node's operating system yet",
 		}, reasons)
-		assert.True(t, byDesign, "one by-design reason makes the block by design, however many faults join it")
+		assert.False(t, byDesign, "a missing OS means scans are not landing, which is a fault")
+	})
+
+	t.Run("an OS om_bootstrap cannot install onto is not eligible, and is by design", func(t *testing.T) {
+		t.Parallel()
+
+		host := installable(func(h *extensionsHost) { h.Observed = map[string]any{"os_id": "debian"} })
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, host)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{
+			"this node runs debian, which Operations cannot install onto (supported: rocky, ubuntu)",
+		}, reasons)
+		assert.True(t, byDesign, "nothing is wrong with a Debian node; it is simply not a target")
+	})
+
+	// Named rather than asserted as a substring: the sentence lists the supported
+	// distributions, and a reader acting on it needs them to be the ones the trigger
+	// actually accepts.
+	t.Run("the supported list matches what the trigger accepts", func(t *testing.T) {
+		t.Parallel()
+
+		for id := range supportedBootstrapOSIDs {
+			assert.Contains(t, supportedBootstrapOSNames(), id)
+		}
+	})
+
+	t.Run("a node PMM has no address for is not eligible", func(t *testing.T) {
+		t.Parallel()
+
+		host := installable(func(h *extensionsHost) { h.Address = nil })
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, host)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{"PMM has no address for this node"}, reasons)
+		assert.False(t, byDesign)
+	})
+
+	t.Run("an empty address counts as no address", func(t *testing.T) {
+		t.Parallel()
+
+		empty := ""
+		host := installable(func(h *extensionsHost) { h.Address = &empty })
+		eligible, reasons, _ := automationEligibility(healthyExecutor, true, false, host)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{"PMM has no address for this node"}, reasons)
 	})
 }
 

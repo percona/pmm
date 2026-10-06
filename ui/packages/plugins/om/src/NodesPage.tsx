@@ -208,6 +208,29 @@ const ExecutorCell = ({
 const automationBlockedTitle = (reasons: string[]) =>
   reasons.join('; ') || 'Not eligible for automation.';
 
+/**
+ * Why the bulk Install button is disabled for this selection count.
+ *
+ * Two sentences, not one, because the counts it refuses fail for two unrelated
+ * reasons and a single explanation would state something false (P7, fourth
+ * direction). **Two** is a MongoDB fact worth teaching: a two-member set cannot form
+ * a majority when either member is lost, so it stops accepting writes on any single
+ * failure. **Four or more** is perfectly ordinary in MongoDB and is refused only
+ * because this preview implements one and three - our limit, not the database's, and
+ * saying otherwise would teach a DBA something untrue.
+ *
+ * Zero gets the plain instruction: there is no rule to explain yet.
+ */
+const selectionCountTitle = (count: number): string => {
+  if (count === 2) {
+    return 'A two-member replica set cannot form a majority if either member is lost, so it would stop accepting writes on any single failure. Select one node, or three.';
+  }
+  if (count > 3) {
+    return `This preview installs a one- or three-member replica set, and ${count} nodes are selected. MongoDB itself supports larger sets; Operations does not yet. Select one node, or three.`;
+  }
+  return 'Select exactly one node for a single-member replica set, or three for a three-member one.';
+};
+
 const AutomationCell = ({ row, busy }: { row: OmHostRow; busy: boolean }) => {
   if (busy) {
     return (
@@ -787,19 +810,25 @@ export const NodesPage = () => {
         {/* Behind the ellipsis, not beside the daily actions: three text buttons
             did not fit the row, and Forget was the one falling off the right edge
             (P17). P14 asks for it to live here on its own account too. */}
-        <RowOverflowMenu label={`More actions for ${row.original.name}`}>
-          {(close) => [
-            <MenuItem
-              key="forget"
-              onClick={() => {
-                setForgetting([row.original]);
-                close();
-              }}
-            >
-              Forget
-            </MenuItem>,
-          ]}
-        </RowOverflowMenu>
+        {/* No actions at all on PMM Server's own node. Forget would clear Operations'
+            record of the machine PMM runs on, the next scan would put it straight
+            back, and in between the fleet would be wrong - so the menu has nothing
+            to show and is not rendered (P1 names Forget alongside Install). */}
+        {!row.original.is_pmm_server_node && (
+          <RowOverflowMenu label={`More actions for ${row.original.name}`}>
+            {(close) => [
+              <MenuItem
+                key="forget"
+                onClick={() => {
+                  setForgetting([row.original]);
+                  close();
+                }}
+              >
+                Forget
+              </MenuItem>,
+            ]}
+          </RowOverflowMenu>
+        )}
       </Stack>
     ),
     initialState: {
@@ -924,7 +953,7 @@ export const NodesPage = () => {
           <Tooltip
             title={
               selectedRows.length !== 1 && selectedRows.length !== 3
-                ? 'Select exactly one node for a single-member replica set, or three for a three-member one.'
+                ? selectionCountTitle(selectedRows.length)
                 : selectedRows.some((row) => isHostBusy(row))
                   ? 'A selected node is already part of an install in progress.'
                   : selectedRows.some((row) => !row.automation_eligible)
