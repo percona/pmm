@@ -44,7 +44,7 @@ import { SnapshotBar } from './components/SnapshotBar';
 import { ClusterHealthBadge, StatusBadge } from './components/HealthBadge';
 import { MemberState } from './components/MemberState';
 import { ServiceLink } from './components/ServiceLink';
-import { Duration, Percent } from './components/Metric';
+import { Duration } from './components/Metric';
 import { Unavailable } from './components/Unavailable';
 import { useOmTopology } from './topologyHooks';
 import { pluralize } from './format';
@@ -96,6 +96,32 @@ const Count = ({ value, tone }: { value: number; tone: 'up' | 'down' }) => {
 };
 
 /** Columns for one environment's cluster table. */
+/**
+ * Columns the cluster table carries but does not open with.
+ *
+ * Measured rather than guessed: at 1440px with the nav expanded the content column is
+ * about 980px, and nine columns plus the expand control overflowed it - so the first
+ * page a reader opens had a scrollbar and three columns off-screen, which is the whole
+ * of P17.
+ *
+ * **Up and Down go because Health already says it.** The Health column states Healthy,
+ * Degraded or Down in words with an icon; the counts restate the same fact in numbers
+ * beside it. Keeping both spends two columns of a table that does not fit to say one
+ * thing twice, and the design review's "one style for up" asks for the opposite.
+ *
+ * Versions is a roll-up of the members, and a reader who wants it is asking about one
+ * cluster - which is what unfolding the row answers.
+ *
+ * **Process stays**, though it is a roll-up too. It is the only column that
+ * distinguishes a mongos from a replica-set member, which has no member state to show
+ * instead, so hiding it would make a router unidentifiable in a sharded cluster.
+ */
+const HIDDEN_BY_DEFAULT = {
+  up_services: false,
+  down_services: false,
+  versions: false,
+};
+
 function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
   return useMemo(
     () => [
@@ -181,8 +207,22 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
  * The services of one cluster, shown when its row is unfolded.
  *
  * Deliberately a plain table rather than a nested data grid: this is the roll-up
- * being shown its working, so it needs no second set of sorters and filters. The
- * fields the snapshot carries beyond these live on Topology.
+ * being shown its working, so it needs no second set of sorters and filters.
+ *
+ * Eight columns, not ten. At 1440px with the nav expanded this panel gets about
+ * 980px, and ten overflowed it - so unfolding a cluster produced a scrollbar and
+ * four columns a reader could not see. CPU and connections went: a per-member load
+ * read is what the Services tab and its detail drawer are for, and this panel exists
+ * to answer "are this cluster's members healthy".
+ *
+ * Process was cut too, on the reasoning that it says "mongod" for every member - and
+ * put back, because that is only true until a cluster is sharded. A mongos has no
+ * member state, so Process is the only thing identifying it. PMM-15652's test caught
+ * it.
+ *
+ * Being a plain table, these are removals rather than hidden-by-default: there is no
+ * column chooser here to bring them back. That is the trade for not making it a
+ * second data grid.
  */
 const ClusterServices = ({ cluster }: { cluster: OmClusterRow }) => {
   if (!cluster.services.length) {
@@ -203,8 +243,6 @@ const ClusterServices = ({ cluster }: { cluster: OmClusterRow }) => {
             <TableCell>Member state</TableCell>
             <TableCell>Process</TableCell>
             <TableCell>Version</TableCell>
-            <TableCell>CPU</TableCell>
-            <TableCell>Conn. free</TableCell>
             <TableCell>Repl. lag</TableCell>
             <TableCell>Oplog window</TableCell>
           </TableRow>
@@ -232,12 +270,6 @@ const ClusterServices = ({ cluster }: { cluster: OmClusterRow }) => {
                 {service.version ?? (
                   <Unavailable reason="service_not_observed" />
                 )}
-              </TableCell>
-              <TableCell>
-                <Percent value={service.cpu_usage_percent} />
-              </TableCell>
-              <TableCell>
-                <Percent value={service.connections_free_percent} />
               </TableCell>
               <TableCell>
                 <Duration value={service.replication_lag_seconds} />
@@ -284,6 +316,7 @@ const EnvironmentTable = ({ section }: { section: OmEnvironmentSection }) => {
     renderDetailPanel: ({ row }) => <ClusterServices cluster={row.original} />,
     initialState: {
       density: 'compact',
+      columnVisibility: HIDDEN_BY_DEFAULT,
       // Trouble first: a degraded or down cluster leads its environment.
       sorting: [
         { id: 'health', desc: false },
