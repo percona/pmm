@@ -23,6 +23,7 @@ import {
   within,
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { SnackbarProvider } from 'notistack';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { NodesPage } from '../src/NodesPage';
 import type { OmInventoryHost } from '../src/types';
@@ -76,9 +77,11 @@ const renderPage = (hosts: OmInventoryHost[] = [host()]) => {
     isError: false,
   });
   return render(
-    <MemoryRouter>
-      <NodesPage />
-    </MemoryRouter>
+    <SnackbarProvider>
+      <MemoryRouter>
+        <NodesPage />
+      </MemoryRouter>
+    </SnackbarProvider>
   );
 };
 
@@ -86,6 +89,19 @@ const rowFor = (name: string) =>
   screen
     .getAllByRole('row')
     .find((row) => within(row).queryByText(name)) as HTMLElement;
+
+const openRowMenu = (name: string) =>
+  fireEvent.click(
+    within(rowFor(name)).getByRole('button', { name: /More actions/ })
+  );
+
+const openRemoveDialog = async (name: string) => {
+  openRowMenu(name);
+  fireEvent.click(
+    screen.getByRole('menuitem', { name: 'Remove duplicate entry' })
+  );
+  return screen.findByRole('dialog');
+};
 
 describe('NodesPage', () => {
   beforeEach(() => {
@@ -118,51 +134,136 @@ describe('NodesPage', () => {
     ).toBeInTheDocument();
   });
 
-  it('does not offer Forget until the row menu is opened', () => {
+  it('offers removal only once the row menu is opened', () => {
     renderPage();
 
-    expect(screen.queryByText('Forget')).toBeNull();
-    fireEvent.click(
-      within(rowFor('node00')).getByRole('button', { name: /More actions/ })
-    );
+    expect(screen.queryByText('Remove duplicate entry')).toBeNull();
+    openRowMenu('node00');
 
-    expect(screen.getByText('Forget')).toBeInTheDocument();
+    expect(
+      screen.getByRole('menuitem', { name: 'Remove duplicate entry' })
+    ).toBeInTheDocument();
   });
 
-  // The whole point of the menu move was that Forget stayed reachable, not that it
+  // The whole point of the menu move was that removal stayed reachable, not that it
   // went away. This walks the path a user now takes: menu, item, confirm dialog,
   // confirm - and asserts the mutation is actually called with the node.
-  it('reaches the confirm dialog from the menu, and forgets on confirm', async () => {
+  it('reaches the confirm dialog from the menu, and removes on confirm', async () => {
     renderPage();
 
+    const dialog = await openRemoveDialog('node00');
+    expect(dialog).toHaveTextContent('Remove the entry for node00?');
+
     fireEvent.click(
-      within(rowFor('node00')).getByRole('button', { name: /More actions/ })
+      within(dialog).getByRole('button', { name: 'Remove entry' })
     );
-    fireEvent.click(screen.getByText('Forget'));
-
-    const dialog = await screen.findByRole('dialog');
-    expect(dialog).toHaveTextContent('Forget node00?');
-
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Forget' }));
 
     await waitFor(() => expect(forgetOne).toHaveBeenCalledWith('node-1'));
   });
 
-  it('closes the dialog without forgetting when cancelled', async () => {
+  // Plain words, the loss stated outright, and the confirm carrying the weight: a
+  // removal that comes back on the next scan is housekeeping, not a red alert.
+  it('says the scan history is lost, and makes confirm the primary button', async () => {
+    renderPage([
+      host({
+        services: [
+          { service_id: 's1' } as OmInventoryHost['services'][number],
+          { service_id: 's2' } as OmInventoryHost['services'][number],
+        ],
+      }),
+    ]);
+
+    const dialog = await openRemoveDialog('node00');
+    expect(dialog).toHaveTextContent('scan history is deleted permanently');
+    expect(dialog).toHaveTextContent('the 2 services that Operations recorded');
+    expect(dialog).toHaveTextContent('comes back on the next scan');
+    expect(dialog).not.toHaveTextContent(/row\(s\)|Operations row/);
+
+    const confirm = within(dialog).getByRole('button', {
+      name: 'Remove entry',
+    });
+    expect(confirm).toHaveClass('MuiButton-contained');
+    expect(confirm).not.toHaveClass('MuiButton-colorError');
+    expect(within(dialog).getByRole('button', { name: 'Cancel' })).toHaveClass(
+      'MuiButton-text'
+    );
+  });
+
+  it('reports what was removed, and that the node comes back', async () => {
+    renderPage();
+
+    const dialog = await openRemoveDialog('node00');
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Remove entry' })
+    );
+
+    expect(
+      await screen.findByText(
+        'Removed node00 from Operations. If PMM still monitors it, it comes back on the next scan and is counted again.'
+      )
+    ).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  // A partial failure keeps the dialog open with the failure named, and claims
+  // nothing: a success message over a node that is still there would be a lie.
+  it('reports nothing while a removal has failed', async () => {
+    forgetOne.mockRejectedValueOnce(new Error('boom'));
+    renderPage();
+
+    const dialog = await openRemoveDialog('node00');
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Remove entry' })
+    );
+
+    expect(await within(dialog).findByText('node00: boom')).toBeInTheDocument();
+    expect(screen.queryByText(/^Removed /)).toBeNull();
+  });
+
+  it('removes several selected nodes from one neutral bulk action', async () => {
+    renderPage([
+      host(),
+      host({ node_id: 'node-2', name: 'node01', address: '10.0.0.2' }),
+    ]);
+
+    fireEvent.click(
+      within(rowFor('node00')).getByRole('checkbox', { name: /select row/i })
+    );
+    fireEvent.click(
+      within(rowFor('node01')).getByRole('checkbox', { name: /select row/i })
+    );
+    const bulk = screen.getByRole('button', {
+      name: 'Remove duplicate entries',
+    });
+    expect(bulk).not.toHaveClass('MuiButton-colorError');
+    fireEvent.click(bulk);
+
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog).toHaveTextContent('Remove the entries for 2 nodes?');
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Remove entries' })
+    );
+
+    await waitFor(() => expect(forgetOne).toHaveBeenCalledTimes(2));
+    expect(
+      await screen.findByText(
+        'Removed 2 nodes from Operations. Any that PMM still monitors come back on the next scan and are counted again.'
+      )
+    ).toBeInTheDocument();
+  });
+
+  it('closes the dialog without removing anything when cancelled', async () => {
     renderPage();
 
     fireEvent.click(
-      within(rowFor('node00')).getByRole('button', { name: /More actions/ })
-    );
-    fireEvent.click(screen.getByText('Forget'));
-    fireEvent.click(
-      within(await screen.findByRole('dialog')).getByRole('button', {
+      within(await openRemoveDialog('node00')).getByRole('button', {
         name: 'Cancel',
       })
     );
 
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(forgetOne).not.toHaveBeenCalled();
+    expect(screen.queryByText(/^Removed /)).toBeNull();
   });
 
   // A node Operations cannot act on must not offer the action that would fail.
