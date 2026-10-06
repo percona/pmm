@@ -29419,6 +29419,12 @@
                             "type": "string",
                             "x-nullable": true,
                             "x-order": 5
+                          },
+                          "last_error_code": {
+                            "description": "What kind of failure last_error is, so a reader can be told what to do about it\nwithout parsing the message. Unset while healthy, and for a failure recorded\nbefore the code existed. One of: dispatch_rejected, not_started, timed_out,\nblocked, environment_setup_failed, scan_crashed, scan_lost, no_output,\ndatabase_unreachable, database_auth_failed, database_error, unknown. A string\nrather than an enum so PMM Extensions can add a kind without a proto change;\ntreat an unrecognised value as unknown.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 6
                           }
                         },
                         "x-order": 9
@@ -29551,6 +29557,12 @@
                                   "type": "string",
                                   "x-nullable": true,
                                   "x-order": 5
+                                },
+                                "last_error_code": {
+                                  "description": "What kind of failure last_error is, so a reader can be told what to do about it\nwithout parsing the message. Unset while healthy, and for a failure recorded\nbefore the code existed. One of: dispatch_rejected, not_started, timed_out,\nblocked, environment_setup_failed, scan_crashed, scan_lost, no_output,\ndatabase_unreachable, database_auth_failed, database_error, unknown. A string\nrather than an enum so PMM Extensions can add a kind without a proto change;\ntreat an unrecognised value as unknown.",
+                                  "type": "string",
+                                  "x-nullable": true,
+                                  "x-order": 6
                                 }
                               },
                               "x-order": 14
@@ -29795,6 +29807,12 @@
                           "type": "string",
                           "x-nullable": true,
                           "x-order": 5
+                        },
+                        "last_error_code": {
+                          "description": "What kind of failure last_error is, so a reader can be told what to do about it\nwithout parsing the message. Unset while healthy, and for a failure recorded\nbefore the code existed. One of: dispatch_rejected, not_started, timed_out,\nblocked, environment_setup_failed, scan_crashed, scan_lost, no_output,\ndatabase_unreachable, database_auth_failed, database_error, unknown. A string\nrather than an enum so PMM Extensions can add a kind without a proto change;\ntreat an unrecognised value as unknown.",
+                          "type": "string",
+                          "x-nullable": true,
+                          "x-order": 6
                         }
                       },
                       "x-order": 9
@@ -29927,6 +29945,12 @@
                                 "type": "string",
                                 "x-nullable": true,
                                 "x-order": 5
+                              },
+                              "last_error_code": {
+                                "description": "What kind of failure last_error is, so a reader can be told what to do about it\nwithout parsing the message. Unset while healthy, and for a failure recorded\nbefore the code existed. One of: dispatch_rejected, not_started, timed_out,\nblocked, environment_setup_failed, scan_crashed, scan_lost, no_output,\ndatabase_unreachable, database_auth_failed, database_error, unknown. A string\nrather than an enum so PMM Extensions can add a kind without a proto change;\ntreat an unrecognised value as unknown.",
+                                "type": "string",
+                                "x-nullable": true,
+                                "x-order": 6
                               }
                             },
                             "x-order": 14
@@ -30912,6 +30936,12 @@
                             "type": "string",
                             "x-nullable": true,
                             "x-order": 5
+                          },
+                          "last_error_code": {
+                            "description": "What kind of failure last_error is, so a reader can be told what to do about it\nwithout parsing the message. Unset while healthy, and for a failure recorded\nbefore the code existed. One of: dispatch_rejected, not_started, timed_out,\nblocked, environment_setup_failed, scan_crashed, scan_lost, no_output,\ndatabase_unreachable, database_auth_failed, database_error, unknown. A string\nrather than an enum so PMM Extensions can add a kind without a proto change;\ntreat an unrecognised value as unknown.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 6
                           }
                         },
                         "x-order": 14
@@ -31106,6 +31136,12 @@
                           "type": "string",
                           "x-nullable": true,
                           "x-order": 5
+                        },
+                        "last_error_code": {
+                          "description": "What kind of failure last_error is, so a reader can be told what to do about it\nwithout parsing the message. Unset while healthy, and for a failure recorded\nbefore the code existed. One of: dispatch_rejected, not_started, timed_out,\nblocked, environment_setup_failed, scan_crashed, scan_lost, no_output,\ndatabase_unreachable, database_auth_failed, database_error, unknown. A string\nrather than an enum so PMM Extensions can add a kind without a proto change;\ntreat an unrecognised value as unknown.",
+                          "type": "string",
+                          "x-nullable": true,
+                          "x-order": 6
                         }
                       },
                       "x-order": 14

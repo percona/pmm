@@ -2804,6 +2804,10 @@ func (m *InventoryFreshness) validate(all bool) error {
 		// no validation rules for LastError
 	}
 
+	if m.LastErrorCode != nil {
+		// no validation rules for LastErrorCode
+	}
+
 	if len(errors) > 0 {
 		return InventoryFreshnessMultiError(errors)
 	}

@@ -86,6 +86,7 @@ const hostsBody = `{"items": [
     "first_seen_at": "2026-08-18T08:00:00Z", "last_attempt_at": "2026-08-18T09:00:00Z",
     "last_success_at": null, "failing_since": "2026-08-18T08:30:00Z",
     "consecutive_failures": 3, "last_error": "no executor host",
+    "last_error_code": "scan_lost",
     "services": []
   }
 ], "total": 2, "offset": 0, "limit": 200}`
@@ -340,6 +341,18 @@ func TestListInventoryHosts(t *testing.T) {
 		assert.Empty(t, empty.GetServices(), "a host with no database is a row, not an omission")
 	})
 
+	t.Run("a healthy host carries no failure kind", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, hostsBody)
+
+		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+		require.NoError(t, err)
+
+		assert.Nil(t, response.GetHosts()[0].GetFreshness().LastErrorCode,
+			"unset, not an empty string, so a reader cannot mistake it for a kind")
+	})
+
 	t.Run("a failing host carries why and since when", func(t *testing.T) {
 		t.Parallel()
 
@@ -351,6 +364,7 @@ func TestListInventoryHosts(t *testing.T) {
 		freshness := response.GetHosts()[1].GetFreshness()
 		assert.Equal(t, int32(3), freshness.GetConsecutiveFailures())
 		assert.Equal(t, "no executor host", freshness.GetLastError())
+		assert.Equal(t, "scan_lost", freshness.GetLastErrorCode())
 		assert.NotNil(t, freshness.GetFailingSince())
 		assert.Nil(t, freshness.GetLastSuccessAt(),
 			"never having answered is different from having answered nothing")

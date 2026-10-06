@@ -710,6 +710,15 @@ type ListInventoryServicesOKBodyServicesItems0Freshness struct {
 
 	// The most recent failure detail.
 	LastError *string `json:"last_error,omitempty"`
+
+	// What kind of failure last_error is, so a reader can be told what to do about it
+	// without parsing the message. Unset while healthy, and for a failure recorded
+	// before the code existed. One of: dispatch_rejected, not_started, timed_out,
+	// blocked, environment_setup_failed, scan_crashed, scan_lost, no_output,
+	// database_unreachable, database_auth_failed, database_error, unknown. A string
+	// rather than an enum so PMM Extensions can add a kind without a proto change;
+	// treat an unrecognised value as unknown.
+	LastErrorCode *string `json:"last_error_code,omitempty"`
 }
 
 // Validate validates this list inventory services OK body services items0 freshness
