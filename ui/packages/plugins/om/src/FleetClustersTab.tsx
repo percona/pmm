@@ -128,12 +128,14 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
       {
         accessorKey: 'cluster_name',
         header: 'Cluster',
+        size: 200,
         Cell: ({ row: { original } }) =>
           original.cluster_name ?? <Unavailable reason="not_applicable" />,
       },
       {
         accessorKey: 'health',
         header: 'Health',
+        size: 130,
         // Worst first ascending, so one click brings trouble to the top.
         sortingFn: (a, b, columnId) =>
           clusterHealthRank(a.getValue<OmClusterHealth>(columnId)) -
@@ -142,10 +144,11 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
           <ClusterHealthBadge health={original.health} />
         ),
       },
-      { accessorKey: 'total_services', header: 'Services' },
+      { accessorKey: 'total_services', header: 'Services', size: 100 },
       {
         accessorKey: 'up_services',
         header: 'Up',
+        size: 80,
         Cell: ({ row: { original } }) => (
           <Count value={original.up_services} tone="up" />
         ),
@@ -153,6 +156,7 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
       {
         accessorKey: 'down_services',
         header: 'Down',
+        size: 90,
         Cell: ({ row: { original } }) => (
           <Count value={original.down_services} tone="down" />
         ),
@@ -161,11 +165,13 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
         accessorFn: (row) => describeRoles(row.by_process_role),
         id: 'roles',
         header: 'Process',
+        size: 130,
       },
       {
         accessorFn: (row) => row.versions.join(', '),
         id: 'versions',
         header: 'Versions',
+        size: 130,
         Cell: ({ row: { original } }) => {
           if (!original.versions.length) {
             return <Unavailable reason="service_not_observed" />;
@@ -187,6 +193,7 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
       {
         accessorKey: 'max_replication_lag_seconds',
         header: 'Max repl. lag',
+        size: 130,
         Cell: ({ row: { original } }) => (
           <Duration value={original.max_replication_lag_seconds} />
         ),
@@ -194,6 +201,7 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
       {
         accessorKey: 'min_oplog_window_seconds',
         header: 'Min oplog window',
+        size: 150,
         Cell: ({ row: { original } }) => (
           <Duration value={original.min_oplog_window_seconds} />
         ),
@@ -306,7 +314,21 @@ const EnvironmentTable = ({ section }: { section: OmEnvironmentSection }) => {
     enablePagination: false,
     enableDensityToggle: false,
     enableExpanding: true,
-    enableTopToolbar: false,
+    // Grid layout, so the `size` on each column is honoured. The default sizes every
+    // column to its header's chrome instead, which at 1440px with the nav open spent
+    // the whole ~980px on six columns of mostly single digits.
+    layoutMode: 'grid',
+    // No per-column menu. Its only verb beyond sorting is "hide this column", which
+    // the chooser does, and the icon it adds to every header is a slice of the width
+    // this table does not have.
+    enableColumnActions: false,
+    // The toolbar is back, for one reason: the chooser. Three columns are hidden by
+    // default here, and with no toolbar there was no way to show them again - which
+    // makes a default into a removal, and is not what P17 asked for. Everything else
+    // it can carry is off, so it is one icon rather than a second header.
+    enableGlobalFilter: false,
+    enableFullScreenToggle: false,
+    enableHiding: true,
     // The opaque server-issued id, not the label: two clusters can share a label (a
     // sandbox's second generation reusing a name is not hypothetical here) or carry
     // none at all, and MRT uses this for expansion and selection state across
