@@ -55,12 +55,8 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
 
   const { handleSubmit, reset, watch, setValue } = methods;
 
-  // Operations for MongoDB reads its inventory from PMM Extensions' om_inventory app, so
-  // with Extensions off there is nothing to turn it on against. Only turning it *on*
-  // needs Extensions, though: validateEnableOm lets a switch-off through
-  // regardless, so a feature already on stays switchable off. Keyed on the saved value,
-  // not the form draft, or flipping it off would disable the switch before Apply and
-  // leave no way to undo the flip.
+  // Keyed on the saved value, not the draft: otherwise flipping it off would disable
+  // the switch before Apply and leave no way back.
   const omSwitchBlocked = !settings.extensionsEnabled && !settings.omEnabled;
 
   const sttEnabled = watch('stt');
@@ -72,9 +68,6 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   }, [settings, reset]);
 
   const onSubmit = async (values: AdvancedSettingsFormValues) => {
-    // Only on the transition, and read from the saved settings rather than the
-    // form's own dirty state: re-applying an unrelated field while Operations is
-    // already on is not the moment to tell someone where to find it.
     const omJustEnabled = values.openManager && !settings.omEnabled;
     await updateSettings(toPayload(values), {
       onSuccess: () => {
@@ -82,9 +75,8 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
           omJustEnabled ? (
             <>
               {m.openManagerEnabled}{' '}
-              {/* A plain href, not a router Link: SnackbarProvider is mounted
-                  outside RouterProvider (App.tsx), so a routed link rendered in
-                  a snackbar has no router context to resolve against. */}
+              {/* Plain href: SnackbarProvider is mounted outside RouterProvider, so a
+                  routed link has no router context here. */}
               <Link
                 href={`${PMM_BASE_PATH}${OM_PATH}`}
                 color="inherit"
@@ -441,11 +433,6 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
           </Stack>
         </Stack>
 
-        {/* Operations for MongoDB sits in its own section rather than beside the technical
-            previews: it ships at an earlier stage than they do, and the warning that
-            applies to it is a stronger one. Its help is rendered inline instead of inside
-            a hover tooltip -- the tooltip pattern the toggles above use puts a link
-            somewhere a keyboard cannot reach, and opens it over the Apply button. */}
         <Stack gap={2}>
           <SettingsFieldLabel
             data-testid="advanced-developer-preview"
@@ -477,19 +464,15 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
             }}
             data-testid="advanced-open-manager"
           >
-            {/* `labelCaption` rather than a separate caption node: it is the slot the
-                component already renders help into, so the text stays tied to the
-                control for a screen reader. The "read more" link lives on the section
-                header above instead of being repeated per toggle. */}
+            {/* `labelCaption` keeps the help tied to the control for a screen reader. */}
             <SwitchInput
               name="openManager"
               label={m.openManagerLabel}
               labelCaption={m.openManagerTooltip}
               switchFieldProps={{ disabled: omSwitchBlocked }}
             />
-            {/* The server refuses to enable it without the inventory app anyway
-                (validateEnableOm), so saying so here turns a failed save into a
-                precondition the reader can act on before pressing Apply. */}
+            {/* `validateEnableOm` refuses this server-side; stating it here turns a
+                failed save into a precondition the reader can act on. */}
             {omSwitchBlocked && (
               <Typography
                 variant="caption"

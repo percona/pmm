@@ -22,21 +22,12 @@ import { Link as RouterLink } from 'react-router-dom';
 /**
  * The one empty state, for every page that can have nothing on it.
  *
- * Four pages had four treatments: a solid blue alert, an italic "No records to
- * display" inside a table still showing its sort and filter controls, and two
- * variations on a sentence. None said why the page was empty or what to do, so the
- * cheapest place to teach the feature was spent reporting a technical state, and a
- * first run was four dead ends (design review P9).
+ * Always in the same order: what the page shows, why it is empty, and the action that
+ * changes that. The action is optional - not every page has one, and no action beats a
+ * button that leads nowhere useful.
  *
- * Three things, always in the same order: what the page shows, why it is empty right
- * now, and the one action that changes that. The action is optional because not every
- * page has one -- a fleet with nothing in it needs services added to PMM, which is not
- * this app's to do -- and an absent action is better than a button that leads somewhere
- * unhelpful.
- *
- * Low emphasis on purpose. These are not alerts: an empty page on a fresh install is
- * the expected state, and rendering it in the same solid colour as a real problem is
- * what made every page look like something had already gone wrong (P21).
+ * Deliberately low emphasis: an empty page on a fresh install is expected, not a
+ * problem, so it should not look like an alert.
  */
 export const EmptyState = ({
   title,

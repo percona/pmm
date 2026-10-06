@@ -355,11 +355,8 @@ export const addOm = (): NavItem => ({
   icon: Tune,
   url: OM_PATH,
   matches: [OM_PATH],
-  // Always visible, so a collapsed parent does not turn the preview status into an
-  // "attention" dot. Compact, so it fits beside the label inside the drawer width:
-  // the entry sits one level in, under MongoDB, and "Dev Preview" overlapped
-  // "Operations" there. Which preview this is comes from the banner on every page
-  // and from the Settings section, both of which say "Developer preview".
+  // "Preview" rather than "Dev Preview": the longer label overlaps "Operations" at
+  // this nesting level. The banner and Settings say which preview it is.
   badge: {
     label: 'Preview',
     sx: {

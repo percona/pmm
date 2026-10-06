@@ -153,10 +153,8 @@ const ExecutorCell = ({
   if (!registered) {
     return (
       <>
-        {/* Clickable, because this is the one state on the page with nothing to
-            press and no way forward -- the reader used to leave the app here
-            (F17). The others name a machine to go and look at; this one needs
-            explaining before anyone knows where to look. */}
+        {/* Clickable: the other states name a machine to go and look at, this one
+            has to be explained before anyone knows where to look. */}
         <Tooltip title="No automation agent is registered for this node, so nothing can be run on it. Open for what to check.">
           <Chip
             size="small"
@@ -291,9 +289,8 @@ const DatabaseCell = ({ row }: { row: OmHostRow }) => {
 
 function useColumns(
   busyExecutorHosts: Set<string>,
-  // A fleet-level fact, needed by a single cell: whether *any* node has an agent
-  // is what tells a reader whether "not onboarded" is about this node or about
-  // the server. See NotOnboardedDialog.
+  // Whether *any* node has an agent decides whether "not onboarded" is about this
+  // node or about the server. See NotOnboardedDialog.
   anyNodeOnboarded: boolean
 ): MRT_ColumnDef<OmHostRow>[] {
   return useMemo(
@@ -650,9 +647,8 @@ export const NodesPage = () => {
   const isHostBusy = (row: OmHostRow) =>
     Boolean(row.executor_host && busyExecutorHosts.has(row.executor_host));
   const rows = useMemo(() => toHostRows(data), [data]);
-  // Whole fleet, not the filtered view: "is it only this node" is a question
-  // about the estate, and filtering to the broken nodes must not turn the answer
-  // into "none of them are onboarded".
+  // Whole fleet, not the filtered view: filtering to the broken nodes must not turn
+  // "only this one is broken" into "none of them work".
   const anyNodeOnboarded = useMemo(
     () => rows.some((row) => row.executor.registered),
     [rows]
@@ -706,10 +702,8 @@ export const NodesPage = () => {
     // A host already part of an in-flight bootstrap run cannot be selected
     // for another one -- see `busyExecutorHosts`'s own comment.
     enableRowSelection: (row) => !isHostBusy(row.original),
-    // MRT's own banner says only how many rows are selected, which the bar below
-    // the header already says -- and it said it in a second place, so a selected
-    // row showed two bars with the same count (P17). Ours is the one that stays,
-    // because it carries the actions that selection exists for.
+    // Ours already shows the count and carries the actions, so MRT's banner was a
+    // second bar saying the same thing.
     positionToolbarAlertBanner: 'none',
     positionActionsColumn: 'last',
     onRowSelectionChange: setRowSelection,

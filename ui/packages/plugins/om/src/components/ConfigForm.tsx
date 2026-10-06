@@ -172,16 +172,10 @@ const SettingField = ({
             value={draft}
             error={!valid}
             helperText={
-              // An integer's constraint is stated from the start rather than only
-              // once it has been broken: a field that waits until you are wrong to
-              // say what it accepts makes you guess first (P13 asks every field to
-              // show what it allows). `error` turns the same line red, so the
-              // constraint and the complaint are never two different sentences.
-              //
-              // This TextField serves both `int` and `text` settings, and `isValid`
-              // only requires a text one to be non-empty. Telling the reader of a
-              // REPO_URL to enter a whole number is an instruction they cannot
-              // follow, so those stay quiet until they are actually empty.
+              // An integer always states its constraint, and `error` turns the same
+              // line red, so the rule and the complaint are one sentence. Text
+              // settings stay quiet until empty: this field serves both, and "a whole
+              // number" is not an instruction the reader of a URL can follow.
               kind === 'int'
                 ? 'A whole number greater than zero.'
                 : valid

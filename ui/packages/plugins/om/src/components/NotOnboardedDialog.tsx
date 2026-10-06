@@ -30,29 +30,14 @@ import { NOMAD_DOC_URL, PMM_AGENT_AUTOMATION_MIN_VERSION } from '../constants';
 /**
  * What to do about a node Operations cannot run anything on.
  *
- * The design review's F17: "Not onboarded" was a chip with a tooltip naming the
- * state and no way out, so a reader who hit it left the app to work out what to
- * do - exactly when they were stuck.
+ * There is no command to hand the user: the automation agent is created by the server
+ * when pmm-agent registers, and neither `pmm-admin` nor the inventory API can add one.
+ * So this diagnoses which layer is at fault instead, which is what a reader cannot work
+ * out alone:
  *
- * It suggested a dialog carrying the node's `pmm-admin` command. There isn't
- * one. The automation agent is a Nomad client that pmm-agent starts by itself
- * when the server has the feature on; `pmm-admin` can list Nomad agents but has
- * no verb that adds or registers one, and the inventory API's only knob is
- * enabling an agent that already exists. Printing an invented command would be
- * worse than the tooltip it replaced, so this explains the state instead and
- * sends the reader to the right layer.
- *
- * Which layer is the useful part, and it is answerable from data the page
- * already holds:
- *
- * - **PMM Client is not connected.** Nothing downstream can be true, so there is
- *   no point discussing Nomad.
- * - **No node in the fleet is onboarded.** Then it is not this node. Nomad is off
- *   by default server-side, and enabling it needs a public address as well as
- *   the flag - PMM skips starting Nomad silently when the address is missing,
- *   which is a failure shaped exactly like this one.
- * - **This node alone.** Its agent cannot start: the documented client
- *   requirements, or a pmm-agent too old to have one.
+ * - PMM Client not connected - nothing downstream can be true.
+ * - No node has an agent - the server's feature is off, or its public address is unset.
+ * - This node alone - its agent cannot start; version first, then the client requirements.
  */
 export const NotOnboardedDialog = ({
   open,
