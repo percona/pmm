@@ -9,9 +9,13 @@ import {
 } from '@mui/material';
 
 export interface OverviewCardProps extends Omit<MuiCardProps, 'content'> {
+  /** MUI CardHeader props; the header only renders when `title` is set here. */
   cardHeaderProps?: CardHeaderProps;
+  /** MUI CardContent props for the padded inner area. */
   cardContentProps?: CardContentProps;
+  /** Test id of the card; the header gets it as a prefix. */
   dataTestId: string;
+  /** Free-form content of the card. */
   children: ReactNode;
 }
 

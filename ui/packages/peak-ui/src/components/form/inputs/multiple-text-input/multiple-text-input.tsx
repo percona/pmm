@@ -5,9 +5,13 @@ import { Control, FieldError, useFieldArray, useFormContext } from 'react-hook-f
 import TextInput from '../text';
 
 interface MultipleTextInputProps {
+  /** Form field holding the list, as an array of `{ key, value }` rows. */
   fieldName: string;
+  /** react-hook-form control; only needed when the input sits outside a `FormProvider`. */
   control?: Control;
+  /** Called with the row count before removal after the user deletes a row. */
   onRemove?: (nrOfFields: number) => void;
+  /** Called when the user edits a row, with the row count, the row index, and whether the key or the value changed. */
   onChange?: (nrOfFields: number, index: number, field: 'key' | 'value') => void;
 }
 
