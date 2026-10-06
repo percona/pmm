@@ -206,6 +206,62 @@
               }
             }
           ]
+        },
+        {
+          "uid": "pmm-ha-disk-space-usage",
+          "title": "PMM HA disk space usage is high",
+          "condition": "C",
+          "for": "10m",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "percona_alerting": "1",
+            "pmm_provisioned": "1",
+            "severity": "warning",
+            "template_name": "pmm_ha_disk_space_usage"
+          },
+          "annotations": {
+            "description": "Volume '{{ $labels.persistentvolumeclaim }}' in namespace '{{ $labels.namespace }}' is {{ printf \"%.1f\" $values.A.Value }}% full, above the threshold of 80%.\nWhen a PMM HA volume fills up, VictoriaMetrics stops accepting metrics, ClickHouse loses new Query Analytics data,\nPostgreSQL shuts down and takes PMM Server with it, and PostgreSQL backups fail.\n\nRemediation steps:\n  1. Identify the store from the volume name: vmstorage, ClickHouse or Keeper, PostgreSQL (pg-db), the pgBackRest repository (repo1) or PMM Server.\n  2. Increase that volume's size in the pmm-ha chart values and run helm upgrade. The storage class must allow volume expansion.\n  3. Lowering dataRetentionDays also frees space, but it permanently deletes the older data.\n  4. Open the HA Health Overview dashboard to watch the Storage Usage gauges return below the threshold.",
+            "summary": "PMM HA volume '{{ $labels.persistentvolumeclaim }}' is {{ printf \"%.0f\" $values.A.Value }}% full"
+          },
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "PA58DA793C7250F1B",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "expr": "max by(namespace, persistentvolumeclaim) (100 * (1 - kubelet_volume_stats_available_bytes{job=\"kubelet\"} / kubelet_volume_stats_capacity_bytes{job=\"kubelet\"}))\nand on(namespace) group by(namespace) (pmm_ha_node_info)",
+                "refId": "A",
+                "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "type": "math",
+                "expression": "$A \u003e 80",
+                "refId": "C",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ]
         }
       ]
     },

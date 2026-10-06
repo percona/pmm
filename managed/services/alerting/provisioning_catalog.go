@@ -104,6 +104,7 @@ var builtinBundles = []provisioningBundle{
 			{uid: "pmm-ha-quorum-at-risk", templateName: "pmm_ha_quorum_at_risk"},
 			{uid: "pmm-ha-leader-flapping", templateName: "pmm_ha_leader_flapping"},
 			{uid: "pmm-ha-node-unreachable", templateName: "pmm_ha_node_unreachable"},
+			{uid: "pmm-ha-disk-space-usage", templateName: "pmm_ha_disk_space_usage"},
 		},
 		enabled: func(gates bundleGates) bool {
 			return gates.haEnabled && gates.haAlertsEnabled
