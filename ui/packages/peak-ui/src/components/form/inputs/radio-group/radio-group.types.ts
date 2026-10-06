@@ -40,8 +40,6 @@ export type RadioGroupProps<T extends FieldValues = FieldValues> = {
   labelProps?: LabeledContentProps;
   /** MUI RadioGroup props; pass `{ row: false }` to stack the options vertically. */
   radioGroupFieldProps?: MuiRadioGroupProps;
-  /** Not rendered: the radios come from `options`. Kept for backwards compatibility. */
-  children?: React.ReactNode;
   /** Adds a required asterisk to the heading; validation itself goes in `controllerProps.rules`. */
   isRequired?: boolean;
   /** Choices to show, one radio each. */

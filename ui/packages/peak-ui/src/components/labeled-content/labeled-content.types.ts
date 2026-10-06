@@ -19,8 +19,6 @@ export type LabeledContentProps = {
   label?: string;
   /** Explanatory text shown under the heading. */
   caption?: string;
-  /** Not used: pass the content as `children` instead. */
-  verticalStackChildrenSlot?: React.ReactNode;
   /** Content shown on the heading row, to the right of the label, such as a button or chip. */
   horizontalStackChildrenSlot?: React.ReactNode;
   /** Adds a required asterisk after the heading. */

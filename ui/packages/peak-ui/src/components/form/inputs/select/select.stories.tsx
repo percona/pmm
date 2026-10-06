@@ -38,9 +38,9 @@ const meta = {
           formControlProps={{
             sx: { width },
             disabled,
-            required,
             size,
           }}
+          isRequired={required}
           name={'select'}
           label={label}
         >
@@ -88,9 +88,9 @@ const meta = {
           formControlProps={{
             sx: { width },
             disabled,
-            required,
             size,
           }}
+          isRequired={required}
           name={'select'}
           label={label}
         >

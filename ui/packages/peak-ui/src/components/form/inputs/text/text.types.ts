@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import { FormHelperTextProps, TextFieldProps } from '@mui/material';
-import { LabeledContentProps } from '../../../labeled-content';
 import { Control, FieldPath, FieldValues, UseControllerProps } from 'react-hook-form';
 
 export type TextInputProps<T extends FieldValues = FieldValues> = {
@@ -25,8 +24,6 @@ export type TextInputProps<T extends FieldValues = FieldValues> = {
   name: FieldPath<T>;
   /** Label shown on the field's top border; it stays there even while the field is empty. */
   label?: string;
-  /** Not used: this input renders the MUI floating label. Kept for API symmetry with `CheckboxInput` and `RadioGroup`. */
-  labelProps?: LabeledContentProps;
   /** MUI TextField props such as placeholder or multiline; an onBlur that returns a value replaces what is stored. */
   textFieldProps?: TextFieldProps;
   /** Marks the field required with an asterisk on the label; validation itself goes in `controllerProps.rules`. */

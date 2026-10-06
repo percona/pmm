@@ -20,13 +20,19 @@ const SelectInput = <T extends FieldValues = FieldValues>({
   selectFieldProps,
   formControlProps,
   loading,
+  isRequired,
   children,
 }: SelectInputProps<T>) => {
   const formContext = useFormContext<T>();
   const contextControl = formContext?.control;
 
   return (
-    <FormControl sx={{ mt: 3 }} size={formControlProps?.size || 'small'} {...formControlProps}>
+    <FormControl
+      sx={{ mt: 3 }}
+      size={formControlProps?.size || 'small'}
+      required={isRequired}
+      {...formControlProps}
+    >
       <InputLabel id={`${name}-input-label`}>{label}</InputLabel>
       <Controller
         name={name}
