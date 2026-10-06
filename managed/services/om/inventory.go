@@ -552,6 +552,14 @@ func sameMemberConfig(accepted, planned extensionsMemberConfig) bool {
 	if planned.Votes != nil && pointer.GetBool(planned.Votes) != pointer.GetBool(accepted.Votes) {
 		return false
 	}
+	// Compared only when asked for, like the two above: om_bootstrap echoes None for a
+	// member that named no address, and a run that never asked for one must not read
+	// as a mismatch. Without this an om_bootstrap too old for the field would accept
+	// the request, ignore it, and bring mongod up on the run-level address -- which is
+	// 0.0.0.0, the exact default the per-member value exists to avoid.
+	if planned.BindIP != nil && pointer.GetString(planned.BindIP) != pointer.GetString(accepted.BindIP) {
+		return false
+	}
 	return planned.Hidden == accepted.Hidden && planned.DelaySecs == accepted.DelaySecs
 }
 
@@ -836,6 +844,7 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 				Votes:     member.Votes,
 				Hidden:    member.GetHidden(),
 				DelaySecs: member.GetDelaySecs(),
+				BindIP:    member.BindIp,
 			}
 		}
 	}

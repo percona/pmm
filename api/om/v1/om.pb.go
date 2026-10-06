@@ -4097,7 +4097,17 @@ type BootstrapMemberConfig struct {
 	// (secondaryDelaySecs). 0 means no delay. MongoDB requires priority 0 and
 	// votes off whenever this is nonzero -- TriggerHostBootstrap rejects a
 	// request that sets this without also setting those.
-	DelaySecs     uint32 `protobuf:"varint,4,opt,name=delay_secs,json=delaySecs,proto3" json:"delay_secs,omitempty"`
+	DelaySecs uint32 `protobuf:"varint,4,opt,name=delay_secs,json=delaySecs,proto3" json:"delay_secs,omitempty"`
+	// The interface(s) this member's mongod listens on, overriding the run-level
+	// bind_ip for this host alone. Unset keeps the run's value.
+	//
+	// Exists because the safe default is a host's *own* address and a three-member set
+	// has three different ones, so one run-level value can only be 0.0.0.0 -- the
+	// unsafe default this replaces -- or wrong for two of the three.
+	//
+	// Optional, so "leave it alone" is distinguishable from a deliberate empty string,
+	// the same reason priority and votes are.
+	BindIp        *string `protobuf:"bytes,5,opt,name=bind_ip,json=bindIp,proto3,oneof" json:"bind_ip,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4158,6 +4168,13 @@ func (x *BootstrapMemberConfig) GetDelaySecs() uint32 {
 		return x.DelaySecs
 	}
 	return 0
+}
+
+func (x *BootstrapMemberConfig) GetBindIp() string {
+	if x != nil && x.BindIp != nil {
+		return *x.BindIp
+	}
+	return ""
 }
 
 // TriggerHostBootstrapResponse acknowledges a queued bootstrap run.
@@ -5393,15 +5410,18 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\v2\x1c.om.v1.BootstrapMemberConfigR\x05value:\x028\x01B\x0e\n" +
 	"\f_environmentB\n" +
 	"\n" +
-	"\b_cluster\"\xab\x01\n" +
+	"\b_cluster\"\xd5\x01\n" +
 	"\x15BootstrapMemberConfig\x12)\n" +
 	"\bpriority\x18\x01 \x01(\rB\b\xfaB\x05*\x03\x18\xe8\aH\x00R\bpriority\x88\x01\x01\x12\x19\n" +
 	"\x05votes\x18\x02 \x01(\bH\x01R\x05votes\x88\x01\x01\x12\x16\n" +
 	"\x06hidden\x18\x03 \x01(\bR\x06hidden\x12\x1d\n" +
 	"\n" +
-	"delay_secs\x18\x04 \x01(\rR\tdelaySecsB\v\n" +
+	"delay_secs\x18\x04 \x01(\rR\tdelaySecs\x12\x1c\n" +
+	"\abind_ip\x18\x05 \x01(\tH\x02R\x06bindIp\x88\x01\x01B\v\n" +
 	"\t_priorityB\b\n" +
-	"\x06_votes\"5\n" +
+	"\x06_votesB\n" +
+	"\n" +
+	"\b_bind_ip\"5\n" +
 	"\x1cTriggerHostBootstrapResponse\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\"\x88\x01\n" +
 	"\rBootstrapStep\x12\x12\n" +
@@ -5613,7 +5633,6 @@ var (
 		(*structpb.Value)(nil),        // 75: google.protobuf.Value
 	}
 )
-
 var file_om_v1_om_proto_depIdxs = []int32{
 	0,  // 0: om.v1.TopologyService.status:type_name -> om.v1.ServiceStatus
 	1,  // 1: om.v1.TopologyService.process_role:type_name -> om.v1.ProcessRole

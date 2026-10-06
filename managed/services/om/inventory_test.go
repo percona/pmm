@@ -1462,6 +1462,78 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			stub.calls[1].body)
 	})
 
+	// An om_bootstrap older than the per-member bind_ip accepts the request and
+	// ignores the field -- pydantic drops what it does not know -- and mongod would
+	// then come up on the run-level address, which is the 0.0.0.0 the per-member value
+	// exists to avoid. The echo is what makes that detectable.
+	t.Run("refuses a side-car that ignored a member's own bind address", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "name": "db-01", "executor_host": "exec-n1", "observed": {"os_id": "ubuntu"}}`,
+			// Echoed without bind_ip, which is what an older app sends back.
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu",
+			  "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "bind_ip": "0.0.0.0",
+			  "member_configs": {"exec-n1": {"priority": 1, "votes": true, "hidden": false, "delay_secs": 0}},
+			  "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			`{"id": "run-abc", "status": "running", "cancel_requested": true, "install_method": "packages",
+			  "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod",
+			  "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+				BindIp:         "0.0.0.0",
+				MemberConfigs: map[string]*omv1.BootstrapMemberConfig{
+					"n1": {BindIp: new("10.0.0.1")},
+				},
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		message := status.Convert(err).Message()
+		assert.Contains(t, message, "the per-member replica-set settings")
+		assert.Contains(t, message, "older than this PMM")
+		// And the run it would not configure is cancelled rather than left running.
+		require.Len(t, stub.calls, 3)
+	})
+
+	// The other way round: a member that named no address must not read as a mismatch
+	// just because om_bootstrap echoes None for it.
+	t.Run("accepts a run whose members named no bind address", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "name": "db-01", "executor_host": "exec-n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu",
+			  "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "bind_ip": "0.0.0.0",
+			  "member_configs": {"exec-n1": {"priority": 1, "votes": true, "hidden": false, "delay_secs": 0, "bind_ip": null}},
+			  "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+				BindIp:         "0.0.0.0",
+				MemberConfigs: map[string]*omv1.BootstrapMemberConfig{
+					// Nothing set, so om_bootstrap's own defaults apply and it echoes
+					// bind_ip as null.
+					"n1": {},
+				},
+			})
+
+		require.NoError(t, err)
+	})
+
 	t.Run("refuses a side-car that accepted the run but ignored its settings", func(t *testing.T) {
 		t.Parallel()
 

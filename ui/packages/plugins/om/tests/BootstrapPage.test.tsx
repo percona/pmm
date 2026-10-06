@@ -55,6 +55,9 @@ const triggerState: { isError: boolean; error?: { message: string } } = {
 /** The fleet the wizard sees, mutable for the same reason as triggerState. */
 const hostsState: { data: OmInventoryHost[] } = { data: HOSTS };
 
+/** What the wizard actually asked for, so a test can assert the request itself. */
+const triggerCalls: Record<string, unknown>[] = [];
+
 vi.mock('../src/inventoryHooks', () => ({
   useOmInventoryHosts: () => ({
     data: hostsState.data,
@@ -62,7 +65,10 @@ vi.mock('../src/inventoryHooks', () => ({
     isError: false,
   }),
   useTriggerHostBootstrap: () => ({
-    mutateAsync: vi.fn(),
+    mutateAsync: async (request: Record<string, unknown>) => {
+      triggerCalls.push(request);
+      return { run_id: 'run-1' };
+    },
     reset: vi.fn(),
     isPending: false,
     isError: triggerState.isError,
@@ -358,5 +364,123 @@ describe('BootstrapPage step 1 preconditions', () => {
     expect(
       screen.getByText(/data directories, and systemd services will be created/)
     ).toBeInTheDocument();
+  });
+});
+
+// Task 5 / P2. The Bind IP field defaulted to 0.0.0.0 with the helper "The
+// interface(s) mongod listens on" - a database reachable from every network the
+// machine is on, with nothing beside the field saying so.
+describe('BootstrapPage security posture', () => {
+  const openConfigureStep = () => {
+    render(
+      <MemoryRouter
+        initialEntries={[
+          '/operations/nodes/install?nodes=node-1,node-2,node-3',
+        ]}
+      >
+        <Routes>
+          <Route path="/operations/nodes/install" element={<BootstrapPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Configure' }));
+  };
+
+  const chooseListenOn = (option: RegExp) => {
+    fireEvent.mouseDown(screen.getByLabelText('Listen on'));
+    fireEvent.click(screen.getByRole('option', { name: option }));
+  };
+
+  afterEach(() => {
+    triggerCalls.length = 0;
+  });
+
+  it('defaults to each node binding its own address, and warns about neither', () => {
+    openConfigureStep();
+
+    expect(screen.getByLabelText('Listen on')).toHaveTextContent(
+      /Each node's own address/
+    );
+    // 0.0.0.0 is not selected, so there is nothing to warn about.
+    expect(screen.queryByText(/accepts connections from every/)).toBeNull();
+  });
+
+  // The warning belongs beside the field, because it is about the value selected
+  // right now rather than about the feature in general.
+  it('warns beside the field when all interfaces are chosen', () => {
+    openConfigureStep();
+    chooseListenOn(/All interfaces/);
+
+    expect(
+      screen.getByText(/accepts connections from every network/)
+    ).toBeInTheDocument();
+  });
+
+  it('reveals a text field only for a custom address', () => {
+    openConfigureStep();
+    expect(screen.queryByLabelText(/Bind IP/)).toBeNull();
+
+    chooseListenOn(/Custom/);
+
+    expect(screen.getByLabelText(/Bind IP/)).toBeInTheDocument();
+  });
+
+  // The tab is gone, but what it carried is not: it was the only place naming the
+  // auth mechanism and what is unavailable, and losing that would make P2 worse.
+  it('states the posture on the step, with no tab to open', () => {
+    openConfigureStep();
+
+    expect(screen.queryByRole('tab', { name: 'Security' })).toBeNull();
+    const posture = screen.getByText(/Security in this developer preview/);
+    expect(posture).toBeInTheDocument();
+    const alert = posture.closest('.MuiAlert-root') as HTMLElement;
+    expect(alert.textContent).toMatch(/keyFile/);
+    expect(alert.textContent).toMatch(/not encrypted/);
+    expect(alert.textContent).toMatch(/LDAP/);
+    expect(alert.textContent).toMatch(/KMIP/);
+  });
+
+  it('says developer preview, never Tech Preview', () => {
+    openConfigureStep();
+
+    expect(document.body.textContent).not.toMatch(/Tech Preview/i);
+  });
+
+  // The whole reason BootstrapMemberConfig needed a bind_ip: three members have
+  // three different addresses, so one run-level value cannot express this.
+  it('asks for each member to bind its own address', async () => {
+    openConfigureStep();
+    fireEvent.change(screen.getByLabelText(/Replica set name/), {
+      target: { value: 'rs-orders' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Review' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Install MongoDB' }));
+
+    await vi.waitFor(() => expect(triggerCalls).toHaveLength(1));
+    const request = triggerCalls[0] as {
+      memberConfigs: Record<string, { bind_ip?: string }>;
+    };
+    expect(request.memberConfigs['node-1'].bind_ip).toBe('10.0.0.1');
+    expect(request.memberConfigs['node-2'].bind_ip).toBe('10.0.0.2');
+    expect(request.memberConfigs['node-3'].bind_ip).toBe('10.0.0.3');
+  });
+
+  it('sends one run-level address and no per-member ones for all interfaces', async () => {
+    openConfigureStep();
+    fireEvent.change(screen.getByLabelText(/Replica set name/), {
+      target: { value: 'rs-orders' },
+    });
+    chooseListenOn(/All interfaces/);
+    fireEvent.click(screen.getByRole('button', { name: 'Review' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Install MongoDB' }));
+
+    await vi.waitFor(() => expect(triggerCalls).toHaveLength(1));
+    const request = triggerCalls[0] as {
+      bindIp: string;
+      memberConfigs: Record<string, { bind_ip?: string }>;
+    };
+    expect(request.bindIp).toBe('0.0.0.0');
+    // The same fact twice would be a second place for it to drift.
+    expect(request.memberConfigs['node-1'].bind_ip).toBeUndefined();
   });
 });

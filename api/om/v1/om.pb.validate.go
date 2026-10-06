@@ -6731,6 +6731,10 @@ func (m *BootstrapMemberConfig) validate(all bool) error {
 		// no validation rules for Votes
 	}
 
+	if m.BindIp != nil {
+		// no validation rules for BindIp
+	}
+
 	if len(errors) > 0 {
 		return BootstrapMemberConfigMultiError(errors)
 	}

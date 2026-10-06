@@ -22,24 +22,23 @@ import {
   AccordionDetails,
   AccordionSummary,
   Alert,
+  AlertTitle,
   Autocomplete,
   Box,
   Button,
   Checkbox,
   CircularProgress,
+  MenuItem,
+  Stack,
   Step,
   StepLabel,
   Stepper,
-  Stack,
-  Tab,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-  Tabs,
   TextField,
-  Tooltip,
   Typography,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -92,37 +91,42 @@ function isSupportedHostCount(count: number): boolean {
  * (plan.md §6 Phase C), so a control for either would be a choice with no
  * effect.
  */
-const SecurityTab = () => (
-  <Stack spacing={2}>
-    <Tooltip title="The only intra-cluster authentication mechanism available in this Tech Preview.">
-      <TextField
-        label="Intra-cluster authentication"
-        value="keyFile"
-        disabled
-        fullWidth
-      />
-    </Tooltip>
-    <Tooltip title="LDAP integration is not available in this Tech Preview.">
-      <TextField
-        label="LDAP"
-        value="Not available in this Tech Preview"
-        disabled
-        fullWidth
-      />
-    </Tooltip>
-    <Tooltip title="KMIP/KMS integration is not available in this Tech Preview.">
-      <TextField
-        label="KMIP / KMS"
-        value="Not available in this Tech Preview"
-        disabled
-        fullWidth
-      />
-    </Tooltip>
-    <Typography variant="body2" color="text.secondary">
-      TLS and encryption-at-rest configuration are not available yet.
-    </Typography>
-  </Stack>
+/**
+ * The security posture of a developer-preview install, stated where it is read.
+ *
+ * This used to be a "Security" tab holding three permanently disabled text fields -
+ * "inputs that are not inputs", which was the complaint (P2). A tab that can never be
+ * edited is worse than the same facts stated where the user is already looking, so the
+ * tab is gone and this renders on the Configure step and again at Review.
+ *
+ * It must keep naming the mechanism and what is unavailable: the tab was the only place
+ * that said keyFile, LDAP and KMIP/KMS at all, and dropping that would make P2 worse
+ * rather than better.
+ */
+const SecurityPosture = () => (
+  <Alert severity="info">
+    <AlertTitle>Security in this developer preview</AlertTitle>
+    Members authenticate to each other with a shared keyFile, and client
+    connections are <strong>not encrypted</strong> - TLS is off. LDAP, KMIP/KMS
+    and encryption at rest are not available yet, and none of them can be
+    configured here.
+  </Alert>
 );
+
+/**
+ * How mongod's bindIp is chosen.
+ *
+ * `own` is the default and the safe one: each member binds to its own address.
+ * That is why BootstrapMemberConfig carries a bind_ip at all - a three-member set has
+ * three different addresses, so one run-level value can only be 0.0.0.0 or wrong for
+ * two of the three.
+ *
+ * Localhost was the other suggestion and cannot work: members of a replica set have to
+ * reach each other.
+ */
+type BindMode = 'own' | 'all' | 'custom';
+
+const ALL_INTERFACES = '0.0.0.0';
 
 /** BootstrapMemberConfig.priority's own ceiling in om.proto. */
 const MAX_MEMBER_PRIORITY = 1000;
@@ -364,7 +368,6 @@ export const BootstrapPage = () => {
   );
 
   const [activeStep, setActiveStep] = useState(0);
-  const [configTab, setConfigTab] = useState<'general' | 'security'>('general');
   const [replicaSetName, setReplicaSetName] = useState('');
   const [mongodbVersion, setMongodbVersion] = useState(DEFAULT_MONGODB_VERSION);
   const [environment, setEnvironment] = useState('');
@@ -372,7 +375,36 @@ export const BootstrapPage = () => {
   const [dataPath, setDataPath] = useState(DEFAULT_DATA_PATH);
   const [logPath, setLogPath] = useState(DEFAULT_LOG_PATH);
   const [port, setPort] = useState(DEFAULT_PORT);
-  const [bindIp, setBindIp] = useState(DEFAULT_BIND_IP);
+  // A mode rather than a free-typed address. The field defaulted to 0.0.0.0 with the
+  // helper "The interface(s) mongod listens on" - a database reachable from every
+  // network the machine is on, with nothing beside the field saying so (P2).
+  const [bindMode, setBindMode] = useState<BindMode>('own');
+  const [customBindIp, setCustomBindIp] = useState(DEFAULT_BIND_IP);
+
+  // What the run as a whole asks for. In `own` mode every member names its own
+  // address, so this is never consulted -- it is set to the first node's address
+  // rather than 0.0.0.0 so that a member somehow left unnamed still does not land on
+  // every interface. om.proto requires it to be non-empty.
+  const effectiveBindIp =
+    bindMode === 'all'
+      ? ALL_INTERFACES
+      : bindMode === 'custom'
+        ? customBindIp
+        : (hosts[0]?.address ?? ALL_INTERFACES);
+
+  // Per-member only in `own` mode: the other two modes are one value for the run, and
+  // sending it per member as well would be the same fact twice.
+  const memberBindIps = useMemo(
+    () =>
+      bindMode === 'own'
+        ? new Map(
+            hosts
+              .filter((host) => host.address)
+              .map((host) => [host.node_id, host.address as string])
+          )
+        : new Map<string, string>(),
+    [bindMode, hosts]
+  );
   const [memberConfigs, setMemberConfigs] = useState<
     Record<string, OmBootstrapMemberConfig>
   >({});
@@ -428,7 +460,7 @@ export const BootstrapPage = () => {
     mongodbVersion.trim() !== '' &&
     dataPath.trim() !== '' &&
     logPath.trim() !== '' &&
-    bindIp.trim() !== '' &&
+    (bindMode !== 'custom' || customBindIp.trim() !== '') &&
     Number.isInteger(portNumber) &&
     portNumber >= 1 &&
     portNumber <= 65535 &&
@@ -441,7 +473,6 @@ export const BootstrapPage = () => {
   // not carry over a previous run id or an in-flight mutation's error.
   useEffect(() => {
     setActiveStep(0);
-    setConfigTab('general');
     setReplicaSetName('');
     setMongodbVersion(DEFAULT_MONGODB_VERSION);
     setEnvironment('');
@@ -449,7 +480,8 @@ export const BootstrapPage = () => {
     setDataPath(DEFAULT_DATA_PATH);
     setLogPath(DEFAULT_LOG_PATH);
     setPort(DEFAULT_PORT);
-    setBindIp(DEFAULT_BIND_IP);
+    setBindMode('own');
+    setCustomBindIp(DEFAULT_BIND_IP);
     bootstrap.reset();
     // bootstrap is a fresh object every render (useMutation), so it is deliberately
     // left out of the dependency list - including it would reset the wizard on every
@@ -517,8 +549,21 @@ export const BootstrapPage = () => {
       dataPath,
       logPath,
       port: Number(port),
-      bindIp,
-      memberConfigs,
+      bindIp: effectiveBindIp,
+      // Merged rather than replaced: a member may already carry election settings
+      // from the Advanced section, and the address is one more field on the same
+      // entry. Nodes appear here that named no election settings at all, which is
+      // what makes `own` mode work for an untouched form.
+      memberConfigs: Object.fromEntries(
+        hosts.map((host) => {
+          const config = memberConfigs[host.node_id] ?? defaultMemberConfig();
+          const bindIp = memberBindIps.get(host.node_id);
+          return [
+            host.node_id,
+            bindIp ? { ...config, bind_ip: bindIp } : config,
+          ];
+        })
+      ),
     });
     navigate(`${omBase}/${OM_ROUTE_AUTOMATIONS}?expand=${accepted.run_id}`);
   };
@@ -591,18 +636,10 @@ export const BootstrapPage = () => {
         <Stack spacing={2} sx={{ maxWidth: hosts.length > 1 ? 720 : 480 }}>
           <Typography variant="body2" color="text.secondary">
             Percona Server for MongoDB, installed and initialized as a{' '}
-            {hosts.length}-member replica set. In this Tech Preview, members
-            authenticate with a shared keyFile and connections are not encrypted
-            (TLS off).
+            {hosts.length}-member replica set.
           </Typography>
-          <Tabs
-            value={configTab}
-            onChange={(_event, value) => setConfigTab(value)}
-          >
-            <Tab label="General" value="general" />
-            <Tab label="Security" value="security" />
-          </Tabs>
-          {configTab === 'general' && (
+          <SecurityPosture />
+          {
             <Stack spacing={2} sx={{ maxWidth: 480 }}>
               <TextField
                 label="Replica set name"
@@ -672,16 +709,50 @@ export const BootstrapPage = () => {
                 slotProps={{ htmlInput: { min: 1, max: 65535 } }}
               />
               <TextField
-                label="Bind IP"
-                value={bindIp}
-                onChange={(event) => setBindIp(event.target.value)}
-                required
+                select
+                label="Listen on"
+                value={bindMode}
+                onChange={(event) =>
+                  setBindMode(event.target.value as BindMode)
+                }
                 fullWidth
-                helperText="The interface(s) mongod listens on."
-              />
+                helperText="Which interfaces mongod accepts connections on."
+              >
+                <MenuItem value="own">
+                  {hosts.length === 1
+                    ? "This node's own address"
+                    : "Each node's own address"}
+                </MenuItem>
+                <MenuItem value="all">All interfaces (0.0.0.0)</MenuItem>
+                <MenuItem value="custom">Custom…</MenuItem>
+              </TextField>
+              {bindMode === 'own' && (
+                <Typography variant="caption" color="text.secondary">
+                  {hosts.map((host) => host.address ?? host.name).join(', ')}
+                </Typography>
+              )}
+              {bindMode === 'custom' && (
+                <TextField
+                  label="Bind IP"
+                  value={customBindIp}
+                  onChange={(event) => setCustomBindIp(event.target.value)}
+                  required
+                  fullWidth
+                  helperText="Applied to every selected node."
+                />
+              )}
+              {/* Beside the field, not in a paragraph at the top of the step: the
+                  warning is about the value that is selected right now. */}
+              {effectiveBindIp === ALL_INTERFACES && (
+                <Alert severity="warning">
+                  On {ALL_INTERFACES} mongod accepts connections from every
+                  network each node is attached to. With TLS off in this
+                  developer preview, those connections are unencrypted.
+                </Alert>
+              )}
             </Stack>
-          )}
-          {configTab === 'general' && hosts.length > 1 && (
+          }
+          {hosts.length > 1 && (
             <Accordion
               variant="outlined"
               disableGutters
@@ -754,7 +825,6 @@ export const BootstrapPage = () => {
               {warning}
             </Alert>
           ))}
-          {configTab === 'security' && <SecurityTab />}
         </Stack>
       )}
 
@@ -792,7 +862,17 @@ export const BootstrapPage = () => {
                   ['Data path', dataPath],
                   ['Log path', logPath],
                   ['Port', port],
-                  ['Bind IP', bindIp],
+                  [
+                    'Listen on',
+                    bindMode === 'own'
+                      ? hosts
+                          .map(
+                            (host) =>
+                              `${host.name}: ${host.address ?? effectiveBindIp}`
+                          )
+                          .join(', ')
+                      : effectiveBindIp,
+                  ],
                 ] as const
               ).map(([setting, value]) => (
                 <TableRow key={setting}>

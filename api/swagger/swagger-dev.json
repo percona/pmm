@@ -31142,6 +31142,12 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 3
+                      },
+                      "bind_ip": {
+                        "description": "The interface(s) this member's mongod listens on, overriding the run-level\nbind_ip for this host alone. Unset keeps the run's value.\n\nExists because the safe default is a host's *own* address and a three-member set\nhas three different ones, so one run-level value can only be 0.0.0.0 -- the\nunsafe default this replaces -- or wrong for two of the three.\n\nOptional, so \"leave it alone\" is distinguishable from a deliberate empty string,\nthe same reason priority and votes are.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 4
                       }
                     }
                   },
