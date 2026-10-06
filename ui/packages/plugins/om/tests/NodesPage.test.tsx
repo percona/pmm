@@ -71,14 +71,14 @@ const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
 
 const forgetOne = vi.fn();
 
-const renderPage = (hosts: OmInventoryHost[] = [host()]) => {
+const renderPage = (hosts: OmInventoryHost[] = [host()], route = '/') => {
   useOmInventoryHosts.mockReturnValue({
     data: hosts,
     isPending: false,
     isError: false,
   });
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[route]}>
       <NodesPage />
     </MemoryRouter>
   );
@@ -355,6 +355,32 @@ describe('NodesPage', () => {
 
     const forget = screen.getByText('Forget').closest('li') as HTMLElement;
     expect(forget).not.toHaveAttribute('aria-disabled', 'true');
+  });
+
+  // The destination for P6's "link to the scan result". An error elsewhere names a
+  // node; following it has to land on that node's row, not on a fleet the reader then
+  // has to search by hand.
+  it('focuses the node named in ?node=', () => {
+    renderPage(
+      [
+        host({ node_id: 'n1', name: 'node00' }),
+        host({ node_id: 'n2', name: 'node01' }),
+      ],
+      '/?node=node01'
+    );
+
+    expect(screen.getByText('node01')).toBeInTheDocument();
+    expect(screen.queryByText('node00')).toBeNull();
+  });
+
+  it('shows the whole fleet when no node is named', () => {
+    renderPage([
+      host({ node_id: 'n1', name: 'node00' }),
+      host({ node_id: 'n2', name: 'node01' }),
+    ]);
+
+    expect(screen.getByText('node00')).toBeInTheDocument();
+    expect(screen.getByText('node01')).toBeInTheDocument();
   });
 
   it('disables the row Scan while a sweep is running', () => {

@@ -17,7 +17,7 @@
 
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { BootstrapPage } from '../src/BootstrapPage';
 import type { OmInventoryHost } from '../src/types';
 
@@ -37,9 +37,20 @@ const host = (i: number): OmInventoryHost => ({
   automation_eligible: true,
   automation_blocked_reasons: [],
   automation_blocked_by_design: false,
+  is_pmm_server_node: false,
 });
 
 const HOSTS = [host(1), host(2), host(3)];
+
+/**
+ * The trigger's result, mutable so a test can put the wizard into its error state.
+ *
+ * `vi.mock`'s factory is hoisted and evaluated once, so the hook has to read this on
+ * every call rather than closing over a value fixed at mock time.
+ */
+const triggerState: { isError: boolean; error?: { message: string } } = {
+  isError: false,
+};
 
 vi.mock('../src/inventoryHooks', () => ({
   useOmInventoryHosts: () => ({
@@ -51,7 +62,8 @@ vi.mock('../src/inventoryHooks', () => ({
     mutateAsync: vi.fn(),
     reset: vi.fn(),
     isPending: false,
-    isError: false,
+    isError: triggerState.isError,
+    error: triggerState.error,
   }),
 }));
 vi.mock('../src/topologyHooks', () => ({
@@ -189,5 +201,51 @@ describe('BootstrapPage election settings', () => {
       '2 voting members'
     );
     expect(review()).toBeEnabled();
+  });
+});
+
+// The wizard end of P6's last clause. The linkifier itself is covered in
+// NodeNamesLinked.test.tsx; this asserts the wizard actually renders the refusal
+// through it, with the node names it knows about.
+describe('BootstrapPage install refusal', () => {
+  afterEach(() => {
+    triggerState.isError = false;
+    triggerState.error = undefined;
+  });
+
+  it('links every node the refusal names to that node and its scan', () => {
+    triggerState.isError = true;
+    triggerState.error = {
+      message:
+        '2 of the selected node(s) cannot be installed onto -- db01: no scan has reported its operating system; db03: no automation agent is registered for it.',
+    };
+
+    render(
+      <MemoryRouter
+        initialEntries={[
+          '/operations/nodes/install?nodes=node-1,node-2,node-3',
+        ]}
+      >
+        <Routes>
+          <Route path="/operations/nodes/install" element={<BootstrapPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Configure' }));
+    fireEvent.change(screen.getByLabelText(/Replica set name/), {
+      target: { value: 'rs-orders' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Review' }));
+
+    expect(screen.getByRole('link', { name: 'db01' })).toHaveAttribute(
+      'href',
+      '/operations/nodes?node=db01'
+    );
+    expect(screen.getByRole('link', { name: 'db03' })).toHaveAttribute(
+      'href',
+      '/operations/nodes?node=db03'
+    );
+    // db02 is in the selection but not in the refusal, so it is not blamed.
+    expect(screen.queryByRole('link', { name: 'db02' })).toBeNull();
   });
 });

@@ -54,6 +54,7 @@ import {
 import { OmHeader } from './components/OmHeader';
 import { toHostRows } from './inventory';
 import { useOmInventoryHosts, useTriggerHostBootstrap } from './inventoryHooks';
+import { NodeNamesLinked } from './components/NodeNamesLinked';
 import { useOmTopology } from './topologyHooks';
 import { useOmBase } from './useOmBase';
 import type { OmBootstrapMemberConfig, OmHostRow } from './types';
@@ -342,6 +343,12 @@ export const BootstrapPage = () => {
   );
 
   const backToHosts = () => navigate(`${omBase}/${OM_ROUTE_NODES}`);
+
+  // No new request: hostsQuery is already loaded on this page for step 1's table.
+  const knownNodeNames = useMemo(
+    () => (hostsQuery.data ?? []).map((host) => host.name),
+    [hostsQuery.data]
+  );
 
   const [activeStep, setActiveStep] = useState(0);
   const [configTab, setConfigTab] = useState<'general' | 'security'>('general');
@@ -800,7 +807,17 @@ export const BootstrapPage = () => {
             </Table>
           )}
           {bootstrap.isError && (
-            <Alert severity="error">{bootstrap.error.message}</Alert>
+            <Alert severity="error">
+              {/* Every node the refusal names becomes a link to that node and its
+                  newest scan, which is what makes "fix it on the node" followable
+                  (P6). The message itself is the backend's -- see NodeNamesLinked
+                  for why the names are matched rather than parsed. */}
+              <NodeNamesLinked
+                text={bootstrap.error.message}
+                nodeNames={knownNodeNames}
+                omBase={omBase}
+              />
+            </Alert>
           )}
         </Stack>
       )}

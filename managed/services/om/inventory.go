@@ -423,10 +423,19 @@ func validateMemberConfigs(nodeIDs []string, memberConfigs map[string]*omv1.Boot
 	for _, nodeID := range nodeIDs {
 		nodeIDSet[nodeID] = true
 	}
-	for nodeID, member := range memberConfigs {
+	// Accumulated, not returned on the first: a three-member plan with two
+	// misconfigured members used to report one of them (P6). Sorted, because ranging a
+	// map gives a different order every run and an error message that reshuffles
+	// itself is one nobody can diff against the last attempt.
+	var violations []string
+	for _, nodeID := range slices.Sorted(maps.Keys(memberConfigs)) {
+		member := memberConfigs[nodeID]
 		if !nodeIDSet[nodeID] {
-			return status.Errorf(codes.InvalidArgument,
-				"member_configs names host %s, which is not in node_ids", nodeID)
+			violations = append(violations, fmt.Sprintf(
+				"member_configs names host %s, which is not in node_ids", nodeID,
+			))
+			// Nothing else about a host outside the selection is worth checking.
+			continue
 		}
 		// MongoDB's own rs.initiate() rule: a delayed member cannot vote or be
 		// eligible for primary -- rejected here rather than left for PMM Extensions to
@@ -434,8 +443,9 @@ func validateMemberConfigs(nodeIDs []string, memberConfigs map[string]*omv1.Boot
 		// priority or votes unset is the same mistake as setting them wrong,
 		// since unset means MongoDB's defaults of 1 and on.
 		if member.GetDelaySecs() > 0 && (member.Priority == nil || *member.Priority != 0 || member.Votes == nil || *member.Votes) {
-			return status.Errorf(codes.InvalidArgument,
-				"host %s: a delayed member (delay_secs > 0) must also set priority 0 and votes off", nodeID)
+			violations = append(violations, fmt.Sprintf(
+				"host %s: a delayed member (delay_secs > 0) must also set priority 0 and votes off", nodeID,
+			))
 		}
 		// The same shape of rule, for hidden members. rs.initiate() refuses a hidden
 		// member that can still be elected, because a primary hidden from clients is
@@ -447,8 +457,9 @@ func validateMemberConfigs(nodeIDs []string, memberConfigs map[string]*omv1.Boot
 		// fails minutes later inside rs.initiate. Unset priority counts as broken for
 		// the same reason it does above -- unset means MongoDB's default of 1.
 		if member.GetHidden() && (member.Priority == nil || *member.Priority > 0) {
-			return status.Errorf(codes.InvalidArgument,
-				"host %s: a hidden member must also set priority 0, since MongoDB will not elect a member that clients cannot see", nodeID)
+			violations = append(violations, fmt.Sprintf(
+				"host %s: a hidden member must also set priority 0, since MongoDB will not elect a member that clients cannot see", nodeID,
+			))
 		}
 	}
 
@@ -468,18 +479,21 @@ func validateMemberConfigs(nodeIDs []string, memberConfigs map[string]*omv1.Boot
 		}
 	}
 	if voters == 0 {
-		return status.Error(codes.InvalidArgument,
+		violations = append(violations,
 			"member_configs leaves no host with a vote; a replica set needs at least one voting member")
 	}
 	if electable == 0 {
-		return status.Error(codes.InvalidArgument,
+		violations = append(violations,
 			"member_configs leaves every host with priority 0; a replica set needs at least one member that can become primary")
 	}
 
+	if len(violations) > 0 {
+		return status.Error(codes.InvalidArgument, strings.Join(violations, "; "))
+	}
 	return nil
 }
 
-// runIgnoredSettings names the first run setting om_bootstrap did not apply, or
+// runIgnoredSettings names every run setting om_bootstrap did not apply, or
 // "" when the accepted run matches what was asked for.
 //
 // Raised in review: these fields are new on the wire, and PMM Extensions' own
@@ -498,24 +512,32 @@ func validateMemberConfigs(nodeIDs []string, memberConfigs map[string]*omv1.Boot
 // what was actually asked for is compared -- a field PMM left out is PMM Extensions' to
 // default, and the value it chose is not a disagreement.
 func runIgnoredSettings(planned extensionsTriggerBootstrapRunRequest, accepted *extensionsBootstrapRun) string {
-	switch {
-	case planned.DataPath != "" && accepted.DataPath != planned.DataPath:
-		return "the data path"
-	case planned.LogPath != "" && accepted.LogPath != planned.LogPath:
-		return "the log path"
-	case planned.Port != 0 && accepted.Port != planned.Port:
-		return "the port"
-	case planned.BindIP != "" && accepted.BindIP != planned.BindIP:
-		return "the bind address"
+	// Every setting, not the first (P6). A PMM Extensions too old for these fields
+	// ignores all of them at once, so naming one made the gap look like a single
+	// mis-set value rather than what it is: this PMM talking to an older side-car.
+	var ignored []string
+	if planned.DataPath != "" && accepted.DataPath != planned.DataPath {
+		ignored = append(ignored, "the data path")
 	}
-
+	if planned.LogPath != "" && accepted.LogPath != planned.LogPath {
+		ignored = append(ignored, "the log path")
+	}
+	if planned.Port != 0 && accepted.Port != planned.Port {
+		ignored = append(ignored, "the port")
+	}
+	if planned.BindIP != "" && accepted.BindIP != planned.BindIP {
+		ignored = append(ignored, "the bind address")
+	}
+	// Named once however many members disagree: they are one wire field, and a reader
+	// cannot act on them per host anyway.
 	for host, member := range planned.MemberConfigs {
 		got, ok := accepted.MemberConfigs[host]
 		if !ok || !sameMemberConfig(got, member) {
-			return "the per-member replica-set settings"
+			ignored = append(ignored, "the per-member replica-set settings")
+			break
 		}
 	}
-	return ""
+	return strings.Join(ignored, ", ")
 }
 
 // sameMemberConfig compares one host's settings as asked for against as accepted.
@@ -571,13 +593,16 @@ func executorUnusable(host extensionsHost) string {
 		return ""
 	}
 
+	// Worded without naming the scheduler: this string reaches the install wizard as
+	// a gRPC error message, so it is product copy, and PMM-15623 set out to keep
+	// "Nomad" out of what a user reads (P16).
 	reachable, ok := executor["reachable"].(bool)
 	if ok && !reachable {
-		return "its Nomad executor is not reachable"
+		return "its automation agent is not reachable"
 	}
 	driverHealthy, ok := executor["driver_healthy"].(bool)
 	if ok && !driverHealthy {
-		return "its Nomad executor's driver is not healthy"
+		return "its automation agent's job driver is not healthy"
 	}
 	return ""
 }
@@ -603,28 +628,92 @@ func supportedBootstrapOSNames() string {
 	return strings.Join(names, ", ")
 }
 
-// resolveBootstrapHostOSID validates one host's OS against the run's OS chosen
-// so far (osID, empty for the first host in the loop) and returns the OS to
-// carry forward. Split out of TriggerHostBootstrap, which this is called from
-// once per host, purely to keep that function's cognitive complexity within
-// the linter's limit -- there is no reuse elsewhere.
-func resolveBootstrapHostOSID(nodeID string, host extensionsHost, osID string) (string, error) {
-	hostOSID, _ := host.Observed["os_id"].(string)
-	if hostOSID == "" {
-		return "", status.Errorf(codes.FailedPrecondition,
-			"host %s has no known OS yet; wait for its next inventory probe and try again", nodeID)
+// refuseNodesNotReadyToInstall rejects the request when any selected node cannot be
+// installed onto, and returns the one OS the run will use.
+//
+// Every problem from every node, in one error (P6). It used to return on the first:
+// `resolveBootstrapHostOSID` was called once per node from inside the trigger's loop,
+// so three nodes with no OS produced one message about one of them, and the user found
+// the second only by fixing the first and running the trigger again. The same was true
+// of the executor checks beside it.
+//
+// The two gates are separate on purpose. A node that cannot be installed onto is that
+// node's problem; a selection whose nodes disagree about their OS is a problem with the
+// selection, and naming one node for it would blame a machine that is fine.
+func refuseNodesNotReadyToInstall(nodeIDs []string, hosts []extensionsHost) (string, error) {
+	blocked := make([]string, 0, len(hosts))
+	osIDs := make(map[string][]string, 2)
+	for i, host := range hosts {
+		name := hostDisplayName(host, nodeIDs[i])
+		problems := hostNotReadyReasons(host)
+		if len(problems) > 0 {
+			blocked = append(blocked, fmt.Sprintf("%s: %s", name, strings.Join(problems, "; ")))
+			continue
+		}
+		osID, _ := host.Observed["os_id"].(string)
+		osIDs[osID] = append(osIDs[osID], name)
 	}
-	if !supportedBootstrapOSIDs[hostOSID] {
+	if len(blocked) > 0 {
 		return "", status.Errorf(codes.FailedPrecondition,
-			"host %s runs %q, which om_bootstrap does not support yet (supported: ubuntu, rocky)",
-			nodeID, hostOSID)
+			"%d of the selected node(s) cannot be installed onto -- %s. Each has to be fixed on the node itself; "+
+				"its newest scan on the Nodes page says what failed.",
+			len(blocked), strings.Join(blocked, "; "))
 	}
-	if osID != "" && osID != hostOSID {
+	if len(osIDs) > 1 {
+		// Named by the groups rather than by "this one disagrees with that one": with
+		// three nodes there is no single odd one out, and the reader has to decide
+		// which two to keep.
+		groups := make([]string, 0, len(osIDs))
+		for osID, names := range osIDs {
+			groups = append(groups, fmt.Sprintf("%s on %s", osID, strings.Join(names, ", ")))
+		}
+		slices.Sort(groups)
 		return "", status.Errorf(codes.InvalidArgument,
-			"host %s runs %s, but %s was already selected; a mixed-OS replica set is out of phase-1 scope",
-			nodeID, hostOSID, osID)
+			"the selected nodes do not all run the same operating system (%s); a mixed-OS replica set is out of "+
+				"phase-1 scope, so select nodes that run one of them",
+			strings.Join(groups, "; "))
 	}
-	return hostOSID, nil
+	for osID := range osIDs {
+		return osID, nil
+	}
+	return "", status.Error(codes.InvalidArgument, "node_ids is empty")
+}
+
+// hostNotReadyReasons returns why an install on this node would fail, as opposed to
+// why it must not be attempted at all -- that is hostNotATargetReasons.
+//
+// The advice matters as much as the reason. "wait for its next inventory probe and try
+// again" was wrong the way P6 found it: the node's scans had been failing for 160 runs,
+// so waiting was never going to help. None of these say wait.
+func hostNotReadyReasons(host extensionsHost) []string {
+	var reasons []string
+	if host.ExecutorHost == nil || *host.ExecutorHost == "" {
+		reasons = append(reasons, "no automation agent is registered for it, so nothing can be dispatched to it")
+	} else if unusable := executorUnusable(host); unusable != "" {
+		reasons = append(reasons, unusable)
+	}
+	switch osID, _ := host.Observed["os_id"].(string); {
+	case osID == "":
+		reasons = append(reasons,
+			"no scan has reported its operating system, so its scans are not landing")
+	case !supportedBootstrapOSIDs[osID]:
+		reasons = append(reasons,
+			fmt.Sprintf("it runs %s, which Operations does not support installing onto (supported: %s)",
+				osID, supportedBootstrapOSNames()))
+	}
+	return reasons
+}
+
+// hostDisplayName is what to call this node in a message a person reads.
+//
+// The node id is a UUID PMM minted; it is not what anyone's inventory, runbook or
+// ticket calls the machine, so an error built from it is unactionable. Falls back to
+// the id only when PMM has no name, where it is the one identifier that exists.
+func hostDisplayName(host extensionsHost, nodeID string) string {
+	if host.Name != "" {
+		return host.Name
+	}
+	return nodeID
 }
 
 // refuseNodesThatAreNotTargets rejects the whole request when any node must never be
@@ -650,11 +739,8 @@ func (s *Service) refuseNodesThatAreNotTargets(nodeIDs []string, hosts []extensi
 		if len(reasons) == 0 {
 			continue
 		}
-		name := host.Name
-		if name == "" {
-			name = nodeIDs[i]
-		}
-		blocked = append(blocked, fmt.Sprintf("%s: %s", name, strings.Join(reasons, "; ")))
+		blocked = append(blocked, fmt.Sprintf("%s: %s",
+			hostDisplayName(host, nodeIDs[i]), strings.Join(reasons, "; ")))
 	}
 	if len(blocked) == 0 {
 		return nil
@@ -733,27 +819,19 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		return nil, err
 	}
 
-	osID := ""
+	osID, err := refuseNodesNotReadyToInstall(nodeIDs, hosts)
+	if err != nil {
+		return nil, err
+	}
+
+	// Nothing below can fail: every node has been judged, so this only assembles.
 	executorHosts := make([]string, 0, len(nodeIDs))
 	memberConfigs := make(map[string]extensionsMemberConfig, len(req.GetMemberConfigs()))
 	for i, nodeID := range nodeIDs {
-		host := hosts[i]
-		if host.ExecutorHost == nil || *host.ExecutorHost == "" {
-			return nil, status.Errorf(codes.FailedPrecondition,
-				"host %s has no usable Nomad executor", nodeID)
-		}
-		unusable := executorUnusable(host)
-		if unusable != "" {
-			return nil, status.Errorf(codes.FailedPrecondition,
-				"host %s cannot be bootstrapped right now: %s", nodeID, unusable)
-		}
-		osID, err = resolveBootstrapHostOSID(nodeID, host, osID)
-		if err != nil {
-			return nil, err
-		}
-		executorHosts = append(executorHosts, *host.ExecutorHost)
+		executorHost := *hosts[i].ExecutorHost
+		executorHosts = append(executorHosts, executorHost)
 		if member, ok := req.GetMemberConfigs()[nodeID]; ok {
-			memberConfigs[*host.ExecutorHost] = extensionsMemberConfig{
+			memberConfigs[executorHost] = extensionsMemberConfig{
 				Priority:  member.Priority,
 				Votes:     member.Votes,
 				Hidden:    member.GetHidden(),

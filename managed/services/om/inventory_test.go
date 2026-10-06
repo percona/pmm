@@ -849,7 +849,11 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
-		assert.Contains(t, status.Convert(err).Message(), "no known OS")
+		message := status.Convert(err).Message()
+		assert.Contains(t, message, "no scan has reported its operating system")
+		// P6's complaint was the advice, not only the wording: it told the user to
+		// wait after 160 runs had already failed.
+		assert.NotContains(t, message, "wait")
 	})
 
 	t.Run("a host running an unsupported OS answers FailedPrecondition, not a run that starts and fails", func(t *testing.T) {
@@ -893,7 +897,9 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
-		assert.Contains(t, status.Convert(err).Message(), "no usable Nomad executor")
+		message := status.Convert(err).Message()
+		assert.Contains(t, message, "no automation agent is registered")
+		assert.NotContains(t, message, "Nomad")
 	})
 
 	t.Run("an unreachable executor answers FailedPrecondition before a run exists", func(t *testing.T) {
@@ -919,6 +925,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
 		assert.Contains(t, status.Convert(err).Message(), "not reachable")
+		assert.NotContains(t, status.Convert(err).Message(), "Nomad")
 		require.Len(t, stub.calls, 1, "no run should be planned")
 		assert.Equal(t, "/api/apps/om_inventory/hosts/n1", stub.calls[0].path)
 	})
@@ -941,6 +948,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
 		assert.Contains(t, status.Convert(err).Message(), "driver is not healthy")
+		assert.NotContains(t, status.Convert(err).Message(), "Nomad")
 	})
 
 	t.Run("a healthy executor plans the run", func(t *testing.T) {
@@ -1086,6 +1094,74 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	// wizard and scopes the backend out; without it here the browser is the only thing
 	// between a direct API call and a run that installs mongod on every host and then
 	// fails inside rs.initiate.
+	// P6, for the readiness checks. Three nodes with three different problems used to
+	// produce one message about one of them, so a user fixing them discovered the
+	// second only by fixing the first and running the trigger again.
+	t.Run("names every unready node and every problem, not the first", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			// No OS reported at all.
+			`{"node_id": "n1", "name": "db-01", "executor_host": "exec-n1", "observed": {}}`,
+			// An OS om_bootstrap cannot install onto.
+			`{"node_id": "n2", "name": "db-02", "executor_host": "exec-n2", "observed": {"os_id": "windows"}}`,
+			// No automation agent, and no OS either -- two problems on one node.
+			`{"node_id": "n3", "name": "db-03", "observed": {}}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1", "n2", "n3"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		message := status.Convert(err).Message()
+		for _, name := range []string{"db-01", "db-02", "db-03"} {
+			assert.Contains(t, message, name)
+		}
+		// Both of db-03's problems, not just the one that was found first.
+		assert.Contains(t, message, "no automation agent is registered")
+		assert.Contains(t, message, "windows")
+		// The advice is to fix the nodes, and it points at where the reason came from.
+		assert.Contains(t, message, "Nodes page")
+		assert.NotContains(t, message, "wait")
+		// Nothing was planned.
+		require.Len(t, stub.calls, 3)
+	})
+
+	// A mixed selection is the selection's problem, not any one node's, so it names
+	// the groups rather than blaming whichever node happened to be second.
+	t.Run("names both OS groups when the selection is mixed", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "name": "db-01", "executor_host": "exec-n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"node_id": "n2", "name": "db-02", "executor_host": "exec-n2", "observed": {"os_id": "rocky"}}`,
+			`{"node_id": "n3", "name": "db-03", "executor_host": "exec-n3", "observed": {"os_id": "ubuntu"}}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1", "n2", "n3"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		message := status.Convert(err).Message()
+		assert.Contains(t, message, "mixed-OS")
+		// Both groups, with their members, so the reader can see which two to keep.
+		assert.Contains(t, message, "rocky on db-02")
+		assert.Contains(t, message, "ubuntu on db-01, db-03")
+	})
+
 	// The safety gate, and the reason it is not left to the UI. automation_eligible is
 	// advisory: computed for a list request, minutes stale by the time anyone clicks,
 	// and never read at all by a direct API call. These are the two cases P1 calls the
@@ -1245,6 +1321,49 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	// rule that refused that would block the topology the field exists for. Checked
 	// against validateMemberConfigs directly, because a one-member set with priority
 	// 0 is refused by the no-electable-member rule instead and would prove nothing.
+	// P6, for the member rules. Two misconfigured members in one plan used to report
+	// one of them. Checked directly rather than through the trigger, because the point
+	// is the set of violations rather than the RPC around it.
+	t.Run("returns every member violation in one error", func(t *testing.T) {
+		t.Parallel()
+
+		err := validateMemberConfigs(
+			[]string{"n1", "n2", "n3"},
+			map[string]*omv1.BootstrapMemberConfig{
+				// Delayed, but still electable and voting.
+				"n1": {DelaySecs: 300},
+				// Hidden, but still electable.
+				"n2": {Hidden: true},
+				// Not in the selection at all.
+				"n9": {},
+			},
+		)
+
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		message := status.Convert(err).Message()
+		assert.Contains(t, message, "priority 0 and votes off")
+		assert.Contains(t, message, "clients cannot see")
+		assert.Contains(t, message, "not in node_ids")
+	})
+
+	// Map iteration order is random, so an error built by ranging one reshuffles
+	// itself between two identical attempts and cannot be diffed against the last.
+	t.Run("orders the violations the same way every time", func(t *testing.T) {
+		t.Parallel()
+
+		configs := map[string]*omv1.BootstrapMemberConfig{
+			"n1": {DelaySecs: 300},
+			"n2": {Hidden: true},
+			"n3": {DelaySecs: 300},
+		}
+		first := status.Convert(validateMemberConfigs([]string{"n1", "n2", "n3"}, configs)).Message()
+		for range 8 {
+			again := status.Convert(validateMemberConfigs([]string{"n1", "n2", "n3"}, configs)).Message()
+			require.Equal(t, first, again)
+		}
+	})
+
 	t.Run("accepts a hidden member that cannot be elected", func(t *testing.T) {
 		t.Parallel()
 
@@ -1252,7 +1371,8 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			[]string{"n1", "n2", "n3"},
 			map[string]*omv1.BootstrapMemberConfig{
 				"n3": {Hidden: true, Priority: new(uint32(0))},
-			})
+			},
+		)
 
 		require.NoError(t, err)
 	})
@@ -1373,8 +1493,14 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
-		assert.Contains(t, status.Convert(err).Message(), "the data path")
-		assert.Contains(t, status.Convert(err).Message(), "older than this PMM")
+		message := status.Convert(err).Message()
+		// Every setting it dropped, not the first (P6). This side-car is older than
+		// all four fields, so naming one made the gap look like a single mis-set
+		// value rather than what it is -- a PMM talking to an older PMM Extensions.
+		for _, setting := range []string{"the data path", "the log path", "the port", "the bind address"} {
+			assert.Contains(t, message, setting)
+		}
+		assert.Contains(t, message, "older than this PMM")
 		// And the run it would not configure is not left running.
 		require.Len(t, stub.calls, 3)
 		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc:cancel", stub.calls[2].path)

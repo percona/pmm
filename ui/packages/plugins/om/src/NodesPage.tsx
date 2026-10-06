@@ -16,7 +16,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Alert,
   Box,
@@ -737,6 +737,12 @@ export const NodesPage = () => {
     [rows]
   );
 
+  // The node an error elsewhere is about. P6 asks a blocked node's reason to be
+  // followable to the scan that produced it, and that scan is on this page -- so the
+  // destination is a row here, not a new view.
+  const [searchParams] = useSearchParams();
+  const focusNode = searchParams.get('node') ?? '';
+
   const table = useMaterialReactTable({
     columns,
     data: filteredRows,
@@ -855,6 +861,12 @@ export const NodesPage = () => {
       density: 'compact',
       columnVisibility: HIDDEN_BY_DEFAULT,
       sorting: [{ id: 'name', desc: false }],
+      // Seeded from ?node=, so an error elsewhere can link to the one node it is
+      // about and land on that row rather than on a fleet the reader has to search.
+      // `initialState`, not `state`: it is a starting point, and clearing the search
+      // box has to work.
+      showGlobalFilter: focusNode !== '',
+      globalFilter: focusNode,
     },
   });
 
