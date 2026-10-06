@@ -101,7 +101,6 @@ func (o *DeleteInventoryConfigOverrideOK) GetPayload() any {
 }
 
 func (o *DeleteInventoryConfigOverrideOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
@@ -173,7 +172,6 @@ func (o *DeleteInventoryConfigOverrideDefault) GetPayload() *DeleteInventoryConf
 }
 
 func (o *DeleteInventoryConfigOverrideDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(DeleteInventoryConfigOverrideDefaultBody)
 
 	// response payload
@@ -189,7 +187,6 @@ DeleteInventoryConfigOverrideDefaultBody delete inventory config override defaul
 swagger:model DeleteInventoryConfigOverrideDefaultBody
 */
 type DeleteInventoryConfigOverrideDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,9 +256,7 @@ func (o *DeleteInventoryConfigOverrideDefaultBody) ContextValidate(ctx context.C
 }
 
 func (o *DeleteInventoryConfigOverrideDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -281,7 +276,6 @@ func (o *DeleteInventoryConfigOverrideDefaultBody) contextValidateDetails(ctx co
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -310,7 +304,6 @@ DeleteInventoryConfigOverrideDefaultBodyDetailsItems0 delete inventory config ov
 swagger:model DeleteInventoryConfigOverrideDefaultBodyDetailsItems0
 */
 type DeleteInventoryConfigOverrideDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -322,7 +315,6 @@ type DeleteInventoryConfigOverrideDefaultBodyDetailsItems0 struct {
 func (o *DeleteInventoryConfigOverrideDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -360,7 +352,6 @@ func (o *DeleteInventoryConfigOverrideDefaultBodyDetailsItems0) UnmarshalJSON(da
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o DeleteInventoryConfigOverrideDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}

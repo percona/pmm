@@ -102,7 +102,6 @@ func (o *CancelBootstrapRunOK) GetPayload() *CancelBootstrapRunOKBody {
 }
 
 func (o *CancelBootstrapRunOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(CancelBootstrapRunOKBody)
 
 	// response payload
@@ -176,7 +175,6 @@ func (o *CancelBootstrapRunDefault) GetPayload() *CancelBootstrapRunDefaultBody 
 }
 
 func (o *CancelBootstrapRunDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(CancelBootstrapRunDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ CancelBootstrapRunDefaultBody cancel bootstrap run default body
 swagger:model CancelBootstrapRunDefaultBody
 */
 type CancelBootstrapRunDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -262,9 +259,7 @@ func (o *CancelBootstrapRunDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *CancelBootstrapRunDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -284,7 +279,6 @@ func (o *CancelBootstrapRunDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -313,7 +307,6 @@ CancelBootstrapRunDefaultBodyDetailsItems0 cancel bootstrap run default body det
 swagger:model CancelBootstrapRunDefaultBodyDetailsItems0
 */
 type CancelBootstrapRunDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -325,7 +318,6 @@ type CancelBootstrapRunDefaultBodyDetailsItems0 struct {
 func (o *CancelBootstrapRunDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -363,7 +355,6 @@ func (o *CancelBootstrapRunDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o CancelBootstrapRunDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -427,7 +418,6 @@ CancelBootstrapRunOKBody CancelBootstrapRunResponse is the response for CancelBo
 swagger:model CancelBootstrapRunOKBody
 */
 type CancelBootstrapRunOKBody struct {
-
 	// run
 	Run *CancelBootstrapRunOKBodyRun `json:"run,omitempty"`
 }
@@ -484,7 +474,6 @@ func (o *CancelBootstrapRunOKBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *CancelBootstrapRunOKBody) contextValidateRun(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Run != nil {
 
 		if swag.IsZero(o.Run) { // not required
@@ -535,7 +524,6 @@ CancelBootstrapRunOKBodyRun GetBootstrapRunResponse is one run, in full, as of t
 swagger:model CancelBootstrapRunOKBodyRun
 */
 type CancelBootstrapRunOKBodyRun struct {
-
 	// run id
 	RunID string `json:"run_id,omitempty"`
 
@@ -714,9 +702,7 @@ func (o *CancelBootstrapRunOKBodyRun) ContextValidate(ctx context.Context, forma
 }
 
 func (o *CancelBootstrapRunOKBodyRun) contextValidateHosts(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Hosts); i++ {
-
 		if o.Hosts[i] != nil {
 
 			if swag.IsZero(o.Hosts[i]) { // not required
@@ -736,16 +722,13 @@ func (o *CancelBootstrapRunOKBodyRun) contextValidateHosts(ctx context.Context, 
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *CancelBootstrapRunOKBodyRun) contextValidateRunSteps(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.RunSteps); i++ {
-
 		if o.RunSteps[i] != nil {
 
 			if swag.IsZero(o.RunSteps[i]) { // not required
@@ -765,7 +748,6 @@ func (o *CancelBootstrapRunOKBodyRun) contextValidateRunSteps(ctx context.Contex
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -794,7 +776,6 @@ CancelBootstrapRunOKBodyRunHostsItems0 BootstrapHost is one host's progress with
 swagger:model CancelBootstrapRunOKBodyRunHostsItems0
 */
 type CancelBootstrapRunOKBodyRunHostsItems0 struct {
-
 	// The node id this progress belongs to.
 	Host string `json:"host,omitempty"`
 
@@ -954,9 +935,7 @@ func (o *CancelBootstrapRunOKBodyRunHostsItems0) ContextValidate(ctx context.Con
 }
 
 func (o *CancelBootstrapRunOKBodyRunHostsItems0) contextValidateSteps(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Steps); i++ {
-
 		if o.Steps[i] != nil {
 
 			if swag.IsZero(o.Steps[i]) { // not required
@@ -976,16 +955,13 @@ func (o *CancelBootstrapRunOKBodyRunHostsItems0) contextValidateSteps(ctx contex
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *CancelBootstrapRunOKBodyRunHostsItems0) contextValidateRollbackSteps(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.RollbackSteps); i++ {
-
 		if o.RollbackSteps[i] != nil {
 
 			if swag.IsZero(o.RollbackSteps[i]) { // not required
@@ -1005,16 +981,13 @@ func (o *CancelBootstrapRunOKBodyRunHostsItems0) contextValidateRollbackSteps(ct
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *CancelBootstrapRunOKBodyRunHostsItems0) contextValidateFinalizeSteps(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.FinalizeSteps); i++ {
-
 		if o.FinalizeSteps[i] != nil {
 
 			if swag.IsZero(o.FinalizeSteps[i]) { // not required
@@ -1034,7 +1007,6 @@ func (o *CancelBootstrapRunOKBodyRunHostsItems0) contextValidateFinalizeSteps(ct
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -1066,7 +1038,6 @@ CancelBootstrapRunOKBodyRunHostsItems0FinalizeStepsItems0 BootstrapStep is one s
 swagger:model CancelBootstrapRunOKBodyRunHostsItems0FinalizeStepsItems0
 */
 type CancelBootstrapRunOKBodyRunHostsItems0FinalizeStepsItems0 struct {
-
 	// The step's name, e.g. "pre_check", "rs_initiate", "stop_service". Not a
 	// fixed enum -- the step list itself is per-strategy (only "packages" exists
 	// yet) and per-spec, so a reader renders whatever names actually came back.
@@ -1121,7 +1092,6 @@ CancelBootstrapRunOKBodyRunHostsItems0RollbackStepsItems0 BootstrapStep is one s
 swagger:model CancelBootstrapRunOKBodyRunHostsItems0RollbackStepsItems0
 */
 type CancelBootstrapRunOKBodyRunHostsItems0RollbackStepsItems0 struct {
-
 	// The step's name, e.g. "pre_check", "rs_initiate", "stop_service". Not a
 	// fixed enum -- the step list itself is per-strategy (only "packages" exists
 	// yet) and per-spec, so a reader renders whatever names actually came back.
@@ -1176,7 +1146,6 @@ CancelBootstrapRunOKBodyRunHostsItems0StepsItems0 BootstrapStep is one step's pr
 swagger:model CancelBootstrapRunOKBodyRunHostsItems0StepsItems0
 */
 type CancelBootstrapRunOKBodyRunHostsItems0StepsItems0 struct {
-
 	// The step's name, e.g. "pre_check", "rs_initiate", "stop_service". Not a
 	// fixed enum -- the step list itself is per-strategy (only "packages" exists
 	// yet) and per-spec, so a reader renders whatever names actually came back.
@@ -1231,7 +1200,6 @@ CancelBootstrapRunOKBodyRunRunStepsItems0 BootstrapStep is one step's progress -
 swagger:model CancelBootstrapRunOKBodyRunRunStepsItems0
 */
 type CancelBootstrapRunOKBodyRunRunStepsItems0 struct {
-
 	// The step's name, e.g. "pre_check", "rs_initiate", "stop_service". Not a
 	// fixed enum -- the step list itself is per-strategy (only "packages" exists
 	// yet) and per-spec, so a reader renders whatever names actually came back.

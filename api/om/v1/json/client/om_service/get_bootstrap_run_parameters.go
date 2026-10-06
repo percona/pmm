@@ -57,7 +57,6 @@ GetBootstrapRunParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetBootstrapRunParams struct {
-
 	/* RunID.
 
 	   The run to fetch, from TriggerHostBootstrapResponse.run_id.
@@ -130,7 +129,6 @@ func (o *GetBootstrapRunParams) SetRunID(runID string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetBootstrapRunParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

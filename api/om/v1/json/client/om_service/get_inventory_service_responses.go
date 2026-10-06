@@ -102,7 +102,6 @@ func (o *GetInventoryServiceOK) GetPayload() *GetInventoryServiceOKBody {
 }
 
 func (o *GetInventoryServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetInventoryServiceOKBody)
 
 	// response payload
@@ -176,7 +175,6 @@ func (o *GetInventoryServiceDefault) GetPayload() *GetInventoryServiceDefaultBod
 }
 
 func (o *GetInventoryServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetInventoryServiceDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ GetInventoryServiceDefaultBody get inventory service default body
 swagger:model GetInventoryServiceDefaultBody
 */
 type GetInventoryServiceDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -262,9 +259,7 @@ func (o *GetInventoryServiceDefaultBody) ContextValidate(ctx context.Context, fo
 }
 
 func (o *GetInventoryServiceDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -284,7 +279,6 @@ func (o *GetInventoryServiceDefaultBody) contextValidateDetails(ctx context.Cont
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -313,7 +307,6 @@ GetInventoryServiceDefaultBodyDetailsItems0 get inventory service default body d
 swagger:model GetInventoryServiceDefaultBodyDetailsItems0
 */
 type GetInventoryServiceDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -325,7 +318,6 @@ type GetInventoryServiceDefaultBodyDetailsItems0 struct {
 func (o *GetInventoryServiceDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -363,7 +355,6 @@ func (o *GetInventoryServiceDefaultBodyDetailsItems0) UnmarshalJSON(data []byte)
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetInventoryServiceDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -427,7 +418,6 @@ GetInventoryServiceOKBody GetInventoryServiceResponse returns one service.
 swagger:model GetInventoryServiceOKBody
 */
 type GetInventoryServiceOKBody struct {
-
 	// service
 	Service *GetInventoryServiceOKBodyService `json:"service,omitempty"`
 }
@@ -484,7 +474,6 @@ func (o *GetInventoryServiceOKBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *GetInventoryServiceOKBody) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Service != nil {
 
 		if swag.IsZero(o.Service) { // not required
@@ -538,7 +527,6 @@ GetInventoryServiceOKBodyService InventoryService is one MongoDB service OM has 
 swagger:model GetInventoryServiceOKBodyService
 */
 type GetInventoryServiceOKBodyService struct {
-
 	// PMM's service ID. The join key against the topology document.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -639,7 +627,6 @@ func (o *GetInventoryServiceOKBodyService) ContextValidate(ctx context.Context, 
 }
 
 func (o *GetInventoryServiceOKBodyService) contextValidateFreshness(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Freshness != nil {
 
 		if swag.IsZero(o.Freshness) { // not required
@@ -692,7 +679,6 @@ GetInventoryServiceOKBodyServiceFreshness InventoryFreshness says how current th
 swagger:model GetInventoryServiceOKBodyServiceFreshness
 */
 type GetInventoryServiceOKBodyServiceFreshness struct {
-
 	// When OM first wrote a row for this entity.
 	// Format: date-time
 	FirstSeenAt strfmt.DateTime `json:"first_seen_at,omitempty"`

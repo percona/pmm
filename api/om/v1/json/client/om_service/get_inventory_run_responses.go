@@ -102,7 +102,6 @@ func (o *GetInventoryRunOK) GetPayload() *GetInventoryRunOKBody {
 }
 
 func (o *GetInventoryRunOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetInventoryRunOKBody)
 
 	// response payload
@@ -176,7 +175,6 @@ func (o *GetInventoryRunDefault) GetPayload() *GetInventoryRunDefaultBody {
 }
 
 func (o *GetInventoryRunDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetInventoryRunDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ GetInventoryRunDefaultBody get inventory run default body
 swagger:model GetInventoryRunDefaultBody
 */
 type GetInventoryRunDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -262,9 +259,7 @@ func (o *GetInventoryRunDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *GetInventoryRunDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -284,7 +279,6 @@ func (o *GetInventoryRunDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -313,7 +307,6 @@ GetInventoryRunDefaultBodyDetailsItems0 get inventory run default body details i
 swagger:model GetInventoryRunDefaultBodyDetailsItems0
 */
 type GetInventoryRunDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -325,7 +318,6 @@ type GetInventoryRunDefaultBodyDetailsItems0 struct {
 func (o *GetInventoryRunDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -363,7 +355,6 @@ func (o *GetInventoryRunDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) err
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetInventoryRunDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -427,7 +418,6 @@ GetInventoryRunOKBody GetInventoryRunResponse returns one refresh, with the rows
 swagger:model GetInventoryRunOKBody
 */
 type GetInventoryRunOKBody struct {
-
 	// What it attempted, one entry per entity.
 	//
 	// Only on the detail response, never on the list: a refresh of a real estate has a
@@ -529,9 +519,7 @@ func (o *GetInventoryRunOKBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *GetInventoryRunOKBody) contextValidateEntities(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Entities); i++ {
-
 		if o.Entities[i] != nil {
 
 			if swag.IsZero(o.Entities[i]) { // not required
@@ -551,14 +539,12 @@ func (o *GetInventoryRunOKBody) contextValidateEntities(ctx context.Context, for
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *GetInventoryRunOKBody) contextValidateRun(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Run != nil {
 
 		if swag.IsZero(o.Run) { // not required
@@ -618,7 +604,6 @@ GetInventoryRunOKBodyEntitiesItems0 InventoryRunEntity is one host a refresh att
 swagger:model GetInventoryRunOKBodyEntitiesItems0
 */
 type GetInventoryRunOKBodyEntitiesItems0 struct {
-
 	// PMM's node ID, the key OM holds this host under.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -769,9 +754,7 @@ func (o *GetInventoryRunOKBodyEntitiesItems0) ContextValidate(ctx context.Contex
 }
 
 func (o *GetInventoryRunOKBodyEntitiesItems0) contextValidateServices(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Services); i++ {
-
 		if o.Services[i] != nil {
 
 			if swag.IsZero(o.Services[i]) { // not required
@@ -791,7 +774,6 @@ func (o *GetInventoryRunOKBodyEntitiesItems0) contextValidateServices(ctx contex
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -820,7 +802,6 @@ GetInventoryRunOKBodyEntitiesItems0ServicesItems0 InventoryRunEntityService is o
 swagger:model GetInventoryRunOKBodyEntitiesItems0ServicesItems0
 */
 type GetInventoryRunOKBodyEntitiesItems0ServicesItems0 struct {
-
 	// PMM's service ID, when OM could key one.
 	ServiceID *string `json:"service_id,omitempty"`
 
@@ -867,7 +848,6 @@ GetInventoryRunOKBodyRun InventoryRun is one refresh of the estate.
 swagger:model GetInventoryRunOKBodyRun
 */
 type GetInventoryRunOKBodyRun struct {
-
 	// The run's ID.
 	RunID string `json:"run_id,omitempty"`
 
@@ -1055,7 +1035,6 @@ func (o *GetInventoryRunOKBodyRun) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *GetInventoryRunOKBodyRun) contextValidateCounts(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Counts != nil {
 
 		if swag.IsZero(o.Counts) { // not required
@@ -1102,7 +1081,6 @@ GetInventoryRunOKBodyRunCounts InventoryRunCounts is what one refresh saw.
 swagger:model GetInventoryRunOKBodyRunCounts
 */
 type GetInventoryRunOKBodyRunCounts struct {
-
 	// Services enumeration found.
 	TotalServices int32 `json:"total_services,omitempty"`
 
