@@ -24,6 +24,7 @@ import {
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { browserTimezone } from '@pmm-extensions/framework';
 import { NodesPage } from '../src/NodesPage';
 import type { OmInventoryHost } from '../src/types';
 
@@ -190,5 +191,19 @@ describe('NodesPage', () => {
     expect(
       within(rowFor('node00')).getByRole('button', { name: 'Scan' })
     ).toBeDisabled();
+  });
+
+  it('puts the local collection time and zone on the Collected hover', () => {
+    const collected = new Date(Date.now() - 3 * 60 * 1000).toISOString();
+    renderPage([
+      host({
+        freshness: { consecutive_failures: 0, last_success_at: collected },
+      }),
+    ]);
+
+    expect(within(rowFor('node00')).getByText('3m ago')).toHaveAttribute(
+      'title',
+      `${new Date(collected).toLocaleString()} (${browserTimezone()})`
+    );
   });
 });

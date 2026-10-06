@@ -84,6 +84,7 @@ describe('AutomationsScansTab', () => {
     vi.useRealTimers();
   });
 
+  // The last-scan summary carries the same hover, so pick the one inside the table.
   const startedCell = (iso: string) =>
     screen
       .getAllByTitle(hover(iso))
@@ -103,5 +104,9 @@ describe('AutomationsScansTab', () => {
     expect(
       screen.queryByText(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/)
     ).toBeNull();
+  });
+
+  it('gives the last scan summary its age and a hover', () => {
+    expect(screen.getByText('3h ago')).toHaveAttribute('title', hover(RECENT));
   });
 });

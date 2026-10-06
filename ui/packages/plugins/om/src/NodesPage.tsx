@@ -38,18 +38,20 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from 'material-react-table';
+import { formatTimestamp } from '@pmm-extensions/framework';
 import {
   HOST_DATABASE_STATE_COLOR,
   HOST_DATABASE_STATE_LABEL,
   HOST_DATABASE_STATE_PHRASE,
   OM_ROUTE_INSTALL,
 } from './constants';
+import { Age } from './components/Age';
 import { EmptyState } from './components/EmptyState';
 import { RowOverflowMenu } from './components/RowOverflowMenu';
 import { NotOnboardedDialog } from './components/NotOnboardedDialog';
 import { OmHeader } from './components/OmHeader';
 import { Unavailable } from './components/Unavailable';
-import { formatCompactDuration, pluralize } from './format';
+import { formatAge, formatCompactDuration, pluralize } from './format';
 import { ageSeconds, isFailing, toHostRows } from './inventory';
 import {
   useForgetHost,
@@ -375,24 +377,26 @@ function useColumns(
           ageSeconds(row.freshness.last_success_at) ?? Infinity,
         header: 'Collected',
         Cell: ({ row: { original } }) => {
-          const age = ageSeconds(original.freshness.last_success_at);
-          if (age == null) {
+          const collected = original.freshness.last_success_at;
+          if (ageSeconds(collected) == null) {
             return <Unavailable reason="probe_never_succeeded" />;
           }
           const since = ageSeconds(original.freshness.failing_since);
           return since == null ? (
-            <>{formatCompactDuration(age)} ago</>
+            <Age value={collected} />
           ) : (
             <Tooltip
               title={`${original.freshness.last_error ?? 'The last scan failed.'} Failing for ${formatCompactDuration(
                 since
-              )}, ${original.freshness.consecutive_failures} attempts.`}
+              )}, ${original.freshness.consecutive_failures} attempts. Last collected ${
+                formatTimestamp(collected)?.title
+              }.`}
             >
               <Box
                 component="span"
                 sx={{ color: 'error.main', cursor: 'help' }}
               >
-                {formatCompactDuration(age)} ago (failing)
+                {formatAge(collected)} (failing)
               </Box>
             </Tooltip>
           );

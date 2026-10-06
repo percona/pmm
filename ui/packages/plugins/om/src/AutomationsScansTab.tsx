@@ -39,14 +39,9 @@ import {
 import { isRunActive, OmApiError } from './api';
 import { RunStatusBadge } from './components/HealthBadge';
 import { RunEntities } from './components/RunEntities';
+import { Age } from './components/Age';
+import { formatRunDuration, pluralize, runDurationSeconds } from './format';
 import {
-  formatCompactDuration,
-  formatRunDuration,
-  pluralize,
-  runDurationSeconds,
-} from './format';
-import {
-  ageSeconds,
   DEFAULT_RUN_LIMIT,
   isBoundedPeriod,
   isRunPeriod,
@@ -242,7 +237,6 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
       </EmptyState>
     );
   }
-  const age = ageSeconds(run.start_time);
   const active = isRunActive(run.status);
   return (
     <Stack
@@ -253,11 +247,16 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
     >
       <RunStatusBadge status={run.status} />
       <Typography variant="body2" color="text.secondary">
-        {active
-          ? `started ${age == null ? 'just now' : `${formatCompactDuration(age)} ago`}`
-          : `${age == null ? '' : `${formatCompactDuration(age)} ago`}, took ${
-              formatRunDuration(run.start_time, run.end_time) || '—'
-            }`}
+        {active ? (
+          <>
+            started <Age value={run.start_time} />
+          </>
+        ) : (
+          <>
+            <Age value={run.start_time} />, took{' '}
+            {formatRunDuration(run.start_time, run.end_time) || '—'}
+          </>
+        )}
       </Typography>
       <Typography variant="body2">
         <strong>{run.counts.answered_hosts}</strong> of{' '}
