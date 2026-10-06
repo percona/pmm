@@ -228,10 +228,12 @@ func TestIsConnectedInHA(t *testing.T) {
 		r, _ := newRegistry(t)
 		r.connectionCache[testAgentID] = struct{}{}
 		r.connectionCacheTTL = time.Now().Add(time.Minute)
+		ttl := r.connectionCacheTTL
 
 		assert.False(t, r.IsConnected(exporterID))
-		// An unexpected rebuild fails on sqlmock and empties the cache.
 		assert.True(t, r.IsConnected(testAgentID))
+		// Any rebuild, even a failed one, would advance the TTL.
+		assert.Equal(t, ttl, r.connectionCacheTTL)
 	})
 
 	t.Run("failed rebuild keeps the last snapshot", func(t *testing.T) {
