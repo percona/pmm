@@ -29,7 +29,7 @@ export interface TableProps<T extends MRT_RowData> extends MRT_TableOptions<T> {
   emptyFilterResultsMessage?: string;
   /** Hides the "expand all" control in the header of expandable tables, so rows expand one by one. */
   hideExpandAllIcon?: boolean;
-  /** Unique name of this table; the user's column visibility choices are remembered under it in the browser. */
+  /** Unique name of this table; the user's column visibility choices are saved under it, so renaming it forgets them. */
   tableName: string;
   /** Replaces `noDataMessage` when there are no rows at all, for example an illustration with a call to action. */
   emptyState?: React.ReactNode;
