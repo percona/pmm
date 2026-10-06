@@ -45,23 +45,28 @@ If your environment requires pulling images from a location other than Docker Hu
 
     3. Recreate the `pmm-server` container to apply the new settings. Your data in the `pmm-data` volume stays intact.
 
-    4. Once `pmm-server` is healthy, start the PMM Extensions container:
+    4. Start the PMM Extensions container:
 
         === "Docker Compose"
 
-            If `pmm-server` is currently running as a standalone `docker run` container, stop and remove it before continuing. Your data in `pmm-data` is preserved:
+            Remove the existing `pmm-server` container and let Compose take over. Compose manages its own `pmm-server` and will conflict with an existing one on container name and port.
+            {.power-number}
 
-            ```bash
-            docker stop pmm-server && docker rm pmm-server
-            ```
+            1. Stop and remove the existing container. Your data in `pmm-data` is preserved:
 
-            Start both containers using both profiles. Running `--profile extensions` alone fails and creates nothing:
+                ```bash
+                docker stop pmm-server && docker rm pmm-server
+                ```
 
-            ```bash
-            docker compose --profile pmm --profile extensions up -d
-            ```
+            2. Start both containers. Both profiles are required: `--profile extensions` alone fails and creates nothing:
+
+                ```bash
+                docker compose --profile pmm --profile extensions up -d
+                ```
 
         === "docker run"
+
+            Once `pmm-server` is running with the updated configuration from step 3, start the PMM Extensions container on the same network:
 
             ```bash
             docker run -d \
