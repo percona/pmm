@@ -17,7 +17,8 @@
 
 import { Stack, Tooltip, Typography } from '@mui/material';
 import Chip from '@mui/material/Chip';
-import { formatAge, formatTimestamp } from '../format';
+import { formatTimestamp } from '@pmm-extensions/framework';
+import { formatAge } from '../format';
 import type { OmTopologySnapshotEnvelope } from '../types';
 
 /**
@@ -35,7 +36,7 @@ export const SnapshotBar = ({
   return (
     <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
       <Tooltip
-        title={`Snapshot generated ${formatTimestamp(envelope.generated_at)}`}
+        title={`Snapshot generated ${formatTimestamp(envelope.generated_at)?.title ?? '—'}`}
       >
         <Typography variant="body2" color="text.secondary">
           Snapshot {formatAge(envelope.generated_at)}
@@ -47,7 +48,7 @@ export const SnapshotBar = ({
       <Tooltip
         title={
           envelope.observed_at
-            ? `Newest observation ${formatTimestamp(envelope.observed_at)}`
+            ? `Newest observation ${formatTimestamp(envelope.observed_at)?.title}`
             : 'Nothing in this snapshot was observed'
         }
       >

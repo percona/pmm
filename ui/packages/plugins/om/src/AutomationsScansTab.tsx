@@ -30,6 +30,7 @@ import {
 import { EmptyState } from './components/EmptyState';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { Table, type MRT_ColumnDef } from '@percona/percona-ui';
+import { RunTime } from '@pmm-extensions/framework';
 import {
   useIsEstateRefreshing,
   useOmInventoryRuns,
@@ -41,7 +42,6 @@ import { RunEntities } from './components/RunEntities';
 import {
   formatCompactDuration,
   formatRunDuration,
-  formatTimestamp,
   pluralize,
   runDurationSeconds,
 } from './format';
@@ -67,7 +67,11 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
   {
     accessorKey: 'start_time',
     header: 'Started',
-    Cell: ({ row: { original } }) => formatTimestamp(original.start_time),
+    // Room for a full en-US date and time ("9/13/2026, 4:57:01 PM"): the cell does not
+    // wrap, and the table ellipsizes anything wider.
+    size: 210,
+    muiTableBodyCellProps: { sx: { whiteSpace: 'nowrap' } },
+    Cell: ({ row: { original } }) => <RunTime value={original.start_time} />,
   },
   {
     // Sorts on elapsed seconds, not the formatted string -- lexicographically "9s"
