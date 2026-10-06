@@ -14,9 +14,17 @@ You cannot deploy PMM Extensions on:
 - arm64 or other non-amd64 architectures.
 - [PMM HA](../install-pmm/HA.md) or external PostgreSQL deployments.
 
-## Before you start
+## Check versions before deploying
 
-Make sure the PMM Server and PMM Extensions images use the same version. If the versions don't match, the **Apps** menu won't appear in the sidebar, and PMM won't display an error.
+PMM Server and PMM Extensions must run on the same version. A mismatch won't produce an error but the **Apps** menu won't appear in the sidebar.
+
+Both containers use a single version tag, `PMM_IMAGE_TAG`. The default is `3`, which pulls the latest 3.x release. To run a specific version, set it in `.env` before starting the containers:
+
+```ini
+PMM_IMAGE_TAG=3.10.0
+```
+
+If your environment requires pulling images from a location other than Docker Hub, use `PMM_SERVER_IMAGE` and `PMM_EXTENSIONS_IMAGE` to specify the full image path for each container. These replace `PMM_IMAGE_TAG`, so set both to the same version.
 
 ## Deploy PMM Extensions
 
@@ -41,8 +49,16 @@ Make sure the PMM Server and PMM Extensions images use the same version. If the 
 
         === "Docker Compose"
 
+            If `pmm-server` is currently running as a standalone `docker run` container, stop and remove it before continuing. Your data in `pmm-data` is preserved:
+
             ```bash
-            docker compose --profile extensions up -d
+            docker stop pmm-server && docker rm pmm-server
+            ```
+
+            Start both containers using both profiles. Running `--profile extensions` alone fails and creates nothing:
+
+            ```bash
+            docker compose --profile pmm --profile extensions up -d
             ```
 
         === "docker run"
@@ -72,6 +88,8 @@ Make sure the PMM Server and PMM Extensions images use the same version. If the 
     1. Copy `.env.example` to `.env` and set these variables. If you skip `PMM_ENABLE_NOMAD` or `PMM_PUBLIC_ADDRESS`, PMM Extensions starts but can't run tasks and won't show an error:
 
         ```ini
+        # To pin a specific version (default pulls the latest 3.x release):
+        # PMM_IMAGE_TAG=3.10.0
         PMM_ENABLE_EXTENSIONS=1
         PMM_ENABLE_NOMAD=1
         PMM_PUBLIC_ADDRESS=<address PMM Clients use to reach this server>
