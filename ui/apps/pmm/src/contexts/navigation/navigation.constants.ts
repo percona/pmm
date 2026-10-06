@@ -1,4 +1,5 @@
 import {
+  PMM_ADD_SERVICE_PATH,
   PMM_NEW_NAV_GRAFANA_PATH,
   PMM_NEW_NAV_PATH,
   EXTENSIONS_ATW_PATH,
@@ -600,9 +601,9 @@ export const NAV_INVENTORY: NavItem = {
   children: [
     {
       id: 'add-instance',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`,
+      url: PMM_ADD_SERVICE_PATH,
       text: 'Add service',
-      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/add-instance/:type`],
+      matches: [`${PMM_ADD_SERVICE_PATH}/:type`],
     },
     {
       id: 'inventory-services',

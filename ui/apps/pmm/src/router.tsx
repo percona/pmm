@@ -9,6 +9,7 @@ import { HelpCenter } from 'pages/help-center';
 import { RealtimeSelection } from 'pages/rta/selection';
 import Providers from 'Providers';
 import {
+  PMM_ADD_SERVICE_PATH,
   PMM_NEW_NAV_PATH,
   PMM_SERVICENOW_SETTINGS_PATH,
   EXTENSIONS_ATW_PATH,
@@ -19,6 +20,7 @@ import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AlertsPage } from 'pages/alerting/status';
+import { AddServicePage } from 'pages/inventory/add-service';
 import { AtwApp } from '@pmm-extensions/plugins-atw';
 import { SchemaDrivenPlugin } from '@pmm-extensions/framework';
 import {
@@ -70,6 +72,10 @@ const router = createBrowserRouter(
             {
               path: 'settings/:tab?',
               element: <Settings />,
+            },
+            {
+              path: `${relativeToNav(PMM_ADD_SERVICE_PATH)}/:type?`,
+              element: <AddServicePage />,
             },
             {
               path: 'rta',
