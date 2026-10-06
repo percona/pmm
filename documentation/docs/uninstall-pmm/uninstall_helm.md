@@ -24,7 +24,7 @@ Follow these steps to completely remove PMM Server from your Kubernetes cluster.
 
 2. Manually remove remaining resources as Helm does not delete PVC, PV, and any snapshots: 
 
-```
+```sh
 # Delete persistent volume claims
 kubectl get pvc | grep pmm
 kubectl delete pvc <pvc-name>

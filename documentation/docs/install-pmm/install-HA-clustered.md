@@ -627,36 +627,54 @@ certs:
 
 ### Manage the encryption key
 
-PMM encrypts the credentials it stores for monitored services. All replicas share one PostgreSQL database, so they must all use the **same** encryption key: a replica holding a different key cannot decrypt credentials written by the others, and the affected services stop being monitored.
+PMM encrypts the credentials it stores for monitored services. All replicas share one PostgreSQL database and must use the **same** encryption key. A replica with a different key cannot decrypt credentials written by the others, and PMM stops monitoring those services.
 
-The chart handles this for you. On installation it generates one key, stores it in a Kubernetes secret named `pg-encryption-key`, and mounts it into every replica at the path given by `PMM_ENCRYPTION_KEY_PATH`. Upgrades and rescaling reuse the existing key, so you do not need to configure anything.
+The chart generates and manages the key for you, storing it in a Kubernetes secret named `pg-encryption-key`. Upgrades and rescaling reuse the same key automatically.
 
-Two things follow from this:
+#### Back up the key
 
-- **Back up the key.** The secret is the only copy of the key. Without it, the credentials in a restored database cannot be decrypted:
+Back up the key after installation. Without it, PMM can't decrypt stored credentials after a restore. The file holds the key in plain text, so store it as securely as the secret itself:
+
+```sh
+kubectl get secret pg-encryption-key -n pmm -o jsonpath='{.data.key}' | base64 -d > pmm-encryption.key
+```
+
+#### Reinstall against existing data
+
+The secret survives `helm uninstall`, but if you delete it while keeping the PostgreSQL data, a fresh install generates a new key and the replicas refuse to start. Restore the key from your backup before reinstalling:
+
+```sh
+kubectl create secret generic pg-encryption-key -n pmm --from-file=key=pmm-encryption.key
+```
+
+If you already reinstalled without restoring the key, run these commands in order:
+
+```sh
+kubectl delete secret pg-encryption-key -n pmm
+kubectl create secret generic pg-encryption-key -n pmm --from-file=key=pmm-encryption.key
+kubectl delete pod -l app.kubernetes.io/name=pmm -n pmm
+```
+
+#### Use your own key
+
+To use your own key instead of the one the chart generates, create the secret before installing the chart:
+{.power-number}
+
+1. Generate the key:
 
     ```sh
-    kubectl get secret pg-encryption-key -n pmm -o jsonpath='{.data.key}' | base64 -d > pmm-encryption.key
+    docker run --rm --entrypoint /usr/sbin/pmm-encryption-rotation percona/pmm-server:3 --generate-key > pmm-encryption.key
     ```
 
-    The file holds the key in the clear, so protect it as you would the secret.
-
-- **Keep the secret when reinstalling against existing data.** The secret is not owned by the Helm release and survives `helm uninstall`. If you delete it but keep the PostgreSQL data, a fresh installation generates a new key, and the PMM replicas refuse to start because their key does not match the database. Restore the key from the backup before reinstalling:
+2. Create the secret:
 
     ```sh
     kubectl create secret generic pg-encryption-key -n pmm --from-file=key=pmm-encryption.key
     ```
 
-    If you have already reinstalled, run `kubectl delete secret pg-encryption-key -n pmm` first, restore the key the same way, then restart the replicas with `kubectl delete pod -l app.kubernetes.io/name=pmm -n pmm`.
+3. Install the chart. It detects the existing secret and uses your key.
 
-To supply your own key instead, generate one and create the secret before installing the chart:
-
-```sh
-docker run --rm --entrypoint /usr/sbin/pmm-encryption-rotation percona/pmm-server:3 --generate-key > pmm-encryption.key
-kubectl create secret generic pg-encryption-key -n pmm --from-file=key=pmm-encryption.key
-```
-
-Rotating the key is not supported for this chart yet: the replicas read it from a read-only secret, which the rotation tool cannot replace. See [PMM data encryption](../admin/security/data_encryption.md) for the key format.
+Key rotation is not supported for the HA Helm chart yet. The replicas read the key from a read-only secret, which the rotation tool cannot replace. See [PMM data encryption](../admin/security/data_encryption.md) for the key format.
 
 ### Configure storage
 
@@ -1243,7 +1261,7 @@ kubectl get pvc -n pmm  # Review first
 kubectl delete pvc -n pmm --all
 ```
 
-The encryption key secret also survives `helm uninstall`. Delete it only together with the data it encrypts:
+The encryption key secret survives `helm uninstall`. Delete it only together with the data it encrypts:
 
 ```sh
 kubectl delete secret pg-encryption-key -n pmm
