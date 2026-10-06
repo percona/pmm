@@ -189,7 +189,7 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 		return err == nil
 	}
 
-	// HA mode: a fresh cache answers misses too, otherwise every exporter ID costs a query (PMM-15679).
+	// HA mode: a fresh cache answers misses too, otherwise every exporter ID costs a query.
 	if r.connectionCacheExpired() {
 		r.rebuildMu.Lock()
 		// Concurrent callers share a single rebuild.
