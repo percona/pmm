@@ -50,6 +50,7 @@ import {
 } from './inventory';
 import { formatCompactDuration, pluralize } from './format';
 import { ProbeValue } from './components/ProbeValue';
+import { ServiceDetailDrawer } from './components/ServiceDetailDrawer';
 import { uniformColumnVisibility } from './columnBudget';
 import type {
   OmInventoryService,
@@ -453,6 +454,9 @@ export const FleetServicesTab = () => {
       ? 'pending'
       : 'ready';
   const [failingOnly, setFailingOnly] = useState(false);
+  // The row itself, not its id: the drawer needs the whole row, and keeping an id
+  // would mean looking it up again on every poll.
+  const [selected, setSelected] = useState<OmServiceInventoryRow | null>(null);
   const columns = useColumns(estate);
   const joined = useMemo(
     () => joinServiceInventory(toServiceRows(data), inventory),
@@ -488,6 +492,15 @@ export const FleetServicesTab = () => {
     enableGrouping: true,
     enablePagination: false,
     enableDensityToggle: false,
+    // The short table cannot answer "tell me everything about this row", and the
+    // column chooser answers it for every row at once. Clicking opens the drawer
+    // instead. Grouping headers are rows too and carry no service, so they are
+    // left alone.
+    muiTableBodyRowProps: ({ row }) => ({
+      hover: true,
+      sx: row.getIsGrouped() ? undefined : { cursor: 'pointer' },
+      onClick: row.getIsGrouped() ? undefined : () => setSelected(row.original),
+    }),
     initialState: {
       density: 'compact',
       columnVisibility: { ...HIDDEN_BY_DEFAULT, ...uniformColumns },
@@ -545,6 +558,11 @@ export const FleetServicesTab = () => {
       ) : (
         <MaterialReactTable table={table} />
       )}
+      <ServiceDetailDrawer
+        row={selected}
+        estate={estate}
+        onClose={() => setSelected(null)}
+      />
     </Box>
   );
 };
