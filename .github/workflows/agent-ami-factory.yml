@@ -106,7 +106,7 @@ jobs:
         run: bash scripts/check.sh
 
   bake:
-    name: bake + smoke ${{ matrix.arch }}
+    name: Bake + smoke
     needs: check
     if: github.event_name != 'pull_request'  # PRs run the no-AWS check only
     runs-on: ubuntu-latest
@@ -392,7 +392,7 @@ jobs:
   # (candidate live), verify, then demote the predecessors: at no point is an
   # architecture left without a live image, and a stale candidate never wins.
   promote:
-    name: promote pair (env=${{ github.event.inputs.env || (github.event_name == 'push' && 'test') || 'prod' }})
+    name: Promote pair
     needs: bake
     if: github.event_name != 'pull_request' && needs.bake.result == 'success'
     runs-on: ubuntu-latest
