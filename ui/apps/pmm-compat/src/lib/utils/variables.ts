@@ -28,7 +28,12 @@ const getLinkUrl = (link: Partial<DashboardLink>) => {
 };
 
 export const getLinkWithVariables = (url?: string): string => {
-  if (url && isDashboardUrl(url) && isDashboardUrl(window.location.pathname)) {
+  if (
+    url &&
+    isDashboardUrl(url) &&
+    isDashboardUrl(window.location.pathname) &&
+    isDashboardSceneActive()
+  ) {
     const urlWithLinks = getLinkUrl({
       url: url,
       keepTime: true,

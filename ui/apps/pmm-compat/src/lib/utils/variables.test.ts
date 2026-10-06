@@ -8,9 +8,10 @@ jest.mock('@grafana/data', () => ({
     toUrlParams: () => '',
   },
 }));
+const mockReplace = jest.fn((url: string) => url);
 jest.mock('@grafana/runtime', () => ({
   config: { disableSanitizeHtml: false },
-  getTemplateSrv: () => ({ replace: (url: string) => url }),
+  getTemplateSrv: () => ({ replace: mockReplace }),
 }));
 
 import {
@@ -51,6 +52,34 @@ describe('getLinkWithVariables', () => {
     const url = 'https://percona.com';
     const result = getLinkWithVariables(url);
     expect(result).toBe(url);
+  });
+
+  describe('on a dashboard', () => {
+    const sceneWindow = window as {
+      __grafanaSceneContext?: { isActive: boolean };
+    };
+
+    beforeEach(() => {
+      mockLocation(dashboards.pg);
+      mockReplace.mockClear();
+    });
+
+    afterEach(() => {
+      delete sceneWindow.__grafanaSceneContext;
+    });
+
+    it('should not expand variables before the dashboard scene is active', () => {
+      expect(getLinkWithVariables(dashboards.pgSummary)).toBe(
+        dashboards.pgSummary
+      );
+      expect(mockReplace).not.toHaveBeenCalled();
+    });
+
+    it('should expand variables once the dashboard scene is active', () => {
+      sceneWindow.__grafanaSceneContext = { isActive: true };
+      getLinkWithVariables(dashboards.pgSummary);
+      expect(mockReplace).toHaveBeenCalled();
+    });
   });
 });
 
