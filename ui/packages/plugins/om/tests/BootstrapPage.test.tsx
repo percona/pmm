@@ -52,9 +52,12 @@ const triggerState: { isError: boolean; error?: { message: string } } = {
   isError: false,
 };
 
+/** The fleet the wizard sees, mutable for the same reason as triggerState. */
+const hostsState: { data: OmInventoryHost[] } = { data: HOSTS };
+
 vi.mock('../src/inventoryHooks', () => ({
   useOmInventoryHosts: () => ({
-    data: HOSTS,
+    data: hostsState.data,
     isLoading: false,
     isError: false,
   }),
@@ -247,5 +250,113 @@ describe('BootstrapPage install refusal', () => {
     );
     // db02 is in the selection but not in the refusal, so it is not blamed.
     expect(screen.queryByRole('link', { name: 'db02' })).toBeNull();
+  });
+});
+
+// Task 4 / P1. Every one of these conditions used to be checked on the wizard's
+// final button, inside TriggerHostBootstrap, after the whole form was filled in.
+describe('BootstrapPage step 1 preconditions', () => {
+  const renderStep1 = () =>
+    render(
+      <MemoryRouter
+        initialEntries={[
+          '/operations/nodes/install?nodes=node-1,node-2,node-3',
+        ]}
+      >
+        <Routes>
+          <Route path="/operations/nodes/install" element={<BootstrapPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+  afterEach(() => {
+    hostsState.data = HOSTS;
+  });
+
+  const blocked = (overrides: Partial<OmInventoryHost>) => {
+    hostsState.data = [{ ...host(1), ...overrides }, host(2), host(3)];
+  };
+
+  it('says every node is ready, and lets the user Configure', () => {
+    renderStep1();
+
+    expect(screen.getAllByText('Ready')).toHaveLength(3);
+    expect(screen.getByRole('button', { name: 'Configure' })).toBeEnabled();
+  });
+
+  // Blocks rather than warns: letting the user through would only move the failure
+  // to the final button, which is the complaint itself.
+  it('blocks Configure while any selected node cannot be installed onto', () => {
+    blocked({
+      automation_eligible: false,
+      automation_blocked_reasons: [
+        'no scan has reported its operating system yet',
+      ],
+    });
+
+    renderStep1();
+
+    expect(screen.getByRole('button', { name: 'Configure' })).toBeDisabled();
+    expect(
+      screen.getByText(/1 selected node cannot be installed onto/)
+    ).toBeInTheDocument();
+  });
+
+  it('states the reason on the row, not only in a summary', () => {
+    blocked({
+      automation_eligible: false,
+      automation_blocked_reasons: [
+        'no scan has reported its operating system yet',
+      ],
+    });
+
+    renderStep1();
+
+    expect(
+      screen.getByText('no scan has reported its operating system yet')
+    ).toBeInTheDocument();
+  });
+
+  // P6's last clause again, reached from the other direction: the same destination
+  // NodeNamesLinked uses, so following a reason lands in one place either way.
+  it('links a faulted node to that node and its latest scan', () => {
+    blocked({
+      automation_eligible: false,
+      automation_blocked_reasons: ['its automation agent is not reachable'],
+    });
+
+    renderStep1();
+
+    expect(screen.getByRole('link', { name: /latest scan/ })).toHaveAttribute(
+      'href',
+      '/operations/nodes?node=db01'
+    );
+  });
+
+  // A node blocked by design is working exactly as intended, so it reads as a fact
+  // and offers no scan to go and read.
+  it('calls a by-design block "Not a target" and offers no scan link', () => {
+    blocked({
+      automation_eligible: false,
+      automation_blocked_by_design: true,
+      automation_blocked_reasons: [
+        'a MongoDB service is already registered on this node',
+      ],
+    });
+
+    renderStep1();
+
+    expect(screen.getByText('Not a target')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /latest scan/ })).toBeNull();
+  });
+
+  // P8: the statement of what will be created belongs at the decision, not after
+  // the form. It used to be on Review only.
+  it('says what will be created on step 1', () => {
+    renderStep1();
+
+    expect(
+      screen.getByText(/data directories, and systemd services will be created/)
+    ).toBeInTheDocument();
   });
 });

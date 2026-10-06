@@ -55,6 +55,7 @@ import { OmHeader } from './components/OmHeader';
 import { toHostRows } from './inventory';
 import { useOmInventoryHosts, useTriggerHostBootstrap } from './inventoryHooks';
 import { NodeNamesLinked } from './components/NodeNamesLinked';
+import { HostReadiness } from './components/HostReadiness';
 import { useOmTopology } from './topologyHooks';
 import { useOmBase } from './useOmBase';
 import type { OmBootstrapMemberConfig, OmHostRow } from './types';
@@ -344,6 +345,18 @@ export const BootstrapPage = () => {
 
   const backToHosts = () => navigate(`${omBase}/${OM_ROUTE_NODES}`);
 
+  // Read off the same automation_blocked_reasons the Nodes page shows, so the two
+  // cannot disagree about why a node is refused. No new endpoint: the hosts query is
+  // already loaded on this page for step 1's table.
+  //
+  // The PMM Server's node can never get here -- it is not selectable on the Nodes
+  // page at all -- so its reason appearing in this list is defence in depth against a
+  // link or a bookmark carrying its id, not a path a user reaches.
+  const blockedHosts = useMemo(
+    () => hosts.filter((host) => !host.automation_eligible),
+    [hosts]
+  );
+
   // No new request: hostsQuery is already loaded on this page for step 1's table.
   const knownNodeNames = useMemo(
     () => (hostsQuery.data ?? []).map((host) => host.name),
@@ -531,12 +544,31 @@ export const BootstrapPage = () => {
               for a three-member one. {hosts.length} selected.
             </Alert>
           )}
+          {/* Moved here from Review (P8, by way of PMM-15661's own out-of-scope
+              list). This is the step where the user decides whether to begin, and
+              a statement of what will be created belongs at the decision rather
+              than after the form is filled in. */}
+          <Alert severity="warning">
+            This will modify the selected nodes. MongoDB packages, configuration
+            files, data directories, and systemd services will be created on
+            each of them.
+          </Alert>
+          {blockedHosts.length > 0 && (
+            <Alert severity="error">
+              {blockedHosts.length === 1
+                ? '1 selected node cannot be installed onto.'
+                : `${blockedHosts.length} selected nodes cannot be installed onto.`}{' '}
+              Fix each one on the node itself, or go back and change the
+              selection.
+            </Alert>
+          )}
           <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell>Node</TableCell>
                 <TableCell>Address</TableCell>
                 <TableCell>Operating system</TableCell>
+                <TableCell>Ready to install</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -545,6 +577,9 @@ export const BootstrapPage = () => {
                   <TableCell>{host.name}</TableCell>
                   <TableCell>{host.address ?? '—'}</TableCell>
                   <TableCell>{host.os ?? '—'}</TableCell>
+                  <TableCell>
+                    <HostReadiness host={host} omBase={omBase} />
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -730,11 +765,6 @@ export const BootstrapPage = () => {
             maxWidth: hasNonDefaultMemberConfig(memberConfigs) ? 720 : 480,
           }}
         >
-          <Alert severity="warning">
-            This will modify the selected nodes. MongoDB packages, configuration
-            files, data directories, and systemd services will be created
-            according to this plan.
-          </Alert>
           <Table size="small">
             <TableHead>
               <TableRow>
@@ -828,7 +858,13 @@ export const BootstrapPage = () => {
             <Button onClick={backToHosts}>Cancel</Button>
             <Button
               variant="contained"
-              disabled={!isSupportedHostCount(hosts.length)}
+              // Blocks rather than warns. Every one of these conditions describes
+              // a run that cannot succeed, so letting the user through would only
+              // move the failure to the final button - which is the complaint
+              // itself (P1).
+              disabled={
+                !isSupportedHostCount(hosts.length) || blockedHosts.length > 0
+              }
               onClick={() => setActiveStep(1)}
             >
               Configure
