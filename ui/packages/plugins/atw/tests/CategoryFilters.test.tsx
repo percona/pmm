@@ -298,6 +298,41 @@ describe('CategoryFilters', () => {
     expect(screen.getByRole('button', { name: 'PostgreSQL (1)' })).toBeTruthy();
   });
 
+  it('clears a vanished problem area and restores the root union', async () => {
+    mockedApi.get.mockResolvedValue({
+      data: [mysqlLeaf, mysqlLocksLeaf],
+    });
+    const onSnippetsChange = vi.fn();
+    const { queryClient } = renderFilters(
+      <CategoryFilters onSnippetsChange={onSnippetsChange} />
+    );
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'MySQL (3)' })
+    );
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Locks (2)' })
+    );
+    await waitFor(() => {
+      expect(onSnippetsChange).toHaveBeenLastCalledWith([
+        mysqlLocksLeaf.snippets[0],
+        mysqlLocksLeaf.snippets[1],
+      ]);
+    });
+
+    queryClient.setQueryData(['atw', 'categories'], [mysqlLeaf]);
+
+    await waitFor(() => {
+      expect(onSnippetsChange).toHaveBeenLastCalledWith(mysqlLeaf.snippets);
+    });
+    expect(screen.getByRole('button', { name: 'MySQL (1)' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Clear filters' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Locks/ })).toBeNull();
+    expect(
+      screen.getByRole('button', { name: 'Performance Issues (1)' })
+    ).toBeTruthy();
+  });
+
   it('surfaces a load error', async () => {
     mockedApi.get.mockRejectedValue(new Error('boom'));
 
