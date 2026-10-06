@@ -549,6 +549,18 @@ message InventoryHost {
   // Why automation_eligible is false, one entry per unmet condition. Empty when it
   // is true.
   repeated string automation_blocked_reasons = 14;
+  // Whether the block is a property of this node rather than a fault on it.
+  //
+  // Both kinds make automation_eligible false, and a reader has to tell them apart:
+  // "the PMM Server's own node" and "a MongoDB service is already registered here"
+  // describe nodes that are working exactly as intended, while an unreachable agent
+  // or an unhealthy driver is something to go and fix. Without this a consumer can
+  // only guess from the reason strings, and would paint a healthy replica-set member
+  // as needing attention.
+  //
+  // False when eligible, so it never has to be read alongside automation_eligible to
+  // mean anything.
+  bool automation_blocked_by_design = 15;
 }
 
 // InventoryRunCounts is what one refresh saw.

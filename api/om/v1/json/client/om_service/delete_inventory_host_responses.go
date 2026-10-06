@@ -101,6 +101,7 @@ func (o *DeleteInventoryHostOK) GetPayload() any {
 }
 
 func (o *DeleteInventoryHostOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
@@ -172,6 +173,7 @@ func (o *DeleteInventoryHostDefault) GetPayload() *DeleteInventoryHostDefaultBod
 }
 
 func (o *DeleteInventoryHostDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(DeleteInventoryHostDefaultBody)
 
 	// response payload
@@ -187,6 +189,7 @@ DeleteInventoryHostDefaultBody delete inventory host default body
 swagger:model DeleteInventoryHostDefaultBody
 */
 type DeleteInventoryHostDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -256,7 +259,9 @@ func (o *DeleteInventoryHostDefaultBody) ContextValidate(ctx context.Context, fo
 }
 
 func (o *DeleteInventoryHostDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -276,6 +281,7 @@ func (o *DeleteInventoryHostDefaultBody) contextValidateDetails(ctx context.Cont
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -304,6 +310,7 @@ DeleteInventoryHostDefaultBodyDetailsItems0 delete inventory host default body d
 swagger:model DeleteInventoryHostDefaultBodyDetailsItems0
 */
 type DeleteInventoryHostDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -315,6 +322,7 @@ type DeleteInventoryHostDefaultBodyDetailsItems0 struct {
 func (o *DeleteInventoryHostDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -352,6 +360,7 @@ func (o *DeleteInventoryHostDefaultBodyDetailsItems0) UnmarshalJSON(data []byte)
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o DeleteInventoryHostDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}

@@ -58,6 +58,7 @@ ListInventoryServicesParams contains all the parameters to send to the API endpo
 	Typically these are written to a http.Request.
 */
 type ListInventoryServicesParams struct {
+
 	/* Failing.
 
 	   When true, return only services currently failing.
@@ -147,6 +148,7 @@ func (o *ListInventoryServicesParams) SetNodeID(nodeID *string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListInventoryServicesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -162,6 +164,7 @@ func (o *ListInventoryServicesParams) WriteToRequest(r runtime.ClientRequest, re
 		}
 		qFailing := swag.FormatBool(qrFailing)
 		if qFailing != "" {
+
 			if err := r.SetQueryParam("failing", qFailing); err != nil {
 				return err
 			}
@@ -178,6 +181,7 @@ func (o *ListInventoryServicesParams) WriteToRequest(r runtime.ClientRequest, re
 		}
 		qNodeID := qrNodeID
 		if qNodeID != "" {
+
 			if err := r.SetQueryParam("node_id", qNodeID); err != nil {
 				return err
 			}

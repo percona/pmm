@@ -102,6 +102,7 @@ func (o *GetInventoryHostOK) GetPayload() *GetInventoryHostOKBody {
 }
 
 func (o *GetInventoryHostOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetInventoryHostOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *GetInventoryHostDefault) GetPayload() *GetInventoryHostDefaultBody {
 }
 
 func (o *GetInventoryHostDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetInventoryHostDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ GetInventoryHostDefaultBody get inventory host default body
 swagger:model GetInventoryHostDefaultBody
 */
 type GetInventoryHostDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,7 +262,9 @@ func (o *GetInventoryHostDefaultBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *GetInventoryHostDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -279,6 +284,7 @@ func (o *GetInventoryHostDefaultBody) contextValidateDetails(ctx context.Context
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -307,6 +313,7 @@ GetInventoryHostDefaultBodyDetailsItems0 get inventory host default body details
 swagger:model GetInventoryHostDefaultBodyDetailsItems0
 */
 type GetInventoryHostDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -318,6 +325,7 @@ type GetInventoryHostDefaultBodyDetailsItems0 struct {
 func (o *GetInventoryHostDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -355,6 +363,7 @@ func (o *GetInventoryHostDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) er
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetInventoryHostDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -418,6 +427,7 @@ GetInventoryHostOKBody GetInventoryHostResponse returns one host.
 swagger:model GetInventoryHostOKBody
 */
 type GetInventoryHostOKBody struct {
+
 	// host
 	Host *GetInventoryHostOKBodyHost `json:"host,omitempty"`
 }
@@ -474,6 +484,7 @@ func (o *GetInventoryHostOKBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *GetInventoryHostOKBody) contextValidateHost(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Host != nil {
 
 		if swag.IsZero(o.Host) { // not required
@@ -525,6 +536,7 @@ GetInventoryHostOKBodyHost InventoryHost is one machine OM knows about, with the
 swagger:model GetInventoryHostOKBodyHost
 */
 type GetInventoryHostOKBodyHost struct {
+
 	// PMM's node ID. Also what a scoped refresh is addressed by.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -572,6 +584,19 @@ type GetInventoryHostOKBodyHost struct {
 	// Why automation_eligible is false, one entry per unmet condition. Empty when it
 	// is true.
 	AutomationBlockedReasons []string `json:"automation_blocked_reasons"`
+
+	// Whether the block is a property of this node rather than a fault on it.
+	//
+	// Both kinds make automation_eligible false, and a reader has to tell them apart:
+	// "the PMM Server's own node" and "a MongoDB service is already registered here"
+	// describe nodes that are working exactly as intended, while an unreachable agent
+	// or an unhealthy driver is something to go and fix. Without this a consumer can
+	// only guess from the reason strings, and would paint a healthy replica-set member
+	// as needing attention.
+	//
+	// False when eligible, so it never has to be read alongside automation_eligible to
+	// mean anything.
+	AutomationBlockedByDesign bool `json:"automation_blocked_by_design,omitempty"`
 
 	// executor
 	Executor *GetInventoryHostOKBodyHostExecutor `json:"executor,omitempty"`
@@ -739,7 +764,9 @@ func (o *GetInventoryHostOKBodyHost) ContextValidate(ctx context.Context, format
 }
 
 func (o *GetInventoryHostOKBodyHost) contextValidateUnregisteredMongods(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.UnregisteredMongods); i++ {
+
 		if o.UnregisteredMongods[i] != nil {
 
 			if swag.IsZero(o.UnregisteredMongods[i]) { // not required
@@ -759,13 +786,16 @@ func (o *GetInventoryHostOKBodyHost) contextValidateUnregisteredMongods(ctx cont
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetInventoryHostOKBodyHost) contextValidateServices(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Services); i++ {
+
 		if o.Services[i] != nil {
 
 			if swag.IsZero(o.Services[i]) { // not required
@@ -785,12 +815,14 @@ func (o *GetInventoryHostOKBodyHost) contextValidateServices(ctx context.Context
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetInventoryHostOKBodyHost) contextValidateExecutor(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Executor != nil {
 
 		if swag.IsZero(o.Executor) { // not required
@@ -815,6 +847,7 @@ func (o *GetInventoryHostOKBodyHost) contextValidateExecutor(ctx context.Context
 }
 
 func (o *GetInventoryHostOKBodyHost) contextValidateFreshness(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Freshness != nil {
 
 		if swag.IsZero(o.Freshness) { // not required
@@ -867,6 +900,7 @@ GetInventoryHostOKBodyHostExecutor InventoryExecutor reports whether PMM Extensi
 swagger:model GetInventoryHostOKBodyHostExecutor
 */
 type GetInventoryHostOKBodyHostExecutor struct {
+
 	// Whether the Tasks backend knows this node at all.
 	Registered bool `json:"registered,omitempty"`
 
@@ -919,6 +953,7 @@ GetInventoryHostOKBodyHostFreshness InventoryFreshness says how current the rest
 swagger:model GetInventoryHostOKBodyHostFreshness
 */
 type GetInventoryHostOKBodyHostFreshness struct {
+
 	// When OM first wrote a row for this entity.
 	// Format: date-time
 	FirstSeenAt strfmt.DateTime `json:"first_seen_at,omitempty"`
@@ -1052,6 +1087,7 @@ GetInventoryHostOKBodyHostServicesItems0 InventoryService is one MongoDB service
 swagger:model GetInventoryHostOKBodyHostServicesItems0
 */
 type GetInventoryHostOKBodyHostServicesItems0 struct {
+
 	// PMM's service ID. The join key against the topology document.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1152,6 +1188,7 @@ func (o *GetInventoryHostOKBodyHostServicesItems0) ContextValidate(ctx context.C
 }
 
 func (o *GetInventoryHostOKBodyHostServicesItems0) contextValidateFreshness(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Freshness != nil {
 
 		if swag.IsZero(o.Freshness) { // not required
@@ -1204,6 +1241,7 @@ GetInventoryHostOKBodyHostServicesItems0Freshness InventoryFreshness says how cu
 swagger:model GetInventoryHostOKBodyHostServicesItems0Freshness
 */
 type GetInventoryHostOKBodyHostServicesItems0Freshness struct {
+
 	// When OM first wrote a row for this entity.
 	// Format: date-time
 	FirstSeenAt strfmt.DateTime `json:"first_seen_at,omitempty"`
@@ -1334,6 +1372,7 @@ GetInventoryHostOKBodyHostUnregisteredMongodsItems0 UnregisteredMongod is a mong
 swagger:model GetInventoryHostOKBodyHostUnregisteredMongodsItems0
 */
 type GetInventoryHostOKBodyHostUnregisteredMongodsItems0 struct {
+
 	// The port it is listening on.
 	Port *int32 `json:"port,omitempty"`
 

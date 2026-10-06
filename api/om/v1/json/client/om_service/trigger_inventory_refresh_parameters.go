@@ -57,6 +57,7 @@ TriggerInventoryRefreshParams contains all the parameters to send to the API end
 	Typically these are written to a http.Request.
 */
 type TriggerInventoryRefreshParams struct {
+
 	/* Body.
 
 	   TriggerInventoryRefreshRequest is the request for TriggerInventoryRefresh.
@@ -129,6 +130,7 @@ func (o *TriggerInventoryRefreshParams) SetBody(body TriggerInventoryRefreshBody
 
 // WriteToRequest writes these params to a swagger request
 func (o *TriggerInventoryRefreshParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

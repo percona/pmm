@@ -102,6 +102,7 @@ func (o *TriggerInventoryRefreshOK) GetPayload() *TriggerInventoryRefreshOKBody 
 }
 
 func (o *TriggerInventoryRefreshOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(TriggerInventoryRefreshOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *TriggerInventoryRefreshDefault) GetPayload() *TriggerInventoryRefreshDe
 }
 
 func (o *TriggerInventoryRefreshDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(TriggerInventoryRefreshDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ TriggerInventoryRefreshBody TriggerInventoryRefreshRequest is the request for Tr
 swagger:model TriggerInventoryRefreshBody
 */
 type TriggerInventoryRefreshBody struct {
+
 	// The hosts to refresh, by PMM node ID. Empty refreshes the whole estate.
 	//
 	// Plural on purpose: PMM's node ID is also OM's key, so ids pass through
@@ -236,6 +239,7 @@ TriggerInventoryRefreshDefaultBody trigger inventory refresh default body
 swagger:model TriggerInventoryRefreshDefaultBody
 */
 type TriggerInventoryRefreshDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -305,7 +309,9 @@ func (o *TriggerInventoryRefreshDefaultBody) ContextValidate(ctx context.Context
 }
 
 func (o *TriggerInventoryRefreshDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -325,6 +331,7 @@ func (o *TriggerInventoryRefreshDefaultBody) contextValidateDetails(ctx context.
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -353,6 +360,7 @@ TriggerInventoryRefreshDefaultBodyDetailsItems0 trigger inventory refresh defaul
 swagger:model TriggerInventoryRefreshDefaultBodyDetailsItems0
 */
 type TriggerInventoryRefreshDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -364,6 +372,7 @@ type TriggerInventoryRefreshDefaultBodyDetailsItems0 struct {
 func (o *TriggerInventoryRefreshDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -401,6 +410,7 @@ func (o *TriggerInventoryRefreshDefaultBodyDetailsItems0) UnmarshalJSON(data []b
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o TriggerInventoryRefreshDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -468,6 +478,7 @@ TriggerInventoryRefreshOKBody TriggerInventoryRefreshResponse acknowledges an ac
 swagger:model TriggerInventoryRefreshOKBody
 */
 type TriggerInventoryRefreshOKBody struct {
+
 	// The run's ID, to follow with GetInventoryRun.
 	RunID string `json:"run_id,omitempty"`
 

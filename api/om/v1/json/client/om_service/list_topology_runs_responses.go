@@ -102,6 +102,7 @@ func (o *ListTopologyRunsOK) GetPayload() *ListTopologyRunsOKBody {
 }
 
 func (o *ListTopologyRunsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListTopologyRunsOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *ListTopologyRunsDefault) GetPayload() *ListTopologyRunsDefaultBody {
 }
 
 func (o *ListTopologyRunsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListTopologyRunsDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ ListTopologyRunsDefaultBody list topology runs default body
 swagger:model ListTopologyRunsDefaultBody
 */
 type ListTopologyRunsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,7 +262,9 @@ func (o *ListTopologyRunsDefaultBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *ListTopologyRunsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -279,6 +284,7 @@ func (o *ListTopologyRunsDefaultBody) contextValidateDetails(ctx context.Context
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -307,6 +313,7 @@ ListTopologyRunsDefaultBodyDetailsItems0 list topology runs default body details
 swagger:model ListTopologyRunsDefaultBodyDetailsItems0
 */
 type ListTopologyRunsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -318,6 +325,7 @@ type ListTopologyRunsDefaultBodyDetailsItems0 struct {
 func (o *ListTopologyRunsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -355,6 +363,7 @@ func (o *ListTopologyRunsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) er
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListTopologyRunsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -418,6 +427,7 @@ ListTopologyRunsOKBody ListTopologyRunsResponse returns the run history, newest 
 swagger:model ListTopologyRunsOKBody
 */
 type ListTopologyRunsOKBody struct {
+
 	// The runs.
 	Runs []*ListTopologyRunsOKBodyRunsItems0 `json:"runs"`
 }
@@ -481,7 +491,9 @@ func (o *ListTopologyRunsOKBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *ListTopologyRunsOKBody) contextValidateRuns(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Runs); i++ {
+
 		if o.Runs[i] != nil {
 
 			if swag.IsZero(o.Runs[i]) { // not required
@@ -501,6 +513,7 @@ func (o *ListTopologyRunsOKBody) contextValidateRuns(ctx context.Context, format
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -529,6 +542,7 @@ ListTopologyRunsOKBodyRunsItems0 TopologyRun represents one collection run.
 swagger:model ListTopologyRunsOKBodyRunsItems0
 */
 type ListTopologyRunsOKBodyRunsItems0 struct {
+
 	// The run's ID, also the snapshot key.
 	RunID string `json:"run_id,omitempty"`
 
@@ -791,7 +805,9 @@ func (o *ListTopologyRunsOKBodyRunsItems0) ContextValidate(ctx context.Context, 
 }
 
 func (o *ListTopologyRunsOKBodyRunsItems0) contextValidateErrors(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Errors); i++ {
+
 		if o.Errors[i] != nil {
 
 			if swag.IsZero(o.Errors[i]) { // not required
@@ -811,13 +827,16 @@ func (o *ListTopologyRunsOKBodyRunsItems0) contextValidateErrors(ctx context.Con
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListTopologyRunsOKBodyRunsItems0) contextValidateSources(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Sources); i++ {
+
 		if o.Sources[i] != nil {
 
 			if swag.IsZero(o.Sources[i]) { // not required
@@ -837,12 +856,14 @@ func (o *ListTopologyRunsOKBodyRunsItems0) contextValidateSources(ctx context.Co
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListTopologyRunsOKBodyRunsItems0) contextValidateCounts(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Counts != nil {
 
 		if swag.IsZero(o.Counts) { // not required
@@ -889,6 +910,7 @@ ListTopologyRunsOKBodyRunsItems0Counts TopologyRunCounts counts what one collect
 swagger:model ListTopologyRunsOKBodyRunsItems0Counts
 */
 type ListTopologyRunsOKBodyRunsItems0Counts struct {
+
 	// MongoDB services inventory reported.
 	TotalServices int32 `json:"total_services,omitempty"`
 
@@ -938,6 +960,7 @@ ListTopologyRunsOKBodyRunsItems0ErrorsItems0 TopologyRunError describes one thin
 swagger:model ListTopologyRunsOKBodyRunsItems0ErrorsItems0
 */
 type ListTopologyRunsOKBodyRunsItems0ErrorsItems0 struct {
+
 	// What the error is about, e.g. "run" or "query".
 	Scope string `json:"scope,omitempty"`
 
@@ -988,6 +1011,7 @@ ListTopologyRunsOKBodyRunsItems0SourcesItems0 SourceReport says how completely o
 swagger:model ListTopologyRunsOKBodyRunsItems0SourcesItems0
 */
 type ListTopologyRunsOKBodyRunsItems0SourcesItems0 struct {
+
 	// The source key, e.g. "inventory", "metrics" or "probe". An open set on purpose: a
 	// source is named by whatever produced it, so this stays a string where the statuses
 	// beside it are enums.

@@ -485,18 +485,20 @@ func TestAutomationEligibility(t *testing.T) {
 	t.Run("connected agent and healthy executor is eligible with no reasons", func(t *testing.T) {
 		t.Parallel()
 
-		eligible, reasons := automationEligibility(healthyExecutor, true)
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, extensionsHost{})
 
 		assert.True(t, eligible)
 		assert.Empty(t, reasons)
+		assert.False(t, byDesign)
 	})
 
 	t.Run("a disconnected agent blocks even a healthy executor", func(t *testing.T) {
 		t.Parallel()
 
-		eligible, reasons := automationEligibility(healthyExecutor, false)
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, false, false, extensionsHost{})
 
 		assert.False(t, eligible)
+		assert.False(t, byDesign, "a disconnected agent is a fault, not a property of the node")
 		assert.Equal(t, []string{"PMM-Client is not installed or not connected"}, reasons)
 	})
 
@@ -507,31 +509,116 @@ func TestAutomationEligibility(t *testing.T) {
 		// dispatched to -- see inventory_test.go's "a host with no probe reports
 		// absent, not false". Reporting a driver-health failure on top of that would
 		// claim a health check ran when none did.
-		eligible, reasons := automationEligibility(nil, true)
+		eligible, reasons, byDesign := automationEligibility(nil, true, false, extensionsHost{})
 
 		assert.False(t, eligible)
+		assert.False(t, byDesign)
 		assert.Equal(t, []string{"host is not reachable by the Nomad client"}, reasons)
 	})
 
 	t.Run("reachable but unhealthy driver blocks on the driver, not reachability", func(t *testing.T) {
 		t.Parallel()
 
-		eligible, reasons := automationEligibility(reachableOnlyExecutor, true)
+		eligible, reasons, byDesign := automationEligibility(reachableOnlyExecutor, true, false, extensionsHost{})
 
 		assert.False(t, eligible)
+		assert.False(t, byDesign)
 		assert.Equal(t, []string{"Nomad's raw_exec driver is not healthy on this host"}, reasons)
 	})
 
 	t.Run("every condition unmet reports every reason", func(t *testing.T) {
 		t.Parallel()
 
-		eligible, reasons := automationEligibility(nil, false)
+		eligible, reasons, byDesign := automationEligibility(nil, false, false, extensionsHost{})
 
 		assert.False(t, eligible)
 		assert.Equal(t, []string{
 			"PMM-Client is not installed or not connected",
 			"host is not reachable by the Nomad client",
 		}, reasons)
+		assert.False(t, byDesign)
+	})
+
+	// Every condition above asks whether OM *can* reach this machine. The three below
+	// ask whether it *should* touch it, which is a different question and the one
+	// PMM-15664 exists to start answering: a perfectly reachable node can still be
+	// the last thing anyone wants a database installed onto.
+	t.Run("the PMM Server's own node is never eligible, however healthy", func(t *testing.T) {
+		t.Parallel()
+
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, true, extensionsHost{})
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{
+			"this is the node PMM Server itself runs on, which Operations never installs onto",
+		}, reasons)
+		assert.True(t, byDesign, "the server's own node is a fact about it, not a fault on it")
+	})
+
+	t.Run("a node with a registered MongoDB service is not eligible", func(t *testing.T) {
+		t.Parallel()
+
+		host := extensionsHost{Services: []extensionsService{{ServiceID: "30"}}}
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, host)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{
+			"a MongoDB service is already registered on this node",
+		}, reasons)
+		assert.True(t, byDesign)
+	})
+
+	t.Run("a mongod a scan found but PMM has no service for also blocks", func(t *testing.T) {
+		t.Parallel()
+
+		host := extensionsHost{Observed: map[string]any{
+			"unregistered_mongods": []any{map[string]any{"port": 27017}},
+		}}
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, host)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{
+			"a scan found a mongod running here that PMM has no service for",
+		}, reasons)
+		assert.True(t, byDesign)
+	})
+
+	// A node usually has both: the registered service and the mongod serving it. One
+	// problem, so one reason - otherwise a reader counts two faults where there is one.
+	t.Run("a registered service suppresses the unregistered-mongod reason", func(t *testing.T) {
+		t.Parallel()
+
+		host := extensionsHost{
+			Services: []extensionsService{{ServiceID: "30"}},
+			Observed: map[string]any{
+				"unregistered_mongods": []any{map[string]any{"port": 27017}},
+			},
+		}
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, host)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{
+			"a MongoDB service is already registered on this node",
+		}, reasons)
+		assert.True(t, byDesign)
+	})
+
+	// The PMM Server's reason leads, because it is the one that cannot be fixed by
+	// going and looking at the machine.
+	t.Run("the PMM Server reason leads when several apply", func(t *testing.T) {
+		t.Parallel()
+
+		host := extensionsHost{Services: []extensionsService{{ServiceID: "30"}}}
+		eligible, reasons, byDesign := automationEligibility(nil, false, true, host)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{
+			"this is the node PMM Server itself runs on, which Operations never installs onto",
+			"a MongoDB service is already registered on this node",
+			"PMM-Client is not installed or not connected",
+			"host is not reachable by the Nomad client",
+		}, reasons)
+		assert.True(t, byDesign, "one by-design reason makes the block by design, however many faults join it")
 	})
 }
 

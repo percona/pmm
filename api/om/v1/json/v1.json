@@ -1465,6 +1465,11 @@
                           "type": "string"
                         },
                         "x-order": 13
+                      },
+                      "automation_blocked_by_design": {
+                        "description": "Whether the block is a property of this node rather than a fault on it.\n\nBoth kinds make automation_eligible false, and a reader has to tell them apart:\n\"the PMM Server's own node\" and \"a MongoDB service is already registered here\"\ndescribe nodes that are working exactly as intended, while an unreachable agent\nor an unhealthy driver is something to go and fix. Without this a consumer can\nonly guess from the reason strings, and would paint a healthy replica-set member\nas needing attention.\n\nFalse when eligible, so it never has to be read alongside automation_eligible to\nmean anything.",
+                        "type": "boolean",
+                        "x-order": 14
                       }
                     }
                   },
@@ -1841,6 +1846,11 @@
                         "type": "string"
                       },
                       "x-order": 13
+                    },
+                    "automation_blocked_by_design": {
+                      "description": "Whether the block is a property of this node rather than a fault on it.\n\nBoth kinds make automation_eligible false, and a reader has to tell them apart:\n\"the PMM Server's own node\" and \"a MongoDB service is already registered here\"\ndescribe nodes that are working exactly as intended, while an unreachable agent\nor an unhealthy driver is something to go and fix. Without this a consumer can\nonly guess from the reason strings, and would paint a healthy replica-set member\nas needing attention.\n\nFalse when eligible, so it never has to be read alongside automation_eligible to\nmean anything.",
+                      "type": "boolean",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0

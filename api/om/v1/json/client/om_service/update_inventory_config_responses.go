@@ -102,6 +102,7 @@ func (o *UpdateInventoryConfigOK) GetPayload() *UpdateInventoryConfigOKBody {
 }
 
 func (o *UpdateInventoryConfigOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(UpdateInventoryConfigOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *UpdateInventoryConfigDefault) GetPayload() *UpdateInventoryConfigDefaul
 }
 
 func (o *UpdateInventoryConfigDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(UpdateInventoryConfigDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ UpdateInventoryConfigDefaultBody update inventory config default body
 swagger:model UpdateInventoryConfigDefaultBody
 */
 type UpdateInventoryConfigDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,7 +262,9 @@ func (o *UpdateInventoryConfigDefaultBody) ContextValidate(ctx context.Context, 
 }
 
 func (o *UpdateInventoryConfigDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -279,6 +284,7 @@ func (o *UpdateInventoryConfigDefaultBody) contextValidateDetails(ctx context.Co
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -307,6 +313,7 @@ UpdateInventoryConfigDefaultBodyDetailsItems0 update inventory config default bo
 swagger:model UpdateInventoryConfigDefaultBodyDetailsItems0
 */
 type UpdateInventoryConfigDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -318,6 +325,7 @@ type UpdateInventoryConfigDefaultBodyDetailsItems0 struct {
 func (o *UpdateInventoryConfigDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -355,6 +363,7 @@ func (o *UpdateInventoryConfigDefaultBodyDetailsItems0) UnmarshalJSON(data []byt
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o UpdateInventoryConfigDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -418,6 +427,7 @@ UpdateInventoryConfigOKBody UpdateInventoryConfigResponse returns the configurat
 swagger:model UpdateInventoryConfigOKBody
 */
 type UpdateInventoryConfigOKBody struct {
+
 	// Every field, not only the ones the request named.
 	//
 	// The whole resource, because an Update answers with the resource. It is also the only
@@ -486,7 +496,9 @@ func (o *UpdateInventoryConfigOKBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *UpdateInventoryConfigOKBody) contextValidateSettings(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Settings); i++ {
+
 		if o.Settings[i] != nil {
 
 			if swag.IsZero(o.Settings[i]) { // not required
@@ -506,6 +518,7 @@ func (o *UpdateInventoryConfigOKBody) contextValidateSettings(ctx context.Contex
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -534,6 +547,7 @@ UpdateInventoryConfigOKBodySettingsItems0 InventorySetting is one of the invento
 swagger:model UpdateInventoryConfigOKBodySettingsItems0
 */
 type UpdateInventoryConfigOKBodySettingsItems0 struct {
+
 	// The field name. Nested fields arrive `__`-delimited, e.g. SCHEDULE__every.
 	Key string `json:"key,omitempty"`
 

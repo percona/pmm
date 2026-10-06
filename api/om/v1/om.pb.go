@@ -7,10 +7,6 @@
 package omv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -19,6 +15,9 @@ import (
 	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	_ "google.golang.org/protobuf/types/known/wrapperspb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -2314,8 +2313,20 @@ type InventoryHost struct {
 	// Why automation_eligible is false, one entry per unmet condition. Empty when it
 	// is true.
 	AutomationBlockedReasons []string `protobuf:"bytes,14,rep,name=automation_blocked_reasons,json=automationBlockedReasons,proto3" json:"automation_blocked_reasons,omitempty"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	// Whether the block is a property of this node rather than a fault on it.
+	//
+	// Both kinds make automation_eligible false, and a reader has to tell them apart:
+	// "the PMM Server's own node" and "a MongoDB service is already registered here"
+	// describe nodes that are working exactly as intended, while an unreachable agent
+	// or an unhealthy driver is something to go and fix. Without this a consumer can
+	// only guess from the reason strings, and would paint a healthy replica-set member
+	// as needing attention.
+	//
+	// False when eligible, so it never has to be read alongside automation_eligible to
+	// mean anything.
+	AutomationBlockedByDesign bool `protobuf:"varint,15,opt,name=automation_blocked_by_design,json=automationBlockedByDesign,proto3" json:"automation_blocked_by_design,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *InventoryHost) Reset() {
@@ -2444,6 +2455,13 @@ func (x *InventoryHost) GetAutomationBlockedReasons() []string {
 		return x.AutomationBlockedReasons
 	}
 	return nil
+}
+
+func (x *InventoryHost) GetAutomationBlockedByDesign() bool {
+	if x != nil {
+		return x.AutomationBlockedByDesign
+	}
+	return false
 }
 
 // InventoryRunCounts is what one refresh saw.
@@ -5200,7 +5218,7 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\r_probe_statusB\x11\n" +
 	"\x0f_server_runningB\x11\n" +
 	"\x0f_uptime_secondsB\x12\n" +
-	"\x10_replication_set\"\xad\x05\n" +
+	"\x10_replication_set\"\xee\x05\n" +
 	"\rInventoryHost\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -5216,7 +5234,8 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\bservices\x18\v \x03(\v2\x17.om.v1.InventoryServiceR\bservices\x12.\n" +
 	"\x13pmm_agent_connected\x18\f \x01(\bR\x11pmmAgentConnected\x12/\n" +
 	"\x13automation_eligible\x18\r \x01(\bR\x12automationEligible\x12<\n" +
-	"\x1aautomation_blocked_reasons\x18\x0e \x03(\tR\x18automationBlockedReasonsB\n" +
+	"\x1aautomation_blocked_reasons\x18\x0e \x03(\tR\x18automationBlockedReasons\x12?\n" +
+	"\x1cautomation_blocked_by_design\x18\x0f \x01(\bR\x19automationBlockedByDesignB\n" +
 	"\n" +
 	"\b_addressB\x10\n" +
 	"\x0e_executor_hostB\x05\n" +
@@ -5491,89 +5510,86 @@ func file_om_v1_om_proto_rawDescGZIP() []byte {
 	return file_om_v1_om_proto_rawDescData
 }
 
-var (
-	file_om_v1_om_proto_enumTypes = make([]protoimpl.EnumInfo, 8)
-	file_om_v1_om_proto_msgTypes  = make([]protoimpl.MessageInfo, 65)
-	file_om_v1_om_proto_goTypes   = []any{
-		ServiceStatus(0),                              // 0: om.v1.ServiceStatus
-		ProcessRole(0),                                // 1: om.v1.ProcessRole
-		RunStatus(0),                                  // 2: om.v1.RunStatus
-		SourceStatus(0),                               // 3: om.v1.SourceStatus
-		ClusterType(0),                                // 4: om.v1.ClusterType
-		ClusterHealth(0),                              // 5: om.v1.ClusterHealth
-		ExecutorResolution(0),                         // 6: om.v1.ExecutorResolution
-		SettingReload(0),                              // 7: om.v1.SettingReload
-		(*TopologyService)(nil),                       // 8: om.v1.TopologyService
-		(*Cluster)(nil),                               // 9: om.v1.Cluster
-		(*Environment)(nil),                           // 10: om.v1.Environment
-		(*Summary)(nil),                               // 11: om.v1.Summary
-		(*Snapshot)(nil),                              // 12: om.v1.Snapshot
-		(*GetTopologyRequest)(nil),                    // 13: om.v1.GetTopologyRequest
-		(*GetTopologyResponse)(nil),                   // 14: om.v1.GetTopologyResponse
-		(*TopologyRunCounts)(nil),                     // 15: om.v1.TopologyRunCounts
-		(*SourceReport)(nil),                          // 16: om.v1.SourceReport
-		(*TopologyRunError)(nil),                      // 17: om.v1.TopologyRunError
-		(*TopologyRun)(nil),                           // 18: om.v1.TopologyRun
-		(*GetTopologyRunRequest)(nil),                 // 19: om.v1.GetTopologyRunRequest
-		(*GetTopologyRunResponse)(nil),                // 20: om.v1.GetTopologyRunResponse
-		(*ListTopologyRunsRequest)(nil),               // 21: om.v1.ListTopologyRunsRequest
-		(*ListTopologyRunsResponse)(nil),              // 22: om.v1.ListTopologyRunsResponse
-		(*TriggerTopologyCollectionRequest)(nil),      // 23: om.v1.TriggerTopologyCollectionRequest
-		(*TriggerTopologyCollectionResponse)(nil),     // 24: om.v1.TriggerTopologyCollectionResponse
-		(*InventoryExecutor)(nil),                     // 25: om.v1.InventoryExecutor
-		(*UnregisteredMongod)(nil),                    // 26: om.v1.UnregisteredMongod
-		(*InventoryFreshness)(nil),                    // 27: om.v1.InventoryFreshness
-		(*InventoryService)(nil),                      // 28: om.v1.InventoryService
-		(*InventoryHost)(nil),                         // 29: om.v1.InventoryHost
-		(*InventoryRunCounts)(nil),                    // 30: om.v1.InventoryRunCounts
-		(*InventoryRunEntityService)(nil),             // 31: om.v1.InventoryRunEntityService
-		(*InventoryRunEntity)(nil),                    // 32: om.v1.InventoryRunEntity
-		(*InventoryRun)(nil),                          // 33: om.v1.InventoryRun
-		(*InventorySetting)(nil),                      // 34: om.v1.InventorySetting
-		(*ListInventoryHostsRequest)(nil),             // 35: om.v1.ListInventoryHostsRequest
-		(*ListInventoryHostsResponse)(nil),            // 36: om.v1.ListInventoryHostsResponse
-		(*GetInventoryHostRequest)(nil),               // 37: om.v1.GetInventoryHostRequest
-		(*GetInventoryHostResponse)(nil),              // 38: om.v1.GetInventoryHostResponse
-		(*DeleteInventoryHostRequest)(nil),            // 39: om.v1.DeleteInventoryHostRequest
-		(*DeleteInventoryHostResponse)(nil),           // 40: om.v1.DeleteInventoryHostResponse
-		(*ListInventoryServicesRequest)(nil),          // 41: om.v1.ListInventoryServicesRequest
-		(*ListInventoryServicesResponse)(nil),         // 42: om.v1.ListInventoryServicesResponse
-		(*GetInventoryServiceRequest)(nil),            // 43: om.v1.GetInventoryServiceRequest
-		(*GetInventoryServiceResponse)(nil),           // 44: om.v1.GetInventoryServiceResponse
-		(*DeleteInventoryServiceRequest)(nil),         // 45: om.v1.DeleteInventoryServiceRequest
-		(*DeleteInventoryServiceResponse)(nil),        // 46: om.v1.DeleteInventoryServiceResponse
-		(*ListInventoryRunsRequest)(nil),              // 47: om.v1.ListInventoryRunsRequest
-		(*ListInventoryRunsResponse)(nil),             // 48: om.v1.ListInventoryRunsResponse
-		(*GetInventoryRunRequest)(nil),                // 49: om.v1.GetInventoryRunRequest
-		(*GetInventoryRunResponse)(nil),               // 50: om.v1.GetInventoryRunResponse
-		(*TriggerInventoryRefreshRequest)(nil),        // 51: om.v1.TriggerInventoryRefreshRequest
-		(*TriggerInventoryRefreshResponse)(nil),       // 52: om.v1.TriggerInventoryRefreshResponse
-		(*TriggerHostBootstrapRequest)(nil),           // 53: om.v1.TriggerHostBootstrapRequest
-		(*BootstrapMemberConfig)(nil),                 // 54: om.v1.BootstrapMemberConfig
-		(*TriggerHostBootstrapResponse)(nil),          // 55: om.v1.TriggerHostBootstrapResponse
-		(*BootstrapStep)(nil),                         // 56: om.v1.BootstrapStep
-		(*BootstrapHost)(nil),                         // 57: om.v1.BootstrapHost
-		(*GetBootstrapRunRequest)(nil),                // 58: om.v1.GetBootstrapRunRequest
-		(*GetBootstrapRunResponse)(nil),               // 59: om.v1.GetBootstrapRunResponse
-		(*CancelBootstrapRunRequest)(nil),             // 60: om.v1.CancelBootstrapRunRequest
-		(*CancelBootstrapRunResponse)(nil),            // 61: om.v1.CancelBootstrapRunResponse
-		(*ListBootstrapRunsRequest)(nil),              // 62: om.v1.ListBootstrapRunsRequest
-		(*ListBootstrapRunsResponse)(nil),             // 63: om.v1.ListBootstrapRunsResponse
-		(*GetInventoryConfigRequest)(nil),             // 64: om.v1.GetInventoryConfigRequest
-		(*GetInventoryConfigResponse)(nil),            // 65: om.v1.GetInventoryConfigResponse
-		(*UpdateInventoryConfigRequest)(nil),          // 66: om.v1.UpdateInventoryConfigRequest
-		(*UpdateInventoryConfigResponse)(nil),         // 67: om.v1.UpdateInventoryConfigResponse
-		(*DeleteInventoryConfigOverrideRequest)(nil),  // 68: om.v1.DeleteInventoryConfigOverrideRequest
-		(*DeleteInventoryConfigOverrideResponse)(nil), // 69: om.v1.DeleteInventoryConfigOverrideResponse
-		nil,                           // 70: om.v1.Summary.ProcessRoleCountsEntry
-		nil,                           // 71: om.v1.SourceReport.DetailEntry
-		nil,                           // 72: om.v1.TriggerHostBootstrapRequest.MemberConfigsEntry
-		(*timestamppb.Timestamp)(nil), // 73: google.protobuf.Timestamp
-		(*structpb.Struct)(nil),       // 74: google.protobuf.Struct
-		(*structpb.Value)(nil),        // 75: google.protobuf.Value
-	}
-)
-
+var file_om_v1_om_proto_enumTypes = make([]protoimpl.EnumInfo, 8)
+var file_om_v1_om_proto_msgTypes = make([]protoimpl.MessageInfo, 65)
+var file_om_v1_om_proto_goTypes = []any{
+	(ServiceStatus)(0),                            // 0: om.v1.ServiceStatus
+	(ProcessRole)(0),                              // 1: om.v1.ProcessRole
+	(RunStatus)(0),                                // 2: om.v1.RunStatus
+	(SourceStatus)(0),                             // 3: om.v1.SourceStatus
+	(ClusterType)(0),                              // 4: om.v1.ClusterType
+	(ClusterHealth)(0),                            // 5: om.v1.ClusterHealth
+	(ExecutorResolution)(0),                       // 6: om.v1.ExecutorResolution
+	(SettingReload)(0),                            // 7: om.v1.SettingReload
+	(*TopologyService)(nil),                       // 8: om.v1.TopologyService
+	(*Cluster)(nil),                               // 9: om.v1.Cluster
+	(*Environment)(nil),                           // 10: om.v1.Environment
+	(*Summary)(nil),                               // 11: om.v1.Summary
+	(*Snapshot)(nil),                              // 12: om.v1.Snapshot
+	(*GetTopologyRequest)(nil),                    // 13: om.v1.GetTopologyRequest
+	(*GetTopologyResponse)(nil),                   // 14: om.v1.GetTopologyResponse
+	(*TopologyRunCounts)(nil),                     // 15: om.v1.TopologyRunCounts
+	(*SourceReport)(nil),                          // 16: om.v1.SourceReport
+	(*TopologyRunError)(nil),                      // 17: om.v1.TopologyRunError
+	(*TopologyRun)(nil),                           // 18: om.v1.TopologyRun
+	(*GetTopologyRunRequest)(nil),                 // 19: om.v1.GetTopologyRunRequest
+	(*GetTopologyRunResponse)(nil),                // 20: om.v1.GetTopologyRunResponse
+	(*ListTopologyRunsRequest)(nil),               // 21: om.v1.ListTopologyRunsRequest
+	(*ListTopologyRunsResponse)(nil),              // 22: om.v1.ListTopologyRunsResponse
+	(*TriggerTopologyCollectionRequest)(nil),      // 23: om.v1.TriggerTopologyCollectionRequest
+	(*TriggerTopologyCollectionResponse)(nil),     // 24: om.v1.TriggerTopologyCollectionResponse
+	(*InventoryExecutor)(nil),                     // 25: om.v1.InventoryExecutor
+	(*UnregisteredMongod)(nil),                    // 26: om.v1.UnregisteredMongod
+	(*InventoryFreshness)(nil),                    // 27: om.v1.InventoryFreshness
+	(*InventoryService)(nil),                      // 28: om.v1.InventoryService
+	(*InventoryHost)(nil),                         // 29: om.v1.InventoryHost
+	(*InventoryRunCounts)(nil),                    // 30: om.v1.InventoryRunCounts
+	(*InventoryRunEntityService)(nil),             // 31: om.v1.InventoryRunEntityService
+	(*InventoryRunEntity)(nil),                    // 32: om.v1.InventoryRunEntity
+	(*InventoryRun)(nil),                          // 33: om.v1.InventoryRun
+	(*InventorySetting)(nil),                      // 34: om.v1.InventorySetting
+	(*ListInventoryHostsRequest)(nil),             // 35: om.v1.ListInventoryHostsRequest
+	(*ListInventoryHostsResponse)(nil),            // 36: om.v1.ListInventoryHostsResponse
+	(*GetInventoryHostRequest)(nil),               // 37: om.v1.GetInventoryHostRequest
+	(*GetInventoryHostResponse)(nil),              // 38: om.v1.GetInventoryHostResponse
+	(*DeleteInventoryHostRequest)(nil),            // 39: om.v1.DeleteInventoryHostRequest
+	(*DeleteInventoryHostResponse)(nil),           // 40: om.v1.DeleteInventoryHostResponse
+	(*ListInventoryServicesRequest)(nil),          // 41: om.v1.ListInventoryServicesRequest
+	(*ListInventoryServicesResponse)(nil),         // 42: om.v1.ListInventoryServicesResponse
+	(*GetInventoryServiceRequest)(nil),            // 43: om.v1.GetInventoryServiceRequest
+	(*GetInventoryServiceResponse)(nil),           // 44: om.v1.GetInventoryServiceResponse
+	(*DeleteInventoryServiceRequest)(nil),         // 45: om.v1.DeleteInventoryServiceRequest
+	(*DeleteInventoryServiceResponse)(nil),        // 46: om.v1.DeleteInventoryServiceResponse
+	(*ListInventoryRunsRequest)(nil),              // 47: om.v1.ListInventoryRunsRequest
+	(*ListInventoryRunsResponse)(nil),             // 48: om.v1.ListInventoryRunsResponse
+	(*GetInventoryRunRequest)(nil),                // 49: om.v1.GetInventoryRunRequest
+	(*GetInventoryRunResponse)(nil),               // 50: om.v1.GetInventoryRunResponse
+	(*TriggerInventoryRefreshRequest)(nil),        // 51: om.v1.TriggerInventoryRefreshRequest
+	(*TriggerInventoryRefreshResponse)(nil),       // 52: om.v1.TriggerInventoryRefreshResponse
+	(*TriggerHostBootstrapRequest)(nil),           // 53: om.v1.TriggerHostBootstrapRequest
+	(*BootstrapMemberConfig)(nil),                 // 54: om.v1.BootstrapMemberConfig
+	(*TriggerHostBootstrapResponse)(nil),          // 55: om.v1.TriggerHostBootstrapResponse
+	(*BootstrapStep)(nil),                         // 56: om.v1.BootstrapStep
+	(*BootstrapHost)(nil),                         // 57: om.v1.BootstrapHost
+	(*GetBootstrapRunRequest)(nil),                // 58: om.v1.GetBootstrapRunRequest
+	(*GetBootstrapRunResponse)(nil),               // 59: om.v1.GetBootstrapRunResponse
+	(*CancelBootstrapRunRequest)(nil),             // 60: om.v1.CancelBootstrapRunRequest
+	(*CancelBootstrapRunResponse)(nil),            // 61: om.v1.CancelBootstrapRunResponse
+	(*ListBootstrapRunsRequest)(nil),              // 62: om.v1.ListBootstrapRunsRequest
+	(*ListBootstrapRunsResponse)(nil),             // 63: om.v1.ListBootstrapRunsResponse
+	(*GetInventoryConfigRequest)(nil),             // 64: om.v1.GetInventoryConfigRequest
+	(*GetInventoryConfigResponse)(nil),            // 65: om.v1.GetInventoryConfigResponse
+	(*UpdateInventoryConfigRequest)(nil),          // 66: om.v1.UpdateInventoryConfigRequest
+	(*UpdateInventoryConfigResponse)(nil),         // 67: om.v1.UpdateInventoryConfigResponse
+	(*DeleteInventoryConfigOverrideRequest)(nil),  // 68: om.v1.DeleteInventoryConfigOverrideRequest
+	(*DeleteInventoryConfigOverrideResponse)(nil), // 69: om.v1.DeleteInventoryConfigOverrideResponse
+	nil,                           // 70: om.v1.Summary.ProcessRoleCountsEntry
+	nil,                           // 71: om.v1.SourceReport.DetailEntry
+	nil,                           // 72: om.v1.TriggerHostBootstrapRequest.MemberConfigsEntry
+	(*timestamppb.Timestamp)(nil), // 73: google.protobuf.Timestamp
+	(*structpb.Struct)(nil),       // 74: google.protobuf.Struct
+	(*structpb.Value)(nil),        // 75: google.protobuf.Value
+}
 var file_om_v1_om_proto_depIdxs = []int32{
 	0,  // 0: om.v1.TopologyService.status:type_name -> om.v1.ServiceStatus
 	1,  // 1: om.v1.TopologyService.process_role:type_name -> om.v1.ProcessRole

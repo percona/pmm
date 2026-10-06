@@ -101,6 +101,7 @@ func (o *TriggerHostBootstrapOK) GetPayload() *TriggerHostBootstrapOKBody {
 }
 
 func (o *TriggerHostBootstrapOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(TriggerHostBootstrapOKBody)
 
 	// response payload
@@ -174,6 +175,7 @@ func (o *TriggerHostBootstrapDefault) GetPayload() *TriggerHostBootstrapDefaultB
 }
 
 func (o *TriggerHostBootstrapDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(TriggerHostBootstrapDefaultBody)
 
 	// response payload
@@ -189,6 +191,7 @@ TriggerHostBootstrapBody TriggerHostBootstrapRequest is the request for TriggerH
 swagger:model TriggerHostBootstrapBody
 */
 type TriggerHostBootstrapBody struct {
+
 	// PMM's node IDs for the hosts to bootstrap into one replica set. Adamo's
 	// decided phase-1 scope (PMM-15347/questions.md Q5/Q12): exactly one or
 	// three, checked server-side since protoc-gen-validate has no "one of these
@@ -293,12 +296,15 @@ func (o *TriggerHostBootstrapBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *TriggerHostBootstrapBody) contextValidateMemberConfigs(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.MemberConfigs {
+
 		if val, ok := o.MemberConfigs[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -327,6 +333,7 @@ TriggerHostBootstrapDefaultBody trigger host bootstrap default body
 swagger:model TriggerHostBootstrapDefaultBody
 */
 type TriggerHostBootstrapDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -396,7 +403,9 @@ func (o *TriggerHostBootstrapDefaultBody) ContextValidate(ctx context.Context, f
 }
 
 func (o *TriggerHostBootstrapDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -416,6 +425,7 @@ func (o *TriggerHostBootstrapDefaultBody) contextValidateDetails(ctx context.Con
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -444,6 +454,7 @@ TriggerHostBootstrapDefaultBodyDetailsItems0 trigger host bootstrap default body
 swagger:model TriggerHostBootstrapDefaultBodyDetailsItems0
 */
 type TriggerHostBootstrapDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -455,6 +466,7 @@ type TriggerHostBootstrapDefaultBodyDetailsItems0 struct {
 func (o *TriggerHostBootstrapDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -492,6 +504,7 @@ func (o *TriggerHostBootstrapDefaultBodyDetailsItems0) UnmarshalJSON(data []byte
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o TriggerHostBootstrapDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -563,6 +576,7 @@ TriggerHostBootstrapOKBody TriggerHostBootstrapResponse acknowledges a queued bo
 swagger:model TriggerHostBootstrapOKBody
 */
 type TriggerHostBootstrapOKBody struct {
+
 	// The om_bootstrap run's id. Poll GetBootstrapRun for its progress.
 	RunID string `json:"run_id,omitempty"`
 }
@@ -601,6 +615,7 @@ TriggerHostBootstrapParamsBodyMemberConfigsAnon BootstrapMemberConfig is one hos
 swagger:model TriggerHostBootstrapParamsBodyMemberConfigsAnon
 */
 type TriggerHostBootstrapParamsBodyMemberConfigsAnon struct {
+
 	// Relative election priority. 0 means this member can never become primary.
 	//
 	// Optional because MongoDB's default is 1, and a proto3 uint32 cannot tell

@@ -115,9 +115,14 @@ func (s *Service) ListInventoryHosts(ctx context.Context, req *omv1.ListInventor
 		return nil, err
 	}
 
+	serverNodes, err := s.pmmServerNodeIDs()
+	if err != nil {
+		return nil, err
+	}
+
 	response := &omv1.ListInventoryHostsResponse{Hosts: make([]*omv1.InventoryHost, 0, len(hosts))}
 	for _, host := range hosts {
-		proto := inventoryHostToProto(host, connectedNodes[host.NodeID])
+		proto := inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID])
 		if req.AutomationEligible != nil && proto.AutomationEligible != req.GetAutomationEligible() {
 			continue
 		}
@@ -154,6 +159,30 @@ func (s *Service) pmmAgentConnectedByNode() (map[string]bool, error) {
 	return connected, nil
 }
 
+// pmmServerNodeIDs names the node PMM itself runs on.
+//
+// A set rather than a bool per node, because the question asked of it is "is this
+// one the server", and every other node is absent rather than false. PMM's own
+// inventory already carries the flag, so this is a read rather than a heuristic on
+// the address -- 127.0.0.1 is a property of how the server was registered, not of
+// what it is.
+func (s *Service) pmmServerNodeIDs() (map[string]bool, error) {
+	if s.db == nil {
+		return nil, nil //nolint:nilnil // absent store: every lookup below reads as "not the server"
+	}
+	nodes, err := models.FindNodes(s.db.Querier, models.NodeFilters{})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to list nodes: %s", err)
+	}
+	servers := make(map[string]bool, 1)
+	for _, node := range nodes {
+		if node.IsPMMServerNode {
+			servers[node.NodeID] = true
+		}
+	}
+	return servers, nil
+}
+
 // GetInventoryHost returns one host.
 func (s *Service) GetInventoryHost(ctx context.Context, req *omv1.GetInventoryHostRequest) (*omv1.GetInventoryHostResponse, error) {
 	probe, err := s.inventoryProbe()
@@ -172,7 +201,14 @@ func (s *Service) GetInventoryHost(ctx context.Context, req *omv1.GetInventoryHo
 	if err != nil {
 		return nil, err
 	}
-	return &omv1.GetInventoryHostResponse{Host: inventoryHostToProto(host, connectedNodes[host.NodeID])}, nil
+
+	serverNodes, err := s.pmmServerNodeIDs()
+	if err != nil {
+		return nil, err
+	}
+	return &omv1.GetInventoryHostResponse{
+		Host: inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID]),
+	}, nil
 }
 
 // DeleteInventoryHost forgets a host and the services on it.
@@ -1307,24 +1343,25 @@ func (s *Service) DeleteInventoryConfigOverride(
 }
 
 // inventoryHostToProto projects one host row for the wire.
-func inventoryHostToProto(host extensionsHost, pmmAgentConnected bool) *omv1.InventoryHost {
+func inventoryHostToProto(host extensionsHost, pmmAgentConnected bool, isPMMServer bool) *omv1.InventoryHost {
 	executor := executorToProto(host.Observed)
-	eligible, reasons := automationEligibility(executor, pmmAgentConnected)
+	eligible, reasons, byDesign := automationEligibility(executor, pmmAgentConnected, isPMMServer, host)
 	out := &omv1.InventoryHost{
-		NodeId:                   host.NodeID,
-		Name:                     host.Name,
-		Address:                  optionalString(host.Address),
-		ExecutorHost:             optionalString(host.ExecutorHost),
-		Os:                       observedString(host.Observed, "os"),
-		Kernel:                   observedString(host.Observed, "kernel"),
-		Executor:                 executor,
-		UnregisteredMongods:      unregisteredMongodsToProto(host.Observed),
-		Observed:                 observedToStruct(host.Observed),
-		Freshness:                freshnessToProto(host.extensionsFreshness),
-		Services:                 make([]*omv1.InventoryService, 0, len(host.Services)),
-		PmmAgentConnected:        pmmAgentConnected,
-		AutomationEligible:       eligible,
-		AutomationBlockedReasons: reasons,
+		NodeId:                    host.NodeID,
+		Name:                      host.Name,
+		Address:                   optionalString(host.Address),
+		ExecutorHost:              optionalString(host.ExecutorHost),
+		Os:                        observedString(host.Observed, "os"),
+		Kernel:                    observedString(host.Observed, "kernel"),
+		Executor:                  executor,
+		UnregisteredMongods:       unregisteredMongodsToProto(host.Observed),
+		Observed:                  observedToStruct(host.Observed),
+		Freshness:                 freshnessToProto(host.extensionsFreshness),
+		Services:                  make([]*omv1.InventoryService, 0, len(host.Services)),
+		PmmAgentConnected:         pmmAgentConnected,
+		AutomationEligible:        eligible,
+		AutomationBlockedReasons:  reasons,
+		AutomationBlockedByDesign: byDesign,
 	}
 	for _, service := range host.Services {
 		out.Services = append(out.Services, inventoryServiceToProto(service))
@@ -1341,8 +1378,37 @@ func inventoryHostToProto(host extensionsHost, pmmAgentConnected bool) *omv1.Inv
 // consumer of the distinction so far. See PMM-15347/questions.md Q2 for why a
 // requirements-per-task-type mechanism is deliberately not built until a second,
 // differently-shaped task type actually needs one.
-func automationEligibility(executor *omv1.InventoryExecutor, pmmAgentConnected bool) (bool, []string) {
+func automationEligibility(
+	executor *omv1.InventoryExecutor,
+	pmmAgentConnected bool,
+	isPMMServer bool,
+	host extensionsHost,
+) (bool, []string, bool) {
 	var reasons []string
+	// Tracked separately from the reasons rather than inferred from them: a consumer
+	// matching on the strings would break the first time one is reworded, and the
+	// difference decides whether a reader is shown an alarm or a fact.
+	byDesign := false
+	// First, because it is a fact about the machine rather than about whether we can
+	// reach it: a reachable, healthy PMM Server is still not a thing to install a
+	// database onto, and listing the reachability complaints alongside would read as
+	// though fixing them would help.
+	if isPMMServer {
+		byDesign = true
+		reasons = append(reasons,
+			"this is the node PMM Server itself runs on, which Operations never installs onto")
+	}
+	if len(host.Services) > 0 {
+		byDesign = true
+		reasons = append(reasons,
+			"a MongoDB service is already registered on this node")
+	} else if unregisteredMongodCount(host.Observed) > 0 {
+		byDesign = true
+		// `else if`, because a node with a registered service usually has the mongod
+		// to go with it, and saying both would be one problem reported twice.
+		reasons = append(reasons,
+			"a scan found a mongod running here that PMM has no service for")
+	}
 	if !pmmAgentConnected {
 		reasons = append(reasons, "PMM-Client is not installed or not connected")
 	}
@@ -1351,7 +1417,21 @@ func automationEligibility(executor *omv1.InventoryExecutor, pmmAgentConnected b
 	} else if !executor.GetDriverHealthy() {
 		reasons = append(reasons, "Nomad's raw_exec driver is not healthy on this host")
 	}
-	return len(reasons) == 0, reasons
+	eligible := len(reasons) == 0
+	// Only meaningful when something is blocking. An eligible node reporting "blocked
+	// by design" would be a contradiction a consumer has to reason about.
+	return eligible, reasons, !eligible && byDesign
+}
+
+// unregisteredMongodCount counts the mongods a scan found that PMM has no service
+// for. Reads the same observed key the wire projection does, so the two cannot
+// disagree about whether a node carries one.
+func unregisteredMongodCount(observed map[string]any) int {
+	entries, ok := observed["unregistered_mongods"].([]any)
+	if !ok {
+		return 0
+	}
+	return len(entries)
 }
 
 // inventoryServiceToProto projects one service row for the wire.

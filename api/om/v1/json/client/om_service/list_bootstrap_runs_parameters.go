@@ -58,6 +58,7 @@ ListBootstrapRunsParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListBootstrapRunsParams struct {
+
 	/* Limit.
 
 	   How many to return, newest first. Defaults to 20, capped at 100.
@@ -132,6 +133,7 @@ func (o *ListBootstrapRunsParams) SetLimit(limit *int32) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListBootstrapRunsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -147,6 +149,7 @@ func (o *ListBootstrapRunsParams) WriteToRequest(r runtime.ClientRequest, reg st
 		}
 		qLimit := swag.FormatInt32(qrLimit)
 		if qLimit != "" {
+
 			if err := r.SetQueryParam("limit", qLimit); err != nil {
 				return err
 			}
