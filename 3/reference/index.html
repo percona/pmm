@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="PMM is a client/server application built by Percona comprising its own and third-party components and tools.">
+        <meta name="description" content="Percona Monitoring and Management (PMM) is a client/server application. PMM Client collects metrics and query data from the systems that you monitor and sends them to PMM Server. PMM Server stores the data and presents it in its web interface.">
       
       
         <meta name="author" content="Percona LLC">
@@ -30,7 +30,7 @@
     
     
       
-        <title>PMM Architecture - Percona Monitoring and Management</title>
+        <title>PMM architecture - Percona Monitoring and Management</title>
       
     
     
@@ -92,7 +92,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - PMM Architecture" />
+                 <meta property="og:title" content="Percona Monitoring and Management - PMM architecture" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -222,7 +222,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              PMM Architecture
+              PMM architecture
             
           </span>
         </div>
@@ -12510,7 +12510,7 @@
   <span class="md-ellipsis">
     
   
-    PMM Architecture
+    PMM architecture
   
 
     
@@ -12528,7 +12528,7 @@
   <span class="md-ellipsis">
     
   
-    PMM Architecture
+    PMM architecture
   
 
     
@@ -12562,6 +12562,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="PMM Server">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#web-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Web interface
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#server-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Server components
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#persistence-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Persistence layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -12573,25 +12612,14 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pmm-context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PMM context
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="PMM context">
+    <nav class="md-nav" aria-label="PMM Client">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pmm-server_1" class="md-nav__link">
+  <a href="#exporters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PMM Server
+        Exporters
       
     </span>
   </a>
@@ -12599,10 +12627,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pmm-client_1" class="md-nav__link">
+  <a href="#built-in-agents" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PMM Client
+        Built-in agents
       
     </span>
   </a>
@@ -12611,6 +12639,45 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-pmm-client-and-pmm-server-interact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How PMM Client and PMM Server interact
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How PMM Client and PMM Server interact">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#connection-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connection security
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next steps
+      
+    </span>
+  </a>
   
 </li>
       
@@ -16366,6 +16433,45 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="PMM Server">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#web-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Web interface
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#server-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Server components
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#persistence-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Persistence layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -16377,25 +16483,14 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pmm-context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PMM context
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="PMM context">
+    <nav class="md-nav" aria-label="PMM Client">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pmm-server_1" class="md-nav__link">
+  <a href="#exporters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PMM Server
+        Exporters
       
     </span>
   </a>
@@ -16403,10 +16498,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#pmm-client_1" class="md-nav__link">
+  <a href="#built-in-agents" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PMM Client
+        Built-in agents
       
     </span>
   </a>
@@ -16415,6 +16510,45 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-pmm-client-and-pmm-server-interact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How PMM Client and PMM Server interact
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How PMM Client and PMM Server interact">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#connection-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connection security
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next steps
+      
+    </span>
+  </a>
   
 </li>
       
@@ -16446,92 +16580,131 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 
 
-<h1 id="pmm-architecture">PMM Architecture<a class="headerlink" href="#pmm-architecture" title="Permanent link">&para;</a></h1>
-<p>PMM is a client/server application built by Percona comprising its own and third-party components and tools.</p>
-<!-- The source of this image is maintained at https://miro.com/app/board/uXjVOPgKgrE=/ -->
-
-<p><img alt="Client-Server Architecture" src="../images/arch/C_S_Architecture.jpg" /></p>
+<h1 id="pmm-architecture">PMM architecture<a class="headerlink" href="#pmm-architecture" title="Permanent link">&para;</a></h1>
+<p>Percona Monitoring and Management (PMM) is a client/server application. PMM Client collects metrics and query data from the systems that you monitor and sends them to PMM Server. PMM Server stores the data and presents it in its web interface.</p>
+<p><img alt="PMM Client collects metrics and query data from monitored systems and sends them to PMM Server" class="only-light" src="../images/arch/C_S_Architecture-light.png" />
+<img alt="PMM Client collects metrics and query data from monitored systems and sends them to PMM Server" class="only-dark" src="../images/arch/C_S_Architecture-dark.png" /></p>
+<p>You can also monitor remote databases and cloud services, such as <a href="../install-pmm/install-pmm-client/connect-database/aws.html">Amazon RDS</a> and <a href="../install-pmm/install-pmm-client/connect-database/azure.html">Azure</a>, without installing PMM Client on their hosts. In that case, the <code>pmm-agent</code> built into PMM Server, or a PMM Client on another host, collects the data. For details, see <a href="../install-pmm/install-pmm-client/connect-database/remote.html">Connect remote instance to PMM</a>.</p>
 <h2 id="pmm-server">PMM Server<a class="headerlink" href="#pmm-server" title="Permanent link">&para;</a></h2>
-<p>PMM Server is the heart of PMM. It receives data from clients, collects it, and stores it. Metrics are drawn as tables, charts and graphs within <a href="../use/dashboards-panels/index.html"><em>dashboards</em></a>, each a part of the web-based <a href="ui/ui_components.html">user interface</a>.</p>
+<p>PMM Server receives data from PMM Clients, stores it, and presents it in <a href="../use/dashboards-panels/index.html">dashboards</a> and other views of the <a href="ui/ui_components.html">web interface</a>. In a standard deployment, PMM Server runs as a single container that holds all of the components in this section.</p>
+<p><img alt="PMM Server components: the web interface, Nginx, pmm-managed, QAN API, VictoriaMetrics, vmproxy, vmalert, Grafana and the data stores" class="only-light" src="../images/arch/PMM-Server-Component-Based-View-light.png" />
+<img alt="PMM Server components: the web interface, Nginx, pmm-managed, QAN API, VictoriaMetrics, vmproxy, vmalert, Grafana and the data stores" class="only-dark" src="../images/arch/PMM-Server-Component-Based-View-dark.png" /></p>
+<h3 id="web-interface">Web interface<a class="headerlink" href="#web-interface" title="Permanent link">&para;</a></h3>
+<p>The web interface, also called the PMM UI, is a web application that embeds Grafana. It brings together <a href="../use/dashboards-panels/index.html">Metrics Dashboards</a>, <a href="../use/qan/index.html">Query Analytics (QAN)</a>, <a href="../use/qan/QAN-realtime-analytics.html">Real-Time Query Analytics (RTA)</a> for MongoDB, <a href="../advisors/advisors.html">Advisors</a>, <a href="../alert/index.html">Alerting</a>, <a href="../use/dashboard-inventory.html">Inventory</a>, <a href="../pmm-upgrade/index.html">Updates</a> &amp; <a href="../configure-pmm/configure.html">Settings</a>, and <a href="../troubleshoot/pmm_dump.html">PMM Dump</a>.</p>
+<h3 id="server-components">Server components<a class="headerlink" href="#server-components" title="Permanent link">&para;</a></h3>
+<p>PMM Server runs the following services:</p>
+<ul>
+<li><strong>Nginx</strong> receives every request, on port 8443 (HTTPS) or 8080 (HTTP) inside the container. You usually publish port 8443 as 443. It asks <code>pmm-managed</code> to authorize requests, then routes them to the other services.</li>
+<li><strong><code>pmm-managed</code></strong> manages the PMM Server configuration, the inventory of monitored services, and the connected PMM Clients. It forwards QAN data from PMM Clients to QAN API, and keeps RTA data in memory.</li>
+<li><strong>QAN API</strong> stores and serves Query Analytics data.</li>
+<li><strong><a href="third-party/victoria.html">VictoriaMetrics</a></strong> stores metrics. It receives the metrics that PMM Clients push, and scrapes exporters that run in pull mode.</li>
+<li><strong>vmproxy</strong> applies <a href="../admin/roles/access-control/intro.html">label-based access control (LBAC)</a> filters to metrics queries before they reach VictoriaMetrics.</li>
+<li><strong>vmalert</strong> evaluates alerting and recording rules against VictoriaMetrics.</li>
+<li><strong><a href="https://grafana.com/docs/grafana/latest/">Grafana</a></strong> renders dashboards, runs Alerting, and authenticates users.</li>
+</ul>
+<p>PMM Server also runs these supporting processes:</p>
+<ul>
+<li><strong>supervisord</strong> runs as process 1, and starts and restarts every other process.</li>
+<li><strong><code>pmm-agent</code></strong> monitors PMM Server itself, and collects data from remote databases and cloud services in pull mode.</li>
+<li><strong><a href="nomad.html">Nomad server</a></strong> runs the Nomad workload orchestrator for future PMM extensions. It&rsquo;s disabled by default.</li>
+</ul>
+<h3 id="persistence-layer">Persistence layer<a class="headerlink" href="#persistence-layer" title="Permanent link">&para;</a></h3>
+<p>PMM Server keeps its data in the following stores:</p>
+<ul>
+<li><strong><a href="third-party/clickhouse.html">ClickHouse</a></strong> stores Query Analytics data. <code>pmm-managed</code> and Grafana also read from it.</li>
+<li><strong><a href="third-party/postgresql.html">PostgreSQL</a></strong> stores the <code>pmm-managed</code> state and the Grafana database.</li>
+<li><strong>VM DB</strong>, the VictoriaMetrics storage, holds metrics.</li>
+<li><strong>State files</strong> under <code>/srv</code> hold configuration, logs and, when you use the built-in databases, all stored data.</li>
+</ul>
+<p>You can run PostgreSQL, ClickHouse and VictoriaMetrics outside PMM Server. For details, see <a href="third-party/postgresql.html">external PostgreSQL</a>, <a href="third-party/clickhouse.html">external ClickHouse</a> and <a href="third-party/victoria.html#using-victoriametrics-external-database-instance">external VictoriaMetrics</a>, which is in Technical Preview. To run more than one PMM Server instance, see <a href="../install-pmm/HA.html">Install PMM in High Availability (HA) mode</a>.</p>
 <h2 id="pmm-client">PMM Client<a class="headerlink" href="#pmm-client" title="Permanent link">&para;</a></h2>
-<p>PMM Client is a collection of agents and exporters that run on the host being monitored.</p>
-<p>PMM Client runs on every database host or node you want to monitor. The client collects server metrics, general system metrics, query analytics and sends it to the server. Except when monitoring AWS RDS instances, a PMM Client must be running on the host to be monitored.</p>
-<h2 id="pmm-context">PMM context<a class="headerlink" href="#pmm-context" title="Permanent link">&para;</a></h2>
-<p>The PMM Client package provides:</p>
+<p>PMM Client is a set of programs that runs on, or next to, each system that you monitor. It collects metrics and query data, and sends them to PMM Server. To install it, see <a href="../install-pmm/install-pmm-client/index.html">PMM Client installation overview</a>.</p>
+<p><img alt="PMM Client components: pmm-admin, pmm-agent with its built-in agents, the exporters, vmagent, and the systems they monitor" class="only-light" src="../images/arch/PMM-Client-Component-Based-View-light.png" />
+<img alt="PMM Client components: pmm-admin, pmm-agent with its built-in agents, the exporters, vmagent, and the systems they monitor" class="only-dark" src="../images/arch/PMM-Client-Component-Based-View-dark.png" /></p>
+<p>PMM Client includes the following components:</p>
 <ul>
-<li>Exporters for each database and service type. When an exporter runs, it connects to the database or service instance, runs the metrics collection routines, and sends the results to PMM Server.</li>
-<li><code>pmm-agent</code>: Run as a daemon process, it starts and stops exporters when instructed.</li>
-<li><code>vmagent</code>: A VictoriaMetrics daemon process that sends metrics data (<em>pushes</em>) to PMM Server.</li>
+<li><strong><a href="../use/commands/pmm-admin/pmm-admin.html"><code>pmm-admin</code></a></strong> is the command-line tool for adding and removing monitored services. It talks to the local <code>pmm-agent</code> on port 7777 and to the PMM Server API.</li>
+<li><strong><code>pmm-agent</code></strong> is the daemon that connects PMM Client to PMM Server. It receives its configuration from PMM Server, then starts and stops the exporters and other agents.</li>
+<li><strong>Exporters</strong> collect metrics from each monitored service and expose them for scraping.</li>
+<li><strong><code>vmagent</code></strong> scrapes the local exporters and pushes the metrics to PMM Server in push mode, the default.</li>
+<li><strong>Built-in agents</strong> run inside the <code>pmm-agent</code> process, and collect query data or run on-demand tasks.</li>
+<li><strong><code>nomad-agent</code></strong> connects to the Nomad server when you <a href="nomad.html">enable Nomad</a>.</li>
 </ul>
-<p>The PMM Server package provides:</p>
+<h3 id="exporters">Exporters<a class="headerlink" href="#exporters" title="Permanent link">&para;</a></h3>
+<p>PMM Client includes an exporter for each supported service type:</p>
+<table>
+<thead>
+<tr>
+<th>Exporter</th>
+<th>Collects metrics from</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>node_exporter</code></td>
+<td>The host: CPU, memory, disk and network</td>
+</tr>
+<tr>
+<td><code>mysqld_exporter</code></td>
+<td>MySQL</td>
+</tr>
+<tr>
+<td><code>postgres_exporter</code></td>
+<td>PostgreSQL</td>
+</tr>
+<tr>
+<td><code>mongodb_exporter</code></td>
+<td>MongoDB</td>
+</tr>
+<tr>
+<td><code>valkey_exporter</code></td>
+<td>Valkey and Redis</td>
+</tr>
+<tr>
+<td><code>proxysql_exporter</code></td>
+<td>ProxySQL</td>
+</tr>
+<tr>
+<td><code>rds_exporter</code></td>
+<td>Amazon RDS, through Amazon CloudWatch</td>
+</tr>
+<tr>
+<td><code>azure_database_exporter</code></td>
+<td>Azure databases, through Azure Monitor</td>
+</tr>
+</tbody>
+</table>
+<p>You can also add an <a href="../install-pmm/install-pmm-client/connect-database/external.html">external exporter</a> that you run yourself. PMM scrapes it like any other exporter.</p>
+<h3 id="built-in-agents">Built-in agents<a class="headerlink" href="#built-in-agents" title="Permanent link">&para;</a></h3>
+<p><code>pmm-agent</code> runs the following agents in its own process:</p>
 <ul>
-<li><code>pmm-managed</code></li>
-<li>Query Analytics</li>
-<li>Grafana</li>
-<li>VictoriaMetrics</li>
+<li><strong>QAN agents</strong> collect query data from MySQL (Performance Schema, slow query log), PostgreSQL (<code>pg_stat_statements</code>, <code>pg_stat_monitor</code>) and MongoDB (profiler, log file).</li>
+<li><strong>The RTA agent</strong> streams the queries that are running on MongoDB right now.</li>
+<li><strong>Actions</strong> run on-demand tasks, such as <code>EXPLAIN</code>, <code>SHOW CREATE TABLE</code> and <code>pt-summary</code>.</li>
 </ul>
-<h3 id="pmm-server_1">PMM Server<a class="headerlink" href="#pmm-server_1" title="Permanent link">&para;</a></h3>
-<!-- The source of this image is maintained at https://miro.com/app/board/uXjVOPgKgrE=/ -->
-
-<p><img alt="PMM Server" src="../images/arch/PMM-Server-Component-Based-View.jpg" /></p>
-<p>PMM Server includes the following tools:</p>
+<h2 id="how-pmm-client-and-pmm-server-interact">How PMM Client and PMM Server interact<a class="headerlink" href="#how-pmm-client-and-pmm-server-interact" title="Permanent link">&para;</a></h2>
+<p>The following diagram shows the connections between the PMM Client and PMM Server components.</p>
+<p><img alt="PMM Client and PMM Server interactions: the gRPC streams between pmm-agent and pmm-managed, the metrics push from vmagent, and the read paths of the web interface" class="only-light" src="../images/arch/C_S_Interactions-light.png" />
+<img alt="PMM Client and PMM Server interactions: the gRPC streams between pmm-agent and pmm-managed, the metrics push from vmagent, and the read paths of the web interface" class="only-dark" src="../images/arch/C_S_Interactions-dark.png" /></p>
+<p>PMM Client and PMM Server communicate over these connections:</p>
 <ul>
-<li>
-<p>Query Analytics (QAN) enables you to analyze database query performance over periods of time. In addition to the client-side QAN agent, it includes the following:</p>
+<li><strong>Control stream</strong>: <code>pmm-agent</code> keeps a two-way gRPC stream open to <code>pmm-managed</code>. <code>pmm-managed</code> sends configuration and on-demand actions, and <code>pmm-agent</code> sends status and QAN data. RTA data travels on a separate gRPC stream.</li>
+<li><strong>Metrics in push mode</strong> (default): <code>vmagent</code> scrapes the local exporters and pushes the metrics to VictoriaMetrics.</li>
+<li><strong>Metrics in pull mode</strong>: VictoriaMetrics scrapes each exporter directly. To choose the mode, use the <code>--metrics-mode</code> flag. For details, see <a href="third-party/victoria.html#pushpull-modes">Push/Pull modes</a>.</li>
+<li><strong>Commands</strong>: <code>pmm-admin</code> calls the local <code>pmm-agent</code> on port 7777 and the PMM Server API.</li>
+</ul>
+<p>Inside PMM Server, the web interface reads metrics from VictoriaMetrics through vmproxy, and query data from QAN API. It reads RTA data from <code>pmm-managed</code>, which keeps that data in memory only.</p>
+<h3 id="connection-security">Connection security<a class="headerlink" href="#connection-security" title="Permanent link">&para;</a></h3>
+<p>By default, <code>pmm-agent</code> and <code>vmagent</code> connect to PMM Server over HTTPS, on port 443 or 8443. Nomad RPC doesn&rsquo;t use HTTPS, but it&rsquo;s encrypted with TLS, using certificates that PMM Server generates. <code>pmm-admin</code> uses HTTP if you give it an <code>http://</code> server URL. If you expose port 8080, Nginx serves API routes over HTTP without redirecting to HTTPS, so use HTTPS for authenticated requests. For development and testing only, the <code>without-tls</code> setting makes <code>pmm-agent</code> and <code>vmagent</code> send data and credentials unencrypted. To use your own certificates, see <a href="../admin/security/ssl_encryption.html">SSL encryption</a>.</p>
+<p><code>node_exporter</code>, <code>mysqld_exporter</code>, <code>postgres_exporter</code>, <code>mongodb_exporter</code> and <code>proxysql_exporter</code> require HTTP basic authentication, each with its own password by default. <code>valkey_exporter</code>, <code>rds_exporter</code> and <code>azure_database_exporter</code> don&rsquo;t require authentication. In pull mode, VictoriaMetrics connects to the exporters directly, on ports 42000–51999 by default, so PMM Server must be able to reach those ports. When you enable Nomad, <code>nomad-agent</code> also connects to PMM Server directly, on port 4647.</p>
+<p>Exporters and QAN agents can use TLS to connect to the databases that they monitor.</p>
+<h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<p>To install PMM and plan its network access, continue with these pages:</p>
 <ul>
-<li>QAN API is the back-end for storing and accessing query data collected by the QAN agent running on a PMM Client.</li>
-<li>QAN App is a web application for visualizing collected Query Analytics data, which is part of the PMM Server&rsquo;s UI.</li>
+<li><a href="../install-pmm/install-pmm-server/index.html">PMM Server installation overview</a></li>
+<li><a href="../install-pmm/install-pmm-client/index.html">PMM Client installation overview</a></li>
+<li><a href="../install-pmm/plan-pmm-installation/network_and_firewall.html">Network and firewall requirements</a></li>
 </ul>
-</li>
-<li>
-<p>Metrics Monitoring provides a historical view of and analysis of metrics that are critical to PostgreSQL, MySQL, MongoDB or Valkey/Redis server instances. It includes the following:</p>
-</li>
-<li>
-<p><a href="https://github.com/VictoriaMetrics/VictoriaMetrics">VictoriaMetrics</a> is a scalable time-series database. </p>
-</li>
-<li><a href="https://clickhouse.com">ClickHouse</a> is a third-party column-oriented database that facilitates the Query Analytics functionality.</li>
-<li><a href="http://docs.grafana.org">Grafana</a> is a third-party dashboard and graph engine for visualizing data aggregated in an intuitive web interface.</li>
-<li><a href="https://github.com/percona/pmm/tree/main/dashboards">PMM Dashboards</a> is a set of monitoring dashboards developed by Percona.</li>
-</ul>
-<h3 id="pmm-client_1">PMM Client<a class="headerlink" href="#pmm-client_1" title="Permanent link">&para;</a></h3>
-<p><img alt="PMM Client" src="../images/arch/PMM-Client-Component-Based-View.jpg" /></p>
-<p>The PMM Client package consists of the following:</p>
-<ul>
-<li>
-<p><code>pmm-admin</code> is a command-line tool for managing PMM Client, for example, adding and removing database instances that you want to monitor. For more information, see <a href="../use/commands/pmm-admin/pmm-admin.html">pmm-admin command overview</a>.</p>
-</li>
-<li>
-<p><code>pmm-agent</code> is a client-side component of a minimal command-line interface, which is a central entry point in charge of bringing the client functionality: it carries on client’s authentication, gets the client configuration stored on the PMM Server, manages exporters and other agents.</p>
-</li>
-<li>
-<p><code>node_exporter</code> is an exporter that collects general system metrics.</p>
-</li>
-<li>
-<p><code>mysqld_exporter</code> is an exporter that collects MySQL server metrics.</p>
-</li>
-<li>
-<p><code>mongodb_exporter</code> is an exporter that collects MongoDB server metrics.</p>
-</li>
-<li>
-<p><code>postgres_exporter</code> is an exporter that collects PostgreSQL performance metrics.</p>
-</li>
-<li>
-<p><code>valkey_exporter</code> is an exporter that collects Valkey and Redis performance metrics.</p>
-</li>
-<li>
-<p><code>proxysql_exporter</code> is an exporter that collects ProxySQL performance metrics.</p>
-</li>
-<li>
-<p><code>rds_exporter</code> is an exporter that collects Amazon RDS performance metrics.</p>
-</li>
-<li>
-<p><code>azure_database_exporter</code> is an exporter that collects Azure database performance metrics.</p>
-</li>
-</ul>
-<p>To make data transfer from PMM Client to PMM Server secure, all exporters are able to use SSL/TLS encrypted connections, and their communication with PMM Server is protected by the HTTP basic authentication.</p>
-<!-- The source of this image is maintained at https://miro.com/app/board/uXjVOPgKgrE=/ -->
-
-<p><img alt="Client Server Interactions" src="../images/arch/C_S_Interactions.jpg" /></p>
 
 
 
@@ -16554,7 +16727,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="June 17, 2026 17:12:08 UTC">June 17, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 6, 2026 15:12:22 UTC">October 6, 2026</span>
   </span>
 
     
