@@ -50,6 +50,36 @@ func (_m *mockPmmAPI) GetAction(ctx context.Context, auth callerAuth, actionID s
 	return r0, r1
 }
 
+// GetDatasourceByName provides a mock function with given fields: ctx, auth, name
+func (_m *mockPmmAPI) GetDatasourceByName(ctx context.Context, auth callerAuth, name string) (*datasource, error) {
+	ret := _m.Called(ctx, auth, name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetDatasourceByName")
+	}
+
+	var r0 *datasource
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string) (*datasource, error)); ok {
+		return rf(ctx, auth, name)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string) *datasource); ok {
+		r0 = rf(ctx, auth, name)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*datasource)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, callerAuth, string) error); ok {
+		r1 = rf(ctx, auth, name)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetMetrics provides a mock function with given fields: ctx, auth, body
 func (_m *mockPmmAPI) GetMetrics(ctx context.Context, auth callerAuth, body qan_service.GetMetricsBody) (*queryMetrics, error) {
 	ret := _m.Called(ctx, auth, body)
@@ -110,9 +140,9 @@ func (_m *mockPmmAPI) GetQueryExample(ctx context.Context, auth callerAuth, body
 	return r0, r1
 }
 
-// GetQueryPlan provides a mock function with given fields: ctx, auth, queryID
-func (_m *mockPmmAPI) GetQueryPlan(ctx context.Context, auth callerAuth, queryID string) (*qan_service.GetQueryPlanOKBody, error) {
-	ret := _m.Called(ctx, auth, queryID)
+// GetQueryPlan provides a mock function with given fields: ctx, auth, queryID, serviceID
+func (_m *mockPmmAPI) GetQueryPlan(ctx context.Context, auth callerAuth, queryID string, serviceID string) (*qan_service.GetQueryPlanOKBody, error) {
+	ret := _m.Called(ctx, auth, queryID, serviceID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetQueryPlan")
@@ -120,19 +150,19 @@ func (_m *mockPmmAPI) GetQueryPlan(ctx context.Context, auth callerAuth, queryID
 
 	var r0 *qan_service.GetQueryPlanOKBody
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string) (*qan_service.GetQueryPlanOKBody, error)); ok {
-		return rf(ctx, auth, queryID)
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string, string) (*qan_service.GetQueryPlanOKBody, error)); ok {
+		return rf(ctx, auth, queryID, serviceID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string) *qan_service.GetQueryPlanOKBody); ok {
-		r0 = rf(ctx, auth, queryID)
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string, string) *qan_service.GetQueryPlanOKBody); ok {
+		r0 = rf(ctx, auth, queryID, serviceID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*qan_service.GetQueryPlanOKBody)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, callerAuth, string) error); ok {
-		r1 = rf(ctx, auth, queryID)
+	if rf, ok := ret.Get(1).(func(context.Context, callerAuth, string, string) error); ok {
+		r1 = rf(ctx, auth, queryID, serviceID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -163,36 +193,6 @@ func (_m *mockPmmAPI) GetReport(ctx context.Context, auth callerAuth, body qan_s
 
 	if rf, ok := ret.Get(1).(func(context.Context, callerAuth, qan_service.GetReportBody) error); ok {
 		r1 = rf(ctx, auth, body)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// ListDatasources provides a mock function with given fields: ctx, auth
-func (_m *mockPmmAPI) ListDatasources(ctx context.Context, auth callerAuth) ([]datasource, error) {
-	ret := _m.Called(ctx, auth)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ListDatasources")
-	}
-
-	var r0 []datasource
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, callerAuth) ([]datasource, error)); ok {
-		return rf(ctx, auth)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, callerAuth) []datasource); ok {
-		r0 = rf(ctx, auth)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]datasource)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, callerAuth) error); ok {
-		r1 = rf(ctx, auth)
 	} else {
 		r1 = ret.Error(1)
 	}

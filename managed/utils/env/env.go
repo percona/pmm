@@ -32,10 +32,10 @@ const (
 	// EnableAccessControl is used to enable Access Control in PMM.
 	EnableAccessControl = "PMM_ENABLE_ACCESS_CONTROL"
 
-	// EnableMCP is used to enable the Model Context Protocol endpoint (/mcp). Defaults to true.
+	// EnableMCP is used to enable the Model Context Protocol endpoint (/mcp). Defaults to false.
 	EnableMCP = "PMM_ENABLE_MCP"
 
-	// MCPRawSQL allows MCP tool output to include statements with literal values. Defaults to true.
+	// MCPRawSQL allows MCP tool output to include statements with literal values. Defaults to false.
 	MCPRawSQL = "PMM_MCP_RAW_SQL"
 
 	// MCPActionTimeout bounds EXPLAIN / SHOW CREATE TABLE polling in the MCP tools. Defaults to 15s.

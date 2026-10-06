@@ -18,6 +18,7 @@ package mcp
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"sync"
 	"time"
@@ -47,8 +48,10 @@ diagnostics through these tools. Recommended order for a slow-query triage:
    DDL for the query's tables.
 6. pmm_get_config - read the server's numeric configuration variables.
 
-All tools are read-only. EXPLAIN is never EXPLAIN ANALYZE. Errors come back as
-"error: <code>" followed by a remediation message; act on the message.`
+All tools are read-only. MySQL EXPLAIN is never EXPLAIN ANALYZE; MongoDB explain
+runs the read to collect execution statistics but never modifies data. Errors
+come back as "error: <code>" followed by a remediation message; act on the
+message.`
 
 // hourWindow is the default look-back for deep links that have no window of their own.
 const hourWindow = time.Hour
@@ -67,9 +70,8 @@ type Service struct {
 	publicAddress func(context.Context) string
 	now           func() time.Time
 
-	// dsUID caches the uid of the Grafana metrics datasource.
-	dsMu  sync.Mutex
-	dsUID string
+	// warnPeer logs the first non-loopback rejection at the default level.
+	warnPeer sync.Once
 }
 
 // Params holds the dependencies and configuration of the MCP service.
@@ -84,13 +86,29 @@ type Params struct {
 	API pmmAPI
 	// RawSQL reports whether tool output may include statements with literal
 	// values (query examples, the explained statement on EXPLAIN output).
-	// When it returns false, only normalized text is emitted. Defaults to true.
+	// When it returns false, only normalized text is emitted. Defaults to false.
 	RawSQL func() bool
 	// ActionTimeout returns the EXPLAIN / SHOW CREATE TABLE polling deadline.
 	// Defaults to DefaultActionTimeout.
 	ActionTimeout func() time.Duration
 	// PublicAddress returns settings.PMMPublicAddress (may be empty); used for "View in PMM" links.
 	PublicAddress func(context.Context) string
+}
+
+// isLoopbackPeer reports whether a request's remote address is a loopback IP.
+//
+// nginx reaches pmm-managed over 127.0.0.1 whatever interface pmm-managed is
+// bound to, so a loopback peer is how a request shows it came through nginx -
+// and therefore through auth_request. Anything else, an empty or unparseable
+// address included, is treated as a direct connection: the conservative
+// answer, since getting this wrong exposes /mcp with no authorization in front.
+func isLoopbackPeer(remoteAddr string) bool {
+	host, _, err := net.SplitHostPort(remoteAddr)
+	if err != nil {
+		return false
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
 }
 
 // New creates a new MCP service.
@@ -104,11 +122,14 @@ func New(params Params) (*Service, error) {
 		publicAddress: params.PublicAddress,
 		now:           time.Now,
 	}
+	// Both switches default to off when the caller supplies no callback, so a
+	// wiring mistake cannot expose the endpoint or un-redact its output. This
+	// matches models.MCPEnabledDefault / models.MCPRawSQLDefault.
 	if s.enabled == nil {
-		s.enabled = func() bool { return true }
+		s.enabled = func() bool { return false }
 	}
 	if s.rawSQL == nil {
-		s.rawSQL = func() bool { return true }
+		s.rawSQL = func() bool { return false }
 	}
 	if s.actionTimeout == nil {
 		s.actionTimeout = func() time.Duration { return DefaultActionTimeout }
@@ -118,7 +139,7 @@ func New(params Params) (*Service, error) {
 		if loopback == "" {
 			loopback = DefaultLoopbackURL
 		}
-		c, err := newClient(loopback, s.l)
+		c, err := newClient(loopback)
 		if err != nil {
 			return nil, fmt.Errorf("mcp: %w", err)
 		}
@@ -143,7 +164,12 @@ func New(params Params) (*Service, error) {
 		Stateless: true,
 		// nginx terminates the client connection and proxies to 127.0.0.1:7772
 		// with the upstream name as Host header. The SDK's DNS-rebinding guard
-		// would reject every such request; nginx auth_request is the guard here.
+		// rejects a loopback connection carrying a non-loopback Host, which is
+		// every request nginx forwards, so it has to be off. It would not help
+		// against direct access anyway: a direct connection arrives on a
+		// non-loopback address, and the SDK only checks loopback ones.
+		// Handler enforces the property that matters instead: the peer must
+		// be loopback, i.e. the request came through nginx and auth_request.
 		DisableLocalhostProtection: true,
 		MaxRequestBodyBytes:        maxRequestBodyBytes,
 	})
@@ -152,8 +178,26 @@ func New(params Params) (*Service, error) {
 }
 
 // Handler returns the HTTP handler to mount at /mcp and /mcp/.
+//
+// A request that did not arrive from a loopback peer is answered with 404,
+// like a disabled endpoint: PMM_INTERFACE_TO_BIND can bind pmm-managed to a
+// routable interface, and /mcp must stay reachable only through nginx, where
+// auth_request authorizes the caller. The peer is checked first because it
+// costs nothing, while the enabled switch is a settings query.
 func (s *Service) Handler() http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		if !isLoopbackPeer(req.RemoteAddr) {
+			// The answer is the 404 of a disabled endpoint, so a front proxy
+			// that does not connect over loopback would look like MCP is off.
+			l := s.l.WithField("peer", req.RemoteAddr)
+			s.warnPeer.Do(func() {
+				l.Warn("Rejected /mcp request from a non-loopback peer: /mcp is served only through PMM's nginx; " +
+					"further rejections are logged at debug level.")
+			})
+			l.Debug("Rejected /mcp request from a non-loopback peer.")
+			http.NotFound(rw, req)
+			return
+		}
 		if !s.enabled() {
 			http.NotFound(rw, req)
 			return

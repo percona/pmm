@@ -34,12 +34,28 @@ const (
 	groupByQuery = "queryid"
 )
 
-// orderMetrics maps the contract's order_by values to QAN metric names.
-var orderMetrics = map[string]string{
-	"load":             "load",
-	"total_query_time": "query_time",
-	"avg_query_time":   "query_time",
-	"count":            "num_queries",
+// ordering describes how one contract order_by value is expressed to QAN.
+//
+// The qan-api2 service does not order by the metric name literally: getOrderBy maps a time
+// metric such as query_time to m_query_time_avg, and the pseudo-metric load to
+// m_query_time_sum. Sending "-query_time" for both total_query_time and
+// avg_query_time therefore ranks both by the average. The orderKey field is what QAN
+// sorts on; mainMetric is what the report is built around and rendered from.
+type ordering struct {
+	orderKey   string
+	mainMetric string
+}
+
+// orderMetrics maps the contract's order_by values to a QAN ordering.
+//
+// The load and total_query_time values deliberately share an orderKey: QAN's load is
+// sum(query_time) over the window, so over a fixed window the two rank
+// identically. They differ only in the metric the report is centred on.
+var orderMetrics = map[string]ordering{
+	"load":             {orderKey: "load", mainMetric: "load"},
+	"total_query_time": {orderKey: "load", mainMetric: "query_time"},
+	"avg_query_time":   {orderKey: "query_time", mainMetric: "query_time"},
+	"count":            {orderKey: "num_queries", mainMetric: "num_queries"},
 }
 
 type topQueriesInput struct {
@@ -47,7 +63,7 @@ type topQueriesInput struct {
 	ServiceID   string `json:"service_id,omitempty" jsonschema:"Filter by service id (from pmm_inventory)"`
 	PeriodFrom  string `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default now-1h)"`
 	PeriodTo    string `json:"period_to,omitempty" jsonschema:"Window end: RFC3339 or relative (default now)"`
-	OrderBy     string `json:"order_by,omitempty" jsonschema:"Ranking metric: load (default), total_query_time, avg_query_time or count"`
+	OrderBy     string `json:"order_by,omitempty" jsonschema:"load (default) and total_query_time: most total time; avg_query_time: slowest calls; count: most frequent"`
 	Limit       int    `json:"limit,omitempty" jsonschema:"Number of queries, 1-100 (default 10)"`
 }
 
@@ -82,7 +98,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	if orderBy == "" {
 		orderBy = "load"
 	}
-	metric, ok := orderMetrics[orderBy]
+	order, ok := orderMetrics[orderBy]
 	if !ok {
 		return nil, newToolError(codeInvalidInput, "order_by must be one of load, total_query_time, avg_query_time, count; got '%s'", orderBy)
 	}
@@ -103,11 +119,11 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 		PeriodStartFrom: strfmt.DateTime(from),
 		PeriodStartTo:   strfmt.DateTime(to),
 		GroupBy:         groupByQuery,
-		OrderBy:         "-" + metric,
+		OrderBy:         "-" + order.orderKey,
 		Offset:          0,
 		Limit:           int64(limit),
 		Columns:         []string{"load", "num_queries", "query_time"},
-		MainMetric:      metric,
+		MainMetric:      order.mainMetric,
 		Labels:          []*qan_service.GetReportParamsBodyLabelsItems0{},
 	}
 	switch {
@@ -120,6 +136,11 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	report, err := s.api.GetReport(ctx, auth, body)
 	if err != nil {
 		return nil, err
+	}
+	raw := s.rawSQL()
+	var engine string
+	if !raw {
+		engine = s.serviceEngine(ctx, auth, in.ServiceName, in.ServiceID)
 	}
 
 	// Confirmed against PMM 3.8.1: queryid is Row.dimension; rows[0] is the
@@ -150,7 +171,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 		if ld, ok := row.Metrics["load"]; ok && ld.Stats != nil && load == 0 {
 			load = finite(ld.Stats.SumPerSec)
 		}
-		fingerprint := row.Fingerprint
+		fingerprint := fingerprintText(row.Fingerprint, engine, raw)
 		if fingerprint == "" {
 			fingerprint = row.Dimension
 		}
@@ -292,7 +313,7 @@ func (d *queryDetail) render(rawSQL bool, base string, from, to time.Time) strin
 		parts = append(parts, "tables: "+strings.Join(d.tables, ", "))
 	}
 	if d.fingerprint != "" {
-		parts = append(parts, "fingerprint:\n"+d.fingerprint)
+		parts = append(parts, "fingerprint:\n"+fingerprintText(d.fingerprint, d.engine, rawSQL))
 	}
 	if d.metrics != nil {
 		if km := keyMetrics(d.metrics.Metrics); km != "" {
@@ -318,6 +339,57 @@ func (d *queryDetail) render(rawSQL bool, base string, from, to time.Time) strin
 
 	parts = append(parts, "", link("View this query in PMM", qanQueryURL(base, d.queryID, d.serviceName, from, to, "")))
 	return strings.Join(parts, "\n")
+}
+
+// withheldFingerprint replaces a SQL fingerprint that still holds a literal.
+const withheldFingerprint = "(fingerprint withheld: PMM stored this statement unnormalized, and PMM_MCP_RAW_SQL is off)"
+
+// fingerprintText masks a fingerprint's literals unless raw SQL is on. A
+// fingerprint is normalized only in part: pmm-agent stores the raw query in
+// place of a PostgreSQL statement pg_stat_monitor truncated or could not parse
+// (agent/agents/postgres/pgstatmonitor/stat_monitor_cache.go), and leaves the
+// values of MongoDB aggregation stages other than $match in place
+// (agent/agents/mongodb/shared/fingerprinter).
+//
+// MongoDB fingerprints, shell calls such as db.orders.find(...), are masked as JSON. A
+// normalized SQL fingerprint has no quoted string outside its comments, so one
+// that has any is a raw statement and is withheld whole: masking a raw
+// statement relies on reading its quoting right, and reading it wrong leaks.
+// The others keep their text with comments and bare numbers masked:
+// normalizers leave GROUP BY ordinals and type lengths in place, and a number
+// cannot hide a quote. The quoting is the engine's, MySQL's for a MySQL
+// service and PostgreSQL's, which keeps the double-quoted identifiers an ORM
+// writes, otherwise.
+func fingerprintText(fingerprint, engine string, raw bool) string {
+	if raw {
+		return fingerprint
+	}
+	if strings.HasPrefix(fingerprint, "db.") {
+		return maskMongoFingerprint(fingerprint)
+	}
+	masked, quoted := maskSQL(fingerprint, engine == engineMySQL)
+	if quoted {
+		return withheldFingerprint
+	}
+	return masked
+}
+
+// serviceEngine returns the engine of the service a report is filtered to, by
+// name or else by id, or "" when it is not filtered or not found.
+func (s *Service) serviceEngine(ctx context.Context, auth callerAuth, name, id string) string {
+	if name == "" && id == "" {
+		return ""
+	}
+	services, err := s.listServices(ctx, auth, false)
+	if err != nil {
+		return ""
+	}
+	for _, svc := range services {
+		if (name != "" && svc.ServiceName == name) || (name == "" && svc.ServiceID == id) {
+			return svc.Engine
+		}
+	}
+	return ""
 }
 
 // keyMetrics summarizes the diagnostic metrics the triage cares about.
@@ -372,7 +444,7 @@ func escapeLabel(v string) string {
 
 // engineOf looks a service up in the inventory and returns its engine.
 func (s *Service) engineOf(ctx context.Context, auth callerAuth, serviceID string) (serviceInfo, error) {
-	services, err := s.listServices(ctx, auth)
+	services, err := s.listServices(ctx, auth, false)
 	if err != nil {
 		return serviceInfo{}, err
 	}

@@ -26,8 +26,9 @@ import (
 )
 
 type configInput struct {
-	ServiceName string `json:"service_name" jsonschema:"Service name from pmm_inventory (metrics are labelled by it)"`
-	Engine      string `json:"engine,omitempty" jsonschema:"mysql (default) or postgresql"`
+	ServiceID   string `json:"service_id,omitempty" jsonschema:"Service id from pmm_inventory (preferred; same identifier every other tool takes)"`
+	ServiceName string `json:"service_name,omitempty" jsonschema:"Service name from pmm_inventory. Only needed when service_id is not supplied"`
+	Engine      string `json:"engine,omitempty" jsonschema:"mysql or postgresql. Defaults to the service's own engine when service_id is given, otherwise mysql"`
 	Filter      string `json:"filter,omitempty" jsonschema:"Only variables whose name contains this substring (e.g. innodb)"`
 	At          string `json:"at,omitempty" jsonschema:"Point in time: RFC3339 or relative such as now-1h (default now)"`
 }
@@ -51,16 +52,15 @@ func (s *Service) registerConfigTools(server *mcp.Server) {
 }
 
 func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in configInput) (*mcp.CallToolResult, error) {
-	if in.ServiceName == "" {
-		return nil, newToolError(codeInvalidInput, "service_name is required")
+	if in.ServiceID == "" && in.ServiceName == "" {
+		return nil, newToolError(codeInvalidInput, "service_id is required (service_name is also accepted)")
 	}
-	engine := in.Engine
-	if engine == "" {
-		engine = engineMySQL
-	}
-	prefix, ok := configMetrics[engine]
-	if !ok {
-		return nil, newToolError(codeInvalidInput, "engine must be mysql or postgresql; got '%s'", in.Engine)
+	// Validate an explicit engine before any API round trip.
+	if in.Engine != "" {
+		_, ok := configMetrics[in.Engine]
+		if !ok {
+			return nil, newToolError(codeInvalidInput, "engine must be mysql or postgresql; got '%s'", in.Engine)
+		}
 	}
 	at, err := parseTime(in.At, s.now())
 	if err != nil {
@@ -68,8 +68,39 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 
+	// Every other tool addresses a service by service_id, so this one accepts
+	// it too and resolves it here. The metrics themselves are only labelled by
+	// service_name, which is why the name is what ends up in the PromQL - but
+	// that is this tool's problem, not the caller's.
+	engine := in.Engine
+	serviceName := in.ServiceName
+	if in.ServiceID != "" {
+		svc, err := s.engineOf(ctx, auth, in.ServiceID)
+		if err != nil {
+			return nil, err
+		}
+		serviceName = svc.ServiceName
+		// An explicit engine still wins, so a caller can ask for the
+		// postgresql view of a service PMM records differently.
+		if engine == "" {
+			engine = svc.Engine
+		}
+	}
+	if engine == "" {
+		engine = engineMySQL
+	}
+
+	prefix, ok := configMetrics[engine]
+	if !ok {
+		// Only reachable when the engine came from the inventory, since an
+		// explicit one was validated above: say what the service is, rather
+		// than blaming an argument the caller never passed.
+		return nil, newToolError(codeInvalidInput,
+			"pmm_get_config covers MySQL and PostgreSQL services; service '%s' is %s", serviceName, engine)
+	}
+
 	samples, err := s.queryMetrics(ctx, auth,
-		`{__name__=~"`+prefix+`.+", service_name="`+escapeLabel(in.ServiceName)+`"}`, at)
+		`{__name__=~"`+prefix+`.+", service_name="`+escapeLabel(serviceName)+`"}`, at)
 	if err != nil {
 		return nil, err
 	}
@@ -93,10 +124,10 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 	}
 	sort.Strings(names)
 	if len(names) == 0 {
-		return textResult("No configuration variables found for that service (check service_name and that metrics are being collected)."), nil
+		return textResult("No configuration variables found for that service (check the service and that its metrics are being collected)."), nil
 	}
 
-	version := s.serviceVersion(ctx, auth, engine, in.ServiceName)
+	version := s.serviceVersion(ctx, auth, engine, serviceName)
 	header := fmt.Sprintf("-- %d variables (numeric knobs from PMM metrics)", len(names))
 	if version != "" {
 		header = fmt.Sprintf("-- %s %s - %d variables (numeric knobs from PMM metrics)", engine, version, len(names))
@@ -107,7 +138,7 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 		lines = append(lines, name+"\t"+variables[name])
 	}
 	text := strings.Join(lines, "\n")
-	text += "\n\n" + link("View this service in PMM", qanOverviewURL(s.publicBaseURL(ctx, req.Extra.Header), in.ServiceName, at.Add(-hourWindow), at))
+	text += "\n\n" + link("View this service in PMM", qanOverviewURL(s.publicBaseURL(ctx, req.Extra.Header), serviceName, at.Add(-hourWindow), at))
 	return textResult(text), nil
 }
 

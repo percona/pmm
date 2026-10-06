@@ -331,6 +331,7 @@ func TestRedactSecretEnvVar(t *testing.T) {
 		{key: "AWS_SECRET_KEY", value: "s3cret", expected: "<redacted>"},
 		{key: "PMM_CLICKHOUSE_DATASOURCE_USER", value: "grafana", expected: "grafana"},
 		{key: "PMM_DATA_RETENTION", value: "72h", expected: "72h"},
+		{key: "PMM_DEV_MCP_LOOPBACK_URL", value: "http://user:pass@127.0.0.1:8080/?token=abc", expected: "<redacted>"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.key, func(t *testing.T) {

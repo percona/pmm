@@ -151,9 +151,17 @@ func TestListTools(t *testing.T) {
 func TestReadOnlySettingsReportMCP(t *testing.T) {
 	t.Parallel()
 
-	res, err := serverClient.Default.ServerService.GetReadOnlySettings(&server_service.GetReadOnlySettingsParams{Context: pmmapitests.Context})
+	settings, err := serverClient.Default.ServerService.GetSettings(&server_service.GetSettingsParams{Context: pmmapitests.Context})
 	require.NoError(t, err)
-	assert.True(t, res.Payload.Settings.EnableMcp, "the branch defaults PMM_ENABLE_MCP to true")
+	readOnly, err := serverClient.Default.ServerService.GetReadOnlySettings(&server_service.GetReadOnlySettingsParams{Context: pmmapitests.Context})
+	require.NoError(t, err)
+
+	// TestMain switched the endpoint on, and the read-only view must agree
+	// with the full settings. The shipped default, off, is pinned by
+	// TestMCPDefaultsAreOff in managed/models rather than here, since this
+	// package cannot know how the server under test was started.
+	assert.True(t, settings.Payload.Settings.EnableMcp)
+	assert.Equal(t, settings.Payload.Settings.EnableMcp, readOnly.Payload.Settings.EnableMcp)
 }
 
 func TestVersion(t *testing.T) {
@@ -165,38 +173,44 @@ func TestVersion(t *testing.T) {
 }
 
 // topQueryID returns a service and one of its queryids from QAN, skipping the
-// test when the server has no QAN data yet.
+// test when no service of the engine has QAN data yet. It tries every service,
+// since the inventory can hold ones whose databases are gone.
 func topQueryID(t *testing.T, session *mcp.ClientSession, engine string) (string, string, string) {
 	t.Helper()
 
 	res, err := inventoryClient.Default.ServicesService.ListServices(&services_service.ListServicesParams{Context: pmmapitests.Context})
 	require.NoError(t, err)
-	var serviceID, serviceName string
+	type service struct{ id, name string }
+	var candidates []service
 	switch engine {
 	case "mysql":
 		for _, svc := range res.Payload.Mysql {
-			serviceID, serviceName = svc.ServiceID, svc.ServiceName
+			candidates = append(candidates, service{svc.ServiceID, svc.ServiceName})
 		}
 	case "postgresql":
 		for _, svc := range res.Payload.Postgresql {
 			if svc.ServiceName == "pmm-server-postgresql" {
 				continue
 			}
-			serviceID, serviceName = svc.ServiceID, svc.ServiceName
+			candidates = append(candidates, service{svc.ServiceID, svc.ServiceName})
 		}
 	}
-	if serviceID == "" {
+	if len(candidates) == 0 {
 		t.Skipf("no %s service registered", engine)
 	}
 
-	text, isError := callText(t, session, "pmm_top_queries", map[string]any{"service_name": serviceName, "period_from": "now-12h", "limit": 3})
-	require.False(t, isError, text)
 	// MySQL queryids are hex digests, PostgreSQL ones signed decimals.
-	m := regexp.MustCompile(`\[(-?[0-9A-Za-z]+)\]`).FindStringSubmatch(text)
-	if m == nil {
-		t.Skipf("no QAN data for %s yet", serviceName)
+	re := regexp.MustCompile(`\[(-?[0-9A-Za-z]+)\]`)
+	for _, svc := range candidates {
+		text, isError := callText(t, session, "pmm_top_queries", map[string]any{"service_name": svc.name, "period_from": "now-12h", "limit": 3})
+		require.False(t, isError, text)
+		m := re.FindStringSubmatch(text)
+		if m != nil {
+			return svc.id, svc.name, m[1]
+		}
 	}
-	return serviceID, serviceName, m[1]
+	t.Skipf("no QAN data for any %s service yet", engine)
+	return "", "", ""
 }
 
 func TestTopQueriesAndDetail(t *testing.T) {
@@ -228,13 +242,13 @@ func TestTopQueriesAndDetail(t *testing.T) {
 	})
 }
 
-func TestExplainStoredPlanProbe(t *testing.T) {
+func TestExplainMySQLRunsLive(t *testing.T) {
 	t.Parallel()
 
 	session := connect(t)
 
-	// A MySQL queryid has no stored plan: the probe answers 200 {} and the tool
-	// falls through to the live mysql_explain_json action.
+	// MySQL has no stored plans, so the tool runs the live mysql_explain_json
+	// action without looking for one.
 	serviceID, _, queryID := topQueryID(t, session, "mysql")
 	text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": serviceID, "queryid": queryID})
 	assert.NotContains(t, text, "Stored plan")

@@ -137,6 +137,12 @@ func (s *Server) UpdateSettingsFromEnv(ctx context.Context, env []string) []erro
 	if len(errs) != 0 {
 		return errs
 	}
+	// Raw SQL has no API setting, so the environment is its only source: a
+	// missing PMM_MCP_RAW_SQL means off, and removing the variable turns raw
+	// SQL off at the next start instead of keeping the last value.
+	if envSettings.EnableMCPRawSQL == nil {
+		envSettings.EnableMCPRawSQL = new(false)
+	}
 
 	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		_, err := models.UpdateSettings(tx, envSettings)
@@ -486,6 +492,10 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 
 	if req.EnableAzurediscover != nil && s.envSettings.EnableAzurediscover != nil && *req.EnableAzurediscover != *s.envSettings.EnableAzurediscover {
 		return status.Error(codes.FailedPrecondition, "Azure Discover is configured via PMM_ENABLE_AZURE_DISCOVER environment variable.")
+	}
+
+	if req.EnableMcp != nil && s.envSettings.EnableMCP != nil && *req.EnableMcp != *s.envSettings.EnableMCP {
+		return status.Error(codes.FailedPrecondition, "MCP is configured via PMM_ENABLE_MCP environment variable.")
 	}
 
 	if !canUpdateDurationSetting(metricsRes.GetHr().AsDuration(), s.envSettings.MetricsResolutions.HR) {

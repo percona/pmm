@@ -25,6 +25,19 @@ import (
 // day is the unit of the "d" suffix in relative time expressions.
 const day = 24 * time.Hour
 
+// maxLookbackYears bounds how far back a time expression may reach, relative
+// ("now-2d") or absolute (RFC3339). It is far beyond any PMM retention window,
+// keeps the relative multiplication inside int64, and stops a caller from
+// sending QAN a scan window measured in millennia.
+const (
+	maxLookbackYears = 10
+	maxLookback      = maxLookbackYears * 365 * day
+)
+
+// maxLookahead bounds how far into the future an RFC3339 time may reach; a day
+// covers any clock skew.
+const maxLookahead = day
+
 // relativeTime matches "now-1h", "now - 30m", "now-2d", "now-45s".
 var relativeTime = regexp.MustCompile(`(?i)^now\s*-\s*(\d+)\s*([smhd])$`)
 
@@ -38,12 +51,17 @@ func parseTime(expr string, now time.Time) (time.Time, error) {
 	}
 
 	if m := relativeTime.FindStringSubmatch(t); m != nil {
-		n, err := strconv.Atoi(m[1])
-		if err != nil {
-			return time.Time{}, newToolError(codeInvalidInput, "invalid time expression '%s'", expr)
+		unit := map[string]time.Duration{"s": time.Second, "m": time.Minute, "h": time.Hour, "d": day}[strings.ToLower(m[2])]
+		// time.Duration is an int64 of nanoseconds, so n*unit silently wraps for
+		// large n ("now-9223372036854775807s") and yields a plausible but wrong
+		// timestamp. Reject anything past the lookback before multiplying. The
+		// regexp admits digits only, so n is never negative; a number too long
+		// for int64 at all is the same out-of-range case, not a malformed one.
+		n, err := strconv.ParseInt(m[1], 10, 64)
+		if err != nil || n > int64(maxLookback/unit) {
+			return time.Time{}, outOfRange(expr)
 		}
-		units := map[string]time.Duration{"s": time.Second, "m": time.Minute, "h": time.Hour, "d": day}
-		return now.Add(-time.Duration(n) * units[strings.ToLower(m[2])]), nil
+		return now.Add(-time.Duration(n) * unit), nil
 	}
 
 	parsed, err := time.Parse(time.RFC3339, t)
@@ -51,7 +69,15 @@ func parseTime(expr string, now time.Time) (time.Time, error) {
 		return time.Time{}, newToolError(codeInvalidInput,
 			"invalid time '%s': use RFC3339 (2026-09-14T10:00:00Z) or a relative expression such as now-1h", expr)
 	}
+	if parsed.Before(now.Add(-maxLookback)) || parsed.After(now.Add(maxLookahead)) {
+		return time.Time{}, outOfRange(expr)
+	}
 	return parsed, nil
+}
+
+func outOfRange(expr string) *toolError {
+	return newToolError(codeInvalidInput, "time '%s' is out of range; the maximum lookback is %d years, and times may be at most %dh ahead",
+		expr, maxLookbackYears, int(maxLookahead/time.Hour))
 }
 
 // parseWindow resolves a period_from / period_to pair with defaults now-1h / now.

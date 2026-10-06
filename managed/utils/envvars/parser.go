@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -370,12 +371,20 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 // secretEnvVarMarkers name the environment variables whose values must never reach the logs.
 var secretEnvVarMarkers = []string{"PASSWORD", "SECRET", "TOKEN", "KEY"}
 
+// secretEnvVars are credential-bearing variables whose names carry none of the
+// markers above. A URL can hold userinfo or a query token, so it is redacted
+// whole rather than parsed.
+var secretEnvVars = []string{pkgenv.MCPLoopbackURL}
+
 // redactSecretEnvVar replaces the value of a credential-bearing environment variable.
 func redactSecretEnvVar(key, value string) string {
 	for _, marker := range secretEnvVarMarkers {
 		if strings.Contains(key, marker) {
 			return "<redacted>"
 		}
+	}
+	if slices.Contains(secretEnvVars, key) {
+		return "<redacted>"
 	}
 
 	return value

@@ -47,7 +47,7 @@ func callerAuthFromHeader(h http.Header) callerAuth {
 	}
 }
 
-// datasource is a Grafana datasource as returned by GET /graph/api/datasources.
+// datasource is a Grafana datasource as returned by GET /graph/api/datasources/name/{name}.
 type datasource struct {
 	UID  string `json:"uid"`
 	Name string `json:"name"`
@@ -172,9 +172,9 @@ type pmmAPI interface {
 	GetReport(ctx context.Context, auth callerAuth, body qan_service.GetReportBody) (*qanReport, error)
 	GetMetrics(ctx context.Context, auth callerAuth, body qan_service.GetMetricsBody) (*queryMetrics, error)
 	GetQueryExample(ctx context.Context, auth callerAuth, body qan_service.GetQueryExampleBody) (*qan_service.GetQueryExampleOKBody, error)
-	GetQueryPlan(ctx context.Context, auth callerAuth, queryID string) (*qan_service.GetQueryPlanOKBody, error)
+	GetQueryPlan(ctx context.Context, auth callerAuth, queryID, serviceID string) (*qan_service.GetQueryPlanOKBody, error)
 	StartServiceAction(ctx context.Context, auth callerAuth, body actions_service.StartServiceActionBody) (*actions_service.StartServiceActionOKBody, error)
 	GetAction(ctx context.Context, auth callerAuth, actionID string) (*actions_service.GetActionOKBody, error)
-	ListDatasources(ctx context.Context, auth callerAuth) ([]datasource, error)
+	GetDatasourceByName(ctx context.Context, auth callerAuth, name string) (*datasource, error)
 	QueryInstant(ctx context.Context, auth callerAuth, datasourceUID, promql string, at time.Time) ([]metricSample, error)
 }

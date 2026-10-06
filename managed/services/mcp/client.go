@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -30,7 +31,6 @@ import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
-	"github.com/sirupsen/logrus"
 
 	actionsClient "github.com/percona/pmm/api/actions/v1/json/client"
 	"github.com/percona/pmm/api/actions/v1/json/client/actions_service"
@@ -72,13 +72,16 @@ type client struct {
 }
 
 // newClient builds a pmmAPI implementation against the given base URL.
-func newClient(baseURL string, l *logrus.Entry) (*client, error) {
+//
+// Its errors never echo the URL: it comes from PMM_DEV_MCP_LOOPBACK_URL, can
+// carry userinfo or a query token, and main logs this error on startup.
+func newClient(baseURL string) (*client, error) {
 	base, err := url.Parse(baseURL)
 	if err != nil {
-		return nil, fmt.Errorf("invalid loopback URL '%s': %w", baseURL, err)
+		return nil, errors.New("invalid loopback URL (PMM_DEV_MCP_LOOPBACK_URL): it does not parse as a URL")
 	}
 	if base.Scheme == "" || base.Host == "" {
-		return nil, fmt.Errorf("invalid loopback URL '%s': scheme and host are required", baseURL)
+		return nil, errors.New("invalid loopback URL (PMM_DEV_MCP_LOOPBACK_URL): scheme and host are required")
 	}
 	if base.Path == "" {
 		base.Path = "/"
@@ -90,9 +93,11 @@ func newClient(baseURL string, l *logrus.Entry) (*client, error) {
 	}
 	rt := &statusTransport{next: transport.Clone()}
 
+	// No SetLogger here: it assigns go-openapi's package-global
+	// middleware.Logger, so it would re-route logging for every go-openapi
+	// client in pmm-managed, and it races when clients are built concurrently.
 	swagger := httptransport.New(base.Host, base.Path, []string{base.Scheme})
 	swagger.Transport = rt
-	swagger.SetLogger(l.WithField("subcomponent", "loopback"))
 
 	return &client{
 		base:      base,
@@ -138,6 +143,22 @@ func (a callerAuth) apply(req *http.Request) {
 func (a callerAuth) option() func(*runtime.ClientOperation) {
 	return func(op *runtime.ClientOperation) {
 		op.AuthInfo = a
+	}
+}
+
+// withQueryParam adds a query parameter the generated client does not declare.
+// A parameter the request message lacks is ignored by grpc-gateway, so it can
+// be sent before the server supports it.
+func withQueryParam(name, value string) func(*runtime.ClientOperation) {
+	return func(op *runtime.ClientOperation) {
+		params := op.Params
+		op.Params = runtime.ClientRequestWriterFunc(func(r runtime.ClientRequest, reg strfmt.Registry) error {
+			err := params.WriteToRequest(r, reg)
+			if err != nil {
+				return err
+			}
+			return r.SetQueryParam(name, value)
+		})
 	}
 }
 
@@ -242,9 +263,9 @@ func (c *client) GetQueryExample(ctx context.Context, auth callerAuth, body qan_
 	return res.Payload, nil
 }
 
-func (c *client) GetQueryPlan(ctx context.Context, auth callerAuth, queryID string) (*qan_service.GetQueryPlanOKBody, error) {
+func (c *client) GetQueryPlan(ctx context.Context, auth callerAuth, queryID, serviceID string) (*qan_service.GetQueryPlanOKBody, error) {
 	params := qan_service.NewGetQueryPlanParamsWithContext(ctx).WithTimeout(callTimeout).WithQueryid(queryID)
-	res, err := c.qan.QANService.GetQueryPlan(params, auth.option())
+	res, err := c.qan.QANService.GetQueryPlan(params, auth.option(), withQueryParam("service_id", serviceID))
 	if err != nil {
 		return nil, err
 	}
@@ -271,15 +292,14 @@ func (c *client) GetAction(ctx context.Context, auth callerAuth, actionID string
 	return res.Payload, nil
 }
 
-// ListDatasources returns Grafana's datasources; the tools look for the
-// Prometheus-typed "Metrics" one (PMM's VictoriaMetrics behind vmproxy).
-func (c *client) ListDatasources(ctx context.Context, auth callerAuth) ([]datasource, error) {
-	var out []datasource
-	err := c.getJSON(ctx, auth, "graph/api/datasources", nil, &out)
+// GetDatasourceByName returns the Grafana datasource with the given name.
+func (c *client) GetDatasourceByName(ctx context.Context, auth callerAuth, name string) (*datasource, error) {
+	var out datasource
+	err := c.getJSON(ctx, auth, "graph/api/datasources/name/"+url.PathEscape(name), nil, &out)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	return &out, nil
 }
 
 // QueryInstant runs an instant PromQL query through the Grafana datasource

@@ -32,8 +32,8 @@ const (
 	VictoriaMetricsCacheEnabledDefault = false
 	AzureDiscoverEnabledDefault        = false
 	AccessControlEnabledDefault        = false
-	MCPEnabledDefault                  = true
-	MCPRawSQLDefault                   = true
+	MCPEnabledDefault                  = false
+	MCPRawSQLDefault                   = false
 	MCPActionTimeoutDefault            = 15 * time.Second
 	InternalPgQANEnabledDefault        = false
 	awsPartitionID                     = "aws"
