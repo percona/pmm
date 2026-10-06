@@ -642,7 +642,7 @@ func supportedBootstrapOSNames() string {
 // selection, and naming one node for it would blame a machine that is fine.
 func refuseNodesNotReadyToInstall(nodeIDs []string, hosts []extensionsHost) (string, error) {
 	blocked := make([]string, 0, len(hosts))
-	osIDs := make(map[string][]string, 2)
+	osIDs := make(map[string][]string)
 	for i, host := range hosts {
 		name := hostDisplayName(host, nodeIDs[i])
 		problems := hostNotReadyReasons(host)
@@ -722,8 +722,8 @@ func hostDisplayName(host extensionsHost, nodeID string) string {
 // Every one, not the first: a user fixing three nodes should not have to run the
 // trigger three times to discover there were three (PMM-15664 task 3 applies the same
 // rule to the rest of this file's errors). Named rather than identified by the node id
-// the caller sent, because "host 9521d4bd-... is not a target" is unactionable -- the
-// UUID is not what anyone's inventory, runbook or ticket calls the machine.
+// the caller sent: an error that quotes a bare UUID is unactionable, because the UUID
+// is not what anyone's inventory, runbook or ticket calls the machine.
 //
 // A node PMM has no name for falls back to its id, which is still better than nothing
 // and is the only identifier that exists in that case.
