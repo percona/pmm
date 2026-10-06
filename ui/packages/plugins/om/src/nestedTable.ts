@@ -15,22 +15,27 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/** Shared layout for the plain tables rendered inside an unfolded row. */
-
-/** Scrolls inside the panel, so a wide nested table does not move the page. */
+/**
+ * Shared layout for the plain tables rendered inside an unfolded row.
+ *
+ * Scrolls inside the panel rather than moving the page, which is the first half of
+ * P17's "nested tables should not scroll with the parent".
+ *
+ * The second half, "keep the identity column pinned", is deliberately not here. A
+ * sticky cell has to paint an opaque background or the scrolled cells show through
+ * it, and there is no correct colour to paint: the plugin sets no surface, so the
+ * panel inherits the page's, and naming any token produced a visibly different block
+ * down the identity column - on tables narrow enough never to scroll in the first
+ * place. Matching the panel to the cell instead would have made the panel a second
+ * table surface, which is what the same finding's next bullet asks us not to do, and
+ * would have hardcoded a surface that P22 is about getting wrong.
+ *
+ * The pinning bought nothing today: the cluster services table is ten columns and the
+ * scan receipt eight, and neither overflows its panel. The 24-column table that P17
+ * was actually about is Services, and that has a detail drawer now. Pin a column when
+ * one of these starts overflowing, against whatever surface P22 settles on.
+ */
 export const NESTED_TABLE_WRAPPER = {
   p: 2,
   overflowX: 'auto',
-} as const;
-
-/**
- * The first cell of every row, head included, so what a row is stays readable while
- * its values scroll. The background is load-bearing: a transparent sticky cell shows
- * the scrolled cells sliding underneath it.
- */
-export const STICKY_IDENTITY_CELL = {
-  position: 'sticky',
-  left: 0,
-  zIndex: 1,
-  bgcolor: 'background.paper',
 } as const;

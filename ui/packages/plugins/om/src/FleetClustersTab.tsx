@@ -39,7 +39,7 @@ import {
   type MRT_ColumnDef,
 } from 'material-react-table';
 import { PROCESS_ROLE_LABEL } from './constants';
-import { NESTED_TABLE_WRAPPER, STICKY_IDENTITY_CELL } from './nestedTable';
+import { NESTED_TABLE_WRAPPER } from './nestedTable';
 import { SnapshotBar } from './components/SnapshotBar';
 import { ClusterHealthBadge, StatusBadge } from './components/HealthBadge';
 import { MemberState } from './components/MemberState';
@@ -197,7 +197,7 @@ const ClusterServices = ({ cluster }: { cluster: OmClusterRow }) => {
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell sx={STICKY_IDENTITY_CELL}>Service</TableCell>
+            <TableCell>Service</TableCell>
             <TableCell>Host</TableCell>
             <TableCell>Status</TableCell>
             <TableCell>Member state</TableCell>
@@ -212,7 +212,7 @@ const ClusterServices = ({ cluster }: { cluster: OmClusterRow }) => {
         <TableBody>
           {downFirst(cluster.services).map((service) => (
             <TableRow key={service.service_name}>
-              <TableCell sx={STICKY_IDENTITY_CELL}>
+              <TableCell>
                 <ServiceLink serviceName={service.service_name} />
               </TableCell>
               <TableCell>
