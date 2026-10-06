@@ -214,6 +214,11 @@ export const NAV_MONGO: NavItem = {
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-unused-indexes/mongodb-unused-indexes`,
     },
     {
+      id: 'mongo-top-queries',
+      text: 'Top queries',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-top-queries/mongodb-top-queries`,
+    },
+    {
       id: 'mongo-oplog-details',
       text: 'Oplog',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-oplog-details/mongodb-oplog-details`,
