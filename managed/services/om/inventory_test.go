@@ -1081,6 +1081,182 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Contains(t, status.Convert(err).Message(), "priority 0 and votes off")
 	})
 
+	// MongoDB will not elect a member clients cannot see, so rs.initiate() refuses a
+	// hidden member with priority above 0. PMM-15661 adds this rule in the install
+	// wizard and scopes the backend out; without it here the browser is the only thing
+	// between a direct API call and a run that installs mongod on every host and then
+	// fails inside rs.initiate.
+	// The safety gate, and the reason it is not left to the UI. automation_eligible is
+	// advisory: computed for a list request, minutes stale by the time anyone clicks,
+	// and never read at all by a direct API call. These are the two cases P1 calls the
+	// most damaging thing Operations can do.
+	t.Run("refuses a node that already has a registered MongoDB service", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK,
+			`{"node_id": "n1", "name": "rs-member-00", "executor_host": "exec-n1",
+			  "observed": {"os_id": "ubuntu"}, "services": [{"service_id": "s1"}]}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		message := status.Convert(err).Message()
+		assert.Contains(t, message, "already registered")
+		// By name, not by the node id the caller sent: a UUID is not what anyone's
+		// inventory, runbook or ticket calls the machine.
+		assert.Contains(t, message, "rs-member-00")
+		assert.NotContains(t, message, "n1:")
+		// Rejected before om_bootstrap is ever asked to plan anything.
+		require.Len(t, stub.calls, 1)
+	})
+
+	t.Run("refuses a node a scan found a mongod on", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK,
+			`{"node_id": "n1", "name": "db-07", "executor_host": "exec-n1",
+			  "observed": {"os_id": "ubuntu", "unregistered_mongods": [{"port": 27017}]}}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "db-07")
+		assert.Contains(t, status.Convert(err).Message(), "no service for")
+		require.Len(t, stub.calls, 1)
+	})
+
+	// Every blocking node, not the first. A user fixing three nodes should not have to
+	// run the trigger three times to discover there were three.
+	t.Run("names every blocking node, not just the first", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "name": "db-01", "executor_host": "exec-n1",
+			  "observed": {"os_id": "ubuntu"}, "services": [{"service_id": "s1"}]}`,
+			`{"node_id": "n2", "name": "db-02", "executor_host": "exec-n2",
+			  "observed": {"os_id": "ubuntu"}}`,
+			`{"node_id": "n3", "name": "db-03", "executor_host": "exec-n3",
+			  "observed": {"os_id": "ubuntu", "unregistered_mongods": [{"port": 27017}]}}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1", "n2", "n3"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		message := status.Convert(err).Message()
+		assert.Contains(t, message, "db-01")
+		assert.Contains(t, message, "db-03")
+		// The healthy one is not blamed.
+		assert.NotContains(t, message, "db-02")
+		// All three were looked up before anything was refused, and om_bootstrap was
+		// never asked to plan: three host calls, no trigger call.
+		require.Len(t, stub.calls, 3)
+	})
+
+	// A node PMM has no name for still has to be identifiable, and its id is the only
+	// identifier that exists in that case.
+	t.Run("falls back to the node id when the host has no name", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "exec-n1",
+			  "observed": {"os_id": "ubuntu"}, "services": [{"service_id": "s1"}]}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Contains(t, status.Convert(err).Message(), "n1")
+	})
+
+	t.Run("rejects a hidden member that could still be elected", func(t *testing.T) {
+		t.Parallel()
+
+		svc := (&Service{l: logrus.WithField("test", t.Name())}).
+			WithProbeSource("http://unused.invalid", "").
+			WithBootstrapSource("http://unused.invalid", "")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+				MemberConfigs: map[string]*omv1.BootstrapMemberConfig{
+					// Priority left unset, which is the same mistake as setting it
+					// wrong: unset means MongoDB's default of 1.
+					"n1": {Hidden: true},
+				},
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "priority 0")
+	})
+
+	t.Run("rejects a hidden member with priority above zero", func(t *testing.T) {
+		t.Parallel()
+
+		svc := (&Service{l: logrus.WithField("test", t.Name())}).
+			WithProbeSource("http://unused.invalid", "").
+			WithBootstrapSource("http://unused.invalid", "")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+				MemberConfigs: map[string]*omv1.BootstrapMemberConfig{
+					"n1": {Hidden: true, Priority: new(uint32(2))},
+				},
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "priority 0")
+	})
+
+	// The other side of it: hidden is perfectly legitimate with priority 0, and a
+	// rule that refused that would block the topology the field exists for. Checked
+	// against validateMemberConfigs directly, because a one-member set with priority
+	// 0 is refused by the no-electable-member rule instead and would prove nothing.
+	t.Run("accepts a hidden member that cannot be elected", func(t *testing.T) {
+		t.Parallel()
+
+		err := validateMemberConfigs(
+			[]string{"n1", "n2", "n3"},
+			map[string]*omv1.BootstrapMemberConfig{
+				"n3": {Hidden: true, Priority: new(uint32(0))},
+			})
+
+		require.NoError(t, err)
+	})
+
 	t.Run("translates member_configs from node id to executor host", func(t *testing.T) {
 		t.Parallel()
 
@@ -1126,15 +1302,19 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		t.Parallel()
 
 		// The trap this closes: proto3 zero values are the opposite of MongoDB's
-		// defaults, so a caller asking only for "hidden" used to send
-		// priority 0 and votes false with it -- three such hosts is a replica set
-		// with no voting member and nothing electable, which rs.initiate rejects
-		// minutes into a run. Unset now means unsent, and om_bootstrap's own
-		// MemberConfig defaults (priority 1, votes on) apply.
+		// defaults, so a member config that set neither used to send priority 0 and
+		// votes false anyway -- three such hosts is a replica set with no voting
+		// member and nothing electable, which rs.initiate rejects minutes into a run.
+		// Unset now means unsent, and om_bootstrap's own MemberConfig defaults
+		// (priority 1, votes on) apply.
+		//
+		// An empty member config is the vehicle, rather than `{Hidden: true}` as it
+		// once was: a hidden member must set priority 0, so that input is now refused
+		// before it can demonstrate anything about serialization.
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
 			`{"node_id": "n1", "executor_host": "exec-n1", "observed": {"os_id": "ubuntu"}}`,
-			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "member_configs": {"exec-n1": {"priority": 1, "votes": true, "hidden": true, "delay_secs": 0}}, "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "member_configs": {"exec-n1": {"priority": 1, "votes": true, "hidden": false, "delay_secs": 0}}, "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
@@ -1148,7 +1328,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 				Port:           27017,
 				BindIp:         "0.0.0.0",
 				MemberConfigs: map[string]*omv1.BootstrapMemberConfig{
-					"n1": {Hidden: true},
+					"n1": {},
 				},
 			})
 
@@ -1158,7 +1338,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			`{"hosts": ["exec-n1"], "install_method": "packages", "os": "ubuntu",
 			  "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo",
 			  "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0",
-			  "member_configs": {"exec-n1": {"hidden": true, "delay_secs": 0}}}`,
+			  "member_configs": {"exec-n1": {"hidden": false, "delay_secs": 0}}}`,
 			stub.calls[1].body)
 	})
 

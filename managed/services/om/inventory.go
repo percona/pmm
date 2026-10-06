@@ -437,6 +437,19 @@ func validateMemberConfigs(nodeIDs []string, memberConfigs map[string]*omv1.Boot
 			return status.Errorf(codes.InvalidArgument,
 				"host %s: a delayed member (delay_secs > 0) must also set priority 0 and votes off", nodeID)
 		}
+		// The same shape of rule, for hidden members. rs.initiate() refuses a hidden
+		// member that can still be elected, because a primary hidden from clients is
+		// a set with no reachable primary.
+		//
+		// Enforced here although PMM-15661 adds it in the install wizard and scopes
+		// the backend out: without this the browser is the only thing standing between
+		// a direct API call and a run that installs mongod on every host and then
+		// fails minutes later inside rs.initiate. Unset priority counts as broken for
+		// the same reason it does above -- unset means MongoDB's default of 1.
+		if member.GetHidden() && (member.Priority == nil || *member.Priority > 0) {
+			return status.Errorf(codes.InvalidArgument,
+				"host %s: a hidden member must also set priority 0, since MongoDB will not elect a member that clients cannot see", nodeID)
+		}
 	}
 
 	// A replica set needs a member that can vote and one that can be elected,
@@ -614,6 +627,46 @@ func resolveBootstrapHostOSID(nodeID string, host extensionsHost, osID string) (
 	return hostOSID, nil
 }
 
+// refuseNodesThatAreNotTargets rejects the whole request when any node must never be
+// installed onto, naming every one of them.
+//
+// Every one, not the first: a user fixing three nodes should not have to run the
+// trigger three times to discover there were three (PMM-15664 task 3 applies the same
+// rule to the rest of this file's errors). Named rather than identified by the node id
+// the caller sent, because "host 9521d4bd-... is not a target" is unactionable -- the
+// UUID is not what anyone's inventory, runbook or ticket calls the machine.
+//
+// A node PMM has no name for falls back to its id, which is still better than nothing
+// and is the only identifier that exists in that case.
+func (s *Service) refuseNodesThatAreNotTargets(nodeIDs []string, hosts []extensionsHost) error {
+	serverNodes, err := s.pmmServerNodeIDs()
+	if err != nil {
+		return err
+	}
+
+	blocked := make([]string, 0, len(hosts))
+	for i, host := range hosts {
+		reasons := hostNotATargetReasons(serverNodes[nodeIDs[i]], host)
+		if len(reasons) == 0 {
+			continue
+		}
+		name := host.Name
+		if name == "" {
+			name = nodeIDs[i]
+		}
+		blocked = append(blocked, fmt.Sprintf("%s: %s", name, strings.Join(reasons, "; ")))
+	}
+	if len(blocked) == 0 {
+		return nil
+	}
+	// FailedPrecondition, not InvalidArgument: the request names real nodes and is
+	// well formed. What is wrong is the state of the estate, which is also why the
+	// message says what to do about it rather than only what is wrong.
+	return status.Errorf(codes.FailedPrecondition,
+		"Operations does not install onto %d of the selected node(s) -- %s. Remove them from the selection.",
+		len(blocked), strings.Join(blocked, "; "))
+}
+
 // TriggerHostBootstrap plans installing MongoDB on one or three hosts and
 // initializing them as one replica set.
 //
@@ -656,9 +709,10 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		return nil, err
 	}
 
-	osID := ""
-	executorHosts := make([]string, 0, len(nodeIDs))
-	memberConfigs := make(map[string]extensionsMemberConfig, len(req.GetMemberConfigs()))
+	// Fetched before anything is planned so every node can be judged together: a
+	// three-node request with two bad nodes used to report one of them, and the user
+	// found the second only by fixing the first and trying again.
+	hosts := make([]extensionsHost, 0, len(nodeIDs))
 	for _, nodeID := range nodeIDs {
 		host := extensionsHost{}
 		call := inventoryCall{method: http.MethodGet, path: inventoryPath("hosts", nodeID)}
@@ -666,6 +720,24 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		if err != nil {
 			return nil, err
 		}
+		hosts = append(hosts, host)
+	}
+
+	// The safety gate, and the reason this is not left to the UI. automation_eligible
+	// is advisory: it is computed for a list request, can be minutes stale, and a
+	// direct API call never reads it at all. Installing MongoDB onto the PMM Server,
+	// or over a replica-set member that already exists, is the most damaging thing
+	// Operations can do, so it is refused here as well as offered nowhere.
+	err = s.refuseNodesThatAreNotTargets(nodeIDs, hosts)
+	if err != nil {
+		return nil, err
+	}
+
+	osID := ""
+	executorHosts := make([]string, 0, len(nodeIDs))
+	memberConfigs := make(map[string]extensionsMemberConfig, len(req.GetMemberConfigs()))
+	for i, nodeID := range nodeIDs {
+		host := hosts[i]
 		if host.ExecutorHost == nil || *host.ExecutorHost == "" {
 			return nil, status.Errorf(codes.FailedPrecondition,
 				"host %s has no usable Nomad executor", nodeID)
@@ -1383,6 +1455,40 @@ func inventoryHostToProto(host extensionsHost, pmmAgentConnected bool, isPMMServ
 	return out
 }
 
+// hostNotATargetReasons returns the reasons Operations must never install onto this
+// node, from the host document alone.
+//
+// Split out of automationEligibility because TriggerHostBootstrap enforces exactly
+// this set and nothing else (PMM-15664 task 2). Eligibility is advisory -- it is
+// computed for a list request and can be minutes stale by the time anyone clicks --
+// so the trigger repeats it, and repeating it means sharing the predicate rather
+// than writing a second one that can drift.
+//
+// Deliberately *not* the whole of eligibility. The reachability reasons, the OS and
+// the address describe a run that would fail; these three describe a run that would
+// succeed and damage something. The trigger keeps its own executor and OS guards
+// below for the former.
+func hostNotATargetReasons(isPMMServer bool, host extensionsHost) []string {
+	if isPMMServer {
+		// Alone, not first of several: PMM Server's own image reports os_id "ol", so
+		// listing the rest had the row advising that Operations "cannot install onto
+		// ol (supported: rocky, ubuntu)" -- which invites someone to reinstall the
+		// machine PMM is running on.
+		return []string{
+			"this is the node PMM Server itself runs on, which Operations never installs onto",
+		}
+	}
+	if len(host.Services) > 0 {
+		return []string{"a MongoDB service is already registered on this node"}
+	}
+	// `else if` in spirit: a node with a registered service usually has the mongod to
+	// go with it, and saying both would be one problem reported twice.
+	if unregisteredMongodCount(host.Observed) > 0 {
+		return []string{"a scan found a mongod running here that PMM has no service for"}
+	}
+	return nil
+}
+
 // automationEligibility decides whether OM automation (a probe today; provisioning in
 // a later phase) can run on a host, and names every unmet condition.
 //
@@ -1398,35 +1504,19 @@ func automationEligibility(
 	isPMMServer bool,
 	host extensionsHost,
 ) (bool, []string, bool) {
-	var reasons []string
+	// The reasons this node must never be installed onto, which is a different
+	// question from whether we can reach it -- and the one TriggerHostBootstrap
+	// enforces too, so a direct API call cannot do what the UI refuses.
+	reasons := hostNotATargetReasons(isPMMServer, host)
 	// Tracked separately from the reasons rather than inferred from them: a consumer
 	// matching on the strings would break the first time one is reworded, and the
 	// difference decides whether a reader is shown an alarm or a fact.
-	byDesign := false
-	// First, because it is a fact about the machine rather than about whether we can
-	// reach it: a reachable, healthy PMM Server is still not a thing to install a
-	// database onto, and listing the reachability complaints alongside would read as
-	// though fixing them would help.
+	byDesign := len(reasons) > 0
 	if isPMMServer {
-		// The only reason, not the first of several. Everything below describes
-		// something a user could go and fix, and none of it would make this node a
-		// target: PMM Server's own image reports os_id "ol", so without this the row
-		// also claimed Operations "cannot install onto ol (supported: rocky, ubuntu)",
-		// which invites someone to reinstall the machine PMM is running on.
-		return false, []string{
-			"this is the node PMM Server itself runs on, which Operations never installs onto",
-		}, true
-	}
-	if len(host.Services) > 0 {
-		byDesign = true
-		reasons = append(reasons,
-			"a MongoDB service is already registered on this node")
-	} else if unregisteredMongodCount(host.Observed) > 0 {
-		byDesign = true
-		// `else if`, because a node with a registered service usually has the mongod
-		// to go with it, and saying both would be one problem reported twice.
-		reasons = append(reasons,
-			"a scan found a mongod running here that PMM has no service for")
+		// Its reason stands alone -- see hostNotATargetReasons. Everything below
+		// describes something a user could go and fix, and none of it would make this
+		// node a target.
+		return false, reasons, true
 	}
 	if !pmmAgentConnected {
 		reasons = append(reasons, "PMM Client is not installed or not connected")
