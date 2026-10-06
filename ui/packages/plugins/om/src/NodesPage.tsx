@@ -221,6 +221,17 @@ const AutomationCell = ({ row, busy }: { row: OmHostRow; busy: boolean }) => {
       <Chip size="small" color="success" variant="outlined" label="Ready" />
     );
   }
+  // Two kinds of ineligible, and conflating them was a false alarm: a healthy
+  // replica-set member and the PMM Server's own node are not things to go and fix,
+  // they are nodes Operations deliberately leaves alone. Only a fault gets the
+  // warning colour and the word "attention".
+  if (row.automation_blocked_by_design) {
+    return (
+      <Tooltip title={automationBlockedTitle(row.automation_blocked_reasons)}>
+        <Chip size="small" variant="outlined" label="Not a target" />
+      </Tooltip>
+    );
+  }
   return (
     <Tooltip title={automationBlockedTitle(row.automation_blocked_reasons)}>
       <Chip size="small" color="warning" label="Needs attention" />
@@ -336,7 +347,9 @@ function useColumns(
             ? 'Installing'
             : row.automation_eligible
               ? 'Ready'
-              : 'Needs attention',
+              : row.automation_blocked_by_design
+                ? 'Not a target'
+                : 'Needs attention',
         header: 'Automation',
         Cell: ({ row: { original } }) => (
           <AutomationCell

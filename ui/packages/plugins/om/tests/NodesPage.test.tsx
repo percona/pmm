@@ -57,6 +57,7 @@ const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
   unregistered_mongods: [],
   automation_eligible: true,
   automation_blocked_reasons: [],
+  automation_blocked_by_design: false,
   pmm_agent_connected: true,
   executor: { registered: true, reachable: true, driver_healthy: true },
   observed: {},
@@ -163,6 +164,42 @@ describe('NodesPage', () => {
 
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(forgetOne).not.toHaveBeenCalled();
+  });
+
+  // Two kinds of ineligible, and telling them apart is the whole point: a healthy
+  // replica-set member is not a node that needs attention, it is one Operations
+  // deliberately leaves alone. Conflating them put an amber warning on every
+  // working cluster.
+  it('says a node is not a target when the block is by design', () => {
+    renderPage([
+      host({
+        automation_eligible: false,
+        automation_blocked_by_design: true,
+        automation_blocked_reasons: [
+          'a MongoDB service is already registered on this node',
+        ],
+      }),
+    ]);
+
+    const row = rowFor('node00');
+    expect(within(row).getByText('Not a target')).toBeInTheDocument();
+    expect(within(row).queryByText('Needs attention')).toBeNull();
+  });
+
+  it('still says needs attention when the block is a fault', () => {
+    renderPage([
+      host({
+        automation_eligible: false,
+        automation_blocked_by_design: false,
+        automation_blocked_reasons: [
+          'host is not reachable by the Nomad client',
+        ],
+      }),
+    ]);
+
+    const row = rowFor('node00');
+    expect(within(row).getByText('Needs attention')).toBeInTheDocument();
+    expect(within(row).queryByText('Not a target')).toBeNull();
   });
 
   // A node Operations cannot act on must not offer the action that would fail.

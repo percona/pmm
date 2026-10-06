@@ -36,6 +36,7 @@ const host = (i: number): OmInventoryHost => ({
   pmm_agent_connected: true,
   automation_eligible: true,
   automation_blocked_reasons: [],
+  automation_blocked_by_design: false,
 });
 
 const HOSTS = [host(1), host(2), host(3)];

@@ -99,6 +99,7 @@ const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
   pmm_agent_connected: true,
   automation_eligible: true,
   automation_blocked_reasons: [],
+  automation_blocked_by_design: false,
   ...overrides,
 });
 

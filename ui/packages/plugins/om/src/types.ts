@@ -436,6 +436,14 @@ export interface OmInventoryHost {
   automation_eligible: boolean;
   /** Every unmet condition behind `automation_eligible: false`. Empty when true. */
   automation_blocked_reasons: string[];
+  /**
+   * Whether the block is a property of this node rather than a fault on it.
+   *
+   * The PMM Server's own node, and a node that already runs MongoDB, are working
+   * exactly as intended - painting them as needing attention is a false alarm on
+   * the first screen with real data. An unreachable agent is the opposite.
+   */
+  automation_blocked_by_design: boolean;
 }
 
 /** Whether a host can fetch packages, and why not when it cannot. */
