@@ -95,6 +95,13 @@ const HIDDEN_BY_DEFAULT = {
   endpoint: false,
   cpu_usage_percent: false,
   connections_free_percent: false,
+  // Hidden to make the table fit, not because they do not matter: eight columns,
+  // two of them 24-character names, cannot sit in the ~980px this page gets at
+  // 1440 with the nav open. Both are a click away in the chooser and both are in
+  // the detail drawer, where a per-service read belongs. Repl. lag stays as the
+  // one replication signal on the row.
+  version: false,
+  oplog_window_seconds: false,
   service_id: false,
   service_type: false,
   edition: false,
@@ -123,6 +130,7 @@ function useColumns(
       },
       {
         accessorKey: 'service_name',
+        size: 200,
         header: 'Service',
         Cell: ({ row: { original } }) => (
           <ServiceLink serviceName={original.service_name} />
@@ -130,6 +138,7 @@ function useColumns(
       },
       {
         accessorKey: 'host',
+        size: 200,
         header: 'Node',
         Cell: ({ row: { original } }) =>
           original.host ?? <Unavailable reason="service_not_observed" />,
@@ -143,6 +152,7 @@ function useColumns(
       },
       {
         accessorKey: 'status',
+        size: 110,
         header: 'Status',
         // Worst first ascending, by rank rather than by the enum's spelling.
         sortingFn: (a, b, columnId) =>
@@ -160,6 +170,7 @@ function useColumns(
       },
       {
         accessorKey: 'state',
+        size: 185,
         header: 'Member state',
         Cell: ({ row: { original } }) => <MemberState service={original} />,
       },
@@ -202,6 +213,7 @@ function useColumns(
       },
       {
         id: 'last_success_at',
+        size: 140,
         // Sorted on the age in seconds, not the timestamp string: the column is read
         // as "how stale", and a lexicographic sort of ISO strings puts a row that has
         // never answered next to the oldest one rather than at the end.
@@ -248,6 +260,7 @@ function useColumns(
       },
       {
         accessorKey: 'replication_lag_seconds',
+        size: 145,
         header: 'Repl. lag',
         Cell: ({ row: { original } }) => (
           <Duration value={original.replication_lag_seconds} />
@@ -490,6 +503,12 @@ export const FleetServicesTab = () => {
     columns,
     data: rows,
     enableGrouping: true,
+    // See FleetClustersTab: without these MRT sizes every column to its header's
+    // chrome rather than its content, and the table overflows the width the page
+    // actually gets. The per-column menu's only verb beyond sorting is "hide this
+    // column", which the chooser in the toolbar already does.
+    layoutMode: 'grid',
+    enableColumnActions: false,
     enablePagination: false,
     enableDensityToggle: false,
     // The short table cannot answer "tell me everything about this row", and the
