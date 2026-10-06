@@ -273,11 +273,11 @@ function batchItemErrors(response: AtwBatchExecuteResponse): string[] {
 /**
  * Merge the picker's option sources, deduping on filename.
  *
- * Three independent sources feed one Autocomplete: the current selection (so a
- * snippet picked under another category or search term stays a removable chip),
- * the selected leaf category's snippets, and the server-side search results. A
- * snippet reachable through several of them must appear once, and identity is
- * the filename — titles are not unique by contract.
+ * Sources: the current selection (so a snippet picked under another category
+ * or search term stays a removable chip), the optional category-filter union,
+ * and — only while no filter is active — the server-side search page. Mixing
+ * that page into a filter would reintroduce scripts from other roots. Identity
+ * is the filename; titles are not unique by contract.
  */
 export function mergeSnippetOptions(
   ...sources: readonly AtwSnippetSummary[][]
@@ -422,13 +422,20 @@ export function CollectPane({
     isClosed || !canMutate ? [] : selectedNames
   );
   const batchMutation = useAtwBatchExecute(incidentId);
-  const searchQuery = useAtwSnippetSearch(debouncedSearch);
+  // A non-empty `available` list means a category chip is selected. Search
+  // then stays local over that union: intersecting a paginated server page
+  // would drop later matches, and merging it would reintroduce other roots.
+  const categoryFilterActive = available.length > 0;
+  const searchQuery = useAtwSnippetSearch(
+    categoryFilterActive ? '' : debouncedSearch
+  );
   const rerunResolveQuery = useAtwSnippetSearch(rerunResolveTerm ?? '');
 
   // A disabled query keeps its previous data, so an emptied box must not leave
-  // the last term's hits in the list: read results only while a term is active.
+  // the last term's hits in the list: read results only while a term is active
+  // and no category filter is narrowing the picker.
   const searchResults =
-    debouncedSearch === ''
+    categoryFilterActive || debouncedSearch === ''
       ? NO_SNIPPETS
       : (searchQuery.data?.items ?? NO_SNIPPETS);
 
@@ -533,10 +540,14 @@ export function CollectPane({
   // The endpoint pages, so a broad term can match more than one page holds.
   // Report the overflow instead of silently showing the first page. Suppressed
   // while a stand-in page is showing: its total belongs to the previous term,
-  // and the notice names the term it counts.
+  // and the notice names the term it counts. Also suppressed while a category
+  // filter is active: that path never uses the server page.
   const searchPagination = searchQuery.data?.pagination ?? null;
   const hiddenMatchCount =
-    debouncedSearch !== '' && searchPagination && searchPageIsCurrent
+    !categoryFilterActive &&
+    debouncedSearch !== '' &&
+    searchPagination &&
+    searchPageIsCurrent
       ? Math.max(searchPagination.total - searchResults.length, 0)
       : 0;
 
@@ -662,7 +673,7 @@ export function CollectPane({
         </Alert>
       )}
 
-      {searchQuery.error && debouncedSearch !== '' && (
+      {searchQuery.error && debouncedSearch !== '' && !categoryFilterActive && (
         <Alert severity="error" sx={{ mb: 2 }}>
           Snippet search failed: {searchQuery.error.message}
         </Alert>
@@ -701,7 +712,11 @@ export function CollectPane({
         inputValue={searchInput}
         onInputChange={(_event, value) => setSearchInput(value)}
         filterOptions={filterOptions}
-        loading={debouncedSearch !== '' && searchQuery.isFetching}
+        loading={
+          debouncedSearch !== '' &&
+          !categoryFilterActive &&
+          searchQuery.isFetching
+        }
         loadingText="Searching snippets…"
         noOptionsText={
           searchInput.trim() === ''

@@ -307,4 +307,30 @@ describe('CategoryFilters', () => {
       expect(screen.getByText(/Failed to load ATW categories/i)).toBeTruthy();
     });
   });
+
+  it('keeps chips when a background refetch fails', async () => {
+    mockedApi.get.mockResolvedValue({ data: [mysqlLeaf] });
+    const onSnippetsChange = vi.fn();
+    const { queryClient } = renderFilters(
+      <CategoryFilters onSnippetsChange={onSnippetsChange} />
+    );
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'MySQL (1)' })
+    );
+    await waitFor(() => {
+      expect(onSnippetsChange).toHaveBeenLastCalledWith(mysqlLeaf.snippets);
+    });
+
+    mockedApi.get.mockRejectedValue(new Error('boom'));
+    await queryClient.invalidateQueries({ queryKey: ['atw', 'categories'] });
+
+    await waitFor(() => {
+      expect(mockedApi.get).toHaveBeenCalledTimes(2);
+    });
+    expect(screen.getByRole('button', { name: 'MySQL (1)' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Clear filters' })).toBeTruthy();
+    expect(screen.queryByText(/Failed to load ATW categories/i)).toBeNull();
+    expect(onSnippetsChange).toHaveBeenLastCalledWith(mysqlLeaf.snippets);
+  });
 });
