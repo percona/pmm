@@ -28,6 +28,7 @@ import {
   DialogContentText,
   DialogTitle,
   LinearProgress,
+  MenuItem,
   Stack,
   Tooltip,
   Typography,
@@ -44,6 +45,7 @@ import {
   OM_ROUTE_INSTALL,
 } from './constants';
 import { EmptyState } from './components/EmptyState';
+import { RowOverflowMenu } from './components/RowOverflowMenu';
 import { NotOnboardedDialog } from './components/NotOnboardedDialog';
 import { OmHeader } from './components/OmHeader';
 import { Unavailable } from './components/Unavailable';
@@ -295,7 +297,7 @@ function useColumns(
 ): MRT_ColumnDef<OmHostRow>[] {
   return useMemo(
     () => [
-      { accessorKey: 'name', header: 'Node' },
+      { accessorKey: 'name', header: 'Node', size: 180 },
       {
         accessorKey: 'address',
         header: 'Address',
@@ -304,6 +306,7 @@ function useColumns(
       },
       {
         id: 'database_state',
+        size: 130,
         accessorFn: (row) => HOST_DATABASE_STATE_LABEL[row.database_state],
         header: 'Database',
         Cell: ({ row: { original } }) => <DatabaseCell row={original} />,
@@ -327,6 +330,7 @@ function useColumns(
       },
       {
         id: 'automation_eligible',
+        size: 120,
         accessorFn: (row) =>
           row.executor_host && busyExecutorHosts.has(row.executor_host)
             ? 'Installing'
@@ -364,6 +368,7 @@ function useColumns(
       },
       {
         id: 'collected',
+        size: 120,
         // Never-answered sorts last rather than first: as a timestamp string it would
         // sort beside the oldest row, which reads as "very stale" when it is "never".
         accessorFn: (row) =>
@@ -702,6 +707,20 @@ export const NodesPage = () => {
     // A host already part of an in-flight bootstrap run cannot be selected
     // for another one -- see `busyExecutorHosts`'s own comment.
     enableRowSelection: (row) => !isHostBusy(row.original),
+    // See FleetClustersTab: without these MRT sizes every column to its header's
+    // chrome rather than its content, and the table overflows the ~980px the page
+    // gets at 1440 with the nav open. The per-column menu's only verb beyond sorting
+    // is "hide this column", which the chooser in the toolbar already does.
+    layoutMode: 'grid',
+    enableColumnActions: false,
+    // The actions column has to hold "Scan" beside "Install MongoDB", and MRT's
+    // default for it is narrower than that - so the install action was clipped at
+    // the right edge, which is the row-action half of P17 all over again.
+    displayColumnDefOptions: {
+      'mrt-row-actions': { size: 290, grow: false },
+      'mrt-row-select': { size: 50, grow: false },
+      'mrt-row-expand': { size: 50, grow: false },
+    },
     // Ours already shows the count and carries the actions, so MRT's banner was a
     // second bar saying the same thing.
     positionToolbarAlertBanner: 'none',
@@ -752,13 +771,22 @@ export const NodesPage = () => {
             </Button>
           </Box>
         </Tooltip>
-        <Button
-          size="small"
-          color="error"
-          onClick={() => setForgetting([row.original])}
-        >
-          Forget
-        </Button>
+        {/* Behind the ellipsis, not beside the daily actions: three text buttons
+            did not fit the row, and Forget was the one falling off the right edge
+            (P17). P14 asks for it to live here on its own account too. */}
+        <RowOverflowMenu label={`More actions for ${row.original.name}`}>
+          {(close) => [
+            <MenuItem
+              key="forget"
+              onClick={() => {
+                setForgetting([row.original]);
+                close();
+              }}
+            >
+              Forget
+            </MenuItem>,
+          ]}
+        </RowOverflowMenu>
       </Stack>
     ),
     initialState: {
