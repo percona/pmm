@@ -26,6 +26,19 @@ describe('Page', () => {
     expect(screen.queryByText('Page Content')).toBeDefined();
   });
 
+  it('keeps the document title but hides the heading with hideTitle', () => {
+    render(
+      <TestWrapper>
+        <Page title="Hidden title" hideTitle>
+          <div>Page Content</div>
+        </Page>
+      </TestWrapper>
+    );
+
+    expect(screen.queryByRole('heading', { name: 'Hidden title' })).toBeNull();
+    expect(document.title).toContain('Hidden title');
+  });
+
   it('it shows no access page when unauthorized', () => {
     render(
       <TestWrapper>
