@@ -49,6 +49,9 @@ packages:
   github.com/percona/pmm/managed/services/alerting:
     interfaces:
       grafanaClient:
+      grafanaProvisioningClient:
+      supervisordService:
+      leaderService:
   github.com/percona/pmm/managed/services/management/backup:
     interfaces:
       awsS3:
