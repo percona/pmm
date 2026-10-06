@@ -218,7 +218,7 @@ func (r *Registry) connectionCacheExpired() bool {
 func (r *Registry) rebuildConnectionCache() {
 	newCache := make(map[string]struct{})
 
-	// Fetch pmm-agents from the database, reset cache to empty on error.
+	// Fetch pmm-agents from the database.
 	err := r.db.InTransaction(func(tx *reform.TX) error {
 		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: new(models.PMMAgentType)})
 		if err != nil {
@@ -238,7 +238,10 @@ func (r *Registry) rebuildConnectionCache() {
 	}
 
 	r.cacheMu.Lock()
-	r.connectionCache = newCache
+	// On error, keep the last snapshot and still wait for the TTL, so a failing database is not queried on every call.
+	if err == nil {
+		r.connectionCache = newCache
+	}
 	r.connectionCacheTTL = time.Now().Add(connectionCacheTTL)
 	r.cacheMu.Unlock()
 }

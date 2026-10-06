@@ -18,6 +18,7 @@ package agents
 import (
 	"context"
 	"database/sql/driver"
+	"errors"
 	"sync"
 	"testing"
 	"time"
@@ -231,6 +232,17 @@ func TestIsConnectedInHA(t *testing.T) {
 		assert.False(t, r.IsConnected(exporterID))
 		// An unexpected rebuild fails on sqlmock and empties the cache.
 		assert.True(t, r.IsConnected(testAgentID))
+	})
+
+	t.Run("failed rebuild keeps the last snapshot", func(t *testing.T) {
+		t.Parallel()
+
+		r, mock := newRegistry(t)
+		r.connectionCache[testAgentID] = struct{}{}
+		mock.ExpectBegin().WillReturnError(errors.New("database is down"))
+
+		assert.True(t, r.IsConnected(testAgentID))
+		assert.False(t, r.connectionCacheExpired())
 	})
 
 	t.Run("expired cache is rebuilt once for concurrent callers", func(t *testing.T) {
