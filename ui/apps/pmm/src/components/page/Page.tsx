@@ -5,7 +5,6 @@ import {
   Box,
   Card,
   CardActions,
-  Divider,
   GlobalStyles,
   Link,
   Typography,
@@ -20,6 +19,7 @@ import { Link as RouterLink } from 'react-router-dom';
 
 export const Page: FC<PageProps> = ({
   title,
+  hideTitle,
   topBar,
   footer,
   children,
@@ -66,7 +66,7 @@ export const Page: FC<PageProps> = ({
         }
       >
         {topBar}
-        {!!title && <Typography variant="h2">{title}</Typography>}
+        {!!title && !hideTitle && <Typography variant="h2">{title}</Typography>}
         <Box
           sx={{
             flex: 1,
@@ -93,8 +93,6 @@ export const Page: FC<PageProps> = ({
             </Card>
           )}
         </Box>
-        {/* footer === null explicitly opts out of the divider + footer */}
-        {footer !== null && <Divider />}
         {footer !== undefined ? footer : <Footer />}
       </PageContainer>
     </>

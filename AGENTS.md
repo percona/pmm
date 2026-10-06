@@ -354,6 +354,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 ## Global Development Conventions
 
 ### Code Style
+- Follow YAGNI and KISS: build only what the ticket needs — no speculative options, abstractions, or helpers for a single call site; choose the simplest code that works, readable over clever
 - Format with `gofumpt -s`; run `make format`
 - Import grouping: stdlib, then external (`github.com/percona`, third-party), then internal (this repo)
 - Use `any` instead of `interface{}`
@@ -364,7 +365,8 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Don't use named return values
 - Don't inline comments (`code // comment`); put comments on separate lines — `//nolint` is the only exception
 - Don't inline `err != nil` checks (`if err := f(); err != nil`); assign on one line, check on the next
-- Don't add obvious/redundant comments; only comment non-obvious intent
+- Comment only what the code can't say (a non-obvious why, a constraint, a workaround) in one line, two at most; doc comments are one sentence
+- Comments describe the code as it is, not its history: no "now/previously/fixed/added", incident stories or review back-and-forth (that goes in the commit message); point to the ticket instead (`see PMM-1234`)
 
 ### Error Handling
 - Use `status.Error()` with proper gRPC codes for API errors

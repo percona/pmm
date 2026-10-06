@@ -174,10 +174,6 @@ const router = createBrowserRouter(
           path: '/next/*',
           element: <Redirect />,
         },
-        {
-          path: '*',
-          element: <div>Not found!</div>,
-        },
       ],
     },
   ],

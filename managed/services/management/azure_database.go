@@ -204,6 +204,11 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 	if err != nil {
 		return nil, err
 	}
+	// As for RDS: PMM Server's own pmm-agent is scraped, others push, since HA scrapes no pull-mode Agents.
+	metricsMode, err := supportedMetricsMode(managementv1.MetricsMode_METRICS_MODE_UNSPECIFIED, pmmAgentID)
+	if err != nil {
+		return nil, err
+	}
 
 	// tweak according to API docs
 	if req.NodeName == "" {
@@ -273,6 +278,9 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 				PMMAgentID:   pmmAgentID,
 				ServiceID:    service.ServiceID,
 				AzureOptions: models.AzureOptionsFromRequest(req),
+				ExporterOptions: models.ExporterOptions{
+					PushMetrics: isPushMode(metricsMode),
+				},
 			})
 			if err != nil {
 				return err
@@ -289,6 +297,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 			TLSSkipVerify: req.TlsSkipVerify,
 			ExporterOptions: models.ExporterOptions{
 				ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
+				PushMetrics:       isPushMode(metricsMode),
 			},
 			MySQLOptions: models.MySQLOptions{
 				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,

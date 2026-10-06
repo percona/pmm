@@ -41,3 +41,9 @@ export { getAtPath, setAtPath } from './utils/fieldPath';
 export { OneOfGroupSlot } from './OneOfGroupSlot';
 export { ConditionalFieldSlot } from './ConditionalFieldSlot';
 export { evaluatePredicate } from './utils/predicateEvaluator';
+export {
+  EMPTY_SECTION_SUMMARY,
+  summariseFieldValue,
+  summariseSection,
+  summariseSectionValues,
+} from './utils/sectionValueSummary';
