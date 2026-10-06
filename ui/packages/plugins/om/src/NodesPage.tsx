@@ -205,6 +205,15 @@ const ExecutorCell = ({
  * with no explanation. Shared by the Automation cell and the Bootstrap button so
  * the two cannot drift, which they had: the button showed nothing in that case.
  */
+/**
+ * Why nothing can be done to a node that an install is already running on.
+ *
+ * Shared rather than repeated: the Automation chip, the row's Install button and the
+ * row's Forget all say it, and the point of Forget saying it is that it matches the
+ * others. Three copies would drift the first time one is reworded.
+ */
+const BUSY_TITLE = 'Already part of an install in progress.';
+
 const automationBlockedTitle = (reasons: string[]) =>
   reasons.join('; ') || 'Not eligible for automation.';
 
@@ -234,7 +243,7 @@ const selectionCountTitle = (count: number): string => {
 const AutomationCell = ({ row, busy }: { row: OmHostRow; busy: boolean }) => {
   if (busy) {
     return (
-      <Tooltip title="Already part of an install in progress.">
+      <Tooltip title={BUSY_TITLE}>
         <Chip size="small" color="info" label="Installing" />
       </Tooltip>
     );
@@ -783,7 +792,7 @@ export const NodesPage = () => {
         <Tooltip
           title={
             isHostBusy(row.original)
-              ? 'Already part of an install in progress.'
+              ? BUSY_TITLE
               : row.original.automation_eligible
                 ? 'Install MongoDB on this node and initialize a single-member replica set.'
                 : automationBlockedTitle(
@@ -817,15 +826,26 @@ export const NodesPage = () => {
         {!row.original.is_pmm_server_node && (
           <RowOverflowMenu label={`More actions for ${row.original.name}`}>
             {(close) => [
-              <MenuItem
+              /* Wrapped in a span because a disabled MUI MenuItem fires no pointer
+                 events, so the Tooltip would never open on the one state it exists
+                 to explain - the same reason the Install button above has one. An
+                 empty title renders no tooltip, so an idle node is unaffected. */
+              <Tooltip
                 key="forget"
-                onClick={() => {
-                  setForgetting([row.original]);
-                  close();
-                }}
+                title={isHostBusy(row.original) ? BUSY_TITLE : ''}
               >
-                Forget
-              </MenuItem>,
+                <Box component="span">
+                  <MenuItem
+                    disabled={isHostBusy(row.original)}
+                    onClick={() => {
+                      setForgetting([row.original]);
+                      close();
+                    }}
+                  >
+                    Forget
+                  </MenuItem>
+                </Box>
+              </Tooltip>,
             ]}
           </RowOverflowMenu>
         )}

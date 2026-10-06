@@ -321,6 +321,42 @@ describe('NodesPage', () => {
     expect(title.textContent).not.toMatch(/majority/i);
   });
 
+  // Task 6 / F7. Forget is housekeeping, but running it against a node an install
+  // is mid-way through would clear the record of the machine being changed. The
+  // tooltip is asserted to be the Install button's own wording, not a lookalike:
+  // the point of Forget explaining itself is that it matches the other controls.
+  it('disables Forget, with the install reason, while a node is mid-install', async () => {
+    useOmBootstrapRuns.mockReturnValue({
+      data: [{ status: 'running', hosts: [{ host: 'exec-1' }] }],
+    });
+    renderPage([host({ name: 'node00', executor_host: 'exec-1' })]);
+
+    fireEvent.click(
+      within(rowFor('node00')).getByRole('button', { name: /More actions/ })
+    );
+
+    const forget = screen.getByText('Forget').closest('li') as HTMLElement;
+    expect(forget).toHaveAttribute('aria-disabled', 'true');
+
+    fireEvent.mouseOver(forget.parentElement as HTMLElement);
+    expect((await screen.findByRole('tooltip')).textContent).toBe(
+      'Already part of an install in progress.'
+    );
+  });
+
+  // The other half of the pair: an idle node's Forget still works, and carries no
+  // tooltip at all rather than an empty one.
+  it('leaves Forget usable on a node with no install running', () => {
+    renderPage([host({ name: 'node00', executor_host: 'exec-1' })]);
+
+    fireEvent.click(
+      within(rowFor('node00')).getByRole('button', { name: /More actions/ })
+    );
+
+    const forget = screen.getByText('Forget').closest('li') as HTMLElement;
+    expect(forget).not.toHaveAttribute('aria-disabled', 'true');
+  });
+
   it('disables the row Scan while a sweep is running', () => {
     useIsEstateRefreshing.mockReturnValue(true);
     renderPage();
