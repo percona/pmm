@@ -17,9 +17,21 @@
 
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { browserTimezone } from '@pmm-extensions/framework';
 import { FleetServicesTab } from '../src/FleetServicesTab';
+import type { OmInventoryService } from '../src/types';
 import { mixedEstate } from './fixtures';
+
+const { useOmInventoryServices } = vi.hoisted(() => ({
+  useOmInventoryServices: vi.fn(),
+}));
+
+const inventory = (services: OmInventoryService[]) => ({
+  data: services,
+  isPending: false,
+  isError: false,
+});
 
 vi.mock('../src/topologyHooks', () => ({
   useOmTopology: () => ({
@@ -28,15 +40,13 @@ vi.mock('../src/topologyHooks', () => ({
     isError: false,
   }),
 }));
-vi.mock('../src/inventoryHooks', () => ({
-  useOmInventoryServices: () => ({
-    data: [],
-    isPending: false,
-    isError: false,
-  }),
-}));
+vi.mock('../src/inventoryHooks', () => ({ useOmInventoryServices }));
 
 describe('FleetServicesTab', () => {
+  beforeEach(() => {
+    useOmInventoryServices.mockReturnValue(inventory([]));
+  });
+
   it('opens with the down service as the first row', () => {
     render(
       <MemoryRouter>
@@ -68,5 +78,31 @@ describe('FleetServicesTab', () => {
     expect(within(chooser).getByText('Process')).toBeInTheDocument();
     expect(within(chooser).queryByText(/^Role$/)).toBeNull();
     expect(screen.queryByRole('columnheader', { name: /^Role/ })).toBeNull();
+  });
+
+  it('puts the local collection time and zone on the Collected hover', () => {
+    const collected = new Date(Date.now() - 3 * 60 * 1000).toISOString();
+    // Every fixture service shares service_id 30, so this one row of inventory joins
+    // onto each of them.
+    useOmInventoryServices.mockReturnValue(
+      inventory([
+        {
+          service_id: '30',
+          node_id: 'node-1',
+          observed: {},
+          freshness: { consecutive_failures: 0, last_success_at: collected },
+        },
+      ])
+    );
+    render(
+      <MemoryRouter>
+        <FleetServicesTab />
+      </MemoryRouter>
+    );
+
+    expect(screen.getAllByText('3m ago')[0]).toHaveAttribute(
+      'title',
+      `${new Date(collected).toLocaleString()} (${browserTimezone()})`
+    );
   });
 });

@@ -22,6 +22,7 @@ import {
   waitFor,
   within,
 } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { browserTimezone } from '@pmm-extensions/framework';
@@ -204,6 +205,30 @@ describe('NodesPage', () => {
     expect(within(rowFor('node00')).getByText('3m ago')).toHaveAttribute(
       'title',
       `${new Date(collected).toLocaleString()} (${browserTimezone()})`
+    );
+  });
+
+  it("ends a failing node's tooltip with the local collection time and zone", async () => {
+    const collected = new Date(Date.now() - 40 * 60 * 1000).toISOString();
+    renderPage([
+      host({
+        freshness: {
+          consecutive_failures: 4,
+          last_success_at: collected,
+          failing_since: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
+          last_error: 'ssh: connection refused.',
+        },
+      }),
+    ]);
+
+    await userEvent.hover(
+      within(rowFor('node00')).getByText('40m ago (failing)')
+    );
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      `ssh: connection refused. Failing for 25m, 4 attempts. Last collected ${new Date(
+        collected
+      ).toLocaleString()} (${browserTimezone()}).`
     );
   });
 });
