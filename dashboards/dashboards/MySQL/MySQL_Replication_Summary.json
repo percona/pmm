@@ -5553,7 +5553,7 @@
     },
     "timepicker": {},
     "timezone": "",
-    "title": "MySQL Replication summary",
+    "title": "MySQL Replication Summary",
     "uid": "mysql-replicaset-summary",
     "version": 1,
     "weekStart": ""
