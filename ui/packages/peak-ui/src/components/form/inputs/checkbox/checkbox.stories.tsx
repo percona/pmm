@@ -1,11 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Checkbox from './checkbox';
+import type { CheckboxProps } from './checkbox.types';
 import * as DocBlock from '@storybook/addon-docs/blocks';
 
-type CustomArgs = {
-  label?: string;
-  disabled?: boolean;
+type CustomArgs = CheckboxProps & {
   size?: 'small' | 'medium';
   required?: boolean;
   indeterminate?: boolean;
@@ -14,6 +13,7 @@ type CustomArgs = {
 
 const meta = {
   title: 'To be reviewed/Checkbox',
+  component: Checkbox,
   tags: ['autodocs', 'needs-review'],
   argTypes: {
     label: {

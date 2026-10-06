@@ -65,66 +65,52 @@ const meta = {
     disabled: {
       type: 'boolean',
       defaultValue: 'false',
-      description: '`boolean`',
     },
     error: {
       type: 'boolean',
       defaultValue: 'false',
-      description: '`boolean`',
     },
     isRequired: {
       type: 'boolean',
       defaultValue: 'false',
-      description: '`boolean`',
     },
     multiline: {
       type: 'boolean',
       defaultValue: 'false',
-      description: '`boolean`',
     },
     readOnly: {
       type: 'boolean',
       defaultValue: 'false',
-      description: '`boolean`',
     },
     label: {
       type: 'string',
-      description: '`string`',
     },
     maxLength: {
       type: 'number',
-      description: '`number`',
     },
     maxRows: {
       type: 'number',
-      description: '`number`',
     },
     minRows: {
       type: 'number',
-      description: '`number`',
     },
     name: {
       type: 'string',
-      description: '`string`',
     },
     placeholder: {
       type: 'string',
-      description: '`string`',
     },
     helperText: {
       type: 'string',
-      description: '`string`',
     },
     size: {
       options: ['small', 'medium'],
       control: { type: 'radio' },
       defaultValue: 'small',
-      description: '`string`',
     },
     type: {
       options: ['email', 'password', 'number', 'text', 'tel', 'url'],
       control: 'select',
-      description: '`string`',
     },
   },
   render: function Render({

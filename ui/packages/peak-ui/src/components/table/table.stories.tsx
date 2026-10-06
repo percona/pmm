@@ -255,26 +255,19 @@ const meta = {
   argTypes: {
     tableName: {
       control: 'text',
-      description:
-        '**Peak UI prop.** Used as the `data-testid` and as the localStorage key for column-visibility persistence. Rename with care — changing it loses user-saved preferences.',
-      table: { category: 'Data' },
+      table: { category: 'Data (Peak UI)' },
     },
     noDataMessage: {
       control: 'text',
-      description:
-        '**Peak UI prop.** Message shown when `data` is empty (and no `emptyState` is provided).',
-      table: { category: 'Empty state', defaultValue: { summary: "'No data'" } },
+      table: { category: 'Empty state (Peak UI)', defaultValue: { summary: "'No data'" } },
     },
     emptyFilterResultsMessage: {
       control: 'text',
-      description: '**Peak UI prop.** Message shown when filtering excludes all rows.',
-      table: { category: 'Empty state', defaultValue: { summary: "'No data found'" } },
+      table: { category: 'Empty state (Peak UI)', defaultValue: { summary: "'No data found'" } },
     },
     emptyState: {
       control: false,
-      description:
-        '**Peak UI prop.** React node that fully replaces the default empty-state alert. See the [Empty state — custom illustration](?path=/story/data-display-table--empty-state-custom) story.',
-      table: { category: 'Empty state' },
+      table: { category: 'Empty state (Peak UI)' },
     },
     enableTopToolbar: {
       control: 'boolean',
@@ -346,14 +339,10 @@ const meta = {
     },
     hideExpandAllIcon: {
       control: 'boolean',
-      description:
-        '**Peak UI prop.** Hide the expand-all icon in the header. Only meaningful when `enableExpanding` is `true`. Note: MRT offers a native `enableExpandAll={false}` that achieves the same result.',
-      table: { category: 'Rows' },
+      table: { category: 'Rows (Peak UI)' },
     },
     enableRowHoverAction: {
       control: 'boolean',
-      description:
-        '**Peak UI prop.** Make whole rows clickable — fires `rowHoverAction(row)` and switches the cursor to a pointer. Use for "click to drill in" patterns.',
       table: { category: 'Rows (Peak UI)', defaultValue: { summary: 'false' } },
     },
     muiTableContainerProps: {
