@@ -24,40 +24,46 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
-// GetValkeyTLSConfig returns TLS config for Valkey connections.
+// GetValkeyTLSConfig returns the dial options for a Valkey connection, or nil when TLS is off.
 func GetValkeyTLSConfig(files *agentv1.TextFiles, useTLS, tlsSkipVerify bool) ([]redis.DialOption, error) {
-	var opts []redis.DialOption
+	if !useTLS {
+		return nil, nil
+	}
 
-	if !isEmptyTLSFiles(files) {
-		ca := x509.NewCertPool()
-		cert, err := tls.X509KeyPair([]byte(files.Files["tlsCert"]), []byte(files.Files["tlsKey"]))
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: tlsSkipVerify, //nolint:gosec
+	}
+
+	// Server-auth-only and pinned-certificate setups are both valid, so each piece of the
+	// material is applied only when it is actually present rather than assumed complete.
+	pemFiles := files.GetFiles()
+
+	if certPEM, keyPEM := pemFiles[agentv1.TLSCertFileName], pemFiles[agentv1.TLSKeyFileName]; certPEM != "" && keyPEM != "" {
+		cert, err := tls.X509KeyPair([]byte(certPEM), []byte(keyPEM))
 		if err != nil {
 			return nil, err
 		}
-		ok := ca.AppendCertsFromPEM([]byte(files.Files["tlsCa"]))
-		if !ok {
+
+		tlsConfig.Certificates = []tls.Certificate{cert}
+	}
+
+	if caPEM := pemFiles[agentv1.TLSCaFileName]; caPEM != "" {
+		ca := x509.NewCertPool()
+		if !ca.AppendCertsFromPEM([]byte(caPEM)) {
 			return nil, errors.New("failed to append certs from PEM")
 		}
-		tlsConfig := &tls.Config{
-			InsecureSkipVerify: tlsSkipVerify, //nolint:gosec
-			Certificates:       []tls.Certificate{cert},
-			RootCAs:            ca,
-		}
 
-		opts = append(opts, redis.DialUseTLS(useTLS))
-		opts = append(opts, redis.DialTLSSkipVerify(tlsSkipVerify))
-		opts = append(opts, redis.DialTLSConfig(tlsConfig))
+		tlsConfig.RootCAs = ca
 	}
+
+	// redigo derives DialUseTLS from the URL scheme on its own, but takes skip-verify and the
+	// TLS config from the caller only. A TLS connection carrying no certificates therefore
+	// still has to produce options here, or it silently falls back to full verification.
+	opts := []redis.DialOption{
+		redis.DialUseTLS(true),
+		redis.DialTLSSkipVerify(tlsSkipVerify),
+		redis.DialTLSConfig(tlsConfig),
+	}
+
 	return opts, nil
-}
-
-// isEmptyTLSFiles checks if the TLS files are empty.
-func isEmptyTLSFiles(files *agentv1.TextFiles) bool {
-	if files == nil || len(files.Files) == 0 {
-		return true
-	}
-	if files.Files["tlsCert"] == "" && files.Files["tlsKey"] == "" && files.Files["tlsCa"] == "" {
-		return true
-	}
-	return false
 }

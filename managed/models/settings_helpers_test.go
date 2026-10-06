@@ -125,26 +125,26 @@ func TestSettings(t *testing.T) {
 				MetricsResolutions: mr,
 			})
 			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(err, &errInvalidArgument))
+			require.ErrorAs(t, err, &errInvalidArgument)
 			require.EqualError(t, err, `invalid argument: mr: minimal resolution is 1s`)
 
 			mr = models.MetricsResolutions{MR: 2*time.Second + (500 * time.Millisecond)} // 2.5s
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				MetricsResolutions: mr,
 			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
+			require.ErrorAs(t, err, &errInvalidArgument)
 			require.EqualError(t, err, `invalid argument: mr: should be a natural number of seconds`)
 
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				DataRetention: 90000 * time.Second, // 25h
 			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
+			require.ErrorAs(t, err, &errInvalidArgument)
 			require.EqualError(t, err, `invalid argument: data_retention: should be a natural number of days`)
 
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				DataRetention: 43200 * time.Second, // 12h
 			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
+			require.ErrorAs(t, err, &errInvalidArgument)
 			require.EqualError(t, err, `invalid argument: data_retention: minimal resolution is 24h`)
 		})
 

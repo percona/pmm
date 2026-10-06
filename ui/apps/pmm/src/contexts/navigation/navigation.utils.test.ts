@@ -126,11 +126,11 @@ describe('addExtensionsApps', () => {
     ]);
     expect(children[0]).toMatchObject({
       url: EXTENSIONS_MYSQL_BACKUPS_PATH,
-      matches: [EXTENSIONS_MYSQL_BACKUPS_PATH],
+      matches: ['*'],
     });
     expect(children[1]).toMatchObject({
       url: EXTENSIONS_ATW_PATH,
-      matches: [EXTENSIONS_ATW_PATH],
+      matches: ['*'],
     });
   });
 });

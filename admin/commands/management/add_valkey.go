@@ -15,6 +15,7 @@
 package management
 
 import (
+	"errors"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -101,6 +102,12 @@ func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
 		tlsCa, tlsCert, tlsKey string
 	)
 	if cmd.TLS {
+		// The exporter refuses to start on half a client key pair, so catch it here rather
+		// than registering a service that silently falls back to server authentication.
+		if (cmd.TLSCertFile == "") != (cmd.TLSKeyFile == "") {
+			return nil, errors.New("--tls-cert and --tls-key must be specified together")
+		}
+
 		tlsCa, err = commands.ReadFile(cmd.TLSCaFile)
 		if err != nil {
 			return nil, err
