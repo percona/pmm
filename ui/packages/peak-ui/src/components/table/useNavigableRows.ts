@@ -13,31 +13,48 @@ export type NavigableRowsScope = 'allFiltered' | 'currentPage';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface UseNavigableRowsOptions<T extends Record<string, any>> {
+  /** All rows given to the table. */
   data: T[];
+  /** Which rows count as neighbors: every row that passes the filters (default) or only the visible page. */
   scope?: NavigableRowsScope;
+  /** Called whenever the ordered list of navigable rows changes. */
   onChange?: (rows: T[]) => void;
+  /** Controlled table state, for example from `usePerconaTableUrlState`, when the parent owns filters and sorting. */
   tableState?: NavigableTableState;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface UseNavigableRowsTableProps<T extends Record<string, any>> {
+  /** Spread onto `Table` so the hook can read the rows in the order the user sees them. */
   tableInstanceRef: MutableRefObject<MRT_TableInstance<T> | null>;
+  /** Filters, search text, sorting, and (for the current-page scope) pagination the hook tracks for the parent. */
   state?: {
+    /** Active per-column filters. */
     columnFilters: MRT_ColumnFiltersState;
+    /** Text typed in the search box. */
     globalFilter: string;
+    /** Active sort order, one entry per sorted column. */
     sorting: MRT_SortingState;
+    /** Current page and rows per page. */
     pagination?: MRT_PaginationState;
   };
+  /** Receives the new per-column filters when the user changes them. */
   onColumnFiltersChange?: (updater: MRT_Updater<MRT_ColumnFiltersState>) => void;
+  /** Receives the new search text when the user types in the search box. */
   onGlobalFilterChange?: (updater: MRT_Updater<string>) => void;
+  /** Receives the new sort order when the user sorts a column. */
   onSortingChange?: (updater: MRT_Updater<MRT_SortingState>) => void;
+  /** Receives the new page or rows per page when the user paginates. */
   onPaginationChange?: (updater: MRT_Updater<MRT_PaginationState>) => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface UseNavigableRowsResult<T extends Record<string, any>> {
+  /** Rows in the order the user sees them, after filters, search, and sorting. */
   navigableRows: T[];
+  /** Spread onto `Table` so the hook stays in sync with what the user sees. */
   tableProps: UseNavigableRowsTableProps<T>;
+  /** Recomputes the rows on demand, for example after the data changes in place. */
   refresh: () => void;
 }
 

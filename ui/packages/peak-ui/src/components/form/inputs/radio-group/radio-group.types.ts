@@ -16,21 +16,34 @@ import { Control, FieldPath, FieldValues, UseControllerProps } from 'react-hook-
 import { LabeledContentProps } from '../../../labeled-content';
 
 export type RadioGroupOptions = {
+  /** Text shown next to the radio. */
   label: string;
+  /** Value stored in the form when this option is picked. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
+  /** Greys out this option so it cannot be picked. */
   disabled?: boolean;
+  /** MUI Radio props forwarded to this option's radio, such as size or color. */
   radioProps?: RadioProps;
 };
 
 export type RadioGroupProps<T extends FieldValues = FieldValues> = {
+  /** react-hook-form control; only needed when the input sits outside a `FormProvider`. */
   control?: Control<T>;
+  /** Validation rules and other react-hook-form Controller settings for this field. */
   controllerProps?: Omit<UseControllerProps<T>, 'name' | 'control'>;
+  /** Form field the picked value is stored under; also drives the test id. */
   name: FieldPath<T>;
+  /** Heading shown above the options; without it only the radios render. */
   label?: string;
+  /** Settings for the heading rendered by `LabeledContent`, such as a caption. */
   labelProps?: LabeledContentProps;
+  /** MUI RadioGroup props; pass `{ row: false }` to stack the options vertically. */
   radioGroupFieldProps?: MuiRadioGroupProps;
+  /** Not rendered: the radios come from `options`. Kept for backwards compatibility. */
   children?: React.ReactNode;
+  /** Adds a required asterisk to the heading; validation itself goes in `controllerProps.rules`. */
   isRequired?: boolean;
+  /** Choices to show, one radio each. */
   options: RadioGroupOptions[];
 };
