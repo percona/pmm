@@ -15591,6 +15591,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#total-redo-log-space" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Total Redo Log Space
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#total-log-space" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -15661,6 +15672,17 @@
     <span class="md-ellipsis">
       
         Log Fsync Rate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#innodb-logging-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InnoDB Logging Performance
       
     </span>
   </a>
@@ -20432,6 +20454,17 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#total-redo-log-space" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Total Redo Log Space
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#total-log-space" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -20502,6 +20535,17 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-ellipsis">
       
         Log Fsync Rate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#innodb-logging-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InnoDB Logging Performance
       
     </span>
   </a>
@@ -22024,9 +22068,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <h3 id="neighbor-flushing-enabled">Neighbor Flushing Enabled<a class="headerlink" href="#neighbor-flushing-enabled" title="Permanent link">&para;</a></h3>
 <p>Neighbor Flushing is Optimized for Rotational Media  and unless you&rsquo;re Running spinning disks you should disable it.</p>
 <h3 id="innodb-checkpoint-age">InnoDB Checkpoint Age<a class="headerlink" href="#innodb-checkpoint-age" title="Permanent link">&para;</a></h3>
-<p><strong>InnoDB Checkpoint Age</strong></p>
-<p>The maximum checkpoint age is determined by the total length of all transaction log files (<code>innodb_log_file_size</code>).</p>
-<p>When the checkpoint age reaches the maximum checkpoint age, blocks are flushed synchronously. The rules of the thumb is to keep one hour of traffic in those logs and let the check-pointing perform its work as smooth as possible. If you don&rsquo;t do this, InnoDB will do synchronous flushing at the worst possible time, i.e., when you are busiest.</p>
+<p>Shows how much redo log data InnoDB has written since the last checkpoint, plotted over time against a limit line. On MySQL 8.0.30 and newer, the limit comes from <code>innodb_redo_log_capacity</code>. On older servers, it falls back to <code>Innodb_checkpoint_max_age</code>, a lower sync-flush threshold.</p>
+<p>Watch how close the checkpoint age stays to the limit. A checkpoint age that consistently approaches the limit means the redo log is undersized for the write workload.</p>
 <h3 id="pages-flushed-adaptive">Pages Flushed (Adaptive)<a class="headerlink" href="#pages-flushed-adaptive" title="Permanent link">&para;</a></h3>
 <p>Adaptive Flush  Flushes pages from Flush List based on the need to advance Checkpoint (driven by Redo Generation Rate) and by maintaining number of dirty pages within set limit.</p>
 <h3 id="adaptive-flush-batches-executed">Adaptive Flush Batches Executed<a class="headerlink" href="#adaptive-flush-batches-executed" title="Permanent link">&para;</a></h3>
@@ -22071,8 +22114,12 @@ Do not set it to actual storage capacity.</p>
 <h3 id="innodb-io-capacity-max">InnoDB IO Capacity Max<a class="headerlink" href="#innodb-io-capacity-max" title="Permanent link">&para;</a></h3>
 <p>InnoDB IO Capacity to use when falling behind and need to catch up with Flushing.</p>
 <h2 id="innodb-logging">InnoDB Logging<a class="headerlink" href="#innodb-logging" title="Permanent link">&para;</a></h2>
+<h3 id="total-redo-log-space">Total Redo Log Space<a class="headerlink" href="#total-redo-log-space" title="Permanent link">&para;</a></h3>
+<p>Shows the total InnoDB redo log capacity as a single value. On MySQL 8.0.30 and newer, reads <code>Innodb_redo_log_capacity_resized</code>, which reports the capacity actually in use whether you set <code>innodb_redo_log_capacity</code> or the older <code>innodb_log_file_size</code> and <code>innodb_log_files_in_group</code>. On older servers, uses <code>innodb_log_file_size × innodb_log_files_in_group</code>, or <code>innodb_log_file_size</code> alone on MariaDB 10.5 and newer, which removed the file count variable.</p>
+<p>Compare this value against the <strong>InnoDB Log File Usage Hourly</strong> panel to verify the redo log can hold one hour of writes.</p>
 <h3 id="total-log-space">Total Log Space<a class="headerlink" href="#total-log-space" title="Permanent link">&para;</a></h3>
-<p>Number of InnoDB Log Files Multiplied by Their Size.</p>
+<p>Shows the total InnoDB redo log capacity. On MySQL 8.0.30 and newer, reads <code>Innodb_redo_log_capacity_resized</code>, which reports the capacity actually in use whether you set <code>innodb_redo_log_capacity</code> or the older <code>innodb_log_file_size</code> and <code>innodb_log_files_in_group</code>. On older servers, uses <code>innodb_log_file_size × innodb_log_files_in_group</code>, or <code>innodb_log_file_size</code> alone on MariaDB 10.5 and newer, which removed the file count variable.</p>
+<p>Compare this value against the <strong>InnoDB Log File Usage Hourly</strong> panel to verify the redo log can hold one hour of writes.</p>
 <h3 id="log-buffer-size">Log Buffer Size<a class="headerlink" href="#log-buffer-size" title="Permanent link">&para;</a></h3>
 <p><strong>InnoDB Log Buffer Size</strong></p>
 <p>The size of buffer InnoDB uses for buffering writes to log files.</p>
@@ -22085,18 +22132,22 @@ Do not set it to actual storage capacity.</p>
 <h3 id="log-write-amplification">Log Write Amplification<a class="headerlink" href="#log-write-amplification" title="Permanent link">&para;</a></h3>
 <p>How much Writes to Log Are Amplified compared to how much Redo is Generated.</p>
 <h3 id="log-fsync-rate">Log Fsync Rate<a class="headerlink" href="#log-fsync-rate" title="Permanent link">&para;</a></h3>
+<h3 id="innodb-logging-performance">InnoDB Logging Performance<a class="headerlink" href="#innodb-logging-performance" title="Permanent link">&para;</a></h3>
+<p>Shows estimated time to fill the redo log and the log buffer at the current write rate, as two time-series lines.</p>
+<p>Use this alongside the <strong>InnoDB Log File Usage Hourly</strong> panel when sizing the redo log. The redo log line is the one to watch. If it drops to around one hour or below, InnoDB is cycling through the log too fast and checkpointing more frequently.</p>
 <h3 id="redo-generated-per-trx">Redo Generated per Trx<a class="headerlink" href="#redo-generated-per-trx" title="Permanent link">&para;</a></h3>
 <p>Amount of Redo Generated Per Write Transaction.  This is a good indicator of transaction size.</p>
 <h3 id="innodb-log-file-usage-hourly">InnoDB Log File Usage Hourly<a class="headerlink" href="#innodb-log-file-usage-hourly" title="Permanent link">&para;</a></h3>
-<p><strong>InnoDB Log File Usage Hourly</strong></p>
-<p>Along with the buffer pool size, <code>innodb_log_file_size</code> is the most important setting when we are working with InnoDB. This graph shows how much data was written to InnoDB&rsquo;s redo logs over each hour. When the InnoDB log files are full, InnoDB needs to flush the modified pages from memory to disk.</p>
-<p>The rules of the thumb is to keep one hour of traffic in those logs and let the checkpointing perform its work as smooth as possible. If you don&rsquo;t do this, InnoDB will do synchronous flushing at the worst possible time, i.e., when you are busiest.</p>
-<p>This graph can help guide you in setting the correct <code>innodb_log_file_size</code>.</p>
+<p>Shows the amount of redo InnoDB writes each hour, alongside the total redo log capacity as a reference line.</p>
+<p>Use this to size the redo log. If the hourly bars approach or exceed the capacity line, the log is too small for the current workload. Ideally, the capacity line should sit well above the tallest bar.</p>
 <h3 id="log-padding-written">Log Padding Written<a class="headerlink" href="#log-padding-written" title="Permanent link">&para;</a></h3>
 <p>Amount of Log Padding Written.</p>
 <h3 id="innodb-log-file-size">InnoDB Log File Size<a class="headerlink" href="#innodb-log-file-size" title="Permanent link">&para;</a></h3>
+<p>Shows the size of each InnoDB redo log file as a single value. On MySQL 8.0.30 and later, this is <code>innodb_redo_log_capacity ÷ 32</code> because InnoDB always uses exactly 32 files. On older servers, it shows the value of <code>innodb_log_file_size</code>.</p>
+<p>Use the <strong>Total Log Space</strong> panel to check the combined capacity across all files.</p>
 <h3 id="innodb-log-files">InnoDB Log Files<a class="headerlink" href="#innodb-log-files" title="Permanent link">&para;</a></h3>
-<p>Number of InnoDB Redo Log Files.</p>
+<p>Shows the number of InnoDB redo log files as a single value. On MySQL 8.0.30 and later, the count is always 32 regardless of <code>innodb_log_files_in_group</code>. On older servers, it shows the value of <code>innodb_log_files_in_group</code>.</p>
+<p>Use this alongside the <strong>InnoDB Log File Size</strong> panel to understand the full redo log layout.</p>
 <h3 id="log-bandwidth">Log Bandwidth<a class="headerlink" href="#log-bandwidth" title="Permanent link">&para;</a></h3>
 <h3 id="redo-generation-rate_1">Redo Generation Rate<a class="headerlink" href="#redo-generation-rate_1" title="Permanent link">&para;</a></h3>
 <p>Rate at which LSN (Redo)  is Created. It may not match how much data is written to log files due to block size rounding.</p>
@@ -22324,7 +22375,7 @@ Do not set it to actual storage capacity.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2024 14:22:49 UTC">December 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 6, 2026 08:46:19 UTC">October 6, 2026</span>
   </span>
 
     
