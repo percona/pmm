@@ -19,14 +19,10 @@ import { Tab, Tabs } from '@mui/material';
 import { SchemaDrivenPlugin } from '@sep/framework';
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import {
-  BackupMongoTaskDetailExtras,
-  getBackupMongoExecuteActions,
-  getBackupMongoHistoryTaskNames,
-} from './backupMongoTaskDetail';
-import {
   ClusterScopeProvider,
   clusterScopedRenderField,
 } from './clusterScopedFields';
+import { BackupsTab } from './BackupsTab';
 import { ConfigTab } from './ConfigTab';
 import { backupMongoCreateRenderField } from './backupMongoCreateForm';
 import {
@@ -39,9 +35,8 @@ import {
   restoreMongoCreateRenderField,
   restoreMongoEditForm,
 } from './restoreMongoCreateForm';
-import { BACKUP_APP_NAME, RESTORE_APP_NAME } from './routes';
+import { RESTORE_APP_NAME } from './routes';
 
-const BACKUP_DETAIL_SUPPRESS_KEYS = ['derived_tasks', 'latest_pbm_status'];
 const RESTORE_DETAIL_SUPPRESS_KEYS = ['derived_tasks'];
 
 /*
@@ -140,19 +135,13 @@ export function BackupMongoApp({ basePath }: { basePath: string }) {
             }
           />
           <Route
+            // The backups PBM actually holds, with the task table below as the
+            // record of what was asked for -- the same split the config tab makes.
             path="backups/*"
             element={
-              <SchemaDrivenPlugin
-                pluginName={BACKUP_APP_NAME}
-                routeBase={`${basePath}/backups`}
-                hideRelatedAppTabs
-                getTaskExecuteActions={getBackupMongoExecuteActions}
-                getTaskHistoryNames={getBackupMongoHistoryTaskNames}
-                suppressDetailKeys={BACKUP_DETAIL_SUPPRESS_KEYS}
+              <BackupsTab
+                basePath={basePath}
                 renderField={BACKUPS_RENDER_FIELD}
-                renderTaskDetailChildren={({ task }) => (
-                  <BackupMongoTaskDetailExtras task={task} />
-                )}
               />
             }
           />

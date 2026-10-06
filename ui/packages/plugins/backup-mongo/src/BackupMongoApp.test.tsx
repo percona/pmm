@@ -88,11 +88,16 @@ describe('BackupMongoApp route wiring', () => {
     expect(restores.renderEditForm).toBe(restoreMongoEditForm);
   });
 
-  it('leaves the backups tab on the framework default edit renderer', () => {
+  it('gives the backups tab the cluster scope and nothing else', () => {
+    // BackupsTab now owns the SchemaDrivenPlugin, so the route passes it the
+    // mount path and the cluster-scoped field override and nothing more; the
+    // form slots stay on the framework defaults, as they did when the route
+    // mounted the plugin directly.
     const backups = schemaAppPropsByRoutePath()['backups/*'];
 
-    expect(backups.renderEditForm).toBeUndefined();
+    expect(backups.renderField).toBeDefined();
     expect(backups.renderCreateForm).toBeUndefined();
+    expect(backups.renderEditForm).toBeUndefined();
   });
 
   // Each plugin's routeBase must resolve under the path the host actually mounts
@@ -101,10 +106,11 @@ describe('BackupMongoApp route wiring', () => {
   it('derives every tab routeBase from the host-supplied basePath', () => {
     const byPath = schemaAppPropsByRoutePath();
 
-    // ConfigTab takes basePath and derives `${basePath}/config` itself, so the
-    // guarantee moves with it -- asserted directly below.
+    // ConfigTab and BackupsTab take basePath and derive `${basePath}/config`
+    // and `${basePath}/backups` themselves, so the guarantee moves with them --
+    // asserted directly below.
     expect(byPath['config/*'].basePath).toBe(BASE_PATH);
-    expect(byPath['backups/*'].routeBase).toBe(`${BASE_PATH}/backups`);
+    expect(byPath['backups/*'].basePath).toBe(BASE_PATH);
     expect(byPath['restores/*'].routeBase).toBe(`${BASE_PATH}/restores`);
   });
 
@@ -140,6 +146,24 @@ describe('BackupMongoApp route wiring', () => {
         `${BASE_PATH}/config/backup_mongo_config/42`,
         `${BASE_PATH}/config`
       )
+    ).toBe(false);
+  });
+
+  it('derives the backups routeBase from basePath', () => {
+    // BackupsTab collapses its task table the same way, and shares `showsList`
+    // with ConfigTab, so the same derivation has to hold or the accordion would
+    // swallow the create form.
+    expect(showsList(`${BASE_PATH}/backups`, `${BASE_PATH}/backups`)).toBe(
+      true
+    );
+    expect(
+      showsList(`${BASE_PATH}/backups/backup_mongo`, `${BASE_PATH}/backups`)
+    ).toBe(true);
+    expect(
+      showsList(`${BASE_PATH}/backups/backup_mongo/new`, `${BASE_PATH}/backups`)
+    ).toBe(false);
+    expect(
+      showsList(`${BASE_PATH}/backups/backup_mongo/42`, `${BASE_PATH}/backups`)
     ).toBe(false);
   });
 
