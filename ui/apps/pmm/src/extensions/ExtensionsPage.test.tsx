@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { ReactElement } from 'react';
+import { useAppInfo } from '@pmm-extensions/api';
 import { SettingsContext } from 'contexts/settings';
 import { TestWrapper } from 'utils/testWrapper';
 import {
@@ -18,6 +19,20 @@ vi.mock('./ExtensionsAuthGate', () => ({
     <>{children}</>
   ),
 }));
+
+// Default keeps the version alert inert so settings-gating cases do not need a
+// QueryClient. Mismatch cases stub useAppInfo / VersionContext per assertion.
+vi.mock('@pmm-extensions/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@pmm-extensions/api')>()),
+  useAppInfo: vi.fn(),
+}));
+
+vi.mocked(useAppInfo).mockReturnValue({
+  data: undefined,
+  isSuccess: false,
+  isError: false,
+  isPending: true,
+} as ReturnType<typeof useAppInfo>);
 
 const renderExtensionsPage = ({
   user = TEST_USER_ADMIN,
