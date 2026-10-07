@@ -307,7 +307,7 @@ const ELECTION_SETTING_HELP = [
  * so an in-flight run keeps a URL, survives a refresh, and reads like the rest
  * of OM's pages rather than a form floating over them.
  *
- * The host selection itself is carried across as the `?hosts=` query param
+ * The host selection itself is carried across as the `?nodes=` query param
  * (comma-separated node ids) rather than router state, precisely so a refresh
  * doesn't lose it — this page's own "Hosts" step is a read-only recap of that
  * selection, not a second place to make it, so it never duplicates
@@ -416,7 +416,7 @@ export const BootstrapPage = () => {
       isMemberConfigValid(memberConfigs[host.node_id] ?? defaultMemberConfig())
     );
 
-  // A fresh selection (a different ?hosts= than last render) resets the wizard
+  // A fresh selection (a different ?nodes= than last render) resets the wizard
   // back to its first step - landing on this page for a different host set must
   // not carry over a previous run id or an in-flight mutation's error.
   useEffect(() => {

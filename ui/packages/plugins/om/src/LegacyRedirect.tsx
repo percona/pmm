@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useOmBase } from './useOmBase';
 
 /**
@@ -25,15 +25,27 @@ import { useOmBase } from './useOmBase';
  * query string, and possibly *only* a query string, since the fleet is the index route
  * and its constant is `''`. Split rather than concatenated, so `services` lands on
  * `/operations?tab=services` and not on `/operations/?tab=services`.
+ *
+ * The incoming query is carried through, with `to`'s own parameters winning.
  */
 export function legacyRedirectTarget(
   base: string,
-  to: string
+  to: string,
+  incoming = ''
 ): { pathname: string; search: string } {
   const [path, query] = to.split('?');
+  const params = new URLSearchParams(incoming);
+  // The install wizard read its selection from `?hosts=` before it was `?nodes=`.
+  const hosts = params.get('hosts');
+  if (hosts !== null) {
+    params.delete('hosts');
+    params.set('nodes', hosts);
+  }
+  new URLSearchParams(query).forEach((value, key) => params.set(key, value));
+  const search = params.toString();
   return {
     pathname: path ? `${base}/${path}` : base || '/',
-    search: query ? `?${query}` : '',
+    search: search ? `?${search}` : '',
   };
 }
 
@@ -44,5 +56,6 @@ export function legacyRedirectTarget(
  */
 export const LegacyRedirect = ({ to }: { to: string }) => {
   const base = useOmBase();
-  return <Navigate to={legacyRedirectTarget(base, to)} replace />;
+  const { search } = useLocation();
+  return <Navigate to={legacyRedirectTarget(base, to, search)} replace />;
 };
