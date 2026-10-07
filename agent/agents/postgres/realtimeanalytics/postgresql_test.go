@@ -15,9 +15,11 @@
 package realtimeanalytics
 
 import (
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -29,7 +31,18 @@ import (
 func TestActivityQueryIsTagged(t *testing.T) {
 	t.Parallel()
 
-	assert.True(t, agents.IsRTAQuery(activityQuery))
+	assert.True(t, strings.HasPrefix(activityQuery, "WITH "+agents.RTAQueryTag+" "))
+}
+
+func TestNewCollectInterval(t *testing.T) {
+	t.Parallel()
+
+	l := logrus.NewEntry(logrus.New())
+	for _, interval := range []time.Duration{0, -1} {
+		m, err := New(&Params{CollectInterval: interval}, l)
+		require.NoError(t, err)
+		assert.Equal(t, defaultCollectInterval, m.collectInterval)
+	}
 }
 
 func TestToBlockers(t *testing.T) {

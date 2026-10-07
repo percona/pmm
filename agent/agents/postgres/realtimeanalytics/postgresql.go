@@ -25,6 +25,7 @@ import (
 	"strconv"
 	"time"
 
+	_ "github.com/lib/pq" // register SQL driver
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
@@ -36,11 +37,12 @@ import (
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
-// activityQuery returns the non-idle client sessions. It selects agents.RTAQueryTag so the QAN agents skip it;
-// pg_stat_statements and pg_stat_monitor keep the whole text, so unlike MySQL's digest it need not come first.
+// activityQuery returns the non-idle client sessions. Its CTE is named agents.RTAQueryTag so the QAN agents skip
+// it: they match the tag against the text cut at max-query-length, so it has to come first.
 //
 //   - pg_blocking_pids() is called only for sessions waiting on a heavyweight lock: it takes the lock
 //     manager's locks, so calling it for every backend every collect interval would be load of its own.
+//   - query_text_truncated allows for a multibyte character cut short (up to 3 bytes) below track_activity_query_size.
 //   - Parallel workers are left out; their leader is listed and carries the query.
 //   - query_id (14+) and pg_locks.waitstart (14+) are read through to_jsonb, so one query serves 12 and 13 too.
 //   - For sessions idle in transaction the duration is the transaction's, not the last query's.
@@ -50,14 +52,13 @@ import (
 //     helper column; its columns differ between versions.
 //
 //nolint:unqueryvet
-const activityQuery = `WITH a AS (SELECT *, CASE WHEN wait_event_type = 'Lock' THEN pg_blocking_pids(pid) END AS blk FROM pg_stat_activity)
-SELECT NULL AS ` + agents.RTAQueryTag + `,
-  w.pid, jsonb_pretty(to_jsonb(w) - 'blk'), COALESCE(w.datname, ''), COALESCE(w.usename, ''), COALESCE(w.application_name, ''),
+const activityQuery = `WITH ` + agents.RTAQueryTag + ` AS (SELECT *, CASE WHEN wait_event_type = 'Lock' THEN pg_blocking_pids(pid) END AS blk FROM pg_stat_activity)
+SELECT w.pid, jsonb_pretty(to_jsonb(w) - 'blk'), COALESCE(w.datname, ''), COALESCE(w.usename, ''), COALESCE(w.application_name, ''),
   COALESCE(w.state, ''), COALESCE(w.wait_event_type, ''), COALESCE(w.wait_event, ''),
   COALESCE(host(w.client_addr) || ':' || w.client_port, ''), COALESCE(w.query, ''),
   COALESCE(to_jsonb(w)->>'query_id', ''), w.xact_start, w.query_start,
   EXTRACT(EPOCH FROM now() - CASE WHEN w.state LIKE 'idle in transaction%' THEN w.xact_start ELSE w.query_start END),
-  COALESCE(octet_length(w.query) >= s.size - 1, false),
+  COALESCE(octet_length(w.query) >= s.size - 4, false),
   w.blk IS NOT NULL,
   (SELECT EXTRACT(EPOCH FROM now() - min((to_jsonb(l)->>'waitstart')::timestamptz))
      FROM pg_locks l WHERE w.blk IS NOT NULL AND l.pid = w.pid AND NOT l.granted),
@@ -65,10 +66,12 @@ SELECT NULL AS ` + agents.RTAQueryTag + `,
        'pid', b.pid, 'query', COALESCE(b.query, ''), 'state', COALESCE(b.state, b.backend_type, ''),
        'user', COALESCE(b.usename, ''), 'xact_secs', EXTRACT(EPOCH FROM now() - b.xact_start),
        'root', b.blk IS NULL OR cardinality(b.blk) = 0,
-       'truncated', COALESCE(octet_length(b.query) >= s.size - 1, false)) ORDER BY b.pid)
-     FROM a b WHERE b.pid = ANY(w.blk))
-FROM a w, (SELECT setting::int AS size FROM pg_settings WHERE name = 'track_activity_query_size') s
+       'truncated', COALESCE(octet_length(b.query) >= s.size - 4, false)) ORDER BY b.pid)
+     FROM ` + agents.RTAQueryTag + ` b WHERE b.pid = ANY(w.blk))
+FROM ` + agents.RTAQueryTag + ` w, (SELECT setting::int AS size FROM pg_settings WHERE name = 'track_activity_query_size') s
 WHERE w.backend_type = 'client backend' AND w.state IS DISTINCT FROM 'idle' AND w.pid <> pg_backend_pid()`
+
+const defaultCollectInterval = 2 * time.Second
 
 // PostgreSQLRTA extracts Real-Time Analytics data (currently running queries) from PostgreSQL.
 type PostgreSQLRTA struct {
@@ -97,11 +100,17 @@ func New(params *Params, l *logrus.Entry) (*PostgreSQLRTA, error) {
 	// a single connection makes pg_backend_pid() exclude all of our own queries
 	db.SetMaxOpenConns(1)
 
+	collectInterval := params.CollectInterval
+	if collectInterval <= 0 {
+		l.Warnf("No collect interval set for Real-Time Analytics, falling back to %s", defaultCollectInterval)
+		collectInterval = defaultCollectInterval
+	}
+
 	return &PostgreSQLRTA{
 		db:              db,
 		serviceID:       params.ServiceID,
 		serviceName:     params.ServiceName,
-		collectInterval: params.CollectInterval,
+		collectInterval: collectInterval,
 		l:               l,
 		changes:         make(chan agents.Change, 10), //nolint:mnd
 	}, nil
@@ -181,14 +190,13 @@ func (m *PostgreSQLRTA) collect(ctx context.Context) ([]*rtav1.QueryData, error)
 		var (
 			p                 rtav1.QueryPostgreSQLData
 			q                 rtav1.QueryData
-			tag               sql.NullString
 			xactStart, qStart sql.NullTime
 			duration, waited  *float64
 			blocked           bool
 			blockers          []byte
 		)
 
-		err = rows.Scan(&tag, &p.Pid, &q.QueryRawJson, &p.DatabaseName, &p.Username, &p.ApplicationName,
+		err = rows.Scan(&p.Pid, &q.QueryRawJson, &p.DatabaseName, &p.Username, &p.ApplicationName,
 			&p.State, &p.WaitEventType, &p.WaitEvent, &q.ClientAddress, &q.QueryText, &p.QueryId,
 			&xactStart, &qStart, &duration, &p.QueryTextTruncated, &blocked, &waited, &blockers)
 		if err != nil {

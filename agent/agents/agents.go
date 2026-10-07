@@ -28,15 +28,15 @@ import (
 
 // RTAQueryTag marks the queries the MySQL and PostgreSQL Real-Time Analytics agents poll with, so the QAN
 // agents can leave them out: RTA runs them every collect interval on the very server QAN is watching.
-// Each query selects NULL AS pmm_agent_rta as its first column, because the statement digest that
-// the perfschema QAN agent reads keeps identifiers but strips comments, and is cut at
-// max_digest_length (1024 bytes by default) -- these queries are longer than that, so the tag has
-// to come first. The /* pmm-agent:rta */ comment next to it is for whoever reads the processlist
-// or the slow log. It lives here because agents must not import each other.
+// The tag has to come first, since QAN sees the text cut short: MySQL's digest text strips comments and
+// is cut at max_digest_length, and the PostgreSQL QAN agents cut at max-query-length. So MySQL's queries
+// select NULL AS pmm_agent_rta as their first column, and PostgreSQL's names its CTE pmm_agent_rta.
+// The /* pmm-agent:rta */ comment next to MySQL's tag is for whoever reads the processlist or the slow log.
+// It lives here because agents must not import each other.
 const RTAQueryTag = "pmm_agent_rta"
 
-// IsRTAQuery reports whether a query text, or its digest text, is one of the MySQL Real-Time
-// Analytics agent's polling queries.
+// IsRTAQuery reports whether a query text, or its digest text, is one of the Real-Time Analytics
+// agents' polling queries.
 func IsRTAQuery(query string) bool {
 	return strings.Contains(query, RTAQueryTag)
 }
