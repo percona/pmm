@@ -23,7 +23,8 @@ export const ExtensionsVersionMismatchAlert: FC = () => {
   const serverRelease = toReleaseVersion(serverVersion);
   const extensionsRelease = toReleaseVersion(extensionsVersion);
 
-  // Unparsable server → silent (unknown); unparsable Extensions after success → warn.
+  // A completed app-info without a usable release is the mismatch signal; a
+  // server string we cannot parse is still treated as unknown (see PMM-15671).
   if (!serverRelease) {
     return null;
   }

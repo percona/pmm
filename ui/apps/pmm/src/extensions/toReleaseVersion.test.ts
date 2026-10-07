@@ -17,6 +17,14 @@ describe('toReleaseVersion', () => {
     expect(toReleaseVersion('v3.11.0-feature.1')).toBe('3.11.0');
   });
 
+  it('ignores a fourth numeric component (hotfix-only difference)', () => {
+    expect(toReleaseVersion('3.10.0.1')).toBe('3.10.0');
+  });
+
+  it('keeps leading zeros inside a component', () => {
+    expect(toReleaseVersion('3.10.01')).toBe('3.10.01');
+  });
+
   it('treats prefix- or suffix-only differences as the same release', () => {
     expect(toReleaseVersion('v3.10.0.dev0')).toBe(toReleaseVersion('3.10.0'));
     expect(toReleaseVersion('3.10.0-rc1')).toBe(toReleaseVersion('v3.10.0'));
