@@ -30,11 +30,20 @@ See the [PMM Documentation](https://docs.percona.com/percona-monitoring-and-mana
 
 ## Architecture
 
-![Overall Architecture](./documentation/docs/images/arch/C_S_Architecture.jpg "Client Server Architecture")
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./documentation/docs/images/arch/C_S_Architecture-dark.png">
+  <img alt="Overall Architecture" title="Client Server Architecture" src="./documentation/docs/images/arch/C_S_Architecture-light.png">
+</picture>
 
-![PMM Server](./documentation/docs/images/arch/PMM-Server-Component-Based-View.jpg 'PMM Server Architecture')
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./documentation/docs/images/arch/PMM-Server-Component-Based-View-dark.png">
+  <img alt="PMM Server" title="PMM Server Architecture" src="./documentation/docs/images/arch/PMM-Server-Component-Based-View-light.png">
+</picture>
 
-![PMM Client](./documentation/docs/images/arch/PMM-Client-Component-Based-View.jpg 'PMM Client Architecture')
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./documentation/docs/images/arch/PMM-Client-Component-Based-View-dark.png">
+  <img alt="PMM Client" title="PMM Client Architecture" src="./documentation/docs/images/arch/PMM-Client-Component-Based-View-light.png">
+</picture>
 
 ## Installation
 
