@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -257,8 +258,70 @@ func TestServerClientConnection(t *testing.T) {
 		req.Header.Set("Authorization", "Bearer wrong")
 
 		_, authError := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
-		assert.Equal(t, codes.Internal, authError.code)
+		assert.Equal(t, codes.Unauthenticated, authError.code)
 	})
+}
+
+// TestRetrieveRoleRejectedCredentials checks the code clients get when Grafana rejects the
+// credentials: the CLIs pick their hint from it, and only Unauthenticated tells the user to
+// check their username and password.
+func TestRetrieveRoleRejectedCredentials(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name   string
+		status int
+		body   string
+		want   *authError
+	}{
+		{
+			name:   "disabled service account",
+			status: http.StatusBadRequest,
+			body:   `{"message":"Auth method is not service account token"}`,
+			want:   &authError{code: codes.Unauthenticated, message: "Auth method is not service account token"},
+		},
+		{
+			name:   "unauthorized",
+			status: http.StatusUnauthorized,
+			body:   `{"message":"Invalid API key"}`,
+			want:   &authError{code: codes.Unauthenticated, message: "Invalid API key"},
+		},
+		{
+			name:   "forbidden",
+			status: http.StatusForbidden,
+			body:   `{"message":"Forbidden"}`,
+			want:   &authError{code: codes.Unauthenticated, message: "Forbidden"},
+		},
+		{
+			name:   "server error",
+			status: http.StatusInternalServerError,
+			body:   `{"message":"Failed to retrieve service account"}`,
+			want:   &authError{code: codes.Internal, message: "Failed to retrieve service account"},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path != "/api/auth/serviceaccount" {
+					w.WriteHeader(http.StatusNotFound)
+					return
+				}
+				w.WriteHeader(tc.status)
+				_, _ = fmt.Fprint(w, tc.body)
+			}))
+			defer ts.Close()
+
+			s := NewAuthServer(NewClient(strings.TrimPrefix(ts.URL, "http://")), nil)
+			authHeaders := http.Header{}
+			authHeaders.Set("Authorization", "Bearer glsa_disabled")
+
+			u, authErr := s.retrieveRole(t.Context(), t.Name(), authHeaders, logrus.WithField("test", t.Name()))
+			assert.Nil(t, u)
+			assert.Equal(t, tc.want, authErr)
+			assert.Empty(t, s.cache, "a rejected token must not be cached")
+		})
+	}
 }
 
 func TestAuthServerAddVMGatewayToken(t *testing.T) {
