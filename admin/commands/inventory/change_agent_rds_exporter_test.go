@@ -44,10 +44,8 @@ func TestRDSExporterChangeAgent(t *testing.T) {
 				DisableBasicMetrics:    new(false),
 				DisableEnhancedMetrics: new(true),
 				PushMetrics:            new(true),
-				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: new(flags.LogLevel("debug")),
-				},
-				CustomLabels: &map[string]string{"environment": "production", "region": "us-west-2"},
+				LogLevel:               new(flags.LogLevel("debug")),
+				CustomLabels:           &map[string]string{"environment": "production", "region": "us-west-2"},
 			}
 
 			result, err := cmd.RunCmd()
