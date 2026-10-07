@@ -31,6 +31,7 @@ import (
 
 type syncTestServer struct {
 	*Server
+
 	db          sqlmock.Sqlmock
 	supervisord *mockSupervisordService
 	nomad       *mockNomadService
