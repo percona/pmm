@@ -23,6 +23,7 @@ export const ExtensionsVersionMismatchAlert: FC = () => {
   const serverRelease = toReleaseVersion(serverVersion);
   const extensionsRelease = toReleaseVersion(extensionsVersion);
 
+  // Unparsable server → silent (unknown); unparsable Extensions after success → warn.
   if (!serverRelease) {
     return null;
   }
