@@ -442,8 +442,11 @@ describe('NodesPage', () => {
       renderPage([failingHost()]);
 
       const row = rowFor('node00');
+      // `failing_since` is two hours before the fixture was built, and a slow run can
+      // render a second or more later - so "2h" may read "2h 1s". Exact text here
+      // made the test pass or fail with the machine's load.
       expect(row).toHaveTextContent(
-        'Failing for 2h, 4 failed scans in a row: Scan crashed'
+        /Failing for 2h( \d+s)?, 4 failed scans in a row: Scan crashed/
       );
       expect(row).toHaveTextContent('Never collected.');
     });
@@ -500,7 +503,7 @@ describe('NodesPage', () => {
       ]);
 
       expect(rowFor('node00')).toHaveTextContent(
-        'Failing for 2h, 4 failed scans in a row: probe exploded'
+        /Failing for 2h( \d+s)?, 4 failed scans in a row: probe exploded/
       );
       expand('node00');
       expect(screen.getByTestId('scan-error').textContent).toBe(
