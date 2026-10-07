@@ -314,9 +314,8 @@ func TestConfigAcceptsServiceID(t *testing.T) {
 // TestStoredPlanProbe pins where pmm_get_explain looks for a stored plan.
 //
 // Only PostgreSQL has stored plans - pg_stat_monitor captures one per digest -
-// so the probe runs for PostgreSQL alone. It is not yet scoped to the service:
-// qan:getQueryPlan is addressed by queryid only, which needs a QAN change of
-// its own. These tests pin what the probe does promise.
+// so the probe runs for PostgreSQL alone. It sends service_id, which qan-api2
+// ignores until PMM-15697. These tests pin what the probe does promise.
 func TestStoredPlanProbe(t *testing.T) {
 	t.Parallel()
 
