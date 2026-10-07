@@ -18,6 +18,7 @@ import {
   formatLockTimeMs,
   isBlocked,
   queryLanguage,
+  queryTechnology,
   sqlPayload,
 } from '../table/OverviewTable.utils';
 
@@ -60,7 +61,7 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
     clientAddress,
     mongoDbPayload,
     mySqlPayload,
-    postgresqlPayload: pg,
+    postgresqlPayload,
   } = queryData;
 
   const language = queryLanguage(queryData);
@@ -70,12 +71,17 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
   // Fields common to all database types are resolved from whichever payload is present.
   const dbInstanceAddress =
     mongoDbPayload?.dbInstanceAddress ?? mySqlPayload?.dbInstanceAddress;
-  const databaseName =
-    mongoDbPayload?.databaseName ??
-    mySqlPayload?.databaseName ??
-    pg?.databaseName;
-  const username =
-    mongoDbPayload?.username ?? mySqlPayload?.username ?? pg?.username;
+  const databaseName = [
+    mongoDbPayload?.databaseName,
+    mySqlPayload?.databaseName,
+    postgresqlPayload?.databaseName,
+  ].find((e) => !!e);
+  const username = [
+    mongoDbPayload?.username,
+    mySqlPayload?.username,
+    postgresqlPayload?.username,
+  ].find((e) => !!e);
+  const technology = queryTechnology(queryData);
   const formatTime = (time?: string) =>
     time ? format(new Date(time), TIME_FORMAT, { in: tz(timezone) }) : '';
 
@@ -109,7 +115,7 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
             lockedIndex={mySqlPayload?.lockedIndex}
             lockType={mySqlPayload?.lockType}
             requestedLockMode={mySqlPayload?.requestedLockMode}
-            postgresql={!!pg}
+            technology={technology}
           />
         </Grid>
       )}
@@ -121,7 +127,7 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
               tooltip={
                 mySqlPayload
                   ? Messages.tooltips.operationIdMySql
-                  : pg
+                  : postgresqlPayload
                     ? Messages.tooltips.operationIdPostgreSql
                     : Messages.tooltips.operationId
               }
@@ -385,34 +391,41 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
               </GridItem>
             </>
           )}
-          {pg && (
+          {postgresqlPayload && (
             <>
-              <Metric name="state" value={pg.state} testId="state-value" />
+              <Metric
+                name="state"
+                value={postgresqlPayload.state}
+                testId="state-value"
+              />
               <Metric
                 name="waitEvent"
-                value={[pg.waitEventType, pg.waitEvent]
+                value={[
+                  postgresqlPayload.waitEventType,
+                  postgresqlPayload.waitEvent,
+                ]
                   .filter(Boolean)
                   .join(': ')}
                 testId="wait-event-value"
               />
               <Metric
                 name="clientAppName"
-                value={pg.applicationName}
+                value={postgresqlPayload.applicationName}
                 testId="client-app-name-value"
               />
               <Metric
                 name="queryId"
-                value={pg.queryId}
+                value={postgresqlPayload.queryId}
                 testId="query-id-value"
               />
               <Metric
                 name="operationStartTime"
-                value={formatTime(pg.queryStartTime)}
+                value={formatTime(postgresqlPayload.queryStartTime)}
                 testId="operation-start-time-value"
               />
               <Metric
                 name="transactionStartTime"
-                value={formatTime(pg.transactionStartTime)}
+                value={formatTime(postgresqlPayload.transactionStartTime)}
                 testId="transaction-start-time-value"
               />
             </>
@@ -438,7 +451,7 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
           {sqlPayload(queryData)?.queryTextTruncated && (
             <TruncatedChip
               dataTestId="query-text-truncated"
-              postgresql={!!pg}
+              technology={technology}
             />
           )}
           <CodeBlock

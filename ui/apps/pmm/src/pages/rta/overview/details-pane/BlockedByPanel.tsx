@@ -8,6 +8,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Chip, CodeBlock } from '@percona/peak-ui';
 import { FC } from 'react';
 import { BlockingTransaction, LockType } from 'types/rta.types';
+import { ServiceType } from 'types/services.types';
 import { formatDurationSeconds, parseDuration } from 'utils/duration.utils';
 import {
   blockingRoots,
@@ -27,7 +28,7 @@ export interface Props {
   lockedIndex?: string;
   lockType?: LockType;
   requestedLockMode?: string;
-  postgresql?: boolean;
+  technology?: ServiceType;
 }
 
 // Which mechanism the wait is on, in the reader's words. Unknown lock types render nothing
@@ -130,7 +131,7 @@ const BlockedByPanel: FC<Props> = ({
   lockedIndex,
   lockType,
   requestedLockMode,
-  postgresql,
+  technology,
 }) => {
   // Transactions that are not themselves waiting. Resolving those is what frees the
   // statement — but there can be several, and then no single one is the answer.
@@ -242,7 +243,7 @@ const BlockedByPanel: FC<Props> = ({
               color="text.secondary"
               data-testid="blocker-query-unavailable"
             >
-              {isIdle && !postgresql
+              {isIdle && technology === ServiceType.mysql
                 ? blockerAge
                   ? Messages.noStatementIdleInTransaction
                   : Messages.noStatementIdle
@@ -259,7 +260,7 @@ const BlockedByPanel: FC<Props> = ({
               {primary.blockingQueryTruncated && (
                 <TruncatedChip
                   dataTestId="blocker-query-truncated"
-                  postgresql={postgresql}
+                  technology={technology}
                 />
               )}
             </Stack>

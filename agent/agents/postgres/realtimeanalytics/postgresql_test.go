@@ -124,4 +124,17 @@ func TestWithBlockingChains(t *testing.T) {
 
 	// the shared blocker of session 8 is not modified
 	assert.Equal(t, 10*time.Second, queries[1].GetPostgresqlPayload().BlockedBy[0].WaitDuration.AsDuration())
+
+	// A deadlock not yet broken by deadlock_timeout: neither session lists itself.
+	cycle := []*rtav1.QueryData{
+		session(5, blocker(6, false, time.Second)),
+		session(6, blocker(5, false, time.Second)),
+	}
+	withBlockingChains(cycle)
+
+	for i, pid := range []int64{6, 5} {
+		chain := cycle[i].GetPostgresqlPayload().BlockedBy
+		require.Len(t, chain, 1)
+		assert.Equal(t, pid, chain[0].BlockingConnId)
+	}
 }

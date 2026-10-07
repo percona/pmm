@@ -24,6 +24,7 @@ import {
   isLockWaitUnreadable,
   queryDatabaseName,
   queryLanguage,
+  queryTechnology,
   queryUsername,
   UNAVAILABLE_VALUE,
 } from './OverviewTable.utils';
@@ -65,7 +66,7 @@ const QUERY_TEXT_COLUMN: MRT_ColumnDef<QueryData> = {
       {sqlPayload(row.original)?.queryTextTruncated && (
         <TruncatedChip
           dataTestId={`query-${row.original.queryId}-truncated-chip`}
-          postgresql={!!row.original.postgresqlPayload}
+          technology={queryTechnology(row.original)}
         />
       )}
     </Stack>

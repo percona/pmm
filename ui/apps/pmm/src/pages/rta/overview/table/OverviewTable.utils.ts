@@ -7,6 +7,7 @@ import {
   QueryData,
   RawQueryData,
 } from 'types/rta.types';
+import { ServiceType } from 'types/services.types';
 import { CodeLanguage } from 'types/util.types';
 import { parseDuration } from 'utils/duration.utils';
 
@@ -14,6 +15,22 @@ import { parseDuration } from 'utils/duration.utils';
 // based on which database-specific payload it carries.
 export const queryLanguage = (query: RawQueryData): CodeLanguage =>
   query.mySqlPayload || query.postgresqlPayload ? 'sql' : 'mongodb';
+
+// queryTechnology returns the database type of a query, from which payload it carries.
+export const queryTechnology = (
+  query: RawQueryData
+): ServiceType | undefined => {
+  if (query.mySqlPayload) {
+    return ServiceType.mysql;
+  }
+  if (query.postgresqlPayload) {
+    return ServiceType.posgresql;
+  }
+  if (query.mongoDbPayload) {
+    return ServiceType.mongodb;
+  }
+  return undefined;
+};
 
 // codeBlockLanguage maps a CodeLanguage to a Prism language understood by the
 // CodeBlock component. MongoDB has no Prism grammar; JavaScript is the closest fit.

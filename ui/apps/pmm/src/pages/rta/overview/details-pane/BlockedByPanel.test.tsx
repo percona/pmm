@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { BlockingTransaction, LockType } from 'types/rta.types';
+import { ServiceType } from 'types/services.types';
 import BlockedByPanel from './BlockedByPanel';
 import { Messages } from './BlockedByPanel.messages';
 
@@ -33,7 +34,7 @@ const renderPanel = (
   lockedIndex = 'PRIMARY',
   lockType: LockType | undefined = LockType.row,
   requestedLockMode: string | undefined = 'X,REC_NOT_GAP',
-  postgresql = false
+  technology: ServiceType | undefined = ServiceType.mysql
 ) =>
   render(
     <ThemeProvider theme={createTheme({ palette: { mode: 'light' } })}>
@@ -43,7 +44,7 @@ const renderPanel = (
         lockedIndex={lockedIndex}
         lockType={lockType}
         requestedLockMode={requestedLockMode}
-        postgresql={postgresql}
+        technology={technology}
       />
     </ThemeProvider>
   );
@@ -418,7 +419,7 @@ describe('BlockedByPanel', () => {
       undefined,
       undefined,
       undefined,
-      true
+      ServiceType.posgresql
     );
 
     expect(screen.getByTestId('blocker-query-unavailable')).toHaveTextContent(

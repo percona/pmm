@@ -57,14 +57,14 @@ SELECT w.pid, jsonb_pretty(to_jsonb(w) - 'blk'), COALESCE(w.datname, ''), COALES
   COALESCE(w.state, ''), COALESCE(w.wait_event_type, ''), COALESCE(w.wait_event, ''),
   COALESCE(host(w.client_addr) || ':' || w.client_port, ''), COALESCE(w.query, ''),
   COALESCE(to_jsonb(w)->>'query_id', ''), w.xact_start, w.query_start,
-  EXTRACT(EPOCH FROM now() - CASE WHEN w.state LIKE 'idle in transaction%' THEN w.xact_start ELSE w.query_start END),
+  EXTRACT(EPOCH FROM clock_timestamp() - CASE WHEN w.state LIKE 'idle in transaction%' THEN w.xact_start ELSE w.query_start END),
   COALESCE(octet_length(w.query) >= s.size - 4, false),
   COALESCE(cardinality(w.blk) > 0, false),
-  (SELECT EXTRACT(EPOCH FROM now() - min((to_jsonb(l)->>'waitstart')::timestamptz))
+  (SELECT EXTRACT(EPOCH FROM clock_timestamp() - min((to_jsonb(l)->>'waitstart')::timestamptz))
      FROM pg_locks l WHERE w.blk IS NOT NULL AND l.pid = w.pid AND NOT l.granted),
   (SELECT json_agg(json_build_object(
        'pid', b.pid, 'query', COALESCE(b.query, ''), 'state', COALESCE(b.state, b.backend_type, ''),
-       'user', COALESCE(b.usename, ''), 'xact_secs', EXTRACT(EPOCH FROM now() - b.xact_start),
+       'user', COALESCE(b.usename, ''), 'xact_secs', EXTRACT(EPOCH FROM clock_timestamp() - b.xact_start),
        'root', b.blk IS NULL OR cardinality(b.blk) = 0,
        'truncated', COALESCE(octet_length(b.query) >= s.size - 4, false)) ORDER BY b.pid)
      FROM ` + agents.RTAQueryTag + ` b WHERE b.pid = ANY(w.blk))
@@ -141,8 +141,8 @@ func (m *PostgreSQLRTA) Run(ctx context.Context) {
 
 	var warning string
 	if !canReadAllStats {
-		warning = "The monitoring user is not a member of pg_read_all_stats, so other users' queries show as " +
-			"<insufficient privilege>. Grant it pg_monitor or pg_read_all_stats."
+		warning = "The monitoring user is not a member of pg_read_all_stats, so other users' sessions are not " +
+			"shown. Grant it pg_monitor or pg_read_all_stats."
 	}
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, StatusMessage: warning}
 
@@ -256,7 +256,7 @@ func withBlockingChains(queries []*rtav1.QueryData) {
 		}
 
 		waited := p.BlockedBy[0].WaitDuration
-		seen := make(map[int64]bool)
+		seen := map[int64]bool{int64(p.Pid): true}
 		var chain []*rtav1.BlockingTransaction
 		for queue := p.BlockedBy; len(queue) != 0; queue = queue[1:] {
 			b := queue[0]
