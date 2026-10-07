@@ -1,0 +1,67 @@
+PMM-15609 review round 2: 2300a5681 ("new") vs 411cddccf ("old") vs main (a3448c05e)
+
+Server: perconalab/pmm-server:3-dev-latest, CHAOS VM 16 vCPU. Fleet as in round 1 (1,000 nodes, 8,000 services)
+plus 2,000 remote MySQL services on the pmm-server node (env-0..env-4).
+Dashboards: 0 Prometheus Exporter Status, 1 Prometheus Exporters Overview, 2 CPU Utilization Details,
+3 Memory Details (0-3 opened with node_name=pmm-server), 4-9 Valkey ClusterDetails, CommandDetails, Load,
+Memory, Network, PersistenceDetails (All and env-1). Valkey query counts vary between loads: panels repeat
+per service.
+
+== Browser capture ==
+0-node-main loadMs 9484 maxUrl 48193 failed 0 aborted 7 queries 55 panelErrors 0
+0-node-old loadMs 8527 maxUrl 48193 failed 0 aborted 0 queries 55 panelErrors 0
+0-node-new loadMs 8226 maxUrl 317 failed 0 aborted 0 queries 55 panelErrors 0
+1-node-main loadMs 8020 maxUrl 253 failed 0 aborted 7 queries 15 panelErrors 0
+1-node-old loadMs 7031 maxUrl 253 failed 0 aborted 0 queries 15 panelErrors 0
+1-node-new loadMs 6836 maxUrl 253 failed 0 aborted 0 queries 15 panelErrors 0
+2-node-main loadMs 10408 maxUrl 42305 failed 0 aborted 7 queries 106 panelErrors 0
+2-node-old loadMs 9769 maxUrl 42305 failed 0 aborted 0 queries 106 panelErrors 0
+2-node-new loadMs 9418 maxUrl 338 failed 0 aborted 0 queries 106 panelErrors 0
+3-node-main loadMs 6852 maxUrl 42305 failed 0 aborted 1 queries 6 panelErrors 0
+3-node-old loadMs 6036 maxUrl 42305 failed 0 aborted 0 queries 6 panelErrors 0
+3-node-new loadMs 6036 maxUrl 338 failed 0 aborted 0 queries 6 panelErrors 0
+4-all-main loadMs 6472 maxUrl 24150 failed 0 aborted 7 queries 8 panelErrors 0
+4-env1-main loadMs 6163 maxUrl 4950 failed 0 aborted 0 queries 8 panelErrors 0
+4-all-old loadMs 6130 maxUrl 398 failed 0 aborted 5 queries 16 panelErrors 0
+4-env1-old loadMs 5864 maxUrl 278 failed 0 aborted 0 queries 8 panelErrors 0
+4-all-new loadMs 5965 maxUrl 277 failed 0 aborted 0 queries 8 panelErrors 0
+4-env1-new loadMs 5982 maxUrl 280 failed 0 aborted 0 queries 8 panelErrors 0
+5-all-main loadMs 77948 maxUrl 24150 failed 0 aborted 11 queries 20 panelErrors 0
+5-env1-main loadMs 105964 maxUrl 4950 failed 0 aborted 0 queries 986 panelErrors 0
+5-all-old loadMs 252386 maxUrl 429 failed 0 aborted 0 queries 61 panelErrors 0
+5-env1-old loadMs 172753 maxUrl 309 failed 0 aborted 6 queries 1610 panelErrors 0
+5-all-new loadMs 247310 maxUrl 308 failed 0 aborted 0 queries 61 panelErrors 0
+5-env1-new loadMs 114225 maxUrl 311 failed 0 aborted 0 queries 986 panelErrors 0
+6-all-main loadMs 246176 maxUrl 24150 failed 0 aborted 7 queries 66 panelErrors 0
+6-env1-main loadMs 26599 maxUrl 4950 failed 0 aborted 3 queries 421 panelErrors 0
+6-all-old loadMs 21497 maxUrl 398 failed 0 aborted 0 queries 0 panelErrors 0
+6-env1-old loadMs 26599 maxUrl 278 failed 0 aborted 3 queries 421 panelErrors 0
+6-all-new loadMs 243452 maxUrl 277 failed 0 aborted 3 queries 120 panelErrors 0
+6-env1-new loadMs 26613 maxUrl 280 failed 0 aborted 3 queries 421 panelErrors 0
+7-all-main loadMs 7008 maxUrl 24150 failed 0 aborted 1 queries 9 panelErrors 0
+7-env1-main loadMs 6297 maxUrl 4950 failed 0 aborted 3 queries 15 panelErrors 0
+7-all-old loadMs 6106 maxUrl 398 failed 0 aborted 3 queries 15 panelErrors 0
+7-env1-old loadMs 6251 maxUrl 278 failed 0 aborted 0 queries 9 panelErrors 0
+7-all-new loadMs 6136 maxUrl 277 failed 0 aborted 3 queries 15 panelErrors 0
+7-env1-new loadMs 6053 maxUrl 280 failed 0 aborted 3 queries 15 panelErrors 0
+8-all-main loadMs 240818 maxUrl 24150 failed 0 aborted 7 queries 59 panelErrors 0
+8-env1-main loadMs 6405 maxUrl 4950 failed 0 aborted 0 queries 2 panelErrors 0
+8-all-old loadMs 243093 maxUrl 398 failed 0 aborted 0 queries 62 panelErrors 0
+8-env1-old loadMs 27675 maxUrl 278 failed 0 aborted 0 queries 320 panelErrors 0
+8-all-new loadMs 7534 maxUrl 277 failed 0 aborted 0 queries 2 panelErrors 0
+8-env1-new loadMs 29201 maxUrl 280 failed 0 aborted 0 queries 329 panelErrors 0
+9-all-main loadMs 7061 maxUrl 24150 failed 0 aborted 7 queries 16 panelErrors 0
+9-env1-main loadMs 6258 maxUrl 4950 failed 0 aborted 0 queries 16 panelErrors 0
+9-all-old loadMs 6413 maxUrl 398 failed 0 aborted 0 queries 16 panelErrors 0
+9-env1-old loadMs 6084 maxUrl 278 failed 0 aborted 0 queries 16 panelErrors 0
+9-all-new loadMs 6322 maxUrl 277 failed 0 aborted 0 queries 16 panelErrors 0
+9-env1-new loadMs 6404 maxUrl 280 failed 0 aborted 0 queries 16 panelErrors 0
+
+== Valkey env-1 scoping (largest redis query on the page) ==
+main: service_name=~"(<200 env-1 names>)"
+new:  service_name=~".+",node_name=~".+",environment=~"env-1",cluster=~".*"
+
+== LBAC: role filter {environment="env-1"}, user lbac-env1, PostgreSQL Top Queries on All ==
+Metrics datasource label_values(pg_up, service_name): admin 1001 services (env 0-4), lbac-env1 200 (env-1 only)
+fc6c08e ($__conditionalAll): SQL "... AND 1=1 AND 1=1 AND 1=1 AND 1=1 AND service_type = 'postgresql' ..." -> no service filter
+2300a56 (service_name_list): SQL "... AND service_name IN ('synth-postgresql-00001','synth-postgresql-00006',...)" -> 200 services, all env-1
