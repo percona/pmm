@@ -224,3 +224,38 @@ func TestEveryQueryNarrowsToTheHighResolutionJob(t *testing.T) {
 			"every query must select the high-resolution job")
 	}
 }
+
+// lastUpVM answers only the last-up query, with one sample for testServiceID.
+type lastUpVM struct {
+	seconds float64
+}
+
+func (v lastUpVM) Query(_ context.Context, query string, _ time.Time, _ ...v1.Option) (model.Value, v1.Warnings, error) {
+	if !strings.Contains(query, "tlast_over_time(("+metricUp+"{") {
+		return model.Vector{}, nil, nil
+	}
+	return model.Vector{{Metric: seriesLabels(), Value: model.SampleValue(v.seconds)}}, nil, nil
+}
+
+// TestLastUpIsDatedByTheMomentItNames pins the "down since" fact: its value is the epoch
+// second the query answered, and it is dated by that moment rather than by the run, so it
+// does not make a row that has been down for hours look freshly observed.
+func TestLastUpIsDatedByTheMomentItNames(t *testing.T) {
+	t.Parallel()
+
+	now := time.Date(2026, 10, 7, 12, 0, 0, 0, time.UTC)
+	lastUp := now.Add(-22 * time.Hour)
+	src := metricsSource{
+		vm:  lastUpVM{seconds: float64(lastUp.Unix())},
+		l:   logrus.WithField("test", t.Name()),
+		now: now,
+	}
+
+	result := src.collect(t.Context(), []*models.Service{{ServiceID: testServiceID}})
+
+	fact := factFor(result, fieldLastUp)
+	require.NotNil(t, fact)
+	assert.InDelta(t, float64(lastUp.Unix()), fact.Value, 0)
+	require.NotNil(t, fact.ObservedAt)
+	assert.True(t, lastUp.Equal(*fact.ObservedAt), "got %s", *fact.ObservedAt)
+}
