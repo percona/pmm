@@ -25,6 +25,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	prom "github.com/prometheus/client_golang/prometheus"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -105,6 +106,8 @@ type Registry struct {
 	connectionCache    map[string]struct{}
 	connectionCacheTTL time.Time
 	cacheMu            sync.RWMutex
+	// rebuildMu serializes cache rebuilds so concurrent misses share one query.
+	rebuildMu sync.Mutex
 
 	mConnects    prom.Counter
 	mDisconnects *prom.CounterVec
@@ -187,23 +190,28 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 		return err == nil
 	}
 
-	// HA mode: check cache first, then database
-	if !time.Now().After(r.connectionCacheTTL) {
-		r.cacheMu.RLock()
-		_, exists := r.connectionCache[pmmAgentID]
-		r.cacheMu.RUnlock()
-		if exists {
-			return true
-		}
+	// HA mode: a fresh cache answers both ways. Rebuilding on a miss would cost one full
+	// pmm-agents query per disconnected agent, and callers loop over every agent.
+	if exists, fresh := r.cachedConnection(pmmAgentID); fresh {
+		return exists
 	}
 
-	r.rebuildConnectionCache()
+	r.rebuildMu.Lock()
+	if _, fresh := r.cachedConnection(pmmAgentID); !fresh {
+		r.rebuildConnectionCache()
+	}
+	r.rebuildMu.Unlock()
 
-	r.cacheMu.RLock()
-	_, exists := r.connectionCache[pmmAgentID]
-	r.cacheMu.RUnlock()
-
+	exists, _ := r.cachedConnection(pmmAgentID)
 	return exists
+}
+
+// cachedConnection reports whether pmmAgentID is in the HA connection cache and whether the cache is fresh.
+func (r *Registry) cachedConnection(pmmAgentID string) (bool, bool) {
+	r.cacheMu.RLock()
+	defer r.cacheMu.RUnlock()
+	_, exists := r.connectionCache[pmmAgentID]
+	return exists, time.Now().Before(r.connectionCacheTTL)
 }
 
 // rebuildConnectionCache fetches all agent connection statuses from the database
@@ -211,8 +219,7 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 func (r *Registry) rebuildConnectionCache() {
 	newCache := make(map[string]struct{})
 
-	// Fetch pmm-agents from the database, reset cache to empty on error.
-	_ = r.db.InTransaction(func(tx *reform.TX) error {
+	err := r.db.InTransaction(func(tx *reform.TX) error {
 		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: new(models.PMMAgentType)})
 		if err != nil {
 			return err
@@ -228,9 +235,15 @@ func (r *Registry) rebuildConnectionCache() {
 	})
 
 	r.cacheMu.Lock()
-	r.connectionCache = newCache
+	defer r.cacheMu.Unlock()
+	// On error keep the last known statuses rather than reporting every agent as disconnected,
+	// and still extend the TTL so a failing database is not queried on every call.
+	if err != nil {
+		logrus.WithField("component", "agents/registry").Warnf("Failed to refresh agent connection cache, keeping previous statuses: %s.", err)
+	} else {
+		r.connectionCache = newCache
+	}
 	r.connectionCacheTTL = time.Now().Add(connectionCacheTTL)
-	r.cacheMu.Unlock()
 }
 
 func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgentInfo, error) {

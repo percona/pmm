@@ -18,6 +18,7 @@ package agents
 import (
 	"context"
 	"database/sql/driver"
+	"errors"
 	"sync"
 	"testing"
 	"time"
@@ -252,6 +253,92 @@ func TestKickConn(t *testing.T) {
 		assert.True(t, isKicked(probed[0]))
 		for _, conn := range probed[1:] {
 			assert.False(t, isKicked(conn))
+		}
+	})
+}
+
+// TestIsConnectedHACache guards against a query per disconnected agent: callers check every agent,
+// so rebuilding the cache on each miss made /debug/metrics time out with many disconnected agents (PMM-15681).
+func TestIsConnectedHACache(t *testing.T) {
+	t.Parallel()
+
+	newRegistry := func(t *testing.T, ttl time.Duration) (*Registry, sqlmock.Sqlmock) {
+		t.Helper()
+		sqlDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			assert.NoError(t, mock.ExpectationsWereMet())
+			_ = mock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		r := newTestRegistry()
+		r.haService = haEnabledStub{}
+		r.db = reform.NewDB(sqlDB, postgresql.Dialect, nil)
+		r.connectionCache = map[string]struct{}{testAgentID: {}}
+		r.connectionCacheTTL = time.Now().Add(ttl)
+		return r, mock
+	}
+
+	t.Run("fresh cache answers without the database", func(t *testing.T) {
+		t.Parallel()
+
+		r, _ := newRegistry(t, time.Minute)
+		// sqlmock answers unexpected queries with an error that the rebuild swallows; a nil DB makes any query panic.
+		r.db = nil
+		assert.True(t, r.IsConnected(testAgentID))
+		for range 100 {
+			assert.False(t, r.IsConnected("/agent_id/disconnected"))
+		}
+	})
+
+	t.Run("expired cache is rebuilt once", func(t *testing.T) {
+		t.Parallel()
+
+		r, mock := newRegistry(t, -time.Second)
+		columns := models.AgentTable.Columns()
+		values := make([]driver.Value, len(columns))
+		for i, c := range columns {
+			switch c {
+			case "agent_id":
+				values[i] = testAgentID
+			case "agent_type":
+				values[i] = string(models.PMMAgentType)
+			case "created_at", "updated_at":
+				values[i] = time.Now()
+			case "disabled", "tls", "tls_skip_verify":
+				values[i] = false
+			case "is_connected":
+				values[i] = true
+			case "status":
+				values[i] = ""
+			}
+		}
+		mock.ExpectBegin()
+		mock.ExpectQuery(`SELECT .+ FROM "agents"`).WillReturnRows(sqlmock.NewRows(columns).AddRow(values...))
+		mock.ExpectCommit()
+
+		var wg sync.WaitGroup
+		for range 20 {
+			wg.Go(func() {
+				assert.False(t, r.IsConnected("/agent_id/disconnected"))
+			})
+		}
+		wg.Wait()
+		assert.True(t, r.IsConnected(testAgentID))
+	})
+
+	t.Run("failed rebuild keeps previous statuses", func(t *testing.T) {
+		t.Parallel()
+
+		r, mock := newRegistry(t, -time.Second)
+		mock.ExpectBegin()
+		mock.ExpectQuery(`SELECT .+ FROM "agents"`).WillReturnError(errors.New("connection refused"))
+		mock.ExpectRollback()
+
+		assert.True(t, r.IsConnected(testAgentID))
+		for range 10 {
+			assert.False(t, r.IsConnected("/agent_id/disconnected"))
 		}
 	})
 }
