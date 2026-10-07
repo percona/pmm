@@ -8,11 +8,22 @@
         "type": "string"
       },
       "AppInfo": {
-        "description": "Represent the response of ``GET /api/extensions/app-info``.\n\n:param footer_text: The rendered sidebar footer text (application summary\n    and version by default).",
+        "description": "Represent the response of ``GET /api/extensions/app-info``.\n\n:param footer_text: The rendered sidebar footer text (application summary\n    and version by default).\n:param version: The side-car's own version string, identical to the OpenAPI\n    document ``info.version`` (for example ``v3.10.0.dev0``).",
         "properties": {
           "footer_text": {
             "title": "Footer Text",
             "type": "string"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
           }
         },
         "required": ["footer_text"],

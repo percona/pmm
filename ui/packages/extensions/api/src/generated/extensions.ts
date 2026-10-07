@@ -3514,10 +3514,14 @@ export interface components {
      *
      *     :param footer_text: The rendered sidebar footer text (application summary
      *         and version by default).
+     *     :param version: The side-car's own version string, identical to the OpenAPI
+     *         document ``info.version`` (for example ``v3.10.0.dev0``).
      */
     AppInfo: {
       /** Footer Text */
       footer_text: string;
+      /** Version */
+      version?: string | null;
     };
     /**
      * AppInfoResponse
