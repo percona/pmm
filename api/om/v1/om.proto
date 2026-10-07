@@ -855,10 +855,12 @@ message TriggerHostBootstrapRequest {
     max_items: 3
     unique: true
   }];
-  // The replica set's name.
+  // The replica set's name: letters, digits, "-" and "_". PMM Extensions writes it
+  // unescaped into mongod.conf and the connection URI, and enforces the same rule.
   string replica_set_name = 2 [(validate.rules).string = {
     min_len: 1
     max_len: 64
+    pattern: "^[A-Za-z0-9_-]+$"
   }];
   // The MongoDB version to install, e.g. "7.0.8". Only the major version
   // selects the install source; PSMDB does not ship parallel repos per minor

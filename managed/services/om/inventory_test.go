@@ -16,6 +16,7 @@
 package om
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -26,9 +27,11 @@ import (
 	"testing"
 	"time"
 
+	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -1693,6 +1696,61 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Nil(t, response.Environment)
 		assert.Nil(t, response.Cluster)
 	})
+}
+
+// Proto validation runs in the gRPC interceptor, not in the service, so the
+// request goes through the same interceptor pmm-managed installs.
+func TestTriggerHostBootstrapReplicaSetName(t *testing.T) {
+	t.Parallel()
+
+	validate := grpc_validator.UnaryServerInterceptor()
+	info := &grpc.UnaryServerInfo{FullMethod: omv1.OmService_TriggerHostBootstrap_FullMethodName}
+
+	for _, tc := range []struct {
+		name  string
+		valid bool
+	}{
+		{"rs0", true},
+		{"rs-orders_1", true},
+		{strings.Repeat("a", 64), true},
+		{strings.Repeat("a", 65), false},
+		{"", false},
+		{"my set", false},
+		{"bad/name", false},
+		{"a:b", false},
+		{"rs#1", false},
+		{"rs.0", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			req := &omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: tc.name,
+				MongodbVersion: "7.0",
+				DataPath:       "/var/lib/mongo",
+				LogPath:        "/var/log/mongodb/mongod.log",
+				Port:           27017,
+				BindIp:         "0.0.0.0",
+			}
+			reached := false
+			handler := func(context.Context, any) (any, error) {
+				reached = true
+				return &omv1.TriggerHostBootstrapResponse{}, nil
+			}
+
+			_, err := validate(t.Context(), req, info, handler)
+
+			if tc.valid {
+				require.NoError(t, err)
+				assert.True(t, reached)
+				return
+			}
+			require.Error(t, err)
+			assert.Equal(t, codes.InvalidArgument, status.Code(err))
+			assert.False(t, reached)
+		})
+	}
 }
 
 func TestGetBootstrapRun(t *testing.T) {

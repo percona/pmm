@@ -31070,7 +31070,7 @@
                   "x-order": 0
                 },
                 "replica_set_name": {
-                  "description": "The replica set's name.",
+                  "description": "The replica set's name: letters, digits, \"-\" and \"_\". PMM Extensions writes it\nunescaped into mongod.conf and the connection URI, and enforces the same rule.",
                   "type": "string",
                   "x-order": 1
                 },
