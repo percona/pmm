@@ -47,14 +47,12 @@ func TestEnsureRetention(t *testing.T) {
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
 		Description: "Test description",
-		BackupLocationConfig: models.BackupLocationConfig{
-			S3Config: &models.S3LocationConfig{
-				Endpoint:     endpoint,
-				AccessKey:    accessKey,
-				SecretKey:    secretKey,
-				BucketName:   bucketName,
-				BucketRegion: bucketRegion,
-			},
+		S3Config: &models.S3LocationConfig{
+			Endpoint:     endpoint,
+			AccessKey:    accessKey,
+			SecretKey:    secretKey,
+			BucketName:   bucketName,
+			BucketRegion: bucketRegion,
 		},
 	})
 	require.NoError(t, err)
@@ -65,10 +63,8 @@ func TestEnsureRetention(t *testing.T) {
 			Type:           models.ScheduledMongoDBBackupTask,
 			Data: &models.ScheduledTaskData{
 				MongoDBBackupTask: &models.MongoBackupTaskData{
-					CommonBackupTaskData: models.CommonBackupTaskData{
-						Name: "test",
-						Mode: "wrong backup mode",
-					},
+					Name: "test",
+					Mode: "wrong backup mode",
 				},
 			},
 		})
@@ -85,13 +81,11 @@ func TestEnsureRetention(t *testing.T) {
 			Type:           models.ScheduledMongoDBBackupTask,
 			Data: &models.ScheduledTaskData{
 				MongoDBBackupTask: &models.MongoBackupTaskData{
-					CommonBackupTaskData: models.CommonBackupTaskData{
-						ServiceID:  *agent.ServiceID,
-						LocationID: locationRes.ID,
-						Name:       "test2",
-						Retention:  0,
-						Mode:       models.Snapshot,
-					},
+					ServiceID:  *agent.ServiceID,
+					LocationID: locationRes.ID,
+					Name:       "test2",
+					Retention:  0,
+					Mode:       models.Snapshot,
 				},
 			},
 			Disabled: false,
@@ -175,13 +169,11 @@ func TestEnsureRetention(t *testing.T) {
 			Type:           models.ScheduledMongoDBBackupTask,
 			Data: &models.ScheduledTaskData{
 				MongoDBBackupTask: &models.MongoBackupTaskData{
-					CommonBackupTaskData: models.CommonBackupTaskData{
-						ServiceID:  *agent.ServiceID,
-						LocationID: locationRes.ID,
-						Name:       "test3",
-						Retention:  5,
-						Mode:       models.PITR,
-					},
+					ServiceID:  *agent.ServiceID,
+					LocationID: locationRes.ID,
+					Name:       "test3",
+					Retention:  5,
+					Mode:       models.PITR,
 				},
 			},
 			Disabled: false,

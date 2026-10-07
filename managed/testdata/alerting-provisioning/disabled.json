@@ -1,0 +1,42 @@
+{
+  "apiVersion": 1,
+  "groups": [],
+  "deleteRules": [
+    {
+      "orgId": 1,
+      "uid": "pmm-ha-no-leader"
+    },
+    {
+      "orgId": 1,
+      "uid": "pmm-ha-split-brain"
+    },
+    {
+      "orgId": 1,
+      "uid": "pmm-ha-quorum-at-risk"
+    },
+    {
+      "orgId": 1,
+      "uid": "pmm-ha-leader-flapping"
+    },
+    {
+      "orgId": 1,
+      "uid": "pmm-ha-node-unreachable"
+    },
+    {
+      "orgId": 1,
+      "uid": "pmm-victoriametrics-down"
+    },
+    {
+      "orgId": 1,
+      "uid": "pmm-clickhouse-down"
+    },
+    {
+      "orgId": 1,
+      "uid": "pmm-grafana-down"
+    },
+    {
+      "orgId": 1,
+      "uid": "pmm-qan-api2-down"
+    }
+  ]
+}

@@ -7,7 +7,7 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/ha/v1beta1/json/client/ha_service"
+	"github.com/percona/pmm/api/ha/v1/json/client/ha_service"
 )
 
 // Default PMM HA API HTTP client.

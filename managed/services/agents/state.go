@@ -340,7 +340,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			node, _ := getNode(pointer.GetString(pmmAgent.RunsOnNodeID))
 			switch row.AgentType { //nolint:exhaustive
 			case models.MySQLdExporterType:
-				cfg, err := mysqldExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				serviceNode, err := getNode(service.NodeID)
+				if err != nil {
+					return err
+				}
+				cfg, err := mysqldExporterConfig(node, serviceNode, service, row, redactMode, pmmAgentVersion)
 				if err != nil {
 					return err
 				}
@@ -352,7 +356,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				}
 				agentProcesses[row.AgentID] = cfg
 			case models.PostgresExporterType:
-				cfg, err := postgresExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				serviceNode, err := getNode(service.NodeID)
+				if err != nil {
+					return err
+				}
+				cfg, err := postgresExporterConfig(node, serviceNode, service, row, redactMode, pmmAgentVersion)
 				if err != nil {
 					return err
 				}
