@@ -23,8 +23,9 @@ vi.mock('./ExtensionsAuthGate', () => ({
   ),
 }));
 
-// Default keeps the version alert inert so settings-gating cases do not need a
-// QueryClient. Mismatch cases stub useAppInfo / VersionContext per assertion.
+// Settings-gating cases never needed app-info; mocking useAppInfo keeps them
+// free of a QueryClient and means they no longer hit the real hook. Version
+// mismatch cases stub the return value per assertion instead.
 vi.mock('@pmm-extensions/api', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@pmm-extensions/api')>();
   return {
@@ -282,6 +283,20 @@ describe('ExtensionsPage', () => {
       });
 
       renderExtensionsPage({ version: { serverVersion: '' } });
+
+      expect(
+        screen.queryByTestId('extensions-version-mismatch')
+      ).not.toBeInTheDocument();
+      expect(screen.getByTestId('extensions-plugin')).toBeInTheDocument();
+    });
+
+    it('hides the warning when the server version is unparsable', () => {
+      stubAppInfo({
+        data: { footer_text: '', version: '3.11.0' },
+        isSuccess: true,
+      });
+
+      renderExtensionsPage({ version: { serverVersion: 'dev' } });
 
       expect(
         screen.queryByTestId('extensions-version-mismatch')
