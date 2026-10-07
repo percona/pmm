@@ -1,0 +1,20 @@
+# follower pmm-ha-1 pmm-managed log (sync lines)
+time="2026-10-07T20:44:53.750+00:00" level=info msg="RequestStateUpdate: rpc error: code = FailedPrecondition desc = pmm-agent with ID 0e22f84a-a301-4726-ae5f-a9cabf9c3d08 is not currently connected." component=state-updater request=main
+time="2026-10-07T20:44:53.750+00:00" level=info msg="RequestStateUpdate: rpc error: code = FailedPrecondition desc = pmm-agent with ID d69c3ffc-0940-4e9b-a6f5-8de95c75e2e3 is not currently connected." component=state-updater request=main
+time="2026-10-07T20:44:53.750+00:00" level=info msg="RequestStateUpdate: rpc error: code = FailedPrecondition desc = pmm-agent with ID 6ef01915-26c1-4348-a1fb-ad54257df3b0 is not currently connected." component=state-updater request=main
+time="2026-10-07T20:45:53.756+00:00" level=info msg="Settings differ from the ones this replica applied, applying them." component=server
+# follower pmm-ha-1 pmm-agent log (vmagent restart after resync)
+time="2026-10-07T20:27:58.734+00:00" level=info msg="2026-10-07T20:27:58.734Z\tinfo\tVictoriaMetrics/app/vmagent/main.go:149\tstarting vmagent at \"[127.0.0.1:42000]\"..." agentID=cb2ab48a-740d-4a48-9355-22290a3f5345 component=agent-process type=vm_agent
+time="2026-10-07T20:28:01.910+00:00" level=info msg="2026-10-07T20:28:01.909Z\tinfo\tVictoriaMetrics/app/vmagent/main.go:149\tstarting vmagent at \"[127.0.0.1:42000]\"..." agentID=cb2ab48a-740d-4a48-9355-22290a3f5345 component=agent-process type=vm_agent
+time="2026-10-07T20:35:36.159+00:00" level=info msg="2026-10-07T20:35:36.159Z\tinfo\tVictoriaMetrics/app/vmagent/main.go:150\tstarting vmagent at \"[127.0.0.1:42000]\"..." agentID=cb2ab48a-740d-4a48-9355-22290a3f5345 component=agent-process type=vm_agent
+time="2026-10-07T20:45:54.979+00:00" level=info msg="2026-10-07T20:45:54.979Z\tinfo\tVictoriaMetrics/app/vmagent/main.go:150\tstarting vmagent at \"[127.0.0.1:42000]\"..." agentID=cb2ab48a-740d-4a48-9355-22290a3f5345 component=agent-process type=vm_agent
+# follower pmm-ha-2 pmm-managed log (sync lines)
+time="2026-10-07T20:45:04.339+00:00" level=info msg="RequestStateUpdate: rpc error: code = FailedPrecondition desc = pmm-agent with ID c7b221eb-5743-4fc1-971c-3ff8536b3340 is not currently connected." component=state-updater request=main
+time="2026-10-07T20:45:04.340+00:00" level=info msg="RequestStateUpdate: rpc error: code = FailedPrecondition desc = pmm-agent with ID f06de5eb-c93e-4f95-b4dd-389e425483ff is not currently connected." component=state-updater request=main
+time="2026-10-07T20:45:04.340+00:00" level=info msg="RequestStateUpdate: rpc error: code = FailedPrecondition desc = pmm-agent with ID b089b27a-815b-43a5-a337-65ff0ffa9af8 is not currently connected." component=state-updater request=main
+time="2026-10-07T20:46:04.352+00:00" level=info msg="Settings differ from the ones this replica applied, applying them." component=server
+# follower pmm-ha-2 pmm-agent log (vmagent restart after resync)
+time="2026-10-07T20:39:28.324+00:00" level=info msg="2026-10-07T20:39:28.323Z\tinfo\tVictoriaMetrics/app/vmagent/main.go:150\tstarting vmagent at \"[127.0.0.1:42000]\"..." agentID=085b3c2a-d476-4da7-93a1-7a38d25f2413 component=agent-process type=vm_agent
+time="2026-10-07T20:41:23.283+00:00" level=info msg="2026-10-07T20:41:23.282Z\tinfo\tVictoriaMetrics/app/vmagent/main.go:150\tstarting vmagent at \"[127.0.0.1:42000]\"..." agentID=085b3c2a-d476-4da7-93a1-7a38d25f2413 component=agent-process type=vm_agent
+time="2026-10-07T20:45:06.720+00:00" level=info msg="2026-10-07T20:45:06.719Z\tinfo\tVictoriaMetrics/app/vmagent/main.go:150\tstarting vmagent at \"[127.0.0.1:42000]\"..." agentID=085b3c2a-d476-4da7-93a1-7a38d25f2413 component=agent-process type=vm_agent
+time="2026-10-07T20:46:05.564+00:00" level=info msg="2026-10-07T20:46:05.563Z\tinfo\tVictoriaMetrics/app/vmagent/main.go:150\tstarting vmagent at \"[127.0.0.1:42000]\"..." agentID=085b3c2a-d476-4da7-93a1-7a38d25f2413 component=agent-process type=vm_agent

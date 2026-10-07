@@ -1,0 +1,4 @@
+# 20:47:28Z idle check: since 20:46:10 (>= 3 sync ticks, settings unchanged)
+pmm-ha-0 vmagent starts: 0, managed not-connected lines: 0, sync applies: 0
+pmm-ha-1 vmagent starts: 0, managed not-connected lines: 0, sync applies: 0
+pmm-ha-2 vmagent starts: 0, managed not-connected lines: 0, sync applies: 0

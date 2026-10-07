@@ -1,0 +1,18 @@
+# 20:40:59Z deleting leader pmm-ha-2
+pod "pmm-ha-2" deleted from pmm namespace
+Waiting for 1 pods to be ready...
+statefulset rolling update complete 3 pods at revision pmm-ha-6c7c89ffbf...
+# 20:42:05Z roles after failover
+pmm-ha-2 NODE_ROLE_FOLLOWER
+pmm-ha-1 NODE_ROLE_FOLLOWER
+pmm-ha-0 NODE_ROLE_LEADER
+# 20:42:05Z hr after failover
+pmm-ha-0       scrape_interval: 5s
+pmm-ha-1       scrape_interval: 5s
+pmm-ha-2       scrape_interval: 10s
+# 20:42:06Z PUT metrics_resolutions.hr=5s
+{"hr":"5s","mr":"10s","lr":"60s"}
+# 20:43:21Z hr 75s later
+pmm-ha-0       scrape_interval: 5s
+pmm-ha-1       scrape_interval: 5s
+pmm-ha-2       scrape_interval: 10s

@@ -1,0 +1,22 @@
+=== AFTER FIX (pmm-managed 3.10.0-v3-784948439, commit 78494843, sha256 e246bf91...) ===
+# 20:45:45Z running binaries
+pmm-ha-0 /srv/pmm-managed-PMM-15693 e246bf91b3f4fa29 
+pmm-ha-1 /srv/pmm-managed-PMM-15693 e246bf91b3f4fa29 
+pmm-ha-2 /srv/pmm-managed-PMM-15693 e246bf91b3f4fa29 
+# 20:45:51Z roles
+pmm-ha-1 NODE_ROLE_FOLLOWER
+pmm-ha-2 NODE_ROLE_FOLLOWER
+pmm-ha-0 NODE_ROLE_LEADER
+# 20:45:51Z hr before
+pmm-ha-0       scrape_interval: 5s
+pmm-ha-1       scrape_interval: 5s
+pmm-ha-2       scrape_interval: 5s
+# 20:45:52Z PUT metrics_resolutions.hr=10s
+{"hr":"10s","mr":"10s","lr":"60s"}
+# +6s: pmm-ha-0 scrape_interval: 10s;pmm-ha-1 scrape_interval: 10s;pmm-ha-2 scrape_interval: 5s;
+# +12s: pmm-ha-0 scrape_interval: 10s;pmm-ha-1 scrape_interval: 10s;pmm-ha-2 scrape_interval: 5s;
+# +18s: pmm-ha-0 scrape_interval: 10s;pmm-ha-1 scrape_interval: 10s;pmm-ha-2 scrape_interval: 10s;
+# 20:46:10Z final
+pmm-ha-0       scrape_interval: 10s
+pmm-ha-1       scrape_interval: 10s
+pmm-ha-2       scrape_interval: 10s

@@ -1,0 +1,21 @@
+=== BEFORE FIX (stock perconalab/pmm-server:3-dev-latest, managed a27167e1) ===
+# 20:39:26Z roles
+pmm-ha-1 NODE_ROLE_FOLLOWER
+pmm-ha-2 NODE_ROLE_LEADER
+pmm-ha-0 NODE_ROLE_FOLLOWER
+# 20:39:26Z hr before
+pmm-ha-0       scrape_interval: 5s
+pmm-ha-1       scrape_interval: 5s
+pmm-ha-2       scrape_interval: 5s
+# 20:39:26Z PUT metrics_resolutions.hr=10s
+{"hr":"10s","mr":"10s","lr":"60s"}
+# 20:40:41Z hr 75s later
+pmm-ha-0       scrape_interval: 5s
+pmm-ha-1       scrape_interval: 5s
+pmm-ha-2       scrape_interval: 10s
+# leader pmm-ha-2 pmm-managed log after the PUT
+time="2026-10-07T20:32:45.267+00:00" level=info msg="RequestStateUpdate: rpc error: code = FailedPrecondition desc = pmm-agent with ID c7b221eb-5743-4fc1-971c-3ff8536b3340 is not currently connected." component=state-updater request=main
+time="2026-10-07T20:32:45.267+00:00" level=info msg="RequestStateUpdate: rpc error: code = FailedPrecondition desc = pmm-agent with ID 97250d98-7bbc-4a3e-84a9-3f488c06754c is not currently connected." component=state-updater request=main
+time="2026-10-07T20:32:45.267+00:00" level=info msg="RequestStateUpdate: rpc error: code = FailedPrecondition desc = pmm-agent with ID d69c3ffc-0940-4e9b-a6f5-8de95c75e2e3 is not currently connected." component=state-updater request=main
+time="2026-10-07T20:39:26.966+00:00" level=info msg="RequestStateUpdate: rpc error: code = FailedPrecondition desc = pmm-agent with ID b089b27a-815b-43a5-a337-65ff0ffa9af8 is not currently connected." component=state-updater method=/server.v1.ServerService/ChangeSettings request=302c5b50-c28f-11f1-9a38-baa048766d42
+time="2026-10-07T20:39:26.966+00:00" level=info msg="RequestStateUpdate: rpc error: code = FailedPrecondition desc = pmm-agent with ID 97250d98-7bbc-4a3e-84a9-3f488c06754c is not currently connected." component=state-updater method=/server.v1.ServerService/ChangeSettings request=302c5b50-c28f-11f1-9a38-baa048766d42
