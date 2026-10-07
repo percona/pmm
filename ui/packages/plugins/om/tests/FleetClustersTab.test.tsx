@@ -20,7 +20,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FLEET_NOT_COLLECTED } from '../src/constants';
 import { FleetClustersTab } from '../src/FleetClustersTab';
-import { mixedEstate, topology } from './fixtures';
+import { cluster, mixedEstate, service, topology } from './fixtures';
 
 const { useOmTopology } = vi.hoisted(() => ({ useOmTopology: vi.fn() }));
 
@@ -93,6 +93,45 @@ describe('FleetClustersTab', () => {
     expect(
       screen.getByRole('columnheader', { name: 'Member state' })
     ).toBeInTheDocument();
+  });
+
+  it('says beside a down member how long it has been down', () => {
+    useOmTopology.mockReturnValue({
+      data: topology([
+        {
+          env_name: 'production',
+          clusters: [
+            cluster({
+              name: 'orders',
+              services: [
+                service({ service_name: 'orders-1', state: 'PRIMARY' }),
+                service({
+                  service_name: 'orders-2',
+                  status: 'SERVICE_STATUS_DOWN',
+                  last_up_at: new Date(
+                    Date.now() - 2 * 3600 * 1000
+                  ).toISOString(),
+                }),
+              ],
+            }),
+          ],
+        },
+      ]),
+      isPending: false,
+      isError: false,
+    });
+    renderPage();
+
+    fireEvent.click(
+      within(clusterRows()[0]).getByRole('button', { name: /expand/i })
+    );
+
+    const down = screen
+      .getAllByRole('row')
+      .find((row) => within(row).queryByText('orders-2')) as HTMLElement;
+    expect(within(down).getByTestId('om-down-for')).toHaveTextContent(
+      /^for 2h( \d+s)?$/
+    );
   });
 
   it('links each member to its PMM dashboard, a down one included', () => {

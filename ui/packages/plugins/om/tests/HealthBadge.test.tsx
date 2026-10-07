@@ -21,6 +21,31 @@ import { ClusterHealthBadge, StatusBadge } from '../src/components/HealthBadge';
 import type { OmClusterHealth, OmServiceStatus } from '../src/types';
 
 describe('StatusBadge', () => {
+  const hoursAgo = (hours: number) =>
+    new Date(Date.now() - hours * 3600 * 1000).toISOString();
+
+  it('says how long a down service has been down, from when it was last up', () => {
+    render(<StatusBadge status="SERVICE_STATUS_DOWN" lastUpAt={hoursAgo(3)} />);
+
+    expect(screen.getByTestId('om-down-for')).toHaveTextContent(
+      /^for 3h( \d+s)?$/
+    );
+  });
+
+  it('says a down service was not up at all in the window it can see', () => {
+    render(<StatusBadge status="SERVICE_STATUS_DOWN" lastUpAt={null} />);
+
+    expect(screen.getByTestId('om-down-for')).toHaveTextContent(
+      'not up in 24 hours'
+    );
+  });
+
+  it('says nothing about time for a service that is up', () => {
+    render(<StatusBadge status="SERVICE_STATUS_UP" lastUpAt={hoursAgo(3)} />);
+
+    expect(screen.queryByTestId('om-down-for')).toBeNull();
+  });
+
   it.each([
     ['SERVICE_STATUS_UP', 'Up', 'CheckCircleOutlineIcon'],
     ['SERVICE_STATUS_DOWN', 'Down', 'ErrorOutlineIcon'],

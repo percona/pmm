@@ -265,7 +265,10 @@ const ClusterServices = ({ cluster }: { cluster: OmClusterRow }) => {
                 {service.host ?? <Unavailable reason="service_not_observed" />}
               </TableCell>
               <TableCell>
-                <StatusBadge status={service.status} />
+                <StatusBadge
+                  status={service.status}
+                  lastUpAt={service.last_up_at}
+                />
               </TableCell>
               <TableCell>
                 <MemberState service={service} />
