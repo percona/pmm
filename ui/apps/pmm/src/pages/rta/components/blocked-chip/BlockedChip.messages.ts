@@ -21,6 +21,8 @@ export const Messages = {
   blockedUnattributed: 'Blocked: unknown',
   tooltipUnattributed:
     'This connection was waiting for a lock, but by the time PMM read the locks it had moved on from this statement to a later one. PMM cannot tell whether this statement was blocked, so it is not counted as blocked. The next refresh reads both again.',
+  tooltipUnreadable:
+    "This statement is waiting for a lock, but PMM can't read that lock type on this instance, so it can't name the holder. For metadata locks, enable the wait/lock/metadata/sql/mdl instrument and restart the Real-Time Analytics session.",
   tooltipUnknownHolder:
     'This statement is waiting for a lock. The transaction holding it was not in this snapshot; the next refresh should show it.',
 };

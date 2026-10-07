@@ -57,22 +57,23 @@ func IsRTASupported(pmmAgentVersion string, serviceType ServiceType) bool {
 }
 
 // RTANotSupportedMessage explains why a service's pmm-agent cannot run Real-Time Analytics,
-// naming the pmm-agent version required for the service type.
-func RTANotSupportedMessage(serviceID, pmmAgentVersion string, serviceType ServiceType) string {
+// naming the pmm-agent version required for the service type. The service is named as well as
+// identified: the ID alone leaves the reader to look up which service was refused.
+func RTANotSupportedMessage(serviceName, serviceID, pmmAgentVersion string, serviceType ServiceType) string {
 	if pmmAgentVersion == "" {
 		pmmAgentVersion = "unknown"
 	}
 
 	minVersion, ok := RTAMinAgentVersion(serviceType)
 	if !ok {
-		return fmt.Sprintf("Service %s of type %s does not support Real-Time Analytics.", serviceID, serviceType)
+		return fmt.Sprintf("Service %s (id %s) of type %s does not support Real-Time Analytics.", serviceName, serviceID, serviceType)
 	}
 
-	return fmt.Sprintf("Service %s has pmm-agent with version %s not supporting Real-Time Analytics; "+
-		"pmm-agent %d.%d.%d or later is required.", serviceID, pmmAgentVersion, minVersion.Major, minVersion.Minor, minVersion.Patch)
+	return fmt.Sprintf("Service %s (id %s) has pmm-agent with version %s not supporting Real-Time Analytics; "+
+		"pmm-agent %d.%d.%d or later is required.", serviceName, serviceID, pmmAgentVersion, minVersion.Major, minVersion.Minor, minVersion.Patch)
 }
 
 // RTANotSupportedError is the FailedPrecondition error for RTANotSupportedMessage.
-func RTANotSupportedError(serviceID, pmmAgentVersion string, serviceType ServiceType) error {
-	return status.Error(codes.FailedPrecondition, RTANotSupportedMessage(serviceID, pmmAgentVersion, serviceType))
+func RTANotSupportedError(serviceName, serviceID, pmmAgentVersion string, serviceType ServiceType) error {
+	return status.Error(codes.FailedPrecondition, RTANotSupportedMessage(serviceName, serviceID, pmmAgentVersion, serviceType))
 }

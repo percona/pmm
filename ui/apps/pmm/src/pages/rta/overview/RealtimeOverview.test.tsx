@@ -197,7 +197,7 @@ describe('RealtimeOverview', () => {
     await waitFor(() =>
       expect(
         screen.getByTestId('overview-table-hide-commit-toggle')
-      ).toHaveTextContent('Hide transaction control')
+      ).toHaveTextContent('Hide BEGIN/COMMIT')
     );
   });
 
@@ -322,6 +322,50 @@ describe('RealtimeOverview', () => {
       expect(screen.getByTestId('query-411-host-cell')).toBeInTheDocument()
     );
     expect(screen.getByTestId('query-412-host-cell')).toBeInTheDocument();
+  });
+
+  it('labels an undecided row only when its state says it is waiting for a lock', async () => {
+    // MySQL 5.7 and a stock MariaDB cannot read metadata locks, so a statement queued behind a
+    // DDL comes back undecided. Its thread state still says it is waiting; the row next to it,
+    // undecided for the same reason, is not waiting at all and must not be labelled.
+    const waiting = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '421',
+      queryText: 'SELECT * FROM accounts',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        state: 'Waiting for table metadata lock',
+        blockedStatus: BlockedStatus.unspecified,
+      },
+    };
+    const running = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '422',
+      queryText: 'SELECT SLEEP(10)',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        state: 'User sleep',
+        blockedStatus: BlockedStatus.unspecified,
+      },
+    };
+    getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+    searchQueries.mockResolvedValue({ queries: [waiting, running] });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    const waitingCell = await screen.findByTestId('query-421-query-text-cell');
+    const chip = waitingCell.querySelector(
+      '[data-testid="blocked-unknown-chip"]'
+    );
+    expect(chip).toHaveTextContent('Blocked: unknown');
+    expect(chip).toHaveAttribute('data-reason', 'unreadable');
+    expect(
+      screen
+        .getByTestId('query-422-query-text-cell')
+        .querySelector('[data-testid="blocked-unknown-chip"]')
+    ).toBeNull();
   });
 
   it('drops decided non-blocked rows while keeping undecided ones', async () => {
@@ -828,7 +872,8 @@ describe('RealtimeOverview', () => {
         { ...sleeping, queryText: 'COMMIT', queryExecutionDuration: '0.001s' },
       ],
     });
-    fireEvent.click(screen.getByTestId('overview-table-refresh-button'));
+    // The pane covers the toolbar, so it is refreshed from the pane itself.
+    fireEvent.click(screen.getByTestId('details-pane-refresh-button'));
 
     await waitFor(() =>
       expect(screen.getByTestId('details-pane-finished')).toBeInTheDocument()

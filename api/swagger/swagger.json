@@ -31724,7 +31724,7 @@
                             "x-order": 11
                           },
                           "blocked_by": {
-                            "description": "Sessions holding the lock this one waits for, from pg_blocking_pids(), ordered by pid.\nblocking_conn_id is the blocker's pid and blocking_command its state.",
+                            "description": "Sessions holding up this one, ordered by pid: its pg_blocking_pids() and, transitively, theirs.\nblocking_conn_id is the blocker's pid and blocking_command its state.",
                             "type": "array",
                             "items": {
                               "description": "BlockingTransaction describes a transaction that is preventing a statement from\nacquiring the lock it needs. It is read from performance_schema.data_lock_waits (row locks)\nor performance_schema.metadata_locks (metadata locks) in the same collection cycle as the\nstatement itself, so no extra round trip is needed to explain why a statement is stuck.",

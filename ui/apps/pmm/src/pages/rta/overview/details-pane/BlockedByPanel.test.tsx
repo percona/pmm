@@ -32,7 +32,8 @@ const renderPanel = (
   lockedTable = 'sbtest.sbtest1',
   lockedIndex = 'PRIMARY',
   lockType: LockType | undefined = LockType.row,
-  requestedLockMode: string | undefined = 'X,REC_NOT_GAP'
+  requestedLockMode: string | undefined = 'X,REC_NOT_GAP',
+  postgresql = false
 ) =>
   render(
     <ThemeProvider theme={createTheme({ palette: { mode: 'light' } })}>
@@ -42,6 +43,7 @@ const renderPanel = (
         lockedIndex={lockedIndex}
         lockType={lockType}
         requestedLockMode={requestedLockMode}
+        postgresql={postgresql}
       />
     </ThemeProvider>
   );
@@ -401,5 +403,57 @@ describe('BlockedByPanel', () => {
 
     expect(screen.getByText(Messages.idleNote)).toBeInTheDocument();
     expect(screen.getByText('idle in transaction 2m 34s')).toBeInTheDocument();
+  });
+
+  it('does not suggest a MySQL consumer for a PostgreSQL blocker without a statement', () => {
+    renderPanel(
+      [
+        {
+          ...IDLE_ROOT,
+          blockingCommand: 'idle in transaction',
+          blockingQuery: '',
+        },
+      ],
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      true
+    );
+
+    expect(screen.getByTestId('blocker-query-unavailable')).toHaveTextContent(
+      Messages.noStatement
+    );
+  });
+
+  it('says an idle blocker has no current statement instead of leaving it blank', () => {
+    renderPanel([{ ...IDLE_ROOT, blockingQuery: '' }]);
+
+    expect(screen.queryByTestId('blocker-query')).not.toBeInTheDocument();
+    expect(screen.getByTestId('blocker-query-unavailable')).toHaveTextContent(
+      'No current statement (connection idle in transaction)'
+    );
+  });
+
+  it('does not claim an open transaction for an idle blocker without one', () => {
+    renderPanel([
+      {
+        ...IDLE_ROOT,
+        blockingQuery: '',
+        blockerTransactionDuration: undefined,
+      },
+    ]);
+
+    expect(screen.getByTestId('blocker-query-unavailable')).toHaveTextContent(
+      'No current statement (connection idle).'
+    );
+  });
+
+  it('does not call an executing blocker without a statement idle', () => {
+    renderPanel([{ ...MIDDLE_OF_CHAIN, blockingQuery: '', root: true }]);
+
+    expect(
+      screen.getByTestId('blocker-query-unavailable')
+    ).not.toHaveTextContent(/idle/);
   });
 });

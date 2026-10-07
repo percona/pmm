@@ -157,6 +157,21 @@ export const isBlockingUnknown = (query: RawQueryData): boolean =>
   (sqlPayload(query)?.blockedStatus === undefined ||
     sqlPayload(query)?.blockedStatus === BlockedStatus.unspecified);
 
+// MySQL and MariaDB name every metadata-lock and table-lock wait in the thread state, e.g.
+// "Waiting for table metadata lock", "Waiting for global read lock", "Waiting for table level lock".
+// A row-lock wait has no such state (the thread shows "updating", "executing" and the like), but
+// the row-lock source is the one every supported server can read.
+const LOCK_WAIT_STATE = /^Waiting for .*lock$/i;
+
+// isLockWaitUnreadable reports a statement that the server says is waiting for a lock, on an
+// instance where PMM could not read the lock source that would name the holder -- the
+// metadata-lock instrument is off by default on MySQL 5.7 and MariaDB. Only the thread state is
+// trusted here: most undecided rows are not waiting at all, and must not be labelled as though
+// they were.
+export const isLockWaitUnreadable = (query: RawQueryData): boolean =>
+  isBlockingUnknown(query) &&
+  LOCK_WAIT_STATE.test(query.mySqlPayload?.state?.trim() ?? '');
+
 // isBlockingUnattributed reports that the connection was waiting for a lock, but for a later
 // statement than the one sampled, so this refresh cannot say whether this statement waited.
 // Kept apart from isBlockingUnknown: here every lock source answered, so the reader needs a

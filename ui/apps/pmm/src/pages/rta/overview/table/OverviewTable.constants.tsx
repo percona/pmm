@@ -1,4 +1,7 @@
-import { type MRT_ColumnDef } from 'material-react-table';
+import {
+  type MRT_ColumnDef,
+  type MRT_TableInstance,
+} from 'material-react-table';
 
 import { QueryData } from 'types/rta.types';
 import { ServiceType } from 'types/services.types';
@@ -7,6 +10,7 @@ import { QueryCell } from './query-cell';
 import UnavailableText from 'components/unavailable-text';
 import Stack from '@mui/material/Stack';
 import { Chip } from '@percona/peak-ui';
+import { darken, type Theme } from '@mui/material/styles';
 import {
   BlockedChip,
   BlockedUnknownChip,
@@ -17,6 +21,7 @@ import {
   isBlocked,
   sqlPayload,
   isBlockingUnattributed,
+  isLockWaitUnreadable,
   queryDatabaseName,
   queryLanguage,
   queryUsername,
@@ -36,7 +41,12 @@ const QUERY_TEXT_COLUMN: MRT_ColumnDef<QueryData> = {
       {isBlocked(row.original) && (
         <BlockedChip blockers={sqlPayload(row.original)?.blockedBy ?? []} />
       )}
-      {isBlockingUnattributed(row.original) && <BlockedUnknownChip />}
+      {isBlockingUnattributed(row.original) && (
+        <BlockedUnknownChip reason="unattributed" />
+      )}
+      {isLockWaitUnreadable(row.original) && (
+        <BlockedUnknownChip reason="unreadable" />
+      )}
       <QueryCell
         query={row.original.queryText}
         language={queryLanguage(row.original)}
@@ -123,17 +133,35 @@ const OPERATION_ID_COLUMN: MRT_ColumnDef<QueryData> = {
   }),
 };
 
+// MRT draws a pinned cell at 0.97 opacity over a 0.97-alpha background, so the
+// columns scrolling underneath it -- User, Database -- show through faintly.
+// This is MRT's own shade without the alpha. "&&" outranks MRT's row-level
+// "tr td[data-pinned]::before" rule, which sets the same background. The
+// column's own props replace the table-wide cell sx, hence the padding is
+// repeated where this is used.
+const opaquePinnedCellSx =
+  (table: MRT_TableInstance<QueryData>) => (theme: Theme) => ({
+    opacity: 1,
+    '&&[data-pinned="true"]:before': {
+      backgroundColor: darken(
+        table.options.mrtTheme.baseBackgroundColor,
+        theme.palette.mode === 'dark' ? 0.05 : 0.01
+      ),
+    },
+  });
+
 const ELAPSED_TIME_COLUMN: MRT_ColumnDef<QueryData> = {
   header: Messages.columns.elapsedTime,
   accessorKey: 'queryExecutionDurationMs',
   // Pinned to the right edge, so every pixel here is taken from the query text.
-  // The width is set by the header, not the compact value: "Elapsed time" plus
-  // the sort and column-menu icons needs about 160px, and 120 truncated it to
-  // "Elapsed t…". minSize is what MRT's grid layout holds as the floor
-  // (min-width is max(size, minSize)), so it stays readable when the Database
-  // and User columns compete for the row; grow is off so it takes no more.
-  size: 170,
-  minSize: 170,
+  // The width is set by the header, not the compact value: the cell padding and
+  // the sort and column-menu icons take about 80px, leaving the ~95px "Elapsed
+  // time" needs only from 180 up (170 cut it to "Elapsed ti…"). minSize is what
+  // MRT holds as the floor (min-width is max(size, minSize)), so it stays
+  // readable when the Database and User columns compete for the row; grow is
+  // off so it takes no more.
+  size: 190,
+  minSize: 190,
   grow: false,
   filterVariant: 'range',
   filterFn: 'timeRangeFilterFn',
@@ -149,9 +177,16 @@ const ELAPSED_TIME_COLUMN: MRT_ColumnDef<QueryData> = {
     ) : (
       formatElapsedTime(cell.getValue<number>())
     ),
-  // @ts-expect-error - muiTableBodyCellProps is not typed correctly
-  muiTableBodyCellProps: ({ row }) => ({
+  muiTableHeadCellProps: ({ table }) => ({
+    sx: (theme: Theme) => ({ px: 1, ...opaquePinnedCellSx(table)(theme) }),
+  }),
+  muiTableBodyCellProps: ({ row, table }) => ({
     'data-testid': `query-${row.original.queryId}-elapsed-time-cell`,
+    sx: (theme: Theme) => ({
+      py: 1,
+      px: 1,
+      ...opaquePinnedCellSx(table)(theme),
+    }),
   }),
 };
 

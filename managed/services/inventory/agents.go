@@ -1849,11 +1849,16 @@ func (as *AgentsService) checkRTASupported(ctx context.Context, pmmAgentID, serv
 	}
 
 	pmmAgentVersion := pointer.GetString(pmmAgent.Version)
-	if pmmAgentVersion != "" && !models.IsRTASupported(pmmAgentVersion, serviceType) {
-		return models.RTANotSupportedError(serviceID, pmmAgentVersion, serviceType)
+	if pmmAgentVersion == "" || models.IsRTASupported(pmmAgentVersion, serviceType) {
+		return nil
 	}
 
-	return nil
+	service, err := models.FindServiceByID(as.db.WithContext(ctx), serviceID)
+	if err != nil {
+		return err
+	}
+
+	return models.RTANotSupportedError(service.ServiceName, serviceID, pmmAgentVersion, serviceType)
 }
 
 // ChangeRTAMongoDBAgent updates MongoDB Real-Time Analytics Agent with given parameters.

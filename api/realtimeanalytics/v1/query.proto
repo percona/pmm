@@ -179,7 +179,7 @@ message QueryPostgreSQLData {
   // Whether the session is waiting for a heavyweight lock. Only sessions waiting on a lock
   // (wait_event_type "Lock") are looked up, so NOT_BLOCKED covers every other session.
   BlockedStatus blocked_status = 12;
-  // Sessions holding the lock this one waits for, from pg_blocking_pids(), ordered by pid.
+  // Sessions holding up this one, ordered by pid: its pg_blocking_pids() and, transitively, theirs.
   // blocking_conn_id is the blocker's pid and blocking_command its state.
   repeated BlockingTransaction blocked_by = 13;
 }

@@ -58,15 +58,15 @@ func TestIsRTASupported(t *testing.T) {
 func TestRTANotSupportedError(t *testing.T) {
 	t.Parallel()
 
-	err := models.RTANotSupportedError("svc-1", "3.9.1", models.MySQLServiceType)
+	err := models.RTANotSupportedError("mysql80-oldclient-391", "svc-1", "3.9.1", models.MySQLServiceType)
 	assert.Equal(t, codes.FailedPrecondition, status.Code(err))
-	assert.Equal(t, "Service svc-1 has pmm-agent with version 3.9.1 not supporting Real-Time Analytics; "+
+	assert.Equal(t, "Service mysql80-oldclient-391 (id svc-1) has pmm-agent with version 3.9.1 not supporting Real-Time Analytics; "+
 		"pmm-agent 3.10.0 or later is required.", status.Convert(err).Message())
 
-	err = models.RTANotSupportedError("svc-2", "", models.MongoDBServiceType)
-	assert.Equal(t, "Service svc-2 has pmm-agent with version unknown not supporting Real-Time Analytics; "+
+	err = models.RTANotSupportedError("mongo-1", "svc-2", "", models.MongoDBServiceType)
+	assert.Equal(t, "Service mongo-1 (id svc-2) has pmm-agent with version unknown not supporting Real-Time Analytics; "+
 		"pmm-agent 3.7.0 or later is required.", status.Convert(err).Message())
 
-	err = models.RTANotSupportedError("svc-3", "3.10.0", models.ValkeyServiceType)
-	assert.Equal(t, "Service svc-3 of type valkey does not support Real-Time Analytics.", status.Convert(err).Message())
+	err = models.RTANotSupportedError("valkey-1", "svc-3", "3.10.0", models.ValkeyServiceType)
+	assert.Equal(t, "Service valkey-1 (id svc-3) of type valkey does not support Real-Time Analytics.", status.Convert(err).Message())
 }

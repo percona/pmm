@@ -231,7 +231,7 @@ func (s *Service) ListSessions(ctx context.Context, req *rtav1.ListSessionsReque
 				pmmAgentVersion := pointer.GetString(pmmAgent.Version)
 				if pmmAgentVersion != "" && !models.IsRTASupported(pmmAgentVersion, service.ServiceType) {
 					session.Status = rtav1.SessionStatus_SESSION_STATUS_ERROR
-					session.StatusMessage = models.RTANotSupportedMessage(service.ServiceID, pmmAgentVersion, service.ServiceType)
+					session.StatusMessage = models.RTANotSupportedMessage(service.ServiceName, service.ServiceID, pmmAgentVersion, service.ServiceType)
 				}
 			}
 
@@ -298,7 +298,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 			return err
 		}
 		if !models.IsRTASupported(pointer.GetString(pmmAgent.Version), service.ServiceType) {
-			return models.RTANotSupportedError(service.ServiceID, pointer.GetString(pmmAgent.Version), service.ServiceType)
+			return models.RTANotSupportedError(service.ServiceName, service.ServiceID, pointer.GetString(pmmAgent.Version), service.ServiceType)
 		}
 
 		if !rtaAgent.Disabled {
@@ -403,7 +403,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 	// PMM Agent that is linked to the requested service may be outdated and doesn't support RTA.
 	// In this case we cannot start RTA session for this service and should return an error.
 	if !models.IsRTASupported(pointer.GetString(pmmAgent.Version), service.ServiceType) {
-		return nil, models.RTANotSupportedError(service.ServiceID, pointer.GetString(pmmAgent.Version), service.ServiceType)
+		return nil, models.RTANotSupportedError(service.ServiceName, service.ServiceID, pointer.GetString(pmmAgent.Version), service.ServiceType)
 	}
 
 	err = s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {

@@ -1329,7 +1329,7 @@ type SearchQueriesOKBodyQueriesItems0PostgresqlPayload struct {
 	// Enum: ["BLOCKED_STATUS_UNSPECIFIED","BLOCKED_STATUS_NOT_BLOCKED","BLOCKED_STATUS_BLOCKED","BLOCKED_STATUS_UNATTRIBUTED"]
 	BlockedStatus *string `json:"blocked_status,omitempty"`
 
-	// Sessions holding the lock this one waits for, from pg_blocking_pids(), ordered by pid.
+	// Sessions holding up this one, ordered by pid: its pg_blocking_pids() and, transitively, theirs.
 	// blocking_conn_id is the blocker's pid and blocking_command its state.
 	BlockedBy []*SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedByItems0 `json:"blocked_by"`
 }

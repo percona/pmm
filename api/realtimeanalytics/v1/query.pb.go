@@ -625,7 +625,7 @@ type QueryPostgreSQLData struct {
 	// Whether the session is waiting for a heavyweight lock. Only sessions waiting on a lock
 	// (wait_event_type "Lock") are looked up, so NOT_BLOCKED covers every other session.
 	BlockedStatus BlockedStatus `protobuf:"varint,12,opt,name=blocked_status,json=blockedStatus,proto3,enum=realtimeanalytics.v1.BlockedStatus" json:"blocked_status,omitempty"`
-	// Sessions holding the lock this one waits for, from pg_blocking_pids(), ordered by pid.
+	// Sessions holding up this one, ordered by pid: its pg_blocking_pids() and, transitively, theirs.
 	// blocking_conn_id is the blocker's pid and blocking_command its state.
 	BlockedBy     []*BlockingTransaction `protobuf:"bytes,13,rep,name=blocked_by,json=blockedBy,proto3" json:"blocked_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1053,7 +1053,6 @@ var (
 		(*durationpb.Duration)(nil),   // 8: google.protobuf.Duration
 	}
 )
-
 var file_realtimeanalytics_v1_query_proto_depIdxs = []int32{
 	7,  // 0: realtimeanalytics.v1.QueryMongoDBData.operation_start_time:type_name -> google.protobuf.Timestamp
 	8,  // 1: realtimeanalytics.v1.BlockingTransaction.wait_duration:type_name -> google.protobuf.Duration

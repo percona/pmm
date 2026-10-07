@@ -225,7 +225,8 @@ func TestRTAMySQLAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				RtaMysqlAgent: &agents.ChangeAgentParamsBodyRtaMysqlAgent{
-					Username: new("updated-user"),
+					SkipConnectionCheck: new(true),
+					Username:            new("updated-user"),
 				},
 			},
 			Context: pmmapitests.Context,

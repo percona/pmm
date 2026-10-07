@@ -228,6 +228,28 @@ const BlockedByPanel: FC<Props> = ({
       </Stack>
 
       <Stack gap={2} sx={{ p: 2 }}>
+        {/* MySQL keeps no statement text for an idle connection: INNODB_TRX.trx_query and the
+            process list are empty, and the last statement survives only in
+            events_statements_current, whose consumer MariaDB ships disabled. Said so rather than
+            dropping the section, which read as PMM having lost the blocker's statement. */}
+        {!primary.blockingQuery && (
+          <Stack gap={1}>
+            <Typography variant="caption" color="text.secondary">
+              {Messages.blockerStatement}
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              data-testid="blocker-query-unavailable"
+            >
+              {isIdle && !postgresql
+                ? blockerAge
+                  ? Messages.noStatementIdleInTransaction
+                  : Messages.noStatementIdle
+                : Messages.noStatement}
+            </Typography>
+          </Stack>
+        )}
         {primary.blockingQuery && (
           <Stack gap={1}>
             <Stack direction="row" alignItems="center" gap={1}>
