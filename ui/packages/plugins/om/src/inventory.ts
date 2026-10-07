@@ -24,12 +24,15 @@
  * `toClusterRows` and `toServiceRows` already follow.
  */
 
+import { SCAN_ERROR_KIND } from './constants';
 import type {
   OmHostDatabaseState,
   OmHostRow,
+  OmInventoryFreshness,
   OmInventoryHost,
   OmInventoryService,
   OmRepoReachability,
+  OmScanErrorCode,
   OmServiceInventoryRow,
   OmServiceRow,
   OmUnavailableReason,
@@ -200,6 +203,85 @@ export function isFailing(host: {
   freshness: { failing_since?: string | null };
 }): boolean {
   return host.freshness.failing_since != null;
+}
+
+/**
+ * A `last_error_code` as one of the kinds this page knows, `unknown` otherwise.
+ *
+ * Absent and unrecognised fold together on purpose: a server older than the code
+ * sends none, a newer one may send a code this build has no words for, and in both
+ * cases the honest thing to show is the raw error with no advice.
+ */
+export function scanErrorCode(
+  code: string | null | undefined
+): OmScanErrorCode {
+  return code != null && Object.hasOwn(SCAN_ERROR_KIND, code)
+    ? (code as OmScanErrorCode)
+    : 'unknown';
+}
+
+/** How long a short reason may run before it is cut, in characters. */
+const SHORT_REASON_MAX = 80;
+
+/** A failing row's failure, in the pieces the Nodes page states it with. */
+export interface ScanFailure {
+  code: OmScanErrorCode;
+  /** The kind's human label: "Scan crashed", or "Scan failed" for unknown. */
+  label: string;
+  /**
+   * The reason as it fits on a table row. The label when the code is known; for
+   * `unknown` the label says nothing, so it is the raw error's first line instead.
+   */
+  shortReason: string;
+  /** The whole raw error, untrimmed, or null when the server recorded none. */
+  error: string | null;
+  /** What to do about it, or null when there is no advice worth giving. */
+  hint: string | null;
+  /** The first failure after the last success, as the server sent it. */
+  failingSince: string;
+  /** Seconds since `failing_since`, or null if that will not parse. */
+  failingForSeconds: number | null;
+  consecutiveFailures: number;
+  runId: string | null;
+}
+
+/**
+ * Why a row's scans are failing, or null when they are not.
+ *
+ * Keyed on `failing_since` through `isFailing`, never on `last_success_at`: a node
+ * whose scans have never succeeded has no success time but is the one most in need of
+ * an explanation, and keying on the success time was what left its error off the page.
+ */
+export function describeScanFailure(
+  freshness: OmInventoryFreshness,
+  now: number = Date.now()
+): ScanFailure | null {
+  if (!isFailing({ freshness })) {
+    return null;
+  }
+  const code = scanErrorCode(freshness.last_error_code);
+  const kind = SCAN_ERROR_KIND[code];
+  const error = freshness.last_error?.trim() || null;
+  let shortReason = kind.label;
+  if (code === 'unknown' && error) {
+    const firstLine = error.split('\n', 1)[0].trim();
+    shortReason =
+      firstLine.length > SHORT_REASON_MAX
+        ? `${firstLine.slice(0, SHORT_REASON_MAX - 1).trimEnd()}…`
+        : firstLine;
+  }
+  return {
+    code,
+    label: kind.label,
+    shortReason,
+    error,
+    hint: kind.hint,
+    // Non-null: isFailing above is exactly `failing_since != null`.
+    failingSince: freshness.failing_since as string,
+    failingForSeconds: ageSeconds(freshness.failing_since, now),
+    consecutiveFailures: freshness.consecutive_failures,
+    runId: freshness.last_run_id || null,
+  };
 }
 
 /**

@@ -405,4 +405,132 @@ describe('NodesPage', () => {
       expect.stringMatching(/\/automations\?tab=scans$/)
     );
   });
+
+  describe('a node whose scans are failing', () => {
+    const TRACEBACK =
+      'scan failed: Step \'run-script\' failed (exit code 1).\nTraceback (most recent call last):\n  File "probe.py", line 3\nSyntaxError: invalid syntax';
+    const twoHoursAgo = () =>
+      new Date(Date.now() - 2 * 3600 * 1000).toISOString();
+
+    // The shape PMM Extensions answers with for a node that has never had a good scan:
+    // no success time at all, which is exactly what used to hide its error.
+    const failingHost = (
+      freshness: Partial<OmInventoryHost['freshness']> = {}
+    ) =>
+      host({
+        automation_eligible: false,
+        automation_blocked_reasons: [
+          "no scan has reported this node's operating system yet",
+        ],
+        freshness: {
+          last_success_at: null,
+          failing_since: twoHoursAgo(),
+          consecutive_failures: 4,
+          last_error: TRACEBACK,
+          last_error_code: 'scan_crashed',
+          last_run_id: 'run-42',
+          ...freshness,
+        },
+      });
+
+    const expand = (name: string) =>
+      fireEvent.click(
+        within(rowFor(name)).getByRole('button', { name: /expand/i })
+      );
+
+    it('states the failure on the row even though it never succeeded', () => {
+      renderPage([failingHost()]);
+
+      const row = rowFor('node00');
+      expect(row).toHaveTextContent(
+        'Failing for 2h, 4 failed scans in a row: Scan crashed'
+      );
+      expect(row).toHaveTextContent('Never collected.');
+    });
+
+    // The install gate's sentence is a symptom of the failing scan, not its cause.
+    it('says why it needs attention without hovering, naming the scan failure', () => {
+      renderPage([failingHost()]);
+
+      const row = rowFor('node00');
+      expect(within(row).getByText('Needs attention')).toBeInTheDocument();
+      expect(row).toHaveTextContent('Scans failing: Scan crashed');
+      expect(row).not.toHaveTextContent('no scan has reported');
+    });
+
+    it('shows the whole error, its kind, the hint and the run in the expanded row', () => {
+      renderPage([failingHost()]);
+      expand('node00');
+
+      const panel = within(screen.getByTestId('scan-failure'));
+      // Whole and with its line breaks: a traceback folded onto one line is unreadable.
+      expect(panel.getByTestId('scan-error').textContent).toBe(TRACEBACK);
+      expect(
+        panel.getByText('Scans failing: Scan crashed')
+      ).toBeInTheDocument();
+      expect(
+        panel.getByText(/The scan crashed on the node\./)
+      ).toBeInTheDocument();
+      expect(panel.getByText(/4 failed scans in a row\./)).toBeInTheDocument();
+      expect(
+        panel.getByRole('link', { name: 'Open the scan that failed' })
+      ).toHaveAttribute('href', '/automations?tab=scans&expand=run-42');
+    });
+
+    it('draws no run link when the server names no run', () => {
+      renderPage([failingHost({ last_run_id: undefined })]);
+      expand('node00');
+
+      expect(screen.getByTestId('scan-error')).toBeInTheDocument();
+      expect(
+        screen.queryByRole('link', { name: 'Open the scan that failed' })
+      ).toBeNull();
+    });
+
+    // Unrecognised and absent fold together: the raw error is the only honest answer.
+    it.each([
+      ['an unrecognised code', 'something_new'],
+      ['no code at all', undefined],
+    ])('shows the raw error and no hint for %s', (_label, code) => {
+      renderPage([
+        failingHost({
+          last_error_code: code,
+          last_error: 'probe exploded\nsecond line',
+        }),
+      ]);
+
+      expect(rowFor('node00')).toHaveTextContent(
+        'Failing for 2h, 4 failed scans in a row: probe exploded'
+      );
+      expand('node00');
+      expect(screen.getByTestId('scan-error').textContent).toBe(
+        'probe exploded\nsecond line'
+      );
+      expect(
+        within(screen.getByTestId('scan-failure')).getByText(
+          'Scans failing: Scan failed'
+        )
+      ).toBeInTheDocument();
+      // No sentence from the hint table for any kind.
+      expect(
+        screen.queryByText(
+          /Check that|retried on the next scan|Install python3/
+        )
+      ).toBeNull();
+    });
+
+    it('shows none of it for a healthy node', () => {
+      renderPage([host()]);
+      const row = rowFor('node00');
+      expect(row).not.toHaveTextContent('Failing');
+      expect(row).not.toHaveTextContent('Needs attention');
+
+      expand('node00');
+      expect(screen.queryByTestId('scan-error')).toBeNull();
+      expect(screen.queryByText(/Scans failing/)).toBeNull();
+      expect(
+        screen.queryByRole('link', { name: 'Open the scan that failed' })
+      ).toBeNull();
+    });
+  });
 });
