@@ -545,7 +545,7 @@ func TestAutomationEligibility(t *testing.T) {
 
 	// No user-facing reason names Nomad. These strings are joined straight into the
 	// tooltip on the Nodes page, so they are product copy, and PMM-15623 set out to
-	// keep the scheduler's name out of it (P16).
+	// keep the scheduler's name out of it.
 	t.Run("no reason names the scheduler", func(t *testing.T) {
 		t.Parallel()
 
@@ -655,7 +655,7 @@ func TestAutomationEligibility(t *testing.T) {
 		assert.True(t, byDesign)
 	})
 
-	// The two preconditions P1 names that used to fail on the wizard's last click,
+	// The two preconditions that used to fail on the wizard's last click,
 	// inside TriggerHostBootstrap, after the whole form was filled in.
 	t.Run("a node no scan has reported an OS for is not eligible", func(t *testing.T) {
 		t.Parallel()
@@ -851,7 +851,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
 		message := status.Convert(err).Message()
 		assert.Contains(t, message, "no scan has reported its operating system")
-		// P6's complaint was the advice, not only the wording: it told the user to
+		// The complaint was the advice, not only the wording: it told the user to
 		// wait after 160 runs had already failed.
 		assert.NotContains(t, message, "wait")
 	})
@@ -1094,7 +1094,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	// wizard and scopes the backend out; without it here the browser is the only thing
 	// between a direct API call and a run that installs mongod on every host and then
 	// fails inside rs.initiate.
-	// P6, for the readiness checks. Three nodes with three different problems used to
+	// The readiness checks. Three nodes with three different problems used to
 	// produce one message about one of them, so a user fixing them discovered the
 	// second only by fixing the first and running the trigger again.
 	t.Run("names every unready node and every problem, not the first", func(t *testing.T) {
@@ -1164,7 +1164,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 	// The safety gate, and the reason it is not left to the UI. automation_eligible is
 	// advisory: computed for a list request, minutes stale by the time anyone clicks,
-	// and never read at all by a direct API call. These are the two cases P1 calls the
+	// and never read at all by a direct API call. These are the two cases that are
 	// most damaging thing Operations can do.
 	t.Run("refuses a node that already has a registered MongoDB service", func(t *testing.T) {
 		t.Parallel()
@@ -1321,7 +1321,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	// rule that refused that would block the topology the field exists for. Checked
 	// against validateMemberConfigs directly, because a one-member set with priority
 	// 0 is refused by the no-electable-member rule instead and would prove nothing.
-	// P6, for the member rules. Two misconfigured members in one plan used to report
+	// The member rules. Two misconfigured members in one plan used to report
 	// one of them. Checked directly rather than through the trigger, because the point
 	// is the set of violations rather than the RPC around it.
 	t.Run("returns every member violation in one error", func(t *testing.T) {
@@ -1566,7 +1566,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
 		message := status.Convert(err).Message()
-		// Every setting it dropped, not the first (P6). This side-car is older than
+		// Every setting it dropped, not the first. This side-car is older than
 		// all four fields, so naming one made the gap look like a single mis-set
 		// value rather than what it is -- a PMM talking to an older PMM Extensions.
 		for _, setting := range []string{"the data path", "the log path", "the port", "the bind address"} {

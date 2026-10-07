@@ -27,7 +27,7 @@ const escapeForRegExp = (value: string) =>
 /**
  * An error message with every node it names turned into a link to that node.
  *
- * P6's last clause: a blocked node's reason has to be followable to the scan that
+ * A blocked node's reason has to be followable to the scan that
  * produced it, and that scan is a row on the Nodes page. A gRPC error is a plain
  * string and cannot carry a link, so the names are matched here instead.
  *

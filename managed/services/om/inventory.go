@@ -424,7 +424,7 @@ func validateMemberConfigs(nodeIDs []string, memberConfigs map[string]*omv1.Boot
 		nodeIDSet[nodeID] = true
 	}
 	// Accumulated, not returned on the first: a three-member plan with two
-	// misconfigured members used to report one of them (P6). Sorted, because ranging a
+	// misconfigured members used to report one of them. Sorted, because ranging a
 	// map gives a different order every run and an error message that reshuffles
 	// itself is one nobody can diff against the last attempt.
 	var violations []string
@@ -512,7 +512,7 @@ func validateMemberConfigs(nodeIDs []string, memberConfigs map[string]*omv1.Boot
 // what was actually asked for is compared -- a field PMM left out is PMM Extensions' to
 // default, and the value it chose is not a disagreement.
 func runIgnoredSettings(planned extensionsTriggerBootstrapRunRequest, accepted *extensionsBootstrapRun) string {
-	// Every setting, not the first (P6). A PMM Extensions too old for these fields
+	// Every setting, not the first. A PMM Extensions too old for these fields
 	// ignores all of them at once, so naming one made the gap look like a single
 	// mis-set value rather than what it is: this PMM talking to an older side-car.
 	var ignored []string
@@ -603,7 +603,7 @@ func executorUnusable(host extensionsHost) string {
 
 	// Worded without naming the scheduler: this string reaches the install wizard as
 	// a gRPC error message, so it is product copy, and PMM-15623 set out to keep
-	// "Nomad" out of what a user reads (P16).
+	// "Nomad" out of what a user reads.
 	reachable, ok := executor["reachable"].(bool)
 	if ok && !reachable {
 		return "its automation agent is not reachable"
@@ -639,7 +639,7 @@ func supportedBootstrapOSNames() string {
 // refuseNodesNotReadyToInstall rejects the request when any selected node cannot be
 // installed onto, and returns the one OS the run will use.
 //
-// Every problem from every node, in one error (P6). It used to return on the first:
+// Every problem from every node, in one error. It used to return on the first:
 // `resolveBootstrapHostOSID` was called once per node from inside the trigger's loop,
 // so three nodes with no OS produced one message about one of them, and the user found
 // the second only by fixing the first and running the trigger again. The same was true
@@ -691,7 +691,7 @@ func refuseNodesNotReadyToInstall(nodeIDs []string, hosts []extensionsHost) (str
 // why it must not be attempted at all -- that is hostNotATargetReasons.
 //
 // The advice matters as much as the reason. "wait for its next inventory probe and try
-// again" was wrong the way P6 found it: the node's scans had been failing for 160 runs,
+// again" was wrong: the node's scans had been failing for 160 runs,
 // so waiting was never going to help. None of these say wait.
 func hostNotReadyReasons(host extensionsHost) []string {
 	var reasons []string
@@ -1618,7 +1618,7 @@ func automationEligibility(
 		reasons = append(reasons, "this node's automation agent cannot run jobs")
 	}
 	// The same map the trigger checks against, so eligibility and TriggerHostBootstrap
-	// cannot disagree about which OS an install supports. Both are preconditions P1
+	// cannot disagree about which OS an install supports. Both are preconditions
 	// names, and both failed on the wizard's final button until now.
 	switch osID, _ := host.Observed["os_id"].(string); {
 	case osID == "":

@@ -69,7 +69,7 @@ import type { OmHostRow } from './types';
  * Eleven columns plus select, expand and a three-button action column pushed the
  * actions off-screen behind horizontal scrolling -- including the red Forget, which
  * is the one a reader should never meet by accident while hunting for it (design
- * review P17). Everything hidden here is still a column-chooser away, and the agent
+ * the width it gets). Everything hidden here is still a column-chooser away, and the agent
  * detail is in the row's own panel.
  */
 const HIDDEN_BY_DEFAULT = {
@@ -221,7 +221,7 @@ const automationBlockedTitle = (reasons: string[]) =>
  * Why the bulk Install button is disabled for this selection count.
  *
  * Two sentences, not one, because the counts it refuses fail for two unrelated
- * reasons and a single explanation would state something false (P7, fourth
+ * reasons and a single explanation would state something false (see the second
  * direction). **Two** is a MongoDB fact worth teaching: a two-member set cannot form
  * a majority when either member is lost, so it stops accepting writes on any single
  * failure. **Four or more** is perfectly ordinary in MongoDB and is refused only
@@ -737,7 +737,7 @@ export const NodesPage = () => {
     [rows]
   );
 
-  // The node an error elsewhere is about. P6 asks a blocked node's reason to be
+  // The node an error elsewhere is about. A blocked node's reason has to be
   // followable to the scan that produced it, and that scan is on this page -- so the
   // destination is a row here, not a new view.
   const [searchParams] = useSearchParams();
@@ -766,7 +766,7 @@ export const NodesPage = () => {
     enableColumnActions: false,
     // The actions column has to hold "Scan" beside "Install MongoDB", and MRT's
     // default for it is narrower than that - so the install action was clipped at
-    // the right edge, which is the row-action half of P17 all over again.
+    // the right edge, which is the same width problem all over again.
     displayColumnDefOptions: {
       'mrt-row-actions': { size: 290, grow: false },
       'mrt-row-select': { size: 50, grow: false },
@@ -824,11 +824,11 @@ export const NodesPage = () => {
         </Tooltip>
         {/* Behind the ellipsis, not beside the daily actions: three text buttons
             did not fit the row, and Forget was the one falling off the right edge
-            (P17). P14 asks for it to live here on its own account too. */}
+            and it belongs behind a menu on its own account too. */}
         {/* No actions at all on PMM Server's own node. Forget would clear Operations'
             record of the machine PMM runs on, the next scan would put it straight
             back, and in between the fleet would be wrong - so the menu has nothing
-            to show and is not rendered (P1 names Forget alongside Install). */}
+            to show and is not rendered. */}
         {!row.original.is_pmm_server_node && (
           <RowOverflowMenu label={`More actions for ${row.original.name}`}>
             {(close) => [

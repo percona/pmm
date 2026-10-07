@@ -14,10 +14,6 @@ format-check: setup
 lint: setup
 	pnpm lint
 
-# Separate from `lint`, which is oxlint and sees no types, and from `build`, whose
-# tsc covers only apps/pmm's own src. Every package already declares `check-types`
-# and the turbo task already existed -- nothing ran it, which is how two type errors
-# reached a green build (PMM-15664).
 check-types: setup
 	pnpm check-types
 

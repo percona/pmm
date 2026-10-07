@@ -95,12 +95,12 @@ function isSupportedHostCount(count: number): boolean {
  * The security posture of a developer-preview install, stated where it is read.
  *
  * This used to be a "Security" tab holding three permanently disabled text fields -
- * "inputs that are not inputs", which was the complaint (P2). A tab that can never be
+ * "inputs that are not inputs", which was the complaint. A tab that can never be
  * edited is worse than the same facts stated where the user is already looking, so the
  * tab is gone and this renders on the Configure step and again at Review.
  *
  * It must keep naming the mechanism and what is unavailable: the tab was the only place
- * that said keyFile, LDAP and KMIP/KMS at all, and dropping that would make P2 worse
+ * that said keyFile, LDAP and KMIP/KMS at all, and dropping that would make the
  * rather than better.
  */
 const SecurityPosture = () => (
@@ -349,19 +349,11 @@ export const BootstrapPage = () => {
 
   const backToHosts = () => navigate(`${omBase}/${OM_ROUTE_NODES}`);
 
-  // Read off the same automation_blocked_reasons the Nodes page shows, so the two
-  // cannot disagree about why a node is refused. No new endpoint: the hosts query is
-  // already loaded on this page for step 1's table.
-  //
-  // The PMM Server's node can never get here -- it is not selectable on the Nodes
-  // page at all -- so its reason appearing in this list is defence in depth against a
-  // link or a bookmark carrying its id, not a path a user reaches.
   const blockedHosts = useMemo(
     () => hosts.filter((host) => !host.automation_eligible),
     [hosts]
   );
 
-  // No new request: hostsQuery is already loaded on this page for step 1's table.
   const knownNodeNames = useMemo(
     () => (hostsQuery.data ?? []).map((host) => host.name),
     [hostsQuery.data]
@@ -377,7 +369,7 @@ export const BootstrapPage = () => {
   const [port, setPort] = useState(DEFAULT_PORT);
   // A mode rather than a free-typed address. The field defaulted to 0.0.0.0 with the
   // helper "The interface(s) mongod listens on" - a database reachable from every
-  // network the machine is on, with nothing beside the field saying so (P2).
+  // network the machine is on, with nothing beside the field saying so.
   const [bindMode, setBindMode] = useState<BindMode>('own');
   const [customBindIp, setCustomBindIp] = useState(DEFAULT_BIND_IP);
 
@@ -639,119 +631,115 @@ export const BootstrapPage = () => {
             {hosts.length}-member replica set.
           </Typography>
           <SecurityPosture />
-          {
-            <Stack spacing={2} sx={{ maxWidth: 480 }}>
-              <TextField
-                label="Replica set name"
-                value={replicaSetName}
-                onChange={(event) => setReplicaSetName(event.target.value)}
-                required
-                autoFocus
-                fullWidth
-              />
-              <TextField
-                label="MongoDB version"
-                value={mongodbVersion}
-                onChange={(event) => setMongodbVersion(event.target.value)}
-                required
-                fullWidth
-                helperText="Only the major version selects the install source, e.g. 7.0."
-              />
-              <Autocomplete
-                freeSolo
-                options={environmentOptions}
-                inputValue={environment}
-                onInputChange={(_event, value) => setEnvironment(value)}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Environment"
-                    helperText="Optional. Pick an existing environment or type a new name to create one."
-                  />
-                )}
-              />
-              <Autocomplete
-                freeSolo
-                options={clusterOptions}
-                inputValue={cluster}
-                onInputChange={(_event, value) => setCluster(value)}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Cluster"
-                    helperText="Optional. Pick an existing cluster or type a new name to create one."
-                  />
-                )}
-              />
-              <TextField
-                label="Data path"
-                value={dataPath}
-                onChange={(event) => setDataPath(event.target.value)}
-                required
-                fullWidth
-                helperText="On every node. Where mongod stores its data."
-              />
-              <TextField
-                label="Log path"
-                value={logPath}
-                onChange={(event) => setLogPath(event.target.value)}
-                required
-                fullWidth
-                helperText="On every node. Where mongod writes its log file."
-              />
-              <TextField
-                label="Port"
-                type="number"
-                value={port}
-                onChange={(event) => setPort(event.target.value)}
-                required
-                fullWidth
-                slotProps={{ htmlInput: { min: 1, max: 65535 } }}
-              />
-              <TextField
-                select
-                label="Listen on"
-                value={bindMode}
-                onChange={(event) =>
-                  setBindMode(event.target.value as BindMode)
-                }
-                fullWidth
-                helperText="Which interfaces mongod accepts connections on."
-              >
-                <MenuItem value="own">
-                  {hosts.length === 1
-                    ? "This node's own address"
-                    : "Each node's own address"}
-                </MenuItem>
-                <MenuItem value="all">All interfaces (0.0.0.0)</MenuItem>
-                <MenuItem value="custom">Custom…</MenuItem>
-              </TextField>
-              {bindMode === 'own' && (
-                <Typography variant="caption" color="text.secondary">
-                  {hosts.map((host) => host.address ?? host.name).join(', ')}
-                </Typography>
-              )}
-              {bindMode === 'custom' && (
+          <Stack spacing={2} sx={{ maxWidth: 480 }}>
+            <TextField
+              label="Replica set name"
+              value={replicaSetName}
+              onChange={(event) => setReplicaSetName(event.target.value)}
+              required
+              autoFocus
+              fullWidth
+            />
+            <TextField
+              label="MongoDB version"
+              value={mongodbVersion}
+              onChange={(event) => setMongodbVersion(event.target.value)}
+              required
+              fullWidth
+              helperText="Only the major version selects the install source, e.g. 7.0."
+            />
+            <Autocomplete
+              freeSolo
+              options={environmentOptions}
+              inputValue={environment}
+              onInputChange={(_event, value) => setEnvironment(value)}
+              renderInput={(params) => (
                 <TextField
-                  label="Bind IP"
-                  value={customBindIp}
-                  onChange={(event) => setCustomBindIp(event.target.value)}
-                  required
-                  fullWidth
-                  helperText="Applied to every selected node."
+                  {...params}
+                  label="Environment"
+                  helperText="Optional. Pick an existing environment or type a new name to create one."
                 />
               )}
-              {/* Beside the field, not in a paragraph at the top of the step: the
-                  warning is about the value that is selected right now. */}
-              {effectiveBindIp === ALL_INTERFACES && (
-                <Alert severity="warning">
-                  On {ALL_INTERFACES} mongod accepts connections from every
-                  network each node is attached to. With TLS off in this
-                  developer preview, those connections are unencrypted.
-                </Alert>
+            />
+            <Autocomplete
+              freeSolo
+              options={clusterOptions}
+              inputValue={cluster}
+              onInputChange={(_event, value) => setCluster(value)}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Cluster"
+                  helperText="Optional. Pick an existing cluster or type a new name to create one."
+                />
               )}
-            </Stack>
-          }
+            />
+            <TextField
+              label="Data path"
+              value={dataPath}
+              onChange={(event) => setDataPath(event.target.value)}
+              required
+              fullWidth
+              helperText="On every node. Where mongod stores its data."
+            />
+            <TextField
+              label="Log path"
+              value={logPath}
+              onChange={(event) => setLogPath(event.target.value)}
+              required
+              fullWidth
+              helperText="On every node. Where mongod writes its log file."
+            />
+            <TextField
+              label="Port"
+              type="number"
+              value={port}
+              onChange={(event) => setPort(event.target.value)}
+              required
+              fullWidth
+              slotProps={{ htmlInput: { min: 1, max: 65535 } }}
+            />
+            <TextField
+              select
+              label="Listen on"
+              value={bindMode}
+              onChange={(event) => setBindMode(event.target.value as BindMode)}
+              fullWidth
+              helperText="Which interfaces mongod accepts connections on."
+            >
+              <MenuItem value="own">
+                {hosts.length === 1
+                  ? "This node's own address"
+                  : "Each node's own address"}
+              </MenuItem>
+              <MenuItem value="all">All interfaces (0.0.0.0)</MenuItem>
+              <MenuItem value="custom">Custom…</MenuItem>
+            </TextField>
+            {bindMode === 'own' && (
+              <Typography variant="caption" color="text.secondary">
+                {hosts.map((host) => host.address ?? host.name).join(', ')}
+              </Typography>
+            )}
+            {bindMode === 'custom' && (
+              <TextField
+                label="Bind IP"
+                value={customBindIp}
+                onChange={(event) => setCustomBindIp(event.target.value)}
+                required
+                fullWidth
+                helperText="Applied to every selected node."
+              />
+            )}
+            {/* Beside the field, not in a paragraph at the top of the step: the
+                  warning is about the value that is selected right now. */}
+            {effectiveBindIp === ALL_INTERFACES && (
+              <Alert severity="warning">
+                On {ALL_INTERFACES} mongod accepts connections from every
+                network each node is attached to. With TLS off in this developer
+                preview, those connections are unencrypted.
+              </Alert>
+            )}
+          </Stack>
           {hosts.length > 1 && (
             <Accordion
               variant="outlined"
@@ -920,7 +908,7 @@ export const BootstrapPage = () => {
             <Alert severity="error">
               {/* Every node the refusal names becomes a link to that node and its
                   newest scan, which is what makes "fix it on the node" followable
-                  (P6). The message itself is the backend's -- see NodeNamesLinked
+                  The message itself is the backend's -- see NodeNamesLinked
                   for why the names are matched rather than parsed. */}
               <NodeNamesLinked
                 text={bootstrap.error.message}
@@ -941,7 +929,7 @@ export const BootstrapPage = () => {
               // Blocks rather than warns. Every one of these conditions describes
               // a run that cannot succeed, so letting the user through would only
               // move the failure to the final button - which is the complaint
-              // itself (P1).
+              // itself.
               disabled={
                 !isSupportedHostCount(hosts.length) || blockedHosts.length > 0
               }
