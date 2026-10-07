@@ -42,6 +42,7 @@ import {
   HOST_DATABASE_STATE_COLOR,
   HOST_DATABASE_STATE_LABEL,
   HOST_DATABASE_STATE_PHRASE,
+  OM_ROUTE_AUTOMATIONS,
   OM_ROUTE_INSTALL,
 } from './constants';
 import { EmptyState } from './components/EmptyState';
@@ -951,9 +952,19 @@ export const NodesPage = () => {
         </Stack>
       )}
       {filteredRows.length === 0 ? (
-        <EmptyState title="No nodes to show">
+        <EmptyState
+          title="No nodes to show"
+          action={
+            rows.length === 0
+              ? {
+                  label: 'Go to Scans',
+                  to: `${omBase}/${OM_ROUTE_AUTOMATIONS}?tab=scans`,
+                }
+              : undefined
+          }
+        >
           {rows.length === 0
-            ? 'This page lists every machine PMM monitors, including the ones with no database on them - which is where an install can go. PMM has no nodes registered yet.'
+            ? 'This page lists every node Operations has scanned, including the ones with no database on them - which is where an install can go. There are no scan results yet: press Scan all, or check Scans if one is already running.'
             : 'Every node is filtered out by the filter above. Clear it to see them.'}
         </EmptyState>
       ) : (

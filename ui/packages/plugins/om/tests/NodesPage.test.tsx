@@ -191,4 +191,18 @@ describe('NodesPage', () => {
       within(rowFor('node00')).getByRole('button', { name: 'Scan' })
     ).toBeDisabled();
   });
+
+  it('sends an empty page to the scans, not to PMM, since its rows are scan results', () => {
+    renderPage([]);
+
+    const empty = screen.getByTestId('om-empty-state');
+    expect(empty).toHaveTextContent('There are no scan results yet');
+    expect(empty).not.toHaveTextContent('PMM has no nodes registered');
+    expect(
+      within(empty).getByRole('link', { name: 'Go to Scans' })
+    ).toHaveAttribute(
+      'href',
+      expect.stringMatching(/\/automations\?tab=scans$/)
+    );
+  });
 });

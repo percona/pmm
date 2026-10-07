@@ -312,6 +312,10 @@ export const SETTING_GROUP: Record<string, 'general' | 'scanning'> = {
   CONNECT_TIMEOUT: 'scanning',
 };
 
+/** Why a fleet tab is empty before pmm-managed's first collection. */
+export const FLEET_NOT_COLLECTED =
+  "Operations has not read PMM's MongoDB services yet. It does within a minute, or press Refresh to do it now.";
+
 /**
  * Where a reader goes to fix a node with no automation agent.
  *

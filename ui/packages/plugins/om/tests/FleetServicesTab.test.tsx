@@ -25,19 +25,34 @@ import {
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FleetServicesTab } from '../src/FleetServicesTab';
-import type { OmServiceStatus, OmTopologyResponse } from '../src/types';
+import { FLEET_NOT_COLLECTED } from '../src/constants';
+import type {
+  OmInventoryService,
+  OmServiceStatus,
+  OmTopologyResponse,
+} from '../src/types';
 import { cluster, mixedEstate, service, topology } from './fixtures';
 
-const { useOmTopology } = vi.hoisted(() => ({ useOmTopology: vi.fn() }));
+const { useOmTopology, useOmInventoryServices } = vi.hoisted(() => ({
+  useOmTopology: vi.fn(),
+  useOmInventoryServices: vi.fn(),
+}));
 
 vi.mock('../src/topologyHooks', () => ({ useOmTopology }));
-vi.mock('../src/inventoryHooks', () => ({
-  useOmInventoryServices: () => ({
-    data: [],
+vi.mock('../src/inventoryHooks', () => ({ useOmInventoryServices }));
+
+const scanned = (failingSince: string | null) =>
+  useOmInventoryServices.mockReturnValue({
+    data: [
+      {
+        service_id: 's1',
+        node_id: 'n1',
+        freshness: { failing_since: failingSince, consecutive_failures: 1 },
+      } as OmInventoryService,
+    ],
     isPending: false,
     isError: false,
-  }),
-}));
+  });
 
 const serve = (data: OmTopologyResponse) =>
   useOmTopology.mockReturnValue({ data, isPending: false, isError: false });
@@ -81,7 +96,14 @@ const rowFor = (name: string) =>
     .find((row) => within(row).queryByText(name)) as HTMLElement;
 
 describe('FleetServicesTab', () => {
-  beforeEach(() => serve(mixedEstate()));
+  beforeEach(() => {
+    serve(mixedEstate());
+    useOmInventoryServices.mockReturnValue({
+      data: [],
+      isPending: false,
+      isError: false,
+    });
+  });
 
   it('opens with the down service as the first row', () => {
     render(
@@ -156,5 +178,34 @@ describe('FleetServicesTab', () => {
       </MemoryRouter>
     );
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('says the fleet has not been read yet before the first snapshot', () => {
+    const cold = topology([]);
+    cold.snapshot.generated_at = undefined;
+    serve(cold);
+    renderTab();
+
+    const empty = screen.getByTestId('om-empty-state');
+    expect(empty).toHaveTextContent(FLEET_NOT_COLLECTED);
+    expect(empty).not.toHaveTextContent('PMM has no MongoDB services');
+  });
+
+  it('blames the filter, not PMM, when the failing filter empties the table', () => {
+    serve(ordersEstate());
+    scanned('2026-10-06T09:00:00Z');
+    const { rerender } = renderTab();
+    fireEvent.click(screen.getByText('1 failing a scan'));
+
+    scanned(null);
+    rerender(
+      <MemoryRouter>
+        <FleetServicesTab />
+      </MemoryRouter>
+    );
+
+    const empty = screen.getByTestId('om-empty-state');
+    expect(empty).toHaveTextContent('No service is failing a scan right now');
+    expect(empty).not.toHaveTextContent('PMM has no MongoDB services');
   });
 });

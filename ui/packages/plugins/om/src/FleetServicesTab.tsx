@@ -31,7 +31,7 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from 'material-react-table';
-import { PROCESS_ROLE_LABEL } from './constants';
+import { FLEET_NOT_COLLECTED, PROCESS_ROLE_LABEL } from './constants';
 import { SnapshotBar } from './components/SnapshotBar';
 import { StatusBadge } from './components/HealthBadge';
 import { MemberState } from './components/MemberState';
@@ -574,14 +574,20 @@ export const FleetServicesTab = () => {
         failingOnly={failingOnly}
         onToggleFailing={() => setFailingOnly((on) => !on)}
       />
-      {rows.length === 0 ? (
-        <EmptyState title="No MongoDB services yet">
-          The same fleet as the Clusters tab, one row per MongoDB service. It is
-          empty because PMM has no MongoDB services registered yet - add one,
-          and it appears here on the next refresh.
+      {rows.length > 0 ? (
+        <MaterialReactTable table={table} />
+      ) : joined.length > 0 ? (
+        <EmptyState title="No services failing a scan">
+          No service is failing a scan right now. Turn off the failing filter to
+          see them all.
         </EmptyState>
       ) : (
-        <MaterialReactTable table={table} />
+        <EmptyState title="No MongoDB services yet">
+          The same fleet as the Clusters tab, one row per MongoDB service.{' '}
+          {data.snapshot.generated_at
+            ? 'It is empty because PMM has no MongoDB services registered yet - add one, and it appears here on the next refresh.'
+            : FLEET_NOT_COLLECTED}
+        </EmptyState>
       )}
       <ServiceDetailDrawer
         row={selected}
