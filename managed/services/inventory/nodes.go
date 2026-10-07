@@ -36,16 +36,28 @@ type NodesService struct {
 	state         agentsStateUpdater
 	vmdb          prometheusService
 	grafanaClient grafanaClient
+
+	// protectedNodePrefixes holds the Node name prefixes of the Nodes this PMM deployment
+	// provisioned for itself, which users cannot remove, see services.CheckNodeRemovable.
+	protectedNodePrefixes []string
 }
 
 // NewNodesService returns Inventory API handler for managing Nodes.
-func NewNodesService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, gc grafanaClient) *NodesService {
+func NewNodesService(
+	db *reform.DB,
+	r agentsRegistry,
+	state agentsStateUpdater,
+	vmdb prometheusService,
+	gc grafanaClient,
+	protectedNodePrefixes []string,
+) *NodesService {
 	return &NodesService{
-		db:            db,
-		r:             r,
-		state:         state,
-		vmdb:          vmdb,
-		grafanaClient: gc,
+		db:                    db,
+		r:                     r,
+		state:                 state,
+		vmdb:                  vmdb,
+		grafanaClient:         gc,
+		protectedNodePrefixes: protectedNodePrefixes,
 	}
 }
 
@@ -399,11 +411,15 @@ func (s *NodesService) Remove(ctx context.Context, id string, force bool) (strin
 	var notify agentsToNotify
 
 	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		err := services.CheckNodeRemovable(tx.Querier, s.r, node, s.protectedNodePrefixes)
+		if err != nil {
+			return err
+		}
+
 		mode := models.RemoveRestrict
 		if force {
 			mode = models.RemoveCascade
 
-			var err error
 			notify, err = agentsAffectedBy(tx.Querier, id)
 			if err != nil {
 				return err

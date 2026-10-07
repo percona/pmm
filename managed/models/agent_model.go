@@ -379,6 +379,9 @@ type Agent struct {
 	Version         *string `reform:"version"`
 	ProcessExecPath *string `reform:"process_exec_path"`
 	IsConnected     bool    `reform:"is_connected"`
+	// ConnectionID identifies the connection IsConnected was persisted for in HA mode, so that
+	// the disconnect of an earlier connection does not overwrite the status of a newer one.
+	ConnectionID *string `reform:"connection_id"`
 
 	Username      *string `reform:"username"`
 	Password      *string `reform:"password"`

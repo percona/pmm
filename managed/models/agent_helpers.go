@@ -1682,3 +1682,33 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 	}
 	return nil
 }
+
+// NewConnectionID returns the ID a pmm-agent connection is persisted with in HA mode, see
+// Agent.ConnectionID. It starts with the PMM_HA_NODE_ID of the replica holding the connection, so
+// that a replica can tell which persisted connections are its own.
+func NewConnectionID(haNodeID string) string {
+	return haNodeID + "/" + uuid.NewString()
+}
+
+// ConnectionIDOwner returns the PMM_HA_NODE_ID of the replica a connection ID was made by. An ID
+// made without one, by an earlier version, has no owner that can be told.
+func ConnectionIDOwner(connectionID string) (string, bool) {
+	owner, _, found := strings.Cut(connectionID, "/")
+	return owner, found
+}
+
+// ResetHANodeConnections persists as disconnected the pmm-agent connections held by the replica
+// with given PMM_HA_NODE_ID, and returns how many there were. The replica calls it when it starts,
+// holding none yet: stopping without unregistering its agents, being OOM-killed or losing its
+// Kubernetes node, leaves them persisted as connected, and IsConnected counts the connections of a
+// replica that is a member of the cluster again.
+func ResetHANodeConnections(q *reform.Querier, haNodeID string) (int64, error) {
+	res, err := q.Exec(
+		"UPDATE agents SET is_connected = false WHERE is_connected AND split_part(connection_id, '/', 1) = $1", haNodeID,
+	)
+	if err != nil {
+		return 0, fmt.Errorf("failed to reset the connections of HA node %s: %w", haNodeID, err)
+	}
+
+	return res.RowsAffected()
+}

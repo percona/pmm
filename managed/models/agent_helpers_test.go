@@ -1986,3 +1986,46 @@ func TestChangeAgentParamsAffectsConnection(t *testing.T) {
 		})
 	}
 }
+
+func TestResetHANodeConnections(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	node, err := models.CreateNode(db.Querier, models.ContainerNodeType, &models.CreateNodeParams{NodeName: "pmm-pmm-ha-client-0"})
+	require.NoError(t, err)
+
+	newAgent := func(t *testing.T, connectionID *string) string {
+		t.Helper()
+
+		agent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
+		require.NoError(t, err)
+		agent.IsConnected = true
+		agent.ConnectionID = connectionID
+		require.NoError(t, db.Update(agent))
+
+		return agent.AgentID
+	}
+
+	agents := map[string]bool{
+		newAgent(t, new("pmm-ha-0/1")): false,
+		newAgent(t, new("pmm-ha-1/1")): true,
+		// A node ID which only starts with this one names another replica.
+		newAgent(t, new("pmm-ha-01/1")): true,
+		newAgent(t, nil):                true,
+		// Written by an earlier version, without an owner.
+		newAgent(t, new("7c0e5a4e-1b7e-4f0c-9d3a-2a6f7e0b9c11")): true,
+	}
+
+	reset, err := models.ResetHANodeConnections(db.Querier, "pmm-ha-0")
+	require.NoError(t, err)
+	assert.Equal(t, int64(1), reset)
+
+	for agentID, connected := range agents {
+		agent, err := models.FindAgentByID(db.Querier, agentID)
+		require.NoError(t, err)
+		assert.Equal(t, connected, agent.IsConnected, pointer.GetString(agent.ConnectionID))
+	}
+}

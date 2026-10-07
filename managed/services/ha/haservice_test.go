@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/hashicorp/memberlist"
 	"github.com/hashicorp/raft"
 	raftboltdb "github.com/hashicorp/raft-boltdb/v2"
 	"github.com/sirupsen/logrus"
@@ -202,6 +203,37 @@ func TestService_IsLeader(t *testing.T) {
 		}
 
 		assert.False(t, s.IsLeader())
+	})
+}
+
+func TestService_IsMember(t *testing.T) {
+	t.Parallel()
+
+	// Before memberlist starts, nothing is known to be gone.
+	t.Run("reports every node before memberlist starts", func(t *testing.T) {
+		t.Parallel()
+
+		s := &Service{params: &models.HAParams{Enabled: true}}
+		assert.True(t, s.IsMember("pmm-ha-2"))
+	})
+
+	t.Run("reports the nodes memberlist knows", func(t *testing.T) {
+		t.Parallel()
+
+		config := memberlist.DefaultLocalConfig()
+		config.Name = "pmm-ha-0"
+		config.BindAddr = "127.0.0.1"
+		config.BindPort = 0
+		config.LogOutput = io.Discard
+		ml, err := memberlist.Create(config)
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			assert.NoError(t, ml.Shutdown())
+		})
+
+		s := &Service{params: &models.HAParams{Enabled: true}, memberlist: ml}
+		assert.True(t, s.IsMember("pmm-ha-0"))
+		assert.False(t, s.IsMember("pmm-ha-2"))
 	})
 }
 

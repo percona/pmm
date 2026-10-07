@@ -21385,6 +21385,11 @@
                         "description": "True if this node belongs to the internal infrastructure of a PMM deployment\n(e.g. the HA persistence layer) and must not host user monitoring workloads.",
                         "type": "boolean",
                         "x-order": 19
+                      },
+                      "is_pmm_protected_node": {
+                        "description": "True if this node was provisioned by a PMM deployment for itself (e.g. the PMM Client pods\nof the HA Helm chart) and cannot be removed while its pmm-agent is connected.",
+                        "type": "boolean",
+                        "x-order": 20
                       }
                     }
                   },
@@ -21947,6 +21952,11 @@
                       "description": "True if this node belongs to the internal infrastructure of a PMM deployment\n(e.g. the HA persistence layer) and must not host user monitoring workloads.",
                       "type": "boolean",
                       "x-order": 19
+                    },
+                    "is_pmm_protected_node": {
+                      "description": "True if this node was provisioned by a PMM deployment for itself (e.g. the PMM Client pods\nof the HA Helm chart) and cannot be removed while its pmm-agent is connected.",
+                      "type": "boolean",
+                      "x-order": 20
                     }
                   },
                   "x-order": 0
