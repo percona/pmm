@@ -18,6 +18,7 @@ package agents
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"sync"
 	"testing"
 	"time"
@@ -160,7 +161,7 @@ func TestUnregisterPersistsDisconnectInHA(t *testing.T) {
 	r := newTestRegistry()
 	r.haService = haServiceStub{params: &models.HAParams{Enabled: true}}
 	r.db = reform.NewDB(sqlDB, postgresql.Dialect, nil)
-	r.connectionCache = map[string]struct{}{testAgentID: {}}
+	r.connectionCache = map[string]string{testAgentID: "pmm-ha-0"}
 	current := newTestConn()
 	current.connectionID = "pmm-ha-0/1"
 	r.agents[testAgentID] = current
@@ -263,7 +264,7 @@ func newHATestRegistry(t *testing.T) (*Registry, *reform.DB, *pmmAgentInfo) {
 	r := newTestRegistry()
 	r.db = db
 	r.haService = haServiceStub{params: &models.HAParams{Enabled: true}}
-	r.connectionCache = map[string]struct{}{models.PMMServerAgentID: {}}
+	r.connectionCache = map[string]string{models.PMMServerAgentID: ""}
 	conn := &pmmAgentInfo{id: models.PMMServerAgentID, connectionID: connectionID}
 	r.agents[models.PMMServerAgentID] = conn
 
@@ -383,4 +384,84 @@ func TestIsConnectedKeepsStatusesOnDatabaseError(t *testing.T) {
 	r.connectionCacheRetryAt = time.Now().Add(-time.Second)
 	assert.False(t, r.IsConnected("/agent_id/missing"))
 	assert.True(t, r.connectionCacheRetryAt.After(retryAt), "the refresh is not retried once due")
+}
+
+// TestGetNamesTheReplicaHoldingTheConnection covers a request for a pmm-agent connected to another
+// replica: it can't be served, and the error must say why (PMM-15684).
+func TestGetNamesTheReplicaHoldingTheConnection(t *testing.T) {
+	t.Parallel()
+
+	const notConnected = "rpc error: code = FailedPrecondition desc = pmm-agent with ID %s is not currently connected"
+
+	for _, tc := range []struct {
+		name      string
+		haEnabled bool
+		agentID   string
+		expected  string
+	}{
+		{
+			name: "connected to another replica", haEnabled: true, agentID: "/agent_id/on-pmm-ha-0",
+			expected: "rpc error: code = FailedPrecondition desc = pmm-agent with ID /agent_id/on-pmm-ha-0 is connected to " +
+				"PMM Server replica pmm-ha-0, not to pmm-ha-1; in HA mode, actions run only on pmm-agents connected to the leader",
+		},
+		{
+			name: "connection ID names no replica", haEnabled: true, agentID: "/agent_id/no-owner",
+			expected: "rpc error: code = FailedPrecondition desc = pmm-agent with ID /agent_id/no-owner is connected to " +
+				"another PMM Server replica, not to pmm-ha-1; in HA mode, actions run only on pmm-agents connected to the leader",
+		},
+		// Persisted as connected to this replica, which no longer holds it: see PMM-15669.
+		{name: "stale connection of this replica", haEnabled: true, agentID: "/agent_id/on-pmm-ha-1"},
+		{name: "not connected", haEnabled: true, agentID: "/agent_id/missing"},
+		{name: "HA disabled", agentID: "/agent_id/on-pmm-ha-0"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := newTestRegistry()
+			r.haService = haServiceStub{params: &models.HAParams{Enabled: tc.haEnabled, NodeID: "pmm-ha-1"}}
+			// A fresh cache, and no database: a miss must not query it.
+			r.connectionCache = map[string]string{
+				"/agent_id/on-pmm-ha-0": "pmm-ha-0",
+				"/agent_id/no-owner":    "",
+				"/agent_id/on-pmm-ha-1": "pmm-ha-1",
+			}
+			r.connectionCacheTTL = time.Now().Add(time.Hour)
+
+			expected := tc.expected
+			if expected == "" {
+				expected = fmt.Sprintf(notConnected, tc.agentID)
+			}
+			_, err := r.get(tc.agentID)
+			assert.EqualError(t, err, expected)
+		})
+	}
+
+	t.Run("connected to this replica", func(t *testing.T) {
+		t.Parallel()
+
+		r := newTestRegistry()
+		r.haService = haServiceStub{params: &models.HAParams{Enabled: true, NodeID: "pmm-ha-1"}}
+		conn := newTestConn()
+		r.agents[testAgentID] = conn
+
+		actual, err := r.get(testAgentID)
+		require.NoError(t, err)
+		assert.Same(t, conn, actual)
+	})
+}
+
+// TestGetReadsTheReplicaFromTheDatabase covers the owner coming from the persisted connection ID.
+func TestGetReadsTheReplicaFromTheDatabase(t *testing.T) {
+	r, db, _ := newHATestRegistry(t)
+	r.haService = haServiceStub{params: &models.HAParams{Enabled: true, NodeID: "pmm-ha-1"}}
+	delete(r.agents, models.PMMServerAgentID)
+
+	agent, err := models.FindAgentByID(db.Querier, models.PMMServerAgentID)
+	require.NoError(t, err)
+	agent.ConnectionID = new("pmm-ha-0/1")
+	require.NoError(t, db.Update(agent))
+	r.connectionCacheTTL = time.Time{}
+
+	_, err = r.get(models.PMMServerAgentID)
+	assert.ErrorContains(t, err, "is connected to PMM Server replica pmm-ha-0, not to pmm-ha-1")
 }
