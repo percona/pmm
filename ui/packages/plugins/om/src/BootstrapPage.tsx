@@ -42,7 +42,12 @@ import {
   Typography,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { OM_ROUTE_AUTOMATIONS, OM_ROUTE_NODES } from './constants';
+import {
+  DEFAULT_MONGODB_VERSION,
+  OM_ROUTE_AUTOMATIONS,
+  OM_ROUTE_NODES,
+  SUPPORTED_MONGODB_VERSIONS,
+} from './constants';
 import {
   MEMBER_CONSTRAINT_PHRASE,
   constrainMemberConfig,
@@ -51,6 +56,7 @@ import {
   validateElectionPlan,
 } from './electionPlan';
 import { OmHeader } from './components/OmHeader';
+import { configureBlockers, replicaSetNameError } from './installForm';
 import { toHostRows } from './inventory';
 import { useOmInventoryHosts, useTriggerHostBootstrap } from './inventoryHooks';
 import { NodeNamesLinked } from './components/NodeNamesLinked';
@@ -59,7 +65,6 @@ import { useOmTopology } from './topologyHooks';
 import { useOmBase } from './useOmBase';
 import type { OmBootstrapMemberConfig, OmHostRow } from './types';
 
-const DEFAULT_MONGODB_VERSION = '7.0';
 // Match the fixed values every bootstrap run used before these became
 // configurable (PMM-15347/plan.md §6 Phase A) -- see the PMM Extensions-side migration
 // this mirrors for why.
@@ -127,31 +132,6 @@ const SecurityPosture = () => (
 type BindMode = 'own' | 'all' | 'custom';
 
 const ALL_INTERFACES = '0.0.0.0';
-
-/** BootstrapMemberConfig.priority's own ceiling in om.proto. */
-const MAX_MEMBER_PRIORITY = 1000;
-
-/** delay_secs's wire type is uint32; om.proto sets no narrower limit than that. */
-const MAX_DELAY_SECS = 4294967295;
-
-/**
- * Whether one host's election settings would actually be accepted by
- * TriggerHostBootstrap - the free-typed number inputs below only clamp what a
- * spinner arrow can reach (HTML `min`/`max` do not stop a typed value, and
- * `Number(...)` on empty or non-numeric input is `NaN`, not 0), so Review must
- * check the parsed values itself before letting a run through with one that
- * would otherwise be rejected server-side or silently coerced.
- */
-function isMemberConfigValid(config: OmBootstrapMemberConfig): boolean {
-  return (
-    Number.isInteger(config.priority) &&
-    config.priority >= 0 &&
-    config.priority <= MAX_MEMBER_PRIORITY &&
-    Number.isInteger(config.delay_secs) &&
-    config.delay_secs >= 0 &&
-    config.delay_secs <= MAX_DELAY_SECS
-  );
-}
 
 /** One entry per host, all at MongoDB's own defaults - the starting point every fresh selection resets to. */
 function defaultMemberConfigs(
@@ -361,7 +341,9 @@ export const BootstrapPage = () => {
 
   const [activeStep, setActiveStep] = useState(0);
   const [replicaSetName, setReplicaSetName] = useState('');
-  const [mongodbVersion, setMongodbVersion] = useState(DEFAULT_MONGODB_VERSION);
+  const [mongodbVersion, setMongodbVersion] = useState<string>(
+    DEFAULT_MONGODB_VERSION
+  );
   const [environment, setEnvironment] = useState('');
   const [cluster, setCluster] = useState('');
   const [dataPath, setDataPath] = useState(DEFAULT_DATA_PATH);
@@ -445,20 +427,22 @@ export const BootstrapPage = () => {
     [hosts, memberConfigs]
   );
 
-  const portNumber = Number(port);
-  const isConfigValid =
-    electionPlan.errors.length === 0 &&
-    replicaSetName.trim() !== '' &&
-    mongodbVersion.trim() !== '' &&
-    dataPath.trim() !== '' &&
-    logPath.trim() !== '' &&
-    (bindMode !== 'custom' || customBindIp.trim() !== '') &&
-    Number.isInteger(portNumber) &&
-    portNumber >= 1 &&
-    portNumber <= 65535 &&
-    hosts.every((host) =>
-      isMemberConfigValid(memberConfigs[host.node_id] ?? defaultMemberConfig())
-    );
+  const blockers = configureBlockers({
+    replicaSetName,
+    dataPath,
+    logPath,
+    port,
+    customBindIp: bindMode === 'custom' ? customBindIp : null,
+    members: hosts.map((host) => ({
+      name: host.name,
+      config: memberConfigs[host.node_id] ?? defaultMemberConfig(),
+    })),
+    electionErrorCount: electionPlan.errors.length,
+  });
+  const nameError = replicaSetNameError(replicaSetName);
+  // Sent as the cluster label, so the Fleet page shows a value the user saw here
+  // rather than its own fallback to the replica set name.
+  const effectiveCluster = cluster.trim() || replicaSetName;
 
   // A fresh selection (a different ?nodes= than last render) resets the wizard
   // back to its first step - landing on this page for a different host set must
@@ -537,7 +521,7 @@ export const BootstrapPage = () => {
       replicaSetName,
       mongodbVersion,
       environment: environment.trim() || undefined,
-      cluster: cluster.trim() || undefined,
+      cluster: effectiveCluster,
       dataPath,
       logPath,
       port: Number(port),
@@ -639,15 +623,27 @@ export const BootstrapPage = () => {
               required
               autoFocus
               fullWidth
+              error={nameError !== null}
+              helperText={
+                nameError ??
+                'Letters, digits, - and _, up to 64 characters. For example, rs0.'
+              }
             />
             <TextField
+              select
               label="MongoDB version"
               value={mongodbVersion}
               onChange={(event) => setMongodbVersion(event.target.value)}
               required
               fullWidth
-              helperText="Only the major version selects the install source, e.g. 7.0."
-            />
+              helperText="Percona Server for MongoDB, latest release of this major version."
+            >
+              {SUPPORTED_MONGODB_VERSIONS.map((version) => (
+                <MenuItem key={version} value={version}>
+                  {version}
+                </MenuItem>
+              ))}
+            </TextField>
             <Autocomplete
               freeSolo
               options={environmentOptions}
@@ -670,7 +666,11 @@ export const BootstrapPage = () => {
                 <TextField
                   {...params}
                   label="Cluster"
-                  helperText="Optional. Pick an existing cluster or type a new name to create one."
+                  helperText={
+                    cluster.trim()
+                      ? 'Optional. Pick an existing cluster or type a new name to create one.'
+                      : `Optional. Defaults to the replica set name${replicaSetName && !nameError ? ` (${replicaSetName})` : ''}.`
+                  }
                 />
               )}
             />
@@ -846,7 +846,7 @@ export const BootstrapPage = () => {
                   ['Replica set', replicaSetName || '—'],
                   ['MongoDB version', mongodbVersion || '—'],
                   ['Environment', environment || '—'],
-                  ['Cluster', cluster || '—'],
+                  ['Cluster', effectiveCluster],
                   ['Data path', dataPath],
                   ['Log path', logPath],
                   ['Port', port],
@@ -944,8 +944,11 @@ export const BootstrapPage = () => {
             <Button onClick={() => setActiveStep(0)}>Back</Button>
             <Button
               variant="contained"
-              disabled={!isConfigValid}
+              disabled={blockers.length > 0}
               onClick={() => setActiveStep(2)}
+              aria-describedby={
+                blockers.length > 0 ? 'om-review-blockers' : undefined
+              }
             >
               Review
             </Button>
@@ -964,6 +967,26 @@ export const BootstrapPage = () => {
           </>
         )}
       </Stack>
+      {/* Neutral rather than red: an untouched form is incomplete, not wrong. */}
+      {activeStep === 1 && blockers.length > 0 && (
+        <Box id="om-review-blockers" data-testid="om-review-blockers">
+          <Typography variant="body2" color="text.secondary">
+            Before Review:
+          </Typography>
+          <Box component="ul" sx={{ m: 0, pl: 3 }}>
+            {blockers.map((blocker) => (
+              <Typography
+                component="li"
+                variant="body2"
+                color="text.secondary"
+                key={blocker}
+              >
+                {blocker}
+              </Typography>
+            ))}
+          </Box>
+        </Box>
+      )}
     </Stack>
   );
 };
