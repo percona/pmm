@@ -15,6 +15,8 @@
 package inventory
 
 import (
+	"github.com/sirupsen/logrus"
+
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
@@ -24,7 +26,9 @@ var removeNodeGenericResultT = commands.ParseTemplate(`
 Node removed.
 `)
 
-type removeNodeResult struct{}
+type removeNodeResult struct {
+	Warning string `json:"warning"`
+}
 
 func (res *removeNodeResult) Result() {}
 
@@ -45,9 +49,12 @@ func (cmd *RemoveNodeCommand) RunCmd() (commands.Result, error) {
 		Force:   new(cmd.Force),
 		Context: commands.Ctx,
 	}
-	_, err := client.Default.NodesService.RemoveNode(params)
+	resp, err := client.Default.NodesService.RemoveNode(params)
 	if err != nil {
 		return nil, err
 	}
-	return &removeNodeResult{}, nil
+	if resp.Payload.Warning != "" {
+		logrus.Warning(resp.Payload.Warning)
+	}
+	return &removeNodeResult{Warning: resp.Payload.Warning}, nil
 }

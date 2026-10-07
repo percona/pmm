@@ -3,7 +3,6 @@
   hosts: default
   become: true
   vars:
-    docker_compose_version: "2.26.1"
     kubectl_version: "1.35.3"
     doctl_version: "1.155.0"
     node_version: "22.x"
@@ -76,10 +75,39 @@
           - chromium
         state: latest
 
-    - name: Install Java17
+    # Java 21 is the only JVM on the image: Jenkins 2.555.1 and later refuse an
+    # agent remoting JVM below 21, the Docker Farm templates launch remoting via
+    # /etc/alternatives/java, and no pmm.cd job addresses Java 17 by path, so the
+    # previous image's Java 17 is removed instead of carried along. The
+    # alternatives link is still set explicitly, to the path the java-21 package
+    # registered (a hard-coded path is rejected), so the default java does not
+    # depend on what the base image registers with a higher priority.
+    - name: Remove Java 17
       dnf:
-        name: java-17-openjdk-headless
+        name: java-17-openjdk*
+        state: absent
+
+    - name: Install Java 21
+      dnf:
+        name: java-21-openjdk-headless
         state: latest
+
+    - name: Find the registered java-21 alternative
+      shell: LC_ALL=C alternatives --display java | awk '$1 ~ /java-21-openjdk/ && $2 == "-" { print $1 }'
+      register: java21_alternative
+      changed_when: false
+      failed_when: java21_alternative.stdout == ""
+
+    - name: Make Java 21 the default java
+      community.general.alternatives:
+        name: java
+        path: "{{ java21_alternative.stdout_lines[0] }}"
+
+    - name: Assert the default java is 21
+      command: readlink -f /etc/alternatives/java
+      register: java_default
+      changed_when: false
+      failed_when: "'java-21-openjdk' not in java_default.stdout"
 
     - name: Install pip3 and ansible
       dnf:
@@ -102,13 +130,6 @@
 
     - name: Install bats
       shell: "npm install -g bats"
-
-    # TODO: remove once we refactor percona/pmm-qa and percona-lab/qa-integration
-    - name: Install docker-compose
-      get_url:
-        url: "https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-linux-{{ ansible_architecture }}"
-        dest: /usr/local/bin/docker-compose
-        mode: "u+x,g+x,o+x"
 
     - name: Install kubectl
       get_url:
@@ -215,6 +236,10 @@
       docker_image:
         name: "{{ item }}"
         source: pull
+      vars:
+        # The module needs the docker SDK and requests, which this playbook
+        # installs into the venv, not into the system python.
+        ansible_python_interpreter: /home/ec2-user/venv/bin/python
       loop:
         - debian:bookworm
         - debian:trixie
@@ -331,7 +356,7 @@
         name: net.ipv4.ip_local_port_range
         value: 10240 65535
 
-    - name: Change TCP Congestion Control Algorithm (net.ipv4.tcp_congestion_control)
+    - name: Change TCP Congestion Control Algorithm
       sysctl:
         name: net.ipv4.tcp_congestion_control
         value: bbr

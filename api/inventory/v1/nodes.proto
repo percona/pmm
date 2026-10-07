@@ -280,7 +280,10 @@ message RemoveNodeRequest {
   bool force = 2;
 }
 
-message RemoveNodeResponse {}
+message RemoveNodeResponse {
+  // Warning message if there are more service tokens attached to service account.
+  string warning = 1;
+}
 
 // Nodes service provides public methods for managing Nodes.
 service NodesService {

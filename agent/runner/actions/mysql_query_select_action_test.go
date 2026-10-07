@@ -102,7 +102,7 @@ func TestMySQLQuerySelect(t *testing.T) {
 		assert.Nil(t, b)
 
 		var count int
-		err = db.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
+		err = db.QueryRowContext(t.Context(), "SELECT COUNT(*) FROM city").Scan(&count)
 		require.NoError(t, err)
 		assert.Equal(t, 4079, count)
 	})

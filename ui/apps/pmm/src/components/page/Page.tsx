@@ -5,12 +5,11 @@ import {
   Box,
   Card,
   CardActions,
-  Divider,
   GlobalStyles,
   Link,
-  Stack,
   Typography,
 } from '@mui/material';
+import { PageContainer } from '@percona/peak-ui';
 import { useUser } from 'contexts/user';
 import { Messages } from './Page.messages';
 import { PMM_HOME_URL } from 'lib/constants';
@@ -20,9 +19,11 @@ import { Link as RouterLink } from 'react-router-dom';
 
 export const Page: FC<PageProps> = ({
   title,
+  hideTitle,
   topBar,
   footer,
   children,
+  maxWidth,
   fullWidth,
   surface,
   roles,
@@ -30,6 +31,9 @@ export const Page: FC<PageProps> = ({
   const { user } = useUser();
   updateDocumentTitle(title);
   const hasAccess = !roles || roles?.some((role) => user?.orgRole === role);
+  // Back-compat: `fullWidth` predates `maxWidth`; treat it as `maxWidth="full"`
+  // unless an explicit `maxWidth` is provided.
+  const resolvedMaxWidth = maxWidth ?? (fullWidth ? 'full' : undefined);
 
   return (
     <>
@@ -45,26 +49,9 @@ export const Page: FC<PageProps> = ({
           })}
         />
       )}
-      <Stack
-        sx={{
-          flex: 1,
-          width: '100%',
-          maxWidth: {
-            lg: 1000,
-          },
-          p: {
-            xs: 2,
-          },
-          px: {
-            md: fullWidth ? 4 : undefined,
-          },
-          mx: 'auto',
-          gap: 2,
-          mt: 1,
-        }}
-      >
+      <PageContainer maxWidth={resolvedMaxWidth}>
         {topBar}
-        {!!title && <Typography variant="h2">{title}</Typography>}
+        {!!title && !hideTitle && <Typography variant="h2">{title}</Typography>}
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {user?.isAuthorized && hasAccess ? (
             children
@@ -84,9 +71,8 @@ export const Page: FC<PageProps> = ({
             </Card>
           )}
         </Box>
-        <Divider />
         {footer !== undefined ? footer : <Footer />}
-      </Stack>
+      </PageContainer>
     </>
   );
 };

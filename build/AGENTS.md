@@ -37,6 +37,7 @@ Source code (Go, TypeScript)
 | `grafana` | Install Grafana, provision datasources and dashboards |
 | `nginx` | Configure Nginx as reverse proxy (SSL termination, routing) |
 | `postgres` | Install and configure PostgreSQL for pmm-managed |
+| `extensions` | PMM Extensions side-car integration helpers copied into the image and invoked from the entrypoint (no `tasks/`); publishes the side-car's secrets when `PMM_ENABLE_EXTENSIONS` is set |
 | `supervisord` | Configure Supervisord for process management |
 | `dashboards` | Provision PMM Grafana dashboards |
 | `initialization` | PMM Server first-run setup |

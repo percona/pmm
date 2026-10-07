@@ -26,7 +26,7 @@ import (
 //go:generate go tool stringer -type=Severity -linecomment
 
 // Severity represents alert severity level as present in Advisors.
-type Severity int //nolint:recvcheck
+type Severity int
 
 // Supported severity levels.
 const (

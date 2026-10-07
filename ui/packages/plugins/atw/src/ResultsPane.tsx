@@ -1,0 +1,968 @@
+/**
+ * Copyright (C) 2026 Percona LLC
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Alert,
+  Box,
+  Button,
+  Checkbox,
+  Chip,
+  CircularProgress,
+  Divider,
+  Paper,
+  Stack,
+  TablePagination,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import FolderOpenIcon from '@mui/icons-material/FolderOpen';
+import SendIcon from '@mui/icons-material/Send';
+import { Link as RouterLink } from 'react-router-dom';
+import { useAuth } from '@pmm-extensions/api';
+import {
+  ActionErrorAlert,
+  TaskFilesDialog,
+  TaskHistoryStatusBadge,
+  TaskLogViewer,
+  formatDuration,
+  formatTimestamp,
+  isTaskHistoryStatus,
+  useActionError,
+  useHasDownloadableFiles,
+} from '@pmm-extensions/framework';
+import { buildBatchPayload } from './CollectPane';
+import {
+  ATW_PAGE_SIZE,
+  RUNNING_TASK_STATUSES,
+  sendJobDetail,
+  useAtwBatchExecute,
+  useAtwConfig,
+  useAtwIncident,
+  useAtwIncidentExecutions,
+  useAtwSendJobs,
+} from './hooks';
+import { useDeliverySettingsPath } from './deliverySettings';
+import { SendDialog } from './SendDialog';
+import type {
+  AtwDispatchHandler,
+  AtwIncidentExecution,
+  AtwRememberedDispatch,
+  AtwSendLog,
+  AtwSendLogExecution,
+} from './types';
+
+export interface ResultsPaneProps {
+  incidentId: string;
+  /** This tab's own dispatches, keyed by the execution's `task_history_id`. */
+  remembered?: ReadonlyMap<number, AtwRememberedDispatch>;
+  /**
+   * Executions started moments ago, marked out in the list so a reader who
+   * pressed a button in the other pane can find what it produced.
+   */
+  highlightedTaskIds?: ReadonlySet<number>;
+  /** Called once "Run again" dispatches successfully, to remember it too. */
+  onDispatched?: AtwDispatchHandler;
+  /** Reopen the Collect form pre-filled for this execution. */
+  onEditParameters?: (execution: AtwIncidentExecution) => void;
+}
+
+/** What a Re-send replays: the attempt's own executions and case reference. */
+interface ResendContext {
+  executions: AtwSendLogExecution[];
+  caseRef: string;
+}
+
+/** How often a running row's elapsed time is repainted, in milliseconds. */
+const ELAPSED_TICK_MS = 1000;
+
+/**
+ * Column widths for the execution row, so every row lines up whatever it
+ * carries. Each is a minimum as well as a basis: the row wraps rather than
+ * truncates on a narrow viewport, and a column with nothing in it still holds
+ * its place so the ones after it do not slide.
+ */
+const ROW_COLUMN_WIDTHS = {
+  host: 150,
+  started: 150,
+  duration: 84,
+} as const;
+
+/**
+ * Task statuses whose execution is finished and therefore sendable.
+ *
+ * Mirrors the backend's own `TaskHistoryStatusEnum.is_finished()`; typing it
+ * against the generated status union keeps a renamed or added status a compile
+ * error rather than a silently unselectable row.
+ */
+const FINISHED_TASK_STATUSES: ReadonlySet<
+  NonNullable<AtwIncidentExecution['task_status']>
+> = new Set(['success', 'failed', 'stopped', 'stale', 'unlaunchable']);
+
+const SEND_STATUS_COLORS = {
+  success: 'success',
+  failed: 'error',
+  running: 'info',
+  pending: 'default',
+} as const;
+
+/**
+ * Whether this execution is still going, by the same status set the pane polls
+ * on. Drives the elapsed-time ticker, so a row counts up exactly as long as the
+ * list keeps refetching it.
+ */
+function isRunning(execution: AtwIncidentExecution): boolean {
+  const status = execution.task_status;
+  return (
+    status !== null && status !== undefined && RUNNING_TASK_STATUSES.has(status)
+  );
+}
+
+/**
+ * How long the run took, in seconds, or `null` when it cannot be known.
+ *
+ * A finished run is measured between the two recorded instants, so it never
+ * moves again. A running one is measured against `now`, which the caller ticks
+ * — the wire carries no elapsed time, and a row that reports nothing while a
+ * pt-summary works through a large instance is the complaint this answers.
+ */
+function runSeconds(
+  execution: AtwIncidentExecution,
+  now: number
+): number | null {
+  if (!execution.started_at) {
+    return null;
+  }
+  const started = new Date(execution.started_at).getTime();
+  if (Number.isNaN(started)) {
+    return null;
+  }
+  if (execution.finished_at) {
+    const finished = new Date(execution.finished_at).getTime();
+    if (!Number.isNaN(finished)) {
+      return (finished - started) / 1000;
+    }
+  }
+  // Still going: measure against the ticking clock. Anything else ended
+  // without recording when, and has nothing honest to subtract.
+  return isRunning(execution) ? (now - started) / 1000 : null;
+}
+
+/**
+ * A clock that ticks only while `active`.
+ *
+ * Returning a frozen value when nothing is running keeps a page of finished
+ * executions from re-rendering once a second forever, which is the state this
+ * pane sits in almost all of the time.
+ */
+function useTickingNow(active: boolean): number {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!active) {
+      return;
+    }
+    // Re-read immediately: a run that just started would otherwise show the
+    // timestamp from whenever this component last mounted.
+    setNow(Date.now());
+    const timer = setInterval(() => setNow(Date.now()), ELAPSED_TICK_MS);
+    return () => clearInterval(timer);
+  }, [active]);
+
+  return now;
+}
+
+function isSelectable(execution: AtwIncidentExecution): boolean {
+  const status = execution.task_status;
+  return (
+    status !== null &&
+    status !== undefined &&
+    FINISHED_TASK_STATUSES.has(status)
+  );
+}
+
+/**
+ * Why the send controls are inert, stated once above them.
+ *
+ * The tooltips on each disabled control carry the backend's own reasons, but a
+ * tooltip on a disabled button is not something an operator finds by accident —
+ * and an administrator looking at a greyed-out Send is the one person who can
+ * fix it. So the pane says it in the open and, when the host supplied a route,
+ * offers the way there; the specific reason stays in the tooltips rather than
+ * being repeated here, which keeps this to one line whatever the backend says.
+ *
+ * Rendered only for a session that has send controls to explain: a read-only
+ * session is never offered one, so the connection state changes nothing it
+ * could do and the notice would be noise. That also makes the settings button
+ * safe to offer unconditionally — `canMutate` is the administrator flag today,
+ * and the settings tab it links to is administrator-only. Should `canMutate`
+ * ever widen to a lesser role, gate the button separately or it becomes the
+ * same dead end this notice replaced.
+ */
+function SendUnavailableNotice() {
+  const settingsPath = useDeliverySettingsPath();
+
+  return (
+    <Alert
+      severity="info"
+      variant="outlined"
+      sx={{ mb: 2, alignItems: 'center' }}
+      data-testid="atw-send-unavailable"
+      action={
+        settingsPath ? (
+          <Button
+            size="small"
+            component={RouterLink}
+            to={settingsPath}
+            data-testid="atw-send-unavailable-settings"
+          >
+            ServiceNow settings
+          </Button>
+        ) : undefined
+      }
+    >
+      Sending requires a valid ServiceNow connection.
+    </Alert>
+  );
+}
+
+/**
+ * The Results pane: lists the incident's executions with their status, logs and
+ * files, and lets a support engineer send a selection to the support case.
+ *
+ * Selection is keyed by execution id and held above the row list, so it survives
+ * a page flip — deriving it from the rendered rows would silently drop anything
+ * chosen on an earlier page.
+ */
+export function ResultsPane({
+  incidentId,
+  remembered,
+  highlightedTaskIds,
+  onDispatched,
+  onEditParameters,
+}: ResultsPaneProps) {
+  const { canMutate } = useAuth();
+  const [page, setPage] = useState({ offset: 0, limit: ATW_PAGE_SIZE });
+  const { data, isLoading, error } = useAtwIncidentExecutions(incidentId, page);
+  const { data: incident } = useAtwIncident(incidentId);
+  const { data: config } = useAtwConfig();
+  const { data: sendJobs, error: sendJobsError } = useAtwSendJobs(incidentId);
+
+  // A batch started from the Collect pane lands at the top of the list, which
+  // a reader parked on a later page would never see — the run would look as
+  // though it had produced nothing. Keyed on the set itself, not on whether it
+  // is empty: a second batch inside the first one's highlight window replaces
+  // the set without ever emptying it.
+  useEffect(() => {
+    if (highlightedTaskIds?.size) {
+      setPage((previous) => ({ ...previous, offset: 0 }));
+    }
+  }, [highlightedTaskIds]);
+
+  const [filesForTask, setFilesForTask] = useState<number | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [sendOpen, setSendOpen] = useState(false);
+  const [sendSessionKey, setSendSessionKey] = useState(0);
+  const [resend, setResend] = useState<ResendContext | null>(null);
+
+  // Shared by every row's "Run again": the action replays a remembered batch
+  // unchanged, so one mutation and one reported failure covers all of them —
+  // at the cost of every row's button disabling together while any one is
+  // in flight, rather than just the row that was clicked.
+  const rerunMutation = useAtwBatchExecute(incidentId);
+  const rerunError = useActionError('Run again failed');
+
+  const handleRunAgain = (execution: AtwIncidentExecution) => {
+    const record = remembered?.get(execution.task_history_id);
+    if (!record) {
+      return;
+    }
+    rerunError.clearError();
+    rerunMutation.mutate(buildBatchPayload(record.values, record.snippets), {
+      onSuccess: (response) => {
+        onDispatched?.(record.snippets, record.values, response, 'results');
+      },
+      onError: (mutationError) => rerunError.reportError(mutationError),
+    });
+  };
+
+  useEffect(() => {
+    if (data && data.total > 0 && data.offset >= data.total) {
+      setPage((previous) => ({
+        offset: Math.max(
+          0,
+          (Math.ceil(data.total / previous.limit) - 1) * previous.limit
+        ),
+        limit: previous.limit,
+      }));
+    }
+  }, [data]);
+
+  const rows = data?.items;
+
+  // One clock for the page: each running row reads the same tick, so they never
+  // disagree by a second, and a page of finished runs stops it entirely.
+  const anyRunning = (rows ?? []).some(isRunning);
+  const now = useTickingNow(anyRunning);
+
+  const knownExecutions = useMemo(() => {
+    const map = new Map<string, AtwSendLogExecution>();
+    for (const execution of rows ?? []) {
+      map.set(execution.id, {
+        id: execution.id,
+        task_history_id: execution.task_history_id,
+        snippet_filename: execution.snippet_filename,
+      });
+    }
+    return map;
+  }, [rows]);
+
+  const [selectionLabels, setSelectionLabels] = useState<
+    Map<string, AtwSendLogExecution>
+  >(new Map());
+
+  const toggleSelected = (execution: AtwIncidentExecution) => {
+    setSelectedIds((previous) => {
+      const next = new Set(previous);
+      if (next.has(execution.id)) {
+        next.delete(execution.id);
+      } else {
+        next.add(execution.id);
+      }
+      return next;
+    });
+    setSelectionLabels((previous) => {
+      const next = new Map(previous);
+      next.set(execution.id, {
+        id: execution.id,
+        task_history_id: execution.task_history_id,
+        snippet_filename: execution.snippet_filename,
+      });
+      return next;
+    });
+  };
+
+  /**
+   * The finished executions on the page currently rendered.
+   *
+   * Reusing `isSelectable` is what keeps the header toggle and the row
+   * checkboxes from ever disagreeing about which rows are eligible.
+   */
+  const selectablePageIds = useMemo(
+    () => (rows ?? []).filter(isSelectable).map((execution) => execution.id),
+    [rows]
+  );
+
+  const selectedPageCount = selectablePageIds.filter((id) =>
+    selectedIds.has(id)
+  ).length;
+  const allPageSelected =
+    selectablePageIds.length > 0 &&
+    selectedPageCount === selectablePageIds.length;
+  const somePageSelected = selectedPageCount > 0 && !allPageSelected;
+
+  /**
+   * Select or deselect the page's finished executions in one action.
+   *
+   * Deselection removes only this page's ids: the selection deliberately
+   * outlives a page flip, so clearing the whole set would drop rows chosen on
+   * another page.
+   */
+  const toggleSelectAllOnPage = () => {
+    const deselecting = allPageSelected;
+    setSelectedIds((previous) => {
+      const next = new Set(previous);
+      for (const id of selectablePageIds) {
+        if (deselecting) {
+          next.delete(id);
+        } else {
+          next.add(id);
+        }
+      }
+      return next;
+    });
+    if (deselecting) {
+      return;
+    }
+    // Mirror the labels the send dialog needs, so a row the user later pages
+    // away from still names itself. `knownExecutions` already holds them in the
+    // shape `toggleSelected` writes.
+    setSelectionLabels((previous) => {
+      const next = new Map(previous);
+      for (const id of selectablePageIds) {
+        const execution = knownExecutions.get(id);
+        if (execution) {
+          next.set(id, execution);
+        }
+      }
+      return next;
+    });
+  };
+
+  const selectedExecutions = [...selectedIds]
+    .map((id) => knownExecutions.get(id) ?? selectionLabels.get(id))
+    .filter(
+      (execution): execution is AtwSendLogExecution => execution !== undefined
+    );
+
+  const disabledReasons = config?.send_disabled_reasons ?? [];
+  // Every unmet condition, not the first one found. Send is routinely blocked by
+  // both an unconfigured receiver and an empty selection at once, and a tooltip
+  // that names only one leaves the operator fixing that one and finding the
+  // button still grey.
+  const sendBlockers = [
+    ...disabledReasons,
+    ...(selectedExecutions.length === 0
+      ? ['Select one or more finished executions to send.']
+      : []),
+  ];
+  const sendDisabled = sendBlockers.length > 0;
+  const sendTooltip = sendBlockers.join(' ');
+
+  const openSend = (context: ResendContext | null) => {
+    setResend(context);
+    setSendSessionKey((previous) => previous + 1);
+    setSendOpen(true);
+  };
+
+  const closeSend = (started: boolean) => {
+    setSendOpen(false);
+    if (started && resend === null) {
+      setSelectedIds(new Set());
+      setSelectionLabels(new Map());
+    }
+  };
+
+  return (
+    <Box>
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Results
+      </Typography>
+
+      {isLoading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {error && (
+        <Alert severity="error">
+          Failed to load executions: {error.message}
+        </Alert>
+      )}
+
+      {!isLoading && !error && (!rows || rows.length === 0) && (
+        <Alert severity="info">
+          {canMutate
+            ? 'No executions yet. Run snippets from the Collect pane to see results here.'
+            : 'No executions yet.'}
+        </Alert>
+      )}
+
+      {/*
+        Above every send control in the pane, not just the toolbar: the send
+        history's Re-send buttons are disabled by the same reasons, and an
+        incident with no executions can still hold failed attempts.
+      */}
+      {canMutate && disabledReasons.length > 0 && <SendUnavailableNotice />}
+
+      <ActionErrorAlert
+        error={rerunError.error}
+        onClose={rerunError.clearError}
+        sx={{ mb: 2 }}
+      />
+
+      {/* Selection exists only to feed the send action, so both go together. */}
+      {rows && rows.length > 0 && canMutate && (
+        <Stack
+          direction="row"
+          spacing={2}
+          alignItems="center"
+          sx={{ mb: 2, flexWrap: 'wrap', rowGap: 1 }}
+        >
+          <Tooltip
+            title={
+              selectablePageIds.length === 0
+                ? 'This page has no finished executions to select.'
+                : ''
+            }
+          >
+            <span>
+              <Checkbox
+                size="small"
+                checked={allPageSelected}
+                indeterminate={somePageSelected}
+                disabled={selectablePageIds.length === 0}
+                onChange={toggleSelectAllOnPage}
+                inputProps={{
+                  'aria-label': 'Select all finished executions on this page',
+                }}
+              />
+            </span>
+          </Tooltip>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ flexGrow: 1 }}
+          >
+            {selectedExecutions.length} selected
+          </Typography>
+          <Tooltip title={sendTooltip}>
+            <span>
+              <Button
+                variant="contained"
+                startIcon={<SendIcon />}
+                disabled={sendDisabled}
+                onClick={() => openSend(null)}
+              >
+                Send to support case
+              </Button>
+            </span>
+          </Tooltip>
+        </Stack>
+      )}
+
+      {rows?.map((execution) => (
+        <ExecutionRow
+          key={execution.id}
+          execution={execution}
+          elapsedSeconds={runSeconds(execution, now)}
+          highlighted={Boolean(
+            highlightedTaskIds?.has(execution.task_history_id)
+          )}
+          selected={selectedIds.has(execution.id)}
+          onToggleSelected={() => toggleSelected(execution)}
+          onOpenFiles={() => setFilesForTask(execution.task_history_id)}
+          remembered={remembered?.get(execution.task_history_id)}
+          rerunPending={rerunMutation.isPending}
+          onRunAgain={() => handleRunAgain(execution)}
+          onEditParameters={() => onEditParameters?.(execution)}
+        />
+      ))}
+
+      {data && data.total > data.limit && (
+        <TablePagination
+          component="div"
+          count={data.total}
+          page={Math.floor(data.offset / Math.max(data.limit, 1))}
+          rowsPerPage={data.limit}
+          onPageChange={(_event, newPage) =>
+            setPage((previous) => ({
+              offset: newPage * previous.limit,
+              limit: previous.limit,
+            }))
+          }
+          rowsPerPageOptions={[ATW_PAGE_SIZE]}
+        />
+      )}
+
+      <SendHistory
+        jobs={sendJobs?.items}
+        total={sendJobs?.total}
+        error={sendJobsError}
+        onResend={openSend}
+        disabledReasons={disabledReasons}
+      />
+
+      <TaskFilesDialog
+        open={filesForTask !== null}
+        taskHistoryId={filesForTask}
+        onClose={() => setFilesForTask(null)}
+      />
+
+      <SendDialog
+        key={sendSessionKey}
+        open={sendOpen}
+        incidentId={incidentId}
+        executions={resend?.executions ?? selectedExecutions}
+        defaultCaseRef={resend?.caseRef ?? incident?.case_ref}
+        onClose={closeSend}
+      />
+    </Box>
+  );
+}
+
+/**
+ * Past send attempts for this incident, with Re-send on the failed ones.
+ *
+ * A re-send replays the attempt's own recorded executions and case reference.
+ * Executions deleted since the attempt are rejected by the POST, which names
+ * them — the pane cannot filter them itself, because it only ever holds one
+ * page of executions and would drop every id that happens to sit on another.
+ */
+function SendHistory({
+  jobs,
+  total,
+  error,
+  onResend,
+  disabledReasons,
+}: {
+  jobs: AtwSendLog[] | undefined;
+  total: number | undefined;
+  error: Error | null;
+  onResend: (context: ResendContext) => void;
+  disabledReasons: string[];
+}) {
+  const { canMutate } = useAuth();
+  const resendDisabled = disabledReasons.length > 0;
+  const resendTooltip = disabledReasons.join('; ');
+
+  if (error) {
+    return (
+      <Alert severity="error" sx={{ mt: 3 }}>
+        Could not load the send history: {error.message}
+      </Alert>
+    );
+  }
+
+  if (!jobs || jobs.length === 0) {
+    return null;
+  }
+
+  return (
+    <Paper variant="outlined" sx={{ mt: 3, p: 2 }}>
+      <Typography variant="subtitle2" sx={{ mb: 1 }}>
+        Send history
+      </Typography>
+      <Stack divider={<Divider flexItem />} spacing={1}>
+        {jobs.map((job) => {
+          const detail = sendJobDetail(job);
+          const finished = formatTimestamp(job.finished_at);
+          return (
+            <Stack
+              key={job.id}
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              sx={{ flexWrap: 'wrap', rowGap: 1 }}
+            >
+              <Chip
+                size="small"
+                label={job.status}
+                color={SEND_STATUS_COLORS[job.status]}
+              />
+              <Typography variant="body2" sx={{ flexGrow: 1 }}>
+                {job.case_ref} · {job.requested_by}
+                {finished && (
+                  <>
+                    {' · '}
+                    <span title={finished.title}>{finished.display}</span>
+                  </>
+                )}
+              </Typography>
+              {job.status === 'failed' && canMutate && (
+                <Tooltip title={resendTooltip}>
+                  <span>
+                    <Button
+                      size="small"
+                      disabled={resendDisabled}
+                      onClick={() =>
+                        onResend({
+                          executions: detail.executions ?? [],
+                          caseRef: job.case_ref,
+                        })
+                      }
+                    >
+                      Re-send
+                    </Button>
+                  </span>
+                </Tooltip>
+              )}
+              {job.status === 'failed' && detail.error && (
+                <Typography
+                  variant="body2"
+                  color="error"
+                  sx={{ width: '100%' }}
+                >
+                  {detail.error}
+                </Typography>
+              )}
+            </Stack>
+          );
+        })}
+      </Stack>
+      {total !== undefined && total > jobs.length && (
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ display: 'block', mt: 1 }}
+        >
+          Showing the {jobs.length} most recent of {total} attempts.
+        </Typography>
+      )}
+    </Paper>
+  );
+}
+
+function ExecutionRow({
+  execution,
+  elapsedSeconds,
+  highlighted,
+  selected,
+  onToggleSelected,
+  onOpenFiles,
+  remembered,
+  rerunPending,
+  onRunAgain,
+  onEditParameters,
+}: {
+  execution: AtwIncidentExecution;
+  elapsedSeconds: number | null;
+  /** Whether this execution was started moments ago from this tab. */
+  highlighted: boolean;
+  selected: boolean;
+  onToggleSelected: () => void;
+  onOpenFiles: () => void;
+  /** This tab's own record of the batch this execution belonged to, if any. */
+  remembered: AtwRememberedDispatch | undefined;
+  /** Whether the pane's shared rerun mutation is in flight for any row. */
+  rerunPending: boolean;
+  onRunAgain: () => void;
+  onEditParameters: () => void;
+}) {
+  const { canMutate } = useAuth();
+  const {
+    snippet_filename,
+    snippet_title,
+    executor_host,
+    task_status,
+    task_history_id,
+    created_at,
+    started_at,
+    has_logs,
+    masked_args,
+    args_withheld,
+  } = execution;
+  const selectable = isSelectable(execution);
+  // Probed only once the run is finished: a running task's file listing is
+  // not yet meaningful, and the endpoint's answer for it is not stable.
+  const hasFiles = useHasDownloadableFiles(task_history_id, selectable);
+  // `has_logs` reports only the log PMM Extensions has already captured, which trails a
+  // running execution — sometimes by its whole length — so while it runs the
+  // viewer's own stream is what shows the output. Not while it is pending: the
+  // log route refuses a pending run, and the viewer does not reconnect once it
+  // starts, so it mounts when the polled status reaches `running`.
+  const logsUnavailable = has_logs === false && task_status !== 'running';
+
+  const displayName = snippet_title?.trim() || snippet_filename;
+
+  // A queued run has no start time, so the row falls back to when it was
+  // recorded and labels it as such rather than leaving the column blank.
+  const startStamp = formatTimestamp(started_at ?? created_at);
+  const startIsQueue = !started_at;
+  const startTitle = startStamp
+    ? startIsQueue
+      ? `Queued ${startStamp.title}; not started yet`
+      : startStamp.title
+    : undefined;
+  const startLabel = startStamp
+    ? startIsQueue
+      ? `Queued ${startStamp.display}`
+      : startStamp.display
+    : '—';
+
+  return (
+    <Accordion
+      disableGutters
+      data-testid={highlighted ? 'atw-execution-row-new' : undefined}
+      sx={[
+        { mb: 1 },
+        highlighted &&
+          ((theme) => ({
+            outline: `2px solid ${theme.palette.primary.main}`,
+            outlineOffset: -1,
+          })),
+      ]}
+      slotProps={{ transition: { unmountOnExit: true } }}
+    >
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon />}
+        sx={{ '& .MuiAccordionSummary-content': { minWidth: 0 } }}
+      >
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="center"
+          sx={{ width: '100%', pr: 1, flexWrap: 'wrap', rowGap: 1 }}
+        >
+          {/* Selection exists only to feed the send action, so both go together. */}
+          {canMutate && (
+            <Tooltip
+              title={selectable ? '' : 'Only finished executions can be sent.'}
+            >
+              <span>
+                <Checkbox
+                  size="small"
+                  checked={selected}
+                  disabled={!selectable}
+                  onChange={onToggleSelected}
+                  onClick={(event) => event.stopPropagation()}
+                  inputProps={{ 'aria-label': `Select ${displayName}` }}
+                />
+              </span>
+            </Tooltip>
+          )}
+          <Box sx={{ flexGrow: 1, flexBasis: 200, minWidth: 0 }}>
+            <Typography variant="subtitle2" sx={{ wordBreak: 'break-word' }}>
+              {displayName}
+            </Typography>
+          </Box>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            title={executor_host ?? undefined}
+            sx={{
+              width: ROW_COLUMN_WIDTHS.host,
+              flexShrink: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {executor_host || '—'}
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            title={startTitle}
+            sx={{ width: ROW_COLUMN_WIDTHS.started, flexShrink: 0 }}
+          >
+            {startLabel}
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            title={
+              elapsedSeconds === null
+                ? 'This run has no recorded duration'
+                : `Ran for ${formatDuration(elapsedSeconds)}`
+            }
+            sx={{
+              width: ROW_COLUMN_WIDTHS.duration,
+              flexShrink: 0,
+              fontFamily: 'monospace',
+            }}
+          >
+            {formatDuration(elapsedSeconds)}
+          </Typography>
+          {isTaskHistoryStatus(task_status) ? (
+            <TaskHistoryStatusBadge status={task_status} />
+          ) : (
+            <Chip size="small" label="Unknown" />
+          )}
+        </Stack>
+      </AccordionSummary>
+      <AccordionDetails
+        sx={(theme) => ({ paddingRight: theme.spacing(2) + ' !important' })}
+      >
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{ mb: 2, flexWrap: 'wrap', rowGap: 1 }}
+        >
+          {hasFiles && (
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<FolderOpenIcon />}
+              onClick={onOpenFiles}
+            >
+              Files
+            </Button>
+          )}
+          {canMutate && (
+            <Button size="small" variant="outlined" onClick={onEditParameters}>
+              Edit parameters and run again
+            </Button>
+          )}
+          {canMutate && remembered && (
+            <Button
+              size="small"
+              variant="outlined"
+              disabled={rerunPending}
+              onClick={onRunAgain}
+            >
+              Run again
+            </Button>
+          )}
+        </Stack>
+
+        <Box sx={{ mb: 2 }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: 'block' }}
+          >
+            Snippet
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ fontFamily: 'monospace', wordBreak: 'break-all' }}
+          >
+            {snippet_filename}
+          </Typography>
+        </Box>
+
+        <Box sx={{ mb: 2 }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: 'block' }}
+          >
+            Arguments
+          </Typography>
+          {masked_args ? (
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{
+                fontFamily: 'monospace',
+                wordBreak: 'break-all',
+                whiteSpace: 'pre-wrap',
+              }}
+            >
+              {masked_args}
+            </Typography>
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              {args_withheld ? 'Arguments unavailable' : 'No arguments'}
+            </Typography>
+          )}
+        </Box>
+
+        <Divider sx={{ mb: 2 }} />
+
+        {logsUnavailable ? (
+          <Typography variant="body2" color="text.secondary">
+            No logs available for this execution.
+          </Typography>
+        ) : (
+          <TaskLogViewer
+            taskHistoryId={task_history_id}
+            taskStatus={task_status ?? undefined}
+            maxHeight={360}
+          />
+        )}
+      </AccordionDetails>
+    </Accordion>
+  );
+}

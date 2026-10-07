@@ -133,7 +133,7 @@ func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 }
 
 // Status returns current pmm-agent status.
-func (s *Server) Status(_ context.Context, req *agentlocal.StatusRequest) (*agentlocal.StatusResponse, error) {
+func (s *Server) Status(ctx context.Context, req *agentlocal.StatusRequest) (*agentlocal.StatusResponse, error) {
 	connected := true
 	md := s.client.GetServerConnectMetadata()
 	if md == nil {
@@ -152,7 +152,7 @@ func (s *Server) Status(_ context.Context, req *agentlocal.StatusRequest) (*agen
 		}
 
 		if req.GetNetworkInfo && connected {
-			latency, clockDrift, err := s.client.GetNetworkInformation()
+			latency, clockDrift, err := s.client.GetNetworkInformation(ctx)
 			if err != nil {
 				s.l.Errorf("Can't get network info: %s", err)
 				serverInfo.Connected = false
