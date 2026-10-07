@@ -144,9 +144,8 @@ func TestMaskMySQLPlan(t *testing.T) {
 	assert.Contains(t, got, `"estimated_rows": 10.5`)
 }
 
-// TestMaskMySQLPlanWarnings pins the leak found on a live server: pmm-agent
-// appends SHOW WARNINGS to a JSON plan, and Note 1003 there is the rewritten
-// statement with every literal in it. The shape below is the agent's own.
+// TestMaskMySQLPlanWarnings covers the SHOW WARNINGS pmm-agent appends to a JSON
+// plan, whose Note 1003 is the rewritten statement with every literal in it.
 func TestMaskMySQLPlanWarnings(t *testing.T) {
 	t.Parallel()
 

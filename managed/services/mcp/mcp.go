@@ -95,13 +95,8 @@ type Params struct {
 	PublicAddress func(context.Context) string
 }
 
-// isLoopbackPeer reports whether a request's remote address is a loopback IP.
-//
-// nginx reaches pmm-managed over 127.0.0.1 whatever interface pmm-managed is
-// bound to, so a loopback peer is how a request shows it came through nginx -
-// and therefore through auth_request. Anything else, an empty or unparseable
-// address included, is treated as a direct connection: the conservative
-// answer, since getting this wrong exposes /mcp with no authorization in front.
+// isLoopbackPeer reports whether a request came from a loopback IP, which is how
+// nginx, and so auth_request, reaches pmm-managed; an unparseable address is not.
 func isLoopbackPeer(remoteAddr string) bool {
 	host, _, err := net.SplitHostPort(remoteAddr)
 	if err != nil {
@@ -177,13 +172,8 @@ func New(params Params) (*Service, error) {
 	return s, nil
 }
 
-// Handler returns the HTTP handler to mount at /mcp and /mcp/.
-//
-// A request that did not arrive from a loopback peer is answered with 404,
-// like a disabled endpoint: PMM_INTERFACE_TO_BIND can bind pmm-managed to a
-// routable interface, and /mcp must stay reachable only through nginx, where
-// auth_request authorizes the caller. The peer is checked first because it
-// costs nothing, while the enabled switch is a settings query.
+// Handler returns the HTTP handler to mount at /mcp and /mcp/; a non-loopback
+// peer gets the 404 of a disabled endpoint, since PMM_INTERFACE_TO_BIND can bypass nginx.
 func (s *Service) Handler() http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		if !isLoopbackPeer(req.RemoteAddr) {

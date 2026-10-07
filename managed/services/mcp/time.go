@@ -52,11 +52,8 @@ func parseTime(expr string, now time.Time) (time.Time, error) {
 
 	if m := relativeTime.FindStringSubmatch(t); m != nil {
 		unit := map[string]time.Duration{"s": time.Second, "m": time.Minute, "h": time.Hour, "d": day}[strings.ToLower(m[2])]
-		// time.Duration is an int64 of nanoseconds, so n*unit silently wraps for
-		// large n ("now-9223372036854775807s") and yields a plausible but wrong
-		// timestamp. Reject anything past the lookback before multiplying. The
-		// regexp admits digits only, so n is never negative; a number too long
-		// for int64 at all is the same out-of-range case, not a malformed one.
+		// Bound n before multiplying: n*unit wraps int64 nanoseconds for large n, and
+		// a number too long for int64 is out of range too, not malformed.
 		n, err := strconv.ParseInt(m[1], 10, 64)
 		if err != nil || n > int64(maxLookback/unit) {
 			return time.Time{}, outOfRange(expr)

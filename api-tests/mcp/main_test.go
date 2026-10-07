@@ -16,26 +16,17 @@
 package mcp
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	"github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
-// TestMain switches the MCP endpoint on for the duration of the package and
-// restores the previous value afterwards.
-//
-// The endpoint is off by default (PMM_ENABLE_MCP=false), and these tests run
-// against whatever server they are pointed at - a Feature Build in CI, a dev
-// environment locally - so they must not depend on how that server was
-// started. Settings are read per request, so the change applies at once. A
-// server started with PMM_ENABLE_MCP=false refuses the change, and the package
-// is skipped.
+// TestMain enables the MCP endpoint, which is off by default, for the package
+// and restores it afterwards; a server that refuses the change fails the run.
 func TestMain(m *testing.M) {
 	l := logrus.WithField("component", "mcp-api-tests")
 	res, err := serverClient.Default.ServerService.GetSettings(&server_service.GetSettingsParams{Context: pmmapitests.Context})
@@ -45,11 +36,6 @@ func TestMain(m *testing.M) {
 
 	if !res.Payload.Settings.EnableMcp {
 		err = setMCPEnabled(true)
-		var refused *server_service.ChangeSettingsDefault
-		if errors.As(err, &refused) && refused.Payload != nil && refused.Payload.Code == int32(codes.FailedPrecondition) {
-			l.Warnf("Skipping the MCP API tests: the endpoint cannot be enabled (%s).", err)
-			return
-		}
 		if err != nil {
 			l.Fatalf("Cannot enable the MCP endpoint: %s.", err)
 		}

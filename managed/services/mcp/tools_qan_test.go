@@ -77,6 +77,16 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 	assert.NotContains(t, detail, "user42@example.com")
 	assert.NotContains(t, detail, "4417")
 
+	// explain_fingerprint is shown only when it passes the same quote check.
+	for fp, shown := range map[string]bool{
+		"SELECT `id` FROM `t` WHERE `email` = :1":           true,
+		"SELECT `id` FROM `t` WHERE `email` = 'a@b.com'":    false,
+		`SELECT "id" FROM "t" WHERE "email" = "leak@b.com"`: false,
+	} {
+		d := &queryDetail{queryID: "Q", engine: engineMySQL, example: &qan_service.GetQueryExampleOKBodyQueryExamplesItems0{ExplainFingerprint: fp}}
+		assert.Equal(t, shown, strings.Contains(d.render(false, "", testNow.Add(-time.Hour), testNow), fp), fp)
+	}
+
 	// A raw statement is withheld however its quoting reads: a nested
 	// comment, or an apostrophe in a comment, cannot make a literal pass.
 	for _, fp := range []string{

@@ -539,8 +539,7 @@ func TestHandlerOnlyServesLoopbackPeers(t *testing.T) {
 // managed-json, as its Host header.
 //
 // That is the request the SDK's DNS-rebinding guard rejects with 403, so the
-// guard has to stay off whatever interface pmm-managed is bound to. An earlier
-// PMM-15528 change turned it on for non-loopback binds and broke every client.
+// guard has to stay off whatever interface pmm-managed is bound to.
 func TestServesRequestsProxiedByNginx(t *testing.T) {
 	t.Parallel()
 

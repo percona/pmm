@@ -321,18 +321,14 @@ func (d *queryDetail) render(rawSQL bool, base string, from, to time.Time) strin
 		}
 	}
 
-	// With raw SQL disabled, never emit the stored example (it carries literal
-	// values); fall back to PMM's normalized explain_fingerprint. Source-verified
-	// (percona/pmm v3): the agent builds explain_fingerprint from the
-	// performance-schema DIGEST_TEXT with numbered placeholders, so literals
-	// never enter it; MySQL agents populate it even with examples disabled,
-	// pg_stat_monitor does not. Do NOT switch to POST /v1/qan:explainFingerprint:
-	// that endpoint deliberately returns the RAW example when one is stored.
+	// With raw SQL off, show explain_fingerprint (normalized by the agent) instead
+	// of the example; not qan:explainFingerprint, which returns the raw example.
 	if d.example != nil {
 		switch {
 		case rawSQL && d.example.Example != "":
 			parts = append(parts, "example:\n```sql\n"+d.example.Example+"\n```")
-		case !rawSQL && d.example.ExplainFingerprint != "":
+		case !rawSQL && d.example.ExplainFingerprint != "" &&
+			fingerprintText(d.example.ExplainFingerprint, d.engine, false) != withheldFingerprint:
 			parts = append(parts, "example (normalized, literals stripped; raw SQL disabled):\n```sql\n"+d.example.ExplainFingerprint+"\n```")
 		}
 	}
@@ -344,22 +340,8 @@ func (d *queryDetail) render(rawSQL bool, base string, from, to time.Time) strin
 // withheldFingerprint replaces a SQL fingerprint that still holds a literal.
 const withheldFingerprint = "(fingerprint withheld: PMM stored this statement unnormalized, and PMM_MCP_RAW_SQL is off)"
 
-// fingerprintText masks a fingerprint's literals unless raw SQL is on. A
-// fingerprint is normalized only in part: pmm-agent stores the raw query in
-// place of a PostgreSQL statement pg_stat_monitor truncated or could not parse
-// (agent/agents/postgres/pgstatmonitor/stat_monitor_cache.go), and leaves the
-// values of MongoDB aggregation stages other than $match in place
-// (agent/agents/mongodb/shared/fingerprinter).
-//
-// MongoDB fingerprints, shell calls such as db.orders.find(...), are masked as JSON. A
-// normalized SQL fingerprint has no quoted string outside its comments, so one
-// that has any is a raw statement and is withheld whole: masking a raw
-// statement relies on reading its quoting right, and reading it wrong leaks.
-// The others keep their text with comments and bare numbers masked:
-// normalizers leave GROUP BY ordinals and type lengths in place, and a number
-// cannot hide a quote. The quoting is the engine's: MySQL's, or PostgreSQL's,
-// which keeps the double-quoted identifiers an ORM writes. When the engine is
-// unknown, a quote that either reading takes for a string withholds it.
+// fingerprintText masks a fingerprint unless raw SQL is on: a SQL one with a quoted
+// string under its engine's quoting (either, if unknown) is a raw statement and is withheld.
 func fingerprintText(fingerprint, engine string, raw bool) string {
 	if raw {
 		return fingerprint

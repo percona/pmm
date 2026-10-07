@@ -126,13 +126,13 @@ func TestServer(t *testing.T) {
 
 		t.Run("MCPRawSQLOffWithoutTheVariable", func(t *testing.T) {
 			s := newServer(t)
-			require.Empty(t, s.UpdateSettingsFromEnv(context.TODO(), []string{"PMM_MCP_RAW_SQL=true"}))
+			require.Empty(t, s.UpdateSettingsFromEnv(t.Context(), []string{"PMM_MCP_RAW_SQL=true"}))
 			settings, err := models.GetSettings(s.db)
 			require.NoError(t, err)
 			require.True(t, settings.IsMCPRawSQLEnabled())
 
 			// The next start without the variable turns it off again.
-			require.Empty(t, s.UpdateSettingsFromEnv(context.TODO(), nil))
+			require.Empty(t, s.UpdateSettingsFromEnv(t.Context(), nil))
 			settings, err = models.GetSettings(s.db)
 			require.NoError(t, err)
 			assert.False(t, settings.IsMCPRawSQLEnabled())

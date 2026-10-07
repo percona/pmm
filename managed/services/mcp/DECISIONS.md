@@ -9,7 +9,7 @@ their phase is reached.
 | # | Decision | Answer | Rationale |
 |---|----------|--------|-----------|
 | D1 | Where the branch lives | Fork `percona/pmm` to `sixta-systems/pmm`, branch `pmm-sixta` from `upstream/main`, draft PR to `percona/pmm:main` titled "[DRAFT — not for merge] MCP server for PMM" | Nobody outside Percona can push to `percona/pmm`; a draft PR makes the branch visible and reviewable there and Percona can pull it into an owned branch at will. |
-| D2 | Commit/PR naming without a Jira key | `PMM-0000` placeholder prefix; PR body states the key is to be assigned by Percona | Keeps the repo's `PMM-XXXX` convention parseable; rename when a key arrives. |
+| D2 | Commit/PR naming | Jira keys of the MCP epic PMM-14247 (phase 1 is PMM-15528) | Follows the repo's `PMM-XXXX` convention. |
 | D3 | Minimum role for `GET /v1/inventory/services` and `GET /v1/inventory/nodes` | `viewer` (via `methodRules`) | A Viewer service account then covers the whole tool surface (least privilege). Viewers already see service and node names on every dashboard and in QAN filters; writes and `GET /v1/inventory/agents` stay admin. Fallback if Percona objects: `editor`. |
 | D4 | Phase 4 scope (Access-Role permissions, service-account user IDs, UI) | Out of scope; §5.4 of the plan is shipped as a design proposal only: `dev/docs/managed/mcp-access-roles-proposal.md` | Keeps the branch small and reviewable; the RBAC direction is Percona's to set. |
 | D5 | Default state of `PMM_ENABLE_MCP` | Off (`false`); surfaced in `GET /v1/server/settings/readonly` | PMM-15528: a new externally reachable, LLM-driven surface earns its default from field evidence and a formal security review (PMM-15532), not from a branch author's convenience. |
