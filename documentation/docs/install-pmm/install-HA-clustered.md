@@ -641,7 +641,9 @@ kubectl get secret pg-encryption-key -n pmm -o jsonpath='{.data.key}' | base64 -
 
 #### Reinstall against existing data
 
-The secret survives `helm uninstall`, but if you delete it while keeping the PostgreSQL data, a fresh install generates a new key and the replicas refuse to start. Restore the key from your backup before reinstalling:
+When reinstalling against existing PostgreSQL data, the encryption key must stay the same. PMM cannot decrypt credentials that were encrypted with a different key. The `pg-encryption-key` secret survives `helm uninstall` and is preserved on reinstall. 
+
+If you manually delete it, a fresh install generates a new key and the replicas refuse to start. Restore the key from your backup before reinstalling:
 
 ```sh
 kubectl create secret generic pg-encryption-key -n pmm --from-file=key=pmm-encryption.key
@@ -1011,9 +1013,7 @@ For complete endpoint documentation, request/response examples, and integration 
 
 ### Modify your PMM HA deployment
 
-This Tech Preview does not support upgrading between PMM versions. You can only modify configuration within the same version.
-
-Use Helm upgrades to modify settings like resource limits, replica counts, or storage sizes within your current PMM version. Rolling updates ensure zero downtime. Each pod updates sequentially while HAProxy keeps traffic flowing to healthy nodes.
+Use `helm upgrade` to change settings like resource limits, replica counts, or storage sizes within your current version. Starting with PMM 3.10.0, you can also use `helm upgrade` to move to a newer HA version. Rolling updates ensure zero downtime. Each pod updates sequentially while HAProxy keeps traffic flowing to healthy nodes.
 
 === "Modify specific settings"
 
