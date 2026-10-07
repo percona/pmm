@@ -157,7 +157,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "min by (service_name)(redis_cluster_slots_ok{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"})",
+                    "expr": "min by (service_name)(redis_cluster_slots_ok{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})",
                     "hide": false,
                     "legendFormat": "ok - {{service_name}}",
                     "range": true,
@@ -166,7 +166,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "max by (service_name)(redis_cluster_slots_fail{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"})",
+                    "expr": "max by (service_name)(redis_cluster_slots_fail{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})",
                     "hide": false,
                     "legendFormat": "fail - {{service_name}}",
                     "range": true,
@@ -175,7 +175,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "max by (service_name)(redis_cluster_slots_pfail{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"})",
+                    "expr": "max by (service_name)(redis_cluster_slots_pfail{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})",
                     "hide": false,
                     "legendFormat": "pfail - {{service_name}}",
                     "range": true,
@@ -269,7 +269,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "min by (service_name)(redis_cluster_state{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"})",
+                    "expr": "min by (service_name)(redis_cluster_state{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})",
                     "legendFormat": "{{service_name}}",
                     "range": true,
                     "refId": "A"
@@ -367,7 +367,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "rate(redis_cluster_messages_sent_total{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}[$__rate_interval])",
+                    "expr": "rate(redis_cluster_messages_sent_total{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[$__rate_interval])",
                     "legendFormat": "Sent - {{service_name}}",
                     "range": true,
                     "refId": "A"
@@ -375,7 +375,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "rate(redis_cluster_messages_received_total{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}[$__rate_interval])",
+                    "expr": "rate(redis_cluster_messages_received_total{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[$__rate_interval])",
                     "hide": false,
                     "legendFormat": "Received - {{service_name}}",
                     "range": true,
@@ -466,7 +466,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum by(service_name) (redis_cluster_connections{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"})",
+                    "expr": "sum by(service_name) (redis_cluster_connections{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})",
                     "legendFormat": "__auto",
                     "range": true,
                     "refId": "A"
@@ -556,7 +556,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "redis_cluster_known_nodes{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}",
+                    "expr": "redis_cluster_known_nodes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}",
                     "legendFormat": "{{service_name}}",
                     "range": true,
                     "refId": "A"
@@ -668,7 +668,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "redis_instance_info{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}",
+                            "expr": "redis_instance_info{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}",
                             "format": "table",
                             "instant": false,
                             "legendFormat": "{{service_name}}_role",
@@ -811,7 +811,7 @@
                         {
                             "datasource": "Metrics",
                             "editorMode": "code",
-                            "expr": "redis_master_repl_offset{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"} - on(service_name) group_left(slave_ip, slave_port) (redis_connected_slave_offset_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"})",
+                            "expr": "redis_master_repl_offset{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"} - on(service_name) group_left(slave_ip, slave_port) (redis_connected_slave_offset_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})",
                             "hide": false,
                             "legendFormat": "{{service_name}}_{{slave_ip}}",
                             "range": true,
@@ -941,7 +941,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "sum(redis_connected_slaves{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"})",
+                            "expr": "sum(redis_connected_slaves{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})",
                             "format": "table",
                             "instant": false,
                             "legendFormat": "__auto",
@@ -1104,7 +1104,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "redis_connected_slaves{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}",
+                            "expr": "redis_connected_slaves{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}",
                             "format": "table",
                             "instant": true,
                             "legendFormat": "__auto",
@@ -1312,7 +1312,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "redis_replica_resyncs_full{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}",
+                            "expr": "redis_replica_resyncs_full{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}",
                             "format": "table",
                             "instant": true,
                             "legendFormat": "__auto",
@@ -1520,7 +1520,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "redis_replica_partial_resync_accepted{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}",
+                            "expr": "redis_replica_partial_resync_accepted{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}",
                             "format": "table",
                             "instant": true,
                             "legendFormat": "__auto",
@@ -1728,7 +1728,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "redis_replication_backlog_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}",
+                            "expr": "redis_replication_backlog_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}",
                             "format": "table",
                             "instant": true,
                             "legendFormat": "__auto",
@@ -1936,7 +1936,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "redis_repl_backlog_first_byte_offset{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}",
+                            "expr": "redis_repl_backlog_first_byte_offset{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}",
                             "format": "table",
                             "instant": true,
                             "legendFormat": "__auto",
@@ -2144,7 +2144,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "redis_repl_backlog_history_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}",
+                            "expr": "redis_repl_backlog_history_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}",
                             "format": "table",
                             "instant": true,
                             "legendFormat": "__auto",
@@ -2332,7 +2332,7 @@
                         {
                             "datasource": "Metrics",
                             "editorMode": "code",
-                            "expr": "redis_replica_resyncs_full{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}",
+                            "expr": "redis_replica_resyncs_full{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}",
                             "hide": false,
                             "interval": "",
                             "legendFormat": "{{service_name}}_full_resyncs",
@@ -2343,7 +2343,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "redis_replica_partial_resync_accepted{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}",
+                            "expr": "redis_replica_partial_resync_accepted{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}",
                             "hide": false,
                             "interval": "",
                             "legendFormat": "{{service_name}}_partial_resyncs",
@@ -2353,7 +2353,7 @@
                         {
                             "datasource": "Metrics",
                             "editorMode": "code",
-                            "expr": "redis_replica_partial_resync_denied{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}",
+                            "expr": "redis_replica_partial_resync_denied{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}",
                             "hide": false,
                             "legendFormat": "{{service_name}}_partial_resync_denies",
                             "range": true,
@@ -2388,6 +2388,7 @@
     "templating": {
         "list": [
             {
+                "allValue": ".*",
                 "allowCustomValue": false,
                 "current": {
                     "text": "All",
@@ -2411,6 +2412,7 @@
                 "type": "query"
             },
             {
+                "allValue": ".*",
                 "allowCustomValue": false,
                 "current": {
                     "text": "All",
@@ -2436,6 +2438,7 @@
                 "type": "query"
             },
             {
+                "allValue": ".+",
                 "current": {
                     "text": "All",
                     "value": [
@@ -2443,7 +2446,7 @@
                     ]
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(redis_up{cluster=~\"$cluster\"},node_name)",
+                "definition": "label_values(redis_up{environment=~\"$environment\",cluster=~\"$cluster\"},node_name)",
                 "includeAll": true,
                 "label": "Node Name",
                 "multi": true,
@@ -2451,16 +2454,16 @@
                 "options": [],
                 "query": {
                     "qryType": 1,
-                    "query": "label_values(redis_up{cluster=~\"$cluster\"},node_name)",
+                    "query": "label_values(redis_up{environment=~\"$environment\",cluster=~\"$cluster\"},node_name)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 2,
                 "regex": "",
                 "sort": 1,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
             },
             {
+                "allValue": ".+",
                 "allowCustomValue": false,
                 "current": {
                     "text": "All",
@@ -2469,7 +2472,7 @@
                     ]
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(redis_up{node_name=~\"$node_name\",cluster=~\"$cluster\"},service_name)",
+                "definition": "label_values(redis_up{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"},service_name)",
                 "includeAll": true,
                 "label": "Service Name",
                 "multi": true,
@@ -2477,14 +2480,13 @@
                 "options": [],
                 "query": {
                     "qryType": 1,
-                    "query": "label_values(redis_up{node_name=~\"$node_name\",cluster=~\"$cluster\"},service_name)",
+                    "query": "label_values(redis_up{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"},service_name)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 2,
                 "regex": "",
                 "sort": 1,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
             }
         ]
     },

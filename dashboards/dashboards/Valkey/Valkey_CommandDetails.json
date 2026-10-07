@@ -155,7 +155,7 @@
                     "disableTextWrap": false,
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by(service_name) (rate(redis_commands_total{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}[$__rate_interval]))",
+                    "expr": "sum by(service_name) (rate(redis_commands_total{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[$__rate_interval]))",
                     "format": "time_series",
                     "fullMetaSearch": false,
                     "includeNullMetadata": true,
@@ -274,7 +274,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by(service_name) (rate(redis_total_reads_processed{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}[5m]))",
+                    "expr": "sum by(service_name) (rate(redis_total_reads_processed{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[5m]))",
                     "format": "time_series",
                     "instant": false,
                     "intervalFactor": 2,
@@ -287,7 +287,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by(service_name) (rate(redis_total_writes_processed{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}[5m]))",
+                    "expr": "sum by(service_name) (rate(redis_total_writes_processed{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[5m]))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -405,7 +405,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum(rate(redis_commands_total{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"} [1m])) by (service_name,cmd)",
+                    "expr": "sum(rate(redis_commands_total{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"} [1m])) by (service_name,cmd)",
                     "format": "time_series",
                     "interval": "",
                     "intervalFactor": 2,
@@ -499,7 +499,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk(10, sum by(service_name, cmd) (redis_commands_duration_seconds_total{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}) != 0)",
+                    "expr": "topk(10, sum by(service_name, cmd) (redis_commands_duration_seconds_total{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}) != 0)",
                     "format": "time_series",
                     "instant": true,
                     "interval": "",
@@ -606,7 +606,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum by(cmd, service_name) (irate(redis_commands_duration_seconds_total{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}[1m])) != 0",
+                    "expr": "sum by(cmd, service_name) (irate(redis_commands_duration_seconds_total{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[1m])) != 0",
                     "format": "time_series",
                     "interval": "",
                     "intervalFactor": 2,
@@ -683,7 +683,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by(service_name) (redis_total_reads_processed{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"})",
+                    "expr": "sum by(service_name) (redis_total_reads_processed{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})",
                     "instant": true,
                     "legendFormat": "reads - {{service_name}}",
                     "range": false,
@@ -693,7 +693,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by(service_name) (redis_total_writes_processed{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"})",
+                    "expr": "sum by(service_name) (redis_total_writes_processed{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})",
                     "hide": false,
                     "instant": true,
                     "legendFormat": "writes - {{service_name}}",
@@ -704,7 +704,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by (service_name)(redis_errors_total{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"})",
+                    "expr": "sum by (service_name)(redis_errors_total{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})",
                     "hide": false,
                     "instant": true,
                     "legendFormat": "errors - {{service_name}}",
@@ -856,7 +856,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "redis_latency_percentiles_usec{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}",
+                            "expr": "redis_latency_percentiles_usec{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}",
                             "instant": true,
                             "legendFormat": "{{cmd}} - {{service_name}}",
                             "range": false,
@@ -964,7 +964,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"get\", node_name=~\"$node_name\", cluster=~\"$cluster\"})",
+                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"get\", node_name=~\"$node_name\", environment=~\"$environment\",cluster=~\"$cluster\"})",
                             "format": "table",
                             "instant": true,
                             "legendFormat": "__auto",
@@ -1106,7 +1106,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"rpop\", node_name=~\"$node_name\", cluster=~\"$cluster\"})",
+                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"rpop\", node_name=~\"$node_name\", environment=~\"$environment\",cluster=~\"$cluster\"})",
                             "format": "table",
                             "instant": true,
                             "legendFormat": "__auto",
@@ -1248,7 +1248,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"set\", node_name=~\"$node_name\", cluster=~\"$cluster\"})",
+                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"set\", node_name=~\"$node_name\", environment=~\"$environment\",cluster=~\"$cluster\"})",
                             "format": "table",
                             "instant": true,
                             "legendFormat": "__auto",
@@ -1390,7 +1390,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"lpop\", node_name=~\"$node_name\", cluster=~\"$cluster\"})",
+                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"lpop\", node_name=~\"$node_name\", environment=~\"$environment\",cluster=~\"$cluster\"})",
                             "format": "table",
                             "instant": true,
                             "legendFormat": "__auto",
@@ -1532,7 +1532,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"hset\", node_name=~\"$node_name\", cluster=~\"$cluster\"})",
+                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"hset\", node_name=~\"$node_name\", environment=~\"$environment\",cluster=~\"$cluster\"})",
                             "format": "table",
                             "instant": true,
                             "legendFormat": "__auto",
@@ -1674,7 +1674,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"lrange\", node_name=~\"$node_name\", cluster=~\"$cluster\"})",
+                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"lrange\", node_name=~\"$node_name\", environment=~\"$environment\",cluster=~\"$cluster\"})",
                             "format": "table",
                             "instant": true,
                             "legendFormat": "__auto",
@@ -1816,7 +1816,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"psync\", node_name=~\"$node_name\", cluster=~\"$cluster\"})",
+                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"psync\", node_name=~\"$node_name\", environment=~\"$environment\",cluster=~\"$cluster\"})",
                             "format": "table",
                             "instant": true,
                             "legendFormat": "__auto",
@@ -1958,7 +1958,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"rpush\", node_name=~\"$node_name\", cluster=~\"$cluster\"})",
+                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"rpush\", node_name=~\"$node_name\", environment=~\"$environment\",cluster=~\"$cluster\"})",
                             "format": "table",
                             "instant": true,
                             "legendFormat": "__auto",
@@ -2100,7 +2100,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"lpush\", node_name=~\"$node_name\", cluster=~\"$cluster\"})",
+                            "expr": "sort(redis_commands_latencies_usec_bucket{service_name=~\"$service_name\", cmd=\"lpush\", node_name=~\"$node_name\", environment=~\"$environment\",cluster=~\"$cluster\"})",
                             "format": "table",
                             "instant": true,
                             "legendFormat": "__auto",
@@ -2174,6 +2174,7 @@
     "templating": {
         "list": [
             {
+                "allValue": ".*",
                 "allowCustomValue": false,
                 "current": {
                     "text": "All",
@@ -2195,6 +2196,7 @@
                 "type": "query"
             },
             {
+                "allValue": ".*",
                 "allowCustomValue": false,
                 "current": {
                     "text": "All",
@@ -2220,6 +2222,7 @@
                 "type": "query"
             },
             {
+                "allValue": ".+",
                 "allowCustomValue": false,
                 "current": {
                     "text": "All",
@@ -2228,7 +2231,7 @@
                     ]
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(redis_up{cluster=~\"$cluster\"},node_name)",
+                "definition": "label_values(redis_up{environment=~\"$environment\",cluster=~\"$cluster\"},node_name)",
                 "includeAll": true,
                 "label": "Node Name",
                 "multi": true,
@@ -2236,16 +2239,16 @@
                 "options": [],
                 "query": {
                     "qryType": 1,
-                    "query": "label_values(redis_up{cluster=~\"$cluster\"},node_name)",
+                    "query": "label_values(redis_up{environment=~\"$environment\",cluster=~\"$cluster\"},node_name)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 2,
                 "regex": "",
                 "sort": 1,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
             },
             {
+                "allValue": ".+",
                 "allowCustomValue": false,
                 "current": {
                     "text": "All",
@@ -2254,7 +2257,7 @@
                     ]
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(redis_up{node_name=~\"$node_name\",cluster=~\"$cluster\"},service_name)",
+                "definition": "label_values(redis_up{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"},service_name)",
                 "includeAll": true,
                 "label": "Service Name",
                 "multi": true,
@@ -2262,14 +2265,13 @@
                 "options": [],
                 "query": {
                     "qryType": 1,
-                    "query": "label_values(redis_up{node_name=~\"$node_name\",cluster=~\"$cluster\"},service_name)",
+                    "query": "label_values(redis_up{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"},service_name)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 2,
                 "regex": "",
                 "sort": 1,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
             },
             {
                 "allowCustomValue": false,
@@ -2280,7 +2282,7 @@
                     ]
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(redis_up{node_name=~\"$node_name\", role!=\"sentinel\", cluster=~\"$cluster\"},service_name)",
+                "definition": "label_values(redis_up{node_name=~\"$node_name\", role!=\"sentinel\", environment=~\"$environment\",cluster=~\"$cluster\"},service_name)",
                 "hide": 2,
                 "includeAll": true,
                 "label": "Service Name",
@@ -2289,7 +2291,7 @@
                 "options": [],
                 "query": {
                     "qryType": 1,
-                    "query": "label_values(redis_up{node_name=~\"$node_name\", role!=\"sentinel\", cluster=~\"$cluster\"},service_name)",
+                    "query": "label_values(redis_up{node_name=~\"$node_name\", role!=\"sentinel\", environment=~\"$environment\",cluster=~\"$cluster\"},service_name)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 2,

@@ -19,23 +19,24 @@ DASH_DIR = os.path.join(REPO, 'dashboards', 'dashboards')
 # Node_Temperature_Details names its hidden service variable "service".
 FLEET_VARIABLES = ('node_name', 'service_name', 'service')
 
+# A $var reference in a query, plain or ${var:format}.
+VAR_REF = r'\$(?:\{{{name}(?::\w+)?\}}|{name}(?![A-Za-z0-9_]))'
+
 # ClickHouse SQL must filter on the LBAC-filtered list of these, not drop the filter on All.
 SERVICE_VARIABLES = {'service_name', 'service'}
 
-# Lists already narrowed by a single-select parent, so they stay small.
+# Lists already narrowed by a single-select parent, so they stay small. A node_name parent doesn't
+# count: every remote service sits on the PMM Server node.
 BOUNDED = {
-    ('Insight/Prometheus_Exporter_Status.json', 'service_name'),
-    ('Insight/Prometheus_Exporters_Overview.json', 'service_name'),
     ('MongoDB/MongoDB_Cluster_Summary.json', 'node_name'),
     ('MongoDB/MongoDB_Cluster_Summary.json', 'service_name'),
     ('MongoDB/MongoDB_InMemory_Details.json', 'node_name'),
     ('MongoDB/MongoDB_MMAPv1_Details.json', 'node_name'),
     ('MongoDB/MongoDB_Router_Summary.json', 'node_name'),
     ('MongoDB/MongoDB_Router_Summary.json', 'service_name'),
+    # Group Replication members only; this hidden variable is always All and feeds the annotation tag.
     ('MySQL/MySQL_Group_Replication_Summary.json', 'service_name'),
     ('MySQL/MySQL_Instances_Compare.json', 'node_name'),
-    ('OS/CPU_Utilization_Details.json', 'service_name'),
-    ('OS/Memory_Details.json', 'service_name'),
 }
 
 
@@ -64,7 +65,7 @@ class TestFleetVariablesHaveAllValue(unittest.TestCase):
                 var = variables.get(name)
                 if not var or not var.get('includeAll') or (rel, name) in BOUNDED:
                     continue
-                if not var.get('allValue'):
+                if var.get('allValue') not in ('.+', '.*'):
                     missing.append(f'{rel}: {name} allValue={var.get("allValue")!r}')
         self.assertEqual(missing, [], 'Set allValue ".+" and add the variable\'s parent '
                          'filters to every query that uses it:\n' + '\n'.join(missing))
@@ -139,8 +140,6 @@ class TestFleetVariablesHaveAllValue(unittest.TestCase):
                 if not re.search(VAR_REF.format(name=re.escape(f'{name}_list')), text):
                     bad.append(f'{rel}: {name}_list is unused')
         self.assertEqual(sorted(set(bad)), [], '\n'.join(sorted(set(bad))))
-
-VAR_REF = r'\$(?:\{{{name}(?::\w+)?\}}|{name}(?![A-Za-z0-9_]))'
 
 
 def exprs(panels):
