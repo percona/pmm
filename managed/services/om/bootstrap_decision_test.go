@@ -297,3 +297,43 @@ func TestNextRollbackAction(t *testing.T) {
 		assert.Nil(t, nextRollbackAction(host))
 	})
 }
+
+func TestExhaustedStepsSummary(t *testing.T) {
+	t.Parallel()
+
+	detail := func(text string) *string { return &text }
+
+	t.Run("names every exhausted step with its host and detail", func(t *testing.T) {
+		t.Parallel()
+
+		disk := step("pre_check", bootstrapStepFailed, bootstrapMaxAttempts)
+		disk.Detail = detail("pre_check: less than 5368709120 bytes free for the data directory")
+		repo := step("configure_repository", bootstrapStepFailed, bootstrapMaxAttempts)
+		run := extensionsBootstrapRun{
+			Hosts: []extensionsBootstrapHost{
+				{Host: "node00", Steps: []extensionsBootstrapStep{disk}},
+				{Host: "node01", Steps: []extensionsBootstrapStep{
+					step("pre_check", bootstrapStepSucceeded, 1),
+					repo,
+				}},
+			},
+			RunSteps: []extensionsBootstrapStep{step("rs_initiate", bootstrapStepFailed, bootstrapMaxAttempts)},
+		}
+
+		assert.Equal(t,
+			"pre_check failed on node00 after 2 attempts: pre_check: less than 5368709120 bytes free for the data directory; "+
+				"configure_repository failed on node01 after 2 attempts; "+
+				"rs_initiate failed after 2 attempts",
+			exhaustedStepsSummary(run))
+	})
+
+	t.Run("a step with attempts left is not reported", func(t *testing.T) {
+		t.Parallel()
+
+		run := extensionsBootstrapRun{Hosts: []extensionsBootstrapHost{
+			{Host: "node00", Steps: []extensionsBootstrapStep{step("pre_check", bootstrapStepFailed, 1)}},
+		}}
+
+		assert.Empty(t, exhaustedStepsSummary(run))
+	})
+}

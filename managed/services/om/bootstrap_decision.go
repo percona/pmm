@@ -15,7 +15,11 @@
 
 package om
 
-import "slices"
+import (
+	"fmt"
+	"slices"
+	"strings"
+)
 
 // This file is pure decision logic for the bootstrap stepper (stepper.go): given a
 // run's current state (as om_bootstrap's own API reports it), what should happen
@@ -189,6 +193,51 @@ func hostExhaustedRetries(host extensionsBootstrapHost) bool {
 		}
 	}
 	return false
+}
+
+// rolledBackReason is the error a rolled-back run is finished with. A run that
+// exhausted a step's retries names the step, the host and the detail PMM Extensions
+// recorded for it, so the run says what failed instead of only that something did.
+func rolledBackReason(run extensionsBootstrapRun) string {
+	if !runExhaustedRetries(run) {
+		return "an operator requested cancellation; every host was rolled back"
+	}
+	if summary := exhaustedStepsSummary(run); summary != "" {
+		return summary + "; every host was rolled back"
+	}
+	return "a step exhausted its retries; every host was rolled back"
+}
+
+// exhaustedStepsSummary names every step that ran out of attempts, with its host and
+// recorded detail, or returns an empty string when none has. It names every one
+// rather than the first: two hosts can each exhaust a different step in the same
+// tick, and a reader fixing one should not have to rerun the install to learn of
+// the other.
+func exhaustedStepsSummary(run extensionsBootstrapRun) string {
+	var parts []string
+	describe := func(host string, step extensionsBootstrapStep) {
+		if step.Status != bootstrapStepFailed || step.AttemptCount < bootstrapMaxAttempts {
+			return
+		}
+		part := step.Name + " failed"
+		if host != "" {
+			part += " on " + host
+		}
+		part += fmt.Sprintf(" after %d attempts", step.AttemptCount)
+		if step.Detail != nil && *step.Detail != "" {
+			part += ": " + *step.Detail
+		}
+		parts = append(parts, part)
+	}
+	for _, host := range run.Hosts {
+		for _, step := range slices.Concat(host.Steps, host.FinalizeSteps) {
+			describe(host.Host, step)
+		}
+	}
+	for _, step := range run.RunSteps {
+		describe("", step)
+	}
+	return strings.Join(parts, "; ")
 }
 
 // runStepsExhaustedRetries reports whether run has a run-level step that failed

@@ -1573,6 +1573,13 @@ func hostNotATargetReasons(isPMMServer bool, host extensionsHost) []string {
 	if unregisteredMongodCount(host.Observed) > 0 {
 		return []string{"a scan found a mongod running here that PMM has no service for"}
 	}
+	// Installed but not running: nothing above sees it, and the install's own
+	// pre_check missed it too when it sat outside sudo's secure_path, so the run went
+	// ahead and left a second mongod beside the first. The scan reads the binary
+	// itself, wherever PATH finds it, so its answer is the one to trust here.
+	if version := observedString(host.Observed, "installed_version"); version != nil {
+		return []string{fmt.Sprintf("a scan found MongoDB %s already installed on this node", *version)}
+	}
 	return nil
 }
 

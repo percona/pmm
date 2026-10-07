@@ -498,7 +498,7 @@ func TestAdvanceRunningRunRollbackReason(t *testing.T) {
 		require.Len(t, stub.calls, 1)
 		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc:finish", stub.calls[0].path)
 		assert.JSONEq(t,
-			`{"status": "rolled_back", "error": "a step exhausted its retries; every host was rolled back"}`,
+			`{"status": "rolled_back", "error": "install_package failed on node00 after 2 attempts; every host was rolled back"}`,
 			stub.calls[0].body)
 	})
 }
