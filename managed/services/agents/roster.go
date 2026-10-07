@@ -85,14 +85,20 @@ func (r *roster) get(groupID string) (string, []string, error) {
 			agentIDs = []string{PMMAgentID}
 		} else {
 			awsAccessKey := strings.TrimPrefix(parts[1], rdsPrefix)
-			filters := models.AgentFilters{PMMAgentID: PMMAgentID, AgentType: new(models.RDSExporterType), AWSAccessKey: awsAccessKey}
+			// aws_access_key is encrypted at rest, and FindAgents decrypts rows only
+			// after the WHERE clause, so a SQL filter on the access key never matches.
+			// Match it in Go on the decrypted value instead.
+			rdsExporterType := models.RDSExporterType
+			filters := models.AgentFilters{PMMAgentID: PMMAgentID, AgentType: &rdsExporterType}
 			agents, err := models.FindAgents(r.db.Querier, filters)
 			if err != nil {
 				return "", nil, err
 			}
 			agentIDs = make([]string, 0, len(agents))
 			for _, agent := range agents {
-				agentIDs = append(agentIDs, agent.AgentID)
+				if agent.AWSOptions.AWSAccessKey == awsAccessKey {
+					agentIDs = append(agentIDs, agent.AgentID)
+				}
 			}
 		}
 	}
