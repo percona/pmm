@@ -788,6 +788,10 @@ type ListInventoryRunsOKBodyRunsItems0Counts struct {
 
 	// Hosts that answered.
 	AnsweredHosts int32 `json:"answered_hosts,omitempty"`
+
+	// Hosts whose scan has come back, answered or not. Counted up while the run is
+	// still going, so a page can say how far it has got.
+	FinishedHosts int32 `json:"finished_hosts,omitempty"`
 }
 
 // Validate validates this list inventory runs OK body runs items0 counts

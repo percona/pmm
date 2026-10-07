@@ -2507,6 +2507,9 @@ type InventoryRunCounts struct {
 	ProbeableHosts int32 `protobuf:"varint,6,opt,name=probeable_hosts,json=probeableHosts,proto3" json:"probeable_hosts,omitempty"`
 	// Hosts that answered.
 	AnsweredHosts int32 `protobuf:"varint,7,opt,name=answered_hosts,json=answeredHosts,proto3" json:"answered_hosts,omitempty"`
+	// Hosts whose scan has come back, answered or not. Counted up while the run is
+	// still going, so a page can say how far it has got.
+	FinishedHosts int32 `protobuf:"varint,8,opt,name=finished_hosts,json=finishedHosts,proto3" json:"finished_hosts,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2586,6 +2589,13 @@ func (x *InventoryRunCounts) GetProbeableHosts() int32 {
 func (x *InventoryRunCounts) GetAnsweredHosts() int32 {
 	if x != nil {
 		return x.AnsweredHosts
+	}
+	return 0
+}
+
+func (x *InventoryRunCounts) GetFinishedHosts() int32 {
+	if x != nil {
+		return x.FinishedHosts
 	}
 	return 0
 }
@@ -5278,7 +5288,7 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\b_addressB\x10\n" +
 	"\x0e_executor_hostB\x05\n" +
 	"\x03_osB\t\n" +
-	"\a_kernel\"\xb3\x02\n" +
+	"\a_kernel\"\xda\x02\n" +
 	"\x12InventoryRunCounts\x12%\n" +
 	"\x0etotal_services\x18\x01 \x01(\x05R\rtotalServices\x12+\n" +
 	"\x11resolved_services\x18\x02 \x01(\x05R\x10resolvedServices\x12+\n" +
@@ -5287,7 +5297,8 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\vtotal_hosts\x18\x05 \x01(\x05R\n" +
 	"totalHosts\x12'\n" +
 	"\x0fprobeable_hosts\x18\x06 \x01(\x05R\x0eprobeableHosts\x12%\n" +
-	"\x0eanswered_hosts\x18\a \x01(\x05R\ransweredHosts\"\xc8\x01\n" +
+	"\x0eanswered_hosts\x18\a \x01(\x05R\ransweredHosts\x12%\n" +
+	"\x0efinished_hosts\x18\b \x01(\x05R\rfinishedHosts\"\xc8\x01\n" +
 	"\x19InventoryRunEntityService\x12\"\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tH\x00R\tserviceId\x88\x01\x01\x12&\n" +

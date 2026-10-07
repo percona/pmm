@@ -90,6 +90,7 @@ type extensionsRunCounts struct {
 	HostsTotal       int32 `json:"hosts_total"`
 	HostsProbeable   int32 `json:"hosts_probeable"`
 	HostsAnswered    int32 `json:"hosts_answered"`
+	HostsFinished    int32 `json:"hosts_finished"`
 }
 
 // extensionsRun is one row of GET /runs.

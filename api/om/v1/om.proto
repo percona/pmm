@@ -597,6 +597,9 @@ message InventoryRunCounts {
   int32 probeable_hosts = 6;
   // Hosts that answered.
   int32 answered_hosts = 7;
+  // Hosts whose scan has come back, answered or not. Counted up while the run is
+  // still going, so a page can say how far it has got.
+  int32 finished_hosts = 8;
 }
 
 // InventoryRunEntityService is one service on a host, as a refresh saw it.
