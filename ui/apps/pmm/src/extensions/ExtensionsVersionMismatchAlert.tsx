@@ -13,21 +13,13 @@ import { toReleaseVersion } from './toReleaseVersion';
  */
 export const ExtensionsVersionMismatchAlert: FC = () => {
   const { serverVersion } = useVersion();
-  const { data, isSuccess, isError, isPending } = useAppInfo();
+  const { data, isSuccess } = useAppInfo();
 
-  if (!serverVersion || isPending || isError || !isSuccess) {
+  if (!serverVersion || !isSuccess) {
     return null;
   }
 
-  const extensionsVersion = data.version;
-  if (extensionsVersion == null || extensionsVersion === '') {
-    return (
-      <Alert severity="warning" data-testid="extensions-version-mismatch">
-        {Messages.undetermined}
-      </Alert>
-    );
-  }
-
+  const extensionsVersion = data.version ?? '';
   const serverRelease = toReleaseVersion(serverVersion);
   const extensionsRelease = toReleaseVersion(extensionsVersion);
 
