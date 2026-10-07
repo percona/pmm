@@ -177,7 +177,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "min(redis_uptime_in_seconds{node_name=~\"$node_name\", service_name=~\"$service_name\", environment=~\"$environment\",cluster=~\"$cluster\"})",
+                    "expr": "min(redis_uptime_in_seconds{node_name=~\"$node_name_list\", service_name=~\"$service_name_list\"})",
                     "format": "time_series",
                     "interval": "",
                     "intervalFactor": 2,
@@ -247,7 +247,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum((redis_connected_clients{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}))",
+                    "expr": "sum((redis_connected_clients{node_name=~\"$node_name_list\"}))",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "Connected",
@@ -257,7 +257,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum (redis_blocked_clients{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})",
+                    "expr": "sum (redis_blocked_clients{node_name=~\"$node_name_list\"})",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "Blocked",
@@ -325,7 +325,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum(irate(redis_total_reads_processed{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[$__rate_interval]))",
+                    "expr": "sum(irate(redis_total_reads_processed{node_name=~\"$node_name_list\"}[$__rate_interval]))",
                     "format": "time_series",
                     "instant": false,
                     "intervalFactor": 2,
@@ -338,7 +338,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum ((rate(redis_total_writes_processed{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[5m])))",
+                    "expr": "sum ((rate(redis_total_writes_processed{node_name=~\"$node_name_list\"}[5m])))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -425,7 +425,7 @@
                     "disableTextWrap": false,
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk(5, avg_over_time(redis_latency_percentiles_usec{quantile=\"99.9\", node_name=~\"$node_name\", cmd!~\"config\\\\|get|bgsave|bgrewriteaof|save|flushdb|flushall|debug|psync|.*latency.*|command\\\\|docs\", service_name=~\"$service_name\", environment=~\"$environment\",cluster=~\"$cluster\"}[10s]))",
+                    "expr": "topk(5, avg_over_time(redis_latency_percentiles_usec{quantile=\"99.9\", node_name=~\"$node_name_list\", cmd!~\"config\\\\|get|bgsave|bgrewriteaof|save|flushdb|flushall|debug|psync|.*latency.*|command\\\\|docs\", service_name=~\"$service_name_list\"}[10s]))",
                     "format": "time_series",
                     "fullMetaSearch": false,
                     "includeNullMetadata": true,
@@ -513,7 +513,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "avg( redis_latency_percentiles_usec{node_name=~\"$node_name\", cmd!~\"config\\\\|get|bgsave|bgrewriteaof|save|flushdb|flushall|debug|psync|.*latency.*|command\\\\|docs\", service_name=~\"$service_name\", environment=~\"$environment\",cluster=~\"$cluster\"})",
+                    "expr": "avg( redis_latency_percentiles_usec{node_name=~\"$node_name_list\", cmd!~\"config\\\\|get|bgsave|bgrewriteaof|save|flushdb|flushall|debug|psync|.*latency.*|command\\\\|docs\", service_name=~\"$service_name_list\"})",
                     "hide": false,
                     "instant": false,
                     "interval": "",
@@ -632,7 +632,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum(redis_memory_used_bytes{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})",
+                    "expr": "sum(redis_memory_used_bytes{node_name=~\"$node_name_list\"})",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "Used",
@@ -645,7 +645,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum(redis_memory_max_bytes{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})",
+                    "expr": "sum(redis_memory_max_bytes{node_name=~\"$node_name_list\"})",
                     "format": "time_series",
                     "hide": false,
                     "intervalFactor": 2,
@@ -748,7 +748,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum(irate(redis_net_input_bytes_total{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[$__rate_interval]))",
+                    "expr": "sum(irate(redis_net_input_bytes_total{node_name=~\"$node_name_list\"}[$__rate_interval]))",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "Input",
@@ -759,7 +759,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum(rate(redis_net_output_bytes_total{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[$__rate_interval]))",
+                    "expr": "sum(rate(redis_net_output_bytes_total{node_name=~\"$node_name_list\"}[$__rate_interval]))",
                     "format": "time_series",
                     "interval": "",
                     "intervalFactor": 2,
@@ -837,6 +837,7 @@
                 "type": "query"
             },
             {
+                "allValue": ".+",
                 "allowCustomValue": false,
                 "current": {
                     "text": "All",
@@ -859,10 +860,40 @@
                 "refresh": 2,
                 "regex": "",
                 "sort": 1,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
             },
             {
+                "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "datasource": "Metrics",
+                "definition": "label_values(redis_up{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\"}, node_name)",
+                "description": "Every Node Name that matches the dashboard filters, expanded for panel queries. node_name uses allValue \".+\" to keep request URLs short; see PMM-15609.",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Node Name list",
+                "multi": true,
+                "name": "node_name_list",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(redis_up{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\"}, node_name)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": true,
+                "sort": 1,
+                "type": "query"
+            },
+            {
+                "allValue": ".+",
                 "current": {
                     "text": "All",
                     "value": [
@@ -884,8 +915,37 @@
                 "refresh": 2,
                 "regex": "",
                 "sort": 1,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
+            },
+            {
+                "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "datasource": "Metrics",
+                "definition": "label_values(redis_up{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}, service_name)",
+                "description": "Every Service Name that matches the dashboard filters, expanded for panel queries. service_name uses allValue \".+\" to keep request URLs short; see PMM-15609.",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Service Name list",
+                "multi": true,
+                "name": "service_name_list",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(redis_up{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}, service_name)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": true,
+                "sort": 1,
+                "type": "query"
             }
         ]
     },

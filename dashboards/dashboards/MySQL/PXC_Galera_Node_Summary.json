@@ -2027,6 +2027,7 @@
                 "type": "interval"
             },
             {
+                "allValue": ".+",
                 "current": {
                     "selected": false,
                     "text": "All",
@@ -2051,8 +2052,7 @@
                 "tagValuesQuery": "",
                 "tagsQuery": "",
                 "type": "query",
-                "useTags": false,
-                "allValue": ".+"
+                "useTags": false
             },
             {
                 "allFormat": "glob",

@@ -36,6 +36,16 @@ BOUNDED = {
 }
 
 
+# allValue ".*" predates PMM-15609; these panels read the variable directly, as they did before.
+PREDATING_ALL_VALUE = {
+    ('MongoDB/MongoDB_Unused_Indexes.json', 'node_name'),
+    ('MySQL/MySQL_Replication_Summary.json', 'service_name'),
+    ('MySQL/PXC_Galera_Nodes_Compare.json', 'service_name'),
+    ('PostgreSQL/PostgreSQL_Instances_Overview.json', 'node_name'),
+    ('PostgreSQL/PostgreSQL_Replication_Overview.json', 'node_name'),
+    ('PostgreSQL/PostgreSQL_Top_Queries.json', 'node_name'),
+}
+
 def first_variables(dashboard):
     """Grafana resolves a duplicated variable name to its first definition."""
     seen = {}
@@ -63,8 +73,8 @@ class TestFleetVariablesHaveAllValue(unittest.TestCase):
                     continue
                 if not var.get('allValue'):
                     missing.append(f'{rel}: {name} allValue={var.get("allValue")!r}')
-        self.assertEqual(missing, [], 'Set allValue ".+" and add the variable\'s parent '
-                         'filters to every query that uses it:\n' + '\n'.join(missing))
+        self.assertEqual(missing, [], 'Set allValue ".+" and point panel queries at a hidden '
+                         '<var>_list (see test_panels_use_list_variable):\n' + '\n'.join(missing))
 
     def test_bounded_entries_still_exist(self):
         stale = []
@@ -79,55 +89,50 @@ class TestFleetVariablesHaveAllValue(unittest.TestCase):
                 stale.append(f'{rel}: {name} no longer offers All')
         self.assertEqual(stale, [], 'Remove stale BOUNDED entries:\n' + '\n'.join(stale))
 
-    def test_sql_uses_conditional_all(self):
-        """Grafana substitutes a custom allValue raw, so "IN (.+)" is a SQL error.
+    def test_panels_use_list_variable(self):
+        """Panels read <var>_list, not a fleet variable whose All is ".+".
 
-        Wrap the filter as $__conditionalAll(col IN (${var:singlequote}), $var):
-        the ClickHouse plugin drops it on All, and singlequote escapes quotes.
+        ".+" keeps variable lookups and annotation URLs short, but it drops the parent filters
+        (environment, cluster, ...) that the expanded list carried. The hidden <var>_list is the
+        variable's own query narrowed by $<var>, so its All expands to exactly that list inside
+        the panel's POST body. Panels that repeat on <var> keep $<var>: it holds one value there.
         """
         bad = []
         for path in self.dashboards():
             rel = os.path.relpath(path, DASH_DIR)
             with open(path, encoding='utf-8') as f:
                 dashboard = json.load(f)
-            custom = {n for n, v in first_variables(dashboard).items() if v.get('allValue')}
-            for sql in raw_sql(dashboard.get('panels', [])):
-                for name in sorted(custom):
-                    if re.search(VAR_REF.format(name=re.escape(name)), strip_conditional_all(sql, name)):
-                        bad.append(f'{rel}: ${name}')
-        self.assertEqual(sorted(set(bad)), [], 'Wrap these in $__conditionalAll(col IN '
-                         '(${var:singlequote}), $var):\n' + '\n'.join(sorted(set(bad))))
+            variables = first_variables(dashboard)
+            custom = [n for n in FLEET_VARIABLES if (variables.get(n) or {}).get('allValue')
+                      and (rel, n) not in PREDATING_ALL_VALUE]
+            for repeat, text in target_texts(dashboard.get('panels', [])):
+                for name in custom:
+                    if repeat != name and re.search(VAR_REF.format(name=re.escape(name)), text):
+                        bad.append(f'{rel}: panel query uses ${name}, use ${name}_list')
+            for name in FLEET_VARIABLES:
+                lst = variables.get(f'{name}_list')
+                if not lst:
+                    continue
+                query = lst.get('query') if isinstance(lst.get('query'), str) else (lst.get('query') or {}).get('query', '')
+                if (lst.get('allValue') or not lst.get('includeAll') or lst.get('hide') != 2
+                        or not re.search(VAR_REF.format(name=re.escape(name)), query)):
+                    bad.append(f'{rel}: {name}_list must be hidden, include All, have no allValue '
+                               f'and filter on ${name}')
+        self.assertEqual(sorted(set(bad)), [], '\n'.join(sorted(set(bad))))
 
 
-VAR_REF = r'\$(?:\{{{name}(?::\w+)?\}}|{name}\b)'
+VAR_REF = r'\$(?:\{{{name}(?::\w+)?\}}|{name}(?![A-Za-z0-9_]))'
 
 
-def raw_sql(panels):
+def target_texts(panels, repeat=None):
+    """Yield (repeat variable, query text) for every PromQL or SQL panel target."""
     for panel in panels:
-        yield from raw_sql(panel.get('panels', []))
+        rep = panel.get('repeat') or repeat
+        yield from target_texts(panel.get('panels', []), rep)
         for target in panel.get('targets', []):
-            if target.get('rawSql'):
-                yield target['rawSql']
-
-
-def strip_conditional_all(sql, name):
-    """Remove each $__conditionalAll(...) whose last argument is $name."""
-    macro = '$__conditionalAll('
-    out, i = [], 0
-    while (start := sql.find(macro, i)) != -1:
-        depth, end = 0, start + len(macro) - 1
-        for end in range(end, len(sql)):
-            depth += {'(': 1, ')': -1}.get(sql[end], 0)
-            if depth == 0:
-                break
-        call = sql[start:end + 1]
-        last_arg = call[len(macro):-1].rsplit(',', 1)[-1].strip()
-        out.append(sql[i:start])
-        if last_arg not in (f'${name}', f'${{{name}}}'):
-            out.append(call)
-        i = end + 1
-    out.append(sql[i:])
-    return ''.join(out)
+            for key in ('expr', 'rawSql'):
+                if isinstance(target.get(key), str):
+                    yield rep, target[key]
 
 
 if __name__ == '__main__':

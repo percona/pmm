@@ -2355,6 +2355,7 @@
                 "useTags": false
             },
             {
+                "allValue": ".+",
                 "current": {
                     "selected": false,
                     "text": "All",
@@ -2379,8 +2380,7 @@
                 "tagValuesQuery": "",
                 "tagsQuery": "",
                 "type": "query",
-                "useTags": false,
-                "allValue": ".+"
+                "useTags": false
             },
             {
                 "allValue": ".*",

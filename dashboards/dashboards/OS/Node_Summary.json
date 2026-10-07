@@ -1002,7 +1002,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "count by (service_type) (sum by (service_name,service_type) (max_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name\",service_type!=\"external\",node_name=\"$node_name\"}[$interval])))",
+                    "expr": "count by (service_type) (sum by (service_name,service_type) (max_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name_list\",service_type!=\"external\",node_name=\"$node_name\"}[$interval])))",
                     "format": "table",
                     "instant": true,
                     "interval": "$interval",
@@ -1022,7 +1022,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "count by (service_type) ( \nsum by (service_name,service_type) (max_over_time(mongodb_connections{service_name=~\"$service_name\",state=\"current\",service_type!=\"external\",node_name=\"$node_name\"}[$interval]))\n)",
+                    "expr": "count by (service_type) ( \nsum by (service_name,service_type) (max_over_time(mongodb_connections{service_name=~\"$service_name_list\",state=\"current\",service_type!=\"external\",node_name=\"$node_name\"}[$interval]))\n)",
                     "format": "table",
                     "instant": true,
                     "interval": "$interval",
@@ -1042,7 +1042,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "count by (service_type) (\nsum by (service_name,service_type) (max_over_time(pg_stat_database_numbackends{service_name=~\"$service_name\",service_type!=\"external\",node_name=\"$node_name\"}[$interval]))\n)",
+                    "expr": "count by (service_type) (\nsum by (service_name,service_type) (max_over_time(pg_stat_database_numbackends{service_name=~\"$service_name_list\",service_type!=\"external\",node_name=\"$node_name\"}[$interval]))\n)",
                     "format": "table",
                     "instant": true,
                     "interval": "$interval",
@@ -1061,7 +1061,7 @@
                         "6": "s"
                     },
                     "editorMode": "code",
-                    "expr": "count by (service_type) (\nsum by (service_name,service_type) (max_over_time(process_virtual_memory_max_bytes{service_type=\"external\",service_name=~\"$service_name\",node_name=\"$node_name\"}[$interval]))\n)",
+                    "expr": "count by (service_type) (\nsum by (service_name,service_type) (max_over_time(process_virtual_memory_max_bytes{service_type=\"external\",service_name=~\"$service_name_list\",node_name=\"$node_name\"}[$interval]))\n)",
                     "format": "table",
                     "hide": true,
                     "instant": true,
@@ -4969,6 +4969,7 @@
                 "type": "query"
             },
             {
+                "allValue": ".+",
                 "current": {
                     "text": "All",
                     "value": "$__all"
@@ -4988,8 +4989,37 @@
                 "refresh": 2,
                 "regex": "",
                 "sort": 5,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
+            },
+            {
+                "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "datasource": "Metrics",
+                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\",service_name=~\"$service_name\"}, service_name)",
+                "description": "Every Service Name that matches the dashboard filters, expanded for panel queries. service_name uses allValue \".+\" to keep request URLs short; see PMM-15609.",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Service Name list",
+                "multi": true,
+                "name": "service_name_list",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\",service_name=~\"$service_name\"}, service_name)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": true,
+                "sort": 5,
+                "type": "query"
             },
             {
                 "current": {

@@ -177,7 +177,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "100 * (min by (service_name)(redis_memory_used_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"})) / (min by (service_name)(redis_memory_max_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}) > 0 OR min by (service_name) (node_memory_MemTotal_bytes + on(node_name) group_left(service_name) redis_instance_info{service_name =~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}))",
+                    "expr": "100 * (min by (service_name)(redis_memory_used_bytes{service_name=~\"$service_name_list\"})) / (min by (service_name)(redis_memory_max_bytes{service_name=~\"$service_name_list\"}) > 0 OR min by (service_name) (node_memory_MemTotal_bytes + on(node_name) group_left(service_name) redis_instance_info{service_name =~\"$service_name_list\"}))",
                     "format": "time_series",
                     "hide": false,
                     "intervalFactor": 2,
@@ -362,7 +362,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (service_name) (redis_db_keys{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"})",
+                    "expr": "min by (service_name) (redis_db_keys{service_name=~\"$service_name_list\"})",
                     "format": "table",
                     "instant": true,
                     "intervalFactor": 1,
@@ -499,7 +499,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "redis_memory_used_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}",
+                    "expr": "redis_memory_used_bytes{service_name=~\"$service_name_list\"}",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "used, {{ service_name}}",
@@ -512,7 +512,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "redis_memory_max_bytes{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}",
+                    "expr": "redis_memory_max_bytes{service_name=~\"$service_name_list\"}",
                     "format": "time_series",
                     "hide": false,
                     "intervalFactor": 2,
@@ -668,7 +668,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum(rate(redis_expired_keys_total{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}[5m])) by (service_name)",
+                    "expr": "sum(rate(redis_expired_keys_total{service_name=~\"$service_name_list\"}[5m])) by (service_name)",
                     "format": "time_series",
                     "hide": false,
                     "interval": "",
@@ -683,7 +683,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum(rate(redis_evicted_keys_total{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}[5m])) by (service_name)",
+                    "expr": "sum(rate(redis_evicted_keys_total{service_name=~\"$service_name_list\"}[5m])) by (service_name)",
                     "format": "time_series",
                     "interval": "",
                     "intervalFactor": 2,
@@ -780,7 +780,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum (redis_db_keys{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}) by (service_name) - sum (redis_db_keys_expiring{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}) by (service_name)",
+                    "expr": "sum (redis_db_keys{service_name=~\"$service_name_list\"}) by (service_name) - sum (redis_db_keys_expiring{service_name=~\"$service_name_list\"}) by (service_name)",
                     "format": "time_series",
                     "interval": "",
                     "intervalFactor": 1,
@@ -793,7 +793,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum (redis_db_keys_expiring{service_name=~\"$service_name\",node_name=~\"$node_name\",cluster=~\"$cluster\"}) by (service_name)",
+                    "expr": "sum (redis_db_keys_expiring{service_name=~\"$service_name_list\"}) by (service_name)",
                     "format": "time_series",
                     "interval": "",
                     "intervalFactor": 2,
@@ -867,6 +867,7 @@
                 "type": "query"
             },
             {
+                "allValue": ".+",
                 "allowCustomValue": false,
                 "current": {
                     "text": [
@@ -891,10 +892,10 @@
                 "refresh": 2,
                 "regex": "",
                 "sort": 1,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
             },
             {
+                "allValue": ".+",
                 "allowCustomValue": false,
                 "current": {
                     "text": "All",
@@ -917,8 +918,37 @@
                 "refresh": 2,
                 "regex": "",
                 "sort": 1,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
+            },
+            {
+                "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "datasource": "Metrics",
+                "definition": "label_values(redis_up{node_name=~\"$node_name\",cluster=~\"$cluster\",service_name=~\"$service_name\"}, service_name)",
+                "description": "Every Service Name that matches the dashboard filters, expanded for panel queries. service_name uses allValue \".+\" to keep request URLs short; see PMM-15609.",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Service Name list",
+                "multi": true,
+                "name": "service_name_list",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(redis_up{node_name=~\"$node_name\",cluster=~\"$cluster\",service_name=~\"$service_name\"}, service_name)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": true,
+                "sort": 1,
+                "type": "query"
             }
         ]
     },

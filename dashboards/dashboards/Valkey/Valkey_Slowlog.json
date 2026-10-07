@@ -159,7 +159,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "redis_slowlog_length{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}",
+                    "expr": "redis_slowlog_length{service_name=~\"$service_name_list\"}",
                     "format": "time_series",
                     "instant": false,
                     "intervalFactor": 2,
@@ -257,7 +257,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "redis_config_value{key=\"slowlog-max-len\", service_name=~\"$service_name\", node_name=~\"$node_name\", environment=~\"$environment\",cluster=~\"$cluster\"}",
+                    "expr": "redis_config_value{key=\"slowlog-max-len\", service_name=~\"$service_name_list\"}",
                     "format": "table",
                     "instant": true,
                     "intervalFactor": 2,
@@ -391,7 +391,7 @@
                     "command": "slowlogGet",
                     "disableTextWrap": false,
                     "editorMode": "code",
-                    "expr": "sum by(service_name) (redis_slowlog_length{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})",
+                    "expr": "sum by(service_name) (redis_slowlog_length{service_name=~\"$service_name_list\"})",
                     "fullMetaSearch": false,
                     "includeNullMetadata": true,
                     "legendFormat": "__auto",
@@ -481,7 +481,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "redis_config_value{key=\"slowlog-log-slower-than\", service_name=~\"$service_name\", node_name=~\"$node_name\", environment=~\"$environment\",cluster=~\"$cluster\"} / 1000",
+                    "expr": "redis_config_value{key=\"slowlog-log-slower-than\", service_name=~\"$service_name_list\"} / 1000",
                     "format": "table",
                     "instant": true,
                     "intervalFactor": 2,
@@ -585,6 +585,7 @@
                 "type": "query"
             },
             {
+                "allValue": ".+",
                 "allowCustomValue": false,
                 "current": {
                     "text": "All",
@@ -607,10 +608,10 @@
                 "refresh": 2,
                 "regex": "",
                 "sort": 1,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
             },
             {
+                "allValue": ".+",
                 "allowCustomValue": false,
                 "current": {
                     "text": "All",
@@ -633,8 +634,37 @@
                 "refresh": 2,
                 "regex": "",
                 "sort": 1,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
+            },
+            {
+                "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "datasource": "Metrics",
+                "definition": "label_values(redis_up{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}, service_name)",
+                "description": "Every Service Name that matches the dashboard filters, expanded for panel queries. service_name uses allValue \".+\" to keep request URLs short; see PMM-15609.",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Service Name list",
+                "multi": true,
+                "name": "service_name_list",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(redis_up{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}, service_name)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": true,
+                "sort": 1,
+                "type": "query"
             }
         ]
     },

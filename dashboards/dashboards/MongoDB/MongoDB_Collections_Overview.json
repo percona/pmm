@@ -926,7 +926,6 @@
                     },
                     "decimals": 1,
                     "mappings": [],
-                    "unit": "ops/s",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -935,7 +934,8 @@
                                 "value": null
                             }
                         ]
-                    }
+                    },
+                    "unit": "ops/s"
                 },
                 "overrides": []
             },
@@ -996,7 +996,6 @@
                     },
                     "decimals": 1,
                     "mappings": [],
-                    "unit": "ops/s",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -1005,7 +1004,8 @@
                                 "value": null
                             }
                         ]
-                    }
+                    },
+                    "unit": "ops/s"
                 },
                 "overrides": []
             },

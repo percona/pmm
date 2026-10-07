@@ -134,7 +134,7 @@
             "pluginVersion": "8.3.5",
             "targets": [
                 {
-                    "expr": "count(mysql_global_status_uptime{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"})",
+                    "expr": "count(mysql_global_status_uptime{service_name=~\"$service_name_list\"})",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -208,7 +208,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "min(mysql_global_status_uptime{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"})",
+                    "expr": "min(mysql_global_status_uptime{service_name=~\"$service_name_list\"})",
                     "format": "time_series",
                     "interval": "5m",
                     "intervalFactor": 1,
@@ -284,7 +284,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "max(mysql_global_status_uptime{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"})",
+                    "expr": "max(mysql_global_status_uptime{service_name=~\"$service_name_list\"})",
                     "format": "time_series",
                     "interval": "5m",
                     "intervalFactor": 1,
@@ -363,7 +363,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "sum(rate(mysql_global_status_queries{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or irate(mysql_global_status_queries{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                    "expr": "sum(rate(mysql_global_status_queries{service_name=~\"$service_name_list\"}[$interval]) or irate(mysql_global_status_queries{service_name=~\"$service_name_list\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -442,7 +442,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "sum(mysql_global_variables_innodb_buffer_pool_size{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"})",
+                    "expr": "sum(mysql_global_variables_innodb_buffer_pool_size{service_name=~\"$service_name_list\"})",
                     "format": "time_series",
                     "interval": "5m",
                     "intervalFactor": 1,
@@ -530,7 +530,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "max(max_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nmax_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                    "expr": "max(max_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name_list\"}[$interval]) or \nmax_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name_list\"}[5m]))",
                     "format": "time_series",
                     "interval": "5m",
                     "intervalFactor": 1,
@@ -603,7 +603,7 @@
             "pluginVersion": "8.3.5",
             "targets": [
                 {
-                    "expr": "clamp_max(max(max by (service_name) ((max_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or max_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))) / max by (service_name) (mysql_global_variables_max_connections{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"})),1)",
+                    "expr": "clamp_max(max(max by (service_name) ((max_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name_list\"}[$interval]) or max_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name_list\"}[5m]))) / max by (service_name) (mysql_global_variables_max_connections{service_name=~\"$service_name_list\"})),1)",
                     "interval": "5m",
                     "refId": "A"
                 }
@@ -674,7 +674,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "clamp_max(max(max by (service_name) (max_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / max by (service_name) (\nmysql_global_variables_max_connections{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"})),1)",
+                    "expr": "clamp_max(max(max by (service_name) (max_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name_list\"}[5m])) / max by (service_name) (\nmysql_global_variables_max_connections{service_name=~\"$service_name_list\"})),1)",
                     "format": "time_series",
                     "hide": false,
                     "interval": "5m",
@@ -743,7 +743,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "clamp_max(max(1 - max by (service_name) ((max_over_time(mysql_global_status_threads_running{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_running{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))) / max by (service_name)((max_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))),1)",
+                    "expr": "clamp_max(max(1 - max by (service_name) ((max_over_time(mysql_global_status_threads_running{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_running{service_name=~\"$service_name_list\"}[5m]))) / max by (service_name)((max_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name_list\"}[5m])))),1)",
                     "format": "time_series",
                     "hide": false,
                     "instant": false,
@@ -818,7 +818,7 @@
             "pluginVersion": "8.3.5",
             "targets": [
                 {
-                    "expr": "clamp_max(max(max by (service_name) ((max_over_time(mysql_global_status_threads_cached{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_cached{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))) / max by (service_name) (max_over_time(mysql_global_variables_thread_cache_size{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_variables_thread_cache_size{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))),1)",
+                    "expr": "clamp_max(max(max by (service_name) ((max_over_time(mysql_global_status_threads_cached{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_cached{service_name=~\"$service_name_list\"}[5m]))) / max by (service_name) (max_over_time(mysql_global_variables_thread_cache_size{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_variables_thread_cache_size{service_name=~\"$service_name_list\"}[5m]))),1)",
                     "hide": false,
                     "interval": "5m",
                     "refId": "B"
@@ -920,7 +920,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,(avg by (service_name) (max_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nmax_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))))",
+                            "expr": "topk(5,(avg by (service_name) (max_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name_list\"}[$interval]) or \nmax_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name_list\"}[5m]))))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -932,7 +932,7 @@
                             "target": ""
                         },
                         {
-                            "expr": "avg(max_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nmax_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(max_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name_list\"}[$interval]) or \nmax_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -1116,7 +1116,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "clamp_max((avg by (service_name) (max_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nmax_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / avg by (service_name) (mysql_global_variables_max_connections{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"})),1)",
+                            "expr": "clamp_max((avg by (service_name) (max_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name_list\"}[$interval]) or \nmax_over_time(mysql_global_status_max_used_connections{service_name=~\"$service_name_list\"}[5m])) / avg by (service_name) (mysql_global_variables_max_connections{service_name=~\"$service_name_list\"})),1)",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -1203,7 +1203,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name)(rate(mysql_global_status_aborted_connects{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_aborted_connects{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_aborted_clients{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_aborted_clients{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name)(rate(mysql_global_status_aborted_connects{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_aborted_connects{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_aborted_clients{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_aborted_clients{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -1213,7 +1213,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(rate(mysql_global_status_aborted_connects{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_aborted_connects{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_aborted_clients{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_aborted_clients{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(rate(mysql_global_status_aborted_connects{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_aborted_connects{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_aborted_clients{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_aborted_clients{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -1397,7 +1397,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "avg by (service_name)(rate(mysql_global_status_aborted_connects{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_aborted_connects{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_aborted_clients{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_aborted_clients{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg by (service_name)(rate(mysql_global_status_aborted_connects{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_aborted_connects{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_aborted_clients{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_aborted_clients{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -1499,7 +1499,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name)(max_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name)(max_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -1510,7 +1510,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(max_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(max_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -1696,7 +1696,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "clamp_max((avg by (service_name)(max_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / avg by (service_name)(mysql_global_variables_max_connections{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"})),1)",
+                            "expr": "clamp_max((avg by (service_name)(max_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name_list\"}[5m])) / avg by (service_name)(mysql_global_variables_max_connections{service_name=~\"$service_name_list\"})),1)",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -1784,7 +1784,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name)(max_over_time(mysql_global_status_threads_running{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_running{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name)(max_over_time(mysql_global_status_threads_running{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_running{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -1794,7 +1794,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(max_over_time(mysql_global_status_threads_running{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_running{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(max_over_time(mysql_global_status_threads_running{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_running{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -1980,7 +1980,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "clamp_max((1 - avg by (service_name)(max_over_time(mysql_global_status_threads_running{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_running{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / avg by (service_name)\n(max_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))),1)",
+                            "expr": "clamp_max((1 - avg by (service_name)(max_over_time(mysql_global_status_threads_running{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_running{service_name=~\"$service_name_list\"}[5m])) / avg by (service_name)\n(max_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name_list\"}[5m]))),1)",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2073,7 +2073,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name)(max_over_time(mysql_global_status_threads_cached{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_cached{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name)(max_over_time(mysql_global_status_threads_cached{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_cached{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2083,7 +2083,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(max_over_time(mysql_global_status_threads_cached{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_cached{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(max_over_time(mysql_global_status_threads_cached{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_cached{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2266,7 +2266,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "clamp_max((avg by (service_name)(max_over_time(mysql_global_status_threads_cached{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_cached{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / avg by (service_name)\n(max_over_time(mysql_global_variables_thread_cache_size{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_variables_thread_cache_size{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))),1)",
+                            "expr": "clamp_max((avg by (service_name)(max_over_time(mysql_global_status_threads_cached{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_threads_cached{service_name=~\"$service_name_list\"}[5m])) / avg by (service_name)\n(max_over_time(mysql_global_variables_thread_cache_size{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_variables_thread_cache_size{service_name=~\"$service_name_list\"}[5m]))),1)",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2356,7 +2356,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "max(rate(mysql_global_status_queries{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_queries{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                    "expr": "max(rate(mysql_global_status_queries{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_queries{service_name=~\"$service_name_list\"}[5m]))",
                     "format": "time_series",
                     "interval": "5m",
                     "intervalFactor": 1,
@@ -2433,7 +2433,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "max(rate(mysql_global_status_questions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_questions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                    "expr": "max(rate(mysql_global_status_questions{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_questions{service_name=~\"$service_name_list\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -2501,7 +2501,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "clamp_max(max((rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / \n((rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) +\n(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) +\n(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))\n)),1)",
+                    "expr": "clamp_max(max((rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[5m])) / \n((rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[5m])) +\n(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[5m])) +\n(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[5m]))\n)),1)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -2569,7 +2569,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "clamp_max(max((rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / \n((rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) +\n(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) +\n(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))\n)),1)",
+                    "expr": "clamp_max(max((rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[5m])) / \n((rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[5m])) +\n(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[5m])) +\n(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[5m]))\n)),1)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -2645,7 +2645,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "clamp_max(max((rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / \n((rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) +\n(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) +\n(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))\n)),1)",
+                    "expr": "clamp_max(max((rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[5m])) / \n((rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[5m])) +\n(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[5m])) +\n(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[5m]))\n)),1)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -2744,7 +2744,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name)(rate(mysql_global_status_queries{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_queries{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name)(rate(mysql_global_status_queries{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_queries{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2754,7 +2754,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(rate(mysql_global_status_queries{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_queries{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(rate(mysql_global_status_queries{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_queries{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -2900,7 +2900,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "avg by (service_name)(rate(mysql_global_status_queries{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_quesries{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg by (service_name)(rate(mysql_global_status_queries{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_quesries{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2988,7 +2988,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name) (rate(mysql_global_status_questions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_questions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name) (rate(mysql_global_status_questions{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_questions{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -2999,7 +2999,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(rate(mysql_global_status_questions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_questions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(rate(mysql_global_status_questions{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_questions{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -3161,7 +3161,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "clamp_max(avg by (service_name)((rate(mysql_global_status_questions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_questions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / \n(rate(mysql_global_status_queries{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_queries{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))),1)",
+                            "expr": "clamp_max(avg by (service_name)((rate(mysql_global_status_questions{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_questions{service_name=~\"$service_name_list\"}[5m])) / \n(rate(mysql_global_status_queries{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_queries{service_name=~\"$service_name_list\"}[5m]))),1)",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -3256,7 +3256,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name) (rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name) (rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -3266,7 +3266,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -3427,7 +3427,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "clamp_max((avg by (service_name)(rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / \navg by (service_name)((rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) +\n(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) +\n(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))\n)),1)",
+                            "expr": "clamp_max((avg by (service_name)(rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[5m])) / \navg by (service_name)((rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[5m])) +\n(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[5m])) +\n(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[5m]))\n)),1)",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -3508,7 +3508,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name)(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name)(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -3518,7 +3518,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -3679,7 +3679,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "clamp_max((avg by (service_name)(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / \navg by (service_name)((rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) +\n(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) +\n(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))),1)",
+                            "expr": "clamp_max((avg by (service_name)(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[5m])) / \navg by (service_name)((rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[5m])) +\n(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[5m])) +\n(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[5m])))),1)",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -3766,7 +3766,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name)(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name)(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -3777,7 +3777,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -3938,7 +3938,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "clamp_max((avg by (service_name)(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / \navg by (service_name)((rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) +\n(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) +\n(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))),1)",
+                            "expr": "clamp_max((avg by (service_name)(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[5m])) / \navg by (service_name)((rate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_reads{service_name=~\"$service_name_list\"}[5m])) +\n(rate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_writes{service_name=~\"$service_name_list\"}[5m])) +\n(rate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_innodb_data_fsyncs{service_name=~\"$service_name_list\"}[5m])))),1)",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4026,7 +4026,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "max(rate(mysql_global_status_created_tmp_tables{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_created_tmp_tables{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_created_tmp_disk_tables{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_created_tmp_disk_tables{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_created_tmp_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_created_tmp_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                    "expr": "max(rate(mysql_global_status_created_tmp_tables{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_created_tmp_tables{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_created_tmp_disk_tables{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_created_tmp_disk_tables{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_created_tmp_files{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_created_tmp_files{service_name=~\"$service_name_list\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -4100,7 +4100,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "max(rate(mysql_global_status_select_full_join{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_full_join{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_select_full_range_join{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_full_range_join{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_select_range{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_range{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_select_range_check{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_range_check{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_select_scan{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_scan{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                    "expr": "max(rate(mysql_global_status_select_full_join{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_full_join{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_select_full_range_join{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_full_range_join{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_select_range{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_range{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_select_range_check{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_range_check{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_select_scan{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_scan{service_name=~\"$service_name_list\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -4174,7 +4174,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "max(rate(mysql_global_status_sort_rows{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_sort_rows{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_sort_range{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_sort_range{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_sort_merge_passes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_sort_merge_passes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_sort_scan{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_sort_scan{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                    "expr": "max(rate(mysql_global_status_sort_rows{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_sort_rows{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_sort_range{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_sort_range{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_sort_merge_passes{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_sort_merge_passes{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_sort_scan{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_sort_scan{service_name=~\"$service_name_list\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -4248,7 +4248,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "max(rate(mysql_global_status_aborted_connects{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_aborted_connects{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_aborted_clients{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_aborted_clients{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                    "expr": "max(rate(mysql_global_status_aborted_connects{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_aborted_connects{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_aborted_clients{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_aborted_clients{service_name=~\"$service_name_list\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -4322,7 +4322,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "max(rate(mysql_global_status_table_locks_immediate{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_locks_immediate{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_table_locks_waited{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_locks_waited{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                    "expr": "max(rate(mysql_global_status_table_locks_immediate{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_locks_immediate{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_table_locks_waited{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_locks_waited{service_name=~\"$service_name_list\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -4421,7 +4421,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name)(rate(mysql_global_status_created_tmp_tables{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_created_tmp_tables{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_created_tmp_disk_tables{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_created_tmp_disk_tables{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_created_tmp_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_created_tmp_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name)(rate(mysql_global_status_created_tmp_tables{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_created_tmp_tables{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_created_tmp_disk_tables{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_created_tmp_disk_tables{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_created_tmp_files{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_created_tmp_files{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4431,7 +4431,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(rate(mysql_global_status_created_tmp_tables{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_created_tmp_tables{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_created_tmp_disk_tables{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_created_tmp_disk_tables{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_created_tmp_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_created_tmp_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(rate(mysql_global_status_created_tmp_tables{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_created_tmp_tables{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_created_tmp_disk_tables{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_created_tmp_disk_tables{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_created_tmp_files{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_created_tmp_files{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4613,7 +4613,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "avg by (service_name)(rate(mysql_global_status_created_tmp_tables{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_created_tmp_tables{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_created_tmp_disk_tables{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_created_tmp_disk_tables{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_created_tmp_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_created_tmp_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg by (service_name)(rate(mysql_global_status_created_tmp_tables{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_created_tmp_tables{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_created_tmp_disk_tables{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_created_tmp_disk_tables{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_created_tmp_files{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_created_tmp_files{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4703,7 +4703,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name)(rate(mysql_global_status_select_full_join{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_full_join{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_select_full_range_join{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_full_range_join{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_select_range{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_range{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_select_range_check{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_range_check{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_select_scan{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_scan{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name)(rate(mysql_global_status_select_full_join{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_full_join{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_select_full_range_join{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_full_range_join{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_select_range{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_range{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_select_range_check{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_range_check{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_select_scan{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_scan{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4713,7 +4713,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(rate(mysql_global_status_select_full_join{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_full_join{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_select_full_range_join{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_full_range_join{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_select_range{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_range{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_select_range_check{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_range_check{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_select_scan{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_scan{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(rate(mysql_global_status_select_full_join{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_full_join{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_select_full_range_join{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_full_range_join{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_select_range{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_range{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_select_range_check{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_range_check{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_select_scan{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_scan{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4895,7 +4895,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "avg by (service_name)(rate(mysql_global_status_select_full_join{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_full_join{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_select_full_range_join{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_full_range_join{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_select_range{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_range{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_select_range_check{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_range_check{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_select_scan{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_select_scan{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg by (service_name)(rate(mysql_global_status_select_full_join{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_full_join{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_select_full_range_join{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_full_range_join{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_select_range{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_range{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_select_range_check{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_range_check{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_select_scan{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_select_scan{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -4998,7 +4998,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name)(rate(mysql_global_status_sort_rows{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_sort_rows{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_sort_range{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_sort_range{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_sort_merge_passes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_sort_merge_passes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_sort_scan{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_sort_scan{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name)(rate(mysql_global_status_sort_rows{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_sort_rows{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_sort_range{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_sort_range{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_sort_merge_passes{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_sort_merge_passes{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_sort_scan{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_sort_scan{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -5009,7 +5009,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(rate(mysql_global_status_sort_rows{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_sort_rows{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_sort_range{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_sort_range{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_sort_merge_passes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_sort_merge_passes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_sort_scan{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_sort_scan{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(rate(mysql_global_status_sort_rows{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_sort_rows{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_sort_range{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_sort_range{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_sort_merge_passes{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_sort_merge_passes{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_sort_scan{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_sort_scan{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -5191,7 +5191,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "avg by (service_name)(rate(mysql_global_status_sort_rows{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_sort_rows{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_sort_range{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_sort_range{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_sort_merge_passes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_sort_merge_passes{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_sort_scan{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_sort_scan{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg by (service_name)(rate(mysql_global_status_sort_rows{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_sort_rows{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_sort_range{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_sort_range{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_sort_merge_passes{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_sort_merge_passes{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_sort_scan{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_sort_scan{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -5293,7 +5293,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name)(rate(mysql_global_status_table_locks_immediate{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_locks_immediate{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_table_locks_waited{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_locks_waited{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name)(rate(mysql_global_status_table_locks_immediate{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_locks_immediate{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_table_locks_waited{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_locks_waited{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -5303,7 +5303,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(rate(mysql_global_status_table_locks_immediate{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_locks_immediate{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_table_locks_waited{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_locks_waited{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(rate(mysql_global_status_table_locks_immediate{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_locks_immediate{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_table_locks_waited{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_locks_waited{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -5485,7 +5485,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "avg by (service_name)(rate(mysql_global_status_table_locks_immediate{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_locks_immediate{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) +\nrate(mysql_global_status_table_locks_waited{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_locks_waited{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg by (service_name)(rate(mysql_global_status_table_locks_immediate{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_locks_immediate{service_name=~\"$service_name_list\"}[5m]) +\nrate(mysql_global_status_table_locks_waited{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_locks_waited{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -5575,7 +5575,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "max(rate(mysql_global_status_bytes_received{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_bytes_received{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                    "expr": "max(rate(mysql_global_status_bytes_received{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_bytes_received{service_name=~\"$service_name_list\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -5651,7 +5651,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "max(rate(mysql_global_status_bytes_sent{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_bytes_sent{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                    "expr": "max(rate(mysql_global_status_bytes_sent{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_bytes_sent{service_name=~\"$service_name_list\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -5727,7 +5727,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "clamp_max(max(1 - avg by (service_name)(max_over_time(mysql_global_status_qcache_free_memory{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_qcache_free_memory{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / avg by (service_name)\n(max_over_time(mysql_global_variables_query_cache_size{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_variables_query_cache_size{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))),1)",
+                    "expr": "clamp_max(max(1 - avg by (service_name)(max_over_time(mysql_global_status_qcache_free_memory{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_qcache_free_memory{service_name=~\"$service_name_list\"}[5m])) / avg by (service_name)\n(max_over_time(mysql_global_variables_query_cache_size{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_variables_query_cache_size{service_name=~\"$service_name_list\"}[5m]))),1)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -5803,7 +5803,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "clamp_max(max((rate(mysql_global_status_opened_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_opened_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / \n(max_over_time(mysql_global_status_open_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_open_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))),1)",
+                    "expr": "clamp_max(max((rate(mysql_global_status_opened_files{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_opened_files{service_name=~\"$service_name_list\"}[5m])) / \n(max_over_time(mysql_global_status_open_files{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_open_files{service_name=~\"$service_name_list\"}[5m]))),1)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -5879,7 +5879,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "clamp_max(max((max_over_time(mysql_global_status_open_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_open_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))) / on (service_name)\nmax((max_over_time(mysql_global_variables_open_files_limit{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_variables_open_files_limit{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))),1)",
+                    "expr": "clamp_max(max((max_over_time(mysql_global_status_open_files{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_open_files{service_name=~\"$service_name_list\"}[5m]))) / on (service_name)\nmax((max_over_time(mysql_global_variables_open_files_limit{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_variables_open_files_limit{service_name=~\"$service_name_list\"}[5m]))),1)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -5979,7 +5979,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name) (rate(mysql_global_status_bytes_received{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_bytes_received{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name) (rate(mysql_global_status_bytes_received{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_bytes_received{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -5990,7 +5990,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(rate(mysql_global_status_bytes_received{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_bytes_received{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(rate(mysql_global_status_bytes_received{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_bytes_received{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -6110,7 +6110,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name) (rate(mysql_global_status_bytes_sent{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_bytes_sent{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name) (rate(mysql_global_status_bytes_sent{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_bytes_sent{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -6120,7 +6120,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(rate(mysql_global_status_bytes_sent{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_bytes_sent{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(rate(mysql_global_status_bytes_sent{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_bytes_sent{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -6258,7 +6258,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "max_over_time(mysql_global_status_qcache_free_memory{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_qcache_free_memory{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])",
+                            "expr": "max_over_time(mysql_global_status_qcache_free_memory{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_qcache_free_memory{service_name=~\"$service_name_list\"}[5m])",
                             "format": "time_series",
                             "hide": true,
                             "interval": "$interval",
@@ -6272,7 +6272,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "avg by (service_name) (max_over_time(mysql_global_variables_query_cache_size{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_variables_query_cache_size{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) ",
+                            "expr": "avg by (service_name) (max_over_time(mysql_global_variables_query_cache_size{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_variables_query_cache_size{service_name=~\"$service_name_list\"}[5m])) ",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -6458,7 +6458,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "clamp_max((1 - (max_over_time(mysql_global_status_qcache_free_memory{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_qcache_free_memory{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / on (service_name)\n(max_over_time(mysql_global_variables_query_cache_size{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_variables_query_cache_size{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))),1)",
+                            "expr": "clamp_max((1 - (max_over_time(mysql_global_status_qcache_free_memory{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_qcache_free_memory{service_name=~\"$service_name_list\"}[5m])) / on (service_name)\n(max_over_time(mysql_global_variables_query_cache_size{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_variables_query_cache_size{service_name=~\"$service_name_list\"}[5m]))),1)",
                             "format": "time_series",
                             "hide": true,
                             "interval": "$interval",
@@ -6467,7 +6467,7 @@
                             "refId": "A"
                         },
                         {
-                            "expr": "clamp_max((1 - avg by (service_name)(max_over_time(mysql_global_status_qcache_free_memory{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_qcache_free_memory{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / avg by (service_name)\n(max_over_time(mysql_global_variables_query_cache_size{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_variables_query_cache_size{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))),1)",
+                            "expr": "clamp_max((1 - avg by (service_name)(max_over_time(mysql_global_status_qcache_free_memory{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_qcache_free_memory{service_name=~\"$service_name_list\"}[5m])) / avg by (service_name)\n(max_over_time(mysql_global_variables_query_cache_size{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_variables_query_cache_size{service_name=~\"$service_name_list\"}[5m]))),1)",
                             "interval": "$interval",
                             "legendFormat": "{{service_name}}",
                             "refId": "B"
@@ -6566,7 +6566,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name) (rate(mysql_global_status_opened_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_opened_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name) (rate(mysql_global_status_opened_files{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_opened_files{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -6576,7 +6576,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(rate(mysql_global_status_opened_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_opened_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(rate(mysql_global_status_opened_files{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_opened_files{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -6758,7 +6758,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "clamp_max(avg by (service_name) ((rate(mysql_global_status_opened_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_opened_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / (max_over_time(mysql_global_status_open_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_open_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))),1)",
+                            "expr": "clamp_max(avg by (service_name) ((rate(mysql_global_status_opened_files{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_opened_files{service_name=~\"$service_name_list\"}[5m])) / (max_over_time(mysql_global_status_open_files{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_open_files{service_name=~\"$service_name_list\"}[5m]))),1)",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -6845,7 +6845,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name) (max_over_time(mysql_global_status_open_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_open_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name) (max_over_time(mysql_global_status_open_files{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_open_files{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -6855,7 +6855,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(max_over_time(mysql_global_status_open_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_open_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(max_over_time(mysql_global_status_open_files{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_open_files{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -7037,7 +7037,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "clamp_max((avg by (service_name)(max_over_time(mysql_global_status_open_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_open_files{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / avg by (service_name)\n(max_over_time(mysql_global_variables_open_files_limit{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_variables_open_files_limit{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))),1)",
+                            "expr": "clamp_max((avg by (service_name)(max_over_time(mysql_global_status_open_files{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_open_files{service_name=~\"$service_name_list\"}[5m])) / avg by (service_name)\n(max_over_time(mysql_global_variables_open_files_limit{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_variables_open_files_limit{service_name=~\"$service_name_list\"}[5m]))),1)",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -7127,7 +7127,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "clamp_max(max(1 - (rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))/\n((rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))+\n(rate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))),1)",
+                    "expr": "clamp_max(max(1 - (rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name_list\"}[5m]))/\n((rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name_list\"}[5m]))+\n(rate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name_list\"}[5m])))),1)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -7203,7 +7203,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "min(max_over_time(mysql_global_variables_table_definition_cache{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_variables_table_definition_cache{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]) )",
+                    "expr": "min(max_over_time(mysql_global_variables_table_definition_cache{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_variables_table_definition_cache{service_name=~\"$service_name_list\"}[5m]) )",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -7279,7 +7279,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "max(rate(mysql_global_status_opened_table_definitions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_opened_table_definitions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                    "expr": "max(rate(mysql_global_status_opened_table_definitions{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_opened_table_definitions{service_name=~\"$service_name_list\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -7354,7 +7354,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "max(max_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                    "expr": "max(max_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name_list\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -7430,7 +7430,7 @@
                     "calculatedInterval": "10m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "clamp_max(max((max_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))) / on (service_name)\nmax((max_over_time(mysql_global_variables_table_definition_cache{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_variables_table_definition_cache{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))),1)",
+                    "expr": "clamp_max(max((max_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name_list\"}[5m]))) / on (service_name)\nmax((max_over_time(mysql_global_variables_table_definition_cache{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_variables_table_definition_cache{service_name=~\"$service_name_list\"}[5m]))),1)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -7532,7 +7532,7 @@
                     "steppedLine": false,
                     "targets": [
                         {
-                            "expr": "bottomk(5,avg by (service_name)((rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))/\n((rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))+\n(rate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))))",
+                            "expr": "bottomk(5,avg by (service_name)((rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name_list\"}[5m]))/\n((rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name_list\"}[5m]))+\n(rate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name_list\"}[5m])))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -7541,7 +7541,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg((rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))/\n((rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))+\n(rate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))))",
+                            "expr": "avg((rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name_list\"}[5m]))/\n((rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name_list\"}[5m]))+\n(rate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name_list\"}[5m]))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -7725,7 +7725,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "clamp_max((1 - avg by (service_name)(rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))/\navg by (service_name)((rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))+\n(rate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))),1)",
+                            "expr": "clamp_max((1 - avg by (service_name)(rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name_list\"}[5m]))/\navg by (service_name)((rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name_list\"}[5m]))+\n(rate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name_list\"}[5m])))),1)",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -7816,7 +7816,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "avg by (service_name) (max_over_time(mysql_global_variables_table_definition_cache{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_variables_table_definition_cache{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) ",
+                            "expr": "avg by (service_name) (max_over_time(mysql_global_variables_table_definition_cache{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_variables_table_definition_cache{service_name=~\"$service_name_list\"}[5m])) ",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -7941,7 +7941,7 @@
                     "steppedLine": false,
                     "targets": [
                         {
-                            "expr": "topk(5,avg by (service_name) (rate(mysql_global_status_opened_table_definitions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_opened_table_definitions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name) (rate(mysql_global_status_opened_table_definitions{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_opened_table_definitions{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -7951,7 +7951,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(rate(mysql_global_status_opened_table_definitions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or \nirate(mysql_global_status_opened_table_definitions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(rate(mysql_global_status_opened_table_definitions{service_name=~\"$service_name_list\"}[$interval]) or \nirate(mysql_global_status_opened_table_definitions{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -8076,7 +8076,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "topk(5,avg by (service_name) (max_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])))",
+                            "expr": "topk(5,avg by (service_name) (max_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name_list\"}[5m])))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -8087,7 +8087,7 @@
                             "step": 20
                         },
                         {
-                            "expr": "avg(max_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))",
+                            "expr": "avg(max_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name_list\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -8269,7 +8269,7 @@
                     "pluginVersion": "2.1.5",
                     "targets": [
                         {
-                            "expr": "clamp_max((avg by (service_name)(max_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m])) / avg by (service_name)\n(max_over_time(mysql_global_variables_table_definition_cache{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[$interval]) or\nmax_over_time(mysql_global_variables_table_definition_cache{service_name=~\"$service_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\"}[5m]))),1)",
+                            "expr": "clamp_max((avg by (service_name)(max_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_status_open_table_definitions{service_name=~\"$service_name_list\"}[5m])) / avg by (service_name)\n(max_over_time(mysql_global_variables_table_definition_cache{service_name=~\"$service_name_list\"}[$interval]) or\nmax_over_time(mysql_global_variables_table_definition_cache{service_name=~\"$service_name_list\"}[5m]))),1)",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -8473,6 +8473,7 @@
             },
             {
                 "allFormat": "glob",
+                "allValue": ".+",
                 "current": {
                     "selected": false,
                     "text": "All",
@@ -8497,11 +8498,11 @@
                 "skipUrlSync": false,
                 "sort": 5,
                 "type": "query",
-                "useTags": false,
-                "allValue": ".+"
+                "useTags": false
             },
             {
                 "allFormat": "glob",
+                "allValue": ".+",
                 "current": {
                     "selected": false,
                     "text": "All",
@@ -8526,8 +8527,37 @@
                 "skipUrlSync": false,
                 "sort": 5,
                 "type": "query",
-                "useTags": false,
-                "allValue": ".+"
+                "useTags": false
+            },
+            {
+                "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "datasource": "Metrics",
+                "definition": "label_values(mysql_up{region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\",service_name=~\"$service_name\"}, service_name)",
+                "description": "Every Service Name that matches the dashboard filters, expanded for panel queries. service_name uses allValue \".+\" to keep request URLs short; see PMM-15609.",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Service Name list",
+                "multi": true,
+                "name": "service_name_list",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(mysql_up{region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\",node_name=~\"$node_name\",service_name=~\"$service_name\"}, service_name)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": true,
+                "sort": 5,
+                "type": "query"
             },
             {
                 "current": {

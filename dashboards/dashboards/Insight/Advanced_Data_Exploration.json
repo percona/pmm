@@ -194,7 +194,7 @@
             "targets": [
                 {
                     "exemplar": false,
-                    "expr": "avg(60/count_over_time($metric{node_name=~\"$node_name\"}[1m]))",
+                    "expr": "avg(60/count_over_time($metric{node_name=~\"$node_name_list\"}[1m]))",
                     "format": "table",
                     "instant": true,
                     "interval": "",
@@ -270,7 +270,7 @@
                     "calculatedInterval": "10s",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "$metric{node_name=~\"$node_name\"}",
+                    "expr": "$metric{node_name=~\"$node_name_list\"}",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -383,7 +383,7 @@
                     "calculatedInterval": "2m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "rate($metric{node_name=~\"$node_name\"}[$interval])",
+                    "expr": "rate($metric{node_name=~\"$node_name_list\"}[$interval])",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -479,7 +479,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "count_over_time($metric{node_name=~\"$node_name\"}[$interval])",
+                    "expr": "count_over_time($metric{node_name=~\"$node_name_list\"}[$interval])",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -597,7 +597,7 @@
             },
             "targets": [
                 {
-                    "expr": "$metric{node_name=~\"$node_name\"}",
+                    "expr": "$metric{node_name=~\"$node_name_list\"}",
                     "format": "table",
                     "intervalFactor": 2,
                     "refId": "A",
@@ -718,6 +718,7 @@
             },
             {
                 "allFormat": "pipe",
+                "allValue": ".*",
                 "current": {
                     "selected": false,
                     "text": "All",
@@ -741,8 +742,37 @@
                 "skipUrlSync": false,
                 "sort": 5,
                 "type": "query",
-                "useTags": false,
-                "allValue": ".*"
+                "useTags": false
+            },
+            {
+                "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "datasource": "Metrics",
+                "definition": "label_values($metric{node_name=~\"$node_name\"}, node_name)",
+                "description": "Every Node Name that matches the dashboard filters, expanded for panel queries. node_name uses allValue \".+\" to keep request URLs short; see PMM-15609.",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Node Name list",
+                "multi": true,
+                "name": "node_name_list",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values($metric{node_name=~\"$node_name\"}, node_name)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": true,
+                "sort": 5,
+                "type": "query"
             },
             {
                 "datasource": "Metrics",

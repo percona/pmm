@@ -208,14 +208,14 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "topk(5, avg by (service_name) (irate(mysql_global_status_questions{service_type=~\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})))",
+                    "expr": "topk(5, avg by (service_name) (irate(mysql_global_status_questions{service_type=~\"$service_type\",service_name=~\"$service_name_list\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})))",
                     "legendFormat": "__auto",
                     "range": true,
                     "refId": "A"
                 },
                 {
                     "editorMode": "code",
-                    "expr": "topk(5, avg by (service_name) (rate(pg_stat_database_xact_commit{service_type=~\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[$interval])) or \navg by (service_name) (irate(pg_stat_database_xact_commit{service_type=~\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[5m])))",
+                    "expr": "topk(5, avg by (service_name) (rate(pg_stat_database_xact_commit{service_type=~\"$service_type\",service_name=~\"$service_name_list\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[$interval])) or \navg by (service_name) (irate(pg_stat_database_xact_commit{service_type=~\"$service_type\",service_name=~\"$service_name_list\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[5m])))",
                     "hide": false,
                     "legendFormat": "__auto",
                     "range": true,
@@ -223,7 +223,7 @@
                 },
                 {
                     "editorMode": "code",
-                    "expr": "topk(5, avg by (service_name) (rate(mongodb_op_counters_total{service_type=~\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\",type!=\"command\"}[$interval])) or \navg by (service_name) (irate(mongodb_op_counters_total{service_type=~\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\",type!=\"command\"}[5m])))",
+                    "expr": "topk(5, avg by (service_name) (rate(mongodb_op_counters_total{service_type=~\"$service_type\",service_name=~\"$service_name_list\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\",type!=\"command\"}[$interval])) or \navg by (service_name) (irate(mongodb_op_counters_total{service_type=~\"$service_type\",service_name=~\"$service_name_list\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\",type!=\"command\"}[5m])))",
                     "hide": false,
                     "legendFormat": "__auto",
                     "range": true,
@@ -365,7 +365,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "sum(rate(pg_stat_database_xact_commit{service_type=\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\", datname!~\"template1|template0\"}))",
+                    "expr": "sum(rate(pg_stat_database_xact_commit{service_type=\"$service_type\",service_name=~\"$service_name_list\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\", datname!~\"template1|template0\"}))",
                     "legendFormat": "__auto",
                     "range": true,
                     "refId": "A"
@@ -561,7 +561,7 @@
                         }
                     },
                     "queryType": "sql",
-                    "rawSql": "SELECT period_start, service_name, avg(m_query_time_sum) \"Execution_time\" FROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' AND ($__conditionalAll(service_name IN (${service_name:singlequote}), $service_name) AND $__conditionalAll(environment IN (${environment:singlequote}), $environment) AND $__conditionalAll(cluster IN (${cluster:singlequote}), $cluster) AND $__conditionalAll(node_name IN (${node_name:singlequote}), $node_name)) GROUP BY period_start, service_name ORDER BY period_start ASC LIMIT 10000",
+                    "rawSql": "SELECT period_start, service_name, avg(m_query_time_sum) \"Execution_time\" FROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' AND (service_name IN ($service_name_list)) AND (node_name IN ($node_name)) AND (cluster IN ($cluster)) AND (environment IN ($environment)) GROUP BY period_start, service_name ORDER BY period_start ASC LIMIT 10000",
                     "refId": "A",
                     "selectedFormat": 0
                 },
@@ -585,7 +585,7 @@
                     },
                     "pluginVersion": "4.4.0",
                     "queryType": "timeseries",
-                    "rawSql": "SELECT period_start, service_name, avgIf(m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) \"Execution_time\"\nFROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' AND ($__conditionalAll(service_name IN (${service_name:singlequote}), $service_name) AND $__conditionalAll(environment IN (${environment:singlequote}), $environment) AND $__conditionalAll(cluster IN (${cluster:singlequote}), $cluster) AND $__conditionalAll(node_name IN (${node_name:singlequote}), $node_name)) GROUP BY period_start, service_name ORDER BY period_start ASC ",
+                    "rawSql": "SELECT period_start, service_name, avgIf(m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) \"Execution_time\"\nFROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' AND (service_name IN ($service_name_list)) GROUP BY period_start, service_name ORDER BY period_start ASC ",
                     "refId": "B"
                 }
             ],
@@ -649,7 +649,7 @@
                 {
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "bottomk(3,range_last(mysql_global_status_uptime{service_type=\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[30s]))",
+                    "expr": "bottomk(3,range_last(mysql_global_status_uptime{service_type=\"$service_type\",service_name=~\"$service_name_list\"}[30s]))",
                     "format": "time_series",
                     "hide": false,
                     "instant": false,
@@ -659,7 +659,7 @@
                 },
                 {
                     "editorMode": "code",
-                    "expr": "bottomk(3,range_last(pg_postmaster_uptime_seconds{service_type=\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[30s]))",
+                    "expr": "bottomk(3,range_last(pg_postmaster_uptime_seconds{service_type=\"$service_type\",service_name=~\"$service_name_list\"}[30s]))",
                     "hide": false,
                     "legendFormat": "{{service_name}}",
                     "range": true,
@@ -667,7 +667,7 @@
                 },
                 {
                     "editorMode": "code",
-                    "expr": "bottomk(3,range_last(mongodb_instance_uptime_seconds{service_type=\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[30s]))",
+                    "expr": "bottomk(3,range_last(mongodb_instance_uptime_seconds{service_type=\"$service_type\",service_name=~\"$service_name_list\"}[30s]))",
                     "hide": false,
                     "legendFormat": "{{service_name}}",
                     "range": true,
@@ -927,7 +927,7 @@
                     },
                     "pluginVersion": "4.4.0",
                     "queryType": "table",
-                    "rawSql": "SELECT argMaxIf(period_start, m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) as time, \r\nservice_name \"Service\", username, fingerprint \"Query\", sum(num_queries) \"Calls\", sum(m_query_time_sum) / nullIf(sum(m_query_time_cnt), 0) \"Execution_time\" FROM pmm.\"metrics\" WHERE ( period_start  >= $__fromTime AND period_start <= $__toTime ) AND ( service_type LIKE '%$service_type%' ) AND ($__conditionalAll(service_name IN (${service_name:singlequote}), $service_name) AND $__conditionalAll(environment IN (${environment:singlequote}), $environment) AND $__conditionalAll(cluster IN (${cluster:singlequote}), $cluster) AND $__conditionalAll(node_name IN (${node_name:singlequote}), $node_name)) GROUP BY service_name, username, fingerprint HAVING sum(m_query_time_cnt) > 0 ORDER BY Execution_time DESC LIMIT 500",
+                    "rawSql": "SELECT argMaxIf(period_start, m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) as time, \r\nservice_name \"Service\", username, fingerprint \"Query\", sum(num_queries) \"Calls\", sum(m_query_time_sum) / nullIf(sum(m_query_time_cnt), 0) \"Execution_time\" FROM pmm.\"metrics\" WHERE ( period_start  >= $__fromTime AND period_start <= $__toTime ) AND ( service_type LIKE '%$service_type%' ) AND (service_name IN ($service_name_list)) GROUP BY service_name, username, fingerprint HAVING sum(m_query_time_cnt) > 0 ORDER BY Execution_time DESC LIMIT 500",
                     "refId": "A"
                 }
             ],
@@ -1150,6 +1150,7 @@
                 "type": "query"
             },
             {
+                "allValue": ".+",
                 "current": {
                     "text": "All",
                     "value": [
@@ -1170,8 +1171,36 @@
                 "refresh": 1,
                 "regex": "",
                 "sort": 5,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
+            },
+            {
+                "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "definition": "label_values(pg_up{node_name=~\"$node_name\", environment=~\"$environment\", cluster=~\"$cluster\",service_name=~\"$service_name\"}, service_name)",
+                "description": "Every Service Name that matches the dashboard filters, expanded for panel queries. service_name uses allValue \".+\" to keep request URLs short; see PMM-15609.",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Service Name list",
+                "multi": true,
+                "name": "service_name_list",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(pg_up{node_name=~\"$node_name\", environment=~\"$environment\", cluster=~\"$cluster\",service_name=~\"$service_name\"}, service_name)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": true,
+                "sort": 5,
+                "type": "query"
             }
         ]
     },
