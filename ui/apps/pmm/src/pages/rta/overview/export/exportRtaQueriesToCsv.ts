@@ -138,6 +138,12 @@ export const mapQueryToCsvRow = (query: QueryData): CsvRow => {
     );
   }
 
+  // Flattening would let PostgreSQL's own query_id overwrite operation_id, the backend pid.
+  if (query.postgresqlPayload) {
+    row[toCsvHeader('queryId')] = toCsvValue(query.queryId);
+    row[toCsvHeader('pgQueryId')] = toCsvValue(query.postgresqlPayload.queryId);
+  }
+
   const blocker = soleBlocker(query);
   if (blocker) {
     row[toCsvHeader('blockingConnId')] = toCsvValue(blocker.blockingConnId);

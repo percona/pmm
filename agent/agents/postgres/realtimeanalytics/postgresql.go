@@ -46,8 +46,8 @@ import (
 //   - Parallel workers are left out; their leader is listed and carries the query.
 //   - query_id (14+) and pg_locks.waitstart (14+) are read through to_jsonb, so one query serves 12 and 13 too.
 //   - For sessions idle in transaction the duration is the transaction's, not the last query's.
-//   - Sessions of other users without pg_read_all_stats have a NULL state; they are kept, and show
-//     PostgreSQL's "<insufficient privilege>" as their query.
+//   - Without pg_read_all_stats, other users' sessions have a NULL backend_type, so they are left out;
+//     Run reports that in the session status.
 //   - The whole pg_stat_activity row goes to the raw data, pretty-printed as for MySQL and without the blk
 //     helper column; its columns differ between versions.
 //
@@ -59,7 +59,7 @@ SELECT w.pid, jsonb_pretty(to_jsonb(w) - 'blk'), COALESCE(w.datname, ''), COALES
   COALESCE(to_jsonb(w)->>'query_id', ''), w.xact_start, w.query_start,
   EXTRACT(EPOCH FROM now() - CASE WHEN w.state LIKE 'idle in transaction%' THEN w.xact_start ELSE w.query_start END),
   COALESCE(octet_length(w.query) >= s.size - 4, false),
-  w.blk IS NOT NULL,
+  COALESCE(cardinality(w.blk) > 0, false),
   (SELECT EXTRACT(EPOCH FROM now() - min((to_jsonb(l)->>'waitstart')::timestamptz))
      FROM pg_locks l WHERE w.blk IS NOT NULL AND l.pid = w.pid AND NOT l.granted),
   (SELECT json_agg(json_build_object(

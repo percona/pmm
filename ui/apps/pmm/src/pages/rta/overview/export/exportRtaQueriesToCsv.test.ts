@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   TEST_MONGO_DB_QUERY_DATA,
   TEST_MYSQL_QUERY_DATA,
+  TEST_POSTGRESQL_QUERY_DATA,
 } from 'utils/testStubs';
 import { BlockedStatus, QueryData } from 'types/rta.types';
 import {
@@ -87,6 +88,13 @@ describe('exportRtaQueriesToCsv', () => {
       service_id: 'service-1',
       query_text: '{ find: "mycollection", filter: { status: "active" } }',
     });
+  });
+
+  it('keeps the PostgreSQL pid as operation_id and exports query_id apart', () => {
+    const row = mapQueryToCsvRow(TEST_POSTGRESQL_QUERY_DATA);
+
+    expect(row.operation_id).toBe('42');
+    expect(row.pg_query_id).toBe('7063673311987853849');
   });
 
   it('maps every MySQL query field to a csv column, flattening the payload', () => {
