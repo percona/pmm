@@ -350,9 +350,7 @@ export const AutomationsScansTab = () => {
     limit: isBoundedPeriod(period) ? WINDOWED_RUN_LIMIT : DEFAULT_RUN_LIMIT,
   });
   const rows = useMemo(() => runs ?? [], [runs]);
-  // `?expand=<run_id>` unfolds that scan's row on landing, the same parameter the
-  // installs tab reads. The Nodes page links here with it from a failing node, so the
-  // reader lands on the scan that produced the error rather than on a list to search.
+  // `?expand=<run_id>` unfolds that scan's row on landing.
   const expandRunId = params.get('expand');
 
   const setPeriod = (next: OmRunPeriod) =>

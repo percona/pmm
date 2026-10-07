@@ -215,7 +215,10 @@ export function isFailing(host: {
 export function scanErrorCode(
   code: string | null | undefined
 ): OmScanErrorCode {
-  return code != null && Object.hasOwn(SCAN_ERROR_KIND, code)
+  // hasOwnProperty rather than Object.hasOwn: the PMM app compiles this plugin
+  // against a library without ES2022's Object.hasOwn.
+  return code != null &&
+    Object.prototype.hasOwnProperty.call(SCAN_ERROR_KIND, code)
     ? (code as OmScanErrorCode)
     : 'unknown';
 }
