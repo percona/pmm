@@ -2918,10 +2918,12 @@ export interface paths {
      *     Render ``footer_text`` from the shared :func:`render_footer_text` helper so
      *     the JSON endpoint and the legacy Jinja sidebar footer cannot drift. The
      *     helper reads the hot ``FOOTER_TEMPLATE`` setting per request, so a live
-     *     ``EXTENSIONS__FOOTER_TEMPLATE`` override is reflected without a restart. Access is
-     *     gated by the router-level ``IsApiAuthenticated`` dependency.
+     *     ``EXTENSIONS__FOOTER_TEMPLATE`` override is reflected without a restart.
+     *     ``version`` is the side-car's own version string, identical to the OpenAPI
+     *     document ``info.version``. Access is gated by the router-level
+     *     ``IsApiAuthenticated`` dependency.
      *
-     *     :return: The rendered footer text.
+     *     :return: The rendered footer text and the side-car version.
      */
     get: operations['extensions_get_app_info_api_extensions_app_info__get'];
     put?: never;
