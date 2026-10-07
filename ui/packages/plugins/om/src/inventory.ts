@@ -24,12 +24,14 @@
  * `toClusterRows` and `toServiceRows` already follow.
  */
 
+import { isRunActive } from './api';
 import { SCAN_ERROR_KIND } from './constants';
 import type {
   OmHostDatabaseState,
   OmHostRow,
   OmInventoryFreshness,
   OmInventoryHost,
+  OmInventoryRun,
   OmInventoryService,
   OmRepoReachability,
   OmScanErrorCode,
@@ -331,6 +333,54 @@ export type OmRunPeriod = (typeof RUN_PERIODS)[number]['id'];
 const RUN_PERIOD_BY_ID: Record<string, OmRunPeriodDef> = Object.fromEntries(
   RUN_PERIODS.map((def) => [def.id, def])
 );
+
+/** Consecutive scans that ended the same way, newest first. */
+export interface OmRunGroup {
+  /** The newest run's id, which keys the group's row. */
+  id: string;
+  runs: OmInventoryRun[];
+}
+
+/** What two scans must share to be one row: how they ended, over what, and where. */
+function outcomeKey(run: OmInventoryRun): string {
+  return JSON.stringify([
+    run.status,
+    [...run.scope].sort(),
+    (run.failing_nodes ?? []).map((node) => node.node_id),
+    run.error ?? null,
+  ]);
+}
+
+/**
+ * Collapse consecutive scans with the same outcome into one group, in the history's
+ * own newest-first order.
+ *
+ * Pedro's rule (PMM-15299, 2026-10-07): the same status and the same failing nodes
+ * make one row, so a node broken since Tuesday is one row, not 144 a day. The scope
+ * and a run-level error count too, so a one-node scan never hides among full ones.
+ * Only *consecutive* runs merge: a recovery in between starts a new group, which is
+ * what keeps "it broke, it recovered, it broke again" readable. A running scan always
+ * stands alone - its outcome is not known yet.
+ */
+export function groupRuns(runs: OmInventoryRun[]): OmRunGroup[] {
+  const groups: OmRunGroup[] = [];
+  for (const run of runs) {
+    const last = groups[groups.length - 1];
+    const head = last?.runs[0];
+    if (
+      last &&
+      head &&
+      !isRunActive(head.status) &&
+      !isRunActive(run.status) &&
+      outcomeKey(head) === outcomeKey(run)
+    ) {
+      last.runs.push(run);
+    } else {
+      groups.push({ id: run.run_id, runs: [run] });
+    }
+  }
+  return groups;
+}
 
 /** How many runs to ask for when the window is unbounded (`all`). */
 export const DEFAULT_RUN_LIMIT = 25;
