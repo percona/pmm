@@ -39,6 +39,7 @@ vi.mock('../src/inventoryHooks', () => ({
   useRefreshInventory,
   useIsEstateRefreshing,
   useActiveInventoryRun: () => ({ run: undefined, updatedAt: 0 }),
+  useScanInFlight: () => ({ run: undefined, expectedSeconds: null }),
 }));
 
 const run = (run_id: string): OmInventoryRun => ({

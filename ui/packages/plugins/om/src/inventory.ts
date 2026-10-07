@@ -25,11 +25,13 @@
  */
 
 import { SCAN_ERROR_KIND } from './constants';
+import { runDurationSeconds } from './format';
 import type {
   OmHostDatabaseState,
   OmHostRow,
   OmInventoryFreshness,
   OmInventoryHost,
+  OmInventoryRun,
   OmInventoryService,
   OmRepoReachability,
   OmScanErrorCode,
@@ -331,6 +333,48 @@ export type OmRunPeriod = (typeof RUN_PERIODS)[number]['id'];
 const RUN_PERIOD_BY_ID: Record<string, OmRunPeriodDef> = Object.fromEntries(
   RUN_PERIODS.map((def) => [def.id, def])
 );
+
+/** How many recent scans {@link expectedScanSeconds} takes the middle of. */
+const EXPECTED_FROM_RUNS = 5;
+
+/**
+ * How long a scan over `scope` usually takes: the median of the most recent finished
+ * scans over the same nodes, or null when there are none.
+ *
+ * The same scope, because a one-node scan and a full one take very different times.
+ * The median, so one scan that sat behind a stuck node does not set the expectation.
+ * A scan that failed outright is left out: it ended early or timed out, and either
+ * way says nothing about how long one takes.
+ */
+export function expectedScanSeconds(
+  runs: OmInventoryRun[],
+  scope: string[]
+): number | null {
+  const key = [...scope].sort().join(',');
+  const durations: number[] = [];
+  for (const run of runs) {
+    if (durations.length === EXPECTED_FROM_RUNS) {
+      break;
+    }
+    const seconds = runDurationSeconds(run.start_time, run.end_time);
+    if (
+      seconds != null &&
+      (run.status === 'RUN_STATUS_SUCCESS' ||
+        run.status === 'RUN_STATUS_PARTIAL') &&
+      [...run.scope].sort().join(',') === key
+    ) {
+      durations.push(seconds);
+    }
+  }
+  if (durations.length === 0) {
+    return null;
+  }
+  durations.sort((a, b) => a - b);
+  const middle = Math.floor(durations.length / 2);
+  return durations.length % 2 === 1
+    ? durations[middle]
+    : (durations[middle - 1] + durations[middle]) / 2;
+}
 
 /** How many runs to ask for when the window is unbounded (`all`). */
 export const DEFAULT_RUN_LIMIT = 25;

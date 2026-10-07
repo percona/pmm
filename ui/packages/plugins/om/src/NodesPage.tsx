@@ -54,6 +54,7 @@ import {
 } from './constants';
 import { EmptyState } from './components/EmptyState';
 import { RowOverflowMenu } from './components/RowOverflowMenu';
+import { ScanProgress } from './components/ScanProgress';
 import { NotOnboardedDialog } from './components/NotOnboardedDialog';
 import { OmHeader } from './components/OmHeader';
 import { Unavailable } from './components/Unavailable';
@@ -1091,6 +1092,7 @@ export const NodesPage = () => {
         actions={
           <Stack direction="row" alignItems="center" gap={2}>
             <HostFilterChips value={hostFilter} onChange={setHostFilter} />
+            <ScanProgress />
             <Tooltip title="Scan every node. Starts one job per node and takes tens of seconds.">
               <Box component="span">
                 <Button
