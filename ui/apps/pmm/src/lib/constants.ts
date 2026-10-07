@@ -12,6 +12,7 @@ export const PMM_LOGIN_URL = `${GRAFANA_SUB_PATH}/login`;
 export const PMM_SETTINGS_URL = `${PMM_BASE_PATH}/settings`;
 export const PMM_NEW_NAV_UPDATES_PATH = `${PMM_NEW_NAV_PATH}/updates`;
 export const PMM_ADD_SERVICE_PATH = `${PMM_NEW_NAV_PATH}/add-instance`;
+export const PMM_INVENTORY_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/inventory`;
 export const PMM_INVENTORY_SERVICES_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/services`;
 export const PMM_SUPPORT_URL = 'https://per.co.na/pmm_documentation';
 export const PMM_DOCS_UPDATES_URL = 'https://per.co.na/pmm-upgrade';

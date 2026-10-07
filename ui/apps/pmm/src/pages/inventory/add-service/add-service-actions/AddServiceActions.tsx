@@ -5,7 +5,11 @@ import { Link } from 'react-router-dom';
 import { Messages } from './AddServiceActions.messages';
 import type { AddServiceActionsProps } from './AddServiceActions.types';
 
-export const AddServiceActions: FC<AddServiceActionsProps> = ({ cancelTo }) => (
+export const AddServiceActions: FC<AddServiceActionsProps> = ({
+  cancelTo,
+  submitLabel,
+  isSubmitting,
+}) => (
   <Stack direction="row" justifyContent="flex-end" gap={1} sx={{ mt: 3 }}>
     <Button
       variant="outlined"
@@ -15,5 +19,15 @@ export const AddServiceActions: FC<AddServiceActionsProps> = ({ cancelTo }) => (
     >
       {Messages.cancel}
     </Button>
+    {submitLabel && (
+      <Button
+        type="submit"
+        variant="contained"
+        disabled={isSubmitting}
+        data-testid="add-service-submit"
+      >
+        {submitLabel}
+      </Button>
+    )}
   </Stack>
 );
