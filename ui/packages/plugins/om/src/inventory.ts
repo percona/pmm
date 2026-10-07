@@ -120,6 +120,17 @@ export function repoReachability(
   };
 }
 
+/**
+ * Read the free space the last scan measured at the default data path, or at its
+ * nearest existing ancestor on a host where it does not exist yet.
+ *
+ * @returns bytes free, or null when this host has never reported it.
+ */
+export function dataDirFreeBytes(host: OmInventoryHost): number | null {
+  const free = host.observed?.data_dir_free_bytes;
+  return typeof free === 'number' ? free : null;
+}
+
 /** Build the Hosts table's rows, with everything the page derives from each host. */
 export function toHostRows(hosts: OmInventoryHost[] | undefined): OmHostRow[] {
   if (!hosts) {
