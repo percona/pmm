@@ -1,0 +1,47 @@
+---
+templates:
+  - name: pmm_victoriametrics_down
+    version: 1
+    summary: PMM VictoriaMetrics is down
+    # The job selector covers both topologies: a standalone PMM Server scrapes a single
+    # 'victoriametrics' target, while a clustered deployment runs vmselect, vminsert,
+    # vmstorage and vmagent as separate jobs. Where none of them are scraped the expression
+    # returns nothing and this alert stays silent rather than firing falsely.
+    # This alert cannot detect VictoriaMetrics being down completely, because the rule is
+    # evaluated by querying VictoriaMetrics itself. See the coverage limitations in the docs.
+    #
+    # One alert per component, however many pods it runs. A standalone PMM Server is labelled
+    # node_name from instance, its node name. In a clustered deployment the operator-managed pods
+    # (they carry a pod label) are summed per job into one series named service_name=<job>: A
+    # counts the pods that are down and B all of them, so the summary can say how many are
+    # affected. A and B must keep the same labels in both branches, or Grafana cannot pair
+    # $values.B with the alert.
+    queries:
+      - ref_id: A
+        expr: |-
+          label_replace(sum by(job) (last_over_time(up{job=~"vmselect|vminsert|vmstorage|vmagent",pod!=""}[2m]) == bool 0), "service_name", "$1", "job", "(.*)")
+          or label_replace(last_over_time(up{job="victoriametrics",pod=""}[2m]) == bool 0, "node_name", "$1", "instance", "(.*)")
+      - ref_id: B
+        expr: |-
+          label_replace(count by(job) (last_over_time(up{job=~"vmselect|vminsert|vmstorage|vmagent",pod!=""}[2m])), "service_name", "$1", "job", "(.*)")
+          or label_replace(count by(job, instance) (last_over_time(up{job="victoriametrics",pod=""}[2m])), "node_name", "$1", "instance", "(.*)")
+    expressions:
+      - ref_id: C
+        type: math
+        expression: "$A > 0"
+    condition: C
+    for: 5m
+    severity: critical
+    annotations:
+      summary: "{{ if $labels.node_name }}PMM VictoriaMetrics is down on '{{ $labels.node_name }}'{{ else }}{{ $values.A.Value }} of {{ $values.B.Value }} PMM VictoriaMetrics '{{ $labels.job }}' pods are down{{ end }}"
+      description: |-
+        {{ if $labels.node_name }}VictoriaMetrics on '{{ $labels.node_name }}' is not responding.{{ else }}{{ $values.A.Value }} of the {{ $values.B.Value }} pods of the VictoriaMetrics component '{{ $labels.job }}' are not responding.{{ end }}
+        Depending on which component is affected, PMM may stop storing new metrics, stop answering
+        queries, or both. Dashboards and metric-based alerts become unreliable while this lasts.
+
+        Remediation steps:
+          1. Find the process or pod of that component that is not running (in Kubernetes, list the pods of that component) and restart it.
+          2. Check free disk space. VictoriaMetrics stops accepting writes when its storage fills up.
+          3. Review the component's logs for out-of-memory kills, which are the most common cause under load.
+          4. Confirm PMM Server can reach the address configured in PMM_VM_URL.
+          5. Once it is back, confirm metrics are arriving again on any dashboard.
