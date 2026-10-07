@@ -80,7 +80,7 @@ type Server struct {
 	retentionFromEnv    time.Duration
 	retentionLoggedDays int
 
-	// configM serializes UpdateConfigurations; appliedSettings holds the settings it last applied, as JSON.
+	// configM serializes applyConfigurations; appliedSettings holds the settings it last applied, as JSON.
 	configM         sync.Mutex
 	appliedSettings []byte
 
