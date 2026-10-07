@@ -24,6 +24,7 @@ import {
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { OmApiError } from '../src/api';
 import { NodesPage } from '../src/NodesPage';
 import type { OmInventoryHost } from '../src/types';
 
@@ -33,12 +34,14 @@ const {
   useIsEstateRefreshing,
   useForgetHost,
   useOmBootstrapRuns,
+  useActiveInventoryRun,
 } = vi.hoisted(() => ({
   useOmInventoryHosts: vi.fn(),
   useRefreshInventory: vi.fn(),
   useIsEstateRefreshing: vi.fn(),
   useForgetHost: vi.fn(),
   useOmBootstrapRuns: vi.fn(),
+  useActiveInventoryRun: vi.fn(),
 }));
 
 vi.mock('../src/inventoryHooks', () => ({
@@ -47,6 +50,7 @@ vi.mock('../src/inventoryHooks', () => ({
   useIsEstateRefreshing,
   useForgetHost,
   useOmBootstrapRuns,
+  useActiveInventoryRun,
 }));
 
 const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
@@ -118,6 +122,7 @@ describe('NodesPage', () => {
       isError: false,
     });
     useIsEstateRefreshing.mockReturnValue(false);
+    useActiveInventoryRun.mockReturnValue({ run: undefined, updatedAt: 0 });
     useForgetHost.mockReturnValue({ mutateAsync: forgetOne, isPending: false });
     useOmBootstrapRuns.mockReturnValue({ data: [] });
     forgetOne.mockResolvedValue(undefined);
@@ -534,6 +539,115 @@ describe('NodesPage', () => {
       expect(
         screen.queryByRole('link', { name: 'Open the scan that failed' })
       ).toBeNull();
+    });
+  });
+
+  describe('feedback on the page itself', () => {
+    const conflict = new OmApiError(
+      409,
+      'A scan is already running on node00. The nodes update when it finishes.'
+    );
+
+    it('says a scan is already running, and links to that scan', () => {
+      useRefreshInventory.mockReturnValue({
+        refreshAll: vi.fn(),
+        refreshHosts: vi.fn(),
+        isPending: false,
+        isError: true,
+        error: conflict,
+        submittedAt: 10,
+        reset: vi.fn(),
+      });
+      useActiveInventoryRun.mockReturnValue({
+        run: { run_id: 'run-7', status: 'RUN_STATUS_RUNNING' },
+        updatedAt: 20,
+      });
+
+      renderPage();
+
+      expect(screen.getByText(conflict.message)).toBeInTheDocument();
+      expect(
+        screen.getByRole('link', { name: 'Open the running scan' })
+      ).toHaveAttribute('href', expect.stringContaining('expand=run-7'));
+    });
+
+    it('takes the notice down once that scan is over', () => {
+      const reset = vi.fn();
+      useRefreshInventory.mockReturnValue({
+        refreshAll: vi.fn(),
+        refreshHosts: vi.fn(),
+        isPending: false,
+        isError: true,
+        error: conflict,
+        submittedAt: 10,
+        reset,
+      });
+      useActiveInventoryRun.mockReturnValue({ run: undefined, updatedAt: 20 });
+
+      renderPage();
+
+      expect(reset).toHaveBeenCalled();
+    });
+
+    it('says a scan could not start when the request failed outright', () => {
+      useRefreshInventory.mockReturnValue({
+        refreshAll: vi.fn(),
+        refreshHosts: vi.fn(),
+        isPending: false,
+        isError: true,
+        error: new OmApiError(502, 'PMM Extensions did not answer'),
+        submittedAt: 10,
+        reset: vi.fn(),
+      });
+
+      renderPage();
+
+      expect(
+        screen.getByText(
+          'Could not start a scan: PMM Extensions did not answer'
+        )
+      ).toBeInTheDocument();
+    });
+
+    it('filters to the failing nodes from their count, and back', () => {
+      renderPage([
+        host(),
+        host({
+          node_id: 'node-2',
+          name: 'node01',
+          freshness: {
+            consecutive_failures: 2,
+            failing_since: new Date().toISOString(),
+            last_error: 'boom',
+          },
+        }),
+      ]);
+
+      fireEvent.click(screen.getByText('1 failing'));
+      expect(rowFor('node01')).toBeTruthy();
+      expect(screen.queryByText('node00')).toBeNull();
+
+      fireEvent.click(screen.getByText('1 failing'));
+      expect(rowFor('node00')).toBeTruthy();
+    });
+
+    it('says it reports readiness, not database health, and where health is', () => {
+      renderPage();
+
+      expect(
+        screen.getByText(/not how its databases are doing/)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('link', { name: 'Clusters' })
+      ).toBeInTheDocument();
+    });
+
+    it('makes Scan all the heavier action', () => {
+      renderPage();
+
+      expect(screen.getByRole('button', { name: 'Scan all' })).toHaveClass(
+        'MuiButton-contained'
+      );
     });
   });
 });
