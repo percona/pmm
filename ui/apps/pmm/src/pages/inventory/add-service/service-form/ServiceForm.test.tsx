@@ -278,6 +278,22 @@ describe('ServiceForm', () => {
     );
   });
 
+  it('reports a rejected response the API layer kept quiet about', async () => {
+    const error = new AxiosError('Request failed with status code 429');
+    error.response = { status: 429 } as AxiosError['response'];
+    renderForm(vi.fn().mockRejectedValue(error));
+
+    fillRequired();
+    fireEvent.click(screen.getByTestId('add-service-submit'));
+
+    await waitFor(() =>
+      expect(enqueueSnackbar).toHaveBeenCalledWith(
+        'Request failed with status code 429',
+        { variant: 'error' }
+      )
+    );
+  });
+
   it('cancels back to the service type selection', () => {
     renderForm();
 

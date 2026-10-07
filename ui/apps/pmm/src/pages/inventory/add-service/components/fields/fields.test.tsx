@@ -75,4 +75,21 @@ describe('fields', () => {
       'text'
     );
   });
+
+  it('keeps the browser from filling in a saved login password', () => {
+    renderFields();
+
+    expect(screen.getByTestId('text-input-password')).toHaveAttribute(
+      'autocomplete',
+      'new-password'
+    );
+  });
+
+  it('keeps the tooltip out of the field name', () => {
+    renderFields();
+
+    expect(screen.getByRole('textbox', { name: 'Service name' })).toBe(
+      screen.getByTestId('text-input-service-name')
+    );
+  });
 });

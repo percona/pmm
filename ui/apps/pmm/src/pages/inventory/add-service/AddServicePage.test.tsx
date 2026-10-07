@@ -91,10 +91,8 @@ describe('AddServicePage', () => {
 
     expect(screen.getByRole('heading', { name: title })).toBeInTheDocument();
     expect(screen.queryByTestId('mysql-instance')).not.toBeInTheDocument();
-    expect(screen.getByTestId('add-service-cancel')).toHaveAttribute(
-      'href',
-      '/add-instance'
-    );
+    // each form step renders its own actions
+    expect(screen.queryByTestId('add-service-cancel')).not.toBeInTheDocument();
   });
 
   it('redirects an unknown service type to the selection', () => {

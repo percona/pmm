@@ -119,3 +119,7 @@ export const toPlacement = (
 
 export const getMetricsMode = (node?: Pick<UniversalNode, 'isPmmServerNode'>) =>
   node?.isPmmServerNode ? MetricsMode.pull : MetricsMode.push;
+
+// Certificates stay in the form when TLS is turned off, so they are only sent with TLS on.
+export const whenTls = <T extends object>(tls: boolean, certificates: T) =>
+  tls ? certificates : {};

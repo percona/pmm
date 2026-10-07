@@ -36,6 +36,8 @@ describe('ServiceForm.schema', () => {
     ['2048', true],
     ['-2', false],
     ['1.5', false],
+    ['2147483647', true],
+    ['2147483648', false],
     ['abc', false],
   ])('checks %j as a whole number of at least -1', (value, valid) => {
     expect(optionalIntegerText(-1).safeParse(value).success).toBe(valid);
@@ -47,6 +49,15 @@ describe('ServiceForm.schema', () => {
     expect(result.error?.issues[0].message).toBe(
       'Value should be greater or equal to -1'
     );
+  });
+
+  it.each([
+    ['1.5', 'Must be an Integer number'],
+    ['2147483648', 'Value should be lower or equal to 2147483647'],
+  ])('explains why %j is rejected', (value, message) => {
+    expect(optionalIntegerText(-1).safeParse(value).error?.issues).toEqual([
+      expect.objectContaining({ message }),
+    ]);
   });
 
   it('requires the address and a valid port', () => {

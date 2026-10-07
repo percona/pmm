@@ -12,6 +12,7 @@ import {
   toLabels,
   toOptionalNumber,
   toPlacement,
+  whenTls,
 } from './ServiceForm.utils';
 
 describe('ServiceForm.utils', () => {
@@ -132,5 +133,12 @@ describe('ServiceForm.utils', () => {
   it('pulls metrics on the PMM Server node and pushes them elsewhere', () => {
     expect(getMetricsMode({ isPmmServerNode: true })).toBe(MetricsMode.pull);
     expect(getMetricsMode({ isPmmServerNode: false })).toBe(MetricsMode.push);
+  });
+
+  it('sends TLS certificates only with TLS on', () => {
+    const certificates = { tlsCa: 'ca', tlsCert: 'cert', tlsKey: 'key' };
+
+    expect(whenTls(true, certificates)).toEqual(certificates);
+    expect(whenTls(false, certificates)).toEqual({});
   });
 });

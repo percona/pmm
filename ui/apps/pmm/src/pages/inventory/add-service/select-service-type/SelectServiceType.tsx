@@ -4,7 +4,9 @@ import CardActionArea from '@mui/material/CardActionArea';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useMemo, type FC } from 'react';
+import { PMM_INVENTORY_SERVICES_URL } from 'lib/constants';
 import { Link } from 'react-router-dom';
+import { AddServiceActions } from '../add-service-actions';
 import { Messages as PageMessages } from '../AddServicePage.messages';
 import { AddServiceType } from '../AddServicePage.types';
 import { getAddServicePath } from '../AddServicePage.utils';
@@ -55,6 +57,7 @@ export const SelectServiceType: FC<SelectServiceTypeProps> = ({
           </Card>
         ))}
       </Box>
+      <AddServiceActions cancelTo={PMM_INVENTORY_SERVICES_URL} />
     </Stack>
   );
 };

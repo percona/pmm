@@ -8,6 +8,7 @@ export interface TextFieldProps {
   helperText?: ReactNode;
   kind?: 'text' | 'number' | 'textarea';
   type?: string;
+  autoComplete?: string;
   endAdornment?: ReactNode;
   disabled?: boolean;
 }

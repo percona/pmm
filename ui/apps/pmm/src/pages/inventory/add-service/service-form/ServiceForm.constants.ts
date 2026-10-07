@@ -11,6 +11,8 @@ import type {
 
 export const MAX_CONNECTION_TIMEOUT_SECONDS = 3600;
 
+export const MAX_INT32 = 2 ** 31 - 1;
+
 export const LOCAL_ADDRESSES = ['127.0.0.1', 'localhost'];
 
 export const NODE_DEFAULTS: NodeFormValues = { nodeId: '', pmmAgentId: '' };

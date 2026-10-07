@@ -1,3 +1,5 @@
+import type { AxiosError } from 'axios';
+
 // The case middleware only rewrites keys of plain objects, so a class instance passes through untouched.
 class VerbatimKeys {}
 
@@ -20,4 +22,18 @@ export const withVerbatimKeys = <T>(data: T, mapFields: string[]): T => {
         : withVerbatimKeys(value, mapFields),
     ])
   ) as T;
+};
+
+// Whether the api error notifier shows this error, so callers can report the rest themselves.
+export const isNotifiedError = (error: AxiosError) => {
+  if (!error.response || error.response.status < 400) {
+    return false;
+  }
+
+  const notificationsDisabled =
+    error.config?.disableNotifications ?? error.response.status === 429;
+
+  return typeof notificationsDisabled === 'function'
+    ? !notificationsDisabled(error)
+    : !notificationsDisabled;
 };

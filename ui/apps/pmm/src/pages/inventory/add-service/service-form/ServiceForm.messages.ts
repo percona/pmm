@@ -12,6 +12,7 @@ export const Messages = {
       `Duration should be greater or equal to ${min}`,
     maxDuration: (max: string) => `Duration should be lower or equal to ${max}`,
     min: (min: number) => `Value should be greater or equal to ${min}`,
+    max: (max: number) => `Value should be lower or equal to ${max}`,
     integer: 'Must be an Integer number',
   },
   success: (service: string, serviceType: string) =>

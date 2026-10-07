@@ -11,6 +11,7 @@ export const TextField: FC<TextFieldProps> = ({
   helperText,
   kind = 'text',
   type = kind === 'number' ? 'number' : undefined,
+  autoComplete,
   endAdornment,
   disabled,
 }) => (
@@ -20,6 +21,7 @@ export const TextField: FC<TextFieldProps> = ({
       // peak-ui's own label prop is a string; the tooltip needs a node.
       label: <FieldLabel label={label} tooltip={tooltip} />,
       type,
+      autoComplete,
       placeholder,
       helperText,
       disabled,

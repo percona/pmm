@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { MAX_INT32 } from './ServiceForm.constants';
 import { Messages } from './ServiceForm.messages';
 import {
   getConnectionTimeoutError,
@@ -17,16 +18,28 @@ export const keyValuesText = z
   .string()
   .refine(isValidKeyValues, validation.keyValue);
 
-// An optional whole number, at least `min`; numbers stay text in the form like the other fields.
+// An optional int32, at least `min`; numbers stay text in the form like the other fields.
 export const optionalIntegerText = (min: number) =>
-  z
-    .string()
-    .refine((v) => v.trim() === '' || Number.isInteger(Number(v)), {
-      message: validation.integer,
-    })
-    .refine((v) => v.trim() === '' || Number(v) >= min, {
-      message: validation.min(min),
-    });
+  z.string().superRefine((value, ctx) => {
+    if (value.trim() === '') {
+      return;
+    }
+
+    const number = Number(value);
+    let message: string | undefined;
+
+    if (!Number.isInteger(number)) {
+      message = validation.integer;
+    } else if (number < min) {
+      message = validation.min(min);
+    } else if (number > MAX_INT32) {
+      message = validation.max(MAX_INT32);
+    }
+
+    if (message) {
+      ctx.addIssue({ code: 'custom', message });
+    }
+  });
 
 export const connectionSchema = z.object({
   serviceName: z.string(),

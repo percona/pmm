@@ -1,4 +1,5 @@
 import Stack from '@mui/material/Stack';
+import { isNotifiedError } from 'api/api.utils';
 import { isAxiosError } from 'axios';
 import { PMM_ADD_SERVICE_PATH, PMM_INVENTORY_URL } from 'lib/constants';
 import { enqueueSnackbar } from 'notistack';
@@ -26,8 +27,8 @@ export const ServiceForm = <
     try {
       await onSubmit(values);
     } catch (error) {
-      // The API layer reports failed responses itself; keep the form for a retry.
-      if (!isAxiosError(error) || !error.response) {
+      // Keep the form for a retry; most failed responses are already reported by the API layer.
+      if (!isAxiosError(error) || !isNotifiedError(error)) {
         enqueueSnackbar(
           error instanceof Error ? error.message : Messages.unknownError,
           { variant: 'error' }

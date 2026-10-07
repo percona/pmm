@@ -16,6 +16,7 @@ export const PasswordField: FC<PasswordFieldProps> = (props) => {
     <TextField
       {...props}
       type={isRevealed ? 'text' : 'password'}
+      autoComplete="new-password"
       endAdornment={
         <InputAdornment position="end">
           <IconButton
