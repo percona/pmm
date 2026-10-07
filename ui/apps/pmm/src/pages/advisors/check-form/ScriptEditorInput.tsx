@@ -8,7 +8,13 @@ import {
 import { InputBaseComponentProps } from '@mui/material/InputBase';
 import { useTheme } from '@mui/material/styles';
 import { Highlight, themes } from 'prism-react-renderer';
-import Editor from 'react-simple-code-editor';
+import EditorModule from 'react-simple-code-editor';
+
+// The package is CJS (`exports.default`); in a `"type": "module"` app Vite 8
+// binds the default import to the whole `module.exports`, so unwrap it once.
+const Editor =
+  (EditorModule as unknown as { default?: typeof EditorModule }).default ??
+  EditorModule;
 
 // Starlark is syntactically Python, so the python grammar fits check scripts.
 const LANGUAGE = 'python';
