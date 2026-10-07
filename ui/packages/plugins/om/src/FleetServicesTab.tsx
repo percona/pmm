@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Box,
@@ -458,14 +458,26 @@ export const FleetServicesTab = () => {
       ? 'pending'
       : 'ready';
   const [failingOnly, setFailingOnly] = useState(false);
-  // The row itself, not its id: the drawer needs the whole row, and keeping an id
-  // would mean looking it up again on every poll.
-  const [selected, setSelected] = useState<OmServiceInventoryRow | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const columns = useColumns(estate);
   const joined = useMemo(
     () => joinServiceInventory(toServiceRows(data), inventory),
     [data, inventory]
   );
+  // Looked up by id so the drawer follows the poll, and closes when the service
+  // leaves the snapshot.
+  const selected = useMemo(
+    () =>
+      selectedId === null
+        ? null
+        : (joined.find((row) => row.service_id === selectedId) ?? null),
+    [joined, selectedId]
+  );
+  useEffect(() => {
+    if (selected === null) {
+      setSelectedId(null);
+    }
+  }, [selected]);
   const rows = useMemo(
     () =>
       failingOnly
@@ -503,7 +515,16 @@ export const FleetServicesTab = () => {
     muiTableBodyRowProps: ({ row }) => ({
       hover: true,
       sx: row.getIsGrouped() ? undefined : { cursor: 'pointer' },
-      onClick: row.getIsGrouped() ? undefined : () => setSelected(row.original),
+      onClick: row.getIsGrouped()
+        ? undefined
+        : (event) => {
+            // A link or button in the row has its own job, e.g. a Cmd-click on
+            // the service name opening its dashboard in a new tab.
+            if ((event.target as HTMLElement).closest('a, button')) {
+              return;
+            }
+            setSelectedId(row.original.service_id ?? null);
+          },
     }),
     initialState: {
       density: 'compact',
@@ -565,7 +586,7 @@ export const FleetServicesTab = () => {
       <ServiceDetailDrawer
         row={selected}
         estate={estate}
-        onClose={() => setSelected(null)}
+        onClose={() => setSelectedId(null)}
       />
     </Box>
   );

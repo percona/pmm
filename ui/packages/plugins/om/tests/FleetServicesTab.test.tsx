@@ -15,19 +15,22 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FleetServicesTab } from '../src/FleetServicesTab';
-import { mixedEstate } from './fixtures';
+import type { OmServiceStatus, OmTopologyResponse } from '../src/types';
+import { cluster, mixedEstate, service, topology } from './fixtures';
 
-vi.mock('../src/topologyHooks', () => ({
-  useOmTopology: () => ({
-    data: mixedEstate(),
-    isPending: false,
-    isError: false,
-  }),
-}));
+const { useOmTopology } = vi.hoisted(() => ({ useOmTopology: vi.fn() }));
+
+vi.mock('../src/topologyHooks', () => ({ useOmTopology }));
 vi.mock('../src/inventoryHooks', () => ({
   useOmInventoryServices: () => ({
     data: [],
@@ -36,7 +39,50 @@ vi.mock('../src/inventoryHooks', () => ({
   }),
 }));
 
+const serve = (data: OmTopologyResponse) =>
+  useOmTopology.mockReturnValue({ data, isPending: false, isError: false });
+
+const ordersEstate = (
+  orders1Status: OmServiceStatus | null = 'SERVICE_STATUS_UP'
+) =>
+  topology([
+    {
+      env_name: 'production',
+      clusters: [
+        cluster({
+          name: 'orders',
+          services: [
+            ...(orders1Status
+              ? [
+                  service({
+                    service_name: 'orders-1',
+                    service_id: 's1',
+                    status: orders1Status,
+                  }),
+                ]
+              : []),
+            service({ service_name: 'orders-2', service_id: 's2' }),
+          ],
+        }),
+      ],
+    },
+  ]);
+
+const renderTab = () =>
+  render(
+    <MemoryRouter>
+      <FleetServicesTab />
+    </MemoryRouter>
+  );
+
+const rowFor = (name: string) =>
+  screen
+    .getAllByRole('row')
+    .find((row) => within(row).queryByText(name)) as HTMLElement;
+
 describe('FleetServicesTab', () => {
+  beforeEach(() => serve(mixedEstate()));
+
   it('opens with the down service as the first row', () => {
     render(
       <MemoryRouter>
@@ -68,5 +114,47 @@ describe('FleetServicesTab', () => {
     expect(within(chooser).getByText('Process')).toBeInTheDocument();
     expect(within(chooser).queryByText(/^Role$/)).toBeNull();
     expect(screen.queryByRole('columnheader', { name: /^Role/ })).toBeNull();
+  });
+
+  it('opens the drawer from a row, but not from the service link in it', () => {
+    serve(ordersEstate());
+    renderTab();
+
+    fireEvent.click(within(rowFor('orders-1')).getByRole('link'));
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    fireEvent.click(
+      within(rowFor('orders-1')).getByTestId('om-service-status')
+    );
+    expect(screen.getByRole('dialog')).toHaveAccessibleName('orders-1');
+  });
+
+  it('keeps the drawer on the live row, and closes it when the service goes', async () => {
+    serve(ordersEstate());
+    const { rerender } = renderTab();
+    fireEvent.click(
+      within(rowFor('orders-1')).getByTestId('om-service-status')
+    );
+    expect(
+      within(screen.getByRole('dialog')).getByTestId('om-service-status')
+    ).toHaveTextContent('Up');
+
+    serve(ordersEstate('SERVICE_STATUS_DOWN'));
+    rerender(
+      <MemoryRouter>
+        <FleetServicesTab />
+      </MemoryRouter>
+    );
+    expect(
+      within(screen.getByRole('dialog')).getByTestId('om-service-status')
+    ).toHaveTextContent('Down');
+
+    serve(ordersEstate(null));
+    rerender(
+      <MemoryRouter>
+        <FleetServicesTab />
+      </MemoryRouter>
+    );
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 });
