@@ -16,7 +16,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Alert,
   Box,
@@ -70,7 +70,7 @@ import type { OmHostRow } from './types';
  * Eleven columns plus select, expand and a three-button action column pushed the
  * actions off-screen behind horizontal scrolling -- including the red Forget, which
  * is the one a reader should never meet by accident while hunting for it (design
- * review P17). Everything hidden here is still a column-chooser away, and the agent
+ * the width it gets). Everything hidden here is still a column-chooser away, and the agent
  * detail is in the row's own panel.
  */
 const HIDDEN_BY_DEFAULT = {
@@ -206,13 +206,45 @@ const ExecutorCell = ({
  * with no explanation. Shared by the Automation cell and the Bootstrap button so
  * the two cannot drift, which they had: the button showed nothing in that case.
  */
+/**
+ * Why nothing can be done to a node that an install is already running on.
+ *
+ * Shared rather than repeated: the Automation chip, the row's Install button and the
+ * row's Forget all say it, and the point of Forget saying it is that it matches the
+ * others. Three copies would drift the first time one is reworded.
+ */
+const BUSY_TITLE = 'Already part of an install in progress.';
+
 const automationBlockedTitle = (reasons: string[]) =>
   reasons.join('; ') || 'Not eligible for automation.';
+
+/**
+ * Why the bulk Install button is disabled for this selection count.
+ *
+ * Two sentences, not one, because the counts it refuses fail for two unrelated
+ * reasons and a single explanation would state something false (see the second
+ * direction). **Two** is a MongoDB fact worth teaching: a two-member set cannot form
+ * a majority when either member is lost, so it stops accepting writes on any single
+ * failure. **Four or more** is perfectly ordinary in MongoDB and is refused only
+ * because this preview implements one and three - our limit, not the database's, and
+ * saying otherwise would teach a DBA something untrue.
+ *
+ * Zero gets the plain instruction: there is no rule to explain yet.
+ */
+const selectionCountTitle = (count: number): string => {
+  if (count === 2) {
+    return 'A two-member replica set cannot form a majority if either member is lost, so it would stop accepting writes on any single failure. Select one node, or three.';
+  }
+  if (count > 3) {
+    return `This preview installs a one- or three-member replica set, and ${count} nodes are selected. MongoDB itself supports larger sets; Operations does not yet. Select one node, or three.`;
+  }
+  return 'Select exactly one node for a single-member replica set, or three for a three-member one.';
+};
 
 const AutomationCell = ({ row, busy }: { row: OmHostRow; busy: boolean }) => {
   if (busy) {
     return (
-      <Tooltip title="Already part of an install in progress.">
+      <Tooltip title={BUSY_TITLE}>
         <Chip size="small" color="info" label="Installing" />
       </Tooltip>
     );
@@ -220,6 +252,17 @@ const AutomationCell = ({ row, busy }: { row: OmHostRow; busy: boolean }) => {
   if (row.automation_eligible) {
     return (
       <Chip size="small" color="success" variant="outlined" label="Ready" />
+    );
+  }
+  // Two kinds of ineligible, and conflating them was a false alarm: a healthy
+  // replica-set member and the PMM Server's own node are not things to go and fix,
+  // they are nodes Operations deliberately leaves alone. Only a fault gets the
+  // warning colour and the word "attention".
+  if (row.automation_blocked_by_design) {
+    return (
+      <Tooltip title={automationBlockedTitle(row.automation_blocked_reasons)}>
+        <Chip size="small" variant="outlined" label="Not a target" />
+      </Tooltip>
     );
   }
   return (
@@ -337,7 +380,9 @@ function useColumns(
             ? 'Installing'
             : row.automation_eligible
               ? 'Ready'
-              : 'Needs attention',
+              : row.automation_blocked_by_design
+                ? 'Not a target'
+                : 'Needs attention',
         header: 'Automation',
         Cell: ({ row: { original } }) => (
           <AutomationCell
@@ -693,6 +738,12 @@ export const NodesPage = () => {
     [rows]
   );
 
+  // The node an error elsewhere is about. A blocked node's reason has to be
+  // followable to the scan that produced it, and that scan is on this page -- so the
+  // destination is a row here, not a new view.
+  const [searchParams] = useSearchParams();
+  const focusNode = searchParams.get('node') ?? '';
+
   const table = useMaterialReactTable({
     columns,
     data: filteredRows,
@@ -716,7 +767,7 @@ export const NodesPage = () => {
     enableColumnActions: false,
     // The actions column has to hold "Scan" beside "Install MongoDB", and MRT's
     // default for it is narrower than that - so the install action was clipped at
-    // the right edge, which is the row-action half of P17 all over again.
+    // the right edge, which is the same width problem all over again.
     displayColumnDefOptions: {
       'mrt-row-actions': { size: 290, grow: false },
       'mrt-row-select': { size: 50, grow: false },
@@ -748,7 +799,7 @@ export const NodesPage = () => {
         <Tooltip
           title={
             isHostBusy(row.original)
-              ? 'Already part of an install in progress.'
+              ? BUSY_TITLE
               : row.original.automation_eligible
                 ? 'Install MongoDB on this node and initialize a single-member replica set.'
                 : automationBlockedTitle(
@@ -774,26 +825,49 @@ export const NodesPage = () => {
         </Tooltip>
         {/* Behind the ellipsis, not beside the daily actions: three text buttons
             did not fit the row, and Forget was the one falling off the right edge
-            (P17). P14 asks for it to live here on its own account too. */}
-        <RowOverflowMenu label={`More actions for ${row.original.name}`}>
-          {(close) => [
-            <MenuItem
-              key="forget"
-              onClick={() => {
-                setForgetting([row.original]);
-                close();
-              }}
-            >
-              Forget
-            </MenuItem>,
-          ]}
-        </RowOverflowMenu>
+            and it belongs behind a menu on its own account too. */}
+        {/* No actions at all on PMM Server's own node. Forget would clear Operations'
+            record of the machine PMM runs on, the next scan would put it straight
+            back, and in between the fleet would be wrong - so the menu has nothing
+            to show and is not rendered. */}
+        {!row.original.is_pmm_server_node && (
+          <RowOverflowMenu label={`More actions for ${row.original.name}`}>
+            {(close) => [
+              /* Wrapped in a span because a disabled MUI MenuItem fires no pointer
+                 events, so the Tooltip would never open on the one state it exists
+                 to explain - the same reason the Install button above has one. An
+                 empty title renders no tooltip, so an idle node is unaffected. */
+              <Tooltip
+                key="forget"
+                title={isHostBusy(row.original) ? BUSY_TITLE : ''}
+              >
+                <Box component="span">
+                  <MenuItem
+                    disabled={isHostBusy(row.original)}
+                    onClick={() => {
+                      setForgetting([row.original]);
+                      close();
+                    }}
+                  >
+                    Forget
+                  </MenuItem>
+                </Box>
+              </Tooltip>,
+            ]}
+          </RowOverflowMenu>
+        )}
       </Stack>
     ),
     initialState: {
       density: 'compact',
       columnVisibility: HIDDEN_BY_DEFAULT,
       sorting: [{ id: 'name', desc: false }],
+      // Seeded from ?node=, so an error elsewhere can link to the one node it is
+      // about and land on that row rather than on a fleet the reader has to search.
+      // `initialState`, not `state`: it is a starting point, and clearing the search
+      // box has to work.
+      showGlobalFilter: focusNode !== '',
+      globalFilter: focusNode,
     },
   });
 
@@ -912,7 +986,7 @@ export const NodesPage = () => {
           <Tooltip
             title={
               selectedRows.length !== 1 && selectedRows.length !== 3
-                ? 'Select exactly one node for a single-member replica set, or three for a three-member one.'
+                ? selectionCountTitle(selectedRows.length)
                 : selectedRows.some((row) => isHostBusy(row))
                   ? 'A selected node is already part of an install in progress.'
                   : selectedRows.some((row) => !row.automation_eligible)

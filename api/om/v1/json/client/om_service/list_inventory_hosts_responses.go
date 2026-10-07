@@ -582,6 +582,32 @@ type ListInventoryHostsOKBodyHostsItems0 struct {
 	// is true.
 	AutomationBlockedReasons []string `json:"automation_blocked_reasons"`
 
+	// Whether the block is a property of this node rather than a fault on it.
+	//
+	// Both kinds make automation_eligible false, and a reader has to tell them apart:
+	// "the PMM Server's own node" and "a MongoDB service is already registered here"
+	// describe nodes that are working exactly as intended, while an unreachable agent
+	// or an unhealthy driver is something to go and fix. Without this a consumer can
+	// only guess from the reason strings, and would paint a healthy replica-set member
+	// as needing attention.
+	//
+	// False when eligible, so it never has to be read alongside automation_eligible to
+	// mean anything.
+	AutomationBlockedByDesign bool `json:"automation_blocked_by_design,omitempty"`
+
+	// Whether this is the node PMM Server itself runs on.
+	//
+	// Carried as its own field rather than left to be inferred from
+	// automation_blocked_reasons, because a consumer that matched on the sentence would
+	// break the first time it is reworded, and automation_blocked_by_design cannot say
+	// it: a registered replica-set member sets that flag too, and Forget is a perfectly
+	// reasonable thing to offer on one of those.
+	//
+	// What it is for: Operations offers no automation action on this node at all, Forget
+	// included. Forgetting it would clear Operations' record of the machine PMM runs on,
+	// the next scan would put it straight back, and in between the fleet would be wrong.
+	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
+
 	// executor
 	Executor *ListInventoryHostsOKBodyHostsItems0Executor `json:"executor,omitempty"`
 

@@ -117,6 +117,11 @@ type extensionsMemberConfig struct {
 	Votes     *bool   `json:"votes,omitempty"`
 	Hidden    bool    `json:"hidden"`
 	DelaySecs uint32  `json:"delay_secs"`
+	// Overrides the run-level bind_ip for this host alone; omitted keeps the run's
+	// value. A pointer, and omitempty, for the same reason Priority and Votes are:
+	// om_bootstrap's own MemberConfig.bind_ip defaults to None, and sending an empty
+	// string would ask it for an empty bindIp rather than for its default.
+	BindIP *string `json:"bind_ip,omitempty"`
 }
 
 // extensionsDispatchStepRequest is the optional body every :dispatch route takes -- the

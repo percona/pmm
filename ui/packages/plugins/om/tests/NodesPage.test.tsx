@@ -57,6 +57,8 @@ const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
   unregistered_mongods: [],
   automation_eligible: true,
   automation_blocked_reasons: [],
+  automation_blocked_by_design: false,
+  is_pmm_server_node: false,
   pmm_agent_connected: true,
   executor: { registered: true, reachable: true, driver_healthy: true },
   observed: {},
@@ -69,14 +71,14 @@ const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
 
 const forgetOne = vi.fn();
 
-const renderPage = (hosts: OmInventoryHost[] = [host()]) => {
+const renderPage = (hosts: OmInventoryHost[] = [host()], route = '/') => {
   useOmInventoryHosts.mockReturnValue({
     data: hosts,
     isPending: false,
     isError: false,
   });
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[route]}>
       <NodesPage />
     </MemoryRouter>
   );
@@ -86,6 +88,25 @@ const rowFor = (name: string) =>
   screen
     .getAllByRole('row')
     .find((row) => within(row).queryByText(name)) as HTMLElement;
+
+/**
+ * The bulk Install button in the selection bar.
+ *
+ * Found by *not* being inside a row: it carries the same accessible name as the
+ * per-row button, so `getByRole` would be ambiguous. Its tooltip is read off the
+ * wrapper span rather than the button, because a disabled MUI button fires no
+ * pointer events - which is why that span exists in the first place.
+ */
+const bulkInstall = () =>
+  screen
+    .getAllByRole('button', { name: 'Install MongoDB' })
+    .find((button) => !button.closest('tr')) as HTMLElement;
+
+const selectRows = (...names: string[]) => {
+  for (const name of names) {
+    fireEvent.click(within(rowFor(name)).getByRole('checkbox'));
+  }
+};
 
 describe('NodesPage', () => {
   beforeEach(() => {
@@ -165,6 +186,42 @@ describe('NodesPage', () => {
     expect(forgetOne).not.toHaveBeenCalled();
   });
 
+  // Two kinds of ineligible, and telling them apart is the whole point: a healthy
+  // replica-set member is not a node that needs attention, it is one Operations
+  // deliberately leaves alone. Conflating them put an amber warning on every
+  // working cluster.
+  it('says a node is not a target when the block is by design', () => {
+    renderPage([
+      host({
+        automation_eligible: false,
+        automation_blocked_by_design: true,
+        automation_blocked_reasons: [
+          'a MongoDB service is already registered on this node',
+        ],
+      }),
+    ]);
+
+    const row = rowFor('node00');
+    expect(within(row).getByText('Not a target')).toBeInTheDocument();
+    expect(within(row).queryByText('Needs attention')).toBeNull();
+  });
+
+  it('still says needs attention when the block is a fault', () => {
+    renderPage([
+      host({
+        automation_eligible: false,
+        automation_blocked_by_design: false,
+        automation_blocked_reasons: [
+          'host is not reachable by the Nomad client',
+        ],
+      }),
+    ]);
+
+    const row = rowFor('node00');
+    expect(within(row).getByText('Needs attention')).toBeInTheDocument();
+    expect(within(row).queryByText('Not a target')).toBeNull();
+  });
+
   // A node Operations cannot act on must not offer the action that would fail.
   it('disables Install MongoDB on a node that is not eligible', () => {
     renderPage([
@@ -183,6 +240,149 @@ describe('NodesPage', () => {
 
   // Scanning is estate-wide, so a sweep in flight has to disable the per-row trigger
   // too - otherwise a reader queues a second scan of a node already being scanned.
+  // PMM Server's own node gets no actions menu at all. Forget there would clear
+  // Operations' record of the machine PMM runs on, the next scan would put it
+  // straight back, and in between the fleet would be wrong - so there is nothing
+  // for the menu to hold. P1 names Forget alongside Install for this row.
+  it('offers no row actions menu on the PMM Server node', () => {
+    renderPage([
+      host({
+        name: 'pmm-server',
+        is_pmm_server_node: true,
+        automation_eligible: false,
+        automation_blocked_by_design: true,
+        automation_blocked_reasons: [
+          'this is the node PMM Server itself runs on, which Operations never installs onto',
+        ],
+      }),
+    ]);
+
+    const row = rowFor('pmm-server');
+    expect(
+      within(row).queryByRole('button', { name: /More actions/ })
+    ).toBeNull();
+    expect(screen.queryByText('Forget')).toBeNull();
+  });
+
+  // Any other node keeps it, including one blocked by design: a registered
+  // replica-set member is not a target for an install, but forgetting it is a
+  // perfectly reasonable thing to want. This is why is_pmm_server_node is its own
+  // field rather than read off automation_blocked_by_design.
+  it('keeps the row actions menu on a node blocked by design that is not PMM Server', () => {
+    renderPage([
+      host({
+        name: 'member00',
+        automation_eligible: false,
+        automation_blocked_by_design: true,
+        automation_blocked_reasons: [
+          'a MongoDB service is already registered on this node',
+        ],
+      }),
+    ]);
+
+    expect(
+      within(rowFor('member00')).getByRole('button', { name: /More actions/ })
+    ).toBeInTheDocument();
+  });
+
+  // The bulk button's tooltip has to give the reason, not only the remedy (P7).
+  // Two counts are refused for unrelated reasons and a single sentence would state
+  // something false about MongoDB, so these two assertions are a pair: the first
+  // checks the majority rule is taught, the second that it is *not* claimed when it
+  // does not apply.
+  it('explains the majority rule when exactly two nodes are selected', async () => {
+    renderPage([
+      host({ node_id: 'n1', name: 'node00' }),
+      host({ node_id: 'n2', name: 'node01' }),
+    ]);
+
+    selectRows('node00', 'node01');
+    fireEvent.mouseOver(bulkInstall().parentElement as HTMLElement);
+
+    const title = await screen.findByRole('tooltip');
+    expect(title.textContent).toMatch(/cannot form a majority/i);
+    expect(title.textContent).toMatch(/Select one node, or three/i);
+  });
+
+  it('blames this preview, not MongoDB, when more than three are selected', async () => {
+    renderPage([
+      host({ node_id: 'n1', name: 'node00' }),
+      host({ node_id: 'n2', name: 'node01' }),
+      host({ node_id: 'n3', name: 'node02' }),
+      host({ node_id: 'n4', name: 'node03' }),
+    ]);
+
+    selectRows('node00', 'node01', 'node02', 'node03');
+    fireEvent.mouseOver(bulkInstall().parentElement as HTMLElement);
+
+    const title = await screen.findByRole('tooltip');
+    expect(title.textContent).toMatch(/This preview installs/i);
+    expect(title.textContent).toMatch(/MongoDB itself supports larger sets/i);
+    expect(title.textContent).not.toMatch(/majority/i);
+  });
+
+  // Task 6 / F7. Forget is housekeeping, but running it against a node an install
+  // is mid-way through would clear the record of the machine being changed. The
+  // tooltip is asserted to be the Install button's own wording, not a lookalike:
+  // the point of Forget explaining itself is that it matches the other controls.
+  it('disables Forget, with the install reason, while a node is mid-install', async () => {
+    useOmBootstrapRuns.mockReturnValue({
+      data: [{ status: 'running', hosts: [{ host: 'exec-1' }] }],
+    });
+    renderPage([host({ name: 'node00', executor_host: 'exec-1' })]);
+
+    fireEvent.click(
+      within(rowFor('node00')).getByRole('button', { name: /More actions/ })
+    );
+
+    const forget = screen.getByText('Forget').closest('li') as HTMLElement;
+    expect(forget).toHaveAttribute('aria-disabled', 'true');
+
+    fireEvent.mouseOver(forget.parentElement as HTMLElement);
+    expect((await screen.findByRole('tooltip')).textContent).toBe(
+      'Already part of an install in progress.'
+    );
+  });
+
+  // The other half of the pair: an idle node's Forget still works, and carries no
+  // tooltip at all rather than an empty one.
+  it('leaves Forget usable on a node with no install running', () => {
+    renderPage([host({ name: 'node00', executor_host: 'exec-1' })]);
+
+    fireEvent.click(
+      within(rowFor('node00')).getByRole('button', { name: /More actions/ })
+    );
+
+    const forget = screen.getByText('Forget').closest('li') as HTMLElement;
+    expect(forget).not.toHaveAttribute('aria-disabled', 'true');
+  });
+
+  // The destination for P6's "link to the scan result". An error elsewhere names a
+  // node; following it has to land on that node's row, not on a fleet the reader then
+  // has to search by hand.
+  it('focuses the node named in ?node=', () => {
+    renderPage(
+      [
+        host({ node_id: 'n1', name: 'node00' }),
+        host({ node_id: 'n2', name: 'node01' }),
+      ],
+      '/?node=node01'
+    );
+
+    expect(screen.getByText('node01')).toBeInTheDocument();
+    expect(screen.queryByText('node00')).toBeNull();
+  });
+
+  it('shows the whole fleet when no node is named', () => {
+    renderPage([
+      host({ node_id: 'n1', name: 'node00' }),
+      host({ node_id: 'n2', name: 'node01' }),
+    ]);
+
+    expect(screen.getByText('node00')).toBeInTheDocument();
+    expect(screen.getByText('node01')).toBeInTheDocument();
+  });
+
   it('disables the row Scan while a sweep is running', () => {
     useIsEstateRefreshing.mockReturnValue(true);
     renderPage();

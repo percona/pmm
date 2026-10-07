@@ -3275,6 +3275,10 @@ func (m *InventoryHost) validate(all bool) error {
 
 	// no validation rules for AutomationEligible
 
+	// no validation rules for AutomationBlockedByDesign
+
+	// no validation rules for IsPmmServerNode
+
 	if m.Address != nil {
 		// no validation rules for Address
 	}
@@ -6725,6 +6729,10 @@ func (m *BootstrapMemberConfig) validate(all bool) error {
 
 	if m.Votes != nil {
 		// no validation rules for Votes
+	}
+
+	if m.BindIp != nil {
+		// no validation rules for BindIp
 	}
 
 	if len(errors) > 0 {

@@ -437,6 +437,26 @@ export interface OmInventoryHost {
   automation_eligible: boolean;
   /** Every unmet condition behind `automation_eligible: false`. Empty when true. */
   automation_blocked_reasons: string[];
+  /**
+   * Whether the block is a property of this node rather than a fault on it.
+   *
+   * The PMM Server's own node, and a node that already runs MongoDB, are working
+   * exactly as intended - painting them as needing attention is a false alarm on
+   * the first screen with real data. An unreachable agent is the opposite.
+   */
+  automation_blocked_by_design: boolean;
+  /**
+   * Whether this is the node PMM Server itself runs on.
+   *
+   * Operations offers no automation action on it, Forget included: forgetting it
+   * would clear Operations' record of the machine PMM runs on, the next scan would
+   * put it straight back, and in between the fleet would be wrong.
+   *
+   * Its own field rather than read off `automation_blocked_by_design`, which a
+   * registered replica-set member sets too - and Forget is reasonable on one of those.
+   * Named as PMM's own inventory API names the same fact.
+   */
+  is_pmm_server_node: boolean;
 }
 
 /** Whether a host can fetch packages, and why not when it cannot. */

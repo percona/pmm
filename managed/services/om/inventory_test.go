@@ -22,6 +22,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -297,17 +298,17 @@ func TestListInventoryHosts(t *testing.T) {
 		assert.False(t, healthyExecutor.GetPmmAgentConnected())
 		assert.False(t, healthyExecutor.GetAutomationEligible())
 		assert.Contains(t, healthyExecutor.GetAutomationBlockedReasons(),
-			"PMM-Client is not installed or not connected")
+			"PMM Client is not installed or not connected")
 		assert.NotContains(t, healthyExecutor.GetAutomationBlockedReasons(),
-			"host is not reachable by the Nomad client",
+			"this node has no automation agent that answers",
 			"n1's executor is fully healthy -- only the missing agent signal should block it")
 
 		noExecutor := response.GetHosts()[1]
 		assert.False(t, noExecutor.GetAutomationEligible())
 		assert.Contains(t, noExecutor.GetAutomationBlockedReasons(),
-			"PMM-Client is not installed or not connected")
+			"PMM Client is not installed or not connected")
 		assert.Contains(t, noExecutor.GetAutomationBlockedReasons(),
-			"host is not reachable by the Nomad client")
+			"this node has no automation agent that answers")
 	})
 
 	t.Run("the automation_eligible filter excludes every host when nothing is eligible", func(t *testing.T) {
@@ -482,22 +483,40 @@ func TestAutomationEligibility(t *testing.T) {
 	healthyExecutor := &omv1.InventoryExecutor{Registered: true, Reachable: true, DriverHealthy: true}
 	reachableOnlyExecutor := &omv1.InventoryExecutor{Registered: true, Reachable: true, DriverHealthy: false}
 
+	// A host that passes every check this function makes, so each case below isolates
+	// the one condition it names. Built by a helper rather than written as
+	// `extensionsHost{}`: os_id and the address are now checked too, so the zero value
+	// fails three ways at once and every assertion would be about all of them.
+	installable := func(mutate ...func(*extensionsHost)) extensionsHost {
+		address := "node-1.example"
+		host := extensionsHost{
+			Address:  &address,
+			Observed: map[string]any{"os_id": "ubuntu"},
+		}
+		for _, m := range mutate {
+			m(&host)
+		}
+		return host
+	}
+
 	t.Run("connected agent and healthy executor is eligible with no reasons", func(t *testing.T) {
 		t.Parallel()
 
-		eligible, reasons := automationEligibility(healthyExecutor, true)
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, installable())
 
 		assert.True(t, eligible)
 		assert.Empty(t, reasons)
+		assert.False(t, byDesign)
 	})
 
 	t.Run("a disconnected agent blocks even a healthy executor", func(t *testing.T) {
 		t.Parallel()
 
-		eligible, reasons := automationEligibility(healthyExecutor, false)
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, false, false, installable())
 
 		assert.False(t, eligible)
-		assert.Equal(t, []string{"PMM-Client is not installed or not connected"}, reasons)
+		assert.False(t, byDesign, "a disconnected agent is a fault, not a property of the node")
+		assert.Equal(t, []string{"PMM Client is not installed or not connected"}, reasons)
 	})
 
 	t.Run("no executor block at all blocks on reachability, not driver health", func(t *testing.T) {
@@ -507,31 +526,194 @@ func TestAutomationEligibility(t *testing.T) {
 		// dispatched to -- see inventory_test.go's "a host with no probe reports
 		// absent, not false". Reporting a driver-health failure on top of that would
 		// claim a health check ran when none did.
-		eligible, reasons := automationEligibility(nil, true)
+		eligible, reasons, byDesign := automationEligibility(nil, true, false, installable())
 
 		assert.False(t, eligible)
-		assert.Equal(t, []string{"host is not reachable by the Nomad client"}, reasons)
+		assert.False(t, byDesign)
+		assert.Equal(t, []string{"this node has no automation agent that answers"}, reasons)
 	})
 
 	t.Run("reachable but unhealthy driver blocks on the driver, not reachability", func(t *testing.T) {
 		t.Parallel()
 
-		eligible, reasons := automationEligibility(reachableOnlyExecutor, true)
+		eligible, reasons, byDesign := automationEligibility(reachableOnlyExecutor, true, false, installable())
 
 		assert.False(t, eligible)
-		assert.Equal(t, []string{"Nomad's raw_exec driver is not healthy on this host"}, reasons)
+		assert.False(t, byDesign)
+		assert.Equal(t, []string{"this node's automation agent cannot run jobs"}, reasons)
 	})
 
-	t.Run("every condition unmet reports every reason", func(t *testing.T) {
+	// No user-facing reason names Nomad. These strings are joined straight into the
+	// tooltip on the Nodes page, so they are product copy, and PMM-15623 set out to
+	// keep the scheduler's name out of it.
+	t.Run("no reason names the scheduler", func(t *testing.T) {
 		t.Parallel()
 
-		eligible, reasons := automationEligibility(nil, false)
+		for _, executor := range []*omv1.InventoryExecutor{nil, reachableOnlyExecutor} {
+			_, reasons, _ := automationEligibility(executor, false, false, extensionsHost{})
+			for _, reason := range reasons {
+				assert.NotContains(t, strings.ToLower(reason), "nomad")
+				assert.NotContains(t, strings.ToLower(reason), "raw_exec")
+			}
+		}
+	})
+
+	t.Run("every reachability condition unmet reports every reason", func(t *testing.T) {
+		t.Parallel()
+
+		eligible, reasons, byDesign := automationEligibility(nil, false, false, installable())
 
 		assert.False(t, eligible)
 		assert.Equal(t, []string{
-			"PMM-Client is not installed or not connected",
-			"host is not reachable by the Nomad client",
+			"PMM Client is not installed or not connected",
+			"this node has no automation agent that answers",
 		}, reasons)
+		assert.False(t, byDesign)
+	})
+
+	// Every condition above asks whether OM *can* reach this machine. Those below
+	// ask whether it *should* touch it, which is a different question and the one
+	// PMM-15664 exists to answer: a perfectly reachable node can still be the last
+	// thing anyone wants a database installed onto.
+	t.Run("the PMM Server's own node is never eligible, however healthy", func(t *testing.T) {
+		t.Parallel()
+
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, true, installable())
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{
+			"this is the node PMM Server itself runs on, which Operations never installs onto",
+		}, reasons)
+		assert.True(t, byDesign, "the server's own node is a fact about it, not a fault on it")
+	})
+
+	// It is the only reason, not the first of several. PMM Server's own image reports
+	// os_id "ol", so without the short circuit the row also advised that Operations
+	// cannot install onto "ol" -- which reads as though a different OS would help.
+	t.Run("the PMM Server's node reports that reason alone", func(t *testing.T) {
+		t.Parallel()
+
+		host := installable(func(h *extensionsHost) {
+			h.Address = nil
+			h.Observed = map[string]any{"os_id": "ol"}
+			h.Services = []extensionsService{{ServiceID: "30"}}
+		})
+		eligible, reasons, byDesign := automationEligibility(nil, false, true, host)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{
+			"this is the node PMM Server itself runs on, which Operations never installs onto",
+		}, reasons)
+		assert.True(t, byDesign)
+	})
+
+	t.Run("a node with a registered MongoDB service is not eligible", func(t *testing.T) {
+		t.Parallel()
+
+		host := installable(func(h *extensionsHost) {
+			h.Services = []extensionsService{{ServiceID: "30"}}
+		})
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, host)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{
+			"a MongoDB service is already registered on this node",
+		}, reasons)
+		assert.True(t, byDesign)
+	})
+
+	t.Run("a mongod a scan found but PMM has no service for also blocks", func(t *testing.T) {
+		t.Parallel()
+
+		host := installable(func(h *extensionsHost) {
+			h.Observed["unregistered_mongods"] = []any{map[string]any{"port": 27017}}
+		})
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, host)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{
+			"a scan found a mongod running here that PMM has no service for",
+		}, reasons)
+		assert.True(t, byDesign)
+	})
+
+	// A node usually has both: the registered service and the mongod serving it. One
+	// problem, so one reason - otherwise a reader counts two faults where there is one.
+	t.Run("a registered service suppresses the unregistered-mongod reason", func(t *testing.T) {
+		t.Parallel()
+
+		host := installable(func(h *extensionsHost) {
+			h.Services = []extensionsService{{ServiceID: "30"}}
+			h.Observed["unregistered_mongods"] = []any{map[string]any{"port": 27017}}
+		})
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, host)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{
+			"a MongoDB service is already registered on this node",
+		}, reasons)
+		assert.True(t, byDesign)
+	})
+
+	// The two preconditions that used to fail on the wizard's last click,
+	// inside TriggerHostBootstrap, after the whole form was filled in.
+	t.Run("a node no scan has reported an OS for is not eligible", func(t *testing.T) {
+		t.Parallel()
+
+		host := installable(func(h *extensionsHost) { h.Observed = map[string]any{} })
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, host)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{
+			"no scan has reported this node's operating system yet",
+		}, reasons)
+		assert.False(t, byDesign, "a missing OS means scans are not landing, which is a fault")
+	})
+
+	t.Run("an OS om_bootstrap cannot install onto is not eligible, and is by design", func(t *testing.T) {
+		t.Parallel()
+
+		host := installable(func(h *extensionsHost) { h.Observed = map[string]any{"os_id": "debian"} })
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, host)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{
+			"this node runs debian, which Operations cannot install onto (supported: rocky, ubuntu)",
+		}, reasons)
+		assert.True(t, byDesign, "nothing is wrong with a Debian node; it is simply not a target")
+	})
+
+	// Named rather than asserted as a substring: the sentence lists the supported
+	// distributions, and a reader acting on it needs them to be the ones the trigger
+	// actually accepts.
+	t.Run("the supported list matches what the trigger accepts", func(t *testing.T) {
+		t.Parallel()
+
+		for id := range supportedBootstrapOSIDs {
+			assert.Contains(t, supportedBootstrapOSNames(), id)
+		}
+	})
+
+	t.Run("a node PMM has no address for is not eligible", func(t *testing.T) {
+		t.Parallel()
+
+		host := installable(func(h *extensionsHost) { h.Address = nil })
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, host)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{"PMM has no address for this node"}, reasons)
+		assert.False(t, byDesign)
+	})
+
+	t.Run("an empty address counts as no address", func(t *testing.T) {
+		t.Parallel()
+
+		empty := ""
+		host := installable(func(h *extensionsHost) { h.Address = &empty })
+		eligible, reasons, _ := automationEligibility(healthyExecutor, true, false, host)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{"PMM has no address for this node"}, reasons)
 	})
 }
 
@@ -667,7 +849,11 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
-		assert.Contains(t, status.Convert(err).Message(), "no known OS")
+		message := status.Convert(err).Message()
+		assert.Contains(t, message, "no scan has reported its operating system")
+		// The complaint was the advice, not only the wording: it told the user to
+		// wait after 160 runs had already failed.
+		assert.NotContains(t, message, "wait")
 	})
 
 	t.Run("a host running an unsupported OS answers FailedPrecondition, not a run that starts and fails", func(t *testing.T) {
@@ -711,7 +897,9 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
-		assert.Contains(t, status.Convert(err).Message(), "no usable Nomad executor")
+		message := status.Convert(err).Message()
+		assert.Contains(t, message, "no automation agent is registered")
+		assert.NotContains(t, message, "Nomad")
 	})
 
 	t.Run("an unreachable executor answers FailedPrecondition before a run exists", func(t *testing.T) {
@@ -737,6 +925,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
 		assert.Contains(t, status.Convert(err).Message(), "not reachable")
+		assert.NotContains(t, status.Convert(err).Message(), "Nomad")
 		require.Len(t, stub.calls, 1, "no run should be planned")
 		assert.Equal(t, "/api/apps/om_inventory/hosts/n1", stub.calls[0].path)
 	})
@@ -759,6 +948,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
 		assert.Contains(t, status.Convert(err).Message(), "driver is not healthy")
+		assert.NotContains(t, status.Convert(err).Message(), "Nomad")
 	})
 
 	t.Run("a healthy executor plans the run", func(t *testing.T) {
@@ -899,6 +1089,294 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Contains(t, status.Convert(err).Message(), "priority 0 and votes off")
 	})
 
+	// MongoDB will not elect a member clients cannot see, so rs.initiate() refuses a
+	// hidden member with priority above 0. PMM-15661 adds this rule in the install
+	// wizard and scopes the backend out; without it here the browser is the only thing
+	// between a direct API call and a run that installs mongod on every host and then
+	// fails inside rs.initiate.
+	// The readiness checks. Three nodes with three different problems used to
+	// produce one message about one of them, so a user fixing them discovered the
+	// second only by fixing the first and running the trigger again.
+	t.Run("names every unready node and every problem, not the first", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			// No OS reported at all.
+			`{"node_id": "n1", "name": "db-01", "executor_host": "exec-n1", "observed": {}}`,
+			// An OS om_bootstrap cannot install onto.
+			`{"node_id": "n2", "name": "db-02", "executor_host": "exec-n2", "observed": {"os_id": "windows"}}`,
+			// No automation agent, and no OS either -- two problems on one node.
+			`{"node_id": "n3", "name": "db-03", "observed": {}}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1", "n2", "n3"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		message := status.Convert(err).Message()
+		for _, name := range []string{"db-01", "db-02", "db-03"} {
+			assert.Contains(t, message, name)
+		}
+		// Both of db-03's problems, not just the one that was found first.
+		assert.Contains(t, message, "no automation agent is registered")
+		assert.Contains(t, message, "windows")
+		// The advice is to fix the nodes, and it points at where the reason came from.
+		assert.Contains(t, message, "Nodes page")
+		assert.NotContains(t, message, "wait")
+		// Nothing was planned.
+		require.Len(t, stub.calls, 3)
+	})
+
+	// A mixed selection is the selection's problem, not any one node's, so it names
+	// the groups rather than blaming whichever node happened to be second.
+	t.Run("names both OS groups when the selection is mixed", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "name": "db-01", "executor_host": "exec-n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"node_id": "n2", "name": "db-02", "executor_host": "exec-n2", "observed": {"os_id": "rocky"}}`,
+			`{"node_id": "n3", "name": "db-03", "executor_host": "exec-n3", "observed": {"os_id": "ubuntu"}}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1", "n2", "n3"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		message := status.Convert(err).Message()
+		assert.Contains(t, message, "mixed-OS")
+		// Both groups, with their members, so the reader can see which two to keep.
+		assert.Contains(t, message, "rocky on db-02")
+		assert.Contains(t, message, "ubuntu on db-01, db-03")
+	})
+
+	// The safety gate, and the reason it is not left to the UI. automation_eligible is
+	// advisory: computed for a list request, minutes stale by the time anyone clicks,
+	// and never read at all by a direct API call. These are the two cases that are
+	// most damaging thing Operations can do.
+	t.Run("refuses a node that already has a registered MongoDB service", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK,
+			`{"node_id": "n1", "name": "rs-member-00", "executor_host": "exec-n1",
+			  "observed": {"os_id": "ubuntu"}, "services": [{"service_id": "s1"}]}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		message := status.Convert(err).Message()
+		assert.Contains(t, message, "already registered")
+		// By name, not by the node id the caller sent: a UUID is not what anyone's
+		// inventory, runbook or ticket calls the machine.
+		assert.Contains(t, message, "rs-member-00")
+		assert.NotContains(t, message, "n1:")
+		// Rejected before om_bootstrap is ever asked to plan anything.
+		require.Len(t, stub.calls, 1)
+	})
+
+	t.Run("refuses a node a scan found a mongod on", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK,
+			`{"node_id": "n1", "name": "db-07", "executor_host": "exec-n1",
+			  "observed": {"os_id": "ubuntu", "unregistered_mongods": [{"port": 27017}]}}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "db-07")
+		assert.Contains(t, status.Convert(err).Message(), "no service for")
+		require.Len(t, stub.calls, 1)
+	})
+
+	// Every blocking node, not the first. A user fixing three nodes should not have to
+	// run the trigger three times to discover there were three.
+	t.Run("names every blocking node, not just the first", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "name": "db-01", "executor_host": "exec-n1",
+			  "observed": {"os_id": "ubuntu"}, "services": [{"service_id": "s1"}]}`,
+			`{"node_id": "n2", "name": "db-02", "executor_host": "exec-n2",
+			  "observed": {"os_id": "ubuntu"}}`,
+			`{"node_id": "n3", "name": "db-03", "executor_host": "exec-n3",
+			  "observed": {"os_id": "ubuntu", "unregistered_mongods": [{"port": 27017}]}}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1", "n2", "n3"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		message := status.Convert(err).Message()
+		assert.Contains(t, message, "db-01")
+		assert.Contains(t, message, "db-03")
+		// The healthy one is not blamed.
+		assert.NotContains(t, message, "db-02")
+		// All three were looked up before anything was refused, and om_bootstrap was
+		// never asked to plan: three host calls, no trigger call.
+		require.Len(t, stub.calls, 3)
+	})
+
+	// A node PMM has no name for still has to be identifiable, and its id is the only
+	// identifier that exists in that case.
+	t.Run("falls back to the node id when the host has no name", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "exec-n1",
+			  "observed": {"os_id": "ubuntu"}, "services": [{"service_id": "s1"}]}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Contains(t, status.Convert(err).Message(), "n1")
+	})
+
+	t.Run("rejects a hidden member that could still be elected", func(t *testing.T) {
+		t.Parallel()
+
+		svc := (&Service{l: logrus.WithField("test", t.Name())}).
+			WithProbeSource("http://unused.invalid", "").
+			WithBootstrapSource("http://unused.invalid", "")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+				MemberConfigs: map[string]*omv1.BootstrapMemberConfig{
+					// Priority left unset, which is the same mistake as setting it
+					// wrong: unset means MongoDB's default of 1.
+					"n1": {Hidden: true},
+				},
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "priority 0")
+	})
+
+	t.Run("rejects a hidden member with priority above zero", func(t *testing.T) {
+		t.Parallel()
+
+		svc := (&Service{l: logrus.WithField("test", t.Name())}).
+			WithProbeSource("http://unused.invalid", "").
+			WithBootstrapSource("http://unused.invalid", "")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+				MemberConfigs: map[string]*omv1.BootstrapMemberConfig{
+					"n1": {Hidden: true, Priority: new(uint32(2))},
+				},
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "priority 0")
+	})
+
+	// The other side of it: hidden is perfectly legitimate with priority 0, and a
+	// rule that refused that would block the topology the field exists for. Checked
+	// against validateMemberConfigs directly, because a one-member set with priority
+	// 0 is refused by the no-electable-member rule instead and would prove nothing.
+	// The member rules. Two misconfigured members in one plan used to report
+	// one of them. Checked directly rather than through the trigger, because the point
+	// is the set of violations rather than the RPC around it.
+	t.Run("returns every member violation in one error", func(t *testing.T) {
+		t.Parallel()
+
+		err := validateMemberConfigs(
+			[]string{"n1", "n2", "n3"},
+			map[string]*omv1.BootstrapMemberConfig{
+				// Delayed, but still electable and voting.
+				"n1": {DelaySecs: 300},
+				// Hidden, but still electable.
+				"n2": {Hidden: true},
+				// Not in the selection at all.
+				"n9": {},
+			},
+		)
+
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		message := status.Convert(err).Message()
+		assert.Contains(t, message, "priority 0 and votes off")
+		assert.Contains(t, message, "clients cannot see")
+		assert.Contains(t, message, "not in node_ids")
+	})
+
+	// Map iteration order is random, so an error built by ranging one reshuffles
+	// itself between two identical attempts and cannot be diffed against the last.
+	t.Run("orders the violations the same way every time", func(t *testing.T) {
+		t.Parallel()
+
+		configs := map[string]*omv1.BootstrapMemberConfig{
+			"n1": {DelaySecs: 300},
+			"n2": {Hidden: true},
+			"n3": {DelaySecs: 300},
+		}
+		first := status.Convert(validateMemberConfigs([]string{"n1", "n2", "n3"}, configs)).Message()
+		for range 8 {
+			again := status.Convert(validateMemberConfigs([]string{"n1", "n2", "n3"}, configs)).Message()
+			require.Equal(t, first, again)
+		}
+	})
+
+	t.Run("accepts a hidden member that cannot be elected", func(t *testing.T) {
+		t.Parallel()
+
+		err := validateMemberConfigs(
+			[]string{"n1", "n2", "n3"},
+			map[string]*omv1.BootstrapMemberConfig{
+				"n3": {Hidden: true, Priority: new(uint32(0))},
+			},
+		)
+
+		require.NoError(t, err)
+	})
+
 	t.Run("translates member_configs from node id to executor host", func(t *testing.T) {
 		t.Parallel()
 
@@ -944,15 +1422,19 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		t.Parallel()
 
 		// The trap this closes: proto3 zero values are the opposite of MongoDB's
-		// defaults, so a caller asking only for "hidden" used to send
-		// priority 0 and votes false with it -- three such hosts is a replica set
-		// with no voting member and nothing electable, which rs.initiate rejects
-		// minutes into a run. Unset now means unsent, and om_bootstrap's own
-		// MemberConfig defaults (priority 1, votes on) apply.
+		// defaults, so a member config that set neither used to send priority 0 and
+		// votes false anyway -- three such hosts is a replica set with no voting
+		// member and nothing electable, which rs.initiate rejects minutes into a run.
+		// Unset now means unsent, and om_bootstrap's own MemberConfig defaults
+		// (priority 1, votes on) apply.
+		//
+		// An empty member config is the vehicle, rather than `{Hidden: true}` as it
+		// once was: a hidden member must set priority 0, so that input is now refused
+		// before it can demonstrate anything about serialization.
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
 			`{"node_id": "n1", "executor_host": "exec-n1", "observed": {"os_id": "ubuntu"}}`,
-			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "member_configs": {"exec-n1": {"priority": 1, "votes": true, "hidden": true, "delay_secs": 0}}, "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "member_configs": {"exec-n1": {"priority": 1, "votes": true, "hidden": false, "delay_secs": 0}}, "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
@@ -966,7 +1448,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 				Port:           27017,
 				BindIp:         "0.0.0.0",
 				MemberConfigs: map[string]*omv1.BootstrapMemberConfig{
-					"n1": {Hidden: true},
+					"n1": {},
 				},
 			})
 
@@ -976,8 +1458,80 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			`{"hosts": ["exec-n1"], "install_method": "packages", "os": "ubuntu",
 			  "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo",
 			  "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0",
-			  "member_configs": {"exec-n1": {"hidden": true, "delay_secs": 0}}}`,
+			  "member_configs": {"exec-n1": {"hidden": false, "delay_secs": 0}}}`,
 			stub.calls[1].body)
+	})
+
+	// An om_bootstrap older than the per-member bind_ip accepts the request and
+	// ignores the field -- pydantic drops what it does not know -- and mongod would
+	// then come up on the run-level address, which is the 0.0.0.0 the per-member value
+	// exists to avoid. The echo is what makes that detectable.
+	t.Run("refuses a side-car that ignored a member's own bind address", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "name": "db-01", "executor_host": "exec-n1", "observed": {"os_id": "ubuntu"}}`,
+			// Echoed without bind_ip, which is what an older app sends back.
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu",
+			  "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "bind_ip": "0.0.0.0",
+			  "member_configs": {"exec-n1": {"priority": 1, "votes": true, "hidden": false, "delay_secs": 0}},
+			  "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			`{"id": "run-abc", "status": "running", "cancel_requested": true, "install_method": "packages",
+			  "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod",
+			  "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+				BindIp:         "0.0.0.0",
+				MemberConfigs: map[string]*omv1.BootstrapMemberConfig{
+					"n1": {BindIp: new("10.0.0.1")},
+				},
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		message := status.Convert(err).Message()
+		assert.Contains(t, message, "the per-member replica-set settings")
+		assert.Contains(t, message, "older than this PMM")
+		// And the run it would not configure is cancelled rather than left running.
+		require.Len(t, stub.calls, 3)
+	})
+
+	// The other way round: a member that named no address must not read as a mismatch
+	// just because om_bootstrap echoes None for it.
+	t.Run("accepts a run whose members named no bind address", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "name": "db-01", "executor_host": "exec-n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu",
+			  "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "bind_ip": "0.0.0.0",
+			  "member_configs": {"exec-n1": {"priority": 1, "votes": true, "hidden": false, "delay_secs": 0, "bind_ip": null}},
+			  "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+				BindIp:         "0.0.0.0",
+				MemberConfigs: map[string]*omv1.BootstrapMemberConfig{
+					// Nothing set, so om_bootstrap's own defaults apply and it echoes
+					// bind_ip as null.
+					"n1": {},
+				},
+			})
+
+		require.NoError(t, err)
 	})
 
 	t.Run("refuses a side-car that accepted the run but ignored its settings", func(t *testing.T) {
@@ -1011,8 +1565,14 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
-		assert.Contains(t, status.Convert(err).Message(), "the data path")
-		assert.Contains(t, status.Convert(err).Message(), "older than this PMM")
+		message := status.Convert(err).Message()
+		// Every setting it dropped, not the first. This side-car is older than
+		// all four fields, so naming one made the gap look like a single mis-set
+		// value rather than what it is -- a PMM talking to an older PMM Extensions.
+		for _, setting := range []string{"the data path", "the log path", "the port", "the bind address"} {
+			assert.Contains(t, message, setting)
+		}
+		assert.Contains(t, message, "older than this PMM")
 		// And the run it would not configure is not left running.
 		require.Len(t, stub.calls, 3)
 		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc:cancel", stub.calls[2].path)
