@@ -68,10 +68,7 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 
-	// Every other tool addresses a service by service_id, so this one accepts
-	// it too and resolves it here. The metrics themselves are only labelled by
-	// service_name, which is why the name is what ends up in the PromQL - but
-	// that is this tool's problem, not the caller's.
+	// Accept service_id like the other tools; the metrics are labelled by name.
 	engine := in.Engine
 	serviceName := in.ServiceName
 	if in.ServiceID != "" {
@@ -80,8 +77,7 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 			return nil, err
 		}
 		serviceName = svc.ServiceName
-		// An explicit engine still wins, so a caller can ask for the
-		// postgresql view of a service PMM records differently.
+		// An explicit engine wins over the inventory's.
 		if engine == "" {
 			engine = svc.Engine
 		}
@@ -92,9 +88,7 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 
 	prefix, ok := configMetrics[engine]
 	if !ok {
-		// Only reachable when the engine came from the inventory, since an
-		// explicit one was validated above: say what the service is, rather
-		// than blaming an argument the caller never passed.
+		// An explicit engine was validated above, so this engine came from the inventory.
 		return nil, newToolError(codeInvalidInput,
 			"pmm_get_config covers MySQL and PostgreSQL services; service '%s' is %s", serviceName, engine)
 	}

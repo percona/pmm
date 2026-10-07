@@ -77,7 +77,7 @@ var pgPropertyLine = regexp.MustCompile(`^(\s*[A-Za-z][A-Za-z0-9 -]*:)(.*)$`)
 var mysqlValueNumbers = []string{"limit", "limit_offset", "per_chunk_limit"}
 
 // mysqlIdentifierKeys are the JSON plan keys that hold only names, which masking
-// mangles (2fa_codes to ?fa_codes); pmm-agent parses real_table_name from the statement, so it is masked.
+// would mangle; real_table_name is not one, as pmm-agent parses it from the query.
 var mysqlIdentifierKeys = []string{
 	"table_name", "alias", "schema_name", "key", "index_name", "possible_keys", "used_key_parts", "used_columns",
 }

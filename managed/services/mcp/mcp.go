@@ -157,14 +157,8 @@ func New(params Params) (*Service, error) {
 		// authorized on its own by nginx, so nothing has to be replicated in HA
 		// mode and restarts are transparent to clients.
 		Stateless: true,
-		// nginx terminates the client connection and proxies to 127.0.0.1:7772
-		// with the upstream name as Host header. The SDK's DNS-rebinding guard
-		// rejects a loopback connection carrying a non-loopback Host, which is
-		// every request nginx forwards, so it has to be off. It would not help
-		// against direct access anyway: a direct connection arrives on a
-		// non-loopback address, and the SDK only checks loopback ones.
-		// Handler enforces the property that matters instead: the peer must
-		// be loopback, i.e. the request came through nginx and auth_request.
+		// nginx forwards with its upstream name as Host, which the SDK's DNS-rebinding
+		// guard rejects; Handler's loopback-peer check protects /mcp instead.
 		DisableLocalhostProtection: true,
 		MaxRequestBodyBytes:        maxRequestBodyBytes,
 	})

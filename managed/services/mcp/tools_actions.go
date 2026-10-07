@@ -173,13 +173,8 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	return textResult(text), nil
 }
 
-// storedPlan returns pg_stat_monitor's stored plan for a digest. It stores one
-// per digest when pgsm_enable_query_plan is on; live-confirmed on 3.8.1 that
-// qan:getQueryPlan answers 200 {} when there is none.
-//
-// The request carries the service_id, but a qan-api2 without service_id on
-// GetQueryPlanRequest ignores it and reads the plan with `WHERE queryid = ?`,
-// so a digest shared by two services can return the other one's plan.
+// storedPlan returns pg_stat_monitor's stored plan for a digest, or none on 200 {};
+// qan-api2 ignores the service_id it is sent until PMM-15697.
 func (s *Service) storedPlan(
 	ctx context.Context, auth callerAuth, queryID string, svc serviceInfo, base string, now time.Time, raw bool,
 ) (*mcp.CallToolResult, error) {

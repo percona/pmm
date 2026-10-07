@@ -34,23 +34,15 @@ const (
 	groupByQuery = "queryid"
 )
 
-// ordering describes how one contract order_by value is expressed to QAN.
-//
-// The qan-api2 service does not order by the metric name literally: getOrderBy maps a time
-// metric such as query_time to m_query_time_avg, and the pseudo-metric load to
-// m_query_time_sum. Sending "-query_time" for both total_query_time and
-// avg_query_time therefore ranks both by the average. The orderKey field is what QAN
-// sorts on; mainMetric is what the report is built around and rendered from.
+// ordering is the QAN sort key and main metric for one order_by value; qan-api2
+// sorts query_time by its average and load by its sum.
 type ordering struct {
 	orderKey   string
 	mainMetric string
 }
 
-// orderMetrics maps the contract's order_by values to a QAN ordering.
-//
-// The load and total_query_time values deliberately share an orderKey: QAN's load is
-// sum(query_time) over the window, so over a fixed window the two rank
-// identically. They differ only in the metric the report is centred on.
+// orderMetrics maps order_by values to a QAN ordering; load and total_query_time
+// share a sort key because load is sum(query_time) over the window.
 var orderMetrics = map[string]ordering{
 	"load":             {orderKey: "load", mainMetric: "load"},
 	"total_query_time": {orderKey: "load", mainMetric: "query_time"},
@@ -139,7 +131,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	}
 	raw := s.rawSQL()
 	var engine string
-	if !raw {
+	if !raw && slices.ContainsFunc(report.Rows, func(r qanReportRow) bool { return quotingMatters(r.Fingerprint) }) {
 		engine = s.reportEngine(ctx, auth, in, from, to)
 	}
 
@@ -321,8 +313,8 @@ func (d *queryDetail) render(rawSQL bool, base string, from, to time.Time) strin
 		}
 	}
 
-	// With raw SQL off, show explain_fingerprint (normalized by the agent) instead
-	// of the example; not qan:explainFingerprint, which returns the raw example.
+	// With raw SQL off, show the agent's explain_fingerprint (never qan:explainFingerprint,
+	// which returns the raw example) unmasked if unquoted, keeping its :1 placeholders.
 	if d.example != nil {
 		switch {
 		case rawSQL && d.example.Example != "":
@@ -358,6 +350,15 @@ func fingerprintText(fingerprint, engine string, raw bool) string {
 		return withheldFingerprint
 	}
 	return masked
+}
+
+// quotingMatters reports whether a SQL fingerprint reads differently under MySQL
+// and PostgreSQL quoting, so that showing it needs the report's engine.
+func quotingMatters(fingerprint string) bool {
+	if fingerprint == "" || strings.HasPrefix(fingerprint, "db.") {
+		return false
+	}
+	return fingerprintText(fingerprint, engineMySQL, false) != fingerprintText(fingerprint, enginePostgreSQL, false)
 }
 
 // reportEngine returns the engine whose quoting reads a report's fingerprints:

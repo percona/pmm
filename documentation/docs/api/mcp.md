@@ -130,7 +130,7 @@ Set them on the PMM Server container like other `PMM_*` variables, for example `
 
     - Example statements are replaced by their fingerprints.
     - Literals in execution plans and MongoDB fingerprints are replaced with `?`.
-    - A SQL fingerprint that PMM stored unnormalized is withheld. If an unfiltered `pmm_top_queries` covers both MySQL and PostgreSQL services, a fingerprint that contains any quoted text is withheld too. To see it, filter by `service_name`.
+    - A SQL fingerprint that PMM stored unnormalized is withheld. If an unfiltered `pmm_top_queries` covers both MySQL and PostgreSQL data, or QAN cannot report which engines it holds, a fingerprint that contains any quoted text is withheld too. PMM Server's own PostgreSQL counts when its QAN is enabled. To see such a fingerprint, filter by `service_name`.
     - An agent error that can quote the statement is withheld, and its error code is kept.
 
     Masking keeps the plan's shape: access type, table and index names, rows, and MongoDB's execution counters. A plan that can't be parsed for masking is withheld. Table definitions from `pmm_get_schema` are returned as they are, so `CHECK` and `DEFAULT` constants and partition bounds are not masked. To keep literals from being collected at all, disable query examples at the source with `pmm-admin add … --disable-queryexamples`. This also stops `pmm_get_explain` from resolving `?` placeholders automatically for MySQL.

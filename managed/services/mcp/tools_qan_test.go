@@ -77,14 +77,19 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 	assert.NotContains(t, detail, "user42@example.com")
 	assert.NotContains(t, detail, "4417")
 
-	// explain_fingerprint is shown only when it passes the same quote check.
-	for fp, shown := range map[string]bool{
-		"SELECT `id` FROM `t` WHERE `email` = :1":           true,
-		"SELECT `id` FROM `t` WHERE `email` = 'a@b.com'":    false,
-		`SELECT "id" FROM "t" WHERE "email" = "leak@b.com"`: false,
+	// explain_fingerprint is withheld when quoted, and keeps its numbered placeholders.
+	for fp, want := range map[string]string{
+		"SELECT `id` FROM `t` WHERE `email` = :1":           "SELECT `id` FROM `t` WHERE `email` = :1",
+		"SELECT `id` FROM `t` WHERE `email` = 'a@b.com'":    "",
+		`SELECT "id" FROM "t" WHERE "email" = "leak@b.com"`: "",
 	} {
 		d := &queryDetail{queryID: "Q", engine: engineMySQL, example: &qan_service.GetQueryExampleOKBodyQueryExamplesItems0{ExplainFingerprint: fp}}
-		assert.Equal(t, shown, strings.Contains(d.render(false, "", testNow.Add(-time.Hour), testNow), fp), fp)
+		got := d.render(false, "", testNow.Add(-time.Hour), testNow)
+		if want == "" {
+			assert.NotContains(t, got, "example (normalized", fp)
+			continue
+		}
+		assert.Contains(t, got, want, fp)
 	}
 
 	// A raw statement is withheld however its quoting reads: a nested
@@ -151,14 +156,26 @@ func TestTopQueriesQuotingFollowsTheService(t *testing.T) {
 		"filters_mixed.json": withheldFingerprint,
 		"":                   withheldFingerprint,
 	} {
+		routes := qanRoutes()
+		routes["POST /v1/qan/metrics:getReport"] = fixture{file: "report_quoted_identifier.json"}
 		if file != "" {
 			routes["POST /v1/qan/metrics:getFilters"] = fixture{file: file}
 		}
-		session := connect(t, newQANService(t, newFakePMM(t, routes), false))
+		fake := newFakePMM(t, routes)
+		session := connect(t, newQANService(t, fake, false))
 		text, isError = callText(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h"})
 		require.False(t, isError, text)
 		assert.Contains(t, text, want, file)
+		assert.Len(t, fake.requestsTo("/v1/qan/metrics:getFilters"), 1, file)
 	}
+
+	// Fingerprints that read the same under both quotings need no engine.
+	fake := newFakePMM(t, qanRoutes())
+	session = connect(t, newQANService(t, fake, false))
+	text, isError = callText(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h"})
+	require.False(t, isError, text)
+	assert.Contains(t, text, "FROM `customers` WHERE `email` = ?")
+	assert.Empty(t, fake.requestsTo("/v1/qan/metrics:getFilters"))
 }
 
 func TestTopQueriesTool(t *testing.T) {
