@@ -18,7 +18,6 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
-  Alert,
   Box,
   Button,
   Chip,
@@ -57,6 +56,7 @@ import {
   type OmRunPeriod,
 } from './inventory';
 import type { OmInventoryRun } from './types';
+import { OmError } from './components/OmError';
 
 const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
   {
@@ -204,14 +204,18 @@ const RefreshButton = () => {
         </span>
       </Tooltip>
       {conflict && (
-        <Typography variant="body2" color="text.secondary">
-          {conflict.message}
-        </Typography>
+        <OmError
+          placement="action"
+          severity="info"
+          messages={conflict.message}
+        />
       )}
       {failure && (
-        <Typography variant="body2" color="error">
-          Could not start a scan: {failure.message}
-        </Typography>
+        <OmError
+          placement="action"
+          title="Could not start a scan"
+          messages={failure.message}
+        />
       )}
     </Stack>
   );
@@ -274,9 +278,11 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
         </Tooltip>
       )}
       {run.error && (
-        <Typography variant="body2" color="error">
-          {run.error}
-        </Typography>
+        <OmError
+          placement="item"
+          title="The scan failed"
+          messages={run.error}
+        />
       )}
     </Stack>
   );
@@ -376,12 +382,13 @@ export const AutomationsScansTab = () => {
       </Stack>
 
       {error && (
-        <Alert severity="error">
-          {/* Rendered inside the page rather than replacing it: PMM Extensions being
-                  unwell is a fact about the fleet, and the installs tab still
-                  reads. */}
-          Could not load scans: {(error as Error).message}
-        </Alert>
+        // Inside the page rather than replacing it: PMM Extensions being unwell is
+        // a fact about the fleet, and the installs tab still reads.
+        <OmError
+          placement="load"
+          title="Could not load scans"
+          messages={(error as Error).message}
+        />
       )}
 
       {/* Only once the query has actually answered. LastRun reads an absent run as

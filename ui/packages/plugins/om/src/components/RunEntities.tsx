@@ -16,7 +16,6 @@
  */
 
 import {
-  Alert,
   Box,
   Chip,
   CircularProgress,
@@ -34,6 +33,7 @@ import { formatCompactDuration } from '../format';
 import { NESTED_TABLE_WRAPPER } from '../nestedTable';
 import { Unavailable } from './Unavailable';
 import type { OmExecutorResolution, OmInventoryRun } from '../types';
+import { OmError } from './OmError';
 
 /** How a host was matched, spelled out. The raw values are terse to the point of coy. */
 // Keyed by the wire enum, not by its suffix. These read `EXECUTOR_RESOLUTION_NAME` and
@@ -82,9 +82,13 @@ export const RunEntities = ({ run }: { run: OmInventoryRun }) => {
   }
   if (isError) {
     return (
-      <Alert severity="error" sx={{ m: 2 }}>
-        Could not load this scan: {(error as Error).message}
-      </Alert>
+      <Box sx={{ m: 2 }}>
+        <OmError
+          placement="load"
+          title="Could not load this scan"
+          messages={(error as Error).message}
+        />
+      </Box>
     );
   }
 
@@ -208,9 +212,7 @@ export const RunEntities = ({ run }: { run: OmInventoryRun }) => {
               </TableCell>
               <TableCell>
                 {entity.error ? (
-                  <Typography variant="body2" color="error">
-                    {entity.error}
-                  </Typography>
+                  <OmError placement="item" messages={entity.error} />
                 ) : (
                   <Unavailable reason="not_applicable" />
                 )}
