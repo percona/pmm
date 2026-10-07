@@ -472,11 +472,6 @@ const HostDetail = ({ row }: { row: OmHostRow }) => {
   );
 };
 
-/**
- * What a removal did, said once it is done. The row vanishing on its own read as
- * "fixed", and its counts dropping with it made a failing node look recovered, so
- * this says both halves: it is gone, and it is not gone for good.
- */
 function forgottenMessage(rows: OmHostRow[]): string {
   return rows.length === 1
     ? `Removed ${rows[0].name} from Operations. If PMM still monitors it, it comes back on the next scan and is counted again.`
@@ -547,7 +542,7 @@ const ForgetDialog = ({
     failures.length > 0
       ? rows.filter((row) => failedIds.has(row.node_id))
       : rows;
-  const one = rows.length === 1;
+  const onlyOneRow = rows.length === 1;
   const totalServices = rows.reduce((sum, row) => sum + row.services.length, 0);
   const handleForget = async () => {
     setBusy(true);
@@ -582,28 +577,29 @@ const ForgetDialog = ({
   return (
     <Dialog open onClose={onClose} maxWidth="sm">
       <DialogTitle>
-        {one
+        {onlyOneRow
           ? `Remove the entry for ${rows[0].name}?`
           : `Remove the entries for ${rows.length} nodes?`}
       </DialogTitle>
       <DialogContent>
         <DialogContentText component="div">
           <p>
-            This removes {one ? 'this node' : 'these nodes'} from the Operations
-            node list
+            This removes {onlyOneRow ? 'this node' : 'these nodes'} from the
+            Operations node list
             {totalServices > 0
-              ? `, along with the ${totalServices} ${pluralize(totalServices, 'service')} that Operations recorded on ${one ? 'it' : 'them'}`
+              ? `, along with the ${totalServices} ${pluralize(totalServices, 'service')} that Operations recorded on ${onlyOneRow ? 'it' : 'them'}`
               : ''}
             .{' '}
             <strong>
-              {one ? 'Its' : 'Their'} scan history is deleted permanently.
+              {onlyOneRow ? 'Its' : 'Their'} scan history is deleted
+              permanently.
             </strong>
           </p>
           <p>
-            Nothing changes on the {one ? 'machine' : 'machines'}, and PMM keeps
-            monitoring {one ? 'it' : 'them'}. If PMM still has{' '}
-            {one ? 'the node' : 'a node'}, it comes back on the next scan, with
-            no scan history.
+            Nothing changes on the {onlyOneRow ? 'machine' : 'machines'}, and
+            PMM keeps monitoring {onlyOneRow ? 'it' : 'them'}. If PMM still has{' '}
+            {onlyOneRow ? 'the node' : 'a node'}, it comes back on the next
+            scan, with no scan history.
           </p>
           <p>
             Use this to clear a duplicate entry left behind when a node was
@@ -619,7 +615,7 @@ const ForgetDialog = ({
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
         <Button variant="contained" disabled={busy} onClick={handleForget}>
-          {one ? 'Remove entry' : 'Remove entries'}
+          {onlyOneRow ? 'Remove entry' : 'Remove entries'}
         </Button>
       </DialogActions>
     </Dialog>
