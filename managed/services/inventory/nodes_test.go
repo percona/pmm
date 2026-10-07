@@ -160,6 +160,27 @@ func TestNodes(t *testing.T) {
 		assert.Equal(t, "test-db", node.InstanceId)
 	})
 
+	t.Run("AddRemoteRDSNodeInstanceIDTrimmed", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test1", InstanceId: " test-db "})
+		require.NoError(t, err)
+		assert.Equal(t, "test-db", node.InstanceId)
+
+		// A blank identifier is not stored: it counts as omitted, so a bare address is used.
+		node, err = ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test2", Region: "test-region", Address: "other-db", InstanceId: " "})
+		require.NoError(t, err)
+		assert.Equal(t, "other-db", node.InstanceId)
+
+		// With an endpoint address there is nothing to fall back to.
+		_, err = ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{
+			NodeName: "test3", Region: "test-region", Address: "test.abcdef.eu-north-1.rds.amazonaws.com", InstanceId: " ",
+		})
+		expected := status.New(codes.InvalidArgument, "DB instance identifier is required when the address is an endpoint.")
+		tests.AssertGRPCError(t, expected, err)
+	})
+
 	t.Run("AddRemoteRDSNodeEndpointWithoutInstanceID", func(t *testing.T) {
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })

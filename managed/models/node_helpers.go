@@ -245,7 +245,8 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 		// clients from that time still send it that way. Keep them working: a bare address is
 		// the identifier. An endpoint address without an identifier is refused, because its
 		// first label is only right for a standard instance endpoint, not for a cluster
-		// endpoint, a CNAME or an IP.
+		// endpoint, a CNAME or an IP. A blank identifier counts as omitted.
+		instanceID = strings.TrimSpace(instanceID)
 		if instanceID == "" {
 			if strings.Contains(params.Address, ".") {
 				return nil, status.Error(codes.InvalidArgument, "DB instance identifier is required when the address is an endpoint.")
