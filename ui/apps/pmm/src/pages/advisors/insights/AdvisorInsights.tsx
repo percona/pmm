@@ -52,6 +52,7 @@ import { getInsightsColumns } from './AdvisorInsights.constants';
 import { insightToText } from './AdvisorInsights.utils';
 import { InsightDetailsPane } from './details-pane';
 import {
+  FILTER_PARAM,
   READ_FILTER_OPTIONS,
   SEVERITY_FILTER_OPTIONS,
   STATUS_FILTER_OPTIONS,
@@ -67,17 +68,6 @@ interface InsightFilters {
   status: string;
   isRead: string;
 }
-
-// URL query-string key for each filter field (deep-linkable filters)
-const FILTER_PARAM: Record<keyof InsightFilters, string> = {
-  serviceName: 'service',
-  nodeName: 'node',
-  category: 'category',
-  checkName: 'check',
-  severity: 'severity',
-  status: 'status',
-  isRead: 'read',
-};
 
 const DEFAULT_PAGE_SIZE = 100;
 

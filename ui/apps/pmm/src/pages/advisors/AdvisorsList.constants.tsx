@@ -6,6 +6,16 @@ import { AdvisorCheckRow, AdvisorInterval } from 'types/advisors.types';
 import { ADVISOR_TECHNOLOGY, ADVISOR_INTERVAL } from 'lib/constants';
 import { Messages } from './AdvisorsList.messages';
 
+// query-string params remembered across visits
+export const CHECK_FILTER_PARAMS = [
+  'search',
+  'category',
+  'technology',
+  'interval',
+  'status',
+  'pageSize',
+];
+
 export const INTERVAL_OPTIONS = [
   AdvisorInterval.standard,
   AdvisorInterval.rare,

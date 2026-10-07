@@ -3,6 +3,24 @@ import { Severity } from 'types/severity.types';
 import { ADVISOR_RESULT_STATUS, SEVERITY } from 'lib/constants';
 import { Messages } from './AdvisorInsights.messages';
 
+// URL query-string key for each filter field (deep-linkable filters)
+export const FILTER_PARAM = {
+  serviceName: 'service',
+  nodeName: 'node',
+  category: 'category',
+  checkName: 'check',
+  severity: 'severity',
+  status: 'status',
+  isRead: 'read',
+} as const;
+
+// query-string params remembered across visits
+export const INSIGHT_FILTER_PARAMS = [
+  ...Object.values(FILTER_PARAM),
+  'runId',
+  'pageSize',
+];
+
 export const SEVERITY_FILTER_OPTIONS = [
   Severity.critical,
   Severity.error,
