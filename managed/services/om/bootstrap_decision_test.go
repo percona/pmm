@@ -26,6 +26,14 @@ func step(name, status string, attempts int) extensionsBootstrapStep {
 	return extensionsBootstrapStep{Name: name, Status: status, AttemptCount: attempts}
 }
 
+// checkStep is a step om_bootstrap marked not retryable, as it marks pre_check.
+func checkStep(name, status string, attempts int) extensionsBootstrapStep {
+	retryable := false
+	s := step(name, status, attempts)
+	s.Retryable = &retryable
+	return s
+}
+
 func TestNextHostAction(t *testing.T) {
 	t.Run("dispatches the first pending step", func(t *testing.T) {
 		host := extensionsBootstrapHost{Steps: []extensionsBootstrapStep{
@@ -59,6 +67,15 @@ func TestNextHostAction(t *testing.T) {
 			step("install_package", bootstrapStepFailed, bootstrapMaxAttempts),
 		}}
 		assert.Nil(t, nextHostAction(host))
+	})
+
+	t.Run("does not retry a step marked not retryable", func(t *testing.T) {
+		host := extensionsBootstrapHost{Steps: []extensionsBootstrapStep{
+			checkStep("pre_check", bootstrapStepFailed, 1),
+			step("configure_repository", bootstrapStepPending, 0),
+		}}
+		assert.Nil(t, nextHostAction(host))
+		assert.True(t, hostExhaustedRetries(host))
 	})
 
 	t.Run("has nothing to do once every step succeeded or was skipped", func(t *testing.T) {
@@ -327,6 +344,20 @@ func TestExhaustedStepsSummary(t *testing.T) {
 			exhaustedStepsSummary(run))
 	})
 
+	t.Run("a step that had one attempt does not count it", func(t *testing.T) {
+		t.Parallel()
+
+		taken := checkStep("pre_check", bootstrapStepFailed, 1)
+		taken.Detail = detail("pre_check: port 27017 is already in use (pid 31, python3) (task history 33)")
+		run := extensionsBootstrapRun{Hosts: []extensionsBootstrapHost{
+			{Host: "node00", Steps: []extensionsBootstrapStep{taken}},
+		}}
+
+		assert.Equal(t,
+			"pre_check failed on node00: pre_check: port 27017 is already in use (pid 31, python3) (task history 33)",
+			exhaustedStepsSummary(run))
+	})
+
 	t.Run("a step with attempts left is not reported", func(t *testing.T) {
 		t.Parallel()
 
@@ -335,5 +366,41 @@ func TestExhaustedStepsSummary(t *testing.T) {
 		}}
 
 		assert.Empty(t, exhaustedStepsSummary(run))
+	})
+}
+
+func TestRolledBackReason(t *testing.T) {
+	t.Parallel()
+
+	failedCheck := func(rollback ...extensionsBootstrapStep) extensionsBootstrapRun {
+		return extensionsBootstrapRun{Hosts: []extensionsBootstrapHost{{
+			Host:          "node00",
+			Steps:         []extensionsBootstrapStep{checkStep("pre_check", bootstrapStepFailed, 1)},
+			RollbackSteps: rollback,
+		}}}
+	}
+
+	t.Run("says nothing was rolled back when every rollback step was skipped", func(t *testing.T) {
+		t.Parallel()
+
+		run := failedCheck(
+			step("stop_service", bootstrapStepSkipped, 0),
+			step("purge_package", bootstrapStepSkipped, 0),
+		)
+
+		assert.Equal(t,
+			"pre_check failed on node00; nothing had been installed, so there was nothing to roll back",
+			rolledBackReason(run))
+	})
+
+	t.Run("says every host was rolled back when any rollback step ran", func(t *testing.T) {
+		t.Parallel()
+
+		run := failedCheck(
+			step("stop_service", bootstrapStepSucceeded, 1),
+			step("purge_package", bootstrapStepSkipped, 0),
+		)
+
+		assert.Equal(t, "pre_check failed on node00; every host was rolled back", rolledBackReason(run))
 	})
 }
