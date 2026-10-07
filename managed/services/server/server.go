@@ -794,6 +794,21 @@ func (s *Server) handleInternalQANToggle(q *reform.Querier, enableInternalPgQan 
 
 // UpdateConfigurations updates supervisor config and requests configuration update for VictoriaMetrics components.
 func (s *Server) UpdateConfigurations(ctx context.Context) error {
+	err := s.applyConfigurations()
+	if err != nil {
+		return err
+	}
+
+	err = s.agentsState.UpdateAgentsState(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to update agents state: %w", err)
+	}
+
+	return nil
+}
+
+// applyConfigurations configures this PMM Server instance's own components from the settings and records them as applied.
+func (s *Server) applyConfigurations() error {
 	s.configM.Lock()
 	defer s.configM.Unlock()
 
@@ -821,11 +836,6 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
-
-	err = s.agentsState.UpdateAgentsState(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to update agents state: %w", err)
-	}
 
 	s.appliedSettings = applied
 	return nil

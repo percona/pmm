@@ -25,8 +25,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// RunReplicaSync keeps this HA replica in step with changes served by another replica until ctx is canceled.
-// A replica's own pmm-agent is connected only to that replica, so another replica's pushes never reach it.
+// RunReplicaSync keeps this HA replica and its own pmm-agent in step with changes served by other replicas.
 func (s *Server) RunReplicaSync(ctx context.Context, interval time.Duration) {
 	t := time.NewTicker(interval)
 	defer t.Stop()
@@ -41,25 +40,23 @@ func (s *Server) RunReplicaSync(ctx context.Context, interval time.Duration) {
 	}
 }
 
-// syncReplica applies the settings when they differ from the ones this replica last applied,
-// and otherwise resends this replica's pmm-agent its state, which picks up inventory changes.
+// syncReplica applies settings that changed since this replica last applied them, then resends
+// its own pmm-agent the state, which no other replica can reach.
 func (s *Server) syncReplica(ctx context.Context) {
 	changed, err := s.settingsChanged()
 	if err != nil {
 		s.l.Warnf("Couldn't check settings: %s.", err)
-		return
 	}
 
-	if !changed {
-		s.agentsState.RequestStateUpdate(ctx, models.PMMServerAgentID)
-		return
+	if changed {
+		s.l.Info("Settings differ from the ones this replica applied, applying them.")
+		err = s.applyConfigurations()
+		if err != nil {
+			s.l.Warnf("Couldn't apply settings: %s.", err)
+		}
 	}
 
-	s.l.Info("Settings differ from the ones this replica applied, applying them.")
-	err = s.UpdateConfigurations(ctx)
-	if err != nil {
-		s.l.Warnf("Couldn't apply settings: %s.", err)
-	}
+	s.agentsState.RequestStateUpdate(ctx, models.PMMServerAgentID)
 }
 
 func (s *Server) settingsChanged() (bool, error) {

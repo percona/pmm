@@ -16,6 +16,7 @@
 package server
 
 import (
+	"errors"
 	"testing"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
@@ -28,104 +29,143 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-func TestSyncReplica(t *testing.T) {
+type syncTestServer struct {
+	*Server
+	db          sqlmock.Sqlmock
+	supervisord *mockSupervisordService
+	nomad       *mockNomadService
+	vmdb        *mockPrometheusService
+	vmalert     *mockPrometheusService
+	state       *mockAgentsStateUpdater
+}
+
+func newSyncTestServer(t *testing.T) *syncTestServer {
+	t.Helper()
+
 	sqlDB, dbMock, err := sqlmock.New()
 	require.NoError(t, err)
 	t.Cleanup(func() {
 		dbMock.ExpectClose()
 		require.NoError(t, sqlDB.Close())
 	})
-	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	expectSettings := func(settings string) {
-		dbMock.ExpectQuery("SELECT settings FROM settings").
-			WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow([]byte(settings)))
+	ts := &syncTestServer{
+		db:          dbMock,
+		supervisord: &mockSupervisordService{},
+		nomad:       &mockNomadService{},
+		vmdb:        &mockPrometheusService{},
+		vmalert:     &mockPrometheusService{},
+		state:       &mockAgentsStateUpdater{},
 	}
-
-	supervisord := &mockSupervisordService{}
-	supervisord.Test(t)
-	nomad := &mockNomadService{}
-	nomad.Test(t)
-	vmdb := &mockPrometheusService{}
-	vmdb.Test(t)
-	vmalert := &mockPrometheusService{}
-	vmalert.Test(t)
-	state := &mockAgentsStateUpdater{}
-	state.Test(t)
 	ha := &mockHaService{}
-	ha.Test(t)
+	for _, m := range []interface{ Test(mock.TestingT) }{ts.supervisord, ts.nomad, ts.vmdb, ts.vmalert, ts.state, ha} {
+		m.Test(t)
+	}
 	ha.On("Params").Return(&models.HAParams{Enabled: true})
 
-	s := &Server{
-		db:          db,
-		vmdb:        vmdb,
-		vmalert:     vmalert,
-		agentsState: state,
-		supervisord: supervisord,
-		nomad:       nomad,
+	ts.Server = &Server{
+		db:          reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
+		vmdb:        ts.vmdb,
+		vmalert:     ts.vmalert,
+		agentsState: ts.state,
+		supervisord: ts.supervisord,
+		nomad:       ts.nomad,
 		haService:   ha,
 		l:           logrus.WithField("component", "server"),
 	}
 
-	expectApply := func() {
-		supervisord.On("UpdateConfiguration", mock.Anything).Return(nil).Once()
-		nomad.On("UpdateConfiguration", mock.Anything).Return(nil).Once()
-		vmdb.On("RequestConfigurationUpdate").Return().Once()
-		vmalert.On("RequestConfigurationUpdate").Return().Once()
-		state.On("UpdateAgentsState", mock.Anything).Return(nil).Once()
-	}
-	assertAll := func(t *testing.T) {
-		t.Helper()
-		supervisord.AssertExpectations(t)
-		nomad.AssertExpectations(t)
-		vmdb.AssertExpectations(t)
-		vmalert.AssertExpectations(t)
-		state.AssertExpectations(t)
+	t.Cleanup(func() {
+		ts.supervisord.AssertExpectations(t)
+		ts.nomad.AssertExpectations(t)
+		ts.vmdb.AssertExpectations(t)
+		ts.vmalert.AssertExpectations(t)
+		ts.state.AssertExpectations(t)
 		require.NoError(t, dbMock.ExpectationsWereMet())
-	}
-
-	hr5s := `{"metrics_resolutions":{"hr":5000000000,"mr":10000000000,"lr":60000000000}}`
-	hr10s := `{"metrics_resolutions":{"hr":10000000000,"mr":10000000000,"lr":60000000000}}`
-
-	t.Run("AppliesSettingsNotYetApplied", func(t *testing.T) {
-		expectSettings(hr5s)
-		expectSettings(hr5s)
-		expectApply()
-
-		s.syncReplica(t.Context())
-
-		assertAll(t)
 	})
 
-	t.Run("ResendsOwnAgentStateWhenSettingsAreUnchanged", func(t *testing.T) {
-		expectSettings(hr5s)
-		state.On("RequestStateUpdate", mock.Anything, models.PMMServerAgentID).Return().Once()
+	return ts
+}
 
-		s.syncReplica(t.Context())
+func (ts *syncTestServer) expectSettings(settings string) {
+	ts.db.ExpectQuery("SELECT settings FROM settings").
+		WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow([]byte(settings)))
+}
 
-		assertAll(t)
+func (ts *syncTestServer) expectApply() {
+	ts.nomad.On("UpdateConfiguration", mock.Anything).Return(nil).Once()
+	ts.supervisord.On("UpdateConfiguration", mock.Anything).Return(nil).Once()
+	ts.vmdb.On("RequestConfigurationUpdate").Return().Once()
+	ts.vmalert.On("RequestConfigurationUpdate").Return().Once()
+}
+
+func (ts *syncTestServer) expectOwnAgentStateUpdate() {
+	ts.state.On("RequestStateUpdate", mock.Anything, models.PMMServerAgentID).Return().Once()
+}
+
+const (
+	hr5s  = `{"metrics_resolutions":{"hr":5000000000,"mr":10000000000,"lr":60000000000}}`
+	hr10s = `{"metrics_resolutions":{"hr":10000000000,"mr":10000000000,"lr":60000000000}}`
+)
+
+func TestSyncReplica(t *testing.T) {
+	t.Parallel()
+
+	t.Run("AppliesSettingsNotYetApplied", func(t *testing.T) {
+		t.Parallel()
+		ts := newSyncTestServer(t)
+
+		ts.expectSettings(hr5s)
+		ts.expectSettings(hr5s)
+		ts.expectApply()
+		ts.expectOwnAgentStateUpdate()
+		ts.syncReplica(t.Context())
+	})
+
+	t.Run("OnlyResendsOwnAgentStateWhenSettingsAreUnchanged", func(t *testing.T) {
+		t.Parallel()
+		ts := newSyncTestServer(t)
+
+		ts.expectSettings(hr5s)
+		ts.expectApply()
+		ts.state.On("UpdateAgentsState", mock.Anything).Return(nil).Once()
+		require.NoError(t, ts.UpdateConfigurations(t.Context()))
+
+		ts.expectSettings(hr5s)
+		ts.expectOwnAgentStateUpdate()
+		ts.syncReplica(t.Context())
 	})
 
 	t.Run("AppliesSettingsChangedThroughAnotherReplica", func(t *testing.T) {
-		expectSettings(hr10s)
-		expectSettings(hr10s)
-		expectApply()
+		t.Parallel()
+		ts := newSyncTestServer(t)
 
-		s.syncReplica(t.Context())
+		ts.expectSettings(hr5s)
+		ts.expectApply()
+		ts.state.On("UpdateAgentsState", mock.Anything).Return(nil).Once()
+		require.NoError(t, ts.UpdateConfigurations(t.Context()))
 
-		assertAll(t)
+		ts.expectSettings(hr10s)
+		ts.expectSettings(hr10s)
+		ts.expectApply()
+		ts.expectOwnAgentStateUpdate()
+		ts.syncReplica(t.Context())
 	})
 
-	t.Run("DoesNotReapplySettingsAppliedByChangeSettings", func(t *testing.T) {
-		expectSettings(hr5s)
-		expectApply()
-		require.NoError(t, s.UpdateConfigurations(t.Context()))
+	t.Run("RetriesFailedApplyAndStillResendsOwnAgentState", func(t *testing.T) {
+		t.Parallel()
+		ts := newSyncTestServer(t)
 
-		expectSettings(hr5s)
-		state.On("RequestStateUpdate", mock.Anything, models.PMMServerAgentID).Return().Once()
+		ts.expectSettings(hr5s)
+		ts.expectSettings(hr5s)
+		ts.nomad.On("UpdateConfiguration", mock.Anything).Return(nil).Once()
+		ts.supervisord.On("UpdateConfiguration", mock.Anything).Return(errors.New("supervisorctl failed")).Once()
+		ts.expectOwnAgentStateUpdate()
+		ts.syncReplica(t.Context())
 
-		s.syncReplica(t.Context())
-
-		assertAll(t)
+		ts.expectSettings(hr5s)
+		ts.expectSettings(hr5s)
+		ts.expectApply()
+		ts.expectOwnAgentStateUpdate()
+		ts.syncReplica(t.Context())
 	})
 }
