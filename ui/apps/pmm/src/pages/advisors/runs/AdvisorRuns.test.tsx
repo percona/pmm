@@ -16,7 +16,11 @@ import {
   wrapWithSnackbarProvider,
   wrapWithUserProvider,
 } from 'utils/testUtils';
-import { AdvisorCheckTriggeredBy, AdvisorRun } from 'types/advisors.types';
+import {
+  AdvisorCheckTriggeredBy,
+  type AdvisorRun,
+  AdvisorRunStatus,
+} from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 
 vi.mock('api/advisors');
@@ -30,6 +34,7 @@ vi.mock('react-router-dom', async () => ({
 const FINISHED_RUN: AdvisorRun = {
   id: 'run-finished',
   triggeredBy: AdvisorCheckTriggeredBy.user,
+  status: AdvisorRunStatus.completed,
   startedAt: '2026-08-04T19:57:28Z',
   finishedAt: '2026-08-04T19:59:35Z',
   checksCount: 107,
@@ -46,6 +51,7 @@ const FINISHED_RUN: AdvisorRun = {
 const RUNNING_RUN: AdvisorRun = {
   id: 'run-open',
   triggeredBy: AdvisorCheckTriggeredBy.scheduler,
+  status: AdvisorRunStatus.running,
   startedAt: '2026-08-04T20:05:00Z',
   finishedAt: null,
   checksCount: 0,
@@ -105,13 +111,61 @@ describe('AdvisorRuns', () => {
     expect(screen.getByText('2 Info')).toBeInTheDocument();
   });
 
-  it('shows a run with no completion as still running', async () => {
+  it('shows a running run as running', async () => {
     renderComponent();
 
     await waitForRows();
 
     expect(screen.getByText(Messages.running)).toBeInTheDocument();
     expect(screen.getByTestId('run-in-progress')).toBeInTheDocument();
+  });
+
+  it('shows a queued run as queued', async () => {
+    vi.mocked(advisorsApi.listRuns).mockResolvedValue({
+      totalItems: 1,
+      totalPages: 1,
+      results: [{ ...RUNNING_RUN, status: AdvisorRunStatus.queued }],
+    });
+    renderComponent();
+
+    await waitForRows();
+
+    expect(screen.getByText(Messages.queued)).toBeInTheDocument();
+    expect(screen.getByTestId('run-in-progress')).toBeInTheDocument();
+    expect(screen.queryByText(Messages.running)).not.toBeInTheDocument();
+  });
+
+  it('shows interrupted and aborted runs instead of their duration', async () => {
+    vi.mocked(advisorsApi.listRuns).mockResolvedValue({
+      totalItems: 2,
+      totalPages: 1,
+      results: [
+        {
+          ...FINISHED_RUN,
+          id: 'run-interrupted',
+          status: AdvisorRunStatus.interrupted,
+        },
+        {
+          ...RUNNING_RUN,
+          id: 'run-aborted',
+          status: AdvisorRunStatus.aborted,
+          finishedAt: RUNNING_RUN.startedAt,
+        },
+      ],
+    });
+    renderComponent();
+
+    await waitForRows();
+
+    expect(screen.getByTestId('run-interrupted')).toHaveTextContent(
+      Messages.interrupted
+    );
+    expect(screen.getByTestId('run-aborted')).toHaveTextContent(
+      Messages.aborted
+    );
+    // the interrupted run's duration would only cover its last saved insight
+    expect(screen.queryByText('2m 07s')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('run-in-progress')).not.toBeInTheDocument();
   });
 
   it('passes the trigger filter to the API and resets the page', async () => {
@@ -191,12 +245,12 @@ describe('AdvisorRuns', () => {
     );
   });
 
-  it('polls once a minute while runs are in flight, then stops', async () => {
-    // two concurrent runs: the interval is per query, so still one request
+  it('polls once a minute while a run is in flight, then stops', async () => {
+    // a queued run counts as in flight too
     vi.mocked(advisorsApi.listRuns).mockResolvedValue({
-      totalItems: 2,
+      totalItems: 1,
       totalPages: 1,
-      results: [RUNNING_RUN, { ...RUNNING_RUN, id: 'run-open-2' }],
+      results: [{ ...RUNNING_RUN, status: AdvisorRunStatus.queued }],
     });
 
     vi.useFakeTimers();

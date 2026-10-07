@@ -368,6 +368,21 @@ message MarkInsightsReadRequest {
 
 message MarkInsightsReadResponse {}
 
+// AdvisorRunStatus is the state of an Advisor run.
+enum AdvisorRunStatus {
+  ADVISOR_RUN_STATUS_UNSPECIFIED = 0;
+  // The run was requested and waits for the leader to start it.
+  ADVISOR_RUN_STATUS_QUEUED = 1;
+  // The run is executing checks.
+  ADVISOR_RUN_STATUS_RUNNING = 2;
+  // The run finished normally.
+  ADVISOR_RUN_STATUS_COMPLETED = 3;
+  // PMM restarted before the run finished; the insights it saved are kept.
+  ADVISOR_RUN_STATUS_INTERRUPTED = 4;
+  // The run stopped before running any check.
+  ADVISOR_RUN_STATUS_ABORTED = 5;
+}
+
 // AdvisorRun is a single execution of Advisor checks. Its totals are recorded on
 // completion, so they stay accurate after the run's insights have been pruned.
 message AdvisorRun {
@@ -377,7 +392,7 @@ message AdvisorRun {
   AdvisorCheckTriggeredBy triggered_by = 2;
   // When the run began.
   google.protobuf.Timestamp started_at = 3;
-  // When the run completed; unset while it is still running.
+  // When the run completed; unset while it is queued or running.
   google.protobuf.Timestamp finished_at = 4;
   // Number of distinct checks the run executed.
   int32 checks_count = 5;
@@ -390,6 +405,8 @@ message AdvisorRun {
   // Number of findings per severity, most severe first. A repeated field rather
   // than a map so severity stays a typed enum instead of a free-form key.
   repeated SeverityCount severity_counts = 9;
+  // The state of the run.
+  AdvisorRunStatus status = 10;
 }
 
 // SeverityCount is the number of findings a run produced at a single severity.
@@ -465,7 +482,7 @@ service AdvisorService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start Advisor Checks"
-      description: "Executes Advisor checks and returns when all checks are executed. All available checks will be started if check names aren't specified."
+      description: "Starts Advisor checks and returns the run ID without waiting for them to finish. All available checks are started if check names aren't specified. Only one run can be queued or running at a time; while another one is, the request fails with FAILED_PRECONDITION."
     };
   }
   // ListAdvisorChecks returns a list of advisor checks available to the user..

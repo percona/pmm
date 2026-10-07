@@ -1295,6 +1295,9 @@ var databaseSchema = [][]string{
 		`CREATE TABLE advisor_runs (
 			id VARCHAR NOT NULL,
 			triggered_by VARCHAR NOT NULL,
+			status VARCHAR NOT NULL,
+			check_names VARCHAR[],
+			service_ids VARCHAR[],
 			started_at TIMESTAMP NOT NULL,
 			finished_at TIMESTAMP,
 			checks_count INTEGER NOT NULL,
@@ -1306,6 +1309,9 @@ var databaseSchema = [][]string{
 			PRIMARY KEY (id)
 		)`,
 		`CREATE INDEX advisor_runs_started_at_idx ON advisor_runs (started_at)`,
+		// At most one queued or running run, so claiming the run slot is a single
+		// atomic insert on every HA node.
+		`CREATE UNIQUE INDEX advisor_runs_active_idx ON advisor_runs ((true)) WHERE status IN ('queued', 'running')`,
 	},
 }
 

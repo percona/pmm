@@ -92,7 +92,7 @@ func TestSendTestAdvisorNotification(t *testing.T) {
 func TestStartAdvisorChecks(t *testing.T) {
 	t.Run("internal error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("StartChecks", []string(nil), []string(nil)).Return("", errors.New("random error"))
+		checksService.On("StartChecks", mock.Anything, []string(nil), []string(nil)).Return("", errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
@@ -103,12 +103,29 @@ func TestStartAdvisorChecks(t *testing.T) {
 
 	t.Run("Advisors disabled error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("StartChecks", []string(nil), []string(nil)).Return("", services.ErrAdvisorsDisabled)
+		checksService.On("StartChecks", mock.Anything, []string(nil), []string(nil)).Return("", services.ErrAdvisorsDisabled)
 
 		s := NewChecksAPIService(&checksService)
 
 		resp, err := s.StartAdvisorChecks(t.Context(), &advisorsv1.StartAdvisorChecksRequest{})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "advisor checks are disabled."), err)
+		assert.Nil(t, resp)
+	})
+
+	t.Run("run in progress", func(t *testing.T) {
+		now := time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC)
+		inProgress := &services.AdvisorRunInProgressError{
+			Run: &models.AdvisorRun{TriggeredBy: models.CheckTriggeredByScheduler, StartedAt: now.Add(-3 * time.Minute)},
+			Now: now,
+		}
+		var checksService mockChecksService
+		checksService.On("StartChecks", mock.Anything, []string{"check_a"}, []string(nil)).Return("", inProgress)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.StartAdvisorChecks(t.Context(), &advisorsv1.StartAdvisorChecksRequest{Names: []string{"check_a"}})
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition,
+			"Advisor checks are already running (started 3 minutes ago by the scheduler). Try again when the run finishes."), err)
 		assert.Nil(t, resp)
 	})
 }
@@ -254,6 +271,7 @@ func TestListRuns(t *testing.T) {
 		finished := &models.AdvisorRun{
 			ID:            "run-1",
 			TriggeredBy:   models.CheckTriggeredByUser,
+			Status:        models.AdvisorRunStatusCompleted,
 			StartedAt:     startedAt,
 			FinishedAt:    &finishedAt,
 			ChecksCount:   107,
@@ -269,6 +287,7 @@ func TestListRuns(t *testing.T) {
 		running := &models.AdvisorRun{
 			ID:          "run-2",
 			TriggeredBy: models.CheckTriggeredByScheduler,
+			Status:      models.AdvisorRunStatusRunning,
 			StartedAt:   startedAt.Add(5 * time.Minute),
 		}
 
@@ -289,6 +308,7 @@ func TestListRuns(t *testing.T) {
 				{
 					Id:            "run-1",
 					TriggeredBy:   advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_USER,
+					Status:        advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_COMPLETED,
 					StartedAt:     timestamppb.New(startedAt),
 					FinishedAt:    timestamppb.New(finishedAt),
 					ChecksCount:   107,
@@ -303,6 +323,7 @@ func TestListRuns(t *testing.T) {
 				{
 					Id:             "run-2",
 					TriggeredBy:    advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER,
+					Status:         advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_RUNNING,
 					StartedAt:      timestamppb.New(startedAt.Add(5 * time.Minute)),
 					SeverityCounts: []*advisorsv1.SeverityCount{},
 				},

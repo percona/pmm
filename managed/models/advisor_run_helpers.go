@@ -23,16 +23,55 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"gopkg.in/reform.v1"
 )
 
-// StartAdvisorRun records the beginning of an Advisor checks execution. The
-// counts stay zero and finished_at stays NULL until FinishAdvisorRun is called.
-func StartAdvisorRun(ctx context.Context, q *reform.Querier, r *AdvisorRun) error {
+// ErrAdvisorRunInProgress means another Advisor run is already queued or running.
+var ErrAdvisorRunInProgress = errors.New("another advisor run is in progress")
+
+// CreateAdvisorRun records an Advisor checks execution. The counts stay zero and
+// finished_at stays NULL until FinishAdvisorRun is called. Only one run can be
+// queued or running at a time; ErrAdvisorRunInProgress is returned otherwise.
+func CreateAdvisorRun(ctx context.Context, q *reform.Querier, r *AdvisorRun) error {
 	if r.ID == "" {
 		r.ID = uuid.NewString()
 	}
-	return q.WithContext(ctx).Insert(r)
+	err := q.WithContext(ctx).Insert(r)
+	var pqErr *pq.Error
+	if errors.As(err, &pqErr) && pqErr.Code == "23505" && pqErr.Constraint == "advisor_runs_active_idx" {
+		return ErrAdvisorRunInProgress
+	}
+	return err
+}
+
+// FindActiveAdvisorRun returns the queued or running run, or nil if there is none.
+func FindActiveAdvisorRun(ctx context.Context, q *reform.Querier) (*AdvisorRun, error) {
+	row, err := q.WithContext(ctx).SelectOneFrom(AdvisorRunTable, "WHERE status IN ($1, $2)",
+		AdvisorRunStatusQueued, AdvisorRunStatusRunning)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, nil //nolint:nilnil
+		}
+		return nil, fmt.Errorf("failed to select active advisor run: %w", err)
+	}
+	return row.(*AdvisorRun), nil //nolint:forcetypeassert
+}
+
+// StartQueuedAdvisorRun moves a queued run to running and stamps its actual
+// start. It returns false when the run is no longer queued.
+func StartQueuedAdvisorRun(ctx context.Context, q *reform.Querier, id string, startedAt time.Time) (bool, error) {
+	res, err := q.ExecContext(ctx,
+		"UPDATE "+AdvisorRunTable.Name()+" SET status = $1, started_at = $2 WHERE id = $3 AND status = $4",
+		AdvisorRunStatusRunning, startedAt, id, AdvisorRunStatusQueued)
+	if err != nil {
+		return false, fmt.Errorf("failed to start advisor run '%s': %w", id, err)
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return false, fmt.Errorf("failed to start advisor run '%s': %w", id, err)
+	}
+	return n == 1, nil
 }
 
 // AdvisorRunCounts holds the totals denormalized onto a run when it completes.
@@ -44,10 +83,17 @@ type AdvisorRunCounts struct {
 	SeverityCounts map[Severity]int
 }
 
-// FinishAdvisorRun marks a run as complete and stores its totals. A missing run
-// row is not an error: runs recorded before this table existed have nothing to
-// update, and a failed insert must not break the check run itself.
-func FinishAdvisorRun(ctx context.Context, q *reform.Querier, id string, finishedAt time.Time, counts AdvisorRunCounts) error {
+// FinishAdvisorRun closes a run with the given final status and stores its
+// totals. A missing run row is not an error: runs recorded before this table
+// existed have nothing to update.
+func FinishAdvisorRun(
+	ctx context.Context,
+	q *reform.Querier,
+	id string,
+	status AdvisorRunStatus,
+	finishedAt time.Time,
+	counts AdvisorRunCounts,
+) error {
 	run := &AdvisorRun{ID: id}
 	err := q.WithContext(ctx).Reload(run)
 	if err != nil {
@@ -57,6 +103,7 @@ func FinishAdvisorRun(ctx context.Context, q *reform.Querier, id string, finishe
 		return fmt.Errorf("failed to load advisor run '%s': %w", id, err)
 	}
 
+	run.Status = status
 	run.FinishedAt = &finishedAt
 	run.ChecksCount = counts.ChecksCount
 	run.ServicesCount = counts.ServicesCount
@@ -122,12 +169,13 @@ func ComputeAdvisorRunCounts(ctx context.Context, q *reform.Querier, runID strin
 	return counts, nil
 }
 
-// FindUnfinishedAdvisorRuns returns runs that never recorded a completion. After
-// a restart these cannot still be running, so the caller closes them out.
-func FindUnfinishedAdvisorRuns(ctx context.Context, q *reform.Querier) ([]*AdvisorRun, error) {
-	rows, err := q.WithContext(ctx).SelectAllFrom(AdvisorRunTable, "WHERE finished_at IS NULL")
+// FindRunningAdvisorRuns returns runs that started but never recorded a
+// completion. After a restart these cannot still be running, so the caller
+// closes them out; queued runs are left for the leader to start.
+func FindRunningAdvisorRuns(ctx context.Context, q *reform.Querier) ([]*AdvisorRun, error) {
+	rows, err := q.WithContext(ctx).SelectAllFrom(AdvisorRunTable, "WHERE status = $1", AdvisorRunStatusRunning)
 	if err != nil {
-		return nil, fmt.Errorf("failed to select unfinished advisor runs: %w", err)
+		return nil, fmt.Errorf("failed to select running advisor runs: %w", err)
 	}
 
 	runs := make([]*AdvisorRun, 0, len(rows))

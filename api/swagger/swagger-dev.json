@@ -2533,7 +2533,7 @@
     },
     "/v1/advisors/checks:start": {
       "post": {
-        "description": "Executes Advisor checks and returns when all checks are executed. All available checks will be started if check names aren't specified.",
+        "description": "Starts Advisor checks and returns the run ID without waiting for them to finish. All available checks are started if check names aren't specified. Only one run can be queued or running at a time; while another one is, the request fails with FAILED_PRECONDITION.",
         "tags": [
           "AdvisorService"
         ],
@@ -3667,7 +3667,7 @@
                         "x-order": 2
                       },
                       "finished_at": {
-                        "description": "When the run completed; unset while it is still running.",
+                        "description": "When the run completed; unset while it is queued or running.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 3
@@ -3728,6 +3728,20 @@
                           }
                         },
                         "x-order": 8
+                      },
+                      "status": {
+                        "description": "AdvisorRunStatus is the state of an Advisor run.\n\n - ADVISOR_RUN_STATUS_QUEUED: The run was requested and waits for the leader to start it.\n - ADVISOR_RUN_STATUS_RUNNING: The run is executing checks.\n - ADVISOR_RUN_STATUS_COMPLETED: The run finished normally.\n - ADVISOR_RUN_STATUS_INTERRUPTED: PMM restarted before the run finished; the insights it saved are kept.\n - ADVISOR_RUN_STATUS_ABORTED: The run stopped before running any check.",
+                        "type": "string",
+                        "default": "ADVISOR_RUN_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "ADVISOR_RUN_STATUS_UNSPECIFIED",
+                          "ADVISOR_RUN_STATUS_QUEUED",
+                          "ADVISOR_RUN_STATUS_RUNNING",
+                          "ADVISOR_RUN_STATUS_COMPLETED",
+                          "ADVISOR_RUN_STATUS_INTERRUPTED",
+                          "ADVISOR_RUN_STATUS_ABORTED"
+                        ],
+                        "x-order": 9
                       }
                     }
                   },

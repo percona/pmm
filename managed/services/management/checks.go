@@ -195,6 +195,7 @@ func (s *ChecksAPIService) ListRuns(
 		item := &advisorsv1.AdvisorRun{
 			Id:             r.ID,
 			TriggeredBy:    convertModelTriggeredBy(r.TriggeredBy),
+			Status:         convertModelRunStatus(r.Status),
 			StartedAt:      timestamppb.New(r.StartedAt),
 			ChecksCount:    int32(r.ChecksCount),   //nolint:gosec
 			ServicesCount:  int32(r.ServicesCount), //nolint:gosec
@@ -282,12 +283,16 @@ func (s *ChecksAPIService) MarkInsightsRead(
 }
 
 // StartAdvisorChecks executes advisor checks and returns the ID assigned to this run.
-func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *advisorsv1.StartAdvisorChecksRequest) (*advisorsv1.StartAdvisorChecksResponse, error) {
+func (s *ChecksAPIService) StartAdvisorChecks(ctx context.Context, req *advisorsv1.StartAdvisorChecksRequest) (*advisorsv1.StartAdvisorChecksResponse, error) {
 	// Start only specified checks from any group.
-	runID, err := s.checksService.StartChecks(req.Names, req.ServiceIds)
+	runID, err := s.checksService.StartChecks(ctx, req.Names, req.ServiceIds)
 	if err != nil {
 		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
+		}
+		_, inProgress := errors.AsType[*services.AdvisorRunInProgressError](err)
+		if inProgress {
+			return nil, status.Error(codes.FailedPrecondition, err.Error())
 		}
 
 		return nil, fmt.Errorf("failed to start advisor checks: %w", err)
@@ -714,6 +719,23 @@ func convertModelTriggeredBy(triggeredBy models.CheckTriggeredBy) advisorsv1.Adv
 		return advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER
 	default:
 		return advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED
+	}
+}
+
+func convertModelRunStatus(runStatus models.AdvisorRunStatus) advisorsv1.AdvisorRunStatus {
+	switch runStatus {
+	case models.AdvisorRunStatusQueued:
+		return advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_QUEUED
+	case models.AdvisorRunStatusRunning:
+		return advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_RUNNING
+	case models.AdvisorRunStatusCompleted:
+		return advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_COMPLETED
+	case models.AdvisorRunStatusInterrupted:
+		return advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_INTERRUPTED
+	case models.AdvisorRunStatusAborted:
+		return advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_ABORTED
+	default:
+		return advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_UNSPECIFIED
 	}
 }
 

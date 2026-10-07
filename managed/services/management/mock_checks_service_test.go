@@ -460,9 +460,9 @@ func (_m *mockChecksService) SendTestNotification(recipients []string) error {
 	return r0
 }
 
-// StartChecks provides a mock function with given fields: checkNames, serviceIDs
-func (_m *mockChecksService) StartChecks(checkNames []string, serviceIDs []string) (string, error) {
-	ret := _m.Called(checkNames, serviceIDs)
+// StartChecks provides a mock function with given fields: ctx, checkNames, serviceIDs
+func (_m *mockChecksService) StartChecks(ctx context.Context, checkNames []string, serviceIDs []string) (string, error) {
+	ret := _m.Called(ctx, checkNames, serviceIDs)
 
 	if len(ret) == 0 {
 		panic("no return value specified for StartChecks")
@@ -470,17 +470,17 @@ func (_m *mockChecksService) StartChecks(checkNames []string, serviceIDs []strin
 
 	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func([]string, []string) (string, error)); ok {
-		return rf(checkNames, serviceIDs)
+	if rf, ok := ret.Get(0).(func(context.Context, []string, []string) (string, error)); ok {
+		return rf(ctx, checkNames, serviceIDs)
 	}
-	if rf, ok := ret.Get(0).(func([]string, []string) string); ok {
-		r0 = rf(checkNames, serviceIDs)
+	if rf, ok := ret.Get(0).(func(context.Context, []string, []string) string); ok {
+		r0 = rf(ctx, checkNames, serviceIDs)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func([]string, []string) error); ok {
-		r1 = rf(checkNames, serviceIDs)
+	if rf, ok := ret.Get(1).(func(context.Context, []string, []string) error); ok {
+		r1 = rf(ctx, checkNames, serviceIDs)
 	} else {
 		r1 = ret.Error(1)
 	}

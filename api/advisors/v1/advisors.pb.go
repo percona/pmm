@@ -241,6 +241,70 @@ func (AdvisorCheckTriggeredBy) EnumDescriptor() ([]byte, []int) {
 	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{3}
 }
 
+// AdvisorRunStatus is the state of an Advisor run.
+type AdvisorRunStatus int32
+
+const (
+	AdvisorRunStatus_ADVISOR_RUN_STATUS_UNSPECIFIED AdvisorRunStatus = 0
+	// The run was requested and waits for the leader to start it.
+	AdvisorRunStatus_ADVISOR_RUN_STATUS_QUEUED AdvisorRunStatus = 1
+	// The run is executing checks.
+	AdvisorRunStatus_ADVISOR_RUN_STATUS_RUNNING AdvisorRunStatus = 2
+	// The run finished normally.
+	AdvisorRunStatus_ADVISOR_RUN_STATUS_COMPLETED AdvisorRunStatus = 3
+	// PMM restarted before the run finished; the insights it saved are kept.
+	AdvisorRunStatus_ADVISOR_RUN_STATUS_INTERRUPTED AdvisorRunStatus = 4
+	// The run stopped before running any check.
+	AdvisorRunStatus_ADVISOR_RUN_STATUS_ABORTED AdvisorRunStatus = 5
+)
+
+// Enum value maps for AdvisorRunStatus.
+var (
+	AdvisorRunStatus_name = map[int32]string{
+		0: "ADVISOR_RUN_STATUS_UNSPECIFIED",
+		1: "ADVISOR_RUN_STATUS_QUEUED",
+		2: "ADVISOR_RUN_STATUS_RUNNING",
+		3: "ADVISOR_RUN_STATUS_COMPLETED",
+		4: "ADVISOR_RUN_STATUS_INTERRUPTED",
+		5: "ADVISOR_RUN_STATUS_ABORTED",
+	}
+	AdvisorRunStatus_value = map[string]int32{
+		"ADVISOR_RUN_STATUS_UNSPECIFIED": 0,
+		"ADVISOR_RUN_STATUS_QUEUED":      1,
+		"ADVISOR_RUN_STATUS_RUNNING":     2,
+		"ADVISOR_RUN_STATUS_COMPLETED":   3,
+		"ADVISOR_RUN_STATUS_INTERRUPTED": 4,
+		"ADVISOR_RUN_STATUS_ABORTED":     5,
+	}
+)
+
+func (x AdvisorRunStatus) Enum() *AdvisorRunStatus {
+	p := new(AdvisorRunStatus)
+	*p = x
+	return p
+}
+
+func (x AdvisorRunStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AdvisorRunStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_advisors_v1_advisors_proto_enumTypes[4].Descriptor()
+}
+
+func (AdvisorRunStatus) Type() protoreflect.EnumType {
+	return &file_advisors_v1_advisors_proto_enumTypes[4]
+}
+
+func (x AdvisorRunStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AdvisorRunStatus.Descriptor instead.
+func (AdvisorRunStatus) EnumDescriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{4}
+}
+
 // AdvisorCheckQuery is a single data-collection query of an advisor check.
 type AdvisorCheckQuery struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -2550,7 +2614,7 @@ type AdvisorRun struct {
 	TriggeredBy AdvisorCheckTriggeredBy `protobuf:"varint,2,opt,name=triggered_by,json=triggeredBy,proto3,enum=advisors.v1.AdvisorCheckTriggeredBy" json:"triggered_by,omitempty"`
 	// When the run began.
 	StartedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
-	// When the run completed; unset while it is still running.
+	// When the run completed; unset while it is queued or running.
 	FinishedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
 	// Number of distinct checks the run executed.
 	ChecksCount int32 `protobuf:"varint,5,opt,name=checks_count,json=checksCount,proto3" json:"checks_count,omitempty"`
@@ -2563,8 +2627,10 @@ type AdvisorRun struct {
 	// Number of findings per severity, most severe first. A repeated field rather
 	// than a map so severity stays a typed enum instead of a free-form key.
 	SeverityCounts []*SeverityCount `protobuf:"bytes,9,rep,name=severity_counts,json=severityCounts,proto3" json:"severity_counts,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// The state of the run.
+	Status        AdvisorRunStatus `protobuf:"varint,10,opt,name=status,proto3,enum=advisors.v1.AdvisorRunStatus" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AdvisorRun) Reset() {
@@ -2658,6 +2724,13 @@ func (x *AdvisorRun) GetSeverityCounts() []*SeverityCount {
 		return x.SeverityCounts
 	}
 	return nil
+}
+
+func (x *AdvisorRun) GetStatus() AdvisorRunStatus {
+	if x != nil {
+		return x.Status
+	}
+	return AdvisorRunStatus_ADVISOR_RUN_STATUS_UNSPECIFIED
 }
 
 // SeverityCount is the number of findings a run produced at a single severity.
@@ -3054,7 +3127,7 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\x03ids\x18\x01 \x03(\tR\x03ids\x12\x17\n" +
 	"\ais_read\x18\x02 \x01(\bR\x06isRead\x126\n" +
 	"\afilters\x18\x03 \x01(\v2\x1c.advisors.v1.InsightsFiltersR\afilters\"\x1a\n" +
-	"\x18MarkInsightsReadResponse\"\xb6\x03\n" +
+	"\x18MarkInsightsReadResponse\"\xed\x03\n" +
 	"\n" +
 	"AdvisorRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12G\n" +
@@ -3067,7 +3140,9 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\x0eservices_count\x18\x06 \x01(\x05R\rservicesCount\x12%\n" +
 	"\x0efindings_count\x18\a \x01(\x05R\rfindingsCount\x12!\n" +
 	"\ferrors_count\x18\b \x01(\x05R\verrorsCount\x12C\n" +
-	"\x0fseverity_counts\x18\t \x03(\v2\x1a.advisors.v1.SeverityCountR\x0eseverityCounts\"Z\n" +
+	"\x0fseverity_counts\x18\t \x03(\v2\x1a.advisors.v1.SeverityCountR\x0eseverityCounts\x125\n" +
+	"\x06status\x18\n" +
+	" \x01(\x0e2\x1d.advisors.v1.AdvisorRunStatusR\x06status\"Z\n" +
 	"\rSeverityCount\x123\n" +
 	"\bseverity\x18\x01 \x01(\x0e2\x17.management.v1.SeverityR\bseverity\x12\x14\n" +
 	"\x05count\x18\x02 \x01(\x05R\x05count\"\xc1\x02\n" +
@@ -3106,13 +3181,20 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\x17AdvisorCheckTriggeredBy\x12*\n" +
 	"&ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fADVISOR_CHECK_TRIGGERED_BY_USER\x10\x01\x12(\n" +
-	"$ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER\x10\x022\xde\x1e\n" +
+	"$ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER\x10\x02*\xdb\x01\n" +
+	"\x10AdvisorRunStatus\x12\"\n" +
+	"\x1eADVISOR_RUN_STATUS_UNSPECIFIED\x10\x00\x12\x1d\n" +
+	"\x19ADVISOR_RUN_STATUS_QUEUED\x10\x01\x12\x1e\n" +
+	"\x1aADVISOR_RUN_STATUS_RUNNING\x10\x02\x12 \n" +
+	"\x1cADVISOR_RUN_STATUS_COMPLETED\x10\x03\x12\"\n" +
+	"\x1eADVISOR_RUN_STATUS_INTERRUPTED\x10\x04\x12\x1e\n" +
+	"\x1aADVISOR_RUN_STATUS_ABORTED\x10\x052\xdc\x1f\n" +
 	"\x0eAdvisorService\x12\xcb\x01\n" +
 	"\bListRuns\x12\x1c.advisors.v1.ListRunsRequest\x1a\x1d.advisors.v1.ListRunsResponse\"\x81\x01\x92Ae\x12\x11List Advisor Runs\x1aPReturns the chronological history of Advisor check executions with their totals.\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/advisors/runs\x12\xe1\x01\n" +
 	"\fListInsights\x12 .advisors.v1.ListInsightsRequest\x1a!.advisors.v1.ListInsightsResponse\"\x8b\x01\x92Ak\x12\x15List Advisor Insights\x1aRReturns the history of Advisor check results (insights), including their outcomes.\x82\xd3\xe4\x93\x02\x17\x12\x15/v1/advisors/insights\x12\xbc\x02\n" +
 	"\x18ListInsightsFilterValues\x12,.advisors.v1.ListInsightsFilterValuesRequest\x1a-.advisors.v1.ListInsightsFilterValuesResponse\"\xc2\x01\x92A\x94\x01\x12#List Advisor Insights Filter Values\x1amReturns the distinct service and node names present in the Advisor insights, for populating filter dropdowns.\x82\xd3\xe4\x93\x02$\x12\"/v1/advisors/insights:filterValues\x12\x8c\x02\n" +
-	"\x10MarkInsightsRead\x12$.advisors.v1.MarkInsightsReadRequest\x1a%.advisors.v1.MarkInsightsReadResponse\"\xaa\x01\x92A~\x12\x1aMark Advisor Insights Read\x1a`Sets the read state on the specified Advisor insights. Set is_read to false to mark them unread.\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/advisors/insights:markRead\x12\xb0\x02\n" +
-	"\x12StartAdvisorChecks\x12&.advisors.v1.StartAdvisorChecksRequest\x1a'.advisors.v1.StartAdvisorChecksResponse\"\xc8\x01\x92A\xa0\x01\x12\x14Start Advisor Checks\x1a\x87\x01Executes Advisor checks and returns when all checks are executed. All available checks will be started if check names aren't specified.\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/advisors/checks:start\x12\xc3\x01\n" +
+	"\x10MarkInsightsRead\x12$.advisors.v1.MarkInsightsReadRequest\x1a%.advisors.v1.MarkInsightsReadResponse\"\xaa\x01\x92A~\x12\x1aMark Advisor Insights Read\x1a`Sets the read state on the specified Advisor insights. Set is_read to false to mark them unread.\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/advisors/insights:markRead\x12\xae\x03\n" +
+	"\x12StartAdvisorChecks\x12&.advisors.v1.StartAdvisorChecksRequest\x1a'.advisors.v1.StartAdvisorChecksResponse\"\xc6\x02\x92A\x9e\x02\x12\x14Start Advisor Checks\x1a\x85\x02Starts Advisor checks and returns the run ID without waiting for them to finish. All available checks are started if check names aren't specified. Only one run can be queued or running at a time; while another one is, the request fails with FAILED_PRECONDITION.\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/advisors/checks:start\x12\xc3\x01\n" +
 	"\x11ListAdvisorChecks\x12%.advisors.v1.ListAdvisorChecksRequest\x1a&.advisors.v1.ListAdvisorChecksResponse\"_\x92AA\x12\x13List Advisor Checks\x1a*List advisor checks available to the user.\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/advisors/checks\x12\xa1\x01\n" +
 	"\fListAdvisors\x12 .advisors.v1.ListAdvisorsRequest\x1a!.advisors.v1.ListAdvisorsResponse\"L\x92A5\x12\rList Advisors\x1a$List advisors available to the user.\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/advisors\x12\xf0\x01\n" +
 	"\x13ChangeAdvisorChecks\x12'.advisors.v1.ChangeAdvisorChecksRequest\x1a(.advisors.v1.ChangeAdvisorChecksResponse\"\x85\x01\x92AX\x12\x15Change Advisor Checks\x1a?Enables/disables advisor checks or changes their exec interval.\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/advisors/checks:batchChange\x12\xe2\x01\n" +
@@ -3138,141 +3220,143 @@ func file_advisors_v1_advisors_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_advisors_v1_advisors_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+	file_advisors_v1_advisors_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
 	file_advisors_v1_advisors_proto_msgTypes  = make([]protoimpl.MessageInfo, 43)
 	file_advisors_v1_advisors_proto_goTypes   = []any{
 		AdvisorCheckInterval(0),                     // 0: advisors.v1.AdvisorCheckInterval
 		AdvisorCheckTechnology(0),                   // 1: advisors.v1.AdvisorCheckTechnology
 		AdvisorCheckResultStatus(0),                 // 2: advisors.v1.AdvisorCheckResultStatus
 		AdvisorCheckTriggeredBy(0),                  // 3: advisors.v1.AdvisorCheckTriggeredBy
-		(*AdvisorCheckQuery)(nil),                   // 4: advisors.v1.AdvisorCheckQuery
-		(*AdvisorCheck)(nil),                        // 5: advisors.v1.AdvisorCheck
-		(*Advisor)(nil),                             // 6: advisors.v1.Advisor
-		(*ChangeAdvisorCheckParams)(nil),            // 7: advisors.v1.ChangeAdvisorCheckParams
-		(*StartAdvisorChecksRequest)(nil),           // 8: advisors.v1.StartAdvisorChecksRequest
-		(*StartAdvisorChecksResponse)(nil),          // 9: advisors.v1.StartAdvisorChecksResponse
-		(*ListAdvisorChecksRequest)(nil),            // 10: advisors.v1.ListAdvisorChecksRequest
-		(*ListAdvisorChecksResponse)(nil),           // 11: advisors.v1.ListAdvisorChecksResponse
-		(*GetAdvisorCheckRequest)(nil),              // 12: advisors.v1.GetAdvisorCheckRequest
-		(*GetAdvisorCheckResponse)(nil),             // 13: advisors.v1.GetAdvisorCheckResponse
-		(*CreateAdvisorCheckRequest)(nil),           // 14: advisors.v1.CreateAdvisorCheckRequest
-		(*CreateAdvisorCheckResponse)(nil),          // 15: advisors.v1.CreateAdvisorCheckResponse
-		(*UpdateAdvisorCheckRequest)(nil),           // 16: advisors.v1.UpdateAdvisorCheckRequest
-		(*UpdateAdvisorCheckResponse)(nil),          // 17: advisors.v1.UpdateAdvisorCheckResponse
-		(*DeleteAdvisorCheckRequest)(nil),           // 18: advisors.v1.DeleteAdvisorCheckRequest
-		(*DeleteAdvisorCheckResponse)(nil),          // 19: advisors.v1.DeleteAdvisorCheckResponse
-		(*TestAdvisorCheckRequest)(nil),             // 20: advisors.v1.TestAdvisorCheckRequest
-		(*TestAdvisorCheckResult)(nil),              // 21: advisors.v1.TestAdvisorCheckResult
-		(*TestAdvisorCheckResponse)(nil),            // 22: advisors.v1.TestAdvisorCheckResponse
-		(*ListAdvisorCheckTestTargetsRequest)(nil),  // 23: advisors.v1.ListAdvisorCheckTestTargetsRequest
-		(*AdvisorCheckTestTarget)(nil),              // 24: advisors.v1.AdvisorCheckTestTarget
-		(*ListAdvisorCheckTestTargetsResponse)(nil), // 25: advisors.v1.ListAdvisorCheckTestTargetsResponse
-		(*ListAdvisorsRequest)(nil),                 // 26: advisors.v1.ListAdvisorsRequest
-		(*ListAdvisorsResponse)(nil),                // 27: advisors.v1.ListAdvisorsResponse
-		(*ChangeAdvisorChecksRequest)(nil),          // 28: advisors.v1.ChangeAdvisorChecksRequest
-		(*ChangeAdvisorChecksResponse)(nil),         // 29: advisors.v1.ChangeAdvisorChecksResponse
-		(*SendTestAdvisorNotificationRequest)(nil),  // 30: advisors.v1.SendTestAdvisorNotificationRequest
-		(*SendTestAdvisorNotificationResponse)(nil), // 31: advisors.v1.SendTestAdvisorNotificationResponse
-		(*Insight)(nil),                             // 32: advisors.v1.Insight
-		(*ListInsightsRequest)(nil),                 // 33: advisors.v1.ListInsightsRequest
-		(*ListInsightsResponse)(nil),                // 34: advisors.v1.ListInsightsResponse
-		(*ListInsightsFilterValuesRequest)(nil),     // 35: advisors.v1.ListInsightsFilterValuesRequest
-		(*ListInsightsFilterValuesResponse)(nil),    // 36: advisors.v1.ListInsightsFilterValuesResponse
-		(*InsightsFilters)(nil),                     // 37: advisors.v1.InsightsFilters
-		(*MarkInsightsReadRequest)(nil),             // 38: advisors.v1.MarkInsightsReadRequest
-		(*MarkInsightsReadResponse)(nil),            // 39: advisors.v1.MarkInsightsReadResponse
-		(*AdvisorRun)(nil),                          // 40: advisors.v1.AdvisorRun
-		(*SeverityCount)(nil),                       // 41: advisors.v1.SeverityCount
-		(*ListRunsRequest)(nil),                     // 42: advisors.v1.ListRunsRequest
-		(*ListRunsResponse)(nil),                    // 43: advisors.v1.ListRunsResponse
-		nil,                                         // 44: advisors.v1.AdvisorCheckQuery.ParametersEntry
-		nil,                                         // 45: advisors.v1.TestAdvisorCheckResult.LabelsEntry
-		nil,                                         // 46: advisors.v1.Insight.LabelsEntry
-		v1.Severity(0),                              // 47: management.v1.Severity
-		(*timestamppb.Timestamp)(nil),               // 48: google.protobuf.Timestamp
+		AdvisorRunStatus(0),                         // 4: advisors.v1.AdvisorRunStatus
+		(*AdvisorCheckQuery)(nil),                   // 5: advisors.v1.AdvisorCheckQuery
+		(*AdvisorCheck)(nil),                        // 6: advisors.v1.AdvisorCheck
+		(*Advisor)(nil),                             // 7: advisors.v1.Advisor
+		(*ChangeAdvisorCheckParams)(nil),            // 8: advisors.v1.ChangeAdvisorCheckParams
+		(*StartAdvisorChecksRequest)(nil),           // 9: advisors.v1.StartAdvisorChecksRequest
+		(*StartAdvisorChecksResponse)(nil),          // 10: advisors.v1.StartAdvisorChecksResponse
+		(*ListAdvisorChecksRequest)(nil),            // 11: advisors.v1.ListAdvisorChecksRequest
+		(*ListAdvisorChecksResponse)(nil),           // 12: advisors.v1.ListAdvisorChecksResponse
+		(*GetAdvisorCheckRequest)(nil),              // 13: advisors.v1.GetAdvisorCheckRequest
+		(*GetAdvisorCheckResponse)(nil),             // 14: advisors.v1.GetAdvisorCheckResponse
+		(*CreateAdvisorCheckRequest)(nil),           // 15: advisors.v1.CreateAdvisorCheckRequest
+		(*CreateAdvisorCheckResponse)(nil),          // 16: advisors.v1.CreateAdvisorCheckResponse
+		(*UpdateAdvisorCheckRequest)(nil),           // 17: advisors.v1.UpdateAdvisorCheckRequest
+		(*UpdateAdvisorCheckResponse)(nil),          // 18: advisors.v1.UpdateAdvisorCheckResponse
+		(*DeleteAdvisorCheckRequest)(nil),           // 19: advisors.v1.DeleteAdvisorCheckRequest
+		(*DeleteAdvisorCheckResponse)(nil),          // 20: advisors.v1.DeleteAdvisorCheckResponse
+		(*TestAdvisorCheckRequest)(nil),             // 21: advisors.v1.TestAdvisorCheckRequest
+		(*TestAdvisorCheckResult)(nil),              // 22: advisors.v1.TestAdvisorCheckResult
+		(*TestAdvisorCheckResponse)(nil),            // 23: advisors.v1.TestAdvisorCheckResponse
+		(*ListAdvisorCheckTestTargetsRequest)(nil),  // 24: advisors.v1.ListAdvisorCheckTestTargetsRequest
+		(*AdvisorCheckTestTarget)(nil),              // 25: advisors.v1.AdvisorCheckTestTarget
+		(*ListAdvisorCheckTestTargetsResponse)(nil), // 26: advisors.v1.ListAdvisorCheckTestTargetsResponse
+		(*ListAdvisorsRequest)(nil),                 // 27: advisors.v1.ListAdvisorsRequest
+		(*ListAdvisorsResponse)(nil),                // 28: advisors.v1.ListAdvisorsResponse
+		(*ChangeAdvisorChecksRequest)(nil),          // 29: advisors.v1.ChangeAdvisorChecksRequest
+		(*ChangeAdvisorChecksResponse)(nil),         // 30: advisors.v1.ChangeAdvisorChecksResponse
+		(*SendTestAdvisorNotificationRequest)(nil),  // 31: advisors.v1.SendTestAdvisorNotificationRequest
+		(*SendTestAdvisorNotificationResponse)(nil), // 32: advisors.v1.SendTestAdvisorNotificationResponse
+		(*Insight)(nil),                             // 33: advisors.v1.Insight
+		(*ListInsightsRequest)(nil),                 // 34: advisors.v1.ListInsightsRequest
+		(*ListInsightsResponse)(nil),                // 35: advisors.v1.ListInsightsResponse
+		(*ListInsightsFilterValuesRequest)(nil),     // 36: advisors.v1.ListInsightsFilterValuesRequest
+		(*ListInsightsFilterValuesResponse)(nil),    // 37: advisors.v1.ListInsightsFilterValuesResponse
+		(*InsightsFilters)(nil),                     // 38: advisors.v1.InsightsFilters
+		(*MarkInsightsReadRequest)(nil),             // 39: advisors.v1.MarkInsightsReadRequest
+		(*MarkInsightsReadResponse)(nil),            // 40: advisors.v1.MarkInsightsReadResponse
+		(*AdvisorRun)(nil),                          // 41: advisors.v1.AdvisorRun
+		(*SeverityCount)(nil),                       // 42: advisors.v1.SeverityCount
+		(*ListRunsRequest)(nil),                     // 43: advisors.v1.ListRunsRequest
+		(*ListRunsResponse)(nil),                    // 44: advisors.v1.ListRunsResponse
+		nil,                                         // 45: advisors.v1.AdvisorCheckQuery.ParametersEntry
+		nil,                                         // 46: advisors.v1.TestAdvisorCheckResult.LabelsEntry
+		nil,                                         // 47: advisors.v1.Insight.LabelsEntry
+		v1.Severity(0),                              // 48: management.v1.Severity
+		(*timestamppb.Timestamp)(nil),               // 49: google.protobuf.Timestamp
 	}
 )
 
 var file_advisors_v1_advisors_proto_depIdxs = []int32{
-	44, // 0: advisors.v1.AdvisorCheckQuery.parameters:type_name -> advisors.v1.AdvisorCheckQuery.ParametersEntry
+	45, // 0: advisors.v1.AdvisorCheckQuery.parameters:type_name -> advisors.v1.AdvisorCheckQuery.ParametersEntry
 	0,  // 1: advisors.v1.AdvisorCheck.interval:type_name -> advisors.v1.AdvisorCheckInterval
 	1,  // 2: advisors.v1.AdvisorCheck.technology:type_name -> advisors.v1.AdvisorCheckTechnology
-	4,  // 3: advisors.v1.AdvisorCheck.queries:type_name -> advisors.v1.AdvisorCheckQuery
-	5,  // 4: advisors.v1.Advisor.checks:type_name -> advisors.v1.AdvisorCheck
+	5,  // 3: advisors.v1.AdvisorCheck.queries:type_name -> advisors.v1.AdvisorCheckQuery
+	6,  // 4: advisors.v1.Advisor.checks:type_name -> advisors.v1.AdvisorCheck
 	0,  // 5: advisors.v1.ChangeAdvisorCheckParams.interval:type_name -> advisors.v1.AdvisorCheckInterval
-	5,  // 6: advisors.v1.ListAdvisorChecksResponse.checks:type_name -> advisors.v1.AdvisorCheck
-	5,  // 7: advisors.v1.GetAdvisorCheckResponse.check:type_name -> advisors.v1.AdvisorCheck
-	5,  // 8: advisors.v1.CreateAdvisorCheckRequest.check:type_name -> advisors.v1.AdvisorCheck
-	5,  // 9: advisors.v1.CreateAdvisorCheckResponse.check:type_name -> advisors.v1.AdvisorCheck
-	5,  // 10: advisors.v1.UpdateAdvisorCheckRequest.check:type_name -> advisors.v1.AdvisorCheck
-	5,  // 11: advisors.v1.UpdateAdvisorCheckResponse.check:type_name -> advisors.v1.AdvisorCheck
-	5,  // 12: advisors.v1.TestAdvisorCheckRequest.check:type_name -> advisors.v1.AdvisorCheck
-	47, // 13: advisors.v1.TestAdvisorCheckResult.severity:type_name -> management.v1.Severity
-	45, // 14: advisors.v1.TestAdvisorCheckResult.labels:type_name -> advisors.v1.TestAdvisorCheckResult.LabelsEntry
-	21, // 15: advisors.v1.TestAdvisorCheckResponse.results:type_name -> advisors.v1.TestAdvisorCheckResult
+	6,  // 6: advisors.v1.ListAdvisorChecksResponse.checks:type_name -> advisors.v1.AdvisorCheck
+	6,  // 7: advisors.v1.GetAdvisorCheckResponse.check:type_name -> advisors.v1.AdvisorCheck
+	6,  // 8: advisors.v1.CreateAdvisorCheckRequest.check:type_name -> advisors.v1.AdvisorCheck
+	6,  // 9: advisors.v1.CreateAdvisorCheckResponse.check:type_name -> advisors.v1.AdvisorCheck
+	6,  // 10: advisors.v1.UpdateAdvisorCheckRequest.check:type_name -> advisors.v1.AdvisorCheck
+	6,  // 11: advisors.v1.UpdateAdvisorCheckResponse.check:type_name -> advisors.v1.AdvisorCheck
+	6,  // 12: advisors.v1.TestAdvisorCheckRequest.check:type_name -> advisors.v1.AdvisorCheck
+	48, // 13: advisors.v1.TestAdvisorCheckResult.severity:type_name -> management.v1.Severity
+	46, // 14: advisors.v1.TestAdvisorCheckResult.labels:type_name -> advisors.v1.TestAdvisorCheckResult.LabelsEntry
+	22, // 15: advisors.v1.TestAdvisorCheckResponse.results:type_name -> advisors.v1.TestAdvisorCheckResult
 	1,  // 16: advisors.v1.ListAdvisorCheckTestTargetsRequest.technology:type_name -> advisors.v1.AdvisorCheckTechnology
-	24, // 17: advisors.v1.ListAdvisorCheckTestTargetsResponse.targets:type_name -> advisors.v1.AdvisorCheckTestTarget
-	6,  // 18: advisors.v1.ListAdvisorsResponse.advisors:type_name -> advisors.v1.Advisor
-	7,  // 19: advisors.v1.ChangeAdvisorChecksRequest.params:type_name -> advisors.v1.ChangeAdvisorCheckParams
+	25, // 17: advisors.v1.ListAdvisorCheckTestTargetsResponse.targets:type_name -> advisors.v1.AdvisorCheckTestTarget
+	7,  // 18: advisors.v1.ListAdvisorsResponse.advisors:type_name -> advisors.v1.Advisor
+	8,  // 19: advisors.v1.ChangeAdvisorChecksRequest.params:type_name -> advisors.v1.ChangeAdvisorCheckParams
 	0,  // 20: advisors.v1.Insight.interval:type_name -> advisors.v1.AdvisorCheckInterval
 	2,  // 21: advisors.v1.Insight.status:type_name -> advisors.v1.AdvisorCheckResultStatus
-	47, // 22: advisors.v1.Insight.severity:type_name -> management.v1.Severity
-	46, // 23: advisors.v1.Insight.labels:type_name -> advisors.v1.Insight.LabelsEntry
-	48, // 24: advisors.v1.Insight.checked_at:type_name -> google.protobuf.Timestamp
+	48, // 22: advisors.v1.Insight.severity:type_name -> management.v1.Severity
+	47, // 23: advisors.v1.Insight.labels:type_name -> advisors.v1.Insight.LabelsEntry
+	49, // 24: advisors.v1.Insight.checked_at:type_name -> google.protobuf.Timestamp
 	3,  // 25: advisors.v1.Insight.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
 	2,  // 26: advisors.v1.ListInsightsRequest.status:type_name -> advisors.v1.AdvisorCheckResultStatus
-	48, // 27: advisors.v1.ListInsightsRequest.from:type_name -> google.protobuf.Timestamp
-	48, // 28: advisors.v1.ListInsightsRequest.to:type_name -> google.protobuf.Timestamp
-	47, // 29: advisors.v1.ListInsightsRequest.severity:type_name -> management.v1.Severity
+	49, // 27: advisors.v1.ListInsightsRequest.from:type_name -> google.protobuf.Timestamp
+	49, // 28: advisors.v1.ListInsightsRequest.to:type_name -> google.protobuf.Timestamp
+	48, // 29: advisors.v1.ListInsightsRequest.severity:type_name -> management.v1.Severity
 	3,  // 30: advisors.v1.ListInsightsRequest.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
-	32, // 31: advisors.v1.ListInsightsResponse.results:type_name -> advisors.v1.Insight
-	47, // 32: advisors.v1.InsightsFilters.severity:type_name -> management.v1.Severity
+	33, // 31: advisors.v1.ListInsightsResponse.results:type_name -> advisors.v1.Insight
+	48, // 32: advisors.v1.InsightsFilters.severity:type_name -> management.v1.Severity
 	2,  // 33: advisors.v1.InsightsFilters.status:type_name -> advisors.v1.AdvisorCheckResultStatus
-	37, // 34: advisors.v1.MarkInsightsReadRequest.filters:type_name -> advisors.v1.InsightsFilters
+	38, // 34: advisors.v1.MarkInsightsReadRequest.filters:type_name -> advisors.v1.InsightsFilters
 	3,  // 35: advisors.v1.AdvisorRun.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
-	48, // 36: advisors.v1.AdvisorRun.started_at:type_name -> google.protobuf.Timestamp
-	48, // 37: advisors.v1.AdvisorRun.finished_at:type_name -> google.protobuf.Timestamp
-	41, // 38: advisors.v1.AdvisorRun.severity_counts:type_name -> advisors.v1.SeverityCount
-	47, // 39: advisors.v1.SeverityCount.severity:type_name -> management.v1.Severity
-	3,  // 40: advisors.v1.ListRunsRequest.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
-	48, // 41: advisors.v1.ListRunsRequest.from:type_name -> google.protobuf.Timestamp
-	48, // 42: advisors.v1.ListRunsRequest.to:type_name -> google.protobuf.Timestamp
-	40, // 43: advisors.v1.ListRunsResponse.results:type_name -> advisors.v1.AdvisorRun
-	42, // 44: advisors.v1.AdvisorService.ListRuns:input_type -> advisors.v1.ListRunsRequest
-	33, // 45: advisors.v1.AdvisorService.ListInsights:input_type -> advisors.v1.ListInsightsRequest
-	35, // 46: advisors.v1.AdvisorService.ListInsightsFilterValues:input_type -> advisors.v1.ListInsightsFilterValuesRequest
-	38, // 47: advisors.v1.AdvisorService.MarkInsightsRead:input_type -> advisors.v1.MarkInsightsReadRequest
-	8,  // 48: advisors.v1.AdvisorService.StartAdvisorChecks:input_type -> advisors.v1.StartAdvisorChecksRequest
-	10, // 49: advisors.v1.AdvisorService.ListAdvisorChecks:input_type -> advisors.v1.ListAdvisorChecksRequest
-	26, // 50: advisors.v1.AdvisorService.ListAdvisors:input_type -> advisors.v1.ListAdvisorsRequest
-	28, // 51: advisors.v1.AdvisorService.ChangeAdvisorChecks:input_type -> advisors.v1.ChangeAdvisorChecksRequest
-	12, // 52: advisors.v1.AdvisorService.GetAdvisorCheck:input_type -> advisors.v1.GetAdvisorCheckRequest
-	14, // 53: advisors.v1.AdvisorService.CreateAdvisorCheck:input_type -> advisors.v1.CreateAdvisorCheckRequest
-	16, // 54: advisors.v1.AdvisorService.UpdateAdvisorCheck:input_type -> advisors.v1.UpdateAdvisorCheckRequest
-	20, // 55: advisors.v1.AdvisorService.TestAdvisorCheck:input_type -> advisors.v1.TestAdvisorCheckRequest
-	23, // 56: advisors.v1.AdvisorService.ListAdvisorCheckTestTargets:input_type -> advisors.v1.ListAdvisorCheckTestTargetsRequest
-	18, // 57: advisors.v1.AdvisorService.DeleteAdvisorCheck:input_type -> advisors.v1.DeleteAdvisorCheckRequest
-	30, // 58: advisors.v1.AdvisorService.SendTestAdvisorNotification:input_type -> advisors.v1.SendTestAdvisorNotificationRequest
-	43, // 59: advisors.v1.AdvisorService.ListRuns:output_type -> advisors.v1.ListRunsResponse
-	34, // 60: advisors.v1.AdvisorService.ListInsights:output_type -> advisors.v1.ListInsightsResponse
-	36, // 61: advisors.v1.AdvisorService.ListInsightsFilterValues:output_type -> advisors.v1.ListInsightsFilterValuesResponse
-	39, // 62: advisors.v1.AdvisorService.MarkInsightsRead:output_type -> advisors.v1.MarkInsightsReadResponse
-	9,  // 63: advisors.v1.AdvisorService.StartAdvisorChecks:output_type -> advisors.v1.StartAdvisorChecksResponse
-	11, // 64: advisors.v1.AdvisorService.ListAdvisorChecks:output_type -> advisors.v1.ListAdvisorChecksResponse
-	27, // 65: advisors.v1.AdvisorService.ListAdvisors:output_type -> advisors.v1.ListAdvisorsResponse
-	29, // 66: advisors.v1.AdvisorService.ChangeAdvisorChecks:output_type -> advisors.v1.ChangeAdvisorChecksResponse
-	13, // 67: advisors.v1.AdvisorService.GetAdvisorCheck:output_type -> advisors.v1.GetAdvisorCheckResponse
-	15, // 68: advisors.v1.AdvisorService.CreateAdvisorCheck:output_type -> advisors.v1.CreateAdvisorCheckResponse
-	17, // 69: advisors.v1.AdvisorService.UpdateAdvisorCheck:output_type -> advisors.v1.UpdateAdvisorCheckResponse
-	22, // 70: advisors.v1.AdvisorService.TestAdvisorCheck:output_type -> advisors.v1.TestAdvisorCheckResponse
-	25, // 71: advisors.v1.AdvisorService.ListAdvisorCheckTestTargets:output_type -> advisors.v1.ListAdvisorCheckTestTargetsResponse
-	19, // 72: advisors.v1.AdvisorService.DeleteAdvisorCheck:output_type -> advisors.v1.DeleteAdvisorCheckResponse
-	31, // 73: advisors.v1.AdvisorService.SendTestAdvisorNotification:output_type -> advisors.v1.SendTestAdvisorNotificationResponse
-	59, // [59:74] is the sub-list for method output_type
-	44, // [44:59] is the sub-list for method input_type
-	44, // [44:44] is the sub-list for extension type_name
-	44, // [44:44] is the sub-list for extension extendee
-	0,  // [0:44] is the sub-list for field type_name
+	49, // 36: advisors.v1.AdvisorRun.started_at:type_name -> google.protobuf.Timestamp
+	49, // 37: advisors.v1.AdvisorRun.finished_at:type_name -> google.protobuf.Timestamp
+	42, // 38: advisors.v1.AdvisorRun.severity_counts:type_name -> advisors.v1.SeverityCount
+	4,  // 39: advisors.v1.AdvisorRun.status:type_name -> advisors.v1.AdvisorRunStatus
+	48, // 40: advisors.v1.SeverityCount.severity:type_name -> management.v1.Severity
+	3,  // 41: advisors.v1.ListRunsRequest.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
+	49, // 42: advisors.v1.ListRunsRequest.from:type_name -> google.protobuf.Timestamp
+	49, // 43: advisors.v1.ListRunsRequest.to:type_name -> google.protobuf.Timestamp
+	41, // 44: advisors.v1.ListRunsResponse.results:type_name -> advisors.v1.AdvisorRun
+	43, // 45: advisors.v1.AdvisorService.ListRuns:input_type -> advisors.v1.ListRunsRequest
+	34, // 46: advisors.v1.AdvisorService.ListInsights:input_type -> advisors.v1.ListInsightsRequest
+	36, // 47: advisors.v1.AdvisorService.ListInsightsFilterValues:input_type -> advisors.v1.ListInsightsFilterValuesRequest
+	39, // 48: advisors.v1.AdvisorService.MarkInsightsRead:input_type -> advisors.v1.MarkInsightsReadRequest
+	9,  // 49: advisors.v1.AdvisorService.StartAdvisorChecks:input_type -> advisors.v1.StartAdvisorChecksRequest
+	11, // 50: advisors.v1.AdvisorService.ListAdvisorChecks:input_type -> advisors.v1.ListAdvisorChecksRequest
+	27, // 51: advisors.v1.AdvisorService.ListAdvisors:input_type -> advisors.v1.ListAdvisorsRequest
+	29, // 52: advisors.v1.AdvisorService.ChangeAdvisorChecks:input_type -> advisors.v1.ChangeAdvisorChecksRequest
+	13, // 53: advisors.v1.AdvisorService.GetAdvisorCheck:input_type -> advisors.v1.GetAdvisorCheckRequest
+	15, // 54: advisors.v1.AdvisorService.CreateAdvisorCheck:input_type -> advisors.v1.CreateAdvisorCheckRequest
+	17, // 55: advisors.v1.AdvisorService.UpdateAdvisorCheck:input_type -> advisors.v1.UpdateAdvisorCheckRequest
+	21, // 56: advisors.v1.AdvisorService.TestAdvisorCheck:input_type -> advisors.v1.TestAdvisorCheckRequest
+	24, // 57: advisors.v1.AdvisorService.ListAdvisorCheckTestTargets:input_type -> advisors.v1.ListAdvisorCheckTestTargetsRequest
+	19, // 58: advisors.v1.AdvisorService.DeleteAdvisorCheck:input_type -> advisors.v1.DeleteAdvisorCheckRequest
+	31, // 59: advisors.v1.AdvisorService.SendTestAdvisorNotification:input_type -> advisors.v1.SendTestAdvisorNotificationRequest
+	44, // 60: advisors.v1.AdvisorService.ListRuns:output_type -> advisors.v1.ListRunsResponse
+	35, // 61: advisors.v1.AdvisorService.ListInsights:output_type -> advisors.v1.ListInsightsResponse
+	37, // 62: advisors.v1.AdvisorService.ListInsightsFilterValues:output_type -> advisors.v1.ListInsightsFilterValuesResponse
+	40, // 63: advisors.v1.AdvisorService.MarkInsightsRead:output_type -> advisors.v1.MarkInsightsReadResponse
+	10, // 64: advisors.v1.AdvisorService.StartAdvisorChecks:output_type -> advisors.v1.StartAdvisorChecksResponse
+	12, // 65: advisors.v1.AdvisorService.ListAdvisorChecks:output_type -> advisors.v1.ListAdvisorChecksResponse
+	28, // 66: advisors.v1.AdvisorService.ListAdvisors:output_type -> advisors.v1.ListAdvisorsResponse
+	30, // 67: advisors.v1.AdvisorService.ChangeAdvisorChecks:output_type -> advisors.v1.ChangeAdvisorChecksResponse
+	14, // 68: advisors.v1.AdvisorService.GetAdvisorCheck:output_type -> advisors.v1.GetAdvisorCheckResponse
+	16, // 69: advisors.v1.AdvisorService.CreateAdvisorCheck:output_type -> advisors.v1.CreateAdvisorCheckResponse
+	18, // 70: advisors.v1.AdvisorService.UpdateAdvisorCheck:output_type -> advisors.v1.UpdateAdvisorCheckResponse
+	23, // 71: advisors.v1.AdvisorService.TestAdvisorCheck:output_type -> advisors.v1.TestAdvisorCheckResponse
+	26, // 72: advisors.v1.AdvisorService.ListAdvisorCheckTestTargets:output_type -> advisors.v1.ListAdvisorCheckTestTargetsResponse
+	20, // 73: advisors.v1.AdvisorService.DeleteAdvisorCheck:output_type -> advisors.v1.DeleteAdvisorCheckResponse
+	32, // 74: advisors.v1.AdvisorService.SendTestAdvisorNotification:output_type -> advisors.v1.SendTestAdvisorNotificationResponse
+	60, // [60:75] is the sub-list for method output_type
+	45, // [45:60] is the sub-list for method input_type
+	45, // [45:45] is the sub-list for extension type_name
+	45, // [45:45] is the sub-list for extension extendee
+	0,  // [0:45] is the sub-list for field type_name
 }
 
 func init() { file_advisors_v1_advisors_proto_init() }
@@ -3289,7 +3373,7 @@ func file_advisors_v1_advisors_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_advisors_v1_advisors_proto_rawDesc), len(file_advisors_v1_advisors_proto_rawDesc)),
-			NumEnums:      4,
+			NumEnums:      5,
 			NumMessages:   43,
 			NumExtensions: 0,
 			NumServices:   1,

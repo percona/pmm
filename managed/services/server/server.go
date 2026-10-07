@@ -42,6 +42,7 @@ import (
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/common"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/distribution"
 	pkgenv "github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/envvars"
@@ -742,8 +743,10 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	var advisorsStarted bool
 	if !oldSettings.IsAdvisorsEnabled() && newSettings.IsAdvisorsEnabled() {
 		advisorsStarted = true
-		_, err := s.checksService.StartChecks(nil, nil)
-		if err != nil {
+		_, err := s.checksService.StartChecks(ctx, nil, nil)
+		_, inProgress := errors.AsType[*services.AdvisorRunInProgressError](err)
+		// a run in progress is already logged, and the scheduled runs cover it
+		if err != nil && !inProgress {
 			s.l.Error(err)
 		}
 	}

@@ -1,4 +1,4 @@
-import { Severity } from './severity.types';
+import type { Severity } from './severity.types';
 
 export enum AdvisorInterval {
   standard = 'ADVISOR_CHECK_INTERVAL_STANDARD',
@@ -182,13 +182,23 @@ export interface SeverityCount {
   count: number;
 }
 
+export enum AdvisorRunStatus {
+  unspecified = 'ADVISOR_RUN_STATUS_UNSPECIFIED',
+  queued = 'ADVISOR_RUN_STATUS_QUEUED',
+  running = 'ADVISOR_RUN_STATUS_RUNNING',
+  completed = 'ADVISOR_RUN_STATUS_COMPLETED',
+  interrupted = 'ADVISOR_RUN_STATUS_INTERRUPTED',
+  aborted = 'ADVISOR_RUN_STATUS_ABORTED',
+}
+
 // A single execution of Advisor checks. Totals are recorded when the run
 // completes, so they stay accurate after its insights have been pruned.
 export interface AdvisorRun {
   id: string;
   triggeredBy: AdvisorCheckTriggeredBy;
+  status: AdvisorRunStatus;
   startedAt: string;
-  // unset while the run is still going
+  // unset while the run is queued or running
   finishedAt?: string | null;
   checksCount: number;
   servicesCount: number;

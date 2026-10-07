@@ -53,6 +53,22 @@ To run checks manually:
 
     ![!Actions options](../images/PMM_Checks_Actions.png)
 
+## One run at a time
+PMM runs one set of advisor checks at a time, whether you start the checks manually or they run automatically.
+
+If you start checks while another run is queued or in progress, PMM doesn't start them. Instead, an error message tells you who started the current run and how long ago. Try again when the current run finishes.
+
+If automatic checks become due while another run is in progress, PMM starts them as soon as that run finishes. Automatic checks of different intervals that become due at the same time run together, as one run.
+
+### Run status
+To see the status of each run, go to **Advisors > Run history**. The **Duration** column shows one of the following:
+
+- **Queued…**: The run waits for PMM to start it, which takes up to a minute.
+- **Running…**: The run is executing checks.
+- The run duration: The run finished.
+- **Interrupted**: PMM restarted before the run finished. The insights that the run saved are kept.
+- **Aborted**: The run stopped before running any check. The PMM Server logs show the cause.
+
 ## Advisor results
 The results are sent to PMM Server where you can review any failed checks on the Home dashboard. The summary count of failed checks is classified as:
 

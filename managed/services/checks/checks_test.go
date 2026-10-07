@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"errors"
 	"os"
 	"testing"
 	"time"
@@ -28,6 +29,7 @@ import (
 	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/sirupsen/logrus"
+	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -276,6 +278,19 @@ func TestEnableChecks(t *testing.T) {
 	})
 }
 
+// runAllChecks records a scheduled run of every check and executes it.
+func runAllChecks(t *testing.T, s *Service) *models.AdvisorRun {
+	t.Helper()
+
+	run := &models.AdvisorRun{
+		TriggeredBy: models.CheckTriggeredByScheduler,
+		Status:      models.AdvisorRunStatusRunning,
+	}
+	require.NoError(t, models.CreateAdvisorRun(t.Context(), s.db.Querier, run))
+	require.NoError(t, s.run(t.Context(), run, nil))
+	return run
+}
+
 func TestChangeInterval(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
@@ -309,8 +324,7 @@ func TestChangeInterval(t *testing.T) {
 		}
 
 		t.Run("preserve intervals on restarts", func(t *testing.T) {
-			err = s.runChecksGroup(t.Context(), "")
-			require.NoError(t, err)
+			runAllChecks(t, s)
 
 			checks, err := s.GetChecks()
 			require.NoError(t, err)
@@ -425,14 +439,46 @@ func TestStartChecks(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 	setupClients(t)
 
-	t.Run("unknown interval", func(t *testing.T) {
+	t.Run("queues a run, wakes the loop and rejects another", func(t *testing.T) {
+		logger, hook := logrustest.NewNullLogger()
 		s := New(db, nil, vmClient, clickhouseDB)
+		s.l = logrus.NewEntry(logger)
 
-		err := s.runChecksGroup(t.Context(), "unknown")
-		require.EqualError(t, err, "unknown check interval: unknown")
+		id, err := s.StartChecks(t.Context(), []string{"check_a"}, []string{"svc-1"})
+		require.NoError(t, err)
+
+		run := &models.AdvisorRun{ID: id}
+		require.NoError(t, db.Reload(run))
+		assert.Equal(t, models.AdvisorRunStatusQueued, run.Status)
+		assert.Equal(t, models.CheckTriggeredByUser, run.TriggeredBy)
+		assert.Equal(t, []string{"check_a"}, []string(run.CheckNames))
+		assert.Equal(t, []string{"svc-1"}, []string(run.ServiceIDs))
+
+		select {
+		case <-s.wakeCh:
+		default:
+			t.Fatal("StartChecks did not wake the run loop")
+		}
+
+		_, err = s.StartChecks(t.Context(), nil, nil)
+		inProgress, ok := errors.AsType[*services.AdvisorRunInProgressError](err)
+		require.True(t, ok, "%v", err)
+		require.NotNil(t, inProgress.Run)
+		assert.Equal(t, id, inProgress.Run.ID)
+		assert.Regexp(t,
+			`^Advisor checks are already running \(started \d+ seconds? ago by a user\)\. Try again when the run finishes\.$`,
+			err.Error())
+
+		entry := hook.LastEntry()
+		require.NotNil(t, entry)
+		assert.Equal(t, logrus.WarnLevel, entry.Level)
+		assert.Equal(t, id, entry.Data["run_id"])
+		assert.Contains(t, entry.Message, "Rejected a request to run Advisor checks")
+
+		s.finishRun(t.Context(), id, models.AdvisorRunStatusCompleted)
 	})
 
-	t.Run("advisors enabled", func(t *testing.T) {
+	t.Run("a run executes its checks and completes", func(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 
 		seedUserCheck(t, db)
@@ -440,8 +486,10 @@ func TestStartChecks(t *testing.T) {
 		assert.NotEmpty(t, s.advisors)
 		assert.NotEmpty(t, s.checks)
 
-		err := s.runChecksGroup(t.Context(), "")
-		require.NoError(t, err)
+		run := runAllChecks(t, s)
+		require.NoError(t, db.Reload(run))
+		assert.Equal(t, models.AdvisorRunStatusCompleted, run.Status)
+		assert.NotNil(t, run.FinishedAt)
 	})
 
 	t.Run("advisors disabled", func(t *testing.T) {
@@ -454,7 +502,7 @@ func TestStartChecks(t *testing.T) {
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
-		err = s.runChecksGroup(t.Context(), "")
+		_, err = s.StartChecks(t.Context(), nil, nil)
 		require.ErrorIs(t, err, services.ErrAdvisorsDisabled)
 	})
 }
@@ -668,12 +716,13 @@ func TestTestAdvisorCheck(t *testing.T) {
 	})
 }
 
-func TestNewInitializesStartCheckChannel(t *testing.T) {
+func TestNewInitializesRunLoopDeps(t *testing.T) {
 	t.Parallel()
-	// New must initialize the on-demand channel so StartChecks can enqueue a
-	// run before Run starts draining it.
+	// New must set up the wake-up channel StartChecks signals and the executor
+	// the run loop calls, before Run starts the loop.
 	s := New(nil, nil, nil, nil)
-	require.NotNil(t, s.startCheckCh)
+	require.NotNil(t, s.wakeCh)
+	require.NotNil(t, s.execute)
 }
 
 func TestUpdateIntervalsBeforeRun(t *testing.T) {
@@ -941,14 +990,24 @@ func TestFilterChecksByInterval(t *testing.T) {
 		emptyCheck.Name:    emptyCheck,
 	}
 
-	rareChecks := s.filterChecks(checks, check.Rare, nil, nil)
+	rareChecks := s.filterChecks(checks, []check.Interval{check.Rare}, nil, nil)
 	assert.Equal(t, map[string]check.Check{"rareCheck": rareCheck}, rareChecks)
 
-	standardChecks := s.filterChecks(checks, check.Standard, nil, nil)
+	standardChecks := s.filterChecks(checks, []check.Interval{check.Standard}, nil, nil)
 	assert.Equal(t, map[string]check.Check{"standardCheck": standardCheck, "emptyCheck": emptyCheck}, standardChecks)
 
-	frequentChecks := s.filterChecks(checks, check.Frequent, nil, nil)
+	frequentChecks := s.filterChecks(checks, []check.Interval{check.Frequent}, nil, nil)
 	assert.Equal(t, map[string]check.Check{"frequentCheck": frequentCheck}, frequentChecks)
+
+	mergedChecks := s.filterChecks(checks, []check.Interval{check.Frequent, check.Standard}, nil, nil)
+	assert.Equal(t, map[string]check.Check{
+		"frequentCheck": frequentCheck,
+		"standardCheck": standardCheck,
+		"emptyCheck":    emptyCheck,
+	}, mergedChecks)
+
+	allChecks := s.filterChecks(checks, nil, nil, nil)
+	assert.Equal(t, checks, allChecks)
 }
 
 func TestFillQueryPlaceholders(t *testing.T) {

@@ -4676,6 +4676,8 @@ func (m *AdvisorRun) validate(all bool) error {
 
 	}
 
+	// no validation rules for Status
+
 	if len(errors) > 0 {
 		return AdvisorRunMultiError(errors)
 	}

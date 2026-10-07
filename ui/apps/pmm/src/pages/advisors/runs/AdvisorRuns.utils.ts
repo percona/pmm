@@ -1,4 +1,4 @@
-import { AdvisorRun } from 'types/advisors.types';
+import { type AdvisorRun, AdvisorRunStatus } from 'types/advisors.types';
 
 // real elapsed time: runs are stamped on start and on finish
 export const formatDuration = (run: AdvisorRun): string | null => {
@@ -26,4 +26,7 @@ export const formatDuration = (run: AdvisorRun): string | null => {
   return `${seconds}s`;
 };
 
-export const isRunning = (run: AdvisorRun): boolean => !run.finishedAt;
+// queued runs count too: they start within a minute and the page keeps polling
+export const isRunning = (run: AdvisorRun): boolean =>
+  run.status === AdvisorRunStatus.queued ||
+  run.status === AdvisorRunStatus.running;

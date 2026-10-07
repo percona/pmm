@@ -550,7 +550,7 @@ type ListRunsOKBodyResultsItems0 struct {
 	// Format: date-time
 	StartedAt strfmt.DateTime `json:"started_at,omitempty"`
 
-	// When the run completed; unset while it is still running.
+	// When the run completed; unset while it is queued or running.
 	// Format: date-time
 	FinishedAt strfmt.DateTime `json:"finished_at,omitempty"`
 
@@ -569,6 +569,16 @@ type ListRunsOKBodyResultsItems0 struct {
 	// Number of findings per severity, most severe first. A repeated field rather
 	// than a map so severity stays a typed enum instead of a free-form key.
 	SeverityCounts []*ListRunsOKBodyResultsItems0SeverityCountsItems0 `json:"severity_counts"`
+
+	// AdvisorRunStatus is the state of an Advisor run.
+	//
+	//  - ADVISOR_RUN_STATUS_QUEUED: The run was requested and waits for the leader to start it.
+	//  - ADVISOR_RUN_STATUS_RUNNING: The run is executing checks.
+	//  - ADVISOR_RUN_STATUS_COMPLETED: The run finished normally.
+	//  - ADVISOR_RUN_STATUS_INTERRUPTED: PMM restarted before the run finished; the insights it saved are kept.
+	//  - ADVISOR_RUN_STATUS_ABORTED: The run stopped before running any check.
+	// Enum: ["ADVISOR_RUN_STATUS_UNSPECIFIED","ADVISOR_RUN_STATUS_QUEUED","ADVISOR_RUN_STATUS_RUNNING","ADVISOR_RUN_STATUS_COMPLETED","ADVISOR_RUN_STATUS_INTERRUPTED","ADVISOR_RUN_STATUS_ABORTED"]
+	Status *string `json:"status,omitempty"`
 }
 
 // Validate validates this list runs OK body results items0
@@ -588,6 +598,10 @@ func (o *ListRunsOKBodyResultsItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateSeverityCounts(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -691,6 +705,60 @@ func (o *ListRunsOKBodyResultsItems0) validateSeverityCounts(formats strfmt.Regi
 			}
 		}
 
+	}
+
+	return nil
+}
+
+var listRunsOkBodyResultsItems0TypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["ADVISOR_RUN_STATUS_UNSPECIFIED","ADVISOR_RUN_STATUS_QUEUED","ADVISOR_RUN_STATUS_RUNNING","ADVISOR_RUN_STATUS_COMPLETED","ADVISOR_RUN_STATUS_INTERRUPTED","ADVISOR_RUN_STATUS_ABORTED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listRunsOkBodyResultsItems0TypeStatusPropEnum = append(listRunsOkBodyResultsItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ListRunsOKBodyResultsItems0StatusADVISORRUNSTATUSUNSPECIFIED captures enum value "ADVISOR_RUN_STATUS_UNSPECIFIED"
+	ListRunsOKBodyResultsItems0StatusADVISORRUNSTATUSUNSPECIFIED string = "ADVISOR_RUN_STATUS_UNSPECIFIED"
+
+	// ListRunsOKBodyResultsItems0StatusADVISORRUNSTATUSQUEUED captures enum value "ADVISOR_RUN_STATUS_QUEUED"
+	ListRunsOKBodyResultsItems0StatusADVISORRUNSTATUSQUEUED string = "ADVISOR_RUN_STATUS_QUEUED"
+
+	// ListRunsOKBodyResultsItems0StatusADVISORRUNSTATUSRUNNING captures enum value "ADVISOR_RUN_STATUS_RUNNING"
+	ListRunsOKBodyResultsItems0StatusADVISORRUNSTATUSRUNNING string = "ADVISOR_RUN_STATUS_RUNNING"
+
+	// ListRunsOKBodyResultsItems0StatusADVISORRUNSTATUSCOMPLETED captures enum value "ADVISOR_RUN_STATUS_COMPLETED"
+	ListRunsOKBodyResultsItems0StatusADVISORRUNSTATUSCOMPLETED string = "ADVISOR_RUN_STATUS_COMPLETED"
+
+	// ListRunsOKBodyResultsItems0StatusADVISORRUNSTATUSINTERRUPTED captures enum value "ADVISOR_RUN_STATUS_INTERRUPTED"
+	ListRunsOKBodyResultsItems0StatusADVISORRUNSTATUSINTERRUPTED string = "ADVISOR_RUN_STATUS_INTERRUPTED"
+
+	// ListRunsOKBodyResultsItems0StatusADVISORRUNSTATUSABORTED captures enum value "ADVISOR_RUN_STATUS_ABORTED"
+	ListRunsOKBodyResultsItems0StatusADVISORRUNSTATUSABORTED string = "ADVISOR_RUN_STATUS_ABORTED"
+)
+
+// prop value enum
+func (o *ListRunsOKBodyResultsItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listRunsOkBodyResultsItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListRunsOKBodyResultsItems0) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
 	}
 
 	return nil

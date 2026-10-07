@@ -615,7 +615,7 @@ func (a *Client) SendTestAdvisorNotification(params *SendTestAdvisorNotification
 /*
 StartAdvisorChecks starts advisor checks
 
-Executes Advisor checks and returns when all checks are executed. All available checks will be started if check names aren't specified.
+Starts Advisor checks and returns the run ID without waiting for them to finish. All available checks are started if check names aren't specified. Only one run can be queued or running at a time; while another one is, the request fails with FAILED_PRECONDITION.
 */
 func (a *Client) StartAdvisorChecks(params *StartAdvisorChecksParams, opts ...ClientOption) (*StartAdvisorChecksOK, error) {
 	// NOTE: parameters are not validated before sending

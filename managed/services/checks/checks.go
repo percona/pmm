@@ -30,6 +30,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -39,7 +40,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/google/uuid"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/model"
@@ -66,6 +66,11 @@ const (
 	envDisableStartDelay = "PMM_ADVISORS_CHECKS_DISABLE_START_DELAY"
 	builtinChecksPath    = "/usr/local/percona/checks"
 
+	// How often the leader looks for runs queued on other HA nodes.
+	queuedRunPollInterval = time.Minute
+	// Lets interval groups that fall due together run as one.
+	dueGroupsSettleDelay = time.Second
+
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
 	resultAwaitTimeout     = 20 * time.Second // should be greater than agents.defaultQueryActionTimeout
 	scriptExecutionTimeout = 5 * time.Second  // time limit for running pmm-managed-starlark
@@ -74,6 +79,9 @@ const (
 	prometheusNamespace = "pmm_managed"
 	prometheusSubsystem = "advisor"
 )
+
+// allIntervals lists the interval groups scheduled checks run in.
+var allIntervals = []check.Interval{check.Rare, check.Standard, check.Frequent}
 
 // pmm-agent versions with known changes in Query Actions.
 // To match all pre-release versions, add a '-0' suffix to the specified version.
@@ -95,9 +103,11 @@ type Service struct {
 	l          *logrus.Entry
 	startDelay time.Duration
 
-	// startCheckCh delivers on-demand check runs from StartChecks to
-	// runChecksLoop, which owns the service lifecycle context.
-	startCheckCh chan checkRunRequest
+	// wakeCh asks runChecksLoop to start a run queued by StartChecks right away
+	// rather than at its next poll.
+	wakeCh chan struct{}
+	// execute runs a recorded run; tests replace it.
+	execute func(ctx context.Context, run *models.AdvisorRun, groups []check.Interval) error
 
 	am       sync.Mutex
 	advisors []check.Advisor
@@ -136,9 +146,9 @@ func New(
 		vmClient:        vmClient,
 		clickhouseDB:    clickhouseDB,
 
-		l:            l,
-		startDelay:   defaultStartDelay,
-		startCheckCh: make(chan checkRunRequest, 1),
+		l:          l,
+		startDelay: defaultStartDelay,
+		wakeCh:     make(chan struct{}, 1),
 
 		mChecksExecuted: prom.NewCounterVec(prom.CounterOpts{
 			Namespace: prometheusNamespace,
@@ -162,6 +172,8 @@ func New(
 			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001}, //nolint:mnd
 		}, []string{"service_type", "category", "check_name"}),
 	}
+
+	s.execute = s.run
 
 	if d, _ := strconv.ParseBool(os.Getenv(envDisableStartDelay)); d {
 		l.Warn("Start delay disabled.")
@@ -210,43 +222,153 @@ func (s *Service) Run(ctx context.Context) {
 	var wg sync.WaitGroup
 
 	wg.Go(func() {
-		s.runChecksLoop(ctx)
+		s.runChecksLoop(ctx, s.rareTicker.C, s.standardTicker.C, s.frequentTicker.C)
 	})
 
 	wg.Wait()
 }
 
-// runChecksLoop starts checks execution loop.
-func (s *Service) runChecksLoop(ctx context.Context) {
-	// First checks run, start all checks from all groups.
-	err := s.runChecksGroup(ctx, "") // start all checks
+// runChecksLoop executes Advisor runs one at a time: the runs queued by
+// StartChecks on any node, and the interval groups that fall due on the given
+// tick channels. Groups that fall due during a run are deferred until it ends.
+func (s *Service) runChecksLoop(ctx context.Context, rare, standard, frequent <-chan time.Time) {
+	poll := time.NewTicker(queuedRunPollInterval)
+	defer poll.Stop()
+
+	// every group is due on start
+	due := make(map[check.Interval]struct{}, len(allIntervals))
+	for _, group := range allIntervals {
+		due[group] = struct{}{}
+	}
+	var current string
+	var done chan struct{}
+	var settle <-chan time.Time
+
 	for {
-		if err != nil {
-			if errors.Is(err, services.ErrAdvisorsDisabled) {
-				s.l.Info("Advisor checks are not enabled, doing nothing.")
-			} else {
-				s.l.Error(err)
+		if done == nil && settle == nil {
+			run, groups := s.nextRun(ctx, due)
+			if run != nil {
+				current, done = run.ID, s.goRun(ctx, run, groups)
 			}
 		}
 
+		var group check.Interval
 		select {
 		case <-ctx.Done():
+			if done != nil {
+				<-done
+			}
 			return
-		case req := <-s.startCheckCh:
-			// On-demand run requested via StartChecks.
-			s.UpdateAdvisorsList(ctx)
-			err = s.run(ctx, "", req.checkNames, req.serviceIDs, req.ri)
-		case <-s.rareTicker.C:
-			// Start all checks from rare group.
-			err = s.runChecksGroup(ctx, check.Rare)
-		case <-s.standardTicker.C:
-			// Start all checks from standard group.
-			err = s.runChecksGroup(ctx, check.Standard)
-		case <-s.frequentTicker.C:
-			// Start all checks from frequent group.
-			err = s.runChecksGroup(ctx, check.Frequent)
+		case <-done:
+			current, done = "", nil
+			continue
+		case <-s.wakeCh:
+			continue
+		case <-poll.C:
+			continue
+		case <-settle:
+			settle = nil
+			continue
+		case <-rare:
+			group = check.Rare
+		case <-standard:
+			group = check.Standard
+		case <-frequent:
+			group = check.Frequent
+		}
+
+		due[group] = struct{}{}
+		switch {
+		case done != nil:
+			s.l.Warnf("Advisor checks of the %s interval are deferred until run %s finishes.", group, current)
+		case settle == nil:
+			settle = time.After(dueGroupsSettleDelay)
 		}
 	}
+}
+
+// nextRun picks and claims the run to start next: the queued run if there is
+// one, else the due interval groups as a single run, in which case it clears
+// due. It returns a nil run when there is nothing to start; the groups are nil
+// for a run that is not scheduled or covers every group.
+func (s *Service) nextRun(ctx context.Context, due map[check.Interval]struct{}) (*models.AdvisorRun, []check.Interval) {
+	active, err := models.FindActiveAdvisorRun(ctx, s.db.Querier)
+	if err != nil {
+		s.l.Error(err)
+		return nil, nil
+	}
+
+	if active != nil {
+		if len(due) != 0 {
+			s.l.Warnf("Scheduled Advisor checks are deferred until run %s finishes.", active.ID)
+		}
+		// a running run here is not ours, e.g. a former leader is finishing it
+		if active.Status != models.AdvisorRunStatusQueued {
+			return nil, nil
+		}
+
+		ok, err := models.StartQueuedAdvisorRun(ctx, s.db.Querier, active.ID, models.Now())
+		if err != nil {
+			s.l.Error(err)
+			return nil, nil
+		}
+		if !ok {
+			return nil, nil
+		}
+		active.Status = models.AdvisorRunStatusRunning
+		return active, nil
+	}
+
+	if len(due) == 0 {
+		return nil, nil
+	}
+
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		s.l.Error(err)
+		return nil, nil
+	}
+	if !settings.IsAdvisorsEnabled() {
+		s.l.Info("Advisor checks are not enabled, doing nothing.")
+		clear(due)
+		return nil, nil
+	}
+
+	run := &models.AdvisorRun{
+		TriggeredBy: models.CheckTriggeredByScheduler,
+		Status:      models.AdvisorRunStatusRunning,
+	}
+	err = models.CreateAdvisorRun(ctx, s.db.Querier, run)
+	if errors.Is(err, models.ErrAdvisorRunInProgress) {
+		// another node queued a run since the lookup above, so start that one first
+		return s.nextRun(ctx, due)
+	}
+	if err != nil {
+		s.l.Errorf("Failed to record a scheduled Advisor run: %+v", err)
+		return nil, nil
+	}
+
+	groups := slices.Sorted(maps.Keys(due))
+	clear(due)
+	s.l.WithFields(logrus.Fields{"run_id": run.ID, "intervals": groups}).Info("Starting scheduled Advisor checks.")
+	if len(groups) == len(allIntervals) {
+		// every group due is a full run
+		groups = nil
+	}
+	return run, groups
+}
+
+// goRun executes the run in the background and returns a channel closed when it ends.
+func (s *Service) goRun(ctx context.Context, run *models.AdvisorRun, groups []check.Interval) chan struct{} {
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		err := s.execute(ctx, run, groups)
+		if err != nil {
+			s.l.Error(err)
+		}
+	}()
+	return done
 }
 
 // GetInsights returns Advisor insights matching the filters,
@@ -297,27 +419,12 @@ func (s *Service) MarkInsightsReadByFilters(ctx context.Context, filters models.
 	return models.MarkInsightsReadByFilters(ctx, s.db.Querier, filters, isRead)
 }
 
-// runChecksGroup downloads and executes Advisors checks that should run in the interval specified by intervalGroup.
-// All checks are executed if intervalGroup is empty.
-func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interval) error {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return err
-	}
-
-	if !settings.IsAdvisorsEnabled() {
-		return services.ErrAdvisorsDisabled
-	}
-
-	s.UpdateAdvisorsList(ctx)
-	ri := runInfo{runID: uuid.NewString(), triggeredBy: models.CheckTriggeredByScheduler}
-	return s.run(ctx, intervalGroup, nil, nil, ri)
-}
-
-// StartChecks downloads and executes advisor checks in asynchronous way and returns the run ID.
-// If checkNames specified then only matched checks will be executed.
-// If serviceIDs specified then the checks run only against those services.
-func (s *Service) StartChecks(checkNames, serviceIDs []string) (string, error) {
+// StartChecks queues an Advisor run and returns its ID. The leader starts it
+// right away when this node leads, or at its next poll otherwise. If checkNames
+// are given, only those checks run; if serviceIDs are given, only against those
+// services. While another run is queued or running, it returns
+// *services.AdvisorRunInProgressError.
+func (s *Service) StartChecks(ctx context.Context, checkNames, serviceIDs []string) (string, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return "", err
@@ -327,18 +434,42 @@ func (s *Service) StartChecks(checkNames, serviceIDs []string) (string, error) {
 		return "", services.ErrAdvisorsDisabled
 	}
 
-	ri := runInfo{runID: uuid.NewString(), triggeredBy: models.CheckTriggeredByUser}
-
-	// Hand the request off to runChecksLoop, which owns the service lifecycle
-	// context. The loop only runs on the leader node, so a non-blocking send
-	// drops the request where there is nothing to execute it.
-	select {
-	case s.startCheckCh <- checkRunRequest{checkNames: checkNames, serviceIDs: serviceIDs, ri: ri}:
-	default:
-		s.l.Warn("Advisor checks run is already pending, skipping the request.")
+	run := &models.AdvisorRun{
+		TriggeredBy: models.CheckTriggeredByUser,
+		Status:      models.AdvisorRunStatusQueued,
+		CheckNames:  checkNames,
+		ServiceIDs:  serviceIDs,
+	}
+	err = models.CreateAdvisorRun(ctx, s.db.Querier, run)
+	if errors.Is(err, models.ErrAdvisorRunInProgress) {
+		return "", s.runInProgressError(ctx)
+	}
+	if err != nil {
+		return "", fmt.Errorf("failed to queue an Advisor run: %w", err)
 	}
 
-	return ri.runID, nil
+	select {
+	case s.wakeCh <- struct{}{}:
+	default:
+	}
+
+	return run.ID, nil
+}
+
+// runInProgressError describes the run that holds the run slot, and logs the rejection.
+func (s *Service) runInProgressError(ctx context.Context) error {
+	active, err := models.FindActiveAdvisorRun(ctx, s.db.Querier)
+	if err != nil {
+		return err
+	}
+
+	runErr := &services.AdvisorRunInProgressError{Run: active, Now: models.Now()}
+	l := s.l
+	if active != nil {
+		l = l.WithField("run_id", active.ID)
+	}
+	l.Warnf("Rejected a request to run Advisor checks: %s", runErr)
+	return runErr
 }
 
 // runInfo identifies a single Advisor checks execution run.
@@ -347,26 +478,23 @@ type runInfo struct {
 	triggeredBy models.CheckTriggeredBy
 }
 
-// checkRunRequest is an on-demand run handed from StartChecks to runChecksLoop.
-type checkRunRequest struct {
-	checkNames []string
-	serviceIDs []string
-	ri         runInfo
-}
+// run executes a recorded run: the checks and services it names or, for a
+// scheduled run, the checks of the given interval groups (all when none), then
+// closes it out.
+func (s *Service) run(ctx context.Context, run *models.AdvisorRun, groups []check.Interval) error {
+	s.UpdateAdvisorsList(ctx)
 
-func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNames, serviceIDs []string, ri runInfo) error {
-	err := intervalGroup.Validate()
+	ri := runInfo{runID: run.ID, triggeredBy: run.TriggeredBy}
+	checkNames, serviceIDs := []string(run.CheckNames), []string(run.ServiceIDs)
+
+	res, err := s.executeChecks(ctx, groups, checkNames, serviceIDs, ri)
 	if err != nil {
-		return err
-	}
-
-	s.startRun(ctx, ri)
-	// Close the run out however execution ends, so a failure part-way through
-	// does not leave it reported as still running.
-	defer s.finishRun(ctx, ri.runID)
-
-	res, err := s.executeChecks(ctx, intervalGroup, checkNames, serviceIDs, ri)
-	if err != nil {
+		// executeChecks fails only before running any check; a shutdown interrupts the run instead
+		status := models.AdvisorRunStatusAborted
+		if ctx.Err() != nil {
+			status = models.AdvisorRunStatusInterrupted
+		}
+		s.finishRun(ctx, ri.runID, status)
 		return err
 	}
 
@@ -377,15 +505,24 @@ func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNa
 	case len(checkNames) != 0:
 		// If we run some specific checks, delete previous results for them.
 		s.resultsRegistry.deleteByName(checkNames)
-	case intervalGroup != "":
-		// If we run whole interval group, delete previous results for that group.
-		s.resultsRegistry.deleteByInterval(intervalGroup)
+	case len(groups) != 0:
+		// If we run whole interval groups, delete previous results for those groups.
+		for _, group := range groups {
+			s.resultsRegistry.deleteByInterval(group)
+		}
 	default:
 		// If we run all checks, delete all previous results.
 		s.resultsRegistry.cleanup()
 	}
 
 	s.resultsRegistry.set(res)
+
+	status := models.AdvisorRunStatusCompleted
+	if ctx.Err() != nil {
+		// stopped part-way, e.g. by a shutdown or a loss of HA leadership
+		status = models.AdvisorRunStatusInterrupted
+	}
+	s.finishRun(ctx, ri.runID, status)
 
 	// Best-effort: email the completed run to the configured Advisor contact point.
 	s.maybeSendAdvisorNotification(ctx, ri.runID, ri.triggeredBy)
@@ -965,11 +1102,11 @@ func (s *Service) minPMMAgentVersionForType(t check.Type) *version.Parsed {
 	}
 }
 
-// filterChecks filters checks by several parameters. If group specified then only matched checks will be returned,
-// empty group means `any interval`. If enable slice is specified then only matched checks will be returned, empty
-// enable slice means `all enabled`. Checks specified in disabled slice are skipped, empty `disabled` slice means
-// `nothing disabled`.
-func (s *Service) filterChecks(checks map[string]check.Check, group check.Interval, disable, enable []string) map[string]check.Check {
+// filterChecks filters checks by several parameters. If groups are specified then only checks of those interval groups
+// will be returned, no groups means `any interval`. If enable slice is specified then only matched checks will be
+// returned, empty enable slice means `all enabled`. Checks specified in disabled slice are skipped, empty `disabled`
+// slice means `nothing disabled`.
+func (s *Service) filterChecks(checks map[string]check.Check, groups []check.Interval, disable, enable []string) map[string]check.Check {
 	res := make(map[string]check.Check)
 	disableMap := make(map[string]struct{}, len(disable))
 	for _, e := range disable {
@@ -982,10 +1119,12 @@ func (s *Service) filterChecks(checks map[string]check.Check, group check.Interv
 	}
 
 	for n, c := range checks {
-		// If empty group passed, which means `any group`
-		// or check has required interval
-		// or check has empty interval and required interval is `standard`.
-		if group == "" || c.Interval == group || (group == check.Standard && c.Interval == "") {
+		// A check with an empty interval belongs to the standard group.
+		interval := c.Interval
+		if interval == "" {
+			interval = check.Standard
+		}
+		if len(groups) == 0 || slices.Contains(groups, interval) {
 			// If check enabled explicitly or all checks enabled by passing empty `enable` slice.
 			if _, ok := enableMap[c.Name]; ok || len(enableMap) == 0 {
 				// Filter disabled checks.
@@ -1016,10 +1155,10 @@ func (s *Service) getActiveUserServiceTypes() (map[models.ServiceType]struct{}, 
 	return result, nil
 }
 
-// executeChecks runs checks for all reachable services. If intervalGroup specified only checks from that group will be
-// executed. If checkNames specified then only matched checks will be executed. If serviceIDs specified then only those
-// services are targeted.
-func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interval, checkNames, serviceIDs []string, ri runInfo) ([]services.CheckResult, error) { //nolint:lll
+// executeChecks runs checks for all reachable services. If groups are specified only checks from those interval groups
+// will be executed. If checkNames specified then only matched checks will be executed. If serviceIDs specified then
+// only those services are targeted.
+func (s *Service) executeChecks(ctx context.Context, groups []check.Interval, checkNames, serviceIDs []string, ri runInfo) ([]services.CheckResult, error) {
 	disabledChecks, err := s.GetDisabledChecks(ctx)
 	if err != nil {
 		return nil, err
@@ -1052,7 +1191,7 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 
 	// Execute MySQL checks only if MySQL services exist
 	if _, hasMySQL := activeServiceTypes[models.MySQLServiceType]; hasMySQL {
-		mySQLChecks = s.filterChecks(mySQLChecks, intervalGroup, disabledChecks, checkNames)
+		mySQLChecks = s.filterChecks(mySQLChecks, groups, disabledChecks, checkNames)
 		mySQLCheckResults := s.executeChecksForTargetType(ctx, models.MySQLServiceType, mySQLChecks, disabledTargets, serviceIDs, ri)
 		res = append(res, mySQLCheckResults...)
 	} else {
@@ -1061,7 +1200,7 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 
 	// Execute PostgreSQL checks only if PostgreSQL services exist
 	if _, hasPostgreSQL := activeServiceTypes[models.PostgreSQLServiceType]; hasPostgreSQL {
-		postgreSQLChecks = s.filterChecks(postgreSQLChecks, intervalGroup, disabledChecks, checkNames)
+		postgreSQLChecks = s.filterChecks(postgreSQLChecks, groups, disabledChecks, checkNames)
 		postgreSQLCheckResults := s.executeChecksForTargetType(ctx, models.PostgreSQLServiceType, postgreSQLChecks, disabledTargets, serviceIDs, ri)
 		res = append(res, postgreSQLCheckResults...)
 	} else {
@@ -1070,7 +1209,7 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 
 	// Execute MongoDB checks only if MongoDB services exist
 	if _, hasMongoDB := activeServiceTypes[models.MongoDBServiceType]; hasMongoDB {
-		mongoDBChecks = s.filterChecks(mongoDBChecks, intervalGroup, disabledChecks, checkNames)
+		mongoDBChecks = s.filterChecks(mongoDBChecks, groups, disabledChecks, checkNames)
 		mongoDBCheckResults := s.executeChecksForTargetType(ctx, models.MongoDBServiceType, mongoDBChecks, disabledTargets, serviceIDs, ri)
 		res = append(res, mongoDBCheckResults...)
 	} else {
@@ -1207,47 +1346,34 @@ func (s *Service) saveInsights(ctx context.Context, history []*models.Insight) e
 	})
 }
 
-// startRun records the beginning of a run. Failing to record it must not stop
-// the checks from running, so the error is only logged.
-func (s *Service) startRun(ctx context.Context, ri runInfo) {
-	run := &models.AdvisorRun{
-		ID:          ri.runID,
-		TriggeredBy: ri.triggeredBy,
-		StartedAt:   models.Now(),
-	}
-	err := models.StartAdvisorRun(ctx, s.db.Querier, run)
-	if err != nil {
-		s.l.Warnf("Failed to record the start of Advisor run %s: %+v", ri.runID, err)
-	}
-}
-
-// finishRun stamps a run as complete and stores the totals derived from the
-// insights it recorded.
-func (s *Service) finishRun(ctx context.Context, runID string) {
+// finishRun closes a run with the given status and stores the totals derived
+// from the insights it recorded.
+func (s *Service) finishRun(ctx context.Context, runID string, status models.AdvisorRunStatus) {
 	// The run is over either way, so record it even when the service context is
 	// already cancelled by a shutdown.
 	ctx = context.WithoutCancel(ctx)
 
-	err := s.completeRun(ctx, runID, models.Now())
+	err := s.completeRun(ctx, runID, status, models.Now())
 	if err != nil {
 		s.l.Warnf("Failed to record the completion of Advisor run %s: %+v", runID, err)
 	}
 }
 
-// completeRun derives a run's totals from its insights and marks it finished.
-func (s *Service) completeRun(ctx context.Context, runID string, finishedAt time.Time) error {
+// completeRun derives a run's totals from its insights and closes it with the given status.
+func (s *Service) completeRun(ctx context.Context, runID string, status models.AdvisorRunStatus, finishedAt time.Time) error {
 	counts, err := models.ComputeAdvisorRunCounts(ctx, s.db.Querier, runID)
 	if err != nil {
 		return err
 	}
-	return models.FinishAdvisorRun(ctx, s.db.Querier, runID, finishedAt, counts)
+	return models.FinishAdvisorRun(ctx, s.db.Querier, runID, status, finishedAt, counts)
 }
 
-// finalizeInterruptedRuns closes out runs left open by a restart. Their insights
-// are already persisted, so the last one recorded stands in for the completion
-// time; a run that produced none is closed at its start.
+// finalizeInterruptedRuns closes out runs left running by a restart as
+// interrupted. Their insights are already persisted, so the last one recorded
+// stands in for the completion time; a run that produced none is closed at its
+// start. Queued runs are left for runChecksLoop to start.
 func (s *Service) finalizeInterruptedRuns(ctx context.Context) {
-	runs, err := models.FindUnfinishedAdvisorRuns(ctx, s.db.Querier)
+	runs, err := models.FindRunningAdvisorRuns(ctx, s.db.Querier)
 	if err != nil {
 		s.l.Warnf("Failed to look for interrupted Advisor runs: %+v", err)
 		return
@@ -1263,7 +1389,7 @@ func (s *Service) finalizeInterruptedRuns(ctx context.Context) {
 			finishedAt = run.StartedAt
 		}
 
-		err = s.completeRun(ctx, run.ID, finishedAt)
+		err = s.completeRun(ctx, run.ID, models.AdvisorRunStatusInterrupted, finishedAt)
 		if err != nil {
 			s.l.Warnf("Failed to close out interrupted Advisor run %s: %+v", run.ID, err)
 			continue

@@ -20,22 +20,44 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/lib/pq"
 	"gopkg.in/reform.v1"
 )
 
 //go:generate go tool reform
+
+// AdvisorRunStatus represents the state of an Advisor run.
+type AdvisorRunStatus string
+
+// Available Advisor run states.
+const (
+	// AdvisorRunStatusQueued means the run was requested and waits for the leader to start it.
+	AdvisorRunStatusQueued AdvisorRunStatus = "queued"
+	// AdvisorRunStatusRunning means the run is executing checks.
+	AdvisorRunStatusRunning AdvisorRunStatus = "running"
+	// AdvisorRunStatusCompleted means the run finished normally.
+	AdvisorRunStatusCompleted AdvisorRunStatus = "completed"
+	// AdvisorRunStatusInterrupted means PMM restarted mid-run; the insights it saved are kept.
+	AdvisorRunStatusInterrupted AdvisorRunStatus = "interrupted"
+	// AdvisorRunStatusAborted means the run stopped before running any check.
+	AdvisorRunStatusAborted AdvisorRunStatus = "aborted"
+)
 
 // AdvisorRun represents a single execution of Advisor checks. Counts are filled
 // in when the run finishes, so they survive the pruning of the run's insights.
 //
 //reform:advisor_runs
 type AdvisorRun struct {
-	ID            string           `reform:"id,pk"`
-	TriggeredBy   CheckTriggeredBy `reform:"triggered_by"`
-	StartedAt     time.Time        `reform:"started_at"`
-	FinishedAt    *time.Time       `reform:"finished_at"`
-	ChecksCount   int              `reform:"checks_count"`
-	ServicesCount int              `reform:"services_count"`
+	ID          string           `reform:"id,pk"`
+	TriggeredBy CheckTriggeredBy `reform:"triggered_by"`
+	Status      AdvisorRunStatus `reform:"status"`
+	// CheckNames and ServiceIDs narrow a requested run; empty means all.
+	CheckNames    pq.StringArray `reform:"check_names"`
+	ServiceIDs    pq.StringArray `reform:"service_ids"`
+	StartedAt     time.Time      `reform:"started_at"`
+	FinishedAt    *time.Time     `reform:"finished_at"`
+	ChecksCount   int            `reform:"checks_count"`
+	ServicesCount int            `reform:"services_count"`
 	// FindingsCount counts insights with a failed status, i.e. actual findings.
 	FindingsCount int `reform:"findings_count"`
 	// ErrorsCount counts checks that could not be executed at all.

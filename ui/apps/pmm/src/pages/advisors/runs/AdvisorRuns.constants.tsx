@@ -7,11 +7,11 @@ import Typography from '@mui/material/Typography';
 import { format } from 'date-fns';
 import { SEVERITY, TIME_FORMAT } from 'lib/constants';
 import { type MRT_ColumnDef } from 'material-react-table';
-import { AdvisorRun } from 'types/advisors.types';
+import { type AdvisorRun, AdvisorRunStatus } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 import { Messages } from './AdvisorRuns.messages';
 import { TRIGGERED_BY_LABEL } from '../insights/AdvisorInsights.utils';
-import { formatDuration, isRunning } from './AdvisorRuns.utils';
+import { formatDuration } from './AdvisorRuns.utils';
 
 const EM_DASH = '—';
 
@@ -45,15 +45,49 @@ export const getRunsColumns = (): MRT_ColumnDef<AdvisorRun>[] => [
     header: Messages.columns.duration,
     size: 100,
     grow: false,
-    Cell: ({ row }) =>
-      isRunning(row.original) ? (
-        <Stack direction="row" alignItems="center" gap={0.75}>
-          <CircularProgress size={12} data-testid="run-in-progress" />
-          <Typography variant="body2">{Messages.running}</Typography>
-        </Stack>
-      ) : (
-        <span>{formatDuration(row.original) ?? EM_DASH}</span>
-      ),
+    Cell: ({ row }) => {
+      switch (row.original.status) {
+        case AdvisorRunStatus.queued:
+        case AdvisorRunStatus.running: {
+          const queued = row.original.status === AdvisorRunStatus.queued;
+          return (
+            <Tooltip title={queued ? Messages.tooltips.queued : ''} arrow>
+              <Stack direction="row" alignItems="center" gap={0.75}>
+                <CircularProgress size={12} data-testid="run-in-progress" />
+                <Typography variant="body2">
+                  {queued ? Messages.queued : Messages.running}
+                </Typography>
+              </Stack>
+            </Tooltip>
+          );
+        }
+        case AdvisorRunStatus.interrupted:
+        case AdvisorRunStatus.aborted: {
+          const interrupted =
+            row.original.status === AdvisorRunStatus.interrupted;
+          return (
+            <Tooltip
+              title={
+                interrupted
+                  ? Messages.tooltips.interrupted
+                  : Messages.tooltips.aborted
+              }
+              arrow
+            >
+              <Typography
+                variant="body2"
+                color={interrupted ? 'warning.main' : 'error.main'}
+                data-testid={interrupted ? 'run-interrupted' : 'run-aborted'}
+              >
+                {interrupted ? Messages.interrupted : Messages.aborted}
+              </Typography>
+            </Tooltip>
+          );
+        }
+        default:
+          return <span>{formatDuration(row.original) ?? EM_DASH}</span>;
+      }
+    },
   },
   {
     id: 'triggeredBy',

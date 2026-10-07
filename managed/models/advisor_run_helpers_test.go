@@ -38,15 +38,29 @@ func TestAdvisorRuns(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	q := db.Querier
 
-	start := func(t *testing.T, run *models.AdvisorRun) *models.AdvisorRun {
+	// creates a completed run unless the status is given, so runs pile up
+	// without taking the single run slot
+	create := func(t *testing.T, run *models.AdvisorRun) *models.AdvisorRun {
 		t.Helper()
-		require.NoError(t, models.StartAdvisorRun(t.Context(), q, run))
+		if run.Status == "" {
+			run.Status = models.AdvisorRunStatusCompleted
+		}
+		require.NoError(t, models.CreateAdvisorRun(t.Context(), q, run))
 		return run
 	}
 
-	t.Run("a started run has an ID, no completion and no counts", func(t *testing.T) {
-		run := start(t, &models.AdvisorRun{
+	// closes an active run so it frees the run slot for the next subtest
+	finish := func(t *testing.T, id string) {
+		t.Helper()
+		require.NoError(t, models.FinishAdvisorRun(
+			t.Context(), q, id, models.AdvisorRunStatusCompleted, time.Now(), models.AdvisorRunCounts{},
+		))
+	}
+
+	t.Run("a running run has an ID, no completion and no counts", func(t *testing.T) {
+		run := create(t, &models.AdvisorRun{
 			TriggeredBy: models.CheckTriggeredByUser,
+			Status:      models.AdvisorRunStatusRunning,
 			StartedAt:   time.Date(2026, 8, 1, 10, 0, 0, 0, time.UTC),
 		})
 
@@ -64,21 +78,25 @@ func TestAdvisorRuns(t *testing.T) {
 		}
 		require.NotNil(t, found)
 		assert.True(t, found.IsRunning())
+		assert.Equal(t, models.AdvisorRunStatusRunning, found.Status)
 		assert.Zero(t, found.FindingsCount)
 
 		counts, err := found.GetSeverityCounts()
 		require.NoError(t, err)
 		assert.Empty(t, counts)
+
+		finish(t, run.ID)
 	})
 
-	t.Run("finishing a run stores its completion and counts", func(t *testing.T) {
-		run := start(t, &models.AdvisorRun{
+	t.Run("finishing a run stores its status, completion and counts", func(t *testing.T) {
+		run := create(t, &models.AdvisorRun{
 			TriggeredBy: models.CheckTriggeredByScheduler,
+			Status:      models.AdvisorRunStatusRunning,
 			StartedAt:   time.Date(2026, 8, 1, 11, 0, 0, 0, time.UTC),
 		})
 		finishedAt := time.Date(2026, 8, 1, 11, 2, 30, 0, time.UTC)
 
-		require.NoError(t, models.FinishAdvisorRun(t.Context(), q, run.ID, finishedAt, models.AdvisorRunCounts{
+		require.NoError(t, models.FinishAdvisorRun(t.Context(), q, run.ID, models.AdvisorRunStatusCompleted, finishedAt, models.AdvisorRunCounts{
 			ChecksCount:   107,
 			ServicesCount: 3,
 			FindingsCount: 28,
@@ -93,6 +111,7 @@ func TestAdvisorRuns(t *testing.T) {
 		require.NoError(t, q.Reload(reloaded))
 
 		assert.False(t, reloaded.IsRunning())
+		assert.Equal(t, models.AdvisorRunStatusCompleted, reloaded.Status)
 		require.NotNil(t, reloaded.FinishedAt)
 		assert.Equal(t, finishedAt, *reloaded.FinishedAt)
 		assert.Equal(t, 107, reloaded.ChecksCount)
@@ -109,14 +128,77 @@ func TestAdvisorRuns(t *testing.T) {
 	})
 
 	t.Run("finishing an unknown run is not an error", func(t *testing.T) {
-		require.NoError(t, models.FinishAdvisorRun(t.Context(), q, "no-such-run", time.Now(), models.AdvisorRunCounts{}))
+		require.NoError(t, models.FinishAdvisorRun(
+			t.Context(), q, "no-such-run", models.AdvisorRunStatusCompleted, time.Now(), models.AdvisorRunCounts{},
+		))
+	})
+
+	t.Run("only one run can be queued or running", func(t *testing.T) {
+		active, err := models.FindActiveAdvisorRun(t.Context(), q)
+		require.NoError(t, err)
+		require.Nil(t, active)
+
+		queued := create(t, &models.AdvisorRun{
+			TriggeredBy: models.CheckTriggeredByUser,
+			Status:      models.AdvisorRunStatusQueued,
+			CheckNames:  []string{"check_a"},
+			ServiceIDs:  []string{"svc-1"},
+			StartedAt:   time.Date(2026, 8, 3, 9, 0, 0, 0, time.UTC),
+		})
+
+		for _, status := range []models.AdvisorRunStatus{models.AdvisorRunStatusQueued, models.AdvisorRunStatusRunning} {
+			err = models.CreateAdvisorRun(t.Context(), q, &models.AdvisorRun{
+				TriggeredBy: models.CheckTriggeredByScheduler,
+				Status:      status,
+			})
+			require.ErrorIs(t, err, models.ErrAdvisorRunInProgress, status)
+		}
+		// finished runs never take the slot
+		create(t, &models.AdvisorRun{TriggeredBy: models.CheckTriggeredByScheduler})
+
+		active, err = models.FindActiveAdvisorRun(t.Context(), q)
+		require.NoError(t, err)
+		require.NotNil(t, active)
+		assert.Equal(t, queued.ID, active.ID)
+		assert.Equal(t, models.AdvisorRunStatusQueued, active.Status)
+		assert.Equal(t, []string{"check_a"}, []string(active.CheckNames))
+		assert.Equal(t, []string{"svc-1"}, []string(active.ServiceIDs))
+
+		startedAt := time.Date(2026, 8, 3, 9, 0, 40, 0, time.UTC)
+		ok, err := models.StartQueuedAdvisorRun(t.Context(), q, queued.ID, startedAt)
+		require.NoError(t, err)
+		assert.True(t, ok)
+
+		active, err = models.FindActiveAdvisorRun(t.Context(), q)
+		require.NoError(t, err)
+		require.NotNil(t, active)
+		assert.Equal(t, models.AdvisorRunStatusRunning, active.Status)
+		assert.Equal(t, startedAt, active.StartedAt)
+
+		// a run can be taken off the queue only once
+		ok, err = models.StartQueuedAdvisorRun(t.Context(), q, queued.ID, startedAt)
+		require.NoError(t, err)
+		assert.False(t, ok)
+
+		require.NoError(t, models.FinishAdvisorRun(
+			t.Context(), q, queued.ID, models.AdvisorRunStatusInterrupted, startedAt, models.AdvisorRunCounts{},
+		))
+		active, err = models.FindActiveAdvisorRun(t.Context(), q)
+		require.NoError(t, err)
+		assert.Nil(t, active)
+
+		next := create(t, &models.AdvisorRun{
+			TriggeredBy: models.CheckTriggeredByScheduler,
+			Status:      models.AdvisorRunStatusRunning,
+		})
+		finish(t, next.ID)
 	})
 
 	t.Run("runs come back newest first and paginate", func(t *testing.T) {
 		base := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
 		ids := make([]string, 0, 3)
 		for i := range 3 {
-			run := start(t, &models.AdvisorRun{
+			run := create(t, &models.AdvisorRun{
 				TriggeredBy: models.CheckTriggeredByUser,
 				StartedAt:   base.Add(time.Duration(i) * time.Hour),
 			})
@@ -146,8 +228,8 @@ func TestAdvisorRuns(t *testing.T) {
 	t.Run("filters by trigger", func(t *testing.T) {
 		from := time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC)
 		to := from.Add(time.Hour)
-		start(t, &models.AdvisorRun{TriggeredBy: models.CheckTriggeredByUser, StartedAt: from})
-		start(t, &models.AdvisorRun{TriggeredBy: models.CheckTriggeredByScheduler, StartedAt: from})
+		create(t, &models.AdvisorRun{TriggeredBy: models.CheckTriggeredByUser, StartedAt: from})
+		create(t, &models.AdvisorRun{TriggeredBy: models.CheckTriggeredByScheduler, StartedAt: from})
 
 		scheduler := models.CheckTriggeredByScheduler
 		runs, err := models.FindAdvisorRuns(t.Context(), q, models.AdvisorRunFilters{
@@ -161,11 +243,11 @@ func TestAdvisorRuns(t *testing.T) {
 	})
 
 	t.Run("counts are derived from the run's insights", func(t *testing.T) {
-		run := start(t, &models.AdvisorRun{
+		run := create(t, &models.AdvisorRun{
 			TriggeredBy: models.CheckTriggeredByUser,
 			StartedAt:   time.Date(2026, 5, 1, 9, 0, 0, 0, time.UTC),
 		})
-		other := start(t, &models.AdvisorRun{
+		other := create(t, &models.AdvisorRun{
 			TriggeredBy: models.CheckTriggeredByUser,
 			StartedAt:   time.Date(2026, 5, 1, 9, 30, 0, 0, time.UTC),
 		})
@@ -214,7 +296,7 @@ func TestAdvisorRuns(t *testing.T) {
 	})
 
 	t.Run("a run with no insights has no last insight time", func(t *testing.T) {
-		run := start(t, &models.AdvisorRun{
+		run := create(t, &models.AdvisorRun{
 			TriggeredBy: models.CheckTriggeredByUser,
 			StartedAt:   time.Date(2026, 4, 1, 9, 0, 0, 0, time.UTC),
 		})
@@ -224,36 +306,41 @@ func TestAdvisorRuns(t *testing.T) {
 		assert.False(t, ok)
 	})
 
-	t.Run("unfinished runs are found, and not returned once closed", func(t *testing.T) {
-		run := start(t, &models.AdvisorRun{
+	t.Run("running runs are found, queued and closed ones are not", func(t *testing.T) {
+		runningIDs := func(t *testing.T) []string {
+			t.Helper()
+			runs, err := models.FindRunningAdvisorRuns(t.Context(), q)
+			require.NoError(t, err)
+			ids := make([]string, 0, len(runs))
+			for _, r := range runs {
+				ids = append(ids, r.ID)
+			}
+			return ids
+		}
+
+		queued := create(t, &models.AdvisorRun{
 			TriggeredBy: models.CheckTriggeredByUser,
+			Status:      models.AdvisorRunStatusQueued,
+		})
+		assert.NotContains(t, runningIDs(t), queued.ID)
+		finish(t, queued.ID)
+
+		run := create(t, &models.AdvisorRun{
+			TriggeredBy: models.CheckTriggeredByUser,
+			Status:      models.AdvisorRunStatusRunning,
 			StartedAt:   time.Date(2026, 3, 1, 9, 0, 0, 0, time.UTC),
 		})
+		assert.Contains(t, runningIDs(t), run.ID)
 
-		open, err := models.FindUnfinishedAdvisorRuns(t.Context(), q)
-		require.NoError(t, err)
-		ids := make([]string, 0, len(open))
-		for _, r := range open {
-			ids = append(ids, r.ID)
-		}
-		assert.Contains(t, ids, run.ID)
-
-		require.NoError(t, models.FinishAdvisorRun(t.Context(), q, run.ID, run.StartedAt, models.AdvisorRunCounts{}))
-
-		open, err = models.FindUnfinishedAdvisorRuns(t.Context(), q)
-		require.NoError(t, err)
-		ids = ids[:0]
-		for _, r := range open {
-			ids = append(ids, r.ID)
-		}
-		assert.NotContains(t, ids, run.ID)
+		finish(t, run.ID)
+		assert.NotContains(t, runningIDs(t), run.ID)
 	})
 
 	t.Run("cleanup removes runs by their own start time", func(t *testing.T) {
 		old := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 		recent := time.Date(2026, 12, 1, 0, 0, 0, 0, time.UTC)
-		oldRun := start(t, &models.AdvisorRun{TriggeredBy: models.CheckTriggeredByUser, StartedAt: old})
-		recentRun := start(t, &models.AdvisorRun{TriggeredBy: models.CheckTriggeredByUser, StartedAt: recent})
+		oldRun := create(t, &models.AdvisorRun{TriggeredBy: models.CheckTriggeredByUser, StartedAt: old})
+		recentRun := create(t, &models.AdvisorRun{TriggeredBy: models.CheckTriggeredByUser, StartedAt: recent})
 
 		require.NoError(t, models.CleanupOldAdvisorRuns(t.Context(), q, old.Add(time.Hour)))
 

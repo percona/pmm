@@ -54,14 +54,16 @@ func TestInsightsCleaner(t *testing.T) {
 	// Runs share the retention window but age out on their own start time.
 	oldRun := &models.AdvisorRun{
 		TriggeredBy: models.CheckTriggeredByUser,
+		Status:      models.AdvisorRunStatusCompleted,
 		StartedAt:   models.Now().Add(-31 * 24 * time.Hour),
 	}
-	require.NoError(t, models.StartAdvisorRun(t.Context(), q, oldRun))
+	require.NoError(t, models.CreateAdvisorRun(t.Context(), q, oldRun))
 	newRun := &models.AdvisorRun{
 		TriggeredBy: models.CheckTriggeredByUser,
+		Status:      models.AdvisorRunStatusCompleted,
 		StartedAt:   models.Now(),
 	}
-	require.NoError(t, models.StartAdvisorRun(t.Context(), q, newRun))
+	require.NoError(t, models.CreateAdvisorRun(t.Context(), q, newRun))
 
 	// Run a single cleanup pass synchronously; the ticker loop in Run is trivial plumbing.
 	NewInsights(db).cleanup(t.Context(), logrus.WithField("component", "test"))
