@@ -1,3 +1,6 @@
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
 import { TextInput, type MRT_ColumnDef } from '@percona/peak-ui';
 import type { AlertThresholdRow } from './AlertThresholds.types';
 import ResetValueCell from './reset-value-cell';
@@ -30,6 +33,14 @@ export const ALERT_THRESHOLDS_COLUMNS: MRT_ColumnDef<AlertThresholdRow>[] = [
   {
     accessorKey: 'effectiveValue',
     header: Messages.table.columns.override,
+    Header: () => (
+      <Stack direction="row" alignItems="center" gap={0.5}>
+        {Messages.table.columns.override}
+        <Tooltip title={Messages.table.tooltips.override} arrow>
+          <InfoOutlinedIcon fontSize="small" />
+        </Tooltip>
+      </Stack>
+    ),
     enableColumnActions: false,
     enableColumnFilter: false,
     enableSorting: false,
@@ -59,6 +70,7 @@ export const ALERT_THRESHOLDS_COLUMNS: MRT_ColumnDef<AlertThresholdRow>[] = [
     grow: false,
     header: Messages.table.columns.unit,
     enableColumnActions: false,
+    enableColumnFilter: false,
     muiTableHeadCellProps: {
       sx: {
         '.Mui-TableHeadCell-Content': {

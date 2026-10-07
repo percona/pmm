@@ -172,8 +172,11 @@ const AlertThresholds = () => {
               data={rows}
               getRowId={(row) => row.id}
               enableHiding={false}
+              enableStickyHeader
               muiTableContainerProps={{
                 sx: {
+                  // Keeps the title and actions on screen when a node has many rules.
+                  maxHeight: 'calc(100vh - 320px)',
                   border: '1px solid',
                   borderColor: 'divider',
                   borderRadius: '8px',
