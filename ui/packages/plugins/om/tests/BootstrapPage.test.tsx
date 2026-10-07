@@ -57,14 +57,14 @@ vi.mock('../src/topologyHooks', () => ({
   useOmTopology: () => ({ data: undefined }),
 }));
 
-/** Land on Configure for all three hosts, with the replica set named. */
+/** Land on Configure for all three nodes, with the replica set named. */
 function openConfigure() {
   render(
     <MemoryRouter
-      initialEntries={['/om/hosts/bootstrap?hosts=node-1,node-2,node-3']}
+      initialEntries={['/operations/nodes/install?nodes=node-1,node-2,node-3']}
     >
       <Routes>
-        <Route path="/om/hosts/bootstrap" element={<BootstrapPage />} />
+        <Route path="/operations/nodes/install" element={<BootstrapPage />} />
       </Routes>
     </MemoryRouter>
   );
@@ -81,10 +81,12 @@ describe('BootstrapPage election settings', () => {
   it('folds the settings away with their defaults stated', () => {
     render(
       <MemoryRouter
-        initialEntries={['/om/hosts/bootstrap?hosts=node-1,node-2,node-3']}
+        initialEntries={[
+          '/operations/nodes/install?nodes=node-1,node-2,node-3',
+        ]}
       >
         <Routes>
-          <Route path="/om/hosts/bootstrap" element={<BootstrapPage />} />
+          <Route path="/operations/nodes/install" element={<BootstrapPage />} />
         </Routes>
       </MemoryRouter>
     );

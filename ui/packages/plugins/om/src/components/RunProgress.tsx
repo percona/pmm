@@ -260,7 +260,7 @@ function isStarting(run: OmGetBootstrapRunResponse): boolean {
  * Ask for confirmation, then request cancellation of `run`.
  *
  * A separate confirm step because this is destructive in the same sense
- * HostsPage's Forget dialog is: an operator's second thought should be caught
+ * NodesPage's Forget dialog is: an operator's second thought should be caught
  * before the request goes out, not after. Renders nothing once the run is no
  * longer cancellable (`canCancelBootstrapRun`) - once cancellation has already
  * been requested, {@link RunProgress} shows that as a warning line instead;
@@ -291,9 +291,9 @@ const AbortButton = ({ run }: { run: OmGetBootstrapRunResponse }) => {
         <DialogContent>
           <DialogContentText component="div">
             <p>
-              This stops run {run.run_id} and rolls back every host in it -
+              This stops run {run.run_id} and rolls back every node in it -
               packages, configuration, and data directories this run has already
-              written are removed. Hosts that had already finished successfully
+              written are removed. Nodes that had already finished successfully
               are rolled back too, since a partial replica set is not a state to
               leave running.
             </p>
@@ -359,7 +359,7 @@ export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => {
       )}
       {run.hosts.some(isHostRollingBack) && (
         <Typography variant="body2" color="warning.main">
-          Rolling back every host.
+          Rolling back every node.
         </Typography>
       )}
       <StepMatrix run={run} />

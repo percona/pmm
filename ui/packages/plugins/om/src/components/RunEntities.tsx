@@ -31,6 +31,7 @@ import {
 } from '@mui/material';
 import { useOmInventoryRun } from '../inventoryHooks';
 import { formatCompactDuration } from '../format';
+import { NESTED_TABLE_WRAPPER } from '../nestedTable';
 import { Unavailable } from './Unavailable';
 import type { OmExecutorResolution, OmInventoryRun } from '../types';
 
@@ -42,7 +43,7 @@ const RESOLUTION_LABEL: Record<OmExecutorResolution, string> = {
   EXECUTOR_RESOLUTION_UNSPECIFIED: 'not resolved',
   EXECUTOR_RESOLUTION_NAME: 'by node name',
   EXECUTOR_RESOLUTION_ADDRESS: 'by node address',
-  EXECUTOR_RESOLUTION_ORPHANED: 'no executor',
+  EXECUTOR_RESOLUTION_ORPHANED: 'no agent',
 };
 
 /**
@@ -82,7 +83,7 @@ export const RunEntities = ({ run }: { run: OmInventoryRun }) => {
   if (isError) {
     return (
       <Alert severity="error" sx={{ m: 2 }}>
-        Could not load this refresh: {(error as Error).message}
+        Could not load this scan: {(error as Error).message}
       </Alert>
     );
   }
@@ -91,23 +92,23 @@ export const RunEntities = ({ run }: { run: OmInventoryRun }) => {
   if (entities.length === 0) {
     return (
       <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-        This refresh attempted nothing. Either it was scoped to hosts with no
+        This scan attempted nothing. Either it was scoped to nodes with no
         services on them, or enumeration found none.
       </Typography>
     );
   }
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box sx={NESTED_TABLE_WRAPPER}>
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell>Host</TableCell>
-            <TableCell>Executor host</TableCell>
+            <TableCell>Node</TableCell>
+            <TableCell>Agent name</TableCell>
             <TableCell>Matched</TableCell>
             <TableCell>Answered</TableCell>
-            <TableCell>Host time</TableCell>
-            <TableCell>Probe log</TableCell>
+            <TableCell>Node time</TableCell>
+            <TableCell>Scan log</TableCell>
             <TableCell>Services</TableCell>
             <TableCell>Error</TableCell>
           </TableRow>
@@ -125,8 +126,8 @@ export const RunEntities = ({ run }: { run: OmInventoryRun }) => {
                 <Tooltip
                   title={
                     entity.resolution === 'EXECUTOR_RESOLUTION_ORPHANED'
-                      ? 'No executor client matched this host, so nothing was dispatched to it. Not an error.'
-                      : 'How the host was matched to the executor client its probe ran on.'
+                      ? 'No automation agent matched this node, so nothing was sent to it. Not an error.'
+                      : 'How the node was matched to the automation agent its scan ran on.'
                   }
                 >
                   <Box component="span">
@@ -146,7 +147,7 @@ export const RunEntities = ({ run }: { run: OmInventoryRun }) => {
                 {entity.duration_seconds == null ? (
                   <Unavailable reason="not_applicable" />
                 ) : (
-                  <Tooltip title="The host's wall clock, dispatch to collected output. One dispatch covers every service on it, so this is measured once.">
+                  <Tooltip title="The node's wall clock, start to collected output. One job covers every service on it, so this is measured once.">
                     <Box component="span">
                       {formatHostDuration(entity.duration_seconds)}
                     </Box>
@@ -162,7 +163,7 @@ export const RunEntities = ({ run }: { run: OmInventoryRun }) => {
                   // surface (app/sep/routes/download_files.py). A second route
                   // straight from the browser into PMM Extensions is a security decision, not
                   // one to make here -- the id is still most of the value.
-                  <Tooltip title="The task history id of this attempt's own probe run. Its raw output is in PMM Extensions' task log, not reachable from this page.">
+                  <Tooltip title="The task history id of this attempt's own scan. Its raw output is in PMM Extensions' task log, not reachable from this page.">
                     <Box component="span">{entity.task_history_id}</Box>
                   </Tooltip>
                 )}
@@ -171,7 +172,7 @@ export const RunEntities = ({ run }: { run: OmInventoryRun }) => {
                 {/* Empty is the answer, not a gap: a host with a PMM client and no
                     database is the case this receipt exists to be able to show. */}
                 {entity.services.length === 0 ? (
-                  <Tooltip title="No MongoDB service PMM knows about on this host.">
+                  <Tooltip title="No MongoDB service PMM knows about on this node.">
                     <Box component="span" sx={{ color: 'text.disabled' }}>
                       none
                     </Box>
@@ -184,7 +185,7 @@ export const RunEntities = ({ run }: { run: OmInventoryRun }) => {
                         title={
                           service.error ??
                           (service.answered
-                            ? 'Answered this refresh.'
+                            ? 'Answered this scan.'
                             : 'Did not answer.')
                         }
                       >
@@ -219,8 +220,8 @@ export const RunEntities = ({ run }: { run: OmInventoryRun }) => {
         </TableBody>
       </Table>
       <Typography variant="caption" color="text.secondary">
-        What the probe found is on the Services and Hosts pages. This is only
-        what this refresh attempted.
+        What the scan found is on the Fleet and Nodes pages. This is only what
+        this scan attempted.
       </Typography>
     </Box>
   );

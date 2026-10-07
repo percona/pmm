@@ -198,8 +198,10 @@ describe('NavigationProvider', () => {
     });
 
     it.each([
-      ['om-overview', OM_PATH],
-      ['om-hosts', `${OM_PATH}/hosts`],
+      ['om-fleet', OM_PATH],
+      ['om-nodes', `${OM_PATH}/nodes`],
+      ['om-automations', `${OM_PATH}/automations`],
+      ['om-settings', `${OM_PATH}/settings`],
     ])('marks %s active inside the MongoDB menu', (childId, path) => {
       const navTree = renderNavTree(TEST_USER_ADMIN, {
         initialEntries: [path],

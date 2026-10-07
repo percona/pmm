@@ -174,7 +174,8 @@ export interface OmTopologySummary {
 
 /** Provenance every snapshot-backed response repeats. */
 export interface OmTopologySnapshotEnvelope {
-  generated_at: string;
+  /** Absent until pmm-managed's first collection. */
+  generated_at?: string;
   observed_at?: string | null;
   stale: boolean;
   schema_version: number;

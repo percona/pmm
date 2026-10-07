@@ -43,7 +43,7 @@ import {
   Typography,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { OM_ROUTE_AUTOMATIONS, OM_ROUTE_HOSTS } from './constants';
+import { OM_ROUTE_AUTOMATIONS, OM_ROUTE_NODES } from './constants';
 import {
   MEMBER_CONSTRAINT_PHRASE,
   constrainMemberConfig,
@@ -73,7 +73,7 @@ const DEFAULT_BIND_IP = '0.0.0.0';
  * triggering a run navigates straight to Automations (plan.md §6) rather than
  * showing progress on a page the reader then has to remember to leave.
  */
-const WIZARD_STEPS = ['Hosts', 'Configure', 'Review'] as const;
+const WIZARD_STEPS = ['Nodes', 'Configure', 'Review'] as const;
 
 /** Adamo's decided phase-1 topology: a replica set of exactly one or three members. */
 function isSupportedHostCount(count: number): boolean {
@@ -303,15 +303,15 @@ const ELECTION_SETTING_HELP = [
 
 /**
  * Configure -> Review -> Bootstrap for a set of hosts already selected on
- * {@link HostsPage} — a page rather than a modal (PMM-15347/plan.md §6 Phase A)
+ * {@link NodesPage} — a page rather than a modal (PMM-15347/plan.md §6 Phase A)
  * so an in-flight run keeps a URL, survives a refresh, and reads like the rest
  * of OM's pages rather than a form floating over them.
  *
- * The host selection itself is carried across as the `?hosts=` query param
+ * The host selection itself is carried across as the `?nodes=` query param
  * (comma-separated node ids) rather than router state, precisely so a refresh
  * doesn't lose it — this page's own "Hosts" step is a read-only recap of that
  * selection, not a second place to make it, so it never duplicates
- * `HostsPage`'s eligibility table.
+ * `NodesPage`'s eligibility table.
  *
  * PMM-15347 PoC only: one or three hosts, keyFile auth, TLS off. Once
  * bootstrap is triggered this navigates to Automations with the new run's row
@@ -329,7 +329,7 @@ export const BootstrapPage = () => {
   const selectedIds = useMemo(
     () =>
       new Set(
-        (params.get('hosts') ?? '').split(',').filter((id) => id.length > 0)
+        (params.get('nodes') ?? '').split(',').filter((id) => id.length > 0)
       ),
     [params]
   );
@@ -341,7 +341,7 @@ export const BootstrapPage = () => {
     [hostsQuery.data, selectedIds]
   );
 
-  const backToHosts = () => navigate(`${omBase}/${OM_ROUTE_HOSTS}`);
+  const backToHosts = () => navigate(`${omBase}/${OM_ROUTE_NODES}`);
 
   const [activeStep, setActiveStep] = useState(0);
   const [configTab, setConfigTab] = useState<'general' | 'security'>('general');
@@ -416,7 +416,7 @@ export const BootstrapPage = () => {
       isMemberConfigValid(memberConfigs[host.node_id] ?? defaultMemberConfig())
     );
 
-  // A fresh selection (a different ?hosts= than last render) resets the wizard
+  // A fresh selection (a different ?nodes= than last render) resets the wizard
   // back to its first step - landing on this page for a different host set must
   // not carry over a previous run id or an in-flight mutation's error.
   useEffect(() => {
@@ -460,11 +460,11 @@ export const BootstrapPage = () => {
   if (hostsQuery.isError) {
     return (
       <Stack gap={2}>
-        <OmHeader title="Bootstrap" />
+        <OmHeader title="Install MongoDB" />
         <Alert severity="error">{hostsQuery.error.message}</Alert>
         <Box>
           <Button variant="contained" onClick={backToHosts}>
-            Back to Hosts
+            Back to Nodes
           </Button>
         </Box>
       </Stack>
@@ -474,13 +474,13 @@ export const BootstrapPage = () => {
   if (hosts.length === 0) {
     return (
       <Stack gap={2}>
-        <OmHeader title="Bootstrap" />
+        <OmHeader title="Install MongoDB" />
         <Alert severity="warning">
-          No hosts selected. Select hosts to bootstrap from the Hosts page.
+          No nodes selected. Pick the nodes to install on from the Nodes page.
         </Alert>
         <Box>
           <Button variant="contained" onClick={backToHosts}>
-            Back to Hosts
+            Back to Nodes
           </Button>
         </Box>
       </Stack>
@@ -506,7 +506,7 @@ export const BootstrapPage = () => {
   return (
     <Stack gap={2}>
       <OmHeader
-        title={`Bootstrap ${hosts.length === 1 ? hosts[0].name : `${hosts.length} hosts`}`}
+        title={`Install MongoDB on ${hosts.length === 1 ? hosts[0].name : `${hosts.length} nodes`}`}
       />
       <Stepper activeStep={activeStep} sx={{ mb: 1 }}>
         {WIZARD_STEPS.map((label) => (
@@ -520,14 +520,14 @@ export const BootstrapPage = () => {
         <Stack spacing={2}>
           {!isSupportedHostCount(hosts.length) && (
             <Alert severity="error">
-              Select exactly one host for a single-member replica set, or three
+              Select exactly one node for a single-member replica set, or three
               for a three-member one. {hosts.length} selected.
             </Alert>
           )}
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Host</TableCell>
+                <TableCell>Node</TableCell>
                 <TableCell>Address</TableCell>
                 <TableCell>Operating system</TableCell>
               </TableRow>
@@ -610,7 +610,7 @@ export const BootstrapPage = () => {
                 onChange={(event) => setDataPath(event.target.value)}
                 required
                 fullWidth
-                helperText="Per host. Where mongod stores its data."
+                helperText="On every node. Where mongod stores its data."
               />
               <TextField
                 label="Log path"
@@ -618,7 +618,7 @@ export const BootstrapPage = () => {
                 onChange={(event) => setLogPath(event.target.value)}
                 required
                 fullWidth
-                helperText="Per host. Where mongod writes its log file."
+                helperText="On every node. Where mongod writes its log file."
               />
               <TextField
                 label="Port"
@@ -724,14 +724,14 @@ export const BootstrapPage = () => {
           }}
         >
           <Alert severity="warning">
-            Bootstrap will modify the selected hosts. MongoDB packages,
-            configuration files, data directories, and systemd services will be
-            created according to this plan.
+            This will modify the selected nodes. MongoDB packages, configuration
+            files, data directories, and systemd services will be created
+            according to this plan.
           </Alert>
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Host</TableCell>
+                <TableCell>Node</TableCell>
                 <TableCell>Operating system</TableCell>
               </TableRow>
             </TableHead>
@@ -771,7 +771,7 @@ export const BootstrapPage = () => {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Host</TableCell>
+                  <TableCell>Node</TableCell>
                   <TableCell align="right">Priority</TableCell>
                   <TableCell align="center">Votes</TableCell>
                   <TableCell align="center">Hidden</TableCell>
@@ -838,7 +838,7 @@ export const BootstrapPage = () => {
               disabled={bootstrap.isPending}
               onClick={handleTriggerBootstrap}
             >
-              Bootstrap
+              Install MongoDB
             </Button>
           </>
         )}

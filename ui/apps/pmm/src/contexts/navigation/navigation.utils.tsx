@@ -355,8 +355,8 @@ export const addOm = (): NavItem => ({
   icon: Tune,
   url: OM_PATH,
   matches: [OM_PATH],
-  // Always visible, so a collapsed parent does not turn the preview status into an
-  // "attention" dot. Compact, so it fits beside the label inside the drawer width.
+  // "Preview" rather than "Dev Preview": the longer label overlaps "Operations" at
+  // this nesting level. The banner and Settings say which preview it is.
   badge: {
     label: 'Preview',
     sx: {
@@ -369,35 +369,29 @@ export const addOm = (): NavItem => ({
   badgeAlwaysVisible: true,
   children: [
     {
-      id: 'om-overview',
-      text: 'Overview',
+      id: 'om-fleet',
+      text: 'Fleet',
       url: OM_PATH,
     },
     {
-      id: 'om-services',
-      text: 'Services',
-      url: `${OM_PATH}/services`,
-      matches: [`${OM_PATH}/services`],
-    },
-    {
-      // The page a host with no database appears on, which no other OM page can
-      // show: it has no service to be listed through.
-      id: 'om-hosts',
-      text: 'Hosts',
-      url: `${OM_PATH}/hosts`,
-      matches: [`${OM_PATH}/hosts`],
-    },
-    {
-      id: 'om-inventory',
-      text: 'Inventory',
-      url: `${OM_PATH}/inventory`,
-      matches: [`${OM_PATH}/inventory`],
+      // The machines, including the ones with no database on them -- which no fleet
+      // reading can show, and which is where an install goes.
+      id: 'om-nodes',
+      text: 'Nodes',
+      url: `${OM_PATH}/nodes`,
+      matches: [`${OM_PATH}/nodes`],
     },
     {
       id: 'om-automations',
       text: 'Automations',
       url: `${OM_PATH}/automations`,
       matches: [`${OM_PATH}/automations`],
+    },
+    {
+      id: 'om-settings',
+      text: 'Settings',
+      url: `${OM_PATH}/settings`,
+      matches: [`${OM_PATH}/settings`],
     },
   ],
 });

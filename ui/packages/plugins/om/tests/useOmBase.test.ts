@@ -17,10 +17,11 @@
 
 import { describe, expect, it } from 'vitest';
 import {
+  OM_LEGACY_REDIRECTS,
   OM_ROUTE_AUTOMATIONS,
-  OM_ROUTE_HOSTS,
-  OM_ROUTE_INVENTORY,
-  OM_ROUTE_SERVICES,
+  OM_ROUTE_INSTALL,
+  OM_ROUTE_NODES,
+  OM_ROUTE_SETTINGS,
 } from '../src/constants';
 import { omBase } from '../src/useOmBase';
 
@@ -41,10 +42,13 @@ describe('omBase', () => {
   // to name `topology`, `runs` and `clusters/:id`, which no longer exist, so the suite
   // passed while the patterns matched nothing that ships.
   it.each([
-    OM_ROUTE_SERVICES,
-    OM_ROUTE_HOSTS,
-    OM_ROUTE_INVENTORY,
+    OM_ROUTE_NODES,
+    OM_ROUTE_INSTALL,
     OM_ROUTE_AUTOMATIONS,
+    OM_ROUTE_SETTINGS,
+    // The retired routes resolve a base too, so a redirect lands somewhere real
+    // rather than on a path with the old segment still attached.
+    ...Object.keys(OM_LEGACY_REDIRECTS),
   ])(
     'strips the %s segment so an absolute link resolves to the mount',
     (route) => {
@@ -53,7 +57,7 @@ describe('omBase', () => {
   );
 
   it('does not care where the shell mounts the plugin', () => {
-    expect(omBase(`/somewhere/else/${OM_ROUTE_HOSTS}`)).toBe('/somewhere/else');
+    expect(omBase(`/somewhere/else/${OM_ROUTE_NODES}`)).toBe('/somewhere/else');
   });
 
   // Only the declared routes are stripped, so an unknown segment is left whole rather

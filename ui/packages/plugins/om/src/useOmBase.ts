@@ -17,11 +17,11 @@
 
 import { useLocation } from 'react-router-dom';
 import {
+  OM_LEGACY_REDIRECTS,
   OM_ROUTE_AUTOMATIONS,
-  OM_ROUTE_BOOTSTRAP,
-  OM_ROUTE_HOSTS,
-  OM_ROUTE_INVENTORY,
-  OM_ROUTE_SERVICES,
+  OM_ROUTE_INSTALL,
+  OM_ROUTE_NODES,
+  OM_ROUTE_SETTINGS,
 } from './constants';
 
 /**
@@ -33,11 +33,14 @@ import {
  * pattern behind.
  */
 const CHILD_PATTERNS = [
-  OM_ROUTE_SERVICES,
-  OM_ROUTE_BOOTSTRAP,
-  OM_ROUTE_HOSTS,
-  OM_ROUTE_INVENTORY,
+  // Longest first: `nodes/install` has to strip before `nodes` gets a chance, or the
+  // base comes back one segment too long on the install wizard.
+  OM_ROUTE_INSTALL,
+  OM_ROUTE_NODES,
   OM_ROUTE_AUTOMATIONS,
+  OM_ROUTE_SETTINGS,
+  // The retired routes still resolve a base, so a redirect lands somewhere real.
+  ...Object.keys(OM_LEGACY_REDIRECTS),
 ].map((route) => new RegExp(`/${route}$`));
 
 /**

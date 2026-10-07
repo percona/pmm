@@ -203,9 +203,9 @@ export function isFailing(host: {
 }
 
 /**
- * The Inventory page's history window, as a list rather than a switch: adding a
- * quick filter is adding a row here, nowhere else. `InventoryPage` renders one chip
- * per entry, in this order.
+ * The scan history's window, as a list rather than a switch: adding a quick
+ * filter is adding a row here, nowhere else. `AutomationsScansTab` renders one
+ * chip per entry, in this order.
  *
  * `minutes` is a rolling window - `now` minus that many minutes. `'today'` is not
  * rolling: it is local midnight, which is what a reader means by the word, and
