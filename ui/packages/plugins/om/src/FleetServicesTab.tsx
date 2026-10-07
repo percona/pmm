@@ -51,7 +51,6 @@ import {
 import { formatCompactDuration, pluralize } from './format';
 import { ProbeValue } from './components/ProbeValue';
 import { ServiceDetailDrawer } from './components/ServiceDetailDrawer';
-import { uniformColumnVisibility } from './columnBudget';
 import type {
   OmInventoryService,
   OmServiceInventoryRow,
@@ -67,14 +66,6 @@ const TRUNCATED = {
   whiteSpace: 'nowrap',
 } as const;
 
-/**
- * Columns the table carries but does not open with.
- *
- * The page's job is to show everything the snapshot stores, which is not the same as
- * showing it all at once: these five are either constant across a PSMDB estate
- * (`edition`), internal identifiers, or long enough to push the load columns off
- * screen. They stay one click away in the column-visibility menu.
- */
 /**
  * The columns a row opens with: what it is, where it runs, whether it is healthy, and
  * the two numbers a DBA checks first. Everything else is a column-chooser away, or in
@@ -493,12 +484,6 @@ export const FleetServicesTab = () => {
     [joined, estate]
   );
 
-  // A column carrying one value down every row is a column that answers nothing, and
-  // there are usually several: one environment, one cluster, one version. Hidden only
-  // with more than one row, since with a single row *every* column is uniform and
-  // hiding them all would empty the table.
-  const uniformColumns = useMemo(() => uniformColumnVisibility(rows), [rows]);
-
   const table = useMaterialReactTable({
     columns,
     data: rows,
@@ -522,7 +507,7 @@ export const FleetServicesTab = () => {
     }),
     initialState: {
       density: 'compact',
-      columnVisibility: { ...HIDDEN_BY_DEFAULT, ...uniformColumns },
+      columnVisibility: HIDDEN_BY_DEFAULT,
       // Down services first, so a failure is the first row a reader sees.
       sorting: [
         { id: 'status', desc: false },
