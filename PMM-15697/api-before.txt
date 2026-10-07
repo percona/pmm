@@ -1,0 +1,24 @@
+== Version: 3.10.0-v3-ab167fd8a
+== restricted user (Access Role {service_type="mysql"}) -> PostgreSQL query on a HIDDEN service
+  POST /v1/qan:getMetrics            num_queries=2 service=pdpgsql_pmm_17_1_269, socket_pdpgsql_pmm_17_1_269
+  POST /v1/qan/query:getExample      examples=2 SELECT salary FROM hr_salaries WHERE ssn = 'PGSECRET-23' AND
+  GET  /v1/qan/query/{id}/plan       planid=-2158232656071611957 plan=Seq Scan on hr_salaries   Filter: ((sa
+  POST /v1/qan:getHistogram          items=22
+  POST /v1/qan:getLabels             service_name=pdpgsql_pmm_17_1_269,socket_pdpgsql_pmm_17_1_269
+  POST /v1/qan:explainFingerprint    SELECT salary FROM hr_salaries WHERE ssn = 'PGSECRET-23' AND
+== restricted user -> MySQL query on an ALLOWED service
+  POST /v1/qan:getMetrics            num_queries=20 service=mysql_pmm_8_4_1_74754
+  POST /v1/qan/query:getExample      examples=1 SELECT id FROM shop.orders WHERE email = 'MYSECRET-18'
+  GET  /v1/qan/query/{id}/plan       planid= plan=
+  POST /v1/qan:getHistogram          items=0
+  POST /v1/qan:getLabels             service_name=mysql_pmm_8_4_1_74754
+  POST /v1/qan:explainFingerprint    SELECT id FROM shop.orders WHERE email = 'MYSECRET-18'
+== admin -> PostgreSQL query (control)
+  POST /v1/qan:getMetrics            num_queries=2 service=pdpgsql_pmm_17_1_269, socket_pdpgsql_pmm_17_1_269
+  POST /v1/qan/query:getExample      examples=2 SELECT salary FROM hr_salaries WHERE ssn = 'PGSECRET-23' AND
+  GET  /v1/qan/query/{id}/plan       planid=-2158232656071611957 plan=Seq Scan on hr_salaries   Filter: ((sa
+  POST /v1/qan:getHistogram          items=22
+  POST /v1/qan:getLabels             service_name=pdpgsql_pmm_17_1_269,socket_pdpgsql_pmm_17_1_269
+  POST /v1/qan:explainFingerprint    SELECT salary FROM hr_salaries WHERE ssn = 'PGSECRET-23' AND
+== nonexistent queryid, as admin (must look the same as a hidden one)
+  {"code":13,"message":"Internal server error."}
