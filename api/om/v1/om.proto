@@ -460,6 +460,9 @@ message InventoryFreshness {
   // rather than an enum so PMM Extensions can add a kind without a proto change;
   // treat an unrecognised value as unknown.
   optional string last_error_code = 7;
+  // The PMM Extensions scan run that last attempted this entity, so a page stating
+  // its failure can link to the run that produced it. Unset until a run has.
+  optional string last_run_id = 8;
 }
 
 // InventoryService is one MongoDB service OM has probed, or tried to.

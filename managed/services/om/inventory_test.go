@@ -86,7 +86,7 @@ const hostsBody = `{"items": [
     "first_seen_at": "2026-08-18T08:00:00Z", "last_attempt_at": "2026-08-18T09:00:00Z",
     "last_success_at": null, "failing_since": "2026-08-18T08:30:00Z",
     "consecutive_failures": 3, "last_error": "no executor host",
-    "last_error_code": "scan_lost",
+    "last_error_code": "scan_lost", "last_run_id": "8b9b2f3e-1c4d-4e5f-9a6b-7c8d9e0f1a2b",
     "services": []
   }
 ], "total": 2, "offset": 0, "limit": 200}`
@@ -365,6 +365,8 @@ func TestListInventoryHosts(t *testing.T) {
 		assert.Equal(t, int32(3), freshness.GetConsecutiveFailures())
 		assert.Equal(t, "no executor host", freshness.GetLastError())
 		assert.Equal(t, "scan_lost", freshness.GetLastErrorCode())
+		assert.Equal(t, "8b9b2f3e-1c4d-4e5f-9a6b-7c8d9e0f1a2b", freshness.GetLastRunId(),
+			"the run that produced the failure, for linking to it")
 		assert.NotNil(t, freshness.GetFailingSince())
 		assert.Nil(t, freshness.GetLastSuccessAt(),
 			"never having answered is different from having answered nothing")

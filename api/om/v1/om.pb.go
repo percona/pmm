@@ -2017,6 +2017,9 @@ type InventoryFreshness struct {
 	// rather than an enum so PMM Extensions can add a kind without a proto change;
 	// treat an unrecognised value as unknown.
 	LastErrorCode *string `protobuf:"bytes,7,opt,name=last_error_code,json=lastErrorCode,proto3,oneof" json:"last_error_code,omitempty"`
+	// The PMM Extensions scan run that last attempted this entity, so a page stating
+	// its failure can link to the run that produced it. Unset until a run has.
+	LastRunId     *string `protobuf:"bytes,8,opt,name=last_run_id,json=lastRunId,proto3,oneof" json:"last_run_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2096,6 +2099,13 @@ func (x *InventoryFreshness) GetLastError() string {
 func (x *InventoryFreshness) GetLastErrorCode() string {
 	if x != nil && x.LastErrorCode != nil {
 		return *x.LastErrorCode
+	}
+	return ""
+}
+
+func (x *InventoryFreshness) GetLastRunId() string {
+	if x != nil && x.LastRunId != nil {
+		return *x.LastRunId
 	}
 	return ""
 }
@@ -5177,7 +5187,7 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x05_argvB\n" +
 	"\n" +
 	"\b_programB\x06\n" +
-	"\x04_pid\"\xc4\x03\n" +
+	"\x04_pid\"\xf9\x03\n" +
 	"\x12InventoryFreshness\x12>\n" +
 	"\rfirst_seen_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\vfirstSeenAt\x12B\n" +
 	"\x0flast_attempt_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\rlastAttemptAt\x12B\n" +
@@ -5186,9 +5196,11 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x14consecutive_failures\x18\x05 \x01(\x05R\x13consecutiveFailures\x12\"\n" +
 	"\n" +
 	"last_error\x18\x06 \x01(\tH\x00R\tlastError\x88\x01\x01\x12+\n" +
-	"\x0flast_error_code\x18\a \x01(\tH\x01R\rlastErrorCode\x88\x01\x01B\r\n" +
+	"\x0flast_error_code\x18\a \x01(\tH\x01R\rlastErrorCode\x88\x01\x01\x12#\n" +
+	"\vlast_run_id\x18\b \x01(\tH\x02R\tlastRunId\x88\x01\x01B\r\n" +
 	"\v_last_errorB\x12\n" +
-	"\x10_last_error_code\"\xeb\x05\n" +
+	"\x10_last_error_codeB\x0e\n" +
+	"\f_last_run_id\"\xeb\x05\n" +
 	"\x10InventoryService\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12\x17\n" +

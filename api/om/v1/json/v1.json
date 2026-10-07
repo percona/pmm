@@ -1314,6 +1314,12 @@
                             "type": "string",
                             "x-nullable": true,
                             "x-order": 6
+                          },
+                          "last_run_id": {
+                            "description": "The PMM Extensions scan run that last attempted this entity, so a page stating\nits failure can link to the run that produced it. Unset until a run has.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 7
                           }
                         },
                         "x-order": 9
@@ -1452,6 +1458,12 @@
                                   "type": "string",
                                   "x-nullable": true,
                                   "x-order": 6
+                                },
+                                "last_run_id": {
+                                  "description": "The PMM Extensions scan run that last attempted this entity, so a page stating\nits failure can link to the run that produced it. Unset until a run has.",
+                                  "type": "string",
+                                  "x-nullable": true,
+                                  "x-order": 7
                                 }
                               },
                               "x-order": 14
@@ -1702,6 +1714,12 @@
                           "type": "string",
                           "x-nullable": true,
                           "x-order": 6
+                        },
+                        "last_run_id": {
+                          "description": "The PMM Extensions scan run that last attempted this entity, so a page stating\nits failure can link to the run that produced it. Unset until a run has.",
+                          "type": "string",
+                          "x-nullable": true,
+                          "x-order": 7
                         }
                       },
                       "x-order": 9
@@ -1840,6 +1858,12 @@
                                 "type": "string",
                                 "x-nullable": true,
                                 "x-order": 6
+                              },
+                              "last_run_id": {
+                                "description": "The PMM Extensions scan run that last attempted this entity, so a page stating\nits failure can link to the run that produced it. Unset until a run has.",
+                                "type": "string",
+                                "x-nullable": true,
+                                "x-order": 7
                               }
                             },
                             "x-order": 14
@@ -2831,6 +2855,12 @@
                             "type": "string",
                             "x-nullable": true,
                             "x-order": 6
+                          },
+                          "last_run_id": {
+                            "description": "The PMM Extensions scan run that last attempted this entity, so a page stating\nits failure can link to the run that produced it. Unset until a run has.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 7
                           }
                         },
                         "x-order": 14
@@ -3031,6 +3061,12 @@
                           "type": "string",
                           "x-nullable": true,
                           "x-order": 6
+                        },
+                        "last_run_id": {
+                          "description": "The PMM Extensions scan run that last attempted this entity, so a page stating\nits failure can link to the run that produced it. Unset until a run has.",
+                          "type": "string",
+                          "x-nullable": true,
+                          "x-order": 7
                         }
                       },
                       "x-order": 14

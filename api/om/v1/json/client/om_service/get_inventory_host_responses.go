@@ -950,6 +950,10 @@ type GetInventoryHostOKBodyHostFreshness struct {
 	// rather than an enum so PMM Extensions can add a kind without a proto change;
 	// treat an unrecognised value as unknown.
 	LastErrorCode *string `json:"last_error_code,omitempty"`
+
+	// The PMM Extensions scan run that last attempted this entity, so a page stating
+	// its failure can link to the run that produced it. Unset until a run has.
+	LastRunID *string `json:"last_run_id,omitempty"`
 }
 
 // Validate validates this get inventory host OK body host freshness
@@ -1244,6 +1248,10 @@ type GetInventoryHostOKBodyHostServicesItems0Freshness struct {
 	// rather than an enum so PMM Extensions can add a kind without a proto change;
 	// treat an unrecognised value as unknown.
 	LastErrorCode *string `json:"last_error_code,omitempty"`
+
+	// The PMM Extensions scan run that last attempted this entity, so a page stating
+	// its failure can link to the run that produced it. Unset until a run has.
+	LastRunID *string `json:"last_run_id,omitempty"`
 }
 
 // Validate validates this get inventory host OK body host services items0 freshness
