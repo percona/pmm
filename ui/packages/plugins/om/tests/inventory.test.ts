@@ -509,6 +509,31 @@ describe('groupRuns', () => {
     ).toEqual([['c'], ['b'], ['a']]);
   });
 
+  it('starts a new row when a scan finds more nodes or services', () => {
+    const found = (run_id: string, nodes: number, services: number) => {
+      const base = scan(run_id, 'RUN_STATUS_SUCCESS', []);
+      return {
+        ...base,
+        counts: {
+          ...base.counts,
+          total_hosts: nodes,
+          probeable_hosts: nodes,
+          answered_hosts: nodes,
+          total_services: services,
+        },
+      };
+    };
+
+    expect(
+      ids([
+        found('d', 14, 3),
+        found('c', 14, 3),
+        found('b', 14, 2),
+        found('a', 10, 2),
+      ])
+    ).toEqual([['d', 'c'], ['b'], ['a']]);
+  });
+
   it('never folds a one-node scan into full ones', () => {
     expect(ids([scan('b', undefined, ['n2'], ['n2']), scan('a')])).toEqual([
       ['b'],

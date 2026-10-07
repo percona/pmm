@@ -341,13 +341,25 @@ export interface OmRunGroup {
   runs: OmInventoryRun[];
 }
 
-/** What two scans must share to be one row: how they ended, over what, and where. */
+/**
+ * What two scans must share to be one row: how they ended, over what, where they
+ * failed, and everything they counted. A scan that reached more nodes or found
+ * another service is news, so it starts a row of its own.
+ */
 function outcomeKey(run: OmInventoryRun): string {
+  const { counts } = run;
   return JSON.stringify([
     run.status,
     [...run.scope].sort(),
     (run.failing_nodes ?? []).map((node) => node.node_id),
     run.error ?? null,
+    counts.total_hosts,
+    counts.probeable_hosts,
+    counts.answered_hosts,
+    counts.total_services,
+    counts.resolved_services,
+    counts.answered_services,
+    counts.orphaned_services,
   ]);
 }
 
@@ -356,8 +368,10 @@ function outcomeKey(run: OmInventoryRun): string {
  * own newest-first order.
  *
  * Pedro's rule (PMM-15299, 2026-10-07): the same status and the same failing nodes
- * make one row, so a node broken since Tuesday is one row, not 144 a day. The scope
- * and a run-level error count too, so a one-node scan never hides among full ones.
+ * make one row, so a node broken since Tuesday is one row, not 144 a day. The scope,
+ * a run-level error and every count the table shows must match too, so a one-node
+ * scan never hides among full ones and a change in what a scan found is never
+ * folded into the rows before it.
  * Only *consecutive* runs merge: a recovery in between starts a new group, which is
  * what keeps "it broke, it recovered, it broke again" readable. A running scan always
  * stands alone - its outcome is not known yet.
