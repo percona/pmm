@@ -65,14 +65,16 @@ If you deploy with the [PMM HA Helm chart](../../install-pmm/install-HA-clustere
 
 ### Upgrade an existing Docker HA cluster
 
-Before PMM 3.10.0, each node in a Docker HA cluster could generate its own key, and only one of these keys matches the credentials stored in the database. Starting with PMM 3.10.0, a node with a non-matching key doesn't start. If you plan to upgrade such a cluster to PMM 3.10.0, first make sure every node has the same key:
+The HA Helm chart 3.10.0 has no upgrade path from earlier versions. Deploy a fresh cluster instead. Once on 3.10.0, you can upgrade to later Helm chart versions.
+
+If you are reusing an existing database on a fresh 3.10.0 cluster, make sure every node has the same key first:
 {.power-number}
 
 1. Find the node where monitoring works. Its key file is the one that matches the database.
 
 2. Copy that key file to every other node, using the same path.
 
-3. Upgrade the nodes to PMM 3.10.0 and start them.
+3. Start the nodes.
 
 If a node still has a different key, it logs `encryption key does not match the database` and doesn't start. Copy the key from a node that works, then restart the node.
 
