@@ -319,7 +319,8 @@ export const SETTING_GROUP: Record<string, 'general' | 'scanning'> = {
  * of the fix (the feature flag and the public address) are server-side and need
  * a restart, and the client-side requirements are listed there too.
  */
-export const NOMAD_DOC_URL = 'https://per.co.na/pmm-nomad';
+export const NOMAD_DOC_URL =
+  'https://docs.percona.com/percona-monitoring-and-management/3/reference/nomad.html';
 
 /**
  * The pmm-agent version that first carries an automation agent.
