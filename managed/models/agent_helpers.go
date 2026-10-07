@@ -263,31 +263,6 @@ type AgentFilters struct {
 	Disabled *bool
 }
 
-// decryptAgents decrypts Agent rows as returned by reform.
-func decryptAgents(structs []reform.Struct) []*Agent {
-	agents := make([]*Agent, len(structs))
-	for i, s := range structs {
-		agents[i] = new(DecryptAgent(*s.(*Agent))) //nolint:forcetypeassert
-	}
-
-	return agents
-}
-
-// insertAgent encrypts the Agent, inserts it and returns it decrypted again.
-func insertAgent(q *reform.Querier, agent Agent) (*Agent, error) {
-	encryptedAgent, err := EncryptAgent(agent)
-	if err != nil {
-		return nil, err
-	}
-
-	err = q.Insert(&encryptedAgent)
-	if err != nil {
-		return nil, err
-	}
-
-	return new(DecryptAgent(encryptedAgent)), nil
-}
-
 // FindAgents returns Agents by filters.
 //
 // An empty PMMAgentIDs matches every Agent, not none. An unknown PMMAgentID fails with NotFound; an
@@ -343,9 +318,8 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		idx++
 	}
 	if filters.AWSAccessKey != "" {
-		conditions = append(conditions, fmt.Sprintf("(aws_options ? 'aws_access_key' AND aws_options->>'aws_access_key' = %s)", q.Placeholder(idx)))
-		args = append(args, filters.AWSAccessKey)
-		idx++
+		// the key is stored encrypted, so it is compared after decryption below
+		conditions = append(conditions, "aws_options ? 'aws_access_key'")
 	}
 	if filters.IgnoreNomad {
 		conditions = append(conditions, "agent_type != "+q.Placeholder(idx))
@@ -373,7 +347,16 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		return nil, err
 	}
 
-	return decryptAgents(structs), nil
+	agents := make([]*Agent, 0, len(structs))
+	for _, s := range structs {
+		agent := s.(*Agent) //nolint:forcetypeassert
+		if filters.AWSAccessKey != "" && agent.AWSOptions.AWSAccessKey != filters.AWSAccessKey {
+			continue
+		}
+		agents = append(agents, agent)
+	}
+
+	return agents, nil
 }
 
 // IsInternalPgQANAgent reports whether the Agent is the QAN Agent of PMM Server's own PostgreSQL
@@ -425,9 +408,7 @@ func FindInternalPgQANAgent(q *reform.Querier) (*Agent, error) {
 		return nil, err
 	}
 
-	agent := DecryptAgent(*row)
-
-	return &agent, nil
+	return row, nil
 }
 
 // FindAgentByID finds Agent by ID.
@@ -441,7 +422,7 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 	if err != nil {
 		return nil, agentLookupError(err, id)
 	}
-	return new(DecryptAgent(*agent)), nil
+	return agent, nil
 }
 
 // FindAgentByIDForUpdate finds Agent by ID and locks its row (SELECT ... FOR UPDATE) for the
@@ -462,8 +443,7 @@ func FindAgentByIDForUpdate(q *reform.Querier, id string) (*Agent, error) {
 		return nil, agentLookupError(err, id)
 	}
 
-	agent := row.(*Agent) //nolint:forcetypeassert
-	return new(DecryptAgent(*agent)), nil
+	return row.(*Agent), nil //nolint:forcetypeassert
 }
 
 // agentLookupError maps a failed single-agent lookup to the error both finders above return, so
@@ -493,7 +473,11 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 		return nil, err
 	}
 
-	return decryptAgents(structs), nil
+	res := make([]*Agent, len(structs))
+	for i, s := range structs {
+		res[i] = s.(*Agent) //nolint:forcetypeassert
+	}
+	return res, nil
 }
 
 // FindDBConfigForService find DB config from agents running on service specified by serviceID.
@@ -541,7 +525,10 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 		return nil, err
 	}
 
-	res := decryptAgents(structs)
+	res := make([]*Agent, len(structs))
+	for i, s := range structs {
+		res[i] = s.(*Agent) //nolint:forcetypeassert
+	}
 
 	if len(res) == 0 {
 		return nil, status.Error(codes.FailedPrecondition, "No agents available.")
@@ -565,7 +552,12 @@ func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, err
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get agents by runs_on_node_id, %s", nodeID)
 	}
 
-	return decryptAgents(structs), nil
+	res := make([]*Agent, 0, len(structs))
+	for _, str := range structs {
+		res = append(res, str.(*Agent)) //nolint:forcetypeassert
+	}
+
+	return res, nil
 }
 
 // FindPMMAgentsForService gets pmm-agents for service.
@@ -604,7 +596,12 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get pmm-agents for service %s", serviceID)
 	}
-	return decryptAgents(pmmAgentRecords), nil
+	res := make([]*Agent, 0, len(pmmAgentRecords))
+	for _, str := range pmmAgentRecords {
+		res = append(res, str.(*Agent)) //nolint:forcetypeassert
+	}
+
+	return res, nil
 }
 
 // FindPMMAgentsForServicesOnNode gets pmm-agents for Services running on Node.
@@ -680,7 +677,11 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 		return nil, err
 	}
 
-	return decryptAgents(allAgents), nil
+	res := make([]*Agent, len(allAgents))
+	for i, s := range allAgents {
+		res[i] = s.(*Agent) //nolint:forcetypeassert
+	}
+	return res, nil
 }
 
 // FindAllPMMAgentsIDs returns pmm-agents-ids with agents.
@@ -722,12 +723,7 @@ func FindPmmAgentIDToRunActionOrJob(pmmAgentID string, agents []*Agent) (string,
 
 // UpdateAgent updates the Agent in the database.
 func UpdateAgent(q *reform.Querier, agent *Agent) error {
-	encryptedAgent, err := EncryptAgent(*agent)
-	if err != nil {
-		return err
-	}
-
-	err = q.Update(new(encryptedAgent))
+	err := q.Update(agent)
 	if err != nil {
 		return fmt.Errorf("failed to update Agent: %w", err)
 	}
@@ -828,7 +824,7 @@ func CreateNodeExporter(q *reform.Querier,
 		AgentType:     NodeExporterType,
 		PMMAgentID:    &pmmAgentID,
 		NodeID:        pmmAgent.RunsOnNodeID,
-		AgentPassword: agentPassword,
+		AgentPassword: EncryptedStringOrNil(pointer.GetString(agentPassword)),
 		ExporterOptions: ExporterOptions{
 			ExposeExporter:     exposeExporter,
 			PushMetrics:        pushMetrics,
@@ -841,7 +837,11 @@ func CreateNodeExporter(q *reform.Querier,
 		return nil, err
 	}
 
-	return insertAgent(q, *row)
+	err = q.Insert(row)
+	if err != nil {
+		return nil, err
+	}
+	return row, nil
 }
 
 // CreateExternalExporterParams params for add external exporter.
@@ -911,8 +911,8 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		AgentType:    ExternalExporterType,
 		RunsOnNodeID: runsOnNodeID,
 		ServiceID:    pointer.ToStringOrNil(params.ServiceID),
-		Username:     pointer.ToStringOrNil(params.Username),
-		Password:     pointer.ToStringOrNil(params.Password),
+		Username:     EncryptedStringOrNil(params.Username),
+		Password:     EncryptedStringOrNil(params.Password),
 		ListenPort:   new(uint16(params.ListenPort)),
 		ExporterOptions: ExporterOptions{
 			PushMetrics:   params.PushMetrics,
@@ -926,7 +926,11 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		return nil, err
 	}
 
-	return insertAgent(q, *row)
+	err = q.Insert(row)
+	if err != nil {
+		return nil, err
+	}
+	return row, nil
 }
 
 // CreateAgentParams params for add common exporter.
@@ -1089,9 +1093,9 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		PMMAgentID:        &params.PMMAgentID,
 		ServiceID:         pointer.ToStringOrNil(params.ServiceID),
 		NodeID:            pointer.ToStringOrNil(params.NodeID),
-		Username:          pointer.ToStringOrNil(params.Username),
-		Password:          pointer.ToStringOrNil(params.Password),
-		AgentPassword:     pointer.ToStringOrNil(params.AgentPassword),
+		Username:          EncryptedStringOrNil(params.Username),
+		Password:          EncryptedStringOrNil(params.Password),
+		AgentPassword:     EncryptedStringOrNil(params.AgentPassword),
 		TLS:               params.TLS,
 		TLSSkipVerify:     params.TLSSkipVerify,
 		ExporterOptions:   exporterOptions,
@@ -1128,7 +1132,12 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		// do nothing
 	}
 
-	return insertAgent(q, trimUnicodeNilsInCertFiles(*row))
+	trimmedAgent := trimUnicodeNilsInCertFiles(*row)
+	err = q.Insert(&trimmedAgent)
+	if err != nil {
+		return nil, err
+	}
+	return &trimmedAgent, nil
 }
 
 func trimUnicodeNilsInCertFiles(agent Agent) Agent {
@@ -1310,11 +1319,6 @@ func (p *ChangeAgentParams) AffectsConnection() bool {
 //
 // Callers that already had to load the row to inspect it before changing it (e.g. to check its
 // type or a precondition) pass it here directly, so the row is not fetched twice.
-//
-// The row must be decrypted, i.e. loaded through FindAgentByID, FindAgents or another helper that
-// runs DecryptAgent -- not read straight out of AgentTable. This function encrypts before writing,
-// so a still-encrypted row would have its credentials encrypted twice, and agentEncryption only
-// logs a failure rather than returning one.
 func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,gocognit,maintidx
 	// Applied to a copy: the caller's row must not end up carrying the requested values when the
 	// change does not become durable, e.g. when a connection check later in the same transaction
@@ -1415,13 +1419,13 @@ func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) 
 
 	// Update database connection fields
 	if params.Username != nil {
-		row.Username = params.Username
+		row.Username = EncryptedStringOrNil(*params.Username)
 	}
 	if params.Password != nil {
-		row.Password = params.Password
+		row.Password = EncryptedStringOrNil(*params.Password)
 	}
 	if params.AgentPassword != nil {
-		row.AgentPassword = params.AgentPassword
+		row.AgentPassword = EncryptedStringOrNil(*params.AgentPassword)
 	}
 
 	// Update ValkeyOptions fields
@@ -1596,19 +1600,12 @@ func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) 
 	// RTA options
 	row.RTAOptions.Merge(params.RTAOptions)
 
-	// need to encrypt Agent's sensitive data before update
-	encryptedAgent, err := EncryptAgent(*row)
-	if err != nil {
-		return nil, err
-	}
-
-	row = new(encryptedAgent)
 	err = q.Update(row)
 	if err != nil {
 		return nil, err
 	}
 
-	return new(DecryptAgent(*row)), nil
+	return row, nil
 }
 
 // RemoveAgent removes Agent by ID.

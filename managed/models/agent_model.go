@@ -165,17 +165,35 @@ func (c QANOptions) IsEmpty() bool {
 
 // AWSOptions represents structure for special AWS options.
 type AWSOptions struct {
-	AWSAccessKey               string `json:"aws_access_key"`
-	AWSSecretKey               string `json:"aws_secret_key"`
+	AWSAccessKey               string `json:"aws_access_key" encrypt:"true"`
+	AWSSecretKey               string `json:"aws_secret_key" encrypt:"true"`
 	RDSBasicMetricsDisabled    bool   `json:"rds_basic_metrics_disabled"`
 	RDSEnhancedMetricsDisabled bool   `json:"rds_enhanced_metrics_disabled"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c AWSOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c AWSOptions) Value() (driver.Value, error) { return encryptedJSONValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *AWSOptions) Scan(src any) error { return jsonScan(c, src) }
+func (c *AWSOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
+
+// String implements fmt.Stringer; secrets are redacted.
+func (c AWSOptions) String() string {
+	type plain AWSOptions // no methods, so Sprintf does not recurse into String
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%+v", p)
+}
+
+// GoString implements fmt.GoStringer; secrets are redacted.
+func (c AWSOptions) GoString() string {
+	type plain AWSOptions
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%#v", p)
+}
 
 // IsEmpty returns true if all AWSOptions fields are unset or have zero values, otherwise returns false.
 func (c AWSOptions) IsEmpty() bool {
@@ -187,18 +205,36 @@ func (c AWSOptions) IsEmpty() bool {
 
 // AzureOptions represents structure for special Azure options.
 type AzureOptions struct {
-	SubscriptionID string `json:"subscription_id"`
-	ClientID       string `json:"client_id"`
-	ClientSecret   string `json:"client_secret"`
-	TenantID       string `json:"tenant_id"`
+	SubscriptionID string `json:"subscription_id" encrypt:"true"`
+	ClientID       string `json:"client_id" encrypt:"true"`
+	ClientSecret   string `json:"client_secret" encrypt:"true"`
+	TenantID       string `json:"tenant_id" encrypt:"true"`
 	ResourceGroup  string `json:"resource_group"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c AzureOptions) Value() (driver.Value, error) { return encryptedJSONValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *AzureOptions) Scan(src any) error { return jsonScan(c, src) }
+func (c *AzureOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
+
+// String implements fmt.Stringer; secrets are redacted.
+func (c AzureOptions) String() string {
+	type plain AzureOptions // no methods, so Sprintf does not recurse into String
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%+v", p)
+}
+
+// GoString implements fmt.GoStringer; secrets are redacted.
+func (c AzureOptions) GoString() string {
+	type plain AzureOptions
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%#v", p)
+}
 
 // IsEmpty returns true if all AzureOptions fields are unset or have zero values, otherwise returns false.
 func (c AzureOptions) IsEmpty() bool {
@@ -211,8 +247,8 @@ func (c AzureOptions) IsEmpty() bool {
 
 // MongoDBOptions represents structure for special MongoDB options.
 type MongoDBOptions struct {
-	TLSCertificateKey              string   `json:"tls_certificate_key"`
-	TLSCertificateKeyFilePassword  string   `json:"tls_certificate_key_file_password"`
+	TLSCertificateKey              string   `json:"tls_certificate_key" encrypt:"true"`
+	TLSCertificateKeyFilePassword  string   `json:"tls_certificate_key_file_password" encrypt:"true"`
 	TLSCa                          string   `json:"tls_ca"`
 	AuthenticationMechanism        string   `json:"authentication_mechanism"`
 	AuthenticationDatabase         string   `json:"authentication_database"`
@@ -223,10 +259,28 @@ type MongoDBOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c MongoDBOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c MongoDBOptions) Value() (driver.Value, error) { return encryptedJSONValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *MongoDBOptions) Scan(src any) error { return jsonScan(c, src) }
+func (c *MongoDBOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
+
+// String implements fmt.Stringer; secrets are redacted.
+func (c MongoDBOptions) String() string {
+	type plain MongoDBOptions // no methods, so Sprintf does not recurse into String
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%+v", p)
+}
+
+// GoString implements fmt.GoStringer; secrets are redacted.
+func (c MongoDBOptions) GoString() string {
+	type plain MongoDBOptions
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%#v", p)
+}
 
 // IsEmpty returns true if all MongoDBOptions fields are unset or have zero values, otherwise returns false.
 func (c MongoDBOptions) IsEmpty() bool {
@@ -244,8 +298,8 @@ func (c MongoDBOptions) IsEmpty() bool {
 // MySQLOptions represents structure for special MySQL options.
 type MySQLOptions struct {
 	TLSCa   string `json:"tls_ca"`
-	TLSCert string `json:"tls_cert"`
-	TLSKey  string `json:"tls_key"`
+	TLSCert string `json:"tls_cert" encrypt:"true"`
+	TLSKey  string `json:"tls_key" encrypt:"true"`
 
 	// TableCount stores last known table count. NULL if unknown.
 	TableCount *int32 `json:"table_count"`
@@ -261,10 +315,28 @@ type MySQLOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c MySQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c MySQLOptions) Value() (driver.Value, error) { return encryptedJSONValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *MySQLOptions) Scan(src any) error { return jsonScan(c, src) }
+func (c *MySQLOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
+
+// String implements fmt.Stringer; secrets are redacted.
+func (c MySQLOptions) String() string {
+	type plain MySQLOptions // no methods, so Sprintf does not recurse into String
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%+v", p)
+}
+
+// GoString implements fmt.GoStringer; secrets are redacted.
+func (c MySQLOptions) GoString() string {
+	type plain MySQLOptions
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%#v", p)
+}
 
 // IsEmpty returns true if all MySQLOptions fields are unset or have zero values, otherwise returns false.
 func (c MySQLOptions) IsEmpty() bool {
@@ -278,8 +350,8 @@ func (c MySQLOptions) IsEmpty() bool {
 // PostgreSQLOptions represents structure for special PostgreSQL options.
 type PostgreSQLOptions struct {
 	SSLCa                  string  `json:"ssl_ca"`
-	SSLCert                string  `json:"ssl_cert"`
-	SSLKey                 string  `json:"ssl_key"`
+	SSLCert                string  `json:"ssl_cert" encrypt:"true"`
+	SSLKey                 string  `json:"ssl_key" encrypt:"true"`
 	AutoDiscoveryLimit     *int32  `json:"auto_discovery_limit"`
 	DatabaseCount          int32   `json:"database_count"`
 	PGSMVersion            *string `json:"pgsm_version"`
@@ -287,10 +359,28 @@ type PostgreSQLOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c PostgreSQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c PostgreSQLOptions) Value() (driver.Value, error) { return encryptedJSONValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *PostgreSQLOptions) Scan(src any) error { return jsonScan(c, src) }
+func (c *PostgreSQLOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
+
+// String implements fmt.Stringer; secrets are redacted.
+func (c PostgreSQLOptions) String() string {
+	type plain PostgreSQLOptions // no methods, so Sprintf does not recurse into String
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%+v", p)
+}
+
+// GoString implements fmt.GoStringer; secrets are redacted.
+func (c PostgreSQLOptions) GoString() string {
+	type plain PostgreSQLOptions
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%#v", p)
+}
 
 // IsEmpty returns true if all PostgreSQLOptions fields are unset or have zero values, otherwise returns false.
 func (c PostgreSQLOptions) IsEmpty() bool {
@@ -307,15 +397,33 @@ func (c PostgreSQLOptions) IsEmpty() bool {
 type ValkeyOptions struct {
 	TLS     bool   `json:"tls"`
 	SSLCa   string `json:"ssl_ca"`
-	SSLCert string `json:"ssl_cert"`
-	SSLKey  string `json:"ssl_key"`
+	SSLCert string `json:"ssl_cert" encrypt:"true"`
+	SSLKey  string `json:"ssl_key" encrypt:"true"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c ValkeyOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c ValkeyOptions) Value() (driver.Value, error) { return encryptedJSONValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *ValkeyOptions) Scan(src any) error { return jsonScan(c, src) }
+func (c *ValkeyOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
+
+// String implements fmt.Stringer; secrets are redacted.
+func (c ValkeyOptions) String() string {
+	type plain ValkeyOptions // no methods, so Sprintf does not recurse into String
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%+v", p)
+}
+
+// GoString implements fmt.GoStringer; secrets are redacted.
+func (c ValkeyOptions) GoString() string {
+	type plain ValkeyOptions
+	p := plain(c)
+	redactSecrets(&p)
+
+	return fmt.Sprintf("%#v", p)
+}
 
 // IsEmpty returns true if all ValkeyOptions fields are unset or have zero values, otherwise returns false.
 func (c ValkeyOptions) IsEmpty() bool {
@@ -380,11 +488,11 @@ type Agent struct {
 	ProcessExecPath *string `reform:"process_exec_path"`
 	IsConnected     bool    `reform:"is_connected"`
 
-	Username      *string `reform:"username"`
-	Password      *string `reform:"password"`
-	AgentPassword *string `reform:"agent_password"`
-	TLS           bool    `reform:"tls"`
-	TLSSkipVerify bool    `reform:"tls_skip_verify"`
+	Username      *EncryptedString `reform:"username"`
+	Password      *EncryptedString `reform:"password"`
+	AgentPassword *EncryptedString `reform:"agent_password"`
+	TLS           bool             `reform:"tls"`
+	TLSSkipVerify bool             `reform:"tls_skip_verify"`
 
 	LogLevel *string `reform:"log_level"`
 
@@ -398,10 +506,6 @@ type Agent struct {
 	MySQLOptions      MySQLOptions      `reform:"mysql_options"`
 	PostgreSQLOptions PostgreSQLOptions `reform:"postgresql_options"`
 	ValkeyOptions     ValkeyOptions     `reform:"valkey_options"`
-
-	// undecrypted holds the stored ciphertext of the secret fields this node's key could not
-	// decrypt, by field name, so that writing the Agent back keeps them intact.
-	undecrypted map[string]string
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -533,8 +637,8 @@ func (a *Agent) GrandfatheredEnvironmentVariableNames() map[string]struct{} {
 // GetAgentPassword returns agent password, if it is empty then agent ID.
 func (a *Agent) GetAgentPassword() string {
 	password := a.AgentID
-	if pointer.GetString(a.AgentPassword) != "" {
-		password = *a.AgentPassword
+	if a.AgentPassword.Reveal() != "" {
+		password = a.AgentPassword.Reveal()
 	}
 
 	return password
@@ -577,8 +681,8 @@ func (c *DBConfig) Valid() bool {
 // DBConfig returns DBConfig for given Service with this agent.
 func (a *Agent) DBConfig(service *Service) *DBConfig {
 	return &DBConfig{
-		User:     pointer.GetString(a.Username),
-		Password: pointer.GetString(a.Password),
+		User:     a.Username.Reveal(),
+		Password: a.Password.Reveal(),
 		Address:  pointer.GetString(service.Address),
 		Port:     int(pointer.GetUint16(service.Port)),
 		Socket:   pointer.GetString(service.Socket),
@@ -598,8 +702,8 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
 	socket := pointer.GetString(service.Socket)
-	username := pointer.GetString(a.Username)
-	password := pointer.GetString(a.Password)
+	username := a.Username.Reveal()
+	password := a.Password.Reveal()
 
 	if tdp == nil {
 		tdp = a.TemplateDelimiters(service)
@@ -901,8 +1005,8 @@ func (a *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	scheme := a.ExporterOptions.MetricsScheme
 	path := a.ExporterOptions.MetricsPath
 	listenPort := int(pointer.GetUint16(a.ListenPort))
-	username := pointer.GetString(a.Username)
-	password := pointer.GetString(a.Password)
+	username := a.Username.Reveal()
+	password := a.Password.Reveal()
 
 	host := LocalhostAddr
 	if !a.ExporterOptions.PushMetrics {
@@ -1043,8 +1147,8 @@ func (a Agent) Files() map[string]string { //nolint:gocognit
 func (a Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 	templateParams := []string{
 		pointer.GetString(svc.Address),
-		pointer.GetString(a.Username),
-		pointer.GetString(a.Password),
+		a.Username.Reveal(),
+		a.Password.Reveal(),
 		a.ExporterOptions.MetricsPath,
 	}
 

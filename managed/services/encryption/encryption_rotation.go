@@ -13,14 +13,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package encryption contains PMM encryption rotation functions.
+// Package encryption contains PMM encryption key rotation functions.
 package encryption
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 
@@ -33,71 +36,107 @@ import (
 )
 
 const (
-	retries              = 5
-	interval             = 5 * time.Second
-	statusRunning        = "RUNNING"
-	statusStopped        = "STOPPED"
-	codeOK               = 0
-	codePMMStopFailed    = 2
-	codeEncryptionFailed = 3
-	codePMMStartFailed   = 4
+	statusRetries  = 5
+	statusInterval = 5 * time.Second
+	sweepRetries   = 60
+	sweepInterval  = 2 * time.Second
+	statusRunning  = "RUNNING"
+
+	codeOK             = 0
+	codeRotationFailed = 2
+	codeRestartFailed  = 3
+	codeSweepFailed    = 4
+	codePruneFailed    = 5
 )
 
-// RotateEncryptionKey will stop PMM server, decrypt data, create new encryption key and encrypt them and start PMM Server again.
-func RotateEncryptionKey(sqlDB *sql.DB, dbName string) (int, error) {
+// RotationParams configure RotateEncryptionKey.
+type RotationParams struct {
+	// Prune removes the retired keys from the keyset once no stored value
+	// references them.
+	Prune bool
+	// OtherHANodesStopped confirms that PMM Server is stopped on every other
+	// node of an HA cluster; rotation is refused in HA without it.
+	OtherHANodesStopped bool
+}
+
+// RotateEncryptionKey adds a new primary key to the encryption keyset — the
+// previous keys stay in the keyset, so all stored values remain readable and
+// the database is never held decrypted at rest. pmm-managed is then restarted
+// to reload the keyset; its startup migration re-encrypts every stored secret
+// with the new primary key, which this function waits for. With Prune, the
+// retired keys are removed from the keyset once no stored value references
+// them.
+//
+// In HA, every other node must be stopped first (OtherHANodesStopped): only
+// this node's pmm-managed is restarted, and the other nodes cannot read values
+// encrypted with the new key until the key file is copied to them.
+func RotateEncryptionKey(sqlDB *sql.DB, params RotationParams) (int, error) {
+	keyPath := encryption.DefaultKeyPath()
+	ha, _ := strconv.ParseBool(os.Getenv("PMM_HA_ENABLE"))
+	if ha && !params.OtherHANodesStopped {
+		return codeRotationFailed, fmt.Errorf("in HA mode, stop PMM Server on every other node first: rotation restarts only "+
+			"this node's pmm-managed, and the other nodes could not read values encrypted with the new key. "+
+			"Then run pmm-encryption-rotation --ha-other-nodes-stopped on this node, copy %s to every other node and start them",
+			keyPath)
+	}
+
+	provider := encryption.NewFileKeyProvider(keyPath)
+
+	newKeyID, err := encryption.AddNewPrimaryKey(provider)
+	if err != nil {
+		return codeRotationFailed, fmt.Errorf("failed to add new encryption key: %w", err)
+	}
+	logrus.Infof("Added new primary encryption key %d", newKeyID)
+
+	err = restartPMMServer()
+	if err != nil {
+		return codeRestartFailed, fmt.Errorf("failed to restart PMM Server: %w", err)
+	}
+
+	cipher, err := encryption.LoadCipher(provider)
+	if err != nil {
+		return codeRotationFailed, err
+	}
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
-
-	err := stopPMMServer()
+	err = waitForReencryption(db.Querier, cipher)
 	if err != nil {
-		return codePMMStopFailed, fmt.Errorf("failed to stop PMM Server: %w", err)
+		return codeSweepFailed, err
+	}
+	logrus.Infoln("All stored secrets are re-encrypted with the new key")
+
+	if params.Prune {
+		backups := models.MigrationBackupFiles()
+		if len(backups) != 0 {
+			logrus.Warnf("Pruning removes the keys the values in %s are encrypted with; "+
+				"keep a copy of the key file from before this rotation to read them later.", strings.Join(backups, ", "))
+		}
+		retired, err := encryption.PruneRetiredKeys(provider)
+		if err != nil {
+			return codePruneFailed, fmt.Errorf("failed to prune retired encryption keys: %w", err)
+		}
+		logrus.Infof("Removed %d retired encryption key(s) from the keyset", len(retired))
 	}
 
-	err = rotateEncryptionKey(db, dbName)
-	if err != nil {
-		return codeEncryptionFailed, fmt.Errorf("failed to rotate encryption key: %w", err)
-	}
-
-	err = startPMMServer()
-	if err != nil {
-		return codePMMStartFailed, fmt.Errorf("failed to start PMM Server: %w", err)
+	if ha {
+		logrus.Warnf("Copy %s to every other PMM Server node before starting them: they cannot read values encrypted with the new key.",
+			keyPath)
 	}
 
 	return codeOK, nil
 }
 
-func startPMMServer() error {
-	logrus.Infoln("Starting PMM Server")
-	if pmmServerStatus(statusRunning) {
-		return nil
-	}
+func restartPMMServer() error {
+	logrus.Infoln("Restarting PMM Server")
 
-	cmd := exec.Command("supervisorctl", "start", "pmm-managed") //nolint:noctx
+	cmd := exec.CommandContext(context.Background(), "supervisorctl", "restart", "pmm-managed")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, output)
 	}
 
 	if !pmmServerStatusWithRetries(statusRunning) {
-		return errors.New("cannot start pmm-managed")
-	}
-
-	return nil
-}
-
-func stopPMMServer() error {
-	logrus.Infoln("Stopping PMM Server")
-	if pmmServerStatus(statusStopped) {
-		return nil
-	}
-
-	cmd := exec.Command("supervisorctl", "stop", "pmm-managed") //nolint:noctx
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("%w: %s", err, output)
-	}
-
-	if !pmmServerStatusWithRetries(statusStopped) {
-		return errors.New("cannot stop pmm-managed")
+		return errors.New("pmm-managed did not reach RUNNING state")
 	}
 
 	return nil
@@ -111,10 +150,10 @@ func pmmServerStatus(status string) bool {
 }
 
 func pmmServerStatusWithRetries(status string) bool {
-	for range retries {
+	for range statusRetries {
 		if !pmmServerStatus(status) {
 			logrus.Infoln("Retry...")
-			time.Sleep(interval)
+			time.Sleep(statusInterval)
 			continue
 		}
 
@@ -124,33 +163,34 @@ func pmmServerStatusWithRetries(status string) bool {
 	return false
 }
 
-func rotateEncryptionKey(db *reform.DB, dbName string) error {
-	return db.InTransaction(func(tx *reform.TX) error {
-		logrus.Infof("DB %s is being decrypted", dbName)
-		err := models.DecryptDB(tx, dbName, models.DefaultAgentEncryptionColumnsV3)
+// waitForReencryption polls until pmm-managed's startup migration has
+// re-encrypted every stored secret with the current primary key.
+func waitForReencryption(q *reform.Querier, cipher *encryption.Cipher) error {
+	var lastCount int
+	for range sweepRetries {
+		agentIDs, err := models.AgentsNeedingReencryption(q, cipher)
 		if err != nil {
 			return err
 		}
-		logrus.Infof("DB %s is successfully decrypted", dbName)
-
-		logrus.Infoln("Rotating encryption key")
-		err = encryption.RotateEncryptionKey()
+		locationIDs, err := models.LocationsNeedingReencryption(q, cipher)
 		if err != nil {
 			return err
 		}
-		logrus.Infof("New encryption key generated")
-
-		logrus.Infof("DB %s is being encrypted", dbName)
-		err = models.EncryptDB(tx, dbName, models.DefaultAgentEncryptionColumnsV3)
+		checkStale, err := models.KeyCheckNeedsReencryption(q, cipher)
 		if err != nil {
-			e := encryption.RestoreOldEncryptionKey()
-			if e != nil {
-				return fmt.Errorf("%w: %w", e, err)
-			}
 			return err
 		}
-		logrus.Infof("DB %s is successfully encrypted", dbName)
+		lastCount = len(agentIDs) + len(locationIDs)
+		if checkStale {
+			lastCount++
+		}
+		if lastCount == 0 {
+			return nil
+		}
 
-		return nil
-	})
+		logrus.Infof("%d row(s) still need re-encryption, waiting...", lastCount)
+		time.Sleep(sweepInterval)
+	}
+
+	return fmt.Errorf("timed out waiting for re-encryption: %d row(s) still reference retired keys", lastCount)
 }

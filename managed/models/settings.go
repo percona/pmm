@@ -116,13 +116,9 @@ type Settings struct {
 		Enabled *bool `json:"enabled"`
 	} `json:"access_control"`
 
-	// Contains all encrypted tables in format 'db.table.column'.
-	EncryptedItems []string `json:"encrypted_items"`
-
-	// EncryptionKeyFingerprint identifies the encryption key the data in this database was
-	// encrypted with. In HA all nodes share the database but keep their own key file, so a node
-	// compares this against its own key to detect that it cannot read the stored credentials.
-	EncryptionKeyFingerprint string `json:"encryption_key_fingerprint"`
+	// EncryptionKeyCheck is a known value encrypted with the key the database
+	// was set up with; see keyCheckPlaintext.
+	EncryptionKeyCheck string `json:"encryption_key_check,omitempty"`
 }
 
 // IsAlertingEnabled returns true if alerting is enabled.

@@ -24,7 +24,6 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -39,7 +38,6 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/env"
 )
 
@@ -67,24 +65,6 @@ const (
 	// DefaultSnoozeDuration represents duration for which an update is snoozed (default = 7 days).
 	DefaultSnoozeDuration time.Duration = 7 * 24 * time.Hour
 )
-
-// DefaultAgentEncryptionColumnsV3 since 3.0.0 contains all tables and it's columns to be encrypted in PMM Server DB.
-var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
-	{
-		Name:        "agents",
-		Identifiers: []string{"agent_id"},
-		Columns: []encryption.Column{
-			{Name: "username"},
-			{Name: "password"},
-			{Name: "agent_password"},
-			{Name: "aws_options", CustomEncryptHandler: EncryptAWSOptionsHandler, CustomDecryptHandler: DecryptAWSOptionsHandler},
-			{Name: "azure_options", CustomEncryptHandler: EncryptAzureOptionsHandler, CustomDecryptHandler: DecryptAzureOptionsHandler},
-			{Name: "mongo_options", CustomEncryptHandler: EncryptMongoDBOptionsHandler, CustomDecryptHandler: DecryptMongoDBOptionsHandler},
-			{Name: "mysql_options", CustomEncryptHandler: EncryptMySQLOptionsHandler, CustomDecryptHandler: DecryptMySQLOptionsHandler},
-			{Name: "postgresql_options", CustomEncryptHandler: EncryptPostgreSQLOptionsHandler, CustomDecryptHandler: DecryptPostgreSQLOptionsHandler},
-		},
-	},
-}
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
 //
@@ -1308,7 +1288,12 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	err := migrateDB(db, params)
+	keyCreated, err := initDefaultCipher(ctx, sqlDB, params.HANodeID != "")
+	if err != nil {
+		return nil, err
+	}
+
+	err = migrateDB(db, params, keyCreated)
 	if err != nil {
 		return nil, err
 	}
@@ -1316,98 +1301,6 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 	removeStaleHANodes(ctx, db, params.HANodeID, params.HAPeers)
 
 	return db, nil
-}
-
-// EncryptDB encrypts a set of columns in a specific database and table.
-func EncryptDB(tx *reform.TX, database string, itemsToEncrypt []encryption.Table) error {
-	return dbEncryption(tx, database, itemsToEncrypt, encryption.EncryptItems, true)
-}
-
-// DecryptDB decrypts a set of columns in a specific database and table.
-func DecryptDB(tx *reform.TX, database string, itemsToEncrypt []encryption.Table) error {
-	return dbEncryption(tx, database, itemsToEncrypt, encryption.DecryptItems, false)
-}
-
-func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
-	encryptionHandler func(tx *reform.TX, tables []encryption.Table) error,
-	expectedState bool,
-) error {
-	if len(items) == 0 {
-		return nil
-	}
-
-	settings, err := GetSettings(tx)
-	if err != nil {
-		return err
-	}
-	currentColumns := make(map[string]bool)
-	for _, v := range settings.EncryptedItems {
-		currentColumns[v] = true
-	}
-
-	tables := []encryption.Table{}
-	prepared := []string{}
-	for _, table := range items {
-		columns := []encryption.Column{}
-		for _, column := range table.Columns {
-			dbTableColumn := fmt.Sprintf("%s.%s.%s", database, table.Name, column.Name)
-			if currentColumns[dbTableColumn] == expectedState {
-				continue
-			}
-
-			columns = append(columns, column)
-			prepared = append(prepared, dbTableColumn)
-		}
-		if len(columns) == 0 {
-			continue
-		}
-
-		table.Columns = columns
-		tables = append(tables, table)
-	}
-	if len(tables) == 0 {
-		return nil
-	}
-
-	fingerprint, err := encryption.Fingerprint()
-	if err != nil {
-		return err
-	}
-	if settings.EncryptionKeyFingerprint != "" && settings.EncryptionKeyFingerprint != fingerprint {
-		return keyMismatchError(fingerprint, settings.EncryptionKeyFingerprint)
-	}
-
-	err = encryptionHandler(tx, tables)
-	if err != nil {
-		return err
-	}
-
-	encryptedItems := []string{}
-	for _, item := range settings.EncryptedItems {
-		if !slices.Contains(prepared, item) {
-			encryptedItems = append(encryptedItems, item)
-		}
-	}
-	if expectedState {
-		encryptedItems = append(encryptedItems, prepared...)
-	}
-
-	// The fingerprint is recorded in the same transaction as the encrypted column list, so a
-	// concurrently starting node cannot observe encrypted data with no fingerprint to check its
-	// own key against.
-	if len(encryptedItems) == 0 {
-		fingerprint = ""
-	}
-
-	_, err = UpdateSettings(tx, &ChangeSettingsParams{
-		EncryptedItems:           encryptedItems,
-		EncryptionKeyFingerprint: &fingerprint,
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // checkVersion checks minimal required PostgreSQL server version.
@@ -1488,52 +1381,93 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	return nil
 }
 
-// migrateDB runs PostgreSQL database migrations.
-func migrateDB(db *reform.DB, params SetupDBParams) error {
-	var currentVersion int
-	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
-	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-	var pErr *pq.Error
-	if errors.As(errDB, &pErr) && pErr.Code == "42P01" {
-		errDB = nil
-	}
-	if errDB != nil {
-		return errDB
+// migrationLockID is the PostgreSQL advisory lock key held by the transaction
+// running schema and data migrations ("PMME").
+const migrationLockID = 0x504d4d45
+
+// applySchemaMigrations applies the schema versions after currentVersion up to
+// latestVersion.
+func applySchemaMigrations(tx *reform.TX, currentVersion, latestVersion int, logf reform.Printf) error {
+	for version := currentVersion + 1; version <= latestVersion; version++ {
+		if logf != nil {
+			logf("Migrating database to schema version %d ...", version)
+		}
+
+		queries := databaseSchema[version]
+		queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
+		for _, q := range queries {
+			q = strings.TrimSpace(q)
+			_, err := tx.Exec(q)
+			if err != nil {
+				return fmt.Errorf("failed to execute statement:\n%s: %w", q, err)
+			}
+		}
 	}
 
+	return nil
+}
+
+// schemaVersion returns the latest applied schema version, or 0 for an empty
+// database. It must not fail inside a transaction: a failed statement aborts it.
+func schemaVersion(q *reform.Querier) (int, error) {
+	var exists bool
+	err := q.QueryRow("SELECT to_regclass('schema_migrations') IS NOT NULL").Scan(&exists)
+	if err != nil {
+		return 0, fmt.Errorf("failed to read schema version: %w", err)
+	}
+	if !exists {
+		return 0, nil
+	}
+
+	var version int
+	err = q.QueryRow("SELECT COALESCE(MAX(id), 0) FROM schema_migrations").Scan(&version)
+	if err != nil {
+		return 0, fmt.Errorf("failed to read schema version: %w", err)
+	}
+
+	return version, nil
+}
+
+// migrateDB runs PostgreSQL database migrations. The keyCreated argument tells
+// that the encryption key was generated at this start, see migrateEncryption.
+func migrateDB(db *reform.DB, params SetupDBParams, keyCreated bool) error {
 	latestVersion := len(databaseSchema) - 1 // skip item 0
 	if params.MigrationVersion != nil {
 		latestVersion = *params.MigrationVersion
 	}
-	if params.Logf != nil {
-		params.Logf("Current database schema version: %d. Latest version: %d.", currentVersion, latestVersion)
-	}
 
 	// rollback all migrations if one of them fails; PostgreSQL supports DDL transactions
 	return db.InTransaction(func(tx *reform.TX) error {
-		for version := currentVersion + 1; version <= latestVersion; version++ {
-			if params.Logf != nil {
-				params.Logf("Migrating database to schema version %d ...", version)
-			}
+		// HA nodes starting together must not run the same migrations twice:
+		// serialize them and read the schema version under the lock
+		_, err := tx.Exec("SELECT pg_advisory_xact_lock($1)", migrationLockID)
+		if err != nil {
+			return fmt.Errorf("failed to lock database migrations: %w", err)
+		}
+		currentVersion, err := schemaVersion(tx.Querier)
+		if err != nil {
+			return err
+		}
+		if params.Logf != nil {
+			params.Logf("Current database schema version: %d. Latest version: %d.", currentVersion, latestVersion)
+		}
 
-			queries := databaseSchema[version]
-			queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
-			for _, q := range queries {
-				q = strings.TrimSpace(q)
-				_, err := tx.Exec(q)
-				if err != nil {
-					return fmt.Errorf("failed to execute statement:\n%s: %w", q, err)
-				}
+		err = applySchemaMigrations(tx, currentVersion, latestVersion, params.Logf)
+		if err != nil {
+			return err
+		}
+
+		// data migration relies on the latest schema; skip it when an older
+		// schema version is explicitly requested (only done in tests)
+		if latestVersion == len(databaseSchema)-1 {
+			err := migrateEncryption(tx.Querier, migrationParams{keyCreated: keyCreated, ha: params.HANodeID != ""})
+			if err != nil {
+				return err
 			}
 		}
 
 		if params.SetupFixtures == SkipFixtures {
 			return nil
-		}
-
-		err := encryptOnMigration(tx, params)
-		if err != nil {
-			return err
 		}
 
 		// fill settings with defaults
@@ -1557,28 +1491,6 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 
 		return nil
 	})
-}
-
-// encryptOnMigration encrypts the columns that are not encrypted yet. It runs before anything else
-// in migrateDB encrypts or writes Agents, so that a node with a foreign key leaves the shared
-// database untouched.
-func encryptOnMigration(tx *reform.TX, params SetupDBParams) error {
-	err := VerifyEncryptionKey(tx)
-	switch {
-	case err == nil:
-		return EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
-	case errors.Is(err, ErrEncryptionKeyMismatch) && params.HANodeID == "":
-		// A standalone server keeps booting and reports the mismatch once started. Columns not
-		// encrypted yet are left for the first start with a matching or adopted key.
-		adopted, err := adoptEncryptionKey(tx)
-		if err != nil || !adopted {
-			return err
-		}
-
-		return EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
-	default:
-		return err
-	}
 }
 
 // removeStaleHANodes drops the Inventory Nodes of HA replicas that were scaled away. Those rows are

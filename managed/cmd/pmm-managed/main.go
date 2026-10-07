@@ -146,14 +146,6 @@ const (
 
 var pprofSemaphore = semaphore.NewWeighted(1)
 
-// mEncryptionKeyMismatch makes the condition visible to monitoring, since standalone PMM keeps
-// running with a mismatched key.
-var mEncryptionKeyMismatch = prom.NewGauge(prom.GaugeOpts{
-	Namespace: "pmm_managed",
-	Name:      "encryption_key_mismatch",
-	Help:      "1 if the local encryption key does not match the key the database was encrypted with, 0 otherwise.",
-})
-
 func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	l := logrus.WithField("component", "logs.zip")
 
@@ -677,32 +669,17 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 			return
 		}
 		if errors.Is(err, models.ErrEncryptionKeyMismatch) {
-			// Only returned in HA: a standalone server migrates anyway and reports it later.
-			l.Fatalf("%s. Every PMM Server node in an HA cluster must use the same encryption key: "+
-				"copy %s from a node that works and restart this one.", err, encryption.KeyPath())
+			// Retrying cannot help, and nothing was written: stop until the right key is in place.
+			if params.HANodeID != "" {
+				l.Fatalf("%s. Every PMM Server node in an HA cluster must use the same encryption key: "+
+					"copy %s from a node that works and restart this one.", err, encryption.DefaultKeyPath())
+			}
+			l.Fatalf("%s.", err)
 		}
 
 		l.Warnf("Failed to migrate database: %s.", err)
 		time.Sleep(time.Second)
 	}
-}
-
-// checkEncryptionKey reports a standalone server whose encryption key does not match the
-// database. It keeps running, so that an upgrade cannot turn an installation whose key went
-// missing into one that no longer boots; HA nodes are stopped by migrateDB instead.
-func checkEncryptionKey(l *logrus.Entry, db *reform.DB) {
-	err := models.CheckEncryptionKey(db)
-	if err == nil {
-		return
-	}
-	if !errors.Is(err, models.ErrEncryptionKeyMismatch) {
-		l.Panicf("Failed to check encryption key: %+v", err)
-	}
-
-	mEncryptionKeyMismatch.Set(1)
-	l.Errorf("%s. Stored credentials cannot be decrypted, so monitoring will not work until the "+
-		"matching key is restored to %s, or the credentials of every affected Agent are re-entered "+
-		"and PMM Server is restarted.", err, encryption.KeyPath())
 }
 
 // newClickhouseDB return a new Clickhouse db.
@@ -977,9 +954,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	reformL := sqlmetrics.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
 	prom.MustRegister(reformL)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
-
-	prom.MustRegister(mEncryptionKeyMismatch)
-	checkEncryptionKey(l, db)
 
 	// Generate unique PMM Server ID if it's not already.
 	err = models.SetPMMServerID(db)

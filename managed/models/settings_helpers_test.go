@@ -36,7 +36,6 @@ func TestSettings(t *testing.T) {
 	t.Run("Defaults", func(t *testing.T) {
 		actual, err := models.GetSettings(sqlDB)
 		require.NoError(t, err)
-		require.Empty(t, actual.EncryptedItems)
 		expected := &models.Settings{
 			MetricsResolutions: models.MetricsResolutions{
 				HR: 5 * time.Second,
@@ -52,9 +51,11 @@ func TestSettings(t *testing.T) {
 					FrequentInterval: 4 * time.Hour,
 				},
 			},
-			DefaultRoleID:  1,
-			EncryptedItems: actual.EncryptedItems,
+			DefaultRoleID: 1,
 		}
+		// stored by the startup migration, see TestKeyCheckRefusesAnotherKey
+		assert.NotEmpty(t, actual.EncryptionKeyCheck)
+		expected.EncryptionKeyCheck = actual.EncryptionKeyCheck
 		assert.Equal(t, expected, actual)
 	})
 

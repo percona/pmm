@@ -84,6 +84,28 @@ func TestRoster(t *testing.T) {
 		assert.Equal(t, []string{}, agentIDs)
 	})
 
+	t.Run("GetRebuildsGroupFromDatabase", func(t *testing.T) {
+		r, teardown := setup(t)
+		defer teardown(t)
+
+		// a group missing from the cache, e.g. after a restart, is rebuilt from the RDS exporters
+		// with its AWS access key, which is stored encrypted
+		for id, key := range map[string]string{"rds1": "aws", "rds2": "other"} {
+			require.NoError(t, r.db.Insert(&models.Agent{
+				AgentID:    id,
+				AgentType:  models.RDSExporterType,
+				PMMAgentID: new(models.PMMServerAgentID),
+				NodeID:     new(models.PMMServerNodeID),
+				AWSOptions: models.AWSOptions{AWSAccessKey: key, AWSSecretKey: "secret"},
+			}))
+		}
+
+		PMMAgentID, agentIDs, err := r.get("pmm-server:rds/aws")
+		require.NoError(t, err)
+		assert.Equal(t, "pmm-server", PMMAgentID)
+		assert.Equal(t, []string{"rds1"}, agentIDs)
+	})
+
 	t.Run("Clear", func(t *testing.T) {
 		r, teardown := setup(t)
 		defer teardown(t)
