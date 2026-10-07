@@ -38,7 +38,7 @@ import (
 )
 
 // activityQuery returns the non-idle client sessions. Its CTE is named agents.RTAQueryTag so the QAN agents skip
-// it: they match the tag against the text cut at max-query-length, so it has to come first.
+// it; the tag comes first so it survives pg_stat_monitor's pgsm_query_max_len.
 //
 //   - pg_blocking_pids() is called only for sessions waiting on a heavyweight lock: it takes the lock
 //     manager's locks, so calling it for every backend every collect interval would be load of its own.
