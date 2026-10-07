@@ -22,6 +22,7 @@ import type {
   OmClusterHealth,
   OmHostDatabaseState,
   OmProcessRole,
+  OmScanErrorCode,
   OmTopologyRunStatus,
   OmServiceStatus,
   OmUnavailableReason,
@@ -127,6 +128,71 @@ export const HOST_DATABASE_STATE_PHRASE: Record<OmHostDatabaseState, string> = {
     'No service PMM knows about, but a scan found a mongod running - an arbiter, most likely, since PMM cannot authenticate against one. Not an empty node.',
   installable:
     'No registered service and no mongod found. This is where a database can be installed.',
+};
+
+/**
+ * What each kind of scan failure is called, and what to do about it.
+ *
+ * One table so the Nodes row, its detail panel and anything after them cannot drift
+ * apart on what a code means. `hint` is null where there is nothing a reader can do
+ * that the raw error does not already say better: for `unknown` the raw error is the
+ * only honest answer, so the page shows that and no advice.
+ *
+ * A hint never points at a log: the scan's own output lives on the node and in the
+ * job runner, neither of which a DBA reading this page can open from here.
+ */
+export const SCAN_ERROR_KIND: Record<
+  OmScanErrorCode,
+  { label: string; hint: string | null }
+> = {
+  dispatch_rejected: {
+    label: 'Scan not queued',
+    hint: 'The scan could not be queued. This is usually temporary load on PMM Extensions; it is retried on the next scan.',
+  },
+  not_started: {
+    label: 'Scan never started',
+    hint: "The scan was queued but never started. Check that PMM Extensions' workers are running.",
+  },
+  timed_out: {
+    label: 'Scan timed out',
+    hint: 'The scan started but did not finish in time. Check that the node is up and not overloaded.',
+  },
+  blocked: {
+    label: 'Blocked by a stuck scan',
+    hint: "A scan that was given up on could not be stopped, and blocks this node's next scans until it is stopped.",
+  },
+  environment_setup_failed: {
+    label: 'Environment setup failed',
+    hint: "The node could not prepare the scan's Python environment. Install python3 and python3-venv, and allow the node to reach PyPI or configure a pip mirror or proxy.",
+  },
+  scan_crashed: {
+    label: 'Scan crashed',
+    hint: "The scan crashed on the node. The excerpt above is its error; check the node's Python version.",
+  },
+  scan_lost: {
+    label: 'Scan lost',
+    hint: 'The scan was lost before it reported, usually because the node or its agent restarted. It is retried on the next scan.',
+  },
+  no_output: {
+    label: 'Scan reported nothing',
+    hint: 'The scan finished but reported nothing about this node.',
+  },
+  database_unreachable: {
+    label: 'Database unreachable',
+    hint: 'The scan could not connect to the database. Check that mongod is running and its port is reachable from the node.',
+  },
+  database_auth_failed: {
+    label: 'Database authentication failed',
+    hint: "The database rejected the scan's credentials. Check the credentials file the scan uses on the node.",
+  },
+  database_error: {
+    label: 'Database error',
+    hint: 'The database returned an error to the scan.',
+  },
+  unknown: {
+    label: 'Scan failed',
+    hint: null,
+  },
 };
 
 export const UNAVAILABLE_PHRASE: Record<OmUnavailableReason, string> = {

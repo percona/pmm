@@ -16,7 +16,11 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  Link as RouterLink,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 import {
   Alert,
   Box,
@@ -28,6 +32,7 @@ import {
   DialogContentText,
   DialogTitle,
   LinearProgress,
+  Link,
   MenuItem,
   Stack,
   Tooltip,
@@ -50,8 +55,14 @@ import { RowOverflowMenu } from './components/RowOverflowMenu';
 import { NotOnboardedDialog } from './components/NotOnboardedDialog';
 import { OmHeader } from './components/OmHeader';
 import { Unavailable } from './components/Unavailable';
-import { formatCompactDuration, pluralize } from './format';
-import { ageSeconds, isFailing, toHostRows } from './inventory';
+import { formatCompactDuration, formatTimestamp, pluralize } from './format';
+import {
+  ageSeconds,
+  describeScanFailure,
+  isFailing,
+  toHostRows,
+  type ScanFailure,
+} from './inventory';
 import {
   useForgetHost,
   useIsEstateRefreshing,
@@ -241,6 +252,32 @@ const selectionCountTitle = (count: number): string => {
   return 'Select exactly one node for a single-member replica set, or three for a three-member one.';
 };
 
+/**
+ * A failing node's failure as one statement: how long, how many, and why in short.
+ *
+ * The row's whole account of the failure, so the page answers "why is this node
+ * failing" without a hover or a trip to the scan history. "Needs attention" and the
+ * detail panel reuse its short reason, so a reader who has seen it once recognises
+ * it in the other two places.
+ */
+function failureStatement(failure: ScanFailure): string {
+  const parts: string[] = [];
+  if (failure.failingForSeconds != null) {
+    parts.push(
+      `Failing for ${formatCompactDuration(failure.failingForSeconds) || '0s'}`
+    );
+  } else {
+    parts.push('Failing');
+  }
+  // "1 failed scan in a row" reads as a typo; a single failure is not yet a streak.
+  parts.push(
+    failure.consecutiveFailures > 1
+      ? `${failure.consecutiveFailures} failed scans in a row`
+      : '1 failed scan'
+  );
+  return `${parts.join(', ')}: ${failure.shortReason}`;
+}
+
 const AutomationCell = ({ row, busy }: { row: OmHostRow; busy: boolean }) => {
   if (busy) {
     return (
@@ -265,10 +302,28 @@ const AutomationCell = ({ row, busy }: { row: OmHostRow; busy: boolean }) => {
       </Tooltip>
     );
   }
+  // Said under the chip rather than only in its tooltip, so a column of "Needs
+  // attention" can be read without hovering each one. When the node's scans are
+  // failing that failure is the reason to show: PMM's install gate then reads "no scan
+  // has reported this node's operating system yet", which is true and is a symptom -
+  // it sent readers to the gate when the thing to fix was the scan.
+  const failure = describeScanFailure(row.freshness);
+  const reason = failure
+    ? `Scans failing: ${failure.shortReason}`
+    : automationBlockedTitle(row.automation_blocked_reasons);
   return (
-    <Tooltip title={automationBlockedTitle(row.automation_blocked_reasons)}>
-      <Chip size="small" color="warning" label="Needs attention" />
-    </Tooltip>
+    <Stack spacing={0.5} alignItems="flex-start">
+      <Tooltip title={automationBlockedTitle(row.automation_blocked_reasons)}>
+        <Chip size="small" color="warning" label="Needs attention" />
+      </Tooltip>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ whiteSpace: 'normal', lineHeight: 1.3 }}
+      >
+        {reason}
+      </Typography>
+    </Stack>
   );
 };
 
@@ -374,7 +429,9 @@ function useColumns(
       },
       {
         id: 'automation_eligible',
-        size: 120,
+        // Wide enough for the reason written under "Needs attention" to wrap onto two
+        // or three lines rather than one word per line.
+        size: 180,
         accessorFn: (row) =>
           row.executor_host && busyExecutorHosts.has(row.executor_host)
             ? 'Installing'
@@ -414,7 +471,8 @@ function useColumns(
       },
       {
         id: 'collected',
-        size: 120,
+        // Holds a failing node's whole statement, not just an age.
+        size: 220,
         // Never-answered sorts last rather than first: as a timestamp string it would
         // sort beside the oldest row, which reads as "very stale" when it is "never".
         accessorFn: (row) =>
@@ -422,25 +480,32 @@ function useColumns(
         header: 'Collected',
         Cell: ({ row: { original } }) => {
           const age = ageSeconds(original.freshness.last_success_at);
-          if (age == null) {
-            return <Unavailable reason="probe_never_succeeded" />;
+          // Asked first, and of `failing_since` rather than the success time. Keyed on
+          // the success time, a node whose scans had never succeeded fell into the
+          // "never collected" branch below and its error was nowhere on the page -
+          // the node that most needed explaining was the one that got none.
+          const failure = describeScanFailure(original.freshness);
+          if (!failure) {
+            return age == null ? (
+              <Unavailable reason="probe_never_succeeded" />
+            ) : (
+              <>{formatCompactDuration(age)} ago</>
+            );
           }
-          const since = ageSeconds(original.freshness.failing_since);
-          return since == null ? (
-            <>{formatCompactDuration(age)} ago</>
-          ) : (
-            <Tooltip
-              title={`${original.freshness.last_error ?? 'The last scan failed.'} Failing for ${formatCompactDuration(
-                since
-              )}, ${original.freshness.consecutive_failures} attempts.`}
-            >
+          return (
+            <Stack spacing={0.25}>
               <Box
                 component="span"
-                sx={{ color: 'error.main', cursor: 'help' }}
+                sx={{ color: 'error.main', whiteSpace: 'normal' }}
               >
-                {formatCompactDuration(age)} ago (failing)
+                {failureStatement(failure)}
               </Box>
-            </Tooltip>
+              <Typography variant="caption" color="text.secondary">
+                {age == null
+                  ? 'Never collected. Expand for the full error.'
+                  : `Last collected ${formatCompactDuration(age)} ago. Expand for the full error.`}
+              </Typography>
+            </Stack>
           );
         },
       },
@@ -467,9 +532,81 @@ function useColumns(
  * are listed beside them because on a host with no registered service they are the
  * whole story.
  */
+/**
+ * A failing node's failure, in full, at the top of its detail panel.
+ *
+ * The row can only say it in short. This is the whole of it: the raw error untrimmed
+ * and with its line breaks (a traceback is unreadable folded onto one line), what kind
+ * of failure that is, and what to do about it. The hint sits below the error because
+ * some of them refer to "the excerpt above". The run link is only drawn when the
+ * server names the run; a link to the scan history in general would send the reader
+ * hunting through it, which is the trip this panel exists to save.
+ */
+const ScanFailureDetail = ({ failure }: { failure: ScanFailure }) => {
+  const omBase = useOmBase();
+  return (
+    <Box data-testid="scan-failure">
+      <Typography variant="subtitle2" gutterBottom color="error.main">
+        Scans failing: {failure.label}
+      </Typography>
+      <Typography variant="body2" sx={{ mb: 1 }}>
+        {/* Relative for reading, absolute for matching against a log or a run. */}
+        {failure.failingForSeconds != null
+          ? `Failing for ${formatCompactDuration(failure.failingForSeconds) || '0s'} (since ${formatTimestamp(failure.failingSince)})`
+          : `Failing since ${failure.failingSince}`}
+        {failure.consecutiveFailures > 1
+          ? `, ${failure.consecutiveFailures} failed scans in a row.`
+          : ', 1 failed scan.'}
+      </Typography>
+      {failure.error ? (
+        <Box
+          component="pre"
+          data-testid="scan-error"
+          sx={{
+            m: 0,
+            mb: 1,
+            p: 1,
+            fontFamily: 'monospace',
+            fontSize: '0.8125rem',
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+            bgcolor: 'action.hover',
+            borderRadius: 1,
+          }}
+        >
+          {failure.error}
+        </Box>
+      ) : (
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          The scan recorded no error message.
+        </Typography>
+      )}
+      {failure.hint && (
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          {failure.hint}
+        </Typography>
+      )}
+      {failure.runId && (
+        <Link
+          component={RouterLink}
+          to={`${omBase}/${OM_ROUTE_AUTOMATIONS}?tab=scans&expand=${encodeURIComponent(
+            failure.runId
+          )}`}
+          underline="hover"
+          variant="body2"
+        >
+          Open the scan that failed
+        </Link>
+      )}
+    </Box>
+  );
+};
+
 const HostDetail = ({ row }: { row: OmHostRow }) => {
+  const failure = describeScanFailure(row.freshness);
   return (
     <Stack spacing={2} sx={{ p: 2 }}>
+      {failure && <ScanFailureDetail failure={failure} />}
       <Box>
         <Typography variant="subtitle2" gutterBottom>
           Services PMM monitors ({row.services.length})
