@@ -114,4 +114,40 @@ func TestRoster(t *testing.T) {
 		assert.Equal(t, "pmm-server", PMMAgentID)
 		assert.Equal(t, []string{}, agentIDs)
 	})
+
+	// Regression test for the cold-cache DB fallback. aws_access_key is encrypted
+	// at rest, so resolving the group by an access key must work against the
+	// decrypted value. Seeding through the models API encrypts the key exactly as
+	// in production; get() runs on a cold roster (no prior add), exercising the
+	// fallback. This fails if get() filters the encrypted column in SQL and passes
+	// once the match is done in Go.
+	t.Run("GetFromDBEncryptedAccessKey", func(t *testing.T) {
+		r, teardown := setup(t)
+		defer teardown(t)
+
+		const awsAccessKey = "test-access-key"
+
+		node, err := models.CreateNode(r.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
+			NodeName:   "test-rds-roster-node",
+			Address:    "rds-roster-test.xyzzy.us-east-1.rds.amazonaws.com",
+			Region:     new("us-east-1"),
+			AZ:         "us-east-1a",
+			InstanceID: "rds-roster-test",
+		})
+		require.NoError(t, err)
+
+		agent, err := models.CreateAgent(r.db.Querier, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: models.PMMServerAgentID,
+			NodeID:     node.NodeID,
+			AWSOptions: models.AWSOptions{AWSAccessKey: awsAccessKey},
+		})
+		require.NoError(t, err)
+
+		// Cold roster: no prior add(), so get() resolves members from the DB.
+		groupID := models.PMMServerAgentID + ":" + rdsPrefix + awsAccessKey
+		PMMAgentID, agentIDs, err := r.get(groupID)
+		require.NoError(t, err)
+		assert.Equal(t, models.PMMServerAgentID, PMMAgentID)
+		assert.Equal(t, []string{agent.AgentID}, agentIDs)
+	})
 }

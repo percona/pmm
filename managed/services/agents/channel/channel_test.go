@@ -54,7 +54,7 @@ func setup(t *testing.T, connect func(context.Context, *Channel) error, expected
 
 	// start server with given connect handler
 	var channel *Channel
-	lis, err := net.Listen("tcp", "127.0.0.1:0")
+	lis, err := (&net.ListenConfig{}).Listen(t.Context(), "tcp", "127.0.0.1:0")
 	require.NoError(t, err)
 
 	grpcMetrics := interceptors.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})

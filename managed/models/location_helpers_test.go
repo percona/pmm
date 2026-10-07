@@ -52,10 +52,8 @@ func TestBackupLocations(t *testing.T) {
 		params := models.CreateBackupLocationParams{
 			Name:        "some name",
 			Description: "some desc",
-			BackupLocationConfig: models.BackupLocationConfig{
-				FilesystemConfig: &models.FilesystemLocationConfig{
-					Path: "/tmp",
-				},
+			FilesystemConfig: &models.FilesystemLocationConfig{
+				Path: "/tmp",
 			},
 		}
 
@@ -80,14 +78,12 @@ func TestBackupLocations(t *testing.T) {
 		params := models.CreateBackupLocationParams{
 			Name:        "some name",
 			Description: "some desc",
-			BackupLocationConfig: models.BackupLocationConfig{
-				S3Config: &models.S3LocationConfig{
-					Endpoint:     "https://example.com/",
-					AccessKey:    "access_key",
-					SecretKey:    "secret_key",
-					BucketName:   "example_bucket",
-					BucketRegion: "us-east-2",
-				},
+			S3Config: &models.S3LocationConfig{
+				Endpoint:     "https://example.com/",
+				AccessKey:    "access_key",
+				SecretKey:    "secret_key",
+				BucketName:   "example_bucket",
+				BucketRegion: "us-east-2",
 			},
 		}
 
@@ -116,17 +112,15 @@ func TestBackupLocations(t *testing.T) {
 		params := models.CreateBackupLocationParams{
 			Name:        "some name",
 			Description: "some desc",
-			BackupLocationConfig: models.BackupLocationConfig{
-				FilesystemConfig: &models.FilesystemLocationConfig{
-					Path: "/tmp",
-				},
-				S3Config: &models.S3LocationConfig{
-					Endpoint:     "https://example.com/",
-					AccessKey:    "access_key",
-					SecretKey:    "secret_key",
-					BucketName:   "example_bucket",
-					BucketRegion: "us-east-2",
-				},
+			FilesystemConfig: &models.FilesystemLocationConfig{
+				Path: "/tmp",
+			},
+			S3Config: &models.S3LocationConfig{
+				Endpoint:     "https://example.com/",
+				AccessKey:    "access_key",
+				SecretKey:    "secret_key",
+				BucketName:   "example_bucket",
+				BucketRegion: "us-east-2",
 			},
 		}
 
@@ -146,23 +140,19 @@ func TestBackupLocations(t *testing.T) {
 		params1 := models.CreateBackupLocationParams{
 			Name:        "some name",
 			Description: "some desc",
-			BackupLocationConfig: models.BackupLocationConfig{
-				FilesystemConfig: &models.FilesystemLocationConfig{
-					Path: "/tmp",
-				},
+			FilesystemConfig: &models.FilesystemLocationConfig{
+				Path: "/tmp",
 			},
 		}
 		params2 := models.CreateBackupLocationParams{
 			Name:        "some name2",
 			Description: "some desc2",
-			BackupLocationConfig: models.BackupLocationConfig{
-				S3Config: &models.S3LocationConfig{
-					Endpoint:     "https://example.com/",
-					AccessKey:    "access_key",
-					SecretKey:    "secret_key",
-					BucketName:   "example_bucket",
-					BucketRegion: "us-east-2",
-				},
+			S3Config: &models.S3LocationConfig{
+				Endpoint:     "https://example.com/",
+				AccessKey:    "access_key",
+				SecretKey:    "secret_key",
+				BucketName:   "example_bucket",
+				BucketRegion: "us-east-2",
 			},
 		}
 
@@ -201,10 +191,8 @@ func TestBackupLocations(t *testing.T) {
 		createParams := models.CreateBackupLocationParams{
 			Name:        "some name",
 			Description: "some desc",
-			BackupLocationConfig: models.BackupLocationConfig{
-				FilesystemConfig: &models.FilesystemLocationConfig{
-					Path: "/tmp",
-				},
+			FilesystemConfig: &models.FilesystemLocationConfig{
+				Path: "/tmp",
 			},
 		}
 
@@ -214,14 +202,12 @@ func TestBackupLocations(t *testing.T) {
 		changeParams := models.ChangeBackupLocationParams{
 			Name:        "some name2",
 			Description: "",
-			BackupLocationConfig: models.BackupLocationConfig{
-				S3Config: &models.S3LocationConfig{
-					Endpoint:     "https://example.com/",
-					AccessKey:    "access_key",
-					SecretKey:    "secret_key",
-					BucketName:   "example_bucket",
-					BucketRegion: "us-east-2",
-				},
+			S3Config: &models.S3LocationConfig{
+				Endpoint:     "https://example.com/",
+				AccessKey:    "access_key",
+				SecretKey:    "secret_key",
+				BucketName:   "example_bucket",
+				BucketRegion: "us-east-2",
 			},
 		}
 
@@ -252,10 +238,8 @@ func TestBackupLocations(t *testing.T) {
 		params := models.CreateBackupLocationParams{
 			Name:        "some name",
 			Description: "some desc",
-			BackupLocationConfig: models.BackupLocationConfig{
-				FilesystemConfig: &models.FilesystemLocationConfig{
-					Path: "/tmp",
-				},
+			FilesystemConfig: &models.FilesystemLocationConfig{
+				Path: "/tmp",
 			},
 		}
 
@@ -281,10 +265,8 @@ func TestBackupLocations(t *testing.T) {
 		params := models.CreateBackupLocationParams{
 			Name:        "some name",
 			Description: "some desc",
-			BackupLocationConfig: models.BackupLocationConfig{
-				FilesystemConfig: &models.FilesystemLocationConfig{
-					Path: "/tmp",
-				},
+			FilesystemConfig: &models.FilesystemLocationConfig{
+				Path: "/tmp",
 			},
 		}
 
