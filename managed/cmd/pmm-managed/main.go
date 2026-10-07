@@ -133,6 +133,8 @@ const (
 	cleanInterval  = 10 * time.Minute
 	cleanOlderThan = 30 * time.Minute
 
+	replicaSyncInterval = 30 * time.Second
+
 	defaultContextTimeout = 10 * time.Second
 	pProfProfileDuration  = 30 * time.Second
 	pProfTraceDuration    = 10 * time.Second
@@ -1320,6 +1322,12 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	wg.Go(func() {
 		runDebugServer(ctx)
 	})
+
+	if haParams.Enabled {
+		wg.Go(func() {
+			server.RunReplicaSync(ctx, replicaSyncInterval)
+		})
+	}
 
 	haService.AddLeaderService(ha.NewContextService("cleaner", func(ctx context.Context) error {
 		cleaner.Run(ctx, cleanInterval, cleanOlderThan)
