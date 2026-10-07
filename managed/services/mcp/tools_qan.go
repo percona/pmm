@@ -140,7 +140,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	raw := s.rawSQL()
 	var engine string
 	if !raw {
-		engine = s.serviceEngine(ctx, auth, in.ServiceName, in.ServiceID)
+		engine = s.reportEngine(ctx, auth, in, from, to)
 	}
 
 	// Confirmed against PMM 3.8.1: queryid is Row.dimension; rows[0] is the
@@ -357,9 +357,9 @@ const withheldFingerprint = "(fingerprint withheld: PMM stored this statement un
 // statement relies on reading its quoting right, and reading it wrong leaks.
 // The others keep their text with comments and bare numbers masked:
 // normalizers leave GROUP BY ordinals and type lengths in place, and a number
-// cannot hide a quote. The quoting is the engine's, MySQL's for a MySQL
-// service and PostgreSQL's, which keeps the double-quoted identifiers an ORM
-// writes, otherwise.
+// cannot hide a quote. The quoting is the engine's: MySQL's, or PostgreSQL's,
+// which keeps the double-quoted identifiers an ORM writes. When the engine is
+// unknown, a quote that either reading takes for a string withholds it.
 func fingerprintText(fingerprint, engine string, raw bool) string {
 	if raw {
 		return fingerprint
@@ -368,14 +368,37 @@ func fingerprintText(fingerprint, engine string, raw bool) string {
 		return maskMongoFingerprint(fingerprint)
 	}
 	masked, quoted := maskSQL(fingerprint, engine == engineMySQL)
+	if engine != engineMySQL && engine != enginePostgreSQL {
+		_, mysqlQuoted := maskSQL(fingerprint, true)
+		quoted = quoted || mysqlQuoted
+	}
 	if quoted {
 		return withheldFingerprint
 	}
 	return masked
 }
 
+// reportEngine returns the engine whose quoting reads a report's fingerprints:
+// the filtered service's, else the only SQL engine QAN holds data for in the
+// window, else "".
+func (s *Service) reportEngine(ctx context.Context, auth callerAuth, in topQueriesInput, from, to time.Time) string {
+	if in.ServiceName != "" || in.ServiceID != "" {
+		return s.serviceEngine(ctx, auth, in.ServiceName, in.ServiceID)
+	}
+	types, err := s.api.QANServiceTypes(ctx, auth, from, to)
+	if err != nil {
+		s.l.WithField("tool", "pmm_top_queries").Debugf("qan metrics:getFilters failed: %s.", err)
+		return ""
+	}
+	sqlTypes := slices.DeleteFunc(types, func(t string) bool { return t == engineMongoDB })
+	if len(sqlTypes) != 1 {
+		return ""
+	}
+	return sqlTypes[0]
+}
+
 // serviceEngine returns the engine of the service a report is filtered to, by
-// name or else by id, or "" when it is not filtered or not found.
+// name or else by id, or "" when it is not found.
 func (s *Service) serviceEngine(ctx context.Context, auth callerAuth, name, id string) string {
 	if name == "" && id == "" {
 		return ""

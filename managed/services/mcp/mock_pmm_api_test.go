@@ -260,6 +260,36 @@ func (_m *mockPmmAPI) ListServices(ctx context.Context, auth callerAuth) (*servi
 	return r0, r1
 }
 
+// QANServiceTypes provides a mock function with given fields: ctx, auth, from, to
+func (_m *mockPmmAPI) QANServiceTypes(ctx context.Context, auth callerAuth, from time.Time, to time.Time) ([]string, error) {
+	ret := _m.Called(ctx, auth, from, to)
+
+	if len(ret) == 0 {
+		panic("no return value specified for QANServiceTypes")
+	}
+
+	var r0 []string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, time.Time, time.Time) ([]string, error)); ok {
+		return rf(ctx, auth, from, to)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, time.Time, time.Time) []string); ok {
+		r0 = rf(ctx, auth, from, to)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, callerAuth, time.Time, time.Time) error); ok {
+		r1 = rf(ctx, auth, from, to)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // QueryInstant provides a mock function with given fields: ctx, auth, datasourceUID, promql, at
 func (_m *mockPmmAPI) QueryInstant(ctx context.Context, auth callerAuth, datasourceUID string, promql string, at time.Time) ([]metricSample, error) {
 	ret := _m.Called(ctx, auth, datasourceUID, promql, at)

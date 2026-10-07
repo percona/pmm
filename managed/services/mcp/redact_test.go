@@ -113,6 +113,20 @@ func TestMaskMySQLPlan(t *testing.T) {
 	assert.NotContains(t, got, "15")
 	assert.Contains(t, got, `"estimated_rows": 3`, "estimates are kept")
 
+	// Names are kept, even those a digit starts, in both format versions.
+	got, ok = maskMySQLPlan(`{"query_block": {"table": {"table_name": "2fa_codes", "key": "1st_idx", "possible_keys": ["1st_idx"], ` +
+		`"used_key_parts": ["2nd_col"], "used_columns": ["2nd_col", "id"], "attached_condition": "(` + "`t`.`2nd_col`" + ` = 42)"}}, ` +
+		`"real_table_name": "2fa_codes", "inputs": [{"table_name": "2fa_codes", "alias": "2f", "schema_name": "3rd_db", "index_name": "1st_idx"}]}`)
+	assert.True(t, ok)
+	for _, name := range []string{
+		`"table_name": "2fa_codes"`, `"key": "1st_idx"`, `"1st_idx"`, `"2nd_col"`,
+		`"alias": "2f"`, `"schema_name": "3rd_db"`, `"index_name": "1st_idx"`,
+	} {
+		assert.Contains(t, got, name)
+	}
+	assert.Contains(t, got, "`t`.`2nd_col` = ?", "conditions are still masked")
+	assert.Contains(t, got, `"real_table_name": "?fa_codes"`, "pmm-agent parses it from the statement text")
+
 	_, ok = maskMySQLPlan("id | select_type | table")
 	assert.False(t, ok, "a non-JSON plan is reported, not passed off as masked")
 
@@ -208,6 +222,13 @@ func TestMaskPGPlan(t *testing.T) {
 		assert.Contains(t, got, `"Node Type":"Seq Scan"`)
 		assert.Contains(t, got, `"Filter":"((email)::text = ?::text)"`)
 		assert.Contains(t, got, `"Total Cost":458.0`)
+
+		got = maskPGPlan(`[{"Plan":{"Node Type":"Index Scan","Relation Name":"2fa_codes","Schema":"3rd","Alias":"2f",` +
+			`"Index Name":"1st_idx","Index Cond":"(id = 42)"}}]`)
+		for _, name := range []string{`"Relation Name":"2fa_codes"`, `"Schema":"3rd"`, `"Alias":"2f"`, `"Index Name":"1st_idx"`} {
+			assert.Contains(t, got, name, "names are kept, even those a digit starts")
+		}
+		assert.Contains(t, got, `"Index Cond":"(id = ?)"`)
 	})
 
 	t.Run("UnparseableJSONIsWithheld", func(t *testing.T) {

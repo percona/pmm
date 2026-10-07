@@ -173,6 +173,7 @@ type pmmAPI interface {
 	GetMetrics(ctx context.Context, auth callerAuth, body qan_service.GetMetricsBody) (*queryMetrics, error)
 	GetQueryExample(ctx context.Context, auth callerAuth, body qan_service.GetQueryExampleBody) (*qan_service.GetQueryExampleOKBody, error)
 	GetQueryPlan(ctx context.Context, auth callerAuth, queryID, serviceID string) (*qan_service.GetQueryPlanOKBody, error)
+	QANServiceTypes(ctx context.Context, auth callerAuth, from, to time.Time) ([]string, error)
 	StartServiceAction(ctx context.Context, auth callerAuth, body actions_service.StartServiceActionBody) (*actions_service.StartServiceActionOKBody, error)
 	GetAction(ctx context.Context, auth callerAuth, actionID string) (*actions_service.GetActionOKBody, error)
 	GetDatasourceByName(ctx context.Context, auth callerAuth, name string) (*datasource, error)

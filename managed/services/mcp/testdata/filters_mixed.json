@@ -1,0 +1,5 @@
+{
+  "labels": {
+    "service_type": {"name": [{"value": "mysql", "main_metric_percent": 0.6}, {"value": "postgresql", "main_metric_percent": 0.4}]}
+  }
+}

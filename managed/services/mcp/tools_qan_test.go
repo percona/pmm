@@ -97,8 +97,17 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 		fingerprintText("SELECT `id` FROM `2fa_tokens` WHERE `o'neil` = ?", engineMySQL, false))
 
 	// A normalized fingerprint is shown, with only its comment text masked.
-	assert.Equal(t, `/*?*/ SELECT "users"."id" FROM "users" WHERE "users"."email" = $1`,
-		fingerprintText(`/* app='shop',route='/users/42' */ SELECT "users"."id" FROM "users" WHERE "users"."email" = $1`, "", false))
+	ormQuoted := `/* app='shop',route='/users/42' */ SELECT "users"."id" FROM "users" WHERE "users"."email" = $1`
+	assert.Equal(t, `/*?*/ SELECT "users"."id" FROM "users" WHERE "users"."email" = $1`, fingerprintText(ormQuoted, enginePostgreSQL, false))
+
+	// With the engine unknown, a double quote may open a MySQL string, so the
+	// fingerprint is withheld rather than read with PostgreSQL quoting.
+	doubleQuoted := `SELECT id FROM users WHERE email = "a@b.com"`
+	assert.Equal(t, withheldFingerprint, fingerprintText(doubleQuoted, "", false))
+	assert.Equal(t, withheldFingerprint, fingerprintText(doubleQuoted, engineMySQL, false))
+	assert.Equal(t, withheldFingerprint, fingerprintText(ormQuoted, "", false))
+	assert.Equal(t, doubleQuoted, fingerprintText(doubleQuoted, enginePostgreSQL, false), "a PostgreSQL identifier")
+	assert.Equal(t, "SELECT `id` FROM `orders` WHERE `id` = ?", fingerprintText("SELECT `id` FROM `orders` WHERE `id` = ?", "", false))
 
 	// pmm-agent masks only $match stages of an aggregation; the rest keep
 	// their values, in double quotes that SQL quoting would take for names.
@@ -125,10 +134,21 @@ func TestTopQueriesQuotingFollowsTheService(t *testing.T) {
 	require.False(t, isError, text)
 	assert.Contains(t, text, "SELECT `id` FROM `o'neil` WHERE `id` = ?")
 
-	// Unfiltered, the engine is unknown and PostgreSQL quoting is used.
-	text, isError = callText(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h"})
-	require.False(t, isError, text)
-	assert.Contains(t, text, withheldFingerprint)
+	// Unfiltered, the engine is QAN's only SQL engine in the window; with
+	// none or several, or when QAN cannot tell, the fingerprint is withheld.
+	for file, want := range map[string]string{
+		"filters_mysql.json": "SELECT `id` FROM `o'neil` WHERE `id` = ?",
+		"filters_mixed.json": withheldFingerprint,
+		"":                   withheldFingerprint,
+	} {
+		if file != "" {
+			routes["POST /v1/qan/metrics:getFilters"] = fixture{file: file}
+		}
+		session := connect(t, newQANService(t, newFakePMM(t, routes), false))
+		text, isError = callText(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h"})
+		require.False(t, isError, text)
+		assert.Contains(t, text, want, file)
+	}
 }
 
 func TestTopQueriesTool(t *testing.T) {

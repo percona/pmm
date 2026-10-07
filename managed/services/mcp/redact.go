@@ -76,6 +76,15 @@ var pgPropertyLine = regexp.MustCompile(`^(\s*[A-Za-z][A-Za-z0-9 -]*:)(.*)$`)
 // on 8.4.11).
 var mysqlValueNumbers = []string{"limit", "limit_offset", "per_chunk_limit"}
 
+// mysqlIdentifierKeys are the JSON plan keys that hold only names, which masking
+// mangles (2fa_codes to ?fa_codes); pmm-agent parses real_table_name from the statement, so it is masked.
+var mysqlIdentifierKeys = []string{
+	"table_name", "alias", "schema_name", "key", "index_name", "possible_keys", "used_key_parts", "used_columns",
+}
+
+// pgIdentifierKeys are the JSON plan keys whose strings are only names.
+var pgIdentifierKeys = []string{"Relation Name", "Schema", "Alias", "Index Name", "CTE Name"}
+
 // mysqlNumber matches the numeric strings MySQL writes into a JSON plan -
 // costs, "filtered", data sizes such as "1K" - which are kept.
 var mysqlNumber = regexp.MustCompile(`^[0-9]+(\.[0-9]+)?[KMGTPE]?$`)
@@ -322,8 +331,8 @@ func isIdentByte(c byte) bool {
 // string value is masked: literals sit in the *condition keys, in the
 // rewritten statement (format version 2's "query", and Note 1003 of the SHOW
 // WARNINGS that pmm-agent appends), in version 2's "operation" and "ranges".
-// Identifiers survive masking, and the numeric strings MySQL writes for costs
-// are kept. It reports false when the plan is not JSON.
+// The keys that hold only names and the numeric strings MySQL writes for
+// costs are kept. It reports false when the plan is not JSON.
 func maskMySQLPlan(plan string) (string, bool) {
 	out, err := rewriteJSON([]byte(plan), func(path []string, v any) any {
 		switch v := v.(type) {
@@ -332,6 +341,9 @@ func maskMySQLPlan(plan string) (string, bool) {
 				return "?"
 			}
 		case string:
+			if len(path) > 0 && slices.Contains(mysqlIdentifierKeys, path[len(path)-1]) {
+				return v
+			}
 			if !mysqlNumber.MatchString(v) {
 				return maskSQLLiterals(v, true)
 			}
@@ -389,14 +401,14 @@ func mongoLiteralKey(k string) bool {
 // maskPGPlan masks literals in a pg_stat_monitor stored plan. Text plans are
 // masked on every property line, so node lines with their cost and row
 // estimates survive; a property holding a lone number, such as
-// "Workers Planned: 2", is kept. A JSON plan is masked in every string value:
-// its numbers are estimates, and its literals always sit inside expressions.
+// "Workers Planned: 2", is kept. A JSON plan is masked in every string value
+// but names: its numbers are estimates, and its literals sit in expressions.
 func maskPGPlan(plan string) string {
 	trimmed := strings.TrimSpace(plan)
 	if strings.HasPrefix(trimmed, "{") || strings.HasPrefix(trimmed, "[") {
-		out, err := rewriteJSON([]byte(trimmed), func(_ []string, v any) any {
+		out, err := rewriteJSON([]byte(trimmed), func(path []string, v any) any {
 			str, ok := v.(string)
-			if !ok {
+			if !ok || len(path) > 0 && slices.Contains(pgIdentifierKeys, path[len(path)-1]) {
 				return v
 			}
 			return maskSQLLiterals(str, false)

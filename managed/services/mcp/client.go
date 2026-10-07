@@ -254,6 +254,31 @@ func (c *client) GetMetrics(ctx context.Context, auth callerAuth, body qan_servi
 	return &out, nil
 }
 
+// QANServiceTypes returns the service types QAN holds data for in a window.
+func (c *client) QANServiceTypes(ctx context.Context, auth callerAuth, from, to time.Time) ([]string, error) {
+	var out struct {
+		Labels map[string]struct {
+			Name []struct {
+				Value string `json:"value"`
+			} `json:"name"`
+		} `json:"labels"`
+	}
+	body := qan_service.GetFilteredMetricsNamesBody{
+		PeriodStartFrom: strfmt.DateTime(from),
+		PeriodStartTo:   strfmt.DateTime(to),
+		Labels:          []*qan_service.GetFilteredMetricsNamesParamsBodyLabelsItems0{},
+	}
+	err := c.postJSON(ctx, auth, "v1/qan/metrics:getFilters", body, &out)
+	if err != nil {
+		return nil, err
+	}
+	types := make([]string, 0, len(out.Labels["service_type"].Name))
+	for _, v := range out.Labels["service_type"].Name {
+		types = append(types, v.Value)
+	}
+	return types, nil
+}
+
 func (c *client) GetQueryExample(ctx context.Context, auth callerAuth, body qan_service.GetQueryExampleBody) (*qan_service.GetQueryExampleOKBody, error) {
 	params := qan_service.NewGetQueryExampleParamsWithContext(ctx).WithTimeout(callTimeout).WithBody(body)
 	res, err := c.qan.QANService.GetQueryExample(params, auth.option())
