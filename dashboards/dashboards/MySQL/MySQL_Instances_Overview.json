@@ -8537,7 +8537,7 @@
                     "value": ""
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(mysql_up{node_name=\"$node_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\"}, node_id)",
+                "definition": "label_values(mysql_up{node_name=\"$node_name\"}, node_id)",
                 "hide": 2,
                 "includeAll": false,
                 "label": "Node_ID",
@@ -8545,7 +8545,7 @@
                 "name": "node_id",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_up{node_name=\"$node_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\"}, node_id)",
+                    "query": "label_values(mysql_up{node_name=\"$node_name\"}, node_id)",
                     "refId": "Metrics-node_id-Variable-Query"
                 },
                 "refresh": 2,
@@ -8565,7 +8565,7 @@
                     "value": ""
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(mysql_up{node_name=\"$node_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\"}, instance)",
+                "definition": "label_values(mysql_up{node_name=\"$node_name\"}, instance)",
                 "hide": 2,
                 "includeAll": false,
                 "label": "Agent_ID",
@@ -8573,7 +8573,7 @@
                 "name": "agent_id",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_up{node_name=\"$node_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\"}, instance)",
+                    "query": "label_values(mysql_up{node_name=\"$node_name\"}, instance)",
                     "refId": "Metrics-agent_id-Variable-Query"
                 },
                 "refresh": 2,
@@ -8620,7 +8620,7 @@
                     "value": ""
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(mysql_up{node_name=\"$node_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\"}, az)",
+                "definition": "label_values(mysql_up{node_name=\"$node_name\"}, az)",
                 "hide": 2,
                 "includeAll": false,
                 "label": "Az",
@@ -8628,7 +8628,7 @@
                 "name": "az",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_up{node_name=\"$node_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\"}, az)",
+                    "query": "label_values(mysql_up{node_name=\"$node_name\"}, az)",
                     "refId": "Metrics-az-Variable-Query"
                 },
                 "refresh": 2,
@@ -8675,7 +8675,7 @@
                     "value": ""
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(mysql_up{node_name=\"$node_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\"}, node_model)",
+                "definition": "label_values(mysql_up{node_name=\"$node_name\"}, node_model)",
                 "hide": 2,
                 "includeAll": false,
                 "label": "Node_model",
@@ -8683,7 +8683,7 @@
                 "name": "node_model",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_up{node_name=\"$node_name\",region=~\"$region\",environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\"}, node_model)",
+                    "query": "label_values(mysql_up{node_name=\"$node_name\"}, node_model)",
                     "refId": "Metrics-node_model-Variable-Query"
                 },
                 "refresh": 2,

@@ -45,9 +45,15 @@ def first_variables(dashboard):
 
 
 class TestFleetVariablesHaveAllValue(unittest.TestCase):
+    def dashboards(self):
+        paths = sorted(glob.glob(os.path.join(DASH_DIR, '**', '*.json'), recursive=True))
+        # Run from the wrong directory, every check here would pass on nothing.
+        self.assertTrue(paths, f'no dashboards found under {DASH_DIR}')
+        return paths
+
     def test_fleet_variables_have_all_value(self):
         missing = []
-        for path in sorted(glob.glob(os.path.join(DASH_DIR, '**', '*.json'), recursive=True)):
+        for path in self.dashboards():
             rel = os.path.relpath(path, DASH_DIR)
             with open(path, encoding='utf-8') as f:
                 variables = first_variables(json.load(f))
@@ -80,7 +86,7 @@ class TestFleetVariablesHaveAllValue(unittest.TestCase):
         the ClickHouse plugin drops it on All, and singlequote escapes quotes.
         """
         bad = []
-        for path in sorted(glob.glob(os.path.join(DASH_DIR, '**', '*.json'), recursive=True)):
+        for path in self.dashboards():
             rel = os.path.relpath(path, DASH_DIR)
             with open(path, encoding='utf-8') as f:
                 dashboard = json.load(f)

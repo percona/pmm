@@ -1004,7 +1004,7 @@
                         "$__all"
                     ]
                 },
-                "definition": "label_values(mongodb_indexstats_accesses_ops{cluster=~\"$cluster\",service_name=~\"$service_name\",environment=~\"$environment\",node_name=~\"$node_name\"}, database)",
+                "definition": "query_result(count by (database) (mongodb_indexstats_accesses_ops{cluster=~\"$cluster\",service_name=~\"$service_name\",environment=~\"$environment\",node_name=~\"$node_name\"} and on (service_name) group by (service_name) (mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",set=~\"$replication_set\"})))",
                 "hide": 0,
                 "includeAll": true,
                 "label": "Database",
@@ -1012,11 +1012,11 @@
                 "name": "database",
                 "options": [],
                 "query": {
-                    "query": "label_values(mongodb_indexstats_accesses_ops{cluster=~\"$cluster\",service_name=~\"$service_name\",environment=~\"$environment\",node_name=~\"$node_name\"}, database)",
+                    "query": "query_result(count by (database) (mongodb_indexstats_accesses_ops{cluster=~\"$cluster\",service_name=~\"$service_name\",environment=~\"$environment\",node_name=~\"$node_name\"} and on (service_name) group by (service_name) (mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",set=~\"$replication_set\"})))",
                     "refId": "StandardVariableQuery"
                 },
                 "refresh": 2,
-                "regex": "",
+                "regex": "/database=\"(.*)\"/",
                 "skipUrlSync": false,
                 "sort": 5,
                 "type": "query"

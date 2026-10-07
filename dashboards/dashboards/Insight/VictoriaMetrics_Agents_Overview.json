@@ -481,7 +481,7 @@
             "pluginVersion": "8.3.5",
             "targets": [
                 {
-                    "expr": "sum((increase(vm_log_messages_total{node_name=~\"$node_name\", agent_type=\"vmagent\", level!=\"info\", level!=\"warn\"}[$__range]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})))",
+                    "expr": "sum(increase(vm_log_messages_total{node_name=~\"$node_name\", agent_type=\"vmagent\", level!=\"info\", level!=\"warn\"}[$__range]))",
                     "instant": false,
                     "interval": "$interval",
                     "legendFormat": "",
@@ -1232,13 +1232,13 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "(increase(vm_log_messages_total{level!=\"info\",node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (increase(vm_log_messages_total{level!=\"info\",node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))",
+                    "expr": "increase(vm_log_messages_total{level!=\"info\",node_name=~\"$node_name\"}[$interval]) or increase(vm_log_messages_total{level!=\"info\",node_name=~\"$node_name\"}[5m])",
                     "interval": "$interval",
                     "legendFormat": "{{level}} - {{location}}",
                     "refId": "A"
                 },
                 {
-                    "expr": "sum by (node_name) ((increase(vm_log_messages_total{level=\"info\",node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (increase(vm_log_messages_total{level=\"info\",node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})))",
+                    "expr": "sum by (node_name) (increase(vm_log_messages_total{level=\"info\",node_name=~\"$node_name\"}[$interval]) or increase(vm_log_messages_total{level=\"info\",node_name=~\"$node_name\"}[5m]))",
                     "interval": "$interval",
                     "legendFormat": "info",
                     "refId": "B"
@@ -1344,7 +1344,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((rate(vmagent_http_requests_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(path, protocol)",
+                    "expr": "sum(rate(vmagent_http_requests_total{node_name=~\"$node_name\"}[$interval])) by(path, protocol)",
                     "interval": "$interval",
                     "legendFormat": "{{ path }}",
                     "refId": "A"
@@ -1441,31 +1441,31 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((rate(vmagent_http_request_errors_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(protocol)",
+                    "expr": "sum(rate(vmagent_http_request_errors_total{node_name=~\"$node_name\"}[$interval])) by(protocol)",
                     "interval": "$interval",
                     "legendFormat": "{{protocol}} (request)",
                     "refId": "A"
                 },
                 {
-                    "expr": "sum((rate(vm_protoparser_read_errors_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(type)",
+                    "expr": "sum(rate(vm_protoparser_read_errors_total{node_name=~\"$node_name\"}[$interval])) by(type)",
                     "interval": "$interval",
                     "legendFormat": "{{type}} (parse)",
                     "refId": "B"
                 },
                 {
-                    "expr": "sum((rate(vm_ingestserver_request_errors_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(type)",
+                    "expr": "sum(rate(vm_ingestserver_request_errors_total{node_name=~\"$node_name\"}[$interval])) by(type)",
                     "interval": "$interval",
                     "legendFormat": "{{type}} (ingest)",
                     "refId": "C"
                 },
                 {
-                    "expr": "sum((rate(vm_protoparser_unmarshal_errors_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(type)",
+                    "expr": "sum(rate(vm_protoparser_unmarshal_errors_total{node_name=~\"$node_name\"}[$interval])) by(type)",
                     "interval": "$interval",
                     "legendFormat": "{{type}} (unmarshal)",
                     "refId": "D"
                 },
                 {
-                    "expr": "sum((rate(vm_promscrape_dial_errors_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})))",
+                    "expr": "sum(rate(vm_promscrape_dial_errors_total{node_name=~\"$node_name\"}[$interval]))",
                     "interval": "$interval",
                     "legendFormat": "scrape dial",
                     "refId": "E"
@@ -2246,7 +2246,7 @@
             "reverseYBuckets": false,
             "targets": [
                 {
-                    "expr": "buckets_limit(12, prometheus_buckets(sum((rate(vm_promscrape_scrape_duration_seconds_bucket{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(vmrange)))",
+                    "expr": "buckets_limit(12, prometheus_buckets(sum(rate(vm_promscrape_scrape_duration_seconds_bucket{node_name=~\"$node_name\"}[$interval])) by(vmrange)))",
                     "format": "heatmap",
                     "interval": "$interval",
                     "intervalFactor": 10,
@@ -3162,7 +3162,7 @@
             "reverseYBuckets": false,
             "targets": [
                 {
-                    "expr": "buckets_limit(12, prometheus_buckets(sum((rate(vmagent_remotewrite_duration_seconds_bucket{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(vmrange)))",
+                    "expr": "buckets_limit(12, prometheus_buckets(sum(rate(vmagent_remotewrite_duration_seconds_bucket{node_name=~\"$node_name\"}[$interval])) by(vmrange)))",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
