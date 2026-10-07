@@ -329,6 +329,11 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 			"/graph/api/ds/query":        true,
 			"/v1/qan/metrics:getFilters": true,
 			"/v1/qan/query:exists":       true,
+			"/v1/qan:getMetrics":         true,
+			"/v1/qan:getLabels":          true,
+			"/v1/qan:getHistogram":       true,
+			"/v1/qan:explainFingerprint": true,
+			"/v1/qanx":                   false,
 			// Every route to a data source must be filtered, whatever the id and sub-path.
 			"/graph/api/datasources/proxy/1/api/v1/query":                         true,
 			"/graph/api/datasources/proxy/137/api/v1/query":                       true,

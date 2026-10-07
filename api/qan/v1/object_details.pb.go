@@ -774,8 +774,10 @@ func (x *ListLabelValues) GetValues() []string {
 
 // GetQueryPlanRequest defines filtering by queryid.
 type GetQueryPlanRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Queryid       string                 `protobuf:"bytes,1,opt,name=queryid,proto3" json:"queryid,omitempty"`
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Queryid string                 `protobuf:"bytes,1,opt,name=queryid,proto3" json:"queryid,omitempty"`
+	// Service ID to scope the plan to; empty matches any service.
+	ServiceId     string `protobuf:"bytes,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -813,6 +815,13 @@ func (*GetQueryPlanRequest) Descriptor() ([]byte, []int) {
 func (x *GetQueryPlanRequest) GetQueryid() string {
 	if x != nil {
 		return x.Queryid
+	}
+	return ""
+}
+
+func (x *GetQueryPlanRequest) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
 	}
 	return ""
 }
@@ -1546,9 +1555,11 @@ const file_qan_v1_object_details_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12-\n" +
 	"\x05value\x18\x02 \x01(\v2\x17.qan.v1.ListLabelValuesR\x05value:\x028\x01\")\n" +
 	"\x0fListLabelValues\x12\x16\n" +
-	"\x06values\x18\x01 \x03(\tR\x06values\"/\n" +
+	"\x06values\x18\x01 \x03(\tR\x06values\"N\n" +
 	"\x13GetQueryPlanRequest\x12\x18\n" +
-	"\aqueryid\x18\x01 \x01(\tR\aqueryid\"M\n" +
+	"\aqueryid\x18\x01 \x01(\tR\aqueryid\x12\x1d\n" +
+	"\n" +
+	"service_id\x18\x02 \x01(\tR\tserviceId\"M\n" +
 	"\x14GetQueryPlanResponse\x12\x16\n" +
 	"\x06planid\x18\x01 \x01(\tR\x06planid\x12\x1d\n" +
 	"\n" +
