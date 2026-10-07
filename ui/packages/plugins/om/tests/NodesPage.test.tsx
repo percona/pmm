@@ -542,6 +542,55 @@ describe('NodesPage', () => {
     });
   });
 
+  // Pedro, 2026-10-06: a failed scan of the PMM Server's own node is not a fleet
+  // problem, so it is not counted - but it is still not hidden.
+  describe("the PMM Server's own node", () => {
+    const RED = 'rgb(211, 47, 47)';
+    const failing = () => ({
+      consecutive_failures: 3,
+      failing_since: new Date().toISOString(),
+      last_error: 'boom',
+    });
+    const nodes = () => [
+      host({
+        node_id: 'pmm',
+        name: 'pmm-server',
+        is_pmm_server_node: true,
+        automation_eligible: false,
+        automation_blocked_by_design: true,
+        freshness: failing(),
+      }),
+      host({ node_id: 'node-2', name: 'node01', freshness: failing() }),
+    ];
+
+    it('is left out of the failing count and its filter', () => {
+      renderPage(nodes());
+
+      fireEvent.click(screen.getByText('1 failing'));
+
+      expect(rowFor('node01')).toBeTruthy();
+      expect(screen.queryByText('pmm-server')).toBeNull();
+    });
+
+    it('still states its failure, without the alarm colour', () => {
+      renderPage(nodes());
+
+      const statement = (name: string) =>
+        within(rowFor(name)).getByText(/^Failing for/);
+      expect(getComputedStyle(statement('node01')).color).toBe(RED);
+      expect(getComputedStyle(statement('pmm-server')).color).not.toBe(RED);
+
+      fireEvent.click(
+        within(rowFor('pmm-server')).getByRole('button', { name: /expand/i })
+      );
+      expect(
+        getComputedStyle(
+          within(screen.getByTestId('scan-failure')).getByText(/^Scans failing/)
+        ).color
+      ).not.toBe(RED);
+    });
+  });
+
   describe('feedback on the page itself', () => {
     const conflict = new OmApiError(
       409,

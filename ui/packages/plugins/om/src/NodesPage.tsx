@@ -120,12 +120,20 @@ const HOST_FILTERS: { id: HostFilter; label: string }[] = [
  * is not a place a fresh install can safely target, but it is also not one PMM is
  * monitoring — grouping it with `has_service` would hide it from both filters.
  */
+/**
+ * Whether a node's failing scans count against the fleet. Not the PMM Server's own
+ * node's: Operations never acts on it, so its scans failing is not a fleet problem
+ * (Pedro, 2026-10-06). Its failure is still shown on its row, without the alarm.
+ */
+const countsAsFailing = (row: OmHostRow) =>
+  isFailing(row) && !row.is_pmm_server_node;
+
 function matchesHostFilter(row: OmHostRow, filter: HostFilter): boolean {
   if (filter === 'all') {
     return true;
   }
   if (filter === 'failing') {
-    return isFailing(row);
+    return countsAsFailing(row);
   }
   const monitored = row.database_state === 'has_service';
   return filter === 'monitored' ? monitored : !monitored;
@@ -501,7 +509,12 @@ function useColumns(
             <Stack spacing={0.25}>
               <Box
                 component="span"
-                sx={{ color: 'error.main', whiteSpace: 'normal' }}
+                sx={{
+                  color: original.is_pmm_server_node
+                    ? 'text.secondary'
+                    : 'error.main',
+                  whiteSpace: 'normal',
+                }}
               >
                 {failureStatement(failure)}
               </Box>
@@ -547,11 +560,22 @@ function useColumns(
  * server names the run; a link to the scan history in general would send the reader
  * hunting through it, which is the trip this panel exists to save.
  */
-const ScanFailureDetail = ({ failure }: { failure: ScanFailure }) => {
+const ScanFailureDetail = ({
+  failure,
+  neutral,
+}: {
+  failure: ScanFailure;
+  /** True for the PMM Server's own node; see countsAsFailing. */
+  neutral: boolean;
+}) => {
   const omBase = useOmBase();
   return (
     <Box data-testid="scan-failure">
-      <Typography variant="subtitle2" gutterBottom color="error.main">
+      <Typography
+        variant="subtitle2"
+        gutterBottom
+        color={neutral ? undefined : 'error.main'}
+      >
         Scans failing: {failure.label}
       </Typography>
       <Typography variant="body2" sx={{ mb: 1 }}>
@@ -611,7 +635,9 @@ const HostDetail = ({ row }: { row: OmHostRow }) => {
   const failure = describeScanFailure(row.freshness);
   return (
     <Stack spacing={2} sx={{ p: 2 }}>
-      {failure && <ScanFailureDetail failure={failure} />}
+      {failure && (
+        <ScanFailureDetail failure={failure} neutral={row.is_pmm_server_node} />
+      )}
       <Box>
         <Typography variant="subtitle2" gutterBottom>
           Services PMM monitors ({row.services.length})
@@ -875,7 +901,7 @@ export const NodesPage = () => {
           !row.executor.reachable ||
           !row.executor.driver_healthy
       ).length,
-      failing: rows.filter((row) => isFailing(row)).length,
+      failing: rows.filter(countsAsFailing).length,
       automationEligible: rows.filter((row) => row.automation_eligible).length,
     }),
     [rows]
