@@ -219,9 +219,9 @@ describe('ExtensionsPage', () => {
 
       renderExtensionsPage({ version: { serverVersion: '3.10.0' } });
 
-      expect(screen.getByTestId('extensions-version-mismatch')).toHaveTextContent(
-        VersionMismatchMessages.mismatch('3.10.0', '3.11.0')
-      );
+      expect(
+        screen.getByTestId('extensions-version-mismatch')
+      ).toHaveTextContent(VersionMismatchMessages.mismatch('3.10.0', '3.11.0'));
       expect(screen.getByTestId('extensions-plugin')).toBeInTheDocument();
     });
 
@@ -247,9 +247,9 @@ describe('ExtensionsPage', () => {
 
       renderExtensionsPage({ version: { serverVersion: '3.10.0' } });
 
-      expect(screen.getByTestId('extensions-version-mismatch')).toHaveTextContent(
-        VersionMismatchMessages.undetermined
-      );
+      expect(
+        screen.getByTestId('extensions-version-mismatch')
+      ).toHaveTextContent(VersionMismatchMessages.undetermined);
       expect(screen.getByTestId('extensions-plugin')).toBeInTheDocument();
     });
 
