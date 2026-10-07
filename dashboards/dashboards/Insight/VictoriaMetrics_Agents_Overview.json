@@ -200,7 +200,7 @@
                 {
                     "datasource": "Metrics",
                     "exemplar": false,
-                    "expr": "time() - (max_over_time(vm_app_start_timestamp{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))",
+                    "expr": "time() - max_over_time(vm_app_start_timestamp{node_name=~\"$node_name_list\"}[5m])",
                     "format": "table",
                     "instant": true,
                     "interval": "",
@@ -277,7 +277,7 @@
             "pluginVersion": "8.3.5",
             "targets": [
                 {
-                    "expr": "sum(max_over_time((vm_promscrape_targets{node_name=~\"$node_name\", status=\"up\"} and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})))[5m])",
+                    "expr": "sum(max_over_time(vm_promscrape_targets{node_name=~\"$node_name_list\", status=\"up\"})[5m])",
                     "interval": "",
                     "legendFormat": "up",
                     "refId": "A"
@@ -333,7 +333,7 @@
             "pluginVersion": "8.3.5",
             "targets": [
                 {
-                    "expr": "sum(sum by (node_name) ((increase(vm_promscrape_scraped_samples_sum{node_name=~\"$node_name\"}[$__range]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})))\n+ sum by (node_name) ((increase(vmagent_rows_inserted_total{node_name=~\"$node_name\"}[$__range]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))))",
+                    "expr": "sum(sum by (node_name) (increase(vm_promscrape_scraped_samples_sum{node_name=~\"$node_name_list\"}[$__range]))\n+ sum by (node_name) (increase(vmagent_rows_inserted_total{node_name=~\"$node_name_list\"}[$__range])))",
                     "interval": "$interval",
                     "legendFormat": "",
                     "refId": "A"
@@ -397,7 +397,7 @@
             "pluginVersion": "8.3.5",
             "targets": [
                 {
-                    "expr": "sum((increase(vm_persistentqueue_bytes_dropped_total{node_name=~\"$node_name\"}[$__range]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) + sum((increase(vmagent_remotewrite_global_relabel_metrics_dropped_total{node_name=~\"$node_name\"}[$__range]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) + sum((increase(vmagent_remotewrite_relabel_metrics_dropped_total{node_name=~\"$node_name\"}[$__range]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})))",
+                    "expr": "sum(increase(vm_persistentqueue_bytes_dropped_total{node_name=~\"$node_name_list\"}[$__range])) + sum(increase(vmagent_remotewrite_global_relabel_metrics_dropped_total{node_name=~\"$node_name_list\"}[$__range])) + sum(increase(vmagent_remotewrite_relabel_metrics_dropped_total{node_name=~\"$node_name_list\"}[$__range]))",
                     "interval": "$interval",
                     "legendFormat": "up",
                     "refId": "A"
@@ -643,7 +643,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum by (node_name) ((rate(vm_promscrape_scraped_samples_sum{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})))\n+ sum by (node_name) ((rate(vmagent_rows_inserted_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})))",
+                    "expr": "sum by (node_name) (rate(vm_promscrape_scraped_samples_sum{node_name=~\"$node_name_list\"}[$interval]))\n+ sum by (node_name) (rate(vmagent_rows_inserted_total{node_name=~\"$node_name_list\"}[$interval]))",
                     "hide": false,
                     "interval": "$interval",
                     "legendFormat": "{{node_name}}",
@@ -736,7 +736,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum by (node_name) ((rate(vmagent_remotewrite_block_size_rows_sum{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})))",
+                    "expr": "sum by (node_name) (rate(vmagent_remotewrite_block_size_rows_sum{node_name=~\"$node_name_list\"}[$interval]))",
                     "interval": "$interval",
                     "legendFormat": "{{node_name}}",
                     "refId": "B"
@@ -831,7 +831,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((increase(vm_persistentqueue_bytes_dropped_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by (node_name)",
+                    "expr": "sum(increase(vm_persistentqueue_bytes_dropped_total{node_name=~\"$node_name_list\"}[$interval])) by (node_name)",
                     "interval": "$interval",
                     "legendFormat": "{{node_name}}",
                     "refId": "A"
@@ -925,7 +925,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((vmagent_remotewrite_pending_data_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by (node_name)",
+                    "expr": "sum(vmagent_remotewrite_pending_data_bytes{node_name=~\"$node_name_list\"}) by (node_name)",
                     "interval": "$interval",
                     "legendFormat": "{{node_name}}",
                     "refId": "A"
@@ -1021,13 +1021,13 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((rate(vmagent_remotewrite_global_relabel_metrics_dropped_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})))",
+                    "expr": "sum(rate(vmagent_remotewrite_global_relabel_metrics_dropped_total{node_name=~\"$node_name_list\"}[$interval]))",
                     "interval": "$interval",
                     "legendFormat": "global",
                     "refId": "A"
                 },
                 {
-                    "expr": "sum((rate(vmagent_remotewrite_relabel_metrics_dropped_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(url)",
+                    "expr": "sum(rate(vmagent_remotewrite_relabel_metrics_dropped_total{node_name=~\"$node_name_list\"}[$interval])) by(url)",
                     "interval": "$interval",
                     "legendFormat": "{{url}}",
                     "refId": "B"
@@ -1116,7 +1116,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((rate(vmagent_http_requests_total{node_name=~\"$node_name\"}[$__interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(node_name)",
+                    "expr": "sum(rate(vmagent_http_requests_total{node_name=~\"$node_name_list\"}[$__interval])) by(node_name)",
                     "interval": "",
                     "legendFormat": "{{node_name}}",
                     "refId": "A"
@@ -1566,7 +1566,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((rate(vm_promscrape_scrapes_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (irate(vm_promscrape_scrapes_total{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by (node_name)",
+                    "expr": "sum(rate(vm_promscrape_scrapes_total{node_name=~\"$node_name_list\"}[$interval]) or irate(vm_promscrape_scrapes_total{node_name=~\"$node_name_list\"}[5m])) by (node_name)",
                     "interval": "$interval",
                     "legendFormat": "{{node_name}}",
                     "refId": "A"
@@ -1654,7 +1654,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((rate(vm_promscrape_scraped_samples_sum{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (irate(vm_promscrape_scraped_samples_sum{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by (node_name)",
+                    "expr": "sum(rate(vm_promscrape_scraped_samples_sum{node_name=~\"$node_name_list\"}[$interval]) or irate(vm_promscrape_scraped_samples_sum{node_name=~\"$node_name_list\"}[5m])) by (node_name)",
                     "interval": "$interval",
                     "legendFormat": "{{node_name}}",
                     "refId": "B"
@@ -1743,7 +1743,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "histogram_quantile(0.95, sum((rate(vm_promscrape_scrape_response_size_bytes_bucket{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (irate(vm_promscrape_scrape_response_size_bytes_bucket{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(vmrange,node_name))  ",
+                    "expr": "histogram_quantile(0.95, sum(rate(vm_promscrape_scrape_response_size_bytes_bucket{node_name=~\"$node_name_list\"}[$interval]) or irate(vm_promscrape_scrape_response_size_bytes_bucket{node_name=~\"$node_name_list\"}[5m])) by(vmrange,node_name))  ",
                     "format": "time_series",
                     "interval": "$interval",
                     "legendFormat": "{{node_name}}",
@@ -1831,7 +1831,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "histogram_quantile(0.5, sum((rate(vm_promscrape_scrape_response_size_bytes_bucket{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (irate(vm_promscrape_scrape_response_size_bytes_bucket{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(vmrange,node_name)) ",
+                    "expr": "histogram_quantile(0.5, sum(rate(vm_promscrape_scrape_response_size_bytes_bucket{node_name=~\"$node_name_list\"}[$interval]) or irate(vm_promscrape_scrape_response_size_bytes_bucket{node_name=~\"$node_name_list\"}[5m])) by(vmrange,node_name)) ",
                     "interval": "$interval",
                     "legendFormat": "{{node_name}}",
                     "refId": "B"
@@ -1918,7 +1918,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((rate(vm_promscrape_scrapes_timed_out_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (irate(vm_promscrape_scrapes_timed_out_total{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by (node_name)",
+                    "expr": "sum(rate(vm_promscrape_scrapes_timed_out_total{node_name=~\"$node_name_list\"}[$interval]) or irate(vm_promscrape_scrapes_timed_out_total{node_name=~\"$node_name_list\"}[5m])) by (node_name)",
                     "interval": "$interval",
                     "legendFormat": "{{node_name}}",
                     "refId": "B"
@@ -2004,7 +2004,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((rate(vm_promscrape_scrapes_failed_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (irate(vm_promscrape_scrapes_failed_total{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by (node_name)",
+                    "expr": "sum(rate(vm_promscrape_scrapes_failed_total{node_name=~\"$node_name_list\"}[$interval]) or irate(vm_promscrape_scrapes_failed_total{node_name=~\"$node_name_list\"}[5m])) by (node_name)",
                     "interval": "$interval",
                     "legendFormat": "{{node_name}}",
                     "refId": "A"
@@ -2090,7 +2090,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((rate(vm_promscrape_dial_errors_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (irate(vm_promscrape_dial_errors_total{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by (node_name)",
+                    "expr": "sum(rate(vm_promscrape_dial_errors_total{node_name=~\"$node_name_list\"}[$interval]) or irate(vm_promscrape_dial_errors_total{node_name=~\"$node_name_list\"}[5m])) by (node_name)",
                     "interval": "$interval",
                     "legendFormat": "{{node_name}}",
                     "refId": "D"
@@ -2176,7 +2176,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((rate(vm_promscrape_scrapes_gunzip_failed_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (irate(vm_promscrape_scrapes_gunzip_failed_total{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by (node_name)",
+                    "expr": "sum(rate(vm_promscrape_scrapes_gunzip_failed_total{node_name=~\"$node_name_list\"}[$interval]) or irate(vm_promscrape_scrapes_gunzip_failed_total{node_name=~\"$node_name_list\"}[5m])) by (node_name)",
                     "interval": "$interval",
                     "legendFormat": "{{node_name}}",
                     "refId": "C"
@@ -2716,7 +2716,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((rate(vmagent_remotewrite_requests_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (irate(vmagent_remotewrite_requests_total{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(node_name, url, status_code)",
+                    "expr": "sum(rate(vmagent_remotewrite_requests_total{node_name=~\"$node_name_list\"}[$interval]) or irate(vmagent_remotewrite_requests_total{node_name=~\"$node_name_list\"}[5m])) by(node_name, url, status_code)",
                     "interval": "$interval",
                     "legendFormat": "{{node_name}} - {{url}} - {{status_code}}",
                     "refId": "A"
@@ -2804,7 +2804,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((rate(vmagent_remotewrite_conn_bytes_written_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (irate(vmagent_remotewrite_conn_bytes_written_total{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(node_name)",
+                    "expr": "sum(rate(vmagent_remotewrite_conn_bytes_written_total{node_name=~\"$node_name_list\"}[$interval]) or irate(vmagent_remotewrite_conn_bytes_written_total{node_name=~\"$node_name_list\"}[5m])) by(node_name)",
                     "interval": "$interval",
                     "legendFormat": "{{node_name}}",
                     "refId": "A"
@@ -2873,7 +2873,7 @@
             "reverseYBuckets": false,
             "targets": [
                 {
-                    "expr": "buckets_limit(12, prometheus_buckets(sum((rate(vmagent_remotewrite_block_size_rows_bucket{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (irate(vmagent_remotewrite_block_size_rows_bucket{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(vmrange)))",
+                    "expr": "buckets_limit(12, prometheus_buckets(sum(rate(vmagent_remotewrite_block_size_rows_bucket{node_name=~\"$node_name_list\"}[$interval]) or irate(vmagent_remotewrite_block_size_rows_bucket{node_name=~\"$node_name_list\"}[5m])) by(vmrange)))",
                     "format": "heatmap",
                     "interval": "$interval",
                     "intervalFactor": 10,
@@ -2928,7 +2928,7 @@
             "reverseYBuckets": false,
             "targets": [
                 {
-                    "expr": "buckets_limit(12, prometheus_buckets(sum((rate(vmagent_remotewrite_block_size_bytes_bucket{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (irate(vmagent_remotewrite_block_size_bytes_bucket{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(vmrange)))",
+                    "expr": "buckets_limit(12, prometheus_buckets(sum(rate(vmagent_remotewrite_block_size_bytes_bucket{node_name=~\"$node_name_list\"}[$interval]) or irate(vmagent_remotewrite_block_size_bytes_bucket{node_name=~\"$node_name_list\"}[5m])) by(vmrange)))",
                     "format": "heatmap",
                     "interval": "$interval",
                     "intervalFactor": 10,
@@ -3001,7 +3001,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((rate(vmagent_remotewrite_retries_count_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (irate(vmagent_remotewrite_retries_count_total{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(url,node_name)",
+                    "expr": "sum(rate(vmagent_remotewrite_retries_count_total{node_name=~\"$node_name_list\"}[$interval]) or irate(vmagent_remotewrite_retries_count_total{node_name=~\"$node_name_list\"}[5m])) by(url,node_name)",
                     "interval": "$interval",
                     "legendFormat": "{{node_name}} - {{ url }}",
                     "refId": "A"
@@ -3090,7 +3090,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((vmagent_remotewrite_conns{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by (node_name)",
+                    "expr": "sum(vmagent_remotewrite_conns{node_name=~\"$node_name_list\"}) by (node_name)",
                     "interval": "$interval",
                     "legendFormat": "{{node_name}}",
                     "refId": "A"
@@ -3260,7 +3260,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((rate(process_cpu_seconds_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(node_name)",
+                    "expr": "sum(rate(process_cpu_seconds_total{node_name=~\"$node_name_list\"}[$interval])) by(node_name)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -3358,7 +3358,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((process_resident_memory_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by (node_name)",
+                    "expr": "sum(process_resident_memory_bytes{node_name=~\"$node_name_list\"}) by (node_name)",
                     "interval": "$interval",
                     "legendFormat": "{{node_name}}",
                     "refId": "A"
@@ -3446,7 +3446,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((process_num_threads{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by(node_name)",
+                    "expr": "sum(process_num_threads{node_name=~\"$node_name_list\"}) by(node_name)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -3544,13 +3544,13 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum((rate(vm_tcplistener_read_bytes_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (irate(vm_tcplistener_read_bytes_total{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by (node_name)\n+ sum((rate(vm_promscrape_conn_bytes_read_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (irate(vm_promscrape_conn_bytes_read_total{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by (node_name)",
+                    "expr": "sum(rate(vm_tcplistener_read_bytes_total{node_name=~\"$node_name_list\"}[$interval]) or irate(vm_tcplistener_read_bytes_total{node_name=~\"$node_name_list\"}[5m])) by (node_name)\n+ sum(rate(vm_promscrape_conn_bytes_read_total{node_name=~\"$node_name_list\"}[$interval]) or irate(vm_promscrape_conn_bytes_read_total{node_name=~\"$node_name_list\"}[5m])) by (node_name)",
                     "interval": "$interval",
                     "legendFormat": "Inbound - {{node_name}}",
                     "refId": "A"
                 },
                 {
-                    "expr": "sum((rate(vmagent_remotewrite_conn_bytes_written_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"})) or (irate(vmagent_remotewrite_conn_bytes_written_total{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (vm_app_version{agent_type=\"vmagent\"}))) by (node_name)",
+                    "expr": "sum(rate(vmagent_remotewrite_conn_bytes_written_total{node_name=~\"$node_name_list\"}[$interval]) or irate(vmagent_remotewrite_conn_bytes_written_total{node_name=~\"$node_name_list\"}[5m])) by (node_name)",
                     "interval": "$interval",
                     "legendFormat": "Outbound - {{node_name}}",
                     "refId": "B"
@@ -3709,6 +3709,36 @@
                 "tagsQuery": "",
                 "type": "query",
                 "useTags": false
+            },
+            {
+                "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "datasource": "Metrics",
+                "definition": "label_values(vm_app_version{agent_type=\"vmagent\",node_name=~\"$node_name\"}, node_name)",
+                "description": "Every Node Name that matches the dashboard filters, expanded. Used where a query cannot filter on the parent labels itself; node_name uses allValue \".+\". See PMM-15609.",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Node Name list",
+                "multi": true,
+                "name": "node_name_list",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(vm_app_version{agent_type=\"vmagent\",node_name=~\"$node_name\"}, node_name)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": true,
+                "sort": 0,
+                "type": "query"
             },
             {
                 "allValue": ".*",

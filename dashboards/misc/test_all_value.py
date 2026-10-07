@@ -19,6 +19,9 @@ DASH_DIR = os.path.join(REPO, 'dashboards', 'dashboards')
 # Node_Temperature_Details names its hidden service variable "service".
 FLEET_VARIABLES = ('node_name', 'service_name', 'service')
 
+# ClickHouse SQL must filter on the LBAC-filtered list of these, not drop the filter on All.
+SERVICE_VARIABLES = {'service_name', 'service'}
+
 # Lists already narrowed by a single-select parent, so they stay small.
 BOUNDED = {
     ('Insight/Prometheus_Exporter_Status.json', 'service_name'),
@@ -84,6 +87,7 @@ class TestFleetVariablesHaveAllValue(unittest.TestCase):
 
         Wrap the filter as $__conditionalAll(col IN (${var:singlequote}), $var):
         the ClickHouse plugin drops it on All, and singlequote escapes quotes.
+        Service variables are the exception, see test_list_variables.
         """
         bad = []
         for path in self.dashboards():
@@ -92,14 +96,59 @@ class TestFleetVariablesHaveAllValue(unittest.TestCase):
                 dashboard = json.load(f)
             custom = {n for n, v in first_variables(dashboard).items() if v.get('allValue')}
             for sql in raw_sql(dashboard.get('panels', [])):
-                for name in sorted(custom):
+                for name in sorted(custom - SERVICE_VARIABLES):
                     if re.search(VAR_REF.format(name=re.escape(name)), strip_conditional_all(sql, name)):
                         bad.append(f'{rel}: ${name}')
         self.assertEqual(sorted(set(bad)), [], 'Wrap these in $__conditionalAll(col IN '
                          '(${var:singlequote}), $var):\n' + '\n'.join(sorted(set(bad))))
 
+    def test_list_variables(self):
+        """Where a query can't filter on the parent labels, it reads the hidden <var>_list.
 
-VAR_REF = r'\$(?:\{{{name}(?::\w+)?\}}|{name}\b)'
+        Node metrics have no environment label, and ClickHouse has no labels at all. There the
+        ".+" of a fleet variable would ignore the parent filters, and a join on the variable's
+        selector rescans it per query. <var>_list is that selector narrowed by $<var>, with no
+        allValue, so All expands to the scoped list in the POST body. For ClickHouse it also
+        keeps the service list LBAC-filtered, which $__conditionalAll would drop on All.
+        """
+        bad = []
+        for path in self.dashboards():
+            rel = os.path.relpath(path, DASH_DIR)
+            with open(path, encoding='utf-8') as f:
+                dashboard = json.load(f)
+            variables = first_variables(dashboard)
+            fleet = [n for n in FLEET_VARIABLES if (variables.get(n) or {}).get('allValue')]
+            for expr in exprs(dashboard.get('panels', [])):
+                for name in fleet:
+                    if re.search(rf'and\s+on\s*\(\s*{name}\s*\)\s*group\s+by\s*\(\s*{name}\s*\)', expr):
+                        bad.append(f'{rel}: join on {name}, use ${name}_list')
+            for sql in raw_sql(dashboard.get('panels', [])):
+                for name in sorted(set(fleet) & SERVICE_VARIABLES):
+                    if re.search(VAR_REF.format(name=re.escape(name)), sql):
+                        bad.append(f'{rel}: SQL uses ${name}, use ${name}_list')
+            text = json.dumps(dashboard.get('panels', []))
+            for name in FLEET_VARIABLES:
+                lst = variables.get(f'{name}_list')
+                if not lst:
+                    continue
+                query = lst.get('query') if isinstance(lst.get('query'), str) else (lst.get('query') or {}).get('query', '')
+                if (lst.get('allValue') or not lst.get('includeAll') or lst.get('hide') != 2
+                        or not re.search(VAR_REF.format(name=re.escape(name)), query)):
+                    bad.append(f'{rel}: {name}_list must be hidden, include All, have no allValue '
+                               f'and filter on ${name}')
+                if not re.search(VAR_REF.format(name=re.escape(f'{name}_list')), text):
+                    bad.append(f'{rel}: {name}_list is unused')
+        self.assertEqual(sorted(set(bad)), [], '\n'.join(sorted(set(bad))))
+
+VAR_REF = r'\$(?:\{{{name}(?::\w+)?\}}|{name}(?![A-Za-z0-9_]))'
+
+
+def exprs(panels):
+    for panel in panels:
+        yield from exprs(panel.get('panels', []))
+        for target in panel.get('targets', []):
+            if isinstance(target.get('expr'), str):
+                yield target['expr']
 
 
 def raw_sql(panels):

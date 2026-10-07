@@ -561,7 +561,7 @@
                         }
                     },
                     "queryType": "sql",
-                    "rawSql": "SELECT period_start, service_name, avg(m_query_time_sum) \"Execution_time\" FROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' AND ($__conditionalAll(service_name IN (${service_name:singlequote}), $service_name) AND $__conditionalAll(environment IN (${environment:singlequote}), $environment) AND $__conditionalAll(cluster IN (${cluster:singlequote}), $cluster) AND $__conditionalAll(node_name IN (${node_name:singlequote}), $node_name)) GROUP BY period_start, service_name ORDER BY period_start ASC LIMIT 10000",
+                    "rawSql": "SELECT period_start, service_name, avg(m_query_time_sum) \"Execution_time\" FROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' AND (service_name IN ($service_name_list) AND $__conditionalAll(environment IN (${environment:singlequote}), $environment) AND $__conditionalAll(cluster IN (${cluster:singlequote}), $cluster) AND $__conditionalAll(node_name IN (${node_name:singlequote}), $node_name)) GROUP BY period_start, service_name ORDER BY period_start ASC LIMIT 10000",
                     "refId": "A",
                     "selectedFormat": 0
                 },
@@ -585,7 +585,7 @@
                     },
                     "pluginVersion": "4.4.0",
                     "queryType": "timeseries",
-                    "rawSql": "SELECT period_start, service_name, avgIf(m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) \"Execution_time\"\nFROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' AND ($__conditionalAll(service_name IN (${service_name:singlequote}), $service_name) AND $__conditionalAll(environment IN (${environment:singlequote}), $environment) AND $__conditionalAll(cluster IN (${cluster:singlequote}), $cluster) AND $__conditionalAll(node_name IN (${node_name:singlequote}), $node_name)) GROUP BY period_start, service_name ORDER BY period_start ASC ",
+                    "rawSql": "SELECT period_start, service_name, avgIf(m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) \"Execution_time\"\nFROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' AND (service_name IN ($service_name_list) AND $__conditionalAll(environment IN (${environment:singlequote}), $environment) AND $__conditionalAll(cluster IN (${cluster:singlequote}), $cluster) AND $__conditionalAll(node_name IN (${node_name:singlequote}), $node_name)) GROUP BY period_start, service_name ORDER BY period_start ASC ",
                     "refId": "B"
                 }
             ],
@@ -927,7 +927,7 @@
                     },
                     "pluginVersion": "4.4.0",
                     "queryType": "table",
-                    "rawSql": "SELECT argMaxIf(period_start, m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) as time, \r\nservice_name \"Service\", username, fingerprint \"Query\", sum(num_queries) \"Calls\", sum(m_query_time_sum) / nullIf(sum(m_query_time_cnt), 0) \"Execution_time\" FROM pmm.\"metrics\" WHERE ( period_start  >= $__fromTime AND period_start <= $__toTime ) AND ( service_type LIKE '%$service_type%' ) AND ($__conditionalAll(service_name IN (${service_name:singlequote}), $service_name) AND $__conditionalAll(environment IN (${environment:singlequote}), $environment) AND $__conditionalAll(cluster IN (${cluster:singlequote}), $cluster) AND $__conditionalAll(node_name IN (${node_name:singlequote}), $node_name)) GROUP BY service_name, username, fingerprint HAVING sum(m_query_time_cnt) > 0 ORDER BY Execution_time DESC LIMIT 500",
+                    "rawSql": "SELECT argMaxIf(period_start, m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) as time, \r\nservice_name \"Service\", username, fingerprint \"Query\", sum(num_queries) \"Calls\", sum(m_query_time_sum) / nullIf(sum(m_query_time_cnt), 0) \"Execution_time\" FROM pmm.\"metrics\" WHERE ( period_start  >= $__fromTime AND period_start <= $__toTime ) AND ( service_type LIKE '%$service_type%' ) AND (service_name IN ($service_name_list) AND $__conditionalAll(environment IN (${environment:singlequote}), $environment) AND $__conditionalAll(cluster IN (${cluster:singlequote}), $cluster) AND $__conditionalAll(node_name IN (${node_name:singlequote}), $node_name)) GROUP BY service_name, username, fingerprint HAVING sum(m_query_time_cnt) > 0 ORDER BY Execution_time DESC LIMIT 500",
                     "refId": "A"
                 }
             ],
@@ -1150,6 +1150,7 @@
                 "type": "query"
             },
             {
+                "allValue": ".+",
                 "current": {
                     "text": "All",
                     "value": [
@@ -1170,8 +1171,36 @@
                 "refresh": 1,
                 "regex": "",
                 "sort": 5,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
+            },
+            {
+                "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "definition": "label_values(pg_up{node_name=~\"$node_name\", environment=~\"$environment\", cluster=~\"$cluster\",service_name=~\"$service_name\"}, service_name)",
+                "description": "Every Service Name that matches the dashboard filters, expanded. Used where a query cannot filter on the parent labels itself; service_name uses allValue \".+\". See PMM-15609.",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Service Name list",
+                "multi": true,
+                "name": "service_name_list",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(pg_up{node_name=~\"$node_name\", environment=~\"$environment\", cluster=~\"$cluster\",service_name=~\"$service_name\"}, service_name)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": true,
+                "sort": 5,
+                "type": "query"
             }
         ]
     },

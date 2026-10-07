@@ -574,7 +574,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "min((node_time_seconds{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) - (node_boot_time_seconds{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})))",
+                    "expr": "min(node_time_seconds{node_name=~\"$node_name_list\"} - node_boot_time_seconds{node_name=~\"$node_name_list\"})",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "",
@@ -986,7 +986,7 @@
             "targets": [
                 {
                     "datasource": "Metrics",
-                    "expr": "sum by () ((node_memory_MemTotal_bytes{node_name=~\"$node_name\",region=~\"$region\",node_type=~\"$node_type\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})))",
+                    "expr": "sum by () (node_memory_MemTotal_bytes{node_name=~\"$node_name_list\",region=~\"$region\",node_type=~\"$node_type\"})",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "",
@@ -1083,7 +1083,7 @@
             "targets": [
                 {
                     "datasource": "Metrics",
-                    "expr": "sum by () ((node_memory_MemTotal_bytes{node_name=~\"$node_name\",region=~\"$region\",node_type=~\"$node_type\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))+(node_memory_SwapTotal_bytes{node_name=~\"$node_name\",region=~\"$region\",node_type=~\"$node_type\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})))",
+                    "expr": "sum by () (node_memory_MemTotal_bytes{node_name=~\"$node_name_list\",region=~\"$region\",node_type=~\"$node_type\"}+node_memory_SwapTotal_bytes{node_name=~\"$node_name_list\",region=~\"$region\",node_type=~\"$node_type\"})",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "",
@@ -1180,7 +1180,7 @@
             "targets": [
                 {
                     "datasource": "Metrics",
-                    "expr": "sum(sum(avg((node_filesystem_size_bytes{node_name=~\"$node_name\",fstype=~\"(ext.|xfs|vfat|)\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) without (mountpoint)) without (device,fstype))",
+                    "expr": "sum(sum(avg(node_filesystem_size_bytes{node_name=~\"$node_name_list\",fstype=~\"(ext.|xfs|vfat|)\"}) without (mountpoint)) without (device,fstype))",
                     "interval": "$interval",
                     "refId": "B"
                 }
@@ -1277,7 +1277,7 @@
             "targets": [
                 {
                     "datasource": "Metrics",
-                    "expr": "sum by () ((rate(node_vmstat_pgpgin{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or (irate(node_vmstat_pgpgin{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or (max_over_time(rdsosmetrics_diskIO_readKbPS{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or (max_over_time(rdsosmetrics_diskIO_readKbPS{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) * 1024",
+                    "expr": "sum by () (rate(node_vmstat_pgpgin{node_name=~\"$node_name_list\"}[$interval]) or irate(node_vmstat_pgpgin{node_name=~\"$node_name_list\"}[5m]) or max_over_time(rdsosmetrics_diskIO_readKbPS{node_name=~\"$node_name_list\"}[$interval]) or max_over_time(rdsosmetrics_diskIO_readKbPS{node_name=~\"$node_name_list\"}[5m])) * 1024",
                     "interval": "$interval",
                     "refId": "B"
                 }
@@ -1375,7 +1375,7 @@
                 {
                     "datasource": "Metrics",
                     "exemplar": true,
-                    "expr": "sum by () ((rate(node_vmstat_pgpgout{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or (irate(node_vmstat_pgpgout{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or\n(max_over_time(rdsosmetrics_diskIO_writeKbPS{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or (max_over_time(rdsosmetrics_diskIO_writeKbPS{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) * 1024",
+                    "expr": "sum by () (rate(node_vmstat_pgpgout{node_name=~\"$node_name_list\"}[$interval]) or irate(node_vmstat_pgpgout{node_name=~\"$node_name_list\"}[5m]) or\nmax_over_time(rdsosmetrics_diskIO_writeKbPS{node_name=~\"$node_name_list\"}[$interval]) or max_over_time(rdsosmetrics_diskIO_writeKbPS{node_name=~\"$node_name_list\"}[5m])) * 1024",
                     "interval": "$interval",
                     "legendFormat": "Disk Writes",
                     "refId": "B"
@@ -1470,7 +1470,7 @@
             "targets": [
                 {
                     "datasource": "Metrics",
-                    "expr": "(count((node_cpu_seconds_total{node_name=~\"$node_name\",mode=~\"user\",region=~\"$region\",node_type=~\"$node_type\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) or \n(1-absent((node_cpu_seconds_total{node_name=~\"$node_name\",mode=~\"user\",region=~\"$region\",node_type=~\"$node_type\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))))) + \nsum((rdsosmetrics_General_numVCPUs{node_name=~\"$node_name\",region=~\"$region\",node_type=~\"$node_type\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or up * 0)",
+                    "expr": "(count(node_cpu_seconds_total{node_name=~\"$node_name_list\",mode=~\"user\",region=~\"$region\",node_type=~\"$node_type\"}) or \n(1-absent(node_cpu_seconds_total{node_name=~\"$node_name_list\",mode=~\"user\",region=~\"$region\",node_type=~\"$node_type\"}))) + \nsum(rdsosmetrics_General_numVCPUs{node_name=~\"$node_name_list\",region=~\"$region\",node_type=~\"$node_type\"} or up * 0)",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "refId": "A"
@@ -1610,7 +1610,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk_max(10, ((100 - (avg by (node_name) ((rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode=\"idle\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) * 100)) > 60) and (100 - (avg by (node_name) ((rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode=\"idle\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) * 100)) - (100 - (avg by (node_name) ((rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode=\"idle\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) * 100) offset 1w) > 30)",
+                    "expr": "topk_max(10, ((100 - (avg by (node_name) (rate(node_cpu_seconds_total{node_name=~\"$node_name_list\",mode=\"idle\"}[5m])) * 100)) > 60) and (100 - (avg by (node_name) (rate(node_cpu_seconds_total{node_name=~\"$node_name_list\",mode=\"idle\"}[5m])) * 100)) - (100 - (avg by (node_name) (rate(node_cpu_seconds_total{node_name=~\"$node_name_list\",mode=\"idle\"}[5m])) * 100) offset 1w) > 30)",
                     "hide": false,
                     "instant": true,
                     "interval": "",
@@ -1693,7 +1693,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk_max(10, 100 - (avg by (node_name) ((rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode=\"idle\"}[15m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) * 100) > 90)",
+                    "expr": "topk_max(10, 100 - (avg by (node_name) (rate(node_cpu_seconds_total{node_name=~\"$node_name_list\",mode=\"idle\"}[15m])) * 100) > 90)",
                     "hide": false,
                     "instant": true,
                     "interval": "$interval",
@@ -1774,7 +1774,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk_max(10, (sum by (node_name) ((rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) > 2) and sum by (node_name) ((rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) - sum by (node_name) ((rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) offset 1w  > 1)",
+                    "expr": "topk_max(10, (sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name_list\"}[$interval])) > 2) and sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name_list\"}[$interval])) - sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name_list\"}[$interval])) offset 1w  > 1)",
                     "hide": false,
                     "instant": true,
                     "interval": "$interval",
@@ -1855,7 +1855,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk_max(10, sum by (node_name) ((rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\"}[1m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) > 2)",
+                    "expr": "topk_max(10, sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name_list\"}[1m])) > 2)",
                     "hide": false,
                     "instant": true,
                     "interval": "$interval",
@@ -1937,7 +1937,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk_max(10, ((avg by (node_name) (((node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) -\n((node_memory_MemAvailable_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or ((node_memory_MemFree_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Buffers_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Cached_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))))) / (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) * 100 )) > 80 )and ((avg by (node_name) (((node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) -\n((node_memory_MemAvailable_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or ((node_memory_MemFree_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Buffers_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Cached_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))))) / (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) * 100 )) - avg by (node_name) (((node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) -\n((node_memory_MemAvailable_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or ((node_memory_MemFree_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Buffers_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Cached_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))))) / (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) * 100 ) offset 1w > 30))",
+                    "expr": "topk_max(10, ((avg by (node_name) ((node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} -\n(node_memory_MemAvailable_bytes{node_name=~\"$node_name_list\"} or (node_memory_MemFree_bytes{node_name=~\"$node_name_list\"} + node_memory_Buffers_bytes{node_name=~\"$node_name_list\"} + node_memory_Cached_bytes{node_name=~\"$node_name_list\"}))) / node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} * 100 )) > 80 )and ((avg by (node_name) ((node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} -\n(node_memory_MemAvailable_bytes{node_name=~\"$node_name_list\"} or (node_memory_MemFree_bytes{node_name=~\"$node_name_list\"} + node_memory_Buffers_bytes{node_name=~\"$node_name_list\"} + node_memory_Cached_bytes{node_name=~\"$node_name_list\"}))) / node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} * 100 )) - avg by (node_name) ((node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} -\n(node_memory_MemAvailable_bytes{node_name=~\"$node_name_list\"} or (node_memory_MemFree_bytes{node_name=~\"$node_name_list\"} + node_memory_Buffers_bytes{node_name=~\"$node_name_list\"} + node_memory_Cached_bytes{node_name=~\"$node_name_list\"}))) / node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} * 100 ) offset 1w > 30))",
                     "hide": false,
                     "instant": true,
                     "legendFormat": "__auto",
@@ -2020,7 +2020,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk_max(10, (avg by (node_name) (((node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) -\n((node_memory_MemAvailable_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or ((node_memory_MemFree_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Buffers_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Cached_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))))) / (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) * 100 )) > 80)",
+                    "expr": "topk_max(10, (avg by (node_name) ((node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} -\n(node_memory_MemAvailable_bytes{node_name=~\"$node_name_list\"} or (node_memory_MemFree_bytes{node_name=~\"$node_name_list\"} + node_memory_Buffers_bytes{node_name=~\"$node_name_list\"} + node_memory_Cached_bytes{node_name=~\"$node_name_list\"}))) / node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} * 100 )) > 80)",
                     "hide": false,
                     "instant": true,
                     "interval": "$interval",
@@ -2102,7 +2102,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk_max(10, ((100 - (avg by (node_name) ((rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode=\"idle\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) * 100)) < 30) and (100 - (avg by (node_name) ((rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode=\"idle\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) * 100)) - (100 - (avg by (node_name) ((rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode=\"idle\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) * 100) offset 1w) < 10)",
+                    "expr": "topk_max(10, ((100 - (avg by (node_name) (rate(node_cpu_seconds_total{node_name=~\"$node_name_list\",mode=\"idle\"}[5m])) * 100)) < 30) and (100 - (avg by (node_name) (rate(node_cpu_seconds_total{node_name=~\"$node_name_list\",mode=\"idle\"}[5m])) * 100)) - (100 - (avg by (node_name) (rate(node_cpu_seconds_total{node_name=~\"$node_name_list\",mode=\"idle\"}[5m])) * 100) offset 1w) < 10)",
                     "hide": false,
                     "instant": true,
                     "interval": "",
@@ -2185,7 +2185,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk_min(10, 100 - (avg by (node_name) ((rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode=\"idle\"}[15m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) * 100) < 30)",
+                    "expr": "topk_min(10, 100 - (avg by (node_name) (rate(node_cpu_seconds_total{node_name=~\"$node_name_list\",mode=\"idle\"}[15m])) * 100) < 30)",
                     "hide": false,
                     "instant": true,
                     "interval": "$interval",
@@ -2301,7 +2301,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": true,
-                            "expr": "topk_max(20, 100 - (avg by (node_name) ((rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode=\"idle\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) * 100))",
+                            "expr": "topk_max(20, 100 - (avg by (node_name) (rate(node_cpu_seconds_total{node_name=~\"$node_name_list\",mode=\"idle\"}[$interval])) * 100))",
                             "interval": "$interval",
                             "legendFormat": "{{node_name}}",
                             "range": true,
@@ -2408,7 +2408,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": true,
-                            "expr": "(100 - (avg by (node_name) ((rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode=\"idle\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) * 100)) - (100 - (avg by (node_name) ((rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode=\"idle\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) * 100) offset 1w) ",
+                            "expr": "(100 - (avg by (node_name) (rate(node_cpu_seconds_total{node_name=~\"$node_name_list\",mode=\"idle\"}[$interval])) * 100)) - (100 - (avg by (node_name) (rate(node_cpu_seconds_total{node_name=~\"$node_name_list\",mode=\"idle\"}[$interval])) * 100) offset 1w) ",
                             "hide": false,
                             "interval": "$interval",
                             "legendFormat": "{{node_name}}",
@@ -2514,7 +2514,7 @@
                         {
                             "datasource": "Metrics",
                             "editorMode": "code",
-                            "expr": "topk_max(20,100 - (avg by (node_name) ((rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode=\"idle\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) * 100))",
+                            "expr": "topk_max(20,100 - (avg by (node_name) (rate(node_cpu_seconds_total{node_name=~\"$node_name_list\",mode=\"idle\"}[$interval])) * 100))",
                             "interval": "$interval",
                             "legendFormat": "{{node_name}}",
                             "range": true,
@@ -2622,7 +2622,7 @@
                             "editorMode": "code",
                             "errors": {},
                             "exemplar": true,
-                            "expr": "topk_max(20,sum by (node_name) ((rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))))",
+                            "expr": "topk_max(20,sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name_list\"}[$interval])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2735,7 +2735,7 @@
                             "editorMode": "code",
                             "errors": {},
                             "exemplar": true,
-                            "expr": "sum by (node_name) ((rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) - sum by (node_name) ((rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) offset 1w  > 0",
+                            "expr": "sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name_list\"}[$interval])) - sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name_list\"}[$interval])) offset 1w  > 0",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2852,7 +2852,7 @@
                             "editorMode": "code",
                             "errors": {},
                             "exemplar": true,
-                            "expr": "topk_max(20,sum by (node_name) ((rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))))",
+                            "expr": "topk_max(20,sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name_list\"}[$interval])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2972,7 +2972,7 @@
                         {
                             "datasource": "Metrics",
                             "editorMode": "code",
-                            "expr": "topk_max(20,(rate(node_disk_write_time_seconds_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) / (rate(node_disk_writes_completed_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) > 0 )",
+                            "expr": "topk_max(20,rate(node_disk_write_time_seconds_total{node_name=~\"$node_name_list\"}[$interval]) / rate(node_disk_writes_completed_total{node_name=~\"$node_name_list\"}[$interval]) > 0 )",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -3086,7 +3086,7 @@
                         {
                             "datasource": "Metrics",
                             "exemplar": true,
-                            "expr": "((rate(node_disk_write_time_seconds_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) / (rate(node_disk_writes_completed_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) - ((rate(node_disk_write_time_seconds_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) / (rate(node_disk_writes_completed_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) offset 1w > 0 ",
+                            "expr": "(rate(node_disk_write_time_seconds_total{node_name=~\"$node_name_list\"}[$interval]) / rate(node_disk_writes_completed_total{node_name=~\"$node_name_list\"}[$interval])) - (rate(node_disk_write_time_seconds_total{node_name=~\"$node_name_list\"}[$interval]) / rate(node_disk_writes_completed_total{node_name=~\"$node_name_list\"}[$interval])) offset 1w > 0 ",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -3199,7 +3199,7 @@
                         {
                             "datasource": "Metrics",
                             "editorMode": "code",
-                            "expr": "topk_max(20,(rate(node_disk_write_time_seconds_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) / (rate(node_disk_writes_completed_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) > 0 )",
+                            "expr": "topk_max(20,rate(node_disk_write_time_seconds_total{node_name=~\"$node_name_list\"}[$interval]) / rate(node_disk_writes_completed_total{node_name=~\"$node_name_list\"}[$interval]) > 0 )",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -3313,7 +3313,7 @@
                         {
                             "datasource": "Metrics",
                             "editorMode": "code",
-                            "expr": "topk_max(20,(rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) / (rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) > 0 )",
+                            "expr": "topk_max(20,rate(node_disk_read_time_seconds_total{node_name=~\"$node_name_list\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name_list\"}[$interval]) > 0 )",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -3427,7 +3427,7 @@
                         {
                             "datasource": "Metrics",
                             "exemplar": true,
-                            "expr": "((rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) / (rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) - ((rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) / (rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) offset 1w > 0 ",
+                            "expr": "(rate(node_disk_read_time_seconds_total{node_name=~\"$node_name_list\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name_list\"}[$interval])) - (rate(node_disk_read_time_seconds_total{node_name=~\"$node_name_list\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name_list\"}[$interval])) offset 1w > 0 ",
                             "format": "time_series",
                             "hide": false,
                             "instant": false,
@@ -3541,7 +3541,7 @@
                         {
                             "datasource": "Metrics",
                             "editorMode": "code",
-                            "expr": "topk_max(20,(rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) / (rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) > 0 )",
+                            "expr": "topk_max(20,rate(node_disk_read_time_seconds_total{node_name=~\"$node_name_list\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name_list\"}[$interval]) > 0 )",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -3651,7 +3651,7 @@
                             "editorMode": "code",
                             "errors": {},
                             "exemplar": true,
-                            "expr": "topk_max(20, (avg by (node_name) (((node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) -\n((node_memory_MemAvailable_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or ((node_memory_MemFree_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Buffers_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Cached_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))))) / (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) * 100 )))",
+                            "expr": "topk_max(20, (avg by (node_name) ((node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} -\n(node_memory_MemAvailable_bytes{node_name=~\"$node_name_list\"} or (node_memory_MemFree_bytes{node_name=~\"$node_name_list\"} + node_memory_Buffers_bytes{node_name=~\"$node_name_list\"} + node_memory_Cached_bytes{node_name=~\"$node_name_list\"}))) / node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} * 100 )))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -3769,7 +3769,7 @@
                             "editorMode": "code",
                             "errors": {},
                             "exemplar": true,
-                            "expr": "topk(20,avg by (node_name) ((node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) - \n((node_memory_MemFree_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Buffers_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Cached_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})))))",
+                            "expr": "topk(20,avg by (node_name) (node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} - \n(node_memory_MemFree_bytes{node_name=~\"$node_name_list\"} + node_memory_Buffers_bytes{node_name=~\"$node_name_list\"} + node_memory_Cached_bytes{node_name=~\"$node_name_list\"})))",
                             "format": "time_series",
                             "hide": true,
                             "interval": "$interval",
@@ -3788,7 +3788,7 @@
                             "editorMode": "code",
                             "errors": {},
                             "exemplar": true,
-                            "expr": "((avg by (node_name) (((node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) -\n((node_memory_MemAvailable_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or ((node_memory_MemFree_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Buffers_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Cached_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))))) / (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) * 100 ))) and ((avg by (node_name) (((node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) -\n((node_memory_MemAvailable_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or ((node_memory_MemFree_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Buffers_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Cached_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))))) / (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) * 100 )) - avg by (node_name) (((node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) -\n((node_memory_MemAvailable_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or ((node_memory_MemFree_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Buffers_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Cached_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))))) / (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) * 100 ) offset 1w > 0)",
+                            "expr": "((avg by (node_name) ((node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} -\n(node_memory_MemAvailable_bytes{node_name=~\"$node_name_list\"} or (node_memory_MemFree_bytes{node_name=~\"$node_name_list\"} + node_memory_Buffers_bytes{node_name=~\"$node_name_list\"} + node_memory_Cached_bytes{node_name=~\"$node_name_list\"}))) / node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} * 100 ))) and ((avg by (node_name) ((node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} -\n(node_memory_MemAvailable_bytes{node_name=~\"$node_name_list\"} or (node_memory_MemFree_bytes{node_name=~\"$node_name_list\"} + node_memory_Buffers_bytes{node_name=~\"$node_name_list\"} + node_memory_Cached_bytes{node_name=~\"$node_name_list\"}))) / node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} * 100 )) - avg by (node_name) ((node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} -\n(node_memory_MemAvailable_bytes{node_name=~\"$node_name_list\"} or (node_memory_MemFree_bytes{node_name=~\"$node_name_list\"} + node_memory_Buffers_bytes{node_name=~\"$node_name_list\"} + node_memory_Cached_bytes{node_name=~\"$node_name_list\"}))) / node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} * 100 ) offset 1w > 0)",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -3910,7 +3910,7 @@
                             "editorMode": "code",
                             "errors": {},
                             "exemplar": true,
-                            "expr": "topk_max(20, (avg by (node_name) (((node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) -\n((node_memory_MemAvailable_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or ((node_memory_MemFree_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Buffers_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Cached_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))))) / (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) * 100 )))",
+                            "expr": "topk_max(20, (avg by (node_name) ((node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} -\n(node_memory_MemAvailable_bytes{node_name=~\"$node_name_list\"} or (node_memory_MemFree_bytes{node_name=~\"$node_name_list\"} + node_memory_Buffers_bytes{node_name=~\"$node_name_list\"} + node_memory_Cached_bytes{node_name=~\"$node_name_list\"}))) / node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} * 100 )))",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
@@ -4287,7 +4287,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "((clamp_max(avg by (node_name) (sum by (node_name,cpu) ((clamp_max((rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode!='idle',mode!=\"iowait\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})),1)) or(clamp_max((irate(node_cpu_seconds_total{node_name=~\"$node_name\",mode!='idle',mode!=\"iowait\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})),1)) )),1) *100 or\nsum by (node_name) ((avg_over_time(node_cpu_average{node_name=~\"$node_name\",mode!=\"idle\", mode!=\"total\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or (avg_over_time(node_cpu_average{node_name=~\"$node_name\",mode!=\"idle\", mode!=\"total\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})))) * on(node_name) group_left(environment, service_name) avg by (node_name, service_name, environment) (up{node_name=~\"$node_name\",service_type=~\"mysql|mongodb|postgresql|proxysql|haproxy|external\",job=~\".*_hr$|^external.*\",environment=~\"$environment\"}))",
+                            "expr": "((clamp_max(avg by (node_name) (sum by (node_name,cpu) ((clamp_max(rate(node_cpu_seconds_total{node_name=~\"$node_name_list\",mode!='idle',mode!=\"iowait\"}[$interval]),1)) or(clamp_max(irate(node_cpu_seconds_total{node_name=~\"$node_name_list\",mode!='idle',mode!=\"iowait\"}[5m]),1)) )),1) *100 or\nsum by (node_name) (avg_over_time(node_cpu_average{node_name=~\"$node_name_list\",mode!=\"idle\", mode!=\"total\"}[$interval]) or avg_over_time(node_cpu_average{node_name=~\"$node_name_list\",mode!=\"idle\", mode!=\"total\"}[5m]))) * on(node_name) group_left(environment, service_name) avg by (node_name, service_name, environment) (up{node_name=~\"$node_name\",service_type=~\"mysql|mongodb|postgresql|proxysql|haproxy|external\",job=~\".*_hr$|^external.*\",environment=~\"$environment\"}))",
                             "format": "table",
                             "hide": true,
                             "instant": true,
@@ -4311,7 +4311,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "((((node_memory_MemAvailable_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or ((node_memory_MemFree_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Buffers_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (node_memory_Cached_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})))) / (node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or\n((rdsosmetrics_memory_free{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (rdsosmetrics_memory_buffers{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) + (rdsosmetrics_memory_cached{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})))/ (rdsosmetrics_memory_total{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) * 100) * on(node_name) group_left(environment,service_name) (up{node_name=~\"$node_name\",service_type=~\"mysql|mongodb|postgresql|proxysql|haproxy|external\",job=~\".*_hr$|^external.*\",environment=~\"$environment\"})",
+                            "expr": "(((node_memory_MemAvailable_bytes{node_name=~\"$node_name_list\"} or (node_memory_MemFree_bytes{node_name=~\"$node_name_list\"} + node_memory_Buffers_bytes{node_name=~\"$node_name_list\"} + node_memory_Cached_bytes{node_name=~\"$node_name_list\"})) / node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} or\n(rdsosmetrics_memory_free{node_name=~\"$node_name_list\"} + rdsosmetrics_memory_buffers{node_name=~\"$node_name_list\"} + rdsosmetrics_memory_cached{node_name=~\"$node_name_list\"})/ rdsosmetrics_memory_total{node_name=~\"$node_name_list\"}) * 100) * on(node_name) group_left(environment,service_name) (up{node_name=~\"$node_name\",service_type=~\"mysql|mongodb|postgresql|proxysql|haproxy|external\",job=~\".*_hr$|^external.*\",environment=~\"$environment\"})",
                             "format": "table",
                             "hide": false,
                             "instant": true,
@@ -4323,7 +4323,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "(sum by (node_name) ((rate(node_vmstat_pgpgin{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or (irate(node_vmstat_pgpgin{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or sum by (node_name) ((max_over_time(rdsosmetrics_diskIO_readKbPS{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or (max_over_time(rdsosmetrics_diskIO_readKbPS{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})))) * 1024) * on(node_name) group_left(environment,service_name) (up{node_name=~\"$node_name\",service_type=~\"mysql|mongodb|postgresql|proxysql|haproxy|external\",job=~\".*_hr$|external.*\",environment=~\"$environment\"})",
+                            "expr": "(sum by (node_name) (rate(node_vmstat_pgpgin{node_name=~\"$node_name_list\"}[$interval]) or irate(node_vmstat_pgpgin{node_name=~\"$node_name_list\"}[5m]) or sum by (node_name) (max_over_time(rdsosmetrics_diskIO_readKbPS{node_name=~\"$node_name_list\"}[$interval]) or max_over_time(rdsosmetrics_diskIO_readKbPS{node_name=~\"$node_name_list\"}[5m]))) * 1024) * on(node_name) group_left(environment,service_name) (up{node_name=~\"$node_name\",service_type=~\"mysql|mongodb|postgresql|proxysql|haproxy|external\",job=~\".*_hr$|external.*\",environment=~\"$environment\"})",
                             "format": "table",
                             "hide": false,
                             "instant": true,
@@ -4335,7 +4335,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "(sum by (node_name) ((rate(node_vmstat_pgpgout{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or (irate(node_vmstat_pgpgout{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or\nsum by (node_name) ((max_over_time(rdsosmetrics_diskIO_writeKbPS{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or (max_over_time(rdsosmetrics_diskIO_writeKbPS{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})))) * 1024) * on(node_name) group_left(environment,service_name) (up{node_name=~\"$node_name\",service_type=~\"mysql|mongodb|postgresql|proxysql|haproxy|external\",job=~\".*_hr$|^external.*\",environment=~\"$environment\"})",
+                            "expr": "(sum by (node_name) (rate(node_vmstat_pgpgout{node_name=~\"$node_name_list\"}[$interval]) or irate(node_vmstat_pgpgout{node_name=~\"$node_name_list\"}[5m]) or\nsum by (node_name) (max_over_time(rdsosmetrics_diskIO_writeKbPS{node_name=~\"$node_name_list\"}[$interval]) or max_over_time(rdsosmetrics_diskIO_writeKbPS{node_name=~\"$node_name_list\"}[5m]))) * 1024) * on(node_name) group_left(environment,service_name) (up{node_name=~\"$node_name\",service_type=~\"mysql|mongodb|postgresql|proxysql|haproxy|external\",job=~\".*_hr$|^external.*\",environment=~\"$environment\"})",
                             "format": "table",
                             "hide": false,
                             "instant": true,
@@ -4347,7 +4347,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "((sum by (node_name) ((rate(node_network_receive_bytes_total{node_name=~\"$node_name\", device!=\"lo\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or\n(irate(node_network_receive_bytes_total{node_name=~\"$node_name\", device!=\"lo\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) or \nsum by (node_name) ((max_over_time(rdsosmetrics_network_rx{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) or \nsum by (node_name) ((max_over_time(rdsosmetrics_network_rx{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})))) + \n(sum by (node_name) ((rate(node_network_transmit_bytes_total{node_name=~\"$node_name\", device!=\"lo\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or \n(irate(node_network_transmit_bytes_total{node_name=~\"$node_name\", device!=\"lo\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) or \nsum by (node_name) ((max_over_time(rdsosmetrics_network_tx{node_name=~\"$node_name\"}[$interval]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) or \nsum by (node_name) ((max_over_time(rdsosmetrics_network_tx{node_name=~\"$node_name\"}[5m]) and on (node_name) group by (node_name) (up{environment=~\"$environment\"})))))  * on(node_name) group_left(environment,service_name) (up{node_name=~\"$node_name\",service_type=~\"mysql|mongodb|postgresql|proxysql|haproxy|external\",job=~\".*_hr$|^external.*\",environment=~\"$environment\"})",
+                            "expr": "((sum by (node_name) (rate(node_network_receive_bytes_total{node_name=~\"$node_name_list\", device!=\"lo\"}[$interval]) or\nirate(node_network_receive_bytes_total{node_name=~\"$node_name_list\", device!=\"lo\"}[5m])) or \nsum by (node_name) (max_over_time(rdsosmetrics_network_rx{node_name=~\"$node_name_list\"}[$interval])) or \nsum by (node_name) (max_over_time(rdsosmetrics_network_rx{node_name=~\"$node_name_list\"}[5m]))) + \n(sum by (node_name) (rate(node_network_transmit_bytes_total{node_name=~\"$node_name_list\", device!=\"lo\"}[$interval]) or \nirate(node_network_transmit_bytes_total{node_name=~\"$node_name_list\", device!=\"lo\"}[5m])) or \nsum by (node_name) (max_over_time(rdsosmetrics_network_tx{node_name=~\"$node_name_list\"}[$interval])) or \nsum by (node_name) (max_over_time(rdsosmetrics_network_tx{node_name=~\"$node_name_list\"}[5m]))))  * on(node_name) group_left(environment,service_name) (up{node_name=~\"$node_name\",service_type=~\"mysql|mongodb|postgresql|proxysql|haproxy|external\",job=~\".*_hr$|^external.*\",environment=~\"$environment\"})",
                             "format": "table",
                             "hide": false,
                             "instant": true,
@@ -4359,7 +4359,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "((count by (node_name) ((node_cpu_seconds_total{node_name=~\"$node_name\",mode=~\"user\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))) or (1-absent((node_cpu_seconds_total{node_name=~\"$node_name\",mode=~\"user\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))))) + \nsum by (node_name) ((rdsosmetrics_General_numVCPUs{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or up * 0)) * on(node_name) group_left(environment,service_name) (up{node_name=~\"$node_name\",service_type=~\"mysql|mongodb|postgresql|proxysql|haproxy|external\",job=~\".*_hr$|^external.*\",environment=~\"$environment\"})",
+                            "expr": "((count by (node_name) (node_cpu_seconds_total{node_name=~\"$node_name_list\",mode=~\"user\"}) or (1-absent(node_cpu_seconds_total{node_name=~\"$node_name_list\",mode=~\"user\"}))) + \nsum by (node_name) (rdsosmetrics_General_numVCPUs{node_name=~\"$node_name_list\"} or up * 0)) * on(node_name) group_left(environment,service_name) (up{node_name=~\"$node_name\",service_type=~\"mysql|mongodb|postgresql|proxysql|haproxy|external\",job=~\".*_hr$|^external.*\",environment=~\"$environment\"})",
                             "format": "table",
                             "hide": false,
                             "instant": true,
@@ -4371,7 +4371,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "((node_memory_MemTotal_bytes{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"})) or ((rdsosmetrics_memory_total{node_name=~\"$node_name\"} and on (node_name) group by (node_name) (up{environment=~\"$environment\"}))*1024)) * on(node_name) group_left(environment,service_name) (up{node_name=~\"$node_name\",service_type=~\"mysql|mongodb|postgresql|proxysql|haproxy|external\",job=~\".*_hr$|^external.*\",environment=~\"$environment\"}) ",
+                            "expr": "(node_memory_MemTotal_bytes{node_name=~\"$node_name_list\"} or (rdsosmetrics_memory_total{node_name=~\"$node_name_list\"}*1024)) * on(node_name) group_left(environment,service_name) (up{node_name=~\"$node_name\",service_type=~\"mysql|mongodb|postgresql|proxysql|haproxy|external\",job=~\".*_hr$|^external.*\",environment=~\"$environment\"}) ",
                             "format": "table",
                             "hide": false,
                             "instant": true,
@@ -4520,6 +4520,7 @@
                 "type": "query"
             },
             {
+                "allValue": ".+",
                 "current": {
                     "text": "All",
                     "value": [
@@ -4539,8 +4540,36 @@
                 "refresh": 2,
                 "regex": "",
                 "sort": 1,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
+            },
+            {
+                "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "definition": "label_values(up{environment=~\"$environment\",node_name=~\"$node_name\"}, node_name)",
+                "description": "Every Node Name that matches the dashboard filters, expanded. Used where a query cannot filter on the parent labels itself; node_name uses allValue \".+\". See PMM-15609.",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Node Name list",
+                "multi": true,
+                "name": "node_name_list",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(up{environment=~\"$environment\",node_name=~\"$node_name\"}, node_name)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": true,
+                "sort": 1,
+                "type": "query"
             },
             {
                 "allValue": ".*",
@@ -4586,6 +4615,7 @@
                 "type": "query"
             },
             {
+                "allValue": ".+",
                 "current": {
                     "text": "All",
                     "value": [
@@ -4607,8 +4637,7 @@
                 "refresh": 2,
                 "regex": "",
                 "sort": 5,
-                "type": "query",
-                "allValue": ".+"
+                "type": "query"
             },
             {
                 "current": {
