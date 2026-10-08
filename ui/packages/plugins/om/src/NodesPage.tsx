@@ -21,6 +21,7 @@ import {
   useNavigate,
   useSearchParams,
 } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 import {
   Alert,
   Box,
@@ -654,6 +655,12 @@ const HostDetail = ({ row }: { row: OmHostRow }) => {
   );
 };
 
+function forgottenMessage(rows: OmHostRow[]): string {
+  return rows.length === 1
+    ? `Removed ${rows[0].name} from Operations. If PMM still monitors it, it comes back on the next scan and is counted again.`
+    : `Removed ${rows.length} nodes from Operations. Any that PMM still monitors come back on the next scan and are counted again.`;
+}
+
 /**
  * The dialog that has to tell the truth about what deleting achieves, for one
  * host's row or several.
@@ -664,7 +671,7 @@ const HostDetail = ({ row }: { row: OmHostRow }) => {
  * clearing a row left behind when `pmm-agent setup --force` re-registered a node under
  * a new id, which leaves the old row with nothing to refresh it.
  *
- * The per-row Forget button and the bulk one share this dialog: the only real
+ * The row menu's removal and the bulk one share this dialog: the only real
  * difference is how many names are in the title and how many DELETE calls go out.
  * PMM Extensions has no batch-delete endpoint, so a bulk forget is N independent requests, not
  * one. They are dispatched together and awaited together; a partial failure keeps
@@ -718,6 +725,7 @@ const ForgetDialog = ({
     failures.length > 0
       ? rows.filter((row) => failedIds.has(row.node_id))
       : rows;
+  const onlyOneRow = rows.length === 1;
   const totalServices = rows.reduce((sum, row) => sum + row.services.length, 0);
   const handleForget = async () => {
     setBusy(true);
@@ -752,26 +760,33 @@ const ForgetDialog = ({
   return (
     <Dialog open onClose={onClose} maxWidth="sm">
       <DialogTitle>
-        {rows.length === 1
-          ? `Forget ${rows[0].name}?`
-          : `Forget ${rows.length} nodes?`}
+        {onlyOneRow
+          ? `Remove the entry for ${rows[0].name}?`
+          : `Remove the entries for ${rows.length} nodes?`}
       </DialogTitle>
       <DialogContent>
         <DialogContentText component="div">
           <p>
-            This clears the Operations row for{' '}
-            {rows.length === 1 ? 'this node' : 'these nodes'} and the{' '}
-            {totalServices} service row(s) on{' '}
-            {rows.length === 1 ? 'it' : 'them'}, along with their scan history.
+            This removes {onlyOneRow ? 'this node' : 'these nodes'} from the
+            Operations node list
+            {totalServices > 0
+              ? `, along with the ${totalServices} ${pluralize(totalServices, 'service')} that Operations recorded on ${onlyOneRow ? 'it' : 'them'}`
+              : ''}
+            .{' '}
+            <strong>
+              {onlyOneRow ? 'Its' : 'Their'} scan history is deleted
+              permanently.
+            </strong>
           </p>
           <p>
-            <strong>
-              It does not stop {rows.length === 1 ? 'this node' : 'these nodes'}{' '}
-              being monitored.
-            </strong>{' '}
-            If PMM still has the node, the next scan writes the row again. Use
-            this to clear a duplicate left behind when a node was re-registered
-            under a new ID.
+            Nothing changes on the {onlyOneRow ? 'machine' : 'machines'}, and
+            PMM keeps monitoring {onlyOneRow ? 'it' : 'them'}. If PMM still has{' '}
+            {onlyOneRow ? 'the node' : 'a node'}, it comes back on the next
+            scan, with no scan history.
+          </p>
+          <p>
+            Use this to clear a duplicate entry left behind when a node was
+            re-registered in PMM under a new ID.
           </p>
         </DialogContentText>
         {failures.map((failure) => (
@@ -782,8 +797,8 @@ const ForgetDialog = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button color="error" disabled={busy} onClick={handleForget}>
-          Forget
+        <Button variant="contained" disabled={busy} onClick={handleForget}>
+          {onlyOneRow ? 'Remove entry' : 'Remove entries'}
         </Button>
       </DialogActions>
     </Dialog>
@@ -808,6 +823,7 @@ export const NodesPage = () => {
   const navigate = useNavigate();
   const omBase = useOmBase();
   const [forgetting, setForgetting] = useState<OmHostRow[]>([]);
+  const { enqueueSnackbar } = useSnackbar();
   const [hostFilter, setHostFilter] = useState<HostFilter>('all');
   // Keyed by node_id (this table's getRowId), independent of which filter is
   // active — switching filters does not silently drop a selection made under a
@@ -962,7 +978,8 @@ export const NodesPage = () => {
         </Tooltip>
         {/* Behind the ellipsis, not beside the daily actions: three text buttons
             did not fit the row, and Forget was the one falling off the right edge
-            and it belongs behind a menu on its own account too. */}
+            and it belongs behind a menu on its own account too, named for what
+            it is for rather than for what it deletes. */}
         {/* No actions at all on PMM Server's own node. Forget would clear Operations'
             record of the machine PMM runs on, the next scan would put it straight
             back, and in between the fleet would be wrong - so the menu has nothing
@@ -986,7 +1003,7 @@ export const NodesPage = () => {
                       close();
                     }}
                   >
-                    Forget
+                    Remove duplicate entry
                   </MenuItem>
                 </Box>
               </Tooltip>,
@@ -1152,13 +1169,8 @@ export const NodesPage = () => {
               </Button>
             </Box>
           </Tooltip>
-          <Button
-            size="small"
-            variant="outlined"
-            color="error"
-            onClick={() => setForgetting(selectedRows)}
-          >
-            Forget selected
+          <Button size="small" onClick={() => setForgetting(selectedRows)}>
+            Remove duplicate entries
           </Button>
         </Stack>
       )}
@@ -1185,6 +1197,7 @@ export const NodesPage = () => {
         rows={forgetting}
         onClose={() => setForgetting([])}
         onForgotten={() => {
+          enqueueSnackbar(forgottenMessage(forgetting), { variant: 'success' });
           setForgetting([]);
           setRowSelection({});
         }}
