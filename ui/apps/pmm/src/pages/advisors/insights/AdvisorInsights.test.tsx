@@ -1,4 +1,5 @@
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -21,6 +22,7 @@ import {
   AdvisorCheckTriggeredBy,
   AdvisorTechnology,
   AdvisorInterval,
+  AdvisorRunStatus,
   Insight,
 } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
@@ -57,6 +59,8 @@ const TEST_ADVISORS: Advisor[] = [
   },
 ];
 
+const CHECKED_AT = '2026-07-05T10:00:00Z';
+
 const TEST_ITEM: Insight = {
   id: 'result-1',
   checkName: 'mysql_version_check',
@@ -73,7 +77,7 @@ const TEST_ITEM: Insight = {
   readMoreUrl: 'https://percona.com',
   severity: Severity.warning,
   labels: {},
-  checkedAt: '2026-07-05T10:00:00Z',
+  checkedAt: CHECKED_AT,
   isRead: true,
   runId: 'run-1',
   triggeredBy: AdvisorCheckTriggeredBy.user,
@@ -98,6 +102,17 @@ const TEST_ITEM_UNREAD: Insight = {
   isRead: false,
   // recorded before run grouping existed
   runId: '',
+};
+
+// a check the run in progress has not executed yet
+const PENDING_ITEM: Insight = {
+  ...TEST_ITEM,
+  id: 'result-3',
+  status: AdvisorCheckResultStatus.pending,
+  summary: 'MySQL version check',
+  severity: Severity.unspecified,
+  checkedAt: null,
+  outcome: '',
 };
 
 // same advisors fixture, with one check turned off for a single service
@@ -145,6 +160,12 @@ describe('AdvisorInsights', () => {
     vi.mocked(advisorsApi.listInsightsFilterValues).mockResolvedValue({
       serviceNames: ['mysql-prod', 'postgresql-prod'],
       nodeNames: ['node-1', 'node-2'],
+    });
+    // no run in progress
+    vi.mocked(advisorsApi.listRuns).mockResolvedValue({
+      totalItems: 0,
+      totalPages: 0,
+      results: [],
     });
   });
 
@@ -576,7 +597,7 @@ describe('AdvisorInsights', () => {
     fireEvent.click(screen.getByTestId('insight-result-1-actions'));
     fireEvent.click(await screen.findByTestId('action-copy-as-text'));
 
-    const checkedAt = format(new Date(TEST_ITEM.checkedAt), TIME_FORMAT);
+    const checkedAt = format(new Date(CHECKED_AT), TIME_FORMAT);
     const expected =
       `The Advisor Check "MySQL is outdated" completed at ${checkedAt} ` +
       'with status "Failed".\n' +
@@ -933,5 +954,113 @@ describe('AdvisorInsights', () => {
         expect.objectContaining({ runId: 'run-123' })
       )
     );
+  });
+  it('shows a pending insight without severity or check time, and keeps it from being re-run', async () => {
+    vi.mocked(advisorsApi.listInsights).mockResolvedValue({
+      totalItems: 1,
+      totalPages: 1,
+      results: [PENDING_ITEM],
+    });
+    renderComponent();
+
+    const row = await screen.findByTestId('insight-row-result-3');
+    expect(within(row).getByText('Pending')).toBeInTheDocument();
+    // severity and checked-at cells
+    expect(within(row).getAllByText('—')).toHaveLength(2);
+
+    fireEvent.click(screen.getByTestId('insight-result-3-actions'));
+    await screen.findByTestId('action-view-details');
+    expect(screen.getByTestId('action-rerun-now')).toHaveAttribute(
+      'aria-disabled',
+      'true'
+    );
+  });
+
+  it('explains in the details pane why a check is pending', async () => {
+    vi.mocked(advisorsApi.listInsights).mockResolvedValue({
+      totalItems: 1,
+      totalPages: 1,
+      results: [PENDING_ITEM],
+    });
+    renderComponent('/advisors/insights?insight=result-3');
+
+    const pane = await screen.findByTestId('insight-details-pane');
+    expect(
+      within(pane).getByText(Messages.details.pendingOutcome)
+    ).toBeInTheDocument();
+  });
+
+  it('copies a check that did not run as text without a completion time', async () => {
+    vi.mocked(advisorsApi.listInsights).mockResolvedValue({
+      totalItems: 1,
+      totalPages: 1,
+      results: [{ ...PENDING_ITEM, status: AdvisorCheckResultStatus.notRun }],
+    });
+    renderComponent();
+
+    fireEvent.click(await screen.findByTestId('insight-result-3-actions'));
+    fireEvent.click(await screen.findByTestId('action-copy-as-text'));
+
+    await waitFor(() =>
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+        expect.stringMatching(
+          /^The Advisor Check "MySQL version check" has status "Not run"\.\n/
+        )
+      )
+    );
+    expect(navigator.clipboard.writeText).not.toHaveBeenCalledWith(
+      expect.stringContaining('Severity:')
+    );
+  });
+
+  it('follows a run in progress, then reloads once more when it ends', async () => {
+    const run = {
+      id: 'run-open',
+      triggeredBy: AdvisorCheckTriggeredBy.scheduler,
+      status: AdvisorRunStatus.running,
+      startedAt: '2026-08-04T20:05:00Z',
+      plannedChecksCount: 40,
+      plannedServicesCount: 2,
+      checksCount: 12,
+      servicesCount: 2,
+      findingsCount: 0,
+      errorsCount: 0,
+      severityCounts: [],
+      checkNames: [],
+      serviceIds: [],
+      intervals: [],
+    };
+    vi.mocked(advisorsApi.listRuns).mockResolvedValue({
+      totalItems: 1,
+      totalPages: 1,
+      results: [run],
+    });
+
+    vi.useFakeTimers();
+    try {
+      renderComponent();
+      await act(() => vi.advanceTimersByTimeAsync(0));
+      expect(advisorsApi.listInsights).toHaveBeenCalledTimes(1);
+
+      await act(() => vi.advanceTimersByTimeAsync(10_000));
+      expect(advisorsApi.listInsights).toHaveBeenCalledTimes(2);
+
+      vi.mocked(advisorsApi.listRuns).mockResolvedValue({
+        totalItems: 1,
+        totalPages: 1,
+        results: [{ ...run, status: AdvisorRunStatus.completed }],
+      });
+      await act(() => vi.advanceTimersByTimeAsync(10_000));
+      // React Query hands over the finished run on a later tick
+      await act(() => vi.advanceTimersByTimeAsync(1_000));
+      // the regular poll plus one final reload for the finished run
+      expect(advisorsApi.listInsights).toHaveBeenCalledTimes(4);
+
+      // nothing is running anymore, so the polling stops
+      await act(() => vi.advanceTimersByTimeAsync(60_000));
+      expect(advisorsApi.listInsights).toHaveBeenCalledTimes(4);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

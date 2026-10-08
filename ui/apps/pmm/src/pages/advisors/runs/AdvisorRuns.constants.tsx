@@ -5,13 +5,14 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { format } from 'date-fns';
-import { SEVERITY, TIME_FORMAT } from 'lib/constants';
+import { ADVISOR_INTERVAL, SEVERITY, TIME_FORMAT } from 'lib/constants';
 import { type MRT_ColumnDef } from 'material-react-table';
+import { type FC } from 'react';
 import { type AdvisorRun, AdvisorRunStatus } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 import { Messages } from './AdvisorRuns.messages';
 import { TRIGGERED_BY_LABEL } from '../insights/AdvisorInsights.utils';
-import { formatDuration } from './AdvisorRuns.utils';
+import { formatDuration, isRunning } from './AdvisorRuns.utils';
 
 const EM_DASH = '—';
 
@@ -25,6 +26,39 @@ const SEVERITY_CHIP_COLOR: Record<Severity, 'error' | 'warning' | 'info'> = {
   [Severity.info]: 'info',
   [Severity.debug]: 'info',
   [Severity.unspecified]: 'info',
+};
+
+interface CoverageProps {
+  run: AdvisorRun;
+  done: number;
+  planned: number;
+  testId: string;
+}
+
+// what the run covered out of what it planned, as "n/N"; a run without a plan
+// (queued, aborted, or stopped while planning) shows a dash
+const Coverage: FC<CoverageProps> = ({ run, done, planned, testId }) => {
+  const completed = run.status === AdvisorRunStatus.completed;
+  if (!planned && !completed) {
+    return <span data-testid={testId}>{EM_DASH}</span>;
+  }
+
+  // a finished run that fell short may be worth running again
+  const short = !isRunning(run) && done < planned;
+  return (
+    <Tooltip title={planned ? '' : Messages.tooltips.nothingToCheck} arrow>
+      <span data-testid={testId}>
+        <Box
+          component="span"
+          sx={short ? { color: 'warning.main' } : undefined}
+          data-short={short ? 'true' : undefined}
+        >
+          {done}
+        </Box>
+        /{planned}
+      </span>
+    </Tooltip>
+  );
 };
 
 export const getRunsColumns = (): MRT_ColumnDef<AdvisorRun>[] => [
@@ -92,16 +126,35 @@ export const getRunsColumns = (): MRT_ColumnDef<AdvisorRun>[] => [
   {
     id: 'triggeredBy',
     header: Messages.columns.triggeredBy,
-    accessorFn: (row) => TRIGGERED_BY_LABEL[row.triggeredBy] || EM_DASH,
-    size: 125,
+    // the interval groups a run was narrowed to, e.g. "Scheduler · Frequent"
+    accessorFn: (row) =>
+      [
+        TRIGGERED_BY_LABEL[row.triggeredBy] || EM_DASH,
+        (row.intervals ?? []).map((i) => ADVISOR_INTERVAL[i]).join(', '),
+      ]
+        .filter(Boolean)
+        .join(' · '),
+    size: 150,
     grow: false,
   },
   {
     id: 'checksCount',
     header: Messages.columns.checks,
-    accessorKey: 'checksCount',
     size: 90,
     grow: false,
+    Header: () => (
+      <Tooltip title={Messages.tooltips.checks} arrow>
+        <span>{Messages.columns.checks}</span>
+      </Tooltip>
+    ),
+    Cell: ({ row }) => (
+      <Coverage
+        run={row.original}
+        done={row.original.checksCount}
+        planned={row.original.plannedChecksCount}
+        testId="run-checks"
+      />
+    ),
   },
   {
     id: 'findingsCount',
@@ -154,8 +207,20 @@ export const getRunsColumns = (): MRT_ColumnDef<AdvisorRun>[] => [
   {
     id: 'servicesCount',
     header: Messages.columns.services,
-    accessorKey: 'servicesCount',
     size: 95,
     grow: false,
+    Header: () => (
+      <Tooltip title={Messages.tooltips.services} arrow>
+        <span>{Messages.columns.services}</span>
+      </Tooltip>
+    ),
+    Cell: ({ row }) => (
+      <Coverage
+        run={row.original}
+        done={row.original.servicesCount}
+        planned={row.original.plannedServicesCount}
+        testId="run-services"
+      />
+    ),
   },
 ];

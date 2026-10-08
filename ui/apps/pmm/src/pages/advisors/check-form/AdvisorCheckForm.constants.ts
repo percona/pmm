@@ -45,3 +45,10 @@ export const QUERY_TYPES_BY_TECHNOLOGY: Record<AdvisorTechnology, string[]> = {
   ],
   [AdvisorTechnology.unspecified]: [],
 };
+
+// parameter names suggested per query type; values match the server-side check.Parameter constants
+export const QUERY_PARAMETERS_BY_TYPE: Record<string, string[]> = {
+  POSTGRESQL_SELECT: ['all_dbs'],
+  METRICS_INSTANT: ['lookback'],
+  METRICS_RANGE: ['range', 'step', 'lookback'],
+};

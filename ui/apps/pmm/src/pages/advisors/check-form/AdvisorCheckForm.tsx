@@ -46,6 +46,7 @@ import {
   toFormValues,
   toInput,
 } from './AdvisorCheckForm.schema';
+import { QueryParametersInput } from './QueryParametersInput';
 import { ScriptEditorInput } from './ScriptEditorInput';
 
 export type AdvisorCheckFormMode = 'create' | 'edit' | 'clone';
@@ -331,21 +332,23 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
                         </MenuItem>
                       ))}
                     </SelectInput>
-                    <TextInput
-                      name={`queries.${index}.query`}
-                      label={Messages.fields.query}
-                      textFieldProps={{
-                        multiline: true,
-                        minRows: 1,
-                        helperText: Messages.fields.queryHelper,
-                        sx: { flex: 1 },
-                        slotProps: {
-                          htmlInput: {
-                            'data-testid': `check-query-${index}-text`,
+                    <Stack gap={1} sx={{ flex: 1 }}>
+                      <TextInput
+                        name={`queries.${index}.query`}
+                        label={Messages.fields.query}
+                        textFieldProps={{
+                          multiline: true,
+                          minRows: 1,
+                          helperText: Messages.fields.queryHelper,
+                          slotProps: {
+                            htmlInput: {
+                              'data-testid': `check-query-${index}-text`,
+                            },
                           },
-                        },
-                      }}
-                    />
+                        }}
+                      />
+                      <QueryParametersInput queryIndex={index} />
+                    </Stack>
                     <Tooltip title={Messages.removeQuery} arrow>
                       <Box component="span">
                         <IconButton
@@ -364,7 +367,11 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
                   size="small"
                   startIcon={<AddOutlinedIcon />}
                   onClick={() =>
-                    append({ type: queryTypeOptions[0] ?? '', query: '' })
+                    append({
+                      type: queryTypeOptions[0] ?? '',
+                      query: '',
+                      parameters: [],
+                    })
                   }
                   sx={{ alignSelf: 'flex-start' }}
                   data-testid="check-query-add"

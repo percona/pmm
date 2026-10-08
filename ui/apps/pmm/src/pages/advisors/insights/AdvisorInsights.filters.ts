@@ -32,6 +32,8 @@ export const STATUS_FILTER_OPTIONS = [
   AdvisorCheckResultStatus.ok,
   AdvisorCheckResultStatus.failed,
   AdvisorCheckResultStatus.error,
+  AdvisorCheckResultStatus.pending,
+  AdvisorCheckResultStatus.notRun,
 ].map((status) => ({ label: ADVISOR_RESULT_STATUS[status], value: status }));
 
 export const READ_FILTER_OPTIONS = [

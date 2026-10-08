@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 import { AdvisorCheckTriggeredBy, Insight } from 'types/advisors.types';
+import { Severity } from 'types/severity.types';
 import {
   ADVISOR_INTERVAL,
   ADVISOR_RESULT_STATUS,
@@ -15,9 +16,6 @@ export const TRIGGERED_BY_LABEL: Record<AdvisorCheckTriggeredBy, string> = {
 
 // renders an insight as a human-readable narrative for "Copy as text"
 export const insightToText = (item: Insight): string => {
-  const checkedAt = item.checkedAt
-    ? format(new Date(item.checkedAt), TIME_FORMAT)
-    : '';
   const labels = Object.entries(item.labels ?? {})
     .map(([key, value]) => `${key}=${value}`)
     .join(', ');
@@ -39,7 +37,11 @@ export const insightToText = (item: Insight): string => {
     ['Summary', item.summary],
     ['Description', item.description],
     ['Outcome', item.outcome],
-    ['Severity', SEVERITY[item.severity]],
+    // a pending or not run check has no severity
+    [
+      'Severity',
+      item.severity === Severity.unspecified ? '' : SEVERITY[item.severity],
+    ],
     ['Read More', item.readMoreUrl],
     ['Labels', labels],
   ];
@@ -49,11 +51,12 @@ export const insightToText = (item: Insight): string => {
     .map(([name, value]) => `  ${name}: ${value}`)
     .join('\n');
 
-  return (
-    `The Advisor Check "${item.summary}" completed at ${checkedAt} ` +
-    `with status "${ADVISOR_RESULT_STATUS[item.status]}".\n` +
-    `\n` +
-    `Check Details:\n` +
-    detailLines
-  );
+  const status = ADVISOR_RESULT_STATUS[item.status];
+  // a pending or not run check has not completed
+  const headline = item.checkedAt
+    ? `The Advisor Check "${item.summary}" completed at ` +
+      `${format(new Date(item.checkedAt), TIME_FORMAT)} with status "${status}".`
+    : `The Advisor Check "${item.summary}" has status "${status}".`;
+
+  return `${headline}\n\nCheck Details:\n${detailLines}`;
 };

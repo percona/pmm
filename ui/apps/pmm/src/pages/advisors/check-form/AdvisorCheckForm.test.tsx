@@ -21,6 +21,7 @@ import {
 import { Severity } from 'types/severity.types';
 import { Messages } from '../check-test/CheckTest.messages';
 import { AdvisorCheckForm } from './AdvisorCheckForm';
+import { Messages as FormMessages } from './AdvisorCheckForm.messages';
 
 vi.mock('api/advisors');
 
@@ -202,5 +203,221 @@ describe('AdvisorCheckForm test run', () => {
     expect(
       screen.queryByTestId('advisor-check-form-test-results')
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('AdvisorCheckForm query parameters', () => {
+  const PG_CHECK: AdvisorCheck = {
+    name: 'pg_all_dbs_check',
+    enabled: true,
+    summary: 'PostgreSQL check',
+    description: 'Runs against every database',
+    category: 'Configuration',
+    technology: AdvisorTechnology.postgresql,
+    interval: AdvisorInterval.standard,
+    userDefined: false,
+    queries: [
+      {
+        type: 'POSTGRESQL_SELECT',
+        query: 'SELECT 1',
+        parameters: { all_dbs: 'true' },
+      },
+    ],
+    script: 'def check_context(docs, context):\n    return []',
+  };
+
+  const PG_QUERIES = [
+    {
+      type: 'POSTGRESQL_SELECT',
+      query: 'SELECT 1',
+      parameters: { all_dbs: 'true' },
+    },
+  ];
+
+  const waitForPgPrefill = async () => {
+    await waitFor(() =>
+      expect(screen.getByTestId('check-name')).toHaveValue(
+        `custom_${PG_CHECK.name}`
+      )
+    );
+  };
+
+  const parameterRow = (index: number) =>
+    screen.getByTestId(`check-query-0-parameter-${index}`);
+
+  const save = () =>
+    fireEvent.click(screen.getByTestId('advisor-check-form-save'));
+
+  const savedQueries = async () => {
+    await waitFor(() =>
+      expect(advisorsApi.createAdvisorCheck).toHaveBeenCalledTimes(1)
+    );
+    return vi.mocked(advisorsApi.createAdvisorCheck).mock.calls[0][0].queries;
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(advisorsApi.getAdvisorCheck).mockResolvedValue(SOURCE_CHECK);
+    vi.mocked(advisorsApi.listAdvisorCheckTestTargets).mockResolvedValue([]);
+  });
+
+  it('keeps the source parameters when cloning', async () => {
+    vi.mocked(advisorsApi.getAdvisorCheck).mockResolvedValue(PG_CHECK);
+
+    renderForm();
+    await waitForPgPrefill();
+
+    expect(within(parameterRow(0)).getByRole('combobox')).toHaveValue(
+      'all_dbs'
+    );
+    expect(screen.getByTestId('check-query-0-parameter-0-value')).toHaveValue(
+      'true'
+    );
+
+    save();
+
+    expect(await savedQueries()).toStrictEqual(PG_QUERIES);
+  });
+
+  it('sends the parameters with a test run', async () => {
+    vi.mocked(advisorsApi.getAdvisorCheck).mockResolvedValue(PG_CHECK);
+    vi.mocked(advisorsApi.listAdvisorCheckTestTargets).mockResolvedValue([
+      { serviceId: 'svc-pg', serviceName: 'pg-svc' },
+    ]);
+    vi.mocked(advisorsApi.testAdvisorCheck).mockResolvedValue({ results: [] });
+
+    renderForm();
+    await waitForPgPrefill();
+    await pickTestService('pg-svc');
+    fireEvent.click(screen.getByTestId('advisor-check-form-test'));
+
+    await waitFor(() =>
+      expect(advisorsApi.testAdvisorCheck).toHaveBeenCalledTimes(1)
+    );
+    expect(
+      vi.mocked(advisorsApi.testAdvisorCheck).mock.calls[0][0].check.queries
+    ).toStrictEqual(PG_QUERIES);
+  });
+
+  it('adds and removes parameter rows', async () => {
+    renderForm();
+    await waitForPrefill();
+
+    expect(
+      screen.queryByTestId('check-query-0-parameter-0')
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('check-query-0-parameter-add'));
+    fireEvent.click(screen.getByTestId('check-query-0-parameter-add'));
+    fireEvent.change(screen.getByTestId('check-query-0-parameter-1-value'), {
+      target: { value: 'second' },
+    });
+
+    fireEvent.click(screen.getByTestId('check-query-0-parameter-0-remove'));
+
+    expect(
+      screen.queryByTestId('check-query-0-parameter-1')
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId('check-query-0-parameter-0-value')).toHaveValue(
+      'second'
+    );
+
+    fireEvent.click(screen.getByTestId('check-query-0-parameter-0-remove'));
+
+    expect(
+      screen.queryByTestId('check-query-0-parameter-0')
+    ).not.toBeInTheDocument();
+
+    save();
+
+    expect(await savedQueries()).toStrictEqual([
+      { type: 'MYSQL_SHOW', query: 'version' },
+    ]);
+  });
+
+  it('flags an empty parameter name instead of saving', async () => {
+    renderForm();
+    await waitForPrefill();
+
+    fireEvent.click(screen.getByTestId('check-query-0-parameter-add'));
+    save();
+
+    expect(
+      await within(parameterRow(0)).findByText(
+        FormMessages.validation.parameterName
+      )
+    ).toBeInTheDocument();
+    expect(advisorsApi.createAdvisorCheck).not.toHaveBeenCalled();
+  });
+
+  it('submits a METRICS_RANGE query with its range and step', async () => {
+    renderForm();
+    await waitForPrefill();
+
+    fireEvent.mouseDown(
+      within(screen.getByTestId('check-query-0-type-select')).getByRole(
+        'combobox'
+      )
+    );
+    const typeListbox = await screen.findByRole('listbox', { hidden: true });
+    fireEvent.click(within(typeListbox).getByText('METRICS_RANGE'));
+    fireEvent.change(screen.getByTestId('check-query-0-text'), {
+      target: { value: 'up' },
+    });
+
+    // a suggested name, picked from the list
+    fireEvent.click(screen.getByTestId('check-query-0-parameter-add'));
+    fireEvent.keyDown(within(parameterRow(0)).getByRole('combobox'), {
+      key: 'ArrowDown',
+    });
+    fireEvent.click(
+      await screen.findByRole('option', { name: 'range', hidden: true })
+    );
+    fireEvent.change(screen.getByTestId('check-query-0-parameter-0-value'), {
+      target: { value: '1h' },
+    });
+
+    // a typed-in name, committed on blur
+    fireEvent.click(screen.getByTestId('check-query-0-parameter-add'));
+    const stepName = within(parameterRow(1)).getByRole('combobox');
+    fireEvent.change(stepName, { target: { value: 'step' } });
+    fireEvent.blur(stepName);
+    fireEvent.change(screen.getByTestId('check-query-0-parameter-1-value'), {
+      target: { value: '5m' },
+    });
+
+    save();
+
+    expect(await savedQueries()).toStrictEqual([
+      {
+        type: 'METRICS_RANGE',
+        query: 'up',
+        parameters: { range: '1h', step: '5m' },
+      },
+    ]);
+  });
+});
+
+describe('AdvisorCheckForm validation', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(advisorsApi.getAdvisorCheck).mockResolvedValue(SOURCE_CHECK);
+    vi.mocked(advisorsApi.listAdvisorCheckTestTargets).mockResolvedValue([]);
+  });
+
+  it('asks for a category once it is cleared', async () => {
+    renderForm();
+    await waitForPrefill();
+
+    const category = screen.getByTestId('text-input-category');
+    expect(category).toHaveValue(SOURCE_CHECK.category);
+
+    fireEvent.change(category, { target: { value: '' } });
+
+    expect(
+      await within(screen.getByTestId('category-autocomplete')).findByText(
+        FormMessages.validation.required
+      )
+    ).toBeInTheDocument();
   });
 });

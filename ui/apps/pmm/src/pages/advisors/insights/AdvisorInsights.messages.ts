@@ -49,6 +49,7 @@ export const Messages = {
     checkName: 'Check name',
     runId: 'Run ID',
     labels: 'Labels',
+    pendingOutcome: 'The check is waiting for its run to execute it.',
   },
   viewResults: 'View results',
   filters: {

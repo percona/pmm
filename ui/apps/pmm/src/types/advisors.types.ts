@@ -78,9 +78,12 @@ export interface UpdateAdvisorCheckResponse {
 }
 
 export interface StartAdvisorChecksRequest {
-  names: string[];
+  // when set, only these checks run
+  names?: string[];
   // when set, the checks run only against these services
   serviceIds?: string[];
+  // when set, only checks of these intervals run
+  intervals?: AdvisorInterval[];
 }
 
 export interface TestAdvisorCheckRequest {
@@ -133,6 +136,8 @@ export enum AdvisorCheckResultStatus {
   ok = 'ADVISOR_CHECK_RESULT_STATUS_OK',
   failed = 'ADVISOR_CHECK_RESULT_STATUS_FAILED',
   error = 'ADVISOR_CHECK_RESULT_STATUS_ERROR',
+  pending = 'ADVISOR_CHECK_RESULT_STATUS_PENDING',
+  notRun = 'ADVISOR_CHECK_RESULT_STATUS_NOT_RUN',
 }
 
 export enum AdvisorCheckTriggeredBy {
@@ -165,7 +170,8 @@ export interface Insight {
   readMoreUrl: string;
   severity: Severity;
   labels: Record<string, string>;
-  checkedAt: string;
+  // unset while the check is pending and when it did not run
+  checkedAt?: string | null;
   isRead: boolean;
   runId: string;
   triggeredBy: AdvisorCheckTriggeredBy;
@@ -191,8 +197,8 @@ export enum AdvisorRunStatus {
   aborted = 'ADVISOR_RUN_STATUS_ABORTED',
 }
 
-// A single execution of Advisor checks. Totals are recorded when the run
-// completes, so they stay accurate after its insights have been pruned.
+// A single execution of Advisor checks. While it runs, its totals cover the
+// checks executed so far.
 export interface AdvisorRun {
   id: string;
   triggeredBy: AdvisorCheckTriggeredBy;
@@ -200,11 +206,19 @@ export interface AdvisorRun {
   startedAt: string;
   // unset while the run is queued or running
   finishedAt?: string | null;
+  // what the run planned to cover; zero until it starts
+  plannedChecksCount: number;
+  plannedServicesCount: number;
+  // checks and services with a passed or failed outcome
   checksCount: number;
   servicesCount: number;
   findingsCount: number;
   errorsCount: number;
   severityCounts: SeverityCount[];
+  // the scope the run was narrowed to; empty means all
+  checkNames: string[];
+  serviceIds: string[];
+  intervals: AdvisorInterval[];
 }
 
 export interface ListRunsParams {

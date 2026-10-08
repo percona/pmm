@@ -17,7 +17,7 @@ import {
   DRAWER_WIDTH,
 } from 'components/sidebar/drawer/Drawer.constants';
 import { useNavigation } from 'contexts/navigation/navigation.hooks';
-import { Insight } from 'types/advisors.types';
+import { AdvisorCheckResultStatus, Insight } from 'types/advisors.types';
 import { ManagedServiceType } from 'types/services.types';
 import { Severity } from 'types/severity.types';
 import {
@@ -205,11 +205,15 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
               </Stack>
             </Field>
             <Field label={m.severity}>
-              <Chip
-                size="small"
-                color={SEVERITY_CHIP_COLOR[insight.severity]}
-                label={SEVERITY[insight.severity]}
-              />
+              {insight.severity === Severity.unspecified ? (
+                <Typography variant="body1">{EM_DASH}</Typography>
+              ) : (
+                <Chip
+                  size="small"
+                  color={SEVERITY_CHIP_COLOR[insight.severity]}
+                  label={SEVERITY[insight.severity]}
+                />
+              )}
             </Field>
             <Field label={m.status}>
               <Typography variant="body1">
@@ -249,7 +253,10 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
 
             <Field label={m.outcome} span={4}>
               <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-                {insight.outcome || EM_DASH}
+                {insight.outcome ||
+                  (insight.status === AdvisorCheckResultStatus.pending
+                    ? m.pendingOutcome
+                    : EM_DASH)}
               </Typography>
             </Field>
 

@@ -8,6 +8,8 @@ import { Insight } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 import { Messages } from './AdvisorInsights.messages';
 
+const EM_DASH = '—';
+
 const SEVERITY_ORDER: Record<Severity, number> = {
   [Severity.emergency]: 1,
   [Severity.alert]: 2,
@@ -65,7 +67,9 @@ export const getInsightsColumns = (): MRT_ColumnDef<Insight>[] => [
   {
     id: 'severity',
     header: Messages.columns.severity,
-    accessorFn: (row) => SEVERITY[row.severity],
+    // a pending or not run check has no severity
+    accessorFn: (row) =>
+      row.severity === Severity.unspecified ? EM_DASH : SEVERITY[row.severity],
     sortingFn: (rowA, rowB) =>
       SEVERITY_ORDER[rowA.original.severity] -
       SEVERITY_ORDER[rowB.original.severity],
@@ -84,11 +88,12 @@ export const getInsightsColumns = (): MRT_ColumnDef<Insight>[] => [
     accessorKey: 'checkedAt',
     size: 160,
     grow: false,
-    Cell: ({ row }) =>
-      row.original.checkedAt ? (
-        <Box component="span" sx={{ fontSize: '0.85rem' }}>
-          {format(new Date(row.original.checkedAt), TIME_FORMAT)}
-        </Box>
-      ) : null,
+    Cell: ({ row }) => (
+      <Box component="span" sx={{ fontSize: '0.85rem' }}>
+        {row.original.checkedAt
+          ? format(new Date(row.original.checkedAt), TIME_FORMAT)
+          : EM_DASH}
+      </Box>
+    ),
   },
 ];

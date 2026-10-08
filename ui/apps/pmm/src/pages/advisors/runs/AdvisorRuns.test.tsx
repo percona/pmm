@@ -18,6 +18,7 @@ import {
 } from 'utils/testUtils';
 import {
   AdvisorCheckTriggeredBy,
+  AdvisorInterval,
   type AdvisorRun,
   AdvisorRunStatus,
 } from 'types/advisors.types';
@@ -37,6 +38,8 @@ const FINISHED_RUN: AdvisorRun = {
   status: AdvisorRunStatus.completed,
   startedAt: '2026-08-04T19:57:28Z',
   finishedAt: '2026-08-04T19:59:35Z',
+  plannedChecksCount: 109,
+  plannedServicesCount: 3,
   checksCount: 107,
   servicesCount: 3,
   findingsCount: 28,
@@ -46,6 +49,9 @@ const FINISHED_RUN: AdvisorRun = {
     { severity: Severity.warning, count: 22 },
     { severity: Severity.info, count: 2 },
   ],
+  checkNames: ['mysql_version'],
+  serviceIds: ['service-1'],
+  intervals: [],
 };
 
 const RUNNING_RUN: AdvisorRun = {
@@ -54,11 +60,16 @@ const RUNNING_RUN: AdvisorRun = {
   status: AdvisorRunStatus.running,
   startedAt: '2026-08-04T20:05:00Z',
   finishedAt: null,
-  checksCount: 0,
-  servicesCount: 0,
+  plannedChecksCount: 40,
+  plannedServicesCount: 2,
+  checksCount: 12,
+  servicesCount: 2,
   findingsCount: 0,
   errorsCount: 0,
   severityCounts: [],
+  checkNames: [],
+  serviceIds: [],
+  intervals: [],
 };
 
 const renderComponent = (initialEntry = '/advisors/runs') =>
@@ -102,7 +113,6 @@ describe('AdvisorRuns', () => {
 
     // 19:57:28 -> 19:59:35 is 2m 07s
     expect(screen.getByText('2m 07s')).toBeInTheDocument();
-    expect(screen.getByText('107')).toBeInTheDocument();
     expect(screen.getByText('28')).toBeInTheDocument();
     expect(screen.getByText('User')).toBeInTheDocument();
     // severity breakdown, in the order the API returned it
@@ -245,7 +255,107 @@ describe('AdvisorRuns', () => {
     );
   });
 
-  it('polls once a minute while a run is in flight, then stops', async () => {
+  it('shows what each run covered out of what it planned', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    const [runningChecks, finishedChecks] = screen.getAllByTestId('run-checks');
+    const [runningServices, finishedServices] =
+      screen.getAllByTestId('run-services');
+    expect(runningChecks).toHaveTextContent('12/40');
+    expect(runningServices).toHaveTextContent('2/2');
+    expect(finishedChecks).toHaveTextContent('107/109');
+    expect(finishedServices).toHaveTextContent('3/3');
+    // only a finished run that fell short is highlighted
+    expect(finishedChecks.querySelector('[data-short]')).not.toBeNull();
+    expect(finishedServices.querySelector('[data-short]')).toBeNull();
+    expect(runningChecks.querySelector('[data-short]')).toBeNull();
+  });
+
+  it('shows a dash for a run without a plan, and 0/0 when there was nothing to check', async () => {
+    const noPlan = {
+      plannedChecksCount: 0,
+      plannedServicesCount: 0,
+      checksCount: 0,
+      servicesCount: 0,
+    };
+    vi.mocked(advisorsApi.listRuns).mockResolvedValue({
+      totalItems: 3,
+      totalPages: 1,
+      results: [
+        {
+          ...RUNNING_RUN,
+          ...noPlan,
+          id: 'run-queued',
+          status: AdvisorRunStatus.queued,
+        },
+        {
+          ...RUNNING_RUN,
+          ...noPlan,
+          id: 'run-aborted',
+          status: AdvisorRunStatus.aborted,
+        },
+        { ...FINISHED_RUN, ...noPlan, id: 'run-empty' },
+      ],
+    });
+    renderComponent();
+
+    // two of the runs are scheduled, so waitForRows' single match won't do
+    await waitFor(() =>
+      expect(screen.getAllByTestId('run-checks')).toHaveLength(3)
+    );
+
+    const [queued, aborted, empty] = screen.getAllByTestId('run-checks');
+    expect(queued).toHaveTextContent('—');
+    expect(aborted).toHaveTextContent('—');
+    expect(empty).toHaveTextContent('0/0');
+  });
+
+  it('labels a run narrowed to interval groups with them', async () => {
+    vi.mocked(advisorsApi.listRuns).mockResolvedValue({
+      totalItems: 2,
+      totalPages: 1,
+      results: [
+        {
+          ...RUNNING_RUN,
+          intervals: [AdvisorInterval.frequent, AdvisorInterval.standard],
+        },
+        FINISHED_RUN,
+      ],
+    });
+    renderComponent();
+
+    expect(
+      await screen.findByText('Scheduler · Frequent, Standard')
+    ).toBeInTheDocument();
+  });
+
+  it('runs a run again with the same scope', async () => {
+    vi.mocked(advisorsApi.startAdvisorChecks).mockResolvedValue('run-new');
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.click(screen.getByTestId('run-run-finished-actions'));
+    fireEvent.click(await screen.findByTestId('action-run-again'));
+
+    await waitFor(() =>
+      expect(advisorsApi.startAdvisorChecks).toHaveBeenCalledWith(
+        {
+          names: ['mysql_version'],
+          serviceIds: ['service-1'],
+          intervals: [],
+        },
+        expect.anything()
+      )
+    );
+    expect(
+      await screen.findByText(Messages.success.checksStarted)
+    ).toBeInTheDocument();
+  });
+
+  it('polls every 10 seconds while a run is in flight, then stops', async () => {
     // a queued run counts as in flight too
     vi.mocked(advisorsApi.listRuns).mockResolvedValue({
       totalItems: 1,
@@ -260,7 +370,7 @@ describe('AdvisorRuns', () => {
       await act(() => vi.advanceTimersByTimeAsync(0));
       expect(advisorsApi.listRuns).toHaveBeenCalledTimes(1);
 
-      await act(() => vi.advanceTimersByTimeAsync(60_000));
+      await act(() => vi.advanceTimersByTimeAsync(10_000));
       expect(advisorsApi.listRuns).toHaveBeenCalledTimes(2);
 
       vi.mocked(advisorsApi.listRuns).mockResolvedValue({
@@ -269,11 +379,11 @@ describe('AdvisorRuns', () => {
         results: [FINISHED_RUN],
       });
 
-      await act(() => vi.advanceTimersByTimeAsync(60_000));
+      await act(() => vi.advanceTimersByTimeAsync(10_000));
       expect(advisorsApi.listRuns).toHaveBeenCalledTimes(3);
 
       // nothing is running anymore, so the polling stops
-      await act(() => vi.advanceTimersByTimeAsync(180_000));
+      await act(() => vi.advanceTimersByTimeAsync(60_000));
       expect(advisorsApi.listRuns).toHaveBeenCalledTimes(3);
     } finally {
       vi.useRealTimers();

@@ -72,6 +72,8 @@ export const ADVISOR_RESULT_STATUS: Record<AdvisorCheckResultStatus, string> = {
   [AdvisorCheckResultStatus.ok]: 'OK',
   [AdvisorCheckResultStatus.failed]: 'Failed',
   [AdvisorCheckResultStatus.error]: 'Error',
+  [AdvisorCheckResultStatus.pending]: 'Pending',
+  [AdvisorCheckResultStatus.notRun]: 'Not run',
   [AdvisorCheckResultStatus.unspecified]: 'Unspecified',
 };
 

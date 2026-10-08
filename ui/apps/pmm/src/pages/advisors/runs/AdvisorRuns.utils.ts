@@ -1,5 +1,8 @@
 import { type AdvisorRun, AdvisorRunStatus } from 'types/advisors.types';
 
+// how often pages refresh while a run is in progress, to follow its progress
+export const ACTIVE_RUN_POLL_INTERVAL_MS = 10_000;
+
 // real elapsed time: runs are stamped on start and on finish
 export const formatDuration = (run: AdvisorRun): string | null => {
   if (!run.finishedAt) {

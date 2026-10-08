@@ -300,6 +300,25 @@ describe('AdvisorsList', () => {
     ).toBeInTheDocument();
   });
 
+  it('matches the check name in the global search', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.change(screen.getByPlaceholderText(/search/i), {
+      target: { value: 'mysql_version_check' },
+    });
+
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('check-postgresql_super_role-run')
+      ).not.toBeInTheDocument()
+    );
+    expect(
+      screen.getByTestId('check-mysql_version_check-run')
+    ).toBeInTheDocument();
+  });
+
   it('filters checks by the technology dropdown', async () => {
     renderComponent();
 

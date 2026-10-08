@@ -17,10 +17,14 @@ export const Messages = {
     query: 'Query',
     queryHelper:
       'Leave empty for parameterless query types (e.g. SHOW / getParameter).',
+    parameterName: 'Parameter',
+    parameterValue: 'Value',
     script: 'Script',
   },
   addQuery: 'Add query',
   removeQuery: 'Remove query',
+  addParameter: 'Add parameter',
+  removeParameter: 'Remove parameter',
   cancel: 'Cancel',
   save: 'Save',
   loadError: 'Unable to load the check.',
@@ -35,5 +39,7 @@ export const Messages = {
     required: 'This field is required.',
     queriesRequired: 'Add at least one query.',
     queryType: 'Select a query type.',
+    parameterName: 'Enter a parameter name.',
+    parameterDuplicate: 'This parameter is already set for the query.',
   },
 };

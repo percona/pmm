@@ -31,6 +31,7 @@ import {
   useInsightsFilterValues,
   useInsights,
   useMarkInsightsRead,
+  useRuns,
   useStartAdvisorChecks,
 } from 'hooks/api/useAdvisors';
 import {
@@ -38,7 +39,7 @@ import {
   type MRT_Updater,
 } from 'material-react-table';
 import { closeSnackbar, enqueueSnackbar } from 'notistack';
-import { FC, useEffect, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   AdvisorCheckResultStatus,
@@ -58,6 +59,10 @@ import {
   STATUS_FILTER_OPTIONS,
 } from './AdvisorInsights.filters';
 import { Messages } from './AdvisorInsights.messages';
+import {
+  ACTIVE_RUN_POLL_INTERVAL_MS,
+  isRunning,
+} from '../runs/AdvisorRuns.utils';
 
 interface InsightFilters {
   serviceName: string;
@@ -201,7 +206,31 @@ const AdvisorInsights: FC = () => {
   const openDetails = (insight: Insight) =>
     patchParams((p) => p.set('insight', insight.id), { resetPage: false });
 
-  const { data, isLoading, isFetching, refetch } = useInsights(params);
+  // runs never overlap, so the newest one is the run in progress, if any
+  const { data: latestRuns, refetch: refetchLatestRun } = useRuns(
+    { pageIndex: 0, pageSize: 1 },
+    {
+      refetchInterval: (query) =>
+        query.state.data?.results.some(isRunning)
+          ? ACTIVE_RUN_POLL_INTERVAL_MS
+          : false,
+    }
+  );
+  const runInProgress = !!latestRuns?.results.some(isRunning);
+
+  // a run saves each outcome as soon as its check finishes, so follow it
+  const { data, isLoading, isFetching, refetch } = useInsights(params, {
+    refetchInterval: runInProgress ? ACTIVE_RUN_POLL_INTERVAL_MS : false,
+  });
+
+  // reload once more when the run ends, for what it saved since the last poll
+  const runWasInProgress = useRef(runInProgress);
+  useEffect(() => {
+    if (runWasInProgress.current && !runInProgress) {
+      void refetch();
+    }
+    runWasInProgress.current = runInProgress;
+  }, [runInProgress, refetch]);
 
   // the open details overlay is driven by the ?insight=<id> URL param (the
   // result's Check ID), so the overlay is deep-linkable via a shared URL
@@ -274,6 +303,7 @@ const AdvisorInsights: FC = () => {
       { names: [insight.checkName], serviceIds: [insight.serviceId] },
       {
         onSuccess: (newRunId) => {
+          void refetchLatestRun();
           void navigator.clipboard.writeText(newRunId);
           enqueueSnackbar(
             Messages.success.rerunStarted(checkSummary, insight.serviceName),
@@ -698,10 +728,12 @@ const AdvisorInsights: FC = () => {
           </MenuItem>
           <MenuItem
             // the backend silently skips checks disabled for the target, so
-            // don't offer the action when this service would be skipped
+            // don't offer the action when this service would be skipped; a
+            // pending check belongs to the run in progress
             disabled={
               isStarting ||
               !actionMenu ||
+              actionMenu.insight.status === AdvisorCheckResultStatus.pending ||
               !checksByName.get(actionMenu.insight.checkName)?.enabled ||
               isCheckDisabledForService(actionMenu.insight)
             }

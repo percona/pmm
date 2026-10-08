@@ -270,7 +270,7 @@ const AdvisorsList: FC = () => {
       }
       if (term) {
         const haystack =
-          `${row.summary} ${row.description} ${row.category} ${ADVISOR_TECHNOLOGY[row.technology]}`.toLowerCase();
+          `${row.checkName} ${row.summary} ${row.description} ${row.category} ${ADVISOR_TECHNOLOGY[row.technology]}`.toLowerCase();
         if (!haystack.includes(term)) {
           return false;
         }

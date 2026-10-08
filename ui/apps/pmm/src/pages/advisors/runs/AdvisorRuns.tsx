@@ -2,6 +2,7 @@ import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import FilterAltOffOutlinedIcon from '@mui/icons-material/FilterAltOffOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
+import ReplayOutlinedIcon from '@mui/icons-material/ReplayOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import IconButton from '@mui/material/IconButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -15,7 +16,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { Table } from '@percona/peak-ui';
 import { Page } from 'components/page';
-import { useRuns } from 'hooks/api/useAdvisors';
+import { useRuns, useStartAdvisorChecks } from 'hooks/api/useAdvisors';
 import {
   type MRT_PaginationState,
   type MRT_Updater,
@@ -28,10 +29,9 @@ import { OrgRole } from 'types/user.types';
 import { getRunsColumns } from './AdvisorRuns.constants';
 import { TRIGGERED_BY_FILTER_OPTIONS } from './AdvisorRuns.filters';
 import { Messages } from './AdvisorRuns.messages';
-import { isRunning } from './AdvisorRuns.utils';
+import { ACTIVE_RUN_POLL_INTERVAL_MS, isRunning } from './AdvisorRuns.utils';
 
 const DEFAULT_PAGE_SIZE = 50;
-const RUNNING_POLL_INTERVAL_MS = 60_000;
 
 interface ActionMenuState {
   anchorEl: HTMLElement;
@@ -92,20 +92,39 @@ const AdvisorRuns: FC = () => {
       triggeredBy: (triggeredBy as AdvisorCheckTriggeredBy) || undefined,
     },
     {
-      // a run only shows a duration once it finishes, so poll until none is
-      // in flight; the interval belongs to the query, so concurrent runs still
-      // cost one request per minute
+      // follow the progress of a run in flight until it finishes
       refetchInterval: (query) =>
         query.state.data?.results.some(isRunning)
-          ? RUNNING_POLL_INTERVAL_MS
+          ? ACTIVE_RUN_POLL_INTERVAL_MS
           : false,
     }
   );
+  const { mutate: startChecks, isPending: isStarting } =
+    useStartAdvisorChecks();
 
   const columns = useMemo(() => getRunsColumns(), []);
 
   const openInsights = (run: AdvisorRun) =>
     navigate(`/advisors/insights?runId=${encodeURIComponent(run.id)}`);
+
+  // repeats the run's scope; a request during another run is rejected and the
+  // error shown like any other
+  const runAgain = (run: AdvisorRun) =>
+    startChecks(
+      {
+        names: run.checkNames,
+        serviceIds: run.serviceIds,
+        intervals: run.intervals,
+      },
+      {
+        onSuccess: () => {
+          enqueueSnackbar(Messages.success.checksStarted, {
+            variant: 'success',
+          });
+          void refetch();
+        },
+      }
+    );
 
   const copyRunId = (run: AdvisorRun) => {
     void navigator.clipboard.writeText(run.id);
@@ -251,6 +270,21 @@ const AdvisorRuns: FC = () => {
             <VisibilityOutlinedIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>{Messages.actions.viewInsights}</ListItemText>
+        </MenuItem>
+        <MenuItem
+          disabled={isStarting}
+          onClick={() => {
+            if (actionMenu) {
+              runAgain(actionMenu.run);
+            }
+            setActionMenu(null);
+          }}
+          data-testid="action-run-again"
+        >
+          <ListItemIcon>
+            <ReplayOutlinedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>{Messages.actions.runAgain}</ListItemText>
         </MenuItem>
         <MenuItem
           onClick={() => {

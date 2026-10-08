@@ -1,3 +1,4 @@
+import type { AxiosRequestConfig, AxiosRequestHeaders } from 'axios';
 import {
   Advisor,
   AdvisorCheck,
@@ -29,13 +30,14 @@ import { EmptyResponse, PaginatedResponse } from 'types/util.types';
 import { api } from './api';
 
 export const listAdvisors = async (): Promise<Advisor[]> => {
-  const res = await api.get<ListAdvisorsResponse>('/advisors');
+  const res = await api.get<ListAdvisorsResponse>('/advisors', rawKeysConfig);
   return res.data.advisors;
 };
 
 export const getAdvisorCheck = async (name: string): Promise<AdvisorCheck> => {
   const res = await api.get<GetAdvisorCheckResponse>(
-    `/advisors/checks/${encodeURIComponent(name)}`
+    `/advisors/checks/${encodeURIComponent(name)}`,
+    rawKeysConfig
   );
   return res.data.check;
 };
@@ -46,7 +48,8 @@ export const createAdvisorCheck = async (
   const payload: CreateAdvisorCheckRequest = { check };
   const res = await api.post<CreateAdvisorCheckResponse>(
     '/advisors/checks',
-    payload
+    payload,
+    rawKeysConfig
   );
   return res.data.check;
 };
@@ -58,7 +61,8 @@ export const updateAdvisorCheck = async (
   const payload: UpdateAdvisorCheckRequest = { check };
   const res = await api.put<UpdateAdvisorCheckResponse>(
     `/advisors/checks/${encodeURIComponent(name)}`,
-    payload
+    payload,
+    rawKeysConfig
   );
   return res.data.check;
 };
@@ -87,7 +91,7 @@ export const testAdvisorCheck = async (
   const res = await api.post<TestAdvisorCheckResponse>(
     '/advisors/checks:test',
     payload,
-    { disableNotifications: true }
+    { ...rawKeysConfig, disableNotifications: true }
   );
   return res.data;
 };
@@ -119,49 +123,74 @@ export const changeAdvisorChecks = async (
 
 // Fields whose value is a free-form map keyed by data, not by a schema field
 // name, so its keys must survive verbatim.
-const RAW_KEY_FIELDS = ['labels'];
+const RAW_KEY_FIELDS = ['labels', 'parameters'];
 
 const camelizeKey = (key: string) =>
   key.replace(/_([a-z0-9])/g, (_, char: string) => char.toUpperCase());
 
-// axios-case-converter camelizes every response key recursively, which rewrites
-// label names (service_name -> serviceName). Insights bypass that instance-wide
-// transform and are camelized here instead, so labels read exactly as stored.
-export const camelizeInsights = (value: unknown): unknown => {
+const snakeizeKey = (key: string) =>
+  key.replace(/[A-Z]/g, (char) => `_${char.toLowerCase()}`);
+
+const transformKeys = (
+  value: unknown,
+  transformKey: (key: string) => string
+): unknown => {
   if (Array.isArray(value)) {
-    return value.map(camelizeInsights);
+    return value.map((item) => transformKeys(item, transformKey));
   }
   if (value === null || typeof value !== 'object') {
     return value;
   }
   return Object.fromEntries(
     Object.entries(value).map(([key, val]) => [
-      camelizeKey(key),
-      RAW_KEY_FIELDS.includes(key) ? val : camelizeInsights(val),
+      transformKey(key),
+      RAW_KEY_FIELDS.includes(key) ? val : transformKeys(val, transformKey),
     ])
   );
+};
+
+export const camelizeKeys = (value: unknown): unknown =>
+  transformKeys(value, camelizeKey);
+
+const snakeizeKeys = (value: unknown): unknown =>
+  transformKeys(value, snakeizeKey);
+
+// axios-case-converter rewrites every key recursively in both directions, which
+// renames data-keyed maps (service_name -> serviceName, all_dbs -> allDbs).
+// Endpoints carrying such maps replace the instance chains with these, so the
+// JSON (de)serialization happens here too; falling back to the raw body on
+// unparseable input keeps the error interceptor, which reads `data.message`,
+// working as it does for every other endpoint.
+const rawKeysConfig: AxiosRequestConfig = {
+  transformRequest: [
+    (data: unknown, headers: AxiosRequestHeaders) => {
+      if (data === undefined) {
+        return data;
+      }
+      headers.setContentType('application/json');
+      return JSON.stringify(snakeizeKeys(data));
+    },
+  ],
+  transformResponse: [
+    (raw: string) => {
+      if (typeof raw !== 'string' || !raw) {
+        return raw;
+      }
+      try {
+        return camelizeKeys(JSON.parse(raw));
+      } catch {
+        return raw;
+      }
+    },
+  ],
 };
 
 export const listInsights = async (
   params: ListInsightsParams
 ): Promise<PaginatedResponse<Insight>> => {
   const res = await api.get<PaginatedResponse<Insight>>('/advisors/insights', {
+    ...rawKeysConfig,
     params,
-    // replaces the instance chain, so the JSON parse happens here too; falling
-    // back to the raw body on unparseable input keeps the error interceptor,
-    // which reads `data.message`, working as it does for every other endpoint
-    transformResponse: [
-      (raw: string) => {
-        if (typeof raw !== 'string' || !raw) {
-          return raw;
-        }
-        try {
-          return camelizeInsights(JSON.parse(raw));
-        } catch {
-          return raw;
-        }
-      },
-    ],
   });
   return res.data;
 };
