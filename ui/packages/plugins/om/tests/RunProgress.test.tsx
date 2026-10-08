@@ -317,11 +317,28 @@ describe('RunProgress', () => {
     expect(screen.getByText('Enabling authentication')).toBeInTheDocument();
     expect(screen.getByText('Stopping mongod')).toBeInTheDocument();
     expect(screen.getByText('Rollback')).toBeInTheDocument();
-    expect(screen.getByText('Rolling back every node.')).toBeInTheDocument();
+    expect(screen.getByText('Every node was rolled back.')).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent(
       'Failed at step 2 of 3: Installing packages on db-2, after 5m'
     );
     expect(screen.queryByLabelText('Install summary')).not.toBeInTheDocument();
+  });
+
+  it('says the nodes are rolling back while the rollback is still going', () => {
+    renderWithClient(
+      <RunProgress
+        run={run({
+          hosts: [
+            host({
+              steps: [step('install_package', 'failed')],
+              rollback_steps: [step('stop_service', 'running')],
+            }),
+          ],
+        })}
+      />
+    );
+
+    expect(screen.getByText('Rolling back every node.')).toBeInTheDocument();
   });
 
   it('opens the matrix by itself when a watched run fails', () => {

@@ -546,14 +546,18 @@ export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => {
         </Typography>
       )}
       {run.error && <Alert severity="error">{run.error}</Alert>}
-      {run.cancel_requested && !rollingBack && (
+      {status === 'running' && run.cancel_requested && !rollingBack && (
         <Typography variant="body2" color="warning.main">
           Abort requested - rolling back once the current step stops.
         </Typography>
       )}
+      {/* rollback_steps keep their outcomes once the run ends, so rollingBack alone
+          would still say "Rolling back" on a run that finished doing so. */}
       {rollingBack && (
         <Typography variant="body2" color="warning.main">
-          Rolling back every node.
+          {status === 'running'
+            ? 'Rolling back every node.'
+            : 'Every node was rolled back.'}
         </Typography>
       )}
       {status === 'succeeded' && (
