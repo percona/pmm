@@ -377,7 +377,39 @@ export interface OmInventoryFreshness {
   failing_since?: string | null;
   consecutive_failures: number;
   last_error?: string | null;
+  /**
+   * What kind of failure `last_error` is, as a stable code.
+   *
+   * Typed as a plain string rather than {@link OmScanErrorCode}: the server can add a
+   * code before this page learns it, and an older server sends none at all. Read it
+   * through `scanErrorCode`, which folds both cases into `unknown`.
+   */
+  last_error_code?: string | null;
+  /**
+   * The scan run that produced `last_error`. Absent on servers that predate it, in
+   * which case nothing links to the run.
+   */
+  last_run_id?: string | null;
 }
+
+/**
+ * The kinds of scan failure PMM Extensions tells apart, as `last_error_code` carries
+ * them. `unknown` is both the server's own catch-all and what any code this list does
+ * not know reads as. What each one means to a reader is `SCAN_ERROR_KIND`.
+ */
+export type OmScanErrorCode =
+  | 'dispatch_rejected'
+  | 'not_started'
+  | 'timed_out'
+  | 'blocked'
+  | 'environment_setup_failed'
+  | 'scan_crashed'
+  | 'scan_lost'
+  | 'no_output'
+  | 'database_unreachable'
+  | 'database_auth_failed'
+  | 'database_error'
+  | 'unknown';
 
 /**
  * One MongoDB service OM has probed, or tried to.

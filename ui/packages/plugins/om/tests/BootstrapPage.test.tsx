@@ -416,6 +416,45 @@ describe('BootstrapPage security posture', () => {
     ).toBeInTheDocument();
   });
 
+  it('warns beside the data path when a scan found too little space there', () => {
+    hostsState.data = [
+      { ...host(1), observed: { data_dir_free_bytes: 1024 ** 3 } },
+      host(2),
+      host(3),
+    ];
+    try {
+      openConfigureStep();
+
+      expect(screen.getByTestId('om-low-disk-warning')).toHaveTextContent(
+        'The install needs at least 5 GiB free at the data path, and the last ' +
+          'scan found less at /var/lib/mongo on db01 (1.0 GiB).'
+      );
+
+      // The scan measured the default path only; another one it knows nothing about.
+      fireEvent.change(screen.getByLabelText(/Data path/), {
+        target: { value: '/data/mongo' },
+      });
+      expect(screen.queryByTestId('om-low-disk-warning')).toBeNull();
+    } finally {
+      hostsState.data = HOSTS;
+    }
+  });
+
+  it('does not warn about space on nodes a scan found enough on, or never measured', () => {
+    hostsState.data = [
+      { ...host(1), observed: { data_dir_free_bytes: 6 * 1024 ** 3 } },
+      host(2),
+      host(3),
+    ];
+    try {
+      openConfigureStep();
+
+      expect(screen.queryByTestId('om-low-disk-warning')).toBeNull();
+    } finally {
+      hostsState.data = HOSTS;
+    }
+  });
+
   it('reveals a text field only for a custom address', () => {
     openConfigureStep();
     expect(screen.queryByLabelText(/Bind IP/)).toBeNull();

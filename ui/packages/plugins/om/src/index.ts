@@ -140,6 +140,7 @@ export type {
   OmInventoryService,
   OmInventorySetting,
   OmRepoReachability,
+  OmScanErrorCode,
   OmServiceInventoryRow,
   OmSettingReload,
   OmUnregisteredMongod,

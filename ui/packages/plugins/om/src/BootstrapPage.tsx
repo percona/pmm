@@ -57,7 +57,7 @@ import {
 } from './electionPlan';
 import { OmHeader } from './components/OmHeader';
 import { configureBlockers, replicaSetNameError } from './installForm';
-import { toHostRows } from './inventory';
+import { dataDirFreeBytes, toHostRows } from './inventory';
 import { useOmInventoryHosts, useTriggerHostBootstrap } from './inventoryHooks';
 import { NodeNamesLinked } from './components/NodeNamesLinked';
 import { HostReadiness } from './components/HostReadiness';
@@ -72,6 +72,10 @@ const DEFAULT_DATA_PATH = '/var/lib/mongo';
 const DEFAULT_LOG_PATH = '/var/log/mongodb/mongod.log';
 const DEFAULT_PORT = '27017';
 const DEFAULT_BIND_IP = '0.0.0.0';
+const GIB = 1024 ** 3;
+// The install's pre_check refuses less (MIN_DATA_DISK_BYTES in PMM Extensions'
+// om_bootstrap); this only warns before the run is started.
+const MIN_DATA_DIR_FREE_BYTES = 5 * GIB;
 
 /**
  * The wizard's own steps. Matches the ticket's mockups (PMM-15347/plan.md
@@ -331,6 +335,18 @@ export const BootstrapPage = () => {
 
   const blockedHosts = useMemo(
     () => hosts.filter((host) => !host.automation_eligible),
+    [hosts]
+  );
+
+  // The scan measures the default data path only, so this says nothing about another.
+  const lowDiskHosts = useMemo(
+    () =>
+      hosts.flatMap((host) => {
+        const free = dataDirFreeBytes(host);
+        return free !== null && free < MIN_DATA_DIR_FREE_BYTES
+          ? [`${host.name} (${(free / GIB).toFixed(1)} GiB)`]
+          : [];
+      }),
     [hosts]
   );
 
@@ -682,6 +698,15 @@ export const BootstrapPage = () => {
               fullWidth
               helperText="On every node. Where mongod stores its data."
             />
+            {dataPath.trim() === DEFAULT_DATA_PATH &&
+              lowDiskHosts.length > 0 && (
+                <Alert severity="warning" data-testid="om-low-disk-warning">
+                  The install needs at least {MIN_DATA_DIR_FREE_BYTES / GIB} GiB
+                  free at the data path, and the last scan found less at{' '}
+                  {DEFAULT_DATA_PATH} on {lowDiskHosts.join(', ')}. Choose a
+                  data path on a larger disk, or free space there first.
+                </Alert>
+              )}
             <TextField
               label="Log path"
               value={logPath}
