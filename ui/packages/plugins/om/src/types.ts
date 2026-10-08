@@ -676,6 +676,11 @@ export interface OmInventoryRunCounts {
   total_hosts: number;
   probeable_hosts: number;
   answered_hosts: number;
+  /**
+   * Hosts whose scan has come back, answered or not, counted up while the run is
+   * going.
+   */
+  finished_hosts: number;
 }
 
 /** One refresh of the estate. */

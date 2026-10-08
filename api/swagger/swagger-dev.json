@@ -31327,6 +31327,12 @@
                             "type": "integer",
                             "format": "int32",
                             "x-order": 6
+                          },
+                          "finished_hosts": {
+                            "description": "Hosts whose scan has come back, answered or not. Counted up while the run is\nstill going, so a page can say how far it has got.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 7
                           }
                         },
                         "x-order": 4
@@ -31511,6 +31517,12 @@
                           "type": "integer",
                           "format": "int32",
                           "x-order": 6
+                        },
+                        "finished_hosts": {
+                          "description": "Hosts whose scan has come back, answered or not. Counted up while the run is\nstill going, so a page can say how far it has got.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 7
                         }
                       },
                       "x-order": 4

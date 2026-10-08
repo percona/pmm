@@ -3410,6 +3410,8 @@ func (m *InventoryRunCounts) validate(all bool) error {
 
 	// no validation rules for AnsweredHosts
 
+	// no validation rules for FinishedHosts
+
 	if len(errors) > 0 {
 		return InventoryRunCountsMultiError(errors)
 	}

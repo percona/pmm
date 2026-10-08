@@ -44,6 +44,7 @@ import { isRunActive } from './api';
 import { useScanConflict } from './ScanFeedback';
 import { RunStatusBadge } from './components/HealthBadge';
 import { RunEntities } from './components/RunEntities';
+import { ScanProgress } from './components/ScanProgress';
 import {
   formatCompactDuration,
   formatRunDuration,
@@ -308,6 +309,7 @@ const RefreshButton = () => {
 
   return (
     <Stack direction="row" alignItems="center" gap={1}>
+      <ScanProgress />
       <Tooltip title="Scan every node now, collecting what no metric carries">
         <span>
           <Button
