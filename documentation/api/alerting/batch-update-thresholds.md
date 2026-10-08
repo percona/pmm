@@ -1,16 +1,18 @@
 ---
-title: Batch update alert thresholds
-slug: batch-updating-alert-thresholds
+title: Batch update threshold overrides
+slug: batch-updating-threshold-overrides
 category:
   uri: alerting-api
 position: 3
 ---
 
-## Batch update alert thresholds
+## Batch update the threshold overrides
 
-Applies several threshold changes in a **single transaction**: either every update lands or none does.
+Use this endpoint to set or clear several threshold overrides in one call. Either all changes are applied or none are, so you never end up with a partial result.
 
-This is what a form editing several rows at once should use. Issuing the changes as separate [Set](ref:setthreshold) and [Clear](ref:clearthreshold) calls risks a partial result that the client cannot report coherently — some rows saved, one rejected, and no way to tell the user which state the system is now in.
+Use this instead of separate [Set](ref:setthreshold) and [Clear](ref:clearthreshold) calls when you need to update multiple nodes or parameters at once. If one entry is invalid, the whole batch is rejected and nothing is written.
+
+To send the batch, list all your changes in the `updates` array:
 
 ```shell
 curl --insecure -X POST \
@@ -38,21 +40,18 @@ curl --insecure -X POST \
 '
 ```
 
-### Setting and clearing in one call
+### Set and clear in one call
 
-Whether an entry sets or clears is decided by `value`:
+Each entry either overrides a threshold or returns a node to the rule's default. To override, include `value`. To return a node to the default, leave `value` out. The second entry in the example above returns its node to the default because it has no `value`.
 
-- **`value` present** — sets the override to that value.
-- **`value` omitted** — clears the override.
-
-The second entry in the example above clears its threshold, because it has no `value`.
-
-> 🚧 Omit the field, do not send zero
-> 
-> `value` is optional precisely so that omitting it can mean *clear*. Sending `"value": 0` sets the threshold to zero, which is a real and very different instruction.
+> 🚧 Omit `value` to clear, do not send zero
+>
+> Sending `"value": 0` sets the threshold to zero, which is a real override. Omit the field entirely to clear the override.
 
 ### Response
 
-The response lists the thresholds that are now overridden. **Cleared entries are omitted** — after a successful clear there is no override to report, so a request of three sets and two clears returns three thresholds.
+The response lists the overrides that are now active. Cleared entries are not included. After a successful clear there is no override to report, so a batch of three sets and two clears returns three entries.
 
-At least one update is required. Validation is the same as for [Set Alert Threshold](ref:setthreshold), applied to every entry; one invalid entry rolls the whole batch back and nothing is written. Clearing a parameter that has no override for that target succeeds and changes nothing.
+### Error codes
+
+The batch must include at least one entry. If any entry fails validation, none of your changes are applied. You get a clean failure with no partial updates. The same rules apply as for [Set a threshold override](ref:setthreshold). Entries that remove an override that does not exist succeed and change nothing.

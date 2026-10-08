@@ -1,14 +1,16 @@
 ---
-title: Set and clear an alert threshold
+title: Set and clear a threshold override
 slug: setting-alert-thresholds
 category:
   uri: alerting-api
 position: 2
 ---
 
-## Set an alert threshold
+## Set a threshold override
 
-Overrides one parameter of one rule for one target. The rule itself is not modified, and every other target it watches keeps evaluating against the default.
+Sets a per-target override on one parameter of an alert rule. Only alert rules created from a [Dynamic template](https://docs.percona.com/percona-monitoring-and-management/3/alert/alert-thresholds.html) support overrides. 
+
+To set the override, pass the `rule_id` from when you created the rule, the node ID, and the new threshold value:
 
 ```shell
 curl --insecure -X POST \
@@ -26,13 +28,19 @@ curl --insecure -X POST \
 '
 ```
 
-The response returns the threshold as it now stands, in the same shape [List Alert Thresholds](ref:listthresholds) uses.
+The response returns the updated threshold in the same shape as [List alert thresholds](ref:listthresholds). If the alert fires on this target, the alert text reports the effective threshold, not the rule's default.
 
-Setting a threshold on a target that already has one replaces it. There is no separate create-versus-update call.
+### How overrides are applied
 
-### Validation
+If an override already exists for this parameter on this target, the new value replaces it. The rule itself is not changed, and every other target it watches keeps evaluating against the default.
 
-`value` must be finite and within the range the parameter declared:
+### Rules and templates
+
+A rule's overridable parameters, their ranges, and defaults are captured when the rule is created. Editing a template after creating a rule does not update the rule. To enable overrides on an existing rule, recreate it from the updated template.
+
+### Error codes
+
+The request fails in any of the following cases:
 
 | Condition | Status |
 |---|---|
@@ -41,13 +49,13 @@ Setting a threshold on a target that already has one replaces it. There is no se
 | Rule ID does not exist | `404 Not Found` |
 | Target does not exist | `404 Not Found` |
 | Parameter cannot be overridden at that scope | `400 Bad Request` |
-| Scope is service or cluster | `501 Not Implemented` |
+| Scope is service or cluster (currently not supported) | `501 Not Implemented` |
 
-A parameter is only overridable if its template said so. A rule created before a template gained an overridable parameter does not acquire one — the range and default are captured when the rule is created, so an edit to the template afterwards does not change what an existing rule validates against.
+## Clear a threshold override
 
-## Clear an alert threshold
+Removes an override and returns the target to the rule's default, or to a broader override that still covers it.
 
-Removes an override, returning the target to the rule's default or to a broader override that still covers it.
+To clear the override, pass the same `rule_id`, target, and parameter name you used to set it:
 
 ```shell
 curl --insecure -X POST \
@@ -64,16 +72,24 @@ curl --insecure -X POST \
 '
 ```
 
-Clearing is idempotent: clearing a parameter that has no override for that target succeeds and changes nothing. The rule, parameter and target are still checked, so an unknown one returns an error.
+If no override exists for that parameter on that target, the request succeeds and changes nothing. The rule ID, parameter name, and target are still validated, so an unknown value for any of them returns an error.
 
-> 🚧 Clear rather than write the default back
-> 
-> To return a target to the default, clear the override — do not set the threshold to the default value. Writing the default as an override pins that target to today's value, so it will not follow a later change to the rule.
+### Remove overrides
 
-### Removing a target
+#### Reset a target to the default
 
-Deleting a Node removes its overrides along with it. Cluster-scoped overrides are not removed this way, because a cluster is a label value rather than an inventory entity and has no removal event to hook.
+To return a target to the rule's default, clear the override.
 
-### Removing a rule
+> 🚧 Do not set the threshold to the default value
+>
+> Setting the default value keeps the override in place, so the target will not pick up future changes to the rule.
 
-Deleting an alert rule in Grafana does not remove its overrides right away. PMM cleans them up on a later threshold write — a set, clear or batch update — once it finds the rule gone from Grafana. The cleanup runs at most once every 15 minutes and leaves rules created in the last 10 minutes alone. Until then, the leftover overrides are harmless: no rule evaluates them, and the List endpoint for a target still reports them.
+#### When you delete a node
+
+If you delete a node, its overrides are removed along with it. Cluster-scoped overrides are not removed this way, because clusters are label values rather than inventory items and have no deletion event to trigger a cleanup.
+
+#### When you delete a rule
+
+If you delete an alert rule in Grafana, you may still see its overrides when you list thresholds for a target. They are stale and harmless (no rule evaluates them), and you do not need to remove them manually. 
+
+PMM cleans them up the next time you write a threshold (a set, clear, or batch update), at most once every 15 minutes, once it confirms the rule is gone from Grafana.

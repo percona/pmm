@@ -1,22 +1,18 @@
 ---
-title: List alert thresholds
-slug: listing-alert-thresholds
+title: List threshold overrides
+slug: listing-threshold-overrides
 category:
   uri: alerting-api
 position: 1
 ---
 
-## List alert thresholds
+## List threshold overrides
 
-Reports the threshold each overridable parameter is currently evaluated against, and whether that value comes from an override or from the rule's default.
+Use this endpoint to check what threshold a node is currently being evaluated against and whether it comes from an override or the rule's default.
 
-The response depends on whether you name a target.
+### View thresholds for a specific node
 
-### For one target
-
-Pass `scope` and `target` to get **every** overridable parameter that applies to it, whether overridden or not. This is what a settings screen for a single Node needs — the untouched parameters have to be shown alongside the changed ones.
-
-"Applies to it" means the parameter can be overridden at the scope you asked for. A parameter its template restricts to service scope is omitted from a node-scoped listing, because setting it there would be rejected — so every row you get back is one you can actually write.
+To see every overridable parameter for one node, pass `scope` and `target`. The response includes both overridden and non-overridden parameters, so you can see the full picture for that node:
 
 ```shell
 curl --insecure -X GET \
@@ -42,11 +38,13 @@ curl --insecure -X GET \
 }
 ```
 
-`scope` and `target` in the response describe where the **effective** value came from. Today that is always the target you asked about, since node is the only scope that resolves. They are reported separately because they will not always agree: once service and cluster scopes are enabled, a node can inherit an override set on a cluster. Read them from the entry rather than assuming the target you passed, and both are zero-valued — `THRESHOLD_SCOPE_UNSPECIFIED` and `""` — when `is_overridden` is false.
+`effective_value` is the threshold this node is currently evaluated against. If `is_overridden` is `true`, that value comes from an override you set. If `is_overridden` is `false`, the node is using `default_value`, the threshold you set when you created the rule.
 
-### Across all targets
+Every parameter in the response is one you can override for this node. If a parameter does not appear, you cannot set an override for it at this scope.
 
-Omit `target` to get only the overrides that actually exist:
+### See all active overrides
+
+To see every override currently set across all nodes, omit `target`:
 
 ```shell
 curl --insecure -X GET \
@@ -54,11 +52,11 @@ curl --insecure -X GET \
      --url 'https://127.0.0.1/v1/alerting/thresholds'
 ```
 
-Defaults are not enumerated here. Without a target there is no bounded set of targets to enumerate them for — every Node PMM has ever monitored would qualify.
+Nodes using the rule's default are not included. Without a target, there is no bounded set of nodes to enumerate defaults for.
 
-### Filtering by rule
+### Filter by rule
 
-`rule_id` narrows either form to a single rule:
+To see overrides for one rule only, add `rule_id`:
 
 ```shell
 curl --insecure -X GET \
@@ -66,10 +64,16 @@ curl --insecure -X GET \
      --url 'https://127.0.0.1/v1/alerting/thresholds?rule_id=1f8b2c34-5d6e-4a7b-8c9d-0e1f2a3b4c5d'
 ```
 
-> 🚧 Do not key a map on rule_id alone
-> 
-> With a target, `rule_id` and `param_name` together identify an entry. Without one, the response carries an entry per overridden target, so the same `rule_id` and `param_name` can repeat and differ only in `scope` and `target`. Key on all four.
+> 🚧 The same rule and parameter can appear more than once
+>
+> If you query without a target, the same rule and parameter can appear multiple times, once for each node that has that override set. Check `scope` and `target` to tell the entries apart.
 
-### Reading zero values
+### Reading the response
 
-Zero-valued fields **are** present. The gateway marshals with `EmitUnpopulated`, so a threshold of `0` arrives as `"default_value": 0` rather than being omitted, and an entry that is not overridden carries `"is_overridden": false`, `"scope": "THRESHOLD_SCOPE_UNSPECIFIED"` and `"target": ""`. This is not the proto3 default of dropping zero values, so a client written against that assumption will still work, but it need not treat an absent field as `0`.
+`scope` and `target` in each entry describe where the effective value came from. Currently this always matches the target you passed, since node is the only supported scope. 
+
+Read them from the entry rather than assuming they match your request. Once service and cluster scopes are enabled, a node can inherit an override set at a broader scope and the values will differ. 
+
+When `is_overridden` is false, both fields are empty (`THRESHOLD_SCOPE_UNSPECIFIED` and `""`).
+
+Zero-valued fields are always present. A threshold of `0` appears as `"default_value": 0` rather than being omitted, and a non-overridden entry carries `"is_overridden": false` rather than omitting the field.
