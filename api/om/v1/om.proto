@@ -146,6 +146,13 @@ message TopologyService {
   // that made the snapshot look fresh". A field's own MergedField.ObservedAt exists
   // internally; this is the first one exposed on the wire.
   optional google.protobuf.Timestamp observed_at = 20;
+
+  // When this service was last seen up, to the minute: the newest moment its mongodb_up
+  // read 1 within the 24 hours collection reads metrics over. Set only while status is
+  // DOWN, so a reader can say how long it has been down - from metrics rather than the
+  // scan, because a scan can succeed while mongod is down. Unset while UP, and on a DOWN
+  // service that was not up at any point in those 24 hours.
+  optional google.protobuf.Timestamp last_up_at = 21;
 }
 
 // ClusterType is the shape buildDocument inferred for one grouped service inventory.

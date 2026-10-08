@@ -203,6 +203,7 @@ func (s metricsSource) collect(ctx context.Context, services []*models.Service) 
 			run.signal(ctx, matcher, signal)
 		}
 		run.expressions(ctx, matcher)
+		run.lastUp(ctx, matcher)
 	}
 
 	switch {
@@ -392,6 +393,23 @@ func (r *metricsRun) expressions(ctx context.Context, matcher string) {
 			})
 		})
 	}
+}
+
+// lastUp reads when each service was last seen up, for a down one's "down since".
+//
+// Not volatile, unlike the up flag itself: it is a statement about the past, true however
+// long ago it was read. The fact is dated by the moment it names, which is when the
+// sample saying "up" was taken.
+func (r *metricsRun) lastUp(ctx context.Context, matcher string) {
+	r.queries++
+	query := fmt.Sprintf(queryLastUp, matcher, metricsLookback)
+	r.src.each(ctx, r.result, query, func(serviceID string, _ model.Metric, seconds float64) {
+		at := time.Unix(0, int64(seconds*float64(time.Second))).UTC()
+		r.result.Facts = append(r.result.Facts, Fact{
+			Service: serviceID, Field: fieldLastUp, Value: seconds,
+			Source: sourceMetrics, ObservedAt: &at,
+		})
+	})
 }
 
 // observedAt turns an age in seconds into the moment the sample was taken.

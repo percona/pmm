@@ -291,6 +291,54 @@ func TestBuildDocument(t *testing.T) {
 	})
 }
 
+// TestLastUpAt pins "down since": set from the last-up fact only while the service is
+// down, and absent when there is nothing true to say.
+func TestLastUpAt(t *testing.T) {
+	t.Parallel()
+
+	lastUp := projectionNow.Add(-3 * time.Hour)
+	lastUpFact := MergedField{
+		Value:      float64(lastUp.Unix()),
+		Source:     sourceMetrics,
+		ObservedAt: &lastUp,
+	}
+	services := []*models.Service{mongoService("s1", "mongo-1", "c1", "rs0", "prod")}
+	build := func(fields map[string]MergedField) *omv1.TopologyService {
+		return onlyService(t, buildDocument(services, map[string]map[string]MergedField{"s1": fields}, projectionNow, projectionMaxAge))
+	}
+
+	t.Run("a member down for a known interval says when it was last up", func(t *testing.T) {
+		t.Parallel()
+
+		fields := liveFacts("PRIMARY", map[string]MergedField{fieldLastUp: lastUpFact})
+		delete(fields, fieldExporterUp)
+
+		svc := build(fields)
+		assert.Equal(t, omv1.ServiceStatus_SERVICE_STATUS_DOWN, svc.Status)
+		require.NotNil(t, svc.LastUpAt)
+		assert.True(t, lastUp.Equal(svc.LastUpAt.AsTime()), "got %s", svc.LastUpAt.AsTime())
+	})
+
+	t.Run("a member never up in the lookback has no time to give", func(t *testing.T) {
+		t.Parallel()
+
+		fields := liveFacts("PRIMARY", nil)
+		delete(fields, fieldExporterUp)
+
+		svc := build(fields)
+		assert.Equal(t, omv1.ServiceStatus_SERVICE_STATUS_DOWN, svc.Status)
+		assert.Nil(t, svc.LastUpAt)
+	})
+
+	t.Run("a member that is up carries none", func(t *testing.T) {
+		t.Parallel()
+
+		svc := build(liveFacts("PRIMARY", map[string]MergedField{fieldLastUp: lastUpFact}))
+		assert.Equal(t, omv1.ServiceStatus_SERVICE_STATUS_UP, svc.Status)
+		assert.Nil(t, svc.LastUpAt)
+	})
+}
+
 func TestInventoryEndpoint(t *testing.T) {
 	t.Parallel()
 

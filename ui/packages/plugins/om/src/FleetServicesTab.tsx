@@ -143,14 +143,18 @@ function useColumns(
       },
       {
         accessorKey: 'status',
-        size: 110,
+        // Wide enough for "for 23h 59m" beside a Down chip.
+        size: 190,
         header: 'Status',
         // Worst first ascending, by rank rather than by the enum's spelling.
         sortingFn: (a, b, columnId) =>
           serviceStatusRank(a.getValue<OmServiceStatus>(columnId)) -
           serviceStatusRank(b.getValue<OmServiceStatus>(columnId)),
         Cell: ({ row: { original } }) => (
-          <StatusBadge status={original.status} />
+          <StatusBadge
+            status={original.status}
+            lastUpAt={original.last_up_at}
+          />
         ),
       },
       {

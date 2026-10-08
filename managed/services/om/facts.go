@@ -174,6 +174,7 @@ var defaultPrecedence = map[string][]string{
 	fieldOplogTail:      {sourceMetrics},
 
 	fieldExporterUp:      {sourceMetrics},
+	fieldLastUp:          {sourceMetrics},
 	fieldCPUUsage:        {sourceMetrics},
 	fieldConnectionsFree: {sourceMetrics},
 	fieldClusterRole:     {sourceMetrics},

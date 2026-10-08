@@ -64,6 +64,14 @@ const (
 		` + max by (service_id) (last_over_time(mongodb_connections{%[1]s,state="available"}[%[2]s])))`
 )
 
+// queryLastUp is the newest moment in the window at which mongodb_up read 1, as epoch
+// seconds, for "down since". Read from raw samples rather than a subquery, whose steps
+// see only the last sample before each one and so miss an up spell between them:
+// tmax_over_time is the newest sample holding the window's maximum, and the `and`
+// drops a series whose maximum was 0. MetricsQL; PromQL has no tmax_over_time.
+const queryLastUp = `max by (service_id) (tmax_over_time(` + metricUp + `{%[1]s}[%[2]s])` +
+	` and max_over_time(` + metricUp + `{%[1]s}[%[2]s]) == 1)`
+
 // metricsLookback is the window every query is read over.
 //
 // Deliberately long, and deliberately not the freshness rule. Without an explicit window
@@ -142,6 +150,7 @@ const (
 	fieldInstalledVersion = "installed_version"
 	fieldConfigPath       = "config_path"
 	fieldArgv             = "argv"
+	fieldLastUp           = "last_up_at"
 )
 
 // volatileFields are the fields that describe now rather than describe the service.
