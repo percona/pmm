@@ -22,7 +22,7 @@ var (
 	postgresExporterRegexp     = regexp.MustCompile("postgres_exporter, version ([!-~]*).*")
 	proxysqlExporterRegexp     = regexp.MustCompile("proxysql_exporter, version ([!-~]*).*")
 	rdsExporterRegexp          = regexp.MustCompile("rds_exporter, version ([!-~]*).*")
-	azureMetricsExporterRegexp = regexp.MustCompile("azure_metrics_exporter, version ([!-~]*).*")
+	azureMetricsExporterRegexp = regexp.MustCompile("azure_exporter, version ([!-~]*).*")
 	valkeyExporterRegexp       = regexp.MustCompile("valkey_exporter, version ([!-~]*).*")
 	mongodbExporterRegexp      = regexp.MustCompile("Version: ([!-~]*).*")
 )
