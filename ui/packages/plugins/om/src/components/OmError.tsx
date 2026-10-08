@@ -73,6 +73,9 @@ export const OmError = ({
   const list = (Array.isArray(messages) ? messages : [messages]).filter(
     (message) => message !== null && message !== undefined && message !== ''
   );
+  if (!title && list.length === 0) {
+    return null;
+  }
   const compact = placement !== 'load';
   return (
     <Alert
@@ -92,20 +95,19 @@ export const OmError = ({
         ) : (
           <AlertTitle>{title}</AlertTitle>
         ))}
-      {list.length === 1 ? (
+      {list.length === 1 && (
         <Box component="span" data-testid={itemTestId}>
           {list[0]}
         </Box>
-      ) : (
-        list.length > 1 && (
-          <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
-            {list.map((message, index) => (
-              <li key={index} data-testid={itemTestId}>
-                {message}
-              </li>
-            ))}
-          </Box>
-        )
+      )}
+      {list.length > 1 && (
+        <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
+          {list.map((message, index) => (
+            <li key={index} data-testid={itemTestId}>
+              {message}
+            </li>
+          ))}
+        </Box>
       )}
     </Alert>
   );

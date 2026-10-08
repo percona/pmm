@@ -60,4 +60,22 @@ describe('OmError', () => {
     expect(screen.getByRole('alert')).toHaveTextContent(/^the reason$/);
     expect(screen.queryByRole('list')).toBeNull();
   });
+
+  it('still says what failed when the failure carries no reason', () => {
+    render(
+      <OmError placement="load" title="Could not load the fleet" messages="" />
+    );
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      /^Could not load the fleet$/
+    );
+  });
+
+  it('renders nothing when there is nothing to say', () => {
+    const { container } = render(
+      <OmError placement="item" messages={['', null]} />
+    );
+
+    expect(container).toBeEmptyDOMElement();
+  });
 });
