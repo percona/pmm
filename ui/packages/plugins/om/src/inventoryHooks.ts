@@ -48,7 +48,11 @@ import {
   request,
   retryTransientRequestErrors,
 } from './api';
-import { periodSince, type OmRunPeriod } from './inventory';
+import {
+  periodSince,
+  type OmEstateStatus,
+  type OmRunPeriod,
+} from './inventory';
 import { ScanTrackingContext } from './scanTracking';
 import type {
   OmBootstrapMemberConfig,
@@ -321,22 +325,31 @@ export function useActiveInventoryRun(): {
   };
 }
 
+export interface OmLastScan {
+  status: OmEstateStatus;
+  finishedAt: string | null;
+}
+
 /**
  * When the newest scan of every node finished, or null if none has.
  *
  * A scan of a few nodes does not count, and neither does one that reached no node at
- * all: "nodes last scanned" would claim more than either did.
+ * all: "nodes last scanned" would claim more than either did. Until the history has
+ * been read, `status` says so, because "none has finished" is not yet known.
  */
-export function useLastScanFinishedAt(): string | null {
-  const { data: runs } = useOmInventoryRuns();
-  const run = (runs ?? []).find(
+export function useLastScanFinishedAt(): OmLastScan {
+  const { data: runs, isError } = useOmInventoryRuns();
+  if (!runs) {
+    return { status: isError ? 'unavailable' : 'pending', finishedAt: null };
+  }
+  const run = runs.find(
     (candidate) =>
       candidate.scope.length === 0 &&
       Boolean(candidate.end_time) &&
       (candidate.status === 'RUN_STATUS_SUCCESS' ||
         candidate.status === 'RUN_STATUS_PARTIAL')
   );
-  return run?.end_time ?? null;
+  return { status: 'ready', finishedAt: run?.end_time ?? null };
 }
 
 /**

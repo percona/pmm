@@ -25,7 +25,9 @@ import { cluster, mixedEstate, service, topology } from './fixtures';
 const { useOmTopology } = vi.hoisted(() => ({ useOmTopology: vi.fn() }));
 
 vi.mock('../src/topologyHooks', () => ({ useOmTopology }));
-vi.mock('../src/inventoryHooks', () => ({ useLastScanFinishedAt: () => null }));
+vi.mock('../src/inventoryHooks', () => ({
+  useLastScanFinishedAt: () => ({ status: 'ready', finishedAt: null }),
+}));
 
 const renderPage = () =>
   render(
