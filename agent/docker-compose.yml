@@ -8,8 +8,6 @@ services:
       - "127.0.0.1:443:8443"
     environment:
       - PMM_DEBUG=1
-    volumes:
-      - ./testdata/checks:/srv/checks
 
   test_db:
     image: aleksi/test_db:1.1.0

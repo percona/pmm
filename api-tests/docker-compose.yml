@@ -7,8 +7,6 @@ services:
       - 127.0.0.1:443:8443
     environment:
       - PMM_DEBUG=1
-    volumes:
-      - ./testdata/checks:/srv/checks
 
   # It is essential to have an extra directory `/slowlogs/` between host and container;
   # and to not have a trailing slash at `./testdata/mysql`.
