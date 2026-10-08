@@ -82,4 +82,42 @@ describe('findActiveNavItem', () => {
 
     expect(activeItem?.id).toBe(child.id);
   });
+
+  it('never returns a section heading', () => {
+    const section: NavItem = {
+      id: 'section',
+      type: 'menu-section',
+      text: 'Browse',
+      url: '/browse',
+    };
+
+    expect(findActiveNavItem([section], '/browse')).toBeUndefined();
+  });
+
+  it('gives an item with a query string its page only when the params are present', () => {
+    const plain: NavItem = { id: 'plain', url: '/page' };
+    const filtered: NavItem = {
+      id: 'filtered',
+      url: '/page?var-type=postgresql',
+    };
+
+    expect(findActiveNavItem([filtered, plain], '/page')?.id).toBe('plain');
+    expect(
+      findActiveNavItem(
+        [filtered, plain],
+        '/page',
+        '?var-type=postgresql&from=now'
+      )?.id
+    ).toBe('filtered');
+  });
+
+  it('keeps custom match paths path-only for an item with a query string', () => {
+    const item: NavItem = {
+      id: 'item',
+      url: '/page?var-namespace=pmm',
+      matches: ['/page'],
+    };
+
+    expect(findActiveNavItem([item], '/page')?.id).toBe('item');
+  });
 });

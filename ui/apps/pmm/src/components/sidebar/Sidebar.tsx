@@ -31,13 +31,17 @@ export const Sidebar: FC = () => {
   }, [navOpen, setNavOpen]);
 
   useEffect(() => {
-    const activeItem = findActiveNavItem(navTree, location.pathname);
+    const activeItem = findActiveNavItem(
+      navTree,
+      location.pathname,
+      location.search
+    );
 
     // keep previous item active if there isn't a match
     if (activeItem) {
       setActiveItem(activeItem);
     }
-  }, [navTree, location.pathname]);
+  }, [navTree, location.pathname, location.search]);
 
   const handleNavItemClick = () => {
     // autoclose sidebar when layout is narrow

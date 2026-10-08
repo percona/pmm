@@ -16,5 +16,5 @@ export interface NavItem {
   badge?: ChipProps | React.ReactElement;
   badgeAlwaysVisible?: boolean;
   matches?: string[];
-  type?: 'menu-item' | 'menu-text' | 'menu-divider';
+  type?: 'menu-item' | 'menu-text' | 'menu-divider' | 'menu-section';
 }

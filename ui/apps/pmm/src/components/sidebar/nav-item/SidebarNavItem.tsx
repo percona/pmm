@@ -163,6 +163,30 @@ const SidebarNavItem: FC<NavItemProps> = ({
     );
   }
 
+  if (item.type === 'menu-section') {
+    // The collapsed rail has no room for a label, so the section reads as a gap.
+    if (!drawerOpen) {
+      return (
+        <ListItem
+          data-testid={dataTestid + '-divider'}
+          sx={styles.listItemDivider}
+        >
+          <Divider sx={styles.divider} />
+        </ListItem>
+      );
+    }
+
+    return (
+      <ListItem
+        data-testid={dataTestid + '-section'}
+        disableGutters
+        disablePadding
+      >
+        <ListItemText primary={item.text} sx={styles.sectionHeading} />
+      </ListItem>
+    );
+  }
+
   if (item.type === 'menu-divider') {
     return (
       <ListItem

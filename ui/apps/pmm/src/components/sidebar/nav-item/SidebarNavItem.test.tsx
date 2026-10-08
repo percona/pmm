@@ -196,4 +196,27 @@ describe('SidebarNavItem', () => {
     expect(screen.getByText('description')).toBeInTheDocument();
     expect(screen.getByText('secondary text')).toBeInTheDocument();
   });
+
+  it('renders a heading if item has type "menu-section"', () => {
+    renderNavItem({
+      props: {
+        item: { id: 'browse', type: 'menu-section', text: 'Browse' },
+      },
+    });
+
+    expect(screen.getByTestId('navitem-browse-section')).toBeInTheDocument();
+    expect(screen.getByText('Browse')).toBeInTheDocument();
+  });
+
+  it('renders a section as a divider when the sidebar is collapsed', () => {
+    renderNavItem({
+      props: {
+        item: { id: 'browse', type: 'menu-section', text: 'Browse' },
+        drawerOpen: false,
+      },
+    });
+
+    expect(screen.getByTestId('navitem-browse-divider')).toBeInTheDocument();
+    expect(screen.queryByText('Browse')).not.toBeInTheDocument();
+  });
 });
