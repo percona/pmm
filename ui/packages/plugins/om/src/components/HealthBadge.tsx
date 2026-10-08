@@ -16,20 +16,25 @@
  */
 
 import type { ReactElement } from 'react';
+import { Stack, Tooltip, Typography } from '@mui/material';
 import Chip from '@mui/material/Chip';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import { formatTimestamp } from '@pmm-extensions/framework';
 import {
   CLUSTER_HEALTH_COLOR,
   CLUSTER_HEALTH_LABEL,
+  METRICS_LOOKBACK,
   RUN_STATUS_COLOR,
   RUN_STATUS_LABEL,
   SERVICE_STATUS_COLOR,
   SERVICE_STATUS_LABEL,
 } from '../constants';
 import { isRunActive } from '../api';
+import { formatCompactDuration } from '../format';
+import { ageSeconds } from '../inventory';
 import type {
   OmClusterHealth,
   OmServiceStatus,
@@ -61,12 +66,19 @@ const CLUSTER_HEALTH_ICON: Record<OmClusterHealth, ReactElement> = {
  * thing on the page, and the healthy state the quietest. Each state also carries its
  * own icon and word, so none of them depends on colour to be read.
  */
-export const StatusBadge = ({ status }: { status: OmServiceStatus }) => {
+export const StatusBadge = ({
+  status,
+  lastUpAt,
+}: {
+  status: OmServiceStatus;
+  /** The service's `last_up_at`, read only when it is down. */
+  lastUpAt?: string | null;
+}) => {
   // A value this build does not know reads as unknown throughout, so the icon, the
   // word and the colour cannot disagree.
   const known: OmServiceStatus =
     status in SERVICE_STATUS_LABEL ? status : 'SERVICE_STATUS_UNSPECIFIED';
-  return (
+  const chip = (
     <Chip
       size="small"
       icon={SERVICE_STATUS_ICON[known]}
@@ -75,6 +87,54 @@ export const StatusBadge = ({ status }: { status: OmServiceStatus }) => {
       variant={known === 'SERVICE_STATUS_DOWN' ? 'filled' : 'outlined'}
       data-testid="om-service-status"
     />
+  );
+  if (known !== 'SERVICE_STATUS_DOWN') {
+    return chip;
+  }
+  return (
+    <Stack direction="row" alignItems="center" gap={0.75}>
+      {chip}
+      <DownFor lastUpAt={lastUpAt} />
+    </Stack>
+  );
+};
+
+/**
+ * How long a down service has been down, beside its chip: "for 3h", the exact time in
+ * the tooltip. From the server's `last_up_at`, so it reads the same after a reload.
+ */
+const DownFor = ({ lastUpAt }: { lastUpAt?: string | null }) => {
+  const age = ageSeconds(lastUpAt);
+  const [text, title] =
+    age == null
+      ? [
+          `not up in ${METRICS_LOOKBACK}`,
+          `No metric shows it up at any point in the last ${METRICS_LOOKBACK}.`,
+        ]
+      : [
+          `for ${formatCompactDuration(age) || '0s'}`,
+          `Last seen up ${formatTimestamp(lastUpAt)?.title}`,
+        ];
+  return (
+    <Tooltip title={title} describeChild>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        noWrap
+        data-testid="om-down-for"
+        tabIndex={0}
+        sx={{
+          '&:focus-visible': {
+            outline: '2px solid',
+            outlineColor: 'primary.main',
+            outlineOffset: 2,
+            borderRadius: 0.5,
+          },
+        }}
+      >
+        {text}
+      </Typography>
+    </Tooltip>
   );
 };
 

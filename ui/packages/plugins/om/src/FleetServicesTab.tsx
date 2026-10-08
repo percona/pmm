@@ -17,7 +17,6 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
   Box,
   Chip,
   LinearProgress,
@@ -57,6 +56,7 @@ import type {
   OmServiceInventoryRow,
   OmServiceStatus,
 } from './types';
+import { OmError } from './components/OmError';
 
 /** A full `mongod` command line is a paragraph; the cell shows it on hover. */
 const TRUNCATED = {
@@ -144,14 +144,18 @@ function useColumns(
       },
       {
         accessorKey: 'status',
-        size: 110,
+        // Wide enough for "for 23h 59m" beside a Down chip.
+        size: 190,
         header: 'Status',
         // Worst first ascending, by rank rather than by the enum's spelling.
         sortingFn: (a, b, columnId) =>
           serviceStatusRank(a.getValue<OmServiceStatus>(columnId)) -
           serviceStatusRank(b.getValue<OmServiceStatus>(columnId)),
         Cell: ({ row: { original } }) => (
-          <StatusBadge status={original.status} />
+          <StatusBadge
+            status={original.status}
+            lastUpAt={original.last_up_at}
+          />
         ),
       },
       {
@@ -543,9 +547,11 @@ export const FleetServicesTab = () => {
     // tab is open. A branch that named the fix without offering it was the bug here,
     // and hoisting the header is what fixes it for both tabs at once.
     return (
-      <Alert severity="error">
-        {(error as Error)?.message ?? 'Could not load the fleet.'}
-      </Alert>
+      <OmError
+        placement="load"
+        title="Could not load the fleet"
+        messages={(error as Error)?.message}
+      />
     );
   }
 
@@ -553,12 +559,17 @@ export const FleetServicesTab = () => {
     <Box>
       <SnapshotBar envelope={data.snapshot} />
       {inventoryFailed && (
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          Scan results could not be read, so the scan columns are blank and no
-          scan count is shown. The monitoring columns come from PMM&apos;s own
-          data and are unaffected.
-          {inventoryError instanceof Error ? ` ${inventoryError.message}` : ''}
-        </Alert>
+        <Box sx={{ mb: 2 }}>
+          <OmError
+            placement="load"
+            severity="warning"
+            title="Could not read scan results"
+            messages={[
+              "The scan columns are blank and no scan count is shown. The monitoring columns come from PMM's own data and are unaffected.",
+              inventoryError instanceof Error ? inventoryError.message : null,
+            ]}
+          />
+        </Box>
       )}
       <Counts
         total={data.summary.total_services}

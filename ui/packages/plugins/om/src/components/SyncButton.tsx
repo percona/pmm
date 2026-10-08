@@ -16,13 +16,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import {
-  Button,
-  CircularProgress,
-  Stack,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { Button, CircularProgress, Stack, Tooltip } from '@mui/material';
 import SyncIcon from '@mui/icons-material/Sync';
 import { enqueueSnackbar } from 'notistack';
 import {
@@ -31,6 +25,7 @@ import {
   useTriggerOmTopologyRun,
 } from '../topologyHooks';
 import { isRunActive, OmApiError } from '../api';
+import { OmError } from './OmError';
 
 /**
  * Trigger a collection run and reflect its progress.
@@ -100,20 +95,25 @@ export const SyncButton = () => {
         </span>
       </Tooltip>
       {conflict && (
-        <Typography variant="body2" color="text.secondary">
-          A refresh is already in flight.
-        </Typography>
+        <OmError
+          placement="action"
+          severity="info"
+          messages="A refresh is already in flight."
+        />
       )}
       {failure && (
-        <Typography variant="body2" color="error">
-          Could not refresh: {failure.message}
-        </Typography>
+        <OmError
+          placement="action"
+          title="Could not refresh"
+          messages={failure.message}
+        />
       )}
       {runFailed && (
-        <Typography variant="body2" color="error">
-          The refresh did not finish, so this view still shows the data from
-          before it.
-        </Typography>
+        <OmError
+          placement="action"
+          title="The refresh did not finish"
+          messages="This view still shows the data from before it."
+        />
       )}
     </Stack>
   );

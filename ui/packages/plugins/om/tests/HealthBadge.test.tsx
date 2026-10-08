@@ -16,11 +16,53 @@
  */
 
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { ClusterHealthBadge, StatusBadge } from '../src/components/HealthBadge';
 import type { OmClusterHealth, OmServiceStatus } from '../src/types';
 
 describe('StatusBadge', () => {
+  const hoursAgo = (hours: number) =>
+    new Date(Date.now() - hours * 3600 * 1000).toISOString();
+
+  it('says how long a down service has been down, from when it was last up', () => {
+    render(<StatusBadge status="SERVICE_STATUS_DOWN" lastUpAt={hoursAgo(3)} />);
+
+    expect(screen.getByTestId('om-down-for')).toHaveTextContent(
+      /^for 3h( \d+s)?$/
+    );
+  });
+
+  it('lets the keyboard reach the exact last-up time', async () => {
+    render(<StatusBadge status="SERVICE_STATUS_DOWN" lastUpAt={hoursAgo(3)} />);
+
+    await userEvent.tab();
+
+    const caption = screen.getByTestId('om-down-for');
+    expect(caption).toHaveFocus();
+    // jsdom has no :focus-visible, so MUI cannot open the tooltip on focus here. Its
+    // text rides on the caption as a description, not as a name replacing "for 3h".
+    expect(caption).toHaveAttribute(
+      'title',
+      expect.stringMatching(/^Last seen up /)
+    );
+    expect(caption).not.toHaveAttribute('aria-label');
+  });
+
+  it('says a down service was not up at all in the window it can see', () => {
+    render(<StatusBadge status="SERVICE_STATUS_DOWN" lastUpAt={null} />);
+
+    expect(screen.getByTestId('om-down-for')).toHaveTextContent(
+      'not up in 24 hours'
+    );
+  });
+
+  it('says nothing about time for a service that is up', () => {
+    render(<StatusBadge status="SERVICE_STATUS_UP" lastUpAt={hoursAgo(3)} />);
+
+    expect(screen.queryByTestId('om-down-for')).toBeNull();
+  });
+
   it.each([
     ['SERVICE_STATUS_UP', 'Up', 'CheckCircleOutlineIcon'],
     ['SERVICE_STATUS_DOWN', 'Down', 'ErrorOutlineIcon'],

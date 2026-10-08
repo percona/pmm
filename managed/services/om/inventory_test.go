@@ -2286,7 +2286,8 @@ func TestInventoryRunCarriesHostCounters(t *testing.T) {
 	  "started_at": "2026-08-18T12:00:00Z", "finished_at": "2026-08-18T12:00:30Z",
 	  "counts": {"services_total": 0, "services_resolved": 0, "services_orphaned": 0,
 	             "services_answered": 0,
-	             "hosts_total": 3, "hosts_probeable": 2, "hosts_answered": 1},
+	             "hosts_total": 3, "hosts_probeable": 2, "hosts_answered": 1,
+	             "hosts_finished": 2},
 	  "scope": ["node-1"], "error": null
 	}]`)
 
@@ -2298,6 +2299,7 @@ func TestInventoryRunCarriesHostCounters(t *testing.T) {
 	assert.Equal(t, int32(3), counts.GetTotalHosts())
 	assert.Equal(t, int32(2), counts.GetProbeableHosts())
 	assert.Equal(t, int32(1), counts.GetAnsweredHosts())
+	assert.Equal(t, int32(2), counts.GetFinishedHosts())
 	// Zero services is the honest answer for a host-only refresh, and the reason the
 	// host counters had to exist rather than the service ones being reinterpreted.
 	assert.Equal(t, int32(0), counts.GetTotalServices())

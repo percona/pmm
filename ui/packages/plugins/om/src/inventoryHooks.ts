@@ -49,6 +49,7 @@ import {
   retryTransientRequestErrors,
 } from './api';
 import {
+  expectedScanSeconds,
   periodSince,
   type OmEstateStatus,
   type OmRunPeriod,
@@ -322,6 +323,21 @@ export function useActiveInventoryRun(): {
   return {
     run: (runs ?? []).find((run) => isRunActive(run.status)),
     updatedAt: dataUpdatedAt,
+  };
+}
+
+/**
+ * The scan in flight, if any, and how long one like it usually takes.
+ */
+export function useScanInFlight(): {
+  run: OmInventoryRun | undefined;
+  expectedSeconds: number | null;
+} {
+  const { data: runs } = useOmInventoryRuns();
+  const run = (runs ?? []).find((candidate) => isRunActive(candidate.status));
+  return {
+    run,
+    expectedSeconds: run ? expectedScanSeconds(runs ?? [], run.scope) : null,
   };
 }
 

@@ -152,7 +152,19 @@ func serviceDocument(service *models.Service, fields fieldSet) *omv1.TopologySer
 		// This row's own provenance, as against Snapshot.observed_at's estate-wide
 		// newest -- see fieldSet.newestObservedAt.
 		ObservedAt: observedAtTimestamp(fields.newestObservedAt()),
+
+		LastUpAt: lastUpAt(fields, up),
 	}
+}
+
+// lastUpAt is when a down service was last seen up. Nil while it is up, where "down
+// since" means nothing, and for one not up at any point in the lookback.
+func lastUpAt(fields fieldSet, up bool) *timestamppb.Timestamp {
+	seconds := fields.f64(fieldLastUp)
+	if up || seconds == nil {
+		return nil
+	}
+	return timestamppb.New(time.Unix(0, int64(*seconds*float64(time.Second))))
 }
 
 // observedAtTimestamp adapts fieldSet.newestObservedAt's *time.Time to the wire's

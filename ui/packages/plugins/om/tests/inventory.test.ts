@@ -20,6 +20,7 @@ import {
   ageSeconds,
   databaseState,
   describeScanFailure,
+  expectedScanSeconds,
   groupRuns,
   isBoundedPeriod,
   isFailing,
@@ -483,6 +484,7 @@ describe('groupRuns', () => {
       total_hosts: 3,
       probeable_hosts: 3,
       answered_hosts: 3 - failing.length,
+      finished_hosts: 3,
       total_services: 0,
       resolved_services: 0,
       answered_services: 0,
@@ -556,5 +558,74 @@ describe('groupRuns', () => {
       scan('a', 'RUN_STATUS_SUCCESS', []),
     ]);
     expect(groups.map((group) => group.id)).toEqual(['b']);
+  });
+});
+
+describe('expectedScanSeconds', () => {
+  const scan = (
+    seconds: number | null,
+    status: OmTopologyRunStatus = 'RUN_STATUS_SUCCESS',
+    scope: string[] = []
+  ): OmInventoryRun => ({
+    run_id: `r${seconds}`,
+    status,
+    start_time: '2026-10-07T12:00:00Z',
+    end_time:
+      seconds == null
+        ? null
+        : new Date(
+            Date.parse('2026-10-07T12:00:00Z') + seconds * 1000
+          ).toISOString(),
+    scope,
+    counts: {
+      total_hosts: 3,
+      probeable_hosts: 3,
+      answered_hosts: 3,
+      finished_hosts: 3,
+      total_services: 0,
+      resolved_services: 0,
+      answered_services: 0,
+      orphaned_services: 0,
+    },
+  });
+
+  it('takes the middle of the recent scans over the same nodes', () => {
+    expect(expectedScanSeconds([scan(40), scan(300), scan(50)], [])).toBe(50);
+    expect(expectedScanSeconds([scan(40), scan(60)], [])).toBe(50);
+  });
+
+  it('leaves out failed and unfinished scans, and other scopes', () => {
+    expect(
+      expectedScanSeconds(
+        [
+          scan(null, 'RUN_STATUS_RUNNING'),
+          scan(5, 'RUN_STATUS_FAILED'),
+          scan(8, 'RUN_STATUS_SUCCESS', ['node-1']),
+          scan(45, 'RUN_STATUS_PARTIAL'),
+        ],
+        []
+      )
+    ).toBe(45);
+  });
+
+  it('reads only the five most recent', () => {
+    expect(
+      expectedScanSeconds(
+        [
+          scan(10),
+          scan(10),
+          scan(10),
+          scan(10),
+          scan(10),
+          scan(900),
+          scan(900),
+        ],
+        []
+      )
+    ).toBe(10);
+  });
+
+  it('has nothing to say with nothing to go on', () => {
+    expect(expectedScanSeconds([], [])).toBeNull();
   });
 });

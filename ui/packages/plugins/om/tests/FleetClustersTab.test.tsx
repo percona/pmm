@@ -98,6 +98,45 @@ describe('FleetClustersTab', () => {
     ).toBeInTheDocument();
   });
 
+  it('says beside a down member how long it has been down', () => {
+    useOmTopology.mockReturnValue({
+      data: topology([
+        {
+          env_name: 'production',
+          clusters: [
+            cluster({
+              name: 'orders',
+              services: [
+                service({ service_name: 'orders-1', state: 'PRIMARY' }),
+                service({
+                  service_name: 'orders-2',
+                  status: 'SERVICE_STATUS_DOWN',
+                  last_up_at: new Date(
+                    Date.now() - 2 * 3600 * 1000
+                  ).toISOString(),
+                }),
+              ],
+            }),
+          ],
+        },
+      ]),
+      isPending: false,
+      isError: false,
+    });
+    renderPage();
+
+    fireEvent.click(
+      within(clusterRows()[0]).getByRole('button', { name: /expand/i })
+    );
+
+    const down = screen
+      .getAllByRole('row')
+      .find((row) => within(row).queryByText('orders-2')) as HTMLElement;
+    expect(within(down).getByTestId('om-down-for')).toHaveTextContent(
+      /^for 2h( \d+s)?$/
+    );
+  });
+
   it('links each member to its PMM dashboard, a down one included', () => {
     renderPage();
 

@@ -1696,6 +1696,7 @@ func inventoryRunToProto(run extensionsRun) *omv1.InventoryRun {
 			TotalHosts:       run.Counts.HostsTotal,
 			ProbeableHosts:   run.Counts.HostsProbeable,
 			AnsweredHosts:    run.Counts.HostsAnswered,
+			FinishedHosts:    run.Counts.HostsFinished,
 		},
 		Scope:        run.Scope,
 		Error:        optionalString(run.Error),

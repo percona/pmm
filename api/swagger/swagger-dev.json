@@ -31327,6 +31327,12 @@
                             "type": "integer",
                             "format": "int32",
                             "x-order": 6
+                          },
+                          "finished_hosts": {
+                            "description": "Hosts whose scan has come back, answered or not. Counted up while the run is\nstill going, so a page can say how far it has got.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 7
                           }
                         },
                         "x-order": 4
@@ -31511,6 +31517,12 @@
                           "type": "integer",
                           "format": "int32",
                           "x-order": 6
+                        },
+                        "finished_hosts": {
+                          "description": "Hosts whose scan has come back, answered or not. Counted up while the run is\nstill going, so a page can say how far it has got.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 7
                         }
                       },
                       "x-order": 4
@@ -32524,6 +32536,13 @@
                                     "format": "date-time",
                                     "x-nullable": true,
                                     "x-order": 19
+                                  },
+                                  "last_up_at": {
+                                    "description": "When this service was last seen up, to the minute: the newest moment its mongodb_up\nread 1 within the 24 hours collection reads metrics over. Set only while status is\nDOWN, so a reader can say how long it has been down - from metrics rather than the\nscan, because a scan can succeed while mongod is down. Unset while UP, and on a DOWN\nservice that was not up at any point in those 24 hours.",
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "x-nullable": true,
+                                    "x-order": 20
                                   }
                                 }
                               },

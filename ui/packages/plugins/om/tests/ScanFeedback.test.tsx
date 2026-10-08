@@ -59,6 +59,7 @@ const run = (
     total_hosts: probeable,
     probeable_hosts: probeable,
     answered_hosts: answered,
+    finished_hosts: answered,
   },
 });
 

@@ -264,6 +264,65 @@ describe('BootstrapPage install refusal', () => {
 
 // Task 4 / P1. Every one of these conditions used to be checked on the wizard's
 // final button, inside TriggerHostBootstrap, after the whole form was filled in.
+describe('BootstrapPage blockers', () => {
+  const blockers = () =>
+    screen.getAllByTestId('om-review-blocker').map((item) => item.textContent);
+
+  it('lists everything keeping Review disabled, beside it', () => {
+    openConfigure();
+    fireEvent.change(screen.getByLabelText(/Replica set name/), {
+      target: { value: '' },
+    });
+    fireEvent.change(screen.getByLabelText(/Data path/), {
+      target: { value: '' },
+    });
+    fireEvent.change(screen.getByLabelText(/^Port/), {
+      target: { value: '70000' },
+    });
+
+    expect(review()).toBeDisabled();
+    expect(blockers()).toEqual([
+      'a replica set name',
+      'a data path',
+      'a port from 1 to 65535',
+    ]);
+  });
+
+  it('says nothing once Review can go ahead', () => {
+    openConfigure();
+
+    expect(review()).toBeEnabled();
+    expect(screen.queryByTestId('om-review-blocker')).toBeNull();
+  });
+
+  it('gives every reason Configure is unavailable, not only the first', () => {
+    hostsState.data = [{ ...host(1), automation_eligible: false }, host(2)];
+    try {
+      render(
+        <MemoryRouter
+          initialEntries={['/operations/nodes/install?nodes=node-1,node-2']}
+        >
+          <Routes>
+            <Route
+              path="/operations/nodes/install"
+              element={<BootstrapPage />}
+            />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      const error = screen.getByTestId('om-error');
+      expect(error).toHaveTextContent('Select exactly one node');
+      expect(error).toHaveTextContent(
+        '1 selected node cannot be installed onto'
+      );
+      expect(screen.getByRole('button', { name: 'Configure' })).toBeDisabled();
+    } finally {
+      hostsState.data = HOSTS;
+    }
+  });
+});
+
 describe('BootstrapPage step 1 preconditions', () => {
   const renderStep1 = () =>
     render(

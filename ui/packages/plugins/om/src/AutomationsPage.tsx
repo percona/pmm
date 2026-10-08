@@ -18,7 +18,6 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
-  Alert,
   Box,
   Chip,
   CircularProgress,
@@ -44,6 +43,7 @@ import { useOmBootstrapRuns } from './inventoryHooks';
 import { tabPanelProps, tabProps } from './tabA11y';
 import { useOmBase } from './useOmBase';
 import type { OmGetBootstrapRunResponse } from './types';
+import { OmError } from './components/OmError';
 
 /**
  * How many runs to ask for.
@@ -153,9 +153,11 @@ const AutomationsInstallsTab = () => {
   // own isError branch.
   if (error) {
     return (
-      <Alert severity="error">
-        Could not load installs: {(error as Error).message}
-      </Alert>
+      <OmError
+        placement="load"
+        title="Could not load installs"
+        messages={(error as Error).message}
+      />
     );
   }
 

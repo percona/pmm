@@ -154,6 +154,37 @@ func (m *TopologyService) validate(all bool) error {
 		}
 	}
 
+	if m.LastUpAt != nil {
+		if all {
+			switch v := interface{}(m.GetLastUpAt()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, TopologyServiceValidationError{
+						field:  "LastUpAt",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, TopologyServiceValidationError{
+						field:  "LastUpAt",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetLastUpAt()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return TopologyServiceValidationError{
+					field:  "LastUpAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return TopologyServiceMultiError(errors)
 	}
@@ -3409,6 +3440,8 @@ func (m *InventoryRunCounts) validate(all bool) error {
 	// no validation rules for ProbeableHosts
 
 	// no validation rules for AnsweredHosts
+
+	// no validation rules for FinishedHosts
 
 	if len(errors) > 0 {
 		return InventoryRunCountsMultiError(errors)

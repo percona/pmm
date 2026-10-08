@@ -53,6 +53,7 @@ vi.mock('../src/inventoryHooks', () => ({
   useForgetHost,
   useOmBootstrapRuns,
   useActiveInventoryRun,
+  useScanInFlight: () => ({ run: undefined, expectedSeconds: null }),
 }));
 
 const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
@@ -789,11 +790,9 @@ describe('NodesPage', () => {
 
       renderPage();
 
-      expect(
-        screen.getByText(
-          'Could not start a scan: PMM Extensions did not answer'
-        )
-      ).toBeInTheDocument();
+      const error = screen.getByTestId('om-error');
+      expect(error).toHaveTextContent('Could not start a scan');
+      expect(error).toHaveTextContent('PMM Extensions did not answer');
     });
 
     it('filters to the failing nodes from their count, and back', () => {

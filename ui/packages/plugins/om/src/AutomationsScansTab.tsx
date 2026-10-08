@@ -21,7 +21,6 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Alert,
   Box,
   Button,
   Chip,
@@ -49,6 +48,7 @@ import { isRunActive } from './api';
 import { useScanConflict } from './ScanFeedback';
 import { RunStatusBadge } from './components/HealthBadge';
 import { RunEntities } from './components/RunEntities';
+import { ScanProgress } from './components/ScanProgress';
 import { Age } from './components/Age';
 import {
   formatCompactDuration,
@@ -69,6 +69,7 @@ import {
 import { OM_ROUTE_NODES } from './constants';
 import { useOmBase } from './useOmBase';
 import type { OmInventoryRun, OmInventoryRunFailingNode } from './types';
+import { OmError } from './components/OmError';
 
 /** When a group of scans ran: the newest, and for several, how many over how long. */
 const GroupStarted = ({ group }: { group: OmRunGroup }) => {
@@ -318,6 +319,7 @@ const RefreshButton = () => {
 
   return (
     <Stack direction="row" alignItems="center" gap={1}>
+      <ScanProgress />
       <Tooltip title="Scan every node now, collecting what no metric carries">
         <span>
           <Button
@@ -333,14 +335,18 @@ const RefreshButton = () => {
         </span>
       </Tooltip>
       {conflict && (
-        <Typography variant="body2" color="text.secondary">
-          {conflict.message}
-        </Typography>
+        <OmError
+          placement="action"
+          severity="info"
+          messages={conflict.message}
+        />
       )}
       {failure && (
-        <Typography variant="body2" color="error">
-          Could not start a scan: {failure.message}
-        </Typography>
+        <OmError
+          placement="action"
+          title="Could not start a scan"
+          messages={failure.message}
+        />
       )}
     </Stack>
   );
@@ -368,6 +374,9 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
     );
   }
   const active = isRunActive(run.status);
+  // Refused before doing anything: its counts are all zero and its error is why.
+  const skipped = run.status === 'RUN_STATUS_SKIPPED';
+  const failed = run.status === 'RUN_STATUS_FAILED';
   return (
     <Stack
       direction="row"
@@ -381,6 +390,8 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
           <>
             started <Age value={run.start_time} />
           </>
+        ) : skipped ? (
+          <Age value={run.start_time} />
         ) : (
           <>
             <Age value={run.start_time} />, took{' '}
@@ -388,16 +399,24 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
           </>
         )}
       </Typography>
-      <Typography variant="body2">
-        <strong>{run.counts.answered_hosts}</strong> of{' '}
-        {run.counts.probeable_hosts}{' '}
-        {pluralize(run.counts.probeable_hosts, 'node')} answered
-      </Typography>
-      <Typography variant="body2">
-        <strong>{run.counts.answered_services}</strong> of{' '}
-        {run.counts.resolved_services}{' '}
-        {pluralize(run.counts.resolved_services, 'service')} answered
-      </Typography>
+      {skipped ? (
+        <Typography variant="body2" color="text.secondary">
+          {run.error}
+        </Typography>
+      ) : (
+        <>
+          <Typography variant="body2">
+            <strong>{run.counts.answered_hosts}</strong> of{' '}
+            {run.counts.probeable_hosts}{' '}
+            {pluralize(run.counts.probeable_hosts, 'node')} answered
+          </Typography>
+          <Typography variant="body2">
+            <strong>{run.counts.answered_services}</strong> of{' '}
+            {run.counts.resolved_services}{' '}
+            {pluralize(run.counts.resolved_services, 'service')} answered
+          </Typography>
+        </>
+      )}
       {run.scope.length > 0 && (
         <Tooltip title={run.scope.join(', ')}>
           <Typography variant="body2" color="warning.main">
@@ -406,10 +425,13 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
           </Typography>
         </Tooltip>
       )}
-      {run.error && (
-        <Typography variant="body2" color="error">
-          {run.error}
-        </Typography>
+      {run.error && !skipped && (
+        <OmError
+          placement="item"
+          severity={failed ? 'error' : 'warning'}
+          title={failed ? 'The scan failed' : undefined}
+          messages={run.error}
+        />
       )}
     </Stack>
   );
@@ -515,12 +537,13 @@ export const AutomationsScansTab = () => {
       </Stack>
 
       {error && (
-        <Alert severity="error">
-          {/* Rendered inside the page rather than replacing it: PMM Extensions being
-                  unwell is a fact about the fleet, and the installs tab still
-                  reads. */}
-          Could not load scans: {(error as Error).message}
-        </Alert>
+        // Inside the page rather than replacing it: PMM Extensions being unwell is
+        // a fact about the fleet, and the installs tab still reads.
+        <OmError
+          placement="load"
+          title="Could not load scans"
+          messages={(error as Error).message}
+        />
       )}
 
       {/* Only once the query has actually answered. LastRun reads an absent run as

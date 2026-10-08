@@ -120,7 +120,7 @@ describe('ConfigForm', () => {
     rerender(<ConfigForm group="general" />);
 
     expect(
-      screen.getByText(/^Fix Concurrent scans \(Advanced tab\) first/)
+      screen.getByText('Concurrent scans (Advanced tab)')
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
