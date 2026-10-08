@@ -48,7 +48,7 @@ func TestSerialization(t *testing.T) {
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := pmmapitests.HTTPClient.Do(req)
 	require.NoError(t, err)
 	t.Cleanup(func() {
 		assert.NoError(t, resp.Body.Close())
