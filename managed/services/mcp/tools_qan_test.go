@@ -54,6 +54,130 @@ func newQANService(t *testing.T, fake *fakePMM, rawSQL bool) *Service {
 	return s
 }
 
+// TestRawFingerprintIsMasked pins the case where pmm-agent stores a raw
+// statement as the fingerprint: a PostgreSQL query pg_stat_monitor truncated
+// or could not parse. With raw SQL off its literals must not reach the model.
+func TestRawFingerprintIsMasked(t *testing.T) {
+	t.Parallel()
+
+	const raw = "INSERT INTO users (email, pin) VALUES ('user42@example.com', 4417"
+
+	routes := qanRoutes()
+	routes["POST /v1/qan/metrics:getReport"] = fixture{file: "report_raw_fingerprint.json"}
+	for rawSQL, want := range map[bool]string{false: withheldFingerprint, true: raw} {
+		fake := newFakePMM(t, routes)
+		session := connect(t, newQANService(t, fake, rawSQL))
+		text, isError := callText(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h"})
+		require.False(t, isError, text)
+		assert.Contains(t, text, "   "+want+"\n", "raw SQL %t", rawSQL)
+		assert.Contains(t, text, "   -1234567890123\n", "a missing fingerprint falls back to the queryid, unmasked")
+	}
+
+	detail := (&queryDetail{queryID: "Q", fingerprint: raw}).render(false, "", testNow.Add(-time.Hour), testNow)
+	assert.NotContains(t, detail, "user42@example.com")
+	assert.NotContains(t, detail, "4417")
+
+	// explain_fingerprint is withheld when quoted, and keeps its numbered placeholders.
+	for fp, want := range map[string]string{
+		"SELECT `id` FROM `t` WHERE `email` = :1":           "SELECT `id` FROM `t` WHERE `email` = :1",
+		"SELECT `id` FROM `t` WHERE `email` = 'a@b.com'":    "",
+		`SELECT "id" FROM "t" WHERE "email" = "leak@b.com"`: "",
+	} {
+		d := &queryDetail{queryID: "Q", engine: engineMySQL, example: &qan_service.GetQueryExampleOKBodyQueryExamplesItems0{ExplainFingerprint: fp}}
+		got := d.render(false, "", testNow.Add(-time.Hour), testNow)
+		if want == "" {
+			assert.NotContains(t, got, "example (normalized", fp)
+			continue
+		}
+		assert.Contains(t, got, want, fp)
+	}
+
+	// A raw statement is withheld however its quoting reads: a nested
+	// comment, or an apostrophe in a comment, cannot make a literal pass.
+	for _, fp := range []string{
+		"SELECT /* a /* b */ 'x */ 1 FROM t WHERE y = 'secret'",
+		"SELECT * FROM t WHERE note = 'x' -- it's\n AND ssn = 'SECRET'",
+		"SELECT `a FROM t WHERE ssn = 'SECRET'",
+	} {
+		assert.Equal(t, withheldFingerprint, fingerprintText(fp, "", false), fp)
+	}
+	// Normalizers keep GROUP BY ordinals and type lengths: those fingerprints
+	// are shown, with the bare numbers masked.
+	assert.Equal(t, "SELECT status, count(*) FROM orders GROUP BY ? ORDER BY ? DESC LIMIT $1",
+		fingerprintText("SELECT status, count(*) FROM orders GROUP BY 1 ORDER BY 2 DESC LIMIT $1", "", false))
+	assert.Equal(t, "SELECT CAST($1 AS varchar(?)) FROM t", fingerprintText("SELECT CAST($1 AS varchar(255)) FROM t", "", false))
+
+	// MySQL quoting for a MySQL service: a backticked name is a name.
+	assert.Equal(t, "SELECT `id` FROM `2fa_tokens` WHERE `o'neil` = ?",
+		fingerprintText("SELECT `id` FROM `2fa_tokens` WHERE `o'neil` = ?", engineMySQL, false))
+
+	// A normalized fingerprint is shown, with only its comment text masked.
+	ormQuoted := `/* app='shop',route='/users/42' */ SELECT "users"."id" FROM "users" WHERE "users"."email" = $1`
+	assert.Equal(t, `/*?*/ SELECT "users"."id" FROM "users" WHERE "users"."email" = $1`, fingerprintText(ormQuoted, enginePostgreSQL, false))
+
+	// With the engine unknown, a double quote may open a MySQL string, so the
+	// fingerprint is withheld rather than read with PostgreSQL quoting.
+	doubleQuoted := `SELECT id FROM users WHERE email = "a@b.com"`
+	assert.Equal(t, withheldFingerprint, fingerprintText(doubleQuoted, "", false))
+	assert.Equal(t, withheldFingerprint, fingerprintText(doubleQuoted, engineMySQL, false))
+	assert.Equal(t, withheldFingerprint, fingerprintText(ormQuoted, "", false))
+	assert.Equal(t, doubleQuoted, fingerprintText(doubleQuoted, enginePostgreSQL, false), "a PostgreSQL identifier")
+	assert.Equal(t, "SELECT `id` FROM `orders` WHERE `id` = ?", fingerprintText("SELECT `id` FROM `orders` WHERE `id` = ?", "", false))
+
+	// pmm-agent masks only $match stages of an aggregation; the rest keep
+	// their values, in double quotes that SQL quoting would take for names.
+	mongo := `db.orders.aggregate([{"$match":{"email":"?"}}, {"$lookup":{"from":"users","pipeline":[{"$match":{"email":"ceo@corp.com"}}]}}, ` +
+		`{"$project":{"t":{"$cond":[true,"gold",250]}}}])`
+	got := fingerprintText(mongo, "", false)
+	for _, literal := range []string{"ceo@corp.com", "gold", "250", "users"} {
+		assert.NotContains(t, got, literal)
+	}
+	assert.Contains(t, got, `db.orders.aggregate([{"$match":{"email":"?"}}, {"$lookup":{"from":?,"pipeline":[{"$match":{"email":?}}]}}`,
+		"keys, stages and the agent's own ? survive")
+}
+
+// TestTopQueriesQuotingFollowsTheService pins that a report filtered to one
+// service reads its fingerprints with that engine's quoting.
+func TestTopQueriesQuotingFollowsTheService(t *testing.T) {
+	t.Parallel()
+
+	routes := qanRoutes()
+	routes["POST /v1/qan/metrics:getReport"] = fixture{file: "report_quoted_identifier.json"}
+	session := connect(t, newQANService(t, newFakePMM(t, routes), false))
+
+	text, isError := callText(t, session, "pmm_top_queries", map[string]any{"service_name": "shop-mysql", "period_from": "now-1h"})
+	require.False(t, isError, text)
+	assert.Contains(t, text, "SELECT `id` FROM `o'neil` WHERE `id` = ?")
+
+	// Unfiltered, the engine is QAN's only SQL engine in the window; with
+	// none or several, or when QAN cannot tell, the fingerprint is withheld.
+	for file, want := range map[string]string{
+		"filters_mysql.json": "SELECT `id` FROM `o'neil` WHERE `id` = ?",
+		"filters_mixed.json": withheldFingerprint,
+		"":                   withheldFingerprint,
+	} {
+		routes := qanRoutes()
+		routes["POST /v1/qan/metrics:getReport"] = fixture{file: "report_quoted_identifier.json"}
+		if file != "" {
+			routes["POST /v1/qan/metrics:getFilters"] = fixture{file: file}
+		}
+		fake := newFakePMM(t, routes)
+		session := connect(t, newQANService(t, fake, false))
+		text, isError = callText(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h"})
+		require.False(t, isError, text)
+		assert.Contains(t, text, want, file)
+		assert.Len(t, fake.requestsTo("/v1/qan/metrics:getFilters"), 1, file)
+	}
+
+	// Fingerprints that read the same under both quotings need no engine.
+	fake := newFakePMM(t, qanRoutes())
+	session = connect(t, newQANService(t, fake, false))
+	text, isError = callText(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h"})
+	require.False(t, isError, text)
+	assert.Contains(t, text, "FROM `customers` WHERE `email` = ?")
+	assert.Empty(t, fake.requestsTo("/v1/qan/metrics:getFilters"))
+}
+
 func TestTopQueriesTool(t *testing.T) {
 	t.Parallel()
 
@@ -271,7 +395,7 @@ func TestLinks(t *testing.T) {
 	assert.Equal(t, "graph/d/pmm-qan/pmm-query-analytics?details_tab=explain&filter_by=QID-1&from="+ms(from)+"&query_selected=true&to="+ms(to)+"&var-service_name=s1",
 		qanQueryURL("", "QID-1", "s1", from, to, "explain"))
 
-	s, err := New(Params{API: &mockPmmAPI{}})
+	s, err := New(Params{API: &mockPmmAPI{}, Enabled: func() bool { return true }})
 	require.NoError(t, err)
 	assert.Empty(t, s.publicBaseURL(t.Context(), http.Header{}))
 	assert.Equal(t, "https://pmm.local/", s.publicBaseURL(t.Context(), http.Header{"X-Forwarded-Host": {"pmm.local"}}))

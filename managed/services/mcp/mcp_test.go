@@ -28,7 +28,7 @@ import (
 func TestInitializeAndListTools(t *testing.T) {
 	t.Parallel()
 
-	s, err := New(Params{})
+	s, err := New(Params{Enabled: func() bool { return true }})
 	require.NoError(t, err)
 	session := connect(t, s)
 

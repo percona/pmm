@@ -29,7 +29,7 @@ func inventoryRoutes() map[string]fixture {
 		"GET /v1/server/version":                                        {file: "version.json"},
 		"GET /v1/inventory/services":                                    {file: "services.json"},
 		"GET /v1/inventory/nodes":                                       {file: "nodes.json"},
-		"GET /graph/api/datasources":                                    {file: "datasources.json"},
+		"GET /graph/api/datasources/name/Metrics":                       {file: "datasource_metrics.json"},
 		"GET /graph/api/datasources/proxy/uid/metrics-uid/api/v1/query": {file: "vm_mysql_version.json"},
 	}
 }
@@ -108,7 +108,7 @@ func TestInventoryTool(t *testing.T) {
 		t.Parallel()
 
 		routes := inventoryRoutes()
-		routes["GET /graph/api/datasources"] = fixture{file: "error_403.json", status: http.StatusForbidden}
+		routes["GET /graph/api/datasources/name/Metrics"] = fixture{file: "error_403.json", status: http.StatusForbidden}
 		fake := newFakePMM(t, routes)
 		session := connect(t, newTestService(t, fake))
 

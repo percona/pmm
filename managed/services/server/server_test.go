@@ -124,6 +124,20 @@ func TestServer(t *testing.T) {
 			assert.Equal(t, "1.2.3.4:5678", *s.envSettings.PMMPublicAddress)
 		})
 
+		t.Run("MCPRawSQLOffWithoutTheVariable", func(t *testing.T) {
+			s := newServer(t)
+			require.Empty(t, s.UpdateSettingsFromEnv(context.TODO(), []string{"PMM_MCP_RAW_SQL=true"}))
+			settings, err := models.GetSettings(s.db)
+			require.NoError(t, err)
+			require.True(t, settings.IsMCPRawSQLEnabled())
+
+			// The next start without the variable turns it off again.
+			require.Empty(t, s.UpdateSettingsFromEnv(context.TODO(), nil))
+			settings, err = models.GetSettings(s.db)
+			require.NoError(t, err)
+			assert.False(t, settings.IsMCPRawSQLEnabled())
+		})
+
 		t.Run("Untypical", func(t *testing.T) {
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
@@ -234,6 +248,15 @@ func TestServer(t *testing.T) {
 		}))
 		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			EnableInternalPgQan: new(true),
+		}))
+
+		s.envSettings.EnableMCP = new(false)
+		expected = status.New(codes.FailedPrecondition, "MCP is configured via PMM_ENABLE_MCP environment variable.")
+		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableMcp: new(true),
+		}))
+		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableMcp: new(false),
 		}))
 
 		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
