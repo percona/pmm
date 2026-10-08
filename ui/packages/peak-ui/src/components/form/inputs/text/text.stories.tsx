@@ -63,10 +63,12 @@ const meta = {
   },
   argTypes: {
     disabled: {
+      description: 'Greys out the field so it cannot be edited.',
       type: 'boolean',
       defaultValue: 'false',
     },
     error: {
+      description: 'Shows the field in its error state with an example message.',
       type: 'boolean',
       defaultValue: 'false',
     },
@@ -75,10 +77,12 @@ const meta = {
       defaultValue: 'false',
     },
     multiline: {
+      description: 'Turns the field into a text area.',
       type: 'boolean',
       defaultValue: 'false',
     },
     readOnly: {
+      description: 'Lets the user read but not edit the value.',
       type: 'boolean',
       defaultValue: 'false',
     },
@@ -86,29 +90,36 @@ const meta = {
       type: 'string',
     },
     maxLength: {
+      description: 'Maximum number of characters the user can type.',
       type: 'number',
     },
     maxRows: {
+      description: 'Largest height of the text area, in rows.',
       type: 'number',
     },
     minRows: {
+      description: 'Smallest height of the text area, in rows.',
       type: 'number',
     },
     name: {
       type: 'string',
     },
     placeholder: {
+      description: 'Grey hint shown inside the field while it is empty.',
       type: 'string',
     },
     helperText: {
+      description: 'Hint shown under the field.',
       type: 'string',
     },
     size: {
+      description: 'Field height: small (default) or medium.',
       options: ['small', 'medium'],
       control: { type: 'radio' },
       defaultValue: 'small',
     },
     type: {
+      description: 'Kind of value the browser expects, such as email, number, or password.',
       options: ['email', 'password', 'number', 'text', 'tel', 'url'],
       control: 'select',
     },

@@ -85,7 +85,7 @@ Barrel imports (`@mui/material`, `@mui/icons-material`) hurt dev startup/rebuild
 
 ### NavItem
 
-The `<Box sx={{ mr: -1.75 }} />` rendered when no `icon` is passed is intentional — it preserves text start-line alignment with icon-bearing rows.
+The `<Box sx={{ mr: -1.75 }} />` rendered when no `icon` is passed is intentional — it pulls the label over to the icon column, so an icon-less row reads as aligned with the icon mass of its siblings rather than with their labels.
 
 ### Tooltip
 
