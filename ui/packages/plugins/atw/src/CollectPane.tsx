@@ -648,19 +648,28 @@ export function CollectPane({
   // seed a form react-hook-form believes is already up to date.
   const formKey = `${selectedNames.join('|')}::${appliedRerunNonce}`;
 
+  // A closed incident accepts no runs, so the picker and its instructions
+  // would only describe something the reader cannot do. One line says why.
+  if (isClosed) {
+    return (
+      <Box>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Collect
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          This incident is closed. Reopen it to run more diagnostic snippets.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box>
       <Typography variant="h6" sx={{ mb: 2 }}>
         Collect
       </Typography>
 
-      {isClosed && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          This incident is closed. Reopen it to run more diagnostic snippets.
-        </Alert>
-      )}
-
-      {!isClosed && <CategoryBrowser onSnippetsChange={handleSnippetsChange} />}
+      <CategoryBrowser onSnippetsChange={handleSnippetsChange} />
 
       {searchQuery.error && debouncedSearch !== '' && (
         <Alert severity="error" sx={{ mt: 3 }}>
@@ -685,7 +694,6 @@ export function CollectPane({
 
       <Autocomplete
         multiple
-        disabled={isClosed}
         sx={{ mt: 3 }}
         options={options}
         value={selected}
@@ -814,7 +822,6 @@ export function CollectPane({
 
       {selected.length > 0 &&
         schemaQuery.data &&
-        !isClosed &&
         canMutate &&
         dispatchedCount === null && (
           <Box sx={{ mt: 3 }}>

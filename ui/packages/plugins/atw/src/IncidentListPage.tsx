@@ -15,110 +15,184 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Alert,
   Box,
   Button,
-  Chip,
   CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  IconButton,
   Link as MuiLink,
   Stack,
-  TablePagination,
-  TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
+import { Table } from '@percona/peak-ui';
+import type { MRT_ColumnDef } from 'material-react-table';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@pmm-extensions/api';
+import { formatTimestamp } from '@pmm-extensions/framework';
 import {
-  ATW_PAGE_SIZE,
+  ATW_INCIDENT_LIST_LIMIT,
   useAtwIncidentLifecycle,
   useAtwIncidents,
   useCreateAtwIncident,
-  useDeleteAtwIncident,
-  useUpdateAtwIncident,
 } from './hooks';
+import {
+  DeleteIncidentDialog,
+  IncidentActionsMenu,
+  IncidentStatusChip,
+  isIncidentClosed,
+  RenameIncidentDialog,
+} from './IncidentActions';
 import type { AtwIncident } from './types';
 
 /**
- * Landing page rendered at ``/atw``: the incident list. Supports creating an
- * incident (optional name — the server defaults it to a timestamp), renaming,
- * deleting, and opening one into its workspace.
+ * The "Not collected" column's heading and its explanation. The count is the
+ * side-car's `failed_run_count`, whose set is failed, lost, stale and
+ * unlaunchable — runs that produced nothing, not only runs whose script
+ * errored — so the heading names the outcome rather than calling all of them
+ * failures. Recorded on PMM-15514.
+ */
+export const NOT_COLLECTED_HEADER = 'Not collected';
+export const NOT_COLLECTED_DESCRIPTION =
+  'Runs that produced no data: failed, lost, stale or could not launch.';
+
+/**
+ * When the incident last changed. The side-car never serves it null for an
+ * incident it computes it for, but the field is optional on the wire, so an
+ * older side-car falls back to the incident's own timestamps.
+ */
+function lastActivity(incident: AtwIncident): string {
+  return (
+    incident.last_activity_at ?? incident.updated_at ?? incident.created_at
+  );
+}
+
+function timeValue(value: string): number {
+  const time = new Date(value).getTime();
+  return Number.isNaN(time) ? 0 : time;
+}
+
+/**
+ * Landing page rendered at ``/atw``: the incident list, as a sortable,
+ * filterable table that answers which incident needs attention without opening
+ * one — its state, how many runs it holds and how many collected nothing, and
+ * when it last moved. Creating an incident is one click: the server names it
+ * with a timestamp and the workspace lets the user rename it in place.
  */
 export function IncidentListPage() {
   const { canMutate } = useAuth();
   const navigate = useNavigate();
-  const [page, setPage] = useState({ offset: 0, limit: ATW_PAGE_SIZE });
-  const { data, isLoading, error } = useAtwIncidents(page);
-  const incidents = data?.items;
+  const { data, isLoading, error } = useAtwIncidents({
+    offset: 0,
+    limit: ATW_INCIDENT_LIST_LIMIT,
+  });
+  const incidents = useMemo(() => data?.items ?? [], [data]);
   const createMutation = useCreateAtwIncident();
-  const updateMutation = useUpdateAtwIncident();
-  const deleteMutation = useDeleteAtwIncident();
   const lifecycle = useAtwIncidentLifecycle();
 
-  useEffect(() => {
-    if (data && data.total > 0 && data.offset >= data.total) {
-      setPage((previous) => ({
-        offset: Math.max(
-          0,
-          (Math.ceil(data.total / previous.limit) - 1) * previous.limit
-        ),
-        limit: previous.limit,
-      }));
-    }
-  }, [data]);
-
-  const [createOpen, setCreateOpen] = useState(false);
-  const [createName, setCreateName] = useState('');
   const [renameTarget, setRenameTarget] = useState<AtwIncident | null>(null);
-  const [renameValue, setRenameValue] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<AtwIncident | null>(null);
 
   const handleCreate = () => {
-    const name = createName.trim();
-    createMutation.mutate(name ? { name } : {}, {
-      onSuccess: (incident) => {
-        setCreateOpen(false);
-        setCreateName('');
-        navigate(incident.id);
-      },
-    });
-  };
-
-  const handleRename = () => {
-    if (!renameTarget) {
-      return;
-    }
-    const name = renameValue.trim();
-    if (!name) {
-      return;
-    }
-    updateMutation.mutate(
-      { incidentId: renameTarget.id, body: { name } },
-      { onSuccess: () => setRenameTarget(null) }
+    createMutation.mutate(
+      {},
+      { onSuccess: (incident) => navigate(incident.id) }
     );
   };
 
-  const handleDelete = () => {
-    if (!deleteTarget) {
-      return;
-    }
-    deleteMutation.mutate(deleteTarget.id, {
-      onSuccess: () => setDeleteTarget(null),
-    });
-  };
+  const columns = useMemo<MRT_ColumnDef<AtwIncident>[]>(
+    () => [
+      {
+        id: 'name',
+        header: 'Name',
+        accessorKey: 'name',
+        size: 220,
+        Cell: ({ row }) => (
+          <MuiLink
+            component={Link}
+            to={row.original.id}
+            onClick={(event) => event.stopPropagation()}
+          >
+            {row.original.name}
+          </MuiLink>
+        ),
+      },
+      {
+        id: 'case_ref',
+        header: 'Case',
+        accessorFn: (row) => row.case_ref ?? '',
+        size: 120,
+        Cell: ({ row }) => row.original.case_ref || '—',
+      },
+      {
+        id: 'status',
+        header: 'Status',
+        accessorFn: (row) => (isIncidentClosed(row) ? 'Closed' : 'Open'),
+        size: 110,
+        filterVariant: 'select',
+        filterSelectOptions: ['Open', 'Closed'],
+        Cell: ({ row }) => <IncidentStatusChip incident={row.original} />,
+      },
+      {
+        id: 'run_count',
+        header: 'Runs',
+        accessorKey: 'run_count',
+        size: 90,
+        enableColumnFilter: false,
+      },
+      {
+        id: 'failed_run_count',
+        header: NOT_COLLECTED_HEADER,
+        accessorKey: 'failed_run_count',
+        size: 140,
+        enableColumnFilter: false,
+        Header: () => (
+          <Tooltip title={NOT_COLLECTED_DESCRIPTION}>
+            <span>{NOT_COLLECTED_HEADER}</span>
+          </Tooltip>
+        ),
+        Cell: ({ row }) => {
+          const count = row.original.failed_run_count;
+          return (
+            <Typography
+              variant="inherit"
+              component="span"
+              color={count > 0 ? 'error.main' : undefined}
+              fontWeight={count > 0 ? 'medium' : undefined}
+            >
+              {count}
+            </Typography>
+          );
+        },
+      },
+      {
+        id: 'last_activity',
+        header: 'Last activity',
+        accessorFn: (row) => timeValue(lastActivity(row)),
+        sortingFn: 'basic',
+        size: 150,
+        enableColumnFilter: false,
+        enableGlobalFilter: false,
+        Cell: ({ row }) => {
+          const formatted = formatTimestamp(lastActivity(row.original));
+          return (
+            <Box component="span" title={formatted?.title}>
+              {formatted?.display ?? '—'}
+            </Box>
+          );
+        },
+      },
+      {
+        id: 'created_by',
+        header: 'Created by',
+        accessorKey: 'created_by',
+        size: 130,
+      },
+    ],
+    []
+  );
 
   return (
     <Box>
@@ -139,11 +213,8 @@ export function IncidentListPage() {
             variant="contained"
             startIcon={<AddIcon />}
             disabled={isLoading}
-            onClick={() => {
-              createMutation.reset();
-              setCreateName('');
-              setCreateOpen(true);
-            }}
+            loading={createMutation.isPending}
+            onClick={handleCreate}
           >
             New incident
           </Button>
@@ -153,6 +224,22 @@ export function IncidentListPage() {
         Open an incident to run diagnostic snippets and review their results in
         one place.
       </Typography>
+
+      {createMutation.isError && (
+        <Alert
+          severity="error"
+          sx={{ mb: 2 }}
+          onClose={() => createMutation.reset()}
+        >
+          {createMutation.error?.message ?? 'Failed to create incident'}
+        </Alert>
+      )}
+
+      {lifecycle.error && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={lifecycle.reset}>
+          {lifecycle.error}
+        </Alert>
+      )}
 
       {isLoading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
@@ -166,13 +253,7 @@ export function IncidentListPage() {
         </Alert>
       )}
 
-      {lifecycle.error && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={lifecycle.reset}>
-          {lifecycle.error}
-        </Alert>
-      )}
-
-      {!isLoading && !error && (!incidents || incidents.length === 0) && (
+      {!isLoading && !error && incidents.length === 0 && (
         <Alert severity="info">
           {canMutate
             ? 'No incidents yet. Create one to get started.'
@@ -180,244 +261,55 @@ export function IncidentListPage() {
         </Alert>
       )}
 
-      {incidents && incidents.length > 0 && (
-        <Stack spacing={1}>
-          {incidents.map((incident) => (
-            <Box
-              key={incident.id}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-                p: 1.5,
-                border: 1,
-                borderColor: 'divider',
-                borderRadius: 1,
-              }}
-            >
-              <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1,
-                    flexWrap: 'wrap',
-                  }}
-                >
-                  <MuiLink
-                    component={Link}
-                    to={incident.id}
-                    variant="subtitle1"
-                  >
-                    {incident.name}
-                  </MuiLink>
-                  {incident.closed_at && (
-                    <Chip
-                      label="Closed"
-                      size="small"
-                      color="default"
-                      variant="outlined"
-                    />
-                  )}
-                </Box>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  display="block"
-                >
-                  {incident.case_ref ? `Case ${incident.case_ref} · ` : ''}
-                  Created by {incident.created_by}
-                </Typography>
-              </Box>
-              {canMutate && (
-                <>
-                  {incident.closed_at ? (
-                    <Tooltip title="Reopen">
-                      <IconButton
-                        aria-label={`Reopen ${incident.name}`}
-                        disabled={lifecycle.isPending(incident.id)}
-                        onClick={() => lifecycle.reopen(incident.id)}
-                      >
-                        <LockOpenOutlinedIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  ) : (
-                    <Tooltip title="Close">
-                      <IconButton
-                        aria-label={`Close ${incident.name}`}
-                        disabled={lifecycle.isPending(incident.id)}
-                        onClick={() => lifecycle.close(incident.id)}
-                      >
-                        <LockOutlinedIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                  <Tooltip title="Rename">
-                    <IconButton
-                      aria-label={`Rename ${incident.name}`}
-                      onClick={() => {
-                        updateMutation.reset();
-                        setRenameTarget(incident);
-                        setRenameValue(incident.name);
-                      }}
-                    >
-                      <EditOutlinedIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Delete">
-                    <IconButton
-                      aria-label={`Delete ${incident.name}`}
-                      onClick={() => {
-                        deleteMutation.reset();
-                        setDeleteTarget(incident);
-                      }}
-                    >
-                      <DeleteOutlineIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </>
-              )}
-            </Box>
-          ))}
-        </Stack>
+      {data && data.total > incidents.length && (
+        <Alert severity="info" sx={{ mb: 2 }} role="status">
+          Showing the {incidents.length} most recently created of {data.total}{' '}
+          incidents.
+        </Alert>
       )}
 
-      {data && data.total > data.limit && (
-        <TablePagination
-          component="div"
-          count={data.total}
-          page={Math.floor(data.offset / Math.max(data.limit, 1))}
-          rowsPerPage={data.limit}
-          onPageChange={(_event, newPage) =>
-            setPage((previous) => ({
-              offset: newPage * previous.limit,
-              limit: previous.limit,
-            }))
-          }
-          rowsPerPageOptions={[ATW_PAGE_SIZE]}
+      {incidents.length > 0 && (
+        <Table
+          tableName="atw-incidents"
+          columns={columns}
+          data={incidents}
+          getRowId={(row) => row.id}
+          initialState={{
+            density: 'compact',
+            showGlobalFilter: true,
+            pagination: { pageIndex: 0, pageSize: 20 },
+            sorting: [{ id: 'last_activity', desc: true }],
+          }}
+          enableHiding={false}
+          enableColumnActions={false}
+          enableRowActions={canMutate}
+          renderRowActions={({ row }) => (
+            <IncidentActionsMenu
+              incident={row.original}
+              lifecycle={lifecycle}
+              size="small"
+              onRename={setRenameTarget}
+              onDelete={setDeleteTarget}
+            />
+          )}
+          displayColumnDefOptions={{
+            'mrt-row-actions': { header: '', size: 120 },
+          }}
+          emptyFilterResultsMessage="No incident matches these filters."
+          // Peak's own row click: it owns the row's onClick and cursor.
+          enableRowHoverAction
+          rowHoverAction={(row) => navigate(row.original.id)}
         />
       )}
 
-      {/* Create */}
-      <Dialog
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        fullWidth
-        maxWidth="sm"
-        aria-labelledby="atw-create-incident-title"
-      >
-        <DialogTitle id="atw-create-incident-title">New incident</DialogTitle>
-        <DialogContent>
-          {createMutation.isError && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {createMutation.error?.message ?? 'Failed to create incident'}
-            </Alert>
-          )}
-          <TextField
-            autoFocus
-            fullWidth
-            margin="dense"
-            label="Name (optional)"
-            helperText="Leave blank to use a timestamped default."
-            value={createName}
-            onChange={(event) => setCreateName(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault();
-                handleCreate();
-              }
-            }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setCreateOpen(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleCreate}
-            loading={createMutation.isPending}
-          >
-            Create
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Rename */}
-      <Dialog
-        open={renameTarget !== null}
+      <RenameIncidentDialog
+        incident={renameTarget}
         onClose={() => setRenameTarget(null)}
-        fullWidth
-        maxWidth="sm"
-        aria-labelledby="atw-rename-incident-title"
-      >
-        <DialogTitle id="atw-rename-incident-title">
-          Rename incident
-        </DialogTitle>
-        <DialogContent>
-          {updateMutation.isError && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {updateMutation.error?.message ?? 'Failed to rename incident'}
-            </Alert>
-          )}
-          <TextField
-            autoFocus
-            fullWidth
-            margin="dense"
-            label="Name"
-            value={renameValue}
-            onChange={(event) => setRenameValue(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault();
-                handleRename();
-              }
-            }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setRenameTarget(null)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleRename}
-            loading={updateMutation.isPending}
-            disabled={renameValue.trim().length === 0}
-          >
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Delete */}
-      <Dialog
-        open={deleteTarget !== null}
+      />
+      <DeleteIncidentDialog
+        incident={deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        aria-labelledby="atw-delete-incident-title"
-      >
-        <DialogTitle id="atw-delete-incident-title">
-          Delete incident
-        </DialogTitle>
-        <DialogContent>
-          {deleteMutation.isError && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {deleteMutation.error?.message ?? 'Failed to delete incident'}
-            </Alert>
-          )}
-          <DialogContentText>
-            Delete “{deleteTarget?.name}”? Its recorded executions are removed.
-            This cannot be undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteTarget(null)}>Cancel</Button>
-          <Button
-            color="error"
-            variant="contained"
-            onClick={handleDelete}
-            loading={deleteMutation.isPending}
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+      />
     </Box>
   );
 }

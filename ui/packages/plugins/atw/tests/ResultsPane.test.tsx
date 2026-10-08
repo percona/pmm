@@ -1346,6 +1346,41 @@ describe('ResultsPane rerun actions', () => {
     expect(screen.queryByRole('button', { name: 'Run again' })).toBeNull();
   });
 
+  it('offers no rerun on a closed incident, whose Collect pane is gone', async () => {
+    const serveOpen = mockedApi.get.getMockImplementation() as (
+      url: string
+    ) => Promise<unknown>;
+    mockedApi.get.mockImplementation((url: string) =>
+      url === '/apps/atw/incidents/inc-1'
+        ? Promise.resolve({
+            data: {
+              id: 'inc-1',
+              case_ref: 'CS0001',
+              closed_at: '2026-07-30T12:00:00Z',
+            },
+          })
+        : serveOpen(url)
+    );
+    renderPane(
+      <ResultsPane
+        incidentId="inc-1"
+        remembered={new Map([[42, { snippets: [], values: {} }]])}
+      />
+    );
+    await expandRow();
+
+    // Settled once the incident read has resolved and rendered; before that
+    // the pane cannot yet know the incident is closed.
+    await waitFor(() =>
+      expect(mockedApi.get).toHaveBeenCalledWith('/apps/atw/incidents/inc-1')
+    );
+    await act(async () => {});
+    expect(
+      screen.queryByRole('button', { name: 'Edit parameters and run again' })
+    ).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Run again' })).toBeNull();
+  });
+
   it('calls onEditParameters with the execution', async () => {
     const onEditParameters = vi.fn();
     renderPane(
