@@ -678,9 +678,9 @@ export interface OmInventoryRunCounts {
   answered_hosts: number;
   /**
    * Hosts whose scan has come back, answered or not, counted up while the run is
-   * going. Absent from a server that predates it.
+   * going.
    */
-  finished_hosts?: number;
+  finished_hosts: number;
 }
 
 /** One refresh of the estate. */

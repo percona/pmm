@@ -487,6 +487,7 @@ describe('expectedScanSeconds', () => {
       total_hosts: 3,
       probeable_hosts: 3,
       answered_hosts: 3,
+      finished_hosts: 3,
       total_services: 0,
       resolved_services: 0,
       answered_services: 0,

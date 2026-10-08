@@ -26,7 +26,7 @@ vi.mock('../src/inventoryHooks', () => ({ useScanInFlight }));
 
 const NOW = Date.parse('2026-10-07T12:00:42Z');
 
-const running = (finished?: number): OmInventoryRun => ({
+const running = (finished: number): OmInventoryRun => ({
   run_id: 'run-1',
   status: 'RUN_STATUS_RUNNING',
   start_time: '2026-10-07T12:00:00Z',
@@ -74,19 +74,6 @@ describe('ScanProgress', () => {
 
     expect(screen.getByTestId('om-scan-progress')).toHaveTextContent(
       '3 of 12 nodes done · 44s so far'
-    );
-  });
-
-  it('shows the time alone against a server that does not count nodes', () => {
-    useScanInFlight.mockReturnValue({
-      run: running(undefined),
-      expectedSeconds: null,
-    });
-
-    render(<ScanProgress />);
-
-    expect(screen.getByTestId('om-scan-progress')).toHaveTextContent(
-      /^42s so far$/
     );
   });
 
