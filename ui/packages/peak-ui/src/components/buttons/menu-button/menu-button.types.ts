@@ -8,6 +8,6 @@ export type MenuButtonProps = {
   buttonText: string;
   /** MUI Button props forwarded to the trigger button, such as variant, size, or color. */
   buttonProps?: ButtonProps;
-  /** MUI Menu props forwarded to the dropdown, for example to position it. */
+  /** MUI Menu props forwarded to the dropdown, for example to position it; leave `open` to the button. */
   menuProps?: MenuProps;
 };

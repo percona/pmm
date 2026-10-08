@@ -26,7 +26,7 @@ export type AutoCompleteInputProps<TOption, TFieldValues extends FieldValues = F
   controllerProps?: Omit<UseControllerProps<TFieldValues>, 'name' | 'control'>;
   /** Floating label shown inside the field (that moves to the top when the field is focused/filled). */
   label?: string;
-  /** Not used: this input renders the MUI floating label. Kept for API symmetry with `CheckboxInput` and `RadioGroup`. */
+  /** Not used: this input renders the MUI floating label. Kept for API symmetry with the inputs that use `LabeledContent`. */
   labelProps?: LabeledContentProps;
   /** MUI Autocomplete props forwarded to the dropdown, such as multiple, freeSolo, or getOptionLabel. */
   autoCompleteProps?: Omit<

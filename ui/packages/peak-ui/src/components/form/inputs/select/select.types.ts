@@ -27,7 +27,7 @@ export type SelectInputProps<T extends FieldValues = FieldValues> = {
   label?: string;
   /** Hint shown under the field. Validation errors only turn the field red, so pass the message here. */
   helperText?: React.ReactNode;
-  /** Not used: this input renders the MUI floating label. Kept for API symmetry with `CheckboxInput` and `RadioGroup`. */
+  /** Not used: this input renders the MUI floating label. Kept for API symmetry with the inputs that use `LabeledContent`. */
   labelProps?: LabeledContentProps;
   /** MUI Select props forwarded to the dropdown, such as multiple or renderValue. */
   selectFieldProps?: SelectProps;

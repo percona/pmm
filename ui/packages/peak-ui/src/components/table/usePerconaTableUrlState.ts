@@ -30,7 +30,7 @@ export interface UsePerconaTableUrlStateOptions extends TableUrlStateOptions {
   setSearchParams: (next: URLSearchParams, options?: { replace?: boolean }) => void;
   /** Delay in ms before typed filters and search text reach the URL, so keystrokes are batched. Defaults to 300. */
   debounceMs?: number;
-  /** Updates the URL in place so the back button skips filter changes; false adds history entries. Defaults to true. */
+  /** Rewrites the current history entry on every change, so the back button skips filter, sort, and page changes; false adds entries. Defaults to true. */
   replace?: boolean;
   /** Extra Material React Table state to merge into `tableProps.state`, such as row selection. */
   additionalState?: Record<string, unknown>;
@@ -48,7 +48,7 @@ export type PerconaTableUrlControlledState = TableStateValues & {
 export interface UsePerconaTableUrlStateResult {
   /** Filters, search text, sorting, and pagination with their handlers, for hooks such as `useNavigableRows`. */
   tableState: TableControlledState;
-  /** Spread onto `Table` so filters, search, sorting, pagination, and their visibility follow the URL. */
+  /** Spread onto `Table` so filters, search, sorting, and pagination follow the URL; the filter row and search box open when the URL fills them. */
   tableProps: Pick<
     TableControlledState,
     | 'state'
@@ -57,8 +57,11 @@ export interface UsePerconaTableUrlStateResult {
     | 'onSortingChange'
     | 'onPaginationChange'
   > & {
+    /** Table state, including whether the filter row and the search box are open. */
     state: PerconaTableUrlControlledState;
+    /** Receives the new open or closed state of the filter row. */
     onShowColumnFiltersChange: (updater: MRT_Updater<boolean>) => void;
+    /** Receives the new open or closed state of the search box. */
     onShowGlobalFilterChange: (updater: MRT_Updater<boolean>) => void;
   };
 }
