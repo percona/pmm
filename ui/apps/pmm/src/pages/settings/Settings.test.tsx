@@ -85,7 +85,7 @@ describe('Settings', () => {
   });
 
   it('shows the loading state on the paper surface the loaded page uses', () => {
-    const stage = measurePageSurface('default');
+    const stage = measurePageSurface('canvas');
     const paper = measurePageSurface('paper');
 
     // Guards the assertion below: it only means anything while the two
