@@ -18,17 +18,15 @@
 import { useSearchParams } from 'react-router-dom';
 import { Box, Tab, Tabs, Typography } from '@mui/material';
 import { OmHeader } from './components/OmHeader';
-import { ConfigForm, type SettingGroup } from './components/ConfigForm';
+import {
+  ConfigForm,
+  SETTING_GROUP_LABEL,
+  type SettingGroup,
+} from './components/ConfigForm';
 import { tabPanelProps, tabProps } from './tabA11y';
 
 /** The tabs, and the query-parameter values that address them. */
 const TABS: SettingGroup[] = ['general', 'scanning', 'advanced'];
-
-const TAB_LABEL: Record<SettingGroup, string> = {
-  general: 'General',
-  scanning: 'Scanning',
-  advanced: 'Advanced',
-};
 
 /**
  * This app's own configuration, on its own page.
@@ -72,7 +70,7 @@ export const SettingsPage = () => {
           <Tab
             key={id}
             value={id}
-            label={TAB_LABEL[id]}
+            label={SETTING_GROUP_LABEL[id]}
             {...tabProps('settings', id)}
           />
         ))}

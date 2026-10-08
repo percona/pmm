@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Box,
@@ -32,7 +32,7 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from 'material-react-table';
-import { PROCESS_ROLE_LABEL } from './constants';
+import { FLEET_NOT_COLLECTED, PROCESS_ROLE_LABEL } from './constants';
 import { SnapshotBar } from './components/SnapshotBar';
 import { StatusBadge } from './components/HealthBadge';
 import { MemberState } from './components/MemberState';
@@ -52,7 +52,6 @@ import {
 import { formatCompactDuration, pluralize } from './format';
 import { ProbeValue } from './components/ProbeValue';
 import { ServiceDetailDrawer } from './components/ServiceDetailDrawer';
-import { uniformColumnVisibility } from './columnBudget';
 import type {
   OmInventoryService,
   OmServiceInventoryRow,
@@ -68,14 +67,6 @@ const TRUNCATED = {
   whiteSpace: 'nowrap',
 } as const;
 
-/**
- * Columns the table carries but does not open with.
- *
- * The page's job is to show everything the snapshot stores, which is not the same as
- * showing it all at once: these five are either constant across a PSMDB estate
- * (`edition`), internal identifiers, or long enough to push the load columns off
- * screen. They stay one click away in the column-visibility menu.
- */
 /**
  * The columns a row opens with: what it is, where it runs, whether it is healthy, and
  * the two numbers a DBA checks first. Everything else is a column-chooser away, or in
@@ -468,14 +459,26 @@ export const FleetServicesTab = () => {
       ? 'pending'
       : 'ready';
   const [failingOnly, setFailingOnly] = useState(false);
-  // The row itself, not its id: the drawer needs the whole row, and keeping an id
-  // would mean looking it up again on every poll.
-  const [selected, setSelected] = useState<OmServiceInventoryRow | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const columns = useColumns(estate);
   const joined = useMemo(
     () => joinServiceInventory(toServiceRows(data), inventory),
     [data, inventory]
   );
+  // Looked up by id so the drawer follows the poll, and closes when the service
+  // leaves the snapshot.
+  const selected = useMemo(
+    () =>
+      selectedId === null
+        ? null
+        : (joined.find((row) => row.service_id === selectedId) ?? null),
+    [joined, selectedId]
+  );
+  useEffect(() => {
+    if (selected === null) {
+      setSelectedId(null);
+    }
+  }, [selected]);
   const rows = useMemo(
     () =>
       failingOnly
@@ -493,12 +496,6 @@ export const FleetServicesTab = () => {
         : null,
     [joined, estate]
   );
-
-  // A column carrying one value down every row is a column that answers nothing, and
-  // there are usually several: one environment, one cluster, one version. Hidden only
-  // with more than one row, since with a single row *every* column is uniform and
-  // hiding them all would empty the table.
-  const uniformColumns = useMemo(() => uniformColumnVisibility(rows), [rows]);
 
   const table = useMaterialReactTable({
     columns,
@@ -519,11 +516,20 @@ export const FleetServicesTab = () => {
     muiTableBodyRowProps: ({ row }) => ({
       hover: true,
       sx: row.getIsGrouped() ? undefined : { cursor: 'pointer' },
-      onClick: row.getIsGrouped() ? undefined : () => setSelected(row.original),
+      onClick: row.getIsGrouped()
+        ? undefined
+        : (event) => {
+            // A link or button in the row has its own job, e.g. a Cmd-click on
+            // the service name opening its dashboard in a new tab.
+            if ((event.target as HTMLElement).closest('a, button')) {
+              return;
+            }
+            setSelectedId(row.original.service_id ?? null);
+          },
     }),
     initialState: {
       density: 'compact',
-      columnVisibility: { ...HIDDEN_BY_DEFAULT, ...uniformColumns },
+      columnVisibility: HIDDEN_BY_DEFAULT,
       // Down services first, so a failure is the first row a reader sees.
       sorting: [
         { id: 'status', desc: false },
@@ -569,19 +575,25 @@ export const FleetServicesTab = () => {
         failingOnly={failingOnly}
         onToggleFailing={() => setFailingOnly((on) => !on)}
       />
-      {rows.length === 0 ? (
-        <EmptyState title="No MongoDB services yet">
-          The same fleet as the Clusters tab, one row per MongoDB service. It is
-          empty because PMM has no MongoDB services registered yet - add one,
-          and it appears here on the next refresh.
+      {rows.length > 0 ? (
+        <MaterialReactTable table={table} />
+      ) : joined.length > 0 ? (
+        <EmptyState title="No services failing a scan">
+          No service is failing a scan right now. Turn off the failing filter to
+          see them all.
         </EmptyState>
       ) : (
-        <MaterialReactTable table={table} />
+        <EmptyState title="No MongoDB services yet">
+          The same fleet as the Clusters tab, one row per MongoDB service.{' '}
+          {data.snapshot.generated_at
+            ? 'It is empty because PMM has no MongoDB services registered yet - add one, and it appears here on the next refresh.'
+            : FLEET_NOT_COLLECTED}
+        </EmptyState>
       )}
       <ServiceDetailDrawer
         row={selected}
         estate={estate}
-        onClose={() => setSelected(null)}
+        onClose={() => setSelectedId(null)}
       />
     </Box>
   );

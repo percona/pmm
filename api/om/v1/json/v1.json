@@ -1465,6 +1465,16 @@
                           "type": "string"
                         },
                         "x-order": 13
+                      },
+                      "automation_blocked_by_design": {
+                        "description": "Whether the block is a property of this node rather than a fault on it.\n\nBoth kinds make automation_eligible false, and a reader has to tell them apart:\n\"the PMM Server's own node\" and \"a MongoDB service is already registered here\"\ndescribe nodes that are working exactly as intended, while an unreachable agent\nor an unhealthy driver is something to go and fix. Without this a consumer can\nonly guess from the reason strings, and would paint a healthy replica-set member\nas needing attention.\n\nFalse when eligible, so it never has to be read alongside automation_eligible to\nmean anything.",
+                        "type": "boolean",
+                        "x-order": 14
+                      },
+                      "is_pmm_server_node": {
+                        "description": "Whether this is the node PMM Server itself runs on.\n\nCarried as its own field rather than left to be inferred from\nautomation_blocked_reasons, because a consumer that matched on the sentence would\nbreak the first time it is reworded, and automation_blocked_by_design cannot say\nit: a registered replica-set member sets that flag too, and Forget is a perfectly\nreasonable thing to offer on one of those.\n\nWhat it is for: Operations offers no automation action on this node at all, Forget\nincluded. Forgetting it would clear Operations' record of the machine PMM runs on,\nthe next scan would put it straight back, and in between the fleet would be wrong.",
+                        "type": "boolean",
+                        "x-order": 15
                       }
                     }
                   },
@@ -1841,6 +1851,16 @@
                         "type": "string"
                       },
                       "x-order": 13
+                    },
+                    "automation_blocked_by_design": {
+                      "description": "Whether the block is a property of this node rather than a fault on it.\n\nBoth kinds make automation_eligible false, and a reader has to tell them apart:\n\"the PMM Server's own node\" and \"a MongoDB service is already registered here\"\ndescribe nodes that are working exactly as intended, while an unreachable agent\nor an unhealthy driver is something to go and fix. Without this a consumer can\nonly guess from the reason strings, and would paint a healthy replica-set member\nas needing attention.\n\nFalse when eligible, so it never has to be read alongside automation_eligible to\nmean anything.",
+                      "type": "boolean",
+                      "x-order": 14
+                    },
+                    "is_pmm_server_node": {
+                      "description": "Whether this is the node PMM Server itself runs on.\n\nCarried as its own field rather than left to be inferred from\nautomation_blocked_reasons, because a consumer that matched on the sentence would\nbreak the first time it is reworded, and automation_blocked_by_design cannot say\nit: a registered replica-set member sets that flag too, and Forget is a perfectly\nreasonable thing to offer on one of those.\n\nWhat it is for: Operations offers no automation action on this node at all, Forget\nincluded. Forgetting it would clear Operations' record of the machine PMM runs on,\nthe next scan would put it straight back, and in between the fleet would be wrong.",
+                      "type": "boolean",
+                      "x-order": 15
                     }
                   },
                   "x-order": 0
@@ -2038,6 +2058,12 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 3
+                      },
+                      "bind_ip": {
+                        "description": "The interface(s) this member's mongod listens on, overriding the run-level\nbind_ip for this host alone. Unset keeps the run's value.\n\nExists because the safe default is a host's *own* address and a three-member set\nhas three different ones, so one run-level value can only be 0.0.0.0 -- the\nunsafe default this replaces -- or wrong for two of the three.\n\nOptional, so \"leave it alone\" is distinguishable from a deliberate empty string,\nthe same reason priority and votes are.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 4
                       }
                     }
                   },

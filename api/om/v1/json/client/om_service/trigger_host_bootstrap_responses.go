@@ -624,6 +624,17 @@ type TriggerHostBootstrapParamsBodyMemberConfigsAnon struct {
 	// votes off whenever this is nonzero -- TriggerHostBootstrap rejects a
 	// request that sets this without also setting those.
 	DelaySecs int64 `json:"delay_secs,omitempty"`
+
+	// The interface(s) this member's mongod listens on, overriding the run-level
+	// bind_ip for this host alone. Unset keeps the run's value.
+	//
+	// Exists because the safe default is a host's *own* address and a three-member set
+	// has three different ones, so one run-level value can only be 0.0.0.0 -- the
+	// unsafe default this replaces -- or wrong for two of the three.
+	//
+	// Optional, so "leave it alone" is distinguishable from a deliberate empty string,
+	// the same reason priority and votes are.
+	BindIP *string `json:"bind_ip,omitempty"`
 }
 
 // Validate validates this trigger host bootstrap params body member configs anon

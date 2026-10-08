@@ -353,6 +353,8 @@ export const AutomationsScansTab = () => {
     limit: isBoundedPeriod(period) ? WINDOWED_RUN_LIMIT : DEFAULT_RUN_LIMIT,
   });
   const rows = useMemo(() => runs ?? [], [runs]);
+  // `?expand=<run_id>` unfolds that scan's row on landing.
+  const expandRunId = params.get('expand');
 
   const setPeriod = (next: OmRunPeriod) =>
     setParams((current) => {
@@ -414,6 +416,9 @@ export const AutomationsScansTab = () => {
           enablePagination={false}
           enableStickyHeader
           enableExpanding
+          initialState={
+            expandRunId ? { expanded: { [expandRunId]: true } } : undefined
+          }
           renderDetailPanel={({ row }) => <RunEntities run={row.original} />}
         />
       )}

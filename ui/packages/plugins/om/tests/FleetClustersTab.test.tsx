@@ -18,8 +18,9 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { FLEET_NOT_COLLECTED } from '../src/constants';
 import { FleetClustersTab } from '../src/FleetClustersTab';
-import { mixedEstate } from './fixtures';
+import { mixedEstate, topology } from './fixtures';
 
 const { useOmTopology } = vi.hoisted(() => ({ useOmTopology: vi.fn() }));
 
@@ -105,5 +106,33 @@ describe('FleetClustersTab', () => {
       'href',
       expect.stringContaining('var-service_name=orders-2')
     );
+  });
+
+  it('blames PMM for an empty fleet only once the snapshot has been built', () => {
+    useOmTopology.mockReturnValue({
+      data: topology([]),
+      isPending: false,
+      isError: false,
+    });
+    renderPage();
+
+    expect(screen.getByTestId('om-empty-state')).toHaveTextContent(
+      'PMM has no MongoDB services registered yet'
+    );
+  });
+
+  it('says the fleet has not been read yet before the first snapshot', () => {
+    const cold = topology([]);
+    cold.snapshot.generated_at = undefined;
+    useOmTopology.mockReturnValue({
+      data: cold,
+      isPending: false,
+      isError: false,
+    });
+    renderPage();
+
+    const empty = screen.getByTestId('om-empty-state');
+    expect(empty).toHaveTextContent(FLEET_NOT_COLLECTED);
+    expect(empty).not.toHaveTextContent('PMM has no MongoDB services');
   });
 });

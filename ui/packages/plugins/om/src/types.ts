@@ -174,7 +174,8 @@ export interface OmTopologySummary {
 
 /** Provenance every snapshot-backed response repeats. */
 export interface OmTopologySnapshotEnvelope {
-  generated_at: string;
+  /** Absent until pmm-managed's first collection. */
+  generated_at?: string;
   observed_at?: string | null;
   stale: boolean;
   schema_version: number;
@@ -376,7 +377,39 @@ export interface OmInventoryFreshness {
   failing_since?: string | null;
   consecutive_failures: number;
   last_error?: string | null;
+  /**
+   * What kind of failure `last_error` is, as a stable code.
+   *
+   * Typed as a plain string rather than {@link OmScanErrorCode}: the server can add a
+   * code before this page learns it, and an older server sends none at all. Read it
+   * through `scanErrorCode`, which folds both cases into `unknown`.
+   */
+  last_error_code?: string | null;
+  /**
+   * The scan run that produced `last_error`. Absent on servers that predate it, in
+   * which case nothing links to the run.
+   */
+  last_run_id?: string | null;
 }
+
+/**
+ * The kinds of scan failure PMM Extensions tells apart, as `last_error_code` carries
+ * them. `unknown` is both the server's own catch-all and what any code this list does
+ * not know reads as. What each one means to a reader is `SCAN_ERROR_KIND`.
+ */
+export type OmScanErrorCode =
+  | 'dispatch_rejected'
+  | 'not_started'
+  | 'timed_out'
+  | 'blocked'
+  | 'environment_setup_failed'
+  | 'scan_crashed'
+  | 'scan_lost'
+  | 'no_output'
+  | 'database_unreachable'
+  | 'database_auth_failed'
+  | 'database_error'
+  | 'unknown';
 
 /**
  * One MongoDB service OM has probed, or tried to.
@@ -436,6 +469,26 @@ export interface OmInventoryHost {
   automation_eligible: boolean;
   /** Every unmet condition behind `automation_eligible: false`. Empty when true. */
   automation_blocked_reasons: string[];
+  /**
+   * Whether the block is a property of this node rather than a fault on it.
+   *
+   * The PMM Server's own node, and a node that already runs MongoDB, are working
+   * exactly as intended - painting them as needing attention is a false alarm on
+   * the first screen with real data. An unreachable agent is the opposite.
+   */
+  automation_blocked_by_design: boolean;
+  /**
+   * Whether this is the node PMM Server itself runs on.
+   *
+   * Operations offers no automation action on it, Forget included: forgetting it
+   * would clear Operations' record of the machine PMM runs on, the next scan would
+   * put it straight back, and in between the fleet would be wrong.
+   *
+   * Its own field rather than read off `automation_blocked_by_design`, which a
+   * registered replica-set member sets too - and Forget is reasonable on one of those.
+   * Named as PMM's own inventory API names the same fact.
+   */
+  is_pmm_server_node: boolean;
 }
 
 /** Whether a host can fetch packages, and why not when it cannot. */

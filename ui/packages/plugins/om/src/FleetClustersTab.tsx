@@ -38,7 +38,7 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from 'material-react-table';
-import { PROCESS_ROLE_LABEL } from './constants';
+import { FLEET_NOT_COLLECTED, PROCESS_ROLE_LABEL } from './constants';
 import { NESTED_TABLE_WRAPPER } from './nestedTable';
 import { SnapshotBar } from './components/SnapshotBar';
 import { ClusterHealthBadge, StatusBadge } from './components/HealthBadge';
@@ -491,9 +491,10 @@ export const FleetClustersTab = () => {
       {sections.length === 0 ? (
         <EmptyState title="No MongoDB clusters yet">
           This page shows every MongoDB cluster PMM monitors, and the health of
-          each one&apos;s members. It is empty because PMM has no MongoDB
-          services registered yet - add one, and it appears here on the next
-          refresh.
+          each one&apos;s members.{' '}
+          {data.snapshot.generated_at
+            ? 'It is empty because PMM has no MongoDB services registered yet - add one, and it appears here on the next refresh.'
+            : FLEET_NOT_COLLECTED}
         </EmptyState>
       ) : (
         // Indexed fallback: two sibling sections with no env_name would otherwise

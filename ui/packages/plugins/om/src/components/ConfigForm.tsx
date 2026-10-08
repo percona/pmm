@@ -45,6 +45,15 @@ import type { OmInventorySetting } from '../types';
 /** The tabs this form is split across. */
 export type SettingGroup = 'general' | 'scanning' | 'advanced';
 
+export const SETTING_GROUP_LABEL: Record<SettingGroup, string> = {
+  general: 'General',
+  scanning: 'Scanning',
+  advanced: 'Advanced',
+};
+
+const groupOf = (setting: OmInventorySetting): SettingGroup =>
+  SETTING_GROUP[setting.key] ?? 'advanced';
+
 /** The periods `SCHEDULE__period` accepts, from `sqlalchemy_celery_beat`. */
 const PERIODS = ['seconds', 'minutes', 'hours', 'days'] as const;
 
@@ -321,9 +330,19 @@ export const ConfigForm = ({
   // Partitioned for display only. `dirty`, `invalid` and `save` above still span every
   // field, so an edit made on one tab is not lost by looking at another and Save means
   // the same thing wherever it is pressed.
-  const shown = editable.filter(
-    (setting) => (SETTING_GROUP[setting.key] ?? 'advanced') === group
-  );
+  const shown = editable.filter((setting) => groupOf(setting) === group);
+
+  // Save spans every tab, so a field on another one is named with its tab.
+  const names = (fields: OmInventorySetting[]) =>
+    fields
+      .map((setting) => {
+        const label = SETTING_LABEL[setting.key] ?? setting.key;
+        const settingGroup = groupOf(setting);
+        return settingGroup === group
+          ? label
+          : `${label} (${SETTING_GROUP_LABEL[settingGroup]} tab)`;
+      })
+      .join(', ');
 
   return (
     <Stack gap={1}>
@@ -351,6 +370,9 @@ export const ConfigForm = ({
         <Box>{shown.map(render)}</Box>
       )}
 
+      {update.isError && <Alert severity="error">{update.error.message}</Alert>}
+      {reset.isError && <Alert severity="error">{reset.error.message}</Alert>}
+
       <Stack direction="row" gap={2} alignItems="center" sx={{ mt: 1 }}>
         <Button
           variant="contained"
@@ -363,13 +385,13 @@ export const ConfigForm = ({
         </Button>
         {dirty.length > 0 && invalid.length === 0 && (
           <Typography variant="body2" color="text.secondary">
-            {dirty.map((setting) => setting.key).join(', ')}
+            {names(dirty)}
           </Typography>
         )}
         {invalid.length > 0 && (
           <Typography variant="body2" color="error">
-            Fix {invalid.map((setting) => setting.key).join(', ')} first - the
-            app applies the batch or none of it.
+            Fix {names(invalid)} first - the app applies the batch or none of
+            it.
           </Typography>
         )}
       </Stack>

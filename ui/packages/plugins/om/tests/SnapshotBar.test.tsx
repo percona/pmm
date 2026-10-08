@@ -39,7 +39,7 @@ describe('SnapshotBar', () => {
 
     expect(
       await screen.findByRole('tooltip', {
-        name: `Snapshot generated ${new Date(envelope.generated_at).toLocaleString()} (${browserTimezone()})`,
+        name: `Snapshot generated ${new Date(envelope.generated_at!).toLocaleString()} (${browserTimezone()})`,
       })
     ).toBeInTheDocument();
   });
