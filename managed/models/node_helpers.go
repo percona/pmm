@@ -88,6 +88,27 @@ func CheckUniqueNodeAddressRegion(q *reform.Querier, address string, region *str
 	return &node, status.Errorf(codes.AlreadyExists, "Node with address %q and region %q already exists.", address, *region)
 }
 
+// checkUniqueNodeInstanceIDRegion checks that no other remote RDS Node monitors the same DB instance.
+// The address is the instance endpoint, so the address/region check does not catch two Nodes
+// that carry the same DB instance identifier; each would make rds_exporter query CloudWatch
+// for that instance again. This check is performed only if the region is not empty.
+func checkUniqueNodeInstanceIDRegion(q *reform.Querier, instanceID string, region *string) error {
+	if pointer.GetString(region) == "" {
+		return nil
+	}
+
+	var node Node
+	err := q.SelectOneTo(&node, "WHERE node_type = $1 AND instance_id = $2 AND region = $3 LIMIT 1", RemoteRDSNodeType, instanceID, region)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
+		return err
+	}
+
+	return status.Errorf(codes.AlreadyExists, "Node with DB instance identifier %s and region %s already exists.", instanceID, *region)
+}
+
 // NodeFilters represents filters for nodes list.
 type NodeFilters struct {
 	// Return Nodes with provided type.
@@ -218,9 +239,32 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 
 	// do not check that machine-id is unique: https://perconadev.atlassian.net/browse/PMM-4196
 
+	instanceID := params.InstanceID
 	if nodeType == RemoteRDSNodeType {
-		if strings.Contains(params.InstanceID, ".") {
+		// Before 3.4.0 the inventory API took the DB instance identifier as the address, and
+		// clients from that time still send it that way. Keep them working: a bare address is
+		// the identifier. An endpoint address without an identifier is refused, because its
+		// first label is only right for a standard instance endpoint, not for a cluster
+		// endpoint, a CNAME or an IP. A blank identifier counts as omitted.
+		instanceID = strings.TrimSpace(instanceID)
+		if instanceID == "" {
+			if strings.Contains(params.Address, ".") {
+				return nil, status.Error(codes.InvalidArgument, "DB instance identifier is required when the address is an endpoint.")
+			}
+			instanceID = params.Address
+		}
+		// AWS stores DB instance identifiers in lowercase and rds_exporter matches them exactly.
+		instanceID = strings.ToLower(instanceID)
+		if instanceID == "" {
+			return nil, status.Error(codes.InvalidArgument, "Empty DB instance identifier.")
+		}
+		if strings.Contains(instanceID, ".") {
 			return nil, status.Error(codes.InvalidArgument, "DB instance identifier should not contain dots.")
+		}
+
+		err = checkUniqueNodeInstanceIDRegion(q, instanceID, params.Region)
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -243,7 +287,7 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 		AZ:              params.AZ,
 		ContainerID:     params.ContainerID,
 		ContainerName:   params.ContainerName,
-		InstanceID:      params.InstanceID,
+		InstanceID:      instanceID,
 		Address:         params.Address,
 		Region:          params.Region,
 		IsPMMServerNode: params.IsPMMServerNode,

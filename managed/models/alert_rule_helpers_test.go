@@ -265,7 +265,7 @@ func TestThresholdOverrides(t *testing.T) {
 	})
 }
 
-// TestThresholdOverrideRejectsNonFiniteValues exercises migration 120's CHECK. This
+// TestThresholdOverrideRejectsNonFiniteValues exercises migration 121's CHECK. This
 // would be main's first float column, so there is no existing precedent to inherit and
 // the guard has to be verified rather than assumed.
 func TestThresholdOverrideRejectsNonFiniteValues(t *testing.T) {
