@@ -16,11 +16,11 @@ import {
 import { kebabize } from '@/utils';
 
 export interface CardProps extends Omit<MuiCardProps, 'content'> {
-  /** Main body of the card. */
+  /** Main body of the card, where the contents of the card go. */
   content: ReactNode;
   /** Prefix for the test ids of the card and its parts. */
   dataTestId: string;
-  /** Buttons shown at the bottom of the card; each takes MUI Button props plus its `text`. */
+  /** Buttons shown at the bottom of the card, after its body. Each button takes MUI Button props plus its `text`. */
   cardActions?: ActionProps[];
   /** MUI CardActions props for the buttons row, such as alignment. */
   cardActionsProps?: CardActionsProps;

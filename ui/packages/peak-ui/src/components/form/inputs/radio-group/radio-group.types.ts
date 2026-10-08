@@ -16,12 +16,12 @@ import { Control, FieldPath, FieldValues, UseControllerProps } from 'react-hook-
 import { LabeledContentProps } from '../../../labeled-content';
 
 export type RadioGroupOptions = {
-  /** Text shown next to the radio. */
+  /** Text shown right after the radio. */
   label: string;
   /** Value stored in the form when this option is picked. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
-  /** Greys out this option so it cannot be picked. */
+  /** Prevents the user from picking this option while keeping its state. */
   disabled?: boolean;
   /** MUI Radio props forwarded to this option's radio, such as size or color. */
   radioProps?: RadioProps;
