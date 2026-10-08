@@ -60,7 +60,7 @@ Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createB
 | `/rta/sessions`    | RTA sessions list               |
 | `/rta/overview`    | RTA overview                    |
 | `/graph/*`         | Grafana iframe                  |
-| `*`                | 404 fallback                    |
+| `*`                | Page not found (`NotFoundPage`) |
 
 ## State Management
 
@@ -113,6 +113,7 @@ The app is wrapped in `ThemeContextProvider` (see `App.tsx`); style with the the
 - Use TypeScript strict mode — define types in `src/types/`
 - Co-locate test files next to components (`*.test.tsx`)
 - Use `CrossFrameMessenger` for communication with the Grafana iframe
+- Build native pages on the shared `Page` wrapper (`src/components/page`); it renders on the paper surface by default, so don't pass `surface="paper"`. Opt out with `surface="canvas"` only for a page composed of cards (Help center, Updates), where the darker tone makes the cards stand out
 
 ### Don't
 
