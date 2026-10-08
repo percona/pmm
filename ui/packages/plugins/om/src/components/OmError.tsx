@@ -21,6 +21,17 @@ import { Alert, AlertTitle, Box } from '@mui/material';
 /** Where a failure is shown, which decides how it is framed. */
 export type OmErrorPlacement = 'load' | 'action' | 'item';
 
+// One line high beside a control or in a row: the title runs into the message
+// instead of sitting on a line of its own.
+const COMPACT_SX = {
+  py: 0,
+  px: 1,
+  alignItems: 'center',
+  width: 'fit-content',
+  '& .MuiAlert-icon': { fontSize: 18, py: 0.5, mr: 1 },
+  '& .MuiAlert-message': { py: 0.5 },
+};
+
 /**
  * The one way Operations shows that something went wrong.
  *
@@ -70,17 +81,17 @@ export const OmError = ({
       data-testid="om-error"
       data-placement={placement}
       action={action}
-      sx={
-        compact
-          ? { py: 0, px: 1, alignItems: 'center', width: 'fit-content' }
-          : undefined
-      }
+      sx={compact ? COMPACT_SX : undefined}
     >
-      {title && (
-        <AlertTitle sx={compact ? { mb: list.length ? 0.25 : 0 } : undefined}>
-          {title}
-        </AlertTitle>
-      )}
+      {title &&
+        (compact ? (
+          <Box component="span" sx={{ fontWeight: 'fontWeightMedium' }}>
+            {title}
+            {list.length === 1 && ': '}
+          </Box>
+        ) : (
+          <AlertTitle>{title}</AlertTitle>
+        ))}
       {list.length === 1 ? (
         <Box component="span" data-testid={itemTestId}>
           {list[0]}

@@ -244,6 +244,10 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
   }
   const age = ageSeconds(run.start_time);
   const active = isRunActive(run.status);
+  const ago = age == null ? '' : `${formatCompactDuration(age)} ago`;
+  // Refused before doing anything: its counts are all zero and its error is why.
+  const skipped = run.status === 'RUN_STATUS_SKIPPED';
+  const failed = run.status === 'RUN_STATUS_FAILED';
   return (
     <Stack
       direction="row"
@@ -254,21 +258,31 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
       <RunStatusBadge status={run.status} />
       <Typography variant="body2" color="text.secondary">
         {active
-          ? `started ${age == null ? 'just now' : `${formatCompactDuration(age)} ago`}`
-          : `${age == null ? '' : `${formatCompactDuration(age)} ago`}, took ${
-              formatRunDuration(run.start_time, run.end_time) || '—'
-            }`}
+          ? `started ${ago || 'just now'}`
+          : skipped
+            ? ago
+            : `${ago}, took ${
+                formatRunDuration(run.start_time, run.end_time) || '—'
+              }`}
       </Typography>
-      <Typography variant="body2">
-        <strong>{run.counts.answered_hosts}</strong> of{' '}
-        {run.counts.probeable_hosts}{' '}
-        {pluralize(run.counts.probeable_hosts, 'node')} answered
-      </Typography>
-      <Typography variant="body2">
-        <strong>{run.counts.answered_services}</strong> of{' '}
-        {run.counts.resolved_services}{' '}
-        {pluralize(run.counts.resolved_services, 'service')} answered
-      </Typography>
+      {skipped ? (
+        <Typography variant="body2" color="text.secondary">
+          {run.error}
+        </Typography>
+      ) : (
+        <>
+          <Typography variant="body2">
+            <strong>{run.counts.answered_hosts}</strong> of{' '}
+            {run.counts.probeable_hosts}{' '}
+            {pluralize(run.counts.probeable_hosts, 'node')} answered
+          </Typography>
+          <Typography variant="body2">
+            <strong>{run.counts.answered_services}</strong> of{' '}
+            {run.counts.resolved_services}{' '}
+            {pluralize(run.counts.resolved_services, 'service')} answered
+          </Typography>
+        </>
+      )}
       {run.scope.length > 0 && (
         <Tooltip title={run.scope.join(', ')}>
           <Typography variant="body2" color="warning.main">
@@ -277,10 +291,11 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
           </Typography>
         </Tooltip>
       )}
-      {run.error && (
+      {run.error && !skipped && (
         <OmError
           placement="item"
-          title="The scan failed"
+          severity={failed ? 'error' : 'warning'}
+          title={failed ? 'The scan failed' : undefined}
           messages={run.error}
         />
       )}
