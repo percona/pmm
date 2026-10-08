@@ -31350,6 +31350,27 @@
                         "type": "string",
                         "x-nullable": true,
                         "x-order": 6
+                      },
+                      "failing_nodes": {
+                        "description": "The nodes this run failed to scan, sorted by name: the node's own scan failed, or\na service on it did. What tells one run from the next, so the history can group\nruns that failed the same way and link each failure to its node.",
+                        "type": "array",
+                        "items": {
+                          "description": "InventoryRunFailingNode names one node a run failed to scan.",
+                          "type": "object",
+                          "properties": {
+                            "node_id": {
+                              "description": "PMM's node ID.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "name": {
+                              "description": "The node name, which is what the Nodes page is addressed by. Empty when the run\nrecorded none.",
+                              "type": "string",
+                              "x-order": 1
+                            }
+                          }
+                        },
+                        "x-order": 7
                       }
                     }
                   },
@@ -31519,6 +31540,27 @@
                       "type": "string",
                       "x-nullable": true,
                       "x-order": 6
+                    },
+                    "failing_nodes": {
+                      "description": "The nodes this run failed to scan, sorted by name: the node's own scan failed, or\na service on it did. What tells one run from the next, so the history can group\nruns that failed the same way and link each failure to its node.",
+                      "type": "array",
+                      "items": {
+                        "description": "InventoryRunFailingNode names one node a run failed to scan.",
+                        "type": "object",
+                        "properties": {
+                          "node_id": {
+                            "description": "PMM's node ID.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "name": {
+                            "description": "The node name, which is what the Nodes page is addressed by. Empty when the run\nrecorded none.",
+                            "type": "string",
+                            "x-order": 1
+                          }
+                        }
+                      },
+                      "x-order": 7
                     }
                   },
                   "x-order": 0

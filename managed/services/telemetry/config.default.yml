@@ -64,6 +64,14 @@ telemetry:
       - metric_name: "pmm_server_azure_enabled"
         column: "azure_enabled"
 
+  - id: PMMServerMongoOpsEnabled
+    source: PMMDB_SELECT
+    query: (CASE WHEN om->'enabled' = 'true' THEN '1' ELSE '0' END) AS mongo_ops_enabled FROM settings s, jsonb_extract_path(s.settings, 'om') AS om
+    summary: "PMM Server Operations for MongoDB feature enabled"
+    data:
+      - metric_name: "pmm_server_mongo_ops_enabled"
+        column: "mongo_ops_enabled"
+
   - id: PMMServerFirstServiceAdded
     source: PMMDB_SELECT
     query:  EXTRACT(EPOCH FROM y.created_at::timestamp) - EXTRACT(EPOCH FROM x.created_at::timestamp)  AS value_difference_sec FROM services x JOIN services y ON y.service_name != 'pmm-server-postgresql' WHERE x.service_name = 'pmm-server-postgresql' AND y.created_at = (SELECT MIN(created_at) FROM services WHERE service_name != 'pmm-server-postgresql');

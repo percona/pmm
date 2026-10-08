@@ -699,6 +699,18 @@ export interface OmInventoryRun {
    */
   scope: string[];
   error?: string | null;
+  /**
+   * The nodes it failed to scan, sorted by name. Absent from a server that predates
+   * the field, which reads as none.
+   */
+  failing_nodes?: OmInventoryRunFailingNode[];
+}
+
+/** One node a scan failed on. */
+export interface OmInventoryRunFailingNode {
+  node_id: string;
+  /** The node name, which the Nodes page is addressed by. Empty when unrecorded. */
+  name?: string;
 }
 
 /**
