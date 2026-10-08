@@ -40,7 +40,10 @@ const { useOmTopology, useOmInventoryServices } = vi.hoisted(() => ({
 }));
 
 vi.mock('../src/topologyHooks', () => ({ useOmTopology }));
-vi.mock('../src/inventoryHooks', () => ({ useOmInventoryServices }));
+vi.mock('../src/inventoryHooks', () => ({
+  useOmInventoryServices,
+  useLastScanFinishedAt: () => ({ status: 'ready', finishedAt: null }),
+}));
 
 const scanned = (failingSince: string | null) =>
   useOmInventoryServices.mockReturnValue({

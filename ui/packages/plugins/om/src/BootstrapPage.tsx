@@ -16,6 +16,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
+import { enqueueSnackbar } from 'notistack';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Accordion,
@@ -573,6 +574,10 @@ export const BootstrapPage = () => {
         })
       ),
     });
+    enqueueSnackbar(
+      `Install started on ${hosts.length === 1 ? hosts[0].name : `${hosts.length} nodes`}`,
+      { variant: 'success' }
+    );
     navigate(`${omBase}/${OM_ROUTE_AUTOMATIONS}?expand=${accepted.run_id}`);
   };
 

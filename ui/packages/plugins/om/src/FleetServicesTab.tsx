@@ -364,16 +364,10 @@ const Counts = ({
       <Typography variant="body2">
         <strong>{total}</strong> {pluralize(total, 'service')}
       </Typography>
-      <Typography
-        variant="body2"
-        color={up ? 'success.main' : 'text.secondary'}
-      >
+      <Typography variant="body2">
         <strong>{up}</strong> up
       </Typography>
-      <Typography
-        variant="body2"
-        color={down ? 'error.main' : 'text.secondary'}
-      >
+      <Typography variant="body2" color={down ? 'error.main' : undefined}>
         <strong>{down}</strong> down
       </Typography>
       {failing === null ? (

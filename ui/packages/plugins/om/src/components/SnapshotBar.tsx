@@ -19,42 +19,46 @@ import { Stack, Tooltip, Typography } from '@mui/material';
 import Chip from '@mui/material/Chip';
 import { formatTimestamp } from '@pmm-extensions/framework';
 import { formatAge } from '../format';
+import { useLastScanFinishedAt } from '../inventoryHooks';
 import type { OmTopologySnapshotEnvelope } from '../types';
+import { describeLastScan } from './SnapshotBar.utils';
 
 /**
- * Snapshot provenance, on screen rather than buried.
+ * How current the page is, on screen rather than buried.
  *
  * OM serves the newest *terminal* run's snapshot, including one that reached no
  * node at all. Without the age and the stale flag in view, a page of em-dashes
  * looks like a broken UI instead of an old or failed discovery.
+ *
+ * Two lines, one source each: when this data was assembled, and when every node was
+ * last scanned. The second is read from the scan history, not from the newest reading
+ * in the data, which a live exporter keeps seconds old whatever the scans are doing.
  */
 export const SnapshotBar = ({
   envelope,
 }: {
   envelope: OmTopologySnapshotEnvelope;
 }) => {
+  const lastScan = describeLastScan(useLastScanFinishedAt());
   return (
     <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
       <Tooltip
-        title={`Snapshot generated ${formatTimestamp(envelope.generated_at)?.title ?? '—'}`}
+        title={`Assembled ${formatTimestamp(envelope.generated_at)?.title ?? '—'}. ${
+          envelope.observed_at
+            ? `Newest metric or scan reading in it: ${formatTimestamp(envelope.observed_at)?.title}.`
+            : 'It holds no metric or scan reading yet.'
+        }`}
       >
         <Typography variant="body2" color="text.secondary">
-          Snapshot {formatAge(envelope.generated_at)}
+          Data from {formatAge(envelope.generated_at)}
         </Typography>
       </Tooltip>
       <Typography variant="body2" color="text.secondary">
         ·
       </Typography>
-      <Tooltip
-        title={
-          envelope.observed_at
-            ? `Newest observation ${formatTimestamp(envelope.observed_at)?.title}`
-            : 'Nothing in this snapshot was observed'
-        }
-      >
+      <Tooltip title={lastScan.tooltip}>
         <Typography variant="body2" color="text.secondary">
-          last observation{' '}
-          {envelope.observed_at ? formatAge(envelope.observed_at) : '—'}
+          {lastScan.label}
         </Typography>
       </Tooltip>
       {envelope.stale && (

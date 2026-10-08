@@ -58,6 +58,9 @@ const hostsState: { data: OmInventoryHost[] } = { data: HOSTS };
 /** What the wizard actually asked for, so a test can assert the request itself. */
 const triggerCalls: Record<string, unknown>[] = [];
 
+const { enqueueSnackbar } = vi.hoisted(() => ({ enqueueSnackbar: vi.fn() }));
+vi.mock('notistack', () => ({ enqueueSnackbar }));
+
 vi.mock('../src/inventoryHooks', () => ({
   useOmInventoryHosts: () => ({
     data: hostsState.data,
@@ -502,6 +505,14 @@ describe('BootstrapPage security posture', () => {
     expect(request.memberConfigs['node-1'].bind_ip).toBe('10.0.0.1');
     expect(request.memberConfigs['node-2'].bind_ip).toBe('10.0.0.2');
     expect(request.memberConfigs['node-3'].bind_ip).toBe('10.0.0.3');
+    await vi.waitFor(() =>
+      expect(enqueueSnackbar).toHaveBeenCalledWith(
+        'Install started on 3 nodes',
+        {
+          variant: 'success',
+        }
+      )
+    );
   });
 
   it('sends one run-level address and no per-member ones for all interfaces', async () => {
