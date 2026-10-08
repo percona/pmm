@@ -12,6 +12,9 @@ export const GRAFANA_DIRECT_PATHS = [
   '/graph/user/password/send-reset-email',
   '/graph/user/password/reset',
   '/graph/user/auth-tokens/rotate',
+  '/graph/public-dashboards/abc123',
+  '/graph/dashboard/snapshot/abc123',
+  '/graph/dashboard-solo/snapshot/abc123',
 ];
 
 /** Shell-bound paths: superficially similar, but none of them bypass the shell. */
@@ -23,6 +26,8 @@ export const GRAFANA_SHELL_PATHS = [
   '/graph',
   '/graph/user/password',
   '/graph/user/auth-tokens',
+  '/graph/dashboard/snapshots',
+  '/graph/dashboard/public',
   '/pmm-ui/graph/d/node-cpu',
 ];
 
@@ -37,4 +42,5 @@ export const GRAFANA_DIRECT_PATHS_OBFUSCATED = [
   '/graph/%75ser/auth-tokens/rotate',
   '/graph//login',
   '/graph///api/datasources',
+  '/graph/dashboard//snapshot/abc123',
 ];

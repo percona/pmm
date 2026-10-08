@@ -3,7 +3,7 @@ export const GRAFANA_SUB_PATH = '/graph';
 
 /**
  * Grafana routes that keep the /graph prefix instead of being pulled into the PMM UI shell: the
- * REST API, the image renderer and the auth/account pages.
+ * REST API, the image renderer, the auth/account pages and share links.
  *
  * Single source for the redirect contract. The nginx exclusion regex in
  * build/ansible/roles/nginx/files/conf.d/pmm.conf is built from the same alternation and
@@ -22,6 +22,10 @@ export const GRAFANA_DIRECT_PATH_SEGMENTS = [
   // no such route, so pulling it in rotates the token inside the iframe while the address bar
   // stays pinned to the rotate URL.
   'user/auth-tokens/rotate',
+  // Share links: open to logged-out viewers, whom the shell's auth gate would send to login.
+  'public-dashboards',
+  'dashboard/snapshot',
+  'dashboard-solo/snapshot',
 ] as const;
 
 /** The alternation body shared verbatim with the nginx regex. */
