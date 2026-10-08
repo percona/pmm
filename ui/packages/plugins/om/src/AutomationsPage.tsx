@@ -39,13 +39,14 @@ import { EmptyState } from './components/EmptyState';
 import { RunProgress } from './components/RunProgress';
 import { AutomationsScansTab } from './AutomationsScansTab';
 import {
-  formatRunDuration,
+  formatRunElapsed,
   formatTimestamp,
   runDurationSeconds,
 } from './format';
 import { useOmBootstrapRuns } from './inventoryHooks';
 import { tabPanelProps, tabProps } from './tabA11y';
 import { useOmBase } from './useOmBase';
+import { useNow } from './useNow';
 import type { OmGetBootstrapRunResponse } from './types';
 
 /**
@@ -57,6 +58,29 @@ import type { OmGetBootstrapRunResponse } from './types';
  * pmm-managed's maxInventoryRunLimit caps it again).
  */
 const RUN_HISTORY_LIMIT = 100;
+
+/**
+ * Whether a run is still going, as its status chip says - which outlasts
+ * `finished_at` while pmm-managed is still confirming monitoring.
+ */
+const isRunInFlight = (run: OmGetBootstrapRunResponse) =>
+  bootstrapRunDisplayStatus(run) === 'running';
+
+/**
+ * A run's duration, counting up while it is still going.
+ *
+ * The sort key stays null in flight: a column sorting on a number that moves
+ * every second would reshuffle rows under the reader.
+ */
+const RunDuration = ({ run }: { run: OmGetBootstrapRunResponse }) => {
+  const inFlight = isRunInFlight(run);
+  const now = useNow(inFlight);
+  return (
+    <>
+      {formatRunElapsed(run.started_at, inFlight ? null : run.finished_at, now)}
+    </>
+  );
+};
 
 const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
   {
@@ -105,11 +129,13 @@ const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
   {
     // Sorts on elapsed seconds, not the formatted string -- see AutomationsScansTab's own
     // duration column for why.
-    accessorFn: (row) => runDurationSeconds(row.started_at, row.finished_at),
+    accessorFn: (row) =>
+      isRunInFlight(row)
+        ? null
+        : runDurationSeconds(row.started_at, row.finished_at),
     id: 'duration',
     header: 'Duration',
-    Cell: ({ row: { original } }) =>
-      formatRunDuration(original.started_at, original.finished_at),
+    Cell: ({ row: { original } }) => <RunDuration run={original} />,
   },
 ];
 

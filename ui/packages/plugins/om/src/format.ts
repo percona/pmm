@@ -148,6 +148,40 @@ export function formatRunDuration(
   return formatCompactDuration(seconds) || '0s';
 }
 
+/**
+ * Seconds a run has been going: to `finishedAt` once it has one, to `now` until then.
+ *
+ * The in-flight counterpart of {@link runDurationSeconds}, which stays null while a run
+ * is still going because a table sorting on it should not see a number that moves.
+ * Clamped at zero for the same reason as {@link formatAge}: a clock running behind the
+ * server's should read as "just started", not as a negative time.
+ */
+export function runElapsedSeconds(
+  startedAt: string,
+  finishedAt: string | null | undefined,
+  now: number = Date.now()
+): number | null {
+  const start = parse(startedAt);
+  if (!start) {
+    return null;
+  }
+  const end = parse(finishedAt);
+  return Math.max(0, differenceInMilliseconds(end ?? now, start) / 1000);
+}
+
+/** {@link runElapsedSeconds}, formatted. Empty when the run has no start time. */
+export function formatRunElapsed(
+  startedAt: string,
+  finishedAt: string | null | undefined,
+  now: number = Date.now()
+): string {
+  const seconds = runElapsedSeconds(startedAt, finishedAt, now);
+  if (seconds === null) {
+    return '';
+  }
+  return formatCompactDuration(seconds) || '0s';
+}
+
 /** The noun for a count: `cluster` at 1, `clusters` otherwise (including 0). */
 export function pluralize(
   count: number,
