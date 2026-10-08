@@ -49,18 +49,19 @@ PMM UI is the top frame and Grafana runs inside its `#grafana-iframe`; the `pmm-
 
 Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createBrowserRouter` with `basename: '/pmm-ui'`:
 
-| Route              | Page                            |
-| ------------------ | ------------------------------- |
-| `/`                | Redirects to `/graph` (Grafana) |
-| `/updates`         | PMM Server updates              |
-| `/updates/clients` | Client updates                  |
-| `/help`            | Help center                     |
-| `/rta`             | Real-Time Analytics tab         |
-| `/rta/selection`   | RTA service selection           |
-| `/rta/sessions`    | RTA sessions list               |
-| `/rta/overview`    | RTA overview                    |
-| `/graph/*`         | Grafana iframe                  |
-| `*`                | Page not found (`NotFoundPage`) |
+| Route              | Page                                                                    |
+| ------------------ | ----------------------------------------------------------------------- |
+| `/`                | Redirects to `/graph` (Grafana)                                         |
+| `/updates`         | PMM Server updates                                                      |
+| `/updates/clients` | Client updates                                                          |
+| `/help`            | Help center                                                             |
+| `/rta`             | Real-Time Analytics tab                                                 |
+| `/rta/selection`   | RTA service selection                                                   |
+| `/rta/sessions`    | RTA sessions list                                                       |
+| `/rta/overview`    | RTA overview                                                            |
+| `/prototype/:slug` | Placeholder for a proposed sidebar entry without a page yet (PMM-15353) |
+| `/graph/*`         | Grafana iframe                                                          |
+| `*`                | Page not found (`NotFoundPage`)                                         |
 
 ## State Management
 
@@ -179,6 +180,7 @@ Inside the PMM devcontainer (`make env-up` then `make env` from the repo root), 
 - `ui/turbo.json` — Turborepo pipeline configuration
 - `ui/apps/pmm/src/router.tsx` — route definitions
 - `ui/apps/pmm/src/Providers.tsx` — context provider composition
+- `ui/apps/pmm/src/contexts/navigation/navigation.proposal.ts` — the proposed sidebar, top to bottom (PMM-15353 wayfinding prototype)
 - `ui/apps/pmm/src/api/` — API client functions
 - `ui/apps/pmm/src/hooks/` — React Query hooks per API domain
 - `ui/apps/pmm/vite.config.ts` — build configuration

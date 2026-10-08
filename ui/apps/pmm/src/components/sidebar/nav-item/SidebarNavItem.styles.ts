@@ -41,6 +41,26 @@ export const getStyles = (
   listItemButton: {
     px: 2,
   },
+  sectionRow: {
+    pl: 2,
+    pr: 1,
+    pt: 3,
+    pb: 0.5,
+    gap: 0.5,
+  },
+  sectionHeading: {
+    m: 0,
+    flex: 'none',
+
+    [`.${listItemTextClasses.primary}`]: {
+      ...theme.typography.overline,
+      color: theme.palette.text.secondary,
+    },
+  },
+  pinHandle: {
+    color: theme.palette.text.secondary,
+    cursor: 'grab',
+  },
   textOnly: {
     m: 0,
     pl: 3,

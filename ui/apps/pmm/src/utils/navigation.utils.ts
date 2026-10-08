@@ -3,7 +3,8 @@ import { NavItem } from 'types/navigation.types';
 
 export const findActiveNavItem = (
   navtree: NavItem[] | NavItem,
-  pathname: string
+  pathname: string,
+  search = ''
 ): NavItem | undefined => {
   const roots = Array.isArray(navtree) ? navtree : [navtree];
 
@@ -16,7 +17,7 @@ export const findActiveNavItem = (
       }
     }
 
-    if (isActive(item, pathname)) {
+    if (isActive(item, pathname, search)) {
       if (!active || depth > active.depth) {
         active = { item, depth };
       }
@@ -30,17 +31,41 @@ export const findActiveNavItem = (
   return active?.item;
 };
 
-export const isActive = (item: NavItem, pathname: string): boolean => {
-  if (item.type === 'menu-divider' || item.type === 'menu-text' || !item.url) {
+export const isActive = (
+  item: NavItem,
+  pathname: string,
+  search = ''
+): boolean => {
+  if (
+    item.type === 'menu-divider' ||
+    item.type === 'menu-text' ||
+    item.type === 'menu-section' ||
+    !item.url
+  ) {
     return false;
   }
 
-  const exactMatch = matchesUrl(pathname, item.url);
+  const [url, query] = item.url.split('?');
+
+  // Two entries can share a page and differ only in the query string (a pinned
+  // filtered view next to the plain page), so a url with a query string claims
+  // the page only when the location carries every one of its params. The
+  // `matches` patterns stay path-only.
+  const exactMatch =
+    matchesUrl(pathname, url) && (!query || hasParams(search, query));
   const additionalMatch = item?.matches?.some((match) =>
-    matchesUrl(pathname, item.url!, match)
+    matchesUrl(pathname, url, match)
   );
 
   return Boolean(exactMatch || additionalMatch);
+};
+
+const hasParams = (search: string, query: string): boolean => {
+  const current = new URLSearchParams(search);
+
+  return Array.from(new URLSearchParams(query)).every(
+    ([key, value]) => current.get(key) === value
+  );
 };
 
 const matchesUrl = (pathname: string, url: string, match?: string) => {

@@ -23,6 +23,10 @@ export const PMM_NEW_NAV_HOME_URL = `${PMM_NEW_NAV_PATH}/graph/d/pmm-home`;
 export const EXTENSIONS_ATW_PATH = `${PMM_NEW_NAV_PATH}/extensions/atw`;
 export const EXTENSIONS_MYSQL_BACKUPS_PATH = `${PMM_NEW_NAV_PATH}/extensions/mysql-backups`;
 
+// Stand-in page for proposed sidebar entries that have no destination yet in the
+// wayfinding prototype (PMM-15353); the slug names the entry.
+export const PROTOTYPE_PLACEHOLDER_PATH = `${PMM_NEW_NAV_PATH}/prototype`;
+
 // In-app (router-relative, no basename) path of the settings tab that owns the
 // ServiceNow connection — handed to the Support diagnostics app so its disabled
 // send control can point an administrator at the thing that unblocks it.
