@@ -43,6 +43,7 @@ packages:
       grafanaClient:
       jobsService:
       prometheusService:
+      scheduledTasksRemover:
       serviceInfoBroker:
       versionCache:
       victoriaMetricsClient:

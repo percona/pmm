@@ -200,7 +200,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 			SubscriptionId:    agent.AzureOptions.SubscriptionID,
 			ResourceGroup:     agent.AzureOptions.ResourceGroup,
 		}
-	case models.MongoDBExporterType, models.QANMongoDBProfilerAgentType, models.RTAMongoDBAgentType:
+	case models.MongoDBExporterType, models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType, models.RTAMongoDBAgentType:
 		ua.MongoDbOptions = &managementv1.UniversalAgent_MongoDBOptions{
 			AuthenticationMechanism:            agent.MongoDBOptions.AuthenticationMechanism,
 			AuthenticationDatabase:             agent.MongoDBOptions.AuthenticationDatabase,

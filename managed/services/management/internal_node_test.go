@@ -179,7 +179,7 @@ func TestListNodesMarksInternalNodes(t *testing.T) {
 	vmClient.Test(t)
 	vmClient.On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil)
 
-	s := NewManagementService(db, ar, nil, nil, nil, vmdb, nil, nil, vmClient, []string{internalNodePrefix}, false)
+	s := NewManagementService(db, ar, nil, nil, nil, vmdb, nil, nil, vmClient, nil, []string{internalNodePrefix}, false)
 
 	res, err := s.ListNodes(ctx, &managementv1.ListNodesRequest{})
 	require.NoError(t, err)
@@ -222,7 +222,7 @@ func TestListNodesMarksPMMServerNodesInternalInHA(t *testing.T) {
 		vmClient.Test(t)
 		vmClient.On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil)
 
-		return NewManagementService(db, ar, nil, nil, nil, vmdb, nil, nil, vmClient, nil, haEnabled)
+		return NewManagementService(db, ar, nil, nil, nil, vmdb, nil, nil, vmClient, nil, nil, haEnabled)
 	}
 
 	listNodes := func(t *testing.T, haEnabled bool) map[string]bool {
@@ -269,7 +269,7 @@ func TestCheckNodeIsEligible(t *testing.T) {
 	agent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
 	require.NoError(t, err)
 
-	s := NewManagementService(db, nil, nil, nil, nil, nil, nil, nil, nil, []string{internalNodePrefix}, false)
+	s := NewManagementService(db, nil, nil, nil, nil, nil, nil, nil, nil, nil, []string{internalNodePrefix}, false)
 	expectedErr := status.New(codes.FailedPrecondition, fmt.Sprintf(
 		"Node '%s' is a part of the internal infrastructure of this PMM deployment and cannot monitor other services.", node.NodeName,
 	))
@@ -290,7 +290,7 @@ func TestCheckNodeIsEligible(t *testing.T) {
 	})
 
 	t.Run("no prefixes configured", func(t *testing.T) {
-		s := NewManagementService(db, nil, nil, nil, nil, nil, nil, nil, nil, nil, false)
+		s := NewManagementService(db, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, false)
 		assert.NoError(t, s.checkNodeIsEligible(ctx, agent.AgentID, "mysql.example.com"))
 	})
 

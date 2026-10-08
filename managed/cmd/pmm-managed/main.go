@@ -325,7 +325,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementSvc := management.NewManagementService(
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
 		deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb,
-		deps.versionCache, deps.grafanaClient, v1.NewAPI(*deps.vmClient),
+		deps.versionCache, deps.grafanaClient, v1.NewAPI(*deps.vmClient), mgmtServices,
 		deps.internalNodePrefixes,
 		deps.ha.Params().Enabled,
 	)
