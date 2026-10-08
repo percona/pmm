@@ -20,6 +20,7 @@ import Chip from '@mui/material/Chip';
 import { formatAge, formatTimestamp } from '../format';
 import { useLastScanFinishedAt } from '../inventoryHooks';
 import type { OmTopologySnapshotEnvelope } from '../types';
+import { describeLastScan } from './SnapshotBar.utils';
 
 /**
  * How current the page is, on screen rather than buried.
@@ -37,7 +38,7 @@ export const SnapshotBar = ({
 }: {
   envelope: OmTopologySnapshotEnvelope;
 }) => {
-  const lastScannedAt = useLastScanFinishedAt();
+  const lastScan = describeLastScan(useLastScanFinishedAt());
   return (
     <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
       <Tooltip
@@ -54,17 +55,9 @@ export const SnapshotBar = ({
       <Typography variant="body2" color="text.secondary">
         ·
       </Typography>
-      <Tooltip
-        title={
-          lastScannedAt
-            ? `The last scan of every node finished ${formatTimestamp(lastScannedAt)}.`
-            : 'No scan of every node has finished yet.'
-        }
-      >
+      <Tooltip title={lastScan.tooltip}>
         <Typography variant="body2" color="text.secondary">
-          {lastScannedAt
-            ? `Nodes last scanned ${formatAge(lastScannedAt)}`
-            : 'Nodes not scanned yet'}
+          {lastScan.label}
         </Typography>
       </Tooltip>
       {envelope.stale && (

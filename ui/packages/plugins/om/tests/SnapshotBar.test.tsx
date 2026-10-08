@@ -38,7 +38,10 @@ const envelope = {
 
 describe('SnapshotBar', () => {
   beforeEach(() => {
-    useLastScanFinishedAt.mockReturnValue(minutesAgo(9));
+    useLastScanFinishedAt.mockReturnValue({
+      status: 'ready',
+      finishedAt: minutesAgo(9),
+    });
   });
 
   it('says how old the data is and when the nodes were last scanned', () => {
@@ -51,10 +54,37 @@ describe('SnapshotBar', () => {
   });
 
   it('says the nodes have not been scanned rather than drawing a dash', () => {
-    useLastScanFinishedAt.mockReturnValue(null);
+    useLastScanFinishedAt.mockReturnValue({
+      status: 'ready',
+      finishedAt: null,
+    });
 
     render(<SnapshotBar envelope={envelope} />);
 
     expect(screen.getByText('Nodes not scanned yet')).toBeInTheDocument();
+  });
+
+  it('says the scan history is unavailable rather than that nothing was scanned', () => {
+    useLastScanFinishedAt.mockReturnValue({
+      status: 'unavailable',
+      finishedAt: null,
+    });
+
+    render(<SnapshotBar envelope={envelope} />);
+
+    expect(screen.getByText('Scan history unavailable')).toBeInTheDocument();
+    expect(screen.queryByText('Nodes not scanned yet')).not.toBeInTheDocument();
+  });
+
+  it('says the scan history is being read before it has answered', () => {
+    useLastScanFinishedAt.mockReturnValue({
+      status: 'pending',
+      finishedAt: null,
+    });
+
+    render(<SnapshotBar envelope={envelope} />);
+
+    expect(screen.getByText('Reading scan history…')).toBeInTheDocument();
+    expect(screen.queryByText('Nodes not scanned yet')).not.toBeInTheDocument();
   });
 });
