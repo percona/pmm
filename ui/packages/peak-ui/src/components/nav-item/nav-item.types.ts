@@ -8,7 +8,7 @@ export interface NavItemProps extends Omit<ListItemButtonProps, 'children' | 'di
   text: string;
   /** Smaller text under the label, cut with an ellipsis when it's too long. */
   secondaryText?: string;
-  /** Icon shown before the text label, to the left. */
+  /** Icon shown before the text label, to the left; rows without one keep their text aligned with rows that have one. */
   icon?: ReactNode;
   /** Content shown at the end of the row, such as a count chip or New/Preview labelling. */
   badge?: ReactNode;
