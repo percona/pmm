@@ -16,6 +16,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
+import { enqueueSnackbar } from 'notistack';
 import {
   Alert,
   Box,
@@ -311,7 +312,14 @@ export const ConfigForm = ({
           setting.key,
           toWireValue(setting, drafts[setting.key] ?? ''),
         ])
-      )
+      ),
+      {
+        onSuccess: () =>
+          enqueueSnackbar(
+            dirty.length > 1 ? `Saved ${dirty.length} changes` : 'Saved',
+            { variant: 'success' }
+          ),
+      }
     );
 
   const render = (setting: OmInventorySetting) => (
@@ -323,7 +331,15 @@ export const ConfigForm = ({
       onChange={(next) =>
         setDrafts((current) => ({ ...current, [setting.key]: next }))
       }
-      onReset={() => reset.mutate(setting.key)}
+      onReset={() =>
+        reset.mutate(setting.key, {
+          onSuccess: () =>
+            enqueueSnackbar(
+              `${SETTING_LABEL[setting.key] ?? setting.key} reset to its default`,
+              { variant: 'success' }
+            ),
+        })
+      }
     />
   );
 

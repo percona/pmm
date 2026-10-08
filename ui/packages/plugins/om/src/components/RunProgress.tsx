@@ -16,6 +16,7 @@
  */
 
 import { useState } from 'react';
+import { enqueueSnackbar } from 'notistack';
 import {
   Alert,
   Box,
@@ -312,6 +313,10 @@ const AbortButton = ({ run }: { run: OmGetBootstrapRunResponse }) => {
             disabled={cancelRun.isPending}
             onClick={async () => {
               await cancelRun.mutateAsync(run.run_id);
+              enqueueSnackbar(
+                'Abort requested - rolling back once the current step stops.',
+                { variant: 'success' }
+              );
               setConfirming(false);
             }}
           >

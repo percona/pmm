@@ -40,7 +40,8 @@ import {
   useOmInventoryRuns,
   useRefreshInventory,
 } from './inventoryHooks';
-import { isRunActive, OmApiError } from './api';
+import { isRunActive } from './api';
+import { useScanConflict } from './ScanFeedback';
 import { RunStatusBadge } from './components/HealthBadge';
 import { RunEntities } from './components/RunEntities';
 import {
@@ -302,10 +303,7 @@ const RefreshButton = () => {
   // A 409 is an expected answer rather than a failure, and since conflict is judged
   // per host the message names what is in flight instead of saying "a sweep is
   // already running" - which was true of anything and useful for nothing.
-  const conflict =
-    trigger.error instanceof OmApiError && trigger.error.status === 409
-      ? trigger.error
-      : null;
+  const { conflict } = useScanConflict(trigger);
   const failure = trigger.error && !conflict ? trigger.error : null;
 
   return (
