@@ -3,20 +3,29 @@ checks:
   - version: 2
     name: mongodb_write_tickets
     summary: MongoDB write Tickets
-    description: This check returns warnings if MongoDB is using more than 128 write tickets.
+    description: This check returns warnings if the MongoDB startup options set more than 128 write tickets, or, starting with MongoDB 7.0, a fixed number of write tickets.
     interval: standard
     technology: MONGODB
     category: Performance
     # author: Vinicius Grippa/Parag Bhayani
     queries:
       - type: MONGODB_GETCMDLINEOPTS
+      - type: MONGODB_BUILDINFO
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       def check_context(docs, context):
           """
-          This check returns a warning if MongoDB is using 128 or more WiredTiger Write Tickets concurrently.
+          This check returns a warning if MongoDB is using more than 128 WiredTiger Write Tickets concurrently,
+          or, starting with MongoDB 7.0, a fixed number of write tickets.
           """
+
+          parse_version = context.get("parse_version", fail)
+
+          build_info = docs[1]
+          if len(build_info) != 1:
+              return "unexpected number of documents from buildInfo: {}".format(len(build_info))
+          major = parse_version(build_info[0]["version"])["major"]
 
           info = docs[0]
           results = []
@@ -25,14 +34,22 @@ checks:
               parsed = row["parsed"]
               if parsed.get("setParameter", {}):
                   setParameter = parsed.get("setParameter", {})
-                  if setParameter.get("wiredTigerConcurrentWriteTransactions", {}):
-                      readTicket = (int(setParameter.get("wiredTigerConcurrentWriteTransactions")) >= 128)
-                      if readTicket:
-                          results.append({
-                              "summary": "MongoDB is using more than 128 write tickets",
-                              "description": "To avoid performance issues, see the following to set it to default",
-                              "read_more_url": read_url.format("mongodb-write-tickets"),
-                              "severity": "warning",
-                          })
+                  # MongoDB 6.0 renamed the parameter; the startup options can use either name
+                  writeTickets = int(setParameter.get("storageEngineConcurrentWriteTransactions", setParameter.get("wiredTigerConcurrentWriteTransactions", 0)))
+                  # starting with MongoDB 7.0, any value replaces the dynamic ticket adjustment with a fixed pool
+                  if major >= 7 and writeTickets != 0:
+                      results.append({
+                          "summary": "MongoDB startup options set a fixed number of write tickets",
+                          "description": "The startup options set the number of write tickets to {}, which turns off the dynamic adjustment of write tickets. Remove the setting unless MongoDB Support recommended it.".format(writeTickets),
+                          "read_more_url": read_url.format("mongodb-write-tickets"),
+                          "severity": "warning",
+                      })
+                  elif writeTickets > 128:
+                      results.append({
+                          "summary": "MongoDB is using more than 128 write tickets",
+                          "description": "To avoid performance issues, see the following to set it to default",
+                          "read_more_url": read_url.format("mongodb-write-tickets"),
+                          "severity": "warning",
+                      })
 
           return results

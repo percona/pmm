@@ -11,6 +11,8 @@ checks:
       - type: POSTGRESQL_SELECT
         query: r.rolname, r.rolsuper, ARRAY(SELECT b.rolname FROM pg_catalog.pg_auth_members m JOIN pg_catalog.pg_roles b ON (m.roleid = b.oid) WHERE m.member = r.oid) as memberof FROM pg_catalog.pg_roles r WHERE r.rolname !~ '^pg_' AND r.rolcanlogin = 't' AND r.rolname NOT IN ('postgres', 'rdsadmin', 'pmm_user')
     script: |
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+
       def check_context(docs, context):
           """
           This check returns a warning if there are users with superuser role.
@@ -33,6 +35,7 @@ checks:
               return [{
                   "summary": "User(s) with Superuser role found",
                   "description": "{} - {}".format(desc, users),
+                  "read_more_url": read_url.format("postgresql-super-role"),
                   "severity": "warning",
                   "labels": {
                       "count": str(count),

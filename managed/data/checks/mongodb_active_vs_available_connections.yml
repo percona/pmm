@@ -12,6 +12,8 @@ checks:
     queries:
       - type: MONGODB_GETDIAGNOSTICDATA
     script: |
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+
       def check_context(docs, context):
           """
           This check returns warnings if number of active connections is too high.
@@ -32,7 +34,7 @@ checks:
               results.append({
                   "summary": "MongoDB has too many active connections",
                   "description": "More than 75% of available connections are active. You may increase the available connections by increasing the ULIMIT. You can also check the workload, maybe there's unexpected spike of connections and queries.",
-                  "read_more_url": "https://www.mongodb.com/docs/manual/reference/ulimit/#recommended-settings",
+                  "read_more_url": read_url.format("mongodb-active-vs-available-connections"),
                   "severity": "warning",
               })
 

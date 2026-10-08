@@ -10,7 +10,7 @@ checks:
     # author: Parag bhayani
     queries:
       - type: METRICS_INSTANT
-        query: avg by(cluster) (mongodb_mongos_sharding_chunks_is_balancer_running{node_name=~"{{.NodeName}}"})
+        query: min by(cluster) (mongodb_mongos_sharding_balancer_enabled{node_name=~"{{.NodeName}}"})
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
@@ -19,9 +19,9 @@ checks:
 
           clusters = []
           for row in docs[0]:
-              cluster = row["metric"]["cluster"]
-              chunk_balance = int(row["value"][1])
-              if chunk_balance != 1:
+              cluster = row["metric"].get("cluster", "unknown")
+              enabled = int(row["value"][1])
+              if enabled != 1:
                   clusters.append(cluster)
 
           if clusters:

@@ -11,6 +11,8 @@ checks:
       - type: MYSQL_SHOW
         query: "DATABASES WHERE `Database` = 'test' or `Database` like 'test_%'"
     script: |
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+
       def check_context(docs, context):
           """
           This check identifies databases with name 'test' or 'test_%'.
@@ -27,6 +29,7 @@ checks:
               return [{
                   "summary": "Test database(s) detected: {}".format(", ".join(dbs)),
                   "description": "Improve MySQL Installation Security by running mysql_secure_installation",
+                  "read_more_url": read_url.format("mysql-test-database"),
                   "severity": "info"
           }]
 

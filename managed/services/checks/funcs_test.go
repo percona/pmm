@@ -282,3 +282,36 @@ def check_context(rows, context):
 		})
 	}
 }
+
+func TestIPIsPrivate(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		arg      string
+		expected any
+	}{
+		{arg: "10.1.2.3", expected: true},
+		{arg: "8.8.8.8", expected: false},
+		{arg: "::1", expected: true},
+		{arg: "0.0.0.0/0", expected: false},
+		{arg: "10.0.0.0/8", expected: true},
+		{arg: "10.0.0.0/7", expected: false},
+		{arg: "172.16.0.0/11", expected: false},
+		{arg: "192.168.1.0/24", expected: true},
+		{arg: "203.0.113.0/24", expected: false},
+		{arg: "fc00::/7", expected: true},
+		{arg: "fd00::/8", expected: true},
+		{arg: "::/0", expected: false},
+		{arg: "%", expected: nil},
+		{arg: "10.0.0.0/255.0.0.0", expected: nil},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.arg, func(t *testing.T) {
+			t.Parallel()
+			res, err := ipIsPrivate(tc.arg)
+			require.NoError(t, err)
+			assert.Equal(t, tc.expected, res)
+		})
+	}
+}

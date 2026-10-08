@@ -4,31 +4,48 @@ checks:
   - version: 2
     name: mongodb_write_tickets_runtime
     summary: MongoDB Configuration Write ticket Check
-    description: Warns when MongoDB is using more than 128 write tickets during runtime.
+    description: Warns when MongoDB is using more than 128 write tickets during runtime, or, starting with MongoDB 7.0, a fixed number of write tickets.
     technology: MONGODB
     # author: Vinicius Grippa
     category: Performance
     interval: standard
     queries:
       - type: MONGODB_GETPARAMETER
+      - type: MONGODB_BUILDINFO
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       def check_context(docs, context):
+          parse_version = context.get("parse_version", fail)
+
           rows = docs[0]
 
           if len(rows) != 1:
               return "unexpected number of documents: {}".format(len(rows))
 
+          build_info = docs[1]
+          if len(build_info) != 1:
+              return "unexpected number of documents from buildInfo: {}".format(len(build_info))
+
           results = []
           row = rows[0]
-          writeParameter = row.get("wiredTigerConcurrentWriteTransactions", 0)
-          check = (int(writeParameter) >= 128)
-          if check:
+          # MongoDB 6.0 renamed the parameter and keeps the old name as an alias
+          writeParameter = int(row.get("storageEngineConcurrentWriteTransactions", row.get("wiredTigerConcurrentWriteTransactions", 0)))
+          major = parse_version(build_info[0]["version"])["major"]
+
+          # starting with MongoDB 7.0, any value replaces the dynamic ticket adjustment with a fixed pool
+          if major >= 7 and writeParameter != 0:
+              results.append({
+                  "summary": "MongoDB runtime uses a fixed number of write tickets",
+                  "description": "The number of write tickets is set to {}, which turns off the dynamic adjustment of write tickets. Remove the setting unless MongoDB Support recommended it.".format(writeParameter),
+                  "read_more_url": read_url.format("mongodb-non-default-runtime-write-tickets"),
+                  "severity": "warning",
+              })
+          elif writeParameter > 128:
               results.append({
                   "summary": "MongoDB runtime is configured with more than 128 write tickets",
                   "description": "To avoid performance issues, see the following to set it to default (128)",
-                  "read_more_url": read_url.format("mongodb-write-tickets"),
+                  "read_more_url": read_url.format("mongodb-non-default-runtime-write-tickets"),
                   "severity": "warning",
               })
           return results

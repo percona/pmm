@@ -11,7 +11,7 @@ checks:
     queries:
       - type: MONGODB_BUILDINFO
     script: |
-      read_url = "https://www.percona.com/services/policies/percona-software-support-lifecycle"
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       def check_context(docs, context):
           """
@@ -35,7 +35,7 @@ checks:
                   results.append({
                       "summary": "MongoDB version {} is not supported".format(mm),
                       "description": "MongoDB version {} has reached its End-of-Life date. PSMDB and MongoDB follow similar EOL timelines. Please review the Software Lifecycle Policy at the Read More link for more details related to coverage and Support Policies. Please upgrade your PSMDB/MongoDB instance to a currently supported major release version for security and performance reasons immediately in order to continue with seamless support.".format(current_version),
-                      "read_more_url": read_url,
+                      "read_more_url": read_url.format("mongodb-unsupported-version"),
                       "severity": "error",
                   })
               return results

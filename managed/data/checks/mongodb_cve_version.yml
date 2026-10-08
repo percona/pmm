@@ -10,6 +10,8 @@ checks:
     queries:
       - type: MONGODB_BUILDINFO
     script: |
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+
       LATEST_VERSIONS = {
           "mongodb": {
               "3.6": 30618,  # https://docs.mongodb.com/manual/release-notes/3.6/
@@ -17,23 +19,11 @@ checks:
               "4.2": 40203,  # https://docs.mongodb.com/manual/release-notes/4.2/
               "4.4": 40402,  # https://docs.mongodb.com/manual/release-notes/4.4/
           },
-          "mongodb_url": {
-              "3.6": "https://docs.mongodb.com/manual/release-notes/3.6/#3.6.18---may-1--2020",
-              "4.0": "https://docs.mongodb.com/manual/release-notes/4.0/#4.0.15---jan-27--2020",
-              "4.2": "https://docs.mongodb.com/manual/release-notes/4.2/#4.2.3---jan-27--2020",
-              "4.4": "https://docs.mongodb.com/manual/release-notes/4.4/#4.4.2---nov-18--2020",
-          },
           "percona": {
               "3.6": 30619008,  # https://docs.percona.com/percona-server-for-mongodb/3.6/release_notes/index.html
               "4.0": 40020014,  # https://docs.percona.com/percona-server-for-mongodb/4.0/release_notes/index.html
               "4.2": 40209010,  # https://docs.percona.com/percona-server-for-mongodb/4.2/release_notes/index.html
               "4.4": 40401003,  # https://docs.percona.com/percona-server-for-mongodb/4.4/release_notes/index.html
-          },
-          "percona_url": {
-              "3.6": "https://docs.percona.com/percona-server-for-mongodb/3.6/release_notes/3.6.19-8.0.html",
-              "4.0": "https://docs.percona.com/percona-server-for-mongodb/4.0/release_notes/4.0.20-14.html",
-              "4.2": "https://docs.percona.com/percona-server-for-mongodb/4.2/release_notes/4.2.9-10.html",
-              "4.4": "https://docs.percona.com/percona-server-for-mongodb/4.4/release_notes/4.4.1-3.html",
           },
       }
 
@@ -81,7 +71,7 @@ checks:
                   results.append({
                       "summary": "MongoDB CVE Version check is available for Percona Server since PMM 2.17.0",
                       "description": "",
-                      "read_more_url": "https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/index.html",
+                      "read_more_url": read_url.format("mongodb-cve-version"),
                       "severity": "warning",
                       "labels": {},
                   })
@@ -95,7 +85,7 @@ checks:
                   results.append({
                       "summary": "Newer version of Percona Server with CVE fixes for MongoDB is available",
                       "description": "Current version is {}, latest available version with CVE fixes is {}.".format(format_version_num(numcve), format_version_num(latest)),
-                      "read_more_url": LATEST_VERSIONS["percona_url"][mm],
+                      "read_more_url": read_url.format("mongodb-cve-version"),
                       "severity": "error",
                       "labels": {
                           "current": format_version_num(numcve),
@@ -113,7 +103,7 @@ checks:
                   results.append({
                       "summary": "Newer version of MongoDB with CVE fixes is available",
                       "description": "Current version is {}, latest available version with CVE fixes is {}.".format(format_version_num(num), format_version_num(latest)),
-                      "read_more_url": LATEST_VERSIONS["mongodb_url"][mm],
+                      "read_more_url": read_url.format("mongodb-cve-version"),
                       "severity": "error",
                       "labels": {
                           "current": format_version_num(num),
