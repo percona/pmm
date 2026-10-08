@@ -21,8 +21,7 @@
  * Errors appeared three ways - a page-replacing Alert, an Alert above a table, and
  * bare red text beside a button - with no shared component and no rule. This fails
  * on the two ways that bypass the component: an error Alert of its own, and text
- * coloured as an error. A status - a red chip, a count, a run's own outcome - is not
- * an error message, and is not what this looks for.
+ * coloured as an error.
  */
 
 import { readdirSync, readFileSync, statSync } from 'node:fs';
@@ -40,7 +39,24 @@ const SRC = path.join(
 const OWN = path.join(SRC, 'components', 'OmError.tsx');
 
 const ERROR_ALERT = /severity="error"/;
-const ERROR_TEXT = /<Typography\b[^>]*\scolor="error"/s;
+const ERROR_TEXT =
+  /<Typography\b[^>]*\scolor="error"|['"]error\.(?:main|light|dark)['"]/g;
+
+/**
+ * Red that marks a state, not a message: a count to act on, or a service or node that
+ * is down or failing, its error a hover or an expand away. Counted exactly, so a red
+ * message added to one of these files still fails.
+ */
+const STATUS_RED: Record<string, number> = {
+  // "N down"
+  'FleetClustersTab.tsx': 2,
+  // "N down", a service's "failing 3h"
+  'FleetServicesTab.tsx': 2,
+  // "N cannot be scanned", a failing node's row and the heading of its detail
+  'NodesPage.tsx': 3,
+  // a service that did not answer a scan
+  'components/RunEntities.tsx': 1,
+};
 
 function sources(dir: string): string[] {
   return readdirSync(dir).flatMap((entry) => {
@@ -60,10 +76,13 @@ describe('the Operations error idiom', () => {
     expect(offenders.map((file) => path.relative(SRC, file))).toEqual([]);
   });
 
-  it('colours no text as an error outside OmError', () => {
-    const offenders = sources(SRC).filter((file) =>
-      ERROR_TEXT.test(readFileSync(file, 'utf8'))
+  it('colours text as an error only to mark a status', () => {
+    const red = Object.fromEntries(
+      sources(SRC).flatMap((file) => {
+        const count = readFileSync(file, 'utf8').match(ERROR_TEXT)?.length ?? 0;
+        return count ? [[path.relative(SRC, file), count]] : [];
+      })
     );
-    expect(offenders.map((file) => path.relative(SRC, file))).toEqual([]);
+    expect(red).toEqual(STATUS_RED);
   });
 });
