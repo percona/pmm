@@ -28,7 +28,7 @@ import (
 const (
 	// Minimum gap between sweeps. Until it is reaped, an orphaned row only keeps emitting
 	// its overrides for a rule nothing evaluates.
-	reconcileInterval = 15 * time.Minute
+	reconcileSweepInterval = 15 * time.Minute
 
 	// Keeps a freshly created row safe from the sweep. CreateRule writes the registry
 	// row before the rule exists in Grafana, so without this a sweep landing in that
@@ -39,7 +39,7 @@ const (
 	reconcileTimeout = 5 * time.Second
 )
 
-// maybeReconcile runs the sweep at most once per reconcileInterval. It is called after a
+// maybeReconcile runs the sweep at most once per reconcileSweepInterval. It is called after a
 // threshold write because only a request carries the auth ListPMMRuleIDs needs.
 func (s *Service) maybeReconcile(ctx context.Context) {
 	_, err := auth.GetHeadersFromContext(ctx)
@@ -48,7 +48,7 @@ func (s *Service) maybeReconcile(ctx context.Context) {
 	}
 
 	s.sweepMu.Lock()
-	if time.Since(s.lastSweep) < reconcileInterval {
+	if time.Since(s.lastSweep) < reconcileSweepInterval {
 		s.sweepMu.Unlock()
 		return
 	}
