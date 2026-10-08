@@ -470,12 +470,16 @@ export function ResultsPane({
       )}
 
       {!isLoading && !error && (!rows || rows.length === 0) && (
-        <Alert severity="info">
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          data-testid="atw-results-empty"
+        >
           {/* A closed incident has no Collect pane to point at. */}
           {canMutate && !incident?.closed_at
             ? 'No executions yet. Run snippets from the Collect pane to see results here.'
             : 'No executions yet.'}
-        </Alert>
+        </Typography>
       )}
 
       {/*

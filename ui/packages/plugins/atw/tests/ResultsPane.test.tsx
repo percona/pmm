@@ -118,6 +118,12 @@ describe('ResultsPane', () => {
         screen.getByText(/Run snippets from the Collect pane/i)
       ).toBeTruthy();
     });
+    // An empty pane is not news: plain text, not an info alert.
+    expect(
+      screen
+        .getByText(/Run snippets from the Collect pane/i)
+        .closest('[role="alert"]')
+    ).toBeNull();
   });
 
   it('does not point a read-only session at the withheld Collect pane', async () => {

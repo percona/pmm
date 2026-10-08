@@ -429,7 +429,7 @@ describe('CollectPane — write access', () => {
     );
   });
 
-  it('mounts a datetime-local picker when the merged schema declares datetime', async () => {
+  it('mounts the date-time picker when the merged schema declares datetime', async () => {
     mockedApi.get.mockImplementation((url: string) => {
       if (url.startsWith('/apps/atw/snippets/')) {
         return Promise.resolve({
@@ -483,13 +483,13 @@ describe('CollectPane — write access', () => {
     );
 
     const input = await screen.findByTestId(
-      'text-input-overrides.snip0.since',
+      'date-time-picker-overrides.snip0.since',
       undefined,
       { timeout: 3000 }
     );
-    expect(input).toHaveAttribute('type', 'datetime-local');
+    expect(input).not.toHaveAttribute('type', 'datetime-local');
     expect((input as HTMLInputElement).value).toMatch(
-      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/
+      /^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2} (AM|PM)$/
     );
   });
 

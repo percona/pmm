@@ -15,15 +15,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MenuItem from '@mui/material/MenuItem';
-import type {
-  ControllerRenderProps,
-  FieldError,
-  FieldValues,
-} from 'react-hook-form';
+import { FormProvider, useForm, type RegisterOptions } from 'react-hook-form';
 import { SchemaSelectShell } from './SchemaSelectShell';
 
 const choices = [
@@ -31,80 +27,100 @@ const choices = [
   { value: 'pear', label: 'Pear' },
 ];
 
-function makeField(
-  overrides: Partial<ControllerRenderProps> = {}
-): ControllerRenderProps<FieldValues, string> {
-  return {
-    name: 'fruit',
-    value: '',
-    onChange: vi.fn(),
-    onBlur: vi.fn(),
-    ref: vi.fn(),
-    ...overrides,
-  } as ControllerRenderProps<FieldValues, string>;
+interface ShellOptions {
+  value?: string;
+  required?: boolean;
+  rules?: RegisterOptions;
+  tooltip?: string;
+  inline?: string;
+  /** Dotted for the one-of branch case; see the nested-path test. */
+  name?: string;
 }
 
-function renderShell(
-  opts: {
-    field?: Partial<ControllerRenderProps>;
-    required?: boolean;
-    error?: FieldError;
-    tooltip?: string;
-    inline?: string;
-  } = {}
-) {
-  return render(
-    <SchemaSelectShell
-      field={makeField(opts.field)}
-      labelId="fruit-label"
-      label="Fruit"
-      required={opts.required}
-      error={opts.error}
-      tooltip={opts.tooltip}
-      inline={opts.inline}
-      renderValue={(value) =>
-        value === undefined || value === null || value === ''
-          ? 'Select…'
-          : (choices.find((c) => c.value === value)?.label ?? String(value))
-      }
-    >
-      {choices.map((c) => (
-        <MenuItem key={c.value} value={c.value}>
-          {c.label}
-        </MenuItem>
-      ))}
-    </SchemaSelectShell>
+function Harness({
+  value = '',
+  required,
+  rules,
+  tooltip,
+  inline,
+  name = 'fruit',
+}: ShellOptions) {
+  const methods = useForm({
+    defaultValues: { fruit: value, basket: { fruit: value } },
+  });
+  return (
+    <FormProvider {...methods}>
+      <form onSubmit={methods.handleSubmit(() => {})}>
+        <SchemaSelectShell
+          name={name}
+          label="Fruit"
+          required={required}
+          rules={rules}
+          tooltip={tooltip}
+          inline={inline}
+          renderValue={(v) =>
+            choices.find((c) => c.value === v)?.label ?? String(v)
+          }
+        >
+          {choices.map((c) => (
+            <MenuItem key={c.value} value={c.value}>
+              {c.label}
+            </MenuItem>
+          ))}
+        </SchemaSelectShell>
+        <button type="submit">Submit</button>
+      </form>
+    </FormProvider>
   );
 }
 
+const renderShell = (opts: ShellOptions = {}) => render(<Harness {...opts} />);
+
 describe('SchemaSelectShell', () => {
-  it('renders the placeholder branch and preserves the test ids when empty', () => {
+  it('keeps the test ids Peak UI derives from the field name', () => {
     renderShell();
 
-    expect(screen.getByText('Select…')).toBeInTheDocument();
     expect(screen.getByTestId('select-fruit-button')).toBeInTheDocument();
     expect(screen.getByTestId('select-input-fruit')).toBeInTheDocument();
     // a11y: the visible combobox is labelled by the InputLabel.
     expect(
       screen.getByRole('combobox').getAttribute('aria-labelledby')
-    ).toContain('fruit-label');
+    ).toContain('fruit-input-label');
   });
 
-  it('renders the populated value via renderValue', () => {
-    renderShell({ field: { value: 'apple' } });
+  // The placeholder and the pinned-notch label were the two select styles this
+  // shell used to have that no other control on the form had (PMM-15456).
+  it('shows no placeholder and lets the label sit in the empty field', () => {
+    const { container } = renderShell();
+
+    expect(screen.queryByText('Select…')).not.toBeInTheDocument();
+    expect(container.querySelector('label')).toHaveAttribute(
+      'data-shrink',
+      'false'
+    );
+  });
+
+  it('floats the label once a value is chosen, and renders it via renderValue', () => {
+    const { container } = renderShell({ value: 'apple' });
 
     expect(screen.getByText('Apple')).toBeInTheDocument();
-    expect(screen.queryByText('Select…')).not.toBeInTheDocument();
+    expect(container.querySelector('label')).toHaveAttribute(
+      'data-shrink',
+      'true'
+    );
   });
 
-  it('flips aria-invalid and shows the error message on error', () => {
-    renderShell({ error: { type: 'required', message: 'Fruit is required' } });
+  it('flips aria-invalid and shows the error message on error', async () => {
+    const user = userEvent.setup();
+    renderShell({ rules: { required: 'Fruit is required' } });
 
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(await screen.findByText('Fruit is required')).toBeInTheDocument();
     expect(screen.getByTestId('select-input-fruit')).toHaveAttribute(
       'aria-invalid',
       'true'
     );
-    expect(screen.getByText('Fruit is required')).toBeInTheDocument();
   });
 
   it('shows inline help as helper text when there is no error', () => {
@@ -121,39 +137,64 @@ describe('SchemaSelectShell', () => {
     const user = userEvent.setup();
     renderShell({ tooltip: 'Pick one' });
 
-    const help = screen.getByLabelText('Help for Fruit');
-    expect(help).toHaveAttribute('data-help-for', 'Fruit');
-    await user.hover(help);
+    // MUI's outlined notch clones the label into an aria-hidden <legend>, so
+    // the icon exists twice; the visible one is the <label>'s. Same shape the
+    // TextInput-backed fields already assert.
+    const help = document.querySelector('label [data-help-for="Fruit"]');
+    expect(help).toBeInTheDocument();
+    await user.hover(help!);
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Pick one');
   });
 
   it('omits the info icon when description is missing', () => {
     renderShell();
 
-    expect(screen.queryByLabelText('Help for Fruit')).not.toBeInTheDocument();
+    expect(document.querySelectorAll('[data-help-for="Fruit"]')).toHaveLength(
+      0
+    );
   });
 
-  it('replaces inline help with the error', () => {
+  it('replaces inline help with the error', async () => {
+    const user = userEvent.setup();
     renderShell({
       inline: 'Pick one',
-      error: { type: 'required', message: 'Fruit is required' },
+      rules: { required: 'Fruit is required' },
     });
 
-    expect(screen.getByText('Fruit is required')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(await screen.findByText('Fruit is required')).toBeInTheDocument();
     expect(screen.queryByText('Pick one')).not.toBeInTheDocument();
   });
 
-  it('keeps the info icon when an error takes the helper-text slot', () => {
+  it('keeps the info icon when an error takes the helper-text slot', async () => {
+    const user = userEvent.setup();
     renderShell({
       tooltip: 'Pick one',
-      error: { type: 'required', message: 'Fruit is required' },
+      rules: { required: 'Fruit is required' },
     });
 
-    expect(screen.getByText('Fruit is required')).toBeInTheDocument();
-    expect(screen.getByLabelText('Help for Fruit')).toHaveAttribute(
-      'data-help-for',
-      'Fruit'
-    );
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(await screen.findByText('Fruit is required')).toBeInTheDocument();
+    expect(
+      document.querySelectorAll('label [data-help-for="Fruit"]')
+    ).toHaveLength(1);
+  });
+
+  // A one-of branch field's name is a dotted path, and react-hook-form nests
+  // its error to match. A literal `errors[name]` lookup left the control
+  // outlined red with no message under it.
+  it('shows the error message for a nested field path', async () => {
+    const user = userEvent.setup();
+    renderShell({
+      name: 'basket.fruit',
+      rules: { required: 'Fruit is required' },
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(await screen.findByText('Fruit is required')).toBeInTheDocument();
   });
 
   it('renders a required asterisk in the label', () => {

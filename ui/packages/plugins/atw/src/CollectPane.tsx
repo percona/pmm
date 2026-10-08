@@ -749,6 +749,11 @@ export function CollectPane({
                 ? 'Search or select snippets to run'
                 : undefined
             }
+            helperText={
+              selected.length === 0
+                ? 'Search for a snippet by name or description, or browse a category, then select one or more snippets to build the execution form.'
+                : undefined
+            }
           />
         )}
       />
@@ -758,13 +763,6 @@ export function CollectPane({
           Could not find “{rerunResolveFailed}” to reopen it — it may have been
           renamed, removed, or is no longer approved. Search for it above, or
           pick a replacement.
-        </Alert>
-      )}
-
-      {selected.length === 0 && (
-        <Alert severity="info" sx={{ mt: 3 }}>
-          Search for a snippet by name or description, or browse a category,
-          then select one or more snippets to build the execution form.
         </Alert>
       )}
 
