@@ -21986,6 +21986,14 @@
                         "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
                         "type": "string",
                         "x-order": 43
+                      },
+                      "environment_variable_names": {
+                        "description": "Names of the environment variables passed to the exporter from pmm-agent's environment.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 44
                       }
                     }
                   },
@@ -23565,6 +23573,14 @@
                               "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
                               "type": "string",
                               "x-order": 43
+                            },
+                            "environment_variable_names": {
+                              "description": "Names of the environment variables passed to the exporter from pmm-agent's environment.",
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "x-order": 44
                             }
                           }
                         },
@@ -30450,6 +30466,14 @@
                             "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
                             "type": "string",
                             "x-order": 43
+                          },
+                          "environment_variable_names": {
+                            "description": "Names of the environment variables passed to the exporter from pmm-agent's environment.",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "x-order": 44
                           }
                         }
                       },
@@ -30921,6 +30945,14 @@
                             "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
                             "type": "string",
                             "x-order": 43
+                          },
+                          "environment_variable_names": {
+                            "description": "Names of the environment variables passed to the exporter from pmm-agent's environment.",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "x-order": 44
                           }
                         }
                       },

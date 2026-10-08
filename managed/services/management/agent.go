@@ -144,28 +144,34 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 		return nil, err
 	}
 
+	envVarNames, err := agent.GetEnvironmentVariableNames()
+	if err != nil {
+		return nil, err
+	}
+
 	ua := &managementv1.UniversalAgent{
-		AgentId:            agent.AgentID,
-		AgentType:          string(agent.AgentType),
-		CreatedAt:          timestamppb.New(agent.CreatedAt),
-		CustomLabels:       labels,
-		Disabled:           agent.Disabled,
-		IsConnected:        s.r.IsConnected(agent.AgentID),
-		IsAgentPasswordSet: pointer.GetString(agent.AgentPassword) != "",
-		IsPasswordSet:      pointer.GetString(agent.Password) != "",
-		ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
-		LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
-		NodeId:             pointer.GetString(agent.NodeID),
-		PmmAgentId:         pointer.GetString(agent.PMMAgentID),
-		ProcessExecPath:    pointer.GetString(agent.ProcessExecPath),
-		RunsOnNodeId:       pointer.GetString(agent.RunsOnNodeID),
-		ServiceId:          pointer.GetString(agent.ServiceID),
-		Status:             agent.Status,
-		Tls:                agent.TLS,
-		TlsSkipVerify:      agent.TLSSkipVerify,
-		Username:           pointer.GetString(agent.Username),
-		UpdatedAt:          timestamppb.New(agent.UpdatedAt),
-		Version:            pointer.GetString(agent.Version),
+		AgentId:                  agent.AgentID,
+		EnvironmentVariableNames: envVarNames,
+		AgentType:                string(agent.AgentType),
+		CreatedAt:                timestamppb.New(agent.CreatedAt),
+		CustomLabels:             labels,
+		Disabled:                 agent.Disabled,
+		IsConnected:              s.r.IsConnected(agent.AgentID),
+		IsAgentPasswordSet:       pointer.GetString(agent.AgentPassword) != "",
+		IsPasswordSet:            pointer.GetString(agent.Password) != "",
+		ListenPort:               uint32(pointer.GetUint16(agent.ListenPort)),
+		LogLevel:                 inventoryv1.LogLevelAPIValue(agent.LogLevel),
+		NodeId:                   pointer.GetString(agent.NodeID),
+		PmmAgentId:               pointer.GetString(agent.PMMAgentID),
+		ProcessExecPath:          pointer.GetString(agent.ProcessExecPath),
+		RunsOnNodeId:             pointer.GetString(agent.RunsOnNodeID),
+		ServiceId:                pointer.GetString(agent.ServiceID),
+		Status:                   agent.Status,
+		Tls:                      agent.TLS,
+		TlsSkipVerify:            agent.TLSSkipVerify,
+		Username:                 pointer.GetString(agent.Username),
+		UpdatedAt:                timestamppb.New(agent.UpdatedAt),
+		Version:                  pointer.GetString(agent.Version),
 	}
 
 	// Exporter options
