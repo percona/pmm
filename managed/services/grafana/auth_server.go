@@ -708,10 +708,7 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 		if ok {
 			code := codes.Internal
 			switch cErr.Code {
-			// /api/auth/serviceaccount has no sign-in middleware, so Grafana does not answer a
-			// token it rejects (wrong, expired, revoked, or of a disabled service account)
-			// with 401: the request reaches the handler unauthenticated and gets
-			// 400 "Auth method is not service account token". Those are rejected credentials.
+			// Grafana answers a token it rejects with 400 on /api/auth/serviceaccount, see PMM-15692.
 			case http.StatusBadRequest, http.StatusUnauthorized, http.StatusForbidden:
 				code = codes.Unauthenticated
 			}
