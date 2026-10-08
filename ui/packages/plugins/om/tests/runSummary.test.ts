@@ -205,6 +205,51 @@ describe('runSummaryLine', () => {
     );
   });
 
+  it('reports a failed teardown step rather than a rollback still going', () => {
+    const line = runSummaryLine(
+      run({
+        cancel_requested: true,
+        hosts: [
+          host('a', installing('pending'), {
+            rollback_steps: [
+              step('stop_service', 'succeeded'),
+              step('remove_data', 'failed'),
+            ],
+          }),
+        ],
+      }),
+      name,
+      NOW
+    );
+
+    expect(line).toBe(
+      'Rollback failed at step 2 of 2: Removing data directories on node-a, running for 3m 12s'
+    );
+  });
+
+  it('reports a failed teardown step over the forward failure that started it', () => {
+    const line = runSummaryLine(
+      run({
+        status: 'failed',
+        finished_at: '2026-01-01T00:02:00Z',
+        hosts: [
+          host('a', installing('failed'), {
+            rollback_steps: [
+              step('stop_service', 'failed'),
+              step('remove_data', 'pending'),
+            ],
+          }),
+        ],
+      }),
+      name,
+      NOW
+    );
+
+    expect(line).toBe(
+      'Rollback failed at step 1 of 2: Stopping mongod on node-a, after 2m'
+    );
+  });
+
   it('says where an aborted run stopped', () => {
     const line = runSummaryLine(
       run({

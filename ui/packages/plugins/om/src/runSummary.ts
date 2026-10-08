@@ -149,8 +149,29 @@ export function runSummaryLine(
     now
   );
 
+  const rollbackPhases = perNodePhases(run, 'rollback_steps');
+  // Ahead of every other reading, a forward failure included: a teardown that failed
+  // can leave a node half-installed, which outranks why the rollback started (the
+  // run's own error still says that). Without it, position() counts the failed step
+  // as not done yet and the line reads as a rollback still going.
+  const rollbackFailedAt = rollbackPhases.findIndex((phase) =>
+    phase.steps.some(({ step }) => step.status === 'failed')
+  );
+  if (rollbackFailedAt !== -1) {
+    const phase = rollbackPhases[rollbackFailedAt];
+    const failedNodes = phase.steps
+      .filter(({ step }) => step.status === 'failed')
+      .map(({ node }) => nodeName(node));
+    const timing = elapsed
+      ? `, ${status === 'running' ? 'running for' : 'after'} ${elapsed}`
+      : '';
+    return `Rollback failed at step ${rollbackFailedAt + 1} of ${
+      rollbackPhases.length
+    }: ${bootstrapStepLabel(phase.name)} on ${failedNodes.join(', ')}${timing}`;
+  }
+
   if (status === 'running' && run.hosts.some(isHostRollingBack)) {
-    const phases = perNodePhases(run, 'rollback_steps');
+    const phases = rollbackPhases;
     const { index, phase } = position(phases);
     const label = phase ? bootstrapStepLabel(phase.name) : 'Finishing';
     return `Rolling back, step ${index + 1} of ${phases.length}: ${label}${
