@@ -23,15 +23,15 @@ import { type MutableRefObject } from 'react';
 export interface TableProps<T extends MRT_RowData> extends MRT_TableOptions<T> {
   /** Gives the parent access to the table instance, for example to read the visible rows or reset filters. */
   tableInstanceRef?: MutableRefObject<MRT_TableInstance<T> | null>;
-  /** Message shown when there are no rows at all. Defaults to "No data". */
+  /** Message shown in the body when there are no rows at all to show. Defaults to "No data". */
   noDataMessage?: string;
-  /** Message shown when search or filters leave no matching rows. Defaults to "No data found". */
+  /** Message shown in the body when search or filters do not reveal matching rows. Defaults to "No data found". */
   emptyFilterResultsMessage?: string;
   /** Hides the "expand all" control in the header of expandable tables, so rows expand one by one. */
   hideExpandAllIcon?: boolean;
   /** Unique name of this table; the user's column visibility choices are saved under it, so renaming it forgets them. */
   tableName: string;
-  /** Replaces `noDataMessage` when there are no rows at all, for example an illustration with a call to action. */
+  /** Replaces `noDataMessage` when there are no rows at all, for example an illustration with an explanatory text and a call to action. */
   emptyState?: React.ReactNode;
   /** MUI Alert props for the no-data and no-results messages, for example to change the severity. */
   noDataAlertProps?: AlertProps;

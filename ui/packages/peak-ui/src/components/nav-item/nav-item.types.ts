@@ -4,17 +4,17 @@ import type { ElementType, ReactNode } from 'react';
 export type NavItemDotColor = 'success' | 'info' | 'warning' | 'error';
 
 export interface NavItemProps extends Omit<ListItemButtonProps, 'children' | 'disableGutters'> {
-  /** Label of the row. */
+  /** Label text of the item itself. */
   text: string;
-  /** Smaller text under the label, cut with an ellipsis when too long. */
+  /** Smaller text under the label, cut with an ellipsis when it's too long. */
   secondaryText?: string;
-  /** Icon shown before the label; without one the label still lines up with rows that have icons. */
+  /** Icon shown before the text label, to the left. */
   icon?: ReactNode;
-  /** Content shown at the end of the row, such as a count chip. */
+  /** Content shown at the end of the row, such as a count chip or New/Preview labelling. */
   badge?: ReactNode;
-  /** Shows a small status dot on the icon's corner; needs an `icon`. */
+  /** Shows a small status dot on the icon's corner; needs an `icon` to show up. */
   showDot?: boolean;
-  /** Color of the status dot. Defaults to warning. */
+  /** Color of the status dot. Defaults to warning (yellowish). */
   dotColor?: NavItemDotColor;
   /** Element to render as, for example a router link so the row navigates. */
   component?: ElementType;
