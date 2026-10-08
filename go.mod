@@ -58,7 +58,7 @@ require (
 	github.com/pkg/sftp v1.13.6
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2
 	github.com/prometheus/client_golang v1.24.0
-	github.com/prometheus/common v0.71.0
+	github.com/prometheus/common v0.72.0
 	github.com/prometheus/prometheus v0.313.0
 	github.com/ramr/go-reaper v0.3.1
 	github.com/robfig/cron/v3 v3.0.2-0.20210106135023-bc59245fe10e
@@ -275,7 +275,7 @@ require (
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/posener/complete v1.2.3 // indirect
-	github.com/prometheus/client_model v0.6.2 // indirect
+	github.com/prometheus/client_model v0.6.3 // indirect
 	github.com/prometheus/procfs v0.21.1 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.59.1 // indirect
@@ -332,7 +332,7 @@ require (
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
 	golang.org/x/mod v0.41.0 // indirect
 	golang.org/x/net v0.59.0 // indirect
-	golang.org/x/oauth2 v0.36.0 // indirect
+	golang.org/x/oauth2 v0.37.0 // indirect
 	golang.org/x/perf v0.0.0-20260409210113-8e83ce0f7b1c // indirect
 	golang.org/x/term v0.46.0 // indirect
 	google.golang.org/appengine v1.6.8-0.20221117013220-504804fb50de // indirect
