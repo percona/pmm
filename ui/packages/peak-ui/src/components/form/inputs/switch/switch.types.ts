@@ -25,9 +25,9 @@ export type SwitchInputProps<T extends FieldValues = FieldValues> = {
   formControlLabelProps?: Omit<FormControlLabelProps, 'control' | 'label'>;
   /** Form field the on/off state is stored under; also drives the test ids. */
   name: FieldPath<T>;
-  /** Text shown next to the switch. */
+  /** Text shown right after the switch. */
   label: string;
-  /** Smaller explanatory text shown under the label. */
+  /** Smaller explanatory text, similar to the helper text in other inputs, shown under the label. */
   labelCaption?: string;
   /** MUI Switch props forwarded to the toggle, such as size or color; its onChange fires too. */
   switchFieldProps?: SwitchProps;

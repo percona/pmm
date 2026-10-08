@@ -13,8 +13,8 @@
 // limitations under the License.
 
 export type CodeCopyBlockProps = {
-  /** The command shown in the block and copied by the button. */
+  /** The content shown in the block and copied by the button. */
   message: string;
-  /** Makes the copy button a labeled button ("Copy code") instead of a bare icon. */
+  /** Makes the copy button a labeled button, with text ("Copy code"), instead of a bare icon. */
   showCopyButtonText?: boolean;
 };
