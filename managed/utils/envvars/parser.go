@@ -101,11 +101,19 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "NSS_WRAPPER_GROUP", "NSS_WRAPPER_PASSWD", "LD_PRELOAD":
 			// skip nss_wrapper environment variables
 			continue
-		case "AWS_ACCESS_KEY", "AWS_SECRET_KEY":
+		case "AWS_ACCESS_KEY", "AWS_SECRET_KEY", "AWS_REGION", "AWS_DEFAULT_REGION":
+			// skip AWS SDK environment variables consumed by RDS discovery
 			continue
 
 		case "PMM_DEBUG", "PMM_TRACE":
 			// skip cross-component environment variables that are already handled by kingpin
+			continue
+
+		case "PMM_ENABLE_HA_ALERTS", "PMM_ENABLE_COMPONENT_ALERTS":
+			// Handled by kingpin and read straight by the alert rule provisioner. They deliberately
+			// have no settings entry: the rules are rendered from the shipped templates at startup,
+			// so changing one means recreating the container, which is the only way to change an
+			// environment variable anyway.
 			continue
 		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR",
 			"PMM_CLICKHOUSE_USER", "PMM_CLICKHOUSE_PASSWORD",
