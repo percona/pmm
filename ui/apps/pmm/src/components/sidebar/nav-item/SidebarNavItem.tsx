@@ -21,6 +21,8 @@ import NavItemIcon from './nav-item-icon/NavItemIcon';
 import NavItemTooltip from './nav-item-tooltip/NavItemTooltip';
 import { DRAWER_WIDTH } from '../drawer/Drawer.constants';
 import NavItemBadge from './nav-item-badge/NavItemBadge';
+import NavItemAction from './nav-item-action/NavItemAction';
+import DragIndicator from '@mui/icons-material/DragIndicator';
 
 const SidebarNavItem: FC<NavItemProps> = ({
   activeItem,
@@ -34,9 +36,9 @@ const SidebarNavItem: FC<NavItemProps> = ({
     [activeItem, item]
   );
   const [open, setIsOpen] = useState(active);
-  const url = useLinkWithVariables(
-    item.children?.length ? item.children[0].url : item.url
-  );
+  // A group with a page of its own opens that page; one without opens its
+  // first child.
+  const url = useLinkWithVariables(item.url ?? item.children?.[0]?.url);
   const linkProps = getLinkProps(item, url);
   const theme = useTheme();
   const styles = getStyles(theme, drawerOpen, level);
@@ -181,8 +183,12 @@ const SidebarNavItem: FC<NavItemProps> = ({
         data-testid={dataTestid + '-section'}
         disableGutters
         disablePadding
+        sx={styles.sectionRow}
       >
         <ListItemText primary={item.text} sx={styles.sectionHeading} />
+        {item.action && (
+          <NavItemAction action={item.action} testId={`${dataTestid}-action`} />
+        )}
       </ListItem>
     );
   }
@@ -238,7 +244,17 @@ const SidebarNavItem: FC<NavItemProps> = ({
           text={item.text ?? ''}
           secondaryText={item.secondaryText}
           icon={item.icon ? <NavItemIcon icon={item.icon} /> : undefined}
-          badge={item.badge ? <NavItemBadge badge={item.badge} /> : undefined}
+          badge={
+            item.badge ? (
+              <NavItemBadge badge={item.badge} />
+            ) : item.pinned && drawerOpen ? (
+              <DragIndicator
+                fontSize="small"
+                sx={styles.pinHandle}
+                data-testid={`${dataTestid}-handle`}
+              />
+            ) : undefined
+          }
           selected={active}
           sx={[
             styles.leafItem,
@@ -252,6 +268,9 @@ const SidebarNavItem: FC<NavItemProps> = ({
           data-testid={dataTestid}
           data-navlevel={level}
         />
+        {item.action && drawerOpen && (
+          <NavItemAction action={item.action} testId={`${dataTestid}-action`} />
+        )}
       </ListItem>
     </NavItemTooltip>
   );

@@ -1,4 +1,5 @@
 import AppsRounded from '@mui/icons-material/AppsRounded';
+import DesignServicesOutlined from '@mui/icons-material/DesignServicesOutlined';
 import StarBorderRounded from '@mui/icons-material/StarBorderRounded';
 import { ColorMode } from '@pmm/shared';
 import { CombinedSettings } from 'contexts/settings';
@@ -44,20 +45,25 @@ import {
   addHomePage,
 } from './navigation.utils';
 
-// The proposed PMM sidebar (PMM-15353, "Proposal v1" on the IA whiteboard): one
+// The proposed PMM sidebar (PMM-15353, "Proposal v2" on the IA whiteboard): one
 // flat list under section labels instead of per-technology trees. Read top to
 // bottom, this file is the sidebar. Every entry is listed for every signed-in
 // user so the structure can be reviewed whole; role and feature gating is a
 // later step.
 
-const section = (id: string, text: string): NavItem => ({
+const section = (id: string, text: string, action?: NavItem['action']) => ({
   id: `section-${id}`,
-  type: 'menu-section',
+  type: 'menu-section' as const,
   text,
+  action,
 });
 
 export const NAV_SECTIONS = {
-  myNavigation: section('my-navigation', 'My navigation'),
+  myNavigation: section('my-navigation', 'My navigation', {
+    label: 'Customize navigation',
+    url: `${PROTOTYPE_PLACEHOLDER_PATH}/customize-navigation`,
+    icon: DesignServicesOutlined,
+  }),
   technologies: section('technologies', 'Technologies'),
   analysis: section('analysis', 'Analysis and alerting'),
   browse: section('browse', 'Browse'),
@@ -66,24 +72,30 @@ export const NAV_SECTIONS = {
 
 // Sample pinned entries: pinning itself is a later iteration, so these stand in
 // for what a user would star and let the zone be reviewed with content in it.
+// A pinned app leaves the Apps list, as the whiteboard's placement rule shows
+// for MongoDB backups.
 export const NAV_MY_NAVIGATION: NavItem[] = [
   {
     id: 'pinned-mongodb-backups',
     icon: StarBorderRounded,
     text: 'MongoDB backups',
     url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
+    matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/backup/*`],
+    pinned: true,
   },
   {
     id: 'pinned-mysql-innodb-details',
     icon: StarBorderRounded,
     text: 'MySQL InnoDB details',
     url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-innodb/mysql-innodb-details`,
+    pinned: true,
   },
   {
     id: 'pinned-postgresql-query-analytics',
     icon: StarBorderRounded,
     text: 'PostgreSQL query analytics',
     url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics?var-service_type=postgresql`,
+    pinned: true,
   },
 ];
 
@@ -146,24 +158,16 @@ const plannedApp = (slug: string, text: string): NavItem => ({
   url: `${PROTOTYPE_PLACEHOLDER_PATH}/${slug}`,
 });
 
-// The app catalog as the IA projects it. Two apps exist today and open for
-// real; the rest open the placeholder page so the list can be reviewed in full.
+// The app catalog as the IA projects it. MySQL backups exists today and opens
+// for real; the rest open the placeholder page so the list can be reviewed in
+// full. Support diagnostics lives under Help, where the tree test showed people
+// look for it.
 export const NAV_APPS: NavItem = {
   id: 'apps',
   icon: AppsRounded,
   text: 'Apps',
   children: [
     plannedApp('data-archiving', 'Data archiving'),
-    {
-      // Today's backup management, which covers MongoDB; it keeps the badge
-      // until the MongoDB backups app replaces it.
-      id: 'app-mongodb-backups',
-      text: 'MongoDB backups',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
-      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/backup/*`],
-      badge: { label: 'Legacy', color: 'default' },
-      badgeAlwaysVisible: true,
-    },
     {
       id: 'extensions-mysql-backups',
       text: 'MySQL backups',
@@ -174,15 +178,21 @@ export const NAV_APPS: NavItem = {
     plannedApp('proxysql-manager', 'ProxySQL manager'),
     plannedApp('replication-checksums', 'Replication checksums'),
     plannedApp('schema-changes', 'Schema changes'),
-    {
-      id: 'extensions-atw',
-      text: 'Support diagnostics',
-      url: EXTENSIONS_ATW_PATH,
-      matches: ['*'],
-    },
     plannedApp('valkey-backups', 'Valkey backups'),
     plannedApp('get-more-apps', 'Get more apps'),
   ],
+};
+
+export const NAV_SUPPORT_DIAGNOSTICS: NavItem = {
+  id: 'extensions-atw',
+  text: 'Support diagnostics',
+  url: EXTENSIONS_ATW_PATH,
+  matches: ['*'],
+};
+
+export const NAV_HELP_ENTRY: NavItem = {
+  ...NAV_HELP,
+  children: [NAV_SUPPORT_DIAGNOSTICS],
 };
 
 export interface ProposedNavTreeInput {
@@ -196,16 +206,38 @@ export interface ProposedNavTreeInput {
   toggleColorMode: () => void;
 }
 
-export const buildProposedNavTree = ({
+// Configuration is the one place for everything configurable about PMM, so
+// Users and access and the Account fold into it. Nested groups drop their
+// icons to sit level with the plain entries beside them.
+const addConfigurationGroup = ({
   user,
   isLoggedIn,
-  haInfo,
   settings,
   updateStatus,
   versionInfo,
   colorMode,
   toggleColorMode,
-}: ProposedNavTreeInput): NavItem[] => {
+}: ProposedNavTreeInput): NavItem => {
+  const configuration = addConfiguration(updateStatus, versionInfo);
+  const children = [
+    ...(configuration.children || []),
+    { ...NAV_USERS_AND_ACCESS, icon: undefined },
+  ];
+
+  if (user && isLoggedIn) {
+    children.push({
+      ...addAccount(user, colorMode, toggleColorMode, settings),
+      icon: undefined,
+    });
+  }
+
+  return { ...configuration, children };
+};
+
+export const buildProposedNavTree = (
+  input: ProposedNavTreeInput
+): NavItem[] => {
+  const { user, isLoggedIn, haInfo } = input;
   const items: NavItem[] = [
     addHomePage(user?.preferences),
     NAV_SECTIONS.myNavigation,
@@ -225,15 +257,9 @@ export const buildProposedNavTree = ({
     // Listed whether or not the instance runs in HA, so its place can be
     // reviewed anywhere; a live status badge appears when it does.
     haInfo?.enabled ? addHighAvailability(haInfo) : NAV_HIGH_AVAILABILITY,
-    addConfiguration(updateStatus, versionInfo),
-    NAV_USERS_AND_ACCESS,
+    addConfigurationGroup(input),
+    NAV_HELP_ENTRY,
   ];
-
-  if (user && isLoggedIn) {
-    items.push(addAccount(user, colorMode, toggleColorMode, settings));
-  }
-
-  items.push(NAV_HELP);
 
   if (!isLoggedIn) {
     items.push(NAV_SIGN_IN);

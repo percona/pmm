@@ -61,10 +61,23 @@ describe('buildProposedNavTree', () => {
       'section-administration',
       'high-availability',
       'configuration',
-      'users-and-access',
-      'account',
       'help',
     ]);
+  });
+
+  it('opens on Overview', () => {
+    expect(build()[0]).toMatchObject({ id: 'home-page', text: 'Overview' });
+  });
+
+  it('marks the sample entries as pinned under a customizable heading', () => {
+    const tree = build();
+    const pinned = tree.filter((item) => item.id.startsWith('pinned-'));
+
+    expect(findById(tree, 'section-my-navigation')?.action?.url).toBe(
+      `${PROTOTYPE_PLACEHOLDER_PATH}/customize-navigation`
+    );
+    expect(pinned).toHaveLength(3);
+    expect(pinned.every((item) => item.pinned)).toBe(true);
   });
 
   it('makes each technology a single entry that opens its overview dashboard', () => {
@@ -117,38 +130,66 @@ describe('buildProposedNavTree', () => {
     ]);
   });
 
-  it('lists the projected app catalog, with the real apps opening their routes', () => {
+  it('lists the projected app catalog, with MySQL backups opening its route', () => {
     const apps = findById(build(), 'apps')?.children;
 
     expect(apps?.map((app) => app.text)).toEqual([
       'Data archiving',
-      'MongoDB backups',
       'MySQL backups',
       'PostgreSQL backups',
       'ProxySQL manager',
       'Replication checksums',
       'Schema changes',
-      'Support diagnostics',
       'Valkey backups',
       'Get more apps',
     ]);
     expect(findById(apps, 'extensions-mysql-backups')?.url).toBe(
       EXTENSIONS_MYSQL_BACKUPS_PATH
     );
-    expect(findById(apps, 'extensions-atw')?.url).toBe(EXTENSIONS_ATW_PATH);
     expect(findById(apps, 'app-schema-changes')?.url).toBe(
       `${PROTOTYPE_PLACEHOLDER_PATH}/schema-changes`
     );
   });
 
-  it('keeps a deep link into an app active and inside Apps', () => {
-    const tree = build();
-    const active = findActiveNavItem(tree, `${EXTENSIONS_ATW_PATH}/runs/abc`);
+  it('offers a quick add on the inventory rows', () => {
+    const rows = findById(build(), 'inventory')?.children;
 
-    expect(active?.id).toBe('extensions-atw');
+    expect(rows?.map((row) => row.action?.label)).toEqual([
+      'Add service',
+      'Add node',
+    ]);
+  });
+
+  it('keeps a deep link into an app active and inside its group', () => {
+    const tree = build();
+    const backups = findActiveNavItem(
+      tree,
+      `${EXTENSIONS_MYSQL_BACKUPS_PATH}/backups/123`
+    );
+    const diagnostics = findActiveNavItem(
+      tree,
+      `${EXTENSIONS_ATW_PATH}/runs/abc`
+    );
+
+    expect(backups?.id).toBe('extensions-mysql-backups');
     // The sidebar expands a group when its active child is the very object
     // held in `children`, so identity has to match, not just the id.
-    expect(findById(tree, 'apps')?.children).toContain(active);
+    expect(findById(tree, 'apps')?.children).toContain(backups);
+    expect(diagnostics?.id).toBe('extensions-atw');
+    expect(findById(tree, 'help')?.children).toContain(diagnostics);
+  });
+
+  it('folds Users and access and the Account into Configuration', () => {
+    const tree = build();
+
+    expect(ids(findById(tree, 'configuration')?.children)).toEqual([
+      'configuration-settings',
+      'updates',
+      'org-management',
+      'users-and-access',
+      'account',
+    ]);
+    expect(ids(tree)).not.toContain('account');
   });
 
   it('shows PMM HA even when the instance does not run in HA', () => {
@@ -181,9 +222,11 @@ describe('buildProposedNavTree', () => {
   });
 
   it('offers sign in instead of the account when logged out', () => {
-    const tree = ids(build({ user: TEST_USER_ANONYMOUS, isLoggedIn: false }));
+    const tree = build({ user: TEST_USER_ANONYMOUS, isLoggedIn: false });
 
-    expect(tree).toContain('sign-in');
-    expect(tree).not.toContain('account');
+    expect(ids(tree)).toContain('sign-in');
+    expect(ids(findById(tree, 'configuration')?.children)).not.toContain(
+      'account'
+    );
   });
 });

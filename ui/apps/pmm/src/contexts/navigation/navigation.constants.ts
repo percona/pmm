@@ -13,11 +13,11 @@ import Security from '@mui/icons-material/Security';
 import SettingsApplicationsOutlined from '@mui/icons-material/SettingsApplicationsOutlined';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
 import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
+import SpaceDashboardOutlined from '@mui/icons-material/SpaceDashboardOutlined';
 import {
   CirclesExtIcon,
   Graph4Icon,
   Graph5Icon,
-  HomeIcon,
   NetworkIntelligenceIcon,
   NetworkNodeIcon,
   PerconaMoIcon,
@@ -30,8 +30,8 @@ import { NavItem } from 'types/navigation.types';
 
 export const NAV_HOME_PAGE: NavItem = {
   id: 'home-page',
-  icon: HomeIcon,
-  text: 'Home page',
+  icon: SpaceDashboardOutlined,
+  text: 'Overview',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/`,
   matches: [
     `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home/home-dashboard`,
@@ -510,12 +510,20 @@ export const NAV_INVENTORY: NavItem = {
         `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`,
         `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance/:type`,
       ],
+      action: {
+        label: 'Add service',
+        url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`,
+      },
     },
     {
       id: 'inventory-nodes',
       text: 'Nodes',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes`,
       matches: ['*'],
+      action: {
+        label: 'Add node',
+        url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`,
+      },
     },
   ],
 };
@@ -587,7 +595,7 @@ export const NAV_USERS_AND_ACCESS: NavItem = {
   id: 'users-and-access',
   icon: Security,
   text: 'Users and access',
-  url: PMM_NEW_NAV_GRAFANA_PATH + '/admin/access',
+  url: PMM_NEW_NAV_GRAFANA_PATH + '/admin/users',
   children: [
     {
       id: 'users',

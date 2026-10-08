@@ -38,7 +38,8 @@ describe('NavigationProvider', () => {
     expect(ids[0]).toBe('home-page');
     expect(ids).toContain('section-technologies');
     expect(ids).toContain('apps');
-    expect(ids).toContain('account');
+    expect(ids).toContain('configuration');
+    expect(ids).toContain('help');
     expect(ids).not.toContain('sign-in');
   });
 

@@ -197,6 +197,84 @@ describe('SidebarNavItem', () => {
     expect(screen.getByText('secondary text')).toBeInTheDocument();
   });
 
+  it('links a group with a page of its own to that page', () => {
+    renderNavItem();
+
+    expect(screen.getByTestId('navitem-level-0')).toHaveAttribute('href', '/0');
+  });
+
+  it('links a group without a page to its first child', () => {
+    renderNavItem({ props: { item: { ...TEST_NAV_TREE, url: undefined } } });
+
+    expect(screen.getByTestId('navitem-level-0')).toHaveAttribute(
+      'href',
+      '/0/10'
+    );
+  });
+
+  it('renders a quick action beside a leaf, outside its link', () => {
+    renderNavItem({
+      props: {
+        item: {
+          id: 'services',
+          text: 'Services',
+          url: '/services',
+          action: { label: 'Add service', url: '/add' },
+        },
+      },
+    });
+
+    const action = screen.getByTestId('navitem-services-action');
+
+    expect(action).toHaveAttribute('href', '/add');
+    expect(action).toHaveAccessibleName('Add service');
+    expect(screen.getByTestId('navitem-services')).not.toContainElement(action);
+  });
+
+  it('hides the quick action when the sidebar is collapsed', () => {
+    renderNavItem({
+      props: {
+        drawerOpen: false,
+        item: {
+          id: 'services',
+          text: 'Services',
+          url: '/services',
+          action: { label: 'Add service', url: '/add' },
+        },
+      },
+    });
+
+    expect(
+      screen.queryByTestId('navitem-services-action')
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows a reorder handle on a pinned entry', () => {
+    renderNavItem({
+      props: { item: { id: 'pin', text: 'Pinned', url: '/pin', pinned: true } },
+    });
+
+    expect(screen.getByTestId('navitem-pin-handle')).toBeInTheDocument();
+  });
+
+  it('renders a section action beside the heading', () => {
+    renderNavItem({
+      props: {
+        item: {
+          id: 'mine',
+          type: 'menu-section',
+          text: 'My navigation',
+          action: { label: 'Customize navigation', url: '/customize' },
+        },
+      },
+    });
+
+    expect(screen.getByTestId('navitem-mine-action')).toHaveAttribute(
+      'href',
+      '/customize'
+    );
+  });
+
   it('renders a heading if item has type "menu-section"', () => {
     renderNavItem({
       props: {

@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -8,12 +8,20 @@ import { useNavigation } from 'contexts/navigation';
 import { findActiveNavItem } from 'utils/navigation.utils';
 import { Messages } from './PrototypePlaceholderPage.messages';
 
-// Stands in for a proposed sidebar entry that has no page yet (PMM-15353). The
-// title comes from the entry that links here, so one page serves them all.
+const fromSlug = (slug = '') =>
+  slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ');
+
+// Stands in for a proposed sidebar entry or action that has no page yet
+// (PMM-15353). The title comes from the entry that links here, or from the
+// slug for an action button, so one page serves them all.
 export const PrototypePlaceholderPage: FC = () => {
   const { navTree } = useNavigation();
   const { pathname } = useLocation();
-  const title = findActiveNavItem(navTree, pathname)?.text || Messages.title;
+  const { slug } = useParams();
+  const title =
+    findActiveNavItem(navTree, pathname)?.text ||
+    fromSlug(slug) ||
+    Messages.title;
 
   return (
     <Page title={title}>
