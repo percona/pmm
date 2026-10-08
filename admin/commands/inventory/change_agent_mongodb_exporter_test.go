@@ -432,3 +432,52 @@ Configuration changes applied:
 		})
 	})
 }
+
+func TestMongodbExporterChangeAgentDescribeChanges(t *testing.T) {
+	t.Parallel()
+
+	t.Run("NoFlags", func(t *testing.T) {
+		t.Parallel()
+
+		cmd := &ChangeAgentMongodbExporterCommand{}
+		assert.Empty(t, cmd.describeChanges(nil, nil))
+	})
+
+	t.Run("Toggles", func(t *testing.T) {
+		t.Parallel()
+
+		cmd := &ChangeAgentMongodbExporterCommand{
+			Enable:                  new(false),
+			TLS:                     new(true),
+			DisableDirectConnection: new(true),
+			PushMetrics:             new(false),
+		}
+		assert.Equal(t, []string{
+			"disabled agent",
+			"enabled TLS",
+			"disabled direct connection",
+			"disabled push metrics",
+		}, cmd.describeChanges(nil, nil))
+	})
+
+	t.Run("ReEnableDirectConnection", func(t *testing.T) {
+		t.Parallel()
+
+		cmd := &ChangeAgentMongodbExporterCommand{DisableDirectConnection: new(false)}
+		assert.Equal(t, []string{"enabled direct connection"}, cmd.describeChanges(nil, nil))
+	})
+
+	t.Run("LabelsAndEnvVars", func(t *testing.T) {
+		t.Parallel()
+
+		cmd := &ChangeAgentMongodbExporterCommand{
+			Username:     new("user"),
+			AgentEnvVars: &[]string{},
+		}
+		assert.Equal(t, []string{
+			"updated username",
+			"custom labels are removed",
+			"environment variable names are removed",
+		}, cmd.describeChanges(&map[string]string{}, nil))
+	})
+}
