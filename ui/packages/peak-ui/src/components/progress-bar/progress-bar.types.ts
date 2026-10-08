@@ -14,9 +14,9 @@
 export type ProgressBarProps = {
   /** Prefix for the test ids of the bar and its label. */
   dataTestId?: string;
-  /** Amount already used, drawn as the solid part of the bar. */
+  /** Amount already used, drawn as the solid part of the bar; hidden when `buffer` exceeds `total`. */
   value: number;
-  /** Amount reserved or pending, drawn as the lighter part; turns warning-colored when it exceeds `total`. */
+  /** Amount reserved or pending, drawn as a contrasting segment after the used part; above `total`, the whole bar turns warning-colored. */
   buffer: number;
   /** Amount that fills the bar completely. */
   total: number;

@@ -2,7 +2,7 @@ import { type ReactNode } from 'react';
 import SvgIcon, { type SvgIconProps } from '@mui/material/SvgIcon';
 
 interface IllustrationRootProps extends Omit<SvgIconProps, 'children'> {
-  /** The artwork layers, drawn on a 64px canvas. */
+  /** The artwork layers, on a 64×64 grid shown at 64px unless `fontSize` is set. */
   children: ReactNode;
 }
 
