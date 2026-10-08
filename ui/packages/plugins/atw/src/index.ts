@@ -22,7 +22,7 @@ export {
 } from './deliverySettings';
 export { IncidentListPage } from './IncidentListPage';
 export { IncidentWorkspacePage } from './IncidentWorkspacePage';
-export { CategoryBrowser } from './CategoryBrowser';
+export { CategoryFilters } from './CategoryFilters';
 export { CollectPane } from './CollectPane';
 export { ResultsPane } from './ResultsPane';
 export { SendDialog } from './SendDialog';
