@@ -16,12 +16,8 @@
  */
 
 /**
- * Hold every Operations surface to OmError's rule (PMM-15665 task 3).
- *
- * Errors appeared three ways - a page-replacing Alert, an Alert above a table, and
- * bare red text beside a button - with no shared component and no rule. This fails
- * on the two ways that bypass the component: an error Alert of its own, and text
- * coloured as an error.
+ * Hold every Operations surface to OmError's rule. This fails on the ways that bypass
+ * the component: an error Alert of its own, and text coloured as an error.
  */
 
 import { readdirSync, readFileSync, statSync } from 'node:fs';

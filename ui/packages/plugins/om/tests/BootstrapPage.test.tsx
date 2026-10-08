@@ -264,7 +264,6 @@ describe('BootstrapPage install refusal', () => {
 
 // Task 4 / P1. Every one of these conditions used to be checked on the wizard's
 // final button, inside TriggerHostBootstrap, after the whole form was filled in.
-// PMM-15665 task 3: a disabled button says why, all of it at once.
 describe('BootstrapPage blockers', () => {
   const blockers = () =>
     screen.getAllByTestId('om-review-blocker').map((item) => item.textContent);

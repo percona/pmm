@@ -464,8 +464,8 @@ export const BootstrapPage = () => {
   );
 
   const portNumber = Number(port);
-  // Everything keeping Review disabled, said beside it rather than left to a greyed-out
-  // button. All of them at once: fixing one must not uncover the next.
+  // Everything keeping Review disabled, all at once: fixing one must not uncover the
+  // next.
   const reviewBlockers = [
     replicaSetName.trim() === '' && 'a replica set name',
     mongodbVersion.trim() === '' && 'a MongoDB version',

@@ -1074,9 +1074,8 @@ export const NodesPage = () => {
 
   if (isError) {
     return (
-      // An error here means PMM Extensions is unwell, and it renders inside the page
-      // rather than replacing it. That is the whole point of reaching the fleet
-      // through pmm-managed: before the proxy, a sick PMM Extensions blanked the page.
+      // An error here means PMM Extensions is unwell, so it renders inside the page
+      // rather than replacing it.
       <OmError
         placement="load"
         title="Could not load the nodes"
