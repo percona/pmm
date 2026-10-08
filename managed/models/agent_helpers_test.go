@@ -2114,6 +2114,10 @@ func TestChangeAgentParamsAffectsConnection(t *testing.T) {
 			models.ChangeAgentParams{MongoDBOptions: &models.ChangeMongoDBOptions{AuthenticationDatabase: new("admin")}},
 			true,
 		},
+		"mongodb disable direct connection": {
+			models.ChangeAgentParams{MongoDBOptions: &models.ChangeMongoDBOptions{DisableDirectConnection: new(true)}},
+			true,
+		},
 		"valkey ssl cert": {models.ChangeAgentParams{ValkeyOptions: &models.ChangeValkeyOptions{SSLCert: new("cert")}}, true},
 		"metrics scheme":  {models.ChangeAgentParams{ExporterOptions: &models.ChangeExporterOptions{MetricsScheme: new("https")}}, true},
 		"metrics path":    {models.ChangeAgentParams{ExporterOptions: &models.ChangeExporterOptions{MetricsPath: new("/metrics")}}, true},

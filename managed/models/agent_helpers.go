@@ -1312,7 +1312,7 @@ func (p *ChangeAgentParams) AffectsConnection() bool {
 
 	if o := p.MongoDBOptions; o != nil {
 		if o.TLSCertificateKey != nil || o.TLSCertificateKeyFilePassword != nil || o.TLSCa != nil ||
-			o.AuthenticationMechanism != nil || o.AuthenticationDatabase != nil {
+			o.AuthenticationMechanism != nil || o.AuthenticationDatabase != nil || o.DisableDirectConnection != nil {
 			return true
 		}
 	}
