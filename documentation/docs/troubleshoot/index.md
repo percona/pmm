@@ -5,6 +5,8 @@ This section provides comprehensive solutions to common issues and scenarios tha
 To quickly identify the issues and find the appropriate solution, the issues are categorized into distinct groups as follows:
 
 - [Upgrade issues](upgrade_issues.md)
+- [Single-Instance HA issues](ha_single_instance_issues.md)
+- [Kubernetes / OpenShift HA Cluster issues](ha_issues.md)
 - [Configuration issues](config_issues.md)
 - [Percona Alerting issues](alerting_issues.md)
 - [QAN issues](qan_issues.md)

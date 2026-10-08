@@ -14,7 +14,7 @@ Deploy PMM Server on Kubernetes using Helm for scalable, orchestrated monitoring
 ### OpenShift-specific requirements
 For OpenShift deployments, you'll also need:
 
-- OpenShift Container Platform 4.16. Other versions will likely work but they haven't been tested
+- OpenShift Container Platform 4.19. Other versions will likely work but they haven't been tested
 - `oc` CLI tool configured
 - permissions to create Routes and manage RBAC policies
 
