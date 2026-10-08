@@ -947,10 +947,6 @@ export const BootstrapPage = () => {
               </TableBody>
             </Table>
           )}
-          {/* Every node the refusal names becomes a link to that node and its
-              newest scan, which is what makes "fix it on the node" followable.
-              The message itself is the backend's -- see NodeNamesLinked for why
-              the names are matched rather than parsed. */}
           {bootstrap.isError && (
             <OmError
               placement="action"
