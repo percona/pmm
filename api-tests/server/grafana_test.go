@@ -27,7 +27,7 @@ import (
 	pmmapitests "github.com/percona/pmm/api-tests"
 )
 
-func TestGrafanaUsageReportingDisabled(t *testing.T) {
+func TestGrafanaCallsHomeDisabled(t *testing.T) {
 	t.Parallel()
 
 	u, err := url.Parse(pmmapitests.BaseURL.String())
@@ -42,5 +42,17 @@ func TestGrafanaUsageReportingDisabled(t *testing.T) {
 
 	var settings map[string]map[string]string
 	require.NoError(t, json.Unmarshal(b, &settings))
-	assert.Equal(t, "false", settings["analytics"]["reporting_enabled"])
+
+	for _, s := range []struct {
+		section string
+		key     string
+		want    string
+	}{
+		{"analytics", "check_for_updates", "false"},
+		{"analytics", "reporting_enabled", "false"},
+		{"analytics", "check_for_plugin_updates", "false"},
+		{"security", "disable_gravatar", "true"},
+	} {
+		assert.Equalf(t, s.want, settings[s.section][s.key], "[%s] %s", s.section, s.key)
+	}
 }
