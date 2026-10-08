@@ -74,6 +74,18 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Equal(t, expectedWarns, gotWarns)
 	})
 
+	t.Run("AWS SDK env variables", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{"AWS_REGION=eu-west-1", "AWS_DEFAULT_REGION=eu-west-1"}
+		expectedEnvVars := &models.ChangeSettingsParams{}
+
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Equal(t, expectedEnvVars, gotEnvVars)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
 	t.Run("PMM Extensions env variables", func(t *testing.T) {
 		t.Parallel()
 
