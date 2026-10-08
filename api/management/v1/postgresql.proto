@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package management.v1;
 
+import "common/common.proto";
 import "extensions/v1/redact.proto";
 import "google/protobuf/duration.proto";
 import "inventory/v1/agents.proto";
@@ -95,6 +96,72 @@ message AddPostgreSQLServiceParams {
   google.protobuf.Duration connection_timeout = 34 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+}
+
+// Update PostgreSQL
+
+// UpdatePostgreSQLServiceParams holds the PostgreSQL Service settings to change. Only the fields that are set are changed.
+message UpdatePostgreSQLServiceParams {
+  // Node and Service access address (DNS name or IP). Replaces the socket.
+  optional string address = 1;
+  // Service Access port. Replaces the socket.
+  optional uint32 port = 2 [(validate.rules).uint32.lt = 65536];
+  // Service Access socket. Replaces the address and port.
+  optional string socket = 3;
+  // Database name.
+  optional string database = 4;
+  // Environment name.
+  optional string environment = 5;
+  // Cluster name.
+  optional string cluster = 6;
+  // Replication set name.
+  optional string replication_set = 7;
+  // Replace all custom user-assigned labels for Service.
+  common.StringMap custom_labels = 8;
+  // PostgreSQL username for scraping metrics.
+  optional string username = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // PostgreSQL password for scraping metrics.
+  optional string password = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Custom password for exporter endpoint /metrics.
+  optional string agent_password = 11 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Use TLS for database connections.
+  optional bool tls = 12;
+  // Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
+  optional bool tls_skip_verify = 13;
+  // TLS CA certificate.
+  optional string tls_ca = 14;
+  // TLS Certificate.
+  optional string tls_cert = 15 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // TLS Certificate Key.
+  optional string tls_key = 16 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // If true, ensures qan-postgresql-pgstatements-agent exists; if false, removes it.
+  optional bool qan_postgresql_pgstatements_agent = 17;
+  // If true, ensures qan-postgresql-pgstatmonitor-agent exists; if false, removes it.
+  optional bool qan_postgresql_pgstatmonitor_agent = 18;
+  // Limit query length in QAN (zero: server-defined; -1: no limit).
+  optional int32 max_query_length = 19;
+  // Disable query examples.
+  optional bool disable_query_examples = 20;
+  // Disable parsing comments from queries and showing them in QAN.
+  optional bool disable_comments_parsing = 21;
+  // Defines metrics flow model for this exporter.
+  optional MetricsMode metrics_mode = 22;
+  // Replace the list of collector names to disable in this exporter.
+  common.StringArray disable_collectors = 23;
+  // Limit for auto discovery.
+  optional int32 auto_discovery_limit = 24;
+  // Maximum number of connections that exporter can open to the database instance.
+  optional int32 max_exporter_connections = 25;
+  // Log level for all Agents of the Service.
+  optional inventory.v1.LogLevel log_level = 26;
+  // Expose the exporter process on all public interfaces.
+  optional bool expose_exporter = 27;
+  // Connection timeout for exporter; zero restores the default.
+  google.protobuf.Duration connection_timeout = 28 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
+  // Skip connection check.
+  bool skip_connection_check = 29;
 }
 
 message PostgreSQLServiceResult {

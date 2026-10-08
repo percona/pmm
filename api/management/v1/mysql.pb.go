@@ -16,6 +16,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 
+	common "github.com/percona/pmm/api/common"
 	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
@@ -381,6 +382,308 @@ func (x *AddMySQLServiceParams) GetConnectionTimeout() *durationpb.Duration {
 	return nil
 }
 
+// UpdateMySQLServiceParams holds the MySQL Service settings to change. Only the fields that are set are changed.
+type UpdateMySQLServiceParams struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Node and Service access address (DNS name or IP). Replaces the socket.
+	Address *string `protobuf:"bytes,1,opt,name=address,proto3,oneof" json:"address,omitempty"`
+	// Service Access port. Replaces the socket.
+	Port *uint32 `protobuf:"varint,2,opt,name=port,proto3,oneof" json:"port,omitempty"`
+	// Service Access socket. Replaces the address and port.
+	Socket *string `protobuf:"bytes,3,opt,name=socket,proto3,oneof" json:"socket,omitempty"`
+	// Environment name.
+	Environment *string `protobuf:"bytes,4,opt,name=environment,proto3,oneof" json:"environment,omitempty"`
+	// Cluster name.
+	Cluster *string `protobuf:"bytes,5,opt,name=cluster,proto3,oneof" json:"cluster,omitempty"`
+	// Replication set name.
+	ReplicationSet *string `protobuf:"bytes,6,opt,name=replication_set,json=replicationSet,proto3,oneof" json:"replication_set,omitempty"`
+	// Replace all custom user-assigned labels for Service.
+	CustomLabels *common.StringMap `protobuf:"bytes,7,opt,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty"`
+	// MySQL username for scraping metrics.
+	Username *string `protobuf:"bytes,8,opt,name=username,proto3,oneof" json:"username,omitempty"`
+	// MySQL password for scraping metrics.
+	Password *string `protobuf:"bytes,9,opt,name=password,proto3,oneof" json:"password,omitempty"`
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword *string `protobuf:"bytes,10,opt,name=agent_password,json=agentPassword,proto3,oneof" json:"agent_password,omitempty"`
+	// Use TLS for database connections.
+	Tls *bool `protobuf:"varint,11,opt,name=tls,proto3,oneof" json:"tls,omitempty"`
+	// Skip TLS certificate and hostname validation.
+	TlsSkipVerify *bool `protobuf:"varint,12,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3,oneof" json:"tls_skip_verify,omitempty"`
+	// Certificate Authority certificate chain.
+	TlsCa *string `protobuf:"bytes,13,opt,name=tls_ca,json=tlsCa,proto3,oneof" json:"tls_ca,omitempty"`
+	// Client certificate.
+	TlsCert *string `protobuf:"bytes,14,opt,name=tls_cert,json=tlsCert,proto3,oneof" json:"tls_cert,omitempty"`
+	// Password for decrypting tls_cert.
+	TlsKey *string `protobuf:"bytes,15,opt,name=tls_key,json=tlsKey,proto3,oneof" json:"tls_key,omitempty"`
+	// Replace all extra DSN parameters used for connecting to MySQL.
+	ExtraDsnParams *common.StringMap `protobuf:"bytes,16,opt,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty"`
+	// If true, ensures qan-mysql-perfschema-agent exists; if false, removes it.
+	QanMysqlPerfschema *bool `protobuf:"varint,17,opt,name=qan_mysql_perfschema,json=qanMysqlPerfschema,proto3,oneof" json:"qan_mysql_perfschema,omitempty"`
+	// If true, ensures qan-mysql-slowlog-agent exists; if false, removes it.
+	QanMysqlSlowlog *bool `protobuf:"varint,18,opt,name=qan_mysql_slowlog,json=qanMysqlSlowlog,proto3,oneof" json:"qan_mysql_slowlog,omitempty"`
+	// Disable parsing comments from queries and showing them in QAN.
+	DisableCommentsParsing *bool `protobuf:"varint,19,opt,name=disable_comments_parsing,json=disableCommentsParsing,proto3,oneof" json:"disable_comments_parsing,omitempty"`
+	// Limit query length in QAN (zero: server-defined; -1: no limit).
+	MaxQueryLength *int32 `protobuf:"varint,20,opt,name=max_query_length,json=maxQueryLength,proto3,oneof" json:"max_query_length,omitempty"`
+	// Disable query examples.
+	DisableQueryExamples *bool `protobuf:"varint,21,opt,name=disable_query_examples,json=disableQueryExamples,proto3,oneof" json:"disable_query_examples,omitempty"`
+	// Slowlog file is rotated at this size if > 0.
+	// If zero, server's default value is used.
+	// Use negative value to disable rotation.
+	MaxSlowlogFileSize *int64 `protobuf:"varint,22,opt,name=max_slowlog_file_size,json=maxSlowlogFileSize,proto3,oneof" json:"max_slowlog_file_size,omitempty"`
+	// Tablestats group collectors will be disabled if there are more than that number of tables.
+	// If zero, server's default value is used.
+	// Use negative value to disable them.
+	TablestatsGroupTableLimit *int32 `protobuf:"varint,23,opt,name=tablestats_group_table_limit,json=tablestatsGroupTableLimit,proto3,oneof" json:"tablestats_group_table_limit,omitempty"`
+	// Defines metrics flow model for this exporter.
+	MetricsMode *MetricsMode `protobuf:"varint,24,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.v1.MetricsMode,oneof" json:"metrics_mode,omitempty"`
+	// Replace the list of collector names to disable in this exporter.
+	DisableCollectors *common.StringArray `protobuf:"bytes,25,opt,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
+	// Log level for all Agents of the Service.
+	LogLevel *v1.LogLevel `protobuf:"varint,26,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
+	// Expose the exporter process on all public interfaces.
+	ExposeExporter *bool `protobuf:"varint,27,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
+	// Connection timeout for exporter; zero restores the default.
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,28,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	// Skip connection check.
+	SkipConnectionCheck bool `protobuf:"varint,29,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *UpdateMySQLServiceParams) Reset() {
+	*x = UpdateMySQLServiceParams{}
+	mi := &file_management_v1_mysql_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateMySQLServiceParams) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateMySQLServiceParams) ProtoMessage() {}
+
+func (x *UpdateMySQLServiceParams) ProtoReflect() protoreflect.Message {
+	mi := &file_management_v1_mysql_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateMySQLServiceParams.ProtoReflect.Descriptor instead.
+func (*UpdateMySQLServiceParams) Descriptor() ([]byte, []int) {
+	return file_management_v1_mysql_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *UpdateMySQLServiceParams) GetAddress() string {
+	if x != nil && x.Address != nil {
+		return *x.Address
+	}
+	return ""
+}
+
+func (x *UpdateMySQLServiceParams) GetPort() uint32 {
+	if x != nil && x.Port != nil {
+		return *x.Port
+	}
+	return 0
+}
+
+func (x *UpdateMySQLServiceParams) GetSocket() string {
+	if x != nil && x.Socket != nil {
+		return *x.Socket
+	}
+	return ""
+}
+
+func (x *UpdateMySQLServiceParams) GetEnvironment() string {
+	if x != nil && x.Environment != nil {
+		return *x.Environment
+	}
+	return ""
+}
+
+func (x *UpdateMySQLServiceParams) GetCluster() string {
+	if x != nil && x.Cluster != nil {
+		return *x.Cluster
+	}
+	return ""
+}
+
+func (x *UpdateMySQLServiceParams) GetReplicationSet() string {
+	if x != nil && x.ReplicationSet != nil {
+		return *x.ReplicationSet
+	}
+	return ""
+}
+
+func (x *UpdateMySQLServiceParams) GetCustomLabels() *common.StringMap {
+	if x != nil {
+		return x.CustomLabels
+	}
+	return nil
+}
+
+func (x *UpdateMySQLServiceParams) GetUsername() string {
+	if x != nil && x.Username != nil {
+		return *x.Username
+	}
+	return ""
+}
+
+func (x *UpdateMySQLServiceParams) GetPassword() string {
+	if x != nil && x.Password != nil {
+		return *x.Password
+	}
+	return ""
+}
+
+func (x *UpdateMySQLServiceParams) GetAgentPassword() string {
+	if x != nil && x.AgentPassword != nil {
+		return *x.AgentPassword
+	}
+	return ""
+}
+
+func (x *UpdateMySQLServiceParams) GetTls() bool {
+	if x != nil && x.Tls != nil {
+		return *x.Tls
+	}
+	return false
+}
+
+func (x *UpdateMySQLServiceParams) GetTlsSkipVerify() bool {
+	if x != nil && x.TlsSkipVerify != nil {
+		return *x.TlsSkipVerify
+	}
+	return false
+}
+
+func (x *UpdateMySQLServiceParams) GetTlsCa() string {
+	if x != nil && x.TlsCa != nil {
+		return *x.TlsCa
+	}
+	return ""
+}
+
+func (x *UpdateMySQLServiceParams) GetTlsCert() string {
+	if x != nil && x.TlsCert != nil {
+		return *x.TlsCert
+	}
+	return ""
+}
+
+func (x *UpdateMySQLServiceParams) GetTlsKey() string {
+	if x != nil && x.TlsKey != nil {
+		return *x.TlsKey
+	}
+	return ""
+}
+
+func (x *UpdateMySQLServiceParams) GetExtraDsnParams() *common.StringMap {
+	if x != nil {
+		return x.ExtraDsnParams
+	}
+	return nil
+}
+
+func (x *UpdateMySQLServiceParams) GetQanMysqlPerfschema() bool {
+	if x != nil && x.QanMysqlPerfschema != nil {
+		return *x.QanMysqlPerfschema
+	}
+	return false
+}
+
+func (x *UpdateMySQLServiceParams) GetQanMysqlSlowlog() bool {
+	if x != nil && x.QanMysqlSlowlog != nil {
+		return *x.QanMysqlSlowlog
+	}
+	return false
+}
+
+func (x *UpdateMySQLServiceParams) GetDisableCommentsParsing() bool {
+	if x != nil && x.DisableCommentsParsing != nil {
+		return *x.DisableCommentsParsing
+	}
+	return false
+}
+
+func (x *UpdateMySQLServiceParams) GetMaxQueryLength() int32 {
+	if x != nil && x.MaxQueryLength != nil {
+		return *x.MaxQueryLength
+	}
+	return 0
+}
+
+func (x *UpdateMySQLServiceParams) GetDisableQueryExamples() bool {
+	if x != nil && x.DisableQueryExamples != nil {
+		return *x.DisableQueryExamples
+	}
+	return false
+}
+
+func (x *UpdateMySQLServiceParams) GetMaxSlowlogFileSize() int64 {
+	if x != nil && x.MaxSlowlogFileSize != nil {
+		return *x.MaxSlowlogFileSize
+	}
+	return 0
+}
+
+func (x *UpdateMySQLServiceParams) GetTablestatsGroupTableLimit() int32 {
+	if x != nil && x.TablestatsGroupTableLimit != nil {
+		return *x.TablestatsGroupTableLimit
+	}
+	return 0
+}
+
+func (x *UpdateMySQLServiceParams) GetMetricsMode() MetricsMode {
+	if x != nil && x.MetricsMode != nil {
+		return *x.MetricsMode
+	}
+	return MetricsMode_METRICS_MODE_UNSPECIFIED
+}
+
+func (x *UpdateMySQLServiceParams) GetDisableCollectors() *common.StringArray {
+	if x != nil {
+		return x.DisableCollectors
+	}
+	return nil
+}
+
+func (x *UpdateMySQLServiceParams) GetLogLevel() v1.LogLevel {
+	if x != nil && x.LogLevel != nil {
+		return *x.LogLevel
+	}
+	return v1.LogLevel(0)
+}
+
+func (x *UpdateMySQLServiceParams) GetExposeExporter() bool {
+	if x != nil && x.ExposeExporter != nil {
+		return *x.ExposeExporter
+	}
+	return false
+}
+
+func (x *UpdateMySQLServiceParams) GetConnectionTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.ConnectionTimeout
+	}
+	return nil
+}
+
+func (x *UpdateMySQLServiceParams) GetSkipConnectionCheck() bool {
+	if x != nil {
+		return x.SkipConnectionCheck
+	}
+	return false
+}
+
 type MySQLServiceResult struct {
 	state              protoimpl.MessageState      `protogen:"open.v1"`
 	Service            *v1.MySQLService            `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
@@ -395,7 +698,7 @@ type MySQLServiceResult struct {
 
 func (x *MySQLServiceResult) Reset() {
 	*x = MySQLServiceResult{}
-	mi := &file_management_v1_mysql_proto_msgTypes[1]
+	mi := &file_management_v1_mysql_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -407,7 +710,7 @@ func (x *MySQLServiceResult) String() string {
 func (*MySQLServiceResult) ProtoMessage() {}
 
 func (x *MySQLServiceResult) ProtoReflect() protoreflect.Message {
-	mi := &file_management_v1_mysql_proto_msgTypes[1]
+	mi := &file_management_v1_mysql_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -420,7 +723,7 @@ func (x *MySQLServiceResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MySQLServiceResult.ProtoReflect.Descriptor instead.
 func (*MySQLServiceResult) Descriptor() ([]byte, []int) {
-	return file_management_v1_mysql_proto_rawDescGZIP(), []int{1}
+	return file_management_v1_mysql_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *MySQLServiceResult) GetService() *v1.MySQLService {
@@ -462,7 +765,7 @@ var File_management_v1_mysql_proto protoreflect.FileDescriptor
 
 const file_management_v1_mysql_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/mysql.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x96\r\n" +
+	"\x19management/v1/mysql.proto\x12\rmanagement.v1\x1a\x13common/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x96\r\n" +
 	"\x15AddMySQLServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -505,7 +808,67 @@ const file_management_v1_mysql_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xdb\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbb\x0e\n" +
+	"\x18UpdateMySQLServiceParams\x12\x1d\n" +
+	"\aaddress\x18\x01 \x01(\tH\x00R\aaddress\x88\x01\x01\x12\"\n" +
+	"\x04port\x18\x02 \x01(\rB\t\xfaB\x06*\x04\x10\x80\x80\x04H\x01R\x04port\x88\x01\x01\x12\x1b\n" +
+	"\x06socket\x18\x03 \x01(\tH\x02R\x06socket\x88\x01\x01\x12%\n" +
+	"\venvironment\x18\x04 \x01(\tH\x03R\venvironment\x88\x01\x01\x12\x1d\n" +
+	"\acluster\x18\x05 \x01(\tH\x04R\acluster\x88\x01\x01\x12,\n" +
+	"\x0freplication_set\x18\x06 \x01(\tH\x05R\x0ereplicationSet\x88\x01\x01\x126\n" +
+	"\rcustom_labels\x18\a \x01(\v2\x11.common.StringMapR\fcustomLabels\x12%\n" +
+	"\busername\x18\b \x01(\tB\x04\x88\xb5\x18\x01H\x06R\busername\x88\x01\x01\x12%\n" +
+	"\bpassword\x18\t \x01(\tB\x04\x88\xb5\x18\x01H\aR\bpassword\x88\x01\x01\x120\n" +
+	"\x0eagent_password\x18\n" +
+	" \x01(\tB\x04\x88\xb5\x18\x01H\bR\ragentPassword\x88\x01\x01\x12\x15\n" +
+	"\x03tls\x18\v \x01(\bH\tR\x03tls\x88\x01\x01\x12+\n" +
+	"\x0ftls_skip_verify\x18\f \x01(\bH\n" +
+	"R\rtlsSkipVerify\x88\x01\x01\x12\x1a\n" +
+	"\x06tls_ca\x18\r \x01(\tH\vR\x05tlsCa\x88\x01\x01\x12$\n" +
+	"\btls_cert\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01H\fR\atlsCert\x88\x01\x01\x12\"\n" +
+	"\atls_key\x18\x0f \x01(\tB\x04\x88\xb5\x18\x01H\rR\x06tlsKey\x88\x01\x01\x12;\n" +
+	"\x10extra_dsn_params\x18\x10 \x01(\v2\x11.common.StringMapR\x0eextraDsnParams\x125\n" +
+	"\x14qan_mysql_perfschema\x18\x11 \x01(\bH\x0eR\x12qanMysqlPerfschema\x88\x01\x01\x12/\n" +
+	"\x11qan_mysql_slowlog\x18\x12 \x01(\bH\x0fR\x0fqanMysqlSlowlog\x88\x01\x01\x12=\n" +
+	"\x18disable_comments_parsing\x18\x13 \x01(\bH\x10R\x16disableCommentsParsing\x88\x01\x01\x12-\n" +
+	"\x10max_query_length\x18\x14 \x01(\x05H\x11R\x0emaxQueryLength\x88\x01\x01\x129\n" +
+	"\x16disable_query_examples\x18\x15 \x01(\bH\x12R\x14disableQueryExamples\x88\x01\x01\x126\n" +
+	"\x15max_slowlog_file_size\x18\x16 \x01(\x03H\x13R\x12maxSlowlogFileSize\x88\x01\x01\x12D\n" +
+	"\x1ctablestats_group_table_limit\x18\x17 \x01(\x05H\x14R\x19tablestatsGroupTableLimit\x88\x01\x01\x12B\n" +
+	"\fmetrics_mode\x18\x18 \x01(\x0e2\x1a.management.v1.MetricsModeH\x15R\vmetricsMode\x88\x01\x01\x12B\n" +
+	"\x12disable_collectors\x18\x19 \x01(\v2\x13.common.StringArrayR\x11disableCollectors\x128\n" +
+	"\tlog_level\x18\x1a \x01(\x0e2\x16.inventory.v1.LogLevelH\x16R\blogLevel\x88\x01\x01\x12,\n" +
+	"\x0fexpose_exporter\x18\x1b \x01(\bH\x17R\x0eexposeExporter\x88\x01\x01\x12R\n" +
+	"\x12connection_timeout\x18\x1c \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x122\n" +
+	"\x15skip_connection_check\x18\x1d \x01(\bR\x13skipConnectionCheckB\n" +
+	"\n" +
+	"\b_addressB\a\n" +
+	"\x05_portB\t\n" +
+	"\a_socketB\x0e\n" +
+	"\f_environmentB\n" +
+	"\n" +
+	"\b_clusterB\x12\n" +
+	"\x10_replication_setB\v\n" +
+	"\t_usernameB\v\n" +
+	"\t_passwordB\x11\n" +
+	"\x0f_agent_passwordB\x06\n" +
+	"\x04_tlsB\x12\n" +
+	"\x10_tls_skip_verifyB\t\n" +
+	"\a_tls_caB\v\n" +
+	"\t_tls_certB\n" +
+	"\n" +
+	"\b_tls_keyB\x17\n" +
+	"\x15_qan_mysql_perfschemaB\x14\n" +
+	"\x12_qan_mysql_slowlogB\x1b\n" +
+	"\x19_disable_comments_parsingB\x13\n" +
+	"\x11_max_query_lengthB\x19\n" +
+	"\x17_disable_query_examplesB\x18\n" +
+	"\x16_max_slowlog_file_sizeB\x1f\n" +
+	"\x1d_tablestats_group_table_limitB\x0f\n" +
+	"\r_metrics_modeB\f\n" +
+	"\n" +
+	"_log_levelB\x12\n" +
+	"\x10_expose_exporter\"\xdb\x02\n" +
 	"\x12MySQLServiceResult\x124\n" +
 	"\aservice\x18\x01 \x01(\v2\x1a.inventory.v1.MySQLServiceR\aservice\x12E\n" +
 	"\x0fmysqld_exporter\x18\x02 \x01(\v2\x1c.inventory.v1.MySQLdExporterR\x0emysqldExporter\x12W\n" +
@@ -529,39 +892,47 @@ func file_management_v1_mysql_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_management_v1_mysql_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+	file_management_v1_mysql_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 	file_management_v1_mysql_proto_goTypes  = []any{
 		(*AddMySQLServiceParams)(nil),      // 0: management.v1.AddMySQLServiceParams
-		(*MySQLServiceResult)(nil),         // 1: management.v1.MySQLServiceResult
-		nil,                                // 2: management.v1.AddMySQLServiceParams.CustomLabelsEntry
-		nil,                                // 3: management.v1.AddMySQLServiceParams.ExtraDsnParamsEntry
-		(*AddNodeParams)(nil),              // 4: management.v1.AddNodeParams
-		MetricsMode(0),                     // 5: management.v1.MetricsMode
-		v1.LogLevel(0),                     // 6: inventory.v1.LogLevel
-		(*durationpb.Duration)(nil),        // 7: google.protobuf.Duration
-		(*v1.MySQLService)(nil),            // 8: inventory.v1.MySQLService
-		(*v1.MySQLdExporter)(nil),          // 9: inventory.v1.MySQLdExporter
-		(*v1.QANMySQLPerfSchemaAgent)(nil), // 10: inventory.v1.QANMySQLPerfSchemaAgent
-		(*v1.QANMySQLSlowlogAgent)(nil),    // 11: inventory.v1.QANMySQLSlowlogAgent
+		(*UpdateMySQLServiceParams)(nil),   // 1: management.v1.UpdateMySQLServiceParams
+		(*MySQLServiceResult)(nil),         // 2: management.v1.MySQLServiceResult
+		nil,                                // 3: management.v1.AddMySQLServiceParams.CustomLabelsEntry
+		nil,                                // 4: management.v1.AddMySQLServiceParams.ExtraDsnParamsEntry
+		(*AddNodeParams)(nil),              // 5: management.v1.AddNodeParams
+		MetricsMode(0),                     // 6: management.v1.MetricsMode
+		v1.LogLevel(0),                     // 7: inventory.v1.LogLevel
+		(*durationpb.Duration)(nil),        // 8: google.protobuf.Duration
+		(*common.StringMap)(nil),           // 9: common.StringMap
+		(*common.StringArray)(nil),         // 10: common.StringArray
+		(*v1.MySQLService)(nil),            // 11: inventory.v1.MySQLService
+		(*v1.MySQLdExporter)(nil),          // 12: inventory.v1.MySQLdExporter
+		(*v1.QANMySQLPerfSchemaAgent)(nil), // 13: inventory.v1.QANMySQLPerfSchemaAgent
+		(*v1.QANMySQLSlowlogAgent)(nil),    // 14: inventory.v1.QANMySQLSlowlogAgent
 	}
 )
-
 var file_management_v1_mysql_proto_depIdxs = []int32{
-	4,  // 0: management.v1.AddMySQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
-	2,  // 1: management.v1.AddMySQLServiceParams.custom_labels:type_name -> management.v1.AddMySQLServiceParams.CustomLabelsEntry
-	5,  // 2: management.v1.AddMySQLServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
-	6,  // 3: management.v1.AddMySQLServiceParams.log_level:type_name -> inventory.v1.LogLevel
-	3,  // 4: management.v1.AddMySQLServiceParams.extra_dsn_params:type_name -> management.v1.AddMySQLServiceParams.ExtraDsnParamsEntry
-	7,  // 5: management.v1.AddMySQLServiceParams.connection_timeout:type_name -> google.protobuf.Duration
-	8,  // 6: management.v1.MySQLServiceResult.service:type_name -> inventory.v1.MySQLService
-	9,  // 7: management.v1.MySQLServiceResult.mysqld_exporter:type_name -> inventory.v1.MySQLdExporter
-	10, // 8: management.v1.MySQLServiceResult.qan_mysql_perfschema:type_name -> inventory.v1.QANMySQLPerfSchemaAgent
-	11, // 9: management.v1.MySQLServiceResult.qan_mysql_slowlog:type_name -> inventory.v1.QANMySQLSlowlogAgent
-	10, // [10:10] is the sub-list for method output_type
-	10, // [10:10] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	5,  // 0: management.v1.AddMySQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
+	3,  // 1: management.v1.AddMySQLServiceParams.custom_labels:type_name -> management.v1.AddMySQLServiceParams.CustomLabelsEntry
+	6,  // 2: management.v1.AddMySQLServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
+	7,  // 3: management.v1.AddMySQLServiceParams.log_level:type_name -> inventory.v1.LogLevel
+	4,  // 4: management.v1.AddMySQLServiceParams.extra_dsn_params:type_name -> management.v1.AddMySQLServiceParams.ExtraDsnParamsEntry
+	8,  // 5: management.v1.AddMySQLServiceParams.connection_timeout:type_name -> google.protobuf.Duration
+	9,  // 6: management.v1.UpdateMySQLServiceParams.custom_labels:type_name -> common.StringMap
+	9,  // 7: management.v1.UpdateMySQLServiceParams.extra_dsn_params:type_name -> common.StringMap
+	6,  // 8: management.v1.UpdateMySQLServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
+	10, // 9: management.v1.UpdateMySQLServiceParams.disable_collectors:type_name -> common.StringArray
+	7,  // 10: management.v1.UpdateMySQLServiceParams.log_level:type_name -> inventory.v1.LogLevel
+	8,  // 11: management.v1.UpdateMySQLServiceParams.connection_timeout:type_name -> google.protobuf.Duration
+	11, // 12: management.v1.MySQLServiceResult.service:type_name -> inventory.v1.MySQLService
+	12, // 13: management.v1.MySQLServiceResult.mysqld_exporter:type_name -> inventory.v1.MySQLdExporter
+	13, // 14: management.v1.MySQLServiceResult.qan_mysql_perfschema:type_name -> inventory.v1.QANMySQLPerfSchemaAgent
+	14, // 15: management.v1.MySQLServiceResult.qan_mysql_slowlog:type_name -> inventory.v1.QANMySQLSlowlogAgent
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_mysql_proto_init() }
@@ -571,13 +942,14 @@ func file_management_v1_mysql_proto_init() {
 	}
 	file_management_v1_metrics_proto_init()
 	file_management_v1_node_proto_init()
+	file_management_v1_mysql_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_management_v1_mysql_proto_rawDesc), len(file_management_v1_mysql_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

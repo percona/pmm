@@ -16,6 +16,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 
+	common "github.com/percona/pmm/api/common"
 	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
@@ -296,6 +297,223 @@ func (x *AddValkeyServiceParams) GetConnectionTimeout() *durationpb.Duration {
 	return nil
 }
 
+// UpdateValkeyServiceParams holds the Valkey Service settings to change. Only the fields that are set are changed.
+type UpdateValkeyServiceParams struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Node and Service access address (DNS name or IP). Replaces the socket.
+	Address *string `protobuf:"bytes,1,opt,name=address,proto3,oneof" json:"address,omitempty"`
+	// Service access port. Replaces the socket.
+	Port *uint32 `protobuf:"varint,2,opt,name=port,proto3,oneof" json:"port,omitempty"`
+	// Service access socket. Replaces the address and port.
+	Socket *string `protobuf:"bytes,3,opt,name=socket,proto3,oneof" json:"socket,omitempty"`
+	// Environment name.
+	Environment *string `protobuf:"bytes,4,opt,name=environment,proto3,oneof" json:"environment,omitempty"`
+	// Cluster name.
+	Cluster *string `protobuf:"bytes,5,opt,name=cluster,proto3,oneof" json:"cluster,omitempty"`
+	// Replication set name.
+	ReplicationSet *string `protobuf:"bytes,6,opt,name=replication_set,json=replicationSet,proto3,oneof" json:"replication_set,omitempty"`
+	// Replace all custom user-assigned labels for Service.
+	CustomLabels *common.StringMap `protobuf:"bytes,7,opt,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty"`
+	// Valkey username for scraping metrics.
+	Username *string `protobuf:"bytes,8,opt,name=username,proto3,oneof" json:"username,omitempty"`
+	// Valkey password for scraping metrics.
+	Password *string `protobuf:"bytes,9,opt,name=password,proto3,oneof" json:"password,omitempty"`
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword *string `protobuf:"bytes,10,opt,name=agent_password,json=agentPassword,proto3,oneof" json:"agent_password,omitempty"`
+	// Use TLS for connection.
+	Tls *bool `protobuf:"varint,11,opt,name=tls,proto3,oneof" json:"tls,omitempty"`
+	// Skip TLS verification.
+	TlsSkipVerify *bool `protobuf:"varint,12,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3,oneof" json:"tls_skip_verify,omitempty"`
+	// TLS CA certificate.
+	TlsCa *string `protobuf:"bytes,13,opt,name=tls_ca,json=tlsCa,proto3,oneof" json:"tls_ca,omitempty"`
+	// TLS Certificate.
+	TlsCert *string `protobuf:"bytes,14,opt,name=tls_cert,json=tlsCert,proto3,oneof" json:"tls_cert,omitempty"`
+	// TLS Certificate Key.
+	TlsKey *string `protobuf:"bytes,15,opt,name=tls_key,json=tlsKey,proto3,oneof" json:"tls_key,omitempty"`
+	// Defines metrics flow model for the Valkey exporter.
+	MetricsMode *MetricsMode `protobuf:"varint,16,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.v1.MetricsMode,oneof" json:"metrics_mode,omitempty"`
+	// Exporter log level.
+	LogLevel *v1.LogLevel `protobuf:"varint,17,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
+	// Expose the exporter process on all public interfaces.
+	ExposeExporter *bool `protobuf:"varint,18,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
+	// Connection timeout for exporter; zero restores the default.
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,19,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	// Skip connection check.
+	SkipConnectionCheck bool `protobuf:"varint,20,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *UpdateValkeyServiceParams) Reset() {
+	*x = UpdateValkeyServiceParams{}
+	mi := &file_management_v1_valkey_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateValkeyServiceParams) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateValkeyServiceParams) ProtoMessage() {}
+
+func (x *UpdateValkeyServiceParams) ProtoReflect() protoreflect.Message {
+	mi := &file_management_v1_valkey_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateValkeyServiceParams.ProtoReflect.Descriptor instead.
+func (*UpdateValkeyServiceParams) Descriptor() ([]byte, []int) {
+	return file_management_v1_valkey_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *UpdateValkeyServiceParams) GetAddress() string {
+	if x != nil && x.Address != nil {
+		return *x.Address
+	}
+	return ""
+}
+
+func (x *UpdateValkeyServiceParams) GetPort() uint32 {
+	if x != nil && x.Port != nil {
+		return *x.Port
+	}
+	return 0
+}
+
+func (x *UpdateValkeyServiceParams) GetSocket() string {
+	if x != nil && x.Socket != nil {
+		return *x.Socket
+	}
+	return ""
+}
+
+func (x *UpdateValkeyServiceParams) GetEnvironment() string {
+	if x != nil && x.Environment != nil {
+		return *x.Environment
+	}
+	return ""
+}
+
+func (x *UpdateValkeyServiceParams) GetCluster() string {
+	if x != nil && x.Cluster != nil {
+		return *x.Cluster
+	}
+	return ""
+}
+
+func (x *UpdateValkeyServiceParams) GetReplicationSet() string {
+	if x != nil && x.ReplicationSet != nil {
+		return *x.ReplicationSet
+	}
+	return ""
+}
+
+func (x *UpdateValkeyServiceParams) GetCustomLabels() *common.StringMap {
+	if x != nil {
+		return x.CustomLabels
+	}
+	return nil
+}
+
+func (x *UpdateValkeyServiceParams) GetUsername() string {
+	if x != nil && x.Username != nil {
+		return *x.Username
+	}
+	return ""
+}
+
+func (x *UpdateValkeyServiceParams) GetPassword() string {
+	if x != nil && x.Password != nil {
+		return *x.Password
+	}
+	return ""
+}
+
+func (x *UpdateValkeyServiceParams) GetAgentPassword() string {
+	if x != nil && x.AgentPassword != nil {
+		return *x.AgentPassword
+	}
+	return ""
+}
+
+func (x *UpdateValkeyServiceParams) GetTls() bool {
+	if x != nil && x.Tls != nil {
+		return *x.Tls
+	}
+	return false
+}
+
+func (x *UpdateValkeyServiceParams) GetTlsSkipVerify() bool {
+	if x != nil && x.TlsSkipVerify != nil {
+		return *x.TlsSkipVerify
+	}
+	return false
+}
+
+func (x *UpdateValkeyServiceParams) GetTlsCa() string {
+	if x != nil && x.TlsCa != nil {
+		return *x.TlsCa
+	}
+	return ""
+}
+
+func (x *UpdateValkeyServiceParams) GetTlsCert() string {
+	if x != nil && x.TlsCert != nil {
+		return *x.TlsCert
+	}
+	return ""
+}
+
+func (x *UpdateValkeyServiceParams) GetTlsKey() string {
+	if x != nil && x.TlsKey != nil {
+		return *x.TlsKey
+	}
+	return ""
+}
+
+func (x *UpdateValkeyServiceParams) GetMetricsMode() MetricsMode {
+	if x != nil && x.MetricsMode != nil {
+		return *x.MetricsMode
+	}
+	return MetricsMode_METRICS_MODE_UNSPECIFIED
+}
+
+func (x *UpdateValkeyServiceParams) GetLogLevel() v1.LogLevel {
+	if x != nil && x.LogLevel != nil {
+		return *x.LogLevel
+	}
+	return v1.LogLevel(0)
+}
+
+func (x *UpdateValkeyServiceParams) GetExposeExporter() bool {
+	if x != nil && x.ExposeExporter != nil {
+		return *x.ExposeExporter
+	}
+	return false
+}
+
+func (x *UpdateValkeyServiceParams) GetConnectionTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.ConnectionTimeout
+	}
+	return nil
+}
+
+func (x *UpdateValkeyServiceParams) GetSkipConnectionCheck() bool {
+	if x != nil {
+		return x.SkipConnectionCheck
+	}
+	return false
+}
+
 type ValkeyServiceResult struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Service        *v1.ValkeyService      `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
@@ -306,7 +524,7 @@ type ValkeyServiceResult struct {
 
 func (x *ValkeyServiceResult) Reset() {
 	*x = ValkeyServiceResult{}
-	mi := &file_management_v1_valkey_proto_msgTypes[1]
+	mi := &file_management_v1_valkey_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -318,7 +536,7 @@ func (x *ValkeyServiceResult) String() string {
 func (*ValkeyServiceResult) ProtoMessage() {}
 
 func (x *ValkeyServiceResult) ProtoReflect() protoreflect.Message {
-	mi := &file_management_v1_valkey_proto_msgTypes[1]
+	mi := &file_management_v1_valkey_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -331,7 +549,7 @@ func (x *ValkeyServiceResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ValkeyServiceResult.ProtoReflect.Descriptor instead.
 func (*ValkeyServiceResult) Descriptor() ([]byte, []int) {
-	return file_management_v1_valkey_proto_rawDescGZIP(), []int{1}
+	return file_management_v1_valkey_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ValkeyServiceResult) GetService() *v1.ValkeyService {
@@ -352,7 +570,7 @@ var File_management_v1_valkey_proto protoreflect.FileDescriptor
 
 const file_management_v1_valkey_proto_rawDesc = "" +
 	"\n" +
-	"\x1amanagement/v1/valkey.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xe7\b\n" +
+	"\x1amanagement/v1/valkey.proto\x12\rmanagement.v1\x1a\x13common/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xe7\b\n" +
 	"\x16AddValkeyServiceParams\x12#\n" +
 	"\anode_id\x18\x01 \x01(\tB\n" +
 	"\xfaB\ar\x05\x10\x01\xd0\x01\x01R\x06nodeId\x12'\n" +
@@ -385,7 +603,51 @@ const file_management_v1_valkey_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\x19 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x93\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf5\b\n" +
+	"\x19UpdateValkeyServiceParams\x12\x1d\n" +
+	"\aaddress\x18\x01 \x01(\tH\x00R\aaddress\x88\x01\x01\x12\"\n" +
+	"\x04port\x18\x02 \x01(\rB\t\xfaB\x06*\x04\x10\x80\x80\x04H\x01R\x04port\x88\x01\x01\x12\x1b\n" +
+	"\x06socket\x18\x03 \x01(\tH\x02R\x06socket\x88\x01\x01\x12%\n" +
+	"\venvironment\x18\x04 \x01(\tH\x03R\venvironment\x88\x01\x01\x12\x1d\n" +
+	"\acluster\x18\x05 \x01(\tH\x04R\acluster\x88\x01\x01\x12,\n" +
+	"\x0freplication_set\x18\x06 \x01(\tH\x05R\x0ereplicationSet\x88\x01\x01\x126\n" +
+	"\rcustom_labels\x18\a \x01(\v2\x11.common.StringMapR\fcustomLabels\x12%\n" +
+	"\busername\x18\b \x01(\tB\x04\x88\xb5\x18\x01H\x06R\busername\x88\x01\x01\x12%\n" +
+	"\bpassword\x18\t \x01(\tB\x04\x88\xb5\x18\x01H\aR\bpassword\x88\x01\x01\x120\n" +
+	"\x0eagent_password\x18\n" +
+	" \x01(\tB\x04\x88\xb5\x18\x01H\bR\ragentPassword\x88\x01\x01\x12\x15\n" +
+	"\x03tls\x18\v \x01(\bH\tR\x03tls\x88\x01\x01\x12+\n" +
+	"\x0ftls_skip_verify\x18\f \x01(\bH\n" +
+	"R\rtlsSkipVerify\x88\x01\x01\x12\x1a\n" +
+	"\x06tls_ca\x18\r \x01(\tH\vR\x05tlsCa\x88\x01\x01\x12$\n" +
+	"\btls_cert\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01H\fR\atlsCert\x88\x01\x01\x12\"\n" +
+	"\atls_key\x18\x0f \x01(\tB\x04\x88\xb5\x18\x01H\rR\x06tlsKey\x88\x01\x01\x12B\n" +
+	"\fmetrics_mode\x18\x10 \x01(\x0e2\x1a.management.v1.MetricsModeH\x0eR\vmetricsMode\x88\x01\x01\x128\n" +
+	"\tlog_level\x18\x11 \x01(\x0e2\x16.inventory.v1.LogLevelH\x0fR\blogLevel\x88\x01\x01\x12,\n" +
+	"\x0fexpose_exporter\x18\x12 \x01(\bH\x10R\x0eexposeExporter\x88\x01\x01\x12R\n" +
+	"\x12connection_timeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x122\n" +
+	"\x15skip_connection_check\x18\x14 \x01(\bR\x13skipConnectionCheckB\n" +
+	"\n" +
+	"\b_addressB\a\n" +
+	"\x05_portB\t\n" +
+	"\a_socketB\x0e\n" +
+	"\f_environmentB\n" +
+	"\n" +
+	"\b_clusterB\x12\n" +
+	"\x10_replication_setB\v\n" +
+	"\t_usernameB\v\n" +
+	"\t_passwordB\x11\n" +
+	"\x0f_agent_passwordB\x06\n" +
+	"\x04_tlsB\x12\n" +
+	"\x10_tls_skip_verifyB\t\n" +
+	"\a_tls_caB\v\n" +
+	"\t_tls_certB\n" +
+	"\n" +
+	"\b_tls_keyB\x0f\n" +
+	"\r_metrics_modeB\f\n" +
+	"\n" +
+	"_log_levelB\x12\n" +
+	"\x10_expose_exporter\"\x93\x01\n" +
 	"\x13ValkeyServiceResult\x125\n" +
 	"\aservice\x18\x01 \x01(\v2\x1b.inventory.v1.ValkeyServiceR\aservice\x12E\n" +
 	"\x0fvalkey_exporter\x18\x02 \x01(\v2\x1c.inventory.v1.ValkeyExporterR\x0evalkeyExporterB\xac\x01\n" +
@@ -404,33 +666,38 @@ func file_management_v1_valkey_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_management_v1_valkey_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+	file_management_v1_valkey_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 	file_management_v1_valkey_proto_goTypes  = []any{
-		(*AddValkeyServiceParams)(nil), // 0: management.v1.AddValkeyServiceParams
-		(*ValkeyServiceResult)(nil),    // 1: management.v1.ValkeyServiceResult
-		nil,                            // 2: management.v1.AddValkeyServiceParams.CustomLabelsEntry
-		(*AddNodeParams)(nil),          // 3: management.v1.AddNodeParams
-		MetricsMode(0),                 // 4: management.v1.MetricsMode
-		v1.LogLevel(0),                 // 5: inventory.v1.LogLevel
-		(*durationpb.Duration)(nil),    // 6: google.protobuf.Duration
-		(*v1.ValkeyService)(nil),       // 7: inventory.v1.ValkeyService
-		(*v1.ValkeyExporter)(nil),      // 8: inventory.v1.ValkeyExporter
+		(*AddValkeyServiceParams)(nil),    // 0: management.v1.AddValkeyServiceParams
+		(*UpdateValkeyServiceParams)(nil), // 1: management.v1.UpdateValkeyServiceParams
+		(*ValkeyServiceResult)(nil),       // 2: management.v1.ValkeyServiceResult
+		nil,                               // 3: management.v1.AddValkeyServiceParams.CustomLabelsEntry
+		(*AddNodeParams)(nil),             // 4: management.v1.AddNodeParams
+		MetricsMode(0),                    // 5: management.v1.MetricsMode
+		v1.LogLevel(0),                    // 6: inventory.v1.LogLevel
+		(*durationpb.Duration)(nil),       // 7: google.protobuf.Duration
+		(*common.StringMap)(nil),          // 8: common.StringMap
+		(*v1.ValkeyService)(nil),          // 9: inventory.v1.ValkeyService
+		(*v1.ValkeyExporter)(nil),         // 10: inventory.v1.ValkeyExporter
 	}
 )
-
 var file_management_v1_valkey_proto_depIdxs = []int32{
-	3, // 0: management.v1.AddValkeyServiceParams.add_node:type_name -> management.v1.AddNodeParams
-	2, // 1: management.v1.AddValkeyServiceParams.custom_labels:type_name -> management.v1.AddValkeyServiceParams.CustomLabelsEntry
-	4, // 2: management.v1.AddValkeyServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
-	5, // 3: management.v1.AddValkeyServiceParams.log_level:type_name -> inventory.v1.LogLevel
-	6, // 4: management.v1.AddValkeyServiceParams.connection_timeout:type_name -> google.protobuf.Duration
-	7, // 5: management.v1.ValkeyServiceResult.service:type_name -> inventory.v1.ValkeyService
-	8, // 6: management.v1.ValkeyServiceResult.valkey_exporter:type_name -> inventory.v1.ValkeyExporter
-	7, // [7:7] is the sub-list for method output_type
-	7, // [7:7] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	4,  // 0: management.v1.AddValkeyServiceParams.add_node:type_name -> management.v1.AddNodeParams
+	3,  // 1: management.v1.AddValkeyServiceParams.custom_labels:type_name -> management.v1.AddValkeyServiceParams.CustomLabelsEntry
+	5,  // 2: management.v1.AddValkeyServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
+	6,  // 3: management.v1.AddValkeyServiceParams.log_level:type_name -> inventory.v1.LogLevel
+	7,  // 4: management.v1.AddValkeyServiceParams.connection_timeout:type_name -> google.protobuf.Duration
+	8,  // 5: management.v1.UpdateValkeyServiceParams.custom_labels:type_name -> common.StringMap
+	5,  // 6: management.v1.UpdateValkeyServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
+	6,  // 7: management.v1.UpdateValkeyServiceParams.log_level:type_name -> inventory.v1.LogLevel
+	7,  // 8: management.v1.UpdateValkeyServiceParams.connection_timeout:type_name -> google.protobuf.Duration
+	9,  // 9: management.v1.ValkeyServiceResult.service:type_name -> inventory.v1.ValkeyService
+	10, // 10: management.v1.ValkeyServiceResult.valkey_exporter:type_name -> inventory.v1.ValkeyExporter
+	11, // [11:11] is the sub-list for method output_type
+	11, // [11:11] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_valkey_proto_init() }
@@ -440,13 +707,14 @@ func file_management_v1_valkey_proto_init() {
 	}
 	file_management_v1_metrics_proto_init()
 	file_management_v1_node_proto_init()
+	file_management_v1_valkey_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_management_v1_valkey_proto_rawDesc), len(file_management_v1_valkey_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

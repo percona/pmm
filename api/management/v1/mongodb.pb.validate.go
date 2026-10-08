@@ -283,6 +283,366 @@ var _ interface {
 	ErrorName() string
 } = AddMongoDBServiceParamsValidationError{}
 
+// Validate checks the field values on UpdateMongoDBServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdateMongoDBServiceParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UpdateMongoDBServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UpdateMongoDBServiceParamsMultiError, or nil if none found.
+func (m *UpdateMongoDBServiceParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdateMongoDBServiceParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetCustomLabels()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdateMongoDBServiceParamsValidationError{
+					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdateMongoDBServiceParamsValidationError{
+					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateMongoDBServiceParamsValidationError{
+				field:  "CustomLabels",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetDisableCollectors()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdateMongoDBServiceParamsValidationError{
+					field:  "DisableCollectors",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdateMongoDBServiceParamsValidationError{
+					field:  "DisableCollectors",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetDisableCollectors()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateMongoDBServiceParamsValidationError{
+				field:  "DisableCollectors",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetStatsCollections()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdateMongoDBServiceParamsValidationError{
+					field:  "StatsCollections",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdateMongoDBServiceParamsValidationError{
+					field:  "StatsCollections",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetStatsCollections()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateMongoDBServiceParamsValidationError{
+				field:  "StatsCollections",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetEnvironmentVariableNames()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdateMongoDBServiceParamsValidationError{
+					field:  "EnvironmentVariableNames",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdateMongoDBServiceParamsValidationError{
+					field:  "EnvironmentVariableNames",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetEnvironmentVariableNames()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateMongoDBServiceParamsValidationError{
+				field:  "EnvironmentVariableNames",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = UpdateMongoDBServiceParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := UpdateMongoDBServiceParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
+	// no validation rules for SkipConnectionCheck
+
+	if m.Address != nil {
+		// no validation rules for Address
+	}
+
+	if m.Port != nil {
+		if m.GetPort() >= 65536 {
+			err := UpdateMongoDBServiceParamsValidationError{
+				field:  "Port",
+				reason: "value must be less than 65536",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
+
+	if m.Socket != nil {
+		// no validation rules for Socket
+	}
+
+	if m.Environment != nil {
+		// no validation rules for Environment
+	}
+
+	if m.Cluster != nil {
+		// no validation rules for Cluster
+	}
+
+	if m.ReplicationSet != nil {
+		// no validation rules for ReplicationSet
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.AgentPassword != nil {
+		// no validation rules for AgentPassword
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCertificateKey != nil {
+		// no validation rules for TlsCertificateKey
+	}
+
+	if m.TlsCertificateKeyFilePassword != nil {
+		// no validation rules for TlsCertificateKeyFilePassword
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.AuthenticationMechanism != nil {
+		// no validation rules for AuthenticationMechanism
+	}
+
+	if m.AuthenticationDatabase != nil {
+		// no validation rules for AuthenticationDatabase
+	}
+
+	if m.QanMongodbProfiler != nil {
+		// no validation rules for QanMongodbProfiler
+	}
+
+	if m.QanMongodbMongolog != nil {
+		// no validation rules for QanMongodbMongolog
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.MetricsMode != nil {
+		// no validation rules for MetricsMode
+	}
+
+	if m.CollectionsLimit != nil {
+		// no validation rules for CollectionsLimit
+	}
+
+	if m.EnableAllCollectors != nil {
+		// no validation rules for EnableAllCollectors
+	}
+
+	if m.EnableDiagnosticDataHistograms != nil {
+		// no validation rules for EnableDiagnosticDataHistograms
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
+	}
+
+	if len(errors) > 0 {
+		return UpdateMongoDBServiceParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// UpdateMongoDBServiceParamsMultiError is an error wrapping multiple
+// validation errors returned by UpdateMongoDBServiceParams.ValidateAll() if
+// the designated constraints aren't met.
+type UpdateMongoDBServiceParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdateMongoDBServiceParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdateMongoDBServiceParamsMultiError) AllErrors() []error { return m }
+
+// UpdateMongoDBServiceParamsValidationError is the validation error returned
+// by UpdateMongoDBServiceParams.Validate if the designated constraints aren't met.
+type UpdateMongoDBServiceParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateMongoDBServiceParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateMongoDBServiceParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateMongoDBServiceParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateMongoDBServiceParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateMongoDBServiceParamsValidationError) ErrorName() string {
+	return "UpdateMongoDBServiceParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateMongoDBServiceParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateMongoDBServiceParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = UpdateMongoDBServiceParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateMongoDBServiceParamsValidationError{}
+
 // Validate checks the field values on MongoDBServiceResult with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

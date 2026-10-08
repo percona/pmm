@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package management.v1;
 
+import "common/common.proto";
 import "extensions/v1/redact.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/services.proto";
@@ -58,6 +59,39 @@ message AddHAProxyServiceParams {
   bool skip_connection_check = 16;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 17;
+}
+
+// Update HAProxy
+
+// UpdateHAProxyServiceParams holds the HAProxy Service settings to change. Only the fields that are set are changed.
+message UpdateHAProxyServiceParams {
+  // HTTP basic auth username for collecting metrics.
+  optional string username = 1 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // HTTP basic auth password for collecting metrics.
+  optional string password = 2 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Scheme to generate URI to exporter metrics endpoints.
+  optional string scheme = 3;
+  // Path under which metrics are exposed, used to generate URI.
+  optional string metrics_path = 4;
+  // Listen port for scraping metrics.
+  optional uint32 listen_port = 5 [(validate.rules).uint32 = {
+    gt: 0
+    lt: 65536
+  }];
+  // Environment name.
+  optional string environment = 6;
+  // Cluster name.
+  optional string cluster = 7;
+  // Replication set name.
+  optional string replication_set = 8;
+  // Replace all custom user-assigned labels for Service.
+  common.StringMap custom_labels = 9;
+  // Defines metrics flow model for this exporter.
+  optional MetricsMode metrics_mode = 10;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 11;
+  // Skip connection check.
+  bool skip_connection_check = 12;
 }
 
 message HAProxyServiceResult {

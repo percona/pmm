@@ -16,6 +16,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 
+	common "github.com/percona/pmm/api/common"
 	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
@@ -408,6 +409,324 @@ func (x *AddMongoDBServiceParams) GetEnableDiagnosticDataHistograms() bool {
 	return false
 }
 
+// UpdateMongoDBServiceParams holds the MongoDB Service settings to change. Only the fields that are set are changed.
+type UpdateMongoDBServiceParams struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Node and Service access address (DNS name or IP). Replaces the socket.
+	Address *string `protobuf:"bytes,1,opt,name=address,proto3,oneof" json:"address,omitempty"`
+	// Service Access port. Replaces the socket.
+	Port *uint32 `protobuf:"varint,2,opt,name=port,proto3,oneof" json:"port,omitempty"`
+	// Service Access socket. Replaces the address and port.
+	Socket *string `protobuf:"bytes,3,opt,name=socket,proto3,oneof" json:"socket,omitempty"`
+	// Environment name.
+	Environment *string `protobuf:"bytes,4,opt,name=environment,proto3,oneof" json:"environment,omitempty"`
+	// Cluster name.
+	Cluster *string `protobuf:"bytes,5,opt,name=cluster,proto3,oneof" json:"cluster,omitempty"`
+	// Replication set name.
+	ReplicationSet *string `protobuf:"bytes,6,opt,name=replication_set,json=replicationSet,proto3,oneof" json:"replication_set,omitempty"`
+	// Replace all custom user-assigned labels for Service.
+	CustomLabels *common.StringMap `protobuf:"bytes,7,opt,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty"`
+	// MongoDB username for exporter and QAN agent access.
+	Username *string `protobuf:"bytes,8,opt,name=username,proto3,oneof" json:"username,omitempty"`
+	// MongoDB password for exporter and QAN agent access.
+	Password *string `protobuf:"bytes,9,opt,name=password,proto3,oneof" json:"password,omitempty"`
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword *string `protobuf:"bytes,10,opt,name=agent_password,json=agentPassword,proto3,oneof" json:"agent_password,omitempty"`
+	// Use TLS for database connections.
+	Tls *bool `protobuf:"varint,11,opt,name=tls,proto3,oneof" json:"tls,omitempty"`
+	// Skip TLS certificate and hostname validation.
+	TlsSkipVerify *bool `protobuf:"varint,12,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3,oneof" json:"tls_skip_verify,omitempty"`
+	// Client certificate and key.
+	TlsCertificateKey *string `protobuf:"bytes,13,opt,name=tls_certificate_key,json=tlsCertificateKey,proto3,oneof" json:"tls_certificate_key,omitempty"`
+	// Password for decrypting tls_certificate_key.
+	TlsCertificateKeyFilePassword *string `protobuf:"bytes,14,opt,name=tls_certificate_key_file_password,json=tlsCertificateKeyFilePassword,proto3,oneof" json:"tls_certificate_key_file_password,omitempty"`
+	// Certificate Authority certificate chain.
+	TlsCa *string `protobuf:"bytes,15,opt,name=tls_ca,json=tlsCa,proto3,oneof" json:"tls_ca,omitempty"`
+	// Authentication mechanism.
+	AuthenticationMechanism *string `protobuf:"bytes,16,opt,name=authentication_mechanism,json=authenticationMechanism,proto3,oneof" json:"authentication_mechanism,omitempty"`
+	// Authentication database.
+	AuthenticationDatabase *string `protobuf:"bytes,17,opt,name=authentication_database,json=authenticationDatabase,proto3,oneof" json:"authentication_database,omitempty"`
+	// If true, ensures qan-mongodb-profiler-agent exists; if false, removes it.
+	QanMongodbProfiler *bool `protobuf:"varint,18,opt,name=qan_mongodb_profiler,json=qanMongodbProfiler,proto3,oneof" json:"qan_mongodb_profiler,omitempty"`
+	// If true, ensures qan-mongodb-mongolog-agent exists; if false, removes it.
+	QanMongodbMongolog *bool `protobuf:"varint,19,opt,name=qan_mongodb_mongolog,json=qanMongodbMongolog,proto3,oneof" json:"qan_mongodb_mongolog,omitempty"`
+	// Limit query length in QAN (zero: server-defined; -1: no limit).
+	MaxQueryLength *int32 `protobuf:"varint,20,opt,name=max_query_length,json=maxQueryLength,proto3,oneof" json:"max_query_length,omitempty"`
+	// Defines metrics flow model for this exporter.
+	MetricsMode *MetricsMode `protobuf:"varint,21,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.v1.MetricsMode,oneof" json:"metrics_mode,omitempty"`
+	// Replace the list of collector names to disable in this exporter.
+	DisableCollectors *common.StringArray `protobuf:"bytes,22,opt,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
+	// Replace the list of collections to get stats from. Can use * .
+	StatsCollections *common.StringArray `protobuf:"bytes,23,opt,name=stats_collections,json=statsCollections,proto3" json:"stats_collections,omitempty"`
+	// Collections limit. Only get Databases and collection stats if the total number of collections in the server
+	// is less than this value. 0: no limit; -1: server-defined.
+	CollectionsLimit *int32 `protobuf:"varint,24,opt,name=collections_limit,json=collectionsLimit,proto3,oneof" json:"collections_limit,omitempty"`
+	// Enable all collectors.
+	EnableAllCollectors *bool `protobuf:"varint,25,opt,name=enable_all_collectors,json=enableAllCollectors,proto3,oneof" json:"enable_all_collectors,omitempty"`
+	// Enable collecting histogram bucket metrics from getDiagnosticData.
+	EnableDiagnosticDataHistograms *bool `protobuf:"varint,26,opt,name=enable_diagnostic_data_histograms,json=enableDiagnosticDataHistograms,proto3,oneof" json:"enable_diagnostic_data_histograms,omitempty"`
+	// Replace the environment variable names to pass to the exporter.
+	// Values will be resolved from pmm-agent's environment when starting the exporter.
+	EnvironmentVariableNames *common.StringArray `protobuf:"bytes,27,opt,name=environment_variable_names,json=environmentVariableNames,proto3" json:"environment_variable_names,omitempty"`
+	// Log level for all Agents of the Service.
+	LogLevel *v1.LogLevel `protobuf:"varint,28,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
+	// Expose the exporter process on all public interfaces.
+	ExposeExporter *bool `protobuf:"varint,29,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
+	// Connection timeout for exporter; zero restores the default.
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,30,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	// Skip connection check.
+	SkipConnectionCheck bool `protobuf:"varint,31,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *UpdateMongoDBServiceParams) Reset() {
+	*x = UpdateMongoDBServiceParams{}
+	mi := &file_management_v1_mongodb_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateMongoDBServiceParams) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateMongoDBServiceParams) ProtoMessage() {}
+
+func (x *UpdateMongoDBServiceParams) ProtoReflect() protoreflect.Message {
+	mi := &file_management_v1_mongodb_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateMongoDBServiceParams.ProtoReflect.Descriptor instead.
+func (*UpdateMongoDBServiceParams) Descriptor() ([]byte, []int) {
+	return file_management_v1_mongodb_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *UpdateMongoDBServiceParams) GetAddress() string {
+	if x != nil && x.Address != nil {
+		return *x.Address
+	}
+	return ""
+}
+
+func (x *UpdateMongoDBServiceParams) GetPort() uint32 {
+	if x != nil && x.Port != nil {
+		return *x.Port
+	}
+	return 0
+}
+
+func (x *UpdateMongoDBServiceParams) GetSocket() string {
+	if x != nil && x.Socket != nil {
+		return *x.Socket
+	}
+	return ""
+}
+
+func (x *UpdateMongoDBServiceParams) GetEnvironment() string {
+	if x != nil && x.Environment != nil {
+		return *x.Environment
+	}
+	return ""
+}
+
+func (x *UpdateMongoDBServiceParams) GetCluster() string {
+	if x != nil && x.Cluster != nil {
+		return *x.Cluster
+	}
+	return ""
+}
+
+func (x *UpdateMongoDBServiceParams) GetReplicationSet() string {
+	if x != nil && x.ReplicationSet != nil {
+		return *x.ReplicationSet
+	}
+	return ""
+}
+
+func (x *UpdateMongoDBServiceParams) GetCustomLabels() *common.StringMap {
+	if x != nil {
+		return x.CustomLabels
+	}
+	return nil
+}
+
+func (x *UpdateMongoDBServiceParams) GetUsername() string {
+	if x != nil && x.Username != nil {
+		return *x.Username
+	}
+	return ""
+}
+
+func (x *UpdateMongoDBServiceParams) GetPassword() string {
+	if x != nil && x.Password != nil {
+		return *x.Password
+	}
+	return ""
+}
+
+func (x *UpdateMongoDBServiceParams) GetAgentPassword() string {
+	if x != nil && x.AgentPassword != nil {
+		return *x.AgentPassword
+	}
+	return ""
+}
+
+func (x *UpdateMongoDBServiceParams) GetTls() bool {
+	if x != nil && x.Tls != nil {
+		return *x.Tls
+	}
+	return false
+}
+
+func (x *UpdateMongoDBServiceParams) GetTlsSkipVerify() bool {
+	if x != nil && x.TlsSkipVerify != nil {
+		return *x.TlsSkipVerify
+	}
+	return false
+}
+
+func (x *UpdateMongoDBServiceParams) GetTlsCertificateKey() string {
+	if x != nil && x.TlsCertificateKey != nil {
+		return *x.TlsCertificateKey
+	}
+	return ""
+}
+
+func (x *UpdateMongoDBServiceParams) GetTlsCertificateKeyFilePassword() string {
+	if x != nil && x.TlsCertificateKeyFilePassword != nil {
+		return *x.TlsCertificateKeyFilePassword
+	}
+	return ""
+}
+
+func (x *UpdateMongoDBServiceParams) GetTlsCa() string {
+	if x != nil && x.TlsCa != nil {
+		return *x.TlsCa
+	}
+	return ""
+}
+
+func (x *UpdateMongoDBServiceParams) GetAuthenticationMechanism() string {
+	if x != nil && x.AuthenticationMechanism != nil {
+		return *x.AuthenticationMechanism
+	}
+	return ""
+}
+
+func (x *UpdateMongoDBServiceParams) GetAuthenticationDatabase() string {
+	if x != nil && x.AuthenticationDatabase != nil {
+		return *x.AuthenticationDatabase
+	}
+	return ""
+}
+
+func (x *UpdateMongoDBServiceParams) GetQanMongodbProfiler() bool {
+	if x != nil && x.QanMongodbProfiler != nil {
+		return *x.QanMongodbProfiler
+	}
+	return false
+}
+
+func (x *UpdateMongoDBServiceParams) GetQanMongodbMongolog() bool {
+	if x != nil && x.QanMongodbMongolog != nil {
+		return *x.QanMongodbMongolog
+	}
+	return false
+}
+
+func (x *UpdateMongoDBServiceParams) GetMaxQueryLength() int32 {
+	if x != nil && x.MaxQueryLength != nil {
+		return *x.MaxQueryLength
+	}
+	return 0
+}
+
+func (x *UpdateMongoDBServiceParams) GetMetricsMode() MetricsMode {
+	if x != nil && x.MetricsMode != nil {
+		return *x.MetricsMode
+	}
+	return MetricsMode_METRICS_MODE_UNSPECIFIED
+}
+
+func (x *UpdateMongoDBServiceParams) GetDisableCollectors() *common.StringArray {
+	if x != nil {
+		return x.DisableCollectors
+	}
+	return nil
+}
+
+func (x *UpdateMongoDBServiceParams) GetStatsCollections() *common.StringArray {
+	if x != nil {
+		return x.StatsCollections
+	}
+	return nil
+}
+
+func (x *UpdateMongoDBServiceParams) GetCollectionsLimit() int32 {
+	if x != nil && x.CollectionsLimit != nil {
+		return *x.CollectionsLimit
+	}
+	return 0
+}
+
+func (x *UpdateMongoDBServiceParams) GetEnableAllCollectors() bool {
+	if x != nil && x.EnableAllCollectors != nil {
+		return *x.EnableAllCollectors
+	}
+	return false
+}
+
+func (x *UpdateMongoDBServiceParams) GetEnableDiagnosticDataHistograms() bool {
+	if x != nil && x.EnableDiagnosticDataHistograms != nil {
+		return *x.EnableDiagnosticDataHistograms
+	}
+	return false
+}
+
+func (x *UpdateMongoDBServiceParams) GetEnvironmentVariableNames() *common.StringArray {
+	if x != nil {
+		return x.EnvironmentVariableNames
+	}
+	return nil
+}
+
+func (x *UpdateMongoDBServiceParams) GetLogLevel() v1.LogLevel {
+	if x != nil && x.LogLevel != nil {
+		return *x.LogLevel
+	}
+	return v1.LogLevel(0)
+}
+
+func (x *UpdateMongoDBServiceParams) GetExposeExporter() bool {
+	if x != nil && x.ExposeExporter != nil {
+		return *x.ExposeExporter
+	}
+	return false
+}
+
+func (x *UpdateMongoDBServiceParams) GetConnectionTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.ConnectionTimeout
+	}
+	return nil
+}
+
+func (x *UpdateMongoDBServiceParams) GetSkipConnectionCheck() bool {
+	if x != nil {
+		return x.SkipConnectionCheck
+	}
+	return false
+}
+
 type MongoDBServiceResult struct {
 	state              protoimpl.MessageState      `protogen:"open.v1"`
 	Service            *v1.MongoDBService          `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
@@ -421,7 +740,7 @@ type MongoDBServiceResult struct {
 
 func (x *MongoDBServiceResult) Reset() {
 	*x = MongoDBServiceResult{}
-	mi := &file_management_v1_mongodb_proto_msgTypes[1]
+	mi := &file_management_v1_mongodb_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -433,7 +752,7 @@ func (x *MongoDBServiceResult) String() string {
 func (*MongoDBServiceResult) ProtoMessage() {}
 
 func (x *MongoDBServiceResult) ProtoReflect() protoreflect.Message {
-	mi := &file_management_v1_mongodb_proto_msgTypes[1]
+	mi := &file_management_v1_mongodb_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -446,7 +765,7 @@ func (x *MongoDBServiceResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MongoDBServiceResult.ProtoReflect.Descriptor instead.
 func (*MongoDBServiceResult) Descriptor() ([]byte, []int) {
-	return file_management_v1_mongodb_proto_rawDescGZIP(), []int{1}
+	return file_management_v1_mongodb_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *MongoDBServiceResult) GetService() *v1.MongoDBService {
@@ -488,7 +807,7 @@ var File_management_v1_mongodb_proto protoreflect.FileDescriptor
 
 const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\n" +
-	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xaa\x0e\n" +
+	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x13common/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xaa\x0e\n" +
 	"\x17AddMongoDBServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -531,7 +850,69 @@ const file_management_v1_mongodb_proto_rawDesc = "" +
 	"!enable_diagnostic_data_histograms\x18' \x01(\bR\x1eenableDiagnosticDataHistograms\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\x95\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\xe6\x10\n" +
+	"\x1aUpdateMongoDBServiceParams\x12\x1d\n" +
+	"\aaddress\x18\x01 \x01(\tH\x00R\aaddress\x88\x01\x01\x12\"\n" +
+	"\x04port\x18\x02 \x01(\rB\t\xfaB\x06*\x04\x10\x80\x80\x04H\x01R\x04port\x88\x01\x01\x12\x1b\n" +
+	"\x06socket\x18\x03 \x01(\tH\x02R\x06socket\x88\x01\x01\x12%\n" +
+	"\venvironment\x18\x04 \x01(\tH\x03R\venvironment\x88\x01\x01\x12\x1d\n" +
+	"\acluster\x18\x05 \x01(\tH\x04R\acluster\x88\x01\x01\x12,\n" +
+	"\x0freplication_set\x18\x06 \x01(\tH\x05R\x0ereplicationSet\x88\x01\x01\x126\n" +
+	"\rcustom_labels\x18\a \x01(\v2\x11.common.StringMapR\fcustomLabels\x12%\n" +
+	"\busername\x18\b \x01(\tB\x04\x88\xb5\x18\x01H\x06R\busername\x88\x01\x01\x12%\n" +
+	"\bpassword\x18\t \x01(\tB\x04\x88\xb5\x18\x01H\aR\bpassword\x88\x01\x01\x120\n" +
+	"\x0eagent_password\x18\n" +
+	" \x01(\tB\x04\x88\xb5\x18\x01H\bR\ragentPassword\x88\x01\x01\x12\x15\n" +
+	"\x03tls\x18\v \x01(\bH\tR\x03tls\x88\x01\x01\x12+\n" +
+	"\x0ftls_skip_verify\x18\f \x01(\bH\n" +
+	"R\rtlsSkipVerify\x88\x01\x01\x129\n" +
+	"\x13tls_certificate_key\x18\r \x01(\tB\x04\x88\xb5\x18\x01H\vR\x11tlsCertificateKey\x88\x01\x01\x12S\n" +
+	"!tls_certificate_key_file_password\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01H\fR\x1dtlsCertificateKeyFilePassword\x88\x01\x01\x12\x1a\n" +
+	"\x06tls_ca\x18\x0f \x01(\tH\rR\x05tlsCa\x88\x01\x01\x12>\n" +
+	"\x18authentication_mechanism\x18\x10 \x01(\tH\x0eR\x17authenticationMechanism\x88\x01\x01\x12<\n" +
+	"\x17authentication_database\x18\x11 \x01(\tH\x0fR\x16authenticationDatabase\x88\x01\x01\x125\n" +
+	"\x14qan_mongodb_profiler\x18\x12 \x01(\bH\x10R\x12qanMongodbProfiler\x88\x01\x01\x125\n" +
+	"\x14qan_mongodb_mongolog\x18\x13 \x01(\bH\x11R\x12qanMongodbMongolog\x88\x01\x01\x12-\n" +
+	"\x10max_query_length\x18\x14 \x01(\x05H\x12R\x0emaxQueryLength\x88\x01\x01\x12B\n" +
+	"\fmetrics_mode\x18\x15 \x01(\x0e2\x1a.management.v1.MetricsModeH\x13R\vmetricsMode\x88\x01\x01\x12B\n" +
+	"\x12disable_collectors\x18\x16 \x01(\v2\x13.common.StringArrayR\x11disableCollectors\x12@\n" +
+	"\x11stats_collections\x18\x17 \x01(\v2\x13.common.StringArrayR\x10statsCollections\x120\n" +
+	"\x11collections_limit\x18\x18 \x01(\x05H\x14R\x10collectionsLimit\x88\x01\x01\x127\n" +
+	"\x15enable_all_collectors\x18\x19 \x01(\bH\x15R\x13enableAllCollectors\x88\x01\x01\x12N\n" +
+	"!enable_diagnostic_data_histograms\x18\x1a \x01(\bH\x16R\x1eenableDiagnosticDataHistograms\x88\x01\x01\x12Q\n" +
+	"\x1aenvironment_variable_names\x18\x1b \x01(\v2\x13.common.StringArrayR\x18environmentVariableNames\x128\n" +
+	"\tlog_level\x18\x1c \x01(\x0e2\x16.inventory.v1.LogLevelH\x17R\blogLevel\x88\x01\x01\x12,\n" +
+	"\x0fexpose_exporter\x18\x1d \x01(\bH\x18R\x0eexposeExporter\x88\x01\x01\x12R\n" +
+	"\x12connection_timeout\x18\x1e \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x122\n" +
+	"\x15skip_connection_check\x18\x1f \x01(\bR\x13skipConnectionCheckB\n" +
+	"\n" +
+	"\b_addressB\a\n" +
+	"\x05_portB\t\n" +
+	"\a_socketB\x0e\n" +
+	"\f_environmentB\n" +
+	"\n" +
+	"\b_clusterB\x12\n" +
+	"\x10_replication_setB\v\n" +
+	"\t_usernameB\v\n" +
+	"\t_passwordB\x11\n" +
+	"\x0f_agent_passwordB\x06\n" +
+	"\x04_tlsB\x12\n" +
+	"\x10_tls_skip_verifyB\x16\n" +
+	"\x14_tls_certificate_keyB$\n" +
+	"\"_tls_certificate_key_file_passwordB\t\n" +
+	"\a_tls_caB\x1b\n" +
+	"\x19_authentication_mechanismB\x1a\n" +
+	"\x18_authentication_databaseB\x17\n" +
+	"\x15_qan_mongodb_profilerB\x17\n" +
+	"\x15_qan_mongodb_mongologB\x13\n" +
+	"\x11_max_query_lengthB\x0f\n" +
+	"\r_metrics_modeB\x14\n" +
+	"\x12_collections_limitB\x18\n" +
+	"\x16_enable_all_collectorsB$\n" +
+	"\"_enable_diagnostic_data_histogramsB\f\n" +
+	"\n" +
+	"_log_levelB\x12\n" +
+	"\x10_expose_exporter\"\x95\x03\n" +
 	"\x14MongoDBServiceResult\x126\n" +
 	"\aservice\x18\x01 \x01(\v2\x1c.inventory.v1.MongoDBServiceR\aservice\x12H\n" +
 	"\x10mongodb_exporter\x18\x02 \x01(\v2\x1d.inventory.v1.MongoDBExporterR\x0fmongodbExporter\x12W\n" +
@@ -553,39 +934,48 @@ func file_management_v1_mongodb_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_management_v1_mongodb_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+	file_management_v1_mongodb_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 	file_management_v1_mongodb_proto_goTypes  = []any{
 		(*AddMongoDBServiceParams)(nil),    // 0: management.v1.AddMongoDBServiceParams
-		(*MongoDBServiceResult)(nil),       // 1: management.v1.MongoDBServiceResult
-		nil,                                // 2: management.v1.AddMongoDBServiceParams.CustomLabelsEntry
-		(*AddNodeParams)(nil),              // 3: management.v1.AddNodeParams
-		MetricsMode(0),                     // 4: management.v1.MetricsMode
-		v1.LogLevel(0),                     // 5: inventory.v1.LogLevel
-		(*durationpb.Duration)(nil),        // 6: google.protobuf.Duration
-		(*v1.MongoDBService)(nil),          // 7: inventory.v1.MongoDBService
-		(*v1.MongoDBExporter)(nil),         // 8: inventory.v1.MongoDBExporter
-		(*v1.QANMongoDBProfilerAgent)(nil), // 9: inventory.v1.QANMongoDBProfilerAgent
-		(*v1.QANMongoDBMongologAgent)(nil), // 10: inventory.v1.QANMongoDBMongologAgent
-		(*v1.RTAMongoDBAgent)(nil),         // 11: inventory.v1.RTAMongoDBAgent
+		(*UpdateMongoDBServiceParams)(nil), // 1: management.v1.UpdateMongoDBServiceParams
+		(*MongoDBServiceResult)(nil),       // 2: management.v1.MongoDBServiceResult
+		nil,                                // 3: management.v1.AddMongoDBServiceParams.CustomLabelsEntry
+		(*AddNodeParams)(nil),              // 4: management.v1.AddNodeParams
+		MetricsMode(0),                     // 5: management.v1.MetricsMode
+		v1.LogLevel(0),                     // 6: inventory.v1.LogLevel
+		(*durationpb.Duration)(nil),        // 7: google.protobuf.Duration
+		(*common.StringMap)(nil),           // 8: common.StringMap
+		(*common.StringArray)(nil),         // 9: common.StringArray
+		(*v1.MongoDBService)(nil),          // 10: inventory.v1.MongoDBService
+		(*v1.MongoDBExporter)(nil),         // 11: inventory.v1.MongoDBExporter
+		(*v1.QANMongoDBProfilerAgent)(nil), // 12: inventory.v1.QANMongoDBProfilerAgent
+		(*v1.QANMongoDBMongologAgent)(nil), // 13: inventory.v1.QANMongoDBMongologAgent
+		(*v1.RTAMongoDBAgent)(nil),         // 14: inventory.v1.RTAMongoDBAgent
 	}
 )
-
 var file_management_v1_mongodb_proto_depIdxs = []int32{
-	3,  // 0: management.v1.AddMongoDBServiceParams.add_node:type_name -> management.v1.AddNodeParams
-	2,  // 1: management.v1.AddMongoDBServiceParams.custom_labels:type_name -> management.v1.AddMongoDBServiceParams.CustomLabelsEntry
-	4,  // 2: management.v1.AddMongoDBServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
-	5,  // 3: management.v1.AddMongoDBServiceParams.log_level:type_name -> inventory.v1.LogLevel
-	6,  // 4: management.v1.AddMongoDBServiceParams.connection_timeout:type_name -> google.protobuf.Duration
-	7,  // 5: management.v1.MongoDBServiceResult.service:type_name -> inventory.v1.MongoDBService
-	8,  // 6: management.v1.MongoDBServiceResult.mongodb_exporter:type_name -> inventory.v1.MongoDBExporter
-	9,  // 7: management.v1.MongoDBServiceResult.qan_mongodb_profiler:type_name -> inventory.v1.QANMongoDBProfilerAgent
-	10, // 8: management.v1.MongoDBServiceResult.qan_mongodb_mongolog:type_name -> inventory.v1.QANMongoDBMongologAgent
-	11, // 9: management.v1.MongoDBServiceResult.rta_mongodb_agent:type_name -> inventory.v1.RTAMongoDBAgent
-	10, // [10:10] is the sub-list for method output_type
-	10, // [10:10] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	4,  // 0: management.v1.AddMongoDBServiceParams.add_node:type_name -> management.v1.AddNodeParams
+	3,  // 1: management.v1.AddMongoDBServiceParams.custom_labels:type_name -> management.v1.AddMongoDBServiceParams.CustomLabelsEntry
+	5,  // 2: management.v1.AddMongoDBServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
+	6,  // 3: management.v1.AddMongoDBServiceParams.log_level:type_name -> inventory.v1.LogLevel
+	7,  // 4: management.v1.AddMongoDBServiceParams.connection_timeout:type_name -> google.protobuf.Duration
+	8,  // 5: management.v1.UpdateMongoDBServiceParams.custom_labels:type_name -> common.StringMap
+	5,  // 6: management.v1.UpdateMongoDBServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
+	9,  // 7: management.v1.UpdateMongoDBServiceParams.disable_collectors:type_name -> common.StringArray
+	9,  // 8: management.v1.UpdateMongoDBServiceParams.stats_collections:type_name -> common.StringArray
+	9,  // 9: management.v1.UpdateMongoDBServiceParams.environment_variable_names:type_name -> common.StringArray
+	6,  // 10: management.v1.UpdateMongoDBServiceParams.log_level:type_name -> inventory.v1.LogLevel
+	7,  // 11: management.v1.UpdateMongoDBServiceParams.connection_timeout:type_name -> google.protobuf.Duration
+	10, // 12: management.v1.MongoDBServiceResult.service:type_name -> inventory.v1.MongoDBService
+	11, // 13: management.v1.MongoDBServiceResult.mongodb_exporter:type_name -> inventory.v1.MongoDBExporter
+	12, // 14: management.v1.MongoDBServiceResult.qan_mongodb_profiler:type_name -> inventory.v1.QANMongoDBProfilerAgent
+	13, // 15: management.v1.MongoDBServiceResult.qan_mongodb_mongolog:type_name -> inventory.v1.QANMongoDBMongologAgent
+	14, // 16: management.v1.MongoDBServiceResult.rta_mongodb_agent:type_name -> inventory.v1.RTAMongoDBAgent
+	17, // [17:17] is the sub-list for method output_type
+	17, // [17:17] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_mongodb_proto_init() }
@@ -595,13 +985,14 @@ func file_management_v1_mongodb_proto_init() {
 	}
 	file_management_v1_metrics_proto_init()
 	file_management_v1_node_proto_init()
+	file_management_v1_mongodb_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_management_v1_mongodb_proto_rawDesc), len(file_management_v1_mongodb_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

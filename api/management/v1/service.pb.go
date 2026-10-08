@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -81,7 +82,7 @@ func (x UniversalService_Status) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use UniversalService_Status.Descriptor instead.
 func (UniversalService_Status) EnumDescriptor() ([]byte, []int) {
-	return file_management_v1_service_proto_rawDescGZIP(), []int{4, 0}
+	return file_management_v1_service_proto_rawDescGZIP(), []int{6, 0}
 }
 
 type AddServiceRequest struct {
@@ -530,6 +531,251 @@ func (*RemoveServiceResponse) Descriptor() ([]byte, []int) {
 	return file_management_v1_service_proto_rawDescGZIP(), []int{3}
 }
 
+type UpdateServiceRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Either a Service ID or a Service Name.
+	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// Settings to change; the Service type must match the existing Service.
+	//
+	// Types that are valid to be assigned to Service:
+	//
+	//	*UpdateServiceRequest_Mysql
+	//	*UpdateServiceRequest_Mongodb
+	//	*UpdateServiceRequest_Postgresql
+	//	*UpdateServiceRequest_Proxysql
+	//	*UpdateServiceRequest_Haproxy
+	//	*UpdateServiceRequest_External
+	//	*UpdateServiceRequest_Valkey
+	Service isUpdateServiceRequest_Service `protobuf_oneof:"service"`
+	// Validate the change and return the result without applying it.
+	DryRun        bool `protobuf:"varint,9,opt,name=dry_run,json=dryRun,proto3" json:"dry_run,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateServiceRequest) Reset() {
+	*x = UpdateServiceRequest{}
+	mi := &file_management_v1_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateServiceRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateServiceRequest) ProtoMessage() {}
+
+func (x *UpdateServiceRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_management_v1_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateServiceRequest.ProtoReflect.Descriptor instead.
+func (*UpdateServiceRequest) Descriptor() ([]byte, []int) {
+	return file_management_v1_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *UpdateServiceRequest) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
+	}
+	return ""
+}
+
+func (x *UpdateServiceRequest) GetService() isUpdateServiceRequest_Service {
+	if x != nil {
+		return x.Service
+	}
+	return nil
+}
+
+func (x *UpdateServiceRequest) GetMysql() *UpdateMySQLServiceParams {
+	if x != nil {
+		if x, ok := x.Service.(*UpdateServiceRequest_Mysql); ok {
+			return x.Mysql
+		}
+	}
+	return nil
+}
+
+func (x *UpdateServiceRequest) GetMongodb() *UpdateMongoDBServiceParams {
+	if x != nil {
+		if x, ok := x.Service.(*UpdateServiceRequest_Mongodb); ok {
+			return x.Mongodb
+		}
+	}
+	return nil
+}
+
+func (x *UpdateServiceRequest) GetPostgresql() *UpdatePostgreSQLServiceParams {
+	if x != nil {
+		if x, ok := x.Service.(*UpdateServiceRequest_Postgresql); ok {
+			return x.Postgresql
+		}
+	}
+	return nil
+}
+
+func (x *UpdateServiceRequest) GetProxysql() *UpdateProxySQLServiceParams {
+	if x != nil {
+		if x, ok := x.Service.(*UpdateServiceRequest_Proxysql); ok {
+			return x.Proxysql
+		}
+	}
+	return nil
+}
+
+func (x *UpdateServiceRequest) GetHaproxy() *UpdateHAProxyServiceParams {
+	if x != nil {
+		if x, ok := x.Service.(*UpdateServiceRequest_Haproxy); ok {
+			return x.Haproxy
+		}
+	}
+	return nil
+}
+
+func (x *UpdateServiceRequest) GetExternal() *UpdateExternalServiceParams {
+	if x != nil {
+		if x, ok := x.Service.(*UpdateServiceRequest_External); ok {
+			return x.External
+		}
+	}
+	return nil
+}
+
+func (x *UpdateServiceRequest) GetValkey() *UpdateValkeyServiceParams {
+	if x != nil {
+		if x, ok := x.Service.(*UpdateServiceRequest_Valkey); ok {
+			return x.Valkey
+		}
+	}
+	return nil
+}
+
+func (x *UpdateServiceRequest) GetDryRun() bool {
+	if x != nil {
+		return x.DryRun
+	}
+	return false
+}
+
+type isUpdateServiceRequest_Service interface {
+	isUpdateServiceRequest_Service()
+}
+
+type UpdateServiceRequest_Mysql struct {
+	Mysql *UpdateMySQLServiceParams `protobuf:"bytes,2,opt,name=mysql,proto3,oneof"`
+}
+
+type UpdateServiceRequest_Mongodb struct {
+	Mongodb *UpdateMongoDBServiceParams `protobuf:"bytes,3,opt,name=mongodb,proto3,oneof"`
+}
+
+type UpdateServiceRequest_Postgresql struct {
+	Postgresql *UpdatePostgreSQLServiceParams `protobuf:"bytes,4,opt,name=postgresql,proto3,oneof"`
+}
+
+type UpdateServiceRequest_Proxysql struct {
+	Proxysql *UpdateProxySQLServiceParams `protobuf:"bytes,5,opt,name=proxysql,proto3,oneof"`
+}
+
+type UpdateServiceRequest_Haproxy struct {
+	Haproxy *UpdateHAProxyServiceParams `protobuf:"bytes,6,opt,name=haproxy,proto3,oneof"`
+}
+
+type UpdateServiceRequest_External struct {
+	External *UpdateExternalServiceParams `protobuf:"bytes,7,opt,name=external,proto3,oneof"`
+}
+
+type UpdateServiceRequest_Valkey struct {
+	Valkey *UpdateValkeyServiceParams `protobuf:"bytes,8,opt,name=valkey,proto3,oneof"`
+}
+
+func (*UpdateServiceRequest_Mysql) isUpdateServiceRequest_Service() {}
+
+func (*UpdateServiceRequest_Mongodb) isUpdateServiceRequest_Service() {}
+
+func (*UpdateServiceRequest_Postgresql) isUpdateServiceRequest_Service() {}
+
+func (*UpdateServiceRequest_Proxysql) isUpdateServiceRequest_Service() {}
+
+func (*UpdateServiceRequest_Haproxy) isUpdateServiceRequest_Service() {}
+
+func (*UpdateServiceRequest_External) isUpdateServiceRequest_Service() {}
+
+func (*UpdateServiceRequest_Valkey) isUpdateServiceRequest_Service() {}
+
+type UpdateServiceResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Service with its Agents before the update.
+	Before *UniversalService `protobuf:"bytes,1,opt,name=before,proto3" json:"before,omitempty"`
+	// Service with its Agents after the update, or as it would be with dry_run.
+	After *UniversalService `protobuf:"bytes,2,opt,name=after,proto3" json:"after,omitempty"`
+	// Warning message.
+	Warning       string `protobuf:"bytes,3,opt,name=warning,proto3" json:"warning,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateServiceResponse) Reset() {
+	*x = UpdateServiceResponse{}
+	mi := &file_management_v1_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateServiceResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateServiceResponse) ProtoMessage() {}
+
+func (x *UpdateServiceResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_management_v1_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateServiceResponse.ProtoReflect.Descriptor instead.
+func (*UpdateServiceResponse) Descriptor() ([]byte, []int) {
+	return file_management_v1_service_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *UpdateServiceResponse) GetBefore() *UniversalService {
+	if x != nil {
+		return x.Before
+	}
+	return nil
+}
+
+func (x *UpdateServiceResponse) GetAfter() *UniversalService {
+	if x != nil {
+		return x.After
+	}
+	return nil
+}
+
+func (x *UpdateServiceResponse) GetWarning() string {
+	if x != nil {
+		return x.Warning
+	}
+	return ""
+}
+
 type UniversalService struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Unique service identifier.
@@ -579,7 +825,7 @@ type UniversalService struct {
 
 func (x *UniversalService) Reset() {
 	*x = UniversalService{}
-	mi := &file_management_v1_service_proto_msgTypes[4]
+	mi := &file_management_v1_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -591,7 +837,7 @@ func (x *UniversalService) String() string {
 func (*UniversalService) ProtoMessage() {}
 
 func (x *UniversalService) ProtoReflect() protoreflect.Message {
-	mi := &file_management_v1_service_proto_msgTypes[4]
+	mi := &file_management_v1_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -604,7 +850,7 @@ func (x *UniversalService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UniversalService.ProtoReflect.Descriptor instead.
 func (*UniversalService) Descriptor() ([]byte, []int) {
-	return file_management_v1_service_proto_rawDescGZIP(), []int{4}
+	return file_management_v1_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UniversalService) GetServiceId() string {
@@ -754,7 +1000,7 @@ type ListServicesRequest struct {
 
 func (x *ListServicesRequest) Reset() {
 	*x = ListServicesRequest{}
-	mi := &file_management_v1_service_proto_msgTypes[5]
+	mi := &file_management_v1_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -766,7 +1012,7 @@ func (x *ListServicesRequest) String() string {
 func (*ListServicesRequest) ProtoMessage() {}
 
 func (x *ListServicesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_management_v1_service_proto_msgTypes[5]
+	mi := &file_management_v1_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -779,7 +1025,7 @@ func (x *ListServicesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServicesRequest.ProtoReflect.Descriptor instead.
 func (*ListServicesRequest) Descriptor() ([]byte, []int) {
-	return file_management_v1_service_proto_rawDescGZIP(), []int{5}
+	return file_management_v1_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListServicesRequest) GetNodeId() string {
@@ -813,7 +1059,7 @@ type ListServicesResponse struct {
 
 func (x *ListServicesResponse) Reset() {
 	*x = ListServicesResponse{}
-	mi := &file_management_v1_service_proto_msgTypes[6]
+	mi := &file_management_v1_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -825,7 +1071,7 @@ func (x *ListServicesResponse) String() string {
 func (*ListServicesResponse) ProtoMessage() {}
 
 func (x *ListServicesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_management_v1_service_proto_msgTypes[6]
+	mi := &file_management_v1_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -838,7 +1084,7 @@ func (x *ListServicesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServicesResponse.ProtoReflect.Descriptor instead.
 func (*ListServicesResponse) Descriptor() ([]byte, []int) {
-	return file_management_v1_service_proto_rawDescGZIP(), []int{6}
+	return file_management_v1_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListServicesResponse) GetServices() []*UniversalService {
@@ -852,7 +1098,7 @@ var File_management_v1_service_proto protoreflect.FileDescriptor
 
 const file_management_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1bmanagement/v1/service.proto\x12\rmanagement.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1binventory/v1/services.proto\x1a\x19management/v1/agent.proto\x1a\x1emanagement/v1/annotation.proto\x1a\x19management/v1/azure.proto\x1a\x1cmanagement/v1/external.proto\x1a\x1bmanagement/v1/haproxy.proto\x1a\x1bmanagement/v1/mongodb.proto\x1a\x19management/v1/mysql.proto\x1a\x18management/v1/node.proto\x1a\x1emanagement/v1/postgresql.proto\x1a\x1cmanagement/v1/proxysql.proto\x1a\x17management/v1/rds.proto\x1a\x1amanagement/v1/valkey.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xb8\x04\n" +
+	"\x1bmanagement/v1/service.proto\x12\rmanagement.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1binventory/v1/services.proto\x1a\x19management/v1/agent.proto\x1a\x1emanagement/v1/annotation.proto\x1a\x19management/v1/azure.proto\x1a\x1cmanagement/v1/external.proto\x1a\x1bmanagement/v1/haproxy.proto\x1a\x1bmanagement/v1/mongodb.proto\x1a\x19management/v1/mysql.proto\x1a\x18management/v1/node.proto\x1a\x1emanagement/v1/postgresql.proto\x1a\x1cmanagement/v1/proxysql.proto\x1a\x17management/v1/rds.proto\x1a\x1amanagement/v1/valkey.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xb8\x04\n" +
 	"\x11AddServiceRequest\x12<\n" +
 	"\x05mysql\x18\x01 \x01(\v2$.management.v1.AddMySQLServiceParamsH\x00R\x05mysql\x12B\n" +
 	"\amongodb\x18\x02 \x01(\v2&.management.v1.AddMongoDBServiceParamsH\x00R\amongodb\x12K\n" +
@@ -881,7 +1127,25 @@ const file_management_v1_service_proto_rawDesc = "" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12<\n" +
 	"\fservice_type\x18\x02 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\vserviceType\"\x17\n" +
-	"\x15RemoveServiceResponse\"\x9a\a\n" +
+	"\x15RemoveServiceResponse\"\xd9\x04\n" +
+	"\x14UpdateServiceRequest\x12&\n" +
+	"\n" +
+	"service_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\x12?\n" +
+	"\x05mysql\x18\x02 \x01(\v2'.management.v1.UpdateMySQLServiceParamsH\x00R\x05mysql\x12E\n" +
+	"\amongodb\x18\x03 \x01(\v2).management.v1.UpdateMongoDBServiceParamsH\x00R\amongodb\x12N\n" +
+	"\n" +
+	"postgresql\x18\x04 \x01(\v2,.management.v1.UpdatePostgreSQLServiceParamsH\x00R\n" +
+	"postgresql\x12H\n" +
+	"\bproxysql\x18\x05 \x01(\v2*.management.v1.UpdateProxySQLServiceParamsH\x00R\bproxysql\x12E\n" +
+	"\ahaproxy\x18\x06 \x01(\v2).management.v1.UpdateHAProxyServiceParamsH\x00R\ahaproxy\x12H\n" +
+	"\bexternal\x18\a \x01(\v2*.management.v1.UpdateExternalServiceParamsH\x00R\bexternal\x12B\n" +
+	"\x06valkey\x18\b \x01(\v2(.management.v1.UpdateValkeyServiceParamsH\x00R\x06valkey\x12\x17\n" +
+	"\adry_run\x18\t \x01(\bR\x06dryRunB\t\n" +
+	"\aservice\"\xa1\x01\n" +
+	"\x15UpdateServiceResponse\x127\n" +
+	"\x06before\x18\x01 \x01(\v2\x1f.management.v1.UniversalServiceR\x06before\x125\n" +
+	"\x05after\x18\x02 \x01(\v2\x1f.management.v1.UniversalServiceR\x05after\x12\x18\n" +
+	"\awarning\x18\x03 \x01(\tR\awarning\"\x9a\a\n" +
 	"\x10UniversalService\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
@@ -919,7 +1183,7 @@ const file_management_v1_service_proto_rawDesc = "" +
 	"\fservice_type\x18\x02 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\vserviceType\x12%\n" +
 	"\x0eexternal_group\x18\x03 \x01(\tR\rexternalGroup\"S\n" +
 	"\x14ListServicesResponse\x12;\n" +
-	"\bservices\x18\x01 \x03(\v2\x1f.management.v1.UniversalServiceR\bservices2\xa2\x13\n" +
+	"\bservices\x18\x01 \x03(\v2\x1f.management.v1.UniversalServiceR\bservices2\xd2\x15\n" +
 	"\x11ManagementService\x12\xac\x01\n" +
 	"\rAddAnnotation\x12#.management.v1.AddAnnotationRequest\x1a$.management.v1.AddAnnotationResponse\"P\x92A(\x12\x11Add an Annotation\x1a\x13Adds an annotation.\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/v1/management/annotations\x12\x9b\x01\n" +
 	"\n" +
@@ -936,7 +1200,8 @@ const file_management_v1_service_proto_rawDesc = "" +
 	"\vDiscoverRDS\x12!.management.v1.DiscoverRDSRequest\x1a\".management.v1.DiscoverRDSResponse\"Y\x92A(\x12\fDiscover RDS\x1a\x18Discovers RDS instances.\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/management/services:discoverRDS\x12\x8f\x02\n" +
 	"\x15DiscoverAzureDatabase\x12+.management.v1.DiscoverAzureDatabaseRequest\x1a,.management.v1.DiscoverAzureDatabaseResponse\"\x9a\x01\x92Ag\x12\x17Discover Azure Database\x1aLDiscovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.\x82\xd3\xe4\x93\x02*:\x01*\"%/v1/management/services:discoverAzure\x12\xc6\x01\n" +
 	"\x10AddAzureDatabase\x12&.management.v1.AddAzureDatabaseRequest\x1a'.management.v1.AddAzureDatabaseResponse\"a\x92A6\x12\x12Add Azure Database\x1a Adds an Azure Database instance.\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/v1/management/services/azure\x12\xc7\x01\n" +
-	"\rRemoveService\x12#.management.v1.RemoveServiceRequest\x1a$.management.v1.RemoveServiceResponse\"k\x92A<\x12\x10Remove a Service\x1a(Removes a Service along with its Agents.\x82\xd3\xe4\x93\x02&*$/v1/management/services/{service_id}B\xad\x01\n" +
+	"\rRemoveService\x12#.management.v1.RemoveServiceRequest\x1a$.management.v1.RemoveServiceResponse\"k\x92A<\x12\x10Remove a Service\x1a(Removes a Service along with its Agents.\x82\xd3\xe4\x93\x02&*$/v1/management/services/{service_id}\x12\xad\x02\n" +
+	"\rUpdateService\x12#.management.v1.UpdateServiceRequest\x1a$.management.v1.UpdateServiceResponse\"\xd0\x01\x92A\x9d\x01\x12\x10Update a Service\x1a\x88\x01Changes the settings of a Service and its Agents in place. Only the fields that are set are changed; the Service and Agent IDs are kept.\x82\xd3\xe4\x93\x02):\x01*\x1a$/v1/management/services/{service_id}B\xad\x01\n" +
 	"\x11com.management.v1B\fServiceProtoP\x01Z5github.com/percona/pmm/api/management/v1;managementv1\xa2\x02\x03MXX\xaa\x02\rManagement.V1\xca\x02\rManagement\\V1\xe2\x02\x19Management\\V1\\GPBMetadata\xea\x02\x0eManagement::V1b\x06proto3"
 
 var (
@@ -953,115 +1218,134 @@ func file_management_v1_service_proto_rawDescGZIP() []byte {
 
 var (
 	file_management_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_management_v1_service_proto_msgTypes  = make([]protoimpl.MessageInfo, 8)
+	file_management_v1_service_proto_msgTypes  = make([]protoimpl.MessageInfo, 10)
 	file_management_v1_service_proto_goTypes   = []any{
 		UniversalService_Status(0),            // 0: management.v1.UniversalService.Status
 		(*AddServiceRequest)(nil),             // 1: management.v1.AddServiceRequest
 		(*AddServiceResponse)(nil),            // 2: management.v1.AddServiceResponse
 		(*RemoveServiceRequest)(nil),          // 3: management.v1.RemoveServiceRequest
 		(*RemoveServiceResponse)(nil),         // 4: management.v1.RemoveServiceResponse
-		(*UniversalService)(nil),              // 5: management.v1.UniversalService
-		(*ListServicesRequest)(nil),           // 6: management.v1.ListServicesRequest
-		(*ListServicesResponse)(nil),          // 7: management.v1.ListServicesResponse
-		nil,                                   // 8: management.v1.UniversalService.CustomLabelsEntry
-		(*AddMySQLServiceParams)(nil),         // 9: management.v1.AddMySQLServiceParams
-		(*AddMongoDBServiceParams)(nil),       // 10: management.v1.AddMongoDBServiceParams
-		(*AddPostgreSQLServiceParams)(nil),    // 11: management.v1.AddPostgreSQLServiceParams
-		(*AddProxySQLServiceParams)(nil),      // 12: management.v1.AddProxySQLServiceParams
-		(*AddHAProxyServiceParams)(nil),       // 13: management.v1.AddHAProxyServiceParams
-		(*AddExternalServiceParams)(nil),      // 14: management.v1.AddExternalServiceParams
-		(*AddRDSServiceParams)(nil),           // 15: management.v1.AddRDSServiceParams
-		(*AddValkeyServiceParams)(nil),        // 16: management.v1.AddValkeyServiceParams
-		(*MySQLServiceResult)(nil),            // 17: management.v1.MySQLServiceResult
-		(*MongoDBServiceResult)(nil),          // 18: management.v1.MongoDBServiceResult
-		(*PostgreSQLServiceResult)(nil),       // 19: management.v1.PostgreSQLServiceResult
-		(*ProxySQLServiceResult)(nil),         // 20: management.v1.ProxySQLServiceResult
-		(*HAProxyServiceResult)(nil),          // 21: management.v1.HAProxyServiceResult
-		(*ExternalServiceResult)(nil),         // 22: management.v1.ExternalServiceResult
-		(*RDSServiceResult)(nil),              // 23: management.v1.RDSServiceResult
-		(*ValkeyServiceResult)(nil),           // 24: management.v1.ValkeyServiceResult
-		v1.ServiceType(0),                     // 25: inventory.v1.ServiceType
-		(*timestamppb.Timestamp)(nil),         // 26: google.protobuf.Timestamp
-		(*UniversalAgent)(nil),                // 27: management.v1.UniversalAgent
-		(*AddAnnotationRequest)(nil),          // 28: management.v1.AddAnnotationRequest
-		(*ListAgentsRequest)(nil),             // 29: management.v1.ListAgentsRequest
-		(*ListAgentVersionsRequest)(nil),      // 30: management.v1.ListAgentVersionsRequest
-		(*RegisterNodeRequest)(nil),           // 31: management.v1.RegisterNodeRequest
-		(*UnregisterNodeRequest)(nil),         // 32: management.v1.UnregisterNodeRequest
-		(*ListNodesRequest)(nil),              // 33: management.v1.ListNodesRequest
-		(*GetNodeRequest)(nil),                // 34: management.v1.GetNodeRequest
-		(*DiscoverRDSRequest)(nil),            // 35: management.v1.DiscoverRDSRequest
-		(*DiscoverAzureDatabaseRequest)(nil),  // 36: management.v1.DiscoverAzureDatabaseRequest
-		(*AddAzureDatabaseRequest)(nil),       // 37: management.v1.AddAzureDatabaseRequest
-		(*AddAnnotationResponse)(nil),         // 38: management.v1.AddAnnotationResponse
-		(*ListAgentsResponse)(nil),            // 39: management.v1.ListAgentsResponse
-		(*ListAgentVersionsResponse)(nil),     // 40: management.v1.ListAgentVersionsResponse
-		(*RegisterNodeResponse)(nil),          // 41: management.v1.RegisterNodeResponse
-		(*UnregisterNodeResponse)(nil),        // 42: management.v1.UnregisterNodeResponse
-		(*ListNodesResponse)(nil),             // 43: management.v1.ListNodesResponse
-		(*GetNodeResponse)(nil),               // 44: management.v1.GetNodeResponse
-		(*DiscoverRDSResponse)(nil),           // 45: management.v1.DiscoverRDSResponse
-		(*DiscoverAzureDatabaseResponse)(nil), // 46: management.v1.DiscoverAzureDatabaseResponse
-		(*AddAzureDatabaseResponse)(nil),      // 47: management.v1.AddAzureDatabaseResponse
+		(*UpdateServiceRequest)(nil),          // 5: management.v1.UpdateServiceRequest
+		(*UpdateServiceResponse)(nil),         // 6: management.v1.UpdateServiceResponse
+		(*UniversalService)(nil),              // 7: management.v1.UniversalService
+		(*ListServicesRequest)(nil),           // 8: management.v1.ListServicesRequest
+		(*ListServicesResponse)(nil),          // 9: management.v1.ListServicesResponse
+		nil,                                   // 10: management.v1.UniversalService.CustomLabelsEntry
+		(*AddMySQLServiceParams)(nil),         // 11: management.v1.AddMySQLServiceParams
+		(*AddMongoDBServiceParams)(nil),       // 12: management.v1.AddMongoDBServiceParams
+		(*AddPostgreSQLServiceParams)(nil),    // 13: management.v1.AddPostgreSQLServiceParams
+		(*AddProxySQLServiceParams)(nil),      // 14: management.v1.AddProxySQLServiceParams
+		(*AddHAProxyServiceParams)(nil),       // 15: management.v1.AddHAProxyServiceParams
+		(*AddExternalServiceParams)(nil),      // 16: management.v1.AddExternalServiceParams
+		(*AddRDSServiceParams)(nil),           // 17: management.v1.AddRDSServiceParams
+		(*AddValkeyServiceParams)(nil),        // 18: management.v1.AddValkeyServiceParams
+		(*MySQLServiceResult)(nil),            // 19: management.v1.MySQLServiceResult
+		(*MongoDBServiceResult)(nil),          // 20: management.v1.MongoDBServiceResult
+		(*PostgreSQLServiceResult)(nil),       // 21: management.v1.PostgreSQLServiceResult
+		(*ProxySQLServiceResult)(nil),         // 22: management.v1.ProxySQLServiceResult
+		(*HAProxyServiceResult)(nil),          // 23: management.v1.HAProxyServiceResult
+		(*ExternalServiceResult)(nil),         // 24: management.v1.ExternalServiceResult
+		(*RDSServiceResult)(nil),              // 25: management.v1.RDSServiceResult
+		(*ValkeyServiceResult)(nil),           // 26: management.v1.ValkeyServiceResult
+		v1.ServiceType(0),                     // 27: inventory.v1.ServiceType
+		(*UpdateMySQLServiceParams)(nil),      // 28: management.v1.UpdateMySQLServiceParams
+		(*UpdateMongoDBServiceParams)(nil),    // 29: management.v1.UpdateMongoDBServiceParams
+		(*UpdatePostgreSQLServiceParams)(nil), // 30: management.v1.UpdatePostgreSQLServiceParams
+		(*UpdateProxySQLServiceParams)(nil),   // 31: management.v1.UpdateProxySQLServiceParams
+		(*UpdateHAProxyServiceParams)(nil),    // 32: management.v1.UpdateHAProxyServiceParams
+		(*UpdateExternalServiceParams)(nil),   // 33: management.v1.UpdateExternalServiceParams
+		(*UpdateValkeyServiceParams)(nil),     // 34: management.v1.UpdateValkeyServiceParams
+		(*timestamppb.Timestamp)(nil),         // 35: google.protobuf.Timestamp
+		(*UniversalAgent)(nil),                // 36: management.v1.UniversalAgent
+		(*AddAnnotationRequest)(nil),          // 37: management.v1.AddAnnotationRequest
+		(*ListAgentsRequest)(nil),             // 38: management.v1.ListAgentsRequest
+		(*ListAgentVersionsRequest)(nil),      // 39: management.v1.ListAgentVersionsRequest
+		(*RegisterNodeRequest)(nil),           // 40: management.v1.RegisterNodeRequest
+		(*UnregisterNodeRequest)(nil),         // 41: management.v1.UnregisterNodeRequest
+		(*ListNodesRequest)(nil),              // 42: management.v1.ListNodesRequest
+		(*GetNodeRequest)(nil),                // 43: management.v1.GetNodeRequest
+		(*DiscoverRDSRequest)(nil),            // 44: management.v1.DiscoverRDSRequest
+		(*DiscoverAzureDatabaseRequest)(nil),  // 45: management.v1.DiscoverAzureDatabaseRequest
+		(*AddAzureDatabaseRequest)(nil),       // 46: management.v1.AddAzureDatabaseRequest
+		(*AddAnnotationResponse)(nil),         // 47: management.v1.AddAnnotationResponse
+		(*ListAgentsResponse)(nil),            // 48: management.v1.ListAgentsResponse
+		(*ListAgentVersionsResponse)(nil),     // 49: management.v1.ListAgentVersionsResponse
+		(*RegisterNodeResponse)(nil),          // 50: management.v1.RegisterNodeResponse
+		(*UnregisterNodeResponse)(nil),        // 51: management.v1.UnregisterNodeResponse
+		(*ListNodesResponse)(nil),             // 52: management.v1.ListNodesResponse
+		(*GetNodeResponse)(nil),               // 53: management.v1.GetNodeResponse
+		(*DiscoverRDSResponse)(nil),           // 54: management.v1.DiscoverRDSResponse
+		(*DiscoverAzureDatabaseResponse)(nil), // 55: management.v1.DiscoverAzureDatabaseResponse
+		(*AddAzureDatabaseResponse)(nil),      // 56: management.v1.AddAzureDatabaseResponse
 	}
 )
-
 var file_management_v1_service_proto_depIdxs = []int32{
-	9,  // 0: management.v1.AddServiceRequest.mysql:type_name -> management.v1.AddMySQLServiceParams
-	10, // 1: management.v1.AddServiceRequest.mongodb:type_name -> management.v1.AddMongoDBServiceParams
-	11, // 2: management.v1.AddServiceRequest.postgresql:type_name -> management.v1.AddPostgreSQLServiceParams
-	12, // 3: management.v1.AddServiceRequest.proxysql:type_name -> management.v1.AddProxySQLServiceParams
-	13, // 4: management.v1.AddServiceRequest.haproxy:type_name -> management.v1.AddHAProxyServiceParams
-	14, // 5: management.v1.AddServiceRequest.external:type_name -> management.v1.AddExternalServiceParams
-	15, // 6: management.v1.AddServiceRequest.rds:type_name -> management.v1.AddRDSServiceParams
-	16, // 7: management.v1.AddServiceRequest.valkey:type_name -> management.v1.AddValkeyServiceParams
-	17, // 8: management.v1.AddServiceResponse.mysql:type_name -> management.v1.MySQLServiceResult
-	18, // 9: management.v1.AddServiceResponse.mongodb:type_name -> management.v1.MongoDBServiceResult
-	19, // 10: management.v1.AddServiceResponse.postgresql:type_name -> management.v1.PostgreSQLServiceResult
-	20, // 11: management.v1.AddServiceResponse.proxysql:type_name -> management.v1.ProxySQLServiceResult
-	21, // 12: management.v1.AddServiceResponse.haproxy:type_name -> management.v1.HAProxyServiceResult
-	22, // 13: management.v1.AddServiceResponse.external:type_name -> management.v1.ExternalServiceResult
-	23, // 14: management.v1.AddServiceResponse.rds:type_name -> management.v1.RDSServiceResult
-	24, // 15: management.v1.AddServiceResponse.valkey:type_name -> management.v1.ValkeyServiceResult
-	25, // 16: management.v1.RemoveServiceRequest.service_type:type_name -> inventory.v1.ServiceType
-	8,  // 17: management.v1.UniversalService.custom_labels:type_name -> management.v1.UniversalService.CustomLabelsEntry
-	26, // 18: management.v1.UniversalService.created_at:type_name -> google.protobuf.Timestamp
-	26, // 19: management.v1.UniversalService.updated_at:type_name -> google.protobuf.Timestamp
-	27, // 20: management.v1.UniversalService.agents:type_name -> management.v1.UniversalAgent
-	0,  // 21: management.v1.UniversalService.status:type_name -> management.v1.UniversalService.Status
-	25, // 22: management.v1.ListServicesRequest.service_type:type_name -> inventory.v1.ServiceType
-	5,  // 23: management.v1.ListServicesResponse.services:type_name -> management.v1.UniversalService
-	28, // 24: management.v1.ManagementService.AddAnnotation:input_type -> management.v1.AddAnnotationRequest
-	29, // 25: management.v1.ManagementService.ListAgents:input_type -> management.v1.ListAgentsRequest
-	30, // 26: management.v1.ManagementService.ListAgentVersions:input_type -> management.v1.ListAgentVersionsRequest
-	31, // 27: management.v1.ManagementService.RegisterNode:input_type -> management.v1.RegisterNodeRequest
-	32, // 28: management.v1.ManagementService.UnregisterNode:input_type -> management.v1.UnregisterNodeRequest
-	33, // 29: management.v1.ManagementService.ListNodes:input_type -> management.v1.ListNodesRequest
-	34, // 30: management.v1.ManagementService.GetNode:input_type -> management.v1.GetNodeRequest
-	1,  // 31: management.v1.ManagementService.AddService:input_type -> management.v1.AddServiceRequest
-	6,  // 32: management.v1.ManagementService.ListServices:input_type -> management.v1.ListServicesRequest
-	35, // 33: management.v1.ManagementService.DiscoverRDS:input_type -> management.v1.DiscoverRDSRequest
-	36, // 34: management.v1.ManagementService.DiscoverAzureDatabase:input_type -> management.v1.DiscoverAzureDatabaseRequest
-	37, // 35: management.v1.ManagementService.AddAzureDatabase:input_type -> management.v1.AddAzureDatabaseRequest
-	3,  // 36: management.v1.ManagementService.RemoveService:input_type -> management.v1.RemoveServiceRequest
-	38, // 37: management.v1.ManagementService.AddAnnotation:output_type -> management.v1.AddAnnotationResponse
-	39, // 38: management.v1.ManagementService.ListAgents:output_type -> management.v1.ListAgentsResponse
-	40, // 39: management.v1.ManagementService.ListAgentVersions:output_type -> management.v1.ListAgentVersionsResponse
-	41, // 40: management.v1.ManagementService.RegisterNode:output_type -> management.v1.RegisterNodeResponse
-	42, // 41: management.v1.ManagementService.UnregisterNode:output_type -> management.v1.UnregisterNodeResponse
-	43, // 42: management.v1.ManagementService.ListNodes:output_type -> management.v1.ListNodesResponse
-	44, // 43: management.v1.ManagementService.GetNode:output_type -> management.v1.GetNodeResponse
-	2,  // 44: management.v1.ManagementService.AddService:output_type -> management.v1.AddServiceResponse
-	7,  // 45: management.v1.ManagementService.ListServices:output_type -> management.v1.ListServicesResponse
-	45, // 46: management.v1.ManagementService.DiscoverRDS:output_type -> management.v1.DiscoverRDSResponse
-	46, // 47: management.v1.ManagementService.DiscoverAzureDatabase:output_type -> management.v1.DiscoverAzureDatabaseResponse
-	47, // 48: management.v1.ManagementService.AddAzureDatabase:output_type -> management.v1.AddAzureDatabaseResponse
-	4,  // 49: management.v1.ManagementService.RemoveService:output_type -> management.v1.RemoveServiceResponse
-	37, // [37:50] is the sub-list for method output_type
-	24, // [24:37] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	11, // 0: management.v1.AddServiceRequest.mysql:type_name -> management.v1.AddMySQLServiceParams
+	12, // 1: management.v1.AddServiceRequest.mongodb:type_name -> management.v1.AddMongoDBServiceParams
+	13, // 2: management.v1.AddServiceRequest.postgresql:type_name -> management.v1.AddPostgreSQLServiceParams
+	14, // 3: management.v1.AddServiceRequest.proxysql:type_name -> management.v1.AddProxySQLServiceParams
+	15, // 4: management.v1.AddServiceRequest.haproxy:type_name -> management.v1.AddHAProxyServiceParams
+	16, // 5: management.v1.AddServiceRequest.external:type_name -> management.v1.AddExternalServiceParams
+	17, // 6: management.v1.AddServiceRequest.rds:type_name -> management.v1.AddRDSServiceParams
+	18, // 7: management.v1.AddServiceRequest.valkey:type_name -> management.v1.AddValkeyServiceParams
+	19, // 8: management.v1.AddServiceResponse.mysql:type_name -> management.v1.MySQLServiceResult
+	20, // 9: management.v1.AddServiceResponse.mongodb:type_name -> management.v1.MongoDBServiceResult
+	21, // 10: management.v1.AddServiceResponse.postgresql:type_name -> management.v1.PostgreSQLServiceResult
+	22, // 11: management.v1.AddServiceResponse.proxysql:type_name -> management.v1.ProxySQLServiceResult
+	23, // 12: management.v1.AddServiceResponse.haproxy:type_name -> management.v1.HAProxyServiceResult
+	24, // 13: management.v1.AddServiceResponse.external:type_name -> management.v1.ExternalServiceResult
+	25, // 14: management.v1.AddServiceResponse.rds:type_name -> management.v1.RDSServiceResult
+	26, // 15: management.v1.AddServiceResponse.valkey:type_name -> management.v1.ValkeyServiceResult
+	27, // 16: management.v1.RemoveServiceRequest.service_type:type_name -> inventory.v1.ServiceType
+	28, // 17: management.v1.UpdateServiceRequest.mysql:type_name -> management.v1.UpdateMySQLServiceParams
+	29, // 18: management.v1.UpdateServiceRequest.mongodb:type_name -> management.v1.UpdateMongoDBServiceParams
+	30, // 19: management.v1.UpdateServiceRequest.postgresql:type_name -> management.v1.UpdatePostgreSQLServiceParams
+	31, // 20: management.v1.UpdateServiceRequest.proxysql:type_name -> management.v1.UpdateProxySQLServiceParams
+	32, // 21: management.v1.UpdateServiceRequest.haproxy:type_name -> management.v1.UpdateHAProxyServiceParams
+	33, // 22: management.v1.UpdateServiceRequest.external:type_name -> management.v1.UpdateExternalServiceParams
+	34, // 23: management.v1.UpdateServiceRequest.valkey:type_name -> management.v1.UpdateValkeyServiceParams
+	7,  // 24: management.v1.UpdateServiceResponse.before:type_name -> management.v1.UniversalService
+	7,  // 25: management.v1.UpdateServiceResponse.after:type_name -> management.v1.UniversalService
+	10, // 26: management.v1.UniversalService.custom_labels:type_name -> management.v1.UniversalService.CustomLabelsEntry
+	35, // 27: management.v1.UniversalService.created_at:type_name -> google.protobuf.Timestamp
+	35, // 28: management.v1.UniversalService.updated_at:type_name -> google.protobuf.Timestamp
+	36, // 29: management.v1.UniversalService.agents:type_name -> management.v1.UniversalAgent
+	0,  // 30: management.v1.UniversalService.status:type_name -> management.v1.UniversalService.Status
+	27, // 31: management.v1.ListServicesRequest.service_type:type_name -> inventory.v1.ServiceType
+	7,  // 32: management.v1.ListServicesResponse.services:type_name -> management.v1.UniversalService
+	37, // 33: management.v1.ManagementService.AddAnnotation:input_type -> management.v1.AddAnnotationRequest
+	38, // 34: management.v1.ManagementService.ListAgents:input_type -> management.v1.ListAgentsRequest
+	39, // 35: management.v1.ManagementService.ListAgentVersions:input_type -> management.v1.ListAgentVersionsRequest
+	40, // 36: management.v1.ManagementService.RegisterNode:input_type -> management.v1.RegisterNodeRequest
+	41, // 37: management.v1.ManagementService.UnregisterNode:input_type -> management.v1.UnregisterNodeRequest
+	42, // 38: management.v1.ManagementService.ListNodes:input_type -> management.v1.ListNodesRequest
+	43, // 39: management.v1.ManagementService.GetNode:input_type -> management.v1.GetNodeRequest
+	1,  // 40: management.v1.ManagementService.AddService:input_type -> management.v1.AddServiceRequest
+	8,  // 41: management.v1.ManagementService.ListServices:input_type -> management.v1.ListServicesRequest
+	44, // 42: management.v1.ManagementService.DiscoverRDS:input_type -> management.v1.DiscoverRDSRequest
+	45, // 43: management.v1.ManagementService.DiscoverAzureDatabase:input_type -> management.v1.DiscoverAzureDatabaseRequest
+	46, // 44: management.v1.ManagementService.AddAzureDatabase:input_type -> management.v1.AddAzureDatabaseRequest
+	3,  // 45: management.v1.ManagementService.RemoveService:input_type -> management.v1.RemoveServiceRequest
+	5,  // 46: management.v1.ManagementService.UpdateService:input_type -> management.v1.UpdateServiceRequest
+	47, // 47: management.v1.ManagementService.AddAnnotation:output_type -> management.v1.AddAnnotationResponse
+	48, // 48: management.v1.ManagementService.ListAgents:output_type -> management.v1.ListAgentsResponse
+	49, // 49: management.v1.ManagementService.ListAgentVersions:output_type -> management.v1.ListAgentVersionsResponse
+	50, // 50: management.v1.ManagementService.RegisterNode:output_type -> management.v1.RegisterNodeResponse
+	51, // 51: management.v1.ManagementService.UnregisterNode:output_type -> management.v1.UnregisterNodeResponse
+	52, // 52: management.v1.ManagementService.ListNodes:output_type -> management.v1.ListNodesResponse
+	53, // 53: management.v1.ManagementService.GetNode:output_type -> management.v1.GetNodeResponse
+	2,  // 54: management.v1.ManagementService.AddService:output_type -> management.v1.AddServiceResponse
+	9,  // 55: management.v1.ManagementService.ListServices:output_type -> management.v1.ListServicesResponse
+	54, // 56: management.v1.ManagementService.DiscoverRDS:output_type -> management.v1.DiscoverRDSResponse
+	55, // 57: management.v1.ManagementService.DiscoverAzureDatabase:output_type -> management.v1.DiscoverAzureDatabaseResponse
+	56, // 58: management.v1.ManagementService.AddAzureDatabase:output_type -> management.v1.AddAzureDatabaseResponse
+	4,  // 59: management.v1.ManagementService.RemoveService:output_type -> management.v1.RemoveServiceResponse
+	6,  // 60: management.v1.ManagementService.UpdateService:output_type -> management.v1.UpdateServiceResponse
+	47, // [47:61] is the sub-list for method output_type
+	33, // [33:47] is the sub-list for method input_type
+	33, // [33:33] is the sub-list for extension type_name
+	33, // [33:33] is the sub-list for extension extendee
+	0,  // [0:33] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_service_proto_init() }
@@ -1101,13 +1385,22 @@ func file_management_v1_service_proto_init() {
 		(*AddServiceResponse_Rds)(nil),
 		(*AddServiceResponse_Valkey)(nil),
 	}
+	file_management_v1_service_proto_msgTypes[4].OneofWrappers = []any{
+		(*UpdateServiceRequest_Mysql)(nil),
+		(*UpdateServiceRequest_Mongodb)(nil),
+		(*UpdateServiceRequest_Postgresql)(nil),
+		(*UpdateServiceRequest_Proxysql)(nil),
+		(*UpdateServiceRequest_Haproxy)(nil),
+		(*UpdateServiceRequest_External)(nil),
+		(*UpdateServiceRequest_Valkey)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_management_v1_service_proto_rawDesc), len(file_management_v1_service_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   8,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

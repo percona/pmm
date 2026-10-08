@@ -290,6 +290,333 @@ var _ interface {
 	ErrorName() string
 } = AddMySQLServiceParamsValidationError{}
 
+// Validate checks the field values on UpdateMySQLServiceParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdateMySQLServiceParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UpdateMySQLServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UpdateMySQLServiceParamsMultiError, or nil if none found.
+func (m *UpdateMySQLServiceParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdateMySQLServiceParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetCustomLabels()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdateMySQLServiceParamsValidationError{
+					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdateMySQLServiceParamsValidationError{
+					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateMySQLServiceParamsValidationError{
+				field:  "CustomLabels",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetExtraDsnParams()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdateMySQLServiceParamsValidationError{
+					field:  "ExtraDsnParams",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdateMySQLServiceParamsValidationError{
+					field:  "ExtraDsnParams",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetExtraDsnParams()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateMySQLServiceParamsValidationError{
+				field:  "ExtraDsnParams",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetDisableCollectors()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdateMySQLServiceParamsValidationError{
+					field:  "DisableCollectors",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdateMySQLServiceParamsValidationError{
+					field:  "DisableCollectors",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetDisableCollectors()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateMySQLServiceParamsValidationError{
+				field:  "DisableCollectors",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = UpdateMySQLServiceParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := UpdateMySQLServiceParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
+	// no validation rules for SkipConnectionCheck
+
+	if m.Address != nil {
+		// no validation rules for Address
+	}
+
+	if m.Port != nil {
+		if m.GetPort() >= 65536 {
+			err := UpdateMySQLServiceParamsValidationError{
+				field:  "Port",
+				reason: "value must be less than 65536",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
+
+	if m.Socket != nil {
+		// no validation rules for Socket
+	}
+
+	if m.Environment != nil {
+		// no validation rules for Environment
+	}
+
+	if m.Cluster != nil {
+		// no validation rules for Cluster
+	}
+
+	if m.ReplicationSet != nil {
+		// no validation rules for ReplicationSet
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.AgentPassword != nil {
+		// no validation rules for AgentPassword
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.QanMysqlPerfschema != nil {
+		// no validation rules for QanMysqlPerfschema
+	}
+
+	if m.QanMysqlSlowlog != nil {
+		// no validation rules for QanMysqlSlowlog
+	}
+
+	if m.DisableCommentsParsing != nil {
+		// no validation rules for DisableCommentsParsing
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.DisableQueryExamples != nil {
+		// no validation rules for DisableQueryExamples
+	}
+
+	if m.MaxSlowlogFileSize != nil {
+		// no validation rules for MaxSlowlogFileSize
+	}
+
+	if m.TablestatsGroupTableLimit != nil {
+		// no validation rules for TablestatsGroupTableLimit
+	}
+
+	if m.MetricsMode != nil {
+		// no validation rules for MetricsMode
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
+	}
+
+	if len(errors) > 0 {
+		return UpdateMySQLServiceParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// UpdateMySQLServiceParamsMultiError is an error wrapping multiple validation
+// errors returned by UpdateMySQLServiceParams.ValidateAll() if the designated
+// constraints aren't met.
+type UpdateMySQLServiceParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdateMySQLServiceParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdateMySQLServiceParamsMultiError) AllErrors() []error { return m }
+
+// UpdateMySQLServiceParamsValidationError is the validation error returned by
+// UpdateMySQLServiceParams.Validate if the designated constraints aren't met.
+type UpdateMySQLServiceParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateMySQLServiceParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateMySQLServiceParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateMySQLServiceParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateMySQLServiceParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateMySQLServiceParamsValidationError) ErrorName() string {
+	return "UpdateMySQLServiceParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateMySQLServiceParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateMySQLServiceParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = UpdateMySQLServiceParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateMySQLServiceParamsValidationError{}
+
 // Validate checks the field values on MySQLServiceResult with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

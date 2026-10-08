@@ -16,6 +16,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 
+	common "github.com/percona/pmm/api/common"
 	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
@@ -278,6 +279,205 @@ func (x *AddProxySQLServiceParams) GetConnectionTimeout() *durationpb.Duration {
 	return nil
 }
 
+// UpdateProxySQLServiceParams holds the ProxySQL Service settings to change. Only the fields that are set are changed.
+type UpdateProxySQLServiceParams struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Node and Service access address (DNS name or IP). Replaces the socket.
+	Address *string `protobuf:"bytes,1,opt,name=address,proto3,oneof" json:"address,omitempty"`
+	// Service Access port. Replaces the socket.
+	Port *uint32 `protobuf:"varint,2,opt,name=port,proto3,oneof" json:"port,omitempty"`
+	// Service Access socket. Replaces the address and port.
+	Socket *string `protobuf:"bytes,3,opt,name=socket,proto3,oneof" json:"socket,omitempty"`
+	// Environment name.
+	Environment *string `protobuf:"bytes,4,opt,name=environment,proto3,oneof" json:"environment,omitempty"`
+	// Cluster name.
+	Cluster *string `protobuf:"bytes,5,opt,name=cluster,proto3,oneof" json:"cluster,omitempty"`
+	// Replication set name.
+	ReplicationSet *string `protobuf:"bytes,6,opt,name=replication_set,json=replicationSet,proto3,oneof" json:"replication_set,omitempty"`
+	// Replace all custom user-assigned labels for Service.
+	CustomLabels *common.StringMap `protobuf:"bytes,7,opt,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty"`
+	// ProxySQL username for scraping metrics.
+	Username *string `protobuf:"bytes,8,opt,name=username,proto3,oneof" json:"username,omitempty"`
+	// ProxySQL password for scraping metrics.
+	Password *string `protobuf:"bytes,9,opt,name=password,proto3,oneof" json:"password,omitempty"`
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword *string `protobuf:"bytes,10,opt,name=agent_password,json=agentPassword,proto3,oneof" json:"agent_password,omitempty"`
+	// Use TLS for database connections.
+	Tls *bool `protobuf:"varint,11,opt,name=tls,proto3,oneof" json:"tls,omitempty"`
+	// Skip TLS certificate and hostname validation.
+	TlsSkipVerify *bool `protobuf:"varint,12,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3,oneof" json:"tls_skip_verify,omitempty"`
+	// Defines metrics flow model for this exporter.
+	MetricsMode *MetricsMode `protobuf:"varint,13,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.v1.MetricsMode,oneof" json:"metrics_mode,omitempty"`
+	// Replace the list of collector names to disable in this exporter.
+	DisableCollectors *common.StringArray `protobuf:"bytes,14,opt,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
+	// Exporter log level.
+	LogLevel *v1.LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
+	// Expose the exporter process on all public interfaces.
+	ExposeExporter *bool `protobuf:"varint,16,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
+	// Connection timeout for exporter; zero restores the default.
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,17,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	// Skip connection check.
+	SkipConnectionCheck bool `protobuf:"varint,18,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *UpdateProxySQLServiceParams) Reset() {
+	*x = UpdateProxySQLServiceParams{}
+	mi := &file_management_v1_proxysql_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateProxySQLServiceParams) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateProxySQLServiceParams) ProtoMessage() {}
+
+func (x *UpdateProxySQLServiceParams) ProtoReflect() protoreflect.Message {
+	mi := &file_management_v1_proxysql_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateProxySQLServiceParams.ProtoReflect.Descriptor instead.
+func (*UpdateProxySQLServiceParams) Descriptor() ([]byte, []int) {
+	return file_management_v1_proxysql_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *UpdateProxySQLServiceParams) GetAddress() string {
+	if x != nil && x.Address != nil {
+		return *x.Address
+	}
+	return ""
+}
+
+func (x *UpdateProxySQLServiceParams) GetPort() uint32 {
+	if x != nil && x.Port != nil {
+		return *x.Port
+	}
+	return 0
+}
+
+func (x *UpdateProxySQLServiceParams) GetSocket() string {
+	if x != nil && x.Socket != nil {
+		return *x.Socket
+	}
+	return ""
+}
+
+func (x *UpdateProxySQLServiceParams) GetEnvironment() string {
+	if x != nil && x.Environment != nil {
+		return *x.Environment
+	}
+	return ""
+}
+
+func (x *UpdateProxySQLServiceParams) GetCluster() string {
+	if x != nil && x.Cluster != nil {
+		return *x.Cluster
+	}
+	return ""
+}
+
+func (x *UpdateProxySQLServiceParams) GetReplicationSet() string {
+	if x != nil && x.ReplicationSet != nil {
+		return *x.ReplicationSet
+	}
+	return ""
+}
+
+func (x *UpdateProxySQLServiceParams) GetCustomLabels() *common.StringMap {
+	if x != nil {
+		return x.CustomLabels
+	}
+	return nil
+}
+
+func (x *UpdateProxySQLServiceParams) GetUsername() string {
+	if x != nil && x.Username != nil {
+		return *x.Username
+	}
+	return ""
+}
+
+func (x *UpdateProxySQLServiceParams) GetPassword() string {
+	if x != nil && x.Password != nil {
+		return *x.Password
+	}
+	return ""
+}
+
+func (x *UpdateProxySQLServiceParams) GetAgentPassword() string {
+	if x != nil && x.AgentPassword != nil {
+		return *x.AgentPassword
+	}
+	return ""
+}
+
+func (x *UpdateProxySQLServiceParams) GetTls() bool {
+	if x != nil && x.Tls != nil {
+		return *x.Tls
+	}
+	return false
+}
+
+func (x *UpdateProxySQLServiceParams) GetTlsSkipVerify() bool {
+	if x != nil && x.TlsSkipVerify != nil {
+		return *x.TlsSkipVerify
+	}
+	return false
+}
+
+func (x *UpdateProxySQLServiceParams) GetMetricsMode() MetricsMode {
+	if x != nil && x.MetricsMode != nil {
+		return *x.MetricsMode
+	}
+	return MetricsMode_METRICS_MODE_UNSPECIFIED
+}
+
+func (x *UpdateProxySQLServiceParams) GetDisableCollectors() *common.StringArray {
+	if x != nil {
+		return x.DisableCollectors
+	}
+	return nil
+}
+
+func (x *UpdateProxySQLServiceParams) GetLogLevel() v1.LogLevel {
+	if x != nil && x.LogLevel != nil {
+		return *x.LogLevel
+	}
+	return v1.LogLevel(0)
+}
+
+func (x *UpdateProxySQLServiceParams) GetExposeExporter() bool {
+	if x != nil && x.ExposeExporter != nil {
+		return *x.ExposeExporter
+	}
+	return false
+}
+
+func (x *UpdateProxySQLServiceParams) GetConnectionTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.ConnectionTimeout
+	}
+	return nil
+}
+
+func (x *UpdateProxySQLServiceParams) GetSkipConnectionCheck() bool {
+	if x != nil {
+		return x.SkipConnectionCheck
+	}
+	return false
+}
+
 type ProxySQLServiceResult struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	Service          *v1.ProxySQLService    `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
@@ -288,7 +488,7 @@ type ProxySQLServiceResult struct {
 
 func (x *ProxySQLServiceResult) Reset() {
 	*x = ProxySQLServiceResult{}
-	mi := &file_management_v1_proxysql_proto_msgTypes[1]
+	mi := &file_management_v1_proxysql_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -300,7 +500,7 @@ func (x *ProxySQLServiceResult) String() string {
 func (*ProxySQLServiceResult) ProtoMessage() {}
 
 func (x *ProxySQLServiceResult) ProtoReflect() protoreflect.Message {
-	mi := &file_management_v1_proxysql_proto_msgTypes[1]
+	mi := &file_management_v1_proxysql_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -313,7 +513,7 @@ func (x *ProxySQLServiceResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProxySQLServiceResult.ProtoReflect.Descriptor instead.
 func (*ProxySQLServiceResult) Descriptor() ([]byte, []int) {
-	return file_management_v1_proxysql_proto_rawDescGZIP(), []int{1}
+	return file_management_v1_proxysql_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ProxySQLServiceResult) GetService() *v1.ProxySQLService {
@@ -334,7 +534,7 @@ var File_management_v1_proxysql_proto protoreflect.FileDescriptor
 
 const file_management_v1_proxysql_proto_rawDesc = "" +
 	"\n" +
-	"\x1cmanagement/v1/proxysql.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xb2\b\n" +
+	"\x1cmanagement/v1/proxysql.proto\x12\rmanagement.v1\x1a\x13common/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xb2\b\n" +
 	"\x18AddProxySQLServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -363,7 +563,45 @@ const file_management_v1_proxysql_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\x18 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9d\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb1\b\n" +
+	"\x1bUpdateProxySQLServiceParams\x12\x1d\n" +
+	"\aaddress\x18\x01 \x01(\tH\x00R\aaddress\x88\x01\x01\x12\"\n" +
+	"\x04port\x18\x02 \x01(\rB\t\xfaB\x06*\x04\x10\x80\x80\x04H\x01R\x04port\x88\x01\x01\x12\x1b\n" +
+	"\x06socket\x18\x03 \x01(\tH\x02R\x06socket\x88\x01\x01\x12%\n" +
+	"\venvironment\x18\x04 \x01(\tH\x03R\venvironment\x88\x01\x01\x12\x1d\n" +
+	"\acluster\x18\x05 \x01(\tH\x04R\acluster\x88\x01\x01\x12,\n" +
+	"\x0freplication_set\x18\x06 \x01(\tH\x05R\x0ereplicationSet\x88\x01\x01\x126\n" +
+	"\rcustom_labels\x18\a \x01(\v2\x11.common.StringMapR\fcustomLabels\x12%\n" +
+	"\busername\x18\b \x01(\tB\x04\x88\xb5\x18\x01H\x06R\busername\x88\x01\x01\x12%\n" +
+	"\bpassword\x18\t \x01(\tB\x04\x88\xb5\x18\x01H\aR\bpassword\x88\x01\x01\x120\n" +
+	"\x0eagent_password\x18\n" +
+	" \x01(\tB\x04\x88\xb5\x18\x01H\bR\ragentPassword\x88\x01\x01\x12\x15\n" +
+	"\x03tls\x18\v \x01(\bH\tR\x03tls\x88\x01\x01\x12+\n" +
+	"\x0ftls_skip_verify\x18\f \x01(\bH\n" +
+	"R\rtlsSkipVerify\x88\x01\x01\x12B\n" +
+	"\fmetrics_mode\x18\r \x01(\x0e2\x1a.management.v1.MetricsModeH\vR\vmetricsMode\x88\x01\x01\x12B\n" +
+	"\x12disable_collectors\x18\x0e \x01(\v2\x13.common.StringArrayR\x11disableCollectors\x128\n" +
+	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\fR\blogLevel\x88\x01\x01\x12,\n" +
+	"\x0fexpose_exporter\x18\x10 \x01(\bH\rR\x0eexposeExporter\x88\x01\x01\x12R\n" +
+	"\x12connection_timeout\x18\x11 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x122\n" +
+	"\x15skip_connection_check\x18\x12 \x01(\bR\x13skipConnectionCheckB\n" +
+	"\n" +
+	"\b_addressB\a\n" +
+	"\x05_portB\t\n" +
+	"\a_socketB\x0e\n" +
+	"\f_environmentB\n" +
+	"\n" +
+	"\b_clusterB\x12\n" +
+	"\x10_replication_setB\v\n" +
+	"\t_usernameB\v\n" +
+	"\t_passwordB\x11\n" +
+	"\x0f_agent_passwordB\x06\n" +
+	"\x04_tlsB\x12\n" +
+	"\x10_tls_skip_verifyB\x0f\n" +
+	"\r_metrics_modeB\f\n" +
+	"\n" +
+	"_log_levelB\x12\n" +
+	"\x10_expose_exporter\"\x9d\x01\n" +
 	"\x15ProxySQLServiceResult\x127\n" +
 	"\aservice\x18\x01 \x01(\v2\x1d.inventory.v1.ProxySQLServiceR\aservice\x12K\n" +
 	"\x11proxysql_exporter\x18\x02 \x01(\v2\x1e.inventory.v1.ProxySQLExporterR\x10proxysqlExporterB\xae\x01\n" +
@@ -382,33 +620,40 @@ func file_management_v1_proxysql_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_management_v1_proxysql_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+	file_management_v1_proxysql_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 	file_management_v1_proxysql_proto_goTypes  = []any{
-		(*AddProxySQLServiceParams)(nil), // 0: management.v1.AddProxySQLServiceParams
-		(*ProxySQLServiceResult)(nil),    // 1: management.v1.ProxySQLServiceResult
-		nil,                              // 2: management.v1.AddProxySQLServiceParams.CustomLabelsEntry
-		(*AddNodeParams)(nil),            // 3: management.v1.AddNodeParams
-		MetricsMode(0),                   // 4: management.v1.MetricsMode
-		v1.LogLevel(0),                   // 5: inventory.v1.LogLevel
-		(*durationpb.Duration)(nil),      // 6: google.protobuf.Duration
-		(*v1.ProxySQLService)(nil),       // 7: inventory.v1.ProxySQLService
-		(*v1.ProxySQLExporter)(nil),      // 8: inventory.v1.ProxySQLExporter
+		(*AddProxySQLServiceParams)(nil),    // 0: management.v1.AddProxySQLServiceParams
+		(*UpdateProxySQLServiceParams)(nil), // 1: management.v1.UpdateProxySQLServiceParams
+		(*ProxySQLServiceResult)(nil),       // 2: management.v1.ProxySQLServiceResult
+		nil,                                 // 3: management.v1.AddProxySQLServiceParams.CustomLabelsEntry
+		(*AddNodeParams)(nil),               // 4: management.v1.AddNodeParams
+		MetricsMode(0),                      // 5: management.v1.MetricsMode
+		v1.LogLevel(0),                      // 6: inventory.v1.LogLevel
+		(*durationpb.Duration)(nil),         // 7: google.protobuf.Duration
+		(*common.StringMap)(nil),            // 8: common.StringMap
+		(*common.StringArray)(nil),          // 9: common.StringArray
+		(*v1.ProxySQLService)(nil),          // 10: inventory.v1.ProxySQLService
+		(*v1.ProxySQLExporter)(nil),         // 11: inventory.v1.ProxySQLExporter
 	}
 )
-
 var file_management_v1_proxysql_proto_depIdxs = []int32{
-	3, // 0: management.v1.AddProxySQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
-	2, // 1: management.v1.AddProxySQLServiceParams.custom_labels:type_name -> management.v1.AddProxySQLServiceParams.CustomLabelsEntry
-	4, // 2: management.v1.AddProxySQLServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
-	5, // 3: management.v1.AddProxySQLServiceParams.log_level:type_name -> inventory.v1.LogLevel
-	6, // 4: management.v1.AddProxySQLServiceParams.connection_timeout:type_name -> google.protobuf.Duration
-	7, // 5: management.v1.ProxySQLServiceResult.service:type_name -> inventory.v1.ProxySQLService
-	8, // 6: management.v1.ProxySQLServiceResult.proxysql_exporter:type_name -> inventory.v1.ProxySQLExporter
-	7, // [7:7] is the sub-list for method output_type
-	7, // [7:7] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	4,  // 0: management.v1.AddProxySQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
+	3,  // 1: management.v1.AddProxySQLServiceParams.custom_labels:type_name -> management.v1.AddProxySQLServiceParams.CustomLabelsEntry
+	5,  // 2: management.v1.AddProxySQLServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
+	6,  // 3: management.v1.AddProxySQLServiceParams.log_level:type_name -> inventory.v1.LogLevel
+	7,  // 4: management.v1.AddProxySQLServiceParams.connection_timeout:type_name -> google.protobuf.Duration
+	8,  // 5: management.v1.UpdateProxySQLServiceParams.custom_labels:type_name -> common.StringMap
+	5,  // 6: management.v1.UpdateProxySQLServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
+	9,  // 7: management.v1.UpdateProxySQLServiceParams.disable_collectors:type_name -> common.StringArray
+	6,  // 8: management.v1.UpdateProxySQLServiceParams.log_level:type_name -> inventory.v1.LogLevel
+	7,  // 9: management.v1.UpdateProxySQLServiceParams.connection_timeout:type_name -> google.protobuf.Duration
+	10, // 10: management.v1.ProxySQLServiceResult.service:type_name -> inventory.v1.ProxySQLService
+	11, // 11: management.v1.ProxySQLServiceResult.proxysql_exporter:type_name -> inventory.v1.ProxySQLExporter
+	12, // [12:12] is the sub-list for method output_type
+	12, // [12:12] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_proxysql_proto_init() }
@@ -418,13 +663,14 @@ func file_management_v1_proxysql_proto_init() {
 	}
 	file_management_v1_metrics_proto_init()
 	file_management_v1_node_proto_init()
+	file_management_v1_proxysql_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_management_v1_proxysql_proto_rawDesc), len(file_management_v1_proxysql_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
