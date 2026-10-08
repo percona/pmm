@@ -82,24 +82,48 @@ Clusters deployed with the PMM HA Helm chart need no action, because the chart a
 
 ## Rotate the encryption key
 
-Rotate the encryption key if it's compromised, or as part of routine security maintenance. The `pmm-encryption-rotation` tool generates a new key and re-encrypts all stored credentials with it. While it runs, the tool briefly stops and restarts PMM Server.
+Rotate the encryption key when it is compromised or as part of your regular security maintenance. The `pmm-encryption-rotation` tool generates a new key and re-encrypts all stored credentials with it.
 
-To rotate the encryption key:
+!!! note ""
+    PMM Server stops briefly and restarts during rotation. Plan for a short monitoring gap.
+
+### Prepare a custom setup
+
+Skip this section if you use the default key path and default database settings.
+
+#### Custom key path
+
+- Make sure `PMM_ENCRYPTION_KEY_PATH` points to the current key, so the tool can decrypt existing data.
+- Make sure the `pmm` user (UID 1000) can write to the directory that contains the key file. Otherwise, the rotation fails with a `permission denied` error and leaves `pmm-managed` stopped. To fix this, see [Recover from a failed rotation](#recover-from-a-failed-rotation).
+
+#### Custom database credentials or SSL
+
+- Have the credentials or SSL settings for the PMM internal database ready to pass as options to the rotation tool. To list the available options, run `pmm-encryption-rotation --help`.
+
+### Rotate the key
+
+To rotate the key:
 {.power-number}
 
 1. Log in to the container that runs PMM Server.
 
-2. Run the rotation tool. If you use a custom key, first make sure `PMM_ENCRYPTION_KEY_PATH` points to the current key, so the tool can decrypt the existing data. If the PMM internal database uses custom credentials or SSL, add them as options to the command. To list the available options, run `pmm-encryption-rotation --help`:
+2. Run the rotation tool. If you use custom database credentials or SSL, add them as options:
 
-```bash
+    ```bash
     pmm-encryption-rotation
-```
+    ```
 
-3. Check that PMM works as expected, for example that your services are still monitored.
+    The tool saves the new key to the same location as the old one: `/srv/pmm-encryption.key`, or the path set in `PMM_ENCRYPTION_KEY_PATH`. The previous key is saved as `pmm-encryption_old.key` in the same directory.
 
-The tool saves the new key to the same location as the old one: `/srv/pmm-encryption.key`, or the path set in `PMM_ENCRYPTION_KEY_PATH`.
+3. If you installed PMM Server with the [Helm chart](../../install-pmm/install-pmm-server/deployment-options/helm/index.md#manage-the-encryption-key), restart the pod so the chart updates its backup copy of the key:
 
-If you installed PMM Server with the [Helm chart](../../install-pmm/install-pmm-server/deployment-options/helm/index.md#manage-the-encryption-key), restart the pod after rotation, for example with `kubectl delete pod pmm-0`. The chart updates its backup copy of the key only when the pod starts.
+    ```bash
+    kubectl delete pod pmm-0
+    ```
+
+4. Confirm that PMM is working: check that your services appear as connected in **Inventory > Services** and that metrics are visible in your dashboards.
+
+5. Delete `pmm-encryption_old.key` or move it to secure offline storage. This file contains the previous key in plain text.
 
 ### Rotate the key in a Docker HA cluster
 
@@ -116,6 +140,27 @@ All nodes must switch to the new key together, so rotate it on one node and then
 
 Key rotation isn't supported yet for the PMM HA Helm chart. The chart mounts the key from a read-only Kubernetes secret, which the rotation tool can't replace.
 
+
+## Recover from a failed rotation
+
+If PMM Server stops while `pmm-encryption-rotation` is running, your data remains intact and encrypted with the previous key.
+
+To bring PMM back up and retry:
+{.power-number}
+
+1. Restart `pmm-managed`:
+
+    ```bash
+    supervisorctl start pmm-managed
+    ```
+
+2. If the directory containing your key file is not writable by the `pmm` user (UID 1000), fix the permissions:
+
+    ```bash
+    chown pmm:pmm /path/to/key/directory
+    ```
+
+3. Run the rotation tool again.
 
 ## Recover from a corrupted rotation
 
