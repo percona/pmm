@@ -54,10 +54,8 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 				DisableCollectors:              []string{"general_stats", "index_stats"},
 				ExposeExporter:                 new(true),
 				PushMetrics:                    new(false),
-				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: new(flags.LogLevel("debug")),
-				},
-				CustomLabels: &map[string]string{"environment": "test", "team": "backend"},
+				LogLevel:                       new(flags.LogLevel("debug")),
+				CustomLabels:                   &map[string]string{"environment": "test", "team": "backend"},
 			}
 
 			result, err := cmd.RunCmd()

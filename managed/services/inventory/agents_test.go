@@ -575,6 +575,7 @@ func TestAgents(t *testing.T) {
 		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{
 			NodeName:     "rds1",
 			Address:      "rds-mysql57",
+			InstanceId:   "rds-mysql57-instance",
 			NodeModel:    "db.t3.micro",
 			Region:       "us-east-1",
 			Az:           "us-east-1b",
@@ -585,6 +586,7 @@ func TestAgents(t *testing.T) {
 			NodeId:       "00000000-0000-4000-8000-000000000005",
 			NodeName:     "rds1",
 			Address:      "rds-mysql57",
+			InstanceId:   "rds-mysql57-instance",
 			NodeModel:    "db.t3.micro",
 			Region:       "us-east-1",
 			Az:           "us-east-1b",
@@ -917,6 +919,7 @@ func TestAgents(t *testing.T) {
 		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{
 			NodeName:     "rds1",
 			Address:      "rds-mysql57",
+			InstanceId:   "rds-mysql57-instance",
 			NodeModel:    "db.t3.micro",
 			Region:       "us-east-1",
 			Az:           "us-east-1b",
@@ -927,6 +930,7 @@ func TestAgents(t *testing.T) {
 			NodeId:       "00000000-0000-4000-8000-000000000005",
 			NodeName:     "rds1",
 			Address:      "rds-mysql57",
+			InstanceId:   "rds-mysql57-instance",
 			NodeModel:    "db.t3.micro",
 			Region:       "us-east-1",
 			Az:           "us-east-1b",
