@@ -20,7 +20,7 @@ type FileInputProps<T extends FieldValues = FieldValues> = {
   control?: Control<T>;
   /** Validation rules and other react-hook-form Controller settings for this field. */
   controllerProps?: Omit<UseControllerProps<T>, 'name' | 'control'>;
-  /** MUI TextField props for the read-only field that shows the file name. */
+  /** MUI TextField props for the field that shows the chosen file name. */
   textFieldProps?: TextFieldProps;
   /** Attributes of the hidden file input, such as `accept` to limit the file types offered. */
   fileInputProps?: React.DetailedHTMLProps<

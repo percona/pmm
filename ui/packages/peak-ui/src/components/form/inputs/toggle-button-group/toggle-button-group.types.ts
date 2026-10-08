@@ -22,7 +22,7 @@ export type ToggleButtonGroupInputProps<T extends FieldValues = FieldValues> = {
   label?: string;
   /** Settings for the heading rendered by `LabeledContent`, such as a caption or required asterisk. */
   labelProps?: LabeledContentProps;
-  /** react-hook-form control; only needed when the input sits outside a `FormProvider`. */
+  /** react-hook-form control to bind to; the input still needs a `FormProvider` above it, because the selection is saved through the form context. */
   control?: Control<T>;
   /** Validation rules and other react-hook-form Controller settings for this field. */
   controllerProps?: Omit<UseControllerProps<T>, 'name' | 'control'>;

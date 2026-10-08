@@ -30,25 +30,20 @@ const meta: Meta<CopyToClipboardButtonProps> = {
   argTypes: {
     textToCopy: {
       control: 'text',
-      description: 'The string written to the clipboard when clicked.',
     },
     showCopyButtonText: {
       control: 'boolean',
-      description: 'Renders a labeled button instead of an icon-only button.',
       table: { defaultValue: { summary: 'false' } },
     },
     copyCommand: {
       control: 'text',
-      description: 'Label shown when `showCopyButtonText` is enabled.',
-      table: { defaultValue: { summary: "'Copy command'" } },
+      table: { defaultValue: { summary: "'Copy code'" } },
     },
     buttonProps: {
       control: false,
-      description: 'Props forwarded to the underlying MUI `Button` / `IconButton`.',
     },
     iconSx: {
       control: false,
-      description: 'MUI System prop applied to the copy icon.',
     },
   },
   args: {
