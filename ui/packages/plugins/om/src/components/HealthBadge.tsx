@@ -115,12 +115,21 @@ const DownFor = ({ lastUpAt }: { lastUpAt?: string | null }) => {
           `Last seen up ${formatTimestamp(lastUpAt)}`,
         ];
   return (
-    <Tooltip title={title}>
+    <Tooltip title={title} describeChild>
       <Typography
         variant="caption"
         color="text.secondary"
         noWrap
         data-testid="om-down-for"
+        tabIndex={0}
+        sx={{
+          '&:focus-visible': {
+            outline: '2px solid',
+            outlineColor: 'primary.main',
+            outlineOffset: 2,
+            borderRadius: 0.5,
+          },
+        }}
       >
         {text}
       </Typography>
