@@ -1,0 +1,60 @@
+PMM-15609 HA test: PR head 0b6c98861 ("pr") vs main a27167e10 ("main")
+
+Cluster: CHAOS k3s, 3 x large nodes, chart PMM-HA-GA (pmm-ha 1.8.0, PMM 3.9.1): 3 pmm-ha replicas (Raft),
+3 HAProxy pods (tune.bufsize 131072), VictoriaMetrics cluster (vminsert/vmselect), PostgreSQL and ClickHouse operators.
+Dashboards imported from the two refs through the load balancer; PMM 3.9.1 serves them.
+Fleet: synthetic, imported into vminsert: 1,001 nodes, 10,000 services (7,000 MySQL of which 2,000 remote on
+node pmm-server, 1,000 each PostgreSQL, MongoDB, Valkey), env-0..env-4, 3 h at 15 s.
+Dashboards: 0 Home, 1 Nodes Overview, 2 MySQL Instances Overview, 3 PostgreSQL Top Queries, 4 QAN,
+5 Prometheus Exporter Status (node_name=pmm-server), 6 Valkey Overview, 7 Valkey ClusterDetails,
+8 MongoDB Instances Overview, 9 Environments Overview. maxBody = largest request body (panel POST).
+"aborted" are Grafana cancelling in-flight queries while the script scrolls.
+
+== Browser capture through the load balancer ==
+0-all-main loadMs 10758 maxUrl 22465 maxBody 312352 failed 0 aborted 7 queries 29 panelErrors 0 
+0-env1-main loadMs 8205 maxUrl 4538 maxBody 62746 failed 0 aborted 0 queries 29 panelErrors 0 
+0-all-pr loadMs 8105 maxUrl 291 maxBody 312352 failed 0 aborted 0 queries 29 panelErrors 0 
+0-env1-pr loadMs 6841 maxUrl 294 maxBody 62746 failed 0 aborted 0 queries 29 panelErrors 0 
+1-all-main loadMs 14129 maxUrl 232520 maxBody 208578 failed 6 aborted 7 queries 34 panelErrors 0 [{"url":"https://10.30.55.213/graph/api/ds/query?ds_type=prometheus&requestId=SQR102","len":75,"failed":"net::ERR_HTTP2_PROTOCOL_ERROR"},{"url":"https://10.30.55.213/graph/api/ds/query?ds_type=prometheus&requestId=SQR103","len":75,"f
+1-env1-main loadMs 8154 maxUrl 89853 maxBody 42174 failed 2 aborted 0 queries 34 panelErrors 0 [{"url":"https://10.30.55.213/graph/api/datasources/uid/PA58DA793C7250F1B/resources/api/v1/label/datname/values?limit=40000&start=1791414720&end=1791425580&match%5B%5D=pg_stat_database_tup_fetched%7Bservice_na","len":89853,"status":414
+1-all-pr loadMs 12220 maxUrl 355 maxBody 208974 failed 0 aborted 0 queries 34 panelErrors 0 
+1-env1-pr loadMs 7690 maxUrl 358 maxBody 42570 failed 0 aborted 0 queries 34 panelErrors 0 
+2-all-main loadMs 10803 maxUrl 207138 maxBody 1501136 failed 13 aborted 7 queries 30 panelErrors 5 [{"url":"https://10.30.55.213/graph/api/ds/query?ds_type=prometheus&requestId=SQR100","len":75,"failed":"net::ERR_HTTP2_PROTOCOL_ERROR"},{"url":"https://10.30.55.213/graph/api/ds/query?ds_type=prometheus&requestId=SQR101","len":75,
+2-env1-main loadMs 7493 maxUrl 41538 maxBody 301136 failed 0 aborted 0 queries 30 panelErrors 0 
+2-all-pr loadMs 7511 maxUrl 383 maxBody 2076 failed 0 aborted 0 queries 30 panelErrors 0 
+2-env1-pr loadMs 6984 maxUrl 386 maxBody 2106 failed 0 aborted 0 queries 30 panelErrors 0 
+3-all-main loadMs 15013 maxUrl 25361 maxBody 49689 failed 0 aborted 7 queries 11 panelErrors 1 
+3-all-pr loadMs 13369 maxUrl 330 maxBody 26590 failed 0 aborted 0 queries 11 panelErrors 1 
+4-all-main loadMs 9113 maxUrl 284424 maxBody 338 failed 4 aborted 7 queries 1 panelErrors 0 [{"url":"https://10.30.55.213/graph/api/datasources/uid/PA58DA793C7250F1B/resources/api/v1/query","len":87,"failed":"net::ERR_HTTP2_PROTOCOL_ERROR"},{"url":"https://10.30.55.213/graph/api/datasources/uid/PA58DA793C7250F1B/resources/api/v1
+4-all-pr loadMs 8150 maxUrl 709 maxBody 338 failed 0 aborted 0 queries 1 panelErrors 0 
+5-node-main loadMs 9296 maxUrl 60138 maxBody 302060 failed 0 aborted 7 queries 55 panelErrors 0 
+5-node-pr loadMs 8136 maxUrl 289 maxBody 2066 failed 0 aborted 0 queries 55 panelErrors 0 
+6-all-main loadMs 7263 maxUrl 24122 maxBody 36724 failed 0 aborted 8 queries 11 panelErrors 0 
+6-env1-main loadMs 6142 maxUrl 24122 maxBody 36724 failed 0 aborted 0 queries 11 panelErrors 0 
+6-all-pr loadMs 5677 maxUrl 249 maxBody 935 failed 0 aborted 0 queries 11 panelErrors 0 
+6-env1-pr loadMs 5878 maxUrl 252 maxBody 941 failed 0 aborted 0 queries 11 panelErrors 0 
+7-all-main loadMs 6427 maxUrl 24122 maxBody 58144 failed 0 aborted 8 queries 8 panelErrors 0 
+7-env1-main loadMs 5904 maxUrl 4922 maxBody 12544 failed 0 aborted 0 queries 8 panelErrors 0 
+7-all-pr loadMs 5562 maxUrl 249 maxBody 1309 failed 0 aborted 0 queries 8 panelErrors 0 
+7-env1-pr loadMs 5615 maxUrl 252 maxBody 1318 failed 0 aborted 0 queries 8 panelErrors 0 
+8-all-main loadMs 7069 maxUrl 47122 maxBody 223513 failed 0 aborted 7 queries 14 panelErrors 0 
+8-all-pr loadMs 5606 maxUrl 260 maxBody 1525 failed 0 aborted 0 queries 14 panelErrors 0 
+9-all-main loadMs 17152 maxUrl 19542 maxBody 1064212 failed 0 aborted 7 queries 20 panelErrors 0 
+9-all-pr loadMs 17327 maxUrl 332 maxBody 13452 failed 0 aborted 0 queries 20 panelErrors 0 
+
+main, MySQL Instances Overview All, panel errors: "400: too long query; got 1200595 bytes; mustn't exceed -search.maxQueryLen=1000000"
+main, Nodes Overview env-1: HTTP 414 on an 89,853 B label_values GET.
+PostgreSQL Top Queries: 1 "panel error" on main and pr is the capture script failing to read one cached response body.
+
+== LBAC: role filter {environment="env-1"}, user lbac-env1 ==
+Metrics datasource label_values(pg_up, service_name): admin 1,003 services (env 0-4), lbac-env1 200 (env-1 only)
+pr, PostgreSQL Top Queries on All as lbac-env1: 10 SQL targets, service_name IN (...) holds 200 services, all env-1; no failed requests.
+
+== Leader failover ==
+Leader pmm-ha-0 deleted -> pmm-ha-1 elected; all 3 alive after restart. (A login 1 s after the delete returned 500.)
+Leader pmm-ha-1 deleted, dashboards loaded 15 s later while it was being replaced:
+home-all loadMs 9724 maxUrl 291 maxBody 312352 failed 0 aborted 8 queries 29 panelErrors 0 
+nodes-env1 loadMs 6970 maxUrl 358 maxBody 42570 failed 0 aborted 0 queries 34 panelErrors 0 
+qan loadMs 8203 maxUrl 709 maxBody 338 failed 0 aborted 0 queries 1 panelErrors 0 
+exporter-status-node loadMs 7853 maxUrl 289 maxBody 2066 failed 0 aborted 0 queries 55 panelErrors 0 
+After: pmm-ha-0=FOLLOWER, pmm-ha-1=FOLLOWER, pmm-ha-2=LEADER, all alive.
