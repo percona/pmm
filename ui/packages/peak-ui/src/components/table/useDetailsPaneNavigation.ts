@@ -11,11 +11,11 @@ export interface UseDetailsPaneNavigationOptions<T extends Record<string, any>> 
 }
 
 export interface UseDetailsPaneNavigationResult {
-  /** Position of the selected row among `rows`, or -1 when none is selected. */
+  /** Position of the selected row among `rows`, or -1 when nothing is selected or the row is not in the list. */
   index: number;
-  /** True when the selected row is the first one. */
+  /** True when there is no previous row, including when nothing is selected. */
   isFirst: boolean;
-  /** True when the selected row is the last one. */
+  /** True when there is no next row, including when nothing is selected. */
   isLast: boolean;
   /** True when a previous row exists, so a "previous" button can be enabled. */
   hasPrevious: boolean;

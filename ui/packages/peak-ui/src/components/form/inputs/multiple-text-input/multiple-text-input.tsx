@@ -7,7 +7,7 @@ import TextInput from '../text';
 interface MultipleTextInputProps {
   /** Form field holding the list, as an array of `{ key, value }` rows. */
   fieldName: string;
-  /** react-hook-form control; only needed when the input sits outside a `FormProvider`. */
+  /** react-hook-form control; outside a `FormProvider` the rows still save but validation errors are not shown. */
   control?: Control;
   /** Called with the row count before removal after the user deletes a row. */
   onRemove?: (nrOfFields: number) => void;

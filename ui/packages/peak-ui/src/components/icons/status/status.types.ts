@@ -14,7 +14,7 @@
 import { SvgIconProps } from '@mui/material';
 
 export interface StatusIconProps extends SvgIconProps {
-  /** The size of the icon's canvas/boundary: large = 20px, small = 16px. Defaults to large. */
+  /** Width of the icon: large = 20px, small = 16px. Defaults to large. */
   size?: 'large' | 'small';
 }
 

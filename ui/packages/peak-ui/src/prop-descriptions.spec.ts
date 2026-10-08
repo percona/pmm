@@ -3,16 +3,14 @@ import { dirname, join, relative } from 'node:path';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 
-// PMM-15493: every prop or option of the public API carries a one-line JSDoc description, so
-// editors, the built .d.ts, and the Storybook props table explain what it does for the user.
-// Keep the sentence in UX terms, and keep it in one place: stories must not repeat it.
+// PMM-15493: the public API describes every prop once, in its JSDoc; stories must not repeat it.
 const root = join(process.cwd(), 'src');
 const GUARDED = /(Props|Options)$/;
 const SKIP = /\.(stories|spec)\.tsx?$|\.d\.ts$/;
 
 const allFiles = readdirSync(root, { recursive: true }).map(String).sort();
 const sourceFiles = allFiles.filter((file) => /\.tsx?$/.test(file) && !SKIP.test(file));
-const storyFiles = allFiles.filter((file) => /\.stories\.tsx$/.test(file));
+const storyFiles = allFiles.filter((file) => /\.stories\.tsx?$/.test(file));
 
 type Member = { file: string; type: string; prop: string };
 
@@ -49,6 +47,12 @@ const collect = (file: string) => {
         const entry = { file, type, prop: nameOf(member) ?? '?' };
         checked.push(entry);
         if (!hasDescription(member)) undocumented.push(entry);
+        // nested object props (`state: { sorting: ... }`) are described too
+        if (ts.isPropertySignature(member) && member.type) {
+          literalsOf(member.type).forEach((literal) =>
+            visit(`${type}.${entry.prop}`, literal.members)
+          );
+        }
       });
   };
   source.statements.forEach((statement) => {

@@ -18,7 +18,7 @@ import { LabeledContentProps } from '../../../labeled-content';
 export type RadioGroupOptions = {
   /** Text shown right after the radio. */
   label: string;
-  /** Value stored in the form when this option is picked. */
+  /** Value of this option; the form stores it as text (`1` becomes `"1"`), so prefer string values. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   /** Prevents the user from picking this option while keeping its state. */
@@ -32,7 +32,7 @@ export type RadioGroupProps<T extends FieldValues = FieldValues> = {
   control?: Control<T>;
   /** Validation rules and other react-hook-form Controller settings for this field. */
   controllerProps?: Omit<UseControllerProps<T>, 'name' | 'control'>;
-  /** Form field the picked value is stored under; also drives the test id. */
+  /** Form field the picked value is stored under; each radio's test id comes from its option's `value`. */
   name: FieldPath<T>;
   /** Heading shown above the options; without it only the radios render. */
   label?: string;
@@ -40,7 +40,7 @@ export type RadioGroupProps<T extends FieldValues = FieldValues> = {
   labelProps?: LabeledContentProps;
   /** MUI RadioGroup props; pass `{ row: false }` to stack the options vertically. */
   radioGroupFieldProps?: MuiRadioGroupProps;
-  /** Not rendered: the radios come from `options`. Kept for backwards compatibility. */
+  /** Not rendered: the radios come from `options`. */
   children?: React.ReactNode;
   /** Adds a required asterisk to the heading; validation itself goes in `controllerProps.rules`. */
   isRequired?: boolean;
