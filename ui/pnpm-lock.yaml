@@ -77,21 +77,21 @@ importers:
       '@percona/peak-ui':
         specifier: 1.0.26
         version: 1.0.26(46f3b00c55de1f105bc9f3068b58f1a0)
+      '@pmm-extensions/api':
+        specifier: workspace:*
+        version: link:../../packages/extensions/api
+      '@pmm-extensions/framework':
+        specifier: workspace:*
+        version: link:../../packages/extensions/framework
+      '@pmm-extensions/plugins-atw':
+        specifier: workspace:*
+        version: link:../../packages/plugins/atw
       '@pmm/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       '@reactour/tour':
         specifier: ^3.8.0
         version: 3.8.0(react@19.2.8)
-      '@sep/api':
-        specifier: workspace:*
-        version: link:../../packages/sep/api
-      '@sep/framework':
-        specifier: workspace:*
-        version: link:../../packages/sep/framework
-      '@sep/plugins-atw':
-        specifier: workspace:*
-        version: link:../../packages/plugins/atw
       '@tanstack/react-query':
         specifier: ^5.100.7
         version: 5.101.4(react@19.2.8)
@@ -332,68 +332,7 @@ importers:
         specifier: ^0.6.2
         version: 0.6.2
 
-  packages/plugins/atw:
-    dependencies:
-      '@sep/api':
-        specifier: workspace:*
-        version: link:../../sep/api
-      '@sep/framework':
-        specifier: workspace:*
-        version: link:../../sep/framework
-    devDependencies:
-      '@emotion/react':
-        specifier: ^11.11.4
-        version: 11.14.0(@types/react@19.2.18)(react@19.2.8)
-      '@emotion/styled':
-        specifier: ^11.11.5
-        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
-      '@mui/icons-material':
-        specifier: 7.3.7
-        version: 7.3.7(@mui/material@7.3.7(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
-      '@mui/material':
-        specifier: 7.3.7
-        version: 7.3.7(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      '@tanstack/react-query':
-        specifier: ^5.100.7
-        version: 5.101.4(react@19.2.8)
-      '@testing-library/jest-dom':
-        specifier: ^6.6.3
-        version: 6.10.0(@testing-library/dom@9.3.4)
-      '@testing-library/react':
-        specifier: ^16.3.0
-        version: 16.3.2(@testing-library/dom@9.3.4)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      '@testing-library/user-event':
-        specifier: ^14.6.1
-        version: 14.6.6(@testing-library/dom@9.3.4)
-      '@types/react':
-        specifier: ^19.1.0
-        version: 19.2.18
-      '@vitejs/plugin-react':
-        specifier: ^6.0.5
-        version: 6.0.5(vite@8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0))
-      jsdom:
-        specifier: ^29.1.1
-        version: 29.1.1
-      notistack:
-        specifier: ^3.0.0
-        version: 3.0.2(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      react:
-        specifier: ^19.1.0
-        version: 19.2.8
-      react-dom:
-        specifier: ^19.1.0
-        version: 19.2.8(react@19.2.8)
-      react-router-dom:
-        specifier: ^7.14.0
-        version: 7.18.2(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      typescript:
-        specifier: ~6.0.3
-        version: 6.0.3
-      vitest:
-        specifier: ^4.1.11
-        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@20.19.43)(jsdom@29.1.1)(msw@2.15.0(@types/node@20.19.43)(typescript@6.0.3))(vite@8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0))
-
-  packages/sep/api:
+  packages/extensions/api:
     dependencies:
       axios:
         specifier: ^1.15.2
@@ -430,7 +369,7 @@ importers:
         specifier: ^4.1.11
         version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@20.19.43)(jsdom@29.1.1)(msw@2.15.0(@types/node@20.19.43)(typescript@6.0.3))(vite@8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0))
 
-  packages/sep/framework:
+  packages/extensions/framework:
     dependencies:
       '@dnd-kit/core':
         specifier: ^6.3.1
@@ -444,10 +383,10 @@ importers:
       '@microsoft/fetch-event-source':
         specifier: 2.0.1
         version: 2.0.1
-      '@sep/api':
+      '@pmm-extensions/api':
         specifier: workspace:*
         version: link:../api
-      '@sep/shared':
+      '@pmm-extensions/shared':
         specifier: workspace:*
         version: link:../shared
       '@types/react-syntax-highlighter':
@@ -542,11 +481,72 @@ importers:
         specifier: ^4.1.11
         version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@20.19.43)(jsdom@29.1.1)(msw@2.15.0(@types/node@20.19.43)(typescript@6.0.3))(vite@8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0))
 
-  packages/sep/shared:
+  packages/extensions/shared:
     devDependencies:
       typescript:
         specifier: ~6.0.3
         version: 6.0.3
+
+  packages/plugins/atw:
+    dependencies:
+      '@pmm-extensions/api':
+        specifier: workspace:*
+        version: link:../../extensions/api
+      '@pmm-extensions/framework':
+        specifier: workspace:*
+        version: link:../../extensions/framework
+    devDependencies:
+      '@emotion/react':
+        specifier: ^11.11.4
+        version: 11.14.0(@types/react@19.2.18)(react@19.2.8)
+      '@emotion/styled':
+        specifier: ^11.11.5
+        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@mui/icons-material':
+        specifier: 7.3.7
+        version: 7.3.7(@mui/material@7.3.7(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@mui/material':
+        specifier: 7.3.7
+        version: 7.3.7(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@tanstack/react-query':
+        specifier: ^5.100.7
+        version: 5.101.4(react@19.2.8)
+      '@testing-library/jest-dom':
+        specifier: ^6.6.3
+        version: 6.10.0(@testing-library/dom@9.3.4)
+      '@testing-library/react':
+        specifier: ^16.3.0
+        version: 16.3.2(@testing-library/dom@9.3.4)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@testing-library/user-event':
+        specifier: ^14.6.1
+        version: 14.6.6(@testing-library/dom@9.3.4)
+      '@types/react':
+        specifier: ^19.1.0
+        version: 19.2.18
+      '@vitejs/plugin-react':
+        specifier: ^6.0.5
+        version: 6.0.5(vite@8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0))
+      jsdom:
+        specifier: ^29.1.1
+        version: 29.1.1
+      notistack:
+        specifier: ^3.0.0
+        version: 3.0.2(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      react:
+        specifier: ^19.1.0
+        version: 19.2.8
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.2.8(react@19.2.8)
+      react-router-dom:
+        specifier: ^7.14.0
+        version: 7.18.2(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      typescript:
+        specifier: ~6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@20.19.43)(jsdom@29.1.1)(msw@2.15.0(@types/node@20.19.43)(typescript@6.0.3))(vite@8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0))
 
   packages/shared:
     dependencies:

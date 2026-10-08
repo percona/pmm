@@ -58,7 +58,6 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -70,7 +69,7 @@ import (
 	alertingv1 "github.com/percona/pmm/api/alerting/v1"
 	backupv1 "github.com/percona/pmm/api/backup/v1"
 	dumpv1beta1 "github.com/percona/pmm/api/dump/v1beta1"
-	hav1beta1 "github.com/percona/pmm/api/ha/v1beta1"
+	hav1 "github.com/percona/pmm/api/ha/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
@@ -338,7 +337,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
-	hav1beta1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
+	hav1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
 
 	// Register RTA service with in-memory store
 	rtaStore := realtimeanalytics.NewStore()
@@ -390,15 +389,11 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	l.Infof("Starting server on http://%s/ ...", http1Addr)
 
 	marshaller := &grpc_gateway.JSONPb{
-		MarshalOptions: protojson.MarshalOptions{
-			UseEnumNumbers:  false,
-			EmitUnpopulated: true,
-			UseProtoNames:   true,
-			Indent:          "  ",
-		},
-		UnmarshalOptions: protojson.UnmarshalOptions{
-			DiscardUnknown: true,
-		},
+		UseEnumNumbers:  false,
+		EmitUnpopulated: true,
+		UseProtoNames:   true,
+		Indent:          "  ",
+		DiscardUnknown:  true,
 	}
 
 	proxyMux := grpc_gateway.NewServeMux(
@@ -451,7 +446,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		userv1.RegisterUserServiceHandler,
 
-		hav1beta1.RegisterHAServiceHandler,
+		hav1.RegisterHAServiceHandler,
 	} {
 		err := r(ctx, proxyMux, sharedConn)
 		if err != nil {
@@ -758,6 +753,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		Envar("PMM_HA_GRAFANA_GOSSIP_PORT").
 		Default("9762").
 		Int()
+	haNamespace := kingpin.Flag("ha-namespace", "HA Kubernetes namespace").
+		Envar("PMM_HA_NAMESPACE").
+		String()
 
 	internalNodePrefixesF := kingpin.Flag("internal-node-name-prefixes",
 		"Comma-separated list of Node name prefixes reserved for the internal infrastructure of this PMM deployment").
@@ -833,6 +831,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		RaftPort:          *haRaftPort,
 		GossipPort:        *haGossipPort,
 		GrafanaGossipPort: *haGrafanaGossipPort,
+		Namespace:         *haNamespace,
 	}
 	haService := ha.New(haParams)
 
@@ -912,6 +911,14 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	if *haEnabled {
 		models.AgentConfigFilePath = "/srv/pmm-agent/config/pmm-agent.yaml"
+		info := agents.HARemoteWriteInfo(vmParams)
+		if info != "" {
+			l.Info(info)
+		}
+		warning := agents.HARemoteWriteWarning(vmParams)
+		if warning != "" {
+			l.Warn(warning)
+		}
 	}
 
 	migrateDB(ctx, sqlDB, setupParams)

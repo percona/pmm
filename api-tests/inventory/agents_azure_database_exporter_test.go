@@ -27,7 +27,7 @@ import (
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
-func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
+func TestAzureDatabaseExporter(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Basic", func(t *testing.T) {

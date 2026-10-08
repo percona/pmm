@@ -1,6 +1,6 @@
 # Run PMM Client as a Kubernetes pod
 
-Deploy the [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/) as a Kubernetes pod to monitor your databases without installing software on your host system. 
+Run PMM Client as a Kubernetes pod to monitor your databases without installing software on your hosts.
 
 This deployment approach provides:
 
@@ -18,13 +18,46 @@ Before deploying PMM Client:
 
 2. Check [system requirements](prerequisites.md) to ensure your environment meets the minimum criteria.
 
-3. [Install and configure PMM Server](../install-pmm-server/index.md) as you'll need its IP address or hostname to configure the Client.
+3. [Install and configure PMM Server](../install-pmm-server/index.md) as you'll need its address to configure the Client. See [Configure the PMM Server address](#configure-the-pmm-server-address).
 
 4. [Set up firewall rules](../plan-pmm-installation/network_and_firewall.md) to allow communication between PMM Client and PMM Server.
 
 5. [Create database monitoring users](prerequisites.md#database-monitoring-requirements) with appropriate permissions for the databases you plan to monitor.
 
+6. Use PMM Client 3.10.0 or later, otherwise you'll lose registered Services on every restart regardless of storage. This is because earlier versions re-register the Node on each container start, and PMM Server responds by removing the Node together with every Service on it.
+
 ## Installation and setup
+
+### Configure the PMM Server address
+
+Find the address of your PMM Server to set as `PMM_AGENT_SERVER_ADDRESS` when you deploy PMM Client in the next section. Without a working address, the Client can't register with PMM Server or send it data. How you find it depends on where PMM Server runs:
+
+=== "PMM Server outside the cluster"
+
+    Use its hostname or IP address and port, for example `pmm.example.com:443`.
+
+=== "PMM Server in the same cluster"
+
+    Find and qualify the address of PMM Server's Kubernetes Service.
+    {.power-number}
+
+    1. Find PMM Server's Service:
+
+      ```sh
+      kubectl get svc -n <namespace>
+      ```
+
+        - The standard PMM Server Helm chart names this Service `monitoring-service` by default.
+        - For PMM Server in [HA mode](../install-HA-clustered.md), register against the HAProxy Service instead, for example `pmm-ha-haproxy`. The HAProxy Service routes traffic to the active PMM leader; a Service that connects directly to a PMM pod bypasses leader election and does not.
+
+    2. Qualify the Service name with its namespace. A Service name on its own resolves only from inside its own namespace, so a Client deployed to a different namespace needs the full form:
+
+        ```yaml
+        - name: PMM_AGENT_SERVER_ADDRESS
+          value: monitoring-service.pmm.svc.cluster.local:443
+        ```
+
+        An unqualified name fails before the Client even attempts a connection: it can't look up the address at all, and the pod log names the lookup rather than the connection, which reads like the wrong problem. See [the address does not resolve](#failed-to-register-pmm-agent-on-pmm-server-the-address-does-not-resolve) if you hit this.
 
 ### Deploy PMM Client
 
@@ -34,6 +67,8 @@ Choose your deployment approach:
 - **Sidecar**: Deploy PMM Client alongside a database in the same pod 
 
 === "Deploy PMM Client as a Standalone container"
+    Deploy PMM Client as a StatefulSet so the pod keeps its name when it restarts. The volume preserves the identity PMM Server issued to the agent, so your monitored services survive restarts and image upgrades.
+
     Follow these steps to deploy PMM Client using `kubectl`:
     {.power-number}
 
@@ -44,44 +79,7 @@ Choose your deployment approach:
         kubectl config set-context --current --namespace=pmm-client-test
         ```
 
-    2. Create `pmm-client-volume.yaml` to define persistent storage for PMM Client data between pod restarts:
-
-        ```yaml
-        apiVersion: v1
-        kind: PersistentVolume
-        metadata:
-          name: pmm-client-pv
-          labels:
-            type: local
-        spec:
-          storageClassName: manual
-          capacity:
-            storage: 10Gi
-          accessModes:
-            - ReadWriteOnce
-          hostPath:
-            path: "/mnt/data"
-        ---
-        apiVersion: v1
-        kind: PersistentVolumeClaim
-        metadata:
-          name: pmm-client-pvc
-        spec:
-          storageClassName: manual
-          accessModes:
-            - ReadWriteOnce
-          resources:
-            requests:
-              storage: 10Gi
-        ```
-
-    3. Create the resources defined in `pmm-client-volume.yaml`
-
-        ```sh
-        kubectl apply -f pmm-client-volume.yaml
-        ```
-
-    4. Create a Secret to store PMM Server credentials. Replace `admin` password if you changed it during PMM Server setup:
+    2. Create a Secret to store PMM Server credentials. Replace `admin` password if you changed it during PMM Server setup:
 
         ```sh
         kubectl create secret generic pmm-secret \
@@ -89,39 +87,39 @@ Choose your deployment approach:
         --from-literal=PMM_AGENT_SERVER_PASSWORD=admin
         ```
 
-    5. Create `pmm-client-pod.yaml` to define a Pod running PMM Client. Replace `X.X.X.X` with the IP address of your PMM Server:
+    3. Create `pmm-client.yaml` to define the StatefulSet and its volume. Replace `X.X.X.X:443` with [the address of your PMM Server](#configure-the-pmm-server-address):
 
         ```yaml
         apiVersion: apps/v1
-        kind: Deployment
+        kind: StatefulSet
         metadata:
           name: pmm-client
         spec:
+          serviceName: pmm-client
+          replicas: 1
           selector:
             matchLabels:
               app: pmm-client
-          strategy:
-            type: Recreate
           template:
             metadata:
               labels:
                 app: pmm-client
             spec:
-              initContainers:
-                - name: set-tmp-permissions
-                  image: busybox
-                  command: ["sh", "-c", "chown -R 1002:0 /usr/local/percona/pmm/tmp"]
-                  securityContext:
-                    runAsUser: 0
-                  volumeMounts:
-                    - name: pmm-client-storage
-                      mountPath: /usr/local/percona/pmm/tmp            
+              securityContext:
+                # The PMM Client image runs as this user, which has to own the volume to write to it.
+                fsGroup: 1002
               containers:
                 - name: pmm-client
                   image: percona/pmm-client:3
                   volumeMounts:
-                    - name: pmm-client-storage
+                    # Holds the Agent identity, so the pod keeps its Node and the Services on it.
+                    - name: pmm-agent
+                      mountPath: /usr/local/percona/pmm/config
+                      subPath: config
+                    # Holds the metrics buffered on disk while PMM Server is unreachable.
+                    - name: pmm-agent
                       mountPath: /usr/local/percona/pmm/tmp
+                      subPath: tmp
                   env:
                     - name: PMM_AGENT_SERVER_ADDRESS
                       value: X.X.X.X:443
@@ -137,17 +135,37 @@ Choose your deployment approach:
                           key: PMM_AGENT_SERVER_PASSWORD
                     - name: PMM_AGENT_SERVER_INSECURE_TLS
                       value: "1"
+                    # An absolute path, so that it resolves to the mounted volume whatever the
+                    # container's working directory is.
                     - name: PMM_AGENT_CONFIG_FILE
-                      value: config/pmm-agent.yaml
+                      value: /usr/local/percona/pmm/config/pmm-agent.yaml
                     - name: PMM_AGENT_SETUP
                       value: "1"
-                    - name: PMM_AGENT_SETUP_FORCE
-                      value: "1"
-              volumes:
-                - name: pmm-client-storage
-                  persistentVolumeClaim:
-                    claimName: pmm-client-pvc
+                    - name: PMM_AGENT_SETUP_NODE_TYPE
+                      value: container
+                    # The pod name of a StatefulSet replica does not change when the pod restarts,
+                    # which is what lets PMM Server recognise it as the same Node.
+                    - name: PMM_AGENT_SETUP_NODE_NAME
+                      valueFrom:
+                        fieldRef:
+                          fieldPath: metadata.name
+          volumeClaimTemplates:
+            - metadata:
+                name: pmm-agent
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 2Gi
         ```
+
+        !!! note alert alert-primary "Storage"
+            The volume is claimed from your cluster's default StorageClass. Add `storageClassName` to
+            the claim template to choose a different one. Keep the size above 1Gi: that is the
+            on-disk queue the Client fills with metrics it cannot deliver while PMM Server is
+            unreachable.
+
         !!! warning alert alert-warning "Security and configuration"
             - The `PMM_AGENT_SERVER_INSECURE_TLS=1` setting disables TLS certificate verification. For production environments, configure proper TLS certificates and remove this setting.
             - If disk metrics appear missing or incorrect, your container may not expose `/proc/mounts` at the default path. Add `PMM_AGENT_SETUP_PROC_MOUNTS_PATH` to the `env` section to point PMM Client to the correct location:
@@ -157,18 +175,35 @@ Choose your deployment approach:
               value: /path/to/proc/mounts
             ```
 
-    6. Deploy PMM Client pod and configure the [pmm-agent](../../use/commands/pmm-agent.md) in Setup mode to connect to PMM Server:
+    4. Deploy PMM Client and configure the [pmm-agent](../../use/commands/pmm-agent.md) in Setup mode to connect to PMM Server:
 
         ```sh
-        kubectl apply -f pmm-client-pod.yaml
+        kubectl apply -f pmm-client.yaml
         ```
 
-    !!! hint alert-success "Important"
-        You can set the container environment variable `PMM_AGENT_PRERUN_SCRIPT` to a shell script to automatically add services to PMM for monitoring.
+    5. Check that the Node registered, and that a restart keeps it:
+
+        ```sh
+        kubectl logs pmm-client-0
+        kubectl delete pod pmm-client-0
+        kubectl logs pmm-client-0
+        ```
+
+        On the first start the Client registers the Node. After the restart it reports that the Node
+        is registered already and keeps its identity, so any Services you added remain.
+
+    !!! hint alert-success "Adding services automatically"
+        You can set the container environment variable `PMM_AGENT_PRERUN_SCRIPT` to a shell script to automatically add services to PMM for monitoring. Because this deployment keeps the Services you add, a prerun script is only needed if you would rather declare them in the manifest than add them once. The script runs on every start of the pod, after setup. `pmm-admin add` reports a Service which exists already as an error, and a failing script stops the container, so make the script tolerate the Services it added on an earlier start, for example by appending `|| true` to each command.
+
+    !!! caution alert alert-warning "Recovering a Node after losing the volume"
+        If the volume is deleted while the Node still exists in PMM, the Client cannot register that
+        Node name again and the pod fails to start. Add `PMM_AGENT_SETUP_FORCE=1` to the `env`
+        section for one start to take the name over. PMM Server then removes the old Node together
+        with every Service on it, so remove the variable again afterwards.
 
 
 === "Deploy PMM Client as a Sidecar container"
-    Follow these steps to deploy PMM Client as a Sidecar container to a MySQL container using `kubectl`:
+    Follow these steps to deploy PMM Client as a sidecar alongside MySQL using `kubectl`:
     {.power-number}
 
     1. (Optional) Create a namespace named `pmm-client-test` for the deployment and set it as the default namespace:
@@ -178,36 +213,13 @@ Choose your deployment approach:
         kubectl config set-context --current --namespace=pmm-client-test
         ```
 
-    2. Create `mysql-pmm-client-volume.yaml` to define persistent storage for storing PMM Client and MySQL data between pod restarts:
+    2. Create `mysql-pmm-client-volume.yaml` to define persistent storage for MySQL data between pod restarts:
+
+        The PMM Client sidecar deliberately gets no volume of its own. It keeps its configuration in
+        the container, registers with `PMM_AGENT_SETUP_FORCE=1` and re-adds the database service from
+        `PMM_AGENT_PRERUN_SCRIPT` on every start, so it rebuilds its state instead of persisting it.
 
         ```yaml
-        apiVersion: v1
-        kind: PersistentVolume
-        metadata:
-          name: pmm-client-pv
-          labels:
-            type: local
-        spec:
-          storageClassName: manual
-          capacity:
-            storage: 10Gi
-          accessModes:
-            - ReadWriteOnce
-          hostPath:
-            path: "/mnt/data/pmm-client"
-        ---
-        apiVersion: v1
-        kind: PersistentVolumeClaim
-        metadata:
-          name: pmm-client-pvc
-        spec:
-          storageClassName: manual
-          accessModes:
-            - ReadWriteOnce
-          resources:
-            requests:
-              storage: 10Gi
-        ---
         apiVersion: v1
         kind: PersistentVolume
         metadata:
@@ -257,7 +269,7 @@ Choose your deployment approach:
          --from-literal=MYSQL_ROOT_PASSWORD=very_secure_password
         ```
     
-    6. Create `mysql-pmm-client-pod.yaml` to define a Pod running MySQL 9.0 container with a PMM Client container running as Sidecar. Replace `X.X.X.X` with the IP address of your PMM Server:
+    6. Create `mysql-pmm-client-pod.yaml` to define a Pod running MySQL 9.0 with PMM Client as a sidecar. Replace `X.X.X.X:443` with [the address of your PMM Server](#configure-the-pmm-server-address):
 
         ```yaml
         apiVersion: apps/v1
@@ -327,9 +339,6 @@ Choose your deployment approach:
                 - name: mysql-persistent-storage
                   persistentVolumeClaim:
                     claimName: mysql-pv-claim
-                - name: pmm-client-storage
-                  persistentVolumeClaim:
-                    claimName: pmm-client-pvc
         ```
 
         !!! warning alert alert-warning "Security note"
@@ -365,14 +374,33 @@ If you get `Failed to register pmm-agent on PMM Server: connection refused`, thi
 - PMM Server is running and accessible
 - Firewall rules allow traffic on port `443`
 
-### Pod stuck in Pending state
-Check if the `PersistentVolume` was created successfully:
+### Failed to register pmm-agent on PMM Server: the address does not resolve
+
+This error means the pod cannot resolve the name set in `PMM_AGENT_SERVER_ADDRESS`:
+
+```
+Failed to register pmm-agent on PMM Server: Post "https://monitoring-service:443/v1/management/nodes": dial tcp: lookup monitoring-service on 172.20.0.10:53: server misbehaving.
+```
+
+The message ending varies (`no such host` is as common as `server misbehaving`), but `lookup` is what identifies name resolution as the cause. The usual cause is an unqualified Kubernetes Service name, which resolves only within its own namespace. Qualify the name as `<service>.<namespace>.svc.cluster.local` as described in [Configure the PMM Server address](#configure-the-pmm-server-address), then verify connectivity:
 
 ```sh
-kubectl get pv
-kubectl get pvc
-kubectl describe pvc pmm-client-pvc
+kubectl exec pmm-client-0 -- curl -sk -o /dev/null -w '%{http_code}\n' \
+  https://<service>.<namespace>.svc.cluster.local:443/v1/server/readyz
 ```
+
+A `200` response means PMM Server is reachable at that address. The endpoint needs no credentials, so any other response points to an address problem, not the credentials in your Secret.
+
+### Pod stuck in Pending state
+
+Check that the volume was bound. The standalone StatefulSet claims it through its volume claim template, which names the claim after the template and the pod:
+
+```sh
+kubectl get pvc
+kubectl describe pvc pmm-agent-pmm-client-0
+```
+
+A claim left `Pending` usually means the cluster has no default StorageClass. List the available classes with `kubectl get storageclass` and set `storageClassName` in the claim template.
 
 ### View PMM Client logs
 

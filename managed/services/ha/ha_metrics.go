@@ -37,12 +37,19 @@ const (
 //   - pmm_ha_up{role="voter|nonvoter"}  – Always 1 for a live node, labelled
 //     with the node's Raft suffrage role.  count(pmm_ha_up{role="voter"}) < 3
 //     triggers the PMMHAQuorumAtRisk alert for a three-node cluster.
+//
+//   - pmm_ha_node_info{namespace}  – Always 1, carrying the Kubernetes
+//     namespace this replica runs in.  Every other series the HA dashboard
+//     reads comes from kube-state-metrics, which is cluster-wide, so this is
+//     the only way the dashboard can tell which namespace is PMM's own.
+//     Emitted only when the namespace is known (PMM_HA_NAMESPACE is set).
 type HAMetricsCollector struct { //nolint:revive
 	haService *Service
 
 	mLeaderStatus *prom.Desc
 	mRaftTerm     *prom.Desc
 	mUp           *prom.Desc
+	mNodeInfo     *prom.Desc
 }
 
 // NewHAMetricsCollector creates a new HAMetricsCollector backed by the
@@ -73,6 +80,13 @@ func NewHAMetricsCollector(haService *Service) *HAMetricsCollector {
 				"in elections, 'nonvoter' nodes only replicate logs. "+
 				"Use count(pmm_ha_up{role=\"voter\"}) to evaluate quorum health.",
 			[]string{"node_id", "role"},
+			nil,
+		),
+		mNodeInfo: prom.NewDesc(
+			prom.BuildFQName(haPrometheusNamespace, haPrometheusSubsystem, "node_info"),
+			"Always 1, labelled with the Kubernetes namespace this PMM replica runs in. "+
+				"Lets a dashboard scope cluster-wide kube-state-metrics series down to PMM's own namespace.",
+			[]string{"node_id", "namespace"},
 			nil,
 		),
 	}
@@ -107,6 +121,10 @@ func (c *HAMetricsCollector) Collect(ch chan<- prom.Metric) {
 		role = "voter"
 	}
 	ch <- prom.MustNewConstMetric(c.mUp, prom.GaugeValue, 1, nodeID, role)
+
+	if namespace := c.haService.Params().Namespace; namespace != "" {
+		ch <- prom.MustNewConstMetric(c.mNodeInfo, prom.GaugeValue, 1, nodeID, namespace)
+	}
 }
 
 var _ prom.Collector = (*HAMetricsCollector)(nil)
