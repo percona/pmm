@@ -262,41 +262,39 @@ func TestServerClientConnection(t *testing.T) {
 	})
 }
 
-// TestRetrieveRoleRejectedCredentials checks the code clients get when Grafana rejects the
-// credentials: the CLIs pick their hint from it, and only Unauthenticated tells the user to
-// check their username and password.
-func TestRetrieveRoleRejectedCredentials(t *testing.T) {
+// TestAuthServerRejectedCredentials checks the answer clients get when Grafana rejects the credentials, whose code the CLIs pick their hint from.
+func TestAuthServerRejectedCredentials(t *testing.T) {
 	t.Parallel()
 
 	for _, tc := range []struct {
-		name   string
-		status int
-		body   string
-		want   *authError
+		name    string
+		status  int
+		message string
+		code    codes.Code
 	}{
 		{
-			name:   "disabled service account",
-			status: http.StatusBadRequest,
-			body:   `{"message":"Auth method is not service account token"}`,
-			want:   &authError{code: codes.Unauthenticated, message: "Auth method is not service account token"},
+			name:    "disabled service account",
+			status:  http.StatusBadRequest,
+			message: "Auth method is not service account token",
+			code:    codes.Unauthenticated,
 		},
 		{
-			name:   "unauthorized",
-			status: http.StatusUnauthorized,
-			body:   `{"message":"Invalid API key"}`,
-			want:   &authError{code: codes.Unauthenticated, message: "Invalid API key"},
+			name:    "unauthorized",
+			status:  http.StatusUnauthorized,
+			message: "Invalid API key",
+			code:    codes.Unauthenticated,
 		},
 		{
-			name:   "forbidden",
-			status: http.StatusForbidden,
-			body:   `{"message":"Forbidden"}`,
-			want:   &authError{code: codes.Unauthenticated, message: "Forbidden"},
+			name:    "forbidden",
+			status:  http.StatusForbidden,
+			message: "Forbidden",
+			code:    codes.Unauthenticated,
 		},
 		{
-			name:   "server error",
-			status: http.StatusInternalServerError,
-			body:   `{"message":"Failed to retrieve service account"}`,
-			want:   &authError{code: codes.Internal, message: "Failed to retrieve service account"},
+			name:    "server error",
+			status:  http.StatusInternalServerError,
+			message: "Failed to retrieve service account",
+			code:    codes.Internal,
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -308,17 +306,28 @@ func TestRetrieveRoleRejectedCredentials(t *testing.T) {
 					return
 				}
 				w.WriteHeader(tc.status)
-				_, _ = fmt.Fprint(w, tc.body)
+				_, _ = fmt.Fprintf(w, `{"message":%q}`, tc.message)
 			}))
 			defer ts.Close()
 
 			s := NewAuthServer(NewClient(strings.TrimPrefix(ts.URL, "http://")), nil)
-			authHeaders := http.Header{}
-			authHeaders.Set("Authorization", "Bearer glsa_disabled")
 
-			u, authErr := s.retrieveRole(t.Context(), t.Name(), authHeaders, logrus.WithField("test", t.Name()))
-			assert.Nil(t, u)
-			assert.Equal(t, tc.want, authErr)
+			rw := httptest.NewRecorder()
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth_request", nil)
+			req.Header.Set("X-Original-Uri", "/v1/inventory/nodes")
+			req.Header.Set("X-Original-Method", http.MethodGet)
+			req.Header.Set("Authorization", "Bearer glsa_disabled")
+
+			s.ServeHTTP(rw, req)
+
+			assert.Equal(t, http.StatusUnauthorized, rw.Code)
+			var body map[string]any
+			require.NoError(t, json.Unmarshal(rw.Body.Bytes(), &body))
+			assert.Equal(t, map[string]any{
+				"code":    float64(tc.code),
+				"error":   tc.message,
+				"message": tc.message,
+			}, body)
 			assert.Empty(t, s.cache, "a rejected token must not be cached")
 		})
 	}
