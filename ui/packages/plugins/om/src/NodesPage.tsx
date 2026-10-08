@@ -117,11 +117,6 @@ const HOST_FILTERS: { id: HostFilter; label: string }[] = [
 ];
 
 /**
- * `unregistered_only` counts as not monitored: a host with a mongod PMM cannot see
- * is not a place a fresh install can safely target, but it is also not one PMM is
- * monitoring — grouping it with `has_service` would hide it from both filters.
- */
-/**
  * Whether a node's failing scans count against the fleet. Not the PMM Server's own
  * node's: Operations never acts on it, so its scans failing is not a fleet problem
  * (Pedro, 2026-10-06). Its failure is still shown on its row, without the alarm.
@@ -129,6 +124,11 @@ const HOST_FILTERS: { id: HostFilter; label: string }[] = [
 const countsAsFailing = (row: OmHostRow) =>
   isFailing(row) && !row.is_pmm_server_node;
 
+/**
+ * `unregistered_only` counts as not monitored: a host with a mongod PMM cannot see
+ * is not a place a fresh install can safely target, but it is also not one PMM is
+ * monitoring — grouping it with `has_service` would hide it from both filters.
+ */
 function matchesHostFilter(row: OmHostRow, filter: HostFilter): boolean {
   if (filter === 'all') {
     return true;
