@@ -636,6 +636,7 @@ var (
 		(*v1.ProxySQLExporter)(nil),         // 11: inventory.v1.ProxySQLExporter
 	}
 )
+
 var file_management_v1_proxysql_proto_depIdxs = []int32{
 	4,  // 0: management.v1.AddProxySQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	3,  // 1: management.v1.AddProxySQLServiceParams.custom_labels:type_name -> management.v1.AddProxySQLServiceParams.CustomLabelsEntry

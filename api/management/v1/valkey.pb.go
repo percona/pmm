@@ -681,6 +681,7 @@ var (
 		(*v1.ValkeyExporter)(nil),         // 10: inventory.v1.ValkeyExporter
 	}
 )
+
 var file_management_v1_valkey_proto_depIdxs = []int32{
 	4,  // 0: management.v1.AddValkeyServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	3,  // 1: management.v1.AddValkeyServiceParams.custom_labels:type_name -> management.v1.AddValkeyServiceParams.CustomLabelsEntry

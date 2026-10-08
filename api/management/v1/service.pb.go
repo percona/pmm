@@ -1279,6 +1279,7 @@ var (
 		(*AddAzureDatabaseResponse)(nil),      // 56: management.v1.AddAzureDatabaseResponse
 	}
 )
+
 var file_management_v1_service_proto_depIdxs = []int32{
 	11, // 0: management.v1.AddServiceRequest.mysql:type_name -> management.v1.AddMySQLServiceParams
 	12, // 1: management.v1.AddServiceRequest.mongodb:type_name -> management.v1.AddMongoDBServiceParams
