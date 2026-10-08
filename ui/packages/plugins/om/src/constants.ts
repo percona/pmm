@@ -61,6 +61,12 @@ export const OM_LEGACY_REDIRECTS: Record<string, string> = {
   inventory: `${OM_ROUTE_AUTOMATIONS}?tab=scans`,
 };
 
+/**
+ * How far back pmm-managed reads metrics, so how far back "last seen up" can reach
+ * (`metricsLookback` in managed/services/om/catalog.go).
+ */
+export const METRICS_LOOKBACK = '24 hours';
+
 export const SERVICE_STATUS_LABEL: Record<OmServiceStatus, string> = {
   SERVICE_STATUS_UNSPECIFIED: 'Unknown',
   SERVICE_STATUS_UP: 'Up',

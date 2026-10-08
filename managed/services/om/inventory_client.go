@@ -90,6 +90,7 @@ type extensionsRunCounts struct {
 	HostsTotal       int32 `json:"hosts_total"`
 	HostsProbeable   int32 `json:"hosts_probeable"`
 	HostsAnswered    int32 `json:"hosts_answered"`
+	HostsFinished    int32 `json:"hosts_finished"`
 }
 
 // extensionsRun is one row of GET /runs.
@@ -101,8 +102,16 @@ type extensionsRun struct {
 	Counts     extensionsRunCounts `json:"counts"`
 	Scope      []string            `json:"scope"`
 	Error      *string             `json:"error"`
+	// FailingNodes comes on the list as well as the detail, unlike Nodes.
+	FailingNodes []extensionsRunFailingNode `json:"failing_nodes"`
 	// Only the detail endpoint fills this; the list omits it.
 	Nodes []extensionsRunNode `json:"nodes"`
+}
+
+// extensionsRunFailingNode is one node a refresh failed to scan.
+type extensionsRunFailingNode struct {
+	NodeID string  `json:"node_id"`
+	Name   *string `json:"name"`
 }
 
 // extensionsRunNode is one host a refresh attempted, from GET /runs/{id}.

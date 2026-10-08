@@ -20,6 +20,8 @@ import {
   ageSeconds,
   databaseState,
   describeScanFailure,
+  expectedScanSeconds,
+  groupRuns,
   isBoundedPeriod,
   isFailing,
   isRunPeriod,
@@ -32,6 +34,8 @@ import {
 import type {
   OmInventoryFreshness,
   OmInventoryHost,
+  OmInventoryRun,
+  OmTopologyRunStatus,
   OmInventoryService,
   OmServiceRow,
   OmUnregisteredMongod,
@@ -461,5 +465,167 @@ describe('describeScanFailure', () => {
     expect(failure?.shortReason.length).toBe(80);
     expect(failure?.shortReason.endsWith('…')).toBe(true);
     expect(failure?.error).toBe(`${long}\nsecond line`);
+  });
+});
+
+describe('groupRuns', () => {
+  const scan = (
+    run_id: string,
+    status: OmTopologyRunStatus = 'RUN_STATUS_PARTIAL',
+    failing: string[] = ['n2'],
+    scope: string[] = []
+  ): OmInventoryRun => ({
+    run_id,
+    status,
+    start_time: '2026-10-07T12:00:00Z',
+    end_time: '2026-10-07T12:00:30Z',
+    scope,
+    counts: {
+      total_hosts: 3,
+      probeable_hosts: 3,
+      answered_hosts: 3 - failing.length,
+      finished_hosts: 3,
+      total_services: 0,
+      resolved_services: 0,
+      answered_services: 0,
+      orphaned_services: 0,
+    },
+    failing_nodes: failing.map((node_id) => ({ node_id, name: node_id })),
+  });
+  const ids = (runs: OmInventoryRun[]) =>
+    groupRuns(runs).map((group) => group.runs.map((run) => run.run_id));
+
+  it('collapses consecutive scans that failed on the same nodes', () => {
+    expect(ids([scan('c'), scan('b'), scan('a')])).toEqual([['c', 'b', 'a']]);
+  });
+
+  it('splits where the failing nodes change', () => {
+    expect(
+      ids([scan('c', undefined, ['n2', 'n3']), scan('b'), scan('a')])
+    ).toEqual([['c'], ['b', 'a']]);
+  });
+
+  it('keeps a recovery between two failures as its own row', () => {
+    expect(
+      ids([scan('c'), scan('b', 'RUN_STATUS_SUCCESS', []), scan('a')])
+    ).toEqual([['c'], ['b'], ['a']]);
+  });
+
+  it('starts a new row when a scan finds more nodes or services', () => {
+    const found = (run_id: string, nodes: number, services: number) => {
+      const base = scan(run_id, 'RUN_STATUS_SUCCESS', []);
+      return {
+        ...base,
+        counts: {
+          ...base.counts,
+          total_hosts: nodes,
+          probeable_hosts: nodes,
+          answered_hosts: nodes,
+          total_services: services,
+        },
+      };
+    };
+
+    expect(
+      ids([
+        found('d', 14, 3),
+        found('c', 14, 3),
+        found('b', 14, 2),
+        found('a', 10, 2),
+      ])
+    ).toEqual([['d', 'c'], ['b'], ['a']]);
+  });
+
+  it('never folds a one-node scan into full ones', () => {
+    expect(ids([scan('b', undefined, ['n2'], ['n2']), scan('a')])).toEqual([
+      ['b'],
+      ['a'],
+    ]);
+  });
+
+  it('leaves a running scan on its own', () => {
+    expect(
+      ids([
+        scan('b', 'RUN_STATUS_RUNNING', []),
+        scan('a', 'RUN_STATUS_RUNNING', []),
+      ])
+    ).toEqual([['b'], ['a']]);
+  });
+
+  it('collapses clean scans too, and keys each group by its newest', () => {
+    const groups = groupRuns([
+      scan('b', 'RUN_STATUS_SUCCESS', []),
+      scan('a', 'RUN_STATUS_SUCCESS', []),
+    ]);
+    expect(groups.map((group) => group.id)).toEqual(['b']);
+  });
+});
+
+describe('expectedScanSeconds', () => {
+  const scan = (
+    seconds: number | null,
+    status: OmTopologyRunStatus = 'RUN_STATUS_SUCCESS',
+    scope: string[] = []
+  ): OmInventoryRun => ({
+    run_id: `r${seconds}`,
+    status,
+    start_time: '2026-10-07T12:00:00Z',
+    end_time:
+      seconds == null
+        ? null
+        : new Date(
+            Date.parse('2026-10-07T12:00:00Z') + seconds * 1000
+          ).toISOString(),
+    scope,
+    counts: {
+      total_hosts: 3,
+      probeable_hosts: 3,
+      answered_hosts: 3,
+      finished_hosts: 3,
+      total_services: 0,
+      resolved_services: 0,
+      answered_services: 0,
+      orphaned_services: 0,
+    },
+  });
+
+  it('takes the middle of the recent scans over the same nodes', () => {
+    expect(expectedScanSeconds([scan(40), scan(300), scan(50)], [])).toBe(50);
+    expect(expectedScanSeconds([scan(40), scan(60)], [])).toBe(50);
+  });
+
+  it('leaves out failed and unfinished scans, and other scopes', () => {
+    expect(
+      expectedScanSeconds(
+        [
+          scan(null, 'RUN_STATUS_RUNNING'),
+          scan(5, 'RUN_STATUS_FAILED'),
+          scan(8, 'RUN_STATUS_SUCCESS', ['node-1']),
+          scan(45, 'RUN_STATUS_PARTIAL'),
+        ],
+        []
+      )
+    ).toBe(45);
+  });
+
+  it('reads only the five most recent', () => {
+    expect(
+      expectedScanSeconds(
+        [
+          scan(10),
+          scan(10),
+          scan(10),
+          scan(10),
+          scan(10),
+          scan(900),
+          scan(900),
+        ],
+        []
+      )
+    ).toBe(10);
+  });
+
+  it('has nothing to say with nothing to go on', () => {
+    expect(expectedScanSeconds([], [])).toBeNull();
   });
 });

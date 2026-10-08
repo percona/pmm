@@ -17,8 +17,8 @@
 
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import { enqueueSnackbar } from 'notistack';
 import {
-  Alert,
   Box,
   Button,
   Chip,
@@ -67,6 +67,7 @@ import type { OmBootstrapStep, OmGetBootstrapRunResponse } from '../types';
 import { useOmBase } from '../useOmBase';
 import { useNow } from '../useNow';
 import { SecurityPosture } from './SecurityPosture';
+import { OmError } from './OmError';
 
 /**
  * A run's progress, as the Automations page's expanded run row shows it.
@@ -351,9 +352,13 @@ const AbortButton = ({ run }: { run: OmGetBootstrapRunResponse }) => {
             <p>This cannot be undone.</p>
           </DialogContentText>
           {cancelRun.isError && (
-            <Alert severity="error" sx={{ mt: 1 }}>
-              {cancelRun.error.message}
-            </Alert>
+            <Box sx={{ mt: 1 }}>
+              <OmError
+                placement="action"
+                title="Could not abort the install"
+                messages={cancelRun.error.message}
+              />
+            </Box>
           )}
         </DialogContent>
         <DialogActions>
@@ -363,6 +368,10 @@ const AbortButton = ({ run }: { run: OmGetBootstrapRunResponse }) => {
             disabled={cancelRun.isPending}
             onClick={async () => {
               await cancelRun.mutateAsync(run.run_id);
+              enqueueSnackbar(
+                'Abort requested - rolling back once the current step stops.',
+                { variant: 'success' }
+              );
               setConfirming(false);
             }}
           >
@@ -545,7 +554,7 @@ export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => {
           {summary}
         </Typography>
       )}
-      {run.error && <Alert severity="error">{run.error}</Alert>}
+      {run.error && <OmError placement="item" messages={run.error} />}
       {status === 'running' && run.cancel_requested && !rollingBack && (
         <Typography variant="body2" color="warning.main">
           Abort requested - rolling back once the current step stops.

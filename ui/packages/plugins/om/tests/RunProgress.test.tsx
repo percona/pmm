@@ -18,10 +18,13 @@
 import type { ReactElement } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { RunProgress } from '../src/components/RunProgress';
+
+const { enqueueSnackbar } = vi.hoisted(() => ({ enqueueSnackbar: vi.fn() }));
+vi.mock('notistack', () => ({ enqueueSnackbar }));
 import type {
   OmBootstrapHost,
   OmBootstrapStep,
@@ -339,6 +342,28 @@ describe('RunProgress', () => {
     );
 
     expect(screen.getByText('Rolling back every node.')).toBeInTheDocument();
+  });
+
+  it('says an abort landed', async () => {
+    const fetchStub = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response('{}', { status: 200 }));
+    try {
+      renderWithClient(<RunProgress run={run({ status: 'running' })} />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Abort' }));
+      const abortButtons = screen.getAllByRole('button', { name: 'Abort' });
+      fireEvent.click(abortButtons[abortButtons.length - 1]);
+
+      await waitFor(() =>
+        expect(enqueueSnackbar).toHaveBeenCalledWith(
+          'Abort requested - rolling back once the current step stops.',
+          { variant: 'success' }
+        )
+      );
+    } finally {
+      fetchStub.mockRestore();
+    }
   });
 
   it('opens the matrix by itself when a watched run fails', () => {

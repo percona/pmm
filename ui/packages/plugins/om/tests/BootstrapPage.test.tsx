@@ -58,6 +58,9 @@ const hostsState: { data: OmInventoryHost[] } = { data: HOSTS };
 /** What the wizard actually asked for, so a test can assert the request itself. */
 const triggerCalls: Record<string, unknown>[] = [];
 
+const { enqueueSnackbar } = vi.hoisted(() => ({ enqueueSnackbar: vi.fn() }));
+vi.mock('notistack', () => ({ enqueueSnackbar }));
+
 vi.mock('../src/inventoryHooks', () => ({
   useOmInventoryHosts: () => ({
     data: hostsState.data,
@@ -261,6 +264,65 @@ describe('BootstrapPage install refusal', () => {
 
 // Task 4 / P1. Every one of these conditions used to be checked on the wizard's
 // final button, inside TriggerHostBootstrap, after the whole form was filled in.
+describe('BootstrapPage blockers', () => {
+  const blockers = () =>
+    screen.getAllByTestId('om-review-blocker').map((item) => item.textContent);
+
+  it('lists everything keeping Review disabled, beside it', () => {
+    openConfigure();
+    fireEvent.change(screen.getByLabelText(/Replica set name/), {
+      target: { value: '' },
+    });
+    fireEvent.change(screen.getByLabelText(/Data path/), {
+      target: { value: '' },
+    });
+    fireEvent.change(screen.getByLabelText(/^Port/), {
+      target: { value: '70000' },
+    });
+
+    expect(review()).toBeDisabled();
+    expect(blockers()).toEqual([
+      'a replica set name',
+      'a data path',
+      'a port from 1 to 65535',
+    ]);
+  });
+
+  it('says nothing once Review can go ahead', () => {
+    openConfigure();
+
+    expect(review()).toBeEnabled();
+    expect(screen.queryByTestId('om-review-blocker')).toBeNull();
+  });
+
+  it('gives every reason Configure is unavailable, not only the first', () => {
+    hostsState.data = [{ ...host(1), automation_eligible: false }, host(2)];
+    try {
+      render(
+        <MemoryRouter
+          initialEntries={['/operations/nodes/install?nodes=node-1,node-2']}
+        >
+          <Routes>
+            <Route
+              path="/operations/nodes/install"
+              element={<BootstrapPage />}
+            />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      const error = screen.getByTestId('om-error');
+      expect(error).toHaveTextContent('Select exactly one node');
+      expect(error).toHaveTextContent(
+        '1 selected node cannot be installed onto'
+      );
+      expect(screen.getByRole('button', { name: 'Configure' })).toBeDisabled();
+    } finally {
+      hostsState.data = HOSTS;
+    }
+  });
+});
+
 describe('BootstrapPage step 1 preconditions', () => {
   const renderStep1 = () =>
     render(
@@ -502,6 +564,14 @@ describe('BootstrapPage security posture', () => {
     expect(request.memberConfigs['node-1'].bind_ip).toBe('10.0.0.1');
     expect(request.memberConfigs['node-2'].bind_ip).toBe('10.0.0.2');
     expect(request.memberConfigs['node-3'].bind_ip).toBe('10.0.0.3');
+    await vi.waitFor(() =>
+      expect(enqueueSnackbar).toHaveBeenCalledWith(
+        'Install started on 3 nodes',
+        {
+          variant: 'success',
+        }
+      )
+    );
   });
 
   it('sends one run-level address and no per-member ones for all interfaces', async () => {

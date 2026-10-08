@@ -146,6 +146,13 @@ message TopologyService {
   // that made the snapshot look fresh". A field's own MergedField.ObservedAt exists
   // internally; this is the first one exposed on the wire.
   optional google.protobuf.Timestamp observed_at = 20;
+
+  // When this service was last seen up, to the minute: the newest moment its mongodb_up
+  // read 1 within the 24 hours collection reads metrics over. Set only while status is
+  // DOWN, so a reader can say how long it has been down - from metrics rather than the
+  // scan, because a scan can succeed while mongod is down. Unset while UP, and on a DOWN
+  // service that was not up at any point in those 24 hours.
+  optional google.protobuf.Timestamp last_up_at = 21;
 }
 
 // ClusterType is the shape buildDocument inferred for one grouped service inventory.
@@ -597,6 +604,9 @@ message InventoryRunCounts {
   int32 probeable_hosts = 6;
   // Hosts that answered.
   int32 answered_hosts = 7;
+  // Hosts whose scan has come back, answered or not. Counted up while the run is
+  // still going, so a page can say how far it has got.
+  int32 finished_hosts = 8;
 }
 
 // InventoryRunEntityService is one service on a host, as a refresh saw it.
@@ -665,6 +675,19 @@ message InventoryRun {
   repeated string scope = 6;
   // What went wrong, when something did.
   optional string error = 7;
+  // The nodes this run failed to scan, sorted by name: the node's own scan failed, or
+  // a service on it did. What tells one run from the next, so the history can group
+  // runs that failed the same way and link each failure to its node.
+  repeated InventoryRunFailingNode failing_nodes = 8;
+}
+
+// InventoryRunFailingNode names one node a run failed to scan.
+message InventoryRunFailingNode {
+  // PMM's node ID.
+  string node_id = 1;
+  // The node name, which is what the Nodes page is addressed by. Empty when the run
+  // recorded none.
+  string name = 2;
 }
 
 // InventorySetting is one of the inventory app's configuration fields.

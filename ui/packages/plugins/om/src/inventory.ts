@@ -24,12 +24,15 @@
  * `toClusterRows` and `toServiceRows` already follow.
  */
 
+import { isRunActive } from './api';
 import { SCAN_ERROR_KIND } from './constants';
+import { runDurationSeconds } from './format';
 import type {
   OmHostDatabaseState,
   OmHostRow,
   OmInventoryFreshness,
   OmInventoryHost,
+  OmInventoryRun,
   OmInventoryService,
   OmRepoReachability,
   OmScanErrorCode,
@@ -331,6 +334,110 @@ export type OmRunPeriod = (typeof RUN_PERIODS)[number]['id'];
 const RUN_PERIOD_BY_ID: Record<string, OmRunPeriodDef> = Object.fromEntries(
   RUN_PERIODS.map((def) => [def.id, def])
 );
+
+/** Consecutive scans that ended the same way, newest first. */
+export interface OmRunGroup {
+  /** The newest run's id, which keys the group's row. */
+  id: string;
+  runs: OmInventoryRun[];
+}
+
+/**
+ * What two scans must share to be one row: how they ended, over what, where they
+ * failed, and everything they counted. A scan that reached more nodes or found
+ * another service is news, so it starts a row of its own.
+ */
+function outcomeKey(run: OmInventoryRun): string {
+  const { counts } = run;
+  return JSON.stringify([
+    run.status,
+    [...run.scope].sort(),
+    (run.failing_nodes ?? []).map((node) => node.node_id),
+    run.error ?? null,
+    counts.total_hosts,
+    counts.probeable_hosts,
+    counts.answered_hosts,
+    counts.total_services,
+    counts.resolved_services,
+    counts.answered_services,
+    counts.orphaned_services,
+  ]);
+}
+
+/**
+ * Collapse consecutive scans with the same outcome into one group, in the history's
+ * own newest-first order.
+ *
+ * Pedro's rule (PMM-15299, 2026-10-07): the same status and the same failing nodes
+ * make one row, so a node broken since Tuesday is one row, not 144 a day. The scope,
+ * a run-level error and every count the table shows must match too, so a one-node
+ * scan never hides among full ones and a change in what a scan found is never
+ * folded into the rows before it.
+ * Only *consecutive* runs merge: a recovery in between starts a new group, which is
+ * what keeps "it broke, it recovered, it broke again" readable. A running scan always
+ * stands alone - its outcome is not known yet.
+ */
+export function groupRuns(runs: OmInventoryRun[]): OmRunGroup[] {
+  const groups: OmRunGroup[] = [];
+  for (const run of runs) {
+    const last = groups[groups.length - 1];
+    const head = last?.runs[0];
+    if (
+      last &&
+      head &&
+      !isRunActive(head.status) &&
+      !isRunActive(run.status) &&
+      outcomeKey(head) === outcomeKey(run)
+    ) {
+      last.runs.push(run);
+    } else {
+      groups.push({ id: run.run_id, runs: [run] });
+    }
+  }
+  return groups;
+}
+
+/** How many recent scans {@link expectedScanSeconds} takes the middle of. */
+const EXPECTED_FROM_RUNS = 5;
+
+/**
+ * How long a scan over `scope` usually takes: the median of the most recent finished
+ * scans over the same nodes, or null when there are none.
+ *
+ * The same scope, because a one-node scan and a full one take very different times.
+ * The median, so one scan that sat behind a stuck node does not set the expectation.
+ * A scan that failed outright is left out: it ended early or timed out, and either
+ * way says nothing about how long one takes.
+ */
+export function expectedScanSeconds(
+  runs: OmInventoryRun[],
+  scope: string[]
+): number | null {
+  const key = [...scope].sort().join(',');
+  const durations: number[] = [];
+  for (const run of runs) {
+    if (durations.length === EXPECTED_FROM_RUNS) {
+      break;
+    }
+    const seconds = runDurationSeconds(run.start_time, run.end_time);
+    if (
+      seconds != null &&
+      (run.status === 'RUN_STATUS_SUCCESS' ||
+        run.status === 'RUN_STATUS_PARTIAL') &&
+      [...run.scope].sort().join(',') === key
+    ) {
+      durations.push(seconds);
+    }
+  }
+  if (durations.length === 0) {
+    return null;
+  }
+  durations.sort((a, b) => a - b);
+  const middle = Math.floor(durations.length / 2);
+  return durations.length % 2 === 1
+    ? durations[middle]
+    : (durations[middle - 1] + durations[middle]) / 2;
+}
 
 /** How many runs to ask for when the window is unbounded (`all`). */
 export const DEFAULT_RUN_LIMIT = 25;

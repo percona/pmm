@@ -23,7 +23,6 @@ import {
 } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import {
-  Alert,
   Box,
   Button,
   Chip,
@@ -39,6 +38,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -53,6 +53,7 @@ import {
 } from './constants';
 import { EmptyState } from './components/EmptyState';
 import { RowOverflowMenu } from './components/RowOverflowMenu';
+import { ScanProgress } from './components/ScanProgress';
 import { NotOnboardedDialog } from './components/NotOnboardedDialog';
 import { OmHeader } from './components/OmHeader';
 import { Unavailable } from './components/Unavailable';
@@ -71,9 +72,11 @@ import {
   useOmInventoryHosts,
   useRefreshInventory,
 } from './inventoryHooks';
-import { isBootstrapRunActive, OmApiError } from './api';
+import { isBootstrapRunActive } from './api';
+import { useScanConflict } from './ScanFeedback';
 import { useOmBase } from './useOmBase';
 import type { OmHostRow } from './types';
+import { OmError } from './components/OmError';
 
 /**
  * The columns a row opens with: which node, what is on it, whether Operations can
@@ -106,13 +109,21 @@ const HIDDEN_BY_DEFAULT = {
  * ("where could I install something" / "what is PMM already watching") — they
  * just no longer answer themselves on page load.
  */
-type HostFilter = 'unmonitored' | 'monitored' | 'all';
+type HostFilter = 'unmonitored' | 'monitored' | 'failing' | 'all';
 
 const HOST_FILTERS: { id: HostFilter; label: string }[] = [
   { id: 'unmonitored', label: 'Not monitored' },
   { id: 'monitored', label: 'Monitored' },
   { id: 'all', label: 'All' },
 ];
+
+/**
+ * Whether a node's failing scans count against the fleet. Not the PMM Server's own
+ * node's: Operations never acts on it, so its scans failing is not a fleet problem
+ * (Pedro, 2026-10-06). Its failure is still shown on its row, without the alarm.
+ */
+const countsAsFailing = (row: OmHostRow) =>
+  isFailing(row) && !row.is_pmm_server_node;
 
 /**
  * `unregistered_only` counts as not monitored: a host with a mongod PMM cannot see
@@ -122,6 +133,9 @@ const HOST_FILTERS: { id: HostFilter; label: string }[] = [
 function matchesHostFilter(row: OmHostRow, filter: HostFilter): boolean {
   if (filter === 'all') {
     return true;
+  }
+  if (filter === 'failing') {
+    return countsAsFailing(row);
   }
   const monitored = row.database_state === 'has_service';
   return filter === 'monitored' ? monitored : !monitored;
@@ -497,7 +511,12 @@ function useColumns(
             <Stack spacing={0.25}>
               <Box
                 component="span"
-                sx={{ color: 'error.main', whiteSpace: 'normal' }}
+                sx={{
+                  color: original.is_pmm_server_node
+                    ? 'text.secondary'
+                    : 'error.main',
+                  whiteSpace: 'normal',
+                }}
               >
                 {failureStatement(failure)}
               </Box>
@@ -543,11 +562,22 @@ function useColumns(
  * server names the run; a link to the scan history in general would send the reader
  * hunting through it, which is the trip this panel exists to save.
  */
-const ScanFailureDetail = ({ failure }: { failure: ScanFailure }) => {
+const ScanFailureDetail = ({
+  failure,
+  neutral,
+}: {
+  failure: ScanFailure;
+  /** True for the PMM Server's own node; see countsAsFailing. */
+  neutral: boolean;
+}) => {
   const omBase = useOmBase();
   return (
     <Box data-testid="scan-failure">
-      <Typography variant="subtitle2" gutterBottom color="error.main">
+      <Typography
+        variant="subtitle2"
+        gutterBottom
+        color={neutral ? undefined : 'error.main'}
+      >
         Scans failing: {failure.label}
       </Typography>
       <Typography variant="body2" sx={{ mb: 1 }}>
@@ -607,7 +637,9 @@ const HostDetail = ({ row }: { row: OmHostRow }) => {
   const failure = describeScanFailure(row.freshness);
   return (
     <Stack spacing={2} sx={{ p: 2 }}>
-      {failure && <ScanFailureDetail failure={failure} />}
+      {failure && (
+        <ScanFailureDetail failure={failure} neutral={row.is_pmm_server_node} />
+      )}
       <Box>
         <Typography variant="subtitle2" gutterBottom>
           Services PMM monitors ({row.services.length})
@@ -789,11 +821,21 @@ const ForgetDialog = ({
             re-registered in PMM under a new ID.
           </p>
         </DialogContentText>
-        {failures.map((failure) => (
-          <Alert severity="error" key={failure.nodeId} sx={{ mt: 1 }}>
-            {failure.name}: {failure.message}
-          </Alert>
-        ))}
+        {failures.length > 0 && (
+          <Box sx={{ mt: 1 }}>
+            <OmError
+              placement="item"
+              title={
+                failures.length === 1
+                  ? 'Could not forget 1 node'
+                  : `Could not forget ${failures.length} nodes`
+              }
+              messages={failures.map(
+                (failure) => `${failure.name}: ${failure.message}`
+              )}
+            />
+          </Box>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
@@ -820,6 +862,7 @@ export const NodesPage = () => {
   // against a host that sweep already holds. The refetch when a sweep lands is the
   // estate query's own business now, so this page no longer arranges it.
   const refreshing = useIsEstateRefreshing();
+  const { conflict: scanConflict, runningScan } = useScanConflict(refresh);
   const navigate = useNavigate();
   const omBase = useOmBase();
   const [forgetting, setForgetting] = useState<OmHostRow[]>([]);
@@ -885,7 +928,7 @@ export const NodesPage = () => {
           !row.executor.reachable ||
           !row.executor.driver_healthy
       ).length,
-      failing: rows.filter((row) => isFailing(row)).length,
+      failing: rows.filter(countsAsFailing).length,
       automationEligible: rows.filter((row) => row.automation_eligible).length,
     }),
     [rows]
@@ -1031,12 +1074,13 @@ export const NodesPage = () => {
 
   if (isError) {
     return (
-      <Alert severity="error">
-        {/* An error here means PMM Extensions is unwell, and it renders inside the page rather
-            than replacing it. That is the whole point of reaching the fleet through
-            pmm-managed: before the proxy, a sick PMM Extensions blanked the page entirely. */}
-        {(error as Error)?.message ?? 'Could not load the nodes.'}
-      </Alert>
+      // An error here means PMM Extensions is unwell, so it renders inside the page
+      // rather than replacing it.
+      <OmError
+        placement="load"
+        title="Could not load the nodes"
+        messages={(error as Error)?.message}
+      />
     );
   }
 
@@ -1047,16 +1091,24 @@ export const NodesPage = () => {
         subtitle={
           <Typography variant="body2" color="text.secondary">
             Every node Operations knows about, including the ones with no
-            database on them.
+            database on them. This page says whether each node is ready to be
+            scanned and installed on, not how its databases are doing: database
+            health is on{' '}
+            <Link component={RouterLink} to={omBase} underline="hover">
+              Clusters
+            </Link>
+            .
           </Typography>
         }
         actions={
           <Stack direction="row" alignItems="center" gap={2}>
             <HostFilterChips value={hostFilter} onChange={setHostFilter} />
+            <ScanProgress />
             <Tooltip title="Scan every node. Starts one job per node and takes tens of seconds.">
               <Box component="span">
                 <Button
-                  variant="outlined"
+                  variant="contained"
+                  startIcon={<PlayArrowIcon />}
                   disabled={refresh.isPending || refreshing}
                   onClick={() => refresh.refreshAll()}
                 >
@@ -1067,19 +1119,39 @@ export const NodesPage = () => {
           </Stack>
         }
       />
-      {refresh.isError && (
-        <Alert
-          severity={
-            refresh.error instanceof OmApiError && refresh.error.status === 409
-              ? 'info'
-              : 'error'
-          }
-          sx={{ mb: 2 }}
-        >
-          {/* A 409 is an expected answer, not a fault: another sweep already holds
-              these hosts, and the schedule starts one every few minutes. */}
-          {refresh.error.message}
-        </Alert>
+      {/* A 409 is an expected answer, not a fault: another scan already holds these
+          nodes, and the schedule starts one every ten minutes. */}
+      {scanConflict && (
+        <Box sx={{ mb: 2 }}>
+          <OmError
+            placement="action"
+            severity="info"
+            messages={scanConflict.message}
+            action={
+              runningScan && (
+                <Button
+                  component={RouterLink}
+                  to={`${omBase}/${OM_ROUTE_AUTOMATIONS}?tab=scans&expand=${encodeURIComponent(
+                    runningScan.run_id
+                  )}`}
+                  color="inherit"
+                  size="small"
+                >
+                  Open the running scan
+                </Button>
+              )
+            }
+          />
+        </Box>
+      )}
+      {refresh.isError && !scanConflict && (
+        <Box sx={{ mb: 2 }}>
+          <OmError
+            placement="action"
+            title="Could not start a scan"
+            messages={refresh.error.message}
+          />
+        </Box>
       )}
       <Stack direction="row" spacing={3} sx={{ mb: 2, alignItems: 'center' }}>
         <Typography variant="body2">
@@ -1111,10 +1183,19 @@ export const NodesPage = () => {
             <strong>{counts.unusable}</strong> cannot be scanned
           </Typography>
         )}
-        {counts.failing > 0 && (
-          <Typography variant="body2" color="error.main">
-            <strong>{counts.failing}</strong> failing
-          </Typography>
+        {/* A count to act on, so it is the filter too - as on the Services tab. */}
+        {(counts.failing > 0 || hostFilter === 'failing') && (
+          <Chip
+            size="small"
+            color={hostFilter === 'failing' ? 'error' : 'default'}
+            variant={hostFilter === 'failing' ? 'filled' : 'outlined'}
+            label={`${counts.failing} failing`}
+            onClick={() =>
+              setHostFilter((current) =>
+                current === 'failing' ? 'all' : 'failing'
+              )
+            }
+          />
         )}
       </Stack>
       {selectedRows.length > 0 && (

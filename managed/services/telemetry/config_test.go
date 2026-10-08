@@ -16,6 +16,7 @@
 package telemetry
 
 import (
+	"slices"
 	"testing"
 	"time"
 
@@ -24,6 +25,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
+
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/managed/utils/testdb"
 )
 
 func TestServiceConfigUnmarshal(t *testing.T) {
@@ -205,5 +210,65 @@ func TestDefaultConfigReportsKubernetesDeployment(t *testing.T) {
 		for _, metric := range append(report(t, helm), report(t, inKubernetes)...) {
 			assert.Equal(t, "1", metric.Value, "%s must report presence only", metric.Key)
 		}
+	})
+}
+
+// Operations for MongoDB is switched in the settings table, from the UI or once at startup from
+// PMM_ENABLE_OM, so the datapoint reads the setting: an ENV_VARS one would miss the UI switch.
+// Not parallel: testdb.Open recreates the database TestRunTelemetryService also uses.
+func TestDefaultConfigReportsMongoOpsEnabled(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	logEntry := logger.WithField("test", t.Name())
+	cfg := ServiceConfig{l: logEntry}
+
+	telemetry, err := cfg.loadMetricsConfig("")
+	require.NoError(t, err)
+
+	idx := slices.IndexFunc(telemetry, func(c Config) bool { return c.ID == "PMMServerMongoOpsEnabled" })
+	require.NotEqual(t, -1, idx, "PMMServerMongoOpsEnabled datapoint is missing")
+	mongoOps := telemetry[idx]
+	assert.Equal(t, string(dsPMMDBSelect), mongoOps.Source)
+	assert.Equal(t, []ConfigData{{MetricName: "pmm_server_mongo_ops_enabled", Column: "mongo_ops_enabled"}}, mongoOps.Data)
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+
+	report := func(t *testing.T) []*telemetryv1.GenericReport_Metric {
+		t.Helper()
+
+		metrics, err := fetchMetricsFromDB(t.Context(), logEntry, 5*time.Second, sqlDB, mongoOps)
+		require.NoError(t, err)
+
+		return metrics
+	}
+	enabled := func(value string) []*telemetryv1.GenericReport_Metric {
+		return []*telemetryv1.GenericReport_Metric{{Key: "pmm_server_mongo_ops_enabled", Value: value}}
+	}
+
+	t.Run("never switched", func(t *testing.T) {
+		assert.Equal(t, enabled("0"), report(t))
+	})
+
+	t.Run("switched on", func(t *testing.T) {
+		_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableOM: new(true)})
+		require.NoError(t, err)
+
+		assert.Equal(t, enabled("1"), report(t))
+	})
+
+	t.Run("switched off", func(t *testing.T) {
+		_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableOM: new(false)})
+		require.NoError(t, err)
+
+		assert.Equal(t, enabled("0"), report(t))
+	})
+
+	// The path server.UpdateSettingsFromEnv takes at startup.
+	t.Run("PMM_ENABLE_OM", func(t *testing.T) {
+		envSettings, errs, _ := envvars.ParseEnvVars([]string{"PMM_ENABLE_OM=true"})
+		require.Empty(t, errs)
+		_, err := models.UpdateSettings(sqlDB, envSettings)
+		require.NoError(t, err)
+
+		assert.Equal(t, enabled("1"), report(t))
 	})
 }

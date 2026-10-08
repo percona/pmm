@@ -2243,6 +2243,12 @@
                             "type": "integer",
                             "format": "int32",
                             "x-order": 6
+                          },
+                          "finished_hosts": {
+                            "description": "Hosts whose scan has come back, answered or not. Counted up while the run is\nstill going, so a page can say how far it has got.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 7
                           }
                         },
                         "x-order": 4
@@ -2260,6 +2266,27 @@
                         "type": "string",
                         "x-nullable": true,
                         "x-order": 6
+                      },
+                      "failing_nodes": {
+                        "description": "The nodes this run failed to scan, sorted by name: the node's own scan failed, or\na service on it did. What tells one run from the next, so the history can group\nruns that failed the same way and link each failure to its node.",
+                        "type": "array",
+                        "items": {
+                          "description": "InventoryRunFailingNode names one node a run failed to scan.",
+                          "type": "object",
+                          "properties": {
+                            "node_id": {
+                              "description": "PMM's node ID.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "name": {
+                              "description": "The node name, which is what the Nodes page is addressed by. Empty when the run\nrecorded none.",
+                              "type": "string",
+                              "x-order": 1
+                            }
+                          }
+                        },
+                        "x-order": 7
                       }
                     }
                   },
@@ -2406,6 +2433,12 @@
                           "type": "integer",
                           "format": "int32",
                           "x-order": 6
+                        },
+                        "finished_hosts": {
+                          "description": "Hosts whose scan has come back, answered or not. Counted up while the run is\nstill going, so a page can say how far it has got.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 7
                         }
                       },
                       "x-order": 4
@@ -2423,6 +2456,27 @@
                       "type": "string",
                       "x-nullable": true,
                       "x-order": 6
+                    },
+                    "failing_nodes": {
+                      "description": "The nodes this run failed to scan, sorted by name: the node's own scan failed, or\na service on it did. What tells one run from the next, so the history can group\nruns that failed the same way and link each failure to its node.",
+                      "type": "array",
+                      "items": {
+                        "description": "InventoryRunFailingNode names one node a run failed to scan.",
+                        "type": "object",
+                        "properties": {
+                          "node_id": {
+                            "description": "PMM's node ID.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "name": {
+                            "description": "The node name, which is what the Nodes page is addressed by. Empty when the run\nrecorded none.",
+                            "type": "string",
+                            "x-order": 1
+                          }
+                        }
+                      },
+                      "x-order": 7
                     }
                   },
                   "x-order": 0
@@ -3398,6 +3452,13 @@
                                     "format": "date-time",
                                     "x-nullable": true,
                                     "x-order": 19
+                                  },
+                                  "last_up_at": {
+                                    "description": "When this service was last seen up, to the minute: the newest moment its mongodb_up\nread 1 within the 24 hours collection reads metrics over. Set only while status is\nDOWN, so a reader can say how long it has been down - from metrics rather than the\nscan, because a scan can succeed while mongod is down. Unset while UP, and on a DOWN\nservice that was not up at any point in those 24 hours.",
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "x-nullable": true,
+                                    "x-order": 20
                                   }
                                 }
                               },
