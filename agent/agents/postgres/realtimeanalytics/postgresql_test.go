@@ -45,6 +45,15 @@ func TestNewCollectInterval(t *testing.T) {
 	}
 }
 
+func TestInstanceAddress(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, "pg-1:5432", instanceAddress("postgres://pmm:secret@pg-1:5432/postgres?sslmode=disable"))
+	assert.Equal(t, "[::1]:5433", instanceAddress("postgres://pmm@[::1]:5433/postgres"))
+	assert.Equal(t, "/var/run/postgresql", instanceAddress("postgres://pmm:secret@/postgres?host=%2Fvar%2Frun%2Fpostgresql&sslmode=disable"))
+	assert.Empty(t, instanceAddress("postgres://%zz"))
+}
+
 func TestToBlockers(t *testing.T) {
 	t.Parallel()
 

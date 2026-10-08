@@ -688,6 +688,8 @@ func (m *QueryPostgreSQLData) validate(all bool) error {
 
 	}
 
+	// no validation rules for DbInstanceAddress
+
 	if len(errors) > 0 {
 		return QueryPostgreSQLDataMultiError(errors)
 	}

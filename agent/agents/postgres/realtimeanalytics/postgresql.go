@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"slices"
 	"strconv"
 	"time"
@@ -75,12 +76,13 @@ const defaultCollectInterval = 2 * time.Second
 
 // PostgreSQLRTA extracts Real-Time Analytics data (currently running queries) from PostgreSQL.
 type PostgreSQLRTA struct {
-	db              *sql.DB
-	serviceID       string
-	serviceName     string
-	collectInterval time.Duration
-	l               *logrus.Entry
-	changes         chan agents.Change
+	db                *sql.DB
+	dbInstanceAddress string
+	serviceID         string
+	serviceName       string
+	collectInterval   time.Duration
+	l                 *logrus.Entry
+	changes           chan agents.Change
 }
 
 // Params represent Agent parameters.
@@ -107,12 +109,13 @@ func New(params *Params, l *logrus.Entry) (*PostgreSQLRTA, error) {
 	}
 
 	return &PostgreSQLRTA{
-		db:              db,
-		serviceID:       params.ServiceID,
-		serviceName:     params.ServiceName,
-		collectInterval: collectInterval,
-		l:               l,
-		changes:         make(chan agents.Change, 10), //nolint:mnd
+		db:                db,
+		dbInstanceAddress: instanceAddress(params.DSN),
+		serviceID:         params.ServiceID,
+		serviceName:       params.ServiceName,
+		collectInterval:   collectInterval,
+		l:                 l,
+		changes:           make(chan agents.Change, 10), //nolint:mnd
 	}, nil
 }
 
@@ -223,6 +226,7 @@ func (m *PostgreSQLRTA) collect(ctx context.Context) ([]*rtav1.QueryData, error)
 		q.ServiceName = m.serviceName
 		q.QueryId = strconv.Itoa(int(p.Pid))
 		q.QueryCollectTime = now
+		p.DbInstanceAddress = m.dbInstanceAddress
 		q.Payload = &rtav1.QueryData_PostgresqlPayload{PostgresqlPayload: &p}
 		res = append(res, &q)
 	}
@@ -235,6 +239,18 @@ func (m *PostgreSQLRTA) collect(ctx context.Context) ([]*rtav1.QueryData, error)
 	withBlockingChains(res)
 
 	return res, nil
+}
+
+// instanceAddress returns the host:port, or the socket directory, that a pmm-managed PostgreSQL DSN connects to.
+func instanceAddress(dsn string) string {
+	u, err := url.Parse(dsn)
+	if err != nil {
+		return ""
+	}
+	if u.Host != "" {
+		return u.Host
+	}
+	return u.Query().Get("host")
 }
 
 // withBlockingChains extends each waiter's direct blockers (pg_blocking_pids) with the blockers of those blockers,

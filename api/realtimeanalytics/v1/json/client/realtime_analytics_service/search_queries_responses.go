@@ -1332,6 +1332,9 @@ type SearchQueriesOKBodyQueriesItems0PostgresqlPayload struct {
 	// Sessions holding up this one, ordered by pid: its pg_blocking_pids() and, transitively, theirs.
 	// blocking_conn_id is the blocker's pid and blocking_command its state.
 	BlockedBy []*SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedByItems0 `json:"blocked_by"`
+
+	// PostgreSQL instance the agent connects to: host:port, or the socket directory.
+	DBInstanceAddress string `json:"db_instance_address,omitempty"`
 }
 
 // Validate validates this search queries OK body queries items0 postgresql payload

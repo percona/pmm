@@ -182,6 +182,8 @@ message QueryPostgreSQLData {
   // Sessions holding up this one, ordered by pid: its pg_blocking_pids() and, transitively, theirs.
   // blocking_conn_id is the blocker's pid and blocking_command its state.
   repeated BlockingTransaction blocked_by = 13;
+  // PostgreSQL instance the agent connects to: host:port, or the socket directory.
+  string db_instance_address = 14;
 }
 
 // QueryData represents a single Real-Time Analytics query data point.

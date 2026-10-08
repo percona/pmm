@@ -225,6 +225,7 @@ export const TEST_POSTGRESQL_QUERY_DATA: QueryData = {
   clientAddress: '127.0.0.1:50000',
   queryRawJson: '{"pid": 42}',
   postgresqlPayload: {
+    dbInstanceAddress: 'pg-1:5432',
     databaseName: 'postgres-database',
     username: 'postgres-user',
     applicationName: 'psql',

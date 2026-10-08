@@ -117,6 +117,7 @@ export interface QueryMySQLData {
 // Read from pg_stat_activity; blockers come from pg_blocking_pids(), with the
 // blocker's pid as blockingConnId and its session state as blockingCommand.
 export interface QueryPostgreSQLData {
+  dbInstanceAddress?: string;
   databaseName: string;
   username: string;
   applicationName: string;

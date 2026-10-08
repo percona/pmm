@@ -627,9 +627,11 @@ type QueryPostgreSQLData struct {
 	BlockedStatus BlockedStatus `protobuf:"varint,12,opt,name=blocked_status,json=blockedStatus,proto3,enum=realtimeanalytics.v1.BlockedStatus" json:"blocked_status,omitempty"`
 	// Sessions holding up this one, ordered by pid: its pg_blocking_pids() and, transitively, theirs.
 	// blocking_conn_id is the blocker's pid and blocking_command its state.
-	BlockedBy     []*BlockingTransaction `protobuf:"bytes,13,rep,name=blocked_by,json=blockedBy,proto3" json:"blocked_by,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	BlockedBy []*BlockingTransaction `protobuf:"bytes,13,rep,name=blocked_by,json=blockedBy,proto3" json:"blocked_by,omitempty"`
+	// PostgreSQL instance the agent connects to: host:port, or the socket directory.
+	DbInstanceAddress string `protobuf:"bytes,14,opt,name=db_instance_address,json=dbInstanceAddress,proto3" json:"db_instance_address,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *QueryPostgreSQLData) Reset() {
@@ -751,6 +753,13 @@ func (x *QueryPostgreSQLData) GetBlockedBy() []*BlockingTransaction {
 		return x.BlockedBy
 	}
 	return nil
+}
+
+func (x *QueryPostgreSQLData) GetDbInstanceAddress() string {
+	if x != nil {
+		return x.DbInstanceAddress
+	}
+	return ""
 }
 
 // QueryData represents a single Real-Time Analytics query data point.
@@ -980,7 +989,7 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\n" +
 	"_rows_sentB\f\n" +
 	"\n" +
-	"_full_scan\"\xf1\x04\n" +
+	"_full_scan\"\xa1\x05\n" +
 	"\x13QueryPostgreSQLData\x12#\n" +
 	"\rdatabase_name\x18\x01 \x01(\tR\fdatabaseName\x12 \n" +
 	"\busername\x18\x02 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12)\n" +
@@ -997,7 +1006,8 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\x14query_text_truncated\x18\v \x01(\bR\x12queryTextTruncated\x12J\n" +
 	"\x0eblocked_status\x18\f \x01(\x0e2#.realtimeanalytics.v1.BlockedStatusR\rblockedStatus\x12H\n" +
 	"\n" +
-	"blocked_by\x18\r \x03(\v2).realtimeanalytics.v1.BlockingTransactionR\tblockedBy\"\xfc\x04\n" +
+	"blocked_by\x18\r \x03(\v2).realtimeanalytics.v1.BlockingTransactionR\tblockedBy\x12.\n" +
+	"\x13db_instance_address\x18\x0e \x01(\tR\x11dbInstanceAddress\"\xfc\x04\n" +
 	"\tQueryData\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +

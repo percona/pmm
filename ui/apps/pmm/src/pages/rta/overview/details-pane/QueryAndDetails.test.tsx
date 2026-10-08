@@ -168,6 +168,9 @@ describe('QueryAndDetails', () => {
     expect(screen.getByTestId('database-name-value')).toHaveTextContent(
       'postgres-database'
     );
+    expect(screen.getByTestId('db-instance-address-value')).toHaveTextContent(
+      'pg-1:5432'
+    );
     expect(screen.getByTestId('query-id-value')).toHaveTextContent(
       '7063673311987853849'
     );

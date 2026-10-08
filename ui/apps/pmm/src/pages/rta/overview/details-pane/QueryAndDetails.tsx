@@ -69,8 +69,11 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
   const timezone = user?.preferences?.timezone || 'UTC';
 
   // Fields common to all database types are resolved from whichever payload is present.
-  const dbInstanceAddress =
-    mongoDbPayload?.dbInstanceAddress ?? mySqlPayload?.dbInstanceAddress;
+  const dbInstanceAddress = [
+    mongoDbPayload?.dbInstanceAddress,
+    mySqlPayload?.dbInstanceAddress,
+    postgresqlPayload?.dbInstanceAddress,
+  ].find((e) => !!e);
   const databaseName = [
     mongoDbPayload?.databaseName,
     mySqlPayload?.databaseName,
