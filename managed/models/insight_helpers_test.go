@@ -61,8 +61,8 @@ func TestInsights(t *testing.T) {
 			Status:      models.CheckResultFailed,
 			Summary:     "summary",
 			Description: "description",
-			Severity:    models.Severity(common.Error),
-			CheckedAt:   models.Now(),
+			Severity:    new(models.Severity(common.Error)),
+			CheckedAt:   new(models.Now()),
 		}
 		require.NoError(t, cr.SetLabels(labels))
 		create(t, cr)
@@ -73,7 +73,7 @@ func TestInsights(t *testing.T) {
 		require.Len(t, got, 1)
 		assert.Equal(t, cr.ID, got[0].ID)
 		assert.Equal(t, models.CheckResultFailed, got[0].Status)
-		assert.Equal(t, models.Severity(common.Error), got[0].Severity)
+		assert.Equal(t, new(models.Severity(common.Error)), got[0].Severity)
 		assert.Equal(t, "node-find", got[0].NodeName)
 
 		gotLabels, err := got[0].GetLabels()
@@ -86,12 +86,12 @@ func TestInsights(t *testing.T) {
 		create(t, &models.Insight{
 			CheckName: "weak_pwd", Category: "security", ServiceID: svc, ServiceName: "ProdMySQL",
 			NodeName: "node-A", Status: models.CheckResultFailed, Summary: "s",
-			Severity: models.Severity(common.Critical), CheckedAt: models.Now(),
+			Severity: new(models.Severity(common.Critical)), CheckedAt: new(models.Now()),
 		})
 		create(t, &models.Insight{
 			CheckName: "old_ver", Category: "configuration", ServiceID: svc, ServiceName: "devmysql",
 			NodeName: "node-B", Status: models.CheckResultOK, Summary: "s",
-			Severity: models.Severity(common.Info), CheckedAt: models.Now(),
+			Severity: new(models.Severity(common.Info)), CheckedAt: new(models.Now()),
 		})
 
 		// service_name: case-insensitive substring.
@@ -121,7 +121,7 @@ func TestInsights(t *testing.T) {
 		got, err = models.FindInsights(t.Context(), q, models.InsightFilters{ServiceID: svc, Severity: &sev}, 0, 0)
 		require.NoError(t, err)
 		require.Len(t, got, 1)
-		assert.Equal(t, models.Severity(common.Critical), got[0].Severity)
+		assert.Equal(t, new(models.Severity(common.Critical)), got[0].Severity)
 
 		// status.
 		st := models.CheckResultOK
@@ -140,12 +140,12 @@ func TestInsights(t *testing.T) {
 		create(t, &models.Insight{
 			CheckName: "c", ServiceID: svc, ServiceName: "s", NodeName: "n",
 			Status: models.CheckResultFailed, Summary: "s",
-			Severity: models.Severity(common.Warning), CheckedAt: models.Now().Add(-48 * time.Hour),
+			Severity: new(models.Severity(common.Warning)), CheckedAt: new(models.Now().Add(-48 * time.Hour)),
 		})
 		create(t, &models.Insight{
 			CheckName: "c", ServiceID: svc, ServiceName: "s", NodeName: "n",
 			Status: models.CheckResultFailed, Summary: "s",
-			Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
+			Severity: new(models.Severity(common.Warning)), CheckedAt: new(models.Now()),
 		})
 
 		from := models.Now().Add(-24 * time.Hour)
@@ -161,7 +161,7 @@ func TestInsights(t *testing.T) {
 			create(t, &models.Insight{
 				CheckName: fmt.Sprintf("c%d", i), ServiceID: svc, ServiceName: "s", NodeName: "n",
 				Status: models.CheckResultFailed, Summary: "s",
-				Severity: models.Severity(common.Warning), CheckedAt: base.Add(time.Duration(i) * time.Minute),
+				Severity: new(models.Severity(common.Warning)), CheckedAt: new(base.Add(time.Duration(i) * time.Minute)),
 			})
 		}
 
@@ -188,12 +188,12 @@ func TestInsights(t *testing.T) {
 		cr1 := create(t, &models.Insight{
 			CheckName: "c1", ServiceID: svc, ServiceName: "s", NodeName: "n",
 			Status: models.CheckResultFailed, Summary: "s",
-			Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
+			Severity: new(models.Severity(common.Warning)), CheckedAt: new(models.Now()),
 		})
 		cr2 := create(t, &models.Insight{
 			CheckName: "c2", ServiceID: svc, ServiceName: "s", NodeName: "n",
 			Status: models.CheckResultFailed, Summary: "s",
-			Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
+			Severity: new(models.Severity(common.Warning)), CheckedAt: new(models.Now()),
 		})
 
 		require.NoError(t, models.MarkInsightsRead(t.Context(), q, []string{cr1.ID}, true))
@@ -222,12 +222,12 @@ func TestInsights(t *testing.T) {
 		cr1 := create(t, &models.Insight{
 			CheckName: "c1", Category: "security", ServiceID: svc, ServiceName: "s", NodeName: "n",
 			Status: models.CheckResultFailed, Summary: "s",
-			Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
+			Severity: new(models.Severity(common.Warning)), CheckedAt: new(models.Now()),
 		})
 		create(t, &models.Insight{
 			CheckName: "c2", Category: "configuration", ServiceID: svc, ServiceName: "s", NodeName: "n",
 			Status: models.CheckResultFailed, Summary: "s",
-			Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
+			Severity: new(models.Severity(common.Warning)), CheckedAt: new(models.Now()),
 		})
 
 		// Only the matching row is updated.
@@ -253,17 +253,102 @@ func TestInsights(t *testing.T) {
 		require.Empty(t, got)
 	})
 
-	t.Run("cleanup old results", func(t *testing.T) {
-		svc := "svc-clean"
+	t.Run("pending and not run insights come last", func(t *testing.T) {
+		svc := "svc-order"
+		checkedAt := models.Now()
 		create(t, &models.Insight{
-			CheckName: "old", ServiceID: svc, ServiceName: "s", NodeName: "n",
-			Status: models.CheckResultFailed, Summary: "s",
-			Severity: models.Severity(common.Warning), CheckedAt: models.Now().Add(-72 * time.Hour),
+			CheckName: "pending", ServiceID: svc, ServiceName: "s", NodeName: "n",
+			Status: models.CheckResultPending, Summary: "s",
 		})
 		create(t, &models.Insight{
-			CheckName: "new", ServiceID: svc, ServiceName: "s", NodeName: "n",
+			CheckName: "done", ServiceID: svc, ServiceName: "s", NodeName: "n",
+			Status: models.CheckResultOK, Summary: "s",
+			Severity: new(models.Severity(common.Info)), CheckedAt: &checkedAt,
+		})
+
+		got, err := models.FindInsights(t.Context(), q, models.InsightFilters{ServiceID: svc}, 0, 0)
+		require.NoError(t, err)
+		require.Len(t, got, 2)
+		assert.Equal(t, "done", got[0].CheckName)
+		assert.Equal(t, "pending", got[1].CheckName)
+		assert.Nil(t, got[1].CheckedAt)
+		assert.Nil(t, got[1].Severity)
+
+		// a time range only matches insights that were checked
+		from := checkedAt.Add(-time.Minute)
+		got, err = models.FindInsights(t.Context(), q, models.InsightFilters{ServiceID: svc, From: &from}, 0, 0)
+		require.NoError(t, err)
+		require.Len(t, got, 1)
+		assert.Equal(t, "done", got[0].CheckName)
+	})
+
+	t.Run("a pending insight is completed in place and the rest is marked not run", func(t *testing.T) {
+		runID := "run-complete"
+		pending := []*models.Insight{
+			{RunID: runID, CheckName: "c1", ServiceID: "svc-complete", Status: models.CheckResultPending},
+			{RunID: runID, CheckName: "c2", ServiceID: "svc-complete", Status: models.CheckResultPending},
+		}
+		require.NoError(t, models.CreateInsights(t.Context(), q, pending))
+		require.NotEmpty(t, pending[0].ID)
+
+		checkedAt := models.Now()
+		finding := func(summary string, severity common.Severity) *models.Insight {
+			return &models.Insight{
+				RunID: runID, CheckName: "c1", ServiceID: "svc-complete", Status: models.CheckResultFailed,
+				Summary: summary, Severity: new(models.Severity(severity)), CheckedAt: &checkedAt,
+			}
+		}
+		require.NoError(t, models.CompleteInsight(t.Context(), q, pending[0].ID, []*models.Insight{
+			finding("first", common.Error),
+			finding("second", common.Warning),
+		}))
+		require.NoError(t, models.MarkPendingInsightsNotRun(t.Context(), q, runID, "the run ended"))
+
+		got, err := models.FindInsights(t.Context(), q, models.InsightFilters{RunID: runID}, 0, 0)
+		require.NoError(t, err)
+		require.Len(t, got, 3)
+		byStatus := make(map[models.CheckResultStatus][]*models.Insight)
+		for _, r := range got {
+			byStatus[r.Status] = append(byStatus[r.Status], r)
+		}
+		require.Len(t, byStatus[models.CheckResultFailed], 2)
+		require.Len(t, byStatus[models.CheckResultNotRun], 1)
+		assert.Equal(t, pending[1].ID, byStatus[models.CheckResultNotRun][0].ID)
+		assert.Nil(t, byStatus[models.CheckResultNotRun][0].CheckedAt)
+		assert.Equal(t, "the run ended", byStatus[models.CheckResultNotRun][0].Outcome)
+
+		// the first finding keeps the pending insight's ID
+		ids := []string{byStatus[models.CheckResultFailed][0].ID, byStatus[models.CheckResultFailed][1].ID}
+		assert.Contains(t, ids, pending[0].ID)
+	})
+
+	t.Run("cleanup removes the insights of old runs", func(t *testing.T) {
+		old := models.Now().Add(-72 * time.Hour)
+		oldRun := &models.AdvisorRun{TriggeredBy: models.CheckTriggeredByUser, Status: models.AdvisorRunStatusCompleted, StartedAt: old}
+		require.NoError(t, models.CreateAdvisorRun(t.Context(), q, oldRun))
+		recentRun := &models.AdvisorRun{TriggeredBy: models.CheckTriggeredByUser, Status: models.AdvisorRunStatusCompleted}
+		require.NoError(t, models.CreateAdvisorRun(t.Context(), q, recentRun))
+
+		svc := "svc-clean"
+		// checked recently, but by an old run
+		create(t, &models.Insight{
+			RunID: oldRun.ID, CheckName: "old", ServiceID: svc, ServiceName: "s", NodeName: "n",
 			Status: models.CheckResultFailed, Summary: "s",
-			Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
+			Severity: new(models.Severity(common.Warning)), CheckedAt: new(models.Now()),
+		})
+		create(t, &models.Insight{
+			RunID: oldRun.ID, CheckName: "old-not-run", ServiceID: svc, ServiceName: "s", NodeName: "n",
+			Status: models.CheckResultNotRun, Summary: "s",
+		})
+		create(t, &models.Insight{
+			RunID: "no-such-run", CheckName: "orphan", ServiceID: svc, ServiceName: "s", NodeName: "n",
+			Status: models.CheckResultFailed, Summary: "s",
+			Severity: new(models.Severity(common.Warning)), CheckedAt: new(models.Now()),
+		})
+		create(t, &models.Insight{
+			RunID: recentRun.ID, CheckName: "new", ServiceID: svc, ServiceName: "s", NodeName: "n",
+			Status: models.CheckResultFailed, Summary: "s",
+			Severity: new(models.Severity(common.Warning)), CheckedAt: new(models.Now()),
 		})
 
 		require.NoError(t, models.CleanupOldInsights(t.Context(), q, models.Now().Add(-24*time.Hour)))
@@ -280,13 +365,13 @@ func TestInsights(t *testing.T) {
 			create(t, &models.Insight{
 				CheckName: "c", ServiceID: "svc-fv", ServiceName: "fv-svc-b", NodeName: "fv-node-b",
 				Status: models.CheckResultFailed, Summary: "s",
-				Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
+				Severity: new(models.Severity(common.Warning)), CheckedAt: new(models.Now()),
 			})
 		}
 		create(t, &models.Insight{
 			CheckName: "c", ServiceID: "svc-fv", ServiceName: "fv-svc-a", NodeName: "fv-node-a",
 			Status: models.CheckResultOK, Summary: "s",
-			Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
+			Severity: new(models.Severity(common.Warning)), CheckedAt: new(models.Now()),
 		})
 
 		serviceNames, nodeNames, err := models.FindInsightFilterValues(t.Context(), q)

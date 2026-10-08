@@ -144,6 +144,10 @@ const (
 	AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_FAILED AdvisorCheckResultStatus = 2
 	// The check could not be executed.
 	AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_ERROR AdvisorCheckResultStatus = 3
+	// The run has planned the check but not executed it yet.
+	AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_PENDING AdvisorCheckResultStatus = 4
+	// The run ended before executing the check.
+	AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_NOT_RUN AdvisorCheckResultStatus = 5
 )
 
 // Enum value maps for AdvisorCheckResultStatus.
@@ -153,12 +157,16 @@ var (
 		1: "ADVISOR_CHECK_RESULT_STATUS_OK",
 		2: "ADVISOR_CHECK_RESULT_STATUS_FAILED",
 		3: "ADVISOR_CHECK_RESULT_STATUS_ERROR",
+		4: "ADVISOR_CHECK_RESULT_STATUS_PENDING",
+		5: "ADVISOR_CHECK_RESULT_STATUS_NOT_RUN",
 	}
 	AdvisorCheckResultStatus_value = map[string]int32{
 		"ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED": 0,
 		"ADVISOR_CHECK_RESULT_STATUS_OK":          1,
 		"ADVISOR_CHECK_RESULT_STATUS_FAILED":      2,
 		"ADVISOR_CHECK_RESULT_STATUS_ERROR":       3,
+		"ADVISOR_CHECK_RESULT_STATUS_PENDING":     4,
+		"ADVISOR_CHECK_RESULT_STATUS_NOT_RUN":     5,
 	}
 )
 
@@ -687,7 +695,12 @@ type StartAdvisorChecksRequest struct {
 	Names []string `protobuf:"bytes,1,rep,name=names,proto3" json:"names,omitempty"`
 	// IDs of the services to run the checks against. When empty, the checks run
 	// against every monitored service of a matching technology.
-	ServiceIds    []string `protobuf:"bytes,2,rep,name=service_ids,json=serviceIds,proto3" json:"service_ids,omitempty"`
+	ServiceIds []string `protobuf:"bytes,2,rep,name=service_ids,json=serviceIds,proto3" json:"service_ids,omitempty"`
+	// Interval groups whose checks should be started, as AdvisorCheckInterval names
+	// (e.g. ADVISOR_CHECK_INTERVAL_FREQUENT). When empty, checks of every interval run.
+	// A string rather than the enum, so that a misspelled name is rejected instead of
+	// being dropped by the JSON decoder, which would start checks of every interval.
+	Intervals     []string `protobuf:"bytes,3,rep,name=intervals,proto3" json:"intervals,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -732,6 +745,13 @@ func (x *StartAdvisorChecksRequest) GetNames() []string {
 func (x *StartAdvisorChecksRequest) GetServiceIds() []string {
 	if x != nil {
 		return x.ServiceIds
+	}
+	return nil
+}
+
+func (x *StartAdvisorChecksRequest) GetIntervals() []string {
+	if x != nil {
+		return x.Intervals
 	}
 	return nil
 }
@@ -1857,11 +1877,11 @@ type Insight struct {
 	ReadMoreUrl string `protobuf:"bytes,17,opt,name=read_more_url,json=readMoreUrl,proto3" json:"read_more_url,omitempty"`
 	// Output returned by the check run (finding details or execution error).
 	Outcome string `protobuf:"bytes,18,opt,name=outcome,proto3" json:"outcome,omitempty"`
-	// Severity of the result.
+	// Severity of the result; unspecified while the check is pending or when it did not run.
 	Severity v1.Severity `protobuf:"varint,19,opt,name=severity,proto3,enum=management.v1.Severity" json:"severity,omitempty"`
 	// Result labels.
 	Labels map[string]string `protobuf:"bytes,20,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	// Time when the check ran.
+	// Time when the check ran; unset while it is pending or when it did not run.
 	CheckedAt *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=checked_at,json=checkedAt,proto3" json:"checked_at,omitempty"`
 	// Whether the result has been marked as read.
 	IsRead bool `protobuf:"varint,22,opt,name=is_read,json=isRead,proto3" json:"is_read,omitempty"`
@@ -2604,8 +2624,8 @@ func (*MarkInsightsReadResponse) Descriptor() ([]byte, []int) {
 	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{35}
 }
 
-// AdvisorRun is a single execution of Advisor checks. Its totals are recorded on
-// completion, so they stay accurate after the run's insights have been pruned.
+// AdvisorRun is a single execution of Advisor checks. While it is running, its
+// totals cover the checks executed so far.
 type AdvisorRun struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID shared by every insight the run produced.
@@ -2616,9 +2636,9 @@ type AdvisorRun struct {
 	StartedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
 	// When the run completed; unset while it is queued or running.
 	FinishedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
-	// Number of distinct checks the run executed.
+	// Number of distinct checks that passed or detected an issue on at least one service.
 	ChecksCount int32 `protobuf:"varint,5,opt,name=checks_count,json=checksCount,proto3" json:"checks_count,omitempty"`
-	// Number of distinct services the run covered.
+	// Number of distinct services on which at least one check passed or detected an issue.
 	ServicesCount int32 `protobuf:"varint,6,opt,name=services_count,json=servicesCount,proto3" json:"services_count,omitempty"`
 	// Number of findings, i.e. checks that detected an issue.
 	FindingsCount int32 `protobuf:"varint,7,opt,name=findings_count,json=findingsCount,proto3" json:"findings_count,omitempty"`
@@ -2628,7 +2648,17 @@ type AdvisorRun struct {
 	// than a map so severity stays a typed enum instead of a free-form key.
 	SeverityCounts []*SeverityCount `protobuf:"bytes,9,rep,name=severity_counts,json=severityCounts,proto3" json:"severity_counts,omitempty"`
 	// The state of the run.
-	Status        AdvisorRunStatus `protobuf:"varint,10,opt,name=status,proto3,enum=advisors.v1.AdvisorRunStatus" json:"status,omitempty"`
+	Status AdvisorRunStatus `protobuf:"varint,10,opt,name=status,proto3,enum=advisors.v1.AdvisorRunStatus" json:"status,omitempty"`
+	// Number of distinct checks the run planned to execute; zero while it is queued.
+	PlannedChecksCount int32 `protobuf:"varint,11,opt,name=planned_checks_count,json=plannedChecksCount,proto3" json:"planned_checks_count,omitempty"`
+	// Number of distinct services the run planned to cover; zero while it is queued.
+	PlannedServicesCount int32 `protobuf:"varint,12,opt,name=planned_services_count,json=plannedServicesCount,proto3" json:"planned_services_count,omitempty"`
+	// Names of the checks the run was narrowed to; empty means all.
+	CheckNames []string `protobuf:"bytes,13,rep,name=check_names,json=checkNames,proto3" json:"check_names,omitempty"`
+	// IDs of the services the run was narrowed to; empty means all.
+	ServiceIds []string `protobuf:"bytes,14,rep,name=service_ids,json=serviceIds,proto3" json:"service_ids,omitempty"`
+	// Interval groups the run was narrowed to; empty means all.
+	Intervals     []AdvisorCheckInterval `protobuf:"varint,15,rep,packed,name=intervals,proto3,enum=advisors.v1.AdvisorCheckInterval" json:"intervals,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2731,6 +2761,41 @@ func (x *AdvisorRun) GetStatus() AdvisorRunStatus {
 		return x.Status
 	}
 	return AdvisorRunStatus_ADVISOR_RUN_STATUS_UNSPECIFIED
+}
+
+func (x *AdvisorRun) GetPlannedChecksCount() int32 {
+	if x != nil {
+		return x.PlannedChecksCount
+	}
+	return 0
+}
+
+func (x *AdvisorRun) GetPlannedServicesCount() int32 {
+	if x != nil {
+		return x.PlannedServicesCount
+	}
+	return 0
+}
+
+func (x *AdvisorRun) GetCheckNames() []string {
+	if x != nil {
+		return x.CheckNames
+	}
+	return nil
+}
+
+func (x *AdvisorRun) GetServiceIds() []string {
+	if x != nil {
+		return x.ServiceIds
+	}
+	return nil
+}
+
+func (x *AdvisorRun) GetIntervals() []AdvisorCheckInterval {
+	if x != nil {
+		return x.Intervals
+	}
+	return nil
 }
 
 // SeverityCount is the number of findings a run produced at a single severity.
@@ -2972,11 +3037,12 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\binterval\x18\x04 \x01(\x0e2!.advisors.v1.AdvisorCheckIntervalR\binterval\x12\x1f\n" +
 	"\vservice_ids\x18\x05 \x03(\tR\n" +
 	"serviceIdsB\t\n" +
-	"\a_enable\"R\n" +
+	"\a_enable\"p\n" +
 	"\x19StartAdvisorChecksRequest\x12\x14\n" +
 	"\x05names\x18\x01 \x03(\tR\x05names\x12\x1f\n" +
 	"\vservice_ids\x18\x02 \x03(\tR\n" +
-	"serviceIds\"3\n" +
+	"serviceIds\x12\x1c\n" +
+	"\tintervals\x18\x03 \x03(\tR\tintervals\"3\n" +
 	"\x1aStartAdvisorChecksResponse\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\"\x1a\n" +
 	"\x18ListAdvisorChecksRequest\"N\n" +
@@ -3127,7 +3193,7 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\x03ids\x18\x01 \x03(\tR\x03ids\x12\x17\n" +
 	"\ais_read\x18\x02 \x01(\bR\x06isRead\x126\n" +
 	"\afilters\x18\x03 \x01(\v2\x1c.advisors.v1.InsightsFiltersR\afilters\"\x1a\n" +
-	"\x18MarkInsightsReadResponse\"\xed\x03\n" +
+	"\x18MarkInsightsReadResponse\"\xd8\x05\n" +
 	"\n" +
 	"AdvisorRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12G\n" +
@@ -3142,7 +3208,14 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\ferrors_count\x18\b \x01(\x05R\verrorsCount\x12C\n" +
 	"\x0fseverity_counts\x18\t \x03(\v2\x1a.advisors.v1.SeverityCountR\x0eseverityCounts\x125\n" +
 	"\x06status\x18\n" +
-	" \x01(\x0e2\x1d.advisors.v1.AdvisorRunStatusR\x06status\"Z\n" +
+	" \x01(\x0e2\x1d.advisors.v1.AdvisorRunStatusR\x06status\x120\n" +
+	"\x14planned_checks_count\x18\v \x01(\x05R\x12plannedChecksCount\x124\n" +
+	"\x16planned_services_count\x18\f \x01(\x05R\x14plannedServicesCount\x12\x1f\n" +
+	"\vcheck_names\x18\r \x03(\tR\n" +
+	"checkNames\x12\x1f\n" +
+	"\vservice_ids\x18\x0e \x03(\tR\n" +
+	"serviceIds\x12?\n" +
+	"\tintervals\x18\x0f \x03(\x0e2!.advisors.v1.AdvisorCheckIntervalR\tintervals\"Z\n" +
 	"\rSeverityCount\x123\n" +
 	"\bseverity\x18\x01 \x01(\x0e2\x17.management.v1.SeverityR\bseverity\x12\x14\n" +
 	"\x05count\x18\x02 \x01(\x05R\x05count\"\xc1\x02\n" +
@@ -3172,12 +3245,14 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"$ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eADVISOR_CHECK_TECHNOLOGY_MYSQL\x10\x01\x12'\n" +
 	"#ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL\x10\x02\x12$\n" +
-	" ADVISOR_CHECK_TECHNOLOGY_MONGODB\x10\x03*\xba\x01\n" +
+	" ADVISOR_CHECK_TECHNOLOGY_MONGODB\x10\x03*\x8c\x02\n" +
 	"\x18AdvisorCheckResultStatus\x12+\n" +
 	"'ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eADVISOR_CHECK_RESULT_STATUS_OK\x10\x01\x12&\n" +
 	"\"ADVISOR_CHECK_RESULT_STATUS_FAILED\x10\x02\x12%\n" +
-	"!ADVISOR_CHECK_RESULT_STATUS_ERROR\x10\x03*\x94\x01\n" +
+	"!ADVISOR_CHECK_RESULT_STATUS_ERROR\x10\x03\x12'\n" +
+	"#ADVISOR_CHECK_RESULT_STATUS_PENDING\x10\x04\x12'\n" +
+	"#ADVISOR_CHECK_RESULT_STATUS_NOT_RUN\x10\x05*\x94\x01\n" +
 	"\x17AdvisorCheckTriggeredBy\x12*\n" +
 	"&ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fADVISOR_CHECK_TRIGGERED_BY_USER\x10\x01\x12(\n" +
@@ -3317,46 +3392,47 @@ var file_advisors_v1_advisors_proto_depIdxs = []int32{
 	49, // 37: advisors.v1.AdvisorRun.finished_at:type_name -> google.protobuf.Timestamp
 	42, // 38: advisors.v1.AdvisorRun.severity_counts:type_name -> advisors.v1.SeverityCount
 	4,  // 39: advisors.v1.AdvisorRun.status:type_name -> advisors.v1.AdvisorRunStatus
-	48, // 40: advisors.v1.SeverityCount.severity:type_name -> management.v1.Severity
-	3,  // 41: advisors.v1.ListRunsRequest.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
-	49, // 42: advisors.v1.ListRunsRequest.from:type_name -> google.protobuf.Timestamp
-	49, // 43: advisors.v1.ListRunsRequest.to:type_name -> google.protobuf.Timestamp
-	41, // 44: advisors.v1.ListRunsResponse.results:type_name -> advisors.v1.AdvisorRun
-	43, // 45: advisors.v1.AdvisorService.ListRuns:input_type -> advisors.v1.ListRunsRequest
-	34, // 46: advisors.v1.AdvisorService.ListInsights:input_type -> advisors.v1.ListInsightsRequest
-	36, // 47: advisors.v1.AdvisorService.ListInsightsFilterValues:input_type -> advisors.v1.ListInsightsFilterValuesRequest
-	39, // 48: advisors.v1.AdvisorService.MarkInsightsRead:input_type -> advisors.v1.MarkInsightsReadRequest
-	9,  // 49: advisors.v1.AdvisorService.StartAdvisorChecks:input_type -> advisors.v1.StartAdvisorChecksRequest
-	11, // 50: advisors.v1.AdvisorService.ListAdvisorChecks:input_type -> advisors.v1.ListAdvisorChecksRequest
-	27, // 51: advisors.v1.AdvisorService.ListAdvisors:input_type -> advisors.v1.ListAdvisorsRequest
-	29, // 52: advisors.v1.AdvisorService.ChangeAdvisorChecks:input_type -> advisors.v1.ChangeAdvisorChecksRequest
-	13, // 53: advisors.v1.AdvisorService.GetAdvisorCheck:input_type -> advisors.v1.GetAdvisorCheckRequest
-	15, // 54: advisors.v1.AdvisorService.CreateAdvisorCheck:input_type -> advisors.v1.CreateAdvisorCheckRequest
-	17, // 55: advisors.v1.AdvisorService.UpdateAdvisorCheck:input_type -> advisors.v1.UpdateAdvisorCheckRequest
-	21, // 56: advisors.v1.AdvisorService.TestAdvisorCheck:input_type -> advisors.v1.TestAdvisorCheckRequest
-	24, // 57: advisors.v1.AdvisorService.ListAdvisorCheckTestTargets:input_type -> advisors.v1.ListAdvisorCheckTestTargetsRequest
-	19, // 58: advisors.v1.AdvisorService.DeleteAdvisorCheck:input_type -> advisors.v1.DeleteAdvisorCheckRequest
-	31, // 59: advisors.v1.AdvisorService.SendTestAdvisorNotification:input_type -> advisors.v1.SendTestAdvisorNotificationRequest
-	44, // 60: advisors.v1.AdvisorService.ListRuns:output_type -> advisors.v1.ListRunsResponse
-	35, // 61: advisors.v1.AdvisorService.ListInsights:output_type -> advisors.v1.ListInsightsResponse
-	37, // 62: advisors.v1.AdvisorService.ListInsightsFilterValues:output_type -> advisors.v1.ListInsightsFilterValuesResponse
-	40, // 63: advisors.v1.AdvisorService.MarkInsightsRead:output_type -> advisors.v1.MarkInsightsReadResponse
-	10, // 64: advisors.v1.AdvisorService.StartAdvisorChecks:output_type -> advisors.v1.StartAdvisorChecksResponse
-	12, // 65: advisors.v1.AdvisorService.ListAdvisorChecks:output_type -> advisors.v1.ListAdvisorChecksResponse
-	28, // 66: advisors.v1.AdvisorService.ListAdvisors:output_type -> advisors.v1.ListAdvisorsResponse
-	30, // 67: advisors.v1.AdvisorService.ChangeAdvisorChecks:output_type -> advisors.v1.ChangeAdvisorChecksResponse
-	14, // 68: advisors.v1.AdvisorService.GetAdvisorCheck:output_type -> advisors.v1.GetAdvisorCheckResponse
-	16, // 69: advisors.v1.AdvisorService.CreateAdvisorCheck:output_type -> advisors.v1.CreateAdvisorCheckResponse
-	18, // 70: advisors.v1.AdvisorService.UpdateAdvisorCheck:output_type -> advisors.v1.UpdateAdvisorCheckResponse
-	23, // 71: advisors.v1.AdvisorService.TestAdvisorCheck:output_type -> advisors.v1.TestAdvisorCheckResponse
-	26, // 72: advisors.v1.AdvisorService.ListAdvisorCheckTestTargets:output_type -> advisors.v1.ListAdvisorCheckTestTargetsResponse
-	20, // 73: advisors.v1.AdvisorService.DeleteAdvisorCheck:output_type -> advisors.v1.DeleteAdvisorCheckResponse
-	32, // 74: advisors.v1.AdvisorService.SendTestAdvisorNotification:output_type -> advisors.v1.SendTestAdvisorNotificationResponse
-	60, // [60:75] is the sub-list for method output_type
-	45, // [45:60] is the sub-list for method input_type
-	45, // [45:45] is the sub-list for extension type_name
-	45, // [45:45] is the sub-list for extension extendee
-	0,  // [0:45] is the sub-list for field type_name
+	0,  // 40: advisors.v1.AdvisorRun.intervals:type_name -> advisors.v1.AdvisorCheckInterval
+	48, // 41: advisors.v1.SeverityCount.severity:type_name -> management.v1.Severity
+	3,  // 42: advisors.v1.ListRunsRequest.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
+	49, // 43: advisors.v1.ListRunsRequest.from:type_name -> google.protobuf.Timestamp
+	49, // 44: advisors.v1.ListRunsRequest.to:type_name -> google.protobuf.Timestamp
+	41, // 45: advisors.v1.ListRunsResponse.results:type_name -> advisors.v1.AdvisorRun
+	43, // 46: advisors.v1.AdvisorService.ListRuns:input_type -> advisors.v1.ListRunsRequest
+	34, // 47: advisors.v1.AdvisorService.ListInsights:input_type -> advisors.v1.ListInsightsRequest
+	36, // 48: advisors.v1.AdvisorService.ListInsightsFilterValues:input_type -> advisors.v1.ListInsightsFilterValuesRequest
+	39, // 49: advisors.v1.AdvisorService.MarkInsightsRead:input_type -> advisors.v1.MarkInsightsReadRequest
+	9,  // 50: advisors.v1.AdvisorService.StartAdvisorChecks:input_type -> advisors.v1.StartAdvisorChecksRequest
+	11, // 51: advisors.v1.AdvisorService.ListAdvisorChecks:input_type -> advisors.v1.ListAdvisorChecksRequest
+	27, // 52: advisors.v1.AdvisorService.ListAdvisors:input_type -> advisors.v1.ListAdvisorsRequest
+	29, // 53: advisors.v1.AdvisorService.ChangeAdvisorChecks:input_type -> advisors.v1.ChangeAdvisorChecksRequest
+	13, // 54: advisors.v1.AdvisorService.GetAdvisorCheck:input_type -> advisors.v1.GetAdvisorCheckRequest
+	15, // 55: advisors.v1.AdvisorService.CreateAdvisorCheck:input_type -> advisors.v1.CreateAdvisorCheckRequest
+	17, // 56: advisors.v1.AdvisorService.UpdateAdvisorCheck:input_type -> advisors.v1.UpdateAdvisorCheckRequest
+	21, // 57: advisors.v1.AdvisorService.TestAdvisorCheck:input_type -> advisors.v1.TestAdvisorCheckRequest
+	24, // 58: advisors.v1.AdvisorService.ListAdvisorCheckTestTargets:input_type -> advisors.v1.ListAdvisorCheckTestTargetsRequest
+	19, // 59: advisors.v1.AdvisorService.DeleteAdvisorCheck:input_type -> advisors.v1.DeleteAdvisorCheckRequest
+	31, // 60: advisors.v1.AdvisorService.SendTestAdvisorNotification:input_type -> advisors.v1.SendTestAdvisorNotificationRequest
+	44, // 61: advisors.v1.AdvisorService.ListRuns:output_type -> advisors.v1.ListRunsResponse
+	35, // 62: advisors.v1.AdvisorService.ListInsights:output_type -> advisors.v1.ListInsightsResponse
+	37, // 63: advisors.v1.AdvisorService.ListInsightsFilterValues:output_type -> advisors.v1.ListInsightsFilterValuesResponse
+	40, // 64: advisors.v1.AdvisorService.MarkInsightsRead:output_type -> advisors.v1.MarkInsightsReadResponse
+	10, // 65: advisors.v1.AdvisorService.StartAdvisorChecks:output_type -> advisors.v1.StartAdvisorChecksResponse
+	12, // 66: advisors.v1.AdvisorService.ListAdvisorChecks:output_type -> advisors.v1.ListAdvisorChecksResponse
+	28, // 67: advisors.v1.AdvisorService.ListAdvisors:output_type -> advisors.v1.ListAdvisorsResponse
+	30, // 68: advisors.v1.AdvisorService.ChangeAdvisorChecks:output_type -> advisors.v1.ChangeAdvisorChecksResponse
+	14, // 69: advisors.v1.AdvisorService.GetAdvisorCheck:output_type -> advisors.v1.GetAdvisorCheckResponse
+	16, // 70: advisors.v1.AdvisorService.CreateAdvisorCheck:output_type -> advisors.v1.CreateAdvisorCheckResponse
+	18, // 71: advisors.v1.AdvisorService.UpdateAdvisorCheck:output_type -> advisors.v1.UpdateAdvisorCheckResponse
+	23, // 72: advisors.v1.AdvisorService.TestAdvisorCheck:output_type -> advisors.v1.TestAdvisorCheckResponse
+	26, // 73: advisors.v1.AdvisorService.ListAdvisorCheckTestTargets:output_type -> advisors.v1.ListAdvisorCheckTestTargetsResponse
+	20, // 74: advisors.v1.AdvisorService.DeleteAdvisorCheck:output_type -> advisors.v1.DeleteAdvisorCheckResponse
+	32, // 75: advisors.v1.AdvisorService.SendTestAdvisorNotification:output_type -> advisors.v1.SendTestAdvisorNotificationResponse
+	61, // [61:76] is the sub-list for method output_type
+	46, // [46:61] is the sub-list for method input_type
+	46, // [46:46] is the sub-list for extension type_name
+	46, // [46:46] is the sub-list for extension extendee
+	0,  // [0:46] is the sub-list for field type_name
 }
 
 func init() { file_advisors_v1_advisors_proto_init() }

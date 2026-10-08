@@ -18,6 +18,7 @@ package models
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -25,12 +26,62 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+// insightsPerInsert keeps a multi-row insert well below PostgreSQL's limit of 65535 parameters.
+const insightsPerInsert = 1000
+
 // CreateInsight inserts a single Advisor check result into the history.
 func CreateInsight(ctx context.Context, q *reform.Querier, r *Insight) error {
 	if r.ID == "" {
 		r.ID = uuid.NewString()
 	}
 	return q.WithContext(ctx).Insert(r)
+}
+
+// CreateInsights inserts Advisor check results into the history in bulk.
+func CreateInsights(ctx context.Context, q *reform.Querier, insights []*Insight) error {
+	for chunk := range slices.Chunk(insights, insightsPerInsert) {
+		structs := make([]reform.Struct, 0, len(chunk))
+		for _, r := range chunk {
+			if r.ID == "" {
+				r.ID = uuid.NewString()
+			}
+			structs = append(structs, r)
+		}
+		err := q.WithContext(ctx).InsertMulti(structs...)
+		if err != nil {
+			return fmt.Errorf("failed to insert insights: %w", err)
+		}
+	}
+	return nil
+}
+
+// CompleteInsight replaces the pending insight with the given ID by the outcomes
+// of its check: the first one takes over the pending row, so the insight keeps
+// its ID, and any further findings are added.
+func CompleteInsight(ctx context.Context, q *reform.Querier, id string, outcomes []*Insight) error {
+	if len(outcomes) == 0 {
+		return fmt.Errorf("no outcomes for insight '%s'", id)
+	}
+
+	first := outcomes[0]
+	first.ID = id
+	err := q.WithContext(ctx).Update(first)
+	if err != nil {
+		return fmt.Errorf("failed to complete insight '%s': %w", id, err)
+	}
+	return CreateInsights(ctx, q, outcomes[1:])
+}
+
+// MarkPendingInsightsNotRun records that the run ended before executing its
+// pending checks, with the given outcome explaining it.
+func MarkPendingInsightsNotRun(ctx context.Context, q *reform.Querier, runID, outcome string) error {
+	_, err := q.ExecContext(ctx,
+		"UPDATE "+InsightTable.Name()+" SET status = $1, outcome = $2 WHERE run_id = $3 AND status = $4",
+		CheckResultNotRun, outcome, runID, CheckResultPending)
+	if err != nil {
+		return fmt.Errorf("failed to mark pending insights of run '%s' as not run: %w", runID, err)
+	}
+	return nil
 }
 
 // InsightFilters specifies filters for querying Advisor insights.
@@ -111,11 +162,12 @@ func insightConditions(q *reform.Querier, filters InsightFilters) (string, []any
 	return "WHERE " + strings.Join(conditions, " AND "), args
 }
 
-// FindInsights returns Advisor insights matching the filters, ordered by
-// checked_at descending. When pageSize is greater than zero, the results are paginated.
+// FindInsights returns Advisor insights matching the filters, most recently
+// checked first; pending and not run insights come last. When pageSize is
+// greater than zero, the results are paginated.
 func FindInsights(ctx context.Context, q *reform.Querier, filters InsightFilters, pageIndex, pageSize int) ([]*Insight, error) {
 	tail, args := insightConditions(q, filters)
-	tail += " ORDER BY checked_at DESC"
+	tail += " ORDER BY checked_at DESC NULLS LAST, service_name, check_name, id"
 	if pageSize > 0 {
 		tail += " LIMIT " + q.Placeholder(len(args)+1)
 		args = append(args, pageSize)
@@ -216,8 +268,11 @@ func MarkInsightsReadByFilters(ctx context.Context, q *reform.Querier, filters I
 	return nil
 }
 
-// CleanupOldInsights deletes Advisor insights older than a specified date.
+// CleanupOldInsights deletes the Advisor insights of runs started at or before
+// the given time, and those whose run no longer exists. Pruning by run keeps a
+// run's insights for as long as the run itself, pending and not run ones included.
 func CleanupOldInsights(ctx context.Context, q *reform.Querier, olderThan time.Time) error {
-	_, err := q.WithContext(ctx).DeleteFrom(InsightTable, " WHERE checked_at <= $1", olderThan)
+	_, err := q.WithContext(ctx).DeleteFrom(InsightTable,
+		" WHERE NOT EXISTS (SELECT 1 FROM "+AdvisorRunTable.Name()+" r WHERE r.id = run_id AND r.started_at > $1)", olderThan)
 	return err
 }

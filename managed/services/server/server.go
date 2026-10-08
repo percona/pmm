@@ -743,7 +743,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	var advisorsStarted bool
 	if !oldSettings.IsAdvisorsEnabled() && newSettings.IsAdvisorsEnabled() {
 		advisorsStarted = true
-		_, err := s.checksService.StartChecks(ctx, nil, nil)
+		_, err := s.checksService.StartChecks(ctx, nil, nil, nil)
 		_, inProgress := errors.AsType[*services.AdvisorRunInProgressError](err)
 		// a run in progress is already logged, and the scheduled runs cover it
 		if err != nil && !inProgress {

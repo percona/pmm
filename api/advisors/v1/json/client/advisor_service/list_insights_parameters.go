@@ -139,6 +139,8 @@ type ListInsightsParams struct {
 	- ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.
 	- ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.
 	- ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.
+	- ADVISOR_CHECK_RESULT_STATUS_PENDING: The run has planned the check but not executed it yet.
+	- ADVISOR_CHECK_RESULT_STATUS_NOT_RUN: The run ended before executing the check.
 
 	    Default: "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED"
 	*/

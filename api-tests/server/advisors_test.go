@@ -98,6 +98,59 @@ func TestStartChecks(t *testing.T) {
 		}
 	})
 
+	t.Run("a run keeps its scope and leaves nothing pending", func(t *testing.T) {
+		toggleAdvisorChecks(t, true)
+		t.Cleanup(func() { RestoreSettingsDefaults(t) })
+		waitForNoActiveRun(t)
+
+		frequent := "ADVISOR_CHECK_INTERVAL_FREQUENT"
+		resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(&advisor.StartAdvisorChecksParams{
+			Body:    advisor.StartAdvisorChecksBody{Intervals: []string{frequent}},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		runID := resp.Payload.RunID
+
+		waitForNoActiveRun(t)
+		runs, err := advisorClient.Default.AdvisorService.ListRuns(&advisor.ListRunsParams{
+			PageSize: new(int32(20)),
+			Context:  pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		var run *advisor.ListRunsOKBodyResultsItems0
+		for _, r := range runs.Payload.Results {
+			if r.ID == runID {
+				run = r
+			}
+		}
+		require.NotNil(t, run)
+		require.Len(t, run.Intervals, 1)
+		assert.Equal(t, frequent, *run.Intervals[0])
+		assert.LessOrEqual(t, run.ChecksCount, run.PlannedChecksCount)
+		assert.LessOrEqual(t, run.ServicesCount, run.PlannedServicesCount)
+
+		pending := "ADVISOR_CHECK_RESULT_STATUS_PENDING"
+		insights, err := advisorClient.Default.AdvisorService.ListInsights(&advisor.ListInsightsParams{
+			RunID:   &runID,
+			Status:  &pending,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.Empty(t, insights.Payload.Results)
+	})
+
+	t.Run("an unknown interval name is rejected", func(t *testing.T) {
+		toggleAdvisorChecks(t, true)
+		t.Cleanup(func() { RestoreSettingsDefaults(t) })
+
+		resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(&advisor.StartAdvisorChecksParams{
+			Body:    advisor.StartAdvisorChecksBody{Intervals: []string{"ADVISOR_CHECK_INTERVAL_BOGUS"}},
+			Context: pmmapitests.Context,
+		})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "unknown advisor check interval 'ADVISOR_CHECK_INTERVAL_BOGUS'")
+		assert.Nil(t, resp)
+	})
+
 	t.Run("with advisors disabled", func(t *testing.T) {
 		toggleAdvisorChecks(t, false)
 		t.Cleanup(func() { RestoreSettingsDefaults(t) })

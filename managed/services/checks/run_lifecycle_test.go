@@ -39,18 +39,22 @@ func TestRunLifecycle(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 	s := New(db, nil, nil, nil)
 
+	// a pending insight has neither severity nor check time
 	insight := func(t *testing.T, runID string, status models.CheckResultStatus, severity common.Severity, checkedAt time.Time) {
 		t.Helper()
-		require.NoError(t, models.CreateInsight(t.Context(), db.Querier, &models.Insight{
+		r := &models.Insight{
 			RunID:       runID,
 			CheckName:   "check_" + string(status),
 			ServiceID:   "svc-1",
 			ServiceType: models.MySQLServiceType,
 			Interval:    models.Standard,
 			Status:      status,
-			Severity:    models.Severity(severity),
-			CheckedAt:   checkedAt,
-		}))
+		}
+		if status != models.CheckResultPending {
+			r.Severity = new(models.Severity(severity))
+			r.CheckedAt = &checkedAt
+		}
+		require.NoError(t, models.CreateInsight(t.Context(), db.Querier, r))
 	}
 
 	// records a run the way the run loop claims one
@@ -84,8 +88,11 @@ func TestRunLifecycle(t *testing.T) {
 		assert.Equal(t, models.AdvisorRunStatusCompleted, run.Status)
 		assert.Equal(t, 1, run.FindingsCount)
 		assert.Equal(t, 1, run.ErrorsCount)
+		assert.Equal(t, 1, run.PlannedServicesCount)
 		assert.Equal(t, 1, run.ServicesCount)
-		assert.Equal(t, 2, run.ChecksCount)
+		// the errored check was planned but did not run
+		assert.Equal(t, 2, run.PlannedChecksCount)
+		assert.Equal(t, 1, run.ChecksCount)
 
 		counts, err := run.GetSeverityCounts()
 		require.NoError(t, err)
@@ -99,9 +106,15 @@ func TestRunLifecycle(t *testing.T) {
 		last := time.Date(2026, 8, 2, 8, 5, 0, 0, time.UTC)
 		insight(t, ri.runID, models.CheckResultFailed, common.Error, time.Date(2026, 8, 2, 8, 0, 0, 0, time.UTC))
 		insight(t, ri.runID, models.CheckResultOK, common.Info, last)
+		insight(t, ri.runID, models.CheckResultPending, common.Unknown, time.Time{})
 
 		// stands in for a restart: the run was never closed out
 		s.finalizeInterruptedRuns(t.Context())
+
+		notRun := models.CheckResultNotRun
+		insights, err := models.FindInsights(t.Context(), db.Querier, models.InsightFilters{RunID: ri.runID, Status: &notRun}, 0, 0)
+		require.NoError(t, err)
+		assert.Len(t, insights, 1)
 
 		run := &models.AdvisorRun{ID: ri.runID}
 		require.NoError(t, db.Reload(run))
@@ -110,6 +123,8 @@ func TestRunLifecycle(t *testing.T) {
 		require.NotNil(t, run.FinishedAt)
 		assert.Equal(t, last, *run.FinishedAt)
 		assert.Equal(t, 1, run.FindingsCount)
+		assert.Equal(t, 3, run.PlannedChecksCount)
+		assert.Equal(t, 2, run.ChecksCount)
 	})
 
 	t.Run("an interrupted run with no insights is closed at its start", func(t *testing.T) {
@@ -165,7 +180,7 @@ func TestRunStoppedBeforeAnyCheck(t *testing.T) {
 			Status:      models.AdvisorRunStatusRunning,
 		}
 		require.NoError(t, models.CreateAdvisorRun(t.Context(), db.Querier, run))
-		require.Error(t, s.run(ctx, run, nil))
+		require.Error(t, s.run(ctx, run))
 		require.NoError(t, db.Reload(run))
 		return run
 	}

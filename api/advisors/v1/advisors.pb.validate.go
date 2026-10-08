@@ -4678,6 +4678,10 @@ func (m *AdvisorRun) validate(all bool) error {
 
 	// no validation rules for Status
 
+	// no validation rules for PlannedChecksCount
+
+	// no validation rules for PlannedServicesCount
+
 	if len(errors) > 0 {
 		return AdvisorRunMultiError(errors)
 	}

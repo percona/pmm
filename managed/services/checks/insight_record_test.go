@@ -44,7 +44,7 @@ func TestNewCheckResultRecord(t *testing.T) {
 		AZ:             "us-east-1f",
 		Labels:         map[string]string{"az": "us-east-1f", "region": "us-east-1", "k": "target-wins"},
 	}
-	checkedAt := models.Now()
+	checkedAt := new(models.Now())
 	ri := runInfo{runID: "run-1", triggeredBy: models.CheckTriggeredByUser}
 
 	t.Run("failed finding maps all fields", func(t *testing.T) {
@@ -78,7 +78,7 @@ func TestNewCheckResultRecord(t *testing.T) {
 		assert.Equal(t, "us-east-1", rec.Region)
 		assert.Equal(t, "us-east-1f", rec.AZ)
 		assert.Equal(t, "https://example.com", rec.ReadMoreURL)
-		assert.Equal(t, models.Severity(common.Error), rec.Severity)
+		assert.Equal(t, new(models.Severity(common.Error)), rec.Severity)
 		assert.Equal(t, checkedAt, rec.CheckedAt)
 		assert.Equal(t, "run-1", rec.RunID)
 		assert.Equal(t, models.CheckTriggeredByUser, rec.TriggeredBy)
@@ -100,7 +100,7 @@ func TestNewCheckResultRecord(t *testing.T) {
 		assert.Equal(t, models.CheckResultOK, rec.Status)
 		assert.Equal(t, "Check title", rec.Summary)
 		assert.Equal(t, "Check passed", rec.Outcome)
-		assert.Equal(t, models.Severity(common.Info), rec.Severity)
+		assert.Equal(t, new(models.Severity(common.Info)), rec.Severity)
 
 		// target labels are carried even when the check reports none of its own
 		labels, err := rec.GetLabels()
@@ -119,6 +119,19 @@ func TestNewCheckResultRecord(t *testing.T) {
 		assert.Equal(t, "Check title", rec.Summary)
 		assert.Equal(t, "Check description", rec.Description)
 		assert.Equal(t, "execution failed", rec.Outcome)
-		assert.Equal(t, models.Severity(common.Info), rec.Severity)
+		assert.Equal(t, new(models.Severity(common.Info)), rec.Severity)
+	})
+
+	t.Run("pending check has no outcome, severity or check time", func(t *testing.T) {
+		t.Parallel()
+
+		rec := newInsightRecord(c, target, models.CheckResultPending, check.Result{}, nil, ri)
+
+		assert.Equal(t, models.CheckResultPending, rec.Status)
+		assert.Equal(t, "Check title", rec.Summary)
+		assert.Empty(t, rec.Outcome)
+		assert.Nil(t, rec.Severity)
+		assert.Nil(t, rec.CheckedAt)
+		assert.Equal(t, "sid", rec.ServiceID)
 	})
 }

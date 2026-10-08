@@ -545,7 +545,9 @@ type MarkInsightsReadParamsBodyFilters struct {
 	//  - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.
 	//  - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.
 	//  - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.
-	// Enum: ["ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED","ADVISOR_CHECK_RESULT_STATUS_OK","ADVISOR_CHECK_RESULT_STATUS_FAILED","ADVISOR_CHECK_RESULT_STATUS_ERROR"]
+	//  - ADVISOR_CHECK_RESULT_STATUS_PENDING: The run has planned the check but not executed it yet.
+	//  - ADVISOR_CHECK_RESULT_STATUS_NOT_RUN: The run ended before executing the check.
+	// Enum: ["ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED","ADVISOR_CHECK_RESULT_STATUS_OK","ADVISOR_CHECK_RESULT_STATUS_FAILED","ADVISOR_CHECK_RESULT_STATUS_ERROR","ADVISOR_CHECK_RESULT_STATUS_PENDING","ADVISOR_CHECK_RESULT_STATUS_NOT_RUN"]
 	Status *string `json:"status,omitempty"`
 
 	// Filter by read state.
@@ -640,7 +642,7 @@ var markInsightsReadParamsBodyFiltersTypeStatusPropEnum []any
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED","ADVISOR_CHECK_RESULT_STATUS_OK","ADVISOR_CHECK_RESULT_STATUS_FAILED","ADVISOR_CHECK_RESULT_STATUS_ERROR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED","ADVISOR_CHECK_RESULT_STATUS_OK","ADVISOR_CHECK_RESULT_STATUS_FAILED","ADVISOR_CHECK_RESULT_STATUS_ERROR","ADVISOR_CHECK_RESULT_STATUS_PENDING","ADVISOR_CHECK_RESULT_STATUS_NOT_RUN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -661,6 +663,12 @@ const (
 
 	// MarkInsightsReadParamsBodyFiltersStatusADVISORCHECKRESULTSTATUSERROR captures enum value "ADVISOR_CHECK_RESULT_STATUS_ERROR"
 	MarkInsightsReadParamsBodyFiltersStatusADVISORCHECKRESULTSTATUSERROR string = "ADVISOR_CHECK_RESULT_STATUS_ERROR"
+
+	// MarkInsightsReadParamsBodyFiltersStatusADVISORCHECKRESULTSTATUSPENDING captures enum value "ADVISOR_CHECK_RESULT_STATUS_PENDING"
+	MarkInsightsReadParamsBodyFiltersStatusADVISORCHECKRESULTSTATUSPENDING string = "ADVISOR_CHECK_RESULT_STATUS_PENDING"
+
+	// MarkInsightsReadParamsBodyFiltersStatusADVISORCHECKRESULTSTATUSNOTRUN captures enum value "ADVISOR_CHECK_RESULT_STATUS_NOT_RUN"
+	MarkInsightsReadParamsBodyFiltersStatusADVISORCHECKRESULTSTATUSNOTRUN string = "ADVISOR_CHECK_RESULT_STATUS_NOT_RUN"
 )
 
 // prop value enum

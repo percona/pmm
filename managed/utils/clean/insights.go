@@ -66,8 +66,7 @@ func (c *Insights) cleanup(ctx context.Context, l *logrus.Entry) {
 		l.Error(err)
 	}
 
-	// Runs share the retention window but are pruned by their own start time, so
-	// a run keeps reporting its stored totals until it ages out itself.
+	// a run ages out together with its insights
 	err = models.CleanupOldAdvisorRuns(ctx, c.db.Querier, olderThanTS)
 	if err != nil {
 		l.Error(err)

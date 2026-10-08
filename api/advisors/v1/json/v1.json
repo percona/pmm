@@ -1249,6 +1249,14 @@
                     "type": "string"
                   },
                   "x-order": 1
+                },
+                "intervals": {
+                  "description": "Interval groups whose checks should be started, as AdvisorCheckInterval names\n(e.g. ADVISOR_CHECK_INTERVAL_FREQUENT). When empty, checks of every interval run.\nA string rather than the enum, so that a misspelled name is rejected instead of\nbeing dropped by the JSON decoder, which would start checks of every interval.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 2
                 }
               }
             }
@@ -1661,11 +1669,13 @@
               "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
               "ADVISOR_CHECK_RESULT_STATUS_OK",
               "ADVISOR_CHECK_RESULT_STATUS_FAILED",
-              "ADVISOR_CHECK_RESULT_STATUS_ERROR"
+              "ADVISOR_CHECK_RESULT_STATUS_ERROR",
+              "ADVISOR_CHECK_RESULT_STATUS_PENDING",
+              "ADVISOR_CHECK_RESULT_STATUS_NOT_RUN"
             ],
             "type": "string",
             "default": "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
-            "description": "Filter by outcome.\n\n - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.\n - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.\n - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.",
+            "description": "Filter by outcome.\n\n - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.\n - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.\n - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.\n - ADVISOR_CHECK_RESULT_STATUS_PENDING: The run has planned the check but not executed it yet.\n - ADVISOR_CHECK_RESULT_STATUS_NOT_RUN: The run ended before executing the check.",
             "name": "status",
             "in": "query"
           },
@@ -1848,14 +1858,16 @@
                         "x-order": 12
                       },
                       "status": {
-                        "description": "AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.\n\n - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.\n - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.\n - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.",
+                        "description": "AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.\n\n - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.\n - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.\n - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.\n - ADVISOR_CHECK_RESULT_STATUS_PENDING: The run has planned the check but not executed it yet.\n - ADVISOR_CHECK_RESULT_STATUS_NOT_RUN: The run ended before executing the check.",
                         "type": "string",
                         "default": "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
                         "enum": [
                           "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
                           "ADVISOR_CHECK_RESULT_STATUS_OK",
                           "ADVISOR_CHECK_RESULT_STATUS_FAILED",
-                          "ADVISOR_CHECK_RESULT_STATUS_ERROR"
+                          "ADVISOR_CHECK_RESULT_STATUS_ERROR",
+                          "ADVISOR_CHECK_RESULT_STATUS_PENDING",
+                          "ADVISOR_CHECK_RESULT_STATUS_NOT_RUN"
                         ],
                         "x-order": 13
                       },
@@ -1905,7 +1917,7 @@
                         "x-order": 19
                       },
                       "checked_at": {
-                        "description": "Time when the check ran.",
+                        "description": "Time when the check ran; unset while it is pending or when it did not run.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 20
@@ -2116,14 +2128,16 @@
                       "x-order": 4
                     },
                     "status": {
-                      "description": "AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.\n\n - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.\n - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.\n - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.",
+                      "description": "AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.\n\n - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.\n - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.\n - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.\n - ADVISOR_CHECK_RESULT_STATUS_PENDING: The run has planned the check but not executed it yet.\n - ADVISOR_CHECK_RESULT_STATUS_NOT_RUN: The run ended before executing the check.",
                       "type": "string",
                       "default": "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
                       "enum": [
                         "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
                         "ADVISOR_CHECK_RESULT_STATUS_OK",
                         "ADVISOR_CHECK_RESULT_STATUS_FAILED",
-                        "ADVISOR_CHECK_RESULT_STATUS_ERROR"
+                        "ADVISOR_CHECK_RESULT_STATUS_ERROR",
+                        "ADVISOR_CHECK_RESULT_STATUS_PENDING",
+                        "ADVISOR_CHECK_RESULT_STATUS_NOT_RUN"
                       ],
                       "x-nullable": true,
                       "x-order": 5
@@ -2328,7 +2342,7 @@
                   "description": "Runs, most recently started first.",
                   "type": "array",
                   "items": {
-                    "description": "AdvisorRun is a single execution of Advisor checks. Its totals are recorded on\ncompletion, so they stay accurate after the run's insights have been pruned.",
+                    "description": "AdvisorRun is a single execution of Advisor checks. While it is running, its\ntotals cover the checks executed so far.",
                     "type": "object",
                     "properties": {
                       "id": {
@@ -2360,13 +2374,13 @@
                         "x-order": 3
                       },
                       "checks_count": {
-                        "description": "Number of distinct checks the run executed.",
+                        "description": "Number of distinct checks that passed or detected an issue on at least one service.",
                         "type": "integer",
                         "format": "int32",
                         "x-order": 4
                       },
                       "services_count": {
-                        "description": "Number of distinct services the run covered.",
+                        "description": "Number of distinct services on which at least one check passed or detected an issue.",
                         "type": "integer",
                         "format": "int32",
                         "x-order": 5
@@ -2429,6 +2443,50 @@
                           "ADVISOR_RUN_STATUS_ABORTED"
                         ],
                         "x-order": 9
+                      },
+                      "planned_checks_count": {
+                        "description": "Number of distinct checks the run planned to execute; zero while it is queued.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 10
+                      },
+                      "planned_services_count": {
+                        "description": "Number of distinct services the run planned to cover; zero while it is queued.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 11
+                      },
+                      "check_names": {
+                        "description": "Names of the checks the run was narrowed to; empty means all.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 12
+                      },
+                      "service_ids": {
+                        "description": "IDs of the services the run was narrowed to; empty means all.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 13
+                      },
+                      "intervals": {
+                        "description": "Interval groups the run was narrowed to; empty means all.",
+                        "type": "array",
+                        "items": {
+                          "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
+                          "type": "string",
+                          "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                          "enum": [
+                            "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                            "ADVISOR_CHECK_INTERVAL_STANDARD",
+                            "ADVISOR_CHECK_INTERVAL_FREQUENT",
+                            "ADVISOR_CHECK_INTERVAL_RARE"
+                          ]
+                        },
+                        "x-order": 14
                       }
                     }
                   },

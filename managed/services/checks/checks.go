@@ -76,6 +76,9 @@ const (
 	scriptExecutionTimeout = 5 * time.Second  // time limit for running pmm-managed-starlark
 	resultCheckInterval    = time.Second
 
+	// Outcome of a planned check the run did not execute.
+	notRunOutcome = "The run ended before executing the check, for example because PMM restarted."
+
 	prometheusNamespace = "pmm_managed"
 	prometheusSubsystem = "advisor"
 )
@@ -107,7 +110,7 @@ type Service struct {
 	// rather than at its next poll.
 	wakeCh chan struct{}
 	// execute runs a recorded run; tests replace it.
-	execute func(ctx context.Context, run *models.AdvisorRun, groups []check.Interval) error
+	execute func(ctx context.Context, run *models.AdvisorRun) error
 
 	am       sync.Mutex
 	advisors []check.Advisor
@@ -246,9 +249,9 @@ func (s *Service) runChecksLoop(ctx context.Context, rare, standard, frequent <-
 
 	for {
 		if done == nil && settle == nil {
-			run, groups := s.nextRun(ctx, due)
+			run := s.nextRun(ctx, due)
 			if run != nil {
-				current, done = run.ID, s.goRun(ctx, run, groups)
+				current, done = run.ID, s.goRun(ctx, run)
 			}
 		}
 
@@ -289,13 +292,12 @@ func (s *Service) runChecksLoop(ctx context.Context, rare, standard, frequent <-
 
 // nextRun picks and claims the run to start next: the queued run if there is
 // one, else the due interval groups as a single run, in which case it clears
-// due. It returns a nil run when there is nothing to start; the groups are nil
-// for a run that is not scheduled or covers every group.
-func (s *Service) nextRun(ctx context.Context, due map[check.Interval]struct{}) (*models.AdvisorRun, []check.Interval) {
+// due. It returns nil when there is nothing to start.
+func (s *Service) nextRun(ctx context.Context, due map[check.Interval]struct{}) *models.AdvisorRun {
 	active, err := models.FindActiveAdvisorRun(ctx, s.db.Querier)
 	if err != nil {
 		s.l.Error(err)
-		return nil, nil
+		return nil
 	}
 
 	if active != nil {
@@ -304,39 +306,46 @@ func (s *Service) nextRun(ctx context.Context, due map[check.Interval]struct{}) 
 		}
 		// a running run here is not ours, e.g. a former leader is finishing it
 		if active.Status != models.AdvisorRunStatusQueued {
-			return nil, nil
+			return nil
 		}
 
 		ok, err := models.StartQueuedAdvisorRun(ctx, s.db.Querier, active.ID, models.Now())
 		if err != nil {
 			s.l.Error(err)
-			return nil, nil
+			return nil
 		}
 		if !ok {
-			return nil, nil
+			return nil
 		}
 		active.Status = models.AdvisorRunStatusRunning
-		return active, nil
+		return active
 	}
 
 	if len(due) == 0 {
-		return nil, nil
+		return nil
 	}
 
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		s.l.Error(err)
-		return nil, nil
+		return nil
 	}
 	if !settings.IsAdvisorsEnabled() {
 		s.l.Info("Advisor checks are not enabled, doing nothing.")
 		clear(due)
-		return nil, nil
+		return nil
 	}
 
+	groups := slices.Sorted(maps.Keys(due))
 	run := &models.AdvisorRun{
 		TriggeredBy: models.CheckTriggeredByScheduler,
 		Status:      models.AdvisorRunStatusRunning,
+	}
+	// every group due is a full run
+	if len(groups) != len(allIntervals) {
+		for _, group := range groups {
+			run.Intervals = append(run.Intervals, string(group))
+		}
 	}
 	err = models.CreateAdvisorRun(ctx, s.db.Querier, run)
 	if errors.Is(err, models.ErrAdvisorRunInProgress) {
@@ -345,25 +354,20 @@ func (s *Service) nextRun(ctx context.Context, due map[check.Interval]struct{}) 
 	}
 	if err != nil {
 		s.l.Errorf("Failed to record a scheduled Advisor run: %+v", err)
-		return nil, nil
+		return nil
 	}
 
-	groups := slices.Sorted(maps.Keys(due))
 	clear(due)
 	s.l.WithFields(logrus.Fields{"run_id": run.ID, "intervals": groups}).Info("Starting scheduled Advisor checks.")
-	if len(groups) == len(allIntervals) {
-		// every group due is a full run
-		groups = nil
-	}
-	return run, groups
+	return run
 }
 
 // goRun executes the run in the background and returns a channel closed when it ends.
-func (s *Service) goRun(ctx context.Context, run *models.AdvisorRun, groups []check.Interval) chan struct{} {
+func (s *Service) goRun(ctx context.Context, run *models.AdvisorRun) chan struct{} {
 	done := make(chan struct{})
 	go func() {
 		defer close(done)
-		err := s.execute(ctx, run, groups)
+		err := s.execute(ctx, run)
 		if err != nil {
 			s.l.Error(err)
 		}
@@ -422,9 +426,9 @@ func (s *Service) MarkInsightsReadByFilters(ctx context.Context, filters models.
 // StartChecks queues an Advisor run and returns its ID. The leader starts it
 // right away when this node leads, or at its next poll otherwise. If checkNames
 // are given, only those checks run; if serviceIDs are given, only against those
-// services. While another run is queued or running, it returns
-// *services.AdvisorRunInProgressError.
-func (s *Service) StartChecks(ctx context.Context, checkNames, serviceIDs []string) (string, error) {
+// services; if intervals are given, only checks of those interval groups. While
+// another run is queued or running, it returns *services.AdvisorRunInProgressError.
+func (s *Service) StartChecks(ctx context.Context, checkNames, serviceIDs []string, intervals []check.Interval) (string, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return "", err
@@ -439,6 +443,9 @@ func (s *Service) StartChecks(ctx context.Context, checkNames, serviceIDs []stri
 		Status:      models.AdvisorRunStatusQueued,
 		CheckNames:  checkNames,
 		ServiceIDs:  serviceIDs,
+	}
+	for _, interval := range intervals {
+		run.Intervals = append(run.Intervals, string(interval))
 	}
 	err = models.CreateAdvisorRun(ctx, s.db.Querier, run)
 	if errors.Is(err, models.ErrAdvisorRunInProgress) {
@@ -478,18 +485,21 @@ type runInfo struct {
 	triggeredBy models.CheckTriggeredBy
 }
 
-// run executes a recorded run: the checks and services it names or, for a
-// scheduled run, the checks of the given interval groups (all when none), then
-// closes it out.
-func (s *Service) run(ctx context.Context, run *models.AdvisorRun, groups []check.Interval) error {
+// run executes a recorded run: the checks of its interval groups, narrowed to
+// the checks and services it names (all when none), then closes it out.
+func (s *Service) run(ctx context.Context, run *models.AdvisorRun) error {
 	s.UpdateAdvisorsList(ctx)
 
 	ri := runInfo{runID: run.ID, triggeredBy: run.TriggeredBy}
 	checkNames, serviceIDs := []string(run.CheckNames), []string(run.ServiceIDs)
+	groups := make([]check.Interval, 0, len(run.Intervals))
+	for _, group := range run.Intervals {
+		groups = append(groups, check.Interval(group))
+	}
 
-	res, err := s.executeChecks(ctx, groups, checkNames, serviceIDs, ri)
+	plan, err := s.planRun(ctx, groups, checkNames, serviceIDs, ri)
 	if err != nil {
-		// executeChecks fails only before running any check; a shutdown interrupts the run instead
+		// planning precedes every check; a shutdown interrupts the run instead
 		status := models.AdvisorRunStatusAborted
 		if ctx.Err() != nil {
 			status = models.AdvisorRunStatusInterrupted
@@ -497,6 +507,8 @@ func (s *Service) run(ctx context.Context, run *models.AdvisorRun, groups []chec
 		s.finishRun(ctx, ri.runID, status)
 		return err
 	}
+
+	res := s.executePlan(ctx, plan, ri)
 
 	switch {
 	case len(checkNames) != 0 && len(serviceIDs) != 0:
@@ -523,6 +535,9 @@ func (s *Service) run(ctx context.Context, run *models.AdvisorRun, groups []chec
 		status = models.AdvisorRunStatusInterrupted
 	}
 	s.finishRun(ctx, ri.runID, status)
+	if status != models.AdvisorRunStatusCompleted {
+		return nil
+	}
 
 	// Best-effort: email the completed run to the configured Advisor contact point.
 	s.maybeSendAdvisorNotification(ctx, ri.runID, ri.triggeredBy)
@@ -856,7 +871,7 @@ func (s *Service) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID
 
 	err = c.Validate()
 	if err != nil {
-		return nil, "", status.Errorf(codes.InvalidArgument, "Invalid advisor check: %v", err)
+		return nil, "", status.Errorf(codes.InvalidArgument, "invalid advisor check: %v", err)
 	}
 
 	serviceType, err := serviceTypeForTechnology(c.Technology)
@@ -864,7 +879,7 @@ func (s *Service) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID
 		return nil, "", err
 	}
 
-	targets, err := s.findTargets(ctx, serviceType, s.minPMMAgentVersion(c), nil)
+	targets, _, err := s.findTargets(ctx, serviceType, s.minPMMAgentVersion(c), nil)
 	if err != nil {
 		return nil, "", err
 	}
@@ -935,7 +950,7 @@ func (s *Service) ListTestTargets(ctx context.Context, technology check.Technolo
 		return nil, err
 	}
 
-	targets, err := s.findTargets(ctx, serviceType, nil, nil)
+	targets, _, err := s.findTargets(ctx, serviceType, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -1155,10 +1170,20 @@ func (s *Service) getActiveUserServiceTypes() (map[models.ServiceType]struct{}, 
 	return result, nil
 }
 
-// executeChecks runs checks for all reachable services. If groups are specified only checks from those interval groups
-// will be executed. If checkNames specified then only matched checks will be executed. If serviceIDs specified then
-// only those services are targeted.
-func (s *Service) executeChecks(ctx context.Context, groups []check.Interval, checkNames, serviceIDs []string, ri runInfo) ([]services.CheckResult, error) {
+// plannedCheck is a check a run executes against a target, and the pending
+// insight that records its outcome.
+type plannedCheck struct {
+	check   check.Check
+	target  services.Target
+	insight *models.Insight
+}
+
+// planRun works out which checks the run executes against which services and
+// records each pair as a pending insight; a service a check cannot reach is
+// recorded as an error right away. If groups are specified only checks from
+// those interval groups are planned; if checkNames are specified only matched
+// checks; if serviceIDs are specified only those services are targeted.
+func (s *Service) planRun(ctx context.Context, groups []check.Interval, checkNames, serviceIDs []string, ri runInfo) ([]plannedCheck, error) {
 	disabledChecks, err := s.GetDisabledChecks(ctx)
 	if err != nil {
 		return nil, err
@@ -1182,103 +1207,163 @@ func (s *Service) executeChecks(ctx context.Context, groups []check.Interval, ch
 		return nil, err
 	}
 
-	var res []services.CheckResult
 	checks, err := s.GetChecks()
 	if err != nil {
 		return nil, err
 	}
 	mySQLChecks, postgreSQLChecks, mongoDBChecks := groupChecksByDB(s.l, checks)
 
-	// Execute MySQL checks only if MySQL services exist
-	if _, hasMySQL := activeServiceTypes[models.MySQLServiceType]; hasMySQL {
-		mySQLChecks = s.filterChecks(mySQLChecks, groups, disabledChecks, checkNames)
-		mySQLCheckResults := s.executeChecksForTargetType(ctx, models.MySQLServiceType, mySQLChecks, disabledTargets, serviceIDs, ri)
-		res = append(res, mySQLCheckResults...)
-	} else {
-		s.l.Info("Skipping MySQL advisor checks: no MySQL services in inventory")
-	}
-
-	// Execute PostgreSQL checks only if PostgreSQL services exist
-	if _, hasPostgreSQL := activeServiceTypes[models.PostgreSQLServiceType]; hasPostgreSQL {
-		postgreSQLChecks = s.filterChecks(postgreSQLChecks, groups, disabledChecks, checkNames)
-		postgreSQLCheckResults := s.executeChecksForTargetType(ctx, models.PostgreSQLServiceType, postgreSQLChecks, disabledTargets, serviceIDs, ri)
-		res = append(res, postgreSQLCheckResults...)
-	} else {
-		s.l.Info("Skipping PostgreSQL advisor checks: no PostgreSQL services in inventory")
-	}
-
-	// Execute MongoDB checks only if MongoDB services exist
-	if _, hasMongoDB := activeServiceTypes[models.MongoDBServiceType]; hasMongoDB {
-		mongoDBChecks = s.filterChecks(mongoDBChecks, groups, disabledChecks, checkNames)
-		mongoDBCheckResults := s.executeChecksForTargetType(ctx, models.MongoDBServiceType, mongoDBChecks, disabledTargets, serviceIDs, ri)
-		res = append(res, mongoDBCheckResults...)
-	} else {
-		s.l.Info("Skipping MongoDB advisor checks: no MongoDB services in inventory")
-	}
-
-	return res, nil
-}
-
-func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType models.ServiceType, checks map[string]check.Check, disabledTargets map[string]map[string]struct{}, serviceIDs []string, ri runInfo) []services.CheckResult { //nolint:lll
-	var res []services.CheckResult
-	var history []*models.Insight
-
-	for _, c := range checks {
-		s.l.Infof("Executing check: %s with interval: %s", c.Name, c.Interval)
-		pmmAgentVersion := s.minPMMAgentVersion(c)
-		targets, err := s.findTargets(ctx, serviceType, pmmAgentVersion, serviceIDs)
-		if err != nil {
-			s.l.Warnf("Failed to find proper agents and services for check technology: %s and "+
-				"min version: %s, reason: %s.", c.Technology, pmmAgentVersion, err)
+	var plan []plannedCheck
+	var insights []*models.Insight
+	for _, t := range []struct {
+		serviceType models.ServiceType
+		checks      map[string]check.Check
+	}{
+		{models.MySQLServiceType, mySQLChecks},
+		{models.PostgreSQLServiceType, postgreSQLChecks},
+		{models.MongoDBServiceType, mongoDBChecks},
+	} {
+		// plan checks only for service types that have services
+		if _, ok := activeServiceTypes[t.serviceType]; !ok {
+			s.l.Infof("Skipping %s advisor checks: no such services in inventory.", t.serviceType)
 			continue
 		}
 
-		for _, target := range targets {
-			if _, ok := disabledTargets[c.Name][target.ServiceID]; ok {
-				s.l.Infof("Check %s is disabled for service %s, skipping it.", c.Name, target.ServiceID)
-				continue
-			}
+		checks := s.filterChecks(t.checks, groups, disabledChecks, checkNames)
+		p, i, err := s.planChecksForTargetType(ctx, t.serviceType, checks, disabledTargets, serviceIDs, ri)
+		if err != nil {
+			return nil, err
+		}
+		plan = append(plan, p...)
+		insights = append(insights, i...)
+	}
 
-			results, err := s.executeCheck(ctx, target, c, nil)
-			// stamp each (check, target) outcome with its actual completion time
-			checkedAt := models.Now()
+	err = s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		return models.CreateInsights(ctx, tx.Querier, insights)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return plan, nil
+}
+
+// planChecksForTargetType pairs the checks with the services of the given type
+// they apply to, and returns the pairs to execute together with the insights
+// that record them: pending ones for the pairs, errors for unreachable services.
+func (s *Service) planChecksForTargetType(
+	ctx context.Context,
+	serviceType models.ServiceType,
+	checks map[string]check.Check,
+	disabledTargets map[string]map[string]struct{},
+	serviceIDs []string,
+	ri runInfo,
+) ([]plannedCheck, []*models.Insight, error) {
+	type checkTargets struct {
+		targets     []services.Target
+		unreachable []unreachableTarget
+	}
+	// checks mostly share a minimum pmm-agent version, so targets are looked up once per version
+	byVersion := make(map[string]checkTargets)
+
+	var plan []plannedCheck
+	var insights []*models.Insight
+	for _, name := range slices.Sorted(maps.Keys(checks)) {
+		c := checks[name]
+		minVersion := s.minPMMAgentVersion(c)
+		var key string
+		if minVersion != nil {
+			key = minVersion.String()
+		}
+		ct, ok := byVersion[key]
+		if !ok {
+			targets, unreachable, err := s.findTargets(ctx, serviceType, minVersion, serviceIDs)
 			if err != nil {
-				s.l.Warnf("Failed to execute check %s of technology %s on target %s: %+v", c.Name, c.Technology, target.AgentID, err)
-				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Category, c.Name, "error").Inc()
-				history = append(history, newInsightRecord(c, target, models.CheckResultError, check.Result{Description: err.Error()}, checkedAt, ri))
+				return nil, nil, fmt.Errorf("failed to find %s services: %w", serviceType, err)
+			}
+			ct = checkTargets{targets: targets, unreachable: unreachable}
+			byVersion[key] = ct
+		}
+
+		for _, target := range ct.targets {
+			if _, ok := disabledTargets[c.Name][target.ServiceID]; ok {
+				s.l.Debugf("Check %s is disabled for service %s, skipping it.", c.Name, target.ServiceID)
 				continue
 			}
+			insight := newInsightRecord(c, target, models.CheckResultPending, check.Result{}, nil, ri)
+			plan = append(plan, plannedCheck{check: c, target: target, insight: insight})
+			insights = append(insights, insight)
+		}
 
-			res = append(res, results...)
-
-			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Category, c.Name, "ok").Inc()
-
-			if len(results) == 0 {
-				history = append(history, newInsightRecord(c, target, models.CheckResultOK, check.Result{}, checkedAt, ri))
+		checkedAt := models.Now()
+		for _, u := range ct.unreachable {
+			if _, ok := disabledTargets[c.Name][u.target.ServiceID]; ok {
 				continue
 			}
-
-			for _, finding := range results {
-				history = append(history, newInsightRecord(c, target, models.CheckResultFailed, finding.Result, checkedAt, ri))
-			}
+			insights = append(insights, newInsightRecord(c, u.target, models.CheckResultError, check.Result{Description: u.err.Error()}, &checkedAt, ri))
 		}
 	}
 
-	err := s.saveInsights(ctx, history)
-	if err != nil {
-		s.l.Warnf("Failed to save Advisor insights: %+v", err)
+	return plan, insights, nil
+}
+
+// executePlan executes the planned checks one at a time and completes each
+// insight as soon as its check finishes. It stops when ctx is cancelled; the
+// insights of the checks it did not finish stay pending.
+func (s *Service) executePlan(ctx context.Context, plan []plannedCheck, ri runInfo) []services.CheckResult {
+	var res []services.CheckResult
+	for _, p := range plan {
+		if ctx.Err() != nil {
+			break
+		}
+
+		c, target := p.check, p.target
+		s.l.Debugf("Executing check %s with interval %s on service %s.", c.Name, c.Interval, target.ServiceID)
+		results, err := s.executeCheck(ctx, target, c, nil)
+		if err != nil && ctx.Err() != nil {
+			// the run is being stopped, so the check did not run rather than fail
+			break
+		}
+
+		// stamp each (check, target) outcome with its actual completion time
+		checkedAt := models.Now()
+		var outcomes []*models.Insight
+		switch {
+		case err != nil:
+			s.l.Warnf("Failed to execute check %s of technology %s on target %s: %+v", c.Name, c.Technology, target.AgentID, err)
+			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Category, c.Name, "error").Inc()
+			outcomes = append(outcomes, newInsightRecord(c, target, models.CheckResultError, check.Result{Description: err.Error()}, &checkedAt, ri))
+		case len(results) == 0:
+			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Category, c.Name, "ok").Inc()
+			outcomes = append(outcomes, newInsightRecord(c, target, models.CheckResultOK, check.Result{}, &checkedAt, ri))
+		default:
+			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Category, c.Name, "ok").Inc()
+			res = append(res, results...)
+			for _, finding := range results {
+				outcomes = append(outcomes, newInsightRecord(c, target, models.CheckResultFailed, finding.Result, &checkedAt, ri))
+			}
+		}
+
+		// a finished check is saved even if the run is being stopped
+		saveCtx := context.WithoutCancel(ctx)
+		err = s.db.InTransactionContext(saveCtx, nil, func(tx *reform.TX) error {
+			return models.CompleteInsight(saveCtx, tx.Querier, p.insight.ID, outcomes)
+		})
+		if err != nil {
+			s.l.Warnf("Failed to save the outcome of check %s on service %s: %+v", c.Name, target.ServiceID, err)
+		}
 	}
 
 	return res
 }
 
-// newInsightRecord builds a history record for a single executed (check, target) outcome.
+// newInsightRecord builds a history record for a single (check, target) outcome,
+// or a pending one for a planned check.
 func newInsightRecord(
 	c check.Check,
 	target services.Target,
 	status models.CheckResultStatus,
 	result check.Result,
-	checkedAt time.Time,
+	checkedAt *time.Time,
 	ri runInfo,
 ) *models.Insight {
 	r := &models.Insight{
@@ -1300,7 +1385,6 @@ func newInsightRecord(
 		Description:    c.Description,
 		Outcome:        result.Description,
 		ReadMoreURL:    result.ReadMoreURL,
-		Severity:       models.Severity(result.Severity),
 		CheckedAt:      checkedAt,
 		RunID:          ri.runID,
 		TriggeredBy:    ri.triggeredBy,
@@ -1311,13 +1395,15 @@ func newInsightRecord(
 	}
 	switch status {
 	case models.CheckResultOK:
-		r.Severity = models.Severity(common.Info)
+		r.Severity = new(models.Severity(common.Info))
 		r.Outcome = "Check passed"
 	case models.CheckResultError:
 		// the check could not be executed, which is a diagnostic concern, not a database issue
-		r.Severity = models.Severity(common.Info)
+		r.Severity = new(models.Severity(common.Info))
 	case models.CheckResultFailed:
-		// keep the severity reported by the finding
+		r.Severity = new(models.Severity(result.Severity))
+	case models.CheckResultPending, models.CheckResultNotRun:
+		// no outcome, so no severity
 	}
 	// the target's node/service/agent labels take precedence over any the check script reported
 	labels := make(map[string]string, len(result.Labels)+len(target.Labels))
@@ -1329,25 +1415,8 @@ func newInsightRecord(
 	return r
 }
 
-// saveInsights persists Advisor insights in a single transaction.
-func (s *Service) saveInsights(ctx context.Context, history []*models.Insight) error {
-	if len(history) == 0 {
-		return nil
-	}
-
-	return s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		for _, r := range history {
-			err := models.CreateInsight(ctx, tx.Querier, r)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	})
-}
-
 // finishRun closes a run with the given status and stores the totals derived
-// from the insights it recorded.
+// from the insights it recorded; the checks it did not execute are marked not run.
 func (s *Service) finishRun(ctx context.Context, runID string, status models.AdvisorRunStatus) {
 	// The run is over either way, so record it even when the service context is
 	// already cancelled by a shutdown.
@@ -1359,13 +1428,20 @@ func (s *Service) finishRun(ctx context.Context, runID string, status models.Adv
 	}
 }
 
-// completeRun derives a run's totals from its insights and closes it with the given status.
+// completeRun marks the checks the run did not execute as not run, derives its
+// totals from its insights and closes it with the given status.
 func (s *Service) completeRun(ctx context.Context, runID string, status models.AdvisorRunStatus, finishedAt time.Time) error {
-	counts, err := models.ComputeAdvisorRunCounts(ctx, s.db.Querier, runID)
-	if err != nil {
-		return err
-	}
-	return models.FinishAdvisorRun(ctx, s.db.Querier, runID, status, finishedAt, counts)
+	return s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		err := models.MarkPendingInsightsNotRun(ctx, tx.Querier, runID, notRunOutcome)
+		if err != nil {
+			return err
+		}
+		counts, err := models.ComputeAdvisorRunCounts(ctx, tx.Querier, runID)
+		if err != nil {
+			return err
+		}
+		return models.FinishAdvisorRun(ctx, tx.Querier, runID, status, finishedAt, counts)
+	})
 }
 
 // finalizeInterruptedRuns closes out runs left running by a restart as
@@ -2130,13 +2206,25 @@ func validateAdvisorSeverity(s common.Severity) error {
 	}
 }
 
-// findTargets returns slice of available targets for specified service type.
-// If serviceIDs is not empty, only those services are considered.
-func (s *Service) findTargets(ctx context.Context, serviceType models.ServiceType, minPMMAgentVersion *version.Parsed, serviceIDs []string) ([]services.Target, error) { //nolint:lll
-	var targets []services.Target
+// unreachableTarget is a service a check cannot run against, and why.
+type unreachableTarget struct {
+	target services.Target
+	err    error
+}
+
+// findTargets returns the services of the given type, all or those with the
+// given IDs, that a check can run against, and the ones it cannot reach. A
+// service whose pmm-agents are all older than minPMMAgentVersion is in neither
+// list: the check does not apply to it.
+func (s *Service) findTargets(
+	ctx context.Context,
+	serviceType models.ServiceType,
+	minPMMAgentVersion *version.Parsed,
+	serviceIDs []string,
+) ([]services.Target, []unreachableTarget, error) {
 	monitoredServices, err := models.FindServices(s.db.WithContext(ctx), models.ServiceFilters{ServiceType: &serviceType})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	wanted := make(map[string]struct{}, len(serviceIDs))
@@ -2144,6 +2232,8 @@ func (s *Service) findTargets(ctx context.Context, serviceType models.ServiceTyp
 		wanted[id] = struct{}{}
 	}
 
+	var targets []services.Target
+	var unreachable []unreachableTarget
 	for _, service := range monitoredServices {
 		if len(wanted) != 0 {
 			_, ok := wanted[service.ServiceID]
@@ -2158,62 +2248,91 @@ func (s *Service) findTargets(ctx context.Context, serviceType models.ServiceTyp
 			continue
 		}
 
-		e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-			pmmAgents, err := models.FindPMMAgentsForService(tx.Querier, service.ServiceID)
-			if err != nil {
-				return err
-			}
-			if len(pmmAgents) == 0 {
-				return errors.New("no available pmm agents")
-			}
-
-			pmmAgents = models.FindPMMAgentsForVersion(s.l, pmmAgents, minPMMAgentVersion)
-			if len(pmmAgents) == 0 {
-				return errors.New("all available agents are outdated")
-			}
-			pmmAgent := pmmAgents[0]
-
-			DSN, agent, err := models.FindDSNByServiceIDandPMMAgentID(tx.Querier, service.ServiceID, pmmAgents[0].AgentID, "")
-			if err != nil {
-				return err
-			}
-
-			node, err := models.FindNodeByID(tx.Querier, service.NodeID)
-			if err != nil {
-				return err
-			}
-
-			labels, err := models.MergeLabels(node, service, agent)
-			if err != nil {
-				return err
-			}
-
-			targets = append(targets, services.Target{
-				AgentID:        pmmAgent.AgentID,
-				ServiceID:      service.ServiceID,
-				ServiceName:    service.ServiceName,
-				ServiceType:    service.ServiceType,
-				NodeID:         node.NodeID,
-				NodeName:       node.NodeName,
-				Environment:    service.Environment,
-				Cluster:        service.Cluster,
-				ReplicationSet: service.ReplicationSet,
-				Region:         pointer.GetString(node.Region),
-				AZ:             node.AZ,
-				Labels:         labels,
-				DSN:            DSN,
-				Files:          agent.Files(),
-				TDP:            agent.TemplateDelimiters(service),
-				TLSSkipVerify:  agent.TLSSkipVerify,
-			})
-			return nil
-		})
-		if e != nil {
-			s.l.Errorf("Failed to find agents for service %s, reason: %s.", service.ServiceID, e)
+		target, applies, err := s.resolveTarget(ctx, service, minPMMAgentVersion)
+		switch {
+		case err != nil:
+			s.l.Warnf("Advisor checks cannot reach service %s: %s.", service.ServiceID, err)
+			unreachable = append(unreachable, unreachableTarget{target: target, err: err})
+		case applies:
+			targets = append(targets, target)
 		}
 	}
 
-	return targets, nil
+	return targets, unreachable, nil
+}
+
+// resolveTarget finds how a check reaches the service through a pmm-agent of at
+// least minPMMAgentVersion. It returns false when the service's pmm-agents are
+// all older; on error, the target still identifies the service as far as known.
+func (s *Service) resolveTarget(
+	ctx context.Context,
+	service *models.Service,
+	minPMMAgentVersion *version.Parsed,
+) (services.Target, bool, error) {
+	target := services.Target{
+		ServiceID:      service.ServiceID,
+		ServiceName:    service.ServiceName,
+		ServiceType:    service.ServiceType,
+		NodeID:         service.NodeID,
+		Environment:    service.Environment,
+		Cluster:        service.Cluster,
+		ReplicationSet: service.ReplicationSet,
+	}
+	var applies bool
+	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		node, err := models.FindNodeByID(tx.Querier, service.NodeID)
+		if err != nil {
+			return err
+		}
+		target.NodeName = node.NodeName
+		target.Region = pointer.GetString(node.Region)
+		target.AZ = node.AZ
+		target.Labels, err = models.MergeLabels(node, service, nil)
+		if err != nil {
+			return err
+		}
+
+		pmmAgents, err := models.FindPMMAgentsForService(tx.Querier, service.ServiceID)
+		if err != nil {
+			return err
+		}
+		if len(pmmAgents) == 0 {
+			return errors.New("no pmm-agent is available for this service")
+		}
+
+		compatible := models.FindPMMAgentsForVersion(s.l, pmmAgents, minPMMAgentVersion)
+		if len(compatible) == 0 {
+			versionKnown := slices.ContainsFunc(pmmAgents, func(a *models.Agent) bool {
+				return pointer.GetString(a.Version) != ""
+			})
+			if !versionKnown {
+				return errors.New("the pmm-agent of this service has not reported its version; it may have never connected")
+			}
+			s.l.Infof("Service %s has no pmm-agent of version %s or newer, skipping checks that need one.",
+				service.ServiceID, minPMMAgentVersion)
+			return nil
+		}
+		pmmAgent := compatible[0]
+
+		DSN, agent, err := models.FindDSNByServiceIDandPMMAgentID(tx.Querier, service.ServiceID, pmmAgent.AgentID, "")
+		if err != nil {
+			return err
+		}
+
+		target.Labels, err = models.MergeLabels(node, service, agent)
+		if err != nil {
+			return err
+		}
+
+		target.AgentID = pmmAgent.AgentID
+		target.DSN = DSN
+		target.Files = agent.Files()
+		target.TDP = agent.TemplateDelimiters(service)
+		target.TLSSkipVerify = agent.TLSSkipVerify
+		applies = true
+		return nil
+	})
+	return target, applies, err
 }
 
 // UpdateAdvisorsList loads built-in checks (plus an optional user-defined file),

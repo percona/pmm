@@ -39,19 +39,7 @@ func TestInsightsCleaner(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	q := db.Querier
 
-	// Default retention is 30 days, so this row is past it and must be removed.
-	require.NoError(t, models.CreateInsight(t.Context(), q, &models.Insight{
-		CheckName: "old", ServiceID: "svc", ServiceName: "svc", NodeName: "node",
-		Status: models.CheckResultFailed, Summary: "s",
-		Severity: models.Severity(common.Warning), CheckedAt: models.Now().Add(-31 * 24 * time.Hour),
-	}))
-	require.NoError(t, models.CreateInsight(t.Context(), q, &models.Insight{
-		CheckName: "new", ServiceID: "svc", ServiceName: "svc", NodeName: "node",
-		Status: models.CheckResultFailed, Summary: "s",
-		Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
-	}))
-
-	// Runs share the retention window but age out on their own start time.
+	// Default retention is 30 days, so the old run and its insights are past it and must be removed.
 	oldRun := &models.AdvisorRun{
 		TriggeredBy: models.CheckTriggeredByUser,
 		Status:      models.AdvisorRunStatusCompleted,
@@ -64,6 +52,21 @@ func TestInsightsCleaner(t *testing.T) {
 		StartedAt:   models.Now(),
 	}
 	require.NoError(t, models.CreateAdvisorRun(t.Context(), q, newRun))
+
+	require.NoError(t, models.CreateInsight(t.Context(), q, &models.Insight{
+		RunID: oldRun.ID, CheckName: "old", ServiceID: "svc", ServiceName: "svc", NodeName: "node",
+		Status: models.CheckResultFailed, Summary: "s",
+		Severity: new(models.Severity(common.Warning)), CheckedAt: new(models.Now().Add(-31 * 24 * time.Hour)),
+	}))
+	require.NoError(t, models.CreateInsight(t.Context(), q, &models.Insight{
+		RunID: oldRun.ID, CheckName: "old-not-run", ServiceID: "svc", ServiceName: "svc", NodeName: "node",
+		Status: models.CheckResultNotRun, Summary: "s",
+	}))
+	require.NoError(t, models.CreateInsight(t.Context(), q, &models.Insight{
+		RunID: newRun.ID, CheckName: "new", ServiceID: "svc", ServiceName: "svc", NodeName: "node",
+		Status: models.CheckResultFailed, Summary: "s",
+		Severity: new(models.Severity(common.Warning)), CheckedAt: new(models.Now()),
+	}))
 
 	// Run a single cleanup pass synchronously; the ticker loop in Run is trivial plumbing.
 	NewInsights(db).cleanup(t.Context(), logrus.WithField("component", "test"))

@@ -108,12 +108,12 @@ func (s *ChecksAPIService) ListInsights(
 			return nil, fmt.Errorf("failed to decode labels for insight '%s': %w", r.ID, err)
 		}
 
-		items = append(items, &advisorsv1.Insight{
+		item := &advisorsv1.Insight{
 			Id:             r.ID,
 			CheckName:      r.CheckName,
 			RunId:          r.RunID,
 			Category:       r.Category,
-			Severity:       managementv1.Severity(r.Severity), //nolint:gosec // severity is a bounded enum (0-8), no overflow
+			Severity:       managementv1.Severity(pointer.Get(r.Severity)), //nolint:gosec // severity is a bounded enum (0-8), no overflow
 			Interval:       convertModelInterval(r.Interval),
 			ServiceId:      r.ServiceID,
 			ServiceName:    r.ServiceName,
@@ -131,10 +131,14 @@ func (s *ChecksAPIService) ListInsights(
 			Outcome:        r.Outcome,
 			ReadMoreUrl:    r.ReadMoreURL,
 			Labels:         labels,
-			CheckedAt:      timestamppb.New(r.CheckedAt),
 			IsRead:         r.IsRead,
 			TriggeredBy:    convertModelTriggeredBy(r.TriggeredBy),
-		})
+		}
+		// left unset while the check is pending and when it did not run
+		if r.CheckedAt != nil {
+			item.CheckedAt = timestamppb.New(*r.CheckedAt)
+		}
+		items = append(items, item)
 	}
 
 	totalPages := 1
@@ -193,15 +197,22 @@ func (s *ChecksAPIService) ListRuns(
 		}
 
 		item := &advisorsv1.AdvisorRun{
-			Id:             r.ID,
-			TriggeredBy:    convertModelTriggeredBy(r.TriggeredBy),
-			Status:         convertModelRunStatus(r.Status),
-			StartedAt:      timestamppb.New(r.StartedAt),
-			ChecksCount:    int32(r.ChecksCount),   //nolint:gosec
-			ServicesCount:  int32(r.ServicesCount), //nolint:gosec
-			FindingsCount:  int32(r.FindingsCount), //nolint:gosec
-			ErrorsCount:    int32(r.ErrorsCount),   //nolint:gosec
-			SeverityCounts: convertSeverityCounts(severityCounts),
+			Id:                   r.ID,
+			TriggeredBy:          convertModelTriggeredBy(r.TriggeredBy),
+			Status:               convertModelRunStatus(r.Status),
+			StartedAt:            timestamppb.New(r.StartedAt),
+			PlannedChecksCount:   int32(r.PlannedChecksCount),   //nolint:gosec
+			PlannedServicesCount: int32(r.PlannedServicesCount), //nolint:gosec
+			ChecksCount:          int32(r.ChecksCount),          //nolint:gosec
+			ServicesCount:        int32(r.ServicesCount),        //nolint:gosec
+			FindingsCount:        int32(r.FindingsCount),        //nolint:gosec
+			ErrorsCount:          int32(r.ErrorsCount),          //nolint:gosec
+			SeverityCounts:       convertSeverityCounts(severityCounts),
+			CheckNames:           r.CheckNames,
+			ServiceIds:           r.ServiceIDs,
+		}
+		for _, interval := range r.Intervals {
+			item.Intervals = append(item.Intervals, convertModelInterval(models.Interval(interval)))
 		}
 		// left unset while the run is still going
 		if r.FinishedAt != nil {
@@ -284,8 +295,20 @@ func (s *ChecksAPIService) MarkInsightsRead(
 
 // StartAdvisorChecks executes advisor checks and returns the ID assigned to this run.
 func (s *ChecksAPIService) StartAdvisorChecks(ctx context.Context, req *advisorsv1.StartAdvisorChecksRequest) (*advisorsv1.StartAdvisorChecksResponse, error) {
-	// Start only specified checks from any group.
-	runID, err := s.checksService.StartChecks(ctx, req.Names, req.ServiceIds)
+	intervals := make([]check.Interval, 0, len(req.Intervals))
+	for _, name := range req.Intervals {
+		value, ok := advisorsv1.AdvisorCheckInterval_value[name]
+		if !ok {
+			return nil, status.Errorf(codes.InvalidArgument, "unknown advisor check interval '%s'", name)
+		}
+		interval, err := convertAPIInterval(advisorsv1.AdvisorCheckInterval(value))
+		if err != nil {
+			return nil, status.Error(codes.InvalidArgument, err.Error())
+		}
+		intervals = append(intervals, interval)
+	}
+
+	runID, err := s.checksService.StartChecks(ctx, req.Names, req.ServiceIds, intervals)
 	if err != nil {
 		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
@@ -690,6 +713,10 @@ func convertModelResultStatus(status models.CheckResultStatus) advisorsv1.Adviso
 		return advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_FAILED
 	case models.CheckResultError:
 		return advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_ERROR
+	case models.CheckResultPending:
+		return advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_PENDING
+	case models.CheckResultNotRun:
+		return advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_NOT_RUN
 	default:
 		return advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED
 	}
@@ -705,6 +732,10 @@ func convertAPIResultStatus(status advisorsv1.AdvisorCheckResultStatus) models.C
 		return models.CheckResultFailed
 	case advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_ERROR:
 		return models.CheckResultError
+	case advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_PENDING:
+		return models.CheckResultPending
+	case advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_NOT_RUN:
+		return models.CheckResultNotRun
 	default:
 		return ""
 	}

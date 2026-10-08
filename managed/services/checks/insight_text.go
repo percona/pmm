@@ -32,9 +32,11 @@ const insightTimeFormat = "2006-01-02 15:04:05"
 // webhook payload reads identically to the UI's "Copy to text" output.
 
 var insightStatusText = map[models.CheckResultStatus]string{
-	models.CheckResultOK:     "OK",
-	models.CheckResultFailed: "Failed",
-	models.CheckResultError:  "Error",
+	models.CheckResultOK:      "OK",
+	models.CheckResultFailed:  "Failed",
+	models.CheckResultError:   "Error",
+	models.CheckResultPending: "Pending",
+	models.CheckResultNotRun:  "Not run",
 }
 
 var insightSeverityText = map[models.Severity]string{
@@ -74,11 +76,6 @@ func insightToText(r *models.Insight) (string, error) {
 	}
 	labels := strings.Join(labelPairs, ", ")
 
-	var checkedAt string
-	if !r.CheckedAt.IsZero() {
-		checkedAt = r.CheckedAt.Format(insightTimeFormat)
-	}
-
 	details := [][2]string{
 		{"ID", r.ID},
 		{"Run ID", r.RunID},
@@ -109,9 +106,17 @@ func insightToText(r *models.Insight) (string, error) {
 		detailLines = append(detailLines, fmt.Sprintf("  %s: %s", d[0], d[1]))
 	}
 
+	text := strings.Join(detailLines, "\n")
+	// a pending or not run check has not completed
+	if r.CheckedAt == nil {
+		return fmt.Sprintf(
+			"The Advisor Check %q has status %q.\n\nCheck Details:\n%s",
+			r.Summary, insightStatusLabel(r.Status), text,
+		), nil
+	}
 	return fmt.Sprintf(
 		"The Advisor Check %q completed at %s with status %q.\n\nCheck Details:\n%s",
-		r.Summary, checkedAt, insightStatusLabel(r.Status), strings.Join(detailLines, "\n"),
+		r.Summary, r.CheckedAt.Format(insightTimeFormat), insightStatusLabel(r.Status), text,
 	), nil
 }
 
@@ -134,8 +139,13 @@ func insightStatusLabel(status models.CheckResultStatus) string {
 	return "Unspecified"
 }
 
-func insightSeverityLabel(severity models.Severity) string {
-	if label, ok := insightSeverityText[severity]; ok {
+// insightSeverityLabel maps a stored severity to its display label; a pending or not run
+// insight has none, and an empty label leaves it out of the details.
+func insightSeverityLabel(severity *models.Severity) string {
+	if severity == nil {
+		return ""
+	}
+	if label, ok := insightSeverityText[*severity]; ok {
 		return label
 	}
 	return "Unspecified"

@@ -92,7 +92,7 @@ func TestSendTestAdvisorNotification(t *testing.T) {
 func TestStartAdvisorChecks(t *testing.T) {
 	t.Run("internal error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("StartChecks", mock.Anything, []string(nil), []string(nil)).Return("", errors.New("random error"))
+		checksService.On("StartChecks", mock.Anything, []string(nil), []string(nil), []check.Interval{}).Return("", errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
@@ -103,7 +103,7 @@ func TestStartAdvisorChecks(t *testing.T) {
 
 	t.Run("Advisors disabled error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("StartChecks", mock.Anything, []string(nil), []string(nil)).Return("", services.ErrAdvisorsDisabled)
+		checksService.On("StartChecks", mock.Anything, []string(nil), []string(nil), []check.Interval{}).Return("", services.ErrAdvisorsDisabled)
 
 		s := NewChecksAPIService(&checksService)
 
@@ -119,13 +119,54 @@ func TestStartAdvisorChecks(t *testing.T) {
 			Now: now,
 		}
 		var checksService mockChecksService
-		checksService.On("StartChecks", mock.Anything, []string{"check_a"}, []string(nil)).Return("", inProgress)
+		checksService.On("StartChecks", mock.Anything, []string{"check_a"}, []string(nil), []check.Interval{}).Return("", inProgress)
 
 		s := NewChecksAPIService(&checksService)
 
 		resp, err := s.StartAdvisorChecks(t.Context(), &advisorsv1.StartAdvisorChecksRequest{Names: []string{"check_a"}})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition,
 			"Advisor checks are already running (started 3 minutes ago by the scheduler). Try again when the run finishes."), err)
+		assert.Nil(t, resp)
+	})
+
+	t.Run("passes the scope through", func(t *testing.T) {
+		var checksService mockChecksService
+		checksService.On("StartChecks", mock.Anything, []string{"check_a"}, []string{"svc-1"},
+			[]check.Interval{check.Frequent, check.Rare}).Return("run-1", nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.StartAdvisorChecks(t.Context(), &advisorsv1.StartAdvisorChecksRequest{
+			Names:      []string{"check_a"},
+			ServiceIds: []string{"svc-1"},
+			Intervals:  []string{"ADVISOR_CHECK_INTERVAL_FREQUENT", "ADVISOR_CHECK_INTERVAL_RARE"},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "run-1", resp.RunId)
+		checksService.AssertExpectations(t)
+	})
+
+	t.Run("unspecified interval rejected", func(t *testing.T) {
+		var checksService mockChecksService
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.StartAdvisorChecks(t.Context(), &advisorsv1.StartAdvisorChecksRequest{
+			Intervals: []string{"ADVISOR_CHECK_INTERVAL_UNSPECIFIED"},
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "invalid advisor check interval"), err)
+		assert.Nil(t, resp)
+	})
+
+	t.Run("unknown interval rejected", func(t *testing.T) {
+		var checksService mockChecksService
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.StartAdvisorChecks(t.Context(), &advisorsv1.StartAdvisorChecksRequest{
+			Intervals: []string{"ADVISOR_CHECK_INTERVAL_FREQUENT", "FREQUENT"},
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "unknown advisor check interval 'FREQUENT'"), err)
 		assert.Nil(t, resp)
 	})
 }
@@ -269,15 +310,19 @@ func TestListRuns(t *testing.T) {
 		startedAt := time.Date(2026, time.August, 4, 19, 57, 28, 0, time.UTC)
 		finishedAt := startedAt.Add(2*time.Minute + 7*time.Second)
 		finished := &models.AdvisorRun{
-			ID:            "run-1",
-			TriggeredBy:   models.CheckTriggeredByUser,
-			Status:        models.AdvisorRunStatusCompleted,
-			StartedAt:     startedAt,
-			FinishedAt:    &finishedAt,
-			ChecksCount:   107,
-			ServicesCount: 3,
-			FindingsCount: 28,
-			ErrorsCount:   1,
+			ID:                   "run-1",
+			TriggeredBy:          models.CheckTriggeredByUser,
+			Status:               models.AdvisorRunStatusCompleted,
+			CheckNames:           []string{"check_a"},
+			ServiceIDs:           []string{"svc-1"},
+			StartedAt:            startedAt,
+			FinishedAt:           &finishedAt,
+			PlannedChecksCount:   109,
+			PlannedServicesCount: 4,
+			ChecksCount:          107,
+			ServicesCount:        3,
+			FindingsCount:        28,
+			ErrorsCount:          1,
 		}
 		require.NoError(t, finished.SetSeverityCounts(map[models.Severity]int{
 			models.Severity(common.Error):   4,
@@ -288,6 +333,7 @@ func TestListRuns(t *testing.T) {
 			ID:          "run-2",
 			TriggeredBy: models.CheckTriggeredByScheduler,
 			Status:      models.AdvisorRunStatusRunning,
+			Intervals:   []string{string(models.Frequent)},
 			StartedAt:   startedAt.Add(5 * time.Minute),
 		}
 
@@ -306,15 +352,19 @@ func TestListRuns(t *testing.T) {
 		expected := &advisorsv1.ListRunsResponse{
 			Results: []*advisorsv1.AdvisorRun{
 				{
-					Id:            "run-1",
-					TriggeredBy:   advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_USER,
-					Status:        advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_COMPLETED,
-					StartedAt:     timestamppb.New(startedAt),
-					FinishedAt:    timestamppb.New(finishedAt),
-					ChecksCount:   107,
-					ServicesCount: 3,
-					FindingsCount: 28,
-					ErrorsCount:   1,
+					Id:                   "run-1",
+					TriggeredBy:          advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_USER,
+					Status:               advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_COMPLETED,
+					CheckNames:           []string{"check_a"},
+					ServiceIds:           []string{"svc-1"},
+					StartedAt:            timestamppb.New(startedAt),
+					FinishedAt:           timestamppb.New(finishedAt),
+					PlannedChecksCount:   109,
+					PlannedServicesCount: 4,
+					ChecksCount:          107,
+					ServicesCount:        3,
+					FindingsCount:        28,
+					ErrorsCount:          1,
 					SeverityCounts: []*advisorsv1.SeverityCount{
 						{Severity: managementv1.Severity_SEVERITY_ERROR, Count: 4},
 						{Severity: managementv1.Severity_SEVERITY_WARNING, Count: 22},
@@ -324,6 +374,7 @@ func TestListRuns(t *testing.T) {
 					Id:             "run-2",
 					TriggeredBy:    advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER,
 					Status:         advisorsv1.AdvisorRunStatus_ADVISOR_RUN_STATUS_RUNNING,
+					Intervals:      []advisorsv1.AdvisorCheckInterval{advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT},
 					StartedAt:      timestamppb.New(startedAt.Add(5 * time.Minute)),
 					SeverityCounts: []*advisorsv1.SeverityCount{},
 				},
@@ -445,16 +496,25 @@ func TestListInsights(t *testing.T) {
 			Summary:     "Check summary",
 			Description: "Check Description",
 			ReadMoreURL: "https://www.example.com",
-			Severity:    models.Severity(common.Critical),
-			CheckedAt:   checkedAt,
+			Severity:    new(models.Severity(common.Critical)),
+			CheckedAt:   &checkedAt,
 			Region:      "us-east-1",
 			AZ:          "us-east-1f",
 		}
 		require.NoError(t, record.SetLabels(map[string]string{"label_key": "label_value"}))
+		// a pending check has no outcome yet
+		pending := &models.Insight{
+			ID:          "id2",
+			CheckName:   "test_check",
+			Interval:    models.Standard,
+			ServiceID:   "test_svc",
+			ServiceType: models.MySQLServiceType,
+			Status:      models.CheckResultPending,
+		}
 
 		var checksService mockChecksService
 		checksService.On("GetInsights", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-			Return([]*models.Insight{record}, 3, nil)
+			Return([]*models.Insight{record, pending}, 3, nil)
 
 		s := NewChecksAPIService(&checksService)
 
@@ -486,6 +546,15 @@ func TestListInsights(t *testing.T) {
 					CheckedAt:   timestamppb.New(checkedAt),
 					Region:      "us-east-1",
 					Az:          "us-east-1f",
+				},
+				{
+					Id:          "id2",
+					CheckName:   "test_check",
+					Interval:    advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
+					ServiceId:   "test_svc",
+					ServiceType: string(models.MySQLServiceType),
+					Status:      advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_PENDING,
+					Severity:    managementv1.Severity_SEVERITY_UNSPECIFIED,
 				},
 			},
 			TotalItems: 3,

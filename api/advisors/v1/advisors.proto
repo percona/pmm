@@ -32,6 +32,10 @@ enum AdvisorCheckResultStatus {
   ADVISOR_CHECK_RESULT_STATUS_FAILED = 2;
   // The check could not be executed.
   ADVISOR_CHECK_RESULT_STATUS_ERROR = 3;
+  // The run has planned the check but not executed it yet.
+  ADVISOR_CHECK_RESULT_STATUS_PENDING = 4;
+  // The run ended before executing the check.
+  ADVISOR_CHECK_RESULT_STATUS_NOT_RUN = 5;
 }
 
 // AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.
@@ -116,6 +120,11 @@ message StartAdvisorChecksRequest {
   // IDs of the services to run the checks against. When empty, the checks run
   // against every monitored service of a matching technology.
   repeated string service_ids = 2;
+  // Interval groups whose checks should be started, as AdvisorCheckInterval names
+  // (e.g. ADVISOR_CHECK_INTERVAL_FREQUENT). When empty, checks of every interval run.
+  // A string rather than the enum, so that a misspelled name is rejected instead of
+  // being dropped by the JSON decoder, which would start checks of every interval.
+  repeated string intervals = 3;
 }
 
 message StartAdvisorChecksResponse {
@@ -271,11 +280,11 @@ message Insight {
   string read_more_url = 17;
   // Output returned by the check run (finding details or execution error).
   string outcome = 18;
-  // Severity of the result.
+  // Severity of the result; unspecified while the check is pending or when it did not run.
   management.v1.Severity severity = 19;
   // Result labels.
   map<string, string> labels = 20;
-  // Time when the check ran.
+  // Time when the check ran; unset while it is pending or when it did not run.
   google.protobuf.Timestamp checked_at = 21;
   // Whether the result has been marked as read.
   bool is_read = 22;
@@ -383,8 +392,8 @@ enum AdvisorRunStatus {
   ADVISOR_RUN_STATUS_ABORTED = 5;
 }
 
-// AdvisorRun is a single execution of Advisor checks. Its totals are recorded on
-// completion, so they stay accurate after the run's insights have been pruned.
+// AdvisorRun is a single execution of Advisor checks. While it is running, its
+// totals cover the checks executed so far.
 message AdvisorRun {
   // ID shared by every insight the run produced.
   string id = 1;
@@ -394,9 +403,9 @@ message AdvisorRun {
   google.protobuf.Timestamp started_at = 3;
   // When the run completed; unset while it is queued or running.
   google.protobuf.Timestamp finished_at = 4;
-  // Number of distinct checks the run executed.
+  // Number of distinct checks that passed or detected an issue on at least one service.
   int32 checks_count = 5;
-  // Number of distinct services the run covered.
+  // Number of distinct services on which at least one check passed or detected an issue.
   int32 services_count = 6;
   // Number of findings, i.e. checks that detected an issue.
   int32 findings_count = 7;
@@ -407,6 +416,16 @@ message AdvisorRun {
   repeated SeverityCount severity_counts = 9;
   // The state of the run.
   AdvisorRunStatus status = 10;
+  // Number of distinct checks the run planned to execute; zero while it is queued.
+  int32 planned_checks_count = 11;
+  // Number of distinct services the run planned to cover; zero while it is queued.
+  int32 planned_services_count = 12;
+  // Names of the checks the run was narrowed to; empty means all.
+  repeated string check_names = 13;
+  // IDs of the services the run was narrowed to; empty means all.
+  repeated string service_ids = 14;
+  // Interval groups the run was narrowed to; empty means all.
+  repeated AdvisorCheckInterval intervals = 15;
 }
 
 // SeverityCount is the number of findings a run produced at a single severity.

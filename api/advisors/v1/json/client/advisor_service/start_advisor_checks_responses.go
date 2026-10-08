@@ -195,6 +195,12 @@ type StartAdvisorChecksBody struct {
 	// IDs of the services to run the checks against. When empty, the checks run
 	// against every monitored service of a matching technology.
 	ServiceIds []string `json:"service_ids"`
+
+	// Interval groups whose checks should be started, as AdvisorCheckInterval names
+	// (e.g. ADVISOR_CHECK_INTERVAL_FREQUENT). When empty, checks of every interval run.
+	// A string rather than the enum, so that a misspelled name is rejected instead of
+	// being dropped by the JSON decoder, which would start checks of every interval.
+	Intervals []string `json:"intervals"`
 }
 
 // Validate validates this start advisor checks body

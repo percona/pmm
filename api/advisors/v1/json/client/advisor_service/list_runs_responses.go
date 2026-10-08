@@ -531,8 +531,8 @@ func (o *ListRunsOKBody) UnmarshalBinary(b []byte) error {
 }
 
 /*
-ListRunsOKBodyResultsItems0 AdvisorRun is a single execution of Advisor checks. Its totals are recorded on
-// completion, so they stay accurate after the run's insights have been pruned.
+ListRunsOKBodyResultsItems0 AdvisorRun is a single execution of Advisor checks. While it is running, its
+// totals cover the checks executed so far.
 swagger:model ListRunsOKBodyResultsItems0
 */
 type ListRunsOKBodyResultsItems0 struct {
@@ -554,10 +554,10 @@ type ListRunsOKBodyResultsItems0 struct {
 	// Format: date-time
 	FinishedAt strfmt.DateTime `json:"finished_at,omitempty"`
 
-	// Number of distinct checks the run executed.
+	// Number of distinct checks that passed or detected an issue on at least one service.
 	ChecksCount int32 `json:"checks_count,omitempty"`
 
-	// Number of distinct services the run covered.
+	// Number of distinct services on which at least one check passed or detected an issue.
 	ServicesCount int32 `json:"services_count,omitempty"`
 
 	// Number of findings, i.e. checks that detected an issue.
@@ -579,6 +579,21 @@ type ListRunsOKBodyResultsItems0 struct {
 	//  - ADVISOR_RUN_STATUS_ABORTED: The run stopped before running any check.
 	// Enum: ["ADVISOR_RUN_STATUS_UNSPECIFIED","ADVISOR_RUN_STATUS_QUEUED","ADVISOR_RUN_STATUS_RUNNING","ADVISOR_RUN_STATUS_COMPLETED","ADVISOR_RUN_STATUS_INTERRUPTED","ADVISOR_RUN_STATUS_ABORTED"]
 	Status *string `json:"status,omitempty"`
+
+	// Number of distinct checks the run planned to execute; zero while it is queued.
+	PlannedChecksCount int32 `json:"planned_checks_count,omitempty"`
+
+	// Number of distinct services the run planned to cover; zero while it is queued.
+	PlannedServicesCount int32 `json:"planned_services_count,omitempty"`
+
+	// Names of the checks the run was narrowed to; empty means all.
+	CheckNames []string `json:"check_names"`
+
+	// IDs of the services the run was narrowed to; empty means all.
+	ServiceIds []string `json:"service_ids"`
+
+	// Interval groups the run was narrowed to; empty means all.
+	Intervals []*string `json:"intervals"`
 }
 
 // Validate validates this list runs OK body results items0
@@ -602,6 +617,10 @@ func (o *ListRunsOKBodyResultsItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateIntervals(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -759,6 +778,45 @@ func (o *ListRunsOKBodyResultsItems0) validateStatus(formats strfmt.Registry) er
 	// value enum
 	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+var listRunsOkBodyResultsItems0IntervalsItemsEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_INTERVAL_UNSPECIFIED","ADVISOR_CHECK_INTERVAL_STANDARD","ADVISOR_CHECK_INTERVAL_FREQUENT","ADVISOR_CHECK_INTERVAL_RARE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listRunsOkBodyResultsItems0IntervalsItemsEnum = append(listRunsOkBodyResultsItems0IntervalsItemsEnum, v)
+	}
+}
+
+func (o *ListRunsOKBodyResultsItems0) validateIntervalsItemsEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listRunsOkBodyResultsItems0IntervalsItemsEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListRunsOKBodyResultsItems0) validateIntervals(formats strfmt.Registry) error {
+	if swag.IsZero(o.Intervals) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Intervals); i++ {
+		if swag.IsZero(o.Intervals[i]) { // not required
+			continue
+		}
+
+		// value enum
+		if err := o.validateIntervalsItemsEnum("intervals"+"."+strconv.Itoa(i), "body", *o.Intervals[i]); err != nil {
+			return err
+		}
+
 	}
 
 	return nil

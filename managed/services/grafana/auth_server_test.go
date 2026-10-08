@@ -202,6 +202,14 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPut, "/v1/alerting/templates/foo", editor},    // UpdateTemplate
 		{http.MethodDelete, "/v1/alerting/templates/foo", editor}, // DeleteTemplate
 		{http.MethodPost, "/v1/alerting/rules", editor},           // CreateRule
+		// Advisors: editors run and author checks; the test email goes with the admin-only settings.
+		{http.MethodPost, "/v1/advisors/checks:start", editor},
+		{http.MethodPost, "/v1/advisors/checks", editor},
+		{http.MethodPut, "/v1/advisors/checks/custom_check", editor},
+		{http.MethodDelete, "/v1/advisors/checks/custom_check", editor},
+		{http.MethodPost, "/v1/advisors/notifications:test", admin},
+		{http.MethodPost, "/advisors.v1.AdvisorService/StartAdvisorChecks", editor},
+		{http.MethodPost, "/advisors.v1.AdvisorService/SendTestAdvisorNotification", admin},
 		// No matching rule falls back to grafanaAdmin.
 		{http.MethodGet, "/v1/unknown", grafanaAdmin},
 	} {

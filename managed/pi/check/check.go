@@ -400,7 +400,7 @@ func validateParametersForPostgreSQLSelectQuery(params map[Parameter]string) err
 func validateParametersForMetricsInstantQuery(params map[Parameter]string) error {
 	for param, value := range params {
 		if param != Lookback {
-			return fmt.Errorf("unsupported parameter '%s' for instant metris query", param)
+			return fmt.Errorf("unsupported parameter '%s' for instant metrics query", param)
 		}
 
 		_, err := time.ParseDuration(value)
@@ -429,7 +429,7 @@ func validateParametersForMetricsRangeQuery(params map[Parameter]string) error {
 				return err
 			}
 		default:
-			return fmt.Errorf("unsupported parameter '%s' for range metris query", param)
+			return fmt.Errorf("unsupported parameter '%s' for range metrics query", param)
 		}
 	}
 

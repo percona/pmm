@@ -34,6 +34,10 @@ const (
 	CheckResultFailed CheckResultStatus = "failed"
 	// CheckResultError means the check could not be executed.
 	CheckResultError CheckResultStatus = "error"
+	// CheckResultPending means the run has planned the check but not executed it yet.
+	CheckResultPending CheckResultStatus = "pending"
+	// CheckResultNotRun means the run ended before executing the check.
+	CheckResultNotRun CheckResultStatus = "not_run"
 )
 
 // CheckTriggeredBy represents the actor that initiated an Advisor check run.
@@ -48,6 +52,7 @@ const (
 )
 
 // Insight represents a single Advisor check run against a target persisted to history.
+// A run records one pending insight per check and target it plans, then completes it.
 //
 //reform:advisor_insights
 type Insight struct {
@@ -70,19 +75,18 @@ type Insight struct {
 	Description    string            `reform:"description"`
 	Outcome        string            `reform:"outcome"`
 	ReadMoreURL    string            `reform:"read_more_url"`
-	Severity       Severity          `reform:"severity"`
-	Labels         []byte            `reform:"labels"`
-	CheckedAt      time.Time         `reform:"checked_at"`
-	IsRead         bool              `reform:"is_read"`
-	RunID          string            `reform:"run_id"`
-	TriggeredBy    CheckTriggeredBy  `reform:"triggered_by"`
+	// Severity is nil while the check is pending and when it did not run.
+	Severity *Severity `reform:"severity"`
+	Labels   []byte    `reform:"labels"`
+	// CheckedAt is nil while the check is pending and when it did not run.
+	CheckedAt   *time.Time       `reform:"checked_at"`
+	IsRead      bool             `reform:"is_read"`
+	RunID       string           `reform:"run_id"`
+	TriggeredBy CheckTriggeredBy `reform:"triggered_by"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
 func (r *Insight) BeforeInsert() error {
-	if r.CheckedAt.IsZero() {
-		r.CheckedAt = Now()
-	}
 	if len(r.Labels) == 0 {
 		r.Labels = nil
 	}
@@ -99,7 +103,10 @@ func (r *Insight) BeforeUpdate() error {
 
 // AfterFind implements reform.AfterFinder interface.
 func (r *Insight) AfterFind() error {
-	r.CheckedAt = r.CheckedAt.UTC()
+	if r.CheckedAt != nil {
+		checkedAt := r.CheckedAt.UTC()
+		r.CheckedAt = &checkedAt
+	}
 	if len(r.Labels) == 0 {
 		r.Labels = nil
 	}

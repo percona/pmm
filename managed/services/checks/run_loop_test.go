@@ -66,29 +66,27 @@ func TestNextRun(t *testing.T) {
 	}
 
 	t.Run("nothing due and nothing queued starts nothing", func(t *testing.T) {
-		run, groups := s.nextRun(t.Context(), dueOf())
-		assert.Nil(t, run)
-		assert.Nil(t, groups)
+		assert.Nil(t, s.nextRun(t.Context(), dueOf()))
 	})
 
 	t.Run("due groups start as one scheduled run", func(t *testing.T) {
 		due := dueOf(check.Standard, check.Frequent)
 
-		run, groups := s.nextRun(t.Context(), due)
+		run := s.nextRun(t.Context(), due)
 		require.NotNil(t, run)
-		assert.Equal(t, []check.Interval{check.Frequent, check.Standard}, groups)
 		assert.Empty(t, due)
 
 		stored := reload(t, run.ID)
 		assert.Equal(t, models.AdvisorRunStatusRunning, stored.Status)
 		assert.Equal(t, models.CheckTriggeredByScheduler, stored.TriggeredBy)
+		assert.Equal(t, []string{"frequent", "standard"}, []string(stored.Intervals))
 		finish(t, run.ID)
 	})
 
 	t.Run("every group due is a full run", func(t *testing.T) {
-		run, groups := s.nextRun(t.Context(), dueOf(check.Rare, check.Standard, check.Frequent))
+		run := s.nextRun(t.Context(), dueOf(check.Rare, check.Standard, check.Frequent))
 		require.NotNil(t, run)
-		assert.Nil(t, groups)
+		assert.Empty(t, reload(t, run.ID).Intervals)
 		finish(t, run.ID)
 	})
 
@@ -104,10 +102,10 @@ func TestNextRun(t *testing.T) {
 
 		hook.Reset()
 		due := dueOf(check.Standard)
-		run, groups := s.nextRun(t.Context(), due)
+		run := s.nextRun(t.Context(), due)
 		require.NotNil(t, run)
 		assert.Equal(t, queued.ID, run.ID)
-		assert.Nil(t, groups)
+		assert.Empty(t, run.Intervals)
 		assert.Equal(t, []string{"check_a"}, []string(run.CheckNames))
 		assert.Contains(t, due, check.Standard)
 
@@ -122,9 +120,9 @@ func TestNextRun(t *testing.T) {
 		assert.Equal(t, "Scheduled Advisor checks are deferred until run "+queued.ID+" finishes.", entry.Message)
 
 		finish(t, queued.ID)
-		run, groups = s.nextRun(t.Context(), due)
+		run = s.nextRun(t.Context(), due)
 		require.NotNil(t, run)
-		assert.Equal(t, []check.Interval{check.Standard}, groups)
+		assert.Equal(t, []string{"standard"}, []string(run.Intervals))
 		finish(t, run.ID)
 	})
 
@@ -136,14 +134,13 @@ func TestNextRun(t *testing.T) {
 		require.NoError(t, models.CreateAdvisorRun(t.Context(), db.Querier, other))
 
 		due := dueOf(check.Rare)
-		run, _ := s.nextRun(t.Context(), due)
-		assert.Nil(t, run)
+		assert.Nil(t, s.nextRun(t.Context(), due))
 		assert.Contains(t, due, check.Rare)
 
 		finish(t, other.ID)
-		run, groups := s.nextRun(t.Context(), due)
+		run := s.nextRun(t.Context(), due)
 		require.NotNil(t, run)
-		assert.Equal(t, []check.Interval{check.Rare}, groups)
+		assert.Equal(t, []string{"rare"}, []string(run.Intervals))
 		finish(t, run.ID)
 	})
 
@@ -154,8 +151,7 @@ func TestNextRun(t *testing.T) {
 		require.NoError(t, models.SaveSettings(db, settings))
 
 		due := dueOf(check.Frequent)
-		run, _ := s.nextRun(t.Context(), due)
-		assert.Nil(t, run)
+		assert.Nil(t, s.nextRun(t.Context(), due))
 		assert.Empty(t, due)
 	})
 }
@@ -171,15 +167,11 @@ func TestRunChecksLoop(t *testing.T) {
 	s := New(db, nil, nil, nil)
 	s.l = logrus.NewEntry(logger)
 
-	type started struct {
-		run    *models.AdvisorRun
-		groups []check.Interval
-	}
-	startedCh := make(chan started)
+	startedCh := make(chan *models.AdvisorRun)
 	release := make(chan struct{})
 	// stands in for executing checks: reports the run, then holds it until released
-	s.execute = func(ctx context.Context, run *models.AdvisorRun, groups []check.Interval) error {
-		startedCh <- started{run: run, groups: groups}
+	s.execute = func(ctx context.Context, run *models.AdvisorRun) error {
+		startedCh <- run
 		status := models.AdvisorRunStatusCompleted
 		select {
 		case <-release:
@@ -189,14 +181,14 @@ func TestRunChecksLoop(t *testing.T) {
 		s.finishRun(ctx, run.ID, status)
 		return nil
 	}
-	next := func(t *testing.T) started {
+	next := func(t *testing.T) *models.AdvisorRun {
 		t.Helper()
 		select {
-		case st := <-startedCh:
-			return st
+		case run := <-startedCh:
+			return run
 		case <-time.After(10 * time.Second):
 			require.FailNow(t, "no run started")
-			return started{}
+			return nil
 		}
 	}
 	waitIdle := func(t *testing.T) {
@@ -217,11 +209,11 @@ func TestRunChecksLoop(t *testing.T) {
 
 	// every group is due on start, as one full run
 	first := next(t)
-	assert.Equal(t, models.CheckTriggeredByScheduler, first.run.TriggeredBy)
-	assert.Nil(t, first.groups)
+	assert.Equal(t, models.CheckTriggeredByScheduler, first.TriggeredBy)
+	assert.Empty(t, first.Intervals)
 
 	// a user request is rejected while a run is in progress
-	_, err := s.StartChecks(ctx, nil, nil)
+	_, err := s.StartChecks(ctx, nil, nil, nil)
 	_, inProgress := errors.AsType[*services.AdvisorRunInProgressError](err)
 	assert.True(t, inProgress, "%v", err)
 
@@ -232,7 +224,7 @@ func TestRunChecksLoop(t *testing.T) {
 	require.Eventually(t, func() bool {
 		var deferred int
 		for _, entry := range hook.AllEntries() {
-			if entry.Level == logrus.WarnLevel && strings.Contains(entry.Message, "deferred until run "+first.run.ID) {
+			if entry.Level == logrus.WarnLevel && strings.Contains(entry.Message, "deferred until run "+first.ID) {
 				deferred++
 			}
 		}
@@ -241,8 +233,8 @@ func TestRunChecksLoop(t *testing.T) {
 
 	release <- struct{}{}
 	deferred := next(t)
-	assert.Equal(t, models.CheckTriggeredByScheduler, deferred.run.TriggeredBy)
-	assert.Equal(t, []check.Interval{check.Frequent, check.Standard}, deferred.groups)
+	assert.Equal(t, models.CheckTriggeredByScheduler, deferred.TriggeredBy)
+	assert.Equal(t, []string{"frequent", "standard"}, []string(deferred.Intervals))
 
 	// ticks that fall due together while nothing runs make a single run
 	release <- struct{}{}
@@ -250,18 +242,18 @@ func TestRunChecksLoop(t *testing.T) {
 	standard <- time.Now()
 	frequent <- time.Now()
 	together := next(t)
-	assert.Equal(t, []check.Interval{check.Frequent, check.Standard}, together.groups)
+	assert.Equal(t, []string{"frequent", "standard"}, []string(together.Intervals))
 
 	// a user request starts right away once the run slot is free
 	release <- struct{}{}
 	waitIdle(t)
-	id, err := s.StartChecks(ctx, []string{"check_a"}, nil)
+	id, err := s.StartChecks(ctx, []string{"check_a"}, nil, nil)
 	require.NoError(t, err)
 	user := next(t)
-	assert.Equal(t, id, user.run.ID)
-	assert.Equal(t, models.CheckTriggeredByUser, user.run.TriggeredBy)
-	assert.Equal(t, models.AdvisorRunStatusRunning, user.run.Status)
-	assert.Equal(t, []string{"check_a"}, []string(user.run.CheckNames))
+	assert.Equal(t, id, user.ID)
+	assert.Equal(t, models.CheckTriggeredByUser, user.TriggeredBy)
+	assert.Equal(t, models.AdvisorRunStatusRunning, user.Status)
+	assert.Equal(t, []string{"check_a"}, []string(user.CheckNames))
 
 	// shutdown waits for the run in progress to close out
 	cancel()

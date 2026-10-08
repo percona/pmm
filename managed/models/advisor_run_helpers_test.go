@@ -97,10 +97,12 @@ func TestAdvisorRuns(t *testing.T) {
 		finishedAt := time.Date(2026, 8, 1, 11, 2, 30, 0, time.UTC)
 
 		require.NoError(t, models.FinishAdvisorRun(t.Context(), q, run.ID, models.AdvisorRunStatusCompleted, finishedAt, models.AdvisorRunCounts{
-			ChecksCount:   107,
-			ServicesCount: 3,
-			FindingsCount: 28,
-			ErrorsCount:   1,
+			PlannedChecksCount:   109,
+			PlannedServicesCount: 4,
+			ChecksCount:          107,
+			ServicesCount:        3,
+			FindingsCount:        28,
+			ErrorsCount:          1,
 			SeverityCounts: map[models.Severity]int{
 				models.Severity(common.Error):   4,
 				models.Severity(common.Warning): 22,
@@ -114,6 +116,8 @@ func TestAdvisorRuns(t *testing.T) {
 		assert.Equal(t, models.AdvisorRunStatusCompleted, reloaded.Status)
 		require.NotNil(t, reloaded.FinishedAt)
 		assert.Equal(t, finishedAt, *reloaded.FinishedAt)
+		assert.Equal(t, 109, reloaded.PlannedChecksCount)
+		assert.Equal(t, 4, reloaded.PlannedServicesCount)
 		assert.Equal(t, 107, reloaded.ChecksCount)
 		assert.Equal(t, 3, reloaded.ServicesCount)
 		assert.Equal(t, 28, reloaded.FindingsCount)
@@ -143,6 +147,7 @@ func TestAdvisorRuns(t *testing.T) {
 			Status:      models.AdvisorRunStatusQueued,
 			CheckNames:  []string{"check_a"},
 			ServiceIDs:  []string{"svc-1"},
+			Intervals:   []string{string(models.Frequent)},
 			StartedAt:   time.Date(2026, 8, 3, 9, 0, 0, 0, time.UTC),
 		})
 
@@ -163,6 +168,7 @@ func TestAdvisorRuns(t *testing.T) {
 		assert.Equal(t, models.AdvisorRunStatusQueued, active.Status)
 		assert.Equal(t, []string{"check_a"}, []string(active.CheckNames))
 		assert.Equal(t, []string{"svc-1"}, []string(active.ServiceIDs))
+		assert.Equal(t, []string{string(models.Frequent)}, []string(active.Intervals))
 
 		startedAt := time.Date(2026, 8, 3, 9, 0, 40, 0, time.UTC)
 		ok, err := models.StartQueuedAdvisorRun(t.Context(), q, queued.ID, startedAt)
@@ -252,35 +258,25 @@ func TestAdvisorRuns(t *testing.T) {
 			StartedAt:   time.Date(2026, 5, 1, 9, 30, 0, 0, time.UTC),
 		})
 
-		insight := func(runID, checkName, serviceID string, status models.CheckResultStatus, severity common.Severity, checkedAt time.Time) {
-			t.Helper()
-			require.NoError(t, models.CreateInsight(t.Context(), q, &models.Insight{
-				RunID:       runID,
-				CheckName:   checkName,
-				ServiceID:   serviceID,
-				ServiceType: models.MySQLServiceType,
-				Interval:    models.Standard,
-				Status:      status,
-				Severity:    models.Severity(severity),
-				CheckedAt:   checkedAt,
-			}))
-		}
-
 		base := time.Date(2026, 5, 1, 9, 1, 0, 0, time.UTC)
-		// two findings on one check/service pair, one on another, plus a pass and
-		// a check that could not run at all
-		insight(run.ID, "check_a", "svc-1", models.CheckResultFailed, common.Error, base)
-		insight(run.ID, "check_a", "svc-1", models.CheckResultFailed, common.Warning, base)
-		insight(run.ID, "check_b", "svc-2", models.CheckResultFailed, common.Warning, base.Add(time.Minute))
-		insight(run.ID, "check_c", "svc-2", models.CheckResultOK, common.Info, base.Add(2*time.Minute))
-		insight(run.ID, "check_d", "svc-3", models.CheckResultError, common.Info, base.Add(3*time.Minute))
+		// two findings on one check/service pair, one on another, plus a pass, a
+		// check that could not run at all and one the run never reached
+		createInsight(t, q, run.ID, "check_a", "svc-1", models.CheckResultFailed, common.Error, base)
+		createInsight(t, q, run.ID, "check_a", "svc-1", models.CheckResultFailed, common.Warning, base)
+		createInsight(t, q, run.ID, "check_b", "svc-2", models.CheckResultFailed, common.Warning, base.Add(time.Minute))
+		createInsight(t, q, run.ID, "check_c", "svc-2", models.CheckResultOK, common.Info, base.Add(2*time.Minute))
+		createInsight(t, q, run.ID, "check_d", "svc-3", models.CheckResultError, common.Info, base.Add(3*time.Minute))
+		createInsight(t, q, run.ID, "check_e", "svc-4", models.CheckResultNotRun, common.Unknown, time.Time{})
 		// a different run's rows must not leak into the totals
-		insight(other.ID, "check_z", "svc-9", models.CheckResultFailed, common.Critical, base)
+		createInsight(t, q, other.ID, "check_z", "svc-9", models.CheckResultFailed, common.Critical, base)
 
 		counts, err := models.ComputeAdvisorRunCounts(t.Context(), q, run.ID)
 		require.NoError(t, err)
-		assert.Equal(t, 4, counts.ChecksCount)
-		assert.Equal(t, 3, counts.ServicesCount)
+		// every row is planned; only passes and findings count as having run
+		assert.Equal(t, 5, counts.PlannedChecksCount)
+		assert.Equal(t, 4, counts.PlannedServicesCount)
+		assert.Equal(t, 3, counts.ChecksCount)
+		assert.Equal(t, 2, counts.ServicesCount)
 		// only failed rows are findings; the pass and the error are not
 		assert.Equal(t, 3, counts.FindingsCount)
 		assert.Equal(t, 1, counts.ErrorsCount)
@@ -293,6 +289,28 @@ func TestAdvisorRuns(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(t, ok)
 		assert.Equal(t, base.Add(3*time.Minute), last)
+	})
+
+	t.Run("a running run reports its counts so far", func(t *testing.T) {
+		run := create(t, &models.AdvisorRun{
+			TriggeredBy: models.CheckTriggeredByScheduler,
+			Status:      models.AdvisorRunStatusRunning,
+			StartedAt:   time.Date(2026, 4, 2, 9, 0, 0, 0, time.UTC),
+		})
+		createInsight(t, q, run.ID, "check_a", "svc-1", models.CheckResultOK, common.Info, time.Date(2026, 4, 2, 9, 1, 0, 0, time.UTC))
+		createInsight(t, q, run.ID, "check_b", "svc-1", models.CheckResultPending, common.Unknown, time.Time{})
+		createInsight(t, q, run.ID, "check_c", "svc-2", models.CheckResultPending, common.Unknown, time.Time{})
+
+		from := run.StartedAt
+		runs, err := models.FindAdvisorRuns(t.Context(), q, models.AdvisorRunFilters{From: &from, To: &from}, 0, 0)
+		require.NoError(t, err)
+		require.Len(t, runs, 1)
+		assert.Equal(t, 3, runs[0].PlannedChecksCount)
+		assert.Equal(t, 2, runs[0].PlannedServicesCount)
+		assert.Equal(t, 1, runs[0].ChecksCount)
+		assert.Equal(t, 1, runs[0].ServicesCount)
+
+		finish(t, run.ID)
 	})
 
 	t.Run("a run with no insights has no last insight time", func(t *testing.T) {
@@ -347,4 +365,33 @@ func TestAdvisorRuns(t *testing.T) {
 		require.Error(t, q.Reload(&models.AdvisorRun{ID: oldRun.ID}))
 		require.NoError(t, q.Reload(&models.AdvisorRun{ID: recentRun.ID}))
 	})
+}
+
+// createInsight records an insight of the given run; a zero checkedAt and an
+// unknown severity are left unset, as for a pending or not run check.
+func createInsight(
+	t *testing.T,
+	q *reform.Querier,
+	runID, checkName, serviceID string,
+	status models.CheckResultStatus,
+	severity common.Severity,
+	checkedAt time.Time,
+) {
+	t.Helper()
+	insight := &models.Insight{
+		RunID:       runID,
+		CheckName:   checkName,
+		ServiceID:   serviceID,
+		ServiceName: serviceID,
+		ServiceType: models.MySQLServiceType,
+		Interval:    models.Standard,
+		Status:      status,
+	}
+	if severity != common.Unknown {
+		insight.Severity = new(models.Severity(severity))
+	}
+	if !checkedAt.IsZero() {
+		insight.CheckedAt = &checkedAt
+	}
+	require.NoError(t, models.CreateInsight(t.Context(), q, insight))
 }

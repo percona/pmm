@@ -287,7 +287,7 @@ func runAllChecks(t *testing.T, s *Service) *models.AdvisorRun {
 		Status:      models.AdvisorRunStatusRunning,
 	}
 	require.NoError(t, models.CreateAdvisorRun(t.Context(), s.db.Querier, run))
-	require.NoError(t, s.run(t.Context(), run, nil))
+	require.NoError(t, s.run(t.Context(), run))
 	return run
 }
 
@@ -444,7 +444,7 @@ func TestStartChecks(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.l = logrus.NewEntry(logger)
 
-		id, err := s.StartChecks(t.Context(), []string{"check_a"}, []string{"svc-1"})
+		id, err := s.StartChecks(t.Context(), []string{"check_a"}, []string{"svc-1"}, []check.Interval{check.Frequent})
 		require.NoError(t, err)
 
 		run := &models.AdvisorRun{ID: id}
@@ -453,6 +453,7 @@ func TestStartChecks(t *testing.T) {
 		assert.Equal(t, models.CheckTriggeredByUser, run.TriggeredBy)
 		assert.Equal(t, []string{"check_a"}, []string(run.CheckNames))
 		assert.Equal(t, []string{"svc-1"}, []string(run.ServiceIDs))
+		assert.Equal(t, []string{string(check.Frequent)}, []string(run.Intervals))
 
 		select {
 		case <-s.wakeCh:
@@ -460,7 +461,7 @@ func TestStartChecks(t *testing.T) {
 			t.Fatal("StartChecks did not wake the run loop")
 		}
 
-		_, err = s.StartChecks(t.Context(), nil, nil)
+		_, err = s.StartChecks(t.Context(), nil, nil, nil)
 		inProgress, ok := errors.AsType[*services.AdvisorRunInProgressError](err)
 		require.True(t, ok, "%v", err)
 		require.NotNil(t, inProgress.Run)
@@ -502,7 +503,7 @@ func TestStartChecks(t *testing.T) {
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
-		_, err = s.StartChecks(t.Context(), nil, nil)
+		_, err = s.StartChecks(t.Context(), nil, nil, nil)
 		require.ErrorIs(t, err, services.ErrAdvisorsDisabled)
 	})
 }
@@ -871,9 +872,10 @@ func TestFindTargets(t *testing.T) {
 	t.Run("unknown service", func(t *testing.T) {
 		t.Parallel()
 
-		targets, err := s.findTargets(t.Context(), models.PostgreSQLServiceType, nil, nil)
+		targets, unreachable, err := s.findTargets(t.Context(), models.PostgreSQLServiceType, nil, nil)
 		require.NoError(t, err)
 		assert.Empty(t, targets)
+		assert.Empty(t, unreachable)
 	})
 
 	t.Run("different pmm agent versions", func(t *testing.T) {
@@ -890,26 +892,35 @@ func TestFindTargets(t *testing.T) {
 		setup(t, db, "mysql4", node.NodeID, "2.6.1")
 		setup(t, db, "mysql5", node.NodeID, "2.7.0")
 
+		// mysql1's pmm-agent never reported a version, so a version requirement
+		// makes it unreachable; older pmm-agents leave the check not applicable
 		tests := []struct {
 			name               string
 			minRequiredVersion *version.Parsed
 			count              int
+			unreachable        int
 		}{
-			{"without version", nil, 5},
-			{"version 2.5.0", version.MustParse("2.5.0"), 4},
-			{"version 2.6.0", version.MustParse("2.6.0"), 3},
-			{"version 2.6.1", version.MustParse("2.6.1"), 2},
-			{"version 2.7.0", version.MustParse("2.7.0"), 1},
-			{"version 2.9.0", version.MustParse("2.9.0"), 0},
+			{"without version", nil, 5, 0},
+			{"version 2.5.0", version.MustParse("2.5.0"), 4, 1},
+			{"version 2.6.0", version.MustParse("2.6.0"), 3, 1},
+			{"version 2.6.1", version.MustParse("2.6.1"), 2, 1},
+			{"version 2.7.0", version.MustParse("2.7.0"), 1, 1},
+			{"version 2.9.0", version.MustParse("2.9.0"), 0, 1},
 		}
 
 		for _, test := range tests {
 			t.Run(test.name, func(t *testing.T) {
 				t.Parallel()
 
-				targets, err := s.findTargets(t.Context(), models.MySQLServiceType, test.minRequiredVersion, nil)
+				targets, unreachable, err := s.findTargets(t.Context(), models.MySQLServiceType, test.minRequiredVersion, nil)
 				require.NoError(t, err)
 				assert.Len(t, targets, test.count)
+				require.Len(t, unreachable, test.unreachable)
+				for _, u := range unreachable {
+					assert.Equal(t, "mysql1", u.target.ServiceName)
+					assert.Equal(t, "test-node", u.target.NodeName)
+					assert.ErrorContains(t, u.err, "has not reported its version")
+				}
 			})
 		}
 	})
@@ -930,15 +941,16 @@ func TestFindTargetsSkipsOnlyInternalPostgreSQL(t *testing.T) {
 	// A user service registered on the PMM Server node must still be a valid target.
 	setup(t, db, "mysql-on-pmm-node", models.PMMServerNodeID, "")
 
-	mysqlTargets, err := s.findTargets(t.Context(), models.MySQLServiceType, nil, nil)
+	mysqlTargets, _, err := s.findTargets(t.Context(), models.MySQLServiceType, nil, nil)
 	require.NoError(t, err)
 	require.Len(t, mysqlTargets, 1)
 	assert.Equal(t, "mysql-on-pmm-node", mysqlTargets[0].ServiceName)
 
 	// PMM Server's internal PostgreSQL must be skipped, leaving no PostgreSQL targets.
-	pgTargets, err := s.findTargets(t.Context(), models.PostgreSQLServiceType, nil, nil)
+	pgTargets, pgUnreachable, err := s.findTargets(t.Context(), models.PostgreSQLServiceType, nil, nil)
 	require.NoError(t, err)
 	assert.Empty(t, pgTargets)
+	assert.Empty(t, pgUnreachable)
 }
 
 func TestListTestTargets(t *testing.T) {

@@ -1221,9 +1221,9 @@ var databaseSchema = [][]string{
 			description TEXT NOT NULL,
 			outcome TEXT NOT NULL,
 			read_more_url VARCHAR NOT NULL,
-			severity VARCHAR NOT NULL,
+			severity VARCHAR,
 			labels TEXT,
-			checked_at TIMESTAMP NOT NULL,
+			checked_at TIMESTAMP,
 			is_read BOOLEAN NOT NULL,
 			triggered_by VARCHAR NOT NULL,
 
@@ -1289,17 +1289,18 @@ var databaseSchema = [][]string{
 	},
 	122: {
 		// One row per Advisor checks execution. Counts are denormalized on
-		// completion so a run keeps reporting correct totals after its insights
-		// have been pruned by the retention cleaner. Deliberately no foreign key
-		// from advisor_insights.run_id: insight pruning must not touch runs.
+		// completion, so listing runs does not aggregate their insights.
 		`CREATE TABLE advisor_runs (
 			id VARCHAR NOT NULL,
 			triggered_by VARCHAR NOT NULL,
 			status VARCHAR NOT NULL,
 			check_names VARCHAR[],
 			service_ids VARCHAR[],
+			intervals VARCHAR[],
 			started_at TIMESTAMP NOT NULL,
 			finished_at TIMESTAMP,
+			planned_checks_count INTEGER NOT NULL,
+			planned_services_count INTEGER NOT NULL,
 			checks_count INTEGER NOT NULL,
 			services_count INTEGER NOT NULL,
 			findings_count INTEGER NOT NULL,

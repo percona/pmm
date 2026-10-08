@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 
 	"github.com/percona/pmm/managed/models"
@@ -47,7 +48,9 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, runID string
 		return
 	}
 
-	results, _, err := s.GetInsights(ctx, models.InsightFilters{RunID: runID}, 0, 0)
+	// only findings: passed and errored checks are stamped Info, which is a valid threshold
+	failed := models.CheckResultFailed
+	results, _, err := s.GetInsights(ctx, models.InsightFilters{RunID: runID, Status: &failed}, 0, 0)
 	if err != nil {
 		s.l.Warnf("Advisor notification: failed to load results for run %s: %v", runID, err)
 		return
@@ -62,7 +65,7 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, runID string
 	tCounts := make(map[models.ServiceType]int)
 	texts := make([]string, 0, len(results))
 	for _, r := range results {
-		severity := common.Severity(r.Severity)
+		severity := common.Severity(pointer.Get(r.Severity))
 		// Keep only insights at least as severe as the threshold (a smaller value is more severe).
 		if severity < common.Critical || severity > threshold {
 			continue
@@ -112,7 +115,7 @@ func (s *Service) SendTestNotification(recipients []string) error {
 	texts := make([]string, 0, len(sampleInsights))
 	for _, sample := range sampleInsights {
 		r := sample(runID)
-		severity := common.Severity(r.Severity)
+		severity := common.Severity(pointer.Get(r.Severity))
 		// mirror the real report's filter, so the sample shows what this
 		// threshold would actually deliver
 		if severity > threshold {
@@ -150,28 +153,28 @@ var sampleInsights = []func(runID string) *models.Insight{
 			"mongo-prod-1", models.MongoDBServiceType,
 			"MongoDB authentication is disabled",
 			"Warns if MongoDB authentication is disabled.",
-			"https://docs.mongodb.com/manual/tutorial/enable-authentication/")
+			"https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-authentication.html")
 	},
 	func(runID string) *models.Insight {
 		return sampleInsight(runID, models.Severity(common.Error), "postgresql_fsync", "Durability",
 			"pg-prod-1", models.PostgreSQLServiceType,
 			"PostgreSQL fsync is set to off",
 			"This check returns an error if the fsync configuration option is off which can lead to database corruption.",
-			"https://www.postgresql.org/docs/current/runtime-config-wal.html")
+			"https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/configuration-pg-check-fsync-enabled.html")
 	},
 	func(runID string) *models.Insight {
 		return sampleInsight(runID, models.Severity(common.Warning), "mysql_version", "Versions",
 			"mysql-prod-1", models.MySQLServiceType,
 			"MySQL version 8.0.36 is not the latest",
 			"This check returns warnings if MySQL, Percona Server for MySQL, or MariaDB version is not the latest one.",
-			"https://www.percona.com/downloads")
+			"https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql-version.html")
 	},
 	func(runID string) *models.Insight {
 		return sampleInsight(runID, models.Severity(common.Info), "mysql_tables_without_pk", "Schema & indexes",
 			"mysql-prod-1", models.MySQLServiceType,
 			"2 table(s) have no primary key",
 			"Checks tables without primary keys.",
-			"https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql-tables-without-pk.html")
+			"https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/tables-found-without-primary-keys.html")
 	},
 }
 
@@ -203,8 +206,8 @@ func sampleInsight(
 		Description:    description,
 		Outcome:        summary,
 		ReadMoreURL:    readMoreURL,
-		Severity:       severity,
-		CheckedAt:      models.Now(),
+		Severity:       &severity,
+		CheckedAt:      new(models.Now()),
 		TriggeredBy:    models.CheckTriggeredByUser,
 	}
 }

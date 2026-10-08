@@ -76,11 +76,24 @@ func StartQueuedAdvisorRun(ctx context.Context, q *reform.Querier, id string, st
 
 // AdvisorRunCounts holds the totals denormalized onto a run when it completes.
 type AdvisorRunCounts struct {
-	ChecksCount    int
-	ServicesCount  int
-	FindingsCount  int
-	ErrorsCount    int
-	SeverityCounts map[Severity]int
+	PlannedChecksCount   int
+	PlannedServicesCount int
+	ChecksCount          int
+	ServicesCount        int
+	FindingsCount        int
+	ErrorsCount          int
+	SeverityCounts       map[Severity]int
+}
+
+// setCounts copies the totals onto the run.
+func (r *AdvisorRun) setCounts(counts AdvisorRunCounts) error {
+	r.PlannedChecksCount = counts.PlannedChecksCount
+	r.PlannedServicesCount = counts.PlannedServicesCount
+	r.ChecksCount = counts.ChecksCount
+	r.ServicesCount = counts.ServicesCount
+	r.FindingsCount = counts.FindingsCount
+	r.ErrorsCount = counts.ErrorsCount
+	return r.SetSeverityCounts(counts.SeverityCounts)
 }
 
 // FinishAdvisorRun closes a run with the given final status and stores its
@@ -105,11 +118,7 @@ func FinishAdvisorRun(
 
 	run.Status = status
 	run.FinishedAt = &finishedAt
-	run.ChecksCount = counts.ChecksCount
-	run.ServicesCount = counts.ServicesCount
-	run.FindingsCount = counts.FindingsCount
-	run.ErrorsCount = counts.ErrorsCount
-	err = run.SetSeverityCounts(counts.SeverityCounts)
+	err = run.setCounts(counts)
 	if err != nil {
 		return err
 	}
@@ -122,20 +131,27 @@ func FinishAdvisorRun(
 }
 
 // ComputeAdvisorRunCounts derives a run's totals from the insights it recorded.
-// The insights are the authoritative record of what the run produced, so the
-// stored counts cannot drift from the rows they summarize.
+// The insights are the authoritative record of what the run planned and
+// produced, so the stored counts cannot drift from the rows they summarize.
+// Every insight counts towards the planned totals; a check or service counts as
+// covered once it has an ok or failed outcome, so errors do not.
 func ComputeAdvisorRunCounts(ctx context.Context, q *reform.Querier, runID string) (AdvisorRunCounts, error) {
 	var counts AdvisorRunCounts
 
 	failed := CheckResultFailed
-	errored := CheckResultError
 	err := q.QueryRowContext(
 		ctx,
 		"SELECT count(DISTINCT check_name), count(DISTINCT service_id), "+
-			"count(*) FILTER (WHERE status = $1), count(*) FILTER (WHERE status = $2) "+
-			"FROM "+InsightTable.Name()+" WHERE run_id = $3",
-		failed, errored, runID,
-	).Scan(&counts.ChecksCount, &counts.ServicesCount, &counts.FindingsCount, &counts.ErrorsCount)
+			"count(DISTINCT check_name) FILTER (WHERE status IN ($1, $2)), "+
+			"count(DISTINCT service_id) FILTER (WHERE status IN ($1, $2)), "+
+			"count(*) FILTER (WHERE status = $2), count(*) FILTER (WHERE status = $3) "+
+			"FROM "+InsightTable.Name()+" WHERE run_id = $4",
+		CheckResultOK, failed, CheckResultError, runID,
+	).Scan(
+		&counts.PlannedChecksCount, &counts.PlannedServicesCount,
+		&counts.ChecksCount, &counts.ServicesCount,
+		&counts.FindingsCount, &counts.ErrorsCount,
+	)
 	if err != nil {
 		return counts, fmt.Errorf("failed to count insights for run '%s': %w", runID, err)
 	}
@@ -233,8 +249,9 @@ func advisorRunConditions(q *reform.Querier, filters AdvisorRunFilters) (string,
 	return "WHERE " + strings.Join(conditions, " AND "), args
 }
 
-// FindAdvisorRuns returns Advisor runs matching the filters, newest first. When
-// pageSize is greater than zero, the results are paginated.
+// FindAdvisorRuns returns Advisor runs matching the filters, newest first. A
+// running run reports its totals so far. When pageSize is greater than zero,
+// the results are paginated.
 func FindAdvisorRuns(ctx context.Context, q *reform.Querier, filters AdvisorRunFilters, pageIndex, pageSize int) ([]*AdvisorRun, error) {
 	tail, args := advisorRunConditions(q, filters)
 	tail += " ORDER BY started_at DESC"
@@ -252,7 +269,18 @@ func FindAdvisorRuns(ctx context.Context, q *reform.Querier, filters AdvisorRunF
 
 	runs := make([]*AdvisorRun, 0, len(rows))
 	for _, r := range rows {
-		runs = append(runs, r.(*AdvisorRun)) //nolint:forcetypeassert
+		run := r.(*AdvisorRun) //nolint:forcetypeassert
+		if run.Status == AdvisorRunStatusRunning {
+			counts, err := ComputeAdvisorRunCounts(ctx, q, run.ID)
+			if err != nil {
+				return nil, err
+			}
+			err = run.setCounts(counts)
+			if err != nil {
+				return nil, err
+			}
+		}
+		runs = append(runs, run)
 	}
 	return runs, nil
 }
@@ -270,8 +298,7 @@ func CountAdvisorRuns(ctx context.Context, q *reform.Querier, filters AdvisorRun
 }
 
 // CleanupOldAdvisorRuns deletes Advisor runs started at or before the given time.
-// Runs are pruned by their own start time rather than with their insights, so a
-// run whose insights are already gone still reports its stored totals.
+// CleanupOldInsights prunes their insights by the same rule.
 func CleanupOldAdvisorRuns(ctx context.Context, q *reform.Querier, olderThan time.Time) error {
 	_, err := q.WithContext(ctx).DeleteFrom(AdvisorRunTable, " WHERE started_at <= $1", olderThan)
 	return err

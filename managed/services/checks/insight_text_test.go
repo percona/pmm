@@ -50,10 +50,10 @@ func TestInsightToText(t *testing.T) {
 			Summary:        "Outdated MySQL version",
 			Description:    "The MySQL version is old",
 			Outcome:        "Upgrade recommended",
-			Severity:       models.Severity(common.Warning),
+			Severity:       new(models.Severity(common.Warning)),
 			ReadMoreURL:    "https://example.com/more",
 			Status:         models.CheckResultFailed,
-			CheckedAt:      time.Date(2026, 7, 16, 10, 30, 0, 0, time.UTC),
+			CheckedAt:      new(time.Date(2026, 7, 16, 10, 30, 0, 0, time.UTC)),
 		}
 		require.NoError(t, r.SetLabels(map[string]string{"tier": "db", "env": "prod"}))
 
@@ -93,11 +93,11 @@ Check Details:
 			RunID:       "run-2",
 			CheckName:   "pg_check",
 			Summary:     "Issue found",
-			Severity:    models.Severity(common.Error),
+			Severity:    new(models.Severity(common.Error)),
 			Status:      models.CheckResultFailed,
 			TriggeredBy: models.CheckTriggeredByUser,
 			IsRead:      true,
-			CheckedAt:   time.Date(2026, 7, 16, 12, 0, 0, 0, time.UTC),
+			CheckedAt:   new(time.Date(2026, 7, 16, 12, 0, 0, 0, time.UTC)),
 		}
 
 		want := `The Advisor Check "Issue found" completed at 2026-07-16 12:00:00 with status "Failed".
@@ -111,6 +111,34 @@ Check Details:
   Read: Read
   Summary: Issue found
   Severity: Error`
+
+		got, err := insightToText(r)
+		require.NoError(t, err)
+		require.Equal(t, want, got)
+	})
+
+	t.Run("a check that did not run has no completion time or severity", func(t *testing.T) {
+		t.Parallel()
+
+		r := &models.Insight{
+			ID:          "insight-3",
+			RunID:       "run-3",
+			CheckName:   "pg_check",
+			Summary:     "Check title",
+			Status:      models.CheckResultNotRun,
+			TriggeredBy: models.CheckTriggeredByUser,
+		}
+
+		want := `The Advisor Check "Check title" has status "Not run".
+
+Check Details:
+  ID: insight-3
+  Run ID: run-3
+  Check Name: pg_check
+  Interval: Standard
+  Triggered By: User
+  Read: Unread
+  Summary: Check title`
 
 		got, err := insightToText(r)
 		require.NoError(t, err)
