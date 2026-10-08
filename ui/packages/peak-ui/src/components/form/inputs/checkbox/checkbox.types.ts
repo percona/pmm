@@ -15,6 +15,6 @@ export type CheckboxProps<T extends FieldValues = FieldValues> = {
   checkboxProps?: MUICheckboxProps;
   /** Settings for the heading rendered by `LabeledContent`, such as a caption or required asterisk. */
   labelProps?: LabeledContentProps;
-  /** Prevents the user from toggling the box. */
+  /** Prevents the user from toggling the box while keeping its state. */
   disabled?: boolean;
 };

@@ -24,7 +24,7 @@ export type AutoCompleteInputProps<TOption, TFieldValues extends FieldValues = F
   control?: Control<TFieldValues>;
   /** Validation rules and other react-hook-form Controller settings for this field. */
   controllerProps?: Omit<UseControllerProps<TFieldValues>, 'name' | 'control'>;
-  /** Floating label shown inside the field. */
+  /** Floating label shown inside the field (that moves to the top when the field is focused/filled). */
   label?: string;
   /** Not used: this input renders the MUI floating label. Kept for API symmetry with `CheckboxInput` and `RadioGroup`. */
   labelProps?: LabeledContentProps;
@@ -41,7 +41,7 @@ export type AutoCompleteInputProps<TOption, TFieldValues extends FieldValues = F
   isRequired?: boolean;
   /** Prevents the user from opening the dropdown or typing. */
   disabled?: boolean;
-  /** Help text shown in a tooltip above the field on hover. */
+  /** Complementary text shown inside a tooltip that appears above the field on hover. */
   tooltipText?: string;
   /** Called after the user picks or clears a choice, once the form value is already updated. */
   onChange?: () => void;

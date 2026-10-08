@@ -12,7 +12,7 @@ export type PageContainerMaxWidth = number | 'full';
 export interface PageContainerProps extends Omit<StackProps, 'maxWidth'> {
   /**
    * Pixel width the content column is capped at from the `lg` breakpoint up, or `'full'` to
-   * stretch to the available width.
+   * stretch to the available width. Defaults to 1000px.
    * @default 1000
    */
   maxWidth?: PageContainerMaxWidth;
