@@ -41,14 +41,19 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import {
   isBootstrapRunActive,
   isRunActive,
   request,
   retryTransientRequestErrors,
 } from './api';
-import { periodSince, type OmRunPeriod } from './inventory';
+import {
+  periodSince,
+  type OmEstateStatus,
+  type OmRunPeriod,
+} from './inventory';
+import { ScanTrackingContext } from './scanTracking';
 import type {
   OmBootstrapMemberConfig,
   OmCancelBootstrapRunResponse,
@@ -192,6 +197,8 @@ export function useOmInventoryServices() {
 export interface OmRunFilters {
   limit?: number;
   period?: OmRunPeriod;
+  /** False to read the history only once there is a reason to. */
+  enabled?: boolean;
 }
 
 function toRunsQuery(limit: number, since: string | undefined): string {
@@ -218,6 +225,7 @@ export function useOmInventoryRuns(filters: OmRunFilters = {}) {
     // every poll must not create a new query key each time, or the table would sit on
     // the loading spinner exactly like it did before periodSince was frozen upstream.
     queryKey: [...RUNS_KEY, period, limit],
+    enabled: filters.enabled ?? true,
     queryFn: async () => {
       const query = toRunsQuery(limit, periodSince(period));
       const { runs } = await request<{ runs: OmInventoryRun[] }>(
@@ -303,6 +311,48 @@ export function useIsEstateRefreshing(): boolean {
 }
 
 /**
+ * The scan in flight, if any, and when the history was last read - so a caller can
+ * tell "no scan is running" from "not read since I asked".
+ */
+export function useActiveInventoryRun(): {
+  run: OmInventoryRun | undefined;
+  updatedAt: number;
+} {
+  const { data: runs, dataUpdatedAt } = useOmInventoryRuns();
+  return {
+    run: (runs ?? []).find((run) => isRunActive(run.status)),
+    updatedAt: dataUpdatedAt,
+  };
+}
+
+export interface OmLastScan {
+  status: OmEstateStatus;
+  finishedAt: string | null;
+}
+
+/**
+ * When the newest scan of every node finished, or null if none has.
+ *
+ * A scan of a few nodes does not count, and neither does one that reached no node at
+ * all: "nodes last scanned" would claim more than either did. Until the history has
+ * been read, `status` says so, because "none has finished" is not yet known.
+ */
+export function useLastScanFinishedAt(): OmLastScan {
+  const { data: runs, isError } = useOmInventoryRuns();
+  if (!runs) {
+    return { status: isError ? 'unavailable' : 'pending', finishedAt: null };
+  }
+  const run = runs.find(
+    (candidate) =>
+      candidate.scope.length === 0 &&
+      Boolean(candidate.end_time) &&
+      (candidate.status === 'RUN_STATUS_SUCCESS' ||
+        candidate.status === 'RUN_STATUS_PARTIAL')
+  );
+  return { status: 'ready', finishedAt: run?.end_time ?? null };
+}
+
+/**
  * Ask for a refresh of named hosts, or of the whole estate.
  *
  * One hook for both, because `node_ids` is a list and one host is a list of one. That
@@ -324,6 +374,7 @@ export function useIsEstateRefreshing(): boolean {
  */
 export function useRefreshInventory() {
   const queryClient = useQueryClient();
+  const trackScan = useContext(ScanTrackingContext);
   const mutation = useMutation<OmInventoryRunAccepted, Error, string[]>({
     // A body only when there is a scope to state. `body: "*"` on the method plus
     // grpc-gateway tolerating io.EOF means an unscoped sweep needs no `{}` to say
@@ -340,6 +391,7 @@ export function useRefreshInventory() {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNS_KEY });
     },
+    onSuccess: (accepted) => trackScan?.(accepted.run_id),
   });
 
   return {

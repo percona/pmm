@@ -889,6 +889,11 @@ type GetInventoryRunOKBodyRun struct {
 	// What went wrong, when something did.
 	Error *string `json:"error,omitempty"`
 
+	// The nodes this run failed to scan, sorted by name: the node's own scan failed, or
+	// a service on it did. What tells one run from the next, so the history can group
+	// runs that failed the same way and link each failure to its node.
+	FailingNodes []*GetInventoryRunOKBodyRunFailingNodesItems0 `json:"failing_nodes"`
+
 	// counts
 	Counts *GetInventoryRunOKBodyRunCounts `json:"counts,omitempty"`
 }
@@ -906,6 +911,10 @@ func (o *GetInventoryRunOKBodyRun) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateEndTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateFailingNodes(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -997,6 +1006,36 @@ func (o *GetInventoryRunOKBodyRun) validateEndTime(formats strfmt.Registry) erro
 	return nil
 }
 
+func (o *GetInventoryRunOKBodyRun) validateFailingNodes(formats strfmt.Registry) error {
+	if swag.IsZero(o.FailingNodes) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.FailingNodes); i++ {
+		if swag.IsZero(o.FailingNodes[i]) { // not required
+			continue
+		}
+
+		if o.FailingNodes[i] != nil {
+			if err := o.FailingNodes[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("getInventoryRunOk" + "." + "run" + "." + "failing_nodes" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("getInventoryRunOk" + "." + "run" + "." + "failing_nodes" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 func (o *GetInventoryRunOKBodyRun) validateCounts(formats strfmt.Registry) error {
 	if swag.IsZero(o.Counts) { // not required
 		return nil
@@ -1024,6 +1063,10 @@ func (o *GetInventoryRunOKBodyRun) validateCounts(formats strfmt.Registry) error
 func (o *GetInventoryRunOKBodyRun) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.contextValidateFailingNodes(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateCounts(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -1031,6 +1074,32 @@ func (o *GetInventoryRunOKBodyRun) ContextValidate(ctx context.Context, formats 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *GetInventoryRunOKBodyRun) contextValidateFailingNodes(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.FailingNodes); i++ {
+		if o.FailingNodes[i] != nil {
+
+			if swag.IsZero(o.FailingNodes[i]) { // not required
+				return nil
+			}
+
+			if err := o.FailingNodes[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("getInventoryRunOk" + "." + "run" + "." + "failing_nodes" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("getInventoryRunOk" + "." + "run" + "." + "failing_nodes" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -1130,6 +1199,47 @@ func (o *GetInventoryRunOKBodyRunCounts) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetInventoryRunOKBodyRunCounts) UnmarshalBinary(b []byte) error {
 	var res GetInventoryRunOKBodyRunCounts
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetInventoryRunOKBodyRunFailingNodesItems0 InventoryRunFailingNode names one node a run failed to scan.
+swagger:model GetInventoryRunOKBodyRunFailingNodesItems0
+*/
+type GetInventoryRunOKBodyRunFailingNodesItems0 struct {
+	// PMM's node ID.
+	NodeID string `json:"node_id,omitempty"`
+
+	// The node name, which is what the Nodes page is addressed by. Empty when the run
+	// recorded none.
+	Name string `json:"name,omitempty"`
+}
+
+// Validate validates this get inventory run OK body run failing nodes items0
+func (o *GetInventoryRunOKBodyRunFailingNodesItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get inventory run OK body run failing nodes items0 based on context it is used
+func (o *GetInventoryRunOKBodyRunFailingNodesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetInventoryRunOKBodyRunFailingNodesItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetInventoryRunOKBodyRunFailingNodesItems0) UnmarshalBinary(b []byte) error {
+	var res GetInventoryRunOKBodyRunFailingNodesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

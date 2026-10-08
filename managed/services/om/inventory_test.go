@@ -2303,6 +2303,40 @@ func TestInventoryRunCarriesHostCounters(t *testing.T) {
 	assert.Equal(t, int32(0), counts.GetTotalServices())
 }
 
+func TestInventoryRunNamesItsFailingNodes(t *testing.T) {
+	t.Parallel()
+
+	// What the scan history groups runs by, and links each failure from.
+	stub := newSEPStub(t, http.StatusOK, `[{
+	  "run_id": "r1", "status": "partial",
+	  "started_at": "2026-10-07T12:00:00Z", "finished_at": "2026-10-07T12:00:30Z",
+	  "counts": {"services_total": 0, "services_resolved": 0, "services_orphaned": 0,
+	             "services_answered": 0,
+	             "hosts_total": 3, "hosts_probeable": 3, "hosts_answered": 1},
+	  "scope": null, "error": null,
+	  "failing_nodes": [{"node_id": "n2", "name": "node02"}, {"node_id": "n3", "name": null}]
+	}, {
+	  "run_id": "r0", "status": "success",
+	  "started_at": "2026-10-07T11:50:00Z", "finished_at": "2026-10-07T11:50:30Z",
+	  "counts": {"services_total": 0, "services_resolved": 0, "services_orphaned": 0,
+	             "services_answered": 0,
+	             "hosts_total": 3, "hosts_probeable": 3, "hosts_answered": 3},
+	  "scope": null, "error": null
+	}]`)
+
+	res, err := stub.service(t).ListInventoryRuns(t.Context(), &omv1.ListInventoryRunsRequest{})
+
+	require.NoError(t, err)
+	require.Len(t, res.GetRuns(), 2)
+	failing := res.GetRuns()[0].GetFailingNodes()
+	require.Len(t, failing, 2)
+	assert.Equal(t, "n2", failing[0].GetNodeId())
+	assert.Equal(t, "node02", failing[0].GetName())
+	assert.Empty(t, failing[1].GetName(), "a node the run recorded no name for")
+	// A server that predates the field sends none, which is no failing node.
+	assert.Empty(t, res.GetRuns()[1].GetFailingNodes())
+}
+
 func TestInventoryRunDetailIsHostOriented(t *testing.T) {
 	t.Parallel()
 

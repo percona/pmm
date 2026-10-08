@@ -25,6 +25,9 @@ import { cluster, mixedEstate, service, topology } from './fixtures';
 const { useOmTopology } = vi.hoisted(() => ({ useOmTopology: vi.fn() }));
 
 vi.mock('../src/topologyHooks', () => ({ useOmTopology }));
+vi.mock('../src/inventoryHooks', () => ({
+  useLastScanFinishedAt: () => ({ status: 'ready', finishedAt: null }),
+}));
 
 const renderPage = () =>
   render(
@@ -173,5 +176,70 @@ describe('FleetClustersTab', () => {
     const empty = screen.getByTestId('om-empty-state');
     expect(empty).toHaveTextContent(FLEET_NOT_COLLECTED);
     expect(empty).not.toHaveTextContent('PMM has no MongoDB services');
+  });
+
+  describe('counts carry no status colour (Pedro, 2026-10-06 and 2026-10-07)', () => {
+    // MUI's default palette, which these tests render under.
+    const RED = 'rgb(211, 47, 47)';
+    const GREEN = 'rgb(46, 125, 50)';
+    const colourOf = (element: HTMLElement) => getComputedStyle(element).color;
+    // The number is in a <strong> of its own, so match the line it sits in.
+    const line = (text: string) =>
+      screen.getAllByText((_, element) => element?.textContent === text)[0];
+
+    it('keeps "up" neutral on the summary lines, and "down" red only above zero', () => {
+      renderPage();
+
+      for (const up of screen.getAllByText(/\bup$/)) {
+        expect([RED, GREEN]).not.toContain(colourOf(up));
+      }
+      expect(colourOf(line('1 down'))).toBe(RED);
+      expect(colourOf(line('0 down'))).not.toBe(RED);
+    });
+
+    it("states a cluster's members up as plain text, in every state", () => {
+      const down = { status: 'SERVICE_STATUS_DOWN' } as const;
+      useOmTopology.mockReturnValue({
+        data: topology([
+          {
+            env_name: 'production',
+            clusters: [
+              cluster({
+                name: 'mixed',
+                services: [
+                  service({ service_name: 'mixed-1' }),
+                  service({ service_name: 'mixed-2', ...down }),
+                ],
+              }),
+              cluster({ name: 'empty', services: [] }),
+              cluster({
+                name: 'dark',
+                services: [service({ service_name: 'dark-1', ...down })],
+              }),
+            ],
+          },
+        ]),
+        isPending: false,
+        isError: false,
+      });
+      renderPage();
+
+      // Hidden by default; shown the way a reader would.
+      fireEvent.click(
+        screen.getByRole('button', { name: /show\/hide columns/i })
+      );
+      const upItem = screen
+        .getAllByRole('menuitem')
+        .find((item) => item.textContent === 'Up') as HTMLElement;
+      fireEvent.click(upItem.querySelector('input') as HTMLInputElement);
+
+      for (const text of [
+        '1 of 2 members up',
+        '0 of 0 members up',
+        '0 of 1 members up',
+      ]) {
+        expect([RED, GREEN]).not.toContain(colourOf(screen.getByText(text)));
+      }
+    });
   });
 });

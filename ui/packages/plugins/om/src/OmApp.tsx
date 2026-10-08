@@ -29,6 +29,7 @@ import { FleetPage } from './FleetPage';
 import { LegacyRedirect } from './LegacyRedirect';
 import { NodesPage } from './NodesPage';
 import { SettingsPage } from './SettingsPage';
+import { ScanFeedbackProvider } from './ScanFeedback';
 
 /**
  * Operations' router. The shell mounts this at ``operations/*``; the fleet is the index
@@ -50,15 +51,17 @@ import { SettingsPage } from './SettingsPage';
  */
 export const OmApp = () => {
   return (
-    <Routes>
-      <Route index element={<FleetPage />} />
-      <Route path={OM_ROUTE_NODES} element={<NodesPage />} />
-      <Route path={OM_ROUTE_INSTALL} element={<BootstrapPage />} />
-      <Route path={OM_ROUTE_AUTOMATIONS} element={<AutomationsPage />} />
-      <Route path={OM_ROUTE_SETTINGS} element={<SettingsPage />} />
-      {Object.entries(OM_LEGACY_REDIRECTS).map(([from, to]) => (
-        <Route key={from} path={from} element={<LegacyRedirect to={to} />} />
-      ))}
-    </Routes>
+    <ScanFeedbackProvider>
+      <Routes>
+        <Route index element={<FleetPage />} />
+        <Route path={OM_ROUTE_NODES} element={<NodesPage />} />
+        <Route path={OM_ROUTE_INSTALL} element={<BootstrapPage />} />
+        <Route path={OM_ROUTE_AUTOMATIONS} element={<AutomationsPage />} />
+        <Route path={OM_ROUTE_SETTINGS} element={<SettingsPage />} />
+        {Object.entries(OM_LEGACY_REDIRECTS).map(([from, to]) => (
+          <Route key={from} path={from} element={<LegacyRedirect to={to} />} />
+        ))}
+      </Routes>
+    </ScanFeedbackProvider>
   );
 };

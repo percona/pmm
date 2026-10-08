@@ -21,6 +21,7 @@ import {
   useNavigate,
   useSearchParams,
 } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 import {
   Alert,
   Box,
@@ -38,6 +39,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -70,7 +72,8 @@ import {
   useOmInventoryHosts,
   useRefreshInventory,
 } from './inventoryHooks';
-import { isBootstrapRunActive, OmApiError } from './api';
+import { isBootstrapRunActive } from './api';
+import { useScanConflict } from './ScanFeedback';
 import { useOmBase } from './useOmBase';
 import type { OmHostRow } from './types';
 
@@ -105,13 +108,21 @@ const HIDDEN_BY_DEFAULT = {
  * ("where could I install something" / "what is PMM already watching") — they
  * just no longer answer themselves on page load.
  */
-type HostFilter = 'unmonitored' | 'monitored' | 'all';
+type HostFilter = 'unmonitored' | 'monitored' | 'failing' | 'all';
 
 const HOST_FILTERS: { id: HostFilter; label: string }[] = [
   { id: 'unmonitored', label: 'Not monitored' },
   { id: 'monitored', label: 'Monitored' },
   { id: 'all', label: 'All' },
 ];
+
+/**
+ * Whether a node's failing scans count against the fleet. Not the PMM Server's own
+ * node's: Operations never acts on it, so its scans failing is not a fleet problem
+ * (Pedro, 2026-10-06). Its failure is still shown on its row, without the alarm.
+ */
+const countsAsFailing = (row: OmHostRow) =>
+  isFailing(row) && !row.is_pmm_server_node;
 
 /**
  * `unregistered_only` counts as not monitored: a host with a mongod PMM cannot see
@@ -121,6 +132,9 @@ const HOST_FILTERS: { id: HostFilter; label: string }[] = [
 function matchesHostFilter(row: OmHostRow, filter: HostFilter): boolean {
   if (filter === 'all') {
     return true;
+  }
+  if (filter === 'failing') {
+    return countsAsFailing(row);
   }
   const monitored = row.database_state === 'has_service';
   return filter === 'monitored' ? monitored : !monitored;
@@ -496,7 +510,12 @@ function useColumns(
             <Stack spacing={0.25}>
               <Box
                 component="span"
-                sx={{ color: 'error.main', whiteSpace: 'normal' }}
+                sx={{
+                  color: original.is_pmm_server_node
+                    ? 'text.secondary'
+                    : 'error.main',
+                  whiteSpace: 'normal',
+                }}
               >
                 {failureStatement(failure)}
               </Box>
@@ -542,11 +561,22 @@ function useColumns(
  * server names the run; a link to the scan history in general would send the reader
  * hunting through it, which is the trip this panel exists to save.
  */
-const ScanFailureDetail = ({ failure }: { failure: ScanFailure }) => {
+const ScanFailureDetail = ({
+  failure,
+  neutral,
+}: {
+  failure: ScanFailure;
+  /** True for the PMM Server's own node; see countsAsFailing. */
+  neutral: boolean;
+}) => {
   const omBase = useOmBase();
   return (
     <Box data-testid="scan-failure">
-      <Typography variant="subtitle2" gutterBottom color="error.main">
+      <Typography
+        variant="subtitle2"
+        gutterBottom
+        color={neutral ? undefined : 'error.main'}
+      >
         Scans failing: {failure.label}
       </Typography>
       <Typography variant="body2" sx={{ mb: 1 }}>
@@ -606,7 +636,9 @@ const HostDetail = ({ row }: { row: OmHostRow }) => {
   const failure = describeScanFailure(row.freshness);
   return (
     <Stack spacing={2} sx={{ p: 2 }}>
-      {failure && <ScanFailureDetail failure={failure} />}
+      {failure && (
+        <ScanFailureDetail failure={failure} neutral={row.is_pmm_server_node} />
+      )}
       <Box>
         <Typography variant="subtitle2" gutterBottom>
           Services PMM monitors ({row.services.length})
@@ -654,6 +686,12 @@ const HostDetail = ({ row }: { row: OmHostRow }) => {
   );
 };
 
+function forgottenMessage(rows: OmHostRow[]): string {
+  return rows.length === 1
+    ? `Removed ${rows[0].name} from Operations. If PMM still monitors it, it comes back on the next scan and is counted again.`
+    : `Removed ${rows.length} nodes from Operations. Any that PMM still monitors come back on the next scan and are counted again.`;
+}
+
 /**
  * The dialog that has to tell the truth about what deleting achieves, for one
  * host's row or several.
@@ -664,7 +702,7 @@ const HostDetail = ({ row }: { row: OmHostRow }) => {
  * clearing a row left behind when `pmm-agent setup --force` re-registered a node under
  * a new id, which leaves the old row with nothing to refresh it.
  *
- * The per-row Forget button and the bulk one share this dialog: the only real
+ * The row menu's removal and the bulk one share this dialog: the only real
  * difference is how many names are in the title and how many DELETE calls go out.
  * PMM Extensions has no batch-delete endpoint, so a bulk forget is N independent requests, not
  * one. They are dispatched together and awaited together; a partial failure keeps
@@ -718,6 +756,7 @@ const ForgetDialog = ({
     failures.length > 0
       ? rows.filter((row) => failedIds.has(row.node_id))
       : rows;
+  const onlyOneRow = rows.length === 1;
   const totalServices = rows.reduce((sum, row) => sum + row.services.length, 0);
   const handleForget = async () => {
     setBusy(true);
@@ -752,26 +791,33 @@ const ForgetDialog = ({
   return (
     <Dialog open onClose={onClose} maxWidth="sm">
       <DialogTitle>
-        {rows.length === 1
-          ? `Forget ${rows[0].name}?`
-          : `Forget ${rows.length} nodes?`}
+        {onlyOneRow
+          ? `Remove the entry for ${rows[0].name}?`
+          : `Remove the entries for ${rows.length} nodes?`}
       </DialogTitle>
       <DialogContent>
         <DialogContentText component="div">
           <p>
-            This clears the Operations row for{' '}
-            {rows.length === 1 ? 'this node' : 'these nodes'} and the{' '}
-            {totalServices} service row(s) on{' '}
-            {rows.length === 1 ? 'it' : 'them'}, along with their scan history.
+            This removes {onlyOneRow ? 'this node' : 'these nodes'} from the
+            Operations node list
+            {totalServices > 0
+              ? `, along with the ${totalServices} ${pluralize(totalServices, 'service')} that Operations recorded on ${onlyOneRow ? 'it' : 'them'}`
+              : ''}
+            .{' '}
+            <strong>
+              {onlyOneRow ? 'Its' : 'Their'} scan history is deleted
+              permanently.
+            </strong>
           </p>
           <p>
-            <strong>
-              It does not stop {rows.length === 1 ? 'this node' : 'these nodes'}{' '}
-              being monitored.
-            </strong>{' '}
-            If PMM still has the node, the next scan writes the row again. Use
-            this to clear a duplicate left behind when a node was re-registered
-            under a new ID.
+            Nothing changes on the {onlyOneRow ? 'machine' : 'machines'}, and
+            PMM keeps monitoring {onlyOneRow ? 'it' : 'them'}. If PMM still has{' '}
+            {onlyOneRow ? 'the node' : 'a node'}, it comes back on the next
+            scan, with no scan history.
+          </p>
+          <p>
+            Use this to clear a duplicate entry left behind when a node was
+            re-registered in PMM under a new ID.
           </p>
         </DialogContentText>
         {failures.map((failure) => (
@@ -782,8 +828,8 @@ const ForgetDialog = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button color="error" disabled={busy} onClick={handleForget}>
-          Forget
+        <Button variant="contained" disabled={busy} onClick={handleForget}>
+          {onlyOneRow ? 'Remove entry' : 'Remove entries'}
         </Button>
       </DialogActions>
     </Dialog>
@@ -805,9 +851,11 @@ export const NodesPage = () => {
   // against a host that sweep already holds. The refetch when a sweep lands is the
   // estate query's own business now, so this page no longer arranges it.
   const refreshing = useIsEstateRefreshing();
+  const { conflict: scanConflict, runningScan } = useScanConflict(refresh);
   const navigate = useNavigate();
   const omBase = useOmBase();
   const [forgetting, setForgetting] = useState<OmHostRow[]>([]);
+  const { enqueueSnackbar } = useSnackbar();
   const [hostFilter, setHostFilter] = useState<HostFilter>('all');
   // Keyed by node_id (this table's getRowId), independent of which filter is
   // active — switching filters does not silently drop a selection made under a
@@ -869,7 +917,7 @@ export const NodesPage = () => {
           !row.executor.reachable ||
           !row.executor.driver_healthy
       ).length,
-      failing: rows.filter((row) => isFailing(row)).length,
+      failing: rows.filter(countsAsFailing).length,
       automationEligible: rows.filter((row) => row.automation_eligible).length,
     }),
     [rows]
@@ -962,7 +1010,8 @@ export const NodesPage = () => {
         </Tooltip>
         {/* Behind the ellipsis, not beside the daily actions: three text buttons
             did not fit the row, and Forget was the one falling off the right edge
-            and it belongs behind a menu on its own account too. */}
+            and it belongs behind a menu on its own account too, named for what
+            it is for rather than for what it deletes. */}
         {/* No actions at all on PMM Server's own node. Forget would clear Operations'
             record of the machine PMM runs on, the next scan would put it straight
             back, and in between the fleet would be wrong - so the menu has nothing
@@ -986,7 +1035,7 @@ export const NodesPage = () => {
                       close();
                     }}
                   >
-                    Forget
+                    Remove duplicate entry
                   </MenuItem>
                 </Box>
               </Tooltip>,
@@ -1030,7 +1079,13 @@ export const NodesPage = () => {
         subtitle={
           <Typography variant="body2" color="text.secondary">
             Every node Operations knows about, including the ones with no
-            database on them.
+            database on them. This page says whether each node is ready to be
+            scanned and installed on, not how its databases are doing: database
+            health is on{' '}
+            <Link component={RouterLink} to={omBase} underline="hover">
+              Clusters
+            </Link>
+            .
           </Typography>
         }
         actions={
@@ -1039,7 +1094,8 @@ export const NodesPage = () => {
             <Tooltip title="Scan every node. Starts one job per node and takes tens of seconds.">
               <Box component="span">
                 <Button
-                  variant="outlined"
+                  variant="contained"
+                  startIcon={<PlayArrowIcon />}
                   disabled={refresh.isPending || refreshing}
                   onClick={() => refresh.refreshAll()}
                 >
@@ -1050,18 +1106,33 @@ export const NodesPage = () => {
           </Stack>
         }
       />
-      {refresh.isError && (
+      {/* A 409 is an expected answer, not a fault: another scan already holds these
+          nodes, and the schedule starts one every ten minutes. */}
+      {scanConflict && (
         <Alert
-          severity={
-            refresh.error instanceof OmApiError && refresh.error.status === 409
-              ? 'info'
-              : 'error'
-          }
+          severity="info"
           sx={{ mb: 2 }}
+          action={
+            runningScan && (
+              <Button
+                component={RouterLink}
+                to={`${omBase}/${OM_ROUTE_AUTOMATIONS}?tab=scans&expand=${encodeURIComponent(
+                  runningScan.run_id
+                )}`}
+                color="inherit"
+                size="small"
+              >
+                Open the running scan
+              </Button>
+            )
+          }
         >
-          {/* A 409 is an expected answer, not a fault: another sweep already holds
-              these hosts, and the schedule starts one every few minutes. */}
-          {refresh.error.message}
+          {scanConflict.message}
+        </Alert>
+      )}
+      {refresh.isError && !scanConflict && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Could not start a scan: {refresh.error.message}
         </Alert>
       )}
       <Stack direction="row" spacing={3} sx={{ mb: 2, alignItems: 'center' }}>
@@ -1094,10 +1165,19 @@ export const NodesPage = () => {
             <strong>{counts.unusable}</strong> cannot be scanned
           </Typography>
         )}
-        {counts.failing > 0 && (
-          <Typography variant="body2" color="error.main">
-            <strong>{counts.failing}</strong> failing
-          </Typography>
+        {/* A count to act on, so it is the filter too - as on the Services tab. */}
+        {(counts.failing > 0 || hostFilter === 'failing') && (
+          <Chip
+            size="small"
+            color={hostFilter === 'failing' ? 'error' : 'default'}
+            variant={hostFilter === 'failing' ? 'filled' : 'outlined'}
+            label={`${counts.failing} failing`}
+            onClick={() =>
+              setHostFilter((current) =>
+                current === 'failing' ? 'all' : 'failing'
+              )
+            }
+          />
         )}
       </Stack>
       {selectedRows.length > 0 && (
@@ -1152,13 +1232,8 @@ export const NodesPage = () => {
               </Button>
             </Box>
           </Tooltip>
-          <Button
-            size="small"
-            variant="outlined"
-            color="error"
-            onClick={() => setForgetting(selectedRows)}
-          >
-            Forget selected
+          <Button size="small" onClick={() => setForgetting(selectedRows)}>
+            Remove duplicate entries
           </Button>
         </Stack>
       )}
@@ -1185,6 +1260,7 @@ export const NodesPage = () => {
         rows={forgetting}
         onClose={() => setForgetting([])}
         onForgotten={() => {
+          enqueueSnackbar(forgottenMessage(forgetting), { variant: 'success' });
           setForgetting([]);
           setRowSelection({});
         }}

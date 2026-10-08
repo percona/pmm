@@ -672,6 +672,19 @@ message InventoryRun {
   repeated string scope = 6;
   // What went wrong, when something did.
   optional string error = 7;
+  // The nodes this run failed to scan, sorted by name: the node's own scan failed, or
+  // a service on it did. What tells one run from the next, so the history can group
+  // runs that failed the same way and link each failure to its node.
+  repeated InventoryRunFailingNode failing_nodes = 8;
+}
+
+// InventoryRunFailingNode names one node a run failed to scan.
+message InventoryRunFailingNode {
+  // PMM's node ID.
+  string node_id = 1;
+  // The node name, which is what the Nodes page is addressed by. Empty when the run
+  // recorded none.
+  string name = 2;
 }
 
 // InventorySetting is one of the inventory app's configuration fields.
