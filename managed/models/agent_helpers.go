@@ -555,7 +555,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 
 // FindPMMAgentsRunningOnNode gets pmm-agents for node where it runs.
 func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, error) {
-	structs, err := q.SelectAllFrom(AgentTable, "WHERE runs_on_node_id = $1 AND agent_type = $2", nodeID, PMMAgentType)
+	structs, err := q.SelectAllFrom(AgentTable, "WHERE runs_on_node_id = $1 AND agent_type = $2 ORDER BY agent_id", nodeID, PMMAgentType)
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get agents by runs_on_node_id, %s", nodeID)
 	}
