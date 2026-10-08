@@ -16,17 +16,21 @@
  */
 
 import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import {
-  Alert,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
   Button,
   Chip,
   CircularProgress,
+  Link,
   Stack,
   Tooltip,
   Typography,
 } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { EmptyState } from './components/EmptyState';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { Table, type MRT_ColumnDef } from '@percona/percona-ui';
@@ -35,9 +39,11 @@ import {
   useOmInventoryRuns,
   useRefreshInventory,
 } from './inventoryHooks';
-import { isRunActive, OmApiError } from './api';
+import { isRunActive } from './api';
+import { useScanConflict } from './ScanFeedback';
 import { RunStatusBadge } from './components/HealthBadge';
 import { RunEntities } from './components/RunEntities';
+import { ScanProgress } from './components/ScanProgress';
 import {
   formatCompactDuration,
   formatRunDuration,
@@ -48,61 +54,168 @@ import {
 import {
   ageSeconds,
   DEFAULT_RUN_LIMIT,
+  groupRuns,
   isBoundedPeriod,
   isRunPeriod,
   RUN_PERIODS,
   WINDOWED_RUN_LIMIT,
+  type OmRunGroup,
   type OmRunPeriod,
 } from './inventory';
-import type { OmInventoryRun } from './types';
+import { OM_ROUTE_NODES } from './constants';
+import { useOmBase } from './useOmBase';
+import type { OmInventoryRun, OmInventoryRunFailingNode } from './types';
+import { OmError } from './components/OmError';
 
-const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
+/** When a group of scans ran: the newest, and for several, how many over how long. */
+const GroupStarted = ({ group }: { group: OmRunGroup }) => {
+  const newest = group.runs[0];
+  if (group.runs.length === 1) {
+    return <>{formatTimestamp(newest.start_time)}</>;
+  }
+  const oldest = group.runs[group.runs.length - 1];
+  const span =
+    (Date.parse(newest.start_time) - Date.parse(oldest.start_time)) / 1000;
+  return (
+    <Stack spacing={0.25}>
+      <span>{formatTimestamp(newest.start_time)}</span>
+      <Tooltip
+        title={`From ${formatTimestamp(oldest.start_time)} to ${formatTimestamp(newest.start_time)}`}
+      >
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          data-testid="om-run-group-span"
+        >
+          {group.runs.length} scans over {formatCompactDuration(span) || '0s'}
+        </Typography>
+      </Tooltip>
+    </Stack>
+  );
+};
+
+/** Each node a scan failed on, linked to its row on the Nodes page. */
+const FailingNodes = ({ nodes }: { nodes: OmInventoryRunFailingNode[] }) => {
+  const omBase = useOmBase();
+  if (nodes.length === 0) {
+    return (
+      <Box component="span" sx={{ color: 'text.disabled' }}>
+        none
+      </Box>
+    );
+  }
+  return (
+    <Stack direction="row" gap={1} flexWrap="wrap">
+      {nodes.map((node) =>
+        node.name ? (
+          <Link
+            key={node.node_id}
+            component={RouterLink}
+            to={`${omBase}/${OM_ROUTE_NODES}?node=${encodeURIComponent(node.name)}`}
+          >
+            {node.name}
+          </Link>
+        ) : (
+          <span key={node.node_id}>{node.node_id}</span>
+        )
+      )}
+    </Stack>
+  );
+};
+
+/**
+ * The scans a group stands for, each still openable to its own receipt.
+ *
+ * Unmounted while folded, so a group of a hundred scans does not ask for a hundred
+ * receipts.
+ */
+const GroupRuns = ({
+  group,
+  expandRunId,
+}: {
+  group: OmRunGroup;
+  expandRunId: string | null;
+}) => (
+  <Stack spacing={1} data-testid="om-run-group">
+    {group.runs.map((run) => (
+      <Accordion
+        key={run.run_id}
+        disableGutters
+        variant="outlined"
+        defaultExpanded={run.run_id === expandRunId}
+        slotProps={{ transition: { unmountOnExit: true } }}
+      >
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="body2">
+            {formatTimestamp(run.start_time)}, took{' '}
+            {formatRunDuration(run.start_time, run.end_time) || '—'},{' '}
+            {run.counts.answered_hosts} of {run.counts.probeable_hosts}{' '}
+            {pluralize(run.counts.probeable_hosts, 'node')} answered
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <RunEntities run={run} />
+        </AccordionDetails>
+      </Accordion>
+    ))}
+  </Stack>
+);
+
+const RUN_COLUMNS: MRT_ColumnDef<OmRunGroup>[] = [
   {
-    accessorKey: 'status',
+    accessorFn: (group) => group.runs[0].status,
+    id: 'status',
     header: 'Status',
     Cell: ({ row: { original } }) => (
-      <RunStatusBadge status={original.status} />
+      <RunStatusBadge status={original.runs[0].status} />
     ),
   },
   {
-    accessorKey: 'start_time',
+    // A group of scans is placed by its newest, and says how many and over how long:
+    // "it has failed like this for six hours" is what grouping exists to show.
+    accessorFn: (group) => group.runs[0].start_time,
+    id: 'start_time',
     header: 'Started',
-    Cell: ({ row: { original } }) => formatTimestamp(original.start_time),
+    Cell: ({ row: { original } }) => <GroupStarted group={original} />,
   },
   {
     // Sorts on elapsed seconds, not the formatted string -- lexicographically "9s"
     // lands after "10m". NodesPage's age column already does it this way.
-    accessorFn: (row) => runDurationSeconds(row.start_time, row.end_time),
+    accessorFn: (group) =>
+      runDurationSeconds(group.runs[0].start_time, group.runs[0].end_time),
     id: 'duration',
     header: 'Duration',
     Cell: ({ row: { original } }) =>
-      formatRunDuration(original.start_time, original.end_time) || '—',
+      formatRunDuration(
+        original.runs[0].start_time,
+        original.runs[0].end_time
+      ) || '—',
   },
   {
     // Empty rather than zero for a full sweep: "the whole estate" is the ordinary
     // case, and a column that said "all" on nineteen rows out of twenty would be
     // noise. What matters is spotting the scoped one among them.
-    accessorFn: (row) => row.scope.length,
+    accessorFn: (group) => group.runs[0].scope.length,
     id: 'scope',
     header: 'Scope',
     Cell: ({ row: { original } }) =>
-      original.scope.length === 0 ? (
+      original.runs[0].scope.length === 0 ? (
         <Tooltip title="Every node">
           <Box component="span" sx={{ color: 'text.disabled' }}>
             all
           </Box>
         </Tooltip>
       ) : (
-        <Tooltip title={original.scope.join(', ')}>
+        <Tooltip title={original.runs[0].scope.join(', ')}>
           <Box component="span">
-            {original.scope.length} host
-            {original.scope.length === 1 ? '' : 's'}
+            {original.runs[0].scope.length} host
+            {original.runs[0].scope.length === 1 ? '' : 's'}
           </Box>
         </Tooltip>
       ),
   },
   {
-    accessorFn: (row) => row.counts.answered_hosts,
+    accessorFn: (group) => group.runs[0].counts.answered_hosts,
     id: 'hosts',
     header: 'Nodes',
     Cell: ({ row: { original } }) => (
@@ -110,35 +223,37 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
       // the estate nothing can be dispatched to, which is an onboarding fact rather
       // than a failed run, and the gap between the last two is what actually failed.
       <Tooltip
-        title={`${original.counts.total_hosts} in scope, ${original.counts.probeable_hosts} reachable, ${original.counts.answered_hosts} answered`}
+        title={`${original.runs[0].counts.total_hosts} in scope, ${original.runs[0].counts.probeable_hosts} reachable, ${original.runs[0].counts.answered_hosts} answered`}
       >
         <Box component="span">
-          {original.counts.answered_hosts}/{original.counts.probeable_hosts}
-          {original.counts.probeable_hosts === original.counts.total_hosts
+          {original.runs[0].counts.answered_hosts}/
+          {original.runs[0].counts.probeable_hosts}
+          {original.runs[0].counts.probeable_hosts ===
+          original.runs[0].counts.total_hosts
             ? ''
-            : ` of ${original.counts.total_hosts}`}
+            : ` of ${original.runs[0].counts.total_hosts}`}
         </Box>
       </Tooltip>
     ),
   },
   {
-    accessorFn: (row) => row.counts.total_services,
+    accessorFn: (group) => group.runs[0].counts.total_services,
     id: 'services',
     header: 'Services',
-    Cell: ({ row: { original } }) => original.counts.total_services,
+    Cell: ({ row: { original } }) => original.runs[0].counts.total_services,
   },
   {
-    accessorFn: (row) => row.counts.resolved_services,
+    accessorFn: (group) => group.runs[0].counts.resolved_services,
     id: 'resolved',
     header: 'Resolved',
     Cell: ({ row: { original } }) => (
       <Tooltip title="Services on a node with a working automation agent">
-        <Box component="span">{original.counts.resolved_services}</Box>
+        <Box component="span">{original.runs[0].counts.resolved_services}</Box>
       </Tooltip>
     ),
   },
   {
-    accessorFn: (row) => row.counts.answered_services,
+    accessorFn: (group) => group.runs[0].counts.answered_services,
     id: 'answered',
     header: 'Answered',
     Cell: ({ row: { original } }) => (
@@ -146,18 +261,26 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
       // node ran the payload. resolved=9 / answered=0 is a healthy mapping and
       // broken executors — a distinction a single "failed" count would hide.
       <Tooltip title="Services whose node ran the scan">
-        <Box component="span">{original.counts.answered_services}</Box>
+        <Box component="span">{original.runs[0].counts.answered_services}</Box>
       </Tooltip>
     ),
   },
   {
-    accessorFn: (row) => row.counts.orphaned_services,
+    accessorFn: (group) => group.runs[0].counts.orphaned_services,
     id: 'orphaned',
     header: 'Orphaned',
     Cell: ({ row: { original } }) => (
       <Tooltip title="Services with no automation agent — not an error">
-        <Box component="span">{original.counts.orphaned_services}</Box>
+        <Box component="span">{original.runs[0].counts.orphaned_services}</Box>
       </Tooltip>
+    ),
+  },
+  {
+    accessorFn: (group) => (group.runs[0].failing_nodes ?? []).length,
+    id: 'failing',
+    header: 'Failing nodes',
+    Cell: ({ row: { original } }) => (
+      <FailingNodes nodes={original.runs[0].failing_nodes ?? []} />
     ),
   },
 ];
@@ -181,14 +304,12 @@ const RefreshButton = () => {
   // A 409 is an expected answer rather than a failure, and since conflict is judged
   // per host the message names what is in flight instead of saying "a sweep is
   // already running" - which was true of anything and useful for nothing.
-  const conflict =
-    trigger.error instanceof OmApiError && trigger.error.status === 409
-      ? trigger.error
-      : null;
+  const { conflict } = useScanConflict(trigger);
   const failure = trigger.error && !conflict ? trigger.error : null;
 
   return (
     <Stack direction="row" alignItems="center" gap={1}>
+      <ScanProgress />
       <Tooltip title="Scan every node now, collecting what no metric carries">
         <span>
           <Button
@@ -204,14 +325,18 @@ const RefreshButton = () => {
         </span>
       </Tooltip>
       {conflict && (
-        <Typography variant="body2" color="text.secondary">
-          {conflict.message}
-        </Typography>
+        <OmError
+          placement="action"
+          severity="info"
+          messages={conflict.message}
+        />
       )}
       {failure && (
-        <Typography variant="body2" color="error">
-          Could not start a scan: {failure.message}
-        </Typography>
+        <OmError
+          placement="action"
+          title="Could not start a scan"
+          messages={failure.message}
+        />
       )}
     </Stack>
   );
@@ -240,6 +365,10 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
   }
   const age = ageSeconds(run.start_time);
   const active = isRunActive(run.status);
+  const ago = age == null ? '' : `${formatCompactDuration(age)} ago`;
+  // Refused before doing anything: its counts are all zero and its error is why.
+  const skipped = run.status === 'RUN_STATUS_SKIPPED';
+  const failed = run.status === 'RUN_STATUS_FAILED';
   return (
     <Stack
       direction="row"
@@ -250,21 +379,31 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
       <RunStatusBadge status={run.status} />
       <Typography variant="body2" color="text.secondary">
         {active
-          ? `started ${age == null ? 'just now' : `${formatCompactDuration(age)} ago`}`
-          : `${age == null ? '' : `${formatCompactDuration(age)} ago`}, took ${
-              formatRunDuration(run.start_time, run.end_time) || '—'
-            }`}
+          ? `started ${ago || 'just now'}`
+          : skipped
+            ? ago
+            : `${ago}, took ${
+                formatRunDuration(run.start_time, run.end_time) || '—'
+              }`}
       </Typography>
-      <Typography variant="body2">
-        <strong>{run.counts.answered_hosts}</strong> of{' '}
-        {run.counts.probeable_hosts}{' '}
-        {pluralize(run.counts.probeable_hosts, 'node')} answered
-      </Typography>
-      <Typography variant="body2">
-        <strong>{run.counts.answered_services}</strong> of{' '}
-        {run.counts.resolved_services}{' '}
-        {pluralize(run.counts.resolved_services, 'service')} answered
-      </Typography>
+      {skipped ? (
+        <Typography variant="body2" color="text.secondary">
+          {run.error}
+        </Typography>
+      ) : (
+        <>
+          <Typography variant="body2">
+            <strong>{run.counts.answered_hosts}</strong> of{' '}
+            {run.counts.probeable_hosts}{' '}
+            {pluralize(run.counts.probeable_hosts, 'node')} answered
+          </Typography>
+          <Typography variant="body2">
+            <strong>{run.counts.answered_services}</strong> of{' '}
+            {run.counts.resolved_services}{' '}
+            {pluralize(run.counts.resolved_services, 'service')} answered
+          </Typography>
+        </>
+      )}
       {run.scope.length > 0 && (
         <Tooltip title={run.scope.join(', ')}>
           <Typography variant="body2" color="warning.main">
@@ -273,10 +412,13 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
           </Typography>
         </Tooltip>
       )}
-      {run.error && (
-        <Typography variant="body2" color="error">
-          {run.error}
-        </Typography>
+      {run.error && !skipped && (
+        <OmError
+          placement="item"
+          severity={failed ? 'error' : 'warning'}
+          title={failed ? 'The scan failed' : undefined}
+          messages={run.error}
+        />
       )}
     </Stack>
   );
@@ -349,9 +491,15 @@ export const AutomationsScansTab = () => {
     period,
     limit: isBoundedPeriod(period) ? WINDOWED_RUN_LIMIT : DEFAULT_RUN_LIMIT,
   });
-  const rows = useMemo(() => runs ?? [], [runs]);
-  // `?expand=<run_id>` unfolds that scan's row on landing.
+  // Consecutive scans that ended the same way are one row: a node broken since
+  // Tuesday reads as one row, not one per scan.
+  const rows = useMemo(() => groupRuns(runs ?? []), [runs]);
+  // `?expand=<run_id>` unfolds that scan's row on landing - the group holding it, and
+  // the scan itself inside the group.
   const expandRunId = params.get('expand');
+  const expandGroupId = rows.find((group) =>
+    group.runs.some((run) => run.run_id === expandRunId)
+  )?.id;
 
   const setPeriod = (next: OmRunPeriod) =>
     setParams((current) => {
@@ -376,12 +524,13 @@ export const AutomationsScansTab = () => {
       </Stack>
 
       {error && (
-        <Alert severity="error">
-          {/* Rendered inside the page rather than replacing it: PMM Extensions being
-                  unwell is a fact about the fleet, and the installs tab still
-                  reads. */}
-          Could not load scans: {(error as Error).message}
-        </Alert>
+        // Inside the page rather than replacing it: PMM Extensions being unwell is
+        // a fact about the fleet, and the installs tab still reads.
+        <OmError
+          placement="load"
+          title="Could not load scans"
+          messages={(error as Error).message}
+        />
       )}
 
       {/* Only once the query has actually answered. LastRun reads an absent run as
@@ -406,7 +555,7 @@ export const AutomationsScansTab = () => {
           tableName="om-inventory-runs"
           columns={RUN_COLUMNS}
           data={rows}
-          getRowId={(row) => row.run_id}
+          getRowId={(group) => group.id}
           enableGlobalFilter={false}
           enableColumnFilters={false}
           enableHiding={false}
@@ -414,9 +563,15 @@ export const AutomationsScansTab = () => {
           enableStickyHeader
           enableExpanding
           initialState={
-            expandRunId ? { expanded: { [expandRunId]: true } } : undefined
+            expandGroupId ? { expanded: { [expandGroupId]: true } } : undefined
           }
-          renderDetailPanel={({ row }) => <RunEntities run={row.original} />}
+          renderDetailPanel={({ row }) =>
+            row.original.runs.length === 1 ? (
+              <RunEntities run={row.original.runs[0]} />
+            ) : (
+              <GroupRuns group={row.original} expandRunId={expandRunId} />
+            )
+          }
         />
       )}
     </Stack>

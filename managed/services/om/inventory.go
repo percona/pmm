@@ -1696,10 +1696,21 @@ func inventoryRunToProto(run extensionsRun) *omv1.InventoryRun {
 			TotalHosts:       run.Counts.HostsTotal,
 			ProbeableHosts:   run.Counts.HostsProbeable,
 			AnsweredHosts:    run.Counts.HostsAnswered,
+			FinishedHosts:    run.Counts.HostsFinished,
 		},
-		Scope: run.Scope,
-		Error: optionalString(run.Error),
+		Scope:        run.Scope,
+		Error:        optionalString(run.Error),
+		FailingNodes: failingNodesToProto(run.FailingNodes),
 	}
+}
+
+// failingNodesToProto keeps PMM Extensions' order, which is by name.
+func failingNodesToProto(nodes []extensionsRunFailingNode) []*omv1.InventoryRunFailingNode {
+	out := make([]*omv1.InventoryRunFailingNode, 0, len(nodes))
+	for _, node := range nodes {
+		out = append(out, &omv1.InventoryRunFailingNode{NodeId: node.NodeID, Name: pointer.GetString(node.Name)})
+	}
+	return out
 }
 
 // inventoryRunEntitiesToProto projects what a refresh attempted, one row per host.

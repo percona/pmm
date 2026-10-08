@@ -17,7 +17,6 @@
 
 import { useId, useMemo, useState } from 'react';
 import {
-  Alert,
   Box,
   ButtonBase,
   Collapse,
@@ -59,6 +58,7 @@ import type {
   OmEnvironmentSection,
   OmProcessRole,
 } from './types';
+import { OmError } from './components/OmError';
 
 /** Label for an environment or cluster the services carry no name for. */
 const UNNAMED_ENVIRONMENT = 'Unassigned environment';
@@ -72,28 +72,6 @@ function describeRoles(roles: Partial<Record<OmProcessRole, number>>): string {
     )
     .join(' · ');
 }
-
-/**
- * A count that stays legible when it is zero.
- *
- * Zero down is the good news and should read as such; zero up in a cluster that has
- * services is the whole point of the page, so it keeps the error colour.
- */
-const Count = ({ value, tone }: { value: number; tone: 'up' | 'down' }) => {
-  const colour =
-    tone === 'up'
-      ? value > 0
-        ? 'success.main'
-        : 'error.main'
-      : value > 0
-        ? 'error.main'
-        : 'text.secondary';
-  return (
-    <Typography variant="body2" component="span" color={colour}>
-      {value}
-    </Typography>
-  );
-};
 
 /** Columns for one environment's cluster table. */
 /**
@@ -146,20 +124,17 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
       },
       { accessorKey: 'total_services', header: 'Services', size: 100 },
       {
+        // Plain text, never a status colour: the Health column is the verdict.
         accessorKey: 'up_services',
         header: 'Up',
-        size: 80,
-        Cell: ({ row: { original } }) => (
-          <Count value={original.up_services} tone="up" />
-        ),
+        size: 170,
+        Cell: ({ row: { original } }) =>
+          `${original.up_services} of ${original.total_services} members up`,
       },
       {
         accessorKey: 'down_services',
         header: 'Down',
         size: 90,
-        Cell: ({ row: { original } }) => (
-          <Count value={original.down_services} tone="down" />
-        ),
       },
       {
         accessorFn: (row) => describeRoles(row.by_process_role),
@@ -265,7 +240,10 @@ const ClusterServices = ({ cluster }: { cluster: OmClusterRow }) => {
                 {service.host ?? <Unavailable reason="service_not_observed" />}
               </TableCell>
               <TableCell>
-                <StatusBadge status={service.status} />
+                <StatusBadge
+                  status={service.status}
+                  lastUpAt={service.last_up_at}
+                />
               </TableCell>
               <TableCell>
                 <MemberState service={service} />
@@ -382,10 +360,9 @@ const EnvironmentTable = ({ section }: { section: OmEnvironmentSection }) => {
             <strong>{section.total_services}</strong>{' '}
             {pluralize(section.total_services, 'service')}
           </Typography>
-          <Typography
-            variant="body2"
-            color={section.up_services ? 'success.main' : 'text.secondary'}
-          >
+          {/* "Up" neutral, "down" red above zero: with no Health column beside these
+              lines, a red "down" is their only alarm. */}
+          <Typography variant="body2" color="text.secondary">
             <strong>{section.up_services}</strong> up
           </Typography>
           <Typography
@@ -431,16 +408,10 @@ const Counts = ({
       <Typography variant="body2">
         <strong>{total}</strong> {pluralize(total, 'service')}
       </Typography>
-      <Typography
-        variant="body2"
-        color={up ? 'success.main' : 'text.secondary'}
-      >
+      <Typography variant="body2">
         <strong>{up}</strong> up
       </Typography>
-      <Typography
-        variant="body2"
-        color={down ? 'error.main' : 'text.secondary'}
-      >
+      <Typography variant="body2" color={down ? 'error.main' : undefined}>
         <strong>{down}</strong> down
       </Typography>
     </Stack>
@@ -469,9 +440,11 @@ export const FleetClustersTab = () => {
     // expected first-run 503, belong to FleetPage and render above whichever tab is
     // open. This tab is the index route, so a fresh install lands here first.
     return (
-      <Alert severity="error">
-        {(error as Error)?.message ?? 'Could not load the fleet.'}
-      </Alert>
+      <OmError
+        placement="load"
+        title="Could not load the fleet"
+        messages={(error as Error)?.message}
+      />
     );
   }
 

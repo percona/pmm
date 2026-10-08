@@ -123,6 +123,11 @@ export interface OmService {
   installed_version?: string | null;
   config_path?: string | null;
   argv?: string | null;
+  /**
+   * When a down service was last seen up, from metrics. Absent while it is up, and on
+   * a down one not up at any point in the last {@link METRICS_LOOKBACK}.
+   */
+  last_up_at?: string | null;
 }
 
 /**
@@ -676,6 +681,11 @@ export interface OmInventoryRunCounts {
   total_hosts: number;
   probeable_hosts: number;
   answered_hosts: number;
+  /**
+   * Hosts whose scan has come back, answered or not, counted up while the run is
+   * going.
+   */
+  finished_hosts: number;
 }
 
 /** One refresh of the estate. */
@@ -694,6 +704,18 @@ export interface OmInventoryRun {
    */
   scope: string[];
   error?: string | null;
+  /**
+   * The nodes it failed to scan, sorted by name. Absent from a server that predates
+   * the field, which reads as none.
+   */
+  failing_nodes?: OmInventoryRunFailingNode[];
+}
+
+/** One node a scan failed on. */
+export interface OmInventoryRunFailingNode {
+  node_id: string;
+  /** The node name, which the Nodes page is addressed by. Empty when unrecorded. */
+  name?: string;
 }
 
 /**

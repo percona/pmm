@@ -24,12 +24,15 @@ const {
   useOmInventoryConfig,
   useUpdateOmInventoryConfig,
   useResetOmInventoryConfig,
+  enqueueSnackbar,
 } = vi.hoisted(() => ({
+  enqueueSnackbar: vi.fn(),
   useOmInventoryConfig: vi.fn(),
   useUpdateOmInventoryConfig: vi.fn(),
   useResetOmInventoryConfig: vi.fn(),
 }));
 
+vi.mock('notistack', () => ({ enqueueSnackbar }));
 vi.mock('../src/inventoryHooks', () => ({
   useOmInventoryConfig,
   useUpdateOmInventoryConfig,
@@ -67,6 +70,24 @@ describe('ConfigForm', () => {
     useResetOmInventoryConfig.mockReturnValue(idle);
   });
 
+  it('says a save landed', () => {
+    const mutate = vi.fn(
+      (_values: unknown, options?: { onSuccess?: () => void }) =>
+        options?.onSuccess?.()
+    );
+    useUpdateOmInventoryConfig.mockReturnValue({ ...idle, mutate });
+    render(<ConfigForm group="advanced" />);
+
+    fireEvent.change(screen.getByLabelText(/^Concurrent scans/), {
+      target: { value: '8' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(enqueueSnackbar).toHaveBeenCalledWith('Saved', {
+      variant: 'success',
+    });
+  });
+
   it('reports a failed save', () => {
     useUpdateOmInventoryConfig.mockReturnValue({
       ...idle,
@@ -99,7 +120,7 @@ describe('ConfigForm', () => {
     rerender(<ConfigForm group="general" />);
 
     expect(
-      screen.getByText(/^Fix Concurrent scans \(Advanced tab\) first/)
+      screen.getByText('Concurrent scans (Advanced tab)')
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });

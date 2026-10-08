@@ -15,21 +15,17 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useEffect, useRef } from 'react';
-import {
-  Button,
-  CircularProgress,
-  Stack,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { useEffect, useRef, useState } from 'react';
+import { Button, CircularProgress, Stack, Tooltip } from '@mui/material';
 import SyncIcon from '@mui/icons-material/Sync';
+import { enqueueSnackbar } from 'notistack';
 import {
   useInvalidateOmTopologySnapshot,
   useOmTopologyRuns,
   useTriggerOmTopologyRun,
 } from '../topologyHooks';
 import { isRunActive, OmApiError } from '../api';
+import { OmError } from './OmError';
 
 /**
  * Trigger a collection run and reflect its progress.
@@ -38,6 +34,10 @@ import { isRunActive, OmApiError } from '../api';
  * behaviour: disable while a run is in flight, poll (via `useOmTopologyRuns`) until it
  * reaches a terminal status, then invalidate the snapshot queries so the cluster
  * list reflects the new data without a manual refresh.
+ *
+ * The rebuild takes well under a second, too fast for the button's own state to show,
+ * so the run it started is followed to its end and announced. Outlined, so it reads
+ * lighter than Scan, which sends a job to every node.
  */
 export const SyncButton = () => {
   const { data: runs } = useOmTopologyRuns();
@@ -45,6 +45,8 @@ export const SyncButton = () => {
   const invalidateSnapshot = useInvalidateOmTopologySnapshot();
   const running = isRunActive(runs?.[0]?.status);
   const wasRunning = useRef(false);
+  const [awaited, setAwaited] = useState<string | null>(null);
+  const [runFailed, setRunFailed] = useState(false);
 
   useEffect(() => {
     if (wasRunning.current && !running) {
@@ -52,6 +54,19 @@ export const SyncButton = () => {
     }
     wasRunning.current = running;
   }, [running, invalidateSnapshot]);
+
+  useEffect(() => {
+    const run = runs?.find((candidate) => candidate.run_id === awaited);
+    if (!run || isRunActive(run.status)) {
+      return;
+    }
+    setAwaited(null);
+    if (run.status === 'RUN_STATUS_FAILED') {
+      setRunFailed(true);
+    } else {
+      enqueueSnackbar('Fleet updated', { variant: 'success' });
+    }
+  }, [runs, awaited]);
 
   // 409 means a run is already in flight — the expected answer to a double
   // click, not a failure. The transport carries the status onto the error so the
@@ -65,24 +80,40 @@ export const SyncButton = () => {
       <Tooltip title="Re-read what PMM knows and rebuild this view. Does not scan your nodes.">
         <span>
           <Button
-            variant="contained"
+            variant="outlined"
             startIcon={running ? <CircularProgress size={16} /> : <SyncIcon />}
             disabled={running || trigger.isPending}
-            onClick={() => trigger.mutate()}
+            onClick={() => {
+              setRunFailed(false);
+              trigger.mutate(undefined, {
+                onSuccess: (accepted) => setAwaited(accepted.run_id),
+              });
+            }}
           >
             {running ? 'Refreshing…' : 'Refresh'}
           </Button>
         </span>
       </Tooltip>
       {conflict && (
-        <Typography variant="body2" color="text.secondary">
-          A refresh is already in flight.
-        </Typography>
+        <OmError
+          placement="action"
+          severity="info"
+          messages="A refresh is already in flight."
+        />
       )}
       {failure && (
-        <Typography variant="body2" color="error">
-          Could not refresh: {failure.message}
-        </Typography>
+        <OmError
+          placement="action"
+          title="Could not refresh"
+          messages={failure.message}
+        />
+      )}
+      {runFailed && (
+        <OmError
+          placement="action"
+          title="The refresh did not finish"
+          messages="This view still shows the data from before it."
+        />
       )}
     </Stack>
   );

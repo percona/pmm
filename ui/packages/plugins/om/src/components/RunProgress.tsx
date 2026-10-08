@@ -16,6 +16,7 @@
  */
 
 import { useState } from 'react';
+import { enqueueSnackbar } from 'notistack';
 import {
   Alert,
   Box,
@@ -54,6 +55,7 @@ import {
 } from '../api';
 import { useCancelBootstrapRun } from '../inventoryHooks';
 import type { OmBootstrapStep, OmGetBootstrapRunResponse } from '../types';
+import { OmError } from './OmError';
 
 /**
  * Shared by {@link BootstrapPage}'s live "Bootstrap" step and the Automations
@@ -300,9 +302,13 @@ const AbortButton = ({ run }: { run: OmGetBootstrapRunResponse }) => {
             <p>This cannot be undone.</p>
           </DialogContentText>
           {cancelRun.isError && (
-            <Alert severity="error" sx={{ mt: 1 }}>
-              {cancelRun.error.message}
-            </Alert>
+            <Box sx={{ mt: 1 }}>
+              <OmError
+                placement="action"
+                title="Could not abort the install"
+                messages={cancelRun.error.message}
+              />
+            </Box>
           )}
         </DialogContent>
         <DialogActions>
@@ -312,6 +318,10 @@ const AbortButton = ({ run }: { run: OmGetBootstrapRunResponse }) => {
             disabled={cancelRun.isPending}
             onClick={async () => {
               await cancelRun.mutateAsync(run.run_id);
+              enqueueSnackbar(
+                'Abort requested - rolling back once the current step stops.',
+                { variant: 'success' }
+              );
               setConfirming(false);
             }}
           >

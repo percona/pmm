@@ -124,7 +124,7 @@ export const ServiceDetailDrawer = ({
               {row.service_name}
             </Typography>
           </Box>
-          <StatusBadge status={row.status} />
+          <StatusBadge status={row.status} lastUpAt={row.last_up_at} />
           <IconButton
             size="small"
             onClick={onClose}

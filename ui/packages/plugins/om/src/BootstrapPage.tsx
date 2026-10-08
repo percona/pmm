@@ -16,6 +16,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
+import { enqueueSnackbar } from 'notistack';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Accordion,
@@ -64,6 +65,7 @@ import { HostReadiness } from './components/HostReadiness';
 import { useOmTopology } from './topologyHooks';
 import { useOmBase } from './useOmBase';
 import type { OmBootstrapMemberConfig, OmHostRow } from './types';
+import { OmError } from './components/OmError';
 
 // Match the fixed values every bootstrap run used before these became
 // configurable (PMM-15347/plan.md §6 Phase A) -- see the PMM Extensions-side migration
@@ -460,6 +462,17 @@ export const BootstrapPage = () => {
   // rather than its own fallback to the replica set name.
   const effectiveCluster = cluster.trim() || replicaSetName;
 
+  const selectionBlockers = [
+    !isSupportedHostCount(hosts.length) &&
+      `Select exactly one node for a single-member replica set, or three for a three-member one. ${hosts.length} selected.`,
+    blockedHosts.length > 0 &&
+      `${
+        blockedHosts.length === 1
+          ? '1 selected node cannot'
+          : `${blockedHosts.length} selected nodes cannot`
+      } be installed onto. Fix each one on the node itself, or go back and change the selection.`,
+  ].filter((blocker): blocker is string => typeof blocker === 'string');
+
   // A fresh selection (a different ?nodes= than last render) resets the wizard
   // back to its first step - landing on this page for a different host set must
   // not carry over a previous run id or an in-flight mutation's error.
@@ -505,7 +518,11 @@ export const BootstrapPage = () => {
     return (
       <Stack gap={2}>
         <OmHeader title="Install MongoDB" />
-        <Alert severity="error">{hostsQuery.error.message}</Alert>
+        <OmError
+          placement="load"
+          title="Could not load the nodes"
+          messages={hostsQuery.error.message}
+        />
         <Box>
           <Button variant="contained" onClick={backToHosts}>
             Back to Nodes
@@ -557,6 +574,10 @@ export const BootstrapPage = () => {
         })
       ),
     });
+    enqueueSnackbar(
+      `Install started on ${hosts.length === 1 ? hosts[0].name : `${hosts.length} nodes`}`,
+      { variant: 'success' }
+    );
     navigate(`${omBase}/${OM_ROUTE_AUTOMATIONS}?expand=${accepted.run_id}`);
   };
 
@@ -575,12 +596,6 @@ export const BootstrapPage = () => {
 
       {activeStep === 0 && (
         <Stack spacing={2}>
-          {!isSupportedHostCount(hosts.length) && (
-            <Alert severity="error">
-              Select exactly one node for a single-member replica set, or three
-              for a three-member one. {hosts.length} selected.
-            </Alert>
-          )}
           {/* Moved here from Review (P8, by way of PMM-15661's own out-of-scope
               list). This is the step where the user decides whether to begin, and
               a statement of what will be created belongs at the decision rather
@@ -590,15 +605,6 @@ export const BootstrapPage = () => {
             files, data directories, and systemd services will be created on
             each of them.
           </Alert>
-          {blockedHosts.length > 0 && (
-            <Alert severity="error">
-              {blockedHosts.length === 1
-                ? '1 selected node cannot be installed onto.'
-                : `${blockedHosts.length} selected nodes cannot be installed onto.`}{' '}
-              Fix each one on the node itself, or go back and change the
-              selection.
-            </Alert>
-          )}
           <Table size="small">
             <TableHead>
               <TableRow>
@@ -824,20 +830,22 @@ export const BootstrapPage = () => {
           )}
           {/* Outside the accordion: a plan that cannot run has to say so even
               when the settings causing it are folded away. */}
-          {electionPlan.errors.map((error) => (
-            <Alert severity="error" key={error} data-testid="om-election-error">
-              {error}
-            </Alert>
-          ))}
-          {electionPlan.warnings.map((warning) => (
-            <Alert
+          {electionPlan.errors.length > 0 && (
+            <OmError
+              placement="item"
+              title="This replica set could not elect a primary"
+              messages={electionPlan.errors}
+              itemTestId="om-election-error"
+            />
+          )}
+          {electionPlan.warnings.length > 0 && (
+            <OmError
+              placement="item"
               severity="warning"
-              key={warning}
-              data-testid="om-election-warning"
-            >
-              {warning}
-            </Alert>
-          ))}
+              messages={electionPlan.warnings}
+              itemTestId="om-election-warning"
+            />
+          )}
         </Stack>
       )}
 
@@ -930,22 +938,22 @@ export const BootstrapPage = () => {
             </Table>
           )}
           {bootstrap.isError && (
-            <Alert severity="error">
-              {/* Every node the refusal names becomes a link to that node and its
-                  newest scan, which is what makes "fix it on the node" followable
-                  The message itself is the backend's -- see NodeNamesLinked
-                  for why the names are matched rather than parsed. */}
-              <NodeNamesLinked
-                text={bootstrap.error.message}
-                nodeNames={knownNodeNames}
-                omBase={omBase}
-              />
-            </Alert>
+            <OmError
+              placement="action"
+              title="Could not start the install"
+              messages={
+                <NodeNamesLinked
+                  text={bootstrap.error.message}
+                  nodeNames={knownNodeNames}
+                  omBase={omBase}
+                />
+              }
+            />
           )}
         </Stack>
       )}
 
-      <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+      <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
         {activeStep === 0 && (
           <>
             <Button onClick={backToHosts}>Cancel</Button>
@@ -955,13 +963,18 @@ export const BootstrapPage = () => {
               // a run that cannot succeed, so letting the user through would only
               // move the failure to the final button - which is the complaint
               // itself.
-              disabled={
-                !isSupportedHostCount(hosts.length) || blockedHosts.length > 0
-              }
+              disabled={selectionBlockers.length > 0}
               onClick={() => setActiveStep(1)}
             >
               Configure
             </Button>
+            {selectionBlockers.length > 0 && (
+              <OmError
+                placement="action"
+                title="Cannot configure yet"
+                messages={selectionBlockers}
+              />
+            )}
           </>
         )}
         {activeStep === 1 && (

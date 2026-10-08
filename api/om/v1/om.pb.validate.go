@@ -154,6 +154,37 @@ func (m *TopologyService) validate(all bool) error {
 		}
 	}
 
+	if m.LastUpAt != nil {
+		if all {
+			switch v := interface{}(m.GetLastUpAt()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, TopologyServiceValidationError{
+						field:  "LastUpAt",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, TopologyServiceValidationError{
+						field:  "LastUpAt",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetLastUpAt()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return TopologyServiceValidationError{
+					field:  "LastUpAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return TopologyServiceMultiError(errors)
 	}
@@ -3410,6 +3441,8 @@ func (m *InventoryRunCounts) validate(all bool) error {
 
 	// no validation rules for AnsweredHosts
 
+	// no validation rules for FinishedHosts
+
 	if len(errors) > 0 {
 		return InventoryRunCountsMultiError(errors)
 	}
@@ -3884,6 +3917,40 @@ func (m *InventoryRun) validate(all bool) error {
 		}
 	}
 
+	for idx, item := range m.GetFailingNodes() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, InventoryRunValidationError{
+						field:  fmt.Sprintf("FailingNodes[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, InventoryRunValidationError{
+						field:  fmt.Sprintf("FailingNodes[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return InventoryRunValidationError{
+					field:  fmt.Sprintf("FailingNodes[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if m.Error != nil {
 		// no validation rules for Error
 	}
@@ -3965,6 +4032,113 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = InventoryRunValidationError{}
+
+// Validate checks the field values on InventoryRunFailingNode with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *InventoryRunFailingNode) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on InventoryRunFailingNode with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// InventoryRunFailingNodeMultiError, or nil if none found.
+func (m *InventoryRunFailingNode) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *InventoryRunFailingNode) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for NodeId
+
+	// no validation rules for Name
+
+	if len(errors) > 0 {
+		return InventoryRunFailingNodeMultiError(errors)
+	}
+
+	return nil
+}
+
+// InventoryRunFailingNodeMultiError is an error wrapping multiple validation
+// errors returned by InventoryRunFailingNode.ValidateAll() if the designated
+// constraints aren't met.
+type InventoryRunFailingNodeMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m InventoryRunFailingNodeMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m InventoryRunFailingNodeMultiError) AllErrors() []error { return m }
+
+// InventoryRunFailingNodeValidationError is the validation error returned by
+// InventoryRunFailingNode.Validate if the designated constraints aren't met.
+type InventoryRunFailingNodeValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e InventoryRunFailingNodeValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e InventoryRunFailingNodeValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e InventoryRunFailingNodeValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e InventoryRunFailingNodeValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e InventoryRunFailingNodeValidationError) ErrorName() string {
+	return "InventoryRunFailingNodeValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e InventoryRunFailingNodeValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sInventoryRunFailingNode.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = InventoryRunFailingNodeValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = InventoryRunFailingNodeValidationError{}
 
 // Validate checks the field values on InventorySetting with the rules defined
 // in the proto definition for this message. If any rules are violated, the

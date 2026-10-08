@@ -1105,6 +1105,14 @@ type GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0 struct {
 	// internally; this is the first one exposed on the wire.
 	// Format: date-time
 	ObservedAt *strfmt.DateTime `json:"observed_at,omitempty"`
+
+	// When this service was last seen up, to the minute: the newest moment its mongodb_up
+	// read 1 within the 24 hours collection reads metrics over. Set only while status is
+	// DOWN, so a reader can say how long it has been down - from metrics rather than the
+	// scan, because a scan can succeed while mongod is down. Unset while UP, and on a DOWN
+	// service that was not up at any point in those 24 hours.
+	// Format: date-time
+	LastUpAt *strfmt.DateTime `json:"last_up_at,omitempty"`
 }
 
 // Validate validates this get topology OK body environments items0 clusters items0 services items0
@@ -1120,6 +1128,10 @@ func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0) Valida
 	}
 
 	if err := o.validateObservedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLastUpAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1231,6 +1243,18 @@ func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0) valida
 	}
 
 	if err := validate.FormatOf("observed_at", "body", "date-time", o.ObservedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0) validateLastUpAt(formats strfmt.Registry) error {
+	if swag.IsZero(o.LastUpAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("last_up_at", "body", "date-time", o.LastUpAt.String(), formats); err != nil {
 		return err
 	}
 
