@@ -25,15 +25,18 @@ const meta = {
       type: 'boolean',
     },
     size: {
+      description: 'Box size: small or medium (default).',
       options: ['small', 'medium'],
       defaultValue: 'medium',
       control: { type: 'inline-radio' },
     },
     required: {
+      description: 'Adds the required asterisk to the heading.',
       defaultValue: false,
       type: 'boolean',
     },
     indeterminate: {
+      description: 'Shows the dash state used for partial selections.',
       defaultValue: false,
       type: 'boolean',
     },

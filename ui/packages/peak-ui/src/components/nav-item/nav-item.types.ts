@@ -14,7 +14,7 @@ export interface NavItemProps extends Omit<ListItemButtonProps, 'children' | 'di
   badge?: ReactNode;
   /** Shows a small status dot on the icon's corner; needs an `icon` to show up. */
   showDot?: boolean;
-  /** Color of the status dot. Defaults to warning (yellowish). */
+  /** Color of the status dot. Defaults to warning. */
   dotColor?: NavItemDotColor;
   /** Element to render as, for example a router link so the row navigates. */
   component?: ElementType;
