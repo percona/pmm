@@ -86,10 +86,16 @@ describe('scanLandedNotice', () => {
     ).toEqual({ message: 'Scan failed: boom', variant: 'error' });
   });
 
-  it('says a skipped run did nothing', () => {
-    expect(scanLandedNotice(run('r', 'RUN_STATUS_SKIPPED')).variant).toBe(
-      'info'
-    );
+  it('says why a run was skipped, as information', () => {
+    expect(
+      scanLandedNotice({
+        ...run('r', 'RUN_STATUS_SKIPPED'),
+        error: 'Scanning is switched off',
+      })
+    ).toEqual({
+      message: 'Scan skipped: Scanning is switched off',
+      variant: 'info',
+    });
   });
 });
 

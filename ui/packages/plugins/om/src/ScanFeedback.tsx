@@ -30,7 +30,7 @@ export function scanLandedNotice(run: OmInventoryRun): {
 } {
   if (run.status === 'RUN_STATUS_SKIPPED') {
     return {
-      message: 'Scan skipped: another scan already covered these nodes',
+      message: run.error ? `Scan skipped: ${run.error}` : 'Scan skipped',
       variant: 'info',
     };
   }
