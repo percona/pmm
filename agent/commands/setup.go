@@ -93,7 +93,9 @@ func checkRegistrationOnServer(running, given *config.Config, l *logrus.Entry) r
 func withGivenCredentials(lookup agentLookup, running, given *config.Config, l *logrus.Entry) agentLookup {
 	return func(ctx context.Context, agentID string) (serverNode, error) {
 		node, err := lookup(ctx, agentID)
-		if !serverRefused(err) || sameCredentials(running, given) {
+		// A token of a disabled service account, or one Grafana failed to look up, is rejected too.
+		rejected := errors.Is(err, errCredentialsRejected)
+		if (!rejected && !serverRefused(err)) || sameCredentials(running, given) {
 			return node, err
 		}
 
@@ -109,6 +111,10 @@ func withGivenCredentials(lookup agentLookup, running, given *config.Config, l *
 		_, e := lookup(ctx, agentID)
 		if errors.Is(e, errAgentNotFound) {
 			return serverNode{}, e
+		}
+		if rejected {
+			// Unwrapped, so that the rejection leaves the registration unverified instead of registering again.
+			return node, errors.New(err.Error())
 		}
 
 		return node, err

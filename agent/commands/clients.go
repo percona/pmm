@@ -234,8 +234,8 @@ func lookupError(err error) error {
 	// An ID which PMM Server does not know, or rejects as invalid, cannot be registered there either.
 	case codes.NotFound, codes.InvalidArgument:
 		return errAgentNotFound
-	// The credentials the Agent runs with are gone, so registering either succeeds with the ones given to
-	// setup or reports a credentials problem with an actionable message. codes.PermissionDenied is
+	// The credentials the Agent runs with are gone, so withGivenCredentials asks again with the ones given
+	// to setup, and registering with the same ones reports an actionable message. codes.PermissionDenied is
 	// deliberately not here: a service account below the admin role still holds valid credentials, it
 	// just cannot read the inventory, and registering the Node again over that would only add a second.
 	case codes.Unauthenticated:

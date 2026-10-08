@@ -24,6 +24,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -207,9 +208,10 @@ func TestRunningServer(t *testing.T) {
 // The subtests configure the package level API clients, so they cannot run in parallel.
 func TestWithGivenCredentials(t *testing.T) {
 	registeredNode := serverNode{Name: testNodeName, Address: testNodeAddress}
-	// PMM Server answers 401 for a token it no longer accepts, with a gRPC code which says no more than
-	// that. Removing a Node deletes the service account the token of its Agent belongs to.
+	// A 401 which names no credential invalid: a failure of PMM Server's own, or a proxy's.
 	refused := aservice.NewGetAgentDefault(http.StatusUnauthorized)
+	// A token PMM Server no longer accepts, such as one of the service account a removed Node deleted.
+	rejected := errCredentialsRejected
 
 	// answers replies to consecutive lookups, and fails the test on a lookup it has no answer for.
 	answers := func(t *testing.T, results ...agentLookup) (agentLookup, *int) {
@@ -234,6 +236,8 @@ func TestWithGivenCredentials(t *testing.T) {
 		calls   int
 		node    serverNode
 		err     error
+		// unknowable marks an error which is no verdict on the registration, so that it is kept
+		unknowable bool
 	}{
 		{
 			name:    "an answer PMM Server gave is the answer",
@@ -280,6 +284,33 @@ func TestWithGivenCredentials(t *testing.T) {
 			calls:   1,
 			err:     refused,
 		},
+		{
+			name:    "a rejected token is asked about again, and the Node is gone",
+			results: []agentLookup{failed(rejected), failed(errAgentNotFound)},
+			calls:   2,
+			err:     errAgentNotFound,
+		},
+		{
+			// Registering again would fail on the Node name, or add a second Node under the hostname.
+			name:       "a rejected token does not register a Node which is still there",
+			results:    []agentLookup{failed(rejected), found(registeredNode)},
+			calls:      2,
+			unknowable: true,
+		},
+		{
+			name:       "a rejection is no verdict when the credentials given to setup answer no better",
+			results:    []agentLookup{failed(rejected), failed(rejected)},
+			calls:      2,
+			unknowable: true,
+		},
+		{
+			// Registering with them reports the rejection with an actionable message.
+			name:    "a rejection of the only credentials there are is kept",
+			given:   &config.Config{Server: config.Server{Address: testServerAddress, Username: "service_token", Password: "glsa_token"}},
+			results: []agentLookup{failed(rejected)},
+			calls:   1,
+			err:     rejected,
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			running := &config.Config{
@@ -298,11 +329,16 @@ func TestWithGivenCredentials(t *testing.T) {
 			node, err := withGivenCredentials(lookup, running, given, logrus.WithField("test", t.Name()))(t.Context(), testAgentID)
 			assert.Equal(t, tc.calls, *calls)
 			assert.Equal(t, tc.node, node)
-			if tc.err == nil {
+			switch {
+			case tc.unknowable:
+				require.Error(t, err)
+				require.NotErrorIs(t, err, errAgentNotFound)
+				require.NotErrorIs(t, err, errCredentialsRejected)
+			case tc.err != nil:
+				require.ErrorIs(t, err, tc.err)
+			default:
 				require.NoError(t, err)
-				return
 			}
-			assert.ErrorIs(t, err, tc.err)
 		})
 	}
 }
@@ -709,6 +745,61 @@ func TestCheckRegistrationSharesOneDeadline(t *testing.T) {
 		"both lookups have to draw on one deadline, not one each")
 	// Nothing was learned about the registration, so it is kept.
 	assert.Equal(t, registrationUnverified, state)
+}
+
+// The subtests configure the package level API clients, so they cannot run in parallel.
+func TestCheckRegistrationOfRejectedToken(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		gone  bool
+		state registrationState
+	}{
+		// Registering again would fail on the Node name, or add a second Node under the hostname.
+		{name: "a Node which is still registered is kept", state: registrationUnverified},
+		{name: "a Node which is gone is registered again", gone: true, state: registrationMissing},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var adminCalls atomic.Int32
+			// TLS, because Server.URL() always builds https.
+			server := httptest.NewTLSServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+				rw.Header().Set("Content-Type", "application/json")
+				// What PMM Server answers a token of a disabled service account with.
+				if req.Header.Get("Authorization") == "Bearer glsa_token" {
+					rw.WriteHeader(http.StatusUnauthorized)
+					_, _ = fmt.Fprintf(rw, `{"code": %d, "message": "Auth method is not service account token"}`, codes.Unauthenticated)
+					return
+				}
+
+				adminCalls.Add(1)
+				switch {
+				case tc.gone:
+					rw.WriteHeader(http.StatusNotFound)
+					_, _ = fmt.Fprintf(rw, `{"code": %d, "message": "Agent not found"}`, codes.NotFound)
+				case strings.HasPrefix(req.URL.Path, "/v1/inventory/agents/"):
+					_, _ = fmt.Fprintf(rw, `{"pmm_agent": {"agent_id": %q, "runs_on_node_id": "node-id"}}`, testAgentID)
+				default:
+					_, _ = fmt.Fprintf(rw, `{"generic": {"node_id": "node-id", "node_name": %q, "address": %q}}`,
+						testNodeName, testNodeAddress)
+				}
+			}))
+			t.Cleanup(server.Close)
+
+			u, err := url.Parse(server.URL)
+			require.NoError(t, err)
+
+			running := &config.Config{
+				ID:     testAgentID,
+				Server: config.Server{Address: u.Host, Username: "service_token", Password: "glsa_token", InsecureTLS: true},
+			}
+			given := &config.Config{
+				ID:     testAgentID,
+				Server: config.Server{Address: u.Host, Username: "admin", Password: "admin", InsecureTLS: true},
+			}
+
+			assert.Equal(t, tc.state, checkRegistrationOnServer(running, given, logrus.WithField("test", t.Name())))
+			assert.Positive(t, adminCalls.Load(), "the credentials given to setup have to be asked")
+		})
+	}
 }
 
 // registerDefault builds the error the generated client returns for a failed registration.
