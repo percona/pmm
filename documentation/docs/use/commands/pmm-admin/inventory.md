@@ -342,27 +342,29 @@ You can also use `pmm-admin list` to see agents alongside their services.
 
 ### Pass environment variables to the exporter
 
-Use `--agent-env-vars` when `mongodb-exporter` needs an environment variable that PMM doesn't set, for example `KRB5_KTNAME` and `KRB5_CONFIG` for Kerberos authentication. PMM stores only the variable names. `pmm-agent` reads the values from its own environment each time it starts the exporter, so the values stay on the PMM Client host.
+Use `--agent-env-vars` when the MongoDB exporter needs an environment variable that PMM does not set itself, for example `KRB5_KTNAME` and `KRB5_CONFIG` for Kerberos authentication. PMM stores only the variable names. The values stay in the `pmm-agent` environment on your PMM Client host.
 
-The flag is available only for `mongodb-exporter`. The QAN and RTA agents for MongoDB run inside `pmm-agent` and already use its environment.
+This flag works only with `mongodb-exporter`. The QAN and RTA agents for MongoDB do not need it, as they already have access to the `pmm-agent` environment.
 
-PMM applies the list as follows:
+Each time you pass `--agent-env-vars`, the new list replaces the stored one. Keep in mind:
 
-- The list replaces the stored one, so a name that you leave out is removed.
-- If you omit the flag, the stored list doesn't change.
-- An empty value (`--agent-env-vars=""`) removes all names.
-- Surrounding whitespace is trimmed, and a repeated name is stored once.
+- A name you leave out is removed from the stored list.
+- If you omit the flag entirely, the stored list does not change.
+- To remove all names, pass an empty value: `--agent-env-vars=""`.
+- Surrounding whitespace is trimmed, and duplicate names are stored once.
 
-PMM Server checks the names on every request, whichever client sends it, and rejects the change if a name breaks one of these rules:
+PMM rejects the request if any name breaks these rules:
 
-- Use only letters, digits, and underscores, and don't start with a digit (`[A-Za-z_][A-Za-z0-9_]*`). Pass the name only, not `NAME=value`.
-- Don't use the `PMM_AGENT_` prefix. It is reserved for the configuration and credentials of `pmm-agent`, such as `PMM_AGENT_SERVER_PASSWORD`.
-- Don't use `MONGODB_URI`, in any letter case. PMM sets this variable for the exporter itself.
-- Pass at most 32 names, each at most 256 characters long.
+- Use only letters, digits, and underscores. Don't start with a digit (`[A-Za-z_][A-Za-z0-9_]*`). Pass the name only, not `NAME=value`.
+- Don't use the `PMM_AGENT_` prefix. It is reserved for the configuration and credentials of `pmm-agent`, for example `PMM_AGENT_SERVER_PASSWORD`. Starting with PMM Client 3.10.0, any `PMM_AGENT_` name already stored for an exporter is no longer passed. If an exporter has one, remove it with `--agent-env-vars=""` or by passing only the names you want to keep.
+- Don't use `MONGODB_URI` in any letter case. PMM sets this variable for the exporter itself.
+- Use at most 32 names, each at most 256 characters long.
 
-Saving a change restarts the exporter with the new environment. If a name isn't set in the `pmm-agent` environment, `pmm-agent` skips it, logs `Environment variable not found in pmm-agent environment.`, and starts the exporter without it.
+When you save a change, PMM restarts the exporter. If a name is not set in the `pmm-agent` environment, `pmm-agent` skips it, logs "Environment variable not found in pmm-agent environment", and starts the exporter without it.
 
-To set a variable in the `pmm-agent` environment:
+#### Set a variable in the pmm-agent environment
+
+The value must exist in the `pmm-agent` environment on your PMM Client host. How you set it depends on how PMM Client is deployed:
 
 === "systemd"
 
