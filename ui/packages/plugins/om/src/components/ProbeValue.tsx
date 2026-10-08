@@ -85,7 +85,7 @@ export const ProbeValue = ({
   const since = ageSeconds(inventory.freshness.failing_since);
   const detail = [
     age == null
-      ? 'This service has never answered a probe.'
+      ? 'This service has never answered a scan.'
       : `Last collected ${formatCompactDuration(age)} ago.`,
     since == null
       ? null

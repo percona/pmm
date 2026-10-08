@@ -16,7 +16,12 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {
+  Link as RouterLink,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 import {
   Alert,
   Box,
@@ -28,6 +33,8 @@ import {
   DialogContentText,
   DialogTitle,
   LinearProgress,
+  Link,
+  MenuItem,
   Stack,
   Tooltip,
   Typography,
@@ -41,12 +48,22 @@ import {
   HOST_DATABASE_STATE_COLOR,
   HOST_DATABASE_STATE_LABEL,
   HOST_DATABASE_STATE_PHRASE,
-  OM_ROUTE_BOOTSTRAP,
+  OM_ROUTE_AUTOMATIONS,
+  OM_ROUTE_INSTALL,
 } from './constants';
+import { EmptyState } from './components/EmptyState';
+import { RowOverflowMenu } from './components/RowOverflowMenu';
+import { NotOnboardedDialog } from './components/NotOnboardedDialog';
 import { OmHeader } from './components/OmHeader';
 import { Unavailable } from './components/Unavailable';
-import { formatCompactDuration, pluralize } from './format';
-import { ageSeconds, isFailing, toHostRows } from './inventory';
+import { formatCompactDuration, formatTimestamp, pluralize } from './format';
+import {
+  ageSeconds,
+  describeScanFailure,
+  isFailing,
+  toHostRows,
+  type ScanFailure,
+} from './inventory';
 import {
   useForgetHost,
   useIsEstateRefreshing,
@@ -58,11 +75,24 @@ import { isBootstrapRunActive, OmApiError } from './api';
 import { useOmBase } from './useOmBase';
 import type { OmHostRow } from './types';
 
-/** Identifiers and long text the table carries but does not open with. */
+/**
+ * The columns a row opens with: which node, what is on it, whether Operations can
+ * work with it, and when it was last seen.
+ *
+ * Eleven columns plus select, expand and a three-button action column pushed the
+ * actions off-screen behind horizontal scrolling -- including the red Forget, which
+ * is the one a reader should never meet by accident while hunting for it (design
+ * the width it gets). Everything hidden here is still a column-chooser away, and the agent
+ * detail is in the row's own panel.
+ */
 const HIDDEN_BY_DEFAULT = {
   node_id: false,
   address: false,
   kernel: false,
+  executor: false,
+  repo: false,
+  os: false,
+  executor_host: false,
 };
 
 /**
@@ -126,18 +156,41 @@ const HostFilterChips = ({
  * conclusion is work the page should do for its reader. The distinction that matters
  * is what to go and do, so that is what the cell says.
  */
-const ExecutorCell = ({ row }: { row: OmHostRow }) => {
+const ExecutorCell = ({
+  row,
+  anyNodeOnboarded,
+}: {
+  row: OmHostRow;
+  anyNodeOnboarded: boolean;
+}) => {
   const { registered, reachable, driver_healthy, detail } = row.executor;
+  const [helpOpen, setHelpOpen] = useState(false);
   if (!registered) {
     return (
-      <Tooltip title="No executor client is registered for this host, so nothing can be run on it. It has never been onboarded, or its registration was removed.">
-        <Chip size="small" variant="outlined" label="Not onboarded" />
-      </Tooltip>
+      <>
+        {/* Clickable: the other states name a machine to go and look at, this one
+            has to be explained before anyone knows where to look. */}
+        <Tooltip title="No automation agent is registered for this node, so nothing can be run on it. Open for what to check.">
+          <Chip
+            size="small"
+            variant="outlined"
+            label="Not onboarded"
+            onClick={() => setHelpOpen(true)}
+          />
+        </Tooltip>
+        <NotOnboardedDialog
+          open={helpOpen}
+          onClose={() => setHelpOpen(false)}
+          nodeName={row.name}
+          pmmAgentConnected={row.pmm_agent_connected}
+          anyNodeOnboarded={anyNodeOnboarded}
+        />
+      </>
     );
   }
   if (!reachable) {
     return (
-      <Tooltip title="An executor client is registered for this host but the backend has lost contact with it. The machine is down, or its agent is stopped.">
+      <Tooltip title="An automation agent is registered for this node but PMM has lost contact with it. The machine is down, or the agent is stopped.">
         <Chip size="small" color="error" label="Agent down" />
       </Tooltip>
     );
@@ -147,7 +200,7 @@ const ExecutorCell = ({ row }: { row: OmHostRow }) => {
       <Tooltip
         title={
           detail ??
-          'The executor client is up but its raw_exec driver is unhealthy, so it cannot run a probe.'
+          'The automation agent is up but cannot run jobs, so it cannot scan this node.'
         }
       >
         <Chip size="small" color="warning" label="Driver unhealthy" />
@@ -165,14 +218,72 @@ const ExecutorCell = ({ row }: { row: OmHostRow }) => {
  * with no explanation. Shared by the Automation cell and the Bootstrap button so
  * the two cannot drift, which they had: the button showed nothing in that case.
  */
+/**
+ * Why nothing can be done to a node that an install is already running on.
+ *
+ * Shared rather than repeated: the Automation chip, the row's Install button and the
+ * row's Forget all say it, and the point of Forget saying it is that it matches the
+ * others. Three copies would drift the first time one is reworded.
+ */
+const BUSY_TITLE = 'Already part of an install in progress.';
+
 const automationBlockedTitle = (reasons: string[]) =>
   reasons.join('; ') || 'Not eligible for automation.';
+
+/**
+ * Why the bulk Install button is disabled for this selection count.
+ *
+ * Two sentences, not one, because the counts it refuses fail for two unrelated
+ * reasons and a single explanation would state something false (see the second
+ * direction). **Two** is a MongoDB fact worth teaching: a two-member set cannot form
+ * a majority when either member is lost, so it stops accepting writes on any single
+ * failure. **Four or more** is perfectly ordinary in MongoDB and is refused only
+ * because this preview implements one and three - our limit, not the database's, and
+ * saying otherwise would teach a DBA something untrue.
+ *
+ * Zero gets the plain instruction: there is no rule to explain yet.
+ */
+const selectionCountTitle = (count: number): string => {
+  if (count === 2) {
+    return 'A two-member replica set cannot form a majority if either member is lost, so it would stop accepting writes on any single failure. Select one node, or three.';
+  }
+  if (count > 3) {
+    return `This preview installs a one- or three-member replica set, and ${count} nodes are selected. MongoDB itself supports larger sets; Operations does not yet. Select one node, or three.`;
+  }
+  return 'Select exactly one node for a single-member replica set, or three for a three-member one.';
+};
+
+/**
+ * A failing node's failure as one statement: how long, how many, and why in short.
+ *
+ * The row's whole account of the failure, so the page answers "why is this node
+ * failing" without a hover or a trip to the scan history. "Needs attention" and the
+ * detail panel reuse its short reason, so a reader who has seen it once recognises
+ * it in the other two places.
+ */
+function failureStatement(failure: ScanFailure): string {
+  const parts: string[] = [];
+  if (failure.failingForSeconds != null) {
+    parts.push(
+      `Failing for ${formatCompactDuration(failure.failingForSeconds) || '0s'}`
+    );
+  } else {
+    parts.push('Failing');
+  }
+  // "1 failed scan in a row" reads as a typo; a single failure is not yet a streak.
+  parts.push(
+    failure.consecutiveFailures > 1
+      ? `${failure.consecutiveFailures} failed scans in a row`
+      : '1 failed scan'
+  );
+  return `${parts.join(', ')}: ${failure.shortReason}`;
+}
 
 const AutomationCell = ({ row, busy }: { row: OmHostRow; busy: boolean }) => {
   if (busy) {
     return (
-      <Tooltip title="Already part of a bootstrap run in progress.">
-        <Chip size="small" color="info" label="Bootstrapping" />
+      <Tooltip title={BUSY_TITLE}>
+        <Chip size="small" color="info" label="Installing" />
       </Tooltip>
     );
   }
@@ -181,10 +292,39 @@ const AutomationCell = ({ row, busy }: { row: OmHostRow; busy: boolean }) => {
       <Chip size="small" color="success" variant="outlined" label="Ready" />
     );
   }
+  // Two kinds of ineligible, and conflating them was a false alarm: a healthy
+  // replica-set member and the PMM Server's own node are not things to go and fix,
+  // they are nodes Operations deliberately leaves alone. Only a fault gets the
+  // warning colour and the word "attention".
+  if (row.automation_blocked_by_design) {
+    return (
+      <Tooltip title={automationBlockedTitle(row.automation_blocked_reasons)}>
+        <Chip size="small" variant="outlined" label="Not a target" />
+      </Tooltip>
+    );
+  }
+  // Said under the chip rather than only in its tooltip, so a column of "Needs
+  // attention" can be read without hovering each one. When the node's scans are
+  // failing that failure is the reason to show: PMM's install gate then reads "no scan
+  // has reported this node's operating system yet", which is true and is a symptom -
+  // it sent readers to the gate when the thing to fix was the scan.
+  const failure = describeScanFailure(row.freshness);
+  const reason = failure
+    ? `Scans failing: ${failure.shortReason}`
+    : automationBlockedTitle(row.automation_blocked_reasons);
   return (
-    <Tooltip title={automationBlockedTitle(row.automation_blocked_reasons)}>
-      <Chip size="small" color="warning" label="Needs attention" />
-    </Tooltip>
+    <Stack spacing={0.5} alignItems="flex-start">
+      <Tooltip title={automationBlockedTitle(row.automation_blocked_reasons)}>
+        <Chip size="small" color="warning" label="Needs attention" />
+      </Tooltip>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ whiteSpace: 'normal', lineHeight: 1.3 }}
+      >
+        {reason}
+      </Typography>
+    </Stack>
   );
 };
 
@@ -250,11 +390,14 @@ const DatabaseCell = ({ row }: { row: OmHostRow }) => {
 };
 
 function useColumns(
-  busyExecutorHosts: Set<string>
+  busyExecutorHosts: Set<string>,
+  // Whether *any* node has an agent decides whether "not onboarded" is about this
+  // node or about the server. See NotOnboardedDialog.
+  anyNodeOnboarded: boolean
 ): MRT_ColumnDef<OmHostRow>[] {
   return useMemo(
     () => [
-      { accessorKey: 'name', header: 'Host' },
+      { accessorKey: 'name', header: 'Node', size: 180 },
       {
         accessorKey: 'address',
         header: 'Address',
@@ -263,6 +406,7 @@ function useColumns(
       },
       {
         id: 'database_state',
+        size: 130,
         accessorFn: (row) => HOST_DATABASE_STATE_LABEL[row.database_state],
         header: 'Database',
         Cell: ({ row: { original } }) => <DatabaseCell row={original} />,
@@ -279,17 +423,24 @@ function useColumns(
               : !row.executor.driver_healthy
                 ? 'Driver unhealthy'
                 : 'Ready',
-        header: 'Executor',
-        Cell: ({ row: { original } }) => <ExecutorCell row={original} />,
+        header: 'Automation agent',
+        Cell: ({ row: { original } }) => (
+          <ExecutorCell row={original} anyNodeOnboarded={anyNodeOnboarded} />
+        ),
       },
       {
         id: 'automation_eligible',
+        // Wide enough for the reason written under "Needs attention" to wrap onto two
+        // or three lines rather than one word per line.
+        size: 180,
         accessorFn: (row) =>
           row.executor_host && busyExecutorHosts.has(row.executor_host)
-            ? 'Bootstrapping'
+            ? 'Installing'
             : row.automation_eligible
               ? 'Ready'
-              : 'Needs attention',
+              : row.automation_blocked_by_design
+                ? 'Not a target'
+                : 'Needs attention',
         header: 'Automation',
         Cell: ({ row: { original } }) => (
           <AutomationCell
@@ -321,6 +472,8 @@ function useColumns(
       },
       {
         id: 'collected',
+        // Holds a failing node's whole statement, not just an age.
+        size: 220,
         // Never-answered sorts last rather than first: as a timestamp string it would
         // sort beside the oldest row, which reads as "very stale" when it is "never".
         accessorFn: (row) =>
@@ -328,25 +481,32 @@ function useColumns(
         header: 'Collected',
         Cell: ({ row: { original } }) => {
           const age = ageSeconds(original.freshness.last_success_at);
-          if (age == null) {
-            return <Unavailable reason="probe_never_succeeded" />;
+          // Asked first, and of `failing_since` rather than the success time. Keyed on
+          // the success time, a node whose scans had never succeeded fell into the
+          // "never collected" branch below and its error was nowhere on the page -
+          // the node that most needed explaining was the one that got none.
+          const failure = describeScanFailure(original.freshness);
+          if (!failure) {
+            return age == null ? (
+              <Unavailable reason="probe_never_succeeded" />
+            ) : (
+              <>{formatCompactDuration(age)} ago</>
+            );
           }
-          const since = ageSeconds(original.freshness.failing_since);
-          return since == null ? (
-            <>{formatCompactDuration(age)} ago</>
-          ) : (
-            <Tooltip
-              title={`${original.freshness.last_error ?? 'The last probe failed.'} Failing for ${formatCompactDuration(
-                since
-              )}, ${original.freshness.consecutive_failures} attempts.`}
-            >
+          return (
+            <Stack spacing={0.25}>
               <Box
                 component="span"
-                sx={{ color: 'error.main', cursor: 'help' }}
+                sx={{ color: 'error.main', whiteSpace: 'normal' }}
               >
-                {formatCompactDuration(age)} ago (failing)
+                {failureStatement(failure)}
               </Box>
-            </Tooltip>
+              <Typography variant="caption" color="text.secondary">
+                {age == null
+                  ? 'Never collected. Expand for the full error.'
+                  : `Last collected ${formatCompactDuration(age)} ago. Expand for the full error.`}
+              </Typography>
+            </Stack>
           );
         },
       },
@@ -356,12 +516,12 @@ function useColumns(
       },
       {
         accessorKey: 'executor_host',
-        header: 'Executor host',
+        header: 'Agent name',
         Cell: ({ row: { original } }) =>
           original.executor_host ?? <Unavailable reason="not_applicable" />,
       },
     ],
-    [busyExecutorHosts]
+    [busyExecutorHosts, anyNodeOnboarded]
   );
 }
 
@@ -373,16 +533,88 @@ function useColumns(
  * are listed beside them because on a host with no registered service they are the
  * whole story.
  */
+/**
+ * A failing node's failure, in full, at the top of its detail panel.
+ *
+ * The row can only say it in short. This is the whole of it: the raw error untrimmed
+ * and with its line breaks (a traceback is unreadable folded onto one line), what kind
+ * of failure that is, and what to do about it. The hint sits below the error because
+ * some of them refer to "the excerpt above". The run link is only drawn when the
+ * server names the run; a link to the scan history in general would send the reader
+ * hunting through it, which is the trip this panel exists to save.
+ */
+const ScanFailureDetail = ({ failure }: { failure: ScanFailure }) => {
+  const omBase = useOmBase();
+  return (
+    <Box data-testid="scan-failure">
+      <Typography variant="subtitle2" gutterBottom color="error.main">
+        Scans failing: {failure.label}
+      </Typography>
+      <Typography variant="body2" sx={{ mb: 1 }}>
+        {/* Relative for reading, absolute for matching against a log or a run. */}
+        {failure.failingForSeconds != null
+          ? `Failing for ${formatCompactDuration(failure.failingForSeconds) || '0s'} (since ${formatTimestamp(failure.failingSince)})`
+          : `Failing since ${failure.failingSince}`}
+        {failure.consecutiveFailures > 1
+          ? `, ${failure.consecutiveFailures} failed scans in a row.`
+          : ', 1 failed scan.'}
+      </Typography>
+      {failure.error ? (
+        <Box
+          component="pre"
+          data-testid="scan-error"
+          sx={{
+            m: 0,
+            mb: 1,
+            p: 1,
+            fontFamily: 'monospace',
+            fontSize: '0.8125rem',
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+            bgcolor: 'action.hover',
+            borderRadius: 1,
+          }}
+        >
+          {failure.error}
+        </Box>
+      ) : (
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          The scan recorded no error message.
+        </Typography>
+      )}
+      {failure.hint && (
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          {failure.hint}
+        </Typography>
+      )}
+      {failure.runId && (
+        <Link
+          component={RouterLink}
+          to={`${omBase}/${OM_ROUTE_AUTOMATIONS}?tab=scans&expand=${encodeURIComponent(
+            failure.runId
+          )}`}
+          underline="hover"
+          variant="body2"
+        >
+          Open the scan that failed
+        </Link>
+      )}
+    </Box>
+  );
+};
+
 const HostDetail = ({ row }: { row: OmHostRow }) => {
+  const failure = describeScanFailure(row.freshness);
   return (
     <Stack spacing={2} sx={{ p: 2 }}>
+      {failure && <ScanFailureDetail failure={failure} />}
       <Box>
         <Typography variant="subtitle2" gutterBottom>
           Services PMM monitors ({row.services.length})
         </Typography>
         {row.services.length === 0 ? (
           <Typography variant="body2" color="text.secondary">
-            None. PMM has no registered MongoDB service on this host.
+            None. PMM has no registered MongoDB service on this node.
           </Typography>
         ) : (
           <Stack spacing={0.5}>
@@ -404,7 +636,7 @@ const HostDetail = ({ row }: { row: OmHostRow }) => {
             Running but not registered ({row.unregistered_mongods.length})
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-            Found by the probe with no PMM service to match. An arbiter is the
+            Found by a scan with no PMM service to match. An arbiter is the
             ordinary case: it holds no data, so PMM cannot authenticate against
             it to register one.
           </Typography>
@@ -423,6 +655,12 @@ const HostDetail = ({ row }: { row: OmHostRow }) => {
   );
 };
 
+function forgottenMessage(rows: OmHostRow[]): string {
+  return rows.length === 1
+    ? `Removed ${rows[0].name} from Operations. If PMM still monitors it, it comes back on the next scan and is counted again.`
+    : `Removed ${rows.length} nodes from Operations. Any that PMM still monitors come back on the next scan and are counted again.`;
+}
+
 /**
  * The dialog that has to tell the truth about what deleting achieves, for one
  * host's row or several.
@@ -433,7 +671,7 @@ const HostDetail = ({ row }: { row: OmHostRow }) => {
  * clearing a row left behind when `pmm-agent setup --force` re-registered a node under
  * a new id, which leaves the old row with nothing to refresh it.
  *
- * The per-row Forget button and the bulk one share this dialog: the only real
+ * The row menu's removal and the bulk one share this dialog: the only real
  * difference is how many names are in the title and how many DELETE calls go out.
  * PMM Extensions has no batch-delete endpoint, so a bulk forget is N independent requests, not
  * one. They are dispatched together and awaited together; a partial failure keeps
@@ -443,7 +681,7 @@ const HostDetail = ({ row }: { row: OmHostRow }) => {
  * `onClose` is "the reader backed out" -- Cancel and the dialog's own dismissal
  * (backdrop, Escape). `onForgotten` is "it worked" -- only called once every target
  * host is actually gone. They are two different callbacks because they mean two
- * different things to the caller: HostsPage clears the row-selection on the second,
+ * different things to the caller: NodesPage clears the row-selection on the second,
  * never the first. Conflating them into one `onClose` was the bug -- backing out of
  * a destructive confirmation is not the same event as the destruction succeeding.
  */
@@ -487,6 +725,7 @@ const ForgetDialog = ({
     failures.length > 0
       ? rows.filter((row) => failedIds.has(row.node_id))
       : rows;
+  const onlyOneRow = rows.length === 1;
   const totalServices = rows.reduce((sum, row) => sum + row.services.length, 0);
   const handleForget = async () => {
     setBusy(true);
@@ -521,26 +760,33 @@ const ForgetDialog = ({
   return (
     <Dialog open onClose={onClose} maxWidth="sm">
       <DialogTitle>
-        {rows.length === 1
-          ? `Forget ${rows[0].name}?`
-          : `Forget ${rows.length} hosts?`}
+        {onlyOneRow
+          ? `Remove the entry for ${rows[0].name}?`
+          : `Remove the entries for ${rows.length} nodes?`}
       </DialogTitle>
       <DialogContent>
         <DialogContentText component="div">
           <p>
-            This clears OM&apos;s row for{' '}
-            {rows.length === 1 ? 'this host' : 'these hosts'} and the{' '}
-            {totalServices} service row(s) on{' '}
-            {rows.length === 1 ? 'it' : 'them'}, along with their probe history.
+            This removes {onlyOneRow ? 'this node' : 'these nodes'} from the
+            Operations node list
+            {totalServices > 0
+              ? `, along with the ${totalServices} ${pluralize(totalServices, 'service')} that Operations recorded on ${onlyOneRow ? 'it' : 'them'}`
+              : ''}
+            .{' '}
+            <strong>
+              {onlyOneRow ? 'Its' : 'Their'} scan history is deleted
+              permanently.
+            </strong>
           </p>
           <p>
-            <strong>
-              It does not stop {rows.length === 1 ? 'this host' : 'these hosts'}{' '}
-              being monitored.
-            </strong>{' '}
-            If PMM still has the node, the next sweep writes the row again. Use
-            this to clear a duplicate left behind when a node was re-registered
-            under a new ID.
+            Nothing changes on the {onlyOneRow ? 'machine' : 'machines'}, and
+            PMM keeps monitoring {onlyOneRow ? 'it' : 'them'}. If PMM still has{' '}
+            {onlyOneRow ? 'the node' : 'a node'}, it comes back on the next
+            scan, with no scan history.
+          </p>
+          <p>
+            Use this to clear a duplicate entry left behind when a node was
+            re-registered in PMM under a new ID.
           </p>
         </DialogContentText>
         {failures.map((failure) => (
@@ -551,8 +797,8 @@ const ForgetDialog = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button color="error" disabled={busy} onClick={handleForget}>
-          Forget
+        <Button variant="contained" disabled={busy} onClick={handleForget}>
+          {onlyOneRow ? 'Remove entry' : 'Remove entries'}
         </Button>
       </DialogActions>
     </Dialog>
@@ -566,10 +812,10 @@ const ForgetDialog = ({
  * where a database can be installed, and it has no service to be discovered through,
  * which is why the estate keys hosts separately at all.
  */
-export const HostsPage = () => {
+export const NodesPage = () => {
   const { data, isPending, isError, error } = useOmInventoryHosts();
   const refresh = useRefreshInventory();
-  // Any active run, matching InventoryPage's button: firing an estate-wide sweep into
+  // Any active run, matching AutomationsScansTab's button: firing an estate-wide sweep into
   // one already in flight only earns a 409, and the row actions below cannot succeed
   // against a host that sweep already holds. The refetch when a sweep lands is the
   // estate query's own business now, so this page no longer arranges it.
@@ -577,6 +823,7 @@ export const HostsPage = () => {
   const navigate = useNavigate();
   const omBase = useOmBase();
   const [forgetting, setForgetting] = useState<OmHostRow[]>([]);
+  const { enqueueSnackbar } = useSnackbar();
   const [hostFilter, setHostFilter] = useState<HostFilter>('all');
   // Keyed by node_id (this table's getRowId), independent of which filter is
   // active — switching filters does not silently drop a selection made under a
@@ -603,8 +850,14 @@ export const HostsPage = () => {
   }, [bootstrapRuns.data]);
   const isHostBusy = (row: OmHostRow) =>
     Boolean(row.executor_host && busyExecutorHosts.has(row.executor_host));
-  const columns = useColumns(busyExecutorHosts);
   const rows = useMemo(() => toHostRows(data), [data]);
+  // Whole fleet, not the filtered view: filtering to the broken nodes must not turn
+  // "only this one is broken" into "none of them work".
+  const anyNodeOnboarded = useMemo(
+    () => rows.some((row) => row.executor.registered),
+    [rows]
+  );
+  const columns = useColumns(busyExecutorHosts, anyNodeOnboarded);
   // Filtered for the table only — the counts below stay whole-estate so switching
   // filters does not make the headline numbers look like they changed too.
   const filteredRows = useMemo(
@@ -638,6 +891,12 @@ export const HostsPage = () => {
     [rows]
   );
 
+  // The node an error elsewhere is about. A blocked node's reason has to be
+  // followable to the scan that produced it, and that scan is on this page -- so the
+  // destination is a row here, not a new view.
+  const [searchParams] = useSearchParams();
+  const focusNode = searchParams.get('node') ?? '';
+
   const table = useMaterialReactTable({
     columns,
     data: filteredRows,
@@ -653,6 +912,23 @@ export const HostsPage = () => {
     // A host already part of an in-flight bootstrap run cannot be selected
     // for another one -- see `busyExecutorHosts`'s own comment.
     enableRowSelection: (row) => !isHostBusy(row.original),
+    // See FleetClustersTab: without these MRT sizes every column to its header's
+    // chrome rather than its content, and the table overflows the ~980px the page
+    // gets at 1440 with the nav open. The per-column menu's only verb beyond sorting
+    // is "hide this column", which the chooser in the toolbar already does.
+    layoutMode: 'grid',
+    enableColumnActions: false,
+    // The actions column has to hold "Scan" beside "Install MongoDB", and MRT's
+    // default for it is narrower than that - so the install action was clipped at
+    // the right edge, which is the same width problem all over again.
+    displayColumnDefOptions: {
+      'mrt-row-actions': { size: 290, grow: false },
+      'mrt-row-select': { size: 50, grow: false },
+      'mrt-row-expand': { size: 50, grow: false },
+    },
+    // Ours already shows the count and carries the actions, so MRT's banner was a
+    // second bar saying the same thing.
+    positionToolbarAlertBanner: 'none',
     positionActionsColumn: 'last',
     onRowSelectionChange: setRowSelection,
     state: { rowSelection },
@@ -662,23 +938,23 @@ export const HostsPage = () => {
         {/* The span is load-bearing: MUI disables pointer events on a disabled
             ButtonBase, so a Tooltip wrapping the button directly never opens while
             a refresh is pending -- which is exactly when a reader wants to know why. */}
-        <Tooltip title="Probe this host now. Dispatches a job and takes tens of seconds; the row updates when it lands.">
+        <Tooltip title="Scan this node now. Starts a job and takes tens of seconds; the row updates when it lands.">
           <Box component="span">
             <Button
               size="small"
               disabled={refresh.isPending || refreshing}
               onClick={() => refresh.refreshHosts([row.original.node_id])}
             >
-              Refresh
+              Scan
             </Button>
           </Box>
         </Tooltip>
         <Tooltip
           title={
             isHostBusy(row.original)
-              ? 'Already part of a bootstrap run in progress.'
+              ? BUSY_TITLE
               : row.original.automation_eligible
-                ? 'Install MongoDB on this host and initialize a single-member replica set.'
+                ? 'Install MongoDB on this node and initialize a single-member replica set.'
                 : automationBlockedTitle(
                     row.original.automation_blocked_reasons
                   )
@@ -692,27 +968,60 @@ export const HostsPage = () => {
               }
               onClick={() =>
                 navigate(
-                  `${omBase}/${OM_ROUTE_BOOTSTRAP}?hosts=${row.original.node_id}`
+                  `${omBase}/${OM_ROUTE_INSTALL}?nodes=${row.original.node_id}`
                 )
               }
             >
-              Bootstrap
+              Install MongoDB
             </Button>
           </Box>
         </Tooltip>
-        <Button
-          size="small"
-          color="error"
-          onClick={() => setForgetting([row.original])}
-        >
-          Forget
-        </Button>
+        {/* Behind the ellipsis, not beside the daily actions: three text buttons
+            did not fit the row, and Forget was the one falling off the right edge
+            and it belongs behind a menu on its own account too, named for what
+            it is for rather than for what it deletes. */}
+        {/* No actions at all on PMM Server's own node. Forget would clear Operations'
+            record of the machine PMM runs on, the next scan would put it straight
+            back, and in between the fleet would be wrong - so the menu has nothing
+            to show and is not rendered. */}
+        {!row.original.is_pmm_server_node && (
+          <RowOverflowMenu label={`More actions for ${row.original.name}`}>
+            {(close) => [
+              /* Wrapped in a span because a disabled MUI MenuItem fires no pointer
+                 events, so the Tooltip would never open on the one state it exists
+                 to explain - the same reason the Install button above has one. An
+                 empty title renders no tooltip, so an idle node is unaffected. */
+              <Tooltip
+                key="forget"
+                title={isHostBusy(row.original) ? BUSY_TITLE : ''}
+              >
+                <Box component="span">
+                  <MenuItem
+                    disabled={isHostBusy(row.original)}
+                    onClick={() => {
+                      setForgetting([row.original]);
+                      close();
+                    }}
+                  >
+                    Remove duplicate entry
+                  </MenuItem>
+                </Box>
+              </Tooltip>,
+            ]}
+          </RowOverflowMenu>
+        )}
       </Stack>
     ),
     initialState: {
       density: 'compact',
       columnVisibility: HIDDEN_BY_DEFAULT,
       sorting: [{ id: 'name', desc: false }],
+      // Seeded from ?node=, so an error elsewhere can link to the one node it is
+      // about and land on that row rather than on a fleet the reader has to search.
+      // `initialState`, not `state`: it is a starting point, and clearing the search
+      // box has to work.
+      showGlobalFilter: focusNode !== '',
+      globalFilter: focusNode,
     },
   });
 
@@ -724,9 +1033,9 @@ export const HostsPage = () => {
     return (
       <Alert severity="error">
         {/* An error here means PMM Extensions is unwell, and it renders inside the page rather
-            than replacing it. That is the whole point of reaching the estate through
+            than replacing it. That is the whole point of reaching the fleet through
             pmm-managed: before the proxy, a sick PMM Extensions blanked the page entirely. */}
-        {(error as Error)?.message ?? 'Could not load the host inventory.'}
+        {(error as Error)?.message ?? 'Could not load the nodes.'}
       </Alert>
     );
   }
@@ -734,24 +1043,24 @@ export const HostsPage = () => {
   return (
     <Box>
       <OmHeader
-        title="Hosts"
+        title="Nodes"
         subtitle={
           <Typography variant="body2" color="text.secondary">
-            Every host OM knows about, including the ones with no database on
-            them.
+            Every node Operations knows about, including the ones with no
+            database on them.
           </Typography>
         }
         actions={
           <Stack direction="row" alignItems="center" gap={2}>
             <HostFilterChips value={hostFilter} onChange={setHostFilter} />
-            <Tooltip title="Probe every host. Dispatches one job per host and takes tens of seconds.">
+            <Tooltip title="Scan every node. Starts one job per node and takes tens of seconds.">
               <Box component="span">
                 <Button
                   variant="outlined"
                   disabled={refresh.isPending || refreshing}
                   onClick={() => refresh.refreshAll()}
                 >
-                  {refreshing ? 'Refreshing…' : 'Refresh all'}
+                  {refreshing ? 'Scanning…' : 'Scan all'}
                 </Button>
               </Box>
             </Tooltip>
@@ -774,20 +1083,20 @@ export const HostsPage = () => {
       )}
       <Stack direction="row" spacing={3} sx={{ mb: 2, alignItems: 'center' }}>
         <Typography variant="body2">
-          <strong>{counts.total}</strong> {pluralize(counts.total, 'host')}
+          <strong>{counts.total}</strong> {pluralize(counts.total, 'node')}
         </Typography>
-        <Tooltip title="PMM Client is connected, and the host's automation agent is reachable and healthy.">
+        <Tooltip title="PMM Client is connected, and the node's automation agent is reachable and healthy.">
           <Typography variant="body2" sx={{ cursor: 'help' }}>
             <strong>{counts.automationEligible}</strong> eligible for automation
           </Typography>
         </Tooltip>
-        <Tooltip title="No registered service and no mongod found - a host a database could be installed on.">
+        <Tooltip title="No registered service and no mongod found - a node a database could be installed on.">
           <Typography variant="body2" sx={{ cursor: 'help' }}>
             <strong>{counts.installable}</strong> with no database
           </Typography>
         </Tooltip>
         {counts.unregistered > 0 && (
-          <Tooltip title="A mongod is running that PMM has no service for. Not an empty host.">
+          <Tooltip title="A mongod is running that PMM has no service for. Not an empty node.">
             <Typography
               variant="body2"
               color="warning.main"
@@ -799,7 +1108,7 @@ export const HostsPage = () => {
         )}
         {counts.unusable > 0 && (
           <Typography variant="body2" color="error.main">
-            <strong>{counts.unusable}</strong> cannot be probed
+            <strong>{counts.unusable}</strong> cannot be scanned
           </Typography>
         )}
         {counts.failing > 0 && (
@@ -813,7 +1122,7 @@ export const HostsPage = () => {
           <Typography variant="body2">
             <strong>{selectedRows.length}</strong> selected
           </Typography>
-          <Tooltip title="Probe every selected host. Dispatches one job per host and takes tens of seconds.">
+          <Tooltip title="Scan every selected node. Starts one job per node and takes tens of seconds.">
             <Box component="span">
               <Button
                 size="small"
@@ -824,19 +1133,19 @@ export const HostsPage = () => {
                   setRowSelection({});
                 }}
               >
-                Refresh selected
+                Scan selected
               </Button>
             </Box>
           </Tooltip>
           <Tooltip
             title={
               selectedRows.length !== 1 && selectedRows.length !== 3
-                ? 'Select exactly one host for a single-member replica set, or three for a three-member one.'
+                ? selectionCountTitle(selectedRows.length)
                 : selectedRows.some((row) => isHostBusy(row))
-                  ? 'A selected host is already part of a bootstrap run in progress.'
+                  ? 'A selected node is already part of an install in progress.'
                   : selectedRows.some((row) => !row.automation_eligible)
-                    ? 'Every selected host must be eligible for automation.'
-                    : 'Install MongoDB on the selected hosts and initialize them as one replica set.'
+                    ? 'Every selected node must be eligible for automation.'
+                    : 'Install MongoDB on the selected nodes and initialize them as one replica set.'
             }
           >
             <Box component="span">
@@ -850,31 +1159,45 @@ export const HostsPage = () => {
                 }
                 onClick={() =>
                   navigate(
-                    `${omBase}/${OM_ROUTE_BOOTSTRAP}?hosts=${selectedRows
+                    `${omBase}/${OM_ROUTE_INSTALL}?nodes=${selectedRows
                       .map((row) => row.node_id)
                       .join(',')}`
                   )
                 }
               >
-                Bootstrap selected
+                Install MongoDB
               </Button>
             </Box>
           </Tooltip>
-          <Button
-            size="small"
-            variant="outlined"
-            color="error"
-            onClick={() => setForgetting(selectedRows)}
-          >
-            Forget selected
+          <Button size="small" onClick={() => setForgetting(selectedRows)}>
+            Remove duplicate entries
           </Button>
         </Stack>
       )}
-      <MaterialReactTable table={table} />
+      {filteredRows.length === 0 ? (
+        <EmptyState
+          title="No nodes to show"
+          action={
+            rows.length === 0
+              ? {
+                  label: 'Go to Scans',
+                  to: `${omBase}/${OM_ROUTE_AUTOMATIONS}?tab=scans`,
+                }
+              : undefined
+          }
+        >
+          {rows.length === 0
+            ? 'This page lists every node Operations has scanned, including the ones with no database on them - which is where an install can go. There are no scan results yet: press Scan all, or check Scans if one is already running.'
+            : 'Every node is filtered out by the filter above. Clear it to see them.'}
+        </EmptyState>
+      ) : (
+        <MaterialReactTable table={table} />
+      )}
       <ForgetDialog
         rows={forgetting}
         onClose={() => setForgetting([])}
         onForgotten={() => {
+          enqueueSnackbar(forgottenMessage(forgetting), { variant: 'success' });
           setForgetting([]);
           setRowSelection({});
         }}

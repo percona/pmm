@@ -62,7 +62,7 @@ export const SyncButton = () => {
 
   return (
     <Stack direction="row" alignItems="center" gap={1}>
-      <Tooltip title="Probe every MongoDB service and rebuild the snapshot">
+      <Tooltip title="Re-read what PMM knows and rebuild this view. Does not scan your nodes.">
         <span>
           <Button
             variant="contained"
@@ -70,18 +70,18 @@ export const SyncButton = () => {
             disabled={running || trigger.isPending}
             onClick={() => trigger.mutate()}
           >
-            {running ? 'Syncing…' : 'Sync'}
+            {running ? 'Refreshing…' : 'Refresh'}
           </Button>
         </span>
       </Tooltip>
       {conflict && (
         <Typography variant="body2" color="text.secondary">
-          A collection run is already in flight.
+          A refresh is already in flight.
         </Typography>
       )}
       {failure && (
         <Typography variant="body2" color="error">
-          Could not start discovery: {failure.message}
+          Could not refresh: {failure.message}
         </Typography>
       )}
     </Stack>

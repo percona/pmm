@@ -24,11 +24,10 @@ import {
   Chip,
   CircularProgress,
   Stack,
-  Tab,
-  Tabs,
   Tooltip,
   Typography,
 } from '@mui/material';
+import { EmptyState } from './components/EmptyState';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { Table, type MRT_ColumnDef } from '@percona/percona-ui';
 import {
@@ -37,10 +36,8 @@ import {
   useRefreshInventory,
 } from './inventoryHooks';
 import { isRunActive, OmApiError } from './api';
-import { ConfigForm } from './components/ConfigForm';
 import { RunStatusBadge } from './components/HealthBadge';
 import { RunEntities } from './components/RunEntities';
-import { OmHeader } from './components/OmHeader';
 import {
   formatCompactDuration,
   formatRunDuration,
@@ -74,7 +71,7 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
   },
   {
     // Sorts on elapsed seconds, not the formatted string -- lexicographically "9s"
-    // lands after "10m". HostsPage's age column already does it this way.
+    // lands after "10m". NodesPage's age column already does it this way.
     accessorFn: (row) => runDurationSeconds(row.start_time, row.end_time),
     id: 'duration',
     header: 'Duration',
@@ -90,7 +87,7 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
     header: 'Scope',
     Cell: ({ row: { original } }) =>
       original.scope.length === 0 ? (
-        <Tooltip title="The whole estate">
+        <Tooltip title="Every node">
           <Box component="span" sx={{ color: 'text.disabled' }}>
             all
           </Box>
@@ -107,13 +104,13 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
   {
     accessorFn: (row) => row.counts.answered_hosts,
     id: 'hosts',
-    header: 'Hosts',
+    header: 'Nodes',
     Cell: ({ row: { original } }) => (
       // total / probeable / answered in one cell. The gap between the first two is
       // the estate nothing can be dispatched to, which is an onboarding fact rather
       // than a failed run, and the gap between the last two is what actually failed.
       <Tooltip
-        title={`${original.counts.total_hosts} in scope, ${original.counts.probeable_hosts} with somewhere to run a probe, ${original.counts.answered_hosts} answered`}
+        title={`${original.counts.total_hosts} in scope, ${original.counts.probeable_hosts} reachable, ${original.counts.answered_hosts} answered`}
       >
         <Box component="span">
           {original.counts.answered_hosts}/{original.counts.probeable_hosts}
@@ -135,7 +132,7 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
     id: 'resolved',
     header: 'Resolved',
     Cell: ({ row: { original } }) => (
-      <Tooltip title="Services that mapped to a live executor host">
+      <Tooltip title="Services on a node with a working automation agent">
         <Box component="span">{original.counts.resolved_services}</Box>
       </Tooltip>
     ),
@@ -148,7 +145,7 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
       // The diagnostic pair: resolved says the mapping worked, answered says the
       // node ran the payload. resolved=9 / answered=0 is a healthy mapping and
       // broken executors — a distinction a single "failed" count would hide.
-      <Tooltip title="Services whose node ran the probe payload">
+      <Tooltip title="Services whose node ran the scan">
         <Box component="span">{original.counts.answered_services}</Box>
       </Tooltip>
     ),
@@ -158,7 +155,7 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
     id: 'orphaned',
     header: 'Orphaned',
     Cell: ({ row: { original } }) => (
-      <Tooltip title="Services with no live executor host — not an error">
+      <Tooltip title="Services with no automation agent — not an error">
         <Box component="span">{original.counts.orphaned_services}</Box>
       </Tooltip>
     ),
@@ -192,7 +189,7 @@ const RefreshButton = () => {
 
   return (
     <Stack direction="row" alignItems="center" gap={1}>
-      <Tooltip title="Probe every host in the estate and collect what no metric carries">
+      <Tooltip title="Scan every node now, collecting what no metric carries">
         <span>
           <Button
             variant="contained"
@@ -202,7 +199,7 @@ const RefreshButton = () => {
             disabled={running || trigger.isPending}
             onClick={() => trigger.refreshAll()}
           >
-            {running ? 'Refreshing…' : 'Refresh estate'}
+            {running ? 'Scanning…' : 'Scan all nodes'}
           </Button>
         </span>
       </Tooltip>
@@ -213,7 +210,7 @@ const RefreshButton = () => {
       )}
       {failure && (
         <Typography variant="body2" color="error">
-          Could not start a refresh: {failure.message}
+          Could not start a scan: {failure.message}
         </Typography>
       )}
     </Stack>
@@ -234,9 +231,11 @@ const RefreshButton = () => {
 const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
   if (!run) {
     return (
-      <Alert severity="info">
-        No refresh has run yet. OM has nothing to show until one does.
-      </Alert>
+      <EmptyState title="No scans yet">
+        Operations scans your nodes on a schedule to collect what no metric
+        carries - the installed version, the command line, the config file.
+        Nothing has run yet, so there is nothing to show.
+      </EmptyState>
     );
   }
   const age = ageSeconds(run.start_time);
@@ -259,7 +258,7 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
       <Typography variant="body2">
         <strong>{run.counts.answered_hosts}</strong> of{' '}
         {run.counts.probeable_hosts}{' '}
-        {pluralize(run.counts.probeable_hosts, 'host')} answered
+        {pluralize(run.counts.probeable_hosts, 'node')} answered
       </Typography>
       <Typography variant="body2">
         <strong>{run.counts.answered_services}</strong> of{' '}
@@ -282,10 +281,6 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
     </Stack>
   );
 };
-
-/** The tabs, and the query-parameter values that address them. */
-const TABS = ['runs', 'settings'] as const;
-type TabId = (typeof TABS)[number];
 
 /**
  * One chip per `RUN_PERIODS` entry, in that order — adding a quick filter there is
@@ -313,30 +308,25 @@ const PeriodFilter = ({
 );
 
 /**
- * OM's refresh history, and the schedule that drives it.
+ * The scan history: every pass Operations made over the nodes, and what each found.
  *
- * These are the app's refreshes, not pmm-managed's collection pass: one runs a payload
- * on every host over Nomad and takes tens of seconds, the other recomputes a document
- * from data PMM already holds. They are two different things called a "run", which is
- * why they live at two different paths and on two different pages.
+ * These are the app's scans, not pmm-managed's collection pass: one runs a payload on
+ * every node and takes tens of seconds, the other recomputes a document from data PMM
+ * already holds. Two different things once both called a "run", which is why the fleet
+ * reading and this one are different pages.
  *
- * Read through pmm-managed rather than from PMM Extensions directly, which is what lets this page
+ * Read through pmm-managed rather than from PMM Extensions directly, which is what lets this tab
  * render its own error when PMM Extensions is unwell instead of being blanked by a gate that
  * fails closed.
  *
- * The two halves are tabs rather than one column because they answer different
- * questions on different clocks: "did the last refresh work" is asked often and
- * skimmed, "how often should it run" is asked rarely and read carefully. Stacked, the
- * second sat below a table of twenty-five rows and was found by scrolling.
+ * A tab on Automations, beside installs: both answer "what has run, and did it work",
+ * and the page that used to hold this one was called Inventory, which collided with
+ * PMM's own and told a reader nothing about what was on it.
  */
-export const InventoryPage = () => {
-  // In the query string rather than component state, so a link to the settings tab is
-  // shareable and a reload does not silently put the reader back on Runs.
+export const AutomationsScansTab = () => {
+  // In the query string rather than component state, so a link to a window is
+  // shareable and a reload does not silently put the reader back on the default.
   const [params, setParams] = useSearchParams();
-  const requested = params.get('tab');
-  const tab: TabId = TABS.includes(requested as TabId)
-    ? (requested as TabId)
-    : 'runs';
   // Same reason the tab lives in the URL: a link to "last month" should open last
   // month. Default is the week window — All is still the uncapped-history view, and
   // that is the one that becomes unreadable.
@@ -360,6 +350,8 @@ export const InventoryPage = () => {
     limit: isBoundedPeriod(period) ? WINDOWED_RUN_LIMIT : DEFAULT_RUN_LIMIT,
   });
   const rows = useMemo(() => runs ?? [], [runs]);
+  // `?expand=<run_id>` unfolds that scan's row on landing.
+  const expandRunId = params.get('expand');
 
   const setPeriod = (next: OmRunPeriod) =>
     setParams((current) => {
@@ -370,86 +362,62 @@ export const InventoryPage = () => {
 
   return (
     <Stack gap={2}>
-      <OmHeader
-        title="Inventory"
-        subtitle={
-          <Typography variant="body2" color="text.secondary">
-            Every refresh probes each host for what no metric carries, and
-            stores it against the estate.
-          </Typography>
-        }
-        // Stays in the header rather than inside the Runs tab: it is the page's
-        // action, and hiding it while someone reads the schedule would mean going
-        // back a tab to act on what they just changed.
-        actions={
-          <Stack direction="row" alignItems="center" gap={2}>
-            {tab === 'runs' && (
-              <PeriodFilter value={period} onChange={setPeriod} />
-            )}
-            <RefreshButton />
-          </Stack>
-        }
-      />
-
-      <Tabs
-        value={tab}
-        onChange={(_event, next: TabId) =>
-          setParams((current) => {
-            const updated = new URLSearchParams(current);
-            updated.set('tab', next);
-            return updated;
-          })
-        }
+      {/* The scan-specific controls, in the tab rather than the page header: a period
+          filter over installs would mean nothing, and this action scans the nodes
+          rather than starting an install. */}
+      <Stack
+        direction="row"
+        alignItems="center"
+        gap={2}
+        justifyContent="flex-end"
       >
-        <Tab value="runs" label="Runs" />
-        <Tab value="settings" label="Settings" />
-      </Tabs>
+        <PeriodFilter value={period} onChange={setPeriod} />
+        <RefreshButton />
+      </Stack>
 
-      {tab === 'runs' ? (
-        <>
-          {error && (
-            <Alert severity="error">
-              {/* Rendered inside the page rather than replacing it: PMM Extensions being
-                  unwell is a fact about the estate, and the settings tab still
+      {error && (
+        <Alert severity="error">
+          {/* Rendered inside the page rather than replacing it: PMM Extensions being
+                  unwell is a fact about the fleet, and the installs tab still
                   reads. */}
-              Could not load refreshes: {(error as Error).message}
-            </Alert>
-          )}
+          Could not load scans: {(error as Error).message}
+        </Alert>
+      )}
 
-          {/* Only once the query has actually answered. LastRun reads an absent run as
-              "no refresh has run yet", which is a claim about the estate - not something
+      {/* Only once the query has actually answered. LastRun reads an absent run as
+              "no scan has run yet", which is a claim about the fleet - not something
               to assert while the first request is still in flight or has failed with no
               cached rows to fall back on. */}
-          {(!latest.isLoading || latest.data) && !latest.error && (
-            <LastRun run={latest.data?.[0]} />
-          )}
+      {(!latest.isLoading || latest.data) && !latest.error && (
+        <LastRun run={latest.data?.[0]} />
+      )}
 
-          {isLoading && !runs ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
-              <CircularProgress />
-            </Box>
-          ) : rows.length === 0 && !error ? (
-            <Alert severity="info">No refreshes in this period.</Alert>
-          ) : (
-            <Table
-              tableName="om-inventory-runs"
-              columns={RUN_COLUMNS}
-              data={rows}
-              getRowId={(row) => row.run_id}
-              enableGlobalFilter={false}
-              enableColumnFilters={false}
-              enableHiding={false}
-              enablePagination={false}
-              enableStickyHeader
-              enableExpanding
-              renderDetailPanel={({ row }) => (
-                <RunEntities run={row.original} />
-              )}
-            />
-          )}
-        </>
+      {isLoading && !runs ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+          <CircularProgress />
+        </Box>
+      ) : rows.length === 0 && !error ? (
+        <EmptyState title="No scans in this period">
+          Scans run on a schedule, so a short window can be empty while
+          everything is working. Widen the period, or scan now.
+        </EmptyState>
       ) : (
-        <ConfigForm />
+        <Table
+          tableName="om-inventory-runs"
+          columns={RUN_COLUMNS}
+          data={rows}
+          getRowId={(row) => row.run_id}
+          enableGlobalFilter={false}
+          enableColumnFilters={false}
+          enableHiding={false}
+          enablePagination={false}
+          enableStickyHeader
+          enableExpanding
+          initialState={
+            expandRunId ? { expanded: { [expandRunId]: true } } : undefined
+          }
+          renderDetailPanel={({ row }) => <RunEntities run={row.original} />}
+        />
       )}
     </Stack>
   );

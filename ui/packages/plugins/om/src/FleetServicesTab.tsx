@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Box,
@@ -25,18 +25,17 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { EmptyState } from './components/EmptyState';
 import {
   MaterialReactTable,
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from 'material-react-table';
-import { PROCESS_ROLE_LABEL } from './constants';
-import { OmHeader } from './components/OmHeader';
+import { FLEET_NOT_COLLECTED, PROCESS_ROLE_LABEL } from './constants';
 import { SnapshotBar } from './components/SnapshotBar';
 import { StatusBadge } from './components/HealthBadge';
 import { MemberState } from './components/MemberState';
 import { ServiceLink } from './components/ServiceLink';
-import { SyncButton } from './components/SyncButton';
 import { Duration, Percent } from './components/Metric';
 import { Unavailable } from './components/Unavailable';
 import { useOmTopology } from './topologyHooks';
@@ -51,6 +50,7 @@ import {
 } from './inventory';
 import { formatCompactDuration, pluralize } from './format';
 import { ProbeValue } from './components/ProbeValue';
+import { ServiceDetailDrawer } from './components/ServiceDetailDrawer';
 import type {
   OmInventoryService,
   OmServiceInventoryRow,
@@ -67,14 +67,32 @@ const TRUNCATED = {
 } as const;
 
 /**
- * Columns the table carries but does not open with.
+ * The columns a row opens with: what it is, where it runs, whether it is healthy, and
+ * the two numbers a DBA checks first. Everything else is a column-chooser away, or in
+ * the row's own detail panel.
  *
- * The page's job is to show everything the snapshot stores, which is not the same as
- * showing it all at once: these five are either constant across a PSMDB estate
- * (`edition`), internal identifiers, or long enough to push the load columns off
- * screen. They stay one click away in the column-visibility menu.
+ * Eighteen of twenty-four used to be visible -- about four screen widths at 1440px,
+ * which is wide enough that a row cannot be read as a row, so the page could not
+ * answer "which one needs attention" at all (design review P17).
  */
 const HIDDEN_BY_DEFAULT = {
+  env_name: false,
+  cluster_name: false,
+  replication_set: false,
+  process_role: false,
+  installed_version: false,
+  probe_status: false,
+  vendor: false,
+  endpoint: false,
+  cpu_usage_percent: false,
+  connections_free_percent: false,
+  // Hidden to make the table fit, not because they do not matter: eight columns,
+  // two of them 24-character names, cannot sit in the ~980px this page gets at
+  // 1440 with the nav open. Both are a click away in the chooser and both are in
+  // the detail drawer, where a per-service read belongs. Repl. lag stays as the
+  // one replication signal on the row.
+  version: false,
+  oplog_window_seconds: false,
   service_id: false,
   service_type: false,
   edition: false,
@@ -103,6 +121,7 @@ function useColumns(
       },
       {
         accessorKey: 'service_name',
+        size: 200,
         header: 'Service',
         Cell: ({ row: { original } }) => (
           <ServiceLink serviceName={original.service_name} />
@@ -110,7 +129,8 @@ function useColumns(
       },
       {
         accessorKey: 'host',
-        header: 'Host',
+        size: 200,
+        header: 'Node',
         Cell: ({ row: { original } }) =>
           original.host ?? <Unavailable reason="service_not_observed" />,
       },
@@ -123,6 +143,7 @@ function useColumns(
       },
       {
         accessorKey: 'status',
+        size: 110,
         header: 'Status',
         // Worst first ascending, by rank rather than by the enum's spelling.
         sortingFn: (a, b, columnId) =>
@@ -140,6 +161,7 @@ function useColumns(
       },
       {
         accessorKey: 'state',
+        size: 185,
         header: 'Member state',
         Cell: ({ row: { original } }) => <MemberState service={original} />,
       },
@@ -172,7 +194,7 @@ function useColumns(
       {
         id: 'probe_status',
         accessorFn: (row) => row.inventory?.probe_status ?? null,
-        header: 'Probe',
+        header: 'Scan',
         Cell: ({ row: { original } }) =>
           original.inventory ? (
             <ProbeStatus inventory={original.inventory} />
@@ -182,6 +204,7 @@ function useColumns(
       },
       {
         id: 'last_success_at',
+        size: 140,
         // Sorted on the age in seconds, not the timestamp string: the column is read
         // as "how stale", and a lexicographic sort of ISO strings puts a row that has
         // never answered next to the oldest one rather than at the end.
@@ -228,6 +251,7 @@ function useColumns(
       },
       {
         accessorKey: 'replication_lag_seconds',
+        size: 145,
         header: 'Repl. lag',
         Cell: ({ row: { original } }) => (
           <Duration value={original.replication_lag_seconds} />
@@ -354,15 +378,15 @@ const Counts = ({
       {failing === null ? (
         <Typography variant="body2" color="text.secondary">
           {estate === 'pending'
-            ? 'reading probe status…'
-            : 'probe status unavailable'}
+            ? 'reading scan status…'
+            : 'scan status unavailable'}
         </Typography>
       ) : failing > 0 || failingOnly ? (
         <Chip
           size="small"
           color={failingOnly ? 'error' : 'default'}
           variant={failingOnly ? 'filled' : 'outlined'}
-          label={`${failing} failing a probe`}
+          label={`${failing} failing a scan`}
           onClick={onToggleFailing}
         />
       ) : null}
@@ -386,7 +410,7 @@ const ProbeStatus = ({ inventory }: { inventory: OmInventoryService }) => {
     <Tooltip
       title={
         inventory.freshness.last_error ??
-        'The last probe against this service failed.'
+        'The last scan of this service failed.'
       }
     >
       <Box component="span" sx={{ color: 'error.main', cursor: 'help' }}>
@@ -412,7 +436,7 @@ const ProbeStatus = ({ inventory }: { inventory: OmInventoryService }) => {
  * survives as the two leading columns. Grouping is available on them if a reader wants
  * the tree back, and Overview is the same snapshot already read that way.
  */
-export const ServicesPage = () => {
+export const FleetServicesTab = () => {
   const { data, isPending, isError, error } = useOmTopology();
   // Deliberately not gated on the estate loading or failing. The snapshot is PMM's own
   // and always available; the estate is a second service that may be unwell, and a
@@ -434,11 +458,26 @@ export const ServicesPage = () => {
       ? 'pending'
       : 'ready';
   const [failingOnly, setFailingOnly] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const columns = useColumns(estate);
   const joined = useMemo(
     () => joinServiceInventory(toServiceRows(data), inventory),
     [data, inventory]
   );
+  // Looked up by id so the drawer follows the poll, and closes when the service
+  // leaves the snapshot.
+  const selected = useMemo(
+    () =>
+      selectedId === null
+        ? null
+        : (joined.find((row) => row.service_id === selectedId) ?? null),
+    [joined, selectedId]
+  );
+  useEffect(() => {
+    if (selected === null) {
+      setSelectedId(null);
+    }
+  }, [selected]);
   const rows = useMemo(
     () =>
       failingOnly
@@ -461,8 +500,32 @@ export const ServicesPage = () => {
     columns,
     data: rows,
     enableGrouping: true,
+    // See FleetClustersTab: without these MRT sizes every column to its header's
+    // chrome rather than its content, and the table overflows the width the page
+    // actually gets. The per-column menu's only verb beyond sorting is "hide this
+    // column", which the chooser in the toolbar already does.
+    layoutMode: 'grid',
+    enableColumnActions: false,
     enablePagination: false,
     enableDensityToggle: false,
+    // The short table cannot answer "tell me everything about this row", and the
+    // column chooser answers it for every row at once. Clicking opens the drawer
+    // instead. Grouping headers are rows too and carry no service, so they are
+    // left alone.
+    muiTableBodyRowProps: ({ row }) => ({
+      hover: true,
+      sx: row.getIsGrouped() ? undefined : { cursor: 'pointer' },
+      onClick: row.getIsGrouped()
+        ? undefined
+        : (event) => {
+            // A link or button in the row has its own job, e.g. a Cmd-click on
+            // the service name opening its dashboard in a new tab.
+            if ((event.target as HTMLElement).closest('a, button')) {
+              return;
+            }
+            setSelectedId(row.original.service_id ?? null);
+          },
+    }),
     initialState: {
       density: 'compact',
       columnVisibility: HIDDEN_BY_DEFAULT,
@@ -480,47 +543,25 @@ export const ServicesPage = () => {
   }
 
   if (isError) {
-    // The header stays, with its Sync action. A 503 here is the expected first-run
-    // state - the API says so when no collection has completed - and Sync is the way
-    // out, so a branch that rendered the alert alone left the reader on a page that
-    // named the fix and did not offer it.
+    // Just the alert now: the page's header, and the Sync action that is the way out
+    // of the expected first-run 503, belong to FleetPage and are rendered whichever
+    // tab is open. A branch that named the fix without offering it was the bug here,
+    // and hoisting the header is what fixes it for both tabs at once.
     return (
-      <Box>
-        <OmHeader
-          title="Services"
-          subtitle={
-            <Typography variant="body2" color="text.secondary">
-              Every monitored MongoDB service: what PMM sees over the wire, and
-              what OM&apos;s probe found on the host.
-            </Typography>
-          }
-          actions={<SyncButton />}
-        />
-        <Alert severity="error" sx={{ mt: 2 }}>
-          {(error as Error)?.message ?? 'Could not load the topology.'}
-        </Alert>
-      </Box>
+      <Alert severity="error">
+        {(error as Error)?.message ?? 'Could not load the fleet.'}
+      </Alert>
     );
   }
 
   return (
     <Box>
-      <OmHeader
-        title="Services"
-        subtitle={
-          <Typography variant="body2" color="text.secondary">
-            Every monitored MongoDB service: what PMM sees over the wire, and
-            what OM&apos;s probe found on the host.
-          </Typography>
-        }
-        actions={<SyncButton />}
-      />
       <SnapshotBar envelope={data.snapshot} />
       {inventoryFailed && (
         <Alert severity="warning" sx={{ mb: 2 }}>
-          The inventory estate could not be read, so the probe columns are blank
-          and no probe count is shown. The topology columns come from PMM&apos;s
-          own data and are unaffected.
+          Scan results could not be read, so the scan columns are blank and no
+          scan count is shown. The monitoring columns come from PMM&apos;s own
+          data and are unaffected.
           {inventoryError instanceof Error ? ` ${inventoryError.message}` : ''}
         </Alert>
       )}
@@ -533,7 +574,26 @@ export const ServicesPage = () => {
         failingOnly={failingOnly}
         onToggleFailing={() => setFailingOnly((on) => !on)}
       />
-      <MaterialReactTable table={table} />
+      {rows.length > 0 ? (
+        <MaterialReactTable table={table} />
+      ) : joined.length > 0 ? (
+        <EmptyState title="No services failing a scan">
+          No service is failing a scan right now. Turn off the failing filter to
+          see them all.
+        </EmptyState>
+      ) : (
+        <EmptyState title="No MongoDB services yet">
+          The same fleet as the Clusters tab, one row per MongoDB service.{' '}
+          {data.snapshot.generated_at
+            ? 'It is empty because PMM has no MongoDB services registered yet - add one, and it appears here on the next refresh.'
+            : FLEET_NOT_COLLECTED}
+        </EmptyState>
+      )}
+      <ServiceDetailDrawer
+        row={selected}
+        estate={estate}
+        onClose={() => setSelectedId(null)}
+      />
     </Box>
   );
 };

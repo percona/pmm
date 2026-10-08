@@ -49,10 +49,16 @@ export const Messages = {
     accessControlTooltip:
       'Restrict data visibility based on user roles and labels.',
     accessControlLink: 'https://per.co.na/roles_permissions',
-    openManagerLabel: 'OpenManager',
+    openManagerLabel: 'Operations for MongoDB',
     openManagerTooltip:
-      'Option to enable/disable OpenManager, PMM periodic collection and the OpenManager Inventory app.',
-    openManagerLink: 'https://per.co.na/pmm-feature-status',
+      'Fleet management for Percona Server for MongoDB: the health of every MongoDB cluster PMM monitors, the hosts behind them, and provisioning. Appears under MongoDB in the menu. Turning it off hides those pages and stops the periodic collection; nothing already collected is deleted.',
+    openManagerRequiresExtensions:
+      'Needs PMM Extensions, which is not enabled on this server. Enable it first, then turn on Operations for MongoDB.',
+    // Said instead of the generic "Settings updated" the first time it is turned
+    // on. A toggle that reports success by naming nothing leaves the reader to
+    // guess both what they enabled and where it went (P9).
+    openManagerEnabled: 'Operations for MongoDB is now enabled.',
+    openManagerEnabledAction: 'Open it',
     publicAddressLabel: 'Public address',
     publicAddressTooltip:
       'The address or hostname PMM Server will be accessible at.',
@@ -78,6 +84,12 @@ export const Messages = {
     technicalPreviewDescriptionSuffix:
       ' to be used in production environments. Read more about feature status',
     technicalPreviewLinkText: 'here.',
+    developerPreviewLegend: 'Developer preview features',
+    developerPreviewDescription: 'These are developer preview features, ',
+    developerPreviewWarning: 'not recommended',
+    developerPreviewDescriptionSuffix:
+      ' to be used in production environments. They are earlier than a technical preview and change without notice. Read more about feature status',
+    developerPreviewLinkText: 'here.',
   },
   metrics: {
     label: 'Metrics resolution',
