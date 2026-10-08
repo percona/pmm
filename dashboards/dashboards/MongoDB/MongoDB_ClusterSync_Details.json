@@ -856,7 +856,7 @@
                         "type": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "count(mongodb_up{cluster=\"$target_cluster\"} == 0) or count(mongodb_up{cluster=\"$target_cluster\"}) * 0",
+                    "expr": "count(mongodb_up{cluster=\"$target_cluster\",cluster!=\"\"} == 0) or count(mongodb_up{cluster=\"$target_cluster\",cluster!=\"\"}) * 0",
                     "instant": true,
                     "interval": "$interval",
                     "legendFormat": "Down",
@@ -4389,7 +4389,7 @@
                 "datasource": {
                     "type": "prometheus"
                 },
-                "definition": "label_values(mongodb_up, cluster)",
+                "definition": "label_values(mongodb_up{cluster!=\"$source_cluster\"}, cluster)",
                 "description": "MongoDB cluster PCSM replicates to. Set the cluster label when adding its services to PMM (pmm-admin add mongodb --cluster).",
                 "hide": 0,
                 "includeAll": false,
@@ -4398,7 +4398,7 @@
                 "name": "target_cluster",
                 "options": [],
                 "query": {
-                    "query": "label_values(mongodb_up, cluster)",
+                    "query": "label_values(mongodb_up{cluster!=\"$source_cluster\"}, cluster)",
                     "refId": "StandardVariableQuery"
                 },
                 "refresh": 2,
