@@ -23,7 +23,6 @@ import {
 } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import {
-  Alert,
   Box,
   Button,
   Chip,
@@ -77,6 +76,7 @@ import { isBootstrapRunActive } from './api';
 import { useScanConflict } from './ScanFeedback';
 import { useOmBase } from './useOmBase';
 import type { OmHostRow } from './types';
+import { OmError } from './components/OmError';
 
 /**
  * The columns a row opens with: which node, what is on it, whether Operations can
@@ -821,11 +821,21 @@ const ForgetDialog = ({
             re-registered in PMM under a new ID.
           </p>
         </DialogContentText>
-        {failures.map((failure) => (
-          <Alert severity="error" key={failure.nodeId} sx={{ mt: 1 }}>
-            {failure.name}: {failure.message}
-          </Alert>
-        ))}
+        {failures.length > 0 && (
+          <Box sx={{ mt: 1 }}>
+            <OmError
+              placement="item"
+              title={
+                failures.length === 1
+                  ? 'Could not forget 1 node'
+                  : `Could not forget ${failures.length} nodes`
+              }
+              messages={failures.map(
+                (failure) => `${failure.name}: ${failure.message}`
+              )}
+            />
+          </Box>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
@@ -1064,12 +1074,13 @@ export const NodesPage = () => {
 
   if (isError) {
     return (
-      <Alert severity="error">
-        {/* An error here means PMM Extensions is unwell, and it renders inside the page rather
-            than replacing it. That is the whole point of reaching the fleet through
-            pmm-managed: before the proxy, a sick PMM Extensions blanked the page entirely. */}
-        {(error as Error)?.message ?? 'Could not load the nodes.'}
-      </Alert>
+      // An error here means PMM Extensions is unwell, so it renders inside the page
+      // rather than replacing it.
+      <OmError
+        placement="load"
+        title="Could not load the nodes"
+        messages={(error as Error)?.message}
+      />
     );
   }
 
@@ -1111,31 +1122,36 @@ export const NodesPage = () => {
       {/* A 409 is an expected answer, not a fault: another scan already holds these
           nodes, and the schedule starts one every ten minutes. */}
       {scanConflict && (
-        <Alert
-          severity="info"
-          sx={{ mb: 2 }}
-          action={
-            runningScan && (
-              <Button
-                component={RouterLink}
-                to={`${omBase}/${OM_ROUTE_AUTOMATIONS}?tab=scans&expand=${encodeURIComponent(
-                  runningScan.run_id
-                )}`}
-                color="inherit"
-                size="small"
-              >
-                Open the running scan
-              </Button>
-            )
-          }
-        >
-          {scanConflict.message}
-        </Alert>
+        <Box sx={{ mb: 2 }}>
+          <OmError
+            placement="action"
+            severity="info"
+            messages={scanConflict.message}
+            action={
+              runningScan && (
+                <Button
+                  component={RouterLink}
+                  to={`${omBase}/${OM_ROUTE_AUTOMATIONS}?tab=scans&expand=${encodeURIComponent(
+                    runningScan.run_id
+                  )}`}
+                  color="inherit"
+                  size="small"
+                >
+                  Open the running scan
+                </Button>
+              )
+            }
+          />
+        </Box>
       )}
       {refresh.isError && !scanConflict && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          Could not start a scan: {refresh.error.message}
-        </Alert>
+        <Box sx={{ mb: 2 }}>
+          <OmError
+            placement="action"
+            title="Could not start a scan"
+            messages={refresh.error.message}
+          />
+        </Box>
       )}
       <Stack direction="row" spacing={3} sx={{ mb: 2, alignItems: 'center' }}>
         <Typography variant="body2">

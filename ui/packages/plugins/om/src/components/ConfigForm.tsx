@@ -42,6 +42,7 @@ import {
   useUpdateOmInventoryConfig,
 } from '../inventoryHooks';
 import type { OmInventorySetting } from '../types';
+import { OmError } from './OmError';
 
 /** The tabs this form is split across. */
 export type SettingGroup = 'general' | 'scanning' | 'advanced';
@@ -292,9 +293,13 @@ export const ConfigForm = ({
   }
   if (isError) {
     return (
-      <Alert severity="warning" sx={{ mt: 2 }}>
-        Could not read the Operations configuration: {(error as Error).message}
-      </Alert>
+      <Box sx={{ mt: 2 }}>
+        <OmError
+          placement="load"
+          title="Could not read the Operations configuration"
+          messages={(error as Error).message}
+        />
+      </Box>
     );
   }
 
@@ -349,16 +354,15 @@ export const ConfigForm = ({
   const shown = editable.filter((setting) => groupOf(setting) === group);
 
   // Save spans every tab, so a field on another one is named with its tab.
-  const names = (fields: OmInventorySetting[]) =>
-    fields
-      .map((setting) => {
-        const label = SETTING_LABEL[setting.key] ?? setting.key;
-        const settingGroup = groupOf(setting);
-        return settingGroup === group
-          ? label
-          : `${label} (${SETTING_GROUP_LABEL[settingGroup]} tab)`;
-      })
-      .join(', ');
+  const labels = (fields: OmInventorySetting[]) =>
+    fields.map((setting) => {
+      const label = SETTING_LABEL[setting.key] ?? setting.key;
+      const settingGroup = groupOf(setting);
+      return settingGroup === group
+        ? label
+        : `${label} (${SETTING_GROUP_LABEL[settingGroup]} tab)`;
+    });
+  const names = (fields: OmInventorySetting[]) => labels(fields).join(', ');
 
   return (
     <Stack gap={1}>
@@ -386,8 +390,20 @@ export const ConfigForm = ({
         <Box>{shown.map(render)}</Box>
       )}
 
-      {update.isError && <Alert severity="error">{update.error.message}</Alert>}
-      {reset.isError && <Alert severity="error">{reset.error.message}</Alert>}
+      {update.isError && (
+        <OmError
+          placement="action"
+          title="Could not save"
+          messages={update.error.message}
+        />
+      )}
+      {reset.isError && (
+        <OmError
+          placement="action"
+          title="Could not reset"
+          messages={reset.error.message}
+        />
+      )}
 
       <Stack direction="row" gap={2} alignItems="center" sx={{ mt: 1 }}>
         <Button
@@ -405,10 +421,11 @@ export const ConfigForm = ({
           </Typography>
         )}
         {invalid.length > 0 && (
-          <Typography variant="body2" color="error">
-            Fix {names(invalid)} first - the app applies the batch or none of
-            it.
-          </Typography>
+          <OmError
+            placement="action"
+            title="Fix these first - the app applies the batch or none of it"
+            messages={labels(invalid)}
+          />
         )}
       </Stack>
     </Stack>

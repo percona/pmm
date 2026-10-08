@@ -17,7 +17,6 @@
 
 import { useId, useMemo, useState } from 'react';
 import {
-  Alert,
   Box,
   ButtonBase,
   Collapse,
@@ -59,6 +58,7 @@ import type {
   OmEnvironmentSection,
   OmProcessRole,
 } from './types';
+import { OmError } from './components/OmError';
 
 /** Label for an environment or cluster the services carry no name for. */
 const UNNAMED_ENVIRONMENT = 'Unassigned environment';
@@ -440,9 +440,11 @@ export const FleetClustersTab = () => {
     // expected first-run 503, belong to FleetPage and render above whichever tab is
     // open. This tab is the index route, so a fresh install lands here first.
     return (
-      <Alert severity="error">
-        {(error as Error)?.message ?? 'Could not load the fleet.'}
-      </Alert>
+      <OmError
+        placement="load"
+        title="Could not load the fleet"
+        messages={(error as Error)?.message}
+      />
     );
   }
 
