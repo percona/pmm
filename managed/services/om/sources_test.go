@@ -231,7 +231,7 @@ type lastUpVM struct {
 }
 
 func (v lastUpVM) Query(_ context.Context, query string, _ time.Time, _ ...v1.Option) (model.Value, v1.Warnings, error) {
-	if !strings.Contains(query, "tlast_over_time(("+metricUp+"{") {
+	if !strings.Contains(query, "tmax_over_time("+metricUp+"{") {
 		return model.Vector{}, nil, nil
 	}
 	return model.Vector{{Metric: seriesLabels(), Value: model.SampleValue(v.seconds)}}, nil, nil

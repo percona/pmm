@@ -65,10 +65,12 @@ const (
 )
 
 // queryLastUp is the newest moment in the window at which mongodb_up read 1, as epoch
-// seconds, for "down since". A subquery, because the == 1 filter has to apply to each
-// point before the rollup takes the last one; its 1m step makes the answer accurate to
-// a minute. MetricsQL's tlast_over_time has no PromQL equivalent.
-const queryLastUp = `max by (service_id) (tlast_over_time((` + metricUp + `{%[1]s} == 1)[%[2]s:1m]))`
+// seconds, for "down since". Read from raw samples rather than a subquery, whose steps
+// see only the last sample before each one and so miss an up spell between them:
+// tmax_over_time is the newest sample holding the window's maximum, and the `and`
+// drops a series whose maximum was 0. MetricsQL; PromQL has no tmax_over_time.
+const queryLastUp = `max by (service_id) (tmax_over_time(` + metricUp + `{%[1]s}[%[2]s])` +
+	` and max_over_time(` + metricUp + `{%[1]s}[%[2]s]) == 1)`
 
 // metricsLookback is the window every query is read over.
 //
