@@ -56,6 +56,9 @@ type extensionsBootstrapStep struct {
 	Detail        *string    `json:"detail"`
 	TaskHistoryID *int64     `json:"task_history_id"`
 	AttemptCount  int        `json:"attempt_count"`
+	// Retryable is om_bootstrap's answer to whether dispatching the step again could
+	// change its outcome. Nil for a run planned before it said, which keeps the retry.
+	Retryable *bool `json:"retryable"`
 }
 
 // extensionsBootstrapHost is one host's progress within a run.

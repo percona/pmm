@@ -15,7 +15,11 @@
 
 package om
 
-import "slices"
+import (
+	"fmt"
+	"slices"
+	"strings"
+)
 
 // This file is pure decision logic for the bootstrap stepper (stepper.go): given a
 // run's current state (as om_bootstrap's own API reports it), what should happen
@@ -40,8 +44,24 @@ import "slices"
 
 // bootstrapMaxAttempts caps a step's attempt_count before its failure is treated as
 // permanent: attempt_count counts every dispatch including the first, so 2 means the
-// first attempt failed, and so did the one retry.
+// first attempt failed, and so did the one retry. A step om_bootstrap marked not
+// retryable gets one attempt instead -- see maxAttempts.
 const bootstrapMaxAttempts = 2
+
+// maxAttempts is how many dispatches step gets before its failure is permanent. One
+// for a step om_bootstrap marked not retryable: pre_check, whose failure is a fact
+// about the host that a second look a few seconds later finds again.
+func maxAttempts(step extensionsBootstrapStep) int {
+	if step.Retryable != nil && !*step.Retryable {
+		return 1
+	}
+	return bootstrapMaxAttempts
+}
+
+// exhausted reports whether step failed with no attempts left.
+func exhausted(step extensionsBootstrapStep) bool {
+	return step.Status == bootstrapStepFailed && step.AttemptCount >= maxAttempts(step)
+}
 
 // stepAction names one step the stepper has decided to dispatch next.
 type stepAction struct {
@@ -60,7 +80,7 @@ func nextHostAction(host extensionsBootstrapHost) *stepAction {
 		case bootstrapStepPending:
 			return &stepAction{name: step.Name}
 		case bootstrapStepFailed:
-			if step.AttemptCount < bootstrapMaxAttempts {
+			if step.AttemptCount < maxAttempts(step) {
 				return &stepAction{name: step.Name}
 			}
 			return nil
@@ -84,7 +104,7 @@ func nextFinalizeAction(host extensionsBootstrapHost) *stepAction {
 		case bootstrapStepPending:
 			return &stepAction{name: step.Name}
 		case bootstrapStepFailed:
-			if step.AttemptCount < bootstrapMaxAttempts {
+			if step.AttemptCount < maxAttempts(step) {
 				return &stepAction{name: step.Name}
 			}
 			return nil
@@ -107,7 +127,7 @@ func nextRollbackAction(host extensionsBootstrapHost) *stepAction {
 		case bootstrapStepPending:
 			return &stepAction{name: step.Name}
 		case bootstrapStepFailed:
-			if step.AttemptCount < bootstrapMaxAttempts {
+			if step.AttemptCount < maxAttempts(step) {
 				return &stepAction{name: step.Name}
 			}
 			return nil
@@ -134,7 +154,7 @@ func nextRunStepAction(run extensionsBootstrapRun) *stepAction {
 		case bootstrapStepPending:
 			return &stepAction{name: step.Name}
 		case bootstrapStepFailed:
-			if step.AttemptCount < bootstrapMaxAttempts {
+			if step.AttemptCount < maxAttempts(step) {
 				return &stepAction{name: step.Name}
 			}
 			return nil
@@ -179,23 +199,91 @@ func runStepsSucceeded(run extensionsBootstrapRun) bool {
 // installing.
 func hostExhaustedRetries(host extensionsBootstrapHost) bool {
 	for _, step := range host.Steps {
-		if step.Status == bootstrapStepFailed && step.AttemptCount >= bootstrapMaxAttempts {
+		if exhausted(step) {
 			return true
 		}
 	}
 	for _, step := range host.FinalizeSteps {
-		if step.Status == bootstrapStepFailed && step.AttemptCount >= bootstrapMaxAttempts {
+		if exhausted(step) {
 			return true
 		}
 	}
 	return false
 }
 
+// rolledBackReason is the error a rolled-back run is finished with. A run that
+// exhausted a step's retries names the step, the host and the detail PMM Extensions
+// recorded for it, so the run says what failed instead of only that something did.
+func rolledBackReason(run extensionsBootstrapRun) string {
+	outcome := "every host was rolled back"
+	if nothingRolledBack(run) {
+		outcome = "nothing had been installed, so there was nothing to roll back"
+	}
+	if !runExhaustedRetries(run) {
+		return "an operator requested cancellation; " + outcome
+	}
+	if summary := exhaustedStepsSummary(run); summary != "" {
+		return summary + "; " + outcome
+	}
+	return "a step exhausted its retries; " + outcome
+}
+
+// nothingRolledBack reports whether PMM Extensions skipped every rollback step of
+// every host, which it does on a host the run never installed anything on -- a
+// failed pre_check, most often. False for a run with no rollback steps at all, which
+// says nothing either way.
+func nothingRolledBack(run extensionsBootstrapRun) bool {
+	var seen bool
+	for _, host := range run.Hosts {
+		for _, step := range host.RollbackSteps {
+			if step.Status != bootstrapStepSkipped {
+				return false
+			}
+			seen = true
+		}
+	}
+	return seen
+}
+
+// exhaustedStepsSummary names every step that ran out of attempts, with its host and
+// recorded detail, or returns an empty string when none has. It names every one
+// rather than the first: two hosts can each exhaust a different step in the same
+// tick, and a reader fixing one should not have to rerun the install to learn of
+// the other.
+func exhaustedStepsSummary(run extensionsBootstrapRun) string {
+	var parts []string
+	describe := func(host string, step extensionsBootstrapStep) {
+		if !exhausted(step) {
+			return
+		}
+		part := step.Name + " failed"
+		if host != "" {
+			part += " on " + host
+		}
+		if step.AttemptCount > 1 {
+			part += fmt.Sprintf(" after %d attempts", step.AttemptCount)
+		}
+		if step.Detail != nil && *step.Detail != "" {
+			part += ": " + *step.Detail
+		}
+		parts = append(parts, part)
+	}
+	for _, host := range run.Hosts {
+		for _, step := range slices.Concat(host.Steps, host.FinalizeSteps) {
+			describe(host.Host, step)
+		}
+	}
+	for _, step := range run.RunSteps {
+		describe("", step)
+	}
+	return strings.Join(parts, "; ")
+}
+
 // runStepsExhaustedRetries reports whether run has a run-level step that failed
 // with no retries left.
 func runStepsExhaustedRetries(run extensionsBootstrapRun) bool {
 	for _, step := range run.RunSteps {
-		if step.Status == bootstrapStepFailed && step.AttemptCount >= bootstrapMaxAttempts {
+		if exhausted(step) {
 			return true
 		}
 	}

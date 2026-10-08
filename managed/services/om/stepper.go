@@ -170,11 +170,7 @@ func (s *Service) stepBootstrapRun(ctx context.Context, runID string) {
 func (s *Service) advanceRunningRun(ctx context.Context, run *extensionsBootstrapRun) {
 	if runIsRollingBack(*run) {
 		if runRollbackDone(*run) {
-			reason := "an operator requested cancellation; every host was rolled back"
-			if runExhaustedRetries(*run) {
-				reason = "a step exhausted its retries; every host was rolled back"
-			}
-			s.finishBootstrapRun(ctx, run, bootstrapRunRolledBack, reason)
+			s.finishBootstrapRun(ctx, run, bootstrapRunRolledBack, rolledBackReason(*run))
 			return
 		}
 		for _, host := range run.Hosts {

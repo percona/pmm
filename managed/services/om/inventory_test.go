@@ -637,6 +637,23 @@ func TestAutomationEligibility(t *testing.T) {
 		assert.True(t, byDesign)
 	})
 
+	// Installed but stopped: no service, nothing running, so only the scan's reading
+	// of the binary shows it - and an install onto it would leave two mongods.
+	t.Run("MongoDB a scan found installed but not running also blocks", func(t *testing.T) {
+		t.Parallel()
+
+		host := installable(func(h *extensionsHost) {
+			h.Observed["installed_version"] = "7.0.43-23"
+		})
+		eligible, reasons, byDesign := automationEligibility(healthyExecutor, true, false, host)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{
+			"a scan found MongoDB 7.0.43-23 already installed on this node",
+		}, reasons)
+		assert.True(t, byDesign)
+	})
+
 	// A node usually has both: the registered service and the mongod serving it. One
 	// problem, so one reason - otherwise a reader counts two faults where there is one.
 	t.Run("a registered service suppresses the unregistered-mongod reason", func(t *testing.T) {
