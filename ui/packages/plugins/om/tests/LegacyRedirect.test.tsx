@@ -66,6 +66,16 @@ describe('LegacyRedirect', () => {
     expect(landsOn(from)).toBe(expected);
   });
 
+  it.each([
+    ['hosts/bootstrap?hosts=abc,def', `${MOUNT}/nodes/install?nodes=abc%2Cdef`],
+    [
+      'inventory?tab=config&period=7d',
+      `${MOUNT}/automations?tab=scans&period=7d`,
+    ],
+  ])('carries the query of %s through to %s', (from, expected) => {
+    expect(landsOn(from)).toBe(expected);
+  });
+
   it('covers every retired route', () => {
     expect(Object.keys(OM_LEGACY_REDIRECTS).sort()).toEqual(
       ['hosts', 'hosts/bootstrap', 'inventory', 'services'].sort()

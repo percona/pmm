@@ -19,12 +19,14 @@ import { describe, expect, it } from 'vitest';
 import {
   ageSeconds,
   databaseState,
+  describeScanFailure,
   isBoundedPeriod,
   isFailing,
   isRunPeriod,
   joinServiceInventory,
   periodSince,
   repoReachability,
+  scanErrorCode,
   toHostRows,
 } from '../src/inventory';
 import type {
@@ -99,6 +101,8 @@ const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
   pmm_agent_connected: true,
   automation_eligible: true,
   automation_blocked_reasons: [],
+  automation_blocked_by_design: false,
+  is_pmm_server_node: false,
   ...overrides,
 });
 
@@ -384,5 +388,78 @@ describe('periodSince', () => {
     expect(isBoundedPeriod('today')).toBe(true);
     expect(isBoundedPeriod('week')).toBe(true);
     expect(isBoundedPeriod('all')).toBe(false);
+  });
+});
+
+describe('scanErrorCode', () => {
+  it('passes a known code through', () => {
+    expect(scanErrorCode('environment_setup_failed')).toBe(
+      'environment_setup_failed'
+    );
+  });
+
+  // A newer server's code and an older server's silence read the same: raw error,
+  // no advice.
+  it.each([['something_new'], [null], [undefined], ['toString']])(
+    'reads %s as unknown',
+    (code) => {
+      expect(scanErrorCode(code)).toBe('unknown');
+    }
+  );
+});
+
+describe('describeScanFailure', () => {
+  const now = Date.parse('2026-10-07T10:24:05Z');
+
+  it('is null for a row that is not failing, whatever its last error says', () => {
+    expect(
+      describeScanFailure(freshness({ last_error: 'stale' }), now)
+    ).toBeNull();
+  });
+
+  // Keyed on failing_since, not last_success_at: the never-succeeded node is the one
+  // that most needs this.
+  it('describes a node that has never succeeded', () => {
+    const failure = describeScanFailure(
+      freshness({
+        last_success_at: null,
+        failing_since: '2026-10-07T08:24:05Z',
+        consecutive_failures: 4,
+        last_error: 'scan failed: boom\nTraceback ...',
+        last_error_code: 'scan_crashed',
+        last_run_id: 'run-1',
+      }),
+      now
+    );
+
+    expect(failure).toMatchObject({
+      code: 'scan_crashed',
+      label: 'Scan crashed',
+      shortReason: 'Scan crashed',
+      error: 'scan failed: boom\nTraceback ...',
+      failingForSeconds: 7200,
+      consecutiveFailures: 4,
+      runId: 'run-1',
+    });
+    expect(failure?.hint).toMatch(/crashed on the node/);
+  });
+
+  it('falls back to the first line of the raw error, cut short, with no hint', () => {
+    const long = 'x'.repeat(200);
+    const failure = describeScanFailure(
+      freshness({
+        failing_since: '2026-10-07T08:24:05Z',
+        consecutive_failures: 1,
+        last_error: `${long}\nsecond line`,
+      }),
+      now
+    );
+
+    expect(failure?.code).toBe('unknown');
+    expect(failure?.hint).toBeNull();
+    expect(failure?.runId).toBeNull();
+    expect(failure?.shortReason.length).toBe(80);
+    expect(failure?.shortReason.endsWith('…')).toBe(true);
+    expect(failure?.error).toBe(`${long}\nsecond line`);
   });
 });
