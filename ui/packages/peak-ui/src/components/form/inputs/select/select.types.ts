@@ -22,7 +22,7 @@ export type SelectInputProps<T extends FieldValues = FieldValues> = {
   controllerProps?: Omit<UseControllerProps<T>, 'name' | 'control'>;
   /** Form field the selected value is stored under; also drives the test ids. */
   name: FieldPath<T>;
-  /** Floating label shown inside the field. */
+  /** Floating label shown inside the field or at the top, depending on state. */
   label?: string;
   /** Hint shown under the field. Validation errors only turn the field red, so pass the message here. */
   helperText?: React.ReactNode;

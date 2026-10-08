@@ -6,12 +6,12 @@ export type CodeBlockProps = Omit<BoxProps<'pre'>, 'component' | 'children'> & {
   content: ReactNode;
   /** Shows a copy button in the top-right corner. */
   copyable?: boolean;
-  /** Makes the copy button a labeled button ("Copy code") instead of a bare icon. */
+  /** Makes the copy button a labeled button, with text ("Copy code"), instead of a bare icon. */
   showCopyButtonText?: boolean;
-  /** Text to copy and highlight when it differs from `content`, for example when `content` holds elements. */
+  /** Text to copy when it differs from `content`, such as when `content` holds elements; with `language` set it is shown instead of `content`. */
   value?: string;
-  /** Language for syntax highlighting, such as bash, yaml, or json; without it the text is shown as-is. */
+  /** Language for syntax highlighting, such as sql, yaml, or json; without a supported one the text is shown in a single plain color. */
   language?: string;
-  /** Wraps long lines instead of scrolling horizontally. */
+  /** Wraps long lines instead of forcing users to scroll horizontally. */
   wrap?: boolean;
 };

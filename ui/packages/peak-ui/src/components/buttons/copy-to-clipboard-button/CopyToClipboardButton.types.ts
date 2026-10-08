@@ -5,7 +5,7 @@ export type CopyToClipboardButtonProps = {
   textToCopy: string;
   /** Styles for the copy icon, for example to resize or recolor it. */
   iconSx?: SxProps<Theme>;
-  /** MUI Button props forwarded to the underlying button, such as size, color, or sx. */
+  /** Props for the button (an icon button, or a labeled Button when `showCopyButtonText` is set), such as size, color, or sx. */
   buttonProps?: ButtonProps;
   /** Shows a labeled button instead of the bare icon; the label is `copyCommand`. */
   showCopyButtonText?: boolean;

@@ -17,7 +17,7 @@ export interface TableStateValues {
 }
 
 export interface TableControlledState {
-  /** Current filters, search text, sorting, and pagination; spread this object onto `Table` to control it. */
+  /** Current filters, search text, sorting, and pagination, passed to `Table` as its `state`. */
   state: TableStateValues;
   /** Receives the new per-column filters when the user changes them. */
   onColumnFiltersChange: (updater: MRT_Updater<MRT_ColumnFiltersState>) => void;

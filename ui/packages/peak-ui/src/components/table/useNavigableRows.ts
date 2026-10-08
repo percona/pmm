@@ -50,7 +50,7 @@ export interface UseNavigableRowsTableProps<T extends Record<string, any>> {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface UseNavigableRowsResult<T extends Record<string, any>> {
-  /** Rows in the order the user sees them, after filters, search, and sorting. */
+  /** Rows the user can step through, in the order shown: all filtered and sorted rows, or only the visible page with the current-page scope. */
   navigableRows: T[];
   /** Spread onto `Table` so the hook stays in sync with what the user sees. */
   tableProps: UseNavigableRowsTableProps<T>;

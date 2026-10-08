@@ -11,7 +11,8 @@ export type PageContainerMaxWidth = number | 'full';
 
 export interface PageContainerProps extends Omit<StackProps, 'maxWidth'> {
   /**
-   * Controls the max container width.
+   * Maximum width of the page, padding included, from the `lg` breakpoint up; `'full'` stretches
+   * to the available width. Defaults to 1000px.
    * @default 1000
    */
   maxWidth?: PageContainerMaxWidth;
