@@ -17,12 +17,6 @@ import { ExtensionsAuthProvider } from './ExtensionsAuthProvider';
  * padding, width, auth gate, and footer. No `title` is passed: the PMM Extensions
  * plugins already render their own headings.
  *
- * `surface="paper"` on every branch: PMM Extensions pages are form- and list-shaped like
- * Settings, not widget-heavy like the dashboards the lighter stage surface a
- * `Page` shows when it passes no `surface` is meant for. It has to be repeated
- * in the loading and not-enabled branches too, or the page background shifts
- * as settings resolve.
- *
  * No `roles` restriction: every signed-in PMM user may open a PMM Extensions page, and
  * what they can do there is decided per control rather than per route. The side-car's
  * API admits any authenticated session to its reads and holds every unsafe
@@ -47,7 +41,7 @@ export const ExtensionsPage: FC<PropsWithChildren> = ({ children }) => {
 
   if (isLoading || !settings) {
     return (
-      <Page maxWidth="full" surface="paper">
+      <Page maxWidth="full">
         <Stack alignItems="center" py={4}>
           <CircularProgress data-testid="extensions-settings-loading" />
         </Stack>
@@ -57,7 +51,7 @@ export const ExtensionsPage: FC<PropsWithChildren> = ({ children }) => {
 
   if (!settings.extensionsEnabled) {
     return (
-      <Page maxWidth="full" surface="paper">
+      <Page maxWidth="full">
         <Alert severity="info">
           This feature is not enabled. Contact your administrator.
         </Alert>
@@ -66,7 +60,7 @@ export const ExtensionsPage: FC<PropsWithChildren> = ({ children }) => {
   }
 
   return (
-    <Page maxWidth="full" surface="paper">
+    <Page maxWidth="full">
       <Stack gap={3} sx={{ flex: 1 }}>
         <ExtensionsAuthProvider>
           <ExtensionsAuthGate>
