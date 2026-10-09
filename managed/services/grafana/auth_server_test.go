@@ -267,10 +267,11 @@ func TestAuthServerRejectedCredentials(t *testing.T) {
 	t.Parallel()
 
 	for _, tc := range []struct {
-		name    string
-		status  int
-		message string
-		code    codes.Code
+		name      string
+		basicAuth bool
+		status    int
+		message   string
+		code      codes.Code
 	}{
 		{
 			name:    "disabled service account",
@@ -296,12 +297,19 @@ func TestAuthServerRejectedCredentials(t *testing.T) {
 			message: "Failed to retrieve service account",
 			code:    codes.Internal,
 		},
+		{
+			name:      "basic auth bad request",
+			basicAuth: true,
+			status:    http.StatusBadRequest,
+			message:   "Bad request",
+			code:      codes.Internal,
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
 			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				if r.URL.Path != "/api/auth/serviceaccount" {
+				if r.URL.Path != "/api/auth/serviceaccount" && r.URL.Path != "/api/user" {
 					w.WriteHeader(http.StatusNotFound)
 					return
 				}
@@ -316,7 +324,11 @@ func TestAuthServerRejectedCredentials(t *testing.T) {
 			req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth_request", nil)
 			req.Header.Set("X-Original-Uri", "/v1/inventory/nodes")
 			req.Header.Set("X-Original-Method", http.MethodGet)
-			req.Header.Set("Authorization", "Bearer glsa_disabled")
+			if tc.basicAuth {
+				req.SetBasicAuth("admin", "admin")
+			} else {
+				req.Header.Set("Authorization", "Bearer glsa_disabled")
+			}
 
 			s.ServeHTTP(rw, req)
 

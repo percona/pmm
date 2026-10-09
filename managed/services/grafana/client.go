@@ -542,6 +542,9 @@ func (c *Client) GetCurrentUserOrgs(ctx context.Context, authHeaders http.Header
 	}, nil
 }
 
+// errServiceTokenRejected marks Grafana's answer to a service token it did not authenticate.
+var errServiceTokenRejected = errors.New("service token rejected")
+
 func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role, error) {
 	header := http.Header{}
 	header.Add("Authorization", "Bearer "+token)
@@ -549,6 +552,11 @@ func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role
 	var k map[string]any
 	err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k)
 	if err != nil {
+		// The route has no sign-in middleware, so a token Grafana rejects gets 400 rather than 401, see PMM-15692.
+		cErr, ok := errors.AsType[*clientError](err)
+		if ok && cErr.Code == http.StatusBadRequest {
+			return none, fmt.Errorf("%w: %w", errServiceTokenRejected, err)
+		}
 		return none, err
 	}
 
