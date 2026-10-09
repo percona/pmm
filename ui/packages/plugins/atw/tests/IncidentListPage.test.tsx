@@ -21,8 +21,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { ReactNode } from 'react';
+import { DeliverySettingsProvider } from '../src/deliverySettings';
 import { IncidentListPage } from '../src/IncidentListPage';
 import { ATW_INCIDENT_LIST_LIMIT } from '../src/hooks';
+import {
+  Messages,
+  SUPPORT_DIAGNOSTICS_DOCS_URL,
+} from '../src/IncidentsEmptyState.messages';
 import type { AtwIncident } from '../src/types';
 
 /** Flipped per test to cover the read-only (non-admin) rendering. */
@@ -45,6 +50,8 @@ const mockedApi = apiClient as unknown as {
   patch: ReturnType<typeof vi.fn>;
   delete: ReturnType<typeof vi.fn>;
 };
+
+const SETTINGS_PATH = '/settings/servicenow-connection';
 
 const incident: AtwIncident = {
   id: '11111111-1111-4111-8111-111111111111',
@@ -73,20 +80,48 @@ function paginated<T>(items: T[]) {
   return { data: { items, total: items.length, offset: 0, limit: 50 } };
 }
 
-function renderPage(ui: ReactNode) {
+/**
+ * Route GETs for the list page: incidents vs delivery config. Config defaults
+ * to configured (no reasons) so most tests stay quiet about ServiceNow.
+ */
+function routeGet(
+  options: {
+    incidents?: AtwIncident[] | 'reject';
+    config?: { send_disabled_reasons?: string[] };
+  } = {}
+) {
+  mockedApi.get.mockImplementation((url: string) => {
+    if (url.includes('/config/')) {
+      return Promise.resolve({
+        data: {
+          send_disabled_reasons: options.config?.send_disabled_reasons ?? [],
+          case_search_available: false,
+        },
+      });
+    }
+    if (options.incidents === 'reject') {
+      return Promise.reject(new Error('Internal Server Error'));
+    }
+    return Promise.resolve(paginated(options.incidents ?? []));
+  });
+}
+
+function renderPage(ui: ReactNode, deliverySettingsPath?: string) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
   });
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter initialEntries={['/']}>
-        <Routes>
-          <Route path="/" element={ui} />
-          <Route
-            path="/:incidentId"
-            element={<div data-testid="workspace-route" />}
-          />
-        </Routes>
+        <DeliverySettingsProvider path={deliverySettingsPath}>
+          <Routes>
+            <Route path="/" element={ui} />
+            <Route
+              path="/:incidentId"
+              element={<div data-testid="workspace-route" />}
+            />
+          </Routes>
+        </DeliverySettingsProvider>
       </MemoryRouter>
     </QueryClientProvider>
   );
@@ -187,14 +222,38 @@ describe('IncidentListPage', () => {
     await waitFor(() => expect(rowNames()).toEqual(['DB slowness']));
   });
 
-  it('shows an empty state when there are no incidents', async () => {
-    mockedApi.get.mockResolvedValue(paginated([]));
+  it('shows an explanatory empty state when there are no incidents', async () => {
+    routeGet({ incidents: [] });
 
     renderPage(<IncidentListPage />);
 
     await waitFor(() => {
-      expect(screen.getByText(/No incidents yet/i)).toBeTruthy();
+      expect(screen.getByTestId('atw-incidents-empty')).toBeTruthy();
     });
+    expect(screen.getByText(Messages.title)).toBeTruthy();
+    expect(screen.getByText(Messages.description)).toBeTruthy();
+    expect(screen.getByTestId('atw-incidents-empty-docs')).toHaveAttribute(
+      'href',
+      SUPPORT_DIAGNOSTICS_DOCS_URL
+    );
+    expect(screen.getByText(Messages.documentation)).toBeTruthy();
+  });
+
+  it('puts New incident inside the empty state, not the header', async () => {
+    routeGet({ incidents: [] });
+
+    renderPage(<IncidentListPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-incidents-empty-create')).toBeTruthy();
+    });
+    expect(screen.getByTestId('atw-incidents-empty-create')).toHaveTextContent(
+      Messages.create
+    );
+    // Only the empty-state CTA — no second header button.
+    expect(
+      screen.getAllByRole('button', { name: /New incident/i })
+    ).toHaveLength(1);
   });
 
   it('withholds the create button when the list request failed', async () => {
@@ -210,6 +269,26 @@ describe('IncidentListPage', () => {
     // Creating would hit the backend that just failed, so the action is gone
     // rather than merely disabled.
     expect(screen.queryByRole('button', { name: /New incident/i })).toBeNull();
+  });
+
+  it('withholds the ServiceNow banner when the list request failed', async () => {
+    routeGet({
+      incidents: 'reject',
+      config: {
+        send_disabled_reasons: ['Diagnostics delivery is not configured'],
+      },
+    });
+
+    renderPage(<IncidentListPage />, SETTINGS_PATH);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Failed to load incidents: Internal Server Error/)
+      ).toBeTruthy();
+    });
+    expect(
+      screen.queryByTestId('atw-send-unavailable')
+    ).not.toBeInTheDocument();
   });
 
   it('disables the create button until the list has loaded', async () => {
@@ -231,8 +310,7 @@ describe('IncidentListPage', () => {
 
     renderPage(<IncidentListPage />);
 
-    await screen.findByText(/No incidents yet/i);
-    await user.click(screen.getByRole('button', { name: /New incident/i }));
+    await user.click(await screen.findByTestId('atw-incidents-empty-create'));
 
     expect(mockedApi.post).toHaveBeenCalledWith('/apps/atw/incidents/', {});
     expect(await screen.findByTestId('workspace-route')).toBeInTheDocument();
@@ -246,8 +324,7 @@ describe('IncidentListPage', () => {
 
     renderPage(<IncidentListPage />);
 
-    await screen.findByText(/No incidents yet/i);
-    await user.click(screen.getByRole('button', { name: /New incident/i }));
+    await user.click(await screen.findByTestId('atw-incidents-empty-create'));
 
     expect(await screen.findByText('Side-car unavailable')).toBeInTheDocument();
   });
@@ -417,31 +494,33 @@ describe('IncidentListPage — write access', () => {
     expect(items).toEqual(['Rename', 'Close', 'Delete']);
   });
 
-  it('drops the create instruction from the empty state for a non-admin', async () => {
+  it('omits New incident from the empty state for a non-admin', async () => {
     mockCanMutate = false;
     mockedApi.get.mockResolvedValue(paginated([]));
 
     renderPage(<IncidentListPage />);
 
-    await waitFor(() =>
-      expect(screen.getByText('No incidents yet.')).toBeTruthy()
-    );
-    // The instruction points at a control this session is not offered.
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-incidents-empty')).toBeTruthy();
+    });
+    expect(screen.getByText(Messages.title)).toBeTruthy();
+    expect(screen.getByText(Messages.description)).toBeTruthy();
     expect(
-      screen.queryByText(/Create one to get started/i)
+      screen.queryByRole('button', { name: /New incident/i })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('atw-incidents-empty-create')
     ).not.toBeInTheDocument();
   });
 
-  it('keeps the create instruction in the empty state for a session that may mutate', async () => {
+  it('keeps New incident in the empty state for a session that may mutate', async () => {
     mockedApi.get.mockResolvedValue(paginated([]));
 
     renderPage(<IncidentListPage />);
 
-    await waitFor(() =>
-      expect(
-        screen.getByText(/No incidents yet\. Create one to get started\./)
-      ).toBeTruthy()
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-incidents-empty-create')).toBeTruthy();
+    });
   });
 
   it('renders no create or actions menu for a non-admin', async () => {
@@ -457,5 +536,135 @@ describe('IncidentListPage — write access', () => {
     expect(
       screen.queryByRole('button', { name: /Actions for/i })
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('IncidentListPage — ServiceNow connection banner', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const unconfigured = {
+    send_disabled_reasons: ['Diagnostics delivery is not configured'],
+  };
+
+  it('shows the connection banner and Settings link for an admin when delivery is missing', async () => {
+    routeGet({ incidents: [], config: unconfigured });
+
+    renderPage(<IncidentListPage />, SETTINGS_PATH);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
+    });
+    expect(
+      screen.getByText(/Sending requires a valid ServiceNow connection/i)
+    ).toBeTruthy();
+    expect(screen.getByTestId('atw-send-unavailable-settings')).toHaveAttribute(
+      'href',
+      SETTINGS_PATH
+    );
+  });
+
+  it('explains without a Settings control when the host offers no route', async () => {
+    routeGet({ incidents: [], config: unconfigured });
+
+    renderPage(<IncidentListPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
+    });
+    expect(
+      screen.queryByTestId('atw-send-unavailable-settings')
+    ).not.toBeInTheDocument();
+  });
+
+  it('stays silent while delivery is configured', async () => {
+    routeGet({ incidents: [] });
+
+    renderPage(<IncidentListPage />, SETTINGS_PATH);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-incidents-empty')).toBeTruthy();
+    });
+    expect(
+      screen.queryByTestId('atw-send-unavailable')
+    ).not.toBeInTheDocument();
+  });
+
+  it('hides the connection banner from a non-admin', async () => {
+    mockCanMutate = false;
+    routeGet({ incidents: [], config: unconfigured });
+
+    renderPage(<IncidentListPage />, SETTINGS_PATH);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-incidents-empty')).toBeTruthy();
+    });
+    expect(
+      screen.queryByTestId('atw-send-unavailable')
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('atw-send-unavailable-settings')
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows the banner on a populated list when delivery is missing', async () => {
+    routeGet({ incidents: [incident], config: unconfigured });
+
+    renderPage(<IncidentListPage />, SETTINGS_PATH);
+
+    await waitFor(() => {
+      expect(screen.getByText('DB slowness')).toBeTruthy();
+    });
+    expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
+    expect(screen.getByTestId('atw-send-unavailable-settings')).toHaveAttribute(
+      'href',
+      SETTINGS_PATH
+    );
+  });
+
+  it('keeps the banner when a remount refetch of config fails', async () => {
+    routeGet({ incidents: [], config: unconfigured });
+
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    const tree = (ui: ReactNode) => (
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <DeliverySettingsProvider path={SETTINGS_PATH}>
+            {ui}
+          </DeliverySettingsProvider>
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
+
+    const configCalls = () =>
+      mockedApi.get.mock.calls.filter(([url]) =>
+        String(url).includes('/config/')
+      );
+
+    const { unmount } = render(tree(<IncidentListPage />));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
+    });
+    expect(configCalls()).toHaveLength(1);
+
+    mockedApi.get.mockImplementation((url: string) => {
+      if (url.includes('/config/')) {
+        return Promise.reject(new Error('config unavailable'));
+      }
+      return Promise.resolve(paginated([]));
+    });
+
+    unmount();
+    render(tree(<IncidentListPage />));
+
+    await waitFor(() => {
+      expect(configCalls()).toHaveLength(2);
+      expect(queryClient.isFetching()).toBe(0);
+    });
+    expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
   });
 });

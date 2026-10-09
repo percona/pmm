@@ -75,7 +75,8 @@ export function IncidentWorkspacePage() {
   const lifecycle = useAtwIncidentLifecycle();
   const updateMutation = useUpdateAtwIncident();
   const isClosed = Boolean(incident?.closed_at);
-  const showCollect = canMutate && !isClosed;
+  // Collect waits for the incident: until it loads, a closed one is unknown.
+  const showCollect = canMutate && incident !== undefined && !isClosed;
   const [editingName, setEditingName] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<AtwIncident | null>(null);
 

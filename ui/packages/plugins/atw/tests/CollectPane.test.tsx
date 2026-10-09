@@ -66,9 +66,11 @@ describe('CollectPane', () => {
       <CollectPane incidentId="11111111-1111-4111-8111-111111111111" />
     );
 
-    const picker = await screen.findByRole('combobox', { name: 'Snippets' });
+    const picker = await screen.findByRole('combobox', {
+      name: 'Search scripts',
+    });
     expect(picker).toHaveAccessibleDescription(
-      /Search for a snippet by name or description/
+      /Search by name or description, or filter by category/
     );
     expect(screen.queryByRole('alert')).toBeNull();
   });
@@ -82,12 +84,10 @@ describe('CollectPane', () => {
       expect(screen.getByText(/This incident is closed/i)).toBeTruthy();
     });
     expect(screen.queryByRole('button', { name: /Execute batch/i })).toBeNull();
+    expect(screen.queryByText('Filter by category')).toBeNull();
     expect(
-      screen.queryByRole('combobox', { name: 'Subcategory 1' })
+      screen.queryByRole('combobox', { name: 'Search scripts' })
     ).toBeNull();
-    expect(screen.queryByRole('combobox', { name: 'Snippets' })).toBeNull();
-    expect(
-      screen.queryByText(/Search for a snippet by name or description/)
-    ).toBeNull();
+    expect(screen.queryByText(/Search by name or description/)).toBeNull();
   });
 });
