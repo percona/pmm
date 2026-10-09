@@ -497,7 +497,7 @@ func TestListInventoryServices(t *testing.T) {
 		stub := newSEPStub(t, http.StatusOK, `{"items": [
 		  {"service_id": "s1", "node_id": "n1", "name": "mongo-1",
 		   "failing_since": "2026-08-18T08:30:00Z", "consecutive_failures": 2,
-		   "last_error": "probe timed out", "last_error_code": "probe_timeout",
+		   "last_error": "probe timed out", "last_error_code": "timed_out",
 		   "last_run_id": "3c1d2e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f"},
 		  {"service_id": "s2", "node_id": "n1", "name": "mongo-2"}
 		], "total": 2, "offset": 0, "limit": 200}`)
@@ -507,7 +507,7 @@ func TestListInventoryServices(t *testing.T) {
 		require.Len(t, response.GetServices(), 2)
 
 		failing := response.GetServices()[0].GetFreshness()
-		assert.Equal(t, "probe_timeout", failing.GetLastErrorCode())
+		assert.Equal(t, "timed_out", failing.GetLastErrorCode())
 		assert.Equal(t, "3c1d2e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f", failing.GetLastRunId())
 		assert.Nil(t, response.GetServices()[1].GetFreshness().LastErrorCode)
 	})
