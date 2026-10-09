@@ -233,8 +233,7 @@ func registrationOf(cfg, fileCfg *config.Config, check registrationCheck, l *log
 
 // runningServer returns cfg holding the settings the Agent reaches PMM Server with, so that the
 // registration is checked the way the Agent itself would reach the server rather than the way setup was
-// told to. Only then does a confirmed registration mean that the Agent can still reach PMM Server on its
-// own: a token the server no longer accepts registers the Node again, with the credentials given to setup.
+// told to.
 func runningServer(cfg, fileCfg *config.Config) *config.Config {
 	c := *cfg
 	// PMM Server ships a self-signed certificate, so an Agent which runs with the check skipped has to be
