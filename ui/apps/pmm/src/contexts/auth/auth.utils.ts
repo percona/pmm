@@ -1,4 +1,5 @@
 import { PMM_LOGIN_URL } from 'lib/constants';
+import { saveReturnTo } from './auth.returnTo';
 import { MIN_ROTATE_DELAY_MS } from './auth.constants';
 
 export const getSessionExpiry = () => {
@@ -50,5 +51,12 @@ export const getSessionExpiryCookie = () =>
     .find((row) => row.startsWith('grafana_session_expiry='));
 
 export const redirectToLogin = () => {
+  // Single choke point for every bounce to login, so the requested URL is always remembered.
+  // Grafana's own ?redirectTo= is not used: it replays client-side on a later page load, which
+  // under the /pmm-ui redirect happens inside the iframe and leaves the shell's URL behind.
+  //
+  // Safe to call repeatedly - AuthProvider calls it once per render until the browser navigates,
+  // and saveReturnTo() is idempotent.
+  saveReturnTo();
   window.location.replace(PMM_LOGIN_URL);
 };
