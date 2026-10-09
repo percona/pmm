@@ -316,6 +316,25 @@ func TestWithGivenCredentials(t *testing.T) {
 			err:     errTokenRejected,
 		},
 		{
+			name:    "a rejected token is no verdict without a PMM Server address to ask",
+			given:   &config.Config{Server: config.Server{Username: "admin", Password: "admin"}},
+			results: []agentLookup{failed(errCredentialsRejected)},
+			calls:   1,
+			err:     errTokenRejected,
+		},
+		{
+			name:    "a rejected token is kept when PMM Server cannot answer the credentials given to setup",
+			results: []agentLookup{failed(errCredentialsRejected), failed(context.DeadlineExceeded)},
+			calls:   2,
+			err:     errTokenRejected,
+		},
+		{
+			name:    "a rejected token is kept when the credentials given to setup cannot read the inventory",
+			results: []agentLookup{failed(errCredentialsRejected), failed(aservice.NewGetAgentDefault(http.StatusForbidden))},
+			calls:   2,
+			err:     errTokenRejected,
+		},
+		{
 			// Registering with the credentials given to setup reports a mistyped password with an actionable message.
 			name:    "a rejected password is not asked about again",
 			running: &config.Config{Server: config.Server{Address: testServerAddress, Username: "admin", Password: "oldpass"}},
