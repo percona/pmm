@@ -286,6 +286,29 @@ describe('SidebarNavItem', () => {
     expect(screen.getByText('Browse')).toBeInTheDocument();
   });
 
+  it('renders a heading inside an open group', () => {
+    renderNavItem({
+      props: {
+        item: {
+          id: 'group',
+          text: 'group',
+          url: '/group',
+          children: [
+            { id: 'first', text: 'first', url: '/group/first' },
+            { id: 'heading', type: 'menu-section', text: 'More' },
+            { id: 'second', text: 'second', url: '/group/second' },
+          ],
+        },
+      },
+    });
+
+    fireEvent.click(screen.getByTestId('navitem-group'));
+
+    const heading = screen.getByTestId('navitem-heading-section');
+    expect(heading).toHaveTextContent('More');
+    expect(heading.querySelector('a')).toBeNull();
+  });
+
   it('renders a section as a divider when the sidebar is collapsed', () => {
     renderNavItem({
       props: {

@@ -41,13 +41,24 @@ export const getStyles = (
   listItemButton: {
     px: 2,
   },
-  sectionRow: {
-    pl: 2,
-    pr: 1,
-    pt: 3,
-    pb: 0.5,
-    gap: 0.5,
-  },
+  // A heading inside an open group labels a run of its children; it sits
+  // tighter than a top-level section and inherits the group's indent.
+  sectionRow:
+    level === 0
+      ? {
+          pl: 2,
+          pr: 1,
+          pt: 3,
+          pb: 0.5,
+          gap: 0.5,
+        }
+      : {
+          pl: 0,
+          pr: 1,
+          pt: 1.5,
+          pb: 0.5,
+          gap: 0.5,
+        },
   sectionHeading: {
     m: 0,
     flex: 'none',

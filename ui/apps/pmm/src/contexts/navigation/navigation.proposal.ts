@@ -209,21 +209,29 @@ export interface ProposedNavTreeInput {
 }
 
 // Configuration is the one place for everything configurable about PMM, so
-// Users and access folds into it. The Account stays a top-level entry: it
+// Users and access folds into it. Org. management and Users and access are
+// groups PMM inherits from Grafana's user management, and keeping them as
+// groups would make Configuration the only place with a fold inside a fold.
+// Their pages are listed directly instead, under headings, so the whole
+// sidebar stays one level deep. The Account stays a top-level entry: it
 // carries the signed-in user's name, which is how people see who is logged
-// in, and that is lost one level down. Nested groups drop their icons to sit
-// level with the plain entries beside them.
+// in, and that is lost one level down.
 const addConfigurationGroup = ({
   updateStatus,
   versionInfo,
 }: ProposedNavTreeInput): NavItem => {
   const configuration = addConfiguration(updateStatus, versionInfo);
+  const children = configuration.children || [];
+  const orgManagement = children.find((child) => child.id === 'org-management');
 
   return {
     ...configuration,
     children: [
-      ...(configuration.children || []),
-      { ...NAV_USERS_AND_ACCESS, icon: undefined },
+      ...children.filter((child) => child !== orgManagement),
+      section('organization', 'Organization'),
+      ...(orgManagement?.children || []),
+      section('users-and-access', 'Users and access'),
+      ...(NAV_USERS_AND_ACCESS.children || []),
     ],
   };
 };

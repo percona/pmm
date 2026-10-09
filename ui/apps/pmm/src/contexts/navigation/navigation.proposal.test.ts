@@ -190,15 +190,27 @@ describe('buildProposedNavTree', () => {
     expect(findById(tree, 'help')?.children).toBeUndefined();
   });
 
-  it('folds Users and access into Configuration', () => {
+  it('lists the Org. management and Users and access pages directly under Configuration, with headings', () => {
     const tree = build();
+    const children = findById(tree, 'configuration')?.children;
 
-    expect(ids(findById(tree, 'configuration')?.children)).toEqual([
+    expect(ids(children)).toEqual([
       'configuration-settings',
       'updates',
-      'org-management',
-      'users-and-access',
+      'section-organization',
+      'organizations',
+      'stats-and-licenses',
+      'default-preferences',
+      'section-users-and-access',
+      'users',
+      'teams',
+      'service-accounts',
+      'rbac-roles',
     ]);
+    expect(children?.every((child) => !child.children)).toBe(true);
+    expect(findById(children, 'section-organization')?.type).toBe(
+      'menu-section'
+    );
     expect(ids(tree)).not.toContain('users-and-access');
   });
 
