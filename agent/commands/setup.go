@@ -109,7 +109,8 @@ func withGivenCredentials(lookup agentLookup, running, given *config.Config, l *
 
 		fmt.Printf("PMM Server at %s does not accept the credentials pmm-agent %s runs with,"+
 			" checking the registration with the credentials given to setup.\n", given.Server.Address, agentID)
-		setServerTransport(u, given.Server.InsecureTLS, l)
+		// running skips the certificate check when the file does, as the Agent itself does, see runningServer.
+		setServerTransport(u, running.Server.InsecureTLS, l)
 
 		found, e := lookup(ctx, agentID)
 		switch {

@@ -764,6 +764,8 @@ func TestCheckRegistrationOfRejectedToken(t *testing.T) {
 		gone bool
 		// tokenOnly gives setup the credentials the Agent runs with, as a container re-running setup does
 		tokenOnly bool
+		// verifyTLS gives setup no --server-insecure-tls, leaving it to the configuration file
+		verifyTLS bool
 		state     registrationState
 	}{
 		// Registering again would fail on the Node name, or add a second Node under the hostname.
@@ -771,6 +773,7 @@ func TestCheckRegistrationOfRejectedToken(t *testing.T) {
 		{name: "a Node which is gone is registered again", gone: true, state: registrationMissing},
 		// A token Grafana failed to look up gets the same answer, so it must not register the Node again.
 		{name: "a token alone leaves the registration unverified", tokenOnly: true, state: registrationUnverified},
+		{name: "the credentials given to setup reach PMM Server the way the Agent does", verifyTLS: true, state: registrationConfirmed},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			var adminCalls atomic.Int32
@@ -812,6 +815,7 @@ func TestCheckRegistrationOfRejectedToken(t *testing.T) {
 			if tc.tokenOnly {
 				given = running
 			}
+			given.Server.InsecureTLS = !tc.verifyTLS
 
 			assert.Equal(t, tc.state, checkRegistrationOnServer(running, given, logrus.WithField("test", t.Name())))
 			if tc.tokenOnly {
