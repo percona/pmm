@@ -30,31 +30,6 @@ To log in to the PMM user interface:
     3. Follow on-screen prompts to change the password.
 
 
-??? info "(Optional) Set up SSH from UI/CLI"
-
-    To set up SSH from UI/CLI:
-    {.power-number}
-
-    1. Create a key pair for the `admin` user:
-
-        ```sh
-        ssh-keygen -f admin
-        ```
-
-    2. Log into the PMM user interface.
-
-    3. Select **Configuration > Settings > SSH Key**.
-
-    4. Copy and paste the contents of the `admin.pub` file into the **SSH Key** field.
-
-    5. Click **Apply SSH Key**. This copies the public key to `/home/admin/.ssh/authorized_keys` in the guest.
-
-    6. Log in via SSH (`N.N.N.N` is the guest IP address).
-
-        ```sh
-        ssh -i admin admin@N.N.N.N
-        ```
-
 ??? info "(Optional) Set up static IP via CLI"
     When the guest OS starts, it will get an IP address from the hypervisor's DHCP server. This IP can change each time the guest OS is restarted. Setting a static IP for the guest OS avoids having to check the IP address whenever the guest is restarted.
     {.power-number}
