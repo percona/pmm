@@ -19,6 +19,7 @@ package apitests
 import (
 	"context"
 	"flag"
+	"net/http"
 	"net/url"
 	"os"
 	"os/signal"
@@ -54,6 +55,9 @@ var (
 
 	// ServerInsecureTLS indicates whether TLS cert verification shall be skipped when connecting to PMM Server.
 	ServerInsecureTLS bool
+
+	// HTTPClient is a plain HTTP client for PMM Server that honours ServerInsecureTLS, unlike http.DefaultClient.
+	HTTPClient *http.Client
 
 	// Hostname contains local hostname that is used for generating test data.
 	Hostname string
@@ -168,6 +172,7 @@ func init() {
 	advisorClient.Default = advisorClient.New(transport, nil)
 	actionsClient.Default = actionsClient.New(transport, nil)
 	userClient.Default = userClient.New(transport, nil)
+	HTTPClient = &http.Client{Transport: transport.Transport}
 
 	// do not run tests if server is not available
 	logrus.Info("Checking PMM Server availability...")
