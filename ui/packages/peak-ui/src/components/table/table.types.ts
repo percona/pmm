@@ -23,7 +23,7 @@ import { type MutableRefObject } from 'react';
 export interface TableProps<T extends MRT_RowData> extends MRT_TableOptions<T> {
   /** Gives the parent access to the table instance, for example to read the visible rows or reset filters. */
   tableInstanceRef?: MutableRefObject<MRT_TableInstance<T> | null>;
-  /** Message shown in the body when there are no rows at all to show. Defaults to "No data". */
+  /** Message shown in the body when there are no rows at all. Defaults to "No data". */
   noDataMessage?: string;
   /** Message shown in the body when search or filters do not reveal matching rows. Defaults to "No data found". */
   emptyFilterResultsMessage?: string;
