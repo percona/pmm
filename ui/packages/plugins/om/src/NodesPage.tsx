@@ -120,6 +120,16 @@ const HOST_FILTERS: { id: HostFilter; label: string }[] = [
 ];
 
 /**
+ * The filter named in `?filter=`, so another page can link to a filtered view.
+ * `failing` is not a chip but is a filter all the same, so it is accepted too.
+ */
+function parseHostFilter(value: string | null): HostFilter {
+  return value === 'unmonitored' || value === 'monitored' || value === 'failing'
+    ? value
+    : 'all';
+}
+
+/**
  * Whether a node's failing scans count against the fleet. Not the PMM Server's own
  * node's: Operations never acts on it, so its scans failing is not a fleet problem
  * (Pedro, 2026-10-06). Its failure is still shown on its row, without the alarm.
@@ -875,7 +885,19 @@ export const NodesPage = () => {
   const omBase = useOmBase();
   const [forgetting, setForgetting] = useState<OmHostRow[]>([]);
   const { enqueueSnackbar } = useSnackbar();
-  const [hostFilter, setHostFilter] = useState<HostFilter>('all');
+  // In the URL rather than in state, so another page can link straight to a filtered
+  // view (Automations' Install MongoDB opens this page on `unmonitored`).
+  const [searchParams, setSearchParams] = useSearchParams();
+  const hostFilter = parseHostFilter(searchParams.get('filter'));
+  const setHostFilter = (next: HostFilter) => {
+    const nextParams = new URLSearchParams(searchParams);
+    if (next === 'all') {
+      nextParams.delete('filter');
+    } else {
+      nextParams.set('filter', next);
+    }
+    setSearchParams(nextParams, { replace: true });
+  };
   // Keyed by node_id (this table's getRowId), independent of which filter is
   // active — switching filters does not silently drop a selection made under a
   // different one.
@@ -945,7 +967,6 @@ export const NodesPage = () => {
   // The node an error elsewhere is about. A blocked node's reason has to be
   // followable to the scan that produced it, and that scan is on this page -- so the
   // destination is a row here, not a new view.
-  const [searchParams] = useSearchParams();
   const focusNode = searchParams.get('node') ?? '';
 
   const table = useMaterialReactTable({
@@ -1199,9 +1220,7 @@ export const NodesPage = () => {
             variant={hostFilter === 'failing' ? 'filled' : 'outlined'}
             label={`${counts.failing} failing`}
             onClick={() =>
-              setHostFilter((current) =>
-                current === 'failing' ? 'all' : 'failing'
-              )
+              setHostFilter(hostFilter === 'failing' ? 'all' : 'failing')
             }
           />
         )}

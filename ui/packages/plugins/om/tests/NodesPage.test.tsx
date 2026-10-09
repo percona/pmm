@@ -22,7 +22,7 @@ import {
   waitFor,
   within,
 } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { browserTimezone } from '@pmm-extensions/framework';
@@ -78,6 +78,14 @@ const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
 
 const forgetOne = vi.fn();
 
+/** Where the page has sent the router: its own filter, or the install wizard. */
+const LocationProbe = () => {
+  const { pathname, search } = useLocation();
+  return <output data-testid="location">{`${pathname}${search}`}</output>;
+};
+
+const currentLocation = () => screen.getByTestId('location').textContent;
+
 const renderPage = (hosts: OmInventoryHost[] = [host()], route = '/') => {
   useOmInventoryHosts.mockReturnValue({
     data: hosts,
@@ -88,6 +96,7 @@ const renderPage = (hosts: OmInventoryHost[] = [host()], route = '/') => {
     <SnackbarProvider>
       <MemoryRouter initialEntries={[route]}>
         <NodesPage />
+        <LocationProbe />
       </MemoryRouter>
     </SnackbarProvider>
   );
@@ -834,6 +843,47 @@ describe('NodesPage', () => {
       expect(screen.getByRole('button', { name: 'Scan all' })).toHaveClass(
         'MuiButton-contained'
       );
+    });
+  });
+
+  describe('the filter in the URL', () => {
+    const fleet = () => [
+      host({ node_id: 'n1', name: 'empty-node' }),
+      host({
+        node_id: 'n2',
+        name: 'monitored-node',
+        services: [{ service_id: 's1' } as OmInventoryHost['services'][number]],
+      }),
+    ];
+
+    it('opens on the filter named in ?filter=', () => {
+      renderPage(fleet(), '/?filter=unmonitored');
+
+      expect(rowFor('empty-node')).toBeTruthy();
+      expect(screen.queryByText('monitored-node')).toBeNull();
+      expect(screen.getByRole('button', { name: 'Not monitored' })).toHaveClass(
+        'MuiChip-filled'
+      );
+    });
+
+    it.each(['/', '/?filter=bogus'])('shows every node at %s', (route) => {
+      renderPage(fleet(), route);
+
+      expect(rowFor('empty-node')).toBeTruthy();
+      expect(rowFor('monitored-node')).toBeTruthy();
+      expect(screen.getByRole('button', { name: 'All' })).toHaveClass(
+        'MuiChip-filled'
+      );
+    });
+
+    it('writes a chip into the URL, keeps ?node=, and drops it again for All', () => {
+      renderPage(fleet(), '/?node=empty-node');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Monitored' }));
+      expect(currentLocation()).toBe('/?node=empty-node&filter=monitored');
+
+      fireEvent.click(screen.getByRole('button', { name: 'All' }));
+      expect(currentLocation()).toBe('/?node=empty-node');
     });
   });
 });
