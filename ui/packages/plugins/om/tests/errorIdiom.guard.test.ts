@@ -52,6 +52,8 @@ const STATUS_RED: Record<string, number> = {
   'NodesPage.tsx': 3,
   // a service that did not answer a scan
   'components/RunEntities.tsx': 1,
+  // a failed install's summary line
+  'components/RunProgress.tsx': 1,
 };
 
 function sources(dir: string): string[] {

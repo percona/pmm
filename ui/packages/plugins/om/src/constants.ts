@@ -329,6 +329,44 @@ export const BOOTSTRAP_STEP_LABEL: Record<OmBootstrapStepStatus, string> = {
   skipped: 'Skipped',
 };
 
+/**
+ * What an install step does, keyed by the step's name on the wire.
+ *
+ * PMM Extensions owns the list (om_bootstrap's packages strategy plans the forward,
+ * run-level, finalize and rollback steps), plus `confirm_monitoring`, which pmm-managed
+ * synthesizes itself. A step this map does not know - one PMM Extensions added
+ * since - shows its raw key through {@link bootstrapStepLabel} rather than nothing.
+ *
+ * Phrased as what is happening, so one label reads both as a matrix row and in
+ * the running summary ("Step 3 of 11: Installing packages on 3 nodes").
+ */
+export const BOOTSTRAP_STEP_NAME_LABEL: Record<string, string> = {
+  pre_check: 'Checking the node',
+  configure_repository: 'Configuring the Percona repository',
+  install_package: 'Installing packages',
+  distribute_keyfile: 'Distributing the keyFile',
+  configure_mongod: 'Configuring mongod',
+  start_service: 'Starting mongod',
+  verify: 'Verifying mongod',
+  rs_initiate: 'Initiating the replica set',
+  create_pmm_monitoring_user: 'Creating the PMM monitoring user',
+  enable_auth: 'Enabling authentication',
+  confirm_monitoring: 'Confirming PMM monitoring',
+  stop_service: 'Stopping mongod',
+  remove_config: 'Removing the configuration',
+  remove_keyfile: 'Removing the keyFile',
+  purge_package: 'Removing packages',
+  remove_data: 'Removing data directories',
+};
+
+/** A step's human label, or its raw key when {@link BOOTSTRAP_STEP_NAME_LABEL} has none. */
+export function bootstrapStepLabel(name: string): string {
+  // Not Object.hasOwn: the PMM app compiles this plugin against lib ES2020.
+  return Object.prototype.hasOwnProperty.call(BOOTSTRAP_STEP_NAME_LABEL, name)
+    ? BOOTSTRAP_STEP_NAME_LABEL[name]
+    : name;
+}
+
 /** Same palette convention as {@link RUN_STATUS_COLOR}. */
 export const BOOTSTRAP_STEP_COLOR: Record<
   OmBootstrapStepStatus,

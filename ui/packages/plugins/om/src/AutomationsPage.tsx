@@ -38,10 +38,11 @@ import { OmHeader } from './components/OmHeader';
 import { EmptyState } from './components/EmptyState';
 import { RunProgress } from './components/RunProgress';
 import { AutomationsScansTab } from './AutomationsScansTab';
-import { formatRunDuration, runDurationSeconds } from './format';
+import { formatRunElapsed, runDurationSeconds } from './format';
 import { useOmBootstrapRuns } from './inventoryHooks';
 import { tabPanelProps, tabProps } from './tabA11y';
 import { useOmBase } from './useOmBase';
+import { useNow } from './useNow';
 import type { OmGetBootstrapRunResponse } from './types';
 import { OmError } from './components/OmError';
 
@@ -54,6 +55,26 @@ import { OmError } from './components/OmError';
  * pmm-managed's maxInventoryRunLimit caps it again).
  */
 const RUN_HISTORY_LIMIT = 100;
+
+/**
+ * Whether a run is still going, as its status chip says - which outlasts
+ * `finished_at` while pmm-managed is still confirming monitoring.
+ */
+const isRunInFlight = (run: OmGetBootstrapRunResponse) =>
+  bootstrapRunDisplayStatus(run) === 'running';
+
+/**
+ * A run's duration, counting up until PMM Extensions finishes it.
+ *
+ * Stops at `finished_at` even while monitoring is still being confirmed: nothing
+ * on the wire says when that ends, so counting on would only jump back to
+ * `finished_at` once it did. The sort key stays null in flight: a column sorting
+ * on a number that moves every second would reshuffle rows under the reader.
+ */
+const RunDuration = ({ run }: { run: OmGetBootstrapRunResponse }) => {
+  const now = useNow(isRunInFlight(run) && !run.finished_at);
+  return <>{formatRunElapsed(run.started_at, run.finished_at, now)}</>;
+};
 
 const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
   {
@@ -106,11 +127,13 @@ const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
   {
     // Sorts on elapsed seconds, not the formatted string -- see AutomationsScansTab's own
     // duration column for why.
-    accessorFn: (row) => runDurationSeconds(row.started_at, row.finished_at),
+    accessorFn: (row) =>
+      isRunInFlight(row)
+        ? null
+        : runDurationSeconds(row.started_at, row.finished_at),
     id: 'duration',
     header: 'Duration',
-    Cell: ({ row: { original } }) =>
-      formatRunDuration(original.started_at, original.finished_at),
+    Cell: ({ row: { original } }) => <RunDuration run={original} />,
   },
 ];
 
