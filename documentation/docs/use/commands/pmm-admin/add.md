@@ -389,7 +389,7 @@ pmm-admin add mongodb \
   mongodb-prod 192.168.1.20:27017 \
   --username=pmm \
   --password=pass \
-  --agent-env-vars="LOG_LEVEL,OTHER_VAR"
+  --agent-env-vars="KRB5_KTNAME,KRB5_CONFIG"
 ```
 
 ### Examples
