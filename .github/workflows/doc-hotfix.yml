@@ -1,0 +1,111 @@
+name: Documentation hotfix
+
+# A PR merged to main with the doc-hotfix label has its documentation changes copied to the
+# release branch of the latest GA version; that push republishes the site (documentation.yml).
+on:
+  pull_request_target:
+    types: [closed, labeled]
+
+permissions:
+  contents: read
+
+jobs:
+  copy:
+    name: Copy to the published release
+    if: >-
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'main' &&
+      ((github.event.action == 'labeled' && github.event.label.name == 'doc-hotfix') ||
+       (github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'doc-hotfix')))
+    runs-on: ubuntu-latest
+    concurrency:
+      group: doc-hotfix
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      SHA: ${{ github.event.pull_request.merge_commit_sha }}
+      PR: ${{ github.event.pull_request.number }}
+
+    steps:
+      - name: Find the latest GA version
+        id: release
+        run: |
+          version=$(git ls-remote --tags --refs "https://github.com/${GITHUB_REPOSITORY}" 'v3.*' \
+            | sed 's#.*refs/tags/v##' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+          if [ -z "$version" ]; then
+            echo "::error::No GA tag found"
+            exit 1
+          fi
+          echo "branch=pmm-$version" >> "$GITHUB_OUTPUT"
+
+      # ROBOT_TOKEN, unlike GITHUB_TOKEN, can push to the protected release branch,
+      # and its push triggers the documentation workflow.
+      - name: Check out the release branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.release.outputs.branch }}
+          token: ${{ secrets.ROBOT_TOKEN }}
+
+      # Only documentation/ is copied: code reaches a release branch through its own PR.
+      - name: Apply the documentation changes
+        id: apply
+        env:
+          BRANCH: ${{ steps.release.outputs.branch }}
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "github-action@users.noreply.github.com"
+          git fetch --depth=2 origin "$SHA"
+          patch="$RUNNER_TEMP/doc.patch"
+          git diff --binary "${SHA}^1" "$SHA" -- documentation/ > "$patch"
+
+          if [ ! -s "$patch" ]; then
+            echo "result=empty" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if git apply --check -R "$patch" 2>/dev/null; then
+            echo "result=present" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if ! git apply --index --3way "$patch"; then
+            echo "result=conflict" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+
+          git commit --author="$(git log -1 --format='%an <%ae>' "$SHA")" \
+            -m "$(git log -1 --format=%s "$SHA")" \
+            -m "(cherry picked from commit $SHA)"
+          if ! git push origin "HEAD:$BRANCH"; then
+            echo "result=rejected" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          echo "result=pushed" >> "$GITHUB_OUTPUT"
+          echo "commit=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Report on the PR
+        if: always() && steps.apply.outputs.result != ''
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        continue-on-error: true
+        env:
+          BRANCH: ${{ steps.release.outputs.branch }}
+          RESULT: ${{ steps.apply.outputs.result }}
+          COMMIT: ${{ steps.apply.outputs.commit }}
+        with:
+          retries: 3
+          script: |
+            const { BRANCH, RESULT, COMMIT, SHA } = process.env;
+            const manual = `Copy them by hand: open a PR against \`${BRANCH}\` with the \`documentation/\` changes from ${SHA}.`;
+            const body = {
+              pushed: `Copied the documentation changes to \`${BRANCH}\` as ${COMMIT}; the site republishes from there.`,
+              present: `\`${BRANCH}\` already has these documentation changes; nothing was copied.`,
+              empty: `This PR changes nothing under \`documentation/\`, so nothing was copied to \`${BRANCH}\`.`,
+              conflict: `The documentation changes do not apply cleanly to \`${BRANCH}\`. ${manual}`,
+              rejected: `The push to \`${BRANCH}\` was rejected. ${manual}`,
+            }[RESULT];
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number(process.env.PR),
+              body: `**doc-hotfix:** ${body}`,
+            });

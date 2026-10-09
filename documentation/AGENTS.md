@@ -22,7 +22,11 @@ Dashboard panel `description` strings and PMM UI strings are in-product copy, no
 
 ## Publishing
 
-**A merge to `main` publishes immediately.** `.github/workflows/documentation.yml` runs `mike deploy 3 -b publish -p` on every push to `main` touching `documentation/**` (except `documentation/api/**`). There is no staging step and no release gate, so do not merge documentation for a feature that has not shipped.
+**The site is published from the release branch of the latest GA version, not from `main`.** `.github/workflows/documentation.yml` runs `mike deploy 3 -b publish -p` from `pmm-<latest GA>` when that branch gets a push touching `documentation/**` (except `documentation/api/**`), and when its `v<latest GA>` tag is created. Documentation merged to `main` goes live with the release that ships it; the edit button on the site opens the file on that release branch.
+
+To fix a live page, merge the fix to `main` with the `doc-hotfix` label (added before or after the merge). `.github/workflows/doc-hotfix.yml` copies the PR's `documentation/` changes to `pmm-<latest GA>`, which republishes the site, and comments on the PR with the result; on a conflict, open a PR against that branch by hand. A documentation commit made directly on the release branch must reach `main` with `git cherry-pick -x <sha>`: the `Documentation fixes reached main` job fails, on each release-branch push and every weekday, until every such commit since GA is on `main`.
+
+The release branch is cut at RC, before GA. Pushes to it do not publish until its `v<version>` tag exists, so a fix during RC is cherry-picked to that branch like any code fix.
 
 CI on a documentation PR:
 
