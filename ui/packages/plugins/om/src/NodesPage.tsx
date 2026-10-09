@@ -267,7 +267,8 @@ const automationBlockedTitle = (reasons: string[]) =>
  * because this preview implements one and three - our limit, not the database's, and
  * saying otherwise would teach a DBA something untrue.
  *
- * Zero gets the plain instruction: there is no rule to explain yet.
+ * Zero gets the plain instruction: there is no rule to explain yet. It names the table
+ * because the button sits in the page header, away from the rows it acts on.
  */
 const selectionCountTitle = (count: number): string => {
   if (count === 2) {
@@ -276,7 +277,24 @@ const selectionCountTitle = (count: number): string => {
   if (count > 3) {
     return `This preview installs a one- or three-member replica set, and ${count} nodes are selected. MongoDB itself supports larger sets; Operations does not yet. Select one node, or three.`;
   }
-  return 'Select exactly one node for a single-member replica set, or three for a three-member one.';
+  return 'Select one node for a single-member replica set, or three for a three-member one, in the table below.';
+};
+
+/** Why the bulk Install cannot start on this selection, or `null` when it can. */
+const bulkInstallBlockedTitle = (
+  selected: OmHostRow[],
+  isBusy: (row: OmHostRow) => boolean
+): string | null => {
+  if (selected.length !== 1 && selected.length !== 3) {
+    return selectionCountTitle(selected.length);
+  }
+  if (selected.some(isBusy)) {
+    return 'A selected node is already part of an install in progress.';
+  }
+  if (selected.some((row) => !row.automation_eligible)) {
+    return 'Every selected node must be eligible for automation.';
+  }
+  return null;
 };
 
 /**
@@ -943,6 +961,7 @@ export const NodesPage = () => {
     () => filteredRows.filter((row) => rowSelection[row.node_id]),
     [filteredRows, rowSelection]
   );
+  const bulkInstallBlocked = bulkInstallBlockedTitle(selectedRows, isHostBusy);
 
   const counts = useMemo(
     () => ({
@@ -1145,6 +1164,28 @@ export const NodesPage = () => {
                 </Button>
               </Box>
             </Tooltip>
+            <Tooltip
+              title={
+                bulkInstallBlocked ??
+                'Install MongoDB on the selected nodes and initialize them as one replica set.'
+              }
+            >
+              <Box component="span">
+                <Button
+                  variant="contained"
+                  disabled={bulkInstallBlocked !== null}
+                  onClick={() =>
+                    navigate(
+                      `${omBase}/${OM_ROUTE_INSTALL}?nodes=${selectedRows
+                        .map((row) => row.node_id)
+                        .join(',')}`
+                    )
+                  }
+                >
+                  Install MongoDB
+                </Button>
+              </Box>
+            </Tooltip>
           </Stack>
         }
       />
@@ -1242,38 +1283,6 @@ export const NodesPage = () => {
                 }}
               >
                 Scan selected
-              </Button>
-            </Box>
-          </Tooltip>
-          <Tooltip
-            title={
-              selectedRows.length !== 1 && selectedRows.length !== 3
-                ? selectionCountTitle(selectedRows.length)
-                : selectedRows.some((row) => isHostBusy(row))
-                  ? 'A selected node is already part of an install in progress.'
-                  : selectedRows.some((row) => !row.automation_eligible)
-                    ? 'Every selected node must be eligible for automation.'
-                    : 'Install MongoDB on the selected nodes and initialize them as one replica set.'
-            }
-          >
-            <Box component="span">
-              <Button
-                size="small"
-                variant="outlined"
-                disabled={
-                  (selectedRows.length !== 1 && selectedRows.length !== 3) ||
-                  selectedRows.some((row) => !row.automation_eligible) ||
-                  selectedRows.some((row) => isHostBusy(row))
-                }
-                onClick={() =>
-                  navigate(
-                    `${omBase}/${OM_ROUTE_INSTALL}?nodes=${selectedRows
-                      .map((row) => row.node_id)
-                      .join(',')}`
-                  )
-                }
-              >
-                Install MongoDB
               </Button>
             </Box>
           </Tooltip>

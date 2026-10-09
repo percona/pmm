@@ -121,7 +121,7 @@ const openRemoveDialog = async (name: string) => {
 };
 
 /**
- * The bulk Install button in the selection bar.
+ * The bulk Install button in the page header.
  *
  * Found by *not* being inside a row: it carries the same accessible name as the
  * per-row button, so `getByRole` would be ambiguous. Its tooltip is read off the
@@ -884,6 +884,78 @@ describe('NodesPage', () => {
 
       fireEvent.click(screen.getByRole('button', { name: 'All' }));
       expect(currentLocation()).toBe('/?node=empty-node');
+    });
+  });
+
+  describe('Install MongoDB in the header', () => {
+    const nodes = (count: number) =>
+      Array.from({ length: count }, (_, index) =>
+        host({ node_id: `n${index + 1}`, name: `node0${index}` })
+      );
+    const names = (count: number) => nodes(count).map((node) => node.name);
+
+    const hoverBulkInstall = async () => {
+      fireEvent.mouseOver(bulkInstall().parentElement as HTMLElement);
+      return (await screen.findByRole('tooltip')).textContent;
+    };
+
+    it('is there with nothing selected, as the primary action, and says where to select', async () => {
+      renderPage(nodes(3));
+
+      expect(bulkInstall()).toHaveClass('MuiButton-contained');
+      expect(bulkInstall()).toBeDisabled();
+      expect(await hoverBulkInstall()).toMatch(
+        /Select one node .* or three .* in the table below/
+      );
+    });
+
+    it.each([2, 4])('stays disabled with %i nodes selected', (count) => {
+      renderPage(nodes(count));
+
+      selectRows(...names(count));
+
+      expect(bulkInstall()).toBeDisabled();
+    });
+
+    it.each([
+      [1, '/nodes/install?nodes=n1'],
+      [3, '/nodes/install?nodes=n1,n2,n3'],
+    ])('opens the wizard on %i selected nodes', (count, wizard) => {
+      renderPage(nodes(count));
+
+      selectRows(...names(count));
+      expect(bulkInstall()).toBeEnabled();
+      fireEvent.click(bulkInstall());
+
+      expect(currentLocation()).toBe(wizard);
+    });
+
+    it('says why when a selected node is not eligible', async () => {
+      renderPage([
+        host({ node_id: 'n1', name: 'node00', automation_eligible: false }),
+      ]);
+
+      selectRows('node00');
+
+      expect(bulkInstall()).toBeDisabled();
+      expect(await hoverBulkInstall()).toBe(
+        'Every selected node must be eligible for automation.'
+      );
+    });
+
+    it('is the only bulk Install: the selection bar has none', () => {
+      renderPage(nodes(3));
+
+      selectRows(...names(3));
+
+      expect(
+        screen.getByRole('button', { name: 'Scan selected' })
+      ).toBeInTheDocument();
+      expect(
+        screen
+          .getAllByRole('button', { name: 'Install MongoDB' })
+          .filter((button) => !button.closest('tr'))
+      ).toHaveLength(1);
     });
   });
 });
