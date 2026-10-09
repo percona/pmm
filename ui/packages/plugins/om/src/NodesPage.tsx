@@ -120,6 +120,16 @@ const HOST_FILTERS: { id: HostFilter; label: string }[] = [
 ];
 
 /**
+ * The filter named in `?filter=`, so another page can link to a filtered view.
+ * `failing` is not a chip but is a filter all the same, so it is accepted too.
+ */
+function parseHostFilter(value: string | null): HostFilter {
+  return value === 'unmonitored' || value === 'monitored' || value === 'failing'
+    ? value
+    : 'all';
+}
+
+/**
  * Whether a node's failing scans count against the fleet. Not the PMM Server's own
  * node's: Operations never acts on it, so its scans failing is not a fleet problem
  * (Pedro, 2026-10-06). Its failure is still shown on its row, without the alarm.
@@ -257,7 +267,8 @@ const automationBlockedTitle = (reasons: string[]) =>
  * because this preview implements one and three - our limit, not the database's, and
  * saying otherwise would teach a DBA something untrue.
  *
- * Zero gets the plain instruction: there is no rule to explain yet.
+ * Zero gets the plain instruction: there is no rule to explain yet. It names the table
+ * because the button sits in the page header, away from the rows it acts on.
  */
 const selectionCountTitle = (count: number): string => {
   if (count === 2) {
@@ -266,7 +277,24 @@ const selectionCountTitle = (count: number): string => {
   if (count > 3) {
     return `This preview installs a one- or three-member replica set, and ${count} nodes are selected. MongoDB itself supports larger sets; Operations does not yet. Select one node, or three.`;
   }
-  return 'Select exactly one node for a single-member replica set, or three for a three-member one.';
+  return 'Select one node for a single-member replica set, or three for a three-member one, in the table below.';
+};
+
+/** Why the bulk Install cannot start on this selection, or `null` when it can. */
+const bulkInstallBlockedTitle = (
+  selected: OmHostRow[],
+  isBusy: (row: OmHostRow) => boolean
+): string | null => {
+  if (selected.length !== 1 && selected.length !== 3) {
+    return selectionCountTitle(selected.length);
+  }
+  if (selected.some(isBusy)) {
+    return 'A selected node is already part of an install in progress.';
+  }
+  if (selected.some((row) => !row.automation_eligible)) {
+    return 'Every selected node must be eligible for automation.';
+  }
+  return null;
 };
 
 /**
@@ -875,7 +903,19 @@ export const NodesPage = () => {
   const omBase = useOmBase();
   const [forgetting, setForgetting] = useState<OmHostRow[]>([]);
   const { enqueueSnackbar } = useSnackbar();
-  const [hostFilter, setHostFilter] = useState<HostFilter>('all');
+  // In the URL rather than in state, so another page can link straight to a filtered
+  // view (Automations' Install MongoDB opens this page on `unmonitored`).
+  const [searchParams, setSearchParams] = useSearchParams();
+  const hostFilter = parseHostFilter(searchParams.get('filter'));
+  const setHostFilter = (next: HostFilter) => {
+    const nextParams = new URLSearchParams(searchParams);
+    if (next === 'all') {
+      nextParams.delete('filter');
+    } else {
+      nextParams.set('filter', next);
+    }
+    setSearchParams(nextParams, { replace: true });
+  };
   // Keyed by node_id (this table's getRowId), independent of which filter is
   // active — switching filters does not silently drop a selection made under a
   // different one.
@@ -921,6 +961,7 @@ export const NodesPage = () => {
     () => filteredRows.filter((row) => rowSelection[row.node_id]),
     [filteredRows, rowSelection]
   );
+  const bulkInstallBlocked = bulkInstallBlockedTitle(selectedRows, isHostBusy);
 
   const counts = useMemo(
     () => ({
@@ -945,7 +986,6 @@ export const NodesPage = () => {
   // The node an error elsewhere is about. A blocked node's reason has to be
   // followable to the scan that produced it, and that scan is on this page -- so the
   // destination is a row here, not a new view.
-  const [searchParams] = useSearchParams();
   const focusNode = searchParams.get('node') ?? '';
 
   const table = useMaterialReactTable({
@@ -1014,6 +1054,7 @@ export const NodesPage = () => {
           <Box component="span">
             <Button
               size="small"
+              variant="outlined"
               disabled={
                 !row.original.automation_eligible || isHostBusy(row.original)
               }
@@ -1124,6 +1165,28 @@ export const NodesPage = () => {
                 </Button>
               </Box>
             </Tooltip>
+            <Tooltip
+              title={
+                bulkInstallBlocked ??
+                'Install MongoDB on the selected nodes and initialize them as one replica set.'
+              }
+            >
+              <Box component="span">
+                <Button
+                  variant="contained"
+                  disabled={bulkInstallBlocked !== null}
+                  onClick={() =>
+                    navigate(
+                      `${omBase}/${OM_ROUTE_INSTALL}?nodes=${selectedRows
+                        .map((row) => row.node_id)
+                        .join(',')}`
+                    )
+                  }
+                >
+                  Install MongoDB
+                </Button>
+              </Box>
+            </Tooltip>
           </Stack>
         }
       />
@@ -1199,9 +1262,7 @@ export const NodesPage = () => {
             variant={hostFilter === 'failing' ? 'filled' : 'outlined'}
             label={`${counts.failing} failing`}
             onClick={() =>
-              setHostFilter((current) =>
-                current === 'failing' ? 'all' : 'failing'
-              )
+              setHostFilter(hostFilter === 'failing' ? 'all' : 'failing')
             }
           />
         )}
@@ -1223,38 +1284,6 @@ export const NodesPage = () => {
                 }}
               >
                 Scan selected
-              </Button>
-            </Box>
-          </Tooltip>
-          <Tooltip
-            title={
-              selectedRows.length !== 1 && selectedRows.length !== 3
-                ? selectionCountTitle(selectedRows.length)
-                : selectedRows.some((row) => isHostBusy(row))
-                  ? 'A selected node is already part of an install in progress.'
-                  : selectedRows.some((row) => !row.automation_eligible)
-                    ? 'Every selected node must be eligible for automation.'
-                    : 'Install MongoDB on the selected nodes and initialize them as one replica set.'
-            }
-          >
-            <Box component="span">
-              <Button
-                size="small"
-                variant="outlined"
-                disabled={
-                  (selectedRows.length !== 1 && selectedRows.length !== 3) ||
-                  selectedRows.some((row) => !row.automation_eligible) ||
-                  selectedRows.some((row) => isHostBusy(row))
-                }
-                onClick={() =>
-                  navigate(
-                    `${omBase}/${OM_ROUTE_INSTALL}?nodes=${selectedRows
-                      .map((row) => row.node_id)
-                      .join(',')}`
-                  )
-                }
-              >
-                Install MongoDB
               </Button>
             </Box>
           </Tooltip>
