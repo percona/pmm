@@ -1,0 +1,392 @@
+[
+ {
+  "store": "E",
+  "rng": "6h",
+  "scope": "all",
+  "wall_ms": 48.0,
+  "engine_ms": 2,
+  "series": 34,
+  "step": "1m0s",
+  "req_bytes": 386
+ },
+ {
+  "store": "E",
+  "rng": "6h",
+  "scope": "env",
+  "wall_ms": 42.2,
+  "engine_ms": 1,
+  "series": 11,
+  "step": "1m0s",
+  "req_bytes": 389
+ },
+ {
+  "store": "E",
+  "rng": "6h",
+  "scope": "node",
+  "wall_ms": 43.2,
+  "engine_ms": 0,
+  "series": 1,
+  "step": "1m0s",
+  "req_bytes": 393
+ },
+ {
+  "store": "E",
+  "rng": "6h",
+  "scope": "svc",
+  "wall_ms": 43.2,
+  "engine_ms": 1,
+  "series": 1,
+  "step": "1m0s",
+  "req_bytes": 452
+ },
+ {
+  "store": "K",
+  "rng": "6h",
+  "scope": "all",
+  "wall_ms": 56.8,
+  "engine_ms": 11,
+  "rows": 34,
+  "error": null,
+  "sql_bytes": 197,
+  "req_bytes": 432
+ },
+ {
+  "store": "K",
+  "rng": "6h",
+  "scope": "env",
+  "wall_ms": 47.8,
+  "engine_ms": 11,
+  "rows": 11,
+  "error": null,
+  "sql_bytes": 200,
+  "req_bytes": 435
+ },
+ {
+  "store": "K",
+  "rng": "6h",
+  "scope": "node",
+  "wall_ms": 49.2,
+  "engine_ms": 8,
+  "rows": 1,
+  "error": null,
+  "sql_bytes": 204,
+  "req_bytes": 439
+ },
+ {
+  "store": "K",
+  "rng": "6h",
+  "scope": "svc",
+  "wall_ms": 52.5,
+  "engine_ms": 9,
+  "rows": 1,
+  "error": null,
+  "sql_bytes": 274,
+  "req_bytes": 509
+ },
+ {
+  "store": "K",
+  "rng": "6h",
+  "scope": "list-nodes",
+  "wall_ms": 67.2,
+  "engine_ms": 19,
+  "rows": 34,
+  "error": null,
+  "sql_bytes": 12152,
+  "req_bytes": 12387
+ },
+ {
+  "store": "K",
+  "rng": "6h",
+  "scope": "list-svcs",
+  "wall_ms": 358.4,
+  "engine_ms": 238,
+  "rows": 25,
+  "error": null,
+  "sql_bytes": 176162,
+  "req_bytes": 176397
+ },
+ {
+  "store": "A",
+  "rng": "6h",
+  "scope": "all-main",
+  "wall_ms": 135.6,
+  "rows": 9,
+  "url_bytes": 15089
+ },
+ {
+  "store": "A",
+  "rng": "6h",
+  "scope": "all-pr",
+  "wall_ms": 38.9,
+  "rows": 0,
+  "url_bytes": 99
+ },
+ {
+  "store": "A",
+  "rng": "6h",
+  "scope": "node",
+  "wall_ms": 54.1,
+  "rows": 1,
+  "url_bytes": 104
+ },
+ {
+  "store": "E",
+  "rng": "7d",
+  "scope": "all",
+  "wall_ms": 153.2,
+  "engine_ms": 30,
+  "series": 1124,
+  "step": "5m0s",
+  "req_bytes": 386
+ },
+ {
+  "store": "E",
+  "rng": "7d",
+  "scope": "env",
+  "wall_ms": 59.2,
+  "engine_ms": 8,
+  "series": 214,
+  "step": "5m0s",
+  "req_bytes": 389
+ },
+ {
+  "store": "E",
+  "rng": "7d",
+  "scope": "node",
+  "wall_ms": 42.7,
+  "engine_ms": 0,
+  "series": 2,
+  "step": "5m0s",
+  "req_bytes": 393
+ },
+ {
+  "store": "E",
+  "rng": "7d",
+  "scope": "svc",
+  "wall_ms": 38.4,
+  "engine_ms": 0,
+  "series": 2,
+  "step": "5m0s",
+  "req_bytes": 452
+ },
+ {
+  "store": "K",
+  "rng": "7d",
+  "scope": "all",
+  "wall_ms": 70.3,
+  "engine_ms": 11,
+  "rows": 1124,
+  "error": null,
+  "sql_bytes": 197,
+  "req_bytes": 432
+ },
+ {
+  "store": "K",
+  "rng": "7d",
+  "scope": "env",
+  "wall_ms": 58.9,
+  "engine_ms": 9,
+  "rows": 214,
+  "error": null,
+  "sql_bytes": 200,
+  "req_bytes": 435
+ },
+ {
+  "store": "K",
+  "rng": "7d",
+  "scope": "node",
+  "wall_ms": 47.6,
+  "engine_ms": 9,
+  "rows": 2,
+  "error": null,
+  "sql_bytes": 204,
+  "req_bytes": 439
+ },
+ {
+  "store": "K",
+  "rng": "7d",
+  "scope": "svc",
+  "wall_ms": 54.2,
+  "engine_ms": 11,
+  "rows": 2,
+  "error": null,
+  "sql_bytes": 274,
+  "req_bytes": 509
+ },
+ {
+  "store": "K",
+  "rng": "7d",
+  "scope": "list-nodes",
+  "wall_ms": 81.6,
+  "engine_ms": 21,
+  "rows": 1124,
+  "error": null,
+  "sql_bytes": 12152,
+  "req_bytes": 12387
+ },
+ {
+  "store": "K",
+  "rng": "7d",
+  "scope": "list-svcs",
+  "wall_ms": 351.6,
+  "engine_ms": 245,
+  "rows": 799,
+  "error": null,
+  "sql_bytes": 176162,
+  "req_bytes": 176397
+ },
+ {
+  "store": "A",
+  "rng": "7d",
+  "scope": "all-main",
+  "wall_ms": 176.9,
+  "rows": 100,
+  "url_bytes": 15089
+ },
+ {
+  "store": "A",
+  "rng": "7d",
+  "scope": "all-pr",
+  "wall_ms": 80.6,
+  "rows": 17,
+  "url_bytes": 99
+ },
+ {
+  "store": "A",
+  "rng": "7d",
+  "scope": "node",
+  "wall_ms": 91.9,
+  "rows": 18,
+  "url_bytes": 104
+ },
+ {
+  "store": "E",
+  "rng": "30d",
+  "scope": "all",
+  "wall_ms": 477.3,
+  "engine_ms": 115,
+  "series": 4993,
+  "step": "30m0s",
+  "req_bytes": 386
+ },
+ {
+  "store": "E",
+  "rng": "30d",
+  "scope": "env",
+  "wall_ms": 136.7,
+  "engine_ms": 26,
+  "series": 988,
+  "step": "30m0s",
+  "req_bytes": 389
+ },
+ {
+  "store": "E",
+  "rng": "30d",
+  "scope": "node",
+  "wall_ms": 46.5,
+  "engine_ms": 1,
+  "series": 9,
+  "step": "30m0s",
+  "req_bytes": 393
+ },
+ {
+  "store": "E",
+  "rng": "30d",
+  "scope": "svc",
+  "wall_ms": 43.6,
+  "engine_ms": 1,
+  "series": 2,
+  "step": "30m0s",
+  "req_bytes": 452
+ },
+ {
+  "store": "K",
+  "rng": "30d",
+  "scope": "all",
+  "wall_ms": 124.5,
+  "engine_ms": 18,
+  "rows": 4993,
+  "error": null,
+  "sql_bytes": 197,
+  "req_bytes": 432
+ },
+ {
+  "store": "K",
+  "rng": "30d",
+  "scope": "env",
+  "wall_ms": 65.0,
+  "engine_ms": 8,
+  "rows": 988,
+  "error": null,
+  "sql_bytes": 200,
+  "req_bytes": 435
+ },
+ {
+  "store": "K",
+  "rng": "30d",
+  "scope": "node",
+  "wall_ms": 50.4,
+  "engine_ms": 10,
+  "rows": 9,
+  "error": null,
+  "sql_bytes": 204,
+  "req_bytes": 439
+ },
+ {
+  "store": "K",
+  "rng": "30d",
+  "scope": "svc",
+  "wall_ms": 51.9,
+  "engine_ms": 9,
+  "rows": 2,
+  "error": null,
+  "sql_bytes": 274,
+  "req_bytes": 509
+ },
+ {
+  "store": "K",
+  "rng": "30d",
+  "scope": "list-nodes",
+  "wall_ms": 137.0,
+  "engine_ms": 25,
+  "rows": 4993,
+  "error": null,
+  "sql_bytes": 12152,
+  "req_bytes": 12387
+ },
+ {
+  "store": "K",
+  "rng": "30d",
+  "scope": "list-svcs",
+  "wall_ms": 379.5,
+  "engine_ms": 300,
+  "rows": 3491,
+  "error": null,
+  "sql_bytes": 176162,
+  "req_bytes": 176397
+ },
+ {
+  "store": "A",
+  "rng": "30d",
+  "scope": "all-main",
+  "wall_ms": 195.5,
+  "rows": 100,
+  "url_bytes": 15089
+ },
+ {
+  "store": "A",
+  "rng": "30d",
+  "scope": "all-pr",
+  "wall_ms": 110.3,
+  "rows": 50,
+  "url_bytes": 99
+ },
+ {
+  "store": "A",
+  "rng": "30d",
+  "scope": "node",
+  "wall_ms": 107.3,
+  "rows": 54,
+  "url_bytes": 104
+ }
+]

@@ -1,0 +1,392 @@
+[
+ {
+  "store": "E",
+  "rng": "6h",
+  "scope": "all",
+  "wall_ms": 70.2,
+  "engine_ms": 1,
+  "series": 9,
+  "step": "1m0s",
+  "req_bytes": 386
+ },
+ {
+  "store": "E",
+  "rng": "6h",
+  "scope": "env",
+  "wall_ms": 60.9,
+  "engine_ms": 4,
+  "series": 5,
+  "step": "1m0s",
+  "req_bytes": 389
+ },
+ {
+  "store": "E",
+  "rng": "6h",
+  "scope": "node",
+  "wall_ms": 61.3,
+  "engine_ms": 1,
+  "series": 1,
+  "step": "1m0s",
+  "req_bytes": 393
+ },
+ {
+  "store": "E",
+  "rng": "6h",
+  "scope": "svc",
+  "wall_ms": 64.3,
+  "engine_ms": 1,
+  "series": 1,
+  "step": "1m0s",
+  "req_bytes": 452
+ },
+ {
+  "store": "K",
+  "rng": "6h",
+  "scope": "all",
+  "wall_ms": 76.3,
+  "engine_ms": 10,
+  "rows": 9,
+  "error": null,
+  "sql_bytes": 197,
+  "req_bytes": 432
+ },
+ {
+  "store": "K",
+  "rng": "6h",
+  "scope": "env",
+  "wall_ms": 81.1,
+  "engine_ms": 10,
+  "rows": 5,
+  "error": null,
+  "sql_bytes": 200,
+  "req_bytes": 435
+ },
+ {
+  "store": "K",
+  "rng": "6h",
+  "scope": "node",
+  "wall_ms": 72.5,
+  "engine_ms": 10,
+  "rows": 1,
+  "error": null,
+  "sql_bytes": 204,
+  "req_bytes": 439
+ },
+ {
+  "store": "K",
+  "rng": "6h",
+  "scope": "svc",
+  "wall_ms": 71.3,
+  "engine_ms": 11,
+  "rows": 1,
+  "error": null,
+  "sql_bytes": 274,
+  "req_bytes": 509
+ },
+ {
+  "store": "K",
+  "rng": "6h",
+  "scope": "list-nodes",
+  "wall_ms": 77.2,
+  "engine_ms": 23,
+  "rows": 9,
+  "error": null,
+  "sql_bytes": 12152,
+  "req_bytes": 12387
+ },
+ {
+  "store": "K",
+  "rng": "6h",
+  "scope": "list-svcs",
+  "wall_ms": 245.3,
+  "engine_ms": 87,
+  "rows": 8,
+  "error": null,
+  "sql_bytes": 176162,
+  "req_bytes": 176397
+ },
+ {
+  "store": "A",
+  "rng": "6h",
+  "scope": "all-main",
+  "wall_ms": 117.7,
+  "rows": 1,
+  "url_bytes": 15089
+ },
+ {
+  "store": "A",
+  "rng": "6h",
+  "scope": "all-pr",
+  "wall_ms": 37.1,
+  "rows": 0,
+  "url_bytes": 99
+ },
+ {
+  "store": "A",
+  "rng": "6h",
+  "scope": "node",
+  "wall_ms": 56.6,
+  "rows": 1,
+  "url_bytes": 104
+ },
+ {
+  "store": "E",
+  "rng": "7d",
+  "scope": "all",
+  "wall_ms": 56.5,
+  "engine_ms": 8,
+  "series": 123,
+  "step": "5m0s",
+  "req_bytes": 386
+ },
+ {
+  "store": "E",
+  "rng": "7d",
+  "scope": "env",
+  "wall_ms": 45.3,
+  "engine_ms": 3,
+  "series": 29,
+  "step": "5m0s",
+  "req_bytes": 389
+ },
+ {
+  "store": "E",
+  "rng": "7d",
+  "scope": "node",
+  "wall_ms": 45.1,
+  "engine_ms": 0,
+  "series": 1,
+  "step": "5m0s",
+  "req_bytes": 393
+ },
+ {
+  "store": "E",
+  "rng": "7d",
+  "scope": "svc",
+  "wall_ms": 40.0,
+  "engine_ms": 0,
+  "series": 1,
+  "step": "5m0s",
+  "req_bytes": 452
+ },
+ {
+  "store": "K",
+  "rng": "7d",
+  "scope": "all",
+  "wall_ms": 53.4,
+  "engine_ms": 6,
+  "rows": 123,
+  "error": null,
+  "sql_bytes": 197,
+  "req_bytes": 432
+ },
+ {
+  "store": "K",
+  "rng": "7d",
+  "scope": "env",
+  "wall_ms": 47.0,
+  "engine_ms": 5,
+  "rows": 29,
+  "error": null,
+  "sql_bytes": 200,
+  "req_bytes": 435
+ },
+ {
+  "store": "K",
+  "rng": "7d",
+  "scope": "node",
+  "wall_ms": 46.7,
+  "engine_ms": 6,
+  "rows": 1,
+  "error": null,
+  "sql_bytes": 204,
+  "req_bytes": 439
+ },
+ {
+  "store": "K",
+  "rng": "7d",
+  "scope": "svc",
+  "wall_ms": 44.4,
+  "engine_ms": 7,
+  "rows": 1,
+  "error": null,
+  "sql_bytes": 274,
+  "req_bytes": 509
+ },
+ {
+  "store": "K",
+  "rng": "7d",
+  "scope": "list-nodes",
+  "wall_ms": 62.5,
+  "engine_ms": 14,
+  "rows": 123,
+  "error": null,
+  "sql_bytes": 12152,
+  "req_bytes": 12387
+ },
+ {
+  "store": "K",
+  "rng": "7d",
+  "scope": "list-svcs",
+  "wall_ms": 157.7,
+  "engine_ms": 82,
+  "rows": 94,
+  "error": null,
+  "sql_bytes": 176162,
+  "req_bytes": 176397
+ },
+ {
+  "store": "A",
+  "rng": "7d",
+  "scope": "all-main",
+  "wall_ms": 157.2,
+  "rows": 46,
+  "url_bytes": 15089
+ },
+ {
+  "store": "A",
+  "rng": "7d",
+  "scope": "all-pr",
+  "wall_ms": 63.2,
+  "rows": 17,
+  "url_bytes": 99
+ },
+ {
+  "store": "A",
+  "rng": "7d",
+  "scope": "node",
+  "wall_ms": 66.0,
+  "rows": 18,
+  "url_bytes": 104
+ },
+ {
+  "store": "E",
+  "rng": "30d",
+  "scope": "all",
+  "wall_ms": 99.2,
+  "engine_ms": 18,
+  "series": 498,
+  "step": "30m0s",
+  "req_bytes": 386
+ },
+ {
+  "store": "E",
+  "rng": "30d",
+  "scope": "env",
+  "wall_ms": 56.0,
+  "engine_ms": 8,
+  "series": 104,
+  "step": "30m0s",
+  "req_bytes": 389
+ },
+ {
+  "store": "E",
+  "rng": "30d",
+  "scope": "node",
+  "wall_ms": 41.4,
+  "engine_ms": 0,
+  "series": 1,
+  "step": "30m0s",
+  "req_bytes": 393
+ },
+ {
+  "store": "E",
+  "rng": "30d",
+  "scope": "svc",
+  "wall_ms": 40.0,
+  "engine_ms": 0,
+  "series": 1,
+  "step": "30m0s",
+  "req_bytes": 452
+ },
+ {
+  "store": "K",
+  "rng": "30d",
+  "scope": "all",
+  "wall_ms": 61.4,
+  "engine_ms": 5,
+  "rows": 498,
+  "error": null,
+  "sql_bytes": 197,
+  "req_bytes": 432
+ },
+ {
+  "store": "K",
+  "rng": "30d",
+  "scope": "env",
+  "wall_ms": 49.8,
+  "engine_ms": 7,
+  "rows": 104,
+  "error": null,
+  "sql_bytes": 200,
+  "req_bytes": 435
+ },
+ {
+  "store": "K",
+  "rng": "30d",
+  "scope": "node",
+  "wall_ms": 45.9,
+  "engine_ms": 5,
+  "rows": 1,
+  "error": null,
+  "sql_bytes": 204,
+  "req_bytes": 439
+ },
+ {
+  "store": "K",
+  "rng": "30d",
+  "scope": "svc",
+  "wall_ms": 51.4,
+  "engine_ms": 6,
+  "rows": 1,
+  "error": null,
+  "sql_bytes": 274,
+  "req_bytes": 509
+ },
+ {
+  "store": "K",
+  "rng": "30d",
+  "scope": "list-nodes",
+  "wall_ms": 66.9,
+  "engine_ms": 14,
+  "rows": 498,
+  "error": null,
+  "sql_bytes": 12152,
+  "req_bytes": 12387
+ },
+ {
+  "store": "K",
+  "rng": "30d",
+  "scope": "list-svcs",
+  "wall_ms": 147.5,
+  "engine_ms": 85,
+  "rows": 343,
+  "error": null,
+  "sql_bytes": 176162,
+  "req_bytes": 176397
+ },
+ {
+  "store": "A",
+  "rng": "30d",
+  "scope": "all-main",
+  "wall_ms": 172.7,
+  "rows": 100,
+  "url_bytes": 15089
+ },
+ {
+  "store": "A",
+  "rng": "30d",
+  "scope": "all-pr",
+  "wall_ms": 72.9,
+  "rows": 50,
+  "url_bytes": 99
+ },
+ {
+  "store": "A",
+  "rng": "30d",
+  "scope": "node",
+  "wall_ms": 72.1,
+  "rows": 51,
+  "url_bytes": 104
+ }
+]
