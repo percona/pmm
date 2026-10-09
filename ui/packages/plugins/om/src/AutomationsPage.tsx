@@ -16,9 +16,10 @@
  */
 
 import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import {
   Box,
+  Button,
   Chip,
   CircularProgress,
   Stack,
@@ -218,6 +219,7 @@ const SUBTITLE: Record<TabId, string> = {
  * the scans reading.
  */
 export const AutomationsPage = () => {
+  const omBase = useOmBase();
   const [params, setParams] = useSearchParams();
   const requested = params.get('tab');
   const tab: TabId = TABS.includes(requested as TabId)
@@ -232,6 +234,17 @@ export const AutomationsPage = () => {
           <Typography variant="body2" color="text.secondary">
             {SUBTITLE[tab]}
           </Typography>
+        }
+        actions={
+          // Installs start from a node, so this opens Nodes on the ones with nothing
+          // monitored on them yet.
+          <Button
+            variant="contained"
+            component={RouterLink}
+            to={`${omBase}/${OM_ROUTE_NODES}?filter=unmonitored`}
+          >
+            Install MongoDB
+          </Button>
         }
       />
       <Tabs
