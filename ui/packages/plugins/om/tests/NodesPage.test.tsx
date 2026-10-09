@@ -957,5 +957,17 @@ describe('NodesPage', () => {
           .filter((button) => !button.closest('tr'))
       ).toHaveLength(1);
     });
+
+    it('makes the row Install heavier than the row Scan', () => {
+      renderPage();
+
+      const row = rowFor('node00');
+      expect(within(row).getByRole('button', { name: 'Scan' })).toHaveClass(
+        'MuiButton-text'
+      );
+      expect(
+        within(row).getByRole('button', { name: 'Install MongoDB' })
+      ).toHaveClass('MuiButton-outlined');
+    });
   });
 });

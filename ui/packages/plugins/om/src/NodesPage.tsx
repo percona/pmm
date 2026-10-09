@@ -1054,6 +1054,7 @@ export const NodesPage = () => {
           <Box component="span">
             <Button
               size="small"
+              variant="outlined"
               disabled={
                 !row.original.automation_eligible || isHostBusy(row.original)
               }
