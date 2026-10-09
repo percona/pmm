@@ -296,10 +296,10 @@ func TestWithGivenCredentials(t *testing.T) {
 		},
 		{
 			// Registering again would fail on the Node name, or add a second Node under the hostname.
-			name:    "a rejected token does not register a Node which is still there",
+			name:    "a rejected token is answered with the Node the credentials given to setup find",
 			results: []agentLookup{failed(errCredentialsRejected), found(registeredNode)},
 			calls:   2,
-			err:     errTokenRejected,
+			node:    registeredNode,
 		},
 		{
 			name:    "a rejected token is kept when the credentials given to setup answer no better",
@@ -767,7 +767,7 @@ func TestCheckRegistrationOfRejectedToken(t *testing.T) {
 		state     registrationState
 	}{
 		// Registering again would fail on the Node name, or add a second Node under the hostname.
-		{name: "a Node which is still registered is kept", state: registrationUnverified},
+		{name: "a Node which is still registered is kept", state: registrationConfirmed},
 		{name: "a Node which is gone is registered again", gone: true, state: registrationMissing},
 		// A token Grafana failed to look up gets the same answer, so it must not register the Node again.
 		{name: "a token alone leaves the registration unverified", tokenOnly: true, state: registrationUnverified},

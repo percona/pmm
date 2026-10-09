@@ -85,9 +85,9 @@ func checkRegistrationOnServer(running, given *config.Config, l *logrus.Entry) r
 // knows. The credentials given to setup can still get an answer.
 //
 // Only a clear "PMM Server does not know this Agent" counts from the second lookup, because that is the
-// answer the refused credentials could not give. Anything else keeps the first answer, so that a Node
-// which is still registered is never registered again - which would remove it together with every
-// Service on it - over an answer about credentials.
+// answer the refused credentials could not give - or, for a rejected token, the Node PMM Server has.
+// Anything else keeps the first answer, so that a Node which is still registered is never registered
+// again - which would remove it together with every Service on it - over an answer about credentials.
 //
 // This method is not thread-safe.
 func withGivenCredentials(lookup agentLookup, running, given *config.Config, l *logrus.Entry) agentLookup {
@@ -111,9 +111,15 @@ func withGivenCredentials(lookup agentLookup, running, given *config.Config, l *
 			" checking the registration with the credentials given to setup.\n", given.Server.Address, agentID)
 		setServerTransport(u, given.Server.InsecureTLS, l)
 
-		_, e := lookup(ctx, agentID)
-		if errors.Is(e, errAgentNotFound) {
+		found, e := lookup(ctx, agentID)
+		switch {
+		case errors.Is(e, errAgentNotFound):
 			return serverNode{}, e
+		case e == nil && errors.Is(err, errTokenRejected):
+			fmt.Printf("PMM Server has pmm-agent %s on Node %s, but does not accept the token pmm-agent runs with."+
+				" Check the service account of the Node in PMM Server, or use --force to register the Node again,"+
+				" which removes it together with its Services.\n", agentID, found.Name)
+			return found, nil
 		}
 
 		return node, err
