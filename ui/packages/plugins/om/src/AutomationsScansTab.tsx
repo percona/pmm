@@ -35,6 +35,11 @@ import { EmptyState } from './components/EmptyState';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { Table, type MRT_ColumnDef } from '@percona/percona-ui';
 import {
+  formatAbsoluteTime,
+  formatTimestamp,
+  RunTime,
+} from '@pmm-extensions/framework';
+import {
   useIsEstateRefreshing,
   useOmInventoryRuns,
   useRefreshInventory,
@@ -44,15 +49,14 @@ import { useScanConflict } from './ScanFeedback';
 import { RunStatusBadge } from './components/HealthBadge';
 import { RunEntities } from './components/RunEntities';
 import { ScanProgress } from './components/ScanProgress';
+import { Age } from './components/Age';
 import {
   formatCompactDuration,
   formatRunDuration,
-  formatTimestamp,
   pluralize,
   runDurationSeconds,
 } from './format';
 import {
-  ageSeconds,
   DEFAULT_RUN_LIMIT,
   groupRuns,
   isBoundedPeriod,
@@ -71,16 +75,18 @@ import { OmError } from './components/OmError';
 const GroupStarted = ({ group }: { group: OmRunGroup }) => {
   const newest = group.runs[0];
   if (group.runs.length === 1) {
-    return <>{formatTimestamp(newest.start_time)}</>;
+    return <RunTime value={newest.start_time} />;
   }
   const oldest = group.runs[group.runs.length - 1];
   const span =
     (Date.parse(newest.start_time) - Date.parse(oldest.start_time)) / 1000;
   return (
     <Stack spacing={0.25}>
-      <span>{formatTimestamp(newest.start_time)}</span>
+      <RunTime value={newest.start_time} />
       <Tooltip
-        title={`From ${formatTimestamp(oldest.start_time)} to ${formatTimestamp(newest.start_time)}`}
+        title={`From ${formatAbsoluteTime(oldest.start_time)} to ${
+          formatTimestamp(newest.start_time)?.title
+        }`}
       >
         <Typography
           variant="caption"
@@ -147,7 +153,7 @@ const GroupRuns = ({
       >
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="body2">
-            {formatTimestamp(run.start_time)}, took{' '}
+            <RunTime value={run.start_time} />, took{' '}
             {formatRunDuration(run.start_time, run.end_time) || '—'},{' '}
             {run.counts.answered_hosts} of {run.counts.probeable_hosts}{' '}
             {pluralize(run.counts.probeable_hosts, 'node')} answered
@@ -176,6 +182,10 @@ const RUN_COLUMNS: MRT_ColumnDef<OmRunGroup>[] = [
     accessorFn: (group) => group.runs[0].start_time,
     id: 'start_time',
     header: 'Started',
+    // Room for the widest en-US date and time ("12/28/2025, 10:57:01 PM"): the cell
+    // does not wrap, and the table ellipsizes anything wider.
+    size: 230,
+    muiTableBodyCellProps: { sx: { whiteSpace: 'nowrap' } },
     Cell: ({ row: { original } }) => <GroupStarted group={original} />,
   },
   {
@@ -363,9 +373,7 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
       </EmptyState>
     );
   }
-  const age = ageSeconds(run.start_time);
   const active = isRunActive(run.status);
-  const ago = age == null ? '' : `${formatCompactDuration(age)} ago`;
   // Refused before doing anything: its counts are all zero and its error is why.
   const skipped = run.status === 'RUN_STATUS_SKIPPED';
   const failed = run.status === 'RUN_STATUS_FAILED';
@@ -378,13 +386,18 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
     >
       <RunStatusBadge status={run.status} />
       <Typography variant="body2" color="text.secondary">
-        {active
-          ? `started ${ago || 'just now'}`
-          : skipped
-            ? ago
-            : `${ago}, took ${
-                formatRunDuration(run.start_time, run.end_time) || '—'
-              }`}
+        {active ? (
+          <>
+            started <Age value={run.start_time} />
+          </>
+        ) : skipped ? (
+          <Age value={run.start_time} />
+        ) : (
+          <>
+            <Age value={run.start_time} />, took{' '}
+            {formatRunDuration(run.start_time, run.end_time) || '—'}
+          </>
+        )}
       </Typography>
       {skipped ? (
         <Typography variant="body2" color="text.secondary">

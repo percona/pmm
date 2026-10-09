@@ -15,10 +15,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-export { TaskRunDetailDrawer } from './TaskRunDetailDrawer';
-export type { TaskRunDetailDrawerProps } from './TaskRunDetailDrawer';
-export { LastRunCard } from './LastRunCard';
-export type { LastRunCardProps } from './LastRunCard';
-export { RunTime } from './RunTime';
-export { runFailureReason, firstLine } from './runFailureReason';
-export { resolveOpenedRun } from './resolveOpenedRun';
+import { formatTimestamp } from '@pmm-extensions/framework';
+import { formatAge } from '../format';
+
+/** A compact `3m ago`, with the full local time and its zone on hover. */
+export const Age = ({ value }: { value: string | null | undefined }) => (
+  <span title={formatTimestamp(value)?.title}>{formatAge(value)}</span>
+);

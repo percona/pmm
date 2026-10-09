@@ -14,6 +14,7 @@
     "format": "oxfmt --write src"
   },
   "dependencies": {
+    "@pmm-extensions/framework": "workspace:*",
     "date-fns": "4.1.0"
   },
   "devDependencies": {

@@ -15,7 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { formatAge, formatTimestamp } from '../format';
+import { formatTimestamp } from '@pmm-extensions/framework';
+import { formatAge } from '../format';
 import type { OmLastScan } from '../inventoryHooks';
 
 export const describeLastScan = ({
@@ -38,7 +39,7 @@ export const describeLastScan = ({
   return finishedAt
     ? {
         label: `Nodes last scanned ${formatAge(finishedAt)}`,
-        tooltip: `The last scan of every node finished ${formatTimestamp(finishedAt)}.`,
+        tooltip: `The last scan of every node finished ${formatTimestamp(finishedAt)?.title}.`,
       }
     : {
         label: 'Nodes not scanned yet',

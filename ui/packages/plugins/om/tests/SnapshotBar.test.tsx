@@ -16,7 +16,9 @@
  */
 
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { browserTimezone } from '@pmm-extensions/framework';
 import { SnapshotBar } from '../src/components/SnapshotBar';
 
 const { useLastScanFinishedAt } = vi.hoisted(() => ({
@@ -86,5 +88,19 @@ describe('SnapshotBar', () => {
 
     expect(screen.getByText('Reading scan history…')).toBeInTheDocument();
     expect(screen.queryByText('Nodes not scanned yet')).not.toBeInTheDocument();
+  });
+
+  it('puts the local time and zone of the data on hover', async () => {
+    render(<SnapshotBar envelope={envelope} />);
+
+    await userEvent.hover(screen.getByText(/^Data from/));
+
+    const local = (iso: string) =>
+      `${new Date(iso).toLocaleString()} (${browserTimezone()})`;
+    expect(
+      await screen.findByRole('tooltip', {
+        name: `Assembled ${local(envelope.generated_at)}. Newest metric or scan reading in it: ${local(envelope.observed_at)}.`,
+      })
+    ).toBeInTheDocument();
   });
 });

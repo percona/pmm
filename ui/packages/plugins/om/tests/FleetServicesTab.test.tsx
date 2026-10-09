@@ -24,6 +24,7 @@ import {
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { browserTimezone } from '@pmm-extensions/framework';
 import { FleetServicesTab } from '../src/FleetServicesTab';
 import { FLEET_NOT_COLLECTED } from '../src/constants';
 import type {
@@ -210,5 +211,29 @@ describe('FleetServicesTab', () => {
     const empty = screen.getByTestId('om-empty-state');
     expect(empty).toHaveTextContent('No service is failing a scan right now');
     expect(empty).not.toHaveTextContent('PMM has no MongoDB services');
+  });
+
+  it('puts the local collection time and zone on the Collected hover', () => {
+    const collected = new Date(Date.now() - 3 * 60 * 1000).toISOString();
+    // Every fixture service shares service_id 30, so this one row of inventory joins
+    // onto each of them.
+    useOmInventoryServices.mockReturnValue({
+      data: [
+        {
+          service_id: '30',
+          node_id: 'node-1',
+          observed: {},
+          freshness: { consecutive_failures: 0, last_success_at: collected },
+        },
+      ],
+      isPending: false,
+      isError: false,
+    });
+    renderTab();
+
+    expect(screen.getAllByText('3m ago')[0]).toHaveAttribute(
+      'title',
+      `${new Date(collected).toLocaleString()} (${browserTimezone()})`
+    );
   });
 });

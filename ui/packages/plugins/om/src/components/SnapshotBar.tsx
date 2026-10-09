@@ -17,7 +17,8 @@
 
 import { Stack, Tooltip, Typography } from '@mui/material';
 import Chip from '@mui/material/Chip';
-import { formatAge, formatTimestamp } from '../format';
+import { formatTimestamp } from '@pmm-extensions/framework';
+import { formatAge } from '../format';
 import { useLastScanFinishedAt } from '../inventoryHooks';
 import type { OmTopologySnapshotEnvelope } from '../types';
 import { describeLastScan } from './SnapshotBar.utils';
@@ -42,9 +43,9 @@ export const SnapshotBar = ({
   return (
     <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
       <Tooltip
-        title={`Assembled ${formatTimestamp(envelope.generated_at)}. ${
+        title={`Assembled ${formatTimestamp(envelope.generated_at)?.title ?? '—'}. ${
           envelope.observed_at
-            ? `Newest metric or scan reading in it: ${formatTimestamp(envelope.observed_at)}.`
+            ? `Newest metric or scan reading in it: ${formatTimestamp(envelope.observed_at)?.title}.`
             : 'It holds no metric or scan reading yet.'
         }`}
       >

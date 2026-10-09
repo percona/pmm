@@ -24,6 +24,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { Age } from './components/Age';
 import { EmptyState } from './components/EmptyState';
 import {
   MaterialReactTable,
@@ -219,11 +220,11 @@ function useColumns(
           if (!original.inventory) {
             return <Unavailable reason={missingRowReason(estate)} />;
           }
-          const age = ageSeconds(original.inventory.freshness.last_success_at);
-          return age == null ? (
+          const collected = original.inventory.freshness.last_success_at;
+          return ageSeconds(collected) == null ? (
             <Unavailable reason="probe_never_succeeded" />
           ) : (
-            <>{formatCompactDuration(age)} ago</>
+            <Age value={collected} />
           );
         },
       },
