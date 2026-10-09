@@ -4031,7 +4031,8 @@ type TriggerHostBootstrapRequest struct {
 	// three, checked server-side since protoc-gen-validate has no "one of these
 	// counts" rule to state it declaratively.
 	NodeIds []string `protobuf:"bytes,1,rep,name=node_ids,json=nodeIds,proto3" json:"node_ids,omitempty"`
-	// The replica set's name.
+	// The replica set's name: letters, digits, "-" and "_". PMM Extensions writes it
+	// unescaped into mongod.conf and the connection URI, and enforces the same rule.
 	ReplicaSetName string `protobuf:"bytes,2,opt,name=replica_set_name,json=replicaSetName,proto3" json:"replica_set_name,omitempty"`
 	// The MongoDB version to install, e.g. "7.0.8". Only the major version
 	// selects the install source; PSMDB does not ship parallel repos per minor
@@ -5490,10 +5491,10 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x06status\x18\x02 \x01(\x0e2\x10.om.v1.RunStatusR\x06status\x129\n" +
 	"\n" +
 	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x12\x14\n" +
-	"\x05scope\x18\x04 \x03(\tR\x05scope\"\xda\x04\n" +
+	"\x05scope\x18\x04 \x03(\tR\x05scope\"\xec\x04\n" +
 	"\x1bTriggerHostBootstrapRequest\x12'\n" +
-	"\bnode_ids\x18\x01 \x03(\tB\f\xfaB\t\x92\x01\x06\b\x01\x10\x03\x18\x01R\anodeIds\x123\n" +
-	"\x10replica_set_name\x18\x02 \x01(\tB\t\xfaB\x06r\x04\x10\x01\x18@R\x0ereplicaSetName\x120\n" +
+	"\bnode_ids\x18\x01 \x03(\tB\f\xfaB\t\x92\x01\x06\b\x01\x10\x03\x18\x01R\anodeIds\x12E\n" +
+	"\x10replica_set_name\x18\x02 \x01(\tB\x1b\xfaB\x18r\x16\x10\x01\x18@2\x10^[A-Za-z0-9_-]+$R\x0ereplicaSetName\x120\n" +
 	"\x0fmongodb_version\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x0emongodbVersion\x12%\n" +
 	"\venvironment\x18\x04 \x01(\tH\x00R\venvironment\x88\x01\x01\x12\x1d\n" +
 	"\acluster\x18\x05 \x01(\tH\x01R\acluster\x88\x01\x01\x12$\n" +
