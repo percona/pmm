@@ -90,6 +90,7 @@ const hostsBody = `{"items": [
     "first_seen_at": "2026-08-18T08:00:00Z", "last_attempt_at": "2026-08-18T09:00:00Z",
     "last_success_at": null, "failing_since": "2026-08-18T08:30:00Z",
     "consecutive_failures": 3, "last_error": "no executor host",
+    "last_error_code": "scan_lost", "last_run_id": "8b9b2f3e-1c4d-4e5f-9a6b-7c8d9e0f1a2b",
     "services": []
   }
 ], "total": 2, "offset": 0, "limit": 200}`
@@ -344,6 +345,18 @@ func TestListInventoryHosts(t *testing.T) {
 		assert.Empty(t, empty.GetServices(), "a host with no database is a row, not an omission")
 	})
 
+	t.Run("a healthy host carries no failure kind", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, hostsBody)
+
+		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+		require.NoError(t, err)
+
+		assert.Nil(t, response.GetHosts()[0].GetFreshness().LastErrorCode,
+			"unset, not an empty string, so a reader cannot mistake it for a kind")
+	})
+
 	t.Run("a failing host carries why and since when", func(t *testing.T) {
 		t.Parallel()
 
@@ -355,6 +368,9 @@ func TestListInventoryHosts(t *testing.T) {
 		freshness := response.GetHosts()[1].GetFreshness()
 		assert.Equal(t, int32(3), freshness.GetConsecutiveFailures())
 		assert.Equal(t, "no executor host", freshness.GetLastError())
+		assert.Equal(t, "scan_lost", freshness.GetLastErrorCode())
+		assert.Equal(t, "8b9b2f3e-1c4d-4e5f-9a6b-7c8d9e0f1a2b", freshness.GetLastRunId(),
+			"the run that produced the failure, for linking to it")
 		assert.NotNil(t, freshness.GetFailingSince())
 		assert.Nil(t, freshness.GetLastSuccessAt(),
 			"never having answered is different from having answered nothing")
@@ -477,6 +493,27 @@ func TestListInventoryServices(t *testing.T) {
 		assert.Equal(t, "s1", response.GetServices()[0].GetServiceId())
 		assert.Equal(t, "s2", response.GetServices()[1].GetServiceId())
 		assert.Contains(t, stub.calls[1].query, "offset=1")
+	})
+
+	t.Run("a failing service carries the kind and run of its failure", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, `{"items": [
+		  {"service_id": "s1", "node_id": "n1", "name": "mongo-1",
+		   "failing_since": "2026-08-18T08:30:00Z", "consecutive_failures": 2,
+		   "last_error": "probe timed out", "last_error_code": "timed_out",
+		   "last_run_id": "3c1d2e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f"},
+		  {"service_id": "s2", "node_id": "n1", "name": "mongo-2"}
+		], "total": 2, "offset": 0, "limit": 200}`)
+
+		response, err := stub.service(t).ListInventoryServices(t.Context(), &omv1.ListInventoryServicesRequest{})
+		require.NoError(t, err)
+		require.Len(t, response.GetServices(), 2)
+
+		failing := response.GetServices()[0].GetFreshness()
+		assert.Equal(t, "timed_out", failing.GetLastErrorCode())
+		assert.Equal(t, "3c1d2e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f", failing.GetLastRunId())
+		assert.Nil(t, response.GetServices()[1].GetFreshness().LastErrorCode)
 	})
 }
 
