@@ -49,12 +49,8 @@ export interface SchemaSelectShellProps {
  * Shared scaffold for the schema-driven select fields (MultiChoiceField and
  * ChoiceField's select-mode branch), over Peak UI's `SelectInput`.
  *
- * Deliberately plain: no `displayEmpty`, no forced `notched`/`shrink`, and no
- * "Select…" placeholder. Those were what made a select look unlike every other
- * control on the same form — a label pinned into the outline notch beside text
- * inputs whose labels sit *in* the empty field. Letting the label float gives
- * the app one label style, and an empty select reads as its own label, the way
- * `TextInput` and `AutoCompleteInput` already do (PMM-15456).
+ * No "Select…" placeholder; the label sits on the outline, set form-wide by
+ * `ShrunkLabels` (PMM-15517).
  *
  * `SelectInput` owns the Controller, so callers pass `name`/`rules` rather than
  * wrapping this in one of their own; it wires the error state from form state

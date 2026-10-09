@@ -814,18 +814,18 @@ describe('SchemaFormRenderer — multi_choice empty state', () => {
   const labelOf = (text: string) =>
     screen.getAllByText(text)[0].closest('label');
 
-  it('shows no placeholder and leaves the label in the field when empty', () => {
+  it('shows no placeholder and keeps the label on the outline when empty', () => {
     renderWithProviders(
       <SchemaFormRenderer sections={uploadSections} onSubmit={vi.fn()} />
     );
 
     expect(screen.queryByText('Select…')).toBeNull();
     const labelRoot = labelOf('Upload providers');
-    expect(labelRoot).toHaveAttribute('data-shrink', 'false');
-    expect(labelRoot).not.toHaveClass('MuiInputLabel-shrink');
+    expect(labelRoot).toHaveAttribute('data-shrink', 'true');
+    expect(labelRoot).toHaveClass('MuiInputLabel-shrink');
   });
 
-  it('floats the label and shows the selection once a value is chosen', () => {
+  it('keeps the label on the outline and shows the selection once a value is chosen', () => {
     renderWithProviders(
       <SchemaFormRenderer
         sections={uploadSections}
@@ -861,17 +861,17 @@ describe('SchemaFormRenderer — choice (select mode) empty state', () => {
     },
   ];
 
-  it('shows no placeholder and leaves the label in the field when empty', () => {
+  it('shows no placeholder and keeps the label on the outline when empty', () => {
     renderWithProviders(
       <SchemaFormRenderer sections={regionSections} onSubmit={vi.fn()} />
     );
 
     expect(screen.queryByText('Select…')).toBeNull();
     const labelRoot = screen.getAllByText('Region')[0].closest('label');
-    expect(labelRoot).toHaveAttribute('data-shrink', 'false');
+    expect(labelRoot).toHaveAttribute('data-shrink', 'true');
   });
 
-  it('floats the label once a value is chosen', () => {
+  it('keeps the label on the outline once a value is chosen', () => {
     renderWithProviders(
       <SchemaFormRenderer
         sections={regionSections}

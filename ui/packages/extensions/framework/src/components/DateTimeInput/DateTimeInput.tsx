@@ -98,6 +98,8 @@ export function DateTimeInput<T extends FieldValues = FieldValues>({
             fullWidth: true,
             size: 'small',
             required: isRequired,
+            // Keep the label on the outline when empty, as Peak's TextInput does.
+            InputLabelProps: { shrink: true },
             error,
             helperText,
           },

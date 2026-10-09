@@ -61,6 +61,15 @@ describe('DateTimeInput', () => {
     expect(input().value).toBe('03/01/2026 02:30 PM');
   });
 
+  it('keeps the label on the outline while empty, like Peak UI text inputs', () => {
+    const { container } = render(<Harness />);
+
+    expect(container.querySelector('label')).toHaveAttribute(
+      'data-shrink',
+      'true'
+    );
+  });
+
   it('writes the picker value back as a wall-clock string', async () => {
     const onSubmit = vi.fn();
     const user = userEvent.setup();

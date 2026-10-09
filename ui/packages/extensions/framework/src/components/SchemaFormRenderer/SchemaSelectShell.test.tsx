@@ -88,26 +88,17 @@ describe('SchemaSelectShell', () => {
     ).toContain('fruit-input-label');
   });
 
-  // The placeholder and the pinned-notch label were the two select styles this
-  // shell used to have that no other control on the form had (PMM-15456).
-  it('shows no placeholder and lets the label sit in the empty field', () => {
-    const { container } = renderShell();
+  // Label position is set form-wide by ShrunkLabels; see SchemaFormRenderer.test.
+  it('shows no placeholder', () => {
+    renderShell();
 
     expect(screen.queryByText('Select…')).not.toBeInTheDocument();
-    expect(container.querySelector('label')).toHaveAttribute(
-      'data-shrink',
-      'false'
-    );
   });
 
-  it('floats the label once a value is chosen, and renders it via renderValue', () => {
-    const { container } = renderShell({ value: 'apple' });
+  it('renders the chosen value via renderValue', () => {
+    renderShell({ value: 'apple' });
 
     expect(screen.getByText('Apple')).toBeInTheDocument();
-    expect(container.querySelector('label')).toHaveAttribute(
-      'data-shrink',
-      'true'
-    );
   });
 
   it('flips aria-invalid and shows the error message on error', async () => {
