@@ -352,7 +352,8 @@ function outcomeKey(run: OmInventoryRun): string {
   return JSON.stringify([
     run.status,
     [...run.scope].sort(),
-    (run.failing_nodes ?? []).map((node) => node.node_id),
+    // Sorted: the list arrives in name order, so a renamed node would reorder it.
+    (run.failing_nodes ?? []).map((node) => node.node_id).sort(),
     run.error ?? null,
     counts.total_hosts,
     counts.probeable_hosts,
