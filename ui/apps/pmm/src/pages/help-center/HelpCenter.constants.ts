@@ -1,10 +1,11 @@
-import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
+import { EXTENSIONS_ATW_PATH, PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 import { HelpCard } from './help-center-card/HelpCenterCard.types';
 
 export const CARD_IDS = {
   pmmDocs: 'pmm-docs',
   support: 'support',
   forum: 'forum',
+  diagnostics: 'diagnostics',
   pmmDump: 'pmm-dump',
   pmmLogs: 'pmm-logs',
   tips: 'tips',
@@ -61,6 +62,20 @@ export const getCardData = ({
         text: 'View forum',
         target: '_blank',
         url: 'https://per.co.na/PMM3_forum',
+      },
+    ],
+    adminOnly: false,
+    borderColorKey: 'chart2',
+  },
+  {
+    id: CARD_IDS.diagnostics,
+    title: 'Diagnostics',
+    description:
+      'Run diagnostic checks on your databases, read the results, and send them to a Percona Support case when Support asks for them.',
+    buttons: [
+      {
+        text: 'Open diagnostics',
+        to: EXTENSIONS_ATW_PATH,
       },
     ],
     adminOnly: false,

@@ -1,6 +1,7 @@
 import AppsRounded from '@mui/icons-material/AppsRounded';
 import DesignServicesOutlined from '@mui/icons-material/DesignServicesOutlined';
 import StarBorderRounded from '@mui/icons-material/StarBorderRounded';
+import { SupportDiagnosticsIcon } from '@percona/peak-ui';
 import { ColorMode } from '@pmm/shared';
 import { CombinedSettings } from 'contexts/settings';
 import {
@@ -160,8 +161,8 @@ const plannedApp = (slug: string, text: string): NavItem => ({
 
 // The app catalog as the IA projects it. MySQL backups exists today and opens
 // for real; the rest open the placeholder page so the list can be reviewed in
-// full. Support diagnostics lives under Help, where the tree test showed people
-// look for it.
+// full. Diagnostics is promoted to Analysis and alerting and, like a pinned
+// app, leaves this list.
 export const NAV_APPS: NavItem = {
   id: 'apps',
   icon: AppsRounded,
@@ -183,16 +184,17 @@ export const NAV_APPS: NavItem = {
   ],
 };
 
-export const NAV_SUPPORT_DIAGNOSTICS: NavItem = {
+// The ATW app runs diagnostic checks against monitored databases; sending the
+// results to a Percona Support case is one action inside it, not its purpose.
+// Named for the job rather than the audience, it sits with the other analysis
+// tools. The Help page keeps a card for the "Support asked me for a bundle"
+// route, which is where the tree test showed that task being looked for.
+export const NAV_DIAGNOSTICS: NavItem = {
   id: 'extensions-atw',
-  text: 'Support diagnostics',
+  icon: SupportDiagnosticsIcon,
+  text: 'Diagnostics',
   url: EXTENSIONS_ATW_PATH,
   matches: ['*'],
-};
-
-export const NAV_HELP_ENTRY: NavItem = {
-  ...NAV_HELP,
-  children: [NAV_SUPPORT_DIAGNOSTICS],
 };
 
 export interface ProposedNavTreeInput {
@@ -247,6 +249,7 @@ export const buildProposedNavTree = (
     NAV_SECTIONS.analysis,
     NAV_ADVISORS,
     NAV_ALERTS_ENTRY,
+    NAV_DIAGNOSTICS,
     NAV_EXPLORE_DATA,
     NAV_QUERY_ANALYTICS,
     NAV_SECTIONS.browse,
@@ -258,7 +261,7 @@ export const buildProposedNavTree = (
     // reviewed anywhere; a live status badge appears when it does.
     haInfo?.enabled ? addHighAvailability(haInfo) : NAV_HIGH_AVAILABILITY,
     addConfigurationGroup(input),
-    NAV_HELP_ENTRY,
+    NAV_HELP,
   ];
 
   if (!isLoggedIn) {

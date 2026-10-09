@@ -52,6 +52,7 @@ describe('buildProposedNavTree', () => {
       'section-analysis',
       'advisors',
       'alerts',
+      'extensions-atw',
       'explore',
       'qan',
       'section-browse',
@@ -166,17 +167,26 @@ describe('buildProposedNavTree', () => {
       tree,
       `${EXTENSIONS_MYSQL_BACKUPS_PATH}/backups/123`
     );
-    const diagnostics = findActiveNavItem(
-      tree,
-      `${EXTENSIONS_ATW_PATH}/runs/abc`
-    );
 
     expect(backups?.id).toBe('extensions-mysql-backups');
     // The sidebar expands a group when its active child is the very object
     // held in `children`, so identity has to match, not just the id.
     expect(findById(tree, 'apps')?.children).toContain(backups);
-    expect(diagnostics?.id).toBe('extensions-atw');
-    expect(findById(tree, 'help')?.children).toContain(diagnostics);
+  });
+
+  it('lists Diagnostics with the analysis tools and leaves Help a single entry', () => {
+    const tree = build();
+    const diagnostics = findById(tree, 'extensions-atw');
+
+    expect(diagnostics?.text).toBe('Diagnostics');
+    expect(diagnostics?.url).toBe(EXTENSIONS_ATW_PATH);
+    expect(
+      findActiveNavItem(tree, `${EXTENSIONS_ATW_PATH}/incidents/abc`)?.id
+    ).toBe('extensions-atw');
+    expect(ids(findById(tree, 'apps')?.children)).not.toContain(
+      'extensions-atw'
+    );
+    expect(findById(tree, 'help')?.children).toBeUndefined();
   });
 
   it('folds Users and access and the Account into Configuration', () => {

@@ -44,7 +44,7 @@ describe('HelpCenter', () => {
     expect(
       screen.queryByTestId(`help-card-${CARD_IDS.pmmLogs}`)
     ).toBeInTheDocument();
-    expect(screen.queryAllByTestId(/^help-card-/).length).toEqual(7);
+    expect(screen.queryAllByTestId(/^help-card-/).length).toEqual(8);
   });
 
   it('should not show pmm dump and pmm logs if user is viewer', () => {
@@ -56,7 +56,7 @@ describe('HelpCenter', () => {
     expect(
       screen.queryByTestId(`help-card-${CARD_IDS.pmmLogs}`)
     ).not.toBeInTheDocument();
-    expect(screen.queryAllByTestId(/^help-card-/).length).toEqual(5);
+    expect(screen.queryAllByTestId(/^help-card-/).length).toEqual(6);
   });
 
   it('should not show pmm dump and pmm logs if user is editor', () => {
@@ -68,7 +68,7 @@ describe('HelpCenter', () => {
     expect(
       screen.queryByTestId(`help-card-${CARD_IDS.pmmLogs}`)
     ).not.toBeInTheDocument();
-    expect(screen.queryAllByTestId(/^help-card-/).length).toEqual(5);
+    expect(screen.queryAllByTestId(/^help-card-/).length).toEqual(6);
   });
 
   it('starts product tour when the corresponding card action is clicked', async () => {
