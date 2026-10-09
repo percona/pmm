@@ -25,7 +25,7 @@ export const Page: FC<PageProps> = ({
   children,
   maxWidth,
   fullWidth,
-  surface,
+  surface = 'paper',
   roles,
 }) => {
   const { user } = useUser();
@@ -37,18 +37,16 @@ export const Page: FC<PageProps> = ({
 
   return (
     <>
-      {surface && (
-        <GlobalStyles
-          styles={(theme) => ({
-            'html, body': {
-              backgroundColor:
-                surface === 'paper'
-                  ? theme.palette.background.paper
-                  : theme.palette.background.default,
-            },
-          })}
-        />
-      )}
+      <GlobalStyles
+        styles={(theme) => ({
+          'html, body': {
+            backgroundColor:
+              surface === 'paper'
+                ? theme.palette.background.paper
+                : theme.palette.background.default,
+          },
+        })}
+      />
       <PageContainer maxWidth={resolvedMaxWidth}>
         {topBar}
         {!!title && !hideTitle && <Typography variant="h2">{title}</Typography>}
