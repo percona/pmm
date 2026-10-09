@@ -8,24 +8,20 @@ GLOBAL = {'builtIn': 1, 'datasource': {'type': 'datasource', 'uid': 'grafana'}, 
           'limit': 100, 'matchAny': True, 'name': 'PMM Annotations', 'tags': ['pmm_annotation'],
           'target': {'limit': 100, 'matchAny': True, 'tags': ['pmm_annotation'], 'type': 'tags'}, 'type': 'tags'}
 # label selector (E) and SQL condition (K) per dashboard
+def m(col, var):
+    return f"match({col}, '^(${{{var}:regex}})$')"
+def ma(col, var):
+    return f"arrayExists(x -> match(x, '^(${{{var}:regex}})$'), {col})"
+NODE_K = m('environment', 'environment') + ' AND ' + m('node_name', 'node_name')
+# label selector (E) and SQL condition (K) per dashboard
 SCOPE = {
-    'Home_Dashboard.json': (
-        'environment=~"$environment",node_name=~"$node_name"',
-        "('${environment:raw}' = '.*' OR environment IN (${environment:singlequote}))"
-        " AND ('${node_name:raw}' = '.+' OR node_name IN (${node_name:singlequote}))"),
-    'Nodes_Overview.json': (
-        'environment=~"$environment",node_name=~"$node_name"',
-        "('${environment:raw}' = '.*' OR environment IN (${environment:singlequote}))"
-        " AND ('${node_name:raw}' = '.+' OR node_name IN (${node_name:singlequote}))"),
+    'Home_Dashboard.json': ('environment=~"$environment",node_name=~"$node_name"', NODE_K),
+    'Nodes_Overview.json': ('environment=~"$environment",node_name=~"$node_name"', NODE_K),
     'MySQL_Instances_Overview.json': (
         'environment=~"$environment",cluster=~"$cluster",replication_set=~"$replication_set",node_name=~"$node_name",'
         'service_name=~"$service_name",service_type="mysql"',
-        "has(service_types, 'mysql')"
-        " AND ('${environment:raw}' = '.*' OR environment IN (${environment:singlequote}))"
-        " AND ('${cluster:raw}' = '.*' OR cluster IN (${cluster:singlequote}))"
-        " AND ('${replication_set:raw}' = '.*' OR hasAny(replication_sets, [${replication_set:singlequote}]))"
-        " AND ('${node_name:raw}' = '.+' OR node_name IN (${node_name:singlequote}))"
-        " AND ('${service_name:raw}' = '.+' OR hasAny(service_names, [${service_name:singlequote}]))"),
+        "has(service_types, 'mysql') AND " + ' AND '.join([m('environment', 'environment'), m('cluster', 'cluster'),
+            ma('replication_sets', 'replication_set'), m('node_name', 'node_name'), ma('service_names', 'service_name')])),
 }
 WINDOW = os.environ.get('E_WINDOW', '$__interval] offset -$__interval')
 

@@ -1,0 +1,4121 @@
+[
+ {
+  "dash": "home",
+  "variant": "main",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 7777,
+  "failed": 0,
+  "maxBody": 141806,
+  "maxUrl": 15166,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    225,
+    200,
+    0,
+    158,
+    null
+   ],
+   [
+    "GET",
+    228,
+    200,
+    1,
+    15166,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "main",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 7934,
+  "failed": 0,
+  "maxBody": 141807,
+  "maxUrl": 15166,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    287,
+    200,
+    0,
+    158,
+    null
+   ],
+   [
+    "GET",
+    248,
+    200,
+    47,
+    15166,
+    null
+   ]
+  ],
+  "expected": 30,
+  "got": 30,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "main",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 8655,
+  "failed": 0,
+  "maxBody": 141808,
+  "maxUrl": 15166,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    279,
+    200,
+    0,
+    158,
+    null
+   ],
+   [
+    "GET",
+    453,
+    200,
+    100,
+    15166,
+    null
+   ]
+  ],
+  "expected": 156,
+  "got": 74,
+  "missing": 82,
+  "extra": 0,
+  "globals": 26,
+  "ok": false,
+  "sample_missing": [
+   "ann-00011 deploy v57.8 (Node Name: node-0006)",
+   "ann-00012 deploy v8.0 (Node Name: node-0272)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "main",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 6505,
+  "failed": 0,
+  "maxBody": 29695,
+  "maxUrl": 3150,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    244,
+    200,
+    0,
+    158,
+    null
+   ],
+   [
+    "GET",
+    208,
+    200,
+    25,
+    3150,
+    null
+   ]
+  ],
+  "expected": 8,
+  "got": 8,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "main",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 6584,
+  "failed": 0,
+  "maxBody": 2473,
+  "maxUrl": 299,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    189,
+    200,
+    0,
+    158,
+    null
+   ],
+   [
+    "GET",
+    121,
+    200,
+    1,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "main",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": -1,
+  "failed": 0,
+  "maxBody": 0,
+  "maxUrl": 299,
+  "panelErrors": 0,
+  "anno": [],
+  "expected": 1,
+  "got": 0,
+  "missing": 1,
+  "extra": 0,
+  "globals": 0,
+  "ok": false,
+  "sample_missing": [
+   "ann-00127 deploy v51.3 (Node Name: node-0000)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "main",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 6800,
+  "failed": 0,
+  "maxBody": 2483,
+  "maxUrl": 299,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    236,
+    200,
+    0,
+    158,
+    null
+   ],
+   [
+    "GET",
+    141,
+    200,
+    51,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "main",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 6681,
+  "failed": 0,
+  "maxBody": 2588,
+  "maxUrl": 321,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    291,
+    200,
+    0,
+    158,
+    null
+   ],
+   [
+    "GET",
+    381,
+    200,
+    18,
+    195,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "pr",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 7963,
+  "failed": 0,
+  "maxBody": 40600,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    261,
+    200,
+    0,
+    156,
+    null
+   ],
+   [
+    "GET",
+    88,
+    200,
+    0,
+    160,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "pr",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 8028,
+  "failed": 0,
+  "maxBody": 40601,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    247,
+    200,
+    0,
+    156,
+    null
+   ],
+   [
+    "GET",
+    205,
+    200,
+    17,
+    160,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "pr",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 8571,
+  "failed": 0,
+  "maxBody": 40602,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    247,
+    200,
+    0,
+    156,
+    null
+   ],
+   [
+    "GET",
+    202,
+    200,
+    50,
+    160,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "pr",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 6860,
+  "failed": 0,
+  "maxBody": 8557,
+  "maxUrl": 322,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    214,
+    200,
+    0,
+    156,
+    null
+   ],
+   [
+    "GET",
+    144,
+    200,
+    17,
+    160,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "pr",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 6704,
+  "failed": 0,
+  "maxBody": 2573,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    253,
+    200,
+    0,
+    156,
+    null
+   ],
+   [
+    "GET",
+    113,
+    200,
+    1,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "pr",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 6637,
+  "failed": 0,
+  "maxBody": 2578,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    198,
+    200,
+    0,
+    156,
+    null
+   ],
+   [
+    "GET",
+    156,
+    200,
+    18,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "pr",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 6273,
+  "failed": 0,
+  "maxBody": 2583,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    251,
+    200,
+    0,
+    156,
+    null
+   ],
+   [
+    "GET",
+    158,
+    200,
+    51,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "pr",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 6691,
+  "failed": 0,
+  "maxBody": 2688,
+  "maxUrl": 350,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    256,
+    200,
+    0,
+    156,
+    null
+   ],
+   [
+    "GET",
+    285,
+    200,
+    18,
+    195,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "E",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 7409,
+  "failed": 0,
+  "maxBody": 40600,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    239,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    242,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "POST",
+    308,
+    200,
+    9,
+    438,
+    null
+   ]
+  ],
+  "expected": 9,
+  "got": 9,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "E",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 7841,
+  "failed": 0,
+  "maxBody": 40601,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    223,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    227,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    349,
+    200,
+    125,
+    439,
+    null
+   ]
+  ],
+  "expected": 124,
+  "got": 125,
+  "missing": 0,
+  "extra": 1,
+  "globals": 17,
+  "ok": false,
+  "sample_missing": [],
+  "sample_extra": [
+   "ann-00420 deploy v25.1 (Service Name: node-0788-mysql-1)"
+  ]
+ },
+ {
+  "dash": "home",
+  "variant": "E",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 8726,
+  "failed": 0,
+  "maxBody": 40602,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    299,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    304,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    219,
+    200,
+    500,
+    440,
+    null
+   ]
+  ],
+  "expected": 500,
+  "got": 500,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "E",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 6792,
+  "failed": 0,
+  "maxBody": 8557,
+  "maxUrl": 322,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    228,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    233,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    385,
+    200,
+    29,
+    442,
+    null
+   ]
+  ],
+  "expected": 29,
+  "got": 29,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "E",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 6534,
+  "failed": 0,
+  "maxBody": 2573,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    221,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    220,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "POST",
+    265,
+    200,
+    1,
+    445,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "E",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 6387,
+  "failed": 0,
+  "maxBody": 2578,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    220,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    224,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    324,
+    200,
+    1,
+    446,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "E",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 6718,
+  "failed": 0,
+  "maxBody": 2583,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    238,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    242,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    350,
+    200,
+    1,
+    447,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "E",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 6790,
+  "failed": 0,
+  "maxBody": 2688,
+  "maxUrl": 350,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    236,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    239,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    354,
+    200,
+    3,
+    468,
+    null
+   ]
+  ],
+  "expected": 3,
+  "got": 3,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 7527,
+  "failed": 1,
+  "maxBody": 40600,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    248,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    250,
+    200,
+    0,
+    155,
+    null
+   ]
+  ],
+  "expected": 9,
+  "got": 0,
+  "missing": 9,
+  "extra": 0,
+  "globals": 0,
+  "ok": false,
+  "sample_missing": [
+   "ann-00027 deploy v59.4 (Service Name: node-0856-mysql-1)",
+   "ann-00042 deploy v66.6 (Service Name: node-0099-mongodb-1)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 7843,
+  "failed": 1,
+  "maxBody": 40601,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    254,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    258,
+    200,
+    17,
+    150,
+    null
+   ]
+  ],
+  "expected": 124,
+  "got": 0,
+  "missing": 124,
+  "extra": 0,
+  "globals": 17,
+  "ok": false,
+  "sample_missing": [
+   "ann-00000 deploy v36.7 (Service Name: node-0990-mysql-0)",
+   "ann-00002 deploy v35.4 (Node Name: node-0198)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 9497,
+  "failed": 1,
+  "maxBody": 40602,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    232,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    237,
+    200,
+    50,
+    150,
+    null
+   ]
+  ],
+  "expected": 500,
+  "got": 0,
+  "missing": 500,
+  "extra": 0,
+  "globals": 50,
+  "ok": false,
+  "sample_missing": [
+   "ann-00000 deploy v36.7 (Service Name: node-0990-mysql-0)",
+   "ann-00001 deploy v90.3 (Node Name: node-0525)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 6891,
+  "failed": 1,
+  "maxBody": 8557,
+  "maxUrl": 322,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    244,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    248,
+    200,
+    17,
+    150,
+    null
+   ]
+  ],
+  "expected": 29,
+  "got": 0,
+  "missing": 29,
+  "extra": 0,
+  "globals": 17,
+  "ok": false,
+  "sample_missing": [
+   "ann-00036 deploy v52.0 (Service Name: node-0934-valkey-0)",
+   "ann-00042 deploy v66.6 (Service Name: node-0099-mongodb-1)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 7090,
+  "failed": 1,
+  "maxBody": 2573,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    227,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    226,
+    200,
+    0,
+    155,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 0,
+  "missing": 1,
+  "extra": 0,
+  "globals": 0,
+  "ok": false,
+  "sample_missing": [
+   "ann-00127 deploy v51.3 (Node Name: node-0000)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 6743,
+  "failed": 1,
+  "maxBody": 2578,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    244,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    245,
+    200,
+    17,
+    150,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 0,
+  "missing": 1,
+  "extra": 0,
+  "globals": 17,
+  "ok": false,
+  "sample_missing": [
+   "ann-00127 deploy v51.3 (Node Name: node-0000)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 6852,
+  "failed": 1,
+  "maxBody": 2583,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    254,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    257,
+    200,
+    50,
+    150,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 0,
+  "missing": 1,
+  "extra": 0,
+  "globals": 50,
+  "ok": false,
+  "sample_missing": [
+   "ann-00127 deploy v51.3 (Node Name: node-0000)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 7274,
+  "failed": 1,
+  "maxBody": 2688,
+  "maxUrl": 350,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    291,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    296,
+    200,
+    17,
+    150,
+    null
+   ]
+  ],
+  "expected": 3,
+  "got": 0,
+  "missing": 3,
+  "extra": 0,
+  "globals": 17,
+  "ok": false,
+  "sample_missing": [
+   "ann-00027 deploy v59.4 (Service Name: node-0856-mysql-1)",
+   "ann-00127 deploy v51.3 (Node Name: node-0000)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "main",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 8477,
+  "failed": 4,
+  "maxBody": 121374,
+  "maxUrl": 176305,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    266,
+    200,
+    0,
+    172,
+    null
+   ],
+   [
+    "GET",
+    216,
+    200,
+    1,
+    15166,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "main",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 8597,
+  "failed": 2,
+  "maxBody": 121375,
+  "maxUrl": 176305,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    269,
+    200,
+    0,
+    172,
+    null
+   ],
+   [
+    "GET",
+    237,
+    200,
+    47,
+    15166,
+    null
+   ]
+  ],
+  "expected": 30,
+  "got": 30,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "main",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 9771,
+  "failed": 5,
+  "maxBody": 121376,
+  "maxUrl": 176305,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    272,
+    200,
+    0,
+    172,
+    null
+   ],
+   [
+    "GET",
+    223,
+    200,
+    100,
+    15166,
+    null
+   ]
+  ],
+  "expected": 156,
+  "got": 74,
+  "missing": 82,
+  "extra": 0,
+  "globals": 26,
+  "ok": false,
+  "sample_missing": [
+   "ann-00011 deploy v57.8 (Node Name: node-0006)",
+   "ann-00012 deploy v8.0 (Node Name: node-0272)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "main",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 7221,
+  "failed": 0,
+  "maxBody": 25243,
+  "maxUrl": 35481,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    237,
+    200,
+    0,
+    172,
+    null
+   ],
+   [
+    "GET",
+    166,
+    200,
+    25,
+    3150,
+    null
+   ]
+  ],
+  "expected": 8,
+  "got": 8,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "main",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 7290,
+  "failed": 0,
+  "maxBody": 1338,
+  "maxUrl": 457,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    238,
+    200,
+    0,
+    172,
+    null
+   ],
+   [
+    "GET",
+    66,
+    200,
+    1,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "main",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 7623,
+  "failed": 0,
+  "maxBody": 1339,
+  "maxUrl": 457,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    254,
+    200,
+    0,
+    172,
+    null
+   ],
+   [
+    "GET",
+    63,
+    200,
+    18,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "main",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 7580,
+  "failed": 0,
+  "maxBody": 1340,
+  "maxUrl": 457,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    236,
+    200,
+    0,
+    172,
+    null
+   ],
+   [
+    "GET",
+    116,
+    200,
+    51,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "main",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 7288,
+  "failed": 0,
+  "maxBody": 1603,
+  "maxUrl": 809,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    314,
+    200,
+    0,
+    172,
+    null
+   ],
+   [
+    "GET",
+    177,
+    200,
+    18,
+    195,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "pr",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 8680,
+  "failed": 0,
+  "maxBody": 121770,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    288,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    137,
+    200,
+    0,
+    160,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "pr",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 9014,
+  "failed": 0,
+  "maxBody": 121771,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    294,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    86,
+    200,
+    17,
+    160,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "pr",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 9336,
+  "failed": 0,
+  "maxBody": 121772,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    243,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    121,
+    200,
+    50,
+    160,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "pr",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 7522,
+  "failed": 0,
+  "maxBody": 25639,
+  "maxUrl": 386,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    279,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    139,
+    200,
+    17,
+    160,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "pr",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 7699,
+  "failed": 0,
+  "maxBody": 1734,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    291,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    403,
+    200,
+    1,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "pr",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 7447,
+  "failed": 0,
+  "maxBody": 1735,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    259,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    111,
+    200,
+    18,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "pr",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 7593,
+  "failed": 0,
+  "maxBody": 1736,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    272,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    133,
+    200,
+    51,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "pr",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 7485,
+  "failed": 0,
+  "maxBody": 1999,
+  "maxUrl": 414,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    267,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    120,
+    200,
+    18,
+    195,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "E",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 8910,
+  "failed": 0,
+  "maxBody": 121770,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    273,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    276,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "POST",
+    129,
+    200,
+    9,
+    438,
+    null
+   ]
+  ],
+  "expected": 9,
+  "got": 9,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "E",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 9022,
+  "failed": 0,
+  "maxBody": 121771,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    259,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    264,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    215,
+    200,
+    125,
+    439,
+    null
+   ]
+  ],
+  "expected": 124,
+  "got": 125,
+  "missing": 0,
+  "extra": 1,
+  "globals": 17,
+  "ok": false,
+  "sample_missing": [],
+  "sample_extra": [
+   "ann-00420 deploy v25.1 (Service Name: node-0788-mysql-1)"
+  ]
+ },
+ {
+  "dash": "nodes",
+  "variant": "E",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 9550,
+  "failed": 0,
+  "maxBody": 121772,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    252,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    256,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    47,
+    200,
+    499,
+    440,
+    null
+   ]
+  ],
+  "expected": 500,
+  "got": 499,
+  "missing": 1,
+  "extra": 0,
+  "globals": 50,
+  "ok": false,
+  "sample_missing": [
+   "ann-00102 deploy v94.1 (Node Name: node-0610)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "E",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 7519,
+  "failed": 0,
+  "maxBody": 25639,
+  "maxUrl": 386,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    234,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    234,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    224,
+    200,
+    29,
+    442,
+    null
+   ]
+  ],
+  "expected": 29,
+  "got": 29,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "E",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 7075,
+  "failed": 0,
+  "maxBody": 1734,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    244,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    247,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "POST",
+    135,
+    200,
+    1,
+    445,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "E",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 7421,
+  "failed": 0,
+  "maxBody": 1735,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    313,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    318,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    222,
+    200,
+    1,
+    446,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "E",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 7595,
+  "failed": 0,
+  "maxBody": 1736,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    206,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    210,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    221,
+    200,
+    1,
+    447,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "E",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 7826,
+  "failed": 0,
+  "maxBody": 1999,
+  "maxUrl": 414,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    283,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    287,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    111,
+    200,
+    3,
+    468,
+    null
+   ]
+  ],
+  "expected": 3,
+  "got": 3,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 8465,
+  "failed": 1,
+  "maxBody": 121770,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    288,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    290,
+    200,
+    0,
+    169,
+    null
+   ]
+  ],
+  "expected": 9,
+  "got": 0,
+  "missing": 9,
+  "extra": 0,
+  "globals": 0,
+  "ok": false,
+  "sample_missing": [
+   "ann-00027 deploy v59.4 (Service Name: node-0856-mysql-1)",
+   "ann-00042 deploy v66.6 (Service Name: node-0099-mongodb-1)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 9055,
+  "failed": 1,
+  "maxBody": 121771,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    281,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    286,
+    200,
+    17,
+    150,
+    null
+   ]
+  ],
+  "expected": 124,
+  "got": 0,
+  "missing": 124,
+  "extra": 0,
+  "globals": 17,
+  "ok": false,
+  "sample_missing": [
+   "ann-00000 deploy v36.7 (Service Name: node-0990-mysql-0)",
+   "ann-00002 deploy v35.4 (Node Name: node-0198)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 9751,
+  "failed": 1,
+  "maxBody": 121772,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    260,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    266,
+    200,
+    50,
+    150,
+    null
+   ]
+  ],
+  "expected": 500,
+  "got": 0,
+  "missing": 500,
+  "extra": 0,
+  "globals": 50,
+  "ok": false,
+  "sample_missing": [
+   "ann-00000 deploy v36.7 (Service Name: node-0990-mysql-0)",
+   "ann-00001 deploy v90.3 (Node Name: node-0525)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 8155,
+  "failed": 1,
+  "maxBody": 25639,
+  "maxUrl": 386,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    273,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    278,
+    200,
+    17,
+    150,
+    null
+   ]
+  ],
+  "expected": 29,
+  "got": 0,
+  "missing": 29,
+  "extra": 0,
+  "globals": 17,
+  "ok": false,
+  "sample_missing": [
+   "ann-00036 deploy v52.0 (Service Name: node-0934-valkey-0)",
+   "ann-00042 deploy v66.6 (Service Name: node-0099-mongodb-1)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 7535,
+  "failed": 1,
+  "maxBody": 1734,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    256,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    255,
+    200,
+    0,
+    169,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 0,
+  "missing": 1,
+  "extra": 0,
+  "globals": 0,
+  "ok": false,
+  "sample_missing": [
+   "ann-00127 deploy v51.3 (Node Name: node-0000)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 7578,
+  "failed": 1,
+  "maxBody": 1735,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    272,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    278,
+    200,
+    17,
+    150,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 0,
+  "missing": 1,
+  "extra": 0,
+  "globals": 17,
+  "ok": false,
+  "sample_missing": [
+   "ann-00127 deploy v51.3 (Node Name: node-0000)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 7697,
+  "failed": 1,
+  "maxBody": 1736,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    324,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    329,
+    200,
+    50,
+    150,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 0,
+  "missing": 1,
+  "extra": 0,
+  "globals": 50,
+  "ok": false,
+  "sample_missing": [
+   "ann-00127 deploy v51.3 (Node Name: node-0000)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 8050,
+  "failed": 1,
+  "maxBody": 1999,
+  "maxUrl": 414,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    201,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    204,
+    200,
+    17,
+    150,
+    null
+   ]
+  ],
+  "expected": 3,
+  "got": 0,
+  "missing": 3,
+  "extra": 0,
+  "globals": 17,
+  "ok": false,
+  "sample_missing": [
+   "ann-00027 deploy v59.4 (Service Name: node-0856-mysql-1)",
+   "ann-00127 deploy v51.3 (Node Name: node-0000)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 8935,
+  "failed": 0,
+  "maxBody": 361136,
+  "maxUrl": 61150,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    296,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    565,
+    200,
+    5,
+    61150,
+    null
+   ]
+  ],
+  "expected": 5,
+  "got": 5,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 8966,
+  "failed": 0,
+  "maxBody": 361137,
+  "maxUrl": 61150,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    293,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    596,
+    200,
+    74,
+    61150,
+    null
+   ]
+  ],
+  "expected": 57,
+  "got": 57,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 10318,
+  "failed": 0,
+  "maxBody": 361138,
+  "maxUrl": 61150,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    255,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    492,
+    200,
+    100,
+    61150,
+    null
+   ]
+  ],
+  "expected": 264,
+  "got": 79,
+  "missing": 185,
+  "extra": 0,
+  "globals": 21,
+  "ok": false,
+  "sample_missing": [
+   "ann-00008 deploy v82.1 (Node Name: node-0478)",
+   "ann-00011 deploy v57.8 (Node Name: node-0006)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 7272,
+  "failed": 0,
+  "maxBody": 73137,
+  "maxUrl": 12350,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    256,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    296,
+    200,
+    30,
+    12350,
+    null
+   ]
+  ],
+  "expected": 13,
+  "got": 13,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 7415,
+  "failed": 0,
+  "maxBody": 1496,
+  "maxUrl": 333,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    297,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    177,
+    200,
+    1,
+    211,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 6734,
+  "failed": 0,
+  "maxBody": 1497,
+  "maxUrl": 333,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    300,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    171,
+    200,
+    18,
+    211,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 6812,
+  "failed": 0,
+  "maxBody": 1498,
+  "maxUrl": 333,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    245,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    546,
+    200,
+    51,
+    211,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 7242,
+  "failed": 0,
+  "maxBody": 2217,
+  "maxUrl": 401,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    292,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    126,
+    200,
+    20,
+    333,
+    null
+   ]
+  ],
+  "expected": 3,
+  "got": 3,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "svc",
+  "rng": "6h",
+  "loadMs": 6901,
+  "failed": 0,
+  "maxBody": 1296,
+  "maxUrl": 333,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    209,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    228,
+    200,
+    1,
+    188,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "svc",
+  "rng": "30d",
+  "loadMs": 6792,
+  "failed": 0,
+  "maxBody": 1298,
+  "maxUrl": 333,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    285,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    347,
+    200,
+    51,
+    188,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 8252,
+  "failed": 0,
+  "maxBody": 2076,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    286,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    210,
+    200,
+    0,
+    170,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 8440,
+  "failed": 0,
+  "maxBody": 2077,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    296,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    236,
+    200,
+    17,
+    170,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 9695,
+  "failed": 0,
+  "maxBody": 2078,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    240,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    223,
+    200,
+    50,
+    170,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 6718,
+  "failed": 0,
+  "maxBody": 2107,
+  "maxUrl": 414,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    263,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    242,
+    200,
+    17,
+    170,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 6869,
+  "failed": 0,
+  "maxBody": 2146,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    371,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    311,
+    200,
+    1,
+    175,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 6605,
+  "failed": 0,
+  "maxBody": 2147,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    321,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    196,
+    200,
+    18,
+    175,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 7037,
+  "failed": 0,
+  "maxBody": 2148,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    300,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    374,
+    200,
+    51,
+    175,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 6950,
+  "failed": 0,
+  "maxBody": 2367,
+  "maxUrl": 442,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    296,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    170,
+    200,
+    18,
+    205,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "svc",
+  "rng": "6h",
+  "loadMs": 6487,
+  "failed": 0,
+  "maxBody": 2296,
+  "maxUrl": 429,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    204,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    191,
+    200,
+    1,
+    188,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "svc",
+  "rng": "30d",
+  "loadMs": 6482,
+  "failed": 0,
+  "maxBody": 2298,
+  "maxUrl": 429,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    227,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    503,
+    200,
+    51,
+    188,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 7802,
+  "failed": 0,
+  "maxBody": 2076,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    285,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    284,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "POST",
+    26,
+    200,
+    4,
+    522,
+    null
+   ]
+  ],
+  "expected": 4,
+  "got": 4,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 8826,
+  "failed": 0,
+  "maxBody": 2077,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    297,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    305,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    45,
+    200,
+    28,
+    523,
+    null
+   ]
+  ],
+  "expected": 27,
+  "got": 28,
+  "missing": 0,
+  "extra": 1,
+  "globals": 17,
+  "ok": false,
+  "sample_missing": [],
+  "sample_extra": [
+   "ann-00420 deploy v25.1 (Service Name: node-0788-mysql-1)"
+  ]
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 9003,
+  "failed": 0,
+  "maxBody": 2078,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    279,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    282,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    263,
+    200,
+    108,
+    524,
+    null
+   ]
+  ],
+  "expected": 108,
+  "got": 108,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 7233,
+  "failed": 0,
+  "maxBody": 2107,
+  "maxUrl": 414,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    287,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    293,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    55,
+    200,
+    5,
+    526,
+    null
+   ]
+  ],
+  "expected": 5,
+  "got": 5,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 7004,
+  "failed": 0,
+  "maxBody": 2146,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    296,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    300,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "POST",
+    82,
+    200,
+    0,
+    529,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 6677,
+  "failed": 0,
+  "maxBody": 2147,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    281,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    286,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    36,
+    200,
+    0,
+    530,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 6498,
+  "failed": 0,
+  "maxBody": 2148,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    300,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    306,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    45,
+    200,
+    0,
+    531,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 6965,
+  "failed": 0,
+  "maxBody": 2367,
+  "maxUrl": 442,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    254,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    255,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    50,
+    200,
+    2,
+    552,
+    null
+   ]
+  ],
+  "expected": 2,
+  "got": 2,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "svc",
+  "rng": "6h",
+  "loadMs": 7231,
+  "failed": 0,
+  "maxBody": 2296,
+  "maxUrl": 429,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    353,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    353,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "POST",
+    53,
+    200,
+    1,
+    544,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "svc",
+  "rng": "30d",
+  "loadMs": 6809,
+  "failed": 0,
+  "maxBody": 2298,
+  "maxUrl": 429,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    348,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    354,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    67,
+    200,
+    1,
+    546,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 8205,
+  "failed": 1,
+  "maxBody": 2076,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    249,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    252,
+    200,
+    0,
+    170,
+    null
+   ]
+  ],
+  "expected": 4,
+  "got": 0,
+  "missing": 4,
+  "extra": 0,
+  "globals": 0,
+  "ok": false,
+  "sample_missing": [
+   "ann-00027 deploy v59.4 (Service Name: node-0856-mysql-1)",
+   "ann-00141 deploy v20.0 (Service Name: node-0459-mysql-0, node-0459-postgresql-0, node-0459-postgresql-1, node-0459-mongodb-1)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 8579,
+  "failed": 1,
+  "maxBody": 2077,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    229,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    234,
+    200,
+    17,
+    150,
+    null
+   ]
+  ],
+  "expected": 27,
+  "got": 0,
+  "missing": 27,
+  "extra": 0,
+  "globals": 17,
+  "ok": false,
+  "sample_missing": [
+   "ann-00000 deploy v36.7 (Service Name: node-0990-mysql-0)",
+   "ann-00021 deploy v23.5 (Service Name: node-0320-mysql-1)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 8561,
+  "failed": 1,
+  "maxBody": 2078,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    231,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    232,
+    200,
+    50,
+    150,
+    null
+   ]
+  ],
+  "expected": 108,
+  "got": 0,
+  "missing": 108,
+  "extra": 0,
+  "globals": 50,
+  "ok": false,
+  "sample_missing": [
+   "ann-00000 deploy v36.7 (Service Name: node-0990-mysql-0)",
+   "ann-00007 deploy v98.4 (Service Name: node-0352-mysql-0)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 7199,
+  "failed": 1,
+  "maxBody": 2107,
+  "maxUrl": 414,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    254,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    259,
+    200,
+    17,
+    150,
+    null
+   ]
+  ],
+  "expected": 5,
+  "got": 0,
+  "missing": 5,
+  "extra": 0,
+  "globals": 17,
+  "ok": false,
+  "sample_missing": [
+   "ann-00073 deploy v34.7 (Service Name: node-0199-mysql-0)",
+   "ann-00141 deploy v20.0 (Service Name: node-0459-mysql-0, node-0459-postgresql-0, node-0459-postgresql-1, node-0459-mongodb-1)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 6964,
+  "failed": 1,
+  "maxBody": 2146,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    255,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    259,
+    200,
+    0,
+    170,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 7248,
+  "failed": 1,
+  "maxBody": 2147,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    274,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    279,
+    200,
+    17,
+    150,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 7051,
+  "failed": 1,
+  "maxBody": 2148,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    259,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    265,
+    200,
+    50,
+    150,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 6797,
+  "failed": 1,
+  "maxBody": 2367,
+  "maxUrl": 442,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    257,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    261,
+    200,
+    17,
+    150,
+    null
+   ]
+  ],
+  "expected": 2,
+  "got": 0,
+  "missing": 2,
+  "extra": 0,
+  "globals": 17,
+  "ok": false,
+  "sample_missing": [
+   "ann-00027 deploy v59.4 (Service Name: node-0856-mysql-1)",
+   "ann-00141 deploy v20.0 (Service Name: node-0459-mysql-0, node-0459-postgresql-0, node-0459-postgresql-1, node-0459-mongodb-1)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "svc",
+  "rng": "6h",
+  "loadMs": 7035,
+  "failed": 1,
+  "maxBody": 2296,
+  "maxUrl": 429,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    281,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    284,
+    200,
+    0,
+    170,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 0,
+  "missing": 1,
+  "extra": 0,
+  "globals": 0,
+  "ok": false,
+  "sample_missing": [
+   "ann-00027 deploy v59.4 (Service Name: node-0856-mysql-1)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "svc",
+  "rng": "30d",
+  "loadMs": 7085,
+  "failed": 1,
+  "maxBody": 2298,
+  "maxUrl": 429,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    303,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    308,
+    200,
+    50,
+    150,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 0,
+  "missing": 1,
+  "extra": 0,
+  "globals": 50,
+  "ok": false,
+  "sample_missing": [
+   "ann-00027 deploy v59.4 (Service Name: node-0856-mysql-1)"
+  ],
+  "sample_extra": []
+ }
+]

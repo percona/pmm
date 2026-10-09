@@ -18,7 +18,7 @@ H = {'6h': 6 * 3600_000, '7d': 7 * 86400_000, '30d': 30 * 86400_000}
 rows = []
 to = int(time.time() * 1000)
 for dash in ('home', 'nodes', 'mysql'):
-    for variant in ('main', 'pr', 'E', 'K'):
+    for variant in os.environ.get('VARIANTS', 'main,pr,E,K').split(','):
         for case, env, nodes, svcs, ranges in CASES:
             if case == 'svc' and dash != 'mysql':
                 continue

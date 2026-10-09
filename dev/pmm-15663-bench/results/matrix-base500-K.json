@@ -1,0 +1,1172 @@
+[
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 7295,
+  "failed": 0,
+  "maxBody": 40600,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    243,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    242,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "POST",
+    64,
+    200,
+    9,
+    507,
+    null
+   ]
+  ],
+  "expected": 9,
+  "got": 9,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 7632,
+  "failed": 0,
+  "maxBody": 40601,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    229,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    230,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    64,
+    200,
+    124,
+    508,
+    null
+   ]
+  ],
+  "expected": 124,
+  "got": 124,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 8983,
+  "failed": 0,
+  "maxBody": 40602,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    250,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    254,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    38,
+    200,
+    498,
+    509,
+    null
+   ]
+  ],
+  "expected": 498,
+  "got": 498,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 6840,
+  "failed": 0,
+  "maxBody": 8557,
+  "maxUrl": 322,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    232,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    235,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    88,
+    200,
+    29,
+    511,
+    null
+   ]
+  ],
+  "expected": 29,
+  "got": 29,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 7326,
+  "failed": 0,
+  "maxBody": 2573,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    223,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    223,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "POST",
+    61,
+    200,
+    1,
+    514,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 7115,
+  "failed": 0,
+  "maxBody": 2578,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    307,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    310,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    80,
+    200,
+    1,
+    515,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 7086,
+  "failed": 0,
+  "maxBody": 2583,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    245,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    246,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    151,
+    200,
+    1,
+    516,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 6975,
+  "failed": 0,
+  "maxBody": 2688,
+  "maxUrl": 350,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    254,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    257,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    70,
+    200,
+    3,
+    537,
+    null
+   ]
+  ],
+  "expected": 3,
+  "got": 3,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 9469,
+  "failed": 0,
+  "maxBody": 121770,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    250,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    255,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "POST",
+    24,
+    200,
+    9,
+    507,
+    null
+   ]
+  ],
+  "expected": 9,
+  "got": 9,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 8903,
+  "failed": 0,
+  "maxBody": 121771,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    231,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    232,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    37,
+    200,
+    124,
+    508,
+    null
+   ]
+  ],
+  "expected": 124,
+  "got": 124,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 9909,
+  "failed": 0,
+  "maxBody": 121772,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    260,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    264,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    35,
+    200,
+    498,
+    509,
+    null
+   ]
+  ],
+  "expected": 498,
+  "got": 498,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 7475,
+  "failed": 0,
+  "maxBody": 25639,
+  "maxUrl": 386,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    292,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    296,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    23,
+    200,
+    29,
+    511,
+    null
+   ]
+  ],
+  "expected": 29,
+  "got": 29,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 7092,
+  "failed": 0,
+  "maxBody": 1734,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    248,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    247,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "POST",
+    39,
+    200,
+    1,
+    514,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 7608,
+  "failed": 0,
+  "maxBody": 1735,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    294,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    296,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    42,
+    200,
+    1,
+    515,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 7239,
+  "failed": 0,
+  "maxBody": 1736,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    239,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    245,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    39,
+    200,
+    1,
+    516,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 7627,
+  "failed": 0,
+  "maxBody": 1999,
+  "maxUrl": 414,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    207,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    208,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    59,
+    200,
+    3,
+    537,
+    null
+   ]
+  ],
+  "expected": 3,
+  "got": 3,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 8216,
+  "failed": 0,
+  "maxBody": 2076,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    305,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    308,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "POST",
+    27,
+    200,
+    4,
+    683,
+    null
+   ]
+  ],
+  "expected": 4,
+  "got": 4,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 9263,
+  "failed": 0,
+  "maxBody": 2077,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    349,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    355,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    31,
+    200,
+    27,
+    684,
+    null
+   ]
+  ],
+  "expected": 27,
+  "got": 27,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 10351,
+  "failed": 0,
+  "maxBody": 2078,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    284,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    285,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    33,
+    200,
+    108,
+    685,
+    null
+   ]
+  ],
+  "expected": 108,
+  "got": 108,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 7281,
+  "failed": 0,
+  "maxBody": 2107,
+  "maxUrl": 414,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    294,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    296,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    79,
+    200,
+    5,
+    687,
+    null
+   ]
+  ],
+  "expected": 5,
+  "got": 5,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 7269,
+  "failed": 0,
+  "maxBody": 2146,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    252,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    258,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "POST",
+    91,
+    200,
+    0,
+    690,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 7108,
+  "failed": 0,
+  "maxBody": 2147,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    307,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    314,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    66,
+    200,
+    0,
+    691,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 7124,
+  "failed": 0,
+  "maxBody": 2148,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    271,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    277,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    64,
+    200,
+    0,
+    692,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 7316,
+  "failed": 0,
+  "maxBody": 2367,
+  "maxUrl": 442,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    314,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    318,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    68,
+    200,
+    2,
+    713,
+    null
+   ]
+  ],
+  "expected": 2,
+  "got": 2,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "svc",
+  "rng": "6h",
+  "loadMs": 7031,
+  "failed": 0,
+  "maxBody": 2296,
+  "maxUrl": 429,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    298,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    298,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "POST",
+    84,
+    200,
+    1,
+    705,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "svc",
+  "rng": "30d",
+  "loadMs": 6803,
+  "failed": 0,
+  "maxBody": 2298,
+  "maxUrl": 429,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    255,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    265,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    67,
+    200,
+    1,
+    707,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ }
+]

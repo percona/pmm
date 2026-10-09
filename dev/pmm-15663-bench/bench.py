@@ -36,10 +36,10 @@ E_SEL = {
     'svc': 'environment=~".*",node_name=~"node-0856",service_name=~"node-0856-mysql-1",service_type="mysql"',
 }
 K_COND = {
-    'all': '1',
-    'env': "environment IN ('env-4')",
-    'node': "node_name IN ('node-0000')",
-    'svc': "has(service_types, 'mysql') AND node_name IN ('node-0856') AND hasAny(service_names, ['node-0856-mysql-1'])",
+    'all': "match(environment, '^(.*)$') AND match(node_name, '^(.+)$')",
+    'env': "match(environment, '^(env-4)$') AND match(node_name, '^(.+)$')",
+    'node': "match(environment, '^(.*)$') AND match(node_name, '^(node-0000)$')",
+    'svc': "has(service_types, 'mysql') AND match(node_name, '^(node-0856)$') AND arrayExists(x -> match(x, '^(node-0856-mysql-1)$'), service_names)",
     # the _list form: every name inlined, as IN (${service_name_list:singlequote}) would send on All
     'list-nodes': 'node_name IN (' + ','.join(map(q, ALL_NODES)) + ')',
     'list-svcs': 'hasAny(service_names, [' + ','.join(map(q, ALL_SVCS)) + '])',

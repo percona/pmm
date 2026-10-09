@@ -11,6 +11,8 @@ NODES = int(__import__("os").environ.get("NODES", 1000))
 ENVS = 5
 KINDS = [('mysql', 2), ('postgresql', 2), ('mongodb', 2), ('valkey', 2)]
 STEP = 60_000
+FILLER_ONLY = __import__('os').environ.get('FILLER_ONLY') == '1'
+FILL_TS = [None]
 RECENT = 180          # 3h of 1-min samples
 DAYS = 30             # plus one sample per day for 30 days (per-day index entries)
 
@@ -107,6 +109,8 @@ def values(kind, ts, rnd):
     return out
 
 def emit(labels, kind, ts, rnd, w):
+    if FILLER_ONLY and ts is not FILL_TS[0]:
+        return
     w.write(json.dumps({'metric': labels, 'values': values(kind, ts, rnd), 'timestamps': ts}, separators=(',', ':')))
     w.write('\n')
 
@@ -115,6 +119,7 @@ def metrics(stress, now):
     ts = timestamps(now)
     # filler series only need per-day index entries and a recent sample, not dense data
     ts_fill = ts[:DAYS] + ts[-10:]
+    FILL_TS[0] = ts_fill
     nodes, services = fleet()
     w = sys.stdout
     n_series = 0
