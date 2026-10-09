@@ -209,37 +209,30 @@ export interface ProposedNavTreeInput {
 }
 
 // Configuration is the one place for everything configurable about PMM, so
-// Users and access and the Account fold into it. Nested groups drop their
-// icons to sit level with the plain entries beside them.
+// Users and access folds into it. The Account stays a top-level entry: it
+// carries the signed-in user's name, which is how people see who is logged
+// in, and that is lost one level down. Nested groups drop their icons to sit
+// level with the plain entries beside them.
 const addConfigurationGroup = ({
-  user,
-  isLoggedIn,
-  settings,
   updateStatus,
   versionInfo,
-  colorMode,
-  toggleColorMode,
 }: ProposedNavTreeInput): NavItem => {
   const configuration = addConfiguration(updateStatus, versionInfo);
-  const children = [
-    ...(configuration.children || []),
-    { ...NAV_USERS_AND_ACCESS, icon: undefined },
-  ];
 
-  if (user && isLoggedIn) {
-    children.push({
-      ...addAccount(user, colorMode, toggleColorMode, settings),
-      icon: undefined,
-    });
-  }
-
-  return { ...configuration, children };
+  return {
+    ...configuration,
+    children: [
+      ...(configuration.children || []),
+      { ...NAV_USERS_AND_ACCESS, icon: undefined },
+    ],
+  };
 };
 
 export const buildProposedNavTree = (
   input: ProposedNavTreeInput
 ): NavItem[] => {
-  const { user, isLoggedIn, haInfo } = input;
+  const { user, isLoggedIn, haInfo, settings, colorMode, toggleColorMode } =
+    input;
   const items: NavItem[] = [
     addHomePage(user?.preferences),
     NAV_SECTIONS.myNavigation,
@@ -261,8 +254,13 @@ export const buildProposedNavTree = (
     // reviewed anywhere; a live status badge appears when it does.
     haInfo?.enabled ? addHighAvailability(haInfo) : NAV_HIGH_AVAILABILITY,
     addConfigurationGroup(input),
-    NAV_HELP,
   ];
+
+  if (user && isLoggedIn) {
+    items.push(addAccount(user, colorMode, toggleColorMode, settings));
+  }
+
+  items.push(NAV_HELP);
 
   if (!isLoggedIn) {
     items.push(NAV_SIGN_IN);

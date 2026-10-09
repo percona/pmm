@@ -62,6 +62,7 @@ describe('buildProposedNavTree', () => {
       'section-administration',
       'high-availability',
       'configuration',
+      'account',
       'help',
     ]);
   });
@@ -189,7 +190,7 @@ describe('buildProposedNavTree', () => {
     expect(findById(tree, 'help')?.children).toBeUndefined();
   });
 
-  it('folds Users and access and the Account into Configuration', () => {
+  it('folds Users and access into Configuration', () => {
     const tree = build();
 
     expect(ids(findById(tree, 'configuration')?.children)).toEqual([
@@ -197,9 +198,18 @@ describe('buildProposedNavTree', () => {
       'updates',
       'org-management',
       'users-and-access',
-      'account',
     ]);
-    expect(ids(tree)).not.toContain('account');
+    expect(ids(tree)).not.toContain('users-and-access');
+  });
+
+  it('keeps the Account at the top level, named after the signed-in user', () => {
+    const account = findById(build(), 'account');
+
+    expect(account?.text).toBe(
+      `Account: ${TEST_USER_ADMIN.name.split(' ')[0]}`
+    );
+    expect(account?.icon).toBeDefined();
+    expect(ids(account?.children)).toContain('sign-out');
   });
 
   it('shows PMM HA even when the instance does not run in HA', () => {
@@ -235,8 +245,6 @@ describe('buildProposedNavTree', () => {
     const tree = build({ user: TEST_USER_ANONYMOUS, isLoggedIn: false });
 
     expect(ids(tree)).toContain('sign-in');
-    expect(ids(findById(tree, 'configuration')?.children)).not.toContain(
-      'account'
-    );
+    expect(ids(tree)).not.toContain('account');
   });
 });
