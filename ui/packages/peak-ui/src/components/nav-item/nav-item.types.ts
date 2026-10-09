@@ -4,7 +4,7 @@ import type { ElementType, ReactNode } from 'react';
 export type NavItemDotColor = 'success' | 'info' | 'warning' | 'error';
 
 export interface NavItemProps extends Omit<ListItemButtonProps, 'children' | 'disableGutters'> {
-  /** Label text of the item itself. */
+  /** Label text of the item. */
   text: string;
   /** Smaller text under the label, cut with an ellipsis when it's too long. */
   secondaryText?: string;
