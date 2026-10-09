@@ -217,6 +217,8 @@ export function ResultsPane({
   const [page, setPage] = useState({ offset: 0, limit: ATW_PAGE_SIZE });
   const { data, isLoading, error } = useAtwIncidentExecutions(incidentId, page);
   const { data: incident } = useAtwIncident(incidentId);
+  // Unknown until the incident loads; a closed one accepts no runs.
+  const acceptsRuns = incident !== undefined && !incident.closed_at;
   const { data: config } = useAtwConfig();
   const { data: sendJobs, error: sendJobsError } = useAtwSendJobs(incidentId);
 
@@ -426,7 +428,7 @@ export function ResultsPane({
       {!isLoading && !error && (!rows || rows.length === 0) && (
         <Alert severity="info">
           {/* A closed incident has no Collect pane to point at. */}
-          {canMutate && !incident?.closed_at
+          {canMutate && acceptsRuns
             ? 'No executions yet. Run snippets from the Collect pane to see results here.'
             : 'No executions yet.'}
         </Alert>
@@ -508,7 +510,7 @@ export function ResultsPane({
           onOpenFiles={() => setFilesForTask(execution.task_history_id)}
           remembered={remembered?.get(execution.task_history_id)}
           rerunPending={rerunMutation.isPending}
-          canRerun={!incident?.closed_at}
+          canRerun={acceptsRuns}
           onRunAgain={() => handleRunAgain(execution)}
           onEditParameters={() => onEditParameters?.(execution)}
         />

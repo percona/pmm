@@ -385,6 +385,21 @@ describe('IncidentWorkspacePage — write access', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('withholds the Collect pane until the incident has loaded', async () => {
+    const serveOpen = mockedApi.get.getMockImplementation() as (
+      url: string
+    ) => Promise<unknown>;
+    mockedApi.get.mockImplementation((url: string) =>
+      url === `/apps/atw/incidents/${incidentId}`
+        ? new Promise(() => {})
+        : serveOpen(url)
+    );
+    renderWorkspace();
+
+    await waitFor(() => expect(screen.getByText('Results')).toBeTruthy());
+    expect(screen.queryByText('Collect')).not.toBeInTheDocument();
+  });
+
   it('withholds the Collect pane from a non-admin, leaving Results', async () => {
     mockCanMutate = false;
     renderWorkspace();

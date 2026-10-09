@@ -1381,6 +1381,30 @@ describe('ResultsPane rerun actions', () => {
     expect(screen.queryByRole('button', { name: 'Run again' })).toBeNull();
   });
 
+  it('offers no rerun until the incident has loaded and is known to be open', async () => {
+    const serveOpen = mockedApi.get.getMockImplementation() as (
+      url: string
+    ) => Promise<unknown>;
+    mockedApi.get.mockImplementation((url: string) =>
+      url === '/apps/atw/incidents/inc-1'
+        ? new Promise(() => {})
+        : serveOpen(url)
+    );
+    renderPane(
+      <ResultsPane
+        incidentId="inc-1"
+        remembered={new Map([[42, { snippets: [], values: {} }]])}
+      />
+    );
+    await expandRow();
+
+    await act(async () => {});
+    expect(
+      screen.queryByRole('button', { name: 'Edit parameters and run again' })
+    ).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Run again' })).toBeNull();
+  });
+
   it('calls onEditParameters with the execution', async () => {
     const onEditParameters = vi.fn();
     renderPane(
