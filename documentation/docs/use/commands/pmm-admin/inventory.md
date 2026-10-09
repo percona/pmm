@@ -529,39 +529,6 @@ PMM restarts the exporter. If a name is not set in the `pmm-agent` environment, 
 
 To check which names are currently stored, run `pmm-admin inventory change agent mongodb-exporter <AGENT_ID>` with no flags. The command changes nothing and prints the agent, including the **Environment variables** line.
 
-### Disable collectors for node-exporter
-
-If `node_exporter` is collecting metrics you don't need, disabling specific collectors reduces the load on the node and cuts the number of series PMM stores. You can do this at any time without removing the node from monitoring.
-
-```bash
-pmm-admin inventory change agent node-exporter <AGENT_ID> \
-  --disable-collectors=diskstats,meminfo
-```
-
-To find the agent ID, run `pmm-admin inventory list agents --agent-type=node-exporter`. Each name maps to one `node_exporter` collector, such as `cpu`, `diskstats` or `processes`.
-
-#### How the list works
-
-Each time you pass `--disable-collectors`, the new list replaces the stored one:
-
-- Collectors you leave out return to the PMM default.
-- If you omit the flag entirely, the stored list doesn't change.
-- To reset all collectors to the PMM default, pass an empty value: `--disable-collectors=`.
-
-#### Stopping built-in collectors
-
-Starting with PMM 3.10.0, disabling a collector also stops collectors that `node_exporter` runs by default. The same applies to collectors you disabled at registration with `pmm-admin config --disable-collectors`.
-
-Collectors enabled by default on Linux:
-
-`arp`, `bcache`, `bonding`, `btrfs`, `conntrack`, `cpu`, `cpufreq`, `diskstats`, `dmi`, `edac`, `entropy`, `fibrechannel`, `filefd`, `filesystem`, `hwmon`, `infiniband`, `ipvs`, `loadavg`, `mdadm`, `meminfo`, `netclass`, `netdev`, `netstat`, `nfs`, `nfsd`, `nvme`, `os`, `powersupplyclass`, `pressure`, `rapl`, `schedstat`, `selinux`, `sockstat`, `softnet`, `stat`, `tapestats`, `textfile`, `thermal_zone`, `time`, `timex`, `udp_queues`, `uname`, `vmstat`, `watchdog`, `xfs`, `zfs`
-
-The change takes effect without interrupting other metrics from the node. This works only on Linux nodes with PMM Client 3.0.0 or later. On PMM Client 2.x, default collectors keep running regardless.
-
-#### Textfile collector
-
-To stop custom metrics from the [textfile collector](../../metrics/extend_metrics.md), use the resolution-specific names: `textfile.hr`, `textfile.mr`, or `textfile.lr`. Disabling `textfile` alone has no effect.
-
 ### Error handling
 
 The command returns a clear error message in these cases:
