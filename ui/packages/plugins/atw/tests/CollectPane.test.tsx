@@ -70,12 +70,10 @@ describe('CollectPane', () => {
       expect(screen.getByText(/This incident is closed/i)).toBeTruthy();
     });
     expect(screen.queryByRole('button', { name: /Execute batch/i })).toBeNull();
+    expect(screen.queryByText('Filter by category')).toBeNull();
     expect(
-      screen.queryByRole('combobox', { name: 'Subcategory 1' })
+      screen.queryByRole('combobox', { name: 'Search scripts' })
     ).toBeNull();
-    expect(screen.queryByRole('combobox', { name: 'Snippets' })).toBeNull();
-    expect(
-      screen.queryByText(/Search for a snippet by name or description/)
-    ).toBeNull();
+    expect(screen.queryByText(/Search by name or description/)).toBeNull();
   });
 });

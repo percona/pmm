@@ -34,6 +34,7 @@ import { useAuth } from '@pmm-extensions/api';
 import { formatTimestamp } from '@pmm-extensions/framework';
 import {
   ATW_INCIDENT_LIST_LIMIT,
+  useAtwConfig,
   useAtwIncidentLifecycle,
   useAtwIncidents,
   useCreateAtwIncident,
@@ -45,6 +46,8 @@ import {
   isIncidentClosed,
   RenameIncidentDialog,
 } from './IncidentActions';
+import { IncidentsEmptyState } from './IncidentsEmptyState';
+import { SendUnavailableNotice } from './SendUnavailableNotice';
 import type { AtwIncident } from './types';
 
 /**
@@ -88,7 +91,11 @@ export function IncidentListPage() {
     offset: 0,
     limit: ATW_INCIDENT_LIST_LIMIT,
   });
+  const { data: config } = useAtwConfig();
   const incidents = useMemo(() => data?.items ?? [], [data]);
+  const isEmpty = data?.total === 0;
+  const showIntro = isLoading || !isEmpty || Boolean(error);
+  const sendDisabledReasons = config?.send_disabled_reasons ?? [];
   const createMutation = useCreateAtwIncident();
   const lifecycle = useAtwIncidentLifecycle();
 
@@ -206,9 +213,10 @@ export function IncidentListPage() {
         {/*
           Withheld while the list is unavailable: a create would hit the same
           backend that just failed, so offering it only produces a second error
-          on top of one the user cannot act on.
+          on top of one the user cannot act on. Also withheld when empty — the
+          primary CTA lives inside the empty state instead (PMM-15515).
         */}
-        {!error && canMutate && (
+        {!error && canMutate && (isLoading || !isEmpty) && (
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -220,10 +228,12 @@ export function IncidentListPage() {
           </Button>
         )}
       </Stack>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Open an incident to run diagnostic snippets and review their results in
-        one place.
-      </Typography>
+      {showIntro && (
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          Open an incident to run diagnostic snippets and review their results
+          in one place.
+        </Typography>
+      )}
 
       {createMutation.isError && (
         <Alert
@@ -253,12 +263,15 @@ export function IncidentListPage() {
         </Alert>
       )}
 
-      {!isLoading && !error && incidents.length === 0 && (
-        <Alert severity="info">
-          {canMutate
-            ? 'No incidents yet. Create one to get started.'
-            : 'No incidents yet.'}
-        </Alert>
+      {!isLoading && !error && canMutate && sendDisabledReasons.length > 0 && (
+        <SendUnavailableNotice />
+      )}
+
+      {!isLoading && !error && isEmpty && (
+        <IncidentsEmptyState
+          onCreate={canMutate ? handleCreate : undefined}
+          creating={createMutation.isPending}
+        />
       )}
 
       {data && data.total > incidents.length && (

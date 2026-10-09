@@ -29,10 +29,11 @@ export {
   DeleteIncidentDialog,
 } from './IncidentActions';
 export { InlineEditableText } from './InlineEditableText';
-export { CategoryBrowser } from './CategoryBrowser';
+export { CategoryFilters } from './CategoryFilters';
 export { CollectPane } from './CollectPane';
 export { ResultsPane } from './ResultsPane';
 export { SendDialog } from './SendDialog';
+export { SendUnavailableNotice } from './SendUnavailableNotice';
 export {
   useAtwCategories,
   useAtwSnippetSearch,

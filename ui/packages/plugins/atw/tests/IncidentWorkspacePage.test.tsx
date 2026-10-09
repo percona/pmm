@@ -392,7 +392,7 @@ describe('IncidentWorkspacePage — write access', () => {
     await waitFor(() => expect(screen.getByText('Results')).toBeTruthy());
     expect(screen.queryByText('Collect')).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('combobox', { name: 'Snippets' })
+      screen.queryByRole('combobox', { name: 'Search scripts' })
     ).not.toBeInTheDocument();
     expect(screen.getByTestId('atw-collect-read-only')).toBeTruthy();
     expect(
@@ -541,7 +541,7 @@ describe('IncidentWorkspacePage — feedback for a run that just started', () =>
   async function runOneSnippet() {
     const user = userEvent.setup();
     await user.type(
-      await screen.findByRole('combobox', { name: 'Snippets' }),
+      await screen.findByRole('combobox', { name: 'Search scripts' }),
       'vmstat'
     );
     await user.click(
