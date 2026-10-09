@@ -134,6 +134,12 @@ func TestCheckRegistration(t *testing.T) {
 			want:     registrationMissing,
 		},
 		{
+			name:     "PMM Server does not accept the token the Agent runs with",
+			nodeName: testNodeName,
+			lookup:   failed(errTokenRejected),
+			want:     registrationUnverified,
+		},
+		{
 			name:     "PMM Server cannot be asked",
 			nodeName: testNodeName,
 			lookup:   failed(errors.New("connection refused")),
@@ -210,8 +216,6 @@ func TestWithGivenCredentials(t *testing.T) {
 	registeredNode := serverNode{Name: testNodeName, Address: testNodeAddress}
 	// A 401 which names no credential invalid: a failure of PMM Server's own, or a proxy's.
 	refused := aservice.NewGetAgentDefault(http.StatusUnauthorized)
-	// A token PMM Server no longer accepts, such as one of the service account a removed Node deleted.
-	rejected := errCredentialsRejected
 
 	// answers replies to consecutive lookups, and fails the test on a lookup it has no answer for.
 	answers := func(t *testing.T, results ...agentLookup) (agentLookup, *int) {
@@ -230,14 +234,14 @@ func TestWithGivenCredentials(t *testing.T) {
 
 	for _, tc := range []struct {
 		name string
+		// running holds the credentials the Agent runs with, defaulting to a service token
+		running *config.Config
 		// given holds the credentials setup was given, defaulting to those of a full command line
 		given   *config.Config
 		results []agentLookup
 		calls   int
 		node    serverNode
 		err     error
-		// unknowable marks an error which is no verdict on the registration, so that it is kept
-		unknowable bool
 	}{
 		{
 			name:    "an answer PMM Server gave is the answer",
@@ -286,36 +290,47 @@ func TestWithGivenCredentials(t *testing.T) {
 		},
 		{
 			name:    "a rejected token is asked about again, and the Node is gone",
-			results: []agentLookup{failed(rejected), failed(errAgentNotFound)},
+			results: []agentLookup{failed(errCredentialsRejected), failed(errAgentNotFound)},
 			calls:   2,
 			err:     errAgentNotFound,
 		},
 		{
 			// Registering again would fail on the Node name, or add a second Node under the hostname.
-			name:       "a rejected token does not register a Node which is still there",
-			results:    []agentLookup{failed(rejected), found(registeredNode)},
-			calls:      2,
-			unknowable: true,
+			name:    "a rejected token does not register a Node which is still there",
+			results: []agentLookup{failed(errCredentialsRejected), found(registeredNode)},
+			calls:   2,
+			err:     errTokenRejected,
 		},
 		{
-			name:       "a rejection is no verdict when the credentials given to setup answer no better",
-			results:    []agentLookup{failed(rejected), failed(rejected)},
-			calls:      2,
-			unknowable: true,
+			name:    "a rejected token is kept when the credentials given to setup answer no better",
+			results: []agentLookup{failed(errCredentialsRejected), failed(errCredentialsRejected)},
+			calls:   2,
+			err:     errTokenRejected,
 		},
 		{
-			// Registering with them reports the rejection with an actionable message.
-			name:    "a rejection of the only credentials there are is kept",
+			// PMM Server answers a token Grafana failed to look up the same way, which says nothing either.
+			name:    "a rejected token is no verdict without other credentials to ask with",
 			given:   &config.Config{Server: config.Server{Address: testServerAddress, Username: "service_token", Password: "glsa_token"}},
-			results: []agentLookup{failed(rejected)},
+			results: []agentLookup{failed(errCredentialsRejected)},
 			calls:   1,
-			err:     rejected,
+			err:     errTokenRejected,
+		},
+		{
+			// Registering with the credentials given to setup reports a mistyped password with an actionable message.
+			name:    "a rejected password is not asked about again",
+			running: &config.Config{Server: config.Server{Address: testServerAddress, Username: "admin", Password: "oldpass"}},
+			results: []agentLookup{failed(errCredentialsRejected)},
+			calls:   1,
+			err:     errCredentialsRejected,
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			running := &config.Config{
-				ID:     testAgentID,
-				Server: config.Server{Address: testServerAddress, Username: "service_token", Password: "glsa_token"},
+			running := tc.running
+			if running == nil {
+				running = &config.Config{
+					ID:     testAgentID,
+					Server: config.Server{Address: testServerAddress, Username: "service_token", Password: "glsa_token"},
+				}
 			}
 			given := tc.given
 			if given == nil {
@@ -329,16 +344,11 @@ func TestWithGivenCredentials(t *testing.T) {
 			node, err := withGivenCredentials(lookup, running, given, logrus.WithField("test", t.Name()))(t.Context(), testAgentID)
 			assert.Equal(t, tc.calls, *calls)
 			assert.Equal(t, tc.node, node)
-			switch {
-			case tc.unknowable:
-				require.Error(t, err)
-				require.NotErrorIs(t, err, errAgentNotFound)
-				require.NotErrorIs(t, err, errCredentialsRejected)
-			case tc.err != nil:
-				require.ErrorIs(t, err, tc.err)
-			default:
+			if tc.err == nil {
 				require.NoError(t, err)
+				return
 			}
+			require.ErrorIs(t, err, tc.err)
 		})
 	}
 }
@@ -750,13 +760,17 @@ func TestCheckRegistrationSharesOneDeadline(t *testing.T) {
 // The subtests configure the package level API clients, so they cannot run in parallel.
 func TestCheckRegistrationOfRejectedToken(t *testing.T) {
 	for _, tc := range []struct {
-		name  string
-		gone  bool
-		state registrationState
+		name string
+		gone bool
+		// tokenOnly gives setup the credentials the Agent runs with, as a container re-running setup does
+		tokenOnly bool
+		state     registrationState
 	}{
 		// Registering again would fail on the Node name, or add a second Node under the hostname.
 		{name: "a Node which is still registered is kept", state: registrationUnverified},
 		{name: "a Node which is gone is registered again", gone: true, state: registrationMissing},
+		// A token Grafana failed to look up gets the same answer, so it must not register the Node again.
+		{name: "a token alone leaves the registration unverified", tokenOnly: true, state: registrationUnverified},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			var adminCalls atomic.Int32
@@ -795,8 +809,15 @@ func TestCheckRegistrationOfRejectedToken(t *testing.T) {
 				ID:     testAgentID,
 				Server: config.Server{Address: u.Host, Username: "admin", Password: "admin", InsecureTLS: true},
 			}
+			if tc.tokenOnly {
+				given = running
+			}
 
 			assert.Equal(t, tc.state, checkRegistrationOnServer(running, given, logrus.WithField("test", t.Name())))
+			if tc.tokenOnly {
+				assert.Zero(t, adminCalls.Load(), "there are no other credentials to ask with")
+				return
+			}
 			assert.Positive(t, adminCalls.Load(), "the credentials given to setup have to be asked")
 		})
 	}
