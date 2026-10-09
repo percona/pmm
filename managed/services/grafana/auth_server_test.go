@@ -262,8 +262,8 @@ func TestServerClientConnection(t *testing.T) {
 	})
 }
 
-// TestAuthServerRejectedCredentials checks the answer clients get when Grafana rejects the credentials, whose code the CLIs pick their hint from.
-func TestAuthServerRejectedCredentials(t *testing.T) {
+// TestAuthServerGrafanaErrors checks the code clients get for each error Grafana answers the authentication check with.
+func TestAuthServerGrafanaErrors(t *testing.T) {
 	t.Parallel()
 
 	for _, tc := range []struct {
