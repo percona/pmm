@@ -280,19 +280,23 @@ const selectionCountTitle = (count: number): string => {
   return 'Select one node for a single-member replica set, or three for a three-member one, in the table below.';
 };
 
+const INSTALLABLE_SELECTION_SIZES = [1, 3];
+
 /** Why the bulk Install cannot start on this selection, or `null` when it can. */
 const bulkInstallBlockedTitle = (
   selected: OmHostRow[],
   isBusy: (row: OmHostRow) => boolean
 ): string | null => {
-  if (selected.length !== 1 && selected.length !== 3) {
+  if (!INSTALLABLE_SELECTION_SIZES.includes(selected.length)) {
     return selectionCountTitle(selected.length);
   }
-  if (selected.some(isBusy)) {
-    return 'A selected node is already part of an install in progress.';
-  }
-  if (selected.some((row) => !row.automation_eligible)) {
-    return 'Every selected node must be eligible for automation.';
+  for (const row of selected) {
+    if (isBusy(row)) {
+      return 'A selected node is already part of an install in progress.';
+    }
+    if (!row.automation_eligible) {
+      return 'Every selected node must be eligible for automation.';
+    }
   }
   return null;
 };
@@ -962,6 +966,13 @@ export const NodesPage = () => {
     [filteredRows, rowSelection]
   );
   const bulkInstallBlocked = bulkInstallBlockedTitle(selectedRows, isHostBusy);
+  const bulkInstallPath = useMemo(
+    () =>
+      `${omBase}/${OM_ROUTE_INSTALL}?nodes=${selectedRows
+        .map((row) => row.node_id)
+        .join(',')}`,
+    [omBase, selectedRows]
+  );
 
   const counts = useMemo(
     () => ({
@@ -1175,13 +1186,7 @@ export const NodesPage = () => {
                 <Button
                   variant="contained"
                   disabled={bulkInstallBlocked !== null}
-                  onClick={() =>
-                    navigate(
-                      `${omBase}/${OM_ROUTE_INSTALL}?nodes=${selectedRows
-                        .map((row) => row.node_id)
-                        .join(',')}`
-                    )
-                  }
+                  onClick={() => navigate(bulkInstallPath)}
                 >
                   Install MongoDB
                 </Button>
