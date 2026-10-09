@@ -173,7 +173,7 @@ Log level             : fatal
 
 ## pmm-admin inventory remove agent
 
-Removes an agent from PMM inventory. To stop RTA on a MongoDB service, remove its `rta-mongodb-agent`. This stops RTA for that service but does not affect the MongoDB exporter or stored QAN metrics. 
+Removes an agent from PMM inventory. To stop RTA on a MongoDB service, remove its `rta-mongodb-agent`. This stops RTA for that service but does not affect the MongoDB exporter or stored QAN metrics.
 
 To start RTA again, use `pmm-admin inventory add agent rta-mongodb-agent`.
 
@@ -227,7 +227,9 @@ pmm-admin inventory change agent <AGENT_TYPE> <AGENT_ID> [FLAGS]
 
 ### How `inventory change agent` works
 
-`<AGENT_TYPE>` is one of the agent types in the following table:
+Supported agent types:
+
+**MongoDB:**
 
 | Technology | Agent types |
 |------------|-------------|
@@ -242,9 +244,11 @@ pmm-admin inventory change agent <AGENT_TYPE> <AGENT_ID> [FLAGS]
 
 Each agent type has its own flags. This page describes the flags for MongoDB agents. To see the flags of another agent type, run `pmm-admin inventory change agent <AGENT_TYPE> --help`.
 
-Only the flags you specify are updated — all other settings remain unchanged. Changes take effect immediately without restarting the agent. The agent ID must belong to the agent type that you name. If the agent ID doesn't exist or belongs to another agent type, the command fails and nothing is changed.
+**Node:**
 
-When you change connection-affecting parameters (username, password, TLS settings, etc.), PMM verifies the new settings by connecting to the database before saving them. If the connection fails (for example, wrong credentials), the command returns an error and **no changes are applied**. Use `--skip-connection-check` to bypass this verification (see [Connection and authentication](#connection-and-authentication)).
+- `node-exporter`
+
+Only the flags you specify are updated. All other settings remain unchanged. `pmm-agent` keeps running and restarts only the changed agent with the new settings. The command fails with a clear error if the agent ID doesn't exist or the type doesn't match.
 
 ### When to use `change agent` vs `remove/add`
 
@@ -280,7 +284,7 @@ mongodb_exporter            Running     push             12345-67890            
 
 You can also use `pmm-admin list` to see agents alongside their services.
 
-### Available flags for MongoDB agents
+### Flags for MongoDB agents
 
 #### Connection and authentication
 
@@ -336,6 +340,9 @@ You can also use `pmm-admin list` to see agents alongside their services.
 - `--custom-labels`
 :   Custom user-assigned labels in `key=value,key=value` format
 
+- `--agent-env-vars`
+:   `mongodb-exporter` only, PMM 3.10.0+. Both pmm-admin and PMM Server must be 3.10.0 or later. An older PMM Server ignores the flag and doesn't save the names. Comma-separated list of environment variable names to pass from the `pmm-agent` environment to the exporter, for example `KRB5_KTNAME,KRB5_CONFIG`. The list replaces the stored one, and an empty value removes all names. See [Pass environment variables to the exporter](#pass-environment-variables-to-the-exporter).
+
 - `--enable`
 :   Re-enable a disabled agent
 
@@ -344,6 +351,39 @@ You can also use `pmm-admin list` to see agents alongside their services.
 
 - `--log-level`
 :   Set agent log level (e.g., `info`, `debug`, `warn`, `error`)
+
+### Disable collectors for node-exporter
+
+If `node_exporter` is collecting metrics you don't need, disabling specific collectors reduces the load on the node and cuts the number of series PMM stores. You can do this at any time without removing the node from monitoring.
+
+```bash
+pmm-admin inventory change agent node-exporter <AGENT_ID> \
+  --disable-collectors=diskstats,meminfo
+```
+
+To find the agent ID, run `pmm-admin inventory list agents --agent-type=node-exporter`. Each name maps to one `node_exporter` collector, such as `cpu`, `diskstats` or `processes`.
+
+#### How the list works
+
+Each time you pass `--disable-collectors`, the new list replaces the stored one:
+
+- Collectors you leave out return to the PMM default.
+- If you omit the flag entirely, the stored list doesn't change.
+- To reset all collectors to the PMM default, pass an empty value: `--disable-collectors=`.
+
+#### Stopping built-in collectors
+
+Starting with PMM 3.10.0, disabling a collector also stops collectors that `node_exporter` runs by default. The same applies to collectors you disabled at registration with `pmm-admin config --disable-collectors`.
+
+Collectors enabled by default on Linux:
+
+`arp`, `bcache`, `bonding`, `btrfs`, `conntrack`, `cpu`, `cpufreq`, `diskstats`, `dmi`, `edac`, `entropy`, `fibrechannel`, `filefd`, `filesystem`, `hwmon`, `infiniband`, `ipvs`, `loadavg`, `mdadm`, `meminfo`, `netclass`, `netdev`, `netstat`, `nfs`, `nfsd`, `nvme`, `os`, `powersupplyclass`, `pressure`, `rapl`, `schedstat`, `selinux`, `sockstat`, `softnet`, `stat`, `tapestats`, `textfile`, `thermal_zone`, `time`, `timex`, `udp_queues`, `uname`, `vmstat`, `watchdog`, `xfs`, `zfs`
+
+The change takes effect without interrupting other metrics from the node. This works only on Linux nodes with PMM Client 3.0.0 or later. On PMM Client 2.x, default collectors keep running regardless.
+
+#### Textfile collector
+
+To stop custom metrics from the [textfile collector](../../metrics/extend_metrics.md), use the resolution-specific names: `textfile.hr`, `textfile.mr`, or `textfile.lr`. Disabling `textfile` alone has no effect.
 
 ### Examples
 
@@ -405,6 +445,20 @@ You can also use `pmm-admin list` to see agents alongside their services.
       --stats-collections=db1,db2.collection1
     ```
 
+- Pass Kerberos environment variables to the exporter:
+
+    ```bash
+    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
+      --agent-env-vars=KRB5_KTNAME,KRB5_CONFIG
+    ```
+
+- Remove all environment variables from the exporter:
+
+    ```bash
+    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
+      --agent-env-vars=""
+    ```
+
 - Disable an agent (stops metric collection without removing it):
 
     ```bash
@@ -419,6 +473,70 @@ You can also use `pmm-admin list` to see agents alongside their services.
       --enable
     ```
 
+### Pass environment variables to the exporter
+
+Some authentication methods, such as Kerberos, require environment variables that PMM does not set itself. Use `--agent-env-vars` to pass those variable names to the MongoDB exporter. PMM stores only the names and keeps the values in the `pmm-agent` environment on your PMM Client host. This flag works only with `mongodb-exporter`, as the QAN and RTA agents already have direct access to the `pmm-agent` environment.
+
+#### Set the variable in the pmm-agent environment
+
+Before you can pass a variable name to the exporter, the value must already exist in the `pmm-agent` environment on your PMM Client host. How you set it depends on how PMM Client is deployed:
+
+=== "systemd"
+
+    Add the variable to the `pmm-agent` service, then restart the service:
+
+    ```bash
+    sudo systemctl edit pmm-agent
+    ```
+
+    ```ini
+    [Service]
+    Environment="KRB5_KTNAME=/etc/krb5.keytab"
+    ```
+
+    ```bash
+    sudo systemctl restart pmm-agent
+    ```
+
+=== "Docker"
+
+    Pass the variable to the PMM Client container with `-e`. If the variable points to a file, mount that file with `-v`. Then recreate the container. The container runs as the `pmm-agent` user (UID 1002), so that user must be able to read the mounted files.
+
+    For Kerberos, setting the variables isn't enough: mount the keytab and `krb5.conf` as well, for example:
+
+    ```bash
+    -e KRB5_KTNAME=/etc/krb5.keytab \
+    -e KRB5_CONFIG=/etc/krb5.conf \
+    -v /etc/krb5.keytab:/etc/krb5.keytab:ro \
+    -v /etc/krb5.conf:/etc/krb5.conf:ro
+    ```
+
+#### How the list works
+
+Each time you pass `--agent-env-vars`, the new list replaces the stored one:
+
+- A name you leave out is removed from the stored list.
+- If you omit the flag entirely, the stored list does not change.
+- To remove all names, pass an empty value: `--agent-env-vars=""`.
+- Surrounding whitespace is trimmed, and duplicate names are stored once.
+
+#### Naming rules
+
+PMM rejects the request if any name breaks these rules:
+
+- Use only letters, digits, and underscores. Don't start with a digit (`[A-Za-z_][A-Za-z0-9_]*`). Pass the name only, not `NAME=value`.
+- Don't use the `PMM_AGENT_` prefix in any letter case. It is reserved for the configuration and credentials of `pmm-agent`, for example `PMM_AGENT_SERVER_PASSWORD`.
+- Don't use `MONGODB_URI` in any letter case. PMM sets this variable for the exporter itself.
+- Use at most 32 names, each at most 256 characters long.
+
+A list stored before PMM 3.10.0 can contain names that break these rules, because earlier versions checked names less strictly. Starting with PMM Client 3.10.0, `pmm-agent` doesn't pass such a name to the exporter and logs a warning instead. To clean up the list, pass only the names you want to keep, or remove all names with `--agent-env-vars=""`. If you pass a stored name again, PMM accepts it and keeps it in the list. The exception is a `PMM_AGENT_` name, which PMM always rejects.
+
+#### What happens on save
+
+PMM restarts the exporter. If a name is not set in the `pmm-agent` environment, `pmm-agent` skips it, logs "Environment variable not found in pmm-agent environment", and starts the exporter without it.
+
+To check which names are currently stored, run `pmm-admin inventory change agent mongodb-exporter <AGENT_ID>` with no flags. The command changes nothing and prints the agent, including the **Environment variables** line.
+
 ### Error handling
 
 The command returns a clear error message in these cases:
@@ -427,6 +545,7 @@ The command returns a clear error message in these cases:
 - **Mismatched agent type**: The agent ID exists but belongs to a different agent type, for example a `qan-postgresql-pgstatmonitor-agent` ID used with the `qan-postgresql-pgstatements-agent` subcommand. The agent is left unchanged, and the error names both types: `Agent with ID <AGENT_ID> has type qan_postgresql_pgstatmonitor_agent, expected qan_postgresql_pgstatements_agent.`
 - **QAN for PMM Server's PostgreSQL set by an environment variable**: PMM Server was started with `PMM_ENABLE_INTERNAL_PG_QAN`, and the command tries to enable or disable the QAN agent of PMM Server's own PostgreSQL against that value, for example: `QAN for PMM's internal PostgreSQL server is set to false via an environment variable.` Other changes to that agent are accepted. To control this QAN agent from PMM, start PMM Server without the variable. See [Monitor PMM Server's internal PostgreSQL](../../qan/QAN-stored-metrics.md#monitor-pmm-servers-internal-postgresql).
 - **Invalid flag value**: A flag receives a value outside its allowed range (e.g., an invalid log level).
+- **Invalid environment variable names**: A name passed with `--agent-env-vars` breaks the [naming rules](#naming-rules). This covers a malformed name (such as `NAME=value`, or an empty element such as `A,,B`), a reserved name (`MONGODB_URI` or a `PMM_AGENT_` name), more than 32 names, and a name longer than 256 characters. No changes are saved. API requests with such names fail with `InvalidArgument`.
 - **Connection check failure**: PMM could not validate the new connection-affecting settings (credentials, TLS) against the database. No changes are saved. If the database is intentionally unreachable (down, in maintenance, or you are setting a password PMM does not yet have), re-run the command with `--skip-connection-check`.
 
 ## See also

@@ -54,6 +54,8 @@ pmm-admin config [<node-address> [<node-type> [<node-name>]]] [FLAGS]
 
 - `--metrics-mode=mode`:   Metrics flow mode for node-exporter: `auto` (default), `push`, `pull`
 
+- [`--disable-collectors=collectors`](inventory.md#disable-collectors-for-node-exporter):   Comma-separated list of `node_exporter` collectors to disable when the node is registered. To adjust the list after registration, use [`pmm-admin inventory change agent`](inventory.md#disable-collectors-for-node-exporter).
+
 - `--paths-base=dir`:   Base path for PMM client binaries, tools, and collectors
 
 - `--agent-password=password`:   Custom agent password
