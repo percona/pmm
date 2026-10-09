@@ -1,0 +1,4289 @@
+[
+ {
+  "dash": "home",
+  "variant": "main",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 7204,
+  "failed": 0,
+  "maxBody": 141806,
+  "maxUrl": 15166,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    240,
+    200,
+    0,
+    158,
+    null
+   ],
+   [
+    "GET",
+    245,
+    200,
+    9,
+    15166,
+    null
+   ]
+  ],
+  "expected": 9,
+  "got": 9,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "main",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 8001,
+  "failed": 0,
+  "maxBody": 141807,
+  "maxUrl": 15166,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    284,
+    200,
+    0,
+    158,
+    null
+   ],
+   [
+    "GET",
+    383,
+    200,
+    100,
+    15166,
+    null
+   ]
+  ],
+  "expected": 325,
+  "got": 99,
+  "missing": 226,
+  "extra": 0,
+  "globals": 1,
+  "ok": false,
+  "sample_missing": [
+   "ann-00002 deploy v35.4 (Node Name: node-0198)",
+   "ann-00009 deploy v78.8 (Node Name: node-0807)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "main",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 9453,
+  "failed": 0,
+  "maxBody": 141808,
+  "maxUrl": 15166,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    238,
+    200,
+    0,
+    158,
+    null
+   ],
+   [
+    "GET",
+    364,
+    200,
+    100,
+    15166,
+    null
+   ]
+  ],
+  "expected": 1502,
+  "got": 99,
+  "missing": 1403,
+  "extra": 0,
+  "globals": 1,
+  "ok": false,
+  "sample_missing": [
+   "ann-00001 deploy v90.3 (Node Name: node-0525)",
+   "ann-00002 deploy v35.4 (Node Name: node-0198)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "main",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 6464,
+  "failed": 0,
+  "maxBody": 29695,
+  "maxUrl": 3150,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    247,
+    200,
+    0,
+    158,
+    null
+   ],
+   [
+    "GET",
+    369,
+    200,
+    83,
+    3150,
+    null
+   ]
+  ],
+  "expected": 66,
+  "got": 66,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "main",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 6560,
+  "failed": 0,
+  "maxBody": 2473,
+  "maxUrl": 299,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    265,
+    200,
+    0,
+    158,
+    null
+   ],
+   [
+    "GET",
+    156,
+    200,
+    1,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "main",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 6646,
+  "failed": 0,
+  "maxBody": 2478,
+  "maxUrl": 299,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    241,
+    200,
+    0,
+    158,
+    null
+   ],
+   [
+    "GET",
+    218,
+    200,
+    18,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "main",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 6408,
+  "failed": 0,
+  "maxBody": 2483,
+  "maxUrl": 299,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    226,
+    200,
+    0,
+    158,
+    null
+   ],
+   [
+    "GET",
+    301,
+    200,
+    54,
+    165,
+    null
+   ]
+  ],
+  "expected": 4,
+  "got": 4,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "main",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 6582,
+  "failed": 0,
+  "maxBody": 2588,
+  "maxUrl": 321,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    236,
+    200,
+    0,
+    158,
+    null
+   ],
+   [
+    "GET",
+    204,
+    200,
+    18,
+    195,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "pr",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 6975,
+  "failed": 0,
+  "maxBody": 40600,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    239,
+    200,
+    0,
+    156,
+    null
+   ],
+   [
+    "GET",
+    101,
+    200,
+    0,
+    160,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "pr",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 7385,
+  "failed": 0,
+  "maxBody": 40601,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    242,
+    200,
+    0,
+    156,
+    null
+   ],
+   [
+    "GET",
+    187,
+    200,
+    17,
+    160,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "pr",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 7806,
+  "failed": 0,
+  "maxBody": 40602,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    209,
+    200,
+    0,
+    156,
+    null
+   ],
+   [
+    "GET",
+    204,
+    200,
+    50,
+    160,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "pr",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 6554,
+  "failed": 0,
+  "maxBody": 8557,
+  "maxUrl": 322,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    223,
+    200,
+    0,
+    156,
+    null
+   ],
+   [
+    "GET",
+    210,
+    200,
+    17,
+    160,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "pr",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 6866,
+  "failed": 0,
+  "maxBody": 2573,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    219,
+    200,
+    0,
+    156,
+    null
+   ],
+   [
+    "GET",
+    160,
+    200,
+    1,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "pr",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 6298,
+  "failed": 0,
+  "maxBody": 2578,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    237,
+    200,
+    0,
+    156,
+    null
+   ],
+   [
+    "GET",
+    188,
+    200,
+    18,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "pr",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 6138,
+  "failed": 0,
+  "maxBody": 2583,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    170,
+    200,
+    0,
+    156,
+    null
+   ],
+   [
+    "GET",
+    311,
+    200,
+    54,
+    165,
+    null
+   ]
+  ],
+  "expected": 4,
+  "got": 4,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "pr",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 6468,
+  "failed": 0,
+  "maxBody": 2688,
+  "maxUrl": 350,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    275,
+    200,
+    0,
+    156,
+    null
+   ],
+   [
+    "GET",
+    178,
+    200,
+    18,
+    195,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "E",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 7198,
+  "failed": 0,
+  "maxBody": 40600,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    150,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    150,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "POST",
+    361,
+    200,
+    34,
+    438,
+    null
+   ]
+  ],
+  "expected": 34,
+  "got": 34,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "E",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 7693,
+  "failed": 0,
+  "maxBody": 40601,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    215,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    220,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    405,
+    200,
+    1124,
+    439,
+    null
+   ]
+  ],
+  "expected": 1124,
+  "got": 1124,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "E",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 7734,
+  "failed": 0,
+  "maxBody": 40602,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    220,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    223,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    474,
+    200,
+    4993,
+    440,
+    null
+   ]
+  ],
+  "expected": 4993,
+  "got": 4993,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "E",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 6558,
+  "failed": 0,
+  "maxBody": 8557,
+  "maxUrl": 322,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    216,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    220,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    342,
+    200,
+    214,
+    442,
+    null
+   ]
+  ],
+  "expected": 214,
+  "got": 214,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "E",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 6495,
+  "failed": 0,
+  "maxBody": 2573,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    261,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    263,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "POST",
+    276,
+    200,
+    1,
+    445,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "E",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 6576,
+  "failed": 0,
+  "maxBody": 2578,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    252,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    255,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    266,
+    200,
+    2,
+    446,
+    null
+   ]
+  ],
+  "expected": 2,
+  "got": 2,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "E",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 6995,
+  "failed": 0,
+  "maxBody": 2583,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    285,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    297,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    371,
+    200,
+    9,
+    447,
+    null
+   ]
+  ],
+  "expected": 9,
+  "got": 9,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "E",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 6791,
+  "failed": 0,
+  "maxBody": 2688,
+  "maxUrl": 350,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    265,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    271,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    383,
+    200,
+    5,
+    468,
+    null
+   ]
+  ],
+  "expected": 5,
+  "got": 5,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 7176,
+  "failed": 0,
+  "maxBody": 40600,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    269,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    273,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "POST",
+    75,
+    200,
+    34,
+    507,
+    null
+   ]
+  ],
+  "expected": 34,
+  "got": 34,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 7278,
+  "failed": 0,
+  "maxBody": 40601,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    206,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    211,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    89,
+    200,
+    1124,
+    508,
+    null
+   ]
+  ],
+  "expected": 1124,
+  "got": 1124,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 8712,
+  "failed": 0,
+  "maxBody": 40602,
+  "maxUrl": 319,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    289,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    299,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    122,
+    200,
+    4993,
+    509,
+    null
+   ]
+  ],
+  "expected": 4993,
+  "got": 4993,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 6960,
+  "failed": 0,
+  "maxBody": 8557,
+  "maxUrl": 322,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    235,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    244,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    203,
+    200,
+    214,
+    511,
+    null
+   ]
+  ],
+  "expected": 214,
+  "got": 214,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 6704,
+  "failed": 0,
+  "maxBody": 2573,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    205,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    205,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "POST",
+    85,
+    200,
+    1,
+    514,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 7012,
+  "failed": 0,
+  "maxBody": 2578,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    249,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    255,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    74,
+    200,
+    2,
+    515,
+    null
+   ]
+  ],
+  "expected": 2,
+  "got": 2,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 7157,
+  "failed": 0,
+  "maxBody": 2583,
+  "maxUrl": 324,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    247,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    258,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    172,
+    200,
+    9,
+    516,
+    null
+   ]
+  ],
+  "expected": 9,
+  "got": 9,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "home",
+  "variant": "K",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 7007,
+  "failed": 0,
+  "maxBody": 2688,
+  "maxUrl": 350,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    240,
+    200,
+    0,
+    155,
+    null
+   ],
+   [
+    "GET",
+    243,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    176,
+    200,
+    5,
+    537,
+    null
+   ]
+  ],
+  "expected": 5,
+  "got": 5,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "main",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 9128,
+  "failed": 3,
+  "maxBody": 121374,
+  "maxUrl": 176305,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    270,
+    200,
+    0,
+    172,
+    null
+   ],
+   [
+    "GET",
+    255,
+    200,
+    9,
+    15166,
+    null
+   ]
+  ],
+  "expected": 9,
+  "got": 9,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "main",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 8130,
+  "failed": 4,
+  "maxBody": 121375,
+  "maxUrl": 176305,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    224,
+    200,
+    0,
+    172,
+    null
+   ],
+   [
+    "GET",
+    354,
+    200,
+    100,
+    15166,
+    null
+   ]
+  ],
+  "expected": 325,
+  "got": 99,
+  "missing": 226,
+  "extra": 0,
+  "globals": 1,
+  "ok": false,
+  "sample_missing": [
+   "ann-00002 deploy v35.4 (Node Name: node-0198)",
+   "ann-00009 deploy v78.8 (Node Name: node-0807)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "main",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 9157,
+  "failed": 5,
+  "maxBody": 121376,
+  "maxUrl": 176305,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    286,
+    200,
+    0,
+    172,
+    null
+   ],
+   [
+    "GET",
+    264,
+    200,
+    100,
+    15166,
+    null
+   ]
+  ],
+  "expected": 1502,
+  "got": 99,
+  "missing": 1403,
+  "extra": 0,
+  "globals": 1,
+  "ok": false,
+  "sample_missing": [
+   "ann-00001 deploy v90.3 (Node Name: node-0525)",
+   "ann-00002 deploy v35.4 (Node Name: node-0198)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "main",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 7241,
+  "failed": 0,
+  "maxBody": 25243,
+  "maxUrl": 35481,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    252,
+    200,
+    0,
+    172,
+    null
+   ],
+   [
+    "GET",
+    166,
+    200,
+    83,
+    3150,
+    null
+   ]
+  ],
+  "expected": 66,
+  "got": 66,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "main",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 7123,
+  "failed": 0,
+  "maxBody": 1338,
+  "maxUrl": 457,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    309,
+    200,
+    0,
+    172,
+    null
+   ],
+   [
+    "GET",
+    55,
+    200,
+    1,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "main",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 7127,
+  "failed": 0,
+  "maxBody": 1339,
+  "maxUrl": 457,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    235,
+    200,
+    0,
+    172,
+    null
+   ],
+   [
+    "GET",
+    135,
+    200,
+    18,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "main",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 7311,
+  "failed": 0,
+  "maxBody": 1340,
+  "maxUrl": 457,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    278,
+    200,
+    0,
+    172,
+    null
+   ],
+   [
+    "GET",
+    156,
+    200,
+    54,
+    165,
+    null
+   ]
+  ],
+  "expected": 4,
+  "got": 4,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "main",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 7375,
+  "failed": 0,
+  "maxBody": 1603,
+  "maxUrl": 809,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    232,
+    200,
+    0,
+    172,
+    null
+   ],
+   [
+    "GET",
+    127,
+    200,
+    18,
+    195,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "pr",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 8274,
+  "failed": 0,
+  "maxBody": 121770,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    249,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    95,
+    200,
+    0,
+    160,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "pr",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 8446,
+  "failed": 0,
+  "maxBody": 121771,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    279,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    82,
+    200,
+    17,
+    160,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "pr",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 8928,
+  "failed": 0,
+  "maxBody": 121772,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    215,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    109,
+    200,
+    50,
+    160,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "pr",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 7268,
+  "failed": 0,
+  "maxBody": 25639,
+  "maxUrl": 386,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    214,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    111,
+    200,
+    17,
+    160,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "pr",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 7202,
+  "failed": 0,
+  "maxBody": 1734,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    218,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    158,
+    200,
+    1,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "pr",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 7204,
+  "failed": 0,
+  "maxBody": 1735,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    243,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    127,
+    200,
+    18,
+    165,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "pr",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 6612,
+  "failed": 0,
+  "maxBody": 1736,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    193,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    124,
+    200,
+    54,
+    165,
+    null
+   ]
+  ],
+  "expected": 4,
+  "got": 4,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "pr",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 7026,
+  "failed": 0,
+  "maxBody": 1999,
+  "maxUrl": 414,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    257,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    93,
+    200,
+    18,
+    195,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "E",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 7729,
+  "failed": 0,
+  "maxBody": 121770,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    226,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    230,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "POST",
+    97,
+    200,
+    34,
+    438,
+    null
+   ]
+  ],
+  "expected": 34,
+  "got": 34,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "E",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 8818,
+  "failed": 0,
+  "maxBody": 121771,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    239,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    250,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    173,
+    200,
+    1124,
+    439,
+    null
+   ]
+  ],
+  "expected": 1124,
+  "got": 1124,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "E",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 9266,
+  "failed": 0,
+  "maxBody": 121772,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    245,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    258,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    397,
+    200,
+    4992,
+    440,
+    null
+   ]
+  ],
+  "expected": 4993,
+  "got": 4992,
+  "missing": 1,
+  "extra": 0,
+  "globals": 50,
+  "ok": false,
+  "sample_missing": [
+   "ann-04248 deploy v21.2 (Service Name: node-0931-postgresql-0)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "E",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 7167,
+  "failed": 0,
+  "maxBody": 25639,
+  "maxUrl": 386,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    256,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    260,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    173,
+    200,
+    214,
+    442,
+    null
+   ]
+  ],
+  "expected": 214,
+  "got": 214,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "E",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 7208,
+  "failed": 0,
+  "maxBody": 1734,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    241,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    244,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "POST",
+    150,
+    200,
+    1,
+    445,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "E",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 7563,
+  "failed": 0,
+  "maxBody": 1735,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    231,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    232,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    166,
+    200,
+    2,
+    446,
+    null
+   ]
+  ],
+  "expected": 2,
+  "got": 2,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "E",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 7773,
+  "failed": 0,
+  "maxBody": 1736,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    293,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    301,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    300,
+    200,
+    9,
+    447,
+    null
+   ]
+  ],
+  "expected": 9,
+  "got": 9,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "E",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 7361,
+  "failed": 0,
+  "maxBody": 1999,
+  "maxUrl": 414,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    252,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    262,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    211,
+    200,
+    5,
+    468,
+    null
+   ]
+  ],
+  "expected": 5,
+  "got": 5,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 9032,
+  "failed": 0,
+  "maxBody": 121770,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    331,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    335,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "POST",
+    73,
+    200,
+    34,
+    507,
+    null
+   ]
+  ],
+  "expected": 34,
+  "got": 34,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 8730,
+  "failed": 0,
+  "maxBody": 121771,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    276,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    285,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    56,
+    200,
+    1124,
+    508,
+    null
+   ]
+  ],
+  "expected": 1124,
+  "got": 1124,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 8749,
+  "failed": 0,
+  "maxBody": 121772,
+  "maxUrl": 383,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    225,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    349,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    100,
+    200,
+    4993,
+    509,
+    null
+   ]
+  ],
+  "expected": 4993,
+  "got": 4993,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 7516,
+  "failed": 0,
+  "maxBody": 25639,
+  "maxUrl": 386,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    220,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    225,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    56,
+    200,
+    214,
+    511,
+    null
+   ]
+  ],
+  "expected": 214,
+  "got": 214,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 7474,
+  "failed": 0,
+  "maxBody": 1734,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    249,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    249,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "POST",
+    83,
+    200,
+    1,
+    514,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 7358,
+  "failed": 0,
+  "maxBody": 1735,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    239,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    249,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    46,
+    200,
+    2,
+    515,
+    null
+   ]
+  ],
+  "expected": 2,
+  "got": 2,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 7857,
+  "failed": 0,
+  "maxBody": 1736,
+  "maxUrl": 388,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    312,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    322,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    42,
+    200,
+    9,
+    516,
+    null
+   ]
+  ],
+  "expected": 9,
+  "got": 9,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "nodes",
+  "variant": "K",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 7785,
+  "failed": 0,
+  "maxBody": 1999,
+  "maxUrl": 414,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    264,
+    200,
+    0,
+    169,
+    null
+   ],
+   [
+    "GET",
+    275,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    57,
+    200,
+    5,
+    537,
+    null
+   ]
+  ],
+  "expected": 5,
+  "got": 5,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 8291,
+  "failed": 0,
+  "maxBody": 361136,
+  "maxUrl": 61150,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    291,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    539,
+    200,
+    20,
+    61150,
+    null
+   ]
+  ],
+  "expected": 20,
+  "got": 20,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 8543,
+  "failed": 0,
+  "maxBody": 361137,
+  "maxUrl": 61150,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    260,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    416,
+    200,
+    100,
+    61150,
+    null
+   ]
+  ],
+  "expected": 568,
+  "got": 100,
+  "missing": 468,
+  "extra": 0,
+  "globals": 0,
+  "ok": false,
+  "sample_missing": [
+   "ann-00000 deploy v36.7 (Service Name: node-0990-mysql-0)",
+   "ann-00002 deploy v35.4 (Node Name: node-0198)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 9696,
+  "failed": 0,
+  "maxBody": 361138,
+  "maxUrl": 61150,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    300,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    413,
+    200,
+    100,
+    61150,
+    null
+   ]
+  ],
+  "expected": 2589,
+  "got": 100,
+  "missing": 2489,
+  "extra": 0,
+  "globals": 0,
+  "ok": false,
+  "sample_missing": [
+   "ann-00000 deploy v36.7 (Service Name: node-0990-mysql-0)",
+   "ann-00001 deploy v90.3 (Node Name: node-0525)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 7080,
+  "failed": 0,
+  "maxBody": 73137,
+  "maxUrl": 12350,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    267,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    307,
+    200,
+    100,
+    12350,
+    null
+   ]
+  ],
+  "expected": 106,
+  "got": 86,
+  "missing": 20,
+  "extra": 0,
+  "globals": 14,
+  "ok": false,
+  "sample_missing": [
+   "ann-00209 deploy v39.3 (Service Name: node-0664-mysql-1)",
+   "ann-00296 deploy v3.9 (Service Name: node-0864-mysql-0)"
+  ],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 6683,
+  "failed": 0,
+  "maxBody": 1496,
+  "maxUrl": 333,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    275,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    250,
+    200,
+    1,
+    211,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 6578,
+  "failed": 0,
+  "maxBody": 1497,
+  "maxUrl": 333,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    290,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    278,
+    200,
+    18,
+    211,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 6483,
+  "failed": 0,
+  "maxBody": 1498,
+  "maxUrl": 333,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    273,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    354,
+    200,
+    56,
+    211,
+    null
+   ]
+  ],
+  "expected": 6,
+  "got": 6,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 6551,
+  "failed": 0,
+  "maxBody": 2217,
+  "maxUrl": 401,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    295,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    250,
+    200,
+    21,
+    333,
+    null
+   ]
+  ],
+  "expected": 4,
+  "got": 4,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "svc",
+  "rng": "6h",
+  "loadMs": 6530,
+  "failed": 0,
+  "maxBody": 1296,
+  "maxUrl": 333,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    288,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    211,
+    200,
+    1,
+    188,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "main",
+  "case": "svc",
+  "rng": "30d",
+  "loadMs": 6506,
+  "failed": 0,
+  "maxBody": 1298,
+  "maxUrl": 333,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    268,
+    200,
+    0,
+    173,
+    null
+   ],
+   [
+    "GET",
+    295,
+    200,
+    53,
+    188,
+    null
+   ]
+  ],
+  "expected": 3,
+  "got": 3,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 7811,
+  "failed": 0,
+  "maxBody": 2076,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    280,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    198,
+    200,
+    0,
+    170,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 8043,
+  "failed": 0,
+  "maxBody": 2077,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    403,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    248,
+    200,
+    17,
+    170,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 9138,
+  "failed": 0,
+  "maxBody": 2078,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    257,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    270,
+    200,
+    50,
+    170,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 6884,
+  "failed": 0,
+  "maxBody": 2107,
+  "maxUrl": 414,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    319,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    262,
+    200,
+    17,
+    170,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 6605,
+  "failed": 0,
+  "maxBody": 2146,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    253,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    192,
+    200,
+    1,
+    175,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 6583,
+  "failed": 0,
+  "maxBody": 2147,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    312,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    282,
+    200,
+    18,
+    175,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 6347,
+  "failed": 0,
+  "maxBody": 2148,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    270,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    313,
+    200,
+    54,
+    175,
+    null
+   ]
+  ],
+  "expected": 4,
+  "got": 4,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 6488,
+  "failed": 0,
+  "maxBody": 2367,
+  "maxUrl": 442,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    228,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    288,
+    200,
+    18,
+    205,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "svc",
+  "rng": "6h",
+  "loadMs": 6901,
+  "failed": 0,
+  "maxBody": 2296,
+  "maxUrl": 429,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    305,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    218,
+    200,
+    1,
+    188,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "pr",
+  "case": "svc",
+  "rng": "30d",
+  "loadMs": 6937,
+  "failed": 0,
+  "maxBody": 2298,
+  "maxUrl": 429,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    297,
+    200,
+    0,
+    171,
+    null
+   ],
+   [
+    "GET",
+    296,
+    200,
+    53,
+    188,
+    null
+   ]
+  ],
+  "expected": 3,
+  "got": 3,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 8015,
+  "failed": 0,
+  "maxBody": 2076,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    304,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    310,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "POST",
+    31,
+    200,
+    11,
+    522,
+    null
+   ]
+  ],
+  "expected": 11,
+  "got": 11,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 8032,
+  "failed": 0,
+  "maxBody": 2077,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    261,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    268,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    49,
+    200,
+    243,
+    523,
+    null
+   ]
+  ],
+  "expected": 243,
+  "got": 243,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 8472,
+  "failed": 0,
+  "maxBody": 2078,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    336,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    348,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    161,
+    200,
+    1087,
+    524,
+    null
+   ]
+  ],
+  "expected": 1087,
+  "got": 1087,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 6918,
+  "failed": 0,
+  "maxBody": 2107,
+  "maxUrl": 414,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    258,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    260,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    31,
+    200,
+    40,
+    526,
+    null
+   ]
+  ],
+  "expected": 40,
+  "got": 40,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 6876,
+  "failed": 0,
+  "maxBody": 2146,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    344,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    344,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "POST",
+    37,
+    200,
+    0,
+    529,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 6956,
+  "failed": 0,
+  "maxBody": 2147,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    347,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    357,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    44,
+    200,
+    0,
+    530,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 7135,
+  "failed": 0,
+  "maxBody": 2148,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    358,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    370,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    52,
+    200,
+    2,
+    531,
+    null
+   ]
+  ],
+  "expected": 2,
+  "got": 2,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 6689,
+  "failed": 0,
+  "maxBody": 2367,
+  "maxUrl": 442,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    265,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    280,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    67,
+    200,
+    3,
+    552,
+    null
+   ]
+  ],
+  "expected": 3,
+  "got": 3,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "svc",
+  "rng": "6h",
+  "loadMs": 6772,
+  "failed": 0,
+  "maxBody": 2296,
+  "maxUrl": 429,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    261,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    259,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "POST",
+    75,
+    200,
+    1,
+    544,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "E",
+  "case": "svc",
+  "rng": "30d",
+  "loadMs": 6734,
+  "failed": 0,
+  "maxBody": 2298,
+  "maxUrl": 429,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    321,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    334,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    58,
+    200,
+    2,
+    546,
+    null
+   ]
+  ],
+  "expected": 2,
+  "got": 2,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "all",
+  "rng": "6h",
+  "loadMs": 8087,
+  "failed": 0,
+  "maxBody": 2076,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    282,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    287,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "POST",
+    64,
+    200,
+    11,
+    683,
+    null
+   ]
+  ],
+  "expected": 11,
+  "got": 11,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "all",
+  "rng": "7d",
+  "loadMs": 8325,
+  "failed": 0,
+  "maxBody": 2077,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    255,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    266,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    46,
+    200,
+    243,
+    684,
+    null
+   ]
+  ],
+  "expected": 243,
+  "got": 243,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "all",
+  "rng": "30d",
+  "loadMs": 8534,
+  "failed": 0,
+  "maxBody": 2078,
+  "maxUrl": 411,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    266,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    268,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    58,
+    200,
+    1087,
+    685,
+    null
+   ]
+  ],
+  "expected": 1087,
+  "got": 1087,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "env",
+  "rng": "7d",
+  "loadMs": 7497,
+  "failed": 0,
+  "maxBody": 2107,
+  "maxUrl": 414,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    275,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    283,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    77,
+    200,
+    40,
+    687,
+    null
+   ]
+  ],
+  "expected": 40,
+  "got": 40,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "node",
+  "rng": "6h",
+  "loadMs": 7220,
+  "failed": 0,
+  "maxBody": 2146,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    294,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    294,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "POST",
+    78,
+    200,
+    0,
+    690,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "node",
+  "rng": "7d",
+  "loadMs": 7355,
+  "failed": 0,
+  "maxBody": 2147,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    288,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    292,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    91,
+    200,
+    0,
+    691,
+    null
+   ]
+  ],
+  "expected": 0,
+  "got": 0,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "node",
+  "rng": "30d",
+  "loadMs": 7040,
+  "failed": 0,
+  "maxBody": 2148,
+  "maxUrl": 416,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    253,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    266,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    169,
+    200,
+    2,
+    692,
+    null
+   ]
+  ],
+  "expected": 2,
+  "got": 2,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "multi",
+  "rng": "7d",
+  "loadMs": 7619,
+  "failed": 0,
+  "maxBody": 2367,
+  "maxUrl": 442,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    310,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    319,
+    200,
+    17,
+    150,
+    null
+   ],
+   [
+    "POST",
+    105,
+    200,
+    3,
+    713,
+    null
+   ]
+  ],
+  "expected": 3,
+  "got": 3,
+  "missing": 0,
+  "extra": 0,
+  "globals": 17,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "svc",
+  "rng": "6h",
+  "loadMs": 7100,
+  "failed": 0,
+  "maxBody": 2296,
+  "maxUrl": 429,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    281,
+    200,
+    0,
+    150,
+    null
+   ],
+   [
+    "GET",
+    283,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "POST",
+    81,
+    200,
+    1,
+    705,
+    null
+   ]
+  ],
+  "expected": 1,
+  "got": 1,
+  "missing": 0,
+  "extra": 0,
+  "globals": 0,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ },
+ {
+  "dash": "mysql",
+  "variant": "K",
+  "case": "svc",
+  "rng": "30d",
+  "loadMs": 7045,
+  "failed": 0,
+  "maxBody": 2298,
+  "maxUrl": 429,
+  "panelErrors": 0,
+  "anno": [
+   [
+    "GET",
+    304,
+    200,
+    0,
+    170,
+    null
+   ],
+   [
+    "GET",
+    315,
+    200,
+    50,
+    150,
+    null
+   ],
+   [
+    "POST",
+    163,
+    200,
+    2,
+    707,
+    null
+   ]
+  ],
+  "expected": 2,
+  "got": 2,
+  "missing": 0,
+  "extra": 0,
+  "globals": 50,
+  "ok": true,
+  "sample_missing": [],
+  "sample_extra": []
+ }
+]
