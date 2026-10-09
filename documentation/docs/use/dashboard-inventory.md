@@ -163,6 +163,8 @@ To see agent details:
      
      ![!image](../images/PMM_Inventory_Node_Agent_Properties.png)
 
+To change alert thresholds for a node, click the :material-dots-vertical: icon next to it and select **Override alert thresholds**. For details, see [Dynamic alert thresholds](../alert/alert-thresholds.md).
+
 ## Remove items from the inventory
 
 To remove items from the inventory:
