@@ -156,8 +156,14 @@ describe('RunProgress', () => {
       />
     );
 
-    expect(screen.getByRole('status')).toHaveTextContent(
+    const status = screen.getByRole('status');
+    expect(status.parentElement).toHaveTextContent(
       /^Step 2 of 4: Installing packages on 1 node, running for 3m 1[2-3]s$/
+    );
+    // The ticking elapsed time stays out of the live region, so a screen reader
+    // is not handed the whole line again every second.
+    expect(status).toHaveTextContent(
+      /^Step 2 of 4: Installing packages on 1 node$/
     );
   });
 
@@ -321,10 +327,44 @@ describe('RunProgress', () => {
     expect(screen.getByText('Stopping mongod')).toBeInTheDocument();
     expect(screen.getByText('Rollback')).toBeInTheDocument();
     expect(screen.getByText('Every node was rolled back.')).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent(
+    expect(screen.getByRole('status').parentElement).toHaveTextContent(
       'Failed at step 2 of 3: Installing packages on db-2, after 5m'
     );
     expect(screen.queryByLabelText('Install summary')).not.toBeInTheDocument();
+  });
+
+  // PMM Extensions skips every teardown step on a host it never installed on.
+  it('says nothing was rolled back when every rollback step was skipped', () => {
+    renderWithClient(
+      <RunProgress
+        run={run({
+          status: 'rolled_back',
+          finished_at: '2026-01-01T00:05:00Z',
+          hosts: [
+            host({
+              host: 'n1',
+              steps: [
+                step('pre_check', 'failed'),
+                step('install_package', 'pending'),
+              ],
+              rollback_steps: [
+                step('stop_service', 'skipped'),
+                step('remove_package', 'skipped'),
+              ],
+            }),
+          ],
+        })}
+      />
+    );
+
+    expect(
+      screen.getByText(
+        'Nothing had been installed, so there was nothing to roll back.'
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('Every node was rolled back.')
+    ).not.toBeInTheDocument();
   });
 
   it('says the nodes are rolling back while the rollback is still going', () => {

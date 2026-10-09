@@ -518,7 +518,16 @@ export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => {
   }, [failed]);
   const now = useNow(status === 'running');
   const summary = runSummaryLine(run, nodeName, now);
+  // Only the step text is a live region: the elapsed suffix ticks every second and
+  // would have the whole line re-announced with it.
+  const announced = runSummaryLine(run, nodeName, null) ?? '';
   const rollingBack = run.hosts.some(isHostRollingBack);
+  // A pre_check failure skips every teardown step: nothing was installed to remove.
+  const nothingRolledBack =
+    rollingBack &&
+    run.hosts.every((host) =>
+      host.rollback_steps.every((step) => step.status === 'skipped')
+    );
   const labels = [run.environment, run.cluster].filter(Boolean).join(' / ');
   const detailsId = `run-${run.run_id}-steps`;
 
@@ -546,12 +555,9 @@ export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => {
         <AbortButton run={run} />
       </Stack>
       {summary && (
-        <Typography
-          variant="body1"
-          role="status"
-          color={failed ? 'error.main' : undefined}
-        >
-          {summary}
+        <Typography variant="body1" color={failed ? 'error.main' : undefined}>
+          <span role="status">{announced}</span>
+          {summary.slice(announced.length)}
         </Typography>
       )}
       {run.error && <OmError placement="item" messages={run.error} />}
@@ -566,7 +572,9 @@ export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => {
         <Typography variant="body2" color="warning.main">
           {status === 'running'
             ? 'Rolling back every node.'
-            : 'Every node was rolled back.'}
+            : nothingRolledBack
+              ? 'Nothing had been installed, so there was nothing to roll back.'
+              : 'Every node was rolled back.'}
         </Typography>
       )}
       {status === 'succeeded' && (

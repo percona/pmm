@@ -123,6 +123,22 @@ describe('runSummaryLine', () => {
     );
   });
 
+  it('leaves the elapsed time off, as a prefix of the full line, when now is null', () => {
+    const subject = run({
+      hosts: [
+        host('a', installing('running')),
+        host('b', installing('running')),
+      ],
+    });
+
+    const line = runSummaryLine(subject, name, null);
+
+    expect(line).toBe('Step 2 of 4: Installing packages on 2 nodes');
+    expect(runSummaryLine(subject, name, NOW)).toBe(
+      `${line}, running for 3m 12s`
+    );
+  });
+
   it('counts the nodes left when none is running the step yet', () => {
     const line = runSummaryLine(
       run({
@@ -267,7 +283,9 @@ describe('runSummaryLine', () => {
     );
   });
 
-  it('keeps counting while monitoring is confirmed after PMM Extensions finished', () => {
+  // Counting past finished_at would jump back to it once confirm_monitoring lands,
+  // since no later finish time reaches the UI.
+  it('shows no time while monitoring is confirmed after PMM Extensions finished', () => {
     const line = runSummaryLine(
       run({
         status: 'succeeded',
@@ -286,9 +304,7 @@ describe('runSummaryLine', () => {
       NOW
     );
 
-    expect(line).toBe(
-      'Step 5 of 5: Confirming PMM monitoring on 1 node, running for 3m 12s'
-    );
+    expect(line).toBe('Step 5 of 5: Confirming PMM monitoring on 1 node');
   });
 
   it('has no line for a run that succeeded', () => {

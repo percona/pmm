@@ -129,25 +129,28 @@ export function runHasFailure(run: OmGetBootstrapRunResponse): boolean {
  * the elapsed time is the run's own, and there is no estimate of what is left.
  *
  * `nodeName` resolves a node id to the name a reader knows it by, for the one case
- * that names a node: the step that failed. Returns null for a run that succeeded,
- * which ends on its completion card instead.
+ * that names a node: the step that failed. A `now` of null leaves the elapsed time
+ * off, which is always a suffix of the full line. Returns null for a run that
+ * succeeded, which ends on its completion card instead.
  */
 export function runSummaryLine(
   run: OmGetBootstrapRunResponse,
   nodeName: (nodeId: string) => string,
-  now: number = Date.now()
+  now: number | null = Date.now()
 ): string | null {
   const status = bootstrapRunDisplayStatus(run);
   if (status === 'succeeded') {
     return null;
   }
   // finished_at is set as soon as PMM Extensions is done, while confirm_monitoring
-  // still keeps the run going: the clock runs on until the display status ends.
-  const elapsed = formatRunElapsed(
-    run.started_at,
-    status === 'running' ? null : run.finished_at,
-    now
-  );
+  // can keep the run going, and nothing on the wire says when that ends. The clock
+  // stops at finished_at so it never runs backwards once confirmation lands, and
+  // the confirming window shows no time rather than a stopped "running for".
+  const confirming = status === 'running' && Boolean(run.finished_at);
+  const elapsed =
+    now === null || confirming
+      ? ''
+      : formatRunElapsed(run.started_at, run.finished_at, now);
 
   const rollbackPhases = perNodePhases(run, 'rollback_steps');
   // Ahead of every other reading, a forward failure included: a teardown that failed

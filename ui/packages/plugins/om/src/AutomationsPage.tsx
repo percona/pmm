@@ -67,19 +67,16 @@ const isRunInFlight = (run: OmGetBootstrapRunResponse) =>
   bootstrapRunDisplayStatus(run) === 'running';
 
 /**
- * A run's duration, counting up while it is still going.
+ * A run's duration, counting up until PMM Extensions finishes it.
  *
- * The sort key stays null in flight: a column sorting on a number that moves
- * every second would reshuffle rows under the reader.
+ * Stops at `finished_at` even while monitoring is still being confirmed: nothing
+ * on the wire says when that ends, so counting on would only jump back to
+ * `finished_at` once it did. The sort key stays null in flight: a column sorting
+ * on a number that moves every second would reshuffle rows under the reader.
  */
 const RunDuration = ({ run }: { run: OmGetBootstrapRunResponse }) => {
-  const inFlight = isRunInFlight(run);
-  const now = useNow(inFlight);
-  return (
-    <>
-      {formatRunElapsed(run.started_at, inFlight ? null : run.finished_at, now)}
-    </>
-  );
+  const now = useNow(isRunInFlight(run) && !run.finished_at);
+  return <>{formatRunElapsed(run.started_at, run.finished_at, now)}</>;
 };
 
 const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
