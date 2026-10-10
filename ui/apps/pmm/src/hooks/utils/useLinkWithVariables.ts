@@ -1,4 +1,4 @@
-import {
+import type {
   DashboardVariablesMessage,
   DashboardVariablesResult,
 } from '@pmm/shared';
@@ -11,10 +11,12 @@ import messenger from 'lib/messenger';
 import { constructUrl } from 'utils/link.utils';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useGrafana } from 'contexts/grafana';
 
 export const useLinkWithVariables = (url?: string) => {
   const [link, setLink] = useState(url);
   const location = useLocation();
+  const { grafanaReady } = useGrafana();
 
   const enhanceWithVariables = async (url: string) => {
     const msg: DashboardVariablesMessage = {
@@ -42,10 +44,10 @@ export const useLinkWithVariables = (url?: string) => {
     // if it's the current dashboards just update url
     if (url.includes(location.pathname)) {
       setLink(constructUrl(location));
-    } else {
+    } else if (grafanaReady) {
       enhanceWithVariables(url).then(setLink);
     }
-  }, [url, location]);
+  }, [url, location, grafanaReady]);
 
   return link;
 };

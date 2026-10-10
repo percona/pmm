@@ -151,6 +151,7 @@ export const wrapWithGrafana = (
       isFrameLoaded: true,
       isFullScreen: false,
       isOnGrafanaPage: true,
+      grafanaReady: true,
       ...props,
     }}
   >

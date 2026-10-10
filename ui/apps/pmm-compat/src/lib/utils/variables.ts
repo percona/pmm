@@ -5,7 +5,7 @@ import {
   urlUtil,
 } from '@grafana/data';
 import { config, getTemplateSrv } from '@grafana/runtime';
-import { DashboardLink } from '@grafana/schema';
+import type { DashboardLink } from '@grafana/schema';
 
 /**
  * Needs to be in sync with public/app/features/panel/panellinks/link_srv.ts LinkSrv.getLinkUrl in grafana repository
@@ -28,7 +28,12 @@ const getLinkUrl = (link: Partial<DashboardLink>) => {
 };
 
 export const getLinkWithVariables = (url?: string): string => {
-  if (url && isDashboardUrl(url) && isDashboardUrl(window.location.pathname)) {
+  if (
+    url &&
+    isDashboardUrl(url) &&
+    isDashboardUrl(window.location.pathname) &&
+    isDashboardSceneActive()
+  ) {
     const urlWithLinks = getLinkUrl({
       url: url,
       keepTime: true,
@@ -45,6 +50,28 @@ export const getLinkWithVariables = (url?: string): string => {
     return cleanupVariables(urlWithLinks);
   } else {
     return url ? url : '#';
+  }
+};
+
+const SCENE_POLL_INTERVAL_MS = 50;
+const SCENE_WAIT_TIMEOUT_MS = 5_000;
+
+const isDashboardSceneActive = () =>
+  Boolean(
+    (window as { __grafanaSceneContext?: { isActive?: boolean } })
+      .__grafanaSceneContext?.isActive
+  );
+
+// Until the dashboard scene activates, TemplateSrv resolves time and variables to defaults
+export const waitForDashboardScene = async () => {
+  const deadline = Date.now() + SCENE_WAIT_TIMEOUT_MS;
+
+  while (
+    isDashboardUrl(window.location.pathname) &&
+    !isDashboardSceneActive() &&
+    Date.now() < deadline
+  ) {
+    await new Promise((resolve) => setTimeout(resolve, SCENE_POLL_INTERVAL_MS));
   }
 };
 
