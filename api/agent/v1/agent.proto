@@ -241,6 +241,8 @@ message StartActionRequest {
     uint32 port = 2;
     string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
     string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+    // Connect over SSL; the server certificate is not verified.
+    bool tls = 5;
   }
   // PTMongoDBSummaryParams describes parameters for PT MongoDB summary.
   message PTMongoDBSummaryParams {
