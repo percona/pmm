@@ -740,16 +740,20 @@ For all available variables, see [PMM environment variables](../install-pmm/inst
 |-----------|-------------|---------|
 | `replicas` | Number of PMM server replicas | `3` |
 | `image.repository` | PMM server image repository | `percona/pmm-server` |
-| `image.tag` | PMM server image tag | `3.6.0` |
+| `image.tag` | PMM server image tag | `3.9.1` (pinned in `values.yaml`, bumped with each chart release) |
 | `image.pullPolicy` | Image pull policy | `IfNotPresent` |
 | `secret.create` | Create secret automatically | `false` |
 | `secret.name` | Name of the PMM secret | `pmm-secret` |
-| `storage.size` | PVC size | `10Gi` |
+| `storage.size` | PVC size | `40Gi` |
 | `storage.storageClassName` | Storage class name | `""` |
+| `maxReplicas` | HAProxy `server-template` slots; caps how far `replicas` can grow | `10` |
 | `haproxy.replicaCount` | Number of HAProxy replicas | `3` |
 | `haproxy.service.type` | HAProxy service type | `ClusterIP` |
 | `clickhouse.cluster.replicas` | ClickHouse replicas | `3` |
+| `clickhouse.keeper.replicasCount` | ClickHouse Keeper replicas (note the `s`) | `3` |
 | `victoriaMetrics.vmstorage.replicaCount` | VictoriaMetrics storage replicas | `3` |
+| `victoriaMetrics.vmselect.replicaCount` | VictoriaMetrics select replicas | `2` |
+| `victoriaMetrics.vminsert.replicaCount` | VictoriaMetrics insert replicas | `2` |
 | `pg-db.enabled` | Enable PostgreSQL cluster | `true` |
 | `pg-db.pmm.enabled` | Enable automatic PMM monitoring of PostgreSQL | `true` |
 
@@ -839,6 +843,25 @@ View detailed role and health information for all PMM nodes in one place.
 
 ### Scale your deployment
 
+#### Supported scaling range
+
+| Component | Value | Supported range | Enforced |
+|-----------|-------|-----------------|----------|
+| PMM server | `replicas` | Any odd value from `1` to `maxReplicas`. `3` (default) and `5` are the counts QA certifies | Yes — the chart refuses to render |
+| HAProxy | `haproxy.replicaCount` | `1` or more. Up to the number of worker nodes, each replica gets its own node | No — extra replicas share a node |
+| ClickHouse | `clickhouse.cluster.replicas` | `3` (default) or higher. Scaling up is supported | No |
+| ClickHouse Keeper | `clickhouse.keeper.replicasCount` | Any odd value from `1` to `9`. `3` is the default | Yes — the chart refuses to render |
+| VictoriaMetrics | `victoriaMetrics.*.replicaCount` | Defaults, or higher for larger fleets. Scale up only | No |
+
+`replicas` controls availability, not capacity. Additional PMM servers let the cluster survive more simultaneous failures; they do not raise how many nodes you can monitor. To monitor a larger fleet, increase the CPU, memory and storage of the components instead.
+
+Each constraint in the table is described under [Limitations](#limitations).
+
+!!! warning "Keep your existing values when scaling"
+    `helm upgrade` with `--set` and no values flag rebuilds the release from the chart defaults plus that one `--set`, so every other value you set at install time is reverted. A `LoadBalancer` service goes back to `ClusterIP`, and scaling HAProxy resets `replicas` to `3`. The commands below pass `--reuse-values` to keep them. If you keep your settings in a values file, change the count there and pass `-f values.yaml` instead.
+
+    The commands also pin `--version` to the chart you already run. Without it, `percona/pmm-ha` resolves to the newest chart in the repository, so scaling also upgrades the chart. The `CHART` column of `helm list --namespace pmm` shows your version, for example `pmm-ha-1.8.0`.
+
 #### Scale PMM server replicas
 
 When you scale PMM HA up or down, **all PMM pods will be recreated**. This happens because the `PMM_HA_PEERS` environment variable is dynamically generated based on replica count and must be updated on all pods.
@@ -869,6 +892,8 @@ To scale PMM server replicas:
 ```sh
 helm upgrade pmm-ha percona/pmm-ha \
   --namespace pmm \
+  --version <chart-version> \
+  --reuse-values \
   --set replicas=5
 ```
 
@@ -877,6 +902,8 @@ helm upgrade pmm-ha percona/pmm-ha \
 ```sh
 helm upgrade pmm-ha percona/pmm-ha \
   --namespace pmm \
+  --version <chart-version> \
+  --reuse-values \
   --set haproxy.replicaCount=5
 ```
 
@@ -887,6 +914,8 @@ helm upgrade pmm-ha percona/pmm-ha \
     ```sh
     helm upgrade pmm-ha percona/pmm-ha \
       --namespace pmm \
+      --version <chart-version> \
+      --reuse-values \
       --set clickhouse.cluster.replicas=5
     ```
 
@@ -895,6 +924,8 @@ helm upgrade pmm-ha percona/pmm-ha \
     ```sh
     helm upgrade pmm-ha percona/pmm-ha \
       --namespace pmm \
+      --version <chart-version> \
+      --reuse-values \
       --set victoriaMetrics.vmselect.replicaCount=3 \
       --set victoriaMetrics.vminsert.replicaCount=3 \
       --set victoriaMetrics.vmstorage.replicaCount=5
@@ -913,7 +944,7 @@ PMM images can be large (several GB). Before performing upgrades or scaling oper
 kubectl get nodes
 
 # For each node, pre-pull the image (example for node1)
-kubectl debug node/node1 -it --image=percona/pmm-server:3.6.0
+kubectl debug node/node1 -it --image=percona/pmm-server:3.9.1  # use the tag your chart deploys
 ```
 
 ### Monitor cluster health
@@ -1103,20 +1134,72 @@ We are aware of the following issues in this Tech Preview version and plan to fi
 | **[PMM-14734](https://perconadev.atlassian.net/browse/PMM-14734)**: Incorrect status | HA badge on PMM Home Dashboard may not reflect true cluster health | Use Inventory view or kubectl commands to check actual cluster status |                                   
 | **[PMM-14709](https://perconadev.atlassian.net/browse/PMM-14709)**: Data retention does not work on HA | Changing data retention under **Configuration > Settings > Advanced Settings** has no effect and older metrics remain available despite the new retention value. | Technical Preview only: The UI-based data retention setting does not work in HA clusters. To implement retention, configure it directly in ClickHouse using `ALTER TABLE ... TTL` instead of relying on this UI option to remove old metrics. |
 
+## Limitations
+
+Constraints to plan around when running PMM HA. Unlike the entries under [Known issues](#known-issues), these are not all defects awaiting a fix — each one says whether it is intended behaviour or a current gap.
+
 ### Scaling limitations
 
 #### Scaling down to single replica
-When scaling down to a single PMM replica (from 3 to 1), ensure the **Raft leader is on pmm-0** before scaling. Kubernetes StatefulSets remove pods in reverse ordinal order (highest first).
+
+*Current gap.* When scaling down to a single PMM replica (from 3 to 1), ensure the **Raft leader is on `pmm-ha-0`** before scaling. Kubernetes StatefulSets remove pods in reverse ordinal order (highest first).
     
-  - Scaling 3→1 removes pmm-2 and pmm-1, keeping only pmm-0
-  - **If the Raft leader is on pmm-1 or pmm-2 when you scale down, PMM will become unreachable**
+  - Scaling 3→1 removes `pmm-ha-2` and `pmm-ha-1`, keeping only `pmm-ha-0`
+  - **If the Raft leader is on `pmm-ha-1` or `pmm-ha-2` when you scale down, PMM can become unreachable**
     
-**Workaround**: Check leader status before scaling:
+**Workaround**: Check which pod is the leader before scaling. Only the leader answers `200`:
 ```sh
-kubectl exec -it pmm-ha-0 -n pmm -- pmm-admin status
+for i in 0 1 2; do
+  printf 'pmm-ha-%s: ' "$i"
+  kubectl exec pmm-ha-$i -n pmm -c pmm-ha -- \
+    curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8080/v1/server/leaderHealthCheck
+done
 ```
     
-Only scale down after confirming `pmm-0` is the leader.
+Only scale down after confirming `pmm-ha-0` is the leader. Pod names follow the StatefulSet, so they are `pmm-ha-N` for a release installed as `pmm-ha`.
+
+Even with the leader on `pmm-ha-0`, expect PMM to be unavailable for about a minute. Scaling changes `PMM_HA_PEERS`, so the upgrade also recreates `pmm-ha-0`, which is by then the only PMM server.
+
+#### HAProxy replicas beyond the worker node count share a node
+
+*Intended behaviour.* HAProxy pods use a soft topology spread on `kubernetes.io/hostname`: each replica gets its own node while there are enough worker nodes, and extra replicas are scheduled next to an existing one instead of staying `Pending`. Replicas beyond the node count add throughput, not fault tolerance, because they share a failure domain with another replica.
+
+The PostgreSQL instances and pgBouncer still use required anti-affinity, so each of their replicas needs its own worker node. Replicas beyond the node count stay `Pending` indefinitely, and Helm still reports the upgrade as successful.
+
+#### Even replica counts are rejected
+
+*Intended behaviour.* Raft elects a leader by majority vote, so an even number of PMM servers needs more votes to elect a leader without surviving any more failures: `replicas=4` tolerates one loss, exactly like `replicas=3`. `replicas=2` tolerates none at all, so a single pod restart stops the cluster.
+
+The chart rejects even values with an error rather than deploying them. `clickhouse.keeper.replicasCount` is a Raft ensemble too and is validated the same way.
+
+#### Raising `maxReplicas` requires an HAProxy restart
+
+*Intended behaviour.* `replicas` cannot exceed `maxReplicas` (default `10`), because HAProxy renders only `maxReplicas` `server-template` slots and fills them from a headless-service DNS answer in arbitrary order. HAProxy also marks a backend UP only when that pod answers `/v1/server/leaderHealthCheck`. A pod left without a slot is therefore invisible to HAProxy, and if the Raft leader lands on it, **every backend is DOWN and PMM returns 503** — not merely one pod missing traffic. The chart rejects this combination.
+
+`maxReplicas` is rendered into the `pmm-ha-haproxy` ConfigMap, and the chart does not roll the HAProxy pods when that ConfigMap changes. (Changing `replicas` likewise rewrites `pmm-ha-haproxy-init-script`, the startup readiness gate, but routing is DNS-based and needs no restart.) Raise the `config-version` annotation in the same upgrade so HAProxy restarts and picks up the new `server-template`. The annotation only rolls the pods when its value actually changes, so read the current one first — chart 1.8.0 ships `5`, but a cluster that has been through this before is already past it:
+
+```sh
+kubectl get deployment pmm-ha-haproxy -n pmm \
+  -o jsonpath='{.spec.template.metadata.annotations.pmm\.percona\.com/config-version}'
+```
+
+Then set a higher value:
+
+```sh
+# replace 6 with a number above the one printed above
+helm upgrade pmm-ha percona/pmm-ha --namespace pmm \
+  --version <chart-version> \
+  --reuse-values \
+  --set maxReplicas=20 \
+  --set-string 'haproxy.podAnnotations.pmm\.percona\.com/config-version=6'
+```
+
+!!! note "Why not `kubectl rollout restart`?"
+    It works — `helm upgrade` has already written the new ConfigMap, so any restart picks it up. Bumping `config-version` is preferable because it is part of the same declarative upgrade and reproducible from the chart alone, whereas a GitOps controller such as Argo CD or Flux strips the `restartedAt` annotation on its next sync and triggers a second, pointless rollout.
+
+#### VictoriaMetrics storage cannot be scaled down
+
+*Current gap.* Metrics are sharded across `vmstorage` pods, and removing a pod does not migrate its data elsewhere. Lowering `victoriaMetrics.vmstorage.replicaCount` therefore makes the metrics held by the removed pods unreadable. Scale `vmstorage` up only.
 
 ### VictoriaMetrics limitations
 
