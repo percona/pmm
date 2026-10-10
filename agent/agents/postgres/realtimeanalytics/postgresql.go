@@ -159,6 +159,16 @@ func (m *PostgreSQLRTA) Run(ctx context.Context) {
 		return
 	}
 
+	err = m.probe(ctx)
+	if err != nil {
+		if ctx.Err() == nil {
+			m.l.Errorf("Can't run Real-Time Analytics agent, reason: %v", err)
+			terminalStatus = inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR
+			terminalMessage = fmt.Sprintf("Cannot run the Real-Time Analytics query on this instance: %v", err)
+		}
+		return
+	}
+
 	var warning string
 	if !canReadAllStats {
 		warning = "The monitoring user is not a member of pg_read_all_stats, so other users' sessions are not " +
@@ -191,6 +201,20 @@ func (m *PostgreSQLRTA) Run(ctx context.Context) {
 			}
 		}
 	}
+}
+
+// probe plans and starts activityQuery without fetching a row, so a server that cannot run it fails at startup.
+func (m *PostgreSQLRTA) probe(ctx context.Context) error {
+	ctx, cancel := context.WithTimeout(ctx, m.collectInterval)
+	defer cancel()
+
+	rows, err := m.db.QueryContext(ctx, activityQuery+"\nLIMIT 0")
+	if err != nil {
+		return err
+	}
+	defer rows.Close() //nolint:errcheck
+
+	return rows.Err()
 }
 
 func (m *PostgreSQLRTA) collect(ctx context.Context) ([]*rtav1.QueryData, error) {

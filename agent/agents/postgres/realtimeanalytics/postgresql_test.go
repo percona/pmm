@@ -15,6 +15,8 @@
 package realtimeanalytics
 
 import (
+	"context"
+	"errors"
 	"strconv"
 	"strings"
 	"testing"
@@ -26,6 +28,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/agent/agents"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
@@ -211,4 +214,71 @@ func TestCollect(t *testing.T) {
 	assert.Equal(t, int64(50), behindWorker.BlockedBy[0].BlockingConnId)
 	assert.Equal(t, "autovacuum worker", behindWorker.BlockedBy[0].BlockingCommand)
 	assert.True(t, behindWorker.BlockedBy[0].Root)
+}
+
+func TestRunProbe(t *testing.T) {
+	t.Parallel()
+
+	run := func(t *testing.T, probeErr error) []agents.Change {
+		t.Helper()
+
+		db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+		require.NoError(t, err)
+
+		mock.ExpectQuery("SELECT pg_has_role('pg_read_all_stats', 'USAGE')").
+			WillReturnRows(sqlmock.NewRows([]string{"pg_has_role"}).AddRow(true))
+		probe := mock.ExpectQuery(activityQuery + "\nLIMIT 0")
+		if probeErr != nil {
+			probe.WillReturnError(probeErr)
+		} else {
+			probe.WillReturnRows(sqlmock.NewRows([]string{"pid"}))
+		}
+
+		m := &PostgreSQLRTA{
+			db:              db,
+			l:               logrus.NewEntry(logrus.New()),
+			collectInterval: time.Hour,
+			changes:         make(chan agents.Change, 10),
+		}
+		ctx, cancel := context.WithCancel(t.Context())
+		go m.Run(ctx)
+
+		var changes []agents.Change
+		for c := range m.Changes() {
+			changes = append(changes, c)
+			if c.Status == inventoryv1.AgentStatus_AGENT_STATUS_RUNNING {
+				cancel()
+			}
+		}
+		cancel()
+		require.NoError(t, mock.ExpectationsWereMet())
+
+		return changes
+	}
+
+	t.Run("QueryFails", func(t *testing.T) {
+		t.Parallel()
+
+		changes := run(t, errors.New("function pg_blocking_pids(integer) does not exist"))
+		require.Len(t, changes, 2)
+		assert.Equal(t, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, changes[0].Status)
+		assert.Equal(t, inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, changes[1].Status)
+		assert.Contains(t, changes[1].StatusMessage, "pg_blocking_pids(integer) does not exist")
+	})
+
+	t.Run("QueryRuns", func(t *testing.T) {
+		t.Parallel()
+
+		changes := run(t, nil)
+		statuses := make([]inventoryv1.AgentStatus, 0, len(changes))
+		for _, c := range changes {
+			statuses = append(statuses, c.Status)
+		}
+		assert.Equal(t, []inventoryv1.AgentStatus{
+			inventoryv1.AgentStatus_AGENT_STATUS_STARTING,
+			inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
+			inventoryv1.AgentStatus_AGENT_STATUS_STOPPING,
+			inventoryv1.AgentStatus_AGENT_STATUS_DONE,
+		}, statuses)
+	})
 }

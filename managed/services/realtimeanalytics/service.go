@@ -124,6 +124,11 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 		default:
 		}
 
+		// Not offered for PMM Server's own database, as getRTAAgentTypeForService refuses it.
+		if svc.ServiceName == models.PMMServerPostgreSQLServiceName {
+			continue
+		}
+
 		// Check that service has pmm-agent with version supporting RTA.
 		pmmAgents, err := models.FindPMMAgentsForService(dbWithCtx, svc.ServiceID)
 		if err != nil {
@@ -264,13 +269,9 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		return nil, err
 	}
 
-	var rtaAgentType models.AgentType
-	// Check that service type supports RTA
-	rtaAgentType, err = getRTAAgentTypeForServiceType(service.ServiceType)
+	rtaAgentType, err := getRTAAgentTypeForService(service)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument,
-			"Service %s of type %s does not support Real-Time Analytics",
-			req.ServiceId, service.ServiceType)
+		return nil, err
 	}
 
 	// Try to find and start an existing RTA agent for this service if exists.
@@ -686,6 +687,23 @@ func getProtoServiceType(serviceType models.ServiceType) inventoryv1.ServiceType
 	default:
 		return inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED
 	}
+}
+
+// getRTAAgentTypeForService returns the RTA agent type for the service, or InvalidArgument when RTA cannot run for it.
+func getRTAAgentTypeForService(service *models.Service) (models.AgentType, error) {
+	// PMM Server's own database holds PMM's sessions and queries, not the user's.
+	if service.ServiceName == models.PMMServerPostgreSQLServiceName {
+		return "", status.Errorf(codes.InvalidArgument,
+			"Real-Time Analytics is not available for PMM Server's own database (service %s)", service.ServiceID)
+	}
+
+	agentType, err := getRTAAgentTypeForServiceType(service.ServiceType)
+	if err != nil {
+		return "", status.Errorf(codes.InvalidArgument,
+			"Service %s of type %s does not support Real-Time Analytics", service.ServiceID, service.ServiceType)
+	}
+
+	return agentType, nil
 }
 
 func getRTAAgentTypeForServiceType(serviceType models.ServiceType) (models.AgentType, error) {

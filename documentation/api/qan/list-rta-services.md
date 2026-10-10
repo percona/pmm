@@ -13,7 +13,7 @@ category:
 
 Returns a list of services that support Real-time Analytics. Use this endpoint to discover which services can be monitored with RTA before starting a session.
 
-This endpoint only returns services whose PMM Agent is new enough to run the RTA collector for that database: **3.7.0 or later for MongoDB**, **3.10.0 or later for MySQL**. Services monitored by older PMM Agents won't appear in the results, even if they're registered in PMM.
+This endpoint only returns services whose PMM Agent is new enough to run the RTA collector for that database: **3.7.0 or later for MongoDB**, **3.10.0 or later for MySQL and PostgreSQL**. Services monitored by older PMM Agents won't appear in the results, even if they're registered in PMM. PMM Server's own PostgreSQL database (`pmm-server-postgresql`) is never returned.
 
 ### Query parameters
 
@@ -29,8 +29,9 @@ This endpoint only returns services whose PMM Agent is new enough to run the RTA
 | `SERVICE_TYPE_UNSPECIFIED` | Returns all supported service types (default) |
 | `SERVICE_TYPE_MONGODB_SERVICE` | MongoDB services |
 | `SERVICE_TYPE_MYSQL_SERVICE` | MySQL services, including Percona Server for MySQL and MariaDB |
+| `SERVICE_TYPE_POSTGRESQL_SERVICE` | PostgreSQL services |
 
-Other service types (PostgreSQL, Valkey, ProxySQL, HAProxy, External) return an error. Support for additional database types is planned for future releases.
+Other service types (Valkey, ProxySQL, HAProxy, External) return an error. Support for additional database types is planned for future releases.
 
 > 📘 Info
 > 
@@ -75,6 +76,25 @@ The response contains one array per supported service type. An array is present 
       "version": "",
       "extra_dsn_params": {}
     }
+  ],
+  "postgresql": [
+    {
+      "service_id": "39c8e124-284a-4871-b9c0-32d6708dee4a",
+      "service_name": "postgresql-production-01",
+      "database_name": "postgres",
+      "node_id": "pmm-server",
+      "address": "pg-01.example.com",
+      "port": 5432,
+      "socket": "",
+      "environment": "production",
+      "cluster": "production-cluster",
+      "replication_set": "",
+      "custom_labels": {
+        "team": "backend"
+      },
+      "version": "17.6",
+      "auto_discovery_limit": 0
+    }
   ]
 }
 ```
@@ -108,6 +128,20 @@ The response contains one array per supported service type. An array is present 
 | `mysql[].custom_labels` | object | Custom user-assigned labels |
 | `mysql[].version` | string | MySQL version, when PMM has detected it |
 | `mysql[].extra_dsn_params` | object | Additional connection parameters |
+| `postgresql` | array | List of PostgreSQL services supporting RTA |
+| `postgresql[].service_id` | string | Unique service identifier (use this to start sessions) |
+| `postgresql[].service_name` | string | User-defined service name |
+| `postgresql[].database_name` | string | Database name |
+| `postgresql[].node_id` | string | Node identifier where the service runs |
+| `postgresql[].address` | string | Access address (DNS name or IP) |
+| `postgresql[].port` | integer | Access port |
+| `postgresql[].socket` | string | Access unix socket (alternative to address/port) |
+| `postgresql[].environment` | string | Environment name |
+| `postgresql[].cluster` | string | Cluster name |
+| `postgresql[].replication_set` | string | Replication set name |
+| `postgresql[].custom_labels` | object | Custom user-assigned labels |
+| `postgresql[].version` | string | PostgreSQL version, when PMM has detected it |
+| `postgresql[].auto_discovery_limit` | integer | Limit of databases for auto-discovery |
 
 ### Examples
 
@@ -129,6 +163,13 @@ Returns MySQL, Percona Server for MySQL and MariaDB services.
 
 ```bash
 curl -X GET "https://your-pmm-server/v1/realtimeanalytics/services?service_type=SERVICE_TYPE_MYSQL_SERVICE" \
+  -H "Authorization: Bearer glsa_xxxxx"
+```
+
+#### Filter by PostgreSQL services only
+
+```bash
+curl -X GET "https://your-pmm-server/v1/realtimeanalytics/services?service_type=SERVICE_TYPE_POSTGRESQL_SERVICE" \
   -H "Authorization: Bearer glsa_xxxxx"
 ```
 
@@ -155,9 +196,9 @@ Requesting a service type that does not support RTA:
 
 ```json
 {
-  "error": "Service type postgresql does not support Real-Time Analytics",
+  "error": "Service type valkey does not support Real-Time Analytics",
   "code": 3,
-  "message": "Service type postgresql does not support Real-Time Analytics",
+  "message": "Service type valkey does not support Real-Time Analytics",
   "details": []
 }
 ```

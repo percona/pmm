@@ -44,12 +44,14 @@ const lockTypeLabel = (lockType?: LockType): string | undefined => {
   }
 };
 
-// MySQL reports an idle connection as "Sleep" and PostgreSQL a session in an open transaction as
+// MySQL reports an idle connection as "Sleep", PostgreSQL as "idle" or, inside an open transaction,
 // "idle in transaction": it is running nothing, so its statement is the last one it ran rather than
 // a current one. That is often, not always, the one that took the lock.
 const IDLE_COMMAND = 'Sleep';
 const isIdleCommand = (command: string) =>
-  command === IDLE_COMMAND || command.startsWith('idle in transaction');
+  command === IDLE_COMMAND ||
+  command === 'idle' ||
+  command.startsWith('idle in transaction');
 
 const durationText = (duration?: string | null): string =>
   duration ? formatDurationSeconds(parseDuration(duration) / 1000) : '';

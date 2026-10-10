@@ -49,6 +49,24 @@ const renderPanel = (
     </ThemeProvider>
   );
 
+// As QueryAndDetails renders a PostgreSQL row: lock facts come from the MySQL payload only.
+const renderPostgreSQLPanel = (blockers: BlockingTransaction[]) =>
+  render(
+    <ThemeProvider theme={createTheme({ palette: { mode: 'light' } })}>
+      <BlockedByPanel blockers={blockers} technology={ServiceType.posgresql} />
+    </ThemeProvider>
+  );
+
+const PG_IDLE_ROOT: BlockingTransaction = {
+  blockingConnId: '4472',
+  blockingQuery: 'UPDATE rta_t SET v = v + 1 WHERE id = 1;',
+  blockingCommand: 'idle in transaction',
+  blockingUsername: 'app',
+  waitDuration: '134s',
+  blockerTransactionDuration: '154s',
+  root: true,
+};
+
 // A metadata-lock pile-up: the transaction holding SHARED_READ heads the chain and the
 // DDL that wants EXCLUSIVE is queued behind it, itself blocking everything after.
 const MDL_ROOT: BlockingTransaction = {
@@ -394,33 +412,37 @@ describe('BlockedByPanel', () => {
   });
 
   it('treats a PostgreSQL session idle in transaction as idle', () => {
-    renderPanel(
-      [{ ...IDLE_ROOT, blockingCommand: 'idle in transaction' }],
-      undefined,
-      undefined,
-      undefined,
-      undefined
-    );
+    renderPostgreSQLPanel([PG_IDLE_ROOT]);
 
     expect(screen.getByText(Messages.idleNote)).toBeInTheDocument();
     expect(screen.getByText('idle in transaction 2m 34s')).toBeInTheDocument();
+    expect(
+      screen.queryByText(Messages.titles.lockType)
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(Messages.titles.lockedTable)
+    ).not.toBeInTheDocument();
+  });
+
+  it('treats an idle PostgreSQL session outside a transaction as idle', () => {
+    // A session-level advisory lock outlives the statement and has no transaction.
+    renderPostgreSQLPanel([
+      {
+        ...PG_IDLE_ROOT,
+        blockingCommand: 'idle',
+        blockingQuery: 'SELECT pg_advisory_lock(42);',
+        blockerTransactionDuration: undefined,
+      },
+    ]);
+
+    expect(
+      screen.getByText(Messages.idleNoteNoTransaction)
+    ).toBeInTheDocument();
+    expect(screen.getByText('idle')).toBeInTheDocument();
   });
 
   it('does not suggest a MySQL consumer for a PostgreSQL blocker without a statement', () => {
-    renderPanel(
-      [
-        {
-          ...IDLE_ROOT,
-          blockingCommand: 'idle in transaction',
-          blockingQuery: '',
-        },
-      ],
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      ServiceType.posgresql
-    );
+    renderPostgreSQLPanel([{ ...PG_IDLE_ROOT, blockingQuery: '' }]);
 
     expect(screen.getByTestId('blocker-query-unavailable')).toHaveTextContent(
       Messages.noStatement

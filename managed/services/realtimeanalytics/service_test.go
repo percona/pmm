@@ -194,6 +194,46 @@ func TestListServices(t *testing.T) {
 		require.Len(t, resp.Mongodb, 1)
 		assert.Equal(t, mongodbService.ServiceID, resp.Mongodb[0].ServiceId)
 	})
+
+	t.Run("skip PMM Server's own PostgreSQL", func(t *testing.T) {
+		node3, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+			NodeName: "test-node-3",
+		})
+		require.NoError(t, err)
+		pmmAgent3, err := models.CreatePMMAgent(db.Querier, node3.NodeID, nil)
+		require.NoError(t, err)
+		pmmAgent3.Version = new("3.10.0")
+		err = db.Update(pmmAgent3)
+		require.NoError(t, err)
+
+		var userPostgreSQL *models.Service
+		for _, name := range []string{"test-postgresql", models.PMMServerPostgreSQLServiceName} {
+			service, err := models.AddNewService(db.Querier, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
+				ServiceName: name,
+				NodeID:      node3.NodeID,
+				Address:     new("127.0.0.3"),
+				Port:        new(uint16(5432)),
+			})
+			require.NoError(t, err)
+			_, err = models.CreateAgent(db.Querier, models.PostgresExporterType, &models.CreateAgentParams{
+				PMMAgentID: pmmAgent3.AgentID,
+				ServiceID:  service.ServiceID,
+				Username:   "pmm",
+				Password:   "pmm-pass",
+			})
+			require.NoError(t, err)
+			if name == "test-postgresql" {
+				userPostgreSQL = service
+			}
+		}
+
+		resp, err := svc.ListServices(t.Context(), &rtav1.ListServicesRequest{
+			ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
+		})
+		require.NoError(t, err)
+		require.Len(t, resp.Postgresql, 1)
+		assert.Equal(t, userPostgreSQL.ServiceID, resp.Postgresql[0].ServiceId)
+	})
 }
 
 func TestListSessions(t *testing.T) {
@@ -474,6 +514,21 @@ func TestStartSession(t *testing.T) {
 		assert.Equal(t, codes.InvalidArgument, status.Convert(err).Code())
 		assert.Equal(t, status.Convert(err).Message(), fmt.Sprintf("Service %s of type %s does not support Real-Time Analytics",
 			service2.ServiceID, service2.ServiceType))
+	})
+
+	t.Run("error on PMM Server's own PostgreSQL", func(t *testing.T) {
+		service, err := models.AddNewService(db.Querier, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: models.PMMServerPostgreSQLServiceName,
+			NodeID:      node.NodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(5432)),
+		})
+		require.NoError(t, err)
+		_, err = svc.StartSession(t.Context(), &rtav1.StartSessionRequest{
+			ServiceId: service.ServiceID,
+		})
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Convert(err).Code())
 	})
 
 	t.Run("no other agents available for RTA service", func(t *testing.T) {
