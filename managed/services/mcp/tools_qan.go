@@ -16,6 +16,7 @@
 package mcp
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"slices"
@@ -101,6 +102,10 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	if limit < 1 || limit > maxLimit {
 		return nil, newToolError(codeInvalidInput, "limit must be between 1 and %d; got %d", maxLimit, limit)
 	}
+	err := cmp.Or(checkQANValue("service_name", in.ServiceName), checkQANValue("service_id", in.ServiceID))
+	if err != nil {
+		return nil, err
+	}
 	from, to, err := parseWindow(in.PeriodFrom, in.PeriodTo, s.now())
 	if err != nil {
 		return nil, err
@@ -182,6 +187,10 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in queryDetailInput) (*mcp.CallToolResult, error) {
 	if in.QueryID == "" {
 		return nil, newToolError(codeInvalidInput, "queryid is required")
+	}
+	err := cmp.Or(checkQANValue("queryid", in.QueryID), checkQANValue("service_id", in.ServiceID))
+	if err != nil {
+		return nil, err
 	}
 	from, to, err := parseWindow(in.PeriodFrom, in.PeriodTo, s.now())
 	if err != nil {
@@ -329,6 +338,14 @@ func (d *queryDetail) render(rawSQL bool, base string, from, to time.Time) strin
 	return strings.Join(parts, "\n")
 }
 
+// checkQANValue rejects a QAN filter value with a quote or a backslash (PMM-15715).
+func checkQANValue(input, value string) error {
+	if strings.ContainsAny(value, `'\`) {
+		return newToolError(codeInvalidInput, "%s must not contain a quote (') or a backslash (\\)", input)
+	}
+	return nil
+}
+
 // withheldFingerprint replaces a SQL fingerprint that still holds a literal.
 const withheldFingerprint = "(fingerprint withheld: PMM stored this statement unnormalized, and PMM_MCP_RAW_SQL is off)"
 
@@ -426,6 +443,12 @@ func keyMetrics(m map[string]metricStats) string {
 	add("tmp_table_on_disk", "tmp_table_on_disk", sum, true)
 	add("shared_blks_read", "shared_blks_read_sum", sum, true)
 	add("blk_read_time", "blk_read_time_sum", sum, true)
+	add("docs_examined", "docs_examined_avg", avg, true)
+	add("keys_examined", "keys_examined_avg", avg, true)
+	add("docs_returned", "docs_returned_avg", avg, true)
+	add("response_length", "response_length_avg", avg, true)
+	add("storage_bytes_read", "storage_bytes_read_avg", avg, true)
+	add("locks_global_acquire_count_read_shared", "locks_global_acquire_count_read_shared", sum, true)
 	return strings.Join(out, ", ")
 }
 
