@@ -249,6 +249,7 @@ type MongoDBOptions struct {
 	CollectionsLimit               int32    `json:"collections_limit"`
 	EnableAllCollectors            bool     `json:"enable_all_collectors"`
 	EnableDiagnosticDataHistograms bool     `json:"enable_diagnostic_data_histograms"`
+	DisableDirectConnection        bool     `json:"disable_direct_connection"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -267,7 +268,8 @@ func (c MongoDBOptions) IsEmpty() bool {
 		len(c.StatsCollections) == 0 &&
 		c.CollectionsLimit == 0 &&
 		!c.EnableAllCollectors &&
-		!c.EnableDiagnosticDataHistograms
+		!c.EnableDiagnosticDataHistograms &&
+		!c.DisableDirectConnection
 }
 
 // MySQLOptions represents structure for special MySQL options.
@@ -763,7 +765,12 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		// Force direct connections: https://www.mongodb.com/docs/drivers/go/current/fundamentals/connection/#direct-connection
 		// It's needed for Actions, we need to execute queries exactly on the node specified in DSN. This parameter
 		// prevents driver from switching to Primary node.
-		q.Add("directConnection", trueStr)
+		// Deployments that reject direct connections (e.g. MongoDB Atlas) can opt out.
+		directConnection := trueStr
+		if a.MongoDBOptions.DisableDirectConnection {
+			directConnection = "false"
+		}
+		q.Add("directConnection", directConnection)
 
 		if a.TLS {
 			q.Add("ssl", trueStr)

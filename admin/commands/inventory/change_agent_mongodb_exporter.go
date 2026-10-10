@@ -90,6 +90,7 @@ type ChangeAgentMongodbExporterCommand struct {
 	StatsCollections               *string `help:"List of comma-separated collection names to collect"`
 	CollectionsLimit               *int32  `help:"Collections limit"`
 	EnableDiagnosticDataHistograms *bool   `help:"Enable collecting histogram bucket metrics from getDiagnosticData"`
+	DisableDirectConnection        *bool   `help:"Disable direct connection to the MongoDB node so the exporter discovers the topology (e.g., for MongoDB Atlas)"`
 
 	// Exporter options
 	DisableCollectors []string       `help:"List of collector names to disable"`
@@ -111,9 +112,7 @@ type ChangeAgentMongodbExporterCommand struct {
 }
 
 // RunCmd executes the ChangeAgentMongodbExporterCommand and returns the result.
-func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) { //nolint:cyclop
-	var changes []string
-
+func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 	// Parse custom labels if provided
 	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
@@ -173,6 +172,7 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 		StatsCollections:               statsCollections,
 		CollectionsLimit:               cmd.CollectionsLimit,
 		EnableDiagnosticDataHistograms: cmd.EnableDiagnosticDataHistograms,
+		DisableDirectConnection:        cmd.DisableDirectConnection,
 		DisableCollectors:              cmd.DisableCollectors,
 		ExposeExporter:                 cmd.ExposeExporter,
 		EnablePushMetrics:              cmd.PushMetrics,
@@ -206,14 +206,17 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 		return nil, err
 	}
 
-	// Track changes
-	if cmd.Enable != nil {
-		if *cmd.Enable {
-			changes = append(changes, "enabled agent")
-		} else {
-			changes = append(changes, "disabled agent")
-		}
-	}
+	return &changeAgentMongodbExporterResult{
+		Agent:   resp.Payload.MongodbExporter,
+		Changes: cmd.describeChanges(customLabels, agentEnvVars),
+	}, nil
+}
+
+// describeChanges returns a human-readable list of the changes requested by the provided flags.
+func (cmd *ChangeAgentMongodbExporterCommand) describeChanges(customLabels *map[string]string, agentEnvVars []string) []string {
+	var changes []string
+
+	changes = appendToggleChange(changes, cmd.Enable, "enabled agent", "disabled agent")
 	if cmd.Username != nil {
 		changes = append(changes, "updated username")
 	}
@@ -223,20 +226,8 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 	if cmd.AgentPassword != nil {
 		changes = append(changes, "updated agent password")
 	}
-	if cmd.TLS != nil {
-		if *cmd.TLS {
-			changes = append(changes, "enabled TLS")
-		} else {
-			changes = append(changes, "disabled TLS")
-		}
-	}
-	if cmd.TLSSkipVerify != nil {
-		if *cmd.TLSSkipVerify {
-			changes = append(changes, "enabled TLS skip verification")
-		} else {
-			changes = append(changes, "disabled TLS skip verification")
-		}
-	}
+	changes = appendToggleChange(changes, cmd.TLS, "enabled TLS", "disabled TLS")
+	changes = appendToggleChange(changes, cmd.TLSSkipVerify, "enabled TLS skip verification", "disabled TLS skip verification")
 	if cmd.TLSCertificateKeyFile != nil {
 		changes = append(changes, "updated TLS certificate key")
 	}
@@ -258,30 +249,14 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 	if cmd.CollectionsLimit != nil {
 		changes = append(changes, fmt.Sprintf("changed collections limit to %d", *cmd.CollectionsLimit))
 	}
-	if cmd.EnableDiagnosticDataHistograms != nil {
-		if *cmd.EnableDiagnosticDataHistograms {
-			changes = append(changes, "enabled diagnostic data histograms")
-		} else {
-			changes = append(changes, "disabled diagnostic data histograms")
-		}
-	}
+	changes = appendToggleChange(changes, cmd.EnableDiagnosticDataHistograms,
+		"enabled diagnostic data histograms", "disabled diagnostic data histograms")
+	changes = appendToggleChange(changes, cmd.DisableDirectConnection, "disabled direct connection", "enabled direct connection")
 	if cmd.DisableCollectors != nil {
 		changes = append(changes, fmt.Sprintf("updated disabled collectors: %v", cmd.DisableCollectors))
 	}
-	if cmd.ExposeExporter != nil {
-		if *cmd.ExposeExporter {
-			changes = append(changes, "enabled expose exporter")
-		} else {
-			changes = append(changes, "disabled expose exporter")
-		}
-	}
-	if cmd.PushMetrics != nil {
-		if *cmd.PushMetrics {
-			changes = append(changes, "enabled push metrics")
-		} else {
-			changes = append(changes, "disabled push metrics")
-		}
-	}
+	changes = appendToggleChange(changes, cmd.ExposeExporter, "enabled expose exporter", "disabled expose exporter")
+	changes = appendToggleChange(changes, cmd.PushMetrics, "enabled push metrics", "disabled push metrics")
 	if cmd.LogLevel != nil {
 		changes = append(changes, fmt.Sprintf("changed log level to %s", *cmd.LogLevel))
 	}
@@ -300,8 +275,5 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 		}
 	}
 
-	return &changeAgentMongodbExporterResult{
-		Agent:   resp.Payload.MongodbExporter,
-		Changes: changes,
-	}, nil
+	return changes
 }

@@ -590,6 +590,7 @@ func (as *AgentsService) ChangeMongoDBExporter(
 		CollectionsLimit:               p.CollectionsLimit,
 		EnableAllCollectors:            p.EnableAllCollectors,
 		EnableDiagnosticDataHistograms: p.EnableDiagnosticDataHistograms,
+		DisableDirectConnection:        p.DisableDirectConnection,
 	}
 
 	// Set ExporterOptions

@@ -334,6 +334,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		exporter.CollectionsLimit = agent.MongoDBOptions.CollectionsLimit
 		exporter.EnableAllCollectors = agent.MongoDBOptions.EnableAllCollectors
 		exporter.EnableDiagnosticDataHistograms = agent.MongoDBOptions.EnableDiagnosticDataHistograms
+		exporter.DisableDirectConnection = agent.MongoDBOptions.DisableDirectConnection
 
 		// A stored value that cannot be decoded (hand-edited row, failed migration, an older
 		// writer) must not fail the conversion: ListAgents calls ToAPIAgent once per row, so

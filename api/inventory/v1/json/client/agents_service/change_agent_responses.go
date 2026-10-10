@@ -3126,6 +3126,9 @@ type ChangeAgentOKBodyMongodbExporter struct {
 	// Enable collecting histogram bucket metrics from getDiagnosticData.
 	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
 
+	// True if direct connection to the MongoDB node is disabled.
+	DisableDirectConnection bool `json:"disable_direct_connection,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -7688,6 +7691,9 @@ type ChangeAgentParamsBodyMongodbExporter struct {
 
 	// Enable collecting histogram bucket metrics from getDiagnosticData.
 	EnableDiagnosticDataHistograms *bool `json:"enable_diagnostic_data_histograms,omitempty"`
+
+	// Disable direct connection to the MongoDB node (e.g., for MongoDB Atlas). The exporter then discovers the topology.
+	DisableDirectConnection *bool `json:"disable_direct_connection,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyMongodbExporterCustomLabels `json:"custom_labels,omitempty"`

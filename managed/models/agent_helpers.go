@@ -157,6 +157,7 @@ type MongoDBExtendedOptionsParams interface {
 	GetCollectionsLimit() int32
 	GetEnableAllCollectors() bool
 	GetEnableDiagnosticDataHistograms() bool
+	GetDisableDirectConnection() bool
 }
 
 // MongoDBOptionsFromRequest creates MongoDBOptionsParams object from request.
@@ -177,6 +178,7 @@ func MongoDBOptionsFromRequest(params MongoDBOptionsParams) MongoDBOptions {
 			mdbOptions.CollectionsLimit = extendedOptions.GetCollectionsLimit()
 			mdbOptions.EnableAllCollectors = extendedOptions.GetEnableAllCollectors()
 			mdbOptions.EnableDiagnosticDataHistograms = extendedOptions.GetEnableDiagnosticDataHistograms()
+			mdbOptions.DisableDirectConnection = extendedOptions.GetDisableDirectConnection()
 		}
 	}
 
@@ -553,7 +555,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 
 // FindPMMAgentsRunningOnNode gets pmm-agents for node where it runs.
 func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, error) {
-	structs, err := q.SelectAllFrom(AgentTable, "WHERE runs_on_node_id = $1 AND agent_type = $2", nodeID, PMMAgentType)
+	structs, err := q.SelectAllFrom(AgentTable, "WHERE runs_on_node_id = $1 AND agent_type = $2 ORDER BY agent_id", nodeID, PMMAgentType)
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get agents by runs_on_node_id, %s", nodeID)
 	}
@@ -1227,6 +1229,7 @@ type ChangeMongoDBOptions struct {
 	CollectionsLimit               *int32
 	EnableAllCollectors            *bool
 	EnableDiagnosticDataHistograms *bool
+	DisableDirectConnection        *bool
 }
 
 // ChangeMySQLOptions contains MySQLOptions fields that can be changed.
@@ -1309,7 +1312,7 @@ func (p *ChangeAgentParams) AffectsConnection() bool {
 
 	if o := p.MongoDBOptions; o != nil {
 		if o.TLSCertificateKey != nil || o.TLSCertificateKeyFilePassword != nil || o.TLSCa != nil ||
-			o.AuthenticationMechanism != nil || o.AuthenticationDatabase != nil {
+			o.AuthenticationMechanism != nil || o.AuthenticationDatabase != nil || o.DisableDirectConnection != nil {
 			return true
 		}
 	}
@@ -1598,6 +1601,9 @@ func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) 
 		}
 		if params.MongoDBOptions.EnableDiagnosticDataHistograms != nil {
 			row.MongoDBOptions.EnableDiagnosticDataHistograms = *params.MongoDBOptions.EnableDiagnosticDataHistograms
+		}
+		if params.MongoDBOptions.DisableDirectConnection != nil {
+			row.MongoDBOptions.DisableDirectConnection = *params.MongoDBOptions.DisableDirectConnection
 		}
 	}
 

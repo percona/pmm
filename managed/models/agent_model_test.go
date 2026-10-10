@@ -192,6 +192,14 @@ func TestAgent(t *testing.T) {
 			require.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000", agent.DSN(service, models.DSNParams{DialTimeout: time.Second}, nil, nil))
 			require.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?directConnection=true", agent.DSN(service, models.DSNParams{}, nil, nil))
 		})
+
+		t.Run("MongoDBDisableDirectConnection", func(t *testing.T) {
+			agent.AgentType = models.MongoDBExporterType
+			agent.MongoDBOptions.DisableDirectConnection = true
+			defer func() { agent.MongoDBOptions.DisableDirectConnection = false }()
+
+			require.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?directConnection=false", agent.DSN(service, models.DSNParams{}, nil, nil))
+		})
 	})
 
 	t.Run("DSN socket", func(t *testing.T) {

@@ -2383,6 +2383,9 @@ type ListAgentsOKBodyMongodbExporterItems0 struct {
 	// Enable collecting histogram bucket metrics from getDiagnosticData.
 	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
 
+	// True if direct connection to the MongoDB node is disabled.
+	DisableDirectConnection bool `json:"disable_direct_connection,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyMongodbExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }

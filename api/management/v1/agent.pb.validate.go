@@ -1320,6 +1320,8 @@ func (m *UniversalAgent_MongoDBOptions) validate(all bool) error {
 
 	// no validation rules for EnableDiagnosticDataHistograms
 
+	// no validation rules for DisableDirectConnection
+
 	if len(errors) > 0 {
 		return UniversalAgent_MongoDBOptionsMultiError(errors)
 	}

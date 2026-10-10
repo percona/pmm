@@ -105,6 +105,8 @@ message AddMongoDBServiceParams {
   }];
   // Enable collecting histogram bucket metrics from getDiagnosticData.
   bool enable_diagnostic_data_histograms = 39;
+  // Disable direct connection to the MongoDB node (e.g., for MongoDB Atlas). The exporter then discovers the topology.
+  bool disable_direct_connection = 40;
 }
 
 message MongoDBServiceResult {

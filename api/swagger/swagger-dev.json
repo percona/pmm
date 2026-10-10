@@ -5976,6 +5976,11 @@
                         "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
                         "type": "boolean",
                         "x-order": 21
+                      },
+                      "disable_direct_connection": {
+                        "description": "True if direct connection to the MongoDB node is disabled.",
+                        "type": "boolean",
+                        "x-order": 22
                       }
                     }
                   },
@@ -7952,6 +7957,11 @@
                       "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
                       "type": "boolean",
                       "x-order": 23
+                    },
+                    "disable_direct_connection": {
+                      "description": "Disable direct connection to the MongoDB node (e.g., for MongoDB Atlas). The exporter then discovers the topology.",
+                      "type": "boolean",
+                      "x-order": 24
                     }
                   },
                   "x-order": 3
@@ -9669,6 +9679,11 @@
                       "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
                       "type": "boolean",
                       "x-order": 21
+                    },
+                    "disable_direct_connection": {
+                      "description": "True if direct connection to the MongoDB node is disabled.",
+                      "type": "boolean",
+                      "x-order": 22
                     }
                   },
                   "x-order": 3
@@ -11759,6 +11774,11 @@
                       "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
                       "type": "boolean",
                       "x-order": 21
+                    },
+                    "disable_direct_connection": {
+                      "description": "True if direct connection to the MongoDB node is disabled.",
+                      "type": "boolean",
+                      "x-order": 22
                     }
                   },
                   "x-order": 4
@@ -13791,6 +13811,12 @@
                       },
                       "x-nullable": true,
                       "x-order": 23
+                    },
+                    "disable_direct_connection": {
+                      "description": "Disable direct connection to the MongoDB node (e.g., for MongoDB Atlas). The exporter then discovers the topology.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 24
                     }
                   },
                   "x-order": 2
@@ -15926,6 +15952,11 @@
                       "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
                       "type": "boolean",
                       "x-order": 21
+                    },
+                    "disable_direct_connection": {
+                      "description": "True if direct connection to the MongoDB node is disabled.",
+                      "type": "boolean",
+                      "x-order": 22
                     }
                   },
                   "x-order": 2
@@ -21807,6 +21838,11 @@
                             "description": "True if diagnostic data histograms are enabled.",
                             "type": "boolean",
                             "x-order": 7
+                          },
+                          "disable_direct_connection": {
+                            "description": "True if direct connection to the MongoDB node is disabled.",
+                            "type": "boolean",
+                            "x-order": 8
                           }
                         },
                         "x-order": 16
@@ -23386,6 +23422,11 @@
                                   "description": "True if diagnostic data histograms are enabled.",
                                   "type": "boolean",
                                   "x-order": 7
+                                },
+                                "disable_direct_connection": {
+                                  "description": "True if direct connection to the MongoDB node is disabled.",
+                                  "type": "boolean",
+                                  "x-order": 8
                                 }
                               },
                               "x-order": 16
@@ -24193,6 +24234,11 @@
                       "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
                       "type": "boolean",
                       "x-order": 36
+                    },
+                    "disable_direct_connection": {
+                      "description": "Disable direct connection to the MongoDB node (e.g., for MongoDB Atlas). The exporter then discovers the topology.",
+                      "type": "boolean",
+                      "x-order": 37
                     }
                   },
                   "x-order": 1
@@ -26210,6 +26256,11 @@
                           "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
                           "type": "boolean",
                           "x-order": 21
+                        },
+                        "disable_direct_connection": {
+                          "description": "True if direct connection to the MongoDB node is disabled.",
+                          "type": "boolean",
+                          "x-order": 22
                         }
                       },
                       "x-order": 1
