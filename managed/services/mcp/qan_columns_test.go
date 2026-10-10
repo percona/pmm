@@ -51,6 +51,11 @@ func TestQANColumnsMatchQANAPI2(t *testing.T) {
 	}
 	assert.Len(t, qanColumns, len(got), "a name is listed twice")
 	assert.Equal(t, want, got)
+
+	// qan-api2 rejects any other group_by with a bare HTTP 500.
+	for _, d := range groupByDimensions {
+		assert.Contains(t, maps["standartDimensions"], d)
+	}
 }
 
 // qanAPI2Maps reads the map literals declared in qan-api2's analytics/base.go.
