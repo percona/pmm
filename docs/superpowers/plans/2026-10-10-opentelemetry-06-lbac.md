@@ -37,9 +37,9 @@
 
 ---
 
-### Task 0: ADR-17, LBAC for OTel data
+### Task 0: ADR-18, LBAC for OTel data
 
-- **Files:** `docs/adr/ADR-17-otel-lbac.md`, written in the format of PMM-15590's ADRs. It records options A–D from analysis §7.4 and the decision.
+- **Files:** `docs/adr/ADR-18-otel-lbac.md`, drafted as Proposed on the PMM-15590 branch. This task gets it accepted.
 - **Exit:** accepted by the PMM architects and the security reviewer named in PMM-15591.
 
 ### Task 1: Shared selector evaluator

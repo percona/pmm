@@ -4,7 +4,7 @@
 
 **Goal:** Collect database, OS, application and PMM Server logs, and later traces, through OpenTelemetry Collectors, and store them in ClickHouse next to QAN. The work follows epic [PMM-15567](https://perconadev.atlassian.net/browse/PMM-15567).
 
-**Spec:** [`docs/superpowers/specs/2026-10-10-opentelemetry-analysis.md`](../specs/2026-10-10-opentelemetry-analysis.md), together with PMM-15567 and its child tickets. The analysis records decisions D1–D14; the plans assume the recommended option of each. If a decision goes the other way, re-plan the tasks it lists under "Blocks".
+**Spec:** [`docs/superpowers/specs/2026-10-10-opentelemetry-analysis.md`](../specs/2026-10-10-opentelemetry-analysis.md), together with PMM-15567 and its child tickets. The analysis records decisions D1–D17, all decided in the interview on 2026-10-10. If the epic owner or the architects overturn one when reviewing ADR-19, ADR-20 or the D12 API path, re-plan the tasks that decision lists under "Blocks".
 
 ---
 
@@ -12,13 +12,14 @@
 
 | Plan | Scope | Tickets | Repos | Depends on |
 |---|---|---|---|---|
-| (Phase 0) | ADRs ADR-01..14 in `docs/adr/`, threat model, capacity harness. These are not code plans; they run alongside plan 01. Merge the ADRs and get the threat-model sign-off before plans 01 and 02 merge. | PMM-15590, 15591, 15592 | pmm | — |
+| (Phase 0) | ADRs in `docs/adr/`, threat model, capacity harness. These are not code plans; they run alongside plan 01. The ADRs are drafted on branch `PMM-15590-otel-adrs`: ADR-01..14, plus ADR-17..20. Merge the ADRs and get the threat-model sign-off before plans 01 and 02 merge. | PMM-15590, 15591, 15592 | pmm | — |
 | [01](2026-10-10-opentelemetry-01-server-receiver.md) | OCB collector build; server receiver; `otel` schema; ClickHouse users; settings and `PMM_ENABLE_OTEL`; `/otlp/`; redaction; retention, size cap and watermark; status and purge; HA server bits | PMM-15571, 15577 (build, server image), 15594 (server side) | pmm, percona-helm-charts | D1, D4, D5, D6, D14 decided |
 | [02](2026-10-10-opentelemetry-02-node-collector.md) | `OTEL_COLLECTOR` agent type; `log_sources`; parser presets (backend, built-ins); config params and agent-side rendering; privilege drop; status per source; PMM Server's own logs; self-metrics scrape; telemetry | PMM-15572, 15574 (backend), 15575, 15577 (client packaging), 15593 (scrape) | pmm, grafana (Inventory types) | 01 tasks 1–4 |
 | [03](2026-10-10-opentelemetry-03-ui-and-grafana.md) | Settings → OTEL tab (settings, presets, log sources); `ClickHouse-OTEL` datasource; Admin-only guard in the Grafana fork; Logs dashboard and links; collector health dashboard and alerts | PMM-15574 (UI), 15576, 15593 (dashboard, alerts) | pmm, grafana | 01, 02 |
 | [04](2026-10-10-opentelemetry-04-database-logs.md) | `pmm-admin add/remove logs`; log discovery on the agent; `--collect-logs` on `add mysql/postgresql/mongodb` with a default; database presets | PMM-15573, 15584, 15585, 15586, 15587 | pmm | 02 |
 | [05](2026-10-10-opentelemetry-05-traces.md) | Trace schema; server traces pipeline; node traces receiver and sampling; `pmm-admin add/remove traces`; traces dashboard; correlation | PMM-15579, 15580, 15582 | pmm | 01–03. Re-plan with writing-plans once 02 has merged |
 | [06](2026-10-10-opentelemetry-06-lbac.md) | LBAC for logs and traces: ingest identity, selector evaluator, logs and traces query API that fails closed, log explorer | none yet: propose a follow-up epic | pmm, grafana | 05. Design-level; re-plan before execution |
+| [07](2026-10-10-opentelemetry-07-access-hardening.md) | Access hardening of existing surfaces found during research: LBAC on ClickHouse datasources, on QAN detail endpoints and for service-account tokens; LBAC-relevant labels protected from values parsed out of query comments | file in Jira per `SECURITY.md` | pmm, grafana | none: independent of 01–06; can start now |
 
 **Release gating** (from the epic):
 - Phase 0 and plans 01–03 make up 3.11.0 Technical Preview.
@@ -46,7 +47,7 @@ The QA automation ticket (PMM-15578) adds its tests in percona/pmm-qa against ea
 - Kubernetes sidecar mounts need the Percona operators (PMM-15577). File one ticket per operator, listing the mounts from plan 02, Task 10b.
 
 **Not planned here** (analysis D8):
-- **Profiles:** OTLP profiles are Alpha, and the ClickHouse exporter marks them "development". Write an ADR that records this, and revisit it when the exporter reaches beta.
+- **Profiles:** OTLP profiles are Alpha, and the ClickHouse exporter marks them "development". This is recorded in ADR-17 (drafted on `PMM-15590-otel-adrs`). Revisit it when the exporter reaches beta.
 - **eBPF:** it stays in PMM-15588. It reaches PMM as OTLP traces (plan 05) and as metrics for VictoriaMetrics (PMM-15589), so no extra server receiver is needed here.
 
 ---

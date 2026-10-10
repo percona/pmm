@@ -29,11 +29,11 @@ Marks used below:
 |---|---|---|
 | The server receiver takes logs, traces, profiles and eBPF data | Logs in Phase 1a. Traces in Phase 2 (PMM-15579). eBPF moved to its own epic, PMM-15588. Profiles are not mentioned anywhere. OTLP metrics ingestion and export are out of scope (PMM-15391). | Keep the epic's phasing. Build the server config generator per signal, so traces become a table plus a pipeline entry in Phase 2. Don't build profiles now: the OTel profiles signal has been public Alpha since March 2026 [I], and the contrib ClickHouse exporter marks profiles as "development" stability [V, exporter README]. eBPF data reaches PMM as OTLP traces (ClickHouse, Phase 2) and as metrics (VictoriaMetrics, PMM-15588), so it needs no separate receiver here. |
 | The client collector collects database logs, traces, profiles and eBPF | Logs in Phase 1. A traces receiver on the node in Phase 2. eBPF in PMM-15588. | Same as above. |
-| `pmm-admin add mysql/postgresql/mongodb` collects the database log by default, from the default location or from the database | It is opt-in through `--collect-logs`, and paths come from the database (PMM-15584/85/86). PMM-15584 says "(default `error`)" but its tests pass the flag explicitly, so the ticket is ambiguous. | Collect the **error log by default** when the service is on the same host as pmm-agent. `--collect-logs=none` opts out. Slow and general logs stay opt-in, because they contain SQL text and personal data, and QAN already reads the slow log. Read paths **from the database only**; don't guess distro defaults ([§6.3](#63-default-log-collection-on-pmm-admin-add)). **Needs a decision: D2.** |
-| Parsers can be added in the PMM UI for any log file, and pmm-client uses them | Custom presets are managed through the API and Settings → OTEL (PMM-15574). The tickets don't say whether the UI can add or bind log sources. | Add a log-source editor to Settings → OTEL that uses the same API as `pmm-admin add logs`. The node's allow-list still checks every hand-typed path. A "test this preset on sample lines" preview is a follow-up, not part of this work ([§6.4](#64-parsers-in-the-ui)). **Needs a decision: D7.** |
+| `pmm-admin add mysql/postgresql/mongodb` collects the database log by default, from the default location or from the database | It is opt-in through `--collect-logs`, and paths come from the database (PMM-15584/85/86). PMM-15584 says "(default `error`)" but its tests pass the flag explicitly, so the ticket is ambiguous. | Collect the **error log by default** when the service is on the same host as pmm-agent. `--collect-logs=none` opts out. Slow and general logs stay opt-in, because they contain SQL text and personal data, and QAN already reads the slow log. Read paths **from the database only**; don't guess distro defaults ([§6.3](#63-default-log-collection-on-pmm-admin-add)). **Decided: D2.** |
+| Parsers can be added in the PMM UI for any log file, and pmm-client uses them | Custom presets are managed through the API and Settings → OTEL (PMM-15574). The tickets don't say whether the UI can add or bind log sources. | Add a log-source editor to Settings → OTEL that uses the same API as `pmm-admin add logs`. The node's allow-list still checks every hand-typed path. A "test this preset on sample lines" preview is a follow-up, not part of this work ([§6.4](#64-parsers-in-the-ui)). **Decided: D7.** |
 | How LBAC works with this | Admins only, until LBAC covers logs. | Phase 1: Admin-only, enforced in the Grafana fork; PMM-15576's approach can't work ([§5](#5-findings-on-main-that-change-the-tickets)). Later: a PMM logs query API that turns the user's LBAC selectors into an allow-list of service and node IDs and fails closed ([§7](#7-lbac)). |
 
-**Decisions needed before coding starts:** [§8](#8-decisions-needed), D1 to D10. Plan 01 is blocked on D1, D4 and D5.
+**Decisions:** [§8](#8-decisions). D1–D17 were decided in the interview on 2026-10-10. D2, D11 and D12 change the epic or its tickets, so they go to the epic owner and the architects as Proposed ADRs (ADR-19, ADR-20, and an amendment to PMM-15574/15571) before coding.
 
 ---
 
@@ -305,7 +305,7 @@ Plan 06 holds the task list. It is a design-level plan, to be re-planned once Ph
 
 ---
 
-## 8. Decisions needed
+## 8. Decisions
 
 | # | Decision | Recommendation | Blocks |
 |---|---|---|---|
@@ -323,6 +323,17 @@ Plan 06 holds the task list. It is a design-level plan, to be re-planned once Ph
 | D12 | API home | One new domain, `api/otel/v1` (`OtelService`), under `/v1/otel/…`: presets, log sources, discovery, status and purge. Settings stay in `/v1/server/settings`. This differs from PMM-15574 (`/v1/server/log-parser-presets`) and PMM-15571 (`/v1/server/otel:purge`), and gives one `"/v1/otel": admin` rule. | Plans 01, 02 |
 | D13 | Built-in and custom presets | One table. Built-ins are upserted from embedded files at startup, and a clashing custom preset is renamed ([§6.7](#67-built-in-presets)). | Plan 02 |
 | D14 | Settings in HA | A per-replica reconcile loop for the OTEL settings ([§6.8](#68-settings-in-ha)). | Plan 01 |
+| D15 | Node collectors when OTEL is turned off | Every collector stops, the server's and every node's (`IgnoreOtelCollector`). File checkpoints are kept, so turning it back on resumes each file where it stopped. | Plan 02 |
+| D16 | When the server side of traces lands | Phase 2, together with the node receiver, as the epic says. | Plan 05 |
+| D17 | Existing access gaps found during research | Fixed in this programme, in plan 07, worded as fixes without exploit detail. | Plan 07 |
+
+**Interview of 2026-10-10:**
+- Every recommendation above was accepted: D1–D14, and D15–D17 as written.
+- D8 is decided as "defer profiles and record ADR-17".
+- The ADRs follow PMM-15590's numbering:
+  - ADR-01..14 as in the ticket; ADR-15 and ADR-16 stay reserved for eBPF (PMM-15588).
+  - Then ADR-17 (profiles deferred), ADR-18 (LBAC for OTel data), ADR-19 (default database log collection, D2) and ADR-20 (node collector config rendered by pmm-agent, D11).
+- ADR-19, ADR-20, and the D12 path change differ from the epic as written. They stay **Proposed** until the epic owner and the architects accept them.
 
 ---
 
@@ -337,4 +348,4 @@ Plan 06 holds the task list. It is a design-level plan, to be re-planned once Ph
 
 ## 10. Security-sensitive findings
 
-The research turned up access-control observations about existing surfaces on `main` that are not part of this epic. Following `SECURITY.md`, they are not written here. They were reported to the requester separately, to be filed privately.
+The research turned up four access-control gaps in existing surfaces on `main`, outside this epic. At the requester's direction they are fixed in [plan 07](../plans/2026-10-10-opentelemetry-07-access-hardening.md). Following `AGENTS.md` (keep exploit detail out of public places), plan 07 says what to change and how to test it, not how to abuse the gaps. Per `SECURITY.md`, they should also be filed in the PMM Jira project, so that Percona's fix timelines apply.
