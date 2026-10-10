@@ -1608,6 +1608,8 @@ func (m *GetQueryPlanRequest) validate(all bool) error {
 
 	// no validation rules for Queryid
 
+	// no validation rules for ServiceId
+
 	if len(errors) > 0 {
 		return GetQueryPlanRequestMultiError(errors)
 	}

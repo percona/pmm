@@ -43,6 +43,15 @@ const (
 	secondsPerMinute     = 60
 )
 
+// lbacCondition returns the caller's LBAC filter as an AND clause, or "" when there is none.
+func lbacCondition(ctx context.Context) (string, error) {
+	filter, err := headersToLbacFilter(ctx)
+	if err != nil || filter == "" {
+		return "", err
+	}
+	return " AND (" + filter + ")", nil
+}
+
 // Metrics represents methods to work with metrics.
 type Metrics struct {
 	db *sqlx.DB
@@ -59,6 +68,10 @@ func NewMetrics(db *sqlx.DB) Metrics {
 func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec int64, filter, group string,
 	dimensions, labels map[string][]string, totals bool,
 ) ([]M, error) {
+	lbacFilter, err := headersToLbacFilter(ctx)
+	if err != nil {
+		return nil, err
+	}
 	arg := map[string]any{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
@@ -73,6 +86,7 @@ func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec 
 		DimensionVal    string
 		Group           string
 		Totals          bool
+		LbacFilter      string
 	}{
 		PeriodStartFrom: periodStartFromSec,
 		PeriodStartTo:   periodStartToSec,
@@ -82,6 +96,7 @@ func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec 
 		DimensionVal:    escapeColons(filter),
 		Group:           group,
 		Totals:          totals,
+		LbacFilter:      escapeColons(lbacFilter),
 	}
 	var queryBuffer bytes.Buffer
 	tmpl, err := template.New("queryMetricsTmpl").Funcs(funcMap).Parse(queryMetricsTmpl)
@@ -387,6 +402,7 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
         {{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
     {{ end }})
 {{ end }}
+{{ if .LbacFilter }} AND ({{ .LbacFilter }}) {{ end }}
 {{ if not .Totals }} GROUP BY {{ .Group }} {{ end }}
 	WITH TOTALS;
 `
@@ -491,6 +507,7 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
         {{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
     {{ end }})
 {{ end }}
+{{ if .LbacFilter }} AND ({{ .LbacFilter }}) {{ end }}
 GROUP BY point
 	ORDER BY point ASC;
 `
@@ -522,6 +539,10 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	amountOfPoints += remainder / minutesInPoint
 	timeFrame := minutesInPoint * secondsPerMinute
 
+	lbacFilter, err := headersToLbacFilter(ctx)
+	if err != nil {
+		return nil, err
+	}
 	arg := map[string]any{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
@@ -536,6 +557,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 		DimensionVal    string
 		TimeFrame       int64
 		Group           string
+		LbacFilter      string
 	}{
 		PeriodStartFrom: periodStartFromSec,
 		PeriodStartTo:   periodStartToSec,
@@ -545,11 +567,12 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 		DimensionVal:    escapeColons(filter),
 		TimeFrame:       timeFrame,
 		Group:           group,
+		LbacFilter:      escapeColons(lbacFilter),
 	}
 
 	var results []*qanv1.Point
 	var queryBuffer bytes.Buffer
-	err := tmplMetricsSparklines.Execute(&queryBuffer, tmplArgs)
+	err = tmplMetricsSparklines.Execute(&queryBuffer, tmplArgs)
 	if err != nil {
 		return nil, fmt.Errorf("cannot execute tmplMetricsSparklines: %w", err)
 	}
@@ -621,6 +644,7 @@ SELECT schema AS schema, tables, service_id, service_type, queryid, explain_fing
         {{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
         {{ end }})
  {{ end }}
+ {{ if .LbacFilter }} AND ({{ .LbacFilter }}) {{ end }}
  LIMIT :limit
 `
 
@@ -630,6 +654,10 @@ var tmplQueryExample = template.Must(template.New("queryExampleTmpl").Funcs(func
 func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, periodStartTo time.Time, filter,
 	group string, limit uint32, dimensions, labels map[string][]string,
 ) (*qanv1.GetQueryExampleResponse, error) {
+	lbacFilter, err := headersToLbacFilter(ctx)
+	if err != nil {
+		return nil, err
+	}
 	arg := map[string]any{
 		"filter":            filter,
 		"group":             group,
@@ -643,15 +671,17 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 		Labels       map[string][]string
 		DimensionVal string
 		Group        string
+		LbacFilter   string
 	}{
 		Dimensions:   escapeColonsInMap(dimensions),
 		Labels:       escapeColonsInMap(labels),
 		DimensionVal: escapeColons(filter),
 		Group:        group,
+		LbacFilter:   escapeColons(lbacFilter),
 	}
 
 	var queryBuffer bytes.Buffer
-	err := tmplQueryExample.Execute(&queryBuffer, tmplArgs)
+	err = tmplQueryExample.Execute(&queryBuffer, tmplArgs)
 	if err != nil {
 		return nil, fmt.Errorf("cannot execute queryExampleTmpl: %w", err)
 	}
@@ -695,17 +725,18 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 const queryObjectDetailsLabelsTmpl = `
 SELECT service_name, database, schema, username, client_host, replication_set, cluster, service_type,
        service_id, environment, az, region, node_model, node_id, node_name, node_type, machine_id, container_name,
-       container_id, agent_id, agent_type, labels.key AS lkey, labels.value AS lvalue, cmd_type, top_queryid, application_name, planid
+       container_id, agent_id, agent_type, l.key AS lkey, l.value AS lvalue, cmd_type, top_queryid, application_name, planid
   FROM metrics
-  LEFT ARRAY JOIN labels
+  LEFT ARRAY JOIN labels AS l
  WHERE period_start >= :period_start_from AND period_start <= :period_start_to
        {{ if index . "filter" }} AND {{ index . "group" }} = :filter {{ end }}
+       {{ if index . "lbac" }} AND ({{ index . "lbac" }}) {{ end }}
  GROUP BY service_name, database, schema, username, client_host, replication_set, cluster, service_type,
        service_id, environment, az, region, node_model, node_id, node_name, node_type, machine_id, container_name,
-       container_id, agent_id, agent_type, labels.key, labels.value, cmd_type, top_queryid, application_name, planid
+       container_id, agent_id, agent_type, l.key, l.value, cmd_type, top_queryid, application_name, planid
  ORDER BY service_name, database, schema, username, client_host, replication_set, cluster, service_type,
        service_id, environment, az, region, node_model, node_id, node_name, node_type, machine_id, container_name,
-       container_id, agent_id, agent_type, labels.key, labels.value, cmd_type, top_queryid, application_name, planid
+       container_id, agent_id, agent_type, l.key, l.value, cmd_type, top_queryid, application_name, planid
 `
 
 var tmplObjectDetailsLabels = template.Must(template.New("queryObjectDetailsLabelsTmpl").Funcs(funcMap).Parse(queryObjectDetailsLabelsTmpl))
@@ -744,6 +775,10 @@ type queryRowsLabels struct {
 func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom, periodStartTo time.Time, filter,
 	group string,
 ) (*qanv1.GetLabelsResponse, error) {
+	lbacFilter, err := headersToLbacFilter(ctx)
+	if err != nil {
+		return nil, err
+	}
 	arg := map[string]any{
 		"filter":            filter,
 		"group":             group,
@@ -752,7 +787,7 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 	}
 
 	var queryBuffer bytes.Buffer
-	err := tmplObjectDetailsLabels.Execute(&queryBuffer, arg)
+	err = tmplObjectDetailsLabels.Execute(&queryBuffer, map[string]any{"filter": filter, "group": group, "lbac": escapeColons(lbacFilter)})
 	if err != nil {
 		return nil, fmt.Errorf("cannot execute tmplObjectDetailsLabels: %w", err)
 	}
@@ -885,7 +920,7 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 	return &res, nil
 }
 
-const fingerprintByQueryID = `SELECT fingerprint FROM metrics WHERE queryid = ? LIMIT 1`
+const fingerprintByQueryID = `SELECT fingerprint FROM metrics WHERE queryid = ?`
 
 // GetFingerprintByQueryID returns the query fingerprint, used in query details.
 func (m *Metrics) GetFingerprintByQueryID(ctx context.Context, queryID string) (string, error) {
@@ -893,11 +928,16 @@ func (m *Metrics) GetFingerprintByQueryID(ctx context.Context, queryID string) (
 		return "", nil
 	}
 
+	lbac, err := lbacCondition(ctx)
+	if err != nil {
+		return "", err
+	}
+
 	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
 
 	var fingerprint string
-	err := m.db.GetContext(queryCtx, &fingerprint, fingerprintByQueryID, []any{queryID}...)
+	err = m.db.GetContext(queryCtx, &fingerprint, fingerprintByQueryID+lbac+" LIMIT 1", queryID)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return "", fmt.Errorf("QueryxContext error:%v", err) //nolint:errorlint
 	}
@@ -905,15 +945,26 @@ func (m *Metrics) GetFingerprintByQueryID(ctx context.Context, queryID string) (
 	return fingerprint, nil
 }
 
-const planByQueryID = `SELECT planid, query_plan FROM metrics WHERE queryid = ? LIMIT 1`
+const planByQueryID = `SELECT planid, query_plan FROM metrics WHERE queryid = ?`
 
-// SelectQueryPlan selects query plan and related stuff for given queryid.
-func (m *Metrics) SelectQueryPlan(ctx context.Context, queryID string) (*qanv1.GetQueryPlanResponse, error) {
+// SelectQueryPlan selects the query plan for a queryid, on one service when serviceID is set.
+func (m *Metrics) SelectQueryPlan(ctx context.Context, queryID, serviceID string) (*qanv1.GetQueryPlanResponse, error) {
+	lbac, err := lbacCondition(ctx)
+	if err != nil {
+		return nil, err
+	}
+	query := planByQueryID
+	args := []any{queryID}
+	if serviceID != "" {
+		query += " AND service_id = ?"
+		args = append(args, serviceID)
+	}
+
 	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
 
 	var res qanv1.GetQueryPlanResponse
-	err := m.db.GetContext(queryCtx, &res, planByQueryID, queryID)
+	err = m.db.GetContext(queryCtx, &res, query+lbac+" LIMIT 1", args...) //nolint:musttag // mapped by json tags, see db.go
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("QueryxContext error:%v", err) //nolint:errorlint
 	}
@@ -934,6 +985,7 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
     {{ end }})
 {{ end }}
 AND queryid = :queryid
+{{ if .LbacFilter }} AND ({{ .LbacFilter }}) {{ end }}
 ORDER BY period_start DESC;
 `
 
@@ -941,6 +993,10 @@ ORDER BY period_start DESC;
 func (m *Metrics) SelectHistogram(ctx context.Context, periodStartFromSec, periodStartToSec int64,
 	dimensions, labels map[string][]string, queryID string,
 ) (*qanv1.GetHistogramResponse, error) {
+	lbacFilter, err := headersToLbacFilter(ctx)
+	if err != nil {
+		return nil, err
+	}
 	arg := map[string]any{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
@@ -950,9 +1006,11 @@ func (m *Metrics) SelectHistogram(ctx context.Context, periodStartFromSec, perio
 	tmplArgs := struct {
 		Dimensions map[string][]string
 		Labels     map[string][]string
+		LbacFilter string
 	}{
 		Dimensions: escapeColonsInMap(dimensions),
 		Labels:     escapeColonsInMap(labels),
+		LbacFilter: escapeColons(lbacFilter),
 	}
 	var queryBuffer bytes.Buffer
 	tmpl, err := template.New("histogramTmpl").Funcs(funcMap).Parse(histogramTmpl)
@@ -1031,8 +1089,7 @@ func histogramHasKey(h []*qanv1.HistogramItem, key string) (bool, int) {
 }
 
 const queryExistsTmpl = `SELECT queryid FROM metrics
-WHERE service_id = :service_id AND example = :query LIMIT 1;
-`
+WHERE service_id = :service_id AND example = :query`
 
 // QueryExists check if query value in request exists by example in clickhouse.
 func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (bool, error) {
@@ -1041,8 +1098,12 @@ func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (boo
 		"query":      query,
 	}
 
+	lbac, err := lbacCondition(ctx)
+	if err != nil {
+		return false, err
+	}
 	var queryBuffer bytes.Buffer
-	queryBuffer.WriteString(queryExistsTmpl)
+	queryBuffer.WriteString(queryExistsTmpl + escapeColons(lbac) + " LIMIT 1")
 
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
@@ -1071,7 +1132,7 @@ func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (boo
 }
 
 const schemaByQueryIDTmpl = `SELECT schema FROM metrics
-WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;`
+WHERE service_id = :service_id AND queryid = :query_id`
 
 // SchemaByQueryID returns schema for given queryID and serviceID.
 func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanv1.SchemaByQueryIDResponse, error) {
@@ -1080,8 +1141,12 @@ func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string
 		"query_id":   queryID,
 	}
 
+	lbac, err := lbacCondition(ctx)
+	if err != nil {
+		return nil, err
+	}
 	var queryBuffer bytes.Buffer
-	queryBuffer.WriteString(schemaByQueryIDTmpl)
+	queryBuffer.WriteString(schemaByQueryIDTmpl + escapeColons(lbac) + " LIMIT 1")
 
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
@@ -1115,8 +1180,7 @@ func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string
 }
 
 const queryByQueryIDTmpl = `SELECT explain_fingerprint, fingerprint, example, placeholders_count FROM metrics
-WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;
-`
+WHERE service_id = :service_id AND queryid = :query_id`
 
 // ExplainFingerprintByQueryID get explain fingerprint and placeholders count for given queryid.
 func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanv1.ExplainFingerprintByQueryIDResponse, error) {
@@ -1125,10 +1189,14 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 		"query_id":   queryID,
 	}
 
-	var queryBuffer bytes.Buffer
-	queryBuffer.WriteString(queryByQueryIDTmpl)
-
 	res := &qanv1.ExplainFingerprintByQueryIDResponse{}
+	lbac, err := lbacCondition(ctx)
+	if err != nil {
+		return res, err
+	}
+	var queryBuffer bytes.Buffer
+	queryBuffer.WriteString(queryByQueryIDTmpl + escapeColons(lbac) + " LIMIT 1")
+
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
 		return res, fmt.Errorf(cannotPrepare+": %w", err)
@@ -1197,12 +1265,17 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 		{{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')]) 
 	{{ end }}) 
 {{ end }}
+{{ if .LbacFilter }} AND ({{ .LbacFilter }}) {{ end }}
 `
 
 // GetSelectedQueryMetadata returns metadata for given query ID.
 func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromSec, periodStartToSec int64, filter, group string,
 	dimensions, labels map[string][]string, totals bool,
 ) (*qanv1.GetSelectedQueryMetadataResponse, error) {
+	lbacFilter, err := headersToLbacFilter(ctx)
+	if err != nil {
+		return nil, err
+	}
 	arg := map[string]any{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
@@ -1217,6 +1290,7 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 		DimensionVal    string
 		Group           string
 		Totals          bool
+		LbacFilter      string
 	}{
 		PeriodStartFrom: periodStartFromSec,
 		PeriodStartTo:   periodStartToSec,
@@ -1226,6 +1300,7 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 		DimensionVal:    escapeColons(filter),
 		Group:           group,
 		Totals:          totals,
+		LbacFilter:      escapeColons(lbacFilter),
 	}
 
 	res := &qanv1.GetSelectedQueryMetadataResponse{}

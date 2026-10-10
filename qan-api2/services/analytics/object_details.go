@@ -309,6 +309,7 @@ func (s *Service) GetQueryPlan(ctx context.Context, in *qanpb.GetQueryPlanReques
 	resp, err := s.mm.SelectQueryPlan(
 		ctx,
 		in.Queryid,
+		in.ServiceId,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error in selecting query plans: %w", err)
