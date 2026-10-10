@@ -202,7 +202,7 @@ A Viewer token can start the read-only pmm-agent actions behind `pmm_get_explain
 |----------------------|---------|--------|
 | `PMM_ENABLE_MCP` | `false` | Enables the endpoint. When disabled, `/mcp` answers 404. The state is shown as `enable_mcp` in `GET /v1/server/settings/readonly`, and, unless this variable is set, it can also be changed at runtime: see [Enable the endpoint](#enable-the-endpoint). |
 | `PMM_MCP_RAW_SQL` | `false` | Allows tool output to include literal values from your data: query examples, the explained statement, and the literals in execution plans and agent errors. When off, statements are shown as normalized fingerprints, plan literals are replaced with `?`, and agent errors that can quote a statement are withheld. Removing the variable turns raw SQL off at the next start. |
-| `PMM_MCP_ACTION_TIMEOUT` | `15s` | How long one `pmm_get_explain` or `pmm_get_schema` call may take, all of its pmm-agent actions together. Actions still running then end with a `timeout` error. |
+| `PMM_MCP_ACTION_TIMEOUT` | `15s` | How long one `pmm_get_explain` or `pmm_get_schema` call may take, all of its pmm-agent actions together. Actions still running then end with a `timeout` error. Each pmm-agent action also stops on its own after 10 seconds, with the same error. |
 
 Set them on the PMM Server container like other `PMM_*` variables, for example `-e PMM_ENABLE_MCP=true`. They are persisted in PMM settings at start-up.
 
