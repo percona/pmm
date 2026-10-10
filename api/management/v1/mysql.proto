@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package management.v1;
 
+import "common/common.proto";
 import "extensions/v1/redact.proto";
 import "google/protobuf/duration.proto";
 import "inventory/v1/agents.proto";
@@ -99,6 +100,76 @@ message AddMySQLServiceParams {
   google.protobuf.Duration connection_timeout = 34 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+}
+
+// Update MySQL
+
+// UpdateMySQLServiceParams holds the MySQL Service settings to change. Only the fields that are set are changed.
+message UpdateMySQLServiceParams {
+  // Node and Service access address (DNS name or IP). Replaces the socket.
+  optional string address = 1;
+  // Service Access port. Replaces the socket.
+  optional uint32 port = 2 [(validate.rules).uint32.lt = 65536];
+  // Service Access socket. Replaces the address and port.
+  optional string socket = 3;
+  // Environment name.
+  optional string environment = 4;
+  // Cluster name.
+  optional string cluster = 5;
+  // Replication set name.
+  optional string replication_set = 6;
+  // Replace all custom user-assigned labels for Service.
+  common.StringMap custom_labels = 7;
+  // MySQL username for scraping metrics.
+  optional string username = 8 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // MySQL password for scraping metrics.
+  optional string password = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Custom password for exporter endpoint /metrics.
+  optional string agent_password = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Use TLS for database connections.
+  optional bool tls = 11;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 12;
+  // Certificate Authority certificate chain.
+  optional string tls_ca = 13;
+  // Client certificate.
+  optional string tls_cert = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Password for decrypting tls_cert.
+  optional string tls_key = 15 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Replace all extra DSN parameters used for connecting to MySQL.
+  common.StringMap extra_dsn_params = 16;
+  // If true, ensures qan-mysql-perfschema-agent exists; if false, removes it.
+  optional bool qan_mysql_perfschema = 17;
+  // If true, ensures qan-mysql-slowlog-agent exists; if false, removes it.
+  optional bool qan_mysql_slowlog = 18;
+  // Disable parsing comments from queries and showing them in QAN.
+  optional bool disable_comments_parsing = 19;
+  // Limit query length in QAN (zero: server-defined; -1: no limit).
+  optional int32 max_query_length = 20;
+  // Disable query examples.
+  optional bool disable_query_examples = 21;
+  // Slowlog file is rotated at this size if > 0.
+  // If zero, server's default value is used.
+  // Use negative value to disable rotation.
+  optional int64 max_slowlog_file_size = 22;
+  // Tablestats group collectors will be disabled if there are more than that number of tables.
+  // If zero, server's default value is used.
+  // Use negative value to disable them.
+  optional int32 tablestats_group_table_limit = 23;
+  // Defines metrics flow model for this exporter.
+  optional MetricsMode metrics_mode = 24;
+  // Replace the list of collector names to disable in this exporter.
+  common.StringArray disable_collectors = 25;
+  // Log level for all Agents of the Service.
+  optional inventory.v1.LogLevel log_level = 26;
+  // Expose the exporter process on all public interfaces.
+  optional bool expose_exporter = 27;
+  // Connection timeout for exporter; zero restores the default.
+  google.protobuf.Duration connection_timeout = 28 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
+  // Skip connection check.
+  bool skip_connection_check = 29;
 }
 
 message MySQLServiceResult {

@@ -15,9 +15,12 @@
 package management
 
 import (
+	"errors"
 	"net"
 	"strconv"
 )
+
+var errMissingListenPort = errors.New("missing flags: --listen-port=port")
 
 // AddCommand is used by Kong for CLI flags and commands.
 type AddCommand struct {

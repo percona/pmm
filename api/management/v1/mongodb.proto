@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package management.v1;
 
+import "common/common.proto";
 import "extensions/v1/redact.proto";
 import "google/protobuf/duration.proto";
 import "inventory/v1/agents.proto";
@@ -105,6 +106,78 @@ message AddMongoDBServiceParams {
   }];
   // Enable collecting histogram bucket metrics from getDiagnosticData.
   bool enable_diagnostic_data_histograms = 39;
+}
+
+// Update MongoDB
+
+// UpdateMongoDBServiceParams holds the MongoDB Service settings to change. Only the fields that are set are changed.
+message UpdateMongoDBServiceParams {
+  // Node and Service access address (DNS name or IP). Replaces the socket.
+  optional string address = 1;
+  // Service Access port. Replaces the socket.
+  optional uint32 port = 2 [(validate.rules).uint32.lt = 65536];
+  // Service Access socket. Replaces the address and port.
+  optional string socket = 3;
+  // Environment name.
+  optional string environment = 4;
+  // Cluster name.
+  optional string cluster = 5;
+  // Replication set name.
+  optional string replication_set = 6;
+  // Replace all custom user-assigned labels for Service.
+  common.StringMap custom_labels = 7;
+  // MongoDB username for exporter and QAN agent access.
+  optional string username = 8 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // MongoDB password for exporter and QAN agent access.
+  optional string password = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Custom password for exporter endpoint /metrics.
+  optional string agent_password = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Use TLS for database connections.
+  optional bool tls = 11;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 12;
+  // Client certificate and key.
+  optional string tls_certificate_key = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Password for decrypting tls_certificate_key.
+  optional string tls_certificate_key_file_password = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Certificate Authority certificate chain.
+  optional string tls_ca = 15;
+  // Authentication mechanism.
+  optional string authentication_mechanism = 16;
+  // Authentication database.
+  optional string authentication_database = 17;
+  // If true, ensures qan-mongodb-profiler-agent exists; if false, removes it.
+  optional bool qan_mongodb_profiler = 18;
+  // If true, ensures qan-mongodb-mongolog-agent exists; if false, removes it.
+  optional bool qan_mongodb_mongolog = 19;
+  // Limit query length in QAN (zero: server-defined; -1: no limit).
+  optional int32 max_query_length = 20;
+  // Defines metrics flow model for this exporter.
+  optional MetricsMode metrics_mode = 21;
+  // Replace the list of collector names to disable in this exporter.
+  common.StringArray disable_collectors = 22;
+  // Replace the list of collections to get stats from. Can use * .
+  common.StringArray stats_collections = 23;
+  // Collections limit. Only get Databases and collection stats if the total number of collections in the server
+  // is less than this value. 0: no limit; -1: server-defined.
+  optional int32 collections_limit = 24;
+  // Enable all collectors.
+  optional bool enable_all_collectors = 25;
+  // Enable collecting histogram bucket metrics from getDiagnosticData.
+  optional bool enable_diagnostic_data_histograms = 26;
+  // Replace the environment variable names to pass to the exporter.
+  // Values will be resolved from pmm-agent's environment when starting the exporter.
+  common.StringArray environment_variable_names = 27;
+  // Log level for all Agents of the Service.
+  optional inventory.v1.LogLevel log_level = 28;
+  // Expose the exporter process on all public interfaces.
+  optional bool expose_exporter = 29;
+  // Connection timeout for exporter; zero restores the default.
+  google.protobuf.Duration connection_timeout = 30 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
+  // Skip connection check.
+  bool skip_connection_check = 31;
 }
 
 message MongoDBServiceResult {

@@ -52,14 +52,14 @@ type AddHAProxyCommand struct {
 	CredentialsSource   string            `type:"existingfile" help:"Credentials provider"`
 	Scheme              string            `placeholder:"http or https" help:"Scheme to generate URI to exporter metrics endpoints"`
 	MetricsPath         string            `placeholder:"/metrics" help:"Path under which metrics are exposed, used to generate URI"`
-	ListenPort          uint16            `placeholder:"port" required:"" help:"Listen port of haproxy exposing the metrics for scraping metrics (Required)"`
+	ListenPort          uint16            `placeholder:"port" help:"Listen port of haproxy exposing the metrics for scraping metrics (Required)"`
 	NodeID              string            `help:"Node ID (default is autodetected)"`
 	Environment         string            `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
 	Cluster             string            `placeholder:"east-cluster" help:"Cluster name"`
 	ReplicationSet      string            `placeholder:"rs1" help:"Replication set name"`
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck bool              `help:"Skip connection check"`
-	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
+	TLSSkipVerify       bool              `negatable:"" help:"Skip TLS certificate verification"`
 }
 
 // GetCredentials returns the credentials for AddHAProxyCommand.
@@ -77,6 +77,11 @@ func (cmd *AddHAProxyCommand) GetCredentials() error {
 
 // RunCmd runs the command for AddHAProxyCommand.
 func (cmd *AddHAProxyCommand) RunCmd() (commands.Result, error) {
+	// Checked here rather than by Kong, so that update, which reuses the flags, can leave it out.
+	if cmd.ListenPort == 0 {
+		return nil, errMissingListenPort
+	}
+
 	isSupported, err := helpers.IsHAProxySupported()
 	if !isSupported {
 		return nil, err

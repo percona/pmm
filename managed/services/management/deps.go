@@ -101,3 +101,9 @@ type versionCache interface {
 type victoriaMetricsClient interface {
 	Query(ctx context.Context, query string, ts time.Time, opts ...v1.Option) (model.Value, v1.Warnings, error)
 }
+
+// scheduledTasksRemover is a subset of methods of common.MgmtServices used by this package.
+// We use it instead of real type for testing.
+type scheduledTasksRemover interface {
+	RemoveScheduledTasks(ctx context.Context, db *reform.DB, params *models.ChangeStandardLabelsParams) error
+}

@@ -18,6 +18,7 @@ import "management/v1/proxysql.proto";
 import "management/v1/rds.proto";
 import "management/v1/valkey.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
 
 message AddServiceRequest {
   oneof service {
@@ -53,6 +54,32 @@ message RemoveServiceRequest {
 }
 
 message RemoveServiceResponse {}
+
+message UpdateServiceRequest {
+  // Either a Service ID or a Service Name.
+  string service_id = 1 [(validate.rules).string.min_len = 1];
+  // Settings to change; the Service type must match the existing Service.
+  oneof service {
+    UpdateMySQLServiceParams mysql = 2;
+    UpdateMongoDBServiceParams mongodb = 3;
+    UpdatePostgreSQLServiceParams postgresql = 4;
+    UpdateProxySQLServiceParams proxysql = 5;
+    UpdateHAProxyServiceParams haproxy = 6;
+    UpdateExternalServiceParams external = 7;
+    UpdateValkeyServiceParams valkey = 8;
+  }
+  // Validate the change and return the result without applying it.
+  bool dry_run = 9;
+}
+
+message UpdateServiceResponse {
+  // Service with its Agents before the update.
+  UniversalService before = 1;
+  // Service with its Agents after the update, or as it would be with dry_run.
+  UniversalService after = 2;
+  // Warning message.
+  string warning = 3;
+}
 
 message UniversalService {
   // Service status.
@@ -276,6 +303,17 @@ service ManagementService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Remove a Service"
       description: "Removes a Service along with its Agents."
+    };
+  }
+  // UpdateService changes the settings of a Service and its Agents in place.
+  rpc UpdateService(UpdateServiceRequest) returns (UpdateServiceResponse) {
+    option (google.api.http) = {
+      put: "/v1/management/services/{service_id}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update a Service"
+      description: "Changes the settings of a Service and its Agents in place. Only the fields that are set are changed; the Service and Agent IDs are kept."
     };
   }
 }

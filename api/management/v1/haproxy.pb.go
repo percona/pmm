@@ -15,6 +15,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 
+	common "github.com/percona/pmm/api/common"
 	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
@@ -224,6 +225,151 @@ func (x *AddHAProxyServiceParams) GetTlsSkipVerify() bool {
 	return false
 }
 
+// UpdateHAProxyServiceParams holds the HAProxy Service settings to change. Only the fields that are set are changed.
+type UpdateHAProxyServiceParams struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// HTTP basic auth username for collecting metrics.
+	Username *string `protobuf:"bytes,1,opt,name=username,proto3,oneof" json:"username,omitempty"`
+	// HTTP basic auth password for collecting metrics.
+	Password *string `protobuf:"bytes,2,opt,name=password,proto3,oneof" json:"password,omitempty"`
+	// Scheme to generate URI to exporter metrics endpoints.
+	Scheme *string `protobuf:"bytes,3,opt,name=scheme,proto3,oneof" json:"scheme,omitempty"`
+	// Path under which metrics are exposed, used to generate URI.
+	MetricsPath *string `protobuf:"bytes,4,opt,name=metrics_path,json=metricsPath,proto3,oneof" json:"metrics_path,omitempty"`
+	// Listen port for scraping metrics.
+	ListenPort *uint32 `protobuf:"varint,5,opt,name=listen_port,json=listenPort,proto3,oneof" json:"listen_port,omitempty"`
+	// Environment name.
+	Environment *string `protobuf:"bytes,6,opt,name=environment,proto3,oneof" json:"environment,omitempty"`
+	// Cluster name.
+	Cluster *string `protobuf:"bytes,7,opt,name=cluster,proto3,oneof" json:"cluster,omitempty"`
+	// Replication set name.
+	ReplicationSet *string `protobuf:"bytes,8,opt,name=replication_set,json=replicationSet,proto3,oneof" json:"replication_set,omitempty"`
+	// Replace all custom user-assigned labels for Service.
+	CustomLabels *common.StringMap `protobuf:"bytes,9,opt,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty"`
+	// Defines metrics flow model for this exporter.
+	MetricsMode *MetricsMode `protobuf:"varint,10,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.v1.MetricsMode,oneof" json:"metrics_mode,omitempty"`
+	// Skip TLS certificate and hostname validation.
+	TlsSkipVerify *bool `protobuf:"varint,11,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3,oneof" json:"tls_skip_verify,omitempty"`
+	// Skip connection check.
+	SkipConnectionCheck bool `protobuf:"varint,12,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *UpdateHAProxyServiceParams) Reset() {
+	*x = UpdateHAProxyServiceParams{}
+	mi := &file_management_v1_haproxy_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateHAProxyServiceParams) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateHAProxyServiceParams) ProtoMessage() {}
+
+func (x *UpdateHAProxyServiceParams) ProtoReflect() protoreflect.Message {
+	mi := &file_management_v1_haproxy_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateHAProxyServiceParams.ProtoReflect.Descriptor instead.
+func (*UpdateHAProxyServiceParams) Descriptor() ([]byte, []int) {
+	return file_management_v1_haproxy_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *UpdateHAProxyServiceParams) GetUsername() string {
+	if x != nil && x.Username != nil {
+		return *x.Username
+	}
+	return ""
+}
+
+func (x *UpdateHAProxyServiceParams) GetPassword() string {
+	if x != nil && x.Password != nil {
+		return *x.Password
+	}
+	return ""
+}
+
+func (x *UpdateHAProxyServiceParams) GetScheme() string {
+	if x != nil && x.Scheme != nil {
+		return *x.Scheme
+	}
+	return ""
+}
+
+func (x *UpdateHAProxyServiceParams) GetMetricsPath() string {
+	if x != nil && x.MetricsPath != nil {
+		return *x.MetricsPath
+	}
+	return ""
+}
+
+func (x *UpdateHAProxyServiceParams) GetListenPort() uint32 {
+	if x != nil && x.ListenPort != nil {
+		return *x.ListenPort
+	}
+	return 0
+}
+
+func (x *UpdateHAProxyServiceParams) GetEnvironment() string {
+	if x != nil && x.Environment != nil {
+		return *x.Environment
+	}
+	return ""
+}
+
+func (x *UpdateHAProxyServiceParams) GetCluster() string {
+	if x != nil && x.Cluster != nil {
+		return *x.Cluster
+	}
+	return ""
+}
+
+func (x *UpdateHAProxyServiceParams) GetReplicationSet() string {
+	if x != nil && x.ReplicationSet != nil {
+		return *x.ReplicationSet
+	}
+	return ""
+}
+
+func (x *UpdateHAProxyServiceParams) GetCustomLabels() *common.StringMap {
+	if x != nil {
+		return x.CustomLabels
+	}
+	return nil
+}
+
+func (x *UpdateHAProxyServiceParams) GetMetricsMode() MetricsMode {
+	if x != nil && x.MetricsMode != nil {
+		return *x.MetricsMode
+	}
+	return MetricsMode_METRICS_MODE_UNSPECIFIED
+}
+
+func (x *UpdateHAProxyServiceParams) GetTlsSkipVerify() bool {
+	if x != nil && x.TlsSkipVerify != nil {
+		return *x.TlsSkipVerify
+	}
+	return false
+}
+
+func (x *UpdateHAProxyServiceParams) GetSkipConnectionCheck() bool {
+	if x != nil {
+		return x.SkipConnectionCheck
+	}
+	return false
+}
+
 type HAProxyServiceResult struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	Service          *v1.HAProxyService     `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
@@ -234,7 +380,7 @@ type HAProxyServiceResult struct {
 
 func (x *HAProxyServiceResult) Reset() {
 	*x = HAProxyServiceResult{}
-	mi := &file_management_v1_haproxy_proto_msgTypes[1]
+	mi := &file_management_v1_haproxy_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -246,7 +392,7 @@ func (x *HAProxyServiceResult) String() string {
 func (*HAProxyServiceResult) ProtoMessage() {}
 
 func (x *HAProxyServiceResult) ProtoReflect() protoreflect.Message {
-	mi := &file_management_v1_haproxy_proto_msgTypes[1]
+	mi := &file_management_v1_haproxy_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -259,7 +405,7 @@ func (x *HAProxyServiceResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HAProxyServiceResult.ProtoReflect.Descriptor instead.
 func (*HAProxyServiceResult) Descriptor() ([]byte, []int) {
-	return file_management_v1_haproxy_proto_rawDescGZIP(), []int{1}
+	return file_management_v1_haproxy_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *HAProxyServiceResult) GetService() *v1.HAProxyService {
@@ -280,7 +426,7 @@ var File_management_v1_haproxy_proto protoreflect.FileDescriptor
 
 const file_management_v1_haproxy_proto_rawDesc = "" +
 	"\n" +
-	"\x1bmanagement/v1/haproxy.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x19inventory/v1/agents.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x9b\x06\n" +
+	"\x1bmanagement/v1/haproxy.proto\x12\rmanagement.v1\x1a\x13common/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x19inventory/v1/agents.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x9b\x06\n" +
 	"\x17AddHAProxyServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -303,7 +449,33 @@ const file_management_v1_haproxy_proto_rawDesc = "" +
 	"\x0ftls_skip_verify\x18\x11 \x01(\bR\rtlsSkipVerify\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9b\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xce\x05\n" +
+	"\x1aUpdateHAProxyServiceParams\x12%\n" +
+	"\busername\x18\x01 \x01(\tB\x04\x88\xb5\x18\x01H\x00R\busername\x88\x01\x01\x12%\n" +
+	"\bpassword\x18\x02 \x01(\tB\x04\x88\xb5\x18\x01H\x01R\bpassword\x88\x01\x01\x12\x1b\n" +
+	"\x06scheme\x18\x03 \x01(\tH\x02R\x06scheme\x88\x01\x01\x12&\n" +
+	"\fmetrics_path\x18\x04 \x01(\tH\x03R\vmetricsPath\x88\x01\x01\x121\n" +
+	"\vlisten_port\x18\x05 \x01(\rB\v\xfaB\b*\x06\x10\x80\x80\x04 \x00H\x04R\n" +
+	"listenPort\x88\x01\x01\x12%\n" +
+	"\venvironment\x18\x06 \x01(\tH\x05R\venvironment\x88\x01\x01\x12\x1d\n" +
+	"\acluster\x18\a \x01(\tH\x06R\acluster\x88\x01\x01\x12,\n" +
+	"\x0freplication_set\x18\b \x01(\tH\aR\x0ereplicationSet\x88\x01\x01\x126\n" +
+	"\rcustom_labels\x18\t \x01(\v2\x11.common.StringMapR\fcustomLabels\x12B\n" +
+	"\fmetrics_mode\x18\n" +
+	" \x01(\x0e2\x1a.management.v1.MetricsModeH\bR\vmetricsMode\x88\x01\x01\x12+\n" +
+	"\x0ftls_skip_verify\x18\v \x01(\bH\tR\rtlsSkipVerify\x88\x01\x01\x122\n" +
+	"\x15skip_connection_check\x18\f \x01(\bR\x13skipConnectionCheckB\v\n" +
+	"\t_usernameB\v\n" +
+	"\t_passwordB\t\n" +
+	"\a_schemeB\x0f\n" +
+	"\r_metrics_pathB\x0e\n" +
+	"\f_listen_portB\x0e\n" +
+	"\f_environmentB\n" +
+	"\n" +
+	"\b_clusterB\x12\n" +
+	"\x10_replication_setB\x0f\n" +
+	"\r_metrics_modeB\x12\n" +
+	"\x10_tls_skip_verify\"\x9b\x01\n" +
 	"\x14HAProxyServiceResult\x126\n" +
 	"\aservice\x18\x01 \x01(\v2\x1c.inventory.v1.HAProxyServiceR\aservice\x12K\n" +
 	"\x11external_exporter\x18\x02 \x01(\v2\x1e.inventory.v1.ExternalExporterR\x10externalExporterB\xad\x01\n" +
@@ -322,29 +494,33 @@ func file_management_v1_haproxy_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_management_v1_haproxy_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+	file_management_v1_haproxy_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 	file_management_v1_haproxy_proto_goTypes  = []any{
-		(*AddHAProxyServiceParams)(nil), // 0: management.v1.AddHAProxyServiceParams
-		(*HAProxyServiceResult)(nil),    // 1: management.v1.HAProxyServiceResult
-		nil,                             // 2: management.v1.AddHAProxyServiceParams.CustomLabelsEntry
-		(*AddNodeParams)(nil),           // 3: management.v1.AddNodeParams
-		MetricsMode(0),                  // 4: management.v1.MetricsMode
-		(*v1.HAProxyService)(nil),       // 5: inventory.v1.HAProxyService
-		(*v1.ExternalExporter)(nil),     // 6: inventory.v1.ExternalExporter
+		(*AddHAProxyServiceParams)(nil),    // 0: management.v1.AddHAProxyServiceParams
+		(*UpdateHAProxyServiceParams)(nil), // 1: management.v1.UpdateHAProxyServiceParams
+		(*HAProxyServiceResult)(nil),       // 2: management.v1.HAProxyServiceResult
+		nil,                                // 3: management.v1.AddHAProxyServiceParams.CustomLabelsEntry
+		(*AddNodeParams)(nil),              // 4: management.v1.AddNodeParams
+		MetricsMode(0),                     // 5: management.v1.MetricsMode
+		(*common.StringMap)(nil),           // 6: common.StringMap
+		(*v1.HAProxyService)(nil),          // 7: inventory.v1.HAProxyService
+		(*v1.ExternalExporter)(nil),        // 8: inventory.v1.ExternalExporter
 	}
 )
 
 var file_management_v1_haproxy_proto_depIdxs = []int32{
-	3, // 0: management.v1.AddHAProxyServiceParams.add_node:type_name -> management.v1.AddNodeParams
-	2, // 1: management.v1.AddHAProxyServiceParams.custom_labels:type_name -> management.v1.AddHAProxyServiceParams.CustomLabelsEntry
-	4, // 2: management.v1.AddHAProxyServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
-	5, // 3: management.v1.HAProxyServiceResult.service:type_name -> inventory.v1.HAProxyService
-	6, // 4: management.v1.HAProxyServiceResult.external_exporter:type_name -> inventory.v1.ExternalExporter
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	4, // 0: management.v1.AddHAProxyServiceParams.add_node:type_name -> management.v1.AddNodeParams
+	3, // 1: management.v1.AddHAProxyServiceParams.custom_labels:type_name -> management.v1.AddHAProxyServiceParams.CustomLabelsEntry
+	5, // 2: management.v1.AddHAProxyServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
+	6, // 3: management.v1.UpdateHAProxyServiceParams.custom_labels:type_name -> common.StringMap
+	5, // 4: management.v1.UpdateHAProxyServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
+	7, // 5: management.v1.HAProxyServiceResult.service:type_name -> inventory.v1.HAProxyService
+	8, // 6: management.v1.HAProxyServiceResult.external_exporter:type_name -> inventory.v1.ExternalExporter
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_haproxy_proto_init() }
@@ -354,13 +530,14 @@ func file_management_v1_haproxy_proto_init() {
 	}
 	file_management_v1_metrics_proto_init()
 	file_management_v1_node_proto_init()
+	file_management_v1_haproxy_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_management_v1_haproxy_proto_rawDesc), len(file_management_v1_haproxy_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -1121,6 +1121,577 @@ var _ interface {
 	ErrorName() string
 } = RemoveServiceResponseValidationError{}
 
+// Validate checks the field values on UpdateServiceRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdateServiceRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UpdateServiceRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UpdateServiceRequestMultiError, or nil if none found.
+func (m *UpdateServiceRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdateServiceRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
+		err := UpdateServiceRequestValidationError{
+			field:  "ServiceId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for DryRun
+
+	switch v := m.Service.(type) {
+	case *UpdateServiceRequest_Mysql:
+		if v == nil {
+			err := UpdateServiceRequestValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysql()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, UpdateServiceRequestValidationError{
+						field:  "Mysql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, UpdateServiceRequestValidationError{
+						field:  "Mysql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysql()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return UpdateServiceRequestValidationError{
+					field:  "Mysql",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *UpdateServiceRequest_Mongodb:
+		if v == nil {
+			err := UpdateServiceRequestValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMongodb()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, UpdateServiceRequestValidationError{
+						field:  "Mongodb",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, UpdateServiceRequestValidationError{
+						field:  "Mongodb",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMongodb()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return UpdateServiceRequestValidationError{
+					field:  "Mongodb",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *UpdateServiceRequest_Postgresql:
+		if v == nil {
+			err := UpdateServiceRequestValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPostgresql()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, UpdateServiceRequestValidationError{
+						field:  "Postgresql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, UpdateServiceRequestValidationError{
+						field:  "Postgresql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPostgresql()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return UpdateServiceRequestValidationError{
+					field:  "Postgresql",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *UpdateServiceRequest_Proxysql:
+		if v == nil {
+			err := UpdateServiceRequestValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetProxysql()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, UpdateServiceRequestValidationError{
+						field:  "Proxysql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, UpdateServiceRequestValidationError{
+						field:  "Proxysql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetProxysql()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return UpdateServiceRequestValidationError{
+					field:  "Proxysql",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *UpdateServiceRequest_Haproxy:
+		if v == nil {
+			err := UpdateServiceRequestValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetHaproxy()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, UpdateServiceRequestValidationError{
+						field:  "Haproxy",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, UpdateServiceRequestValidationError{
+						field:  "Haproxy",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetHaproxy()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return UpdateServiceRequestValidationError{
+					field:  "Haproxy",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *UpdateServiceRequest_External:
+		if v == nil {
+			err := UpdateServiceRequestValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetExternal()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, UpdateServiceRequestValidationError{
+						field:  "External",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, UpdateServiceRequestValidationError{
+						field:  "External",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetExternal()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return UpdateServiceRequestValidationError{
+					field:  "External",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *UpdateServiceRequest_Valkey:
+		if v == nil {
+			err := UpdateServiceRequestValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetValkey()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, UpdateServiceRequestValidationError{
+						field:  "Valkey",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, UpdateServiceRequestValidationError{
+						field:  "Valkey",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetValkey()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return UpdateServiceRequestValidationError{
+					field:  "Valkey",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return UpdateServiceRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// UpdateServiceRequestMultiError is an error wrapping multiple validation
+// errors returned by UpdateServiceRequest.ValidateAll() if the designated
+// constraints aren't met.
+type UpdateServiceRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdateServiceRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdateServiceRequestMultiError) AllErrors() []error { return m }
+
+// UpdateServiceRequestValidationError is the validation error returned by
+// UpdateServiceRequest.Validate if the designated constraints aren't met.
+type UpdateServiceRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateServiceRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateServiceRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateServiceRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateServiceRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateServiceRequestValidationError) ErrorName() string {
+	return "UpdateServiceRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateServiceRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateServiceRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = UpdateServiceRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateServiceRequestValidationError{}
+
+// Validate checks the field values on UpdateServiceResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdateServiceResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UpdateServiceResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UpdateServiceResponseMultiError, or nil if none found.
+func (m *UpdateServiceResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdateServiceResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetBefore()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdateServiceResponseValidationError{
+					field:  "Before",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdateServiceResponseValidationError{
+					field:  "Before",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetBefore()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateServiceResponseValidationError{
+				field:  "Before",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetAfter()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdateServiceResponseValidationError{
+					field:  "After",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdateServiceResponseValidationError{
+					field:  "After",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAfter()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateServiceResponseValidationError{
+				field:  "After",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Warning
+
+	if len(errors) > 0 {
+		return UpdateServiceResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// UpdateServiceResponseMultiError is an error wrapping multiple validation
+// errors returned by UpdateServiceResponse.ValidateAll() if the designated
+// constraints aren't met.
+type UpdateServiceResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdateServiceResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdateServiceResponseMultiError) AllErrors() []error { return m }
+
+// UpdateServiceResponseValidationError is the validation error returned by
+// UpdateServiceResponse.Validate if the designated constraints aren't met.
+type UpdateServiceResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateServiceResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateServiceResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateServiceResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateServiceResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateServiceResponseValidationError) ErrorName() string {
+	return "UpdateServiceResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateServiceResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateServiceResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = UpdateServiceResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateServiceResponseValidationError{}
+
 // Validate checks the field values on UniversalService with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.

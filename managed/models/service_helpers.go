@@ -21,6 +21,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -208,6 +209,23 @@ func FindServiceByID(q *reform.Querier, id string) (*Service, error) {
 	}
 
 	return row, nil
+}
+
+// FindServiceByIDForUpdate searches Service by ID and locks its row until the end of the transaction.
+func FindServiceByIDForUpdate(q *reform.Querier, id string) (*Service, error) {
+	if id == "" {
+		return nil, status.Error(codes.InvalidArgument, "Empty Service ID.")
+	}
+
+	row, err := q.SelectOneFrom(ServiceTable, "WHERE service_id = $1 FOR UPDATE", id)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Service with ID %s not found.", id)
+		}
+		return nil, err
+	}
+
+	return row.(*Service), nil //nolint:forcetypeassert
 }
 
 // FindServicesByIDs finds Services by IDs.
@@ -496,6 +514,96 @@ func ChangeStandardLabels(q *reform.Querier, serviceID string, labels ServiceSta
 	}
 
 	return nil
+}
+
+// ChangeServiceParams contains Service fields that can be changed; nil means no change.
+type ChangeServiceParams struct {
+	Environment    *string
+	Cluster        *string
+	ReplicationSet *string
+	ExternalGroup  *string
+	// empty map - remove all custom labels, non-empty - change, nil - no change
+	CustomLabels *map[string]string
+	Database     *string
+	// An address or port replaces the socket, and a socket replaces the address and port.
+	Address *string
+	Port    *uint16
+	Socket  *string
+}
+
+// IsEndpointChange reports whether the change moves the Service to another address, port, socket or database.
+func (p *ChangeServiceParams) IsEndpointChange() bool {
+	return p.Address != nil || p.Port != nil || p.Socket != nil || p.Database != nil
+}
+
+// ApplyServiceChange changes the Service fields set in params and stores the Service.
+// Must be performed in transaction.
+func ApplyServiceChange(q *reform.Querier, row *Service, params *ChangeServiceParams) (*Service, error) {
+	// Applied to a copy, so the caller's row is left as it was if the change is rejected.
+	rowCopy := *row
+	row = &rowCopy
+
+	if params.Environment != nil {
+		row.Environment = *params.Environment
+	}
+	if params.Cluster != nil {
+		row.Cluster = *params.Cluster
+	}
+	if params.ReplicationSet != nil {
+		row.ReplicationSet = *params.ReplicationSet
+	}
+	if params.ExternalGroup != nil {
+		row.ExternalGroup = *params.ExternalGroup
+		if row.ExternalGroup == "" {
+			row.ExternalGroup = "external"
+		}
+	}
+	if params.Database != nil {
+		row.DatabaseName = *params.Database
+		if row.DatabaseName == "" {
+			row.DatabaseName = "postgres"
+		}
+	}
+	if params.CustomLabels != nil {
+		err := row.SetCustomLabels(*params.CustomLabels)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if params.Address != nil {
+		row.Address = pointer.ToStringOrNil(*params.Address)
+	}
+	if params.Port != nil {
+		row.Port = pointer.ToUint16OrNil(*params.Port)
+	}
+	if params.Socket != nil {
+		row.Socket = pointer.ToStringOrNil(*params.Socket)
+	}
+	switch {
+	case (params.Address != nil || params.Port != nil) && params.Socket == nil:
+		row.Socket = nil
+	case params.Socket != nil && params.Address == nil && params.Port == nil:
+		row.Address = nil
+		row.Port = nil
+	}
+
+	switch row.ServiceType {
+	case MySQLServiceType, MongoDBServiceType, PostgreSQLServiceType, ProxySQLServiceType, ValkeyServiceType:
+		err := validateDBConnectionOptions(row.Socket, row.Address, row.Port)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		// HAProxy and External Services are scraped through their exporter, not their own address.
+	}
+
+	err := q.Update(row)
+	if err != nil {
+		return nil, err
+	}
+
+	return row, nil
 }
 
 func initSoftwareVersions(q *reform.Querier, serviceID string, serviceType ServiceType) error {

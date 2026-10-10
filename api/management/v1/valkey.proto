@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package management.v1;
 
+import "common/common.proto";
 import "extensions/v1/redact.proto";
 import "google/protobuf/duration.proto";
 import "inventory/v1/agents.proto";
@@ -78,6 +79,52 @@ message AddValkeyServiceParams {
   google.protobuf.Duration connection_timeout = 25 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+}
+
+// UpdateValkeyServiceParams holds the Valkey Service settings to change. Only the fields that are set are changed.
+message UpdateValkeyServiceParams {
+  // Node and Service access address (DNS name or IP). Replaces the socket.
+  optional string address = 1;
+  // Service access port. Replaces the socket.
+  optional uint32 port = 2 [(validate.rules).uint32.lt = 65536];
+  // Service access socket. Replaces the address and port.
+  optional string socket = 3;
+  // Environment name.
+  optional string environment = 4;
+  // Cluster name.
+  optional string cluster = 5;
+  // Replication set name.
+  optional string replication_set = 6;
+  // Replace all custom user-assigned labels for Service.
+  common.StringMap custom_labels = 7;
+  // Valkey username for scraping metrics.
+  optional string username = 8 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Valkey password for scraping metrics.
+  optional string password = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Custom password for exporter endpoint /metrics.
+  optional string agent_password = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Use TLS for connection.
+  optional bool tls = 11;
+  // Skip TLS verification.
+  optional bool tls_skip_verify = 12;
+  // TLS CA certificate.
+  optional string tls_ca = 13;
+  // TLS Certificate.
+  optional string tls_cert = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // TLS Certificate Key.
+  optional string tls_key = 15 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Defines metrics flow model for the Valkey exporter.
+  optional MetricsMode metrics_mode = 16;
+  // Exporter log level.
+  optional inventory.v1.LogLevel log_level = 17;
+  // Expose the exporter process on all public interfaces.
+  optional bool expose_exporter = 18;
+  // Connection timeout for exporter; zero restores the default.
+  google.protobuf.Duration connection_timeout = 19 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
+  // Skip connection check.
+  bool skip_connection_check = 20;
 }
 
 message ValkeyServiceResult {

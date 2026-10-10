@@ -63,7 +63,7 @@ type AddExternalCommand struct {
 	CredentialsSource   string            `type:"existingfile" help:"Credentials provider"`
 	Scheme              string            `placeholder:"http or https" help:"Scheme to generate URI to exporter metrics endpoints"`
 	MetricsPath         string            `placeholder:"/metrics" help:"Path under which metrics are exposed, used to generate URI"`
-	ListenPort          uint16            `placeholder:"port" required:"" help:"Listen port of external exporter for scraping metrics. (Required)"`
+	ListenPort          uint16            `placeholder:"port" help:"Listen port of external exporter for scraping metrics. (Required)"`
 	NodeID              string            `name:"service-node-id" help:"Node ID where service runs (default is autodetected)"`
 	Environment         string            `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
 	Cluster             string            `placeholder:"east-cluster" help:"Cluster name"`
@@ -71,7 +71,7 @@ type AddExternalCommand struct {
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
-	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
+	TLSSkipVerify       bool              `negatable:"" help:"Skip TLS certificate verification"`
 }
 
 // GetCredentials returns the credentials for AddExternalCommand.
@@ -89,6 +89,11 @@ func (cmd *AddExternalCommand) GetCredentials() error {
 
 // RunCmd runs the command for AddExternalCommand.
 func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
+	// Checked here rather than by Kong, so that update, which reuses the flags, can leave it out.
+	if cmd.ListenPort == 0 {
+		return nil, errMissingListenPort
+	}
+
 	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	if cmd.RunsOnNodeID == "" || cmd.NodeID == "" {
