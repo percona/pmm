@@ -85,15 +85,20 @@ func checkRegistrationOnServer(running, given *config.Config, l *logrus.Entry) r
 // knows. The credentials given to setup can still get an answer.
 //
 // Only a clear "PMM Server does not know this Agent" counts from the second lookup, because that is the
-// answer the refused credentials could not give. Anything else keeps the first answer, so that a Node
-// which is still registered is never registered again - which would remove it together with every
-// Service on it - over an answer about credentials.
+// answer the refused credentials could not give - or, for a rejected token, the Node PMM Server has.
+// Anything else keeps the first answer, so that a Node which is still registered is never registered
+// again - which would remove it together with every Service on it - over an answer about credentials.
 //
 // This method is not thread-safe.
 func withGivenCredentials(lookup agentLookup, running, given *config.Config, l *logrus.Entry) agentLookup {
 	return func(ctx context.Context, agentID string) (serverNode, error) {
 		node, err := lookup(ctx, agentID)
-		if !serverRefused(err) || sameCredentials(running, given) {
+		// PMM Server answers a token Grafana failed to look up just like a token it rejects, see PMM-15692.
+		if holdsToken(running) && errors.Is(err, errCredentialsRejected) {
+			err = errTokenRejected
+		}
+		refused := serverRefused(err) || errors.Is(err, errTokenRejected)
+		if !refused || sameCredentials(running, given) {
 			return node, err
 		}
 
@@ -104,15 +109,30 @@ func withGivenCredentials(lookup agentLookup, running, given *config.Config, l *
 
 		fmt.Printf("PMM Server at %s does not accept the credentials pmm-agent %s runs with,"+
 			" checking the registration with the credentials given to setup.\n", given.Server.Address, agentID)
-		setServerTransport(u, given.Server.InsecureTLS, l)
+		// running skips the certificate check when the file does, as the Agent itself does, see runningServer.
+		setServerTransport(u, running.Server.InsecureTLS, l)
 
-		_, e := lookup(ctx, agentID)
-		if errors.Is(e, errAgentNotFound) {
+		found, e := lookup(ctx, agentID)
+		switch {
+		case errors.Is(e, errAgentNotFound):
 			return serverNode{}, e
+		case e == nil && errors.Is(err, errTokenRejected):
+			fmt.Printf("PMM Server has pmm-agent %s on Node %s, but does not accept the token pmm-agent runs with."+
+				" Check the service account of the Node in PMM Server, or use --force to register the Node again,"+
+				" which removes it together with its Services.\n", agentID, found.Name)
+			return found, nil
 		}
 
 		return node, err
 	}
+}
+
+// errTokenRejected reports that PMM Server does not accept the token the Agent runs with, which says nothing about the registration.
+var errTokenRejected = errors.New("PMM Server does not accept the token pmm-agent runs with")
+
+// holdsToken reports whether c authenticates with a service token rather than a password.
+func holdsToken(c *config.Config) bool {
+	return c.Server.Username == "service_token" || c.Server.Username == "api_key"
 }
 
 // sameCredentials reports whether asking again would ask with the credentials PMM Server just refused.
@@ -213,8 +233,7 @@ func registrationOf(cfg, fileCfg *config.Config, check registrationCheck, l *log
 
 // runningServer returns cfg holding the settings the Agent reaches PMM Server with, so that the
 // registration is checked the way the Agent itself would reach the server rather than the way setup was
-// told to. Only then does a confirmed registration mean that the Agent can still reach PMM Server on its
-// own: a token the server no longer accepts registers the Node again, with the credentials given to setup.
+// told to.
 func runningServer(cfg, fileCfg *config.Config) *config.Config {
 	c := *cfg
 	// PMM Server ships a self-signed certificate, so an Agent which runs with the check skipped has to be

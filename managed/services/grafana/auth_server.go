@@ -707,7 +707,7 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 		cErr, ok := errors.AsType[*clientError](err)
 		if ok {
 			code := codes.Internal
-			if cErr.Code == 401 || cErr.Code == 403 {
+			if cErr.Code == 401 || cErr.Code == 403 || errors.Is(err, errServiceTokenRejected) {
 				code = codes.Unauthenticated
 			}
 			return nil, &authError{code: code, message: cErr.ErrorMessage}
