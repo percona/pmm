@@ -416,6 +416,7 @@ describe('BlockedByPanel', () => {
 
     expect(screen.getByText(Messages.idleNote)).toBeInTheDocument();
     expect(screen.getByText('idle in transaction 2m 34s')).toBeInTheDocument();
+    expect(screen.getByText(Messages.resolveHint('4472'))).toBeInTheDocument();
     expect(
       screen.queryByText(Messages.titles.lockType)
     ).not.toBeInTheDocument();
@@ -439,6 +440,12 @@ describe('BlockedByPanel', () => {
       screen.getByText(Messages.idleNoteNoTransaction)
     ).toBeInTheDocument();
     expect(screen.getByText('idle')).toBeInTheDocument();
+    expect(
+      screen.getByText(Messages.resolveHintSessionLock('4472'))
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(Messages.resolveHint('4472'))
+    ).not.toBeInTheDocument();
   });
 
   it('does not suggest a MySQL consumer for a PostgreSQL blocker without a statement', () => {

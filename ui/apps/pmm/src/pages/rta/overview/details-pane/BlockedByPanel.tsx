@@ -53,6 +53,13 @@ const isIdleCommand = (command: string) =>
   command === 'idle' ||
   command.startsWith('idle in transaction');
 
+// LOCK TABLE and row locks need a transaction, so a PostgreSQL session idle outside one can only
+// be holding a session-level lock, such as one from pg_advisory_lock().
+const holdsSessionLock = (
+  blocker: BlockingTransaction,
+  technology?: ServiceType
+) => technology === ServiceType.posgresql && blocker.blockingCommand === 'idle';
+
 const durationText = (duration?: string | null): string =>
   duration ? formatDurationSeconds(parseDuration(duration) / 1000) : '';
 
@@ -355,7 +362,9 @@ const BlockedByPanel: FC<Props> = ({
           {sole
             ? lockType === LockType.metadata
               ? Messages.resolveHintMetadata(sole.blockingConnId)
-              : Messages.resolveHint(sole.blockingConnId)
+              : holdsSessionLock(sole, technology)
+                ? Messages.resolveHintSessionLock(sole.blockingConnId)
+                : Messages.resolveHint(sole.blockingConnId)
             : roots.length > 1
               ? Messages.resolveHintRoots(culpritCount, queuedAhead.length)
               : Messages.resolveHintCycle}

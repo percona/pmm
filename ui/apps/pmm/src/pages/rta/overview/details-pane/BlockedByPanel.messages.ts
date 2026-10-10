@@ -69,6 +69,10 @@ export const Messages = {
   // the table, so the remedy is worded for that rather than for a row lock.
   resolveHintMetadata: (connId: number | string) =>
     `Conn ${connId} holds a metadata lock on this table; it is released when that statement or transaction ends. PMM reports the wait; what to do about it is yours to decide.`,
+  // A PostgreSQL session idle outside any transaction can only hold a session-level lock,
+  // which no commit or rollback releases.
+  resolveHintSessionLock: (connId: number | string) =>
+    `Conn ${connId} is idle outside any transaction, so its lock is session-level, such as an advisory lock from pg_advisory_lock(): committing or rolling back does not release it. Calling pg_advisory_unlock() in that session, or ending the session, releases this statement. PMM reports the wait; what to do about it is yours to decide.`,
   // Only the transactions at the head of the chain hold the statement up independently; the
   // rest are queued behind them and clear on their own.
   resolveHintRoots: (count: number, queued: number) =>
