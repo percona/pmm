@@ -63,7 +63,7 @@ To enable:
 
 If PMM Server was started with the `PMM_ENABLE_INTERNAL_PG_QAN` environment variable, the variable decides whether this QAN is on. PMM refuses to switch it the other way, both from the **QAN for PMM Server** option and from `pmm-admin inventory change agent`. To control it from the UI, start PMM Server without the variable. See [Configure environment variables for PMM Server](../../install-pmm/install-pmm-server/deployment-options/docker/env_var.md).
 
-When enabled, you'll see queries related to PMM's internal operations—inventory, settings, advisor checks, alerts, backups, and authentication. These are usually lightweight, but unusual spikes may indicate performance issues.
+When enabled, you'll see queries related to PMM's internal operations: inventory, settings, advisor checks, alerts, backups, and authentication. These are usually lightweight, but unusual spikes may indicate performance issues.
 
 !!! warning
     Do not use PMM Server's PostgreSQL database for application workloads. Use dedicated databases for your applications.
