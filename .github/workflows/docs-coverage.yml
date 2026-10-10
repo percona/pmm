@@ -1,0 +1,154 @@
+---
+name: Docs Coverage
+
+# Advisory: comments on documentation a PR leaves stale, and never fails the PR,
+# because Merge Gatekeeper blocks on every check that is red.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths-ignore:
+      - "documentation/**"
+      - ".github/**"
+      - "api-tests/**"
+      - "**/*_test.go"
+      - "**/*.test.ts"
+      - "**/*.test.tsx"
+
+concurrency:
+  group: docs-coverage-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    name: Review documentation coverage
+    # Fork PRs get no secrets, and the action refuses bot actors, including the
+    # PR bot that updates branches from their base.
+    if: >-
+      !github.event.pull_request.draft &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !endsWith(github.actor, '[bot]') &&
+      !contains(github.event.pull_request.labels.*.name, 'no docs')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      findings: ${{ steps.claude.outputs.structured_output }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      - name: Collect the change
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/docs-coverage"
+          printf '# %s\n\n%s\n' "$TITLE" "$BODY" > "$RUNNER_TEMP/docs-coverage/pr.md"
+          # The checkout is the PR merged into its base, so the first parent is the base.
+          git diff HEAD^1 HEAD -- . \
+            ':!*.pb.go' ':!*.pb.gw.go' ':!*.pb.validate.go' ':!*_reform.go' ':!*swagger*.json' \
+            ':!**/json/client/**' ':!**/generated/**' ':!**/mock_*.go' ':!go.sum' ':!**/pnpm-lock.yaml' ':!**/yarn.lock' \
+            ':!*_test.go' ':!*.test.ts' ':!*.test.tsx' \
+            > "$RUNNER_TEMP/docs-coverage/pr.diff"
+          wc -l "$RUNNER_TEMP/docs-coverage/pr.diff"
+
+      - name: Run Claude Code
+        id: claude
+        continue-on-error: true
+        timeout-minutes: 15
+        uses: anthropics/claude-code-action@cfc3eb22bfed5c26ef66e3223c982af27e4524de # v1.0.231
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # The job token is read-only, so the agent cannot write to the PR; the next job posts.
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            Pull request #${{ github.event.pull_request.number }} in ${{ github.repository }} changes PMM.
+            Answer one question: does the documentation cover everything this change needs?
+
+            - ${{ runner.temp }}/docs-coverage/pr.md holds the PR title and description.
+            - ${{ runner.temp }}/docs-coverage/pr.diff holds the change against its base, without generated files or tests.
+            - The working directory is the repository with the PR merged. User documentation is
+              Markdown under documentation/docs/; documentation/AGENTS.md says what belongs where.
+
+            Find what a PMM user can see or set that the change adds, removes, renames, or changes
+            the default or behaviour of: pmm-admin and pmm-agent commands and flags, PMM_*
+            environment variables, API endpoints and fields, settings, UI pages and labels,
+            dashboards and panels, metrics, supported versions, install and upgrade steps.
+            For each, search documentation/docs for its name and read the pages that mention it
+            or should.
+
+            Report a page only when this change makes it wrong or incomplete, or when a new
+            user-facing behaviour has no page at all. Do not report:
+            - what the diff already updates under documentation/
+            - a missing release-note entry, unless the page for the version it ships in already
+              exists under documentation/docs/release-notes/; that page is created on the release branch
+            - PMM_DEV_* and PMM_TEST_* variables, which are not for end users
+            - refactors, tests, CI, or build changes with no user-visible effect
+            - style, typos, or gaps that existed before this change
+
+            Most changes need no documentation; then return an empty list.
+          claude_args: |
+            --model claude-opus-5
+            --add-dir ${{ runner.temp }}/docs-coverage
+            --allowedTools Read,Grep,Glob
+            --json-schema '{"type":"object","properties":{"findings":{"type":"array","items":{"type":"object","properties":{"page":{"type":"string","description":"Path of the page under documentation/docs, or where a new page belongs"},"symbol":{"type":"string","description":"The flag, variable, endpoint, setting, or other name from the diff"},"reason":{"type":"string","description":"One sentence on what the page is missing or gets wrong"}},"required":["page","symbol","reason"]}}},"required":["findings"]}'
+
+  comment:
+    name: Post documentation coverage
+    needs: review
+    if: needs.review.outputs.findings != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Update the coverage comment
+        continue-on-error: true
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          FINDINGS: ${{ needs.review.outputs.findings }}
+        with:
+          retries: 3
+          script: |
+            // The marker identifies the comment to update and to count when measuring hit rate.
+            const marker = '<!-- docs-coverage -->';
+            const { findings } = JSON.parse(process.env.FINDINGS);
+            const sha = context.payload.pull_request.head.sha;
+            const issue = { ...context.repo, issue_number: context.issue.number };
+
+            const comments = await github.paginate(github.rest.issues.listComments, { ...issue, per_page: 100 });
+            const previous = comments.find(c => c.user?.login === 'github-actions[bot]' && c.body?.startsWith(marker));
+
+            if (findings.length === 0 && !previous) {
+              return;
+            }
+
+            const line = s => String(s).replace(/\s+/g, ' ').trim();
+            const code = s => '`' + line(s).replace(/`/g, "'") + '`';
+            const body = findings.length === 0
+              ? `${marker}\n### Documentation coverage\n\nNothing left to update as of ${sha}.`
+              : [
+                  marker,
+                  '### Documentation coverage',
+                  '',
+                  'These pages may need updating for this change. This check is advisory; add the `no docs` label to skip it.',
+                  '',
+                  ...findings.map(f => `- ${code(f.page)} (${code(f.symbol)}): ${line(f.reason)}`),
+                  '',
+                  `<sub>Checked at ${sha}.</sub>`,
+                ].join('\n');
+
+            if (previous) {
+              await github.rest.issues.updateComment({ ...context.repo, comment_id: previous.id, body });
+            } else {
+              await github.rest.issues.createComment({ ...issue, body });
+            }
