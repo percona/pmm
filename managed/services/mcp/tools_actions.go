@@ -16,12 +16,15 @@
 package mcp
 
 import (
+	"cmp"
 	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -32,7 +35,7 @@ import (
 )
 
 const (
-	// DefaultActionTimeout bounds the EXPLAIN / SHOW CREATE TABLE polling.
+	// DefaultActionTimeout bounds one pmm_get_explain or pmm_get_schema call.
 	DefaultActionTimeout = 15 * time.Second
 
 	pollInitialDelay = 300 * time.Millisecond
@@ -41,6 +44,15 @@ const (
 
 	formatJSON        = "json"
 	formatTraditional = "traditional"
+
+	infoDefinition = "definition"
+	infoIndexes    = "indexes"
+	infoAll        = "all"
+
+	// Tables per pmm_get_schema call, at most.
+	maxSchemaTables = 10
+	// Actions in flight per call, at most, so that one call cannot flood a pmm-agent.
+	maxActionsInFlight = 4
 )
 
 type explainInput struct {
@@ -53,11 +65,10 @@ type explainInput struct {
 }
 
 type schemaInput struct {
-	ServiceID      string `json:"service_id" jsonschema:"Service id from pmm_inventory"`
-	Database       string `json:"database" jsonschema:"Database / schema name"`
-	Table          string `json:"table,omitempty" jsonschema:"Table name"`
-	TableName      string `json:"table_name,omitempty" jsonschema:"Alias of table"`
-	IncludeIndexes bool   `json:"include_indexes,omitempty" jsonschema:"Also return SHOW INDEX output"`
+	ServiceID string   `json:"service_id" jsonschema:"Service id from pmm_inventory"`
+	Database  string   `json:"database" jsonschema:"Database / schema name"`
+	Tables    []string `json:"tables" jsonschema:"1 to 10 table names"`
+	InfoTypes string   `json:"info_types,omitempty" jsonschema:"definition (default), indexes or all"`
 }
 
 func (s *Service) registerActionTools(server *mcp.Server) {
@@ -76,8 +87,8 @@ func (s *Service) registerActionTools(server *mcp.Server) {
 	mcp.AddTool(server, &mcp.Tool{
 		Name:  "pmm_get_schema",
 		Title: "Table DDL",
-		Description: "Return SHOW CREATE TABLE (MySQL or PostgreSQL) for a table via the PMM agent, " +
-			"optionally with its indexes.",
+		Description: "Return SHOW CREATE TABLE (MySQL or PostgreSQL) and/or the indexes of up to 10 tables via the PMM agent, " +
+			"fetched in parallel. A table that fails shows its error inline; the others still return.",
 		Annotations: readOnly("Table DDL"),
 	}, handle(s, "pmm_get_schema", s.schema))
 }
@@ -103,6 +114,9 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	auth := callerAuthFromHeader(req.Extra.Header)
 	base := s.publicBaseURL(ctx, req.Extra.Header)
 	now := s.now()
+	// One PMM_MCP_ACTION_TIMEOUT bounds the whole call, lookups and actions alike.
+	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout())
+	defer cancel()
 	// Read once: each read is a settings query, and two reads could disagree.
 	raw := s.rawSQL()
 
@@ -234,81 +248,166 @@ func (s *Service) storedExample(ctx context.Context, auth callerAuth, queryID, s
 }
 
 func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schemaInput) (*mcp.CallToolResult, error) {
-	table := in.Table
-	if table == "" {
-		table = in.TableName
+	infoTypes := cmp.Or(in.InfoTypes, infoDefinition)
+	if !slices.Contains([]string{infoDefinition, infoIndexes, infoAll}, infoTypes) {
+		return nil, newToolError(codeInvalidInput, "info_types must be definition, indexes or all; got '%s'", in.InfoTypes)
 	}
-	if in.ServiceID == "" || in.Database == "" || table == "" {
-		return nil, newToolError(codeInvalidInput, "service_id, database and table are required")
+	tables, err := checkTables(in.Tables)
+	if err != nil {
+		return nil, err
+	}
+	if in.ServiceID == "" || in.Database == "" {
+		return nil, newToolError(codeInvalidInput, "service_id and database are required")
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
+	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout())
+	defer cancel()
 
 	svc, err := s.engineOf(ctx, auth, in.ServiceID)
 	if err != nil {
 		return nil, err
 	}
+	refs := make([]tableRef, len(tables))
+	for i, t := range tables {
+		refs[i] = tableRef{database: in.Database, name: t}
+	}
+	return s.tableInfo(ctx, auth, svc, refs, infoTypes)
+}
 
-	var ddlBody, indexBody actions_service.StartServiceActionBody
-	switch svc.Engine {
-	case engineMySQL:
-		ddlBody.MysqlShowCreateTable = &actions_service.StartServiceActionParamsBodyMysqlShowCreateTable{
-			ServiceID: in.ServiceID, Database: in.Database, TableName: table,
+// tableRef names one table.
+type tableRef struct {
+	database string
+	name     string
+}
+
+// checkTables validates the tables input and drops repeats, keeping the order.
+func checkTables(tables []string) ([]string, error) {
+	out := make([]string, 0, len(tables))
+	for _, t := range tables {
+		if strings.TrimSpace(t) == "" {
+			return nil, newToolError(codeInvalidInput, "tables must not contain an empty name")
 		}
-		indexBody.MysqlShowIndex = &actions_service.StartServiceActionParamsBodyMysqlShowIndex{
-			ServiceID: in.ServiceID, Database: in.Database, TableName: table,
+		if !slices.Contains(out, t) {
+			out = append(out, t)
 		}
-	case enginePostgreSQL:
-		ddlBody.PostgresShowCreateTable = &actions_service.StartServiceActionParamsBodyPostgresShowCreateTable{
-			ServiceID: in.ServiceID, Database: in.Database, TableName: table,
-		}
-		indexBody.PostgresShowIndex = &actions_service.StartServiceActionParamsBodyPostgresShowIndex{
-			ServiceID: in.ServiceID, Database: in.Database, TableName: table,
-		}
-	default:
+	}
+	if len(out) == 0 || len(out) > maxSchemaTables {
+		return nil, newToolError(codeInvalidInput, "tables takes 1 to %d names; got %d", maxSchemaTables, len(out))
+	}
+	return out, nil
+}
+
+// schemaJob is one action of a pmm_get_schema call.
+type schemaJob struct {
+	// table is an index into the call's tables.
+	table   int
+	indexes bool
+	body    actions_service.StartServiceActionBody
+}
+
+// tableInfo runs the DDL and index actions of tables, at most maxActionsInFlight
+// at a time and all under ctx's one deadline, and renders a block per table in
+// input order. It fails only when every action fails.
+func (s *Service) tableInfo(ctx context.Context, auth callerAuth, svc serviceInfo, tables []tableRef, infoTypes string) (*mcp.CallToolResult, error) {
+	if svc.Engine != engineMySQL && svc.Engine != enginePostgreSQL {
 		return nil, newToolError(codeInvalidInput, "SHOW CREATE TABLE is not available for engine '%s'", svc.Engine)
 	}
-
-	// SHOW CREATE TABLE and SHOW INDEX errors quote only the identifiers the
-	// caller passed, never a value, so they are not masked.
-	ddl, err := s.runAction(ctx, auth, ddlBody, false)
-	if err != nil {
-		return nil, err
-	}
-	if strings.TrimSpace(ddl) == "" {
-		return textResult("No DDL returned for that table."), nil
-	}
-	text := "```sql\n" + strings.TrimRight(ddl, "\n") + "\n```"
-
-	if in.IncludeIndexes {
-		indexes, err := s.runAction(ctx, auth, indexBody, false)
-		if err != nil {
-			return nil, err
+	var jobs []schemaJob
+	for i, t := range tables {
+		ddl, idx := schemaBodies(svc, t)
+		if infoTypes != infoIndexes {
+			jobs = append(jobs, schemaJob{table: i, body: ddl})
 		}
-		text += "\n\nindexes:\n```\n" + strings.TrimRight(indexes, "\n") + "\n```"
+		if infoTypes != infoDefinition {
+			jobs = append(jobs, schemaJob{table: i, indexes: true, body: idx})
+		}
 	}
-	return textResult(text), nil
+
+	outputs := make([]string, len(jobs))
+	errs := make([]error, len(jobs))
+	slots := make(chan struct{}, maxActionsInFlight)
+	var wg sync.WaitGroup
+	for i, job := range jobs {
+		wg.Go(func() {
+			select {
+			case slots <- struct{}{}:
+				defer func() { <-slots }()
+				// SHOW CREATE TABLE and SHOW INDEX errors quote only the caller's
+				// identifiers, never a value, so they are not masked.
+				outputs[i], errs[i] = s.runAction(ctx, auth, job.body, false)
+			case <-ctx.Done():
+				errs[i] = s.deadlineOr(ctx, "", ctx.Err())
+			}
+		})
+	}
+	wg.Wait()
+	if !slices.Contains(errs, nil) {
+		return nil, errs[0]
+	}
+
+	blocks := make([]string, len(tables))
+	for i, t := range tables {
+		blocks[i] = "### " + t.database + "." + t.name
+	}
+	for i, job := range jobs {
+		blocks[job.table] += "\n" + schemaPart(job.indexes, outputs[i], errs[i])
+	}
+	return textResult(strings.Join(blocks, "\n\n")), nil
+}
+
+// schemaBodies returns the DDL and index action bodies of a table.
+func schemaBodies(svc serviceInfo, t tableRef) (actions_service.StartServiceActionBody, actions_service.StartServiceActionBody) {
+	var ddl, idx actions_service.StartServiceActionBody
+	if svc.Engine == engineMySQL {
+		ddl.MysqlShowCreateTable = &actions_service.StartServiceActionParamsBodyMysqlShowCreateTable{
+			ServiceID: svc.ServiceID, Database: t.database, TableName: t.name,
+		}
+		idx.MysqlShowIndex = &actions_service.StartServiceActionParamsBodyMysqlShowIndex{
+			ServiceID: svc.ServiceID, Database: t.database, TableName: t.name,
+		}
+		return ddl, idx
+	}
+	ddl.PostgresShowCreateTable = &actions_service.StartServiceActionParamsBodyPostgresShowCreateTable{
+		ServiceID: svc.ServiceID, Database: t.database, TableName: t.name,
+	}
+	idx.PostgresShowIndex = &actions_service.StartServiceActionParamsBodyPostgresShowIndex{
+		ServiceID: svc.ServiceID, Database: t.database, TableName: t.name,
+	}
+	return ddl, idx
+}
+
+// schemaPart renders one action's result inside its table's block.
+func schemaPart(indexes bool, output string, err error) string {
+	switch {
+	case err != nil:
+		return mapError(err).Error()
+	case indexes:
+		return "indexes:\n```\n" + strings.TrimRight(output, "\n") + "\n```"
+	case strings.TrimSpace(output) == "":
+		return "No DDL returned for that table."
+	default:
+		return "```sql\n" + strings.TrimRight(output, "\n") + "\n```"
+	}
 }
 
 // runAction starts a service action and polls it with 300 ms -> 2 s backoff
-// until it is done or the action timeout elapses. With redact set, literals in
-// the action's error are masked.
+// until it is done or ctx ends; ctx carries the tool call's one action
+// deadline. With redact set, literals in the action's error are masked.
 func (s *Service) runAction(ctx context.Context, auth callerAuth, body actions_service.StartServiceActionBody, redact bool) (string, error) {
 	started, err := s.api.StartServiceAction(ctx, auth, body)
 	if err != nil {
-		return "", mapActionStartError(err)
+		return "", s.deadlineOr(ctx, "", mapActionStartError(err))
 	}
 	actionID := actionIDOf(started)
 	if actionID == "" {
 		return "", newToolError(codePMMUnavailable, "no action_id returned by startServiceAction")
 	}
 
-	timeout := s.actionTimeout()
-	deadline := time.Now().Add(timeout)
 	delay := pollInitialDelay
 	for {
 		res, err := s.api.GetAction(ctx, auth, actionID)
 		if err != nil {
-			return "", err
+			return "", s.deadlineOr(ctx, actionID, err)
 		}
 		if res.Done {
 			if res.Error != "" {
@@ -316,16 +415,24 @@ func (s *Service) runAction(ctx context.Context, auth callerAuth, body actions_s
 			}
 			return res.Output, nil
 		}
-		if time.Now().After(deadline) {
-			return "", newToolError(codeTimeout, "action %s did not complete within %s (PMM_MCP_ACTION_TIMEOUT)", actionID, timeout)
-		}
 		select {
 		case <-ctx.Done():
-			return "", ctx.Err()
+			return "", s.deadlineOr(ctx, actionID, ctx.Err())
 		case <-time.After(delay):
 		}
 		delay = min(time.Duration(float64(delay)*pollBackoff), pollMaxDelay)
 	}
+}
+
+// deadlineOr returns the timeout error once ctx's deadline has passed, else err.
+func (s *Service) deadlineOr(ctx context.Context, actionID string, err error) error {
+	if !errors.Is(ctx.Err(), context.DeadlineExceeded) {
+		return err
+	}
+	if actionID == "" {
+		return newToolError(codeTimeout, "the action did not start within %s (PMM_MCP_ACTION_TIMEOUT)", s.actionTimeout())
+	}
+	return newToolError(codeTimeout, "action %s did not complete within %s (PMM_MCP_ACTION_TIMEOUT)", actionID, s.actionTimeout())
 }
 
 // actionIDOf finds the action id under whichever oneof key PMM answered with.
