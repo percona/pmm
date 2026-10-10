@@ -37,6 +37,7 @@ import {
   type SubmitHandler,
 } from 'react-hook-form';
 import { FormFieldsProvider } from './formFieldsContext';
+import { ShrunkLabels } from './ShrunkLabels';
 // UNSAFE_DataRouterContext is an unstable react-router API — pinned to react-router-dom ^7.6.0; review on version bumps.
 import { UNSAFE_DataRouterContext, useBlocker } from 'react-router-dom';
 import Accordion from '@mui/material/Accordion';
@@ -935,7 +936,9 @@ export function SchemaFormRenderer(props: SchemaFormRendererProps) {
 
   return (
     <FormProvider {...methods}>
-      <SchemaFormBody {...props} />
+      <ShrunkLabels>
+        <SchemaFormBody {...props} />
+      </ShrunkLabels>
     </FormProvider>
   );
 }

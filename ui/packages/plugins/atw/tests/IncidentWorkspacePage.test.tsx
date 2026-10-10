@@ -308,7 +308,7 @@ describe('IncidentWorkspacePage', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('offers Reopen, with the open-lock icon, for a closed incident', async () => {
+  it('offers Reopen, with a replay icon rather than a lock, for a closed incident', async () => {
     serveIncident(closedIncident);
     mockedApi.post.mockResolvedValue({ data: openIncident });
     const user = userEvent.setup();
@@ -318,9 +318,10 @@ describe('IncidentWorkspacePage', () => {
       await screen.findByRole('button', { name: 'Actions for DB slowness' })
     );
     const reopen = await screen.findByRole('menuitem', { name: /^Reopen$/ });
+    expect(within(reopen).getByTestId('ReplayIcon')).toBeInTheDocument();
     expect(
-      within(reopen).getByTestId('LockOpenOutlinedIcon')
-    ).toBeInTheDocument();
+      within(reopen).queryByTestId('LockOpenOutlinedIcon')
+    ).not.toBeInTheDocument();
     await user.click(reopen);
 
     await waitFor(() => {

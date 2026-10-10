@@ -53,6 +53,11 @@ export function FieldHelpIcon({ description, label }: FieldHelpIconProps) {
           verticalAlign: 'middle',
           cursor: 'help',
           color: 'action.active',
+          // MUI sets `pointer-events: none` on a floating label that has not
+          // shrunk, which would leave the tooltip unreachable on any empty,
+          // unfocused field. Opting the icon back in keeps the help hoverable
+          // in both label states (PMM-15456).
+          pointerEvents: 'auto',
         }}
         onClick={(event) => event.preventDefault()}
       >
