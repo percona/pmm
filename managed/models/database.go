@@ -1200,6 +1200,17 @@ var databaseSchema = [][]string{
 			AND agent_type <> 'mongodb_exporter'`,
 	},
 	120: {
+		// Migration 110 filled instance_id only for Nodes that existed then; the inventory API
+		// kept creating remote RDS Nodes without it. Before 3.4.0 that API took the DB instance
+		// identifier as the address, so a bare address is the identifier. An endpoint address is
+		// left alone: its first label is only right for a standard instance endpoint, not for a
+		// cluster endpoint, a CNAME or an IP, and a wrong identifier is harder to spot than none.
+		// AWS stores DB instance identifiers in lowercase and rds_exporter matches them exactly,
+		// so identifiers stored as typed are lowercased too, as createNodeWithID now does.
+		`UPDATE nodes SET instance_id = lower(instance_id) WHERE node_type = 'remote_rds' AND instance_id <> lower(instance_id)`,
+		`UPDATE nodes SET instance_id = lower(address) WHERE node_type = 'remote_rds' AND instance_id = '' AND address NOT LIKE '%.%'`,
+	},
+	121: {
 		`CREATE TABLE advisor_insights (
 			id VARCHAR NOT NULL,
 			run_id VARCHAR NOT NULL,
@@ -1233,7 +1244,7 @@ var databaseSchema = [][]string{
 		`CREATE INDEX advisor_insights_service_id_idx ON advisor_insights (service_id)`,
 		`CREATE INDEX advisor_insights_checked_at_idx ON advisor_insights (checked_at)`,
 	},
-	121: {
+	122: {
 		`CREATE TABLE advisor_checks (
 			name VARCHAR(128) NOT NULL CHECK (name <> ''),
 			source VARCHAR NOT NULL CHECK (source <> ''),
@@ -1287,7 +1298,7 @@ var databaseSchema = [][]string{
 
 		`DROP TABLE IF EXISTS check_settings`,
 	},
-	122: {
+	123: {
 		// One row per Advisor checks execution. Counts are denormalized on
 		// completion, so listing runs does not aggregate their insights.
 		`CREATE TABLE advisor_runs (

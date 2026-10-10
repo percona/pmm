@@ -20,14 +20,18 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"sort"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws/arn"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"github.com/aws/aws-sdk-go-v2/service/rds"
 	"github.com/aws/aws-sdk-go-v2/service/rds/types"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/aws/smithy-go"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
@@ -45,7 +49,7 @@ import (
 
 const (
 	// Maximum time for AWS discover APIs calls.
-	awsDiscoverTimeout = 7 * time.Second
+	awsDiscoverTimeout = 20 * time.Second
 	rdsEndpointsID     = "rds"
 )
 
@@ -149,6 +153,18 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 		return nil, err
 	}
 
+	awsOptions := models.AWSOptions{
+		AWSAccessKey: req.AwsAccessKey,
+		AWSSecretKey: req.AwsSecretKey,
+		AWSRoleARN:   req.AwsRoleArn,
+	}
+	err = awsOptions.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	regions := listRegions(settings.AWSPartitions)
+
 	// use given credentials, or default credential chain
 	var creds aws.CredentialsProvider
 	if req.AwsAccessKey != "" && req.AwsSecretKey != "" {
@@ -157,7 +173,7 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 
 	opts := []func(*config.LoadOptions) error{
 		config.WithCredentialsProvider(creds),
-		config.WithHTTPClient(&http.Client{}),
+		config.WithHTTPClient(&http.Client{Timeout: awsDiscoverTimeout}),
 	}
 	if l.Logger != nil && l.Logger.Level >= logrus.DebugLevel {
 		opts = append(opts, config.WithClientLogMode(aws.LogRetries|aws.LogRequestWithBody|aws.LogResponseWithBody))
@@ -168,13 +184,23 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 		return nil, fmt.Errorf("failed to load RDS default config: %w", err)
 	}
 
+	if req.AwsRoleArn != "" {
+		provider, roleRegions, err := assumeRDSRole(ctx, cfg, settings.AWSPartitions, req.AwsRoleArn)
+		if err != nil {
+			return nil, err
+		}
+		regions = roleRegions
+		cfg.Credentials = provider
+	}
+
 	// do not break our API if some AWS region is slow or down
 	ctx, cancel := context.WithTimeout(ctx, awsDiscoverTimeout)
 	defer cancel()
+
 	var wg errgroup.Group
 	instances := make(chan *managementv1.DiscoverRDSInstance)
 
-	for _, region := range listRegions(settings.AWSPartitions) {
+	for _, region := range regions {
 		wg.Go(func() error {
 			regInstances, err := discoverRDSRegion(ctx, cfg, region)
 			if err != nil {
@@ -319,6 +345,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				AWSOptions: models.AWSOptions{
 					AWSAccessKey:               req.AwsAccessKey,
 					AWSSecretKey:               req.AwsSecretKey,
+					AWSRoleARN:                 req.AwsRoleArn,
 					RDSBasicMetricsDisabled:    req.DisableBasicMetrics,
 					RDSEnhancedMetricsDisabled: req.DisableEnhancedMetrics,
 				},
@@ -535,4 +562,93 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 		},
 	}
 	return res, nil
+}
+
+// assumeRDSRole assumes roleARN for RDS discovery and returns its credentials with the regions of
+// the role's partition, the only ones they can scan. A session token from any region's STS endpoint
+// is valid across the whole partition, so the role is assumed once rather than once per region: in
+// PMM Server's own configured region when it has one, otherwise in the partition's default region.
+func assumeRDSRole(ctx context.Context, cfg aws.Config, partitions []string, roleARN string) (aws.CredentialsProvider, []string, error) { //nolint:ireturn
+	stsRegion, partition, err := stsRegionForRoleARN(roleARN)
+	if err != nil {
+		return nil, nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	// The role's partition must be one PMM is configured to scan; otherwise the assumed
+	// credentials cannot work in any scanned region and discovery would fail region by region
+	// with a misleading error, or silently return nothing. Reject up front, before any network.
+	if !slices.Contains(partitions, partition) {
+		return nil, nil, status.Errorf(codes.FailedPrecondition,
+			"Role %s belongs to AWS partition %s, which is not enabled in PMM settings.", roleARN, partition)
+	}
+
+	// The assumed credentials are only valid in the role's partition, so scan just that one.
+	// Calls into the other enabled partitions can only fail, and when the role's partition has
+	// no instances the first such failure would be reported instead of an empty list.
+	regions := listRegions([]string{partition})
+
+	// PMM Server's own AWS region (AWS_REGION, AWS_DEFAULT_REGION or the profile), when set,
+	// is where the role is assumed, so egress can be limited to that region. The partition
+	// default is only the fallback for a server with no region configured. A region outside
+	// the role's partition cannot issue its credentials, so reject it before any network.
+	if cfg.Region != "" {
+		if !slices.Contains(regions, cfg.Region) {
+			return nil, nil, status.Errorf(codes.FailedPrecondition,
+				"AWS region %s configured on PMM Server is not in AWS partition %s of role %s; "+
+					"unset AWS_REGION or set it to a region of that partition.", cfg.Region, partition, roleARN)
+		}
+		stsRegion = cfg.Region
+	}
+
+	roleCfg := cfg
+	roleCfg.Region = stsRegion
+	provider := assumeRoleProvider(roleCfg, roleARN)
+
+	// Bound the assume-role call with its own deadline. It is the first AWS network call in
+	// DiscoverRDS, and its region-scan timeout does not cover it, so without this a slow or
+	// unreachable STS endpoint would hang DiscoverRDS far past awsDiscoverTimeout.
+	assumeCtx, assumeCancel := context.WithTimeout(ctx, awsDiscoverTimeout)
+	_, err = provider.Retrieve(assumeCtx)
+	assumeCancel()
+	if err != nil {
+		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+			return nil, nil, status.Errorf(codes.DeadlineExceeded, "Timed out assuming role %s.", roleARN)
+		}
+		return nil, nil, status.Errorf(codes.FailedPrecondition, "Failed to assume role %s: %s.", roleARN, err)
+	}
+
+	return provider, regions, nil
+}
+
+// assumeRoleProvider returns a credentials provider that assumes roleARN using the
+// credentials and region already resolved in cfg. The provider is cache-wrapped so the SDK
+// refreshes the assumed credentials before they expire.
+func assumeRoleProvider(cfg aws.Config, roleARN string) aws.CredentialsProvider { //nolint:ireturn
+	return aws.NewCredentialsCache(stscreds.NewAssumeRoleProvider(sts.NewFromConfig(cfg), roleARN))
+}
+
+// stsDefaultRegion maps an AWS partition to a region always enabled in that partition,
+// used to reach STS for a role when PMM Server has no region of its own configured. A
+// session token issued in this region is valid across every region in the partition.
+var stsDefaultRegion = map[string]string{
+	"aws":        "us-east-1",
+	"aws-cn":     "cn-north-1",
+	"aws-us-gov": "us-gov-west-1",
+	"aws-iso":    "us-iso-east-1",
+}
+
+// stsRegionForRoleARN returns the default STS region for assuming roleARN and the ARN's AWS
+// partition. The caller prefers PMM Server's own configured region over the default.
+func stsRegionForRoleARN(roleARN string) (string, string, error) {
+	parsed, err := arn.Parse(roleARN)
+	if err != nil {
+		return "", "", fmt.Errorf("failed to parse AWS role ARN %s: %w", roleARN, err)
+	}
+
+	region, ok := stsDefaultRegion[parsed.Partition]
+	if !ok {
+		return "", "", fmt.Errorf("unsupported AWS partition %s in role ARN %s", parsed.Partition, roleARN)
+	}
+
+	return region, parsed.Partition, nil
 }

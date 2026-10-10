@@ -2370,7 +2370,7 @@ func (s *Service) UpdateAdvisorsList(ctx context.Context) {
 
 // reconcileBuiltinChecks synchronizes Percona-shipped checks from disk into the
 // advisor_checks table: content columns are inserted or refreshed (including
-// the placeholder rows created by migration 121 from legacy settings), rows of
+// the placeholder rows created by migration 122 from legacy settings), rows of
 // checks removed from the package are pruned, and user-set overrides (interval,
 // disabled state, per-service disables) are preserved. It runs once at startup;
 // picking up changed check files requires a restart.

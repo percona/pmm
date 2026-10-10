@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { safeLocalStorage } from 'utils/storage.utils';
 
 const CLIENT_SESSION_KEY = 'pmm-ui.session.active';
 const SESSION_CHANGE_EVENT = 'pmm-client-session-change';
@@ -13,12 +14,25 @@ const notifySessionChange = () => {
   window.dispatchEvent(new Event(SESSION_CHANGE_EVENT));
 };
 
+/**
+ * The patched Storage methods below run for every storage call in the app, so the localStorage
+ * accessor they compare against has to be reachable without throwing - under a blocked-site-data
+ * policy it raises, which would otherwise turn one blocked read into an app-wide failure.
+ */
+const isLocalStorage = (storage: Storage) => {
+  try {
+    return storage === localStorage;
+  } catch {
+    return false;
+  }
+};
+
 export const establishClientSession = () => {
   if (isClientSessionEstablished()) {
     return;
   }
 
-  localStorage.setItem(CLIENT_SESSION_KEY, 'true');
+  safeLocalStorage.setItem(CLIENT_SESSION_KEY, 'true');
   notifySessionChange();
 };
 
@@ -27,14 +41,14 @@ export const clearClientSession = () => {
     return;
   }
 
-  localStorage.removeItem(CLIENT_SESSION_KEY);
+  safeLocalStorage.removeItem(CLIENT_SESSION_KEY);
   if (!listenerInstalled) {
     notifySessionChange();
   }
 };
 
 export const isClientSessionEstablished = () =>
-  localStorage.getItem(CLIENT_SESSION_KEY) === 'true';
+  safeLocalStorage.getItem(CLIENT_SESSION_KEY) === 'true';
 
 export const isGrafanaLoginPath = (pathname: string | null | undefined) =>
   Boolean(pathname?.includes('/login'));
@@ -65,7 +79,7 @@ export const ensureClientSessionListener = () => {
 
   Storage.prototype.clear = function patchedClear(this: Storage) {
     clear.call(this);
-    if (this === localStorage) {
+    if (isLocalStorage(this)) {
       notifySessionChange();
     }
   };
@@ -75,7 +89,7 @@ export const ensureClientSessionListener = () => {
     key: string
   ) {
     removeItem.call(this, key);
-    if (this === localStorage && isTrackedStorageKey(key)) {
+    if (isLocalStorage(this) && isTrackedStorageKey(key)) {
       notifySessionChange();
     }
   };

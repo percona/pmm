@@ -39,7 +39,7 @@ export const Settings: FC = () => {
 
   if (isLoading || isVersionLoading || (isEnabled && !settings)) {
     return (
-      <Page title={Messages.title} surface="paper">
+      <Page title={Messages.title}>
         <Stack alignItems="center" py={4}>
           <CircularProgress data-testid="settings-loading" />
         </Stack>
@@ -58,7 +58,7 @@ export const Settings: FC = () => {
   }
 
   return (
-    <Page title={Messages.title} surface="paper" roles={[OrgRole.Admin]}>
+    <Page title={Messages.title} roles={[OrgRole.Admin]}>
       <Stack gap={3} sx={{ flex: 1 }}>
         <Tabs
           data-testid="settings-tabs"

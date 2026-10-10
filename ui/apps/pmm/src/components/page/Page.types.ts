@@ -22,6 +22,12 @@ export interface PageProps extends PropsWithChildren {
   // caps the page to the viewport height so its content scrolls internally
   // (instead of the whole page scrolling); for full-height table pages
   fillViewport?: boolean;
-  surface?: 'default' | 'paper';
+  /**
+   * Background the page paints behind its content. A plain content page sits
+   * on `'paper'`. A page composed of cards opts out with `'canvas'`, where
+   * the darker tone makes the cards stand out.
+   * @default 'paper'
+   */
+  surface?: 'canvas' | 'paper';
   roles?: OrgRole[];
 }
