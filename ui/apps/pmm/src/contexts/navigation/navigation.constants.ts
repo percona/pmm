@@ -221,6 +221,16 @@ export const NAV_MONGO: NavItem = {
       text: 'Oplog',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-oplog-details/mongodb-oplog-details`,
     },
+    {
+      id: 'mongo-search-health',
+      text: 'Search health',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-search-health/mongodb-search-health`,
+    },
+    {
+      id: 'mongo-search-details',
+      text: 'Search details',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-search-details/mongodb-search-details`,
+    },
   ],
 };
 

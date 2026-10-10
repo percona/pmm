@@ -1,0 +1,5933 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": false,
+        "iconColor": "#e0752d",
+        "limit": 100,
+        "matchAny": true,
+        "name": "PMM Annotations",
+        "showIn": 0,
+        "tags": [
+          "pmm_annotation",
+          "$service_name"
+        ],
+        "type": "tags"
+      }
+    ]
+  },
+  "description": "Percona Search for MongoDB (mongot) - full-text ($search) and vector ($vectorSearch) search health, replication, query performance, Lucene storage, JVM and system resources.",
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": true,
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [
+        "MongoDB"
+      ],
+      "targetBlank": false,
+      "title": "MongoDB",
+      "type": "dashboards"
+    }
+  ],
+  "panels": [
+    {
+      "type": "row",
+      "title": "Overview",
+      "collapsed": false,
+      "panels": [],
+      "id": 1,
+      "datasource": "Metrics",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "type": "stat",
+      "title": "mongot Services Down",
+      "description": "Number of selected mongot services PMM cannot scrape (up == 0). See the Search Services table for which one.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "short",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "count(up{service_name=~\"$service_name\"} == 0) or (count(up{service_name=~\"$service_name\"}) * 0)",
+          "legendFormat": "",
+          "refId": "A",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "time_series"
+        }
+      ],
+      "id": 2,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Indexes Not STEADY",
+      "description": "Indexes on the selected services whose status is not STEADY (FAILED, DOES_NOT_EXIST, INITIAL_SYNC, RECOVERING_*, NOT_STARTED, STALE). The Search Indexes table lists them first.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "short",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "count(mongot_index_stats_indexStatusCode{service_name=~\"$service_name\",indexId_logString=~\"$index\",status!=\"STEADY\"} == 1) or (count(up{service_name=~\"$service_name\"} == 1) * 0)",
+          "legendFormat": "",
+          "refId": "A",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "time_series"
+        }
+      ],
+      "id": 3,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Worst Replication Lag",
+      "description": "Highest per-index replication lag across the selected services. Should be close to 0 in steady state; rising lag means search results are stale.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "ms",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1000
+              },
+              {
+                "color": "red",
+                "value": 10000
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "max(mongot_index_stats_indexing_replicationLagMs{service_name=~\"$service_name\",indexId_logString=~\"$index\"})",
+          "legendFormat": "",
+          "refId": "A",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "time_series"
+        }
+      ],
+      "id": 4,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Lowest Data Path Free",
+      "description": "Lowest free space on a mongot data path (storage.dataPath) among the selected services. mongot pauses replication at 90% used (10% free) and resumes at 85% used. See the Search Services table for which service.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "percent",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 15
+              },
+              {
+                "color": "green",
+                "value": 20
+              }
+            ]
+          },
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "100 * min(mongot_system_disk_space_data_path_free_bytes{service_name=~\"$service_name\"} / mongot_system_disk_space_data_path_total_bytes{service_name=~\"$service_name\"})",
+          "legendFormat": "",
+          "refId": "A",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "time_series"
+        }
+      ],
+      "id": 5,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "$search/s",
+      "description": "$search commands per second across the selected services.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "ops",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum(rate(mongot_search_metrics_searchCommandTotalCount_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 6,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 5
+      }
+    },
+    {
+      "type": "stat",
+      "title": "$vectorSearch/s",
+      "description": "$vectorSearch commands per second across the selected services.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "ops",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum(rate(mongot_search_metrics_vectorSearchCommandTotalCount_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 7,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 5
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Highest Heap Used",
+      "description": "Highest JVM heap usage (% of max heap) among the selected services. Pools without a configured max (-1) are excluded.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "percent",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 75
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "max(100 * sum by (service_name) (mongot_jvm_memory_used_bytes{service_name=~\"$service_name\",area=\"heap\"}) / sum by (service_name) (mongot_jvm_memory_max_bytes{service_name=~\"$service_name\",area=\"heap\"} > 0))",
+          "legendFormat": "",
+          "refId": "A",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "time_series"
+        }
+      ],
+      "id": 8,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 5
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Shortest Uptime",
+      "description": "Uptime of the most recently (re)started mongot among the selected services. A small value means a service restarted.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "s",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 300
+              },
+              {
+                "color": "green",
+                "value": 3600
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "min(mongot_process_uptime_seconds{service_name=~\"$service_name\"})",
+          "legendFormat": "",
+          "refId": "A",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "time_series"
+        }
+      ],
+      "id": 9,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 5
+      }
+    },
+    {
+      "type": "table",
+      "title": "Search Services",
+      "description": "One row per mongot service with its node, cluster and replica set, and the signals that need attention. Status is whether PMM can scrape mongot's metrics endpoint. Per-service query rates are in the Query Performance row.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "DOWN",
+                        "color": "red",
+                        "index": 0
+                      },
+                      "1": {
+                        "text": "UP",
+                        "color": "green",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Uptime"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Not STEADY"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "transparent",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max Repl Lag"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max Repl Lag"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "transparent",
+                      "value": null
+                    },
+                    {
+                      "color": "orange",
+                      "value": 1000
+                    },
+                    {
+                      "color": "red",
+                      "value": 10000
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Heap Used"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Heap Used"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "transparent",
+                      "value": null
+                    },
+                    {
+                      "color": "orange",
+                      "value": 75
+                    },
+                    {
+                      "color": "red",
+                      "value": 90
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Data Path Free"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Data Path Free"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "orange",
+                      "value": 15
+                    },
+                    {
+                      "color": "transparent",
+                      "value": 20
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Service"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Node"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 140
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cluster"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Replica Set"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 95
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 75
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Uptime"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 95
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Not STEADY"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 95
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max Repl Lag"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Heap Used"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "sortBy": [
+          {
+            "displayName": "Status",
+            "desc": false
+          }
+        ],
+        "footer": {
+          "show": false,
+          "reducer": [
+            "count"
+          ],
+          "fields": "",
+          "countRows": true
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "max by (service_name, node_name, cluster, replication_set) (up{service_name=~\"$service_name\"})",
+          "legendFormat": "",
+          "refId": "A",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "table"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "max by (service_name) (mongot_process_uptime_seconds{service_name=~\"$service_name\"})",
+          "legendFormat": "",
+          "refId": "B",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "table"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "count by (service_name) (mongot_index_stats_indexStatusCode{service_name=~\"$service_name\",indexId_logString=~\"$index\",status!=\"STEADY\"} == 1) or (count by (service_name) (mongot_index_stats_indexStatusCode{service_name=~\"$service_name\",indexId_logString=~\"$index\"} == 1) * 0)",
+          "legendFormat": "",
+          "refId": "C",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "table"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "max by (service_name) (mongot_index_stats_indexing_replicationLagMs{service_name=~\"$service_name\",indexId_logString=~\"$index\"})",
+          "legendFormat": "",
+          "refId": "D",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "table"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "100 * sum by (service_name) (mongot_jvm_memory_used_bytes{service_name=~\"$service_name\",area=\"heap\"}) / sum by (service_name) (mongot_jvm_memory_max_bytes{service_name=~\"$service_name\",area=\"heap\"} > 0)",
+          "legendFormat": "",
+          "refId": "E",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "table"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "100 * min by (service_name) (mongot_system_disk_space_data_path_free_bytes{service_name=~\"$service_name\"} / mongot_system_disk_space_data_path_total_bytes{service_name=~\"$service_name\"})",
+          "legendFormat": "",
+          "refId": "F",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "service_name": 0,
+              "node_name": 1,
+              "cluster": 2,
+              "replication_set": 3,
+              "Value #A": 4,
+              "Value #B": 5,
+              "Value #C": 6,
+              "Value #D": 7,
+              "Value #E": 8,
+              "Value #F": 9
+            },
+            "renameByName": {
+              "service_name": "Service",
+              "node_name": "Node",
+              "cluster": "Cluster",
+              "replication_set": "Replica Set",
+              "Value #A": "Status",
+              "Value #B": "Uptime",
+              "Value #C": "Not STEADY",
+              "Value #D": "Max Repl Lag",
+              "Value #E": "Heap Used",
+              "Value #F": "Data Path Free"
+            }
+          }
+        }
+      ],
+      "id": 10,
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      }
+    },
+    {
+      "type": "row",
+      "title": "Index Health & Status",
+      "collapsed": false,
+      "panels": [],
+      "id": 11,
+      "datasource": "Metrics",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      }
+    },
+    {
+      "type": "table",
+      "title": "Search Indexes",
+      "description": "One row per search / vector search index per mongot service, problems first (sorted by Status, then use the column headers). Indexes are identified by ObjectId: mongot metrics carry no index, database or collection name; map an ID with db.<collection>.getSearchIndexes() (field 'id'). The footer shows the number of rows.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "STEADY": {
+                        "color": "green",
+                        "index": 0
+                      }
+                    }
+                  },
+                  {
+                    "type": "regex",
+                    "options": {
+                      "pattern": "INITIAL_SYNC|NOT_STARTED|RECOVERING_TRANSIENT",
+                      "result": {
+                        "color": "orange",
+                        "index": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "regex",
+                    "options": {
+                      "pattern": "FAILED|DOES_NOT_EXIST|RECOVERING_NON_TRANSIENT|STALE",
+                      "result": {
+                        "color": "red",
+                        "index": 2
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Replication Lag"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Documents"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Index Size"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Required Memory"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Queries/s"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ops"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Segments"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "transparent",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 100
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Index ID"
+            },
+            "properties": [
+              {
+                "id": "custom.minWidth",
+                "value": 230
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "sortBy": [
+          {
+            "displayName": "Status",
+            "desc": false
+          }
+        ],
+        "footer": {
+          "show": true,
+          "reducer": [
+            "count"
+          ],
+          "fields": [
+            "Index ID"
+          ],
+          "countRows": true
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "max by (service_name, indexId_logString, status) (mongot_index_stats_indexStatusCode{service_name=~\"$service_name\",indexId_logString=~\"$index\"} == 1)",
+          "legendFormat": "",
+          "refId": "A",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "table"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "max by (service_name, indexId_logString, indexType) (mongot_index_stats_indexing_replicationLagMs{service_name=~\"$service_name\",indexId_logString=~\"$index\"})",
+          "legendFormat": "",
+          "refId": "B",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "table"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name, indexId_logString) (mongot_index_stats_numLuceneDocs{service_name=~\"$service_name\",indexId_logString=~\"$index\"})",
+          "legendFormat": "",
+          "refId": "C",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "table"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name, indexId_logString) (mongot_index_stats_indexSizeBytes{service_name=~\"$service_name\",indexId_logString=~\"$index\"})",
+          "legendFormat": "",
+          "refId": "D",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "table"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name, indexId_logString) (mongot_index_stats_requiredMemoryBytes{service_name=~\"$service_name\",indexId_logString=~\"$index\"})",
+          "legendFormat": "",
+          "refId": "E",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "table"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name, indexId_logString) (mongot_index_stats_segment_count{service_name=~\"$service_name\",indexId_logString=~\"$index\"})",
+          "legendFormat": "",
+          "refId": "F",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "table"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name, indexId_logString) (rate(mongot_index_stats_query_totalQueries_total{service_name=~\"$service_name\",indexId_logString=~\"$index\"}[5m]))",
+          "legendFormat": "",
+          "refId": "G",
+          "interval": "$interval",
+          "range": false,
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value #A": true
+            },
+            "indexByName": {
+              "service_name": 0,
+              "indexId_logString": 1,
+              "indexType": 2,
+              "status": 3,
+              "Value #B": 4,
+              "Value #C": 5,
+              "Value #D": 6,
+              "Value #E": 7,
+              "Value #F": 8,
+              "Value #G": 9
+            },
+            "renameByName": {
+              "service_name": "Service",
+              "indexId_logString": "Index ID",
+              "indexType": "Type",
+              "status": "Status",
+              "Value #B": "Replication Lag",
+              "Value #C": "Documents",
+              "Value #D": "Index Size",
+              "Value #E": "Required Memory",
+              "Value #F": "Segments",
+              "Value #G": "Queries/s"
+            }
+          }
+        }
+      ],
+      "id": 12,
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Index Status by Service",
+      "description": "Number of indexes in each status on each mongot service. Anything other than STEADY for a sustained period needs attention; FAILED or DOES_NOT_EXIST should alert.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 30,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "short",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0,
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "count by (service_name, status) (mongot_index_stats_indexStatusCode{service_name=~\"$service_name\",indexId_logString=~\"$index\"} == 1)",
+          "legendFormat": "{{service_name}} {{status}}",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 13,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 27
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Replication Index Manager State",
+      "description": "Index managers in each state of mongot's replication state machine, per service. Expected: STEADY_STATE. FAILED / FAILED_EXCEEDED need attention; STEADY_STATE_SHUT_DOWN appears while mongod is unreachable.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 30,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "short",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0,
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name, state) (mongot_replication_mongodb_indexManagerState{service_name=~\"$service_name\"}) > 0",
+          "legendFormat": "{{service_name}} {{state}}",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 14,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 27
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Index Lifecycle",
+      "description": "Indexes in catalog, still initializing (should return to 0 after startup) and being phased out, per service.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "short",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0,
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (mongot_configState_indexesInCatalog{service_name=~\"$service_name\"})",
+          "legendFormat": "{{service_name}} in catalog",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (mongot_lifecycle_indexesInInitializedState{service_name=~\"$service_name\"})",
+          "legendFormat": "{{service_name}} initializing",
+          "refId": "B",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (mongot_configState_indexesPhasingOut{service_name=~\"$service_name\"})",
+          "legendFormat": "{{service_name}} phasing out",
+          "refId": "C",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 15,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 27
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Index Lifecycle Failures",
+      "description": "Failed index initializations, downloads and drops per service. Any increase should be investigated immediately.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "bars",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisSoftMax": 1
+          },
+          "unit": "short",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0,
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (increase(mongot_lifecycle_failedInitializationIndexes_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "{{service_name}} failed initialization",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (increase(mongot_lifecycle_failedDownloadIndexes_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "{{service_name}} failed download",
+          "refId": "B",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (increase(mongot_lifecycle_failedDropIndexes_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "{{service_name}} failed drop",
+          "refId": "C",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 16,
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 35
+      }
+    },
+    {
+      "type": "row",
+      "title": "Replication",
+      "collapsed": false,
+      "panels": [],
+      "id": 17,
+      "datasource": "Metrics",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 41
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Max Replication Lag per Service",
+      "description": "Highest index replication lag on each mongot service. Should be ~0 in steady state.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "ms",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "max by (service_name) (mongot_index_stats_indexing_replicationLagMs{service_name=~\"$service_name\",indexId_logString=~\"$index\"})",
+          "legendFormat": "{{service_name}}",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 18,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 42
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Replication Lag (top 10 indexes)",
+      "description": "The 10 indexes with the highest replication lag at each point in time. Use the Index ID filter to follow a specific index.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "ms",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "topk(10, max by (service_name, indexId_logString, indexType) (mongot_index_stats_indexing_replicationLagMs{service_name=~\"$service_name\",indexId_logString=~\"$index\"}))",
+          "legendFormat": "{{service_name}} {{indexId_logString}} ({{indexType}})",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 19,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 42
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Replication Exceptions",
+      "description": "Exceptions in mongot's replication index manager per service, and the 10 indexes with the most initial-sync / steady-state exceptions. Any steady-state exception should be investigated; a sustained consecutive resync count means an index is stuck in a retry loop.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisSoftMax": 1
+          },
+          "unit": "short",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0,
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name, clazz, type) (increase(mongot_replicationIndexManager_exceptions_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "{{service_name}} index manager {{clazz}} {{type}}",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "topk(10, sum by (service_name, indexId_logString) (increase(mongot_index_stats_indexing_steadyStateExceptions_total{service_name=~\"$service_name\",indexId_logString=~\"$index\"})))",
+          "legendFormat": "{{service_name}} {{indexId_logString}} steady state",
+          "refId": "B",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "topk(10, sum by (service_name, indexId_logString) (increase(mongot_index_stats_indexing_initialSyncExceptions_total{service_name=~\"$service_name\",indexId_logString=~\"$index\"})))",
+          "legendFormat": "{{service_name}} {{indexId_logString}} initial sync",
+          "refId": "C",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "topk(10, max by (service_name, indexId_logString) (mongot_index_stats_indexing_consecutiveInitialSyncResyncExceptions{service_name=~\"$service_name\",indexId_logString=~\"$index\"}))",
+          "legendFormat": "{{service_name}} {{indexId_logString}} consecutive resync",
+          "refId": "D",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 20,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 50
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Index Operations",
+      "description": "Document inserts, updates and deletes applied to search indexes from the change stream, per service.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "ops",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (rate(mongot_index_stats_indexing_insert_total{service_name=~\"$service_name\",indexId_logString=~\"$index\"}))",
+          "legendFormat": "{{service_name}} inserts",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (rate(mongot_index_stats_indexing_update_total{service_name=~\"$service_name\",indexId_logString=~\"$index\"}))",
+          "legendFormat": "{{service_name}} updates",
+          "refId": "B",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (rate(mongot_index_stats_indexing_delete_total{service_name=~\"$service_name\",indexId_logString=~\"$index\"}))",
+          "legendFormat": "{{service_name}} deletes",
+          "refId": "C",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 21,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 50
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Change Stream",
+      "description": "Change stream getMores in flight, batches in progress and unexpected batch failures (alert on any failure) per service. Large events (>10 MiB) may signal abnormal document sizes.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisSoftMax": 1
+          },
+          "unit": "short",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*unexpected batch failures"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "bars"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (mongot_indexing_steadyStateChangeStream_getMoresInFlight{service_name=~\"$service_name\"})",
+          "legendFormat": "{{service_name}} getMores in flight",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (mongot_indexing_steadyStateChangeStream_batchesInProgressTotal{service_name=~\"$service_name\"})",
+          "legendFormat": "{{service_name}} batches in progress",
+          "refId": "B",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (increase(mongot_indexing_steadyStateChangeStream_unexpectedBatchFailures_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "{{service_name}} unexpected batch failures",
+          "refId": "C",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (increase(mongot_index_stats_indexing_largeChangeStreamEvents_total{service_name=~\"$service_name\",indexId_logString=~\"$index\"}))",
+          "legendFormat": "{{service_name}} large events",
+          "refId": "D",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 22,
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 58
+      }
+    },
+    {
+      "type": "row",
+      "title": "Query Performance",
+      "collapsed": false,
+      "panels": [],
+      "id": 23,
+      "datasource": "Metrics",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 66
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Search Command Rate",
+      "description": "$search, $vectorSearch and getMore commands handled by each mongot service.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "ops",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (rate(mongot_search_metrics_searchCommandTotalCount_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "{{service_name}} $search",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (rate(mongot_search_metrics_vectorSearchCommandTotalCount_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "{{service_name}} $vectorSearch",
+          "refId": "B",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (rate(mongot_command_getMoreCommandTotalLatency_seconds_count{service_name=~\"$service_name\"}))",
+          "legendFormat": "{{service_name}} getMore",
+          "refId": "C",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 24,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 67
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Search Command Errors",
+      "description": "Failed and invalid commands/queries per service. Command failures are user-visible errors; internally failed queries are mongot-side failures; invalid queries were rejected as malformed. When mongot is hung or unreachable these stay at 0 - check 'mongod to mongot Streams' instead.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisSoftMax": 1
+          },
+          "unit": "ops",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (rate(mongot_command_searchCommandFailure_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "{{service_name}} $search failures",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (rate(mongot_command_vectorSearchCommandFailure_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "{{service_name}} $vectorSearch failures",
+          "refId": "B",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (rate(mongot_command_getMoreCommandFailure_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "{{service_name}} getMore failures",
+          "refId": "C",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (rate(mongot_index_stats_query_failedQueries_total{service_name=~\"$service_name\",indexId_logString=~\"$index\"}))",
+          "legendFormat": "{{service_name}} failed queries",
+          "refId": "D",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (rate(mongot_index_stats_query_internallyFailedQueries_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "{{service_name}} internally failed",
+          "refId": "E",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (rate(mongot_index_stats_query_invalidQueries_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "{{service_name}} invalid $search",
+          "refId": "F",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (rate(mongot_search_metrics_vectorSearchCommandInvalidQueries_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "{{service_name}} invalid $vectorSearch",
+          "refId": "G",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 25,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 67
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "$search Latency",
+      "description": "End-to-end $search command latency per mongot service. Quantiles are computed by mongot (Prometheus summary, sliding window).",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "s",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "max by (service_name) (mongot_command_searchCommandTotalLatency_seconds{service_name=~\"$service_name\",quantile=\"0.5\"})",
+          "legendFormat": "{{service_name}} P50",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "max by (service_name) (mongot_command_searchCommandTotalLatency_seconds{service_name=~\"$service_name\",quantile=\"0.99\"})",
+          "legendFormat": "{{service_name}} P99",
+          "refId": "B",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 26,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 75
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "$vectorSearch Latency",
+      "description": "End-to-end $vectorSearch command latency per mongot service. Quantiles are computed by mongot (Prometheus summary, sliding window).",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "s",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "max by (service_name) (mongot_command_vectorSearchCommandTotalLatency_seconds{service_name=~\"$service_name\",quantile=\"0.5\"})",
+          "legendFormat": "{{service_name}} P50",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "max by (service_name) (mongot_command_vectorSearchCommandTotalLatency_seconds{service_name=~\"$service_name\",quantile=\"0.99\"})",
+          "legendFormat": "{{service_name}} P99",
+          "refId": "B",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 27,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 75
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Lucene Search Latency (P99)",
+      "description": "P99 time spent in Lucene collecting top documents for $search and $vectorSearch, per service.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "s",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "max by (service_name) (mongot_index_stats_query_luceneTopDocsSearchLatencies_seconds{service_name=~\"$service_name\",quantile=\"0.99\"})",
+          "legendFormat": "{{service_name}} $search TopDocs",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "max by (service_name) (mongot_index_stats_query_vectorSearchInitialTopDocsLatencyTimer_seconds{service_name=~\"$service_name\",quantile=\"0.99\"})",
+          "legendFormat": "{{service_name}} $vectorSearch TopDocs",
+          "refId": "B",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 28,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 83
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Queries per Index (top 10)",
+      "description": "Query throughput of the 10 busiest indexes.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "ops",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "topk(10, sum by (service_name, indexId_logString) (rate(mongot_index_stats_query_totalQueries_total{service_name=~\"$service_name\",indexId_logString=~\"$index\"})))",
+          "legendFormat": "{{service_name}} {{indexId_logString}}",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 29,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 83
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "$vectorSearch Query Types",
+      "description": "Approximate (HNSW) vs exact (ENN) vector queries per service.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "ops",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (rate(mongot_search_metrics_approximateVectorSearchQueries_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "{{service_name}} approximate (ANN)",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (rate(mongot_search_metrics_exactVectorSearchQueries_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "{{service_name}} exact (ENN)",
+          "refId": "B",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 30,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 91
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "HNSW Nodes Visited per Query",
+      "description": "Average HNSW graph nodes visited per $vectorSearch query, per service. Higher means more expensive vector queries.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "short",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (rate(mongot_index_stats_query_vectorSearchVisitedNodes_total{service_name=~\"$service_name\"})) / sum by (service_name) (rate(mongot_search_metrics_vectorSearchCommandTotalCount_total{service_name=~\"$service_name\"}))",
+          "legendFormat": "{{service_name}}",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 31,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 91
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Open Cursors",
+      "description": "Cursors tracked by each mongot service. Sustained growth may indicate a cursor leak.",
+      "datasource": "Metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "lineInterpolation": "linear",
+            "pointSize": 5,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisSoftMax": 1
+          },
+          "unit": "short",
+          "links": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0,
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum by (service_name) (mongot_cursorManager_trackedCursors{service_name=~\"$service_name\"})",
+          "legendFormat": "{{service_name}}",
+          "refId": "A",
+          "interval": "$interval",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "id": 32,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 91
+      }
+    },
+    {
+      "type": "row",
+      "title": "mongod to mongot (client side)",
+      "collapsed": true,
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "Search Stages Executed on mongod",
+          "description": "$search, $searchMeta and $vectorSearch aggregation stages executed by each mongod (from mongodb_exporter). If mongod runs search stages but mongot reports no commands, requests are not reaching mongot.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "ops",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (rate(mongodb_ss_metrics_aggStageCounters_search{service_name=~\"$mongodb_service\"}))",
+              "legendFormat": "{{service_name}} $search",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (rate(mongodb_ss_metrics_aggStageCounters_searchMeta{service_name=~\"$mongodb_service\"}))",
+              "legendFormat": "{{service_name}} $searchMeta",
+              "refId": "B",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (rate(mongodb_ss_metrics_aggStageCounters_vectorSearch{service_name=~\"$mongodb_service\"}))",
+              "legendFormat": "{{service_name}} $vectorSearch",
+              "refId": "C",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 34,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 100
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "mongod to mongot Streams",
+          "description": "gRPC streams from each mongod to its mongot. Failed streams, or active streams that never finish, mean mongot is unreachable or hung: queries wait until maxTimeMS and fail on the client side even though mongot reports no failed commands.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0,
+              "decimals": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* failed"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "red"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongodb_ss_searchTaskExecutorMetrics_mongot_networkInterface_NetworkInterfaceTL_MongotExecutor_totalActiveStreams{service_name=~\"$mongodb_service\"})",
+              "legendFormat": "{{service_name}} active",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongodb_ss_searchTaskExecutorMetrics_mongot_networkInterface_NetworkInterfaceTL_MongotExecutor_totalInUseStreams{service_name=~\"$mongodb_service\"})",
+              "legendFormat": "{{service_name}} in use",
+              "refId": "B",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongodb_ss_searchTaskExecutorMetrics_mongot_networkInterface_NetworkInterfaceTL_MongotExecutor_totalFailedStreams{service_name=~\"$mongodb_service\"})",
+              "legendFormat": "{{service_name}} failed",
+              "refId": "C",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongodb_ss_searchTaskExecutorMetrics_mongot_networkInterface_NetworkInterfaceTL_MongotExecutor_totalOpenChannels{service_name=~\"$mongodb_service\"})",
+              "legendFormat": "{{service_name}} open channels",
+              "refId": "D",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 35,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 100
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "mongod to mongot Connection Pool",
+          "description": "Each mongod's connection pool to mongot (used when gRPC is disabled). Pending or rejected requests mean mongod cannot get a connection to mongot.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0,
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongodb_ss_searchTaskExecutorMetrics_mongot_connectionPool_totalInUse{service_name=~\"$mongodb_service\"})",
+              "legendFormat": "{{service_name}} in use",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongodb_ss_searchTaskExecutorMetrics_mongot_connectionPool_totalAvailable{service_name=~\"$mongodb_service\"})",
+              "legendFormat": "{{service_name}} available",
+              "refId": "B",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongodb_ss_searchTaskExecutorMetrics_mongot_connectionPool_totalPendingRequests{service_name=~\"$mongodb_service\"})",
+              "legendFormat": "{{service_name}} pending",
+              "refId": "C",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (increase(mongodb_ss_searchTaskExecutorMetrics_mongot_connectionPool_totalRejectedRequests{service_name=~\"$mongodb_service\"}))",
+              "legendFormat": "{{service_name}} rejected",
+              "refId": "D",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 36,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 108
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "mongod to mongot Request Time",
+          "description": "Average time each mongod's mongot executor tasks wait to be scheduled and run.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "s",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongodb_ss_searchTaskExecutorMetrics_mongot_networkInterface_NetworkInterfaceTL_MongotExecutor_averageWaitTimeMicros{service_name=~\"$mongodb_service\"}) / 1000000",
+              "legendFormat": "{{service_name}} avg wait",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongodb_ss_searchTaskExecutorMetrics_mongot_networkInterface_NetworkInterfaceTL_MongotExecutor_averageRunTimeMicros{service_name=~\"$mongodb_service\"}) / 1000000",
+              "legendFormat": "{{service_name}} avg run",
+              "refId": "B",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 37,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 108
+          }
+        }
+      ],
+      "id": 33,
+      "datasource": "Metrics",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 99
+      }
+    },
+    {
+      "type": "row",
+      "title": "Indexing Throughput & Backpressure",
+      "collapsed": true,
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "Indexing Queue",
+          "description": "Pending indexing and decoding work per service. Sustained non-zero values mean an indexing backlog: mongot cannot keep up with the write rate.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (mongot_indexingWorkScheduler_queuedBatchesTotal{service_name=~\"$service_name\"})",
+              "legendFormat": "{{service_name}} indexing batches",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (mongot_indexingWorkScheduler_queuedEventsTotal{service_name=~\"$service_name\"})",
+              "legendFormat": "{{service_name}} indexing events",
+              "refId": "B",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (mongot_decodingWorkScheduler_queuedBatchesTotal{service_name=~\"$service_name\"})",
+              "legendFormat": "{{service_name}} decoding batches",
+              "refId": "C",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 39,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 117
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Batch Durations",
+          "description": "Average time to process an indexing and a decoding batch, per service.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "s",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (rate(mongot_indexingWorkScheduler_indexingBatchDurations_seconds_sum{service_name=~\"$service_name\"})) / sum by (service_name) (rate(mongot_indexingWorkScheduler_indexingBatchDurations_seconds_count{service_name=~\"$service_name\"}))",
+              "legendFormat": "{{service_name}} indexing batch",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (rate(mongot_decodingWorkScheduler_decodingBatchDurations_seconds_sum{service_name=~\"$service_name\"})) / sum by (service_name) (rate(mongot_decodingWorkScheduler_decodingBatchDurations_seconds_count{service_name=~\"$service_name\"}))",
+              "legendFormat": "{{service_name}} decoding batch",
+              "refId": "B",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 40,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 117
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Index Commit Duration (top 10)",
+          "description": "Average Lucene commit time of the 10 slowest indexes.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "s",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "topk(10, sum by (service_name, indexId_logString) (rate(mongot_index_stats_indexing_commitDurations_seconds_sum{service_name=~\"$service_name\",indexId_logString=~\"$index\"})) / sum by (service_name, indexId_logString) (rate(mongot_index_stats_indexing_commitDurations_seconds_count{service_name=~\"$service_name\",indexId_logString=~\"$index\"})))",
+              "legendFormat": "{{service_name}} {{indexId_logString}}",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 41,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 125
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Batch Duration by Index Type",
+          "description": "Average indexing batch duration per service and index type.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "s",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name, indexType) (rate(mongot_index_stats_indexing_indexingBatchDurations_seconds_sum{service_name=~\"$service_name\"})) / sum by (service_name, indexType) (rate(mongot_index_stats_indexing_indexingBatchDurations_seconds_count{service_name=~\"$service_name\"}))",
+              "legendFormat": "{{service_name}} {{indexType}}",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 42,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 125
+          }
+        }
+      ],
+      "id": 38,
+      "datasource": "Metrics",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 116
+      }
+    },
+    {
+      "type": "row",
+      "title": "Lucene Storage & Merges",
+      "collapsed": true,
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "Total Index Size per Service",
+          "description": "Total size of all indexes on disk, and the memory mongot estimates they need to be fully cached, per service.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "bytes",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (mongot_index_stats_indexSizeBytes{service_name=~\"$service_name\",indexId_logString=~\"$index\"})",
+              "legendFormat": "{{service_name}} size",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (mongot_index_stats_requiredMemoryBytes{service_name=~\"$service_name\",indexId_logString=~\"$index\"})",
+              "legendFormat": "{{service_name}} required memory",
+              "refId": "B",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 44,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 134
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Largest Indexes (top 10)",
+          "description": "On-disk size of the 10 largest indexes.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "bytes",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "topk(10, sum by (service_name, indexId_logString) (mongot_index_stats_indexSizeBytes{service_name=~\"$service_name\",indexId_logString=~\"$index\"}))",
+              "legendFormat": "{{service_name}} {{indexId_logString}}",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 45,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 134
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Segments per Index (top 10)",
+          "description": "Lucene segment count of the 10 indexes with the most segments. Very high counts (100+) indicate a merge policy problem.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "line+area"
+                }
+              },
+              "unit": "short",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "transparent",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 100
+                  }
+                ]
+              },
+              "min": 0,
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "topk(10, sum by (service_name, indexId_logString) (mongot_index_stats_segment_count{service_name=~\"$service_name\",indexId_logString=~\"$index\"}))",
+              "legendFormat": "{{service_name}} {{indexId_logString}}",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 46,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 142
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Merge Activity",
+          "description": "Running Lucene merges per service. A sustained high value means a merge storm. Aborted merges indicate resource pressure; discarded merges were skipped due to disk pressure (alert on any).",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0,
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (mongot_mergeScheduler_currentlyRunningMerges{service_name=~\"$service_name\"})",
+              "legendFormat": "{{service_name}} running merges",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (increase(mongot_mergeScheduler_numMergesAborted_total{service_name=~\"$service_name\"}))",
+              "legendFormat": "{{service_name}} aborted merges",
+              "refId": "B",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (increase(mongot_diskUtilizationAwarenessMergePolicy_discardedMerge_total{service_name=~\"$service_name\"}))",
+              "legendFormat": "{{service_name}} discarded (disk pressure)",
+              "refId": "C",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 47,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 142
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Merge Time",
+          "description": "Average and maximum duration of a Lucene merge, per service.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "s",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (rate(mongot_mergeScheduler_mergeTime_seconds_sum{service_name=~\"$service_name\"})) / sum by (service_name) (rate(mongot_mergeScheduler_mergeTime_seconds_count{service_name=~\"$service_name\"}))",
+              "legendFormat": "{{service_name}} avg",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongot_mergeScheduler_mergeTime_seconds_max{service_name=~\"$service_name\"})",
+              "legendFormat": "{{service_name}} max",
+              "refId": "B",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 48,
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 150
+          }
+        }
+      ],
+      "id": 43,
+      "datasource": "Metrics",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 133
+      }
+    },
+    {
+      "type": "row",
+      "title": "JVM",
+      "collapsed": true,
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "JVM Heap",
+          "description": "Heap used, live data after GC, and max heap per service. A sustained upward trend can precede OutOfMemory.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "bytes",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* max"
+                },
+                "properties": [
+                  {
+                    "id": "custom.lineStyle",
+                    "value": {
+                      "fill": "dash",
+                      "dash": [
+                        10,
+                        10
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.fillOpacity",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (mongot_jvm_memory_used_bytes{service_name=~\"$service_name\",area=\"heap\"})",
+              "legendFormat": "{{service_name}} used",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (mongot_jvm_gc_live_data_size_bytes{service_name=~\"$service_name\"})",
+              "legendFormat": "{{service_name}} live data after GC",
+              "refId": "B",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (mongot_jvm_memory_max_bytes{service_name=~\"$service_name\",area=\"heap\"} > 0)",
+              "legendFormat": "{{service_name}} max",
+              "refId": "C",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 50,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 159
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "GC Pause Time",
+          "description": "Time spent in GC pauses per second and the maximum pause, per service. High pauses degrade query latency.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "s",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (rate(mongot_jvm_gc_pause_seconds_sum{service_name=~\"$service_name\"}))",
+              "legendFormat": "{{service_name}} pause time/s",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongot_jvm_gc_pause_seconds_max{service_name=~\"$service_name\"})",
+              "legendFormat": "{{service_name}} max pause",
+              "refId": "B",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 51,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 159
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "GC Frequency",
+          "description": "GC pauses per second, per service and collector. Frequent minor GCs indicate memory pressure.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "ops",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name, gc) (rate(mongot_jvm_gc_pause_seconds_count{service_name=~\"$service_name\"}))",
+              "legendFormat": "{{service_name}} {{gc}}",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 52,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 167
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Off-heap Buffers",
+          "description": "Direct buffers and memory-mapped Lucene index files per service. Mapped memory grows with index size.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "bytes",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name, id) (mongot_jvm_buffer_memory_used_bytes{service_name=~\"$service_name\",id=~\"direct|mapped\"})",
+              "legendFormat": "{{service_name}} {{id}}",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 53,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 167
+          }
+        }
+      ],
+      "id": 49,
+      "datasource": "Metrics",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 158
+      }
+    },
+    {
+      "type": "row",
+      "title": "System Resources",
+      "collapsed": true,
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "CPU Usage",
+          "description": "CPU used by the mongot JVM process and by the whole host, per service. Spikes correlate with merge storms or query overload.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "percent",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongot_process_cpu_usage{service_name=~\"$service_name\"}) * 100",
+              "legendFormat": "{{service_name}} mongot process",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongot_system_cpu_usage{service_name=~\"$service_name\"}) * 100",
+              "legendFormat": "{{service_name}} host",
+              "refId": "B",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 55,
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 0,
+            "y": 176
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Load Average",
+          "description": "Host 1-minute load average reported by each mongot service, and its CPU count.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "short",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* CPUs"
+                },
+                "properties": [
+                  {
+                    "id": "custom.lineStyle",
+                    "value": {
+                      "fill": "dash",
+                      "dash": [
+                        10,
+                        10
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.fillOpacity",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongot_system_load_average_1m{service_name=~\"$service_name\"})",
+              "legendFormat": "{{service_name}} load 1m",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongot_system_cpu_count{service_name=~\"$service_name\"})",
+              "legendFormat": "{{service_name}} CPUs",
+              "refId": "B",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 56,
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 8,
+            "y": 176
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Available Memory",
+          "description": "Physical memory available on each mongot host. Low available memory causes Lucene files to be evicted from the page cache.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "bytes",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongot_system_memory_phys_available_bytes{service_name=~\"$service_name\"})",
+              "legendFormat": "{{service_name}} available",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            },
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongot_system_memory_phys_total_bytes{service_name=~\"$service_name\"})",
+              "legendFormat": "{{service_name}} total",
+              "refId": "B",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 57,
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 16,
+            "y": 176
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Data Path Free Space",
+          "description": "Free space on each mongot data path. mongot pauses replication at 90% used, resumes at 85%, and skips merges under disk pressure.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "line+area"
+                }
+              },
+              "unit": "percent",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "transparent",
+                    "value": 15
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "100 * min by (service_name) (mongot_system_disk_space_data_path_free_bytes{service_name=~\"$service_name\"} / mongot_system_disk_space_data_path_total_bytes{service_name=~\"$service_name\"})",
+              "legendFormat": "{{service_name}}",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 58,
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 0,
+            "y": 184
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Disk Queue Length",
+          "description": "Maximum disk I/O queue depth on each mongot host. Sustained > 1 indicates a disk bottleneck.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "max by (service_name) (mongot_system_disk_currentQueueLength_tasks{service_name=~\"$service_name\"})",
+              "legendFormat": "{{service_name}}",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 59,
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 8,
+            "y": 184
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Major Page Faults",
+          "description": "Major page faults (reads from disk) of each mongot process. Rising major faults mean index files do not fit in memory.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMax": 1
+              },
+              "unit": "ops",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name) (rate(mongot_system_process_majorPageFaults_operations{service_name=~\"$service_name\"}))",
+              "legendFormat": "{{service_name}}",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 60,
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 16,
+            "y": 184
+          }
+        }
+      ],
+      "id": 54,
+      "datasource": "Metrics",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 175
+      }
+    },
+    {
+      "type": "row",
+      "title": "MongoDB Connection Pools",
+      "collapsed": true,
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "Connections",
+          "description": "Connections held by each internal mongot MongoDB client, per service.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "short",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "min": 0,
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "sum by (service_name, clientName) (mongot_mongoClient_connectionPool_connections{service_name=~\"$service_name\"}) > 0",
+              "legendFormat": "{{service_name}} {{clientName}}",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 62,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 193
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Connections Checked Out (% of max)",
+          "description": "Connections in use as a percentage of each pool's maxSize, per service. Approaching 100% means pool exhaustion.",
+          "datasource": "Metrics",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "showPoints": "never",
+                "spanNulls": false,
+                "lineInterpolation": "linear",
+                "pointSize": 5,
+                "axisPlacement": "auto",
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "line+area"
+                }
+              },
+              "unit": "percent",
+              "links": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "transparent",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
+                  }
+                ]
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max",
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "100 * sum by (service_name, clientName) (mongot_mongoClient_connectionPool_connectionsCheckedOut{service_name=~\"$service_name\"}) / sum by (service_name, clientName) (mongot_mongoClient_connectionPool_maxSize{service_name=~\"$service_name\"} > 0) > 0",
+              "legendFormat": "{{service_name}} {{clientName}}",
+              "refId": "A",
+              "interval": "$interval",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ],
+          "id": 63,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 193
+          }
+        }
+      ],
+      "id": 61,
+      "datasource": "Metrics",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 192
+      }
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 41,
+  "tags": [
+    "Percona",
+    "MongoDB"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allFormat": "glob",
+        "auto": true,
+        "auto_count": 200,
+        "auto_min": "1s",
+        "current": {
+          "selected": false,
+          "text": "auto",
+          "value": "$__auto_interval_interval"
+        },
+        "datasource": "Metrics",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Interval",
+        "multi": false,
+        "multiFormat": "glob",
+        "name": "interval",
+        "options": [
+          {
+            "selected": true,
+            "text": "auto",
+            "value": "$__auto_interval_interval"
+          },
+          {
+            "selected": false,
+            "text": "1s",
+            "value": "1s"
+          },
+          {
+            "selected": false,
+            "text": "5s",
+            "value": "5s"
+          },
+          {
+            "selected": false,
+            "text": "1m",
+            "value": "1m"
+          },
+          {
+            "selected": false,
+            "text": "5m",
+            "value": "5m"
+          },
+          {
+            "selected": false,
+            "text": "1h",
+            "value": "1h"
+          },
+          {
+            "selected": false,
+            "text": "6h",
+            "value": "6h"
+          },
+          {
+            "selected": false,
+            "text": "1d",
+            "value": "1d"
+          }
+        ],
+        "query": "1s,5s,1m,5m,1h,6h,1d",
+        "refresh": 2,
+        "skipUrlSync": false,
+        "type": "interval"
+      },
+      {
+        "name": "environment",
+        "label": "Environment",
+        "type": "query",
+        "datasource": "Metrics",
+        "definition": "label_values(mongot_process_uptime_seconds, environment)",
+        "query": {
+          "query": "label_values(mongot_process_uptime_seconds, environment)",
+          "refId": "Metrics-environment-Variable-Query"
+        },
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "hide": 0,
+        "skipUrlSync": false,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "options": []
+      },
+      {
+        "name": "cluster",
+        "label": "Cluster",
+        "type": "query",
+        "datasource": "Metrics",
+        "definition": "label_values(mongot_process_uptime_seconds{environment=~\"$environment\"}, cluster)",
+        "query": {
+          "query": "label_values(mongot_process_uptime_seconds{environment=~\"$environment\"}, cluster)",
+          "refId": "Metrics-cluster-Variable-Query"
+        },
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "hide": 0,
+        "skipUrlSync": false,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "options": []
+      },
+      {
+        "name": "replication_set",
+        "label": "Replication Set",
+        "type": "query",
+        "datasource": "Metrics",
+        "definition": "label_values(mongot_process_uptime_seconds{environment=~\"$environment\",cluster=~\"$cluster\"}, replication_set)",
+        "query": {
+          "query": "label_values(mongot_process_uptime_seconds{environment=~\"$environment\",cluster=~\"$cluster\"}, replication_set)",
+          "refId": "Metrics-replication_set-Variable-Query"
+        },
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "hide": 0,
+        "skipUrlSync": false,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "options": []
+      },
+      {
+        "name": "service_name",
+        "label": "Search Service",
+        "type": "query",
+        "datasource": "Metrics",
+        "definition": "label_values(mongot_process_uptime_seconds{environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\"}, service_name)",
+        "query": {
+          "query": "label_values(mongot_process_uptime_seconds{environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\"}, service_name)",
+          "refId": "Metrics-service_name-Variable-Query"
+        },
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": null,
+        "hide": 0,
+        "skipUrlSync": false,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "options": []
+      },
+      {
+        "name": "mongodb_service",
+        "label": "MongoDB Service",
+        "type": "query",
+        "datasource": "Metrics",
+        "definition": "label_values(mongodb_ss_metrics_aggStageCounters_search{environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\"}, service_name)",
+        "query": {
+          "query": "label_values(mongodb_ss_metrics_aggStageCounters_search{environment=~\"$environment\",cluster=~\"$cluster\",replication_set=~\"$replication_set\"}, service_name)",
+          "refId": "Metrics-mongodb_service-Variable-Query"
+        },
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "hide": 0,
+        "skipUrlSync": false,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "options": []
+      },
+      {
+        "name": "index",
+        "label": "Index ID",
+        "type": "query",
+        "datasource": "Metrics",
+        "definition": "label_values(mongot_index_stats_indexStatusCode{service_name=~\"$service_name\"}, indexId_logString)",
+        "query": {
+          "query": "label_values(mongot_index_stats_indexStatusCode{service_name=~\"$service_name\"}, indexId_logString)",
+          "refId": "Metrics-index-Variable-Query"
+        },
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "hide": 0,
+        "skipUrlSync": false,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "options": []
+      }
+    ]
+  },
+  "time": {
+    "from": "now-12h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "MongoDB Search Details",
+  "uid": "mongodb-search-details",
+  "version": 1,
+  "weekStart": ""
+}
