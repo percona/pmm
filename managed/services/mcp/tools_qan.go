@@ -19,9 +19,12 @@ import (
 	"cmp"
 	"context"
 	"fmt"
+	"maps"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -33,6 +36,11 @@ const (
 	defaultLimit = 10
 	maxLimit     = 100
 	groupByQuery = "queryid"
+
+	// Extra columns per pmm_top_queries call, at most.
+	maxColumns = 10
+	// Longest search text, in characters.
+	maxSearchLen = 200
 )
 
 // ordering is the QAN sort key and main metric for one order_by value; qan-api2
@@ -51,13 +59,27 @@ var orderMetrics = map[string]ordering{
 	"count":            {orderKey: "num_queries", mainMetric: "num_queries"},
 }
 
+// groupByDimensions are the qan-api2 dimensions a report can be grouped by.
+var groupByDimensions = []string{groupByQuery, "service_name", "database", "schema", "username", "client_host", "application_name", "cmd_type"}
+
+// labelKey matches a label or dimension name; any other name is rejected (PMM-15715).
+var labelKey = regexp.MustCompile(`^[a-z_][a-z0-9_]*$`)
+
+// baseColumns are on every report row already.
+var baseColumns = []string{"load", "num_queries", "query_time"}
+
 type topQueriesInput struct {
-	ServiceName string `json:"service_name,omitempty" jsonschema:"Filter by service name (from pmm_inventory)"`
-	ServiceID   string `json:"service_id,omitempty" jsonschema:"Filter by service id (from pmm_inventory)"`
-	PeriodFrom  string `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default now-1h)"`
-	PeriodTo    string `json:"period_to,omitempty" jsonschema:"Window end: RFC3339 or relative (default now)"`
-	OrderBy     string `json:"order_by,omitempty" jsonschema:"load (default) and total_query_time: most total time; avg_query_time: slowest calls; count: most frequent"`
-	Limit       int    `json:"limit,omitempty" jsonschema:"Number of queries, 1-100 (default 10)"`
+	ServiceName string              `json:"service_name,omitempty" jsonschema:"Filter by service name (from pmm_inventory)"`
+	ServiceID   string              `json:"service_id,omitempty" jsonschema:"Filter by service id (from pmm_inventory)"`
+	PeriodFrom  string              `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default now-1h)"`
+	PeriodTo    string              `json:"period_to,omitempty" jsonschema:"Window end: RFC3339 or relative (default now)"`
+	GroupBy     string              `json:"group_by,omitempty" jsonschema:"Row dimension, default queryid; the tool description lists the others"`
+	Labels      map[string][]string `json:"labels,omitempty" jsonschema:"Filters: a label or dimension name mapped to the values to keep, such as username: [app]"`
+	Columns     []string            `json:"columns,omitempty" jsonschema:"Up to 10 more QAN metrics per row; the tool description lists the names"`
+	OrderBy     string              `json:"order_by,omitempty" jsonschema:"load (default), total_query_time, avg_query_time, count or [-]column; see tool description"`
+	Offset      int                 `json:"offset,omitempty" jsonschema:"Rows to skip, for paging (default 0)"`
+	Limit       int                 `json:"limit,omitempty" jsonschema:"Number of rows, 1-100 (default 10)"`
+	Search      string              `json:"search,omitempty" jsonschema:"Keep rows whose queryid, fingerprint or group_by value contains this text; 200 characters max"`
 }
 
 type queryDetailInput struct {
@@ -71,9 +93,12 @@ func (s *Service) registerQANTools(server *mcp.Server) {
 	mcp.AddTool(server, &mcp.Tool{
 		Name:  "pmm_top_queries",
 		Title: "Top queries by load",
-		Description: "Rank the worst queries for a service over a time window, from PMM Query Analytics (QAN). " +
-			"Returns query fingerprints with load and timing metrics. Pass a returned queryid to " +
-			"pmm_query_detail or pmm_get_explain.",
+		Description: "Rank queries, or another QAN dimension (group_by: service_name, database, schema, username, client_host, " +
+			"application_name, cmd_type), over a time window, from PMM Query Analytics (QAN). order_by load and total_query_time " +
+			"rank by total time, avg_query_time by the slowest calls, count by frequency, and a column by its value (- for " +
+			"descending). Rows carry load, calls and timing plus the requested columns; queryid rows (the default) also carry " +
+			"the fingerprint, and the queryid goes to pmm_query_detail or pmm_get_explain. Page with offset. Columns: " +
+			qanColumnsText() + ".",
 		Annotations: readOnly("Top queries by load"),
 	}, handle(s, "pmm_top_queries", s.topQueries))
 
@@ -87,101 +112,215 @@ func (s *Service) registerQANTools(server *mcp.Server) {
 }
 
 func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in topQueriesInput) (*mcp.CallToolResult, error) {
-	orderBy := in.OrderBy
-	if orderBy == "" {
-		orderBy = "load"
-	}
-	order, ok := orderMetrics[orderBy]
-	if !ok {
-		return nil, newToolError(codeInvalidInput, "order_by must be one of load, total_query_time, avg_query_time, count; got '%s'", orderBy)
-	}
-	limit := in.Limit
-	if limit == 0 {
-		limit = defaultLimit
-	}
-	if limit < 1 || limit > maxLimit {
-		return nil, newToolError(codeInvalidInput, "limit must be between 1 and %d; got %d", maxLimit, limit)
-	}
-	err := cmp.Or(checkQANValue("service_name", in.ServiceName), checkQANValue("service_id", in.ServiceID))
+	from, to, err := parseWindow(in.PeriodFrom, in.PeriodTo, s.now())
 	if err != nil {
 		return nil, err
 	}
-	from, to, err := parseWindow(in.PeriodFrom, in.PeriodTo, s.now())
+	q, err := newReportQuery(in, from, to)
 	if err != nil {
 		return nil, err
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 
-	body := qan_service.GetReportBody{
-		PeriodStartFrom: strfmt.DateTime(from),
-		PeriodStartTo:   strfmt.DateTime(to),
-		GroupBy:         groupByQuery,
-		OrderBy:         "-" + order.orderKey,
-		Offset:          0,
-		Limit:           int64(limit),
-		Columns:         []string{"load", "num_queries", "query_time"},
-		MainMetric:      order.mainMetric,
-		Labels:          []*qan_service.GetReportParamsBodyLabelsItems0{},
-	}
-	switch {
-	case in.ServiceName != "":
-		body.Labels = append(body.Labels, &qan_service.GetReportParamsBodyLabelsItems0{Key: "service_name", Value: []string{in.ServiceName}})
-	case in.ServiceID != "":
-		body.Labels = append(body.Labels, &qan_service.GetReportParamsBodyLabelsItems0{Key: "service_id", Value: []string{in.ServiceID}})
-	}
-
-	report, err := s.api.GetReport(ctx, auth, body)
+	report, err := s.api.GetReport(ctx, auth, q.body)
 	if err != nil {
 		return nil, err
 	}
 	raw := s.rawSQL()
-	var engine string
-	if !raw && slices.ContainsFunc(report.Rows, func(r qanReportRow) bool { return quotingMatters(r.Fingerprint) }) {
-		engine = s.reportEngine(ctx, auth, in, from, to)
+	rowEngine := func(string) string { return "" }
+	if !raw && q.groupBy == groupByQuery && slices.ContainsFunc(report.Rows, func(r qanReportRow) bool { return quotingMatters(r.Fingerprint) }) {
+		rowEngine = s.reportEngines(ctx, auth, q, report.Rows, from, to)
 	}
 
-	// Confirmed against PMM 3.8.1: queryid is Row.dimension; rows[0] is the
-	// TOTAL aggregate (empty dimension) and is skipped; per-metric stats are
-	// nested under <name>.stats; fingerprint/num_queries/qps/load are also
-	// present top-level. Row.database arrives empty for MySQL rows, so schema
-	// comes from pmm_query_detail.
-	var lines []string
-	rank := 0
-	for _, row := range report.Rows {
-		if row.Dimension == "" {
+	// Confirmed against PMM 3.8.1: rows[0] is the TOTAL aggregate (empty
+	// dimension); per-metric stats are nested under <name>.stats. Row.database
+	// arrives empty for MySQL rows, so schema comes from pmm_query_detail.
+	lines := make([]string, 0, len(report.Rows))
+	for i, row := range report.Rows {
+		if i == 0 && row.Dimension == "" {
 			continue
 		}
-		rank++
-		numQueries := finite(row.NumQueries)
-		load := finite(row.Load)
-		var total, avg float64
-		if qt, ok := row.Metrics["query_time"]; ok && qt.Stats != nil {
-			total = finite(qt.Stats.Sum)
-			avg = finite(qt.Stats.Avg)
-			if avg == 0 && numQueries > 0 {
-				avg = total / numQueries
-			}
-		}
-		if nq, ok := row.Metrics["num_queries"]; ok && nq.Stats != nil && numQueries == 0 {
-			numQueries = finite(nq.Stats.Sum)
-		}
-		if ld, ok := row.Metrics["load"]; ok && ld.Stats != nil && load == 0 {
-			load = finite(ld.Stats.SumPerSec)
-		}
-		fingerprint := fingerprintText(row.Fingerprint, engine, raw)
-		if fingerprint == "" {
-			fingerprint = row.Dimension
-		}
-		lines = append(lines, fmt.Sprintf("%d. [%s] load=%s calls=%s total=%s avg=%s\n   %s",
-			rank, row.Dimension, fmtNum3(load), fmtNum(numQueries), fmtSeconds(total), fmtSeconds(avg), fingerprint))
+		lines = append(lines, q.renderRow(row, q.offset+len(lines)+1, rowEngine(row.Dimension), raw))
 	}
 	if len(lines) == 0 {
+		if q.offset > 0 {
+			return textResult(fmt.Sprintf("No rows at offset %d; the report has %d.", q.offset, report.TotalRows)), nil
+		}
 		return textResult("No queries found for that service / time window."), nil
 	}
 
-	text := fmt.Sprintf("Top %d queries (order_by=%s):\n\n%s", len(lines), orderBy, strings.Join(lines, "\n"))
+	text := fmt.Sprintf("Rows %d-%d of %d (group_by=%s, order_by=%s):\n\n%s",
+		q.offset+1, q.offset+len(lines), report.TotalRows, q.groupBy, q.orderBy, strings.Join(lines, "\n"))
 	text += "\n\n" + link("Open this workload in PMM QAN", qanOverviewURL(s.publicBaseURL(ctx, req.Extra.Header), in.ServiceName, from, to))
 	return textResult(text), nil
+}
+
+// reportQuery is a validated pmm_top_queries request.
+type reportQuery struct {
+	groupBy string
+	// orderBy is as the caller wrote it.
+	orderBy string
+	// columns are the extra columns, in request order.
+	columns []string
+	offset  int
+	labels  map[string][]string
+	body    qan_service.GetReportBody
+}
+
+// newReportQuery validates a pmm_top_queries input and builds its getReport body.
+func newReportQuery(in topQueriesInput, from, to time.Time) (*reportQuery, error) {
+	q := &reportQuery{groupBy: cmp.Or(in.GroupBy, groupByQuery), orderBy: cmp.Or(in.OrderBy, "load"), offset: in.Offset}
+	if !slices.Contains(groupByDimensions, q.groupBy) {
+		return nil, newToolError(codeInvalidInput, "group_by must be one of %s; got '%s'", strings.Join(groupByDimensions, ", "), q.groupBy)
+	}
+	limit := cmp.Or(in.Limit, defaultLimit)
+	if limit < 1 || limit > maxLimit {
+		return nil, newToolError(codeInvalidInput, "limit must be between 1 and %d; got %d", maxLimit, limit)
+	}
+	if in.Offset < 0 {
+		return nil, newToolError(codeInvalidInput, "offset must be 0 or more; got %d", in.Offset)
+	}
+	if utf8.RuneCountInString(in.Search) > maxSearchLen {
+		return nil, newToolError(codeInvalidInput, "search must be at most %d characters", maxSearchLen)
+	}
+	columns, err := checkColumns(in.Columns)
+	if err != nil {
+		return nil, err
+	}
+	qanOrder, mainMetric, orderColumn, err := parseOrderBy(q.orderBy)
+	if err != nil {
+		return nil, err
+	}
+	if orderColumn != "" && !slices.Contains(columns, orderColumn) {
+		columns = append(columns, orderColumn)
+	}
+	q.columns = columns
+	q.labels, err = reportLabels(in)
+	if err != nil {
+		return nil, err
+	}
+
+	labels := make([]*qan_service.GetReportParamsBodyLabelsItems0, 0, len(q.labels))
+	for _, key := range slices.Sorted(maps.Keys(q.labels)) {
+		labels = append(labels, &qan_service.GetReportParamsBodyLabelsItems0{Key: key, Value: q.labels[key]})
+	}
+	q.body = qan_service.GetReportBody{
+		PeriodStartFrom: strfmt.DateTime(from),
+		PeriodStartTo:   strfmt.DateTime(to),
+		GroupBy:         q.groupBy,
+		OrderBy:         qanOrder,
+		Offset:          int64(in.Offset),
+		Limit:           int64(limit),
+		Columns:         append(slices.Clone(baseColumns), columns...),
+		MainMetric:      mainMetric,
+		Labels:          labels,
+		Search:          in.Search,
+	}
+	return q, nil
+}
+
+// checkColumns validates the requested columns against the catalogue and drops repeats.
+func checkColumns(columns []string) ([]string, error) {
+	if len(columns) > maxColumns {
+		return nil, newToolError(codeInvalidInput, "columns takes at most %d names; got %d", maxColumns, len(columns))
+	}
+	out := make([]string, 0, len(columns))
+	for _, c := range columns {
+		if _, ok := qanColumnByName(c); !ok {
+			return nil, newToolError(codeInvalidInput, "unknown column '%s'; the tool description lists the valid names", c)
+		}
+		if !slices.Contains(out, c) {
+			out = append(out, c)
+		}
+	}
+	return out, nil
+}
+
+// parseOrderBy maps order_by to qan-api2's order_by and main metric: one of the
+// four named rankings (descending), or [-]<column>, whose column is returned too.
+func parseOrderBy(orderBy string) (string, string, string, error) {
+	if o, ok := orderMetrics[orderBy]; ok {
+		return "-" + o.orderKey, o.mainMetric, "", nil
+	}
+	name := strings.TrimPrefix(orderBy, "-")
+	if _, ok := qanColumnByName(name); !ok {
+		return "", "", "", newToolError(codeInvalidInput,
+			"order_by must be load, total_query_time, avg_query_time, count, or a column from the tool description with an optional - prefix; got '%s'", orderBy)
+	}
+	return orderBy, name, name, nil
+}
+
+// reportLabels merges the labels input with the service_name and service_id
+// shortcuts, and checks every name and value (PMM-15715).
+func reportLabels(in topQueriesInput) (map[string][]string, error) {
+	labels := maps.Clone(in.Labels)
+	if labels == nil {
+		labels = make(map[string][]string)
+	}
+	for _, sc := range []struct{ key, value string }{{"service_name", in.ServiceName}, {"service_id", in.ServiceID}} {
+		if sc.value == "" {
+			continue
+		}
+		if vals, ok := labels[sc.key]; ok && !slices.Equal(vals, []string{sc.value}) {
+			return nil, newToolError(codeInvalidInput, "%s and labels.%s disagree; pass one of them", sc.key, sc.key)
+		}
+		labels[sc.key] = []string{sc.value}
+	}
+	for key, values := range labels {
+		if !labelKey.MatchString(key) {
+			return nil, newToolError(codeInvalidInput, "label name '%s' must match %s", key, labelKey)
+		}
+		if len(values) == 0 {
+			return nil, newToolError(codeInvalidInput, "labels.%s needs at least one value", key)
+		}
+		for _, v := range values {
+			err := checkQANValue("labels."+key, v)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return labels, nil
+}
+
+// renderRow formats one report row: its dimension, load, calls, total and
+// average time, the requested columns, and for queryid rows the fingerprint.
+func (q *reportQuery) renderRow(row qanReportRow, rank int, engine string, raw bool) string {
+	numQueries := finite(row.NumQueries)
+	load := finite(row.Load)
+	var total, avg float64
+	if qt, ok := row.Metrics["query_time"]; ok && qt.Stats != nil {
+		total = finite(qt.Stats.Sum)
+		avg = finite(qt.Stats.Avg)
+		if avg == 0 && numQueries > 0 {
+			avg = total / numQueries
+		}
+	}
+	if nq, ok := row.Metrics["num_queries"]; ok && nq.Stats != nil && numQueries == 0 {
+		numQueries = finite(nq.Stats.Sum)
+	}
+	if ld, ok := row.Metrics["load"]; ok && ld.Stats != nil && load == 0 {
+		load = finite(ld.Stats.SumPerSec)
+	}
+
+	var b strings.Builder
+	fmt.Fprintf(&b, "%d. [%s] load=%s calls=%s total=%s avg=%s", rank, cmp.Or(row.Dimension, "(empty)"),
+		fmtNum3(load), fmtNum(numQueries), fmtSeconds(total), fmtSeconds(avg))
+	for _, name := range q.columns {
+		m, ok := row.Metrics[name]
+		if slices.Contains(baseColumns, name) || !ok || m.Stats == nil {
+			continue
+		}
+		if c, _ := qanColumnByName(name); c.avg {
+			fmt.Fprintf(&b, " %s_avg=%s", name, fmtNum3(finite(m.Stats.Avg)))
+		} else {
+			fmt.Fprintf(&b, " %s=%s", name, fmtNum3(finite(m.Stats.Sum)))
+		}
+	}
+	if q.groupBy == groupByQuery {
+		b.WriteString("\n   " + cmp.Or(fingerprintText(row.Fingerprint, engine, raw), row.Dimension))
+	}
+	return b.String()
 }
 
 func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in queryDetailInput) (*mcp.CallToolResult, error) {
@@ -378,12 +517,38 @@ func quotingMatters(fingerprint string) bool {
 	return fingerprintText(fingerprint, engineMySQL, false) != fingerprintText(fingerprint, enginePostgreSQL, false)
 }
 
-// reportEngine returns the engine whose quoting reads a report's fingerprints:
-// the filtered service's, else the only SQL engine QAN holds data for in the
-// window, else "".
-func (s *Service) reportEngine(ctx context.Context, auth callerAuth, in topQueriesInput, from, to time.Time) string {
-	if in.ServiceName != "" || in.ServiceID != "" {
-		return s.serviceEngine(ctx, auth, in.ServiceName, in.ServiceID)
+// reportEngines returns the engine whose quoting reads each queryid's
+// fingerprint: the report's one SQL engine when its filters or QAN's data name
+// one, else each row's own, from rowEngines (PMM-15529).
+func (s *Service) reportEngines(ctx context.Context, auth callerAuth, q *reportQuery, rows []qanReportRow, from, to time.Time) func(string) string {
+	engine := s.reportEngine(ctx, auth, q.labels, from, to)
+	if _, filtered := q.labels["service_type"]; engine != "" || filtered {
+		// A service_type filter is the caller's; rowEngines would replace it.
+		return func(string) string { return engine }
+	}
+	engines := s.rowEngines(ctx, auth, q.body, rows)
+	return func(queryID string) string { return engines[queryID] }
+}
+
+// reportEngine returns the engine of a whole report: its one SQL service_type,
+// else the engine of the one service it is filtered to, else the only SQL
+// engine QAN holds data for in the window, else "".
+func (s *Service) reportEngine(ctx context.Context, auth callerAuth, labels map[string][]string, from, to time.Time) string {
+	if types, ok := labels["service_type"]; ok {
+		if len(types) == 1 && (types[0] == engineMySQL || types[0] == enginePostgreSQL) {
+			return types[0]
+		}
+		return ""
+	}
+	var name, id string
+	if names := labels["service_name"]; len(names) == 1 {
+		name = names[0]
+	}
+	if ids := labels["service_id"]; len(ids) == 1 {
+		id = ids[0]
+	}
+	if name != "" || id != "" {
+		return s.serviceEngine(ctx, auth, name, id)
 	}
 	types, err := s.api.QANServiceTypes(ctx, auth, from, to)
 	if err != nil {
@@ -395,6 +560,44 @@ func (s *Service) reportEngine(ctx context.Context, auth callerAuth, in topQueri
 		return ""
 	}
 	return sqlTypes[0]
+}
+
+// rowEngines finds each ambiguous queryid's engine with one more report, the
+// same one filtered to MySQL: a queryid with all of its calls there is MySQL,
+// one absent is PostgreSQL, and one in both stays unknown, so it is withheld.
+func (s *Service) rowEngines(ctx context.Context, auth callerAuth, body qan_service.GetReportBody, rows []qanReportRow) map[string]string {
+	calls := make(map[string]float64)
+	var ids []string
+	for _, r := range rows {
+		if r.Dimension != "" && quotingMatters(r.Fingerprint) {
+			ids = append(ids, r.Dimension)
+			calls[r.Dimension] = finite(r.NumQueries)
+		}
+	}
+	body.Labels = append(slices.Clone(body.Labels),
+		&qan_service.GetReportParamsBodyLabelsItems0{Key: groupByQuery, Value: ids},
+		&qan_service.GetReportParamsBodyLabelsItems0{Key: "service_type", Value: []string{engineMySQL}})
+	body.Columns, body.OrderBy, body.MainMetric = []string{"num_queries"}, "-num_queries", "num_queries"
+	body.Offset, body.Limit = 0, int64(len(ids))
+	mysql, err := s.api.GetReport(ctx, auth, body)
+	if err != nil {
+		s.l.WithField("tool", "pmm_top_queries").Debugf("qan metrics:getReport for MySQL rows failed: %s.", err)
+		return nil
+	}
+
+	engines := make(map[string]string, len(ids))
+	for _, id := range ids {
+		engines[id] = enginePostgreSQL
+	}
+	for _, r := range mysql.Rows {
+		if want, ok := calls[r.Dimension]; ok {
+			engines[r.Dimension] = ""
+			if finite(r.NumQueries) == want {
+				engines[r.Dimension] = engineMySQL
+			}
+		}
+	}
+	return engines
 }
 
 // serviceEngine returns the engine of the service a report is filtered to, by

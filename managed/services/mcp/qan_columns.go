@@ -15,6 +15,11 @@
 
 package mcp
 
+import (
+	"slices"
+	"strings"
+)
+
 // qanColumn is one QAN metric that pmm_top_queries can return.
 type qanColumn struct {
 	name string
@@ -106,4 +111,29 @@ var qanColumns = []qanColumn{
 	{"locks_database_acquire_count_read_shared", engineMongoDB, false},
 	{"locks_database_acquire_wait_count_read_shared", engineMongoDB, false},
 	{"locks_collection_acquire_count_read_shared", engineMongoDB, false},
+}
+
+// qanColumnByName returns the catalogue entry for a column name.
+func qanColumnByName(name string) (qanColumn, bool) {
+	i := slices.IndexFunc(qanColumns, func(c qanColumn) bool { return c.name == name })
+	if i < 0 {
+		return qanColumn{}, false
+	}
+	return qanColumns[i], true
+}
+
+// qanColumnsText lists the catalogue's names by engine, for the tool description.
+func qanColumnsText() string {
+	groups := []struct{ label, engine string }{{"all engines", ""}, {"MySQL", engineMySQL}, {"PostgreSQL", enginePostgreSQL}, {"MongoDB", engineMongoDB}}
+	parts := make([]string, 0, len(groups))
+	for _, g := range groups {
+		var names []string
+		for _, c := range qanColumns {
+			if c.engine == g.engine {
+				names = append(names, c.name)
+			}
+		}
+		parts = append(parts, g.label+": "+strings.Join(names, ", "))
+	}
+	return strings.Join(parts, "; ")
 }

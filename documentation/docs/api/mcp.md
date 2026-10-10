@@ -92,13 +92,96 @@ The server sends the recommended order to the client on connect: `pmm_version`, 
 |------|-----------------|-----------------|
 | `pmm_version` | PMM Server version; confirms the connection and the token | `GET /v1/server/version` |
 | `pmm_inventory` | Monitored services with `service_id`, `service_name`, engine, version, node and address; optional `engine` / `node` filters | `GET /v1/inventory/services`, `GET /v1/inventory/nodes`, version metrics |
-| `pmm_top_queries` | The worst queries for a service over a window (`period_from` / `period_to`, RFC 3339 or relative such as `now-1h`), ranked by `load`, `total_query_time`, `avg_query_time` or `count`, with their `queryid` | `POST /v1/qan/metrics:getReport` |
+| `pmm_top_queries` | Rows of QAN's report over a window (`period_from` / `period_to`, RFC 3339 or relative such as `now-1h`): queries with their `queryid` by default, or another dimension with `group_by` (`service_name`, `database`, `schema`, `username`, `client_host`, `application_name`, `cmd_type`). Filter with `service_name`, `service_id`, `labels` and `search`; add up to 10 [QAN columns](#qan-columns); rank with `order_by` (`load`, `total_query_time`, `avg_query_time`, `count`, or a column); page with `offset` and `limit`. The header reads `Rows 11-20 of 143` | `POST /v1/qan/metrics:getReport`, `POST /v1/qan/metrics:getFilters` |
 | `pmm_query_detail` | Fingerprint, engine and version, schema, tables, key metrics (rows examined/sent, full scans, filesorts, …; for MongoDB, documents and keys examined, documents returned and bytes read) and an example statement for one `queryid` | `POST /v1/qan:getMetrics`, `POST /v1/qan/query:getExample` |
 | `pmm_get_explain` | The execution plan for a `queryid`: the stored `pg_stat_monitor` plan for PostgreSQL, a live `EXPLAIN` (JSON or traditional) run by pmm-agent for MySQL, `explain` for MongoDB | `GET /v1/inventory/services`, `GET /v1/qan/query/{queryid}/plan` (PostgreSQL), `POST /v1/actions:startServiceAction` and `GET /v1/actions/{action_id}` (MySQL, MongoDB) |
 | `pmm_get_schema` | `SHOW CREATE TABLE` (MySQL) or the table definition (PostgreSQL) for a table, optionally with its indexes | `POST /v1/actions:startServiceAction`, `GET /v1/actions/{action_id}` |
 | `pmm_get_config` | The server's numeric configuration variables (`SHOW GLOBAL VARIABLES` style) plus the version, from the metrics PMM already collects; addressed by `service_id` like the other tools (`service_name` is also accepted) | `GET /v1/inventory/services` (with `service_id`), `GET /graph/api/datasources/name/Metrics`, the Grafana datasource proxy |
 
 Every result carries a **View in PMM** link that opens the QAN dashboard on the same window, service and query, so an answer can always be checked in PMM itself. Links use the PMM public address setting when it is set, otherwise the host name the client connected to.
+
+### QAN columns
+
+`pmm_top_queries` adds up to 10 of these QAN metrics to each row (`columns`) and can rank by any of them (`order_by`, with `-` for descending). The meanings are QAN's own. A column shown as an average is per call; the others are totals over the window.
+
+| Column | Engine | Shown as | Meaning |
+|--------|--------|----------|---------|
+| `load` | all | per second | Load |
+| `num_queries` | all | sum | number of queries in bucket |
+| `num_queries_with_errors` | all | sum | number of queries with errors |
+| `num_queries_with_warnings` | all | sum | number of queries with warnings |
+| `query_time` | all | average per call | Query Time |
+| `lock_time` | all | average per call | Lock Time |
+| `rows_sent` | all | average per call | Rows Sent |
+| `rows_examined` | all | average per call | Rows Examined |
+| `rows_affected` | all | average per call | Rows Affected |
+| `rows_read` | all | average per call | Rows Read |
+| `merge_passes` | MySQL | average per call | Merge Passes |
+| `innodb_io_r_ops` | MySQL | average per call | Innodb IO R Ops |
+| `innodb_io_r_bytes` | MySQL | average per call | Innodb IO R Bytes |
+| `innodb_io_r_wait` | MySQL | average per call | Innodb IO R Wait |
+| `innodb_rec_lock_wait` | MySQL | average per call | Innodb Rec Lock Wait |
+| `innodb_queue_wait` | MySQL | average per call | Innodb Queue Wait |
+| `innodb_pages_distinct` | MySQL | average per call | Innodb Pages Distinct |
+| `query_length` | MySQL | average per call | Query Length |
+| `bytes_sent` | MySQL | average per call | Bytes Sent |
+| `tmp_tables` | MySQL | average per call | Tmp Tables |
+| `tmp_disk_tables` | MySQL | average per call | Tmp Disk Tables |
+| `tmp_table_sizes` | MySQL | average per call | Tmp Table Sizes |
+| `qc_hit` | MySQL | sum | Query Cache Hit |
+| `full_scan` | MySQL | sum | Full Scan |
+| `full_join` | MySQL | sum | Full Join |
+| `tmp_table` | MySQL | sum | Tmp Table |
+| `tmp_table_on_disk` | MySQL | sum | Tmp Table on Disk |
+| `filesort` | MySQL | sum | Filesort |
+| `filesort_on_disk` | MySQL | sum | Filesort on Disk |
+| `select_full_range_join` | MySQL | sum | Select Full Range Join |
+| `select_range` | MySQL | sum | Select Range |
+| `select_range_check` | MySQL | sum | Select Range Check |
+| `sort_range` | MySQL | sum | Sort Range |
+| `sort_rows` | MySQL | sum | Sort Rows |
+| `sort_scan` | MySQL | sum | Sort Scan |
+| `no_index_used` | MySQL | sum | No Index Used |
+| `no_good_index_used` | MySQL | sum | No Good Index Used |
+| `shared_blks_hit` | PostgreSQL | sum | Shared blocks cache hits |
+| `shared_blks_read` | PostgreSQL | sum | Shared blocks read |
+| `shared_blks_dirtied` | PostgreSQL | sum | Shared blocks dirtied |
+| `shared_blks_written` | PostgreSQL | sum | Shared blocks written |
+| `local_blks_hit` | PostgreSQL | sum | Local blocks cache hits |
+| `local_blks_read` | PostgreSQL | sum | Local blocks read |
+| `local_blks_dirtied` | PostgreSQL | sum | Local blocks dirtied |
+| `local_blks_written` | PostgreSQL | sum | Local blocks written |
+| `temp_blks_read` | PostgreSQL | sum | Temp blocks read |
+| `temp_blks_written` | PostgreSQL | sum | Temp blocks written |
+| `blk_read_time` | PostgreSQL | sum | Time the statement spent reading blocks [deprecated] |
+| `blk_write_time` | PostgreSQL | sum | Time the statement spent writing blocks [deprecated] |
+| `shared_blk_read_time` | PostgreSQL | sum | Time the statement spent reading shared blocks |
+| `shared_blk_write_time` | PostgreSQL | sum | Time the statement spent writing shared blocks |
+| `local_blk_read_time` | PostgreSQL | sum | Time the statement spent reading local_blocks |
+| `local_blk_write_time` | PostgreSQL | sum | Time the statement spent writing local_blocks |
+| `cpu_user_time` | PostgreSQL | sum | Total time user spent in query |
+| `cpu_sys_time` | PostgreSQL | sum | Total time system spent in query |
+| `plans_calls` | PostgreSQL | sum | Total number of planned calls |
+| `plan_time` | PostgreSQL | sum | Total plan time spent in query |
+| `wal_records` | PostgreSQL | sum | Total number of WAL (Write-ahead logging) records |
+| `wal_fpi` | PostgreSQL | sum | Total number of FPI (full page images) in WAL (Write-ahead logging) records |
+| `wal_bytes` | PostgreSQL | sum | Total bytes of WAL (Write-ahead logging) records |
+| `wal_buffers_full` | PostgreSQL | sum | Total number of times WAL buffers become full |
+| `parallel_workers_to_launch` | PostgreSQL | sum | Total number of parallel workers to launch |
+| `parallel_workers_launched` | PostgreSQL | sum | Total number of parallel workers launched |
+| `docs_returned` | MongoDB | average per call | Docs Returned |
+| `response_length` | MongoDB | average per call | Response Length |
+| `docs_scanned` | MongoDB | average per call | Docs Scanned |
+| `docs_examined` | MongoDB | average per call | Total number of documents scanned during query execution |
+| `keys_examined` | MongoDB | average per call | Total number of index keys scanned during query execution |
+| `storage_bytes_read` | MongoDB | average per call | Total number of bytes read from storage during a specific operation |
+| `storage_time_reading_micros` | MongoDB | average per call | Indicates the time, spent reading data from storage during an operation |
+| `locks_database_time_acquiring_micros_read_shared` | MongoDB | average per call | Indicates the time, spent acquiring a read lock at the database level during an operation |
+| `locks_global_acquire_count_read_shared` | MongoDB | sum | Number of times a global read lock was acquired during query execution |
+| `locks_global_acquire_count_write_shared` | MongoDB | sum | Number of times a global write lock was acquired during query execution |
+| `locks_database_acquire_count_read_shared` | MongoDB | sum | Number of times a read lock was acquired at the database level during query execution |
+| `locks_database_acquire_wait_count_read_shared` | MongoDB | sum | Number of times a read lock at the database level was requested but had to wait before being granted |
+| `locks_collection_acquire_count_read_shared` | MongoDB | sum | Number of times a read lock was acquired on a specific collection during operations |
 
 ### Errors
 
@@ -130,7 +213,8 @@ Set them on the PMM Server container like other `PMM_*` variables, for example `
 
     - Example statements are replaced by their fingerprints.
     - Literals in execution plans and MongoDB fingerprints are replaced with `?`.
-    - A SQL fingerprint that PMM stored unnormalized is withheld. If an unfiltered `pmm_top_queries` covers both MySQL and PostgreSQL data, or QAN cannot report which engines it holds, a fingerprint that contains any quoted text is withheld too. PMM Server's own PostgreSQL counts when its QAN is enabled. To see such a fingerprint, filter by `service_name`.
+    - A SQL fingerprint that PMM stored unnormalized is withheld. If an unfiltered `pmm_top_queries` covers both MySQL and PostgreSQL data, PMM looks up each query's engine with one more report; a fingerprint that contains quoted text is withheld when its query ran under both engines, or when that lookup fails. To see such a fingerprint, filter by `service_name`.
+    - `group_by=username` and `group_by=client_host` return database user names and client addresses, as the QAN dashboard does for the same role. `PMM_MCP_RAW_SQL` does not hide them.
     - An agent error that can quote the statement is withheld, and its error code is kept.
 
     Masking keeps the plan's shape: access type, table and index names, rows, and MongoDB's execution counters. A plan that can't be parsed for masking is withheld. Table definitions from `pmm_get_schema` are returned as they are, so `CHECK` and `DEFAULT` constants and partition bounds are not masked. To keep literals from being collected at all, disable query examples at the source with `pmm-admin add … --disable-queryexamples`. This also stops `pmm_get_explain` from resolving `?` placeholders automatically for MySQL.
