@@ -38,7 +38,16 @@ The QA automation ticket (PMM-15578) adds its tests in percona/pmm-qa against ea
 - the sizing guide;
 - the non-root read requirements: `adm` and `systemd-journal` groups, and ACLs on RHEL;
 - the `docker run` mounts for journald and database logs;
-- a correction of the 3.8.0/3.8.1 statement that PMM accepts no inbound OTel traffic.
+- a correction of the 3.8.0/3.8.1 statement that PMM accepts no inbound OTel traffic;
+- downgrade behaviour: the `otel` database and the `log_sources` and `log_parser_presets` tables stay in place, unused; an older server ignores them, and an older client never receives the agent type.
+
+**Outside this repo:**
+- pmm-dump support for `otel.logs` (PMM-15571 asks for it) lives in percona/pmm-dump. File a ticket there once plan 01 has merged.
+- Kubernetes sidecar mounts need the Percona operators (PMM-15577). File one ticket per operator, listing the mounts from plan 02, Task 10b.
+
+**Not planned here** (analysis D8):
+- **Profiles:** OTLP profiles are Alpha, and the ClickHouse exporter marks them "development". Write an ADR that records this, and revisit it when the exporter reaches beta.
+- **eBPF:** it stays in PMM-15588. It reaches PMM as OTLP traces (plan 05) and as metrics for VictoriaMetrics (PMM-15589), so no extra server receiver is needed here.
 
 ---
 

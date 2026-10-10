@@ -195,7 +195,9 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition:
   - `api-tests/otel/presets_test.go`
   - `api-tests/otel/log_sources_test.go`
 - Modify:
-  - `managed/models/database.go`: migration **122**, the two tables per analysis §6.2. `units` and `custom_labels` are stored like `agents.custom_labels`.
+  - `managed/models/database.go`: migration **122**, creating two tables:
+    - `log_parser_presets (id VARCHAR PRIMARY KEY, name VARCHAR NOT NULL UNIQUE, description TEXT NOT NULL DEFAULT '', operators_yaml TEXT NOT NULL, built_in BOOLEAN NOT NULL DEFAULT FALSE, selectable BOOLEAN NOT NULL DEFAULT TRUE, min_agent_version VARCHAR NOT NULL DEFAULT '', cloned_from VARCHAR NOT NULL DEFAULT '', created_at TIMESTAMP NOT NULL, updated_at TIMESTAMP NOT NULL)`;
+    - `log_sources`, as described in analysis §6.2. `units` and `custom_labels` are stored like `agents.custom_labels`.
   - `api/otel/v1/otel.proto` (preset and source RPCs from the roadmap table)
   - `managed/cmd/pmm-managed/main.go`: call `presets.BuiltIn()` at startup and upsert the results through `models.SyncBuiltInPresets`.
 
@@ -348,7 +350,7 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition:
 **Interfaces:**
 - Consumes `agentv1.OtelCollectorParams` (Task 4) and `config.LogSources` (Task 5).
 - Produces:
-  - `type RenderInput struct { ServerURL *url.URL; Username, Password string; InsecureTLS bool; DataDir string; TelemetryPort uint16; AllowedPaths, AllowedUnits []string; Readable func(path string) error; JournalctlAvailable bool; DiscoveredPaths map[string]bool }`. Plan 04 fills `DiscoveredPaths`; it is nil here.
+  - `type RenderInput struct { ServerURL *url.URL; Username, Password string; InsecureTLS bool; DataDir string; TelemetryPort uint16; AllowedPaths, AllowedUnits []string; Readable func(path string) error; JournalctlAvailable bool; DiscoveredPaths, DiscoveredUnits map[string]bool }`. Plan 04 fills `DiscoveredPaths` and `DiscoveredUnits`; they are nil here.
   - `func Render(p *agentv1.OtelCollectorParams, in RenderInput) (yaml []byte, statuses []*agentv1.LogSourceStatus, err error)`
   - `func CheckAllowed(path string, allowed []string) error`. It cleans the path, rejects a path that is not absolute or contains `..`, resolves symlinks with `filepath.EvalSymlinks` when the path exists, checks the static prefix of a glob, and requires a resolved prefix to be under one of the `allowed` entries.
 - Rendering rules (D11):
@@ -368,7 +370,7 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition:
   - **`service.telemetry.metrics`:** a pull reader on `127.0.0.1:<TelemetryPort>`.
   - **No `receivers.otlp`.**
   - **Escaping:** every string that comes from params or credentials has `$` replaced with `$$` before marshalling.
-  - **Statuses:** a file source outside the allow-list gives `NOT_ALLOWED`, unless `DiscoveredPaths[path]`. `Readable(path)` failing gives `NOT_READABLE` or `NOT_FOUND`. A journald source gives `JOURNALD_UNAVAILABLE` when `journalctl` is unavailable, and `NOT_ALLOWED` when a unit is not in `AllowedUnits`. An accepted source gives `COLLECTING`.
+  - **Statuses:** a file source outside the allow-list gives `NOT_ALLOWED`, unless `DiscoveredPaths[path]`. `Readable(path)` failing gives `NOT_READABLE` or `NOT_FOUND`. A journald source gives `JOURNALD_UNAVAILABLE` when `journalctl` is unavailable, and `NOT_ALLOWED` when a unit is in neither `AllowedUnits` nor `DiscoveredUnits`. An accepted source gives `COLLECTING`.
   - **No accepted sources:** the config still renders with no pipelines, and the caller (Task 7) doesn't start the process.
 
 - [ ] **Step 1: Write the failing tests.**
@@ -537,6 +539,26 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition:
   ```bash
   git add managed/services/victoriametrics
   git commit -s -m "PMM-15593 Scrape OTEL collector self-metrics"
+  ```
+
+### Task 10b: journald in the pmm-client Docker image
+
+**Files:**
+- Modify:
+  - `build/docker/client/Dockerfile.el9`. The `builder` stage (`FROM redhat/ubi9`, :1) installs `systemd`. Copy `/usr/bin/journalctl` and the shared libraries `ldd` lists for it into the `micro` stage (:31), the same way the image already copies the CA trust store (~:80).
+  - `documentation/` docs PR (see the roadmap's docs item): the `docker run` flags, which are `-v /var/log/journal:/var/log/journal:ro -v /run/log/journal:/run/log/journal:ro -v /etc/machine-id:/etc/machine-id:ro --group-add <host systemd-journal gid>`, plus a read-only mount of each database log directory. Also list what each Percona operator's pmm-client sidecar must mount (PMM-15577).
+
+**Interfaces:**
+- Consumes `JournalctlAvailable` in `RenderInput` (Task 6). The supervisor sets it from `exec.LookPath`, using the collector's `PATH` value.
+
+- [ ] **Step 1: Write the failing check.** Run `docker run --rm --entrypoint /usr/bin/journalctl percona/pmm-client:<fb-tag> --version`. Expected: FAIL, the file is missing.
+- [ ] **Step 2: Implement** the Dockerfile change.
+- [ ] **Step 3: Run the check again.** Expected: a version is printed. Then on a CHAOS VM, run the container with the documented mounts and add `pmm-admin add logs --journald --units=sshd.service`, with `sshd.service` allowed in `pmm-agent.yaml`. Expect rows in `otel.logs` within 1 minute (PMM-15577 AC).
+- [ ] **Step 4: Record** the image size change in the PR description.
+- [ ] **Step 5: Commit.**
+  ```bash
+  git add build/docker/client/Dockerfile.el9
+  git commit -s -m "PMM-15577 Add journalctl to the pmm-client image"
   ```
 
 ### Task 10: Inventory type in the Grafana fork, and telemetry

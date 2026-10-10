@@ -218,13 +218,23 @@ These inputs and conditions are implied by the spec but no task naturally tests 
           TracesRetentionDays: 7, MaxDiskGB: 10, DiskWatermarkPercent: 80}, s.Otel)
   }
 
-  func TestChangeOtelRetentionKeepsEnabled(t *testing.T) {
-      // sqlmock-backed settings row with collector_enabled=false
-      // UpdateSettings(q, &ChangeSettingsParams{Otel: &ChangeOtelParams{LogsRetentionDays: pointer.To(uint32(3))}})
-      // assert stored JSON has collector_enabled=false and logs_retention_days=3
-  }
   ```
-  Use the existing settings-test style in `settings_test.go`: if it uses `testdb`, stay with it, because settings are a JSON row and a migration-free sqlmock would only re-test JSON.
+  In `managed/models/settings_helpers_test.go`, inside the existing `TestSettings` (it uses `testdb.Open(t, models.SkipFixtures, nil)` at :31), add:
+  ```go
+  t.Run("otel retention change keeps collector_enabled", func(t *testing.T) {
+      _, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{Otel: &models.ChangeOtelParams{CollectorEnabled: new(false)}})
+      require.NoError(t, err)
+      s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{Otel: &models.ChangeOtelParams{LogsRetentionDays: new(uint32(3))}})
+      require.NoError(t, err)
+      assert.False(t, s.IsOtelCollectorEnabled())
+      assert.Equal(t, uint32(3), s.Otel.LogsRetentionDays)
+  })
+  t.Run("otel retention out of range", func(t *testing.T) {
+      _, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{Otel: &models.ChangeOtelParams{LogsRetentionDays: new(uint32(0))}})
+      tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Invalid argument: otel.logs_retention_days must be between 1 and 365."), err)
+  })
+  ```
+  `new(value)` is the `new(expr)` form from Go 1.26. The repo is on Go 1.27, and `registry.go:526` already uses it (`new(models.NomadAgentType)`). Use the error helper that the surrounding subtests use.
 
   Also add:
   - `TestParseEnvVars` cases: `PMM_ENABLE_OTEL=false` gives `envSettings.Otel.CollectorEnabled=false`; an invalid value gives an error naming the variable.
@@ -327,7 +337,8 @@ These inputs and conditions are implied by the spec but no task naturally tests 
 - Produces:
   - `func New(params Params) *Service`, with `Params{DB *reform.DB; Supervisord supervisordService; ConfigPath string; ClickHouse ServerConfigParams}`;
   - `func (s *Service) UpdateConfiguration(ctx context.Context, settings *models.Settings) error`. It writes the config atomically with mode 0600, only when the content changed, and restarts the program if it changed while enabled;
-  - `func (s *Service) Run(ctx context.Context)`, a 30 s ticker that calls `UpdateConfiguration` when the OTEL settings differ from the last applied ones.
+  - `func (s *Service) Run(ctx context.Context)`, a ticker that calls `UpdateConfiguration` when the OTEL settings differ from the last applied ones.
+  - Two unexported fields exist so tests can drive the loop: `reconcileInterval time.Duration`, set to 30 s by `New`, and `onApplied func(enabled bool)`. The hook is nil in production and is called after each apply with the effective running state.
 
   The collector runs only when `IsOtelCollectorEnabled() && !Otel.IngestPaused`.
 - Credentials: `PMM_CLICKHOUSE_OTEL_WRITER_USER/PASSWORD` with defaults `otel_writer`/`otel_writer`, read once at startup through `envvars.GetEnv` and added to the parser allow-list (`parser.go:118-125`).
@@ -349,8 +360,22 @@ These inputs and conditions are implied by the spec but no task naturally tests 
   }
 
   func TestRunAppliesSettingsChangedByAnotherReplica(t *testing.T) {
-      // sqlmock: first SELECT settings returns enabled, second returns collector_enabled=false
-      // run Run with a 10ms ticker (unexported field set in the test), assert supervisord update called for otel-collector
+      sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+      db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+      sv := &mockSupervisordService{}
+      applied := make(chan bool, 4)
+      s := New(Params{DB: db, Supervisord: sv, ConfigPath: filepath.Join(t.TempDir(), "config.yaml"), ClickHouse: testCH})
+      s.reconcileInterval = 10 * time.Millisecond
+      s.onApplied = func(enabled bool) { applied <- enabled }
+
+      ctx, cancel := context.WithCancel(t.Context())
+      t.Cleanup(cancel)
+      go s.Run(ctx)
+      assert.True(t, <-applied)
+
+      _, err := models.UpdateSettings(db, &models.ChangeSettingsParams{Otel: &models.ChangeOtelParams{CollectorEnabled: new(false)}})
+      require.NoError(t, err)
+      assert.False(t, <-applied)
   }
   ```
   Add `managed/testdata/supervisord.d/otel-collector.ini` and a case in `supervisord_test.go` `TestConfig`. Add a test that a disabled collector removes the `.ini` and calls `update otel-collector`: either inject the command runner, or assert through the existing reload seam in the test.
