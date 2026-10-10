@@ -206,6 +206,31 @@ Other agent types keep their current behaviour. The collector reaches the networ
 - Retention is enforced by a **daily partition drop**, as QAN does, run by pmm-managed on the leader. The same job enforces `max_disk_gb` and the watermark by dropping the oldest `otel` partitions first. One mechanism covers all three limits, and a retention change applies to stored data on the next pass, with no `MODIFY TTL` and no part rewrites (D1).
 - **A single day bigger than the cap.** If only today's partition is left and the cap is still exceeded, pmm-managed stops `otel-collector` and raises a health warning. The node queues buffer on disk until the next pass, or until an admin raises the cap (D6).
 
+### 6.6 Who renders the node collector's config
+
+PMM-15572 says pmm-managed "generates the collector config and pushes it". Taken literally, the agent receives opaque YAML. Then the agent can't apply its allow-list per source without parsing that YAML, and every preset and path passes through the agent's `text/template`, which is the prototype's credential-leak path (§4, item 3).
+
+**Decision (D11):**
+- pmm-managed decides everything and sends it as typed data: a new `OtelCollectorParams` message in `SetStateRequest.AgentProcess` (`api/agent/v1/agent.proto:56-66`). It carries the sources, the preset operator chains (validated on the server), the identity attributes, the queue size and, from Phase 2, the traces receiver.
+- pmm-agent turns that data into collector YAML with typed Go structs and `yaml.v3`. No `text/template` is involved.
+  - It checks each source against its allow-list, and readability, and leaves out the sources that fail.
+  - It fills in the exporter endpoint and credentials from its own config.
+  - It escapes every `$` in user-supplied strings as `$$`, so the collector's `${env:…}` and `${file:…}` expansion can't run.
+  - It reports a status for each source.
+- This keeps the contract of PMM-15572 (the server owns content; nothing is configured by hand on the node) and removes the template-injection class entirely.
+
+### 6.7 Built-in presets
+
+- Built-in presets live as YAML files in `managed/services/otel/presets/builtin/`, embedded with `go:embed` and versioned with the code.
+- At startup pmm-managed upserts them into `log_parser_presets` with `built_in = true`, so log sources reference every preset by foreign key, and `usage_count` is a plain `COUNT`.
+- If a new release adds a built-in whose name an existing custom preset already uses, pmm-managed renames the custom one to `<name>_custom` and logs a warning. Sources keep their foreign key, so nothing changes for them (D13).
+
+### 6.8 Settings in HA
+
+Nothing on `main` propagates a settings change to other replicas. Each replica applies config only for its own requests (`managed/services/server/server.go`). PMM-15594 needs OTEL settings to apply on every replica.
+
+**Decision (D14):** each replica runs a small reconcile loop (`otel.Service.Run`). Every 30 s it reads the settings row and calls `UpdateConfiguration` when the OTEL part has changed. The cleanup job (§6.5) is a leader service and reads the settings on every pass anyway.
+
 ---
 
 ## 7. LBAC
@@ -293,6 +318,10 @@ Plan 06 holds the task list. It is a design-level plan, to be re-planned once Ph
 | D8 | Profiles and eBPF | No profiles work until the ClickHouse exporter supports them; record this as an ADR. eBPF stays in PMM-15588. | Roadmap |
 | D9 | `pmm-admin remove logs` shape | Make `remove` a Kong command group: `remove logs`, `remove traces`, and a default service form that keeps today's positional syntax. If Kong can't combine a default positional form with subcommands, add `logs` and `traces` to the service-type enum instead. Check with a spike in plan 04, task 1. | Plan 04 |
 | D10 | Where the server's own logs are collected | Through the server node's own pmm-agent collector, sending to `127.0.0.1:4318` (PMM-15575). This avoids a second filelog config in supervisord. | Plan 02 |
+| D11 | Who renders the node collector's YAML | pmm-agent renders it from typed `OtelCollectorParams` sent by pmm-managed, with no templates ([§6.6](#66-who-renders-the-node-collectors-config)). This departs from the literal wording of PMM-15572. | Plan 02 |
+| D12 | API home | One new domain, `api/otel/v1` (`OtelService`), under `/v1/otel/…`: presets, log sources, discovery, status and purge. Settings stay in `/v1/server/settings`. This differs from PMM-15574 (`/v1/server/log-parser-presets`) and PMM-15571 (`/v1/server/otel:purge`), and gives one `"/v1/otel": admin` rule. | Plans 01, 02 |
+| D13 | Built-in and custom presets | One table. Built-ins are upserted from embedded files at startup, and a clashing custom preset is renamed ([§6.7](#67-built-in-presets)). | Plan 02 |
+| D14 | Settings in HA | A per-replica reconcile loop for the OTEL settings ([§6.8](#68-settings-in-ha)). | Plan 01 |
 
 ---
 
