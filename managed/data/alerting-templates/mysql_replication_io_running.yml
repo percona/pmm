@@ -4,12 +4,15 @@ templates:
     version: 1
     summary: MySQL replication running IO
     expr: |-
-      (mysql_slave_status_source_server_id > 0 and ON (instance) mysql_slave_status_replica_io_running == 0) or
-      (mysql_slave_status_master_server_id > 0 and ON (instance) mysql_slave_status_slave_io_running == 0)
+      # One series per channel: 1 = the IO thread of this channel is not running, 0 = running.
+      # Only on replicas that have connected to a source; Group Replication channels are excluded.
+      (mysql_slave_status_replica_io_running{channel_name!~"group_replication_(applier|recovery)"} == bool 0 and ON (instance) mysql_slave_status_source_server_id > 0) or
+      (mysql_slave_status_slave_io_running{channel_name!~"group_replication_(applier|recovery)"} == bool 0 and ON (instance) mysql_slave_status_master_server_id > 0)
     for: 1m
     severity: critical
     annotations:
       description: |-
-        MySQL Replication Not Running on {{ $labels.instance }}
+        MySQL replication IO thread not running on {{ $labels.service_name }}
+        Channel: {{ with $labels.channel_name }}{{ . }}{{ else }}{{ with $labels.connection_name }}{{ . }}{{ else }}(default){{ end }}{{ end }}
         VALUE = {{ $value }}
-      summary: MySQL Replication Not Running on (instance {{ $labels.instance }})
+      summary: MySQL replication IO thread not running ({{ $labels.service_name }}, channel {{ with $labels.channel_name }}{{ . }}{{ else }}{{ with $labels.connection_name }}{{ . }}{{ else }}(default){{ end }}{{ end }})

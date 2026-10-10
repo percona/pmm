@@ -1,6 +1,12 @@
 # MySQL Replication Summary
 
+This dashboard shows the replication state of MySQL and MariaDB replicas, including every replication channel of a replica that uses multi-source replication.
+
 ![!image](../../images/PMM_MySQL_Replication_Summary.jpg)
+
+## Channel filter
+
+A replica that uses multi-source replication receives changes from several sources, one replication channel per source. MariaDB calls a channel a named connection. Use the **Channel** filter at the top of the dashboard to limit the [Replication channels](#replication-channels) row to the channels you select. The filter lists the channels that the selected services had in the last hour of the time range, and shows the unnamed channel of a single-source replica as **(default)**.
 
 ## IO Thread Running
 
@@ -27,6 +33,8 @@ No value
 IO Thread Running is one of the parameters that the command
 `SHOW SLAVE STATUS` returns.
 
+If the replica has several replication channels, the panel shows **No** when the IO thread of any channel is not running. The [Replication channels](#replication-channels) table shows which channel. Group Replication channels are not included.
+
 ## SQL Thread Running
 
 This metric shows if the SQL thread is running or not. It only applies to a secondary host.
@@ -38,6 +46,8 @@ Yes
 
 No
 :   SQL Thread is not running because it is not launched yet or because of an error occurred while applying an event to the local secondary host
+
+If the replica has several replication channels, the panel shows **No** when the SQL thread of any channel is not running. The [Replication channels](#replication-channels) table shows which channel. Group Replication channels are not included.
 
 ## Replication Error No
 
@@ -73,6 +83,8 @@ Since the replication process applies the data modifications on the secondary as
 
 Generally adding more CPU or Disk resources can alleviate replication lag issues, up to a point.
 
+If the replica has several replication channels, the graph shows the channel with the highest lag. [Replication lag by channel](#replication-lag-by-channel) shows each channel.
+
 ## Binlog Size
 
 This metric shows the overall size of the binary log files, which can exist on both primary and secondary servers.
@@ -97,7 +109,7 @@ This metric shows the number of binlog files created hourly during the last 24 h
 
 ## Relay Log Space
 
-This metric shows the overall size of the relay log files. It only applies to a secondary host.
+This metric shows the overall size of the relay log files, summed across all replication channels. It only applies to a secondary host.
 
 The relay log consists of a set of numbered files containing the events to be executed on the secondary host to replicate database changes.
 
@@ -113,4 +125,41 @@ Treat this metric in the same way as the [MySQL Replication Delay](#mysql-replic
 
 ## Relay Log Written Hourly
 
-This metric shows the amount of data written hourly into relay log files during the last 24 hours.
+This metric shows the amount of data written hourly into relay log files during the last 24 hours, summed across all replication channels.
+
+## Replication channels
+
+This row shows each replication channel of the selected services. It covers MySQL replication channels and MariaDB named connections. Group Replication channels are shown on the MySQL Group Replication Summary dashboard instead.
+
+### Replication channels table
+
+The table shows one row per replication channel, with the values that `SHOW REPLICA STATUS` (MySQL) or `SHOW ALL SLAVES STATUS` (MariaDB) reports for it:
+
+- **Source host** - the source that the channel replicates from
+- **Threads** - the state of the IO and SQL threads: **Running**, or which thread is not running
+- **Lag** - `Seconds_Behind_Source` minus `SQL_Delay`, or **NULL** when MySQL reports no value, for example while a thread is not running
+- **SQL delay** - the configured `SQL_Delay` of the channel
+- **Last IO errno** and **Last SQL errno** - the last error of each thread, or 0 when there is none
+- **Relay log space** - the total size of the relay log files of the channel
+
+Channels with a thread that is not running are listed first.
+
+### Replication lag by channel
+
+This graph shows the lag of the 10 replication channels with the highest lag in the selected time range. A channel whose IO or SQL thread is not running reports no lag, so its line stops.
+
+### Replication threads by channel
+
+This timeline shows the state of the IO and SQL threads of the channels where a thread was not running at some point in the selected time range. A single **All channels** row means that every channel ran without interruption. **No replication channels** means that the selected services do not replicate, for example because they are sources.
+
+### Relay log space by channel
+
+This graph shows the relay log size of the 10 replication channels with the largest relay logs in the selected time range.
+
+### Applier lag by channel
+
+This graph shows the time since the transaction that the applier of a channel is applying was committed on the original source, for the 10 channels with the highest applier lag. Unlike **Lag**, it keeps growing while the SQL thread of the channel is stopped by an error. It requires MySQL 8.0 or later with GTID-based replication, and is not available for MariaDB.
+
+## MySQL summary
+
+This table shows one row per selected service: version, uptime, queries per second, the share of `open_files_limit` in use, the table open cache miss ratio over the selected time range, and the `table_open_cache` and `table_definition_cache` settings. Click a service name to open its **MySQL Instance Summary** dashboard.

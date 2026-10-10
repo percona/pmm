@@ -168,7 +168,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Displays whether the IO Thread is in the running state or not. Applies only to a Replica host. The IO Thread connects to the Source host and reads binary log events, and then copies them locally to a file called the relay log.\n\nPossible values:\n\n**Yes** – IO Thread is running and is connected to a Source\n\n**No** – The IO Thread is not running because it is not yet started, or because an error occured while connecting to the Source\n\n**Connecting** – The IO Thread is running but is not fully connected to a Source\n\n**No value** – The host is not configured to be a Replica.\n\nIO Thread Running is one of the parameters returned by **SHOW REPLICA(SLAVE) STATUS** command.\n\nSee also:",
+            "description": "Displays whether the IO Thread is in the running state or not. Applies only to a Replica host. The IO Thread connects to the Source host and reads binary log events, and then copies them locally to a file called the relay log.\n\nPossible values:\n\n**Yes** – IO Thread is running and is connected to a Source\n\n**No** – The IO Thread is not running because it is not yet started, or because an error occured while connecting to the Source\n\n**Connecting** – The IO Thread is running but is not fully connected to a Source\n\n**No value** – The host is not configured to be a Replica.\n\nIO Thread Running is one of the parameters returned by **SHOW REPLICA(SLAVE) STATUS** command.\n\nWith several replication channels, shows **No** if the thread of any channel is not running. **Replication channels** below shows which one.\n\nSee also:",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -266,7 +266,7 @@
                     "datasource": "Metrics",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "min(min_over_time(mysql_slave_status_slave_io_running{service_name=~\"$service_name\"}[$interval]) or min_over_time(mysql_slave_status_slave_io_running{service_name=~\"$service_name\"}[5m]) or min_over_time(mysql_slave_status_replica_io_running{service_name=~\"$service_name\"}[$interval]) or min_over_time(mysql_slave_status_replica_io_running{service_name=~\"$service_name\"}[5m]))",
+                    "expr": "min(min_over_time(mysql_slave_status_slave_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$interval]) or min_over_time(mysql_slave_status_slave_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[5m]) or min_over_time(mysql_slave_status_replica_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$interval]) or min_over_time(mysql_slave_status_replica_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -282,7 +282,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Displays whether the SQL Thread is in the running state or not. Applies only to a Replica host. The SQL Thread reads the events from the local relay log file and applies them to the Replica host.  Depending on the format of the binary log it can read query statements (STATEMENT format) and re-executes them, or by reading row changes (ROW format) and applying only the changes.\n\nPossible values:\n\n**Yes** – The SQL Thread is running and is applying events from the relay log to the local Replica host\n\n**No** – The SQL Thread is not running because it is not yet started, or because of an error\n\nSee also:",
+            "description": "Displays whether the SQL Thread is in the running state or not. Applies only to a Replica host. The SQL Thread reads the events from the local relay log file and applies them to the Replica host.  Depending on the format of the binary log it can read query statements (STATEMENT format) and re-executes them, or by reading row changes (ROW format) and applying only the changes.\n\nPossible values:\n\n**Yes** – The SQL Thread is running and is applying events from the relay log to the local Replica host\n\n**No** – The SQL Thread is not running because it is not yet started, or because of an error\n\nWith several replication channels, shows **No** if the thread of any channel is not running. **Replication channels** below shows which one.\n\nSee also:",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -380,7 +380,7 @@
                     "datasource": "Metrics",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "min(min_over_time(mysql_slave_status_slave_sql_running{service_name=~\"$service_name\"}[$interval]) or min_over_time(mysql_slave_status_slave_sql_running{service_name=~\"$service_name\"}[5m]) or min_over_time(mysql_slave_status_replica_sql_running{service_name=~\"$service_name\"}[$interval]) or min_over_time(mysql_slave_status_replica_sql_running{service_name=~\"$service_name\"}[5m]))",
+                    "expr": "min(min_over_time(mysql_slave_status_slave_sql_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$interval]) or min_over_time(mysql_slave_status_slave_sql_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[5m]) or min_over_time(mysql_slave_status_replica_sql_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$interval]) or min_over_time(mysql_slave_status_replica_sql_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -665,7 +665,7 @@
                     },
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "max_over_time(mysql_slave_status_sql_delay{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_slave_status_sql_delay{service_name=~\"$service_name\"}[5m])",
+                    "expr": "max(max_over_time(mysql_slave_status_sql_delay{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_slave_status_sql_delay{service_name=~\"$service_name\"}[5m]))",
                     "format": "time_series",
                     "interval": "5m",
                     "intervalFactor": 1,
@@ -681,7 +681,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Shows the number of seconds the Replica host is delayed in replication applying events compared to when the Source host applied them, denoted by the **Seconds_Behind_Source** value, and only applies to a Replica host. The most common reasons for Replicas to lag their Source are:\n\n* Network round trip time - High latency links will lead to non-zero replication lag values\n\n* Single threaded nature of replication channels - Source servers have the advantage of applying changes in parallel, whereas Replicas are only able to apply changes in serial, thus limiting their throughput.  In some cases Group Commit can help but is not always applicable.\n\n* High number of changed rows or computationally expensive SQL - Depending on the replication format (ROW vs STATEMENT), significant changes to the database through high volume of rows modified, or expensive CPU will all contribute to Replicas lagging behind their Source\n\nGenerally adding more CPU or Disk resources can alleviate replication lag issues, up to a point.\n\nSee also:",
+            "description": "Shows the number of seconds the Replica host is delayed in replication applying events compared to when the Source host applied them, denoted by the **Seconds_Behind_Source** value, and only applies to a Replica host. The most common reasons for Replicas to lag their Source are:\n\n* Network round trip time - High latency links will lead to non-zero replication lag values\n\n* Single threaded nature of replication channels - Source servers have the advantage of applying changes in parallel, whereas Replicas are only able to apply changes in serial, thus limiting their throughput.  In some cases Group Commit can help but is not always applicable.\n\n* High number of changed rows or computationally expensive SQL - Depending on the replication format (ROW vs STATEMENT), significant changes to the database through high volume of rows modified, or expensive CPU will all contribute to Replicas lagging behind their Source\n\nGenerally adding more CPU or Disk resources can alleviate replication lag issues, up to a point.\n\nWith several replication channels (multi-source replication), this graph shows the channel with the highest lag. **Replication lag by channel** below shows each channel.\n\nSee also:",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -796,7 +796,7 @@
                     "datasourceErrors": {},
                     "editorMode": "code",
                     "errors": {},
-                    "expr": "clamp_min(avg by (service_name) (\n(max_over_time(mysql_slave_status_seconds_behind_master{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_slave_status_seconds_behind_master{service_name=~\"$service_name\"}[5m])) - (max_over_time(mysql_slave_status_sql_delay{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_slave_status_sql_delay{service_name=~\"$service_name\"}[5m]))\n),0) or clamp_min(avg by (service_name) (\n(max_over_time(mysql_slave_status_seconds_behind_source{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_slave_status_seconds_behind_source{service_name=~\"$service_name\"}[5m])) - (max_over_time(mysql_slave_status_sql_delay{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_slave_status_sql_delay{service_name=~\"$service_name\"}[5m]))\n),0)",
+                    "expr": "clamp_min(max by (service_name) (\n(max_over_time(mysql_slave_status_seconds_behind_master{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_slave_status_seconds_behind_master{service_name=~\"$service_name\"}[5m])) - (max_over_time(mysql_slave_status_sql_delay{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_slave_status_sql_delay{service_name=~\"$service_name\"}[5m]))\n),0) or clamp_min(max by (service_name) (\n(max_over_time(mysql_slave_status_seconds_behind_source{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_slave_status_seconds_behind_source{service_name=~\"$service_name\"}[5m])) - (max_over_time(mysql_slave_status_sql_delay{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_slave_status_sql_delay{service_name=~\"$service_name\"}[5m]))\n),0)",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
@@ -1295,7 +1295,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Shows the overall size of the relay log files, and applies only to Replicas. The relay log consists of a set of numbered files containing the events to be executed on a Replica in order to replicate database changes.  As soon as the SQL Thread completes execution of all events in a relay log file, the relay log file is then deleted by MySQL.\n\nSee also:",
+            "description": "Shows the overall size of the relay log files (the sum across all replication channels), and applies only to Replicas. The relay log consists of a set of numbered files containing the events to be executed on a Replica in order to replicate database changes.  As soon as the SQL Thread completes execution of all events in a relay log file, the relay log file is then deleted by MySQL.\n\nSee also:",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1411,7 +1411,7 @@
                     "datasourceErrors": {},
                     "editorMode": "code",
                     "errors": {},
-                    "expr": "avg by (service_name) (max_over_time(mysql_slave_status_relay_log_space{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_slave_status_relay_log_space{service_name=~\"$service_name\"}[5m]))",
+                    "expr": "sum by (service_name) (max by (service_name, channel_name, connection_name) (max_over_time(mysql_slave_status_relay_log_space{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_slave_status_relay_log_space{service_name=~\"$service_name\"}[5m])))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -1427,7 +1427,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Shows the amount of data written hourly to the relay log files.",
+            "description": "Shows the amount of data written hourly to the relay log files, summed across all replication channels.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1518,7 +1518,7 @@
                     "datasourceErrors": {},
                     "editorMode": "code",
                     "errors": {},
-                    "expr": "avg by (service_name) (increase(mysql_slave_status_relay_log_space{service_name=~\"$service_name\"}[1h]))",
+                    "expr": "sum by (service_name) (max by (service_name, channel_name, connection_name) (increase(mysql_slave_status_relay_log_space{service_name=~\"$service_name\"}[1h])))",
                     "format": "time_series",
                     "interval": "1h",
                     "intervalFactor": 1,
@@ -1541,34 +1541,426 @@
                 "x": 0,
                 "y": 35
             },
-            "id": 293,
+            "id": 1002,
             "panels": [],
-            "title": "MySQL summary",
+            "title": "Replication channels",
             "type": "row"
         },
         {
             "datasource": "Metrics",
-            "description": "**MySQL Uptime**\n\nThe amount of time since the last restart of the MySQL server process.",
+            "description": "One row per replication channel (MySQL multi-source replication) or per named connection (MariaDB multi-source replication), from **SHOW REPLICA STATUS** / **SHOW ALL SLAVES STATUS**. A replica with a single, unnamed channel shows one row named **(default)**. Each cell shows the current value. Channels with a thread that is not running are listed first. The **Channel** filter at the top limits this row to the selected channels.\n\n* **Threads** – state of the IO and SQL threads. Not running covers a stopped thread and an IO thread that is still connecting.\n* **Lag** – Seconds_Behind_Source minus SQL_Delay. **NULL** when MySQL reports no value, for example while a thread is not running.\n* **Last IO errno** / **Last SQL errno** – the last error each thread hit; 0 means none.\n* **Relay log space** – total size of this channel's relay log files.\n\nSee also:",
             "fieldConfig": {
                 "defaults": {
                     "color": {
                         "mode": "thresholds"
                     },
-                    "decimals": 2,
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    },
                     "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "rgba(245, 54, 54, 0.9)"
+                                "color": "text",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Threads"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "-1": {
+                                                "color": "transparent",
+                                                "index": 4,
+                                                "text": "No replication channels"
+                                            },
+                                            "0": {
+                                                "color": "dark-red",
+                                                "index": 0,
+                                                "text": "IO and SQL threads not running"
+                                            },
+                                            "1": {
+                                                "color": "red",
+                                                "index": 1,
+                                                "text": "SQL thread not running"
+                                            },
+                                            "2": {
+                                                "color": "red",
+                                                "index": 2,
+                                                "text": "IO thread not running"
+                                            },
+                                            "3": {
+                                                "color": "green",
+                                                "index": 3,
+                                                "text": "Running"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
                             },
                             {
-                                "color": "rgba(237, 129, 40, 0.89)",
-                                "value": 300
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
                             },
                             {
-                                "color": "rgba(50, 172, 45, 0.97)",
-                                "value": 3600
+                                "id": "custom.align",
+                                "value": "center"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Lag"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "s"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "match": "null",
+                                            "result": {
+                                                "index": 0,
+                                                "text": "NULL"
+                                            }
+                                        },
+                                        "type": "special"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "SQL delay"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "s"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Last IO errno"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "none"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "dark-red",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Last SQL errno"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "none"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "dark-red",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Relay log space"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "bytes"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 24,
+                "x": 0,
+                "y": 36
+            },
+            "id": 1003,
+            "links": [
+                {
+                    "targetBlank": true,
+                    "title": "Replication channels",
+                    "url": "https://dev.mysql.com/doc/refman/8.4/en/replication-channels.html"
+                },
+                {
+                    "targetBlank": true,
+                    "title": "SHOW REPLICA STATUS syntax",
+                    "url": "https://dev.mysql.com/doc/refman/8.4/en/show-replica-status.html"
+                },
+                {
+                    "targetBlank": true,
+                    "title": "MariaDB multi-source replication",
+                    "url": "https://mariadb.com/kb/en/multi-source-replication/"
+                }
+            ],
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "Threads"
+                    }
+                ]
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "label_match(label_replace(label_join(min by (service_name, channel_name, connection_name, master_host) (mysql_slave_status_slave_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"} or mysql_slave_status_replica_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}) + 2 * min by (service_name, channel_name, connection_name, master_host) (mysql_slave_status_slave_sql_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"} or mysql_slave_status_replica_sql_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}), \"channel\", \"\", \"channel_name\", \"connection_name\"), \"channel\", \"(default)\", \"channel\", \"\"), \"channel\", \"$channel\")",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "label_match(label_replace(label_join(clamp_min(max by (service_name, channel_name, connection_name, master_host) (mysql_slave_status_seconds_behind_master{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"} or mysql_slave_status_seconds_behind_source{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}) - max by (service_name, channel_name, connection_name, master_host) (mysql_slave_status_sql_delay{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}), 0), \"channel\", \"\", \"channel_name\", \"connection_name\"), \"channel\", \"(default)\", \"channel\", \"\"), \"channel\", \"$channel\")",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "label_match(label_replace(label_join(max by (service_name, channel_name, connection_name, master_host) (mysql_slave_status_sql_delay{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}), \"channel\", \"\", \"channel_name\", \"connection_name\"), \"channel\", \"(default)\", \"channel\", \"\"), \"channel\", \"$channel\")",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "C"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "label_match(label_replace(label_join(max by (service_name, channel_name, connection_name, master_host) (mysql_slave_status_last_io_errno{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}), \"channel\", \"\", \"channel_name\", \"connection_name\"), \"channel\", \"(default)\", \"channel\", \"\"), \"channel\", \"$channel\")",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "D"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "label_match(label_replace(label_join(max by (service_name, channel_name, connection_name, master_host) (mysql_slave_status_last_sql_errno{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}), \"channel\", \"\", \"channel_name\", \"connection_name\"), \"channel\", \"(default)\", \"channel\", \"\"), \"channel\", \"$channel\")",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "E"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "label_match(label_replace(label_join(max by (service_name, channel_name, connection_name, master_host) (mysql_slave_status_relay_log_space{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}), \"channel\", \"\", \"channel_name\", \"connection_name\"), \"channel\", \"(default)\", \"channel\", \"\"), \"channel\", \"$channel\")",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "F"
+                }
+            ],
+            "title": "Replication channels",
+            "transformations": [
+                {
+                    "id": "merge",
+                    "options": {}
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "channel_name": true,
+                            "connection_name": true
+                        },
+                        "indexByName": {
+                            "Value #A": 3,
+                            "Value #B": 4,
+                            "Value #C": 5,
+                            "Value #D": 6,
+                            "Value #E": 7,
+                            "Value #F": 8,
+                            "channel": 1,
+                            "master_host": 2,
+                            "service_name": 0
+                        },
+                        "renameByName": {
+                            "Value #A": "Threads",
+                            "Value #B": "Lag",
+                            "Value #C": "SQL delay",
+                            "Value #D": "Last IO errno",
+                            "Value #E": "Last SQL errno",
+                            "Value #F": "Relay log space",
+                            "channel": "Channel",
+                            "master_host": "Source host",
+                            "service_name": "Service"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Lag of the 10 replication channels with the highest lag in the selected time range: Seconds_Behind_Source (Seconds_Behind_Master) minus SQL_Delay. A channel whose IO or SQL thread is not running reports no lag (NULL), so its line stops; check **Replication threads by channel**.\n\nSee also:",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
                             }
                         ]
                     },
@@ -1577,102 +1969,122 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 3,
-                "w": 3,
+                "h": 8,
+                "w": 12,
                 "x": 0,
-                "y": 36
+                "y": 45
             },
-            "id": 295,
-            "maxDataPoints": 100,
+            "id": 1004,
+            "links": [
+                {
+                    "targetBlank": true,
+                    "title": "Replication channels",
+                    "url": "https://dev.mysql.com/doc/refman/8.4/en/replication-channels.html"
+                },
+                {
+                    "targetBlank": true,
+                    "title": "SHOW REPLICA STATUS syntax",
+                    "url": "https://dev.mysql.com/doc/refman/8.4/en/show-replica-status.html"
+                },
+                {
+                    "targetBlank": true,
+                    "title": "MariaDB multi-source replication",
+                    "url": "https://mariadb.com/kb/en/multi-source-replication/"
+                }
+            ],
             "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
+                "legend": {
                     "calcs": [
-                        "lastNotNull"
+                        "mean",
+                        "max",
+                        "min"
                     ],
-                    "fields": "",
-                    "values": false
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Max",
+                    "sortDesc": true
                 },
-                "showPercentChange": false,
-                "text": {
-                    "valueSize": 20
-                },
-                "textMode": "auto",
-                "wideLayout": true
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
             },
             "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "calculatedInterval": "10m",
                     "datasource": "Metrics",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "avg by (service_name) (mysql_global_status_uptime{service_name=~\"$service_name\"})",
+                    "editorMode": "code",
+                    "expr": "topk_max(10, label_match(label_replace(label_join(clamp_min(max by (service_name, channel_name, connection_name) (max_over_time(mysql_slave_status_seconds_behind_master{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$interval]) or mysql_slave_status_seconds_behind_master{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"} or max_over_time(mysql_slave_status_seconds_behind_source{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$interval]) or mysql_slave_status_seconds_behind_source{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}) - max by (service_name, channel_name, connection_name) (max_over_time(mysql_slave_status_sql_delay{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$interval]) or mysql_slave_status_sql_delay{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}), 0), \"channel\", \"\", \"channel_name\", \"connection_name\"), \"channel\", \"(default)\", \"channel\", \"\"), \"channel\", \"$channel\"))",
                     "format": "time_series",
-                    "interval": "5m",
-                    "intervalFactor": 1,
-                    "legendFormat": "",
-                    "metric": "",
-                    "refId": "A",
-                    "step": 300
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}: {{channel}}",
+                    "range": true,
+                    "refId": "A"
                 }
             ],
-            "title": "MySQL uptime",
-            "type": "stat"
-        },
-        {
-            "fieldConfig": {
-                "defaults": {},
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 3,
-                "y": 36
-            },
-            "id": 297,
-            "options": {
-                "code": {
-                    "language": "plaintext",
-                    "showLineNumbers": false,
-                    "showMiniMap": false
-                },
-                "content": "<h3 style='color:#e68a00;font-weight:bold;text-align:center'>$version</h3>",
-                "mode": "html"
-            },
-            "pluginVersion": "11.6.4",
-            "title": "Version",
-            "type": "text"
+            "title": "Replication lag by channel",
+            "type": "timeseries"
         },
         {
             "datasource": "Metrics",
-            "description": "**Current QPS**\n\nBased on the queries reported by MySQL's ``SHOW STATUS`` command, it is the number of statements executed by the server within the last second. This variable includes statements executed within stored programs, unlike the Questions variable. It does not count \n``COM_PING`` or ``COM_STATISTICS`` commands.",
+            "description": "State of the IO and SQL threads over time, for the replication channels where a thread was not running at some point in the selected time range. **Running** means both threads run. A thread that is stopped, failed, or (IO thread) still connecting to its source counts as not running. A single **All channels** row means that every channel ran without interruption; **No replication channels** means that the selected services do not replicate (for example a source).\n\nSee also:",
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "fixedColor": "rgb(31, 120, 193)",
+                        "fixedColor": "text",
                         "mode": "fixed"
                     },
-                    "decimals": 2,
-                    "mappings": [],
+                    "custom": {
+                        "fillOpacity": 80,
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineWidth": 0,
+                        "spanNulls": false
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "-1": {
+                                    "color": "transparent",
+                                    "index": 4,
+                                    "text": "No replication channels"
+                                },
+                                "0": {
+                                    "color": "dark-red",
+                                    "index": 0,
+                                    "text": "IO and SQL threads not running"
+                                },
+                                "1": {
+                                    "color": "red",
+                                    "index": 1,
+                                    "text": "SQL thread not running"
+                                },
+                                "2": {
+                                    "color": "red",
+                                    "index": 2,
+                                    "text": "IO thread not running"
+                                },
+                                "3": {
+                                    "color": "green",
+                                    "index": 3,
+                                    "text": "Running"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "rgba(245, 54, 54, 0.9)"
-                            },
-                            {
-                                "color": "rgba(237, 129, 40, 0.89)",
-                                "value": 35
-                            },
-                            {
-                                "color": "rgba(50, 172, 45, 0.97)",
-                                "value": 75
+                                "color": "text",
+                                "value": null
                             }
                         ]
                     },
@@ -1681,13 +2093,578 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 6,
-                "y": 36
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 45
             },
-            "id": 299,
+            "id": 1005,
             "interval": "$interval",
+            "links": [
+                {
+                    "targetBlank": true,
+                    "title": "Replication channels",
+                    "url": "https://dev.mysql.com/doc/refman/8.4/en/replication-channels.html"
+                },
+                {
+                    "targetBlank": true,
+                    "title": "SHOW REPLICA STATUS syntax",
+                    "url": "https://dev.mysql.com/doc/refman/8.4/en/show-replica-status.html"
+                },
+                {
+                    "targetBlank": true,
+                    "title": "MariaDB multi-source replication",
+                    "url": "https://mariadb.com/kb/en/multi-source-replication/"
+                }
+            ],
+            "options": {
+                "alignValue": "center",
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": false
+                },
+                "mergeValues": true,
+                "rowHeight": 0.8,
+                "showValue": "auto",
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "sort_by_label(label_match(label_replace(label_join((min by (service_name, channel_name, connection_name) (min_over_time(mysql_slave_status_slave_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$interval]) or mysql_slave_status_slave_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"} or min_over_time(mysql_slave_status_replica_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$interval]) or mysql_slave_status_replica_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}) + 2 * min by (service_name, channel_name, connection_name) (min_over_time(mysql_slave_status_slave_sql_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$interval]) or mysql_slave_status_slave_sql_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"} or min_over_time(mysql_slave_status_replica_sql_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$interval]) or mysql_slave_status_replica_sql_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"})) and on (service_name, channel_name, connection_name) ((min by (service_name, channel_name, connection_name) (min_over_time(mysql_slave_status_slave_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$__range] @ end()) or min_over_time(mysql_slave_status_replica_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$__range] @ end())) < 1) or (min by (service_name, channel_name, connection_name) (min_over_time(mysql_slave_status_slave_sql_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$__range] @ end()) or min_over_time(mysql_slave_status_replica_sql_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$__range] @ end())) < 1)), \"channel\", \"\", \"channel_name\", \"connection_name\"), \"channel\", \"(default)\", \"channel\", \"\"), \"channel\", \"$channel\"), \"service_name\", \"channel\")",
+                    "format": "time_series",
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}: {{channel}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "vector(3) and on () (count(label_match(label_replace(label_join(max by (service_name, channel_name, connection_name) (last_over_time(mysql_slave_status_slave_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$__range] @ end()) or last_over_time(mysql_slave_status_replica_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$__range] @ end())), \"channel\", \"\", \"channel_name\", \"connection_name\"), \"channel\", \"(default)\", \"channel\", \"\"), \"channel\", \"$channel\")) > 0) unless on () (count(label_match(label_replace(label_join((min by (service_name, channel_name, connection_name) (min_over_time(mysql_slave_status_slave_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$__range] @ end()) or min_over_time(mysql_slave_status_replica_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$__range] @ end())) < 1) or (min by (service_name, channel_name, connection_name) (min_over_time(mysql_slave_status_slave_sql_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$__range] @ end()) or min_over_time(mysql_slave_status_replica_sql_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$__range] @ end())) < 1), \"channel\", \"\", \"channel_name\", \"connection_name\"), \"channel\", \"(default)\", \"channel\", \"\"), \"channel\", \"$channel\")) > 0)",
+                    "format": "time_series",
+                    "interval": "$interval",
+                    "legendFormat": "All channels",
+                    "range": true,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "vector(-1) unless on () (count(label_match(label_replace(label_join(max by (service_name, channel_name, connection_name) (last_over_time(mysql_slave_status_slave_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$__range] @ end()) or last_over_time(mysql_slave_status_replica_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$__range] @ end())), \"channel\", \"\", \"channel_name\", \"connection_name\"), \"channel\", \"(default)\", \"channel\", \"\"), \"channel\", \"$channel\")) > 0)",
+                    "format": "time_series",
+                    "interval": "$interval",
+                    "legendFormat": "Channels",
+                    "range": true,
+                    "refId": "C"
+                }
+            ],
+            "title": "Replication threads by channel",
+            "type": "state-timeline"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Size of the relay log files of the 10 replication channels with the largest relay logs in the selected time range.\n\nSee also:",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 53
+            },
+            "id": 1006,
+            "links": [
+                {
+                    "targetBlank": true,
+                    "title": "Replication channels",
+                    "url": "https://dev.mysql.com/doc/refman/8.4/en/replication-channels.html"
+                },
+                {
+                    "targetBlank": true,
+                    "title": "SHOW REPLICA STATUS syntax",
+                    "url": "https://dev.mysql.com/doc/refman/8.4/en/show-replica-status.html"
+                },
+                {
+                    "targetBlank": true,
+                    "title": "MariaDB multi-source replication",
+                    "url": "https://mariadb.com/kb/en/multi-source-replication/"
+                }
+            ],
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Max",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "topk_max(10, label_match(label_replace(label_join(max by (service_name, channel_name, connection_name) (max_over_time(mysql_slave_status_relay_log_space{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$interval]) or mysql_slave_status_relay_log_space{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}), \"channel\", \"\", \"channel_name\", \"connection_name\"), \"channel\", \"(default)\", \"channel\", \"\"), \"channel\", \"$channel\"))",
+                    "format": "time_series",
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}: {{channel}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Relay log space by channel",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "For the 10 replication channels with the highest applier lag in the selected time range: time since the transaction that a channel's applier workers are applying was committed on the **original** source, from performance_schema.replication_applier_status_by_worker (maximum across workers; 0 when the channel is idle). In a replication chain this is the lag behind the original source, while Seconds_Behind_Source measures the lag behind the immediate source. Unlike Seconds_Behind_Source, it keeps growing while the channel's SQL thread is stopped by an error.\n\nMySQL 8.0 and later with GTID-based replication only, for channels whose IO thread is running. Not available for MariaDB. Group Replication channels are shown on the MySQL Group Replication Summary dashboard.\n\nSee also:",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 53
+            },
+            "id": 1007,
+            "links": [
+                {
+                    "targetBlank": true,
+                    "title": "Replication channels",
+                    "url": "https://dev.mysql.com/doc/refman/8.4/en/replication-channels.html"
+                },
+                {
+                    "targetBlank": true,
+                    "title": "SHOW REPLICA STATUS syntax",
+                    "url": "https://dev.mysql.com/doc/refman/8.4/en/show-replica-status.html"
+                },
+                {
+                    "targetBlank": true,
+                    "title": "MariaDB multi-source replication",
+                    "url": "https://mariadb.com/kb/en/multi-source-replication/"
+                }
+            ],
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Max",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "topk_max(10, label_match(label_replace(label_join(max by (service_name, channel_name) (max_over_time(mysql_perf_schema_replication_group_worker_lag_in_seconds{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[$interval]) or mysql_perf_schema_replication_group_worker_lag_in_seconds{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}), \"channel\", \"\", \"channel_name\", \"connection_name\"), \"channel\", \"(default)\", \"channel\", \"\"), \"channel\", \"$channel\"))",
+                    "format": "time_series",
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}: {{channel}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Applier lag by channel",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 61
+            },
+            "id": 293,
+            "panels": [],
+            "title": "MySQL summary",
+            "type": "row"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "One row per selected service.\n\n* **Uptime** – time since the last restart of the MySQL server process.\n* **QPS** – statements executed per second (the Queries status variable: includes statements executed within stored programs, does not count COM_PING or COM_STATISTICS).\n* **File handlers used** – open files as a share of open_files_limit.\n* **Table open cache miss ratio** – share of table opens that missed the table open cache, over the selected time range.\n* **Table open cache size** / **Table definition cache size** – the table_open_cache and table_definition_cache settings.\n\nSee also:",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false,
+                        "wrapHeaderText": true
+                    },
+                    "mappings": [],
+                    "noValue": "N/A",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Service"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "MySQL Instance Summary",
+                                        "url": "/graph/d/mysql-instance-summary/mysql-instance-summary?var-service_name=${__value.raw}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Uptime"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "s"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "rgba(245, 54, 54, 0.9)"
+                                        },
+                                        {
+                                            "color": "rgba(237, 129, 40, 0.89)",
+                                            "value": 300
+                                        },
+                                        {
+                                            "color": "rgba(50, 172, 45, 0.97)",
+                                            "value": 3600
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 110
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "QPS"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 2
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "File handlers used"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 2
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#299c46"
+                                        },
+                                        {
+                                            "color": "rgba(237, 129, 40, 0.89)",
+                                            "value": 0.5
+                                        },
+                                        {
+                                            "color": "#d44a3a",
+                                            "value": 0.8
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Table open cache miss ratio"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 2
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#299c46"
+                                        },
+                                        {
+                                            "color": "rgba(237, 129, 40, 0.89)",
+                                            "value": 0.1
+                                        },
+                                        {
+                                            "color": "#d44a3a",
+                                            "value": 0.3
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 150
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Table open cache size"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "none"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Table definition cache size"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "none"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 150
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 24,
+                "x": 0,
+                "y": 62
+            },
+            "id": 1008,
             "links": [
                 {
                     "targetBlank": true,
@@ -1695,417 +2672,143 @@
                     "url": "https://dev.mysql.com/doc/refman/8.4/en/server-status-variables.html#statvar_Queries"
                 }
             ],
-            "maxDataPoints": 100,
             "options": {
-                "colorMode": "none",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
                     "fields": "",
-                    "values": false
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
                 },
-                "showPercentChange": false,
-                "text": {
-                    "valueSize": 20
-                },
-                "textMode": "auto",
-                "wideLayout": true
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "Service"
+                    }
+                ]
             },
             "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "calculatedInterval": "10m",
                     "datasource": "Metrics",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "avg by (service_name) (rate(mysql_global_status_queries{service_name=~\"$service_name\"}[$interval]) or irate(mysql_global_status_queries{service_name=~\"$service_name\"}[5m]))",
-                    "format": "time_series",
+                    "editorMode": "code",
+                    "expr": "max by (service_name, node_name, version) (mysql_version_info{service_name=~\"$service_name\"})",
+                    "format": "table",
+                    "instant": true,
                     "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "",
-                    "metric": "",
-                    "refId": "A",
-                    "step": 20
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name, node_name) (mysql_global_status_uptime{service_name=~\"$service_name\"})",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name, node_name) (rate(mysql_global_status_queries{service_name=~\"$service_name\"}[$interval]) or irate(mysql_global_status_queries{service_name=~\"$service_name\"}[5m]))",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "C"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name, node_name) (mysql_global_status_open_files{service_name=~\"$service_name\"}) / max by (service_name, node_name) (mysql_global_variables_open_files_limit{service_name=~\"$service_name\"})",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "D"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name, node_name) (rate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name\"}[$__range])) / (max by (service_name, node_name) (rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\"}[$__range])) + max by (service_name, node_name) (rate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name\"}[$__range])))",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "E"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name, node_name) (mysql_global_variables_table_open_cache{service_name=~\"$service_name\"})",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "F"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (service_name, node_name) (mysql_global_variables_table_definition_cache{service_name=~\"$service_name\"})",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "G"
                 }
             ],
-            "title": "Current QPS",
-            "type": "stat"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 2,
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
+            "title": "MySQL summary",
+            "transformations": [
+                {
+                    "id": "merge",
+                    "options": {}
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "Value #A": true
+                        },
+                        "indexByName": {
+                            "Value #B": 3,
+                            "Value #C": 4,
+                            "Value #D": 5,
+                            "Value #E": 6,
+                            "Value #F": 7,
+                            "Value #G": 8,
+                            "node_name": 1,
+                            "service_name": 0,
+                            "version": 2
+                        },
+                        "renameByName": {
+                            "Value #B": "Uptime",
+                            "Value #C": "QPS",
+                            "Value #D": "File handlers used",
+                            "Value #E": "Table open cache miss ratio",
+                            "Value #F": "Table open cache size",
+                            "Value #G": "Table definition cache size",
+                            "node_name": "Node",
+                            "service_name": "Service",
+                            "version": "Version"
                         }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "#299c46"
-                            },
-                            {
-                                "color": "rgba(237, 129, 40, 0.89)",
-                                "value": 0.5
-                            },
-                            {
-                                "color": "#d44a3a",
-                                "value": 0.8
-                            }
-                        ]
-                    },
-                    "unit": "percentunit"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 9,
-                "y": 36
-            },
-            "id": 316,
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "none",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "max"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "text": {
-                    "valueSize": 20
-                },
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "11.6.4",
-            "targets": [
-                {
-                    "calculatedInterval": "10m",
-                    "datasource": "Metrics",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "(sum(max_over_time(mysql_global_status_open_files{service_name=~\"$service_name\"}[$interval])) or sum(max_over_time(mysql_global_status_open_files{service_name=~\"$service_name\"}[5m]))) / (sum\r(max_over_time(mysql_global_variables_open_files_limit{service_name=~\"$service_name\"}[$interval])) or sum(max_over_time(mysql_global_variables_open_files_limit{service_name=~\"$service_name\"}[5m]))\r)",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "",
-                    "metric": "",
-                    "refId": "A",
-                    "step": 300
+                    }
                 }
             ],
-            "title": "File handlers used",
-            "type": "stat"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 2,
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "#299c46"
-                            },
-                            {
-                                "color": "rgba(237, 129, 40, 0.89)",
-                                "value": 0.1
-                            },
-                            {
-                                "color": "#d44a3a",
-                                "value": 0.3
-                            }
-                        ]
-                    },
-                    "unit": "percentunit"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 12,
-                "y": 36
-            },
-            "id": 317,
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "none",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "mean"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "text": {
-                    "valueSize": 20
-                },
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "11.6.4",
-            "targets": [
-                {
-                    "calculatedInterval": "10m",
-                    "datasource": "Metrics",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "avg by (service_name) (1-((rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\"}[$interval]) or irate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\"}[5m]))/((rate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\"}[$interval]) or irate(mysql_global_status_table_open_cache_hits{service_name=~\"$service_name\"}[5m]))+(rate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name\"}[$interval]) or irate(mysql_global_status_table_open_cache_misses{service_name=~\"$service_name\"}[5m])))))",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "",
-                    "metric": "",
-                    "refId": "A",
-                    "step": 300
-                }
-            ],
-            "title": "Table open cache miss ratio",
-            "type": "stat"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "fixedColor": "rgb(31, 120, 193)",
-                        "mode": "fixed"
-                    },
-                    "decimals": 2,
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green"
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "short"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 15,
-                "y": 36
-            },
-            "id": 318,
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "none",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "text": {
-                    "valueSize": 20
-                },
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "11.6.4",
-            "targets": [
-                {
-                    "calculatedInterval": "10m",
-                    "datasource": "Metrics",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "avg by (service_name) (mysql_global_variables_table_open_cache{service_name=~\"$service_name\"})",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "",
-                    "metric": "",
-                    "refId": "A",
-                    "step": 300
-                }
-            ],
-            "title": "Table open cache size",
-            "type": "stat"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "fixedColor": "rgb(31, 120, 193)",
-                        "mode": "fixed"
-                    },
-                    "decimals": 2,
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green"
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "short"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 18,
-                "y": 36
-            },
-            "id": 319,
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "none",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "text": {
-                    "valueSize": 20
-                },
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "11.6.4",
-            "targets": [
-                {
-                    "calculatedInterval": "10m",
-                    "datasource": "Metrics",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "avg by (service_name) (mysql_global_variables_table_definition_cache{service_name=~\"$service_name\"})",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "",
-                    "metric": "",
-                    "refId": "A",
-                    "step": 300
-                }
-            ],
-            "title": "Table definition cache size",
-            "type": "stat"
-        },
-        {
-            "fieldConfig": {
-                "defaults": {},
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 21,
-                "y": 36
-            },
-            "id": 1000,
-            "options": {
-                "code": {
-                    "language": "plaintext",
-                    "showLineNumbers": false,
-                    "showMiniMap": false
-                },
-                "content": "<h5 style='color:#e68a00;font-weight:bold;text-align:center'><a href=\"/graph/d/mysql-instance-summary/mysql-instance-summary?var-service_name=$service_name\" target=\"_blank\">$service_name</h5>",
-                "mode": "html"
-            },
-            "pluginVersion": "11.6.4",
-            "title": "Service",
-            "type": "text"
+            "type": "table"
         },
         {
             "datasource": "Metrics",
@@ -2192,7 +2895,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 39
+                "y": 68
             },
             "id": 301,
             "links": [
@@ -2396,7 +3099,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 39
+                "y": 68
             },
             "id": 303,
             "options": {
@@ -2549,7 +3252,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 47
+                "y": 76
             },
             "id": 309,
             "options": {
@@ -2656,7 +3359,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 47
+                "y": 76
             },
             "id": 307,
             "links": [
@@ -2790,7 +3493,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 55
+                "y": 84
             },
             "id": 311,
             "options": {
@@ -2909,7 +3612,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 55
+                "y": 84
             },
             "id": 305,
             "options": {
@@ -2971,7 +3674,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 63
+                "y": 92
             },
             "id": 291,
             "panels": [],
@@ -3012,7 +3715,7 @@
                 "h": 3,
                 "w": 3,
                 "x": 0,
-                "y": 64
+                "y": 93
             },
             "id": 321,
             "interval": "$interval",
@@ -3102,7 +3805,7 @@
                 "h": 3,
                 "w": 3,
                 "x": 3,
-                "y": 64
+                "y": 93
             },
             "id": 323,
             "maxDataPoints": 100,
@@ -3180,7 +3883,7 @@
                 "h": 3,
                 "w": 3,
                 "x": 6,
-                "y": 64
+                "y": 93
             },
             "id": 327,
             "interval": "$interval",
@@ -3264,7 +3967,7 @@
                 "h": 3,
                 "w": 3,
                 "x": 9,
-                "y": 64
+                "y": 93
             },
             "id": 329,
             "maxDataPoints": 100,
@@ -3342,7 +4045,7 @@
                 "h": 3,
                 "w": 3,
                 "x": 12,
-                "y": 64
+                "y": 93
             },
             "id": 331,
             "interval": "$interval",
@@ -3422,7 +4125,7 @@
                 "h": 3,
                 "w": 3,
                 "x": 15,
-                "y": 64
+                "y": 93
             },
             "id": 333,
             "interval": "$interval",
@@ -3513,7 +4216,7 @@
                 "h": 3,
                 "w": 3,
                 "x": 18,
-                "y": 64
+                "y": 93
             },
             "id": 335,
             "maxDataPoints": 100,
@@ -3561,7 +4264,7 @@
                 "h": 3,
                 "w": 3,
                 "x": 21,
-                "y": 64
+                "y": 93
             },
             "id": 387,
             "options": {
@@ -3831,7 +4534,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 67
+                "y": 96
             },
             "id": 337,
             "options": {
@@ -4099,7 +4802,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 67
+                "y": 96
             },
             "id": 339,
             "options": {
@@ -4304,7 +5007,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 75
+                "y": 104
             },
             "id": 341,
             "links": [
@@ -4473,7 +5176,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 75
+                "y": 104
             },
             "id": 343,
             "options": {
@@ -4659,6 +5362,29 @@
                 "type": "query"
             },
             {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "datasource": "Metrics",
+                "definition": "query_result(count by (channel) (label_replace(label_join(max by (service_name, channel_name, connection_name) (last_over_time(mysql_slave_status_slave_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[1h] @ end()) or last_over_time(mysql_slave_status_replica_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[1h] @ end())), \"channel\", \"\", \"channel_name\", \"connection_name\"), \"channel\", \"(default)\", \"channel\", \"\")))",
+                "description": "Replication channels (MariaDB: named connections) of the selected services in the last hour of the time range. Filters the Replication channels row.",
+                "includeAll": true,
+                "label": "Channel",
+                "multi": true,
+                "name": "channel",
+                "options": [],
+                "query": {
+                    "query": "query_result(count by (channel) (label_replace(label_join(max by (service_name, channel_name, connection_name) (last_over_time(mysql_slave_status_slave_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[1h] @ end()) or last_over_time(mysql_slave_status_replica_io_running{service_name=~\"$service_name\", channel_name!~\"group_replication_(applier|recovery)\"}[1h] @ end())), \"channel\", \"\", \"channel_name\", \"connection_name\"), \"channel\", \"(default)\", \"channel\", \"\")))",
+                    "refId": "Metrics-channel-Variable-Query"
+                },
+                "refresh": 2,
+                "regex": "/channel=\"([^\"]+)\"/",
+                "sort": 1,
+                "type": "query"
+            },
+            {
                 "current": {
                     "text": "",
                     "value": ""
@@ -4676,26 +5402,6 @@
                 },
                 "refresh": 2,
                 "regex": "",
-                "sort": 5,
-                "type": "query"
-            },
-            {
-                "current": {
-                    "text": "",
-                    "value": ""
-                },
-                "datasource": "Metrics",
-                "definition": "query_result(mysql_version_info{service_name=~\"$service_name\"})",
-                "hide": 2,
-                "includeAll": false,
-                "name": "version",
-                "options": [],
-                "query": {
-                    "query": "query_result(mysql_version_info{service_name=~\"$service_name\"})",
-                    "refId": "Metrics-version-Variable-Query"
-                },
-                "refresh": 2,
-                "regex": "/(([0-9\\.]+)\\.([0-9\\.]+)\\.([0-9\\.]+)-?([0-9?]+))/",
                 "sort": 5,
                 "type": "query"
             },
@@ -4847,7 +5553,7 @@
     },
     "timepicker": {},
     "timezone": "",
-    "title": "MySQL replication summary",
+    "title": "MySQL Replication Summary",
     "uid": "mysql-replicaset-summary",
     "version": 1,
     "weekStart": ""
