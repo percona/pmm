@@ -1,0 +1,2475 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
+                "type": "dashboard"
+            },
+            {
+                "datasource": {
+                    "type": "datasource",
+                    "uid": "grafana"
+                },
+                "enable": false,
+                "hide": false,
+                "iconColor": "orange",
+                "name": "PMM Annotations",
+                "target": {
+                    "limit": 100,
+                    "matchAny": true,
+                    "tags": [
+                        "pmm_annotation",
+                        "$service_name",
+                        "$node_name"
+                    ],
+                    "type": "tags"
+                }
+            }
+        ]
+    },
+    "editable": false,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": null,
+    "links": [],
+    "panels": [
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 100,
+            "panels": [],
+            "title": "Overview",
+            "type": "row"
+        },
+        {
+            "description": "Operations per second across the selected MongoDB services.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 1,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "stepBefore",
+                        "lineStyle": {
+                            "fill": "solid"
+                        },
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "ops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 1
+            },
+            "id": 9,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "12.4.5",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "(sum by (service_name) (rate(mongodb_mongod_op_counters_total{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",replication_set=~\"$replication_set\",node_type=~\"$node_type\",type!=\"command\"}[$interval])) or\nsum by (service_name) (irate(mongodb_mongod_op_counters_total{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",replication_set=~\"$replication_set\",node_type=~\"$node_type\",type!=\"command\"}[5m])) or\nsum by (service_name) (rate(mongodb_mongos_op_counters_total{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",replication_set=~\"$replication_set\",node_type=~\"$node_type\",type!=\"command\"}[$interval])) or\nsum by (service_name) (irate(mongodb_mongos_op_counters_total{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",replication_set=~\"$replication_set\",node_type=~\"$node_type\",type!=\"command\"}[5m])) or\nsum by (service_name) (rate(mongodb_op_counters_total{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",replication_set=~\"$replication_set\",node_type=~\"$node_type\",type!=\"command\"}[$interval])) or\nsum by (service_name) (irate(mongodb_op_counters_total{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",replication_set=~\"$replication_set\",node_type=~\"$node_type\",type!=\"command\"}[5m])))",
+                    "legendFormat": "__auto",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Operations per Second",
+            "transparent": true,
+            "type": "timeseries"
+        },
+        {
+            "description": "Average operation latency split by read / write / command, aggregated across the selected services. From serverStatus opLatencies; a rising read latency with flat throughput usually means queries are scanning more.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "smooth",
+                        "lineStyle": {
+                            "fill": "solid"
+                        },
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "µs"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 9
+            },
+            "id": 11,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "pluginVersion": "12.4.5",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "sum by (op_type) (rate(mongodb_ss_opLatencies_latency{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",replication_set=~\"$replication_set\",node_type=~\"$node_type\"}[$interval])) / sum by (op_type) (rate(mongodb_ss_opLatencies_ops{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",replication_set=~\"$replication_set\",node_type=~\"$node_type\"}[$interval]) > 0)",
+                    "legendFormat": "{{op_type}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Read & Write Latency",
+            "transparent": true,
+            "type": "timeseries"
+        },
+        {
+            "description": "Current and active client connections per service. Falls back to the legacy mongodb_connections metric on older exporters.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "smooth",
+                        "lineStyle": {
+                            "fill": "solid"
+                        },
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 9
+            },
+            "id": 12,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "pluginVersion": "12.4.5",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (mongodb_ss_connections{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",replication_set=~\"$replication_set\",node_type=~\"$node_type\",conn_type=\"current\"}) or sum by (service_name) (mongodb_connections{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",replication_set=~\"$replication_set\",node_type=~\"$node_type\",state=\"current\"})",
+                    "legendFormat": "{{service_name}} — current",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (mongodb_ss_connections{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",replication_set=~\"$replication_set\",node_type=~\"$node_type\",conn_type=\"active\"}) or sum by (service_name) (mongodb_connections{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",replication_set=~\"$replication_set\",node_type=~\"$node_type\",state=\"active\"})",
+                    "legendFormat": "{{service_name}} — active",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Connections",
+            "transparent": true,
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 17
+            },
+            "id": 101,
+            "panels": [],
+            "title": "Top Queries",
+            "type": "row"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "description": "Load (query time per second, the same as QAN Load) of the 10 queries with the most execution time in the selected range. Shows whether a top query is a steady load or a spike.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "smooth",
+                        "lineStyle": {
+                            "fill": "solid"
+                        },
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "showValues": false,
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "displayName": "${__field.labels.query}",
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 24,
+                "x": 0,
+                "y": 18
+            },
+            "id": 10,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "pluginVersion": "12.4.5",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "editorType": "sql",
+                    "format": 0,
+                    "pluginVersion": "4.4.0",
+                    "queryType": "timeseries",
+                    "rawSql": "SELECT\n    toStartOfInterval(period_start, INTERVAL greatest($__interval_s, 60) second) AS time,\n    concat(database, '.', arrayStringConcat(tables, ','), ' - ', substring(fingerprint, 1, 45)) AS query,\n    sum(m_query_time_sum) / greatest($__interval_s, 60) AS \"Load\"\nFROM pmm.\"metrics\"\nWHERE\n    period_start >= $__fromTime\n    AND period_start <= $__toTime\n    AND service_type = 'mongodb'\n    AND match(environment, '^${environment:regex}$')\n    AND match(cluster, '^${cluster:regex}$')\n    AND match(node_name, '^${node_name:regex}$')\n    AND match(service_name, '^${service_name:regex}$')\n    AND match(replication_set, '^${replication_set:regex}$')\n    AND match(node_type, '^${node_type:regex}$')\n    AND match(toString(agent_type), '^${agent_type:regex}$')\n    AND fingerprint != ''\n    AND queryid IN (\n        SELECT queryid\n        FROM pmm.\"metrics\"\n        WHERE\n    period_start >= $__fromTime\n    AND period_start <= $__toTime\n    AND service_type = 'mongodb'\n    AND match(environment, '^${environment:regex}$')\n    AND match(cluster, '^${cluster:regex}$')\n    AND match(node_name, '^${node_name:regex}$')\n    AND match(service_name, '^${service_name:regex}$')\n    AND match(replication_set, '^${replication_set:regex}$')\n    AND match(node_type, '^${node_type:regex}$')\n    AND match(toString(agent_type), '^${agent_type:regex}$')\n            AND fingerprint != ''\n        GROUP BY queryid\n        ORDER BY sum(m_query_time_sum) DESC\n        LIMIT 10\n    )\nGROUP BY time, query\nORDER BY time",
+                    "refId": "A"
+                }
+            ],
+            "title": "Top 10 Queries by Time Spent — Trend",
+            "transparent": true,
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "description": "MongoDB queries with the slowest average execution time. The average is execution-weighted (total time / total count); check Executed before acting on a row.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-GrYlRd"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false,
+                        "wrapHeaderText": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Service Name"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 170
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Collection"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "Open in Query Analytics",
+                                        "url": "/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.minWidth",
+                                "value": 200
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Avg Execution Time"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query ID"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.hideFrom.viz",
+                                "value": true
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Avg Execution Time"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "s"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Executed"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 13,
+                "w": 24,
+                "x": 0,
+                "y": 27
+            },
+            "id": 2,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "enablePagination": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "12.4.5",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "pluginVersion": "4.4.0",
+                    "queryType": "table",
+                    "rawSql": "SELECT\n    cluster AS \"Cluster\",\n    service_name AS \"Service Name\",\n    queryid AS \"Query ID\",\n    database AS \"Database\",\n    arrayStringConcat(tables, ', ') AS \"Collection\",\n    fingerprint AS \"Query\",\n    sum(m_query_time_sum) / nullIf(sum(m_query_time_cnt), 0) AS \"Avg Execution Time\",\n    sum(num_queries) AS \"Executed\"\nFROM pmm.\"metrics\"\nWHERE\n    period_start >= $__fromTime\n    AND period_start <= $__toTime\n    AND service_type = 'mongodb'\n    AND match(environment, '^${environment:regex}$')\n    AND match(cluster, '^${cluster:regex}$')\n    AND match(node_name, '^${node_name:regex}$')\n    AND match(service_name, '^${service_name:regex}$')\n    AND match(replication_set, '^${replication_set:regex}$')\n    AND match(node_type, '^${node_type:regex}$')\n    AND match(toString(agent_type), '^${agent_type:regex}$')\n    AND fingerprint != ''\nGROUP BY\n    cluster,\n    service_name,\n    queryid,\n    database,\n    tables,\n    fingerprint\nHAVING sum(m_query_time_cnt) > 0\nORDER BY \"Avg Execution Time\" DESC\nLIMIT 10;",
+                    "refId": "A"
+                }
+            ],
+            "title": "Top 10 Slowest Queries",
+            "transparent": true,
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "description": "MongoDB spent the most time on these queries.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-GrYlRd"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false,
+                        "wrapHeaderText": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Service Name"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 170
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Collection"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "Open in Query Analytics",
+                                        "url": "/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.minWidth",
+                                "value": 200
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Execution Time Summary"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query ID"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.hideFrom.viz",
+                                "value": true
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Execution Time Summary"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "s"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 13,
+                "w": 24,
+                "x": 0,
+                "y": 40
+            },
+            "id": 3,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "12.4.5",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "pluginVersion": "4.4.0",
+                    "queryType": "table",
+                    "rawSql": "SELECT\n    cluster AS \"Cluster\",\n    service_name AS \"Service Name\",\n    queryid AS \"Query ID\",\n    database AS \"Database\",\n    arrayStringConcat(tables, ', ') AS \"Collection\",\n    fingerprint AS \"Query\",\n    sum(m_query_time_sum) AS \"Execution Time Summary\"\nFROM pmm.\"metrics\"\nWHERE\n    period_start >= $__fromTime\n    AND period_start <= $__toTime\n    AND service_type = 'mongodb'\n    AND match(environment, '^${environment:regex}$')\n    AND match(cluster, '^${cluster:regex}$')\n    AND match(node_name, '^${node_name:regex}$')\n    AND match(service_name, '^${service_name:regex}$')\n    AND match(replication_set, '^${replication_set:regex}$')\n    AND match(node_type, '^${node_type:regex}$')\n    AND match(toString(agent_type), '^${agent_type:regex}$')\n    AND fingerprint != ''\nGROUP BY\n    cluster,\n    service_name,\n    queryid,\n    database,\n    tables,\n    fingerprint\nORDER BY \"Execution Time Summary\" DESC\nLIMIT 10;",
+                    "refId": "A"
+                }
+            ],
+            "title": "Top 10 Time Spent",
+            "transparent": true,
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "description": "MongoDB queries which executed the most times.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-GrYlRd"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false,
+                        "wrapHeaderText": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Service Name"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 170
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Collection"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "Open in Query Analytics",
+                                        "url": "/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.minWidth",
+                                "value": 200
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Executed"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge"
+                                }
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query ID"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.hideFrom.viz",
+                                "value": true
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 13,
+                "w": 24,
+                "x": 0,
+                "y": 53
+            },
+            "id": 4,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "12.4.5",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "pluginVersion": "4.4.0",
+                    "queryType": "table",
+                    "rawSql": "SELECT\n    cluster AS \"Cluster\",\n    service_name AS \"Service Name\",\n    queryid AS \"Query ID\",\n    database AS \"Database\",\n    arrayStringConcat(tables, ', ') AS \"Collection\",\n    fingerprint AS \"Query\",\n    sum(num_queries) AS \"Executed\"\nFROM pmm.\"metrics\"\nWHERE\n    period_start >= $__fromTime\n    AND period_start <= $__toTime\n    AND service_type = 'mongodb'\n    AND match(environment, '^${environment:regex}$')\n    AND match(cluster, '^${cluster:regex}$')\n    AND match(node_name, '^${node_name:regex}$')\n    AND match(service_name, '^${service_name:regex}$')\n    AND match(replication_set, '^${replication_set:regex}$')\n    AND match(node_type, '^${node_type:regex}$')\n    AND match(toString(agent_type), '^${agent_type:regex}$')\n    AND fingerprint != ''\nGROUP BY\n    cluster,\n    service_name,\n    queryid,\n    database,\n    tables,\n    fingerprint\nORDER BY \"Executed\" DESC\nLIMIT 10;",
+                    "refId": "A"
+                }
+            ],
+            "title": "Top 10 Queries Executed the Most",
+            "transparent": true,
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "description": "MongoDB queries which returned the most documents.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-GrYlRd"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false,
+                        "wrapHeaderText": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Service Name"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 170
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Collection"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "Open in Query Analytics",
+                                        "url": "/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.minWidth",
+                                "value": 200
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Docs Returned"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge"
+                                }
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query ID"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.hideFrom.viz",
+                                "value": true
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 13,
+                "w": 24,
+                "x": 0,
+                "y": 66
+            },
+            "id": 5,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "12.4.5",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "pluginVersion": "4.4.0",
+                    "queryType": "table",
+                    "rawSql": "SELECT\n    cluster AS \"Cluster\",\n    service_name AS \"Service Name\",\n    queryid AS \"Query ID\",\n    database AS \"Database\",\n    arrayStringConcat(tables, ', ') AS \"Collection\",\n    fingerprint AS \"Query\",\n    sum(m_docs_returned_sum) AS \"Docs Returned\"\nFROM pmm.\"metrics\"\nWHERE\n    period_start >= $__fromTime\n    AND period_start <= $__toTime\n    AND service_type = 'mongodb'\n    AND match(environment, '^${environment:regex}$')\n    AND match(cluster, '^${cluster:regex}$')\n    AND match(node_name, '^${node_name:regex}$')\n    AND match(service_name, '^${service_name:regex}$')\n    AND match(replication_set, '^${replication_set:regex}$')\n    AND match(node_type, '^${node_type:regex}$')\n    AND match(toString(agent_type), '^${agent_type:regex}$')\n    AND fingerprint != ''\nGROUP BY\n    cluster,\n    service_name,\n    queryid,\n    database,\n    tables,\n    fingerprint\nORDER BY \"Docs Returned\" DESC\nLIMIT 10;",
+                    "refId": "A"
+                }
+            ],
+            "title": "Top 10 Queries Returning the Most Documents",
+            "transparent": true,
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "description": "MongoDB queries which examined the most documents. Examined / Returned is the query targeting ratio; where nothing was returned it falls back to the raw examined count.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-GrYlRd"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false,
+                        "wrapHeaderText": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Service Name"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 170
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Collection"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "Open in Query Analytics",
+                                        "url": "/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.minWidth",
+                                "value": 200
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Docs Examined"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge"
+                                }
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query ID"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.hideFrom.viz",
+                                "value": true
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Keys Examined"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Examined / Returned"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 13,
+                "w": 24,
+                "x": 0,
+                "y": 79
+            },
+            "id": 7,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "12.4.5",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "pluginVersion": "4.4.0",
+                    "queryType": "table",
+                    "rawSql": "SELECT\n    cluster AS \"Cluster\",\n    service_name AS \"Service Name\",\n    queryid AS \"Query ID\",\n    database AS \"Database\",\n    arrayStringConcat(tables, ', ') AS \"Collection\",\n    fingerprint AS \"Query\",\n    sum(m_docs_examined_sum) AS \"Docs Examined\",\n    sum(m_keys_examined_sum) AS \"Keys Examined\",\n    sum(m_docs_examined_sum) / greatest(sum(m_docs_returned_sum), 1) AS \"Examined / Returned\"\nFROM pmm.\"metrics\"\nWHERE\n    period_start >= $__fromTime\n    AND period_start <= $__toTime\n    AND service_type = 'mongodb'\n    AND match(environment, '^${environment:regex}$')\n    AND match(cluster, '^${cluster:regex}$')\n    AND match(node_name, '^${node_name:regex}$')\n    AND match(service_name, '^${service_name:regex}$')\n    AND match(replication_set, '^${replication_set:regex}$')\n    AND match(node_type, '^${node_type:regex}$')\n    AND match(toString(agent_type), '^${agent_type:regex}$')\n    AND fingerprint != ''\nGROUP BY\n    cluster,\n    service_name,\n    queryid,\n    database,\n    tables,\n    fingerprint\nORDER BY \"Docs Examined\" DESC\nLIMIT 10;",
+                    "refId": "A"
+                }
+            ],
+            "title": "Top 10 Queries Examining the Most Documents",
+            "transparent": true,
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "description": "Documents examined per document returned — MongoDB's query targeting ratio. 1 is ideal; large values mean the query reads far more than it needs. Keys Examined / Returned near 0 alongside a high ratio means no index was used. Operations that return no documents (writes, zero-match reads) are excluded because the ratio is undefined for them — see the Docs Examined and Collection Scans panels for those.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-GrYlRd"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false,
+                        "wrapHeaderText": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Service Name"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 170
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Collection"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "Open in Query Analytics",
+                                        "url": "/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.minWidth",
+                                "value": 200
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query ID"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.hideFrom.viz",
+                                "value": true
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Docs Examined / Returned"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Docs Examined / Returned"
+                        },
+                        "properties": [
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Keys Examined / Returned"
+                        },
+                        "properties": [
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Docs Examined"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Docs Returned"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Executed"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 13,
+                "w": 24,
+                "x": 0,
+                "y": 92
+            },
+            "id": 13,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "12.4.5",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "editorType": "sql",
+                    "format": 1,
+                    "pluginVersion": "4.4.0",
+                    "queryType": "table",
+                    "rawSql": "SELECT\n    cluster AS \"Cluster\",\n    service_name AS \"Service Name\",\n    queryid AS \"Query ID\",\n    database AS \"Database\",\n    arrayStringConcat(tables, ', ') AS \"Collection\",\n    fingerprint AS \"Query\",\n    sum(m_docs_examined_sum) / sum(m_docs_returned_sum) AS \"Docs Examined / Returned\",\n    sum(m_keys_examined_sum) / sum(m_docs_returned_sum) AS \"Keys Examined / Returned\",\n    sum(m_docs_examined_sum) AS \"Docs Examined\",\n    sum(m_docs_returned_sum) AS \"Docs Returned\",\n    sum(num_queries) AS \"Executed\"\nFROM pmm.\"metrics\"\nWHERE\n    period_start >= $__fromTime\n    AND period_start <= $__toTime\n    AND service_type = 'mongodb'\n    AND match(environment, '^${environment:regex}$')\n    AND match(cluster, '^${cluster:regex}$')\n    AND match(node_name, '^${node_name:regex}$')\n    AND match(service_name, '^${service_name:regex}$')\n    AND match(replication_set, '^${replication_set:regex}$')\n    AND match(node_type, '^${node_type:regex}$')\n    AND match(toString(agent_type), '^${agent_type:regex}$')\n    AND fingerprint != ''\nGROUP BY\n    cluster,\n    service_name,\n    queryid,\n    database,\n    tables,\n    fingerprint\nHAVING sum(m_docs_returned_sum) > 0 AND sum(m_docs_examined_sum) > 0\nORDER BY \"Docs Examined / Returned\" DESC\nLIMIT 10;",
+                    "refId": "A"
+                }
+            ],
+            "title": "Top 10 Queries by Poor Query Targeting",
+            "transparent": true,
+            "type": "table"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 105
+            },
+            "id": 102,
+            "panels": [],
+            "title": "Missing Indexes / Collection Scans",
+            "type": "row"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "description": "Queries whose plan was a full COLLSCAN — no index was used — ranked by total execution time. These are the strongest candidates for a new index. Note the plan is recorded per execution, so a query appears here only for the periods it actually scanned.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-GrYlRd"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false,
+                        "wrapHeaderText": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Service Name"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 170
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Collection"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "Open in Query Analytics",
+                                        "url": "/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.minWidth",
+                                "value": 200
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query ID"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.hideFrom.viz",
+                                "value": true
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Execution Time"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Execution Time"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "s"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Examined / Returned"
+                        },
+                        "properties": [
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Executed"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Docs Examined"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 13,
+                "w": 24,
+                "x": 0,
+                "y": 106
+            },
+            "id": 14,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "12.4.5",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "editorType": "sql",
+                    "format": 1,
+                    "pluginVersion": "4.4.0",
+                    "queryType": "table",
+                    "rawSql": "SELECT\n    cluster AS \"Cluster\",\n    service_name AS \"Service Name\",\n    queryid AS \"Query ID\",\n    database AS \"Database\",\n    arrayStringConcat(tables, ', ') AS \"Collection\",\n    fingerprint AS \"Query\",\n    sum(m_query_time_sum) AS \"Execution Time\",\n    sum(num_queries) AS \"Executed\",\n    sum(m_docs_examined_sum) AS \"Docs Examined\",\n    sum(m_docs_examined_sum) / greatest(sum(m_docs_returned_sum), 1) AS \"Examined / Returned\"\nFROM pmm.\"metrics\"\nWHERE\n    period_start >= $__fromTime\n    AND period_start <= $__toTime\n    AND service_type = 'mongodb'\n    AND match(environment, '^${environment:regex}$')\n    AND match(cluster, '^${cluster:regex}$')\n    AND match(node_name, '^${node_name:regex}$')\n    AND match(service_name, '^${service_name:regex}$')\n    AND match(replication_set, '^${replication_set:regex}$')\n    AND match(node_type, '^${node_type:regex}$')\n    AND match(toString(agent_type), '^${agent_type:regex}$')\n    AND fingerprint != ''\n    AND plan_summary = 'COLLSCAN'\nGROUP BY\n    cluster,\n    service_name,\n    queryid,\n    database,\n    tables,\n    fingerprint\nORDER BY \"Execution Time\" DESC\nLIMIT 10;",
+                    "refId": "A"
+                }
+            ],
+            "title": "Top 10 Collection Scans (missing index candidates)",
+            "transparent": true,
+            "type": "table"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 119
+            },
+            "id": 103,
+            "panels": [],
+            "title": "Hottest Collections",
+            "type": "row"
+        },
+        {
+            "description": "Read operations per second per collection, from the top command — the mongotop view. Counts find/query only; getmore is excluded, matching the MongoDB Collections Overview dashboard so the two reconcile. mongod only, not mongos. Needs the service added with --enable-all-collectors, otherwise No data. Shows the rate at the end of the selected time range.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-GrYlRd"
+                    },
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "ops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 12,
+                "x": 0,
+                "y": 120
+            },
+            "id": 15,
+            "options": {
+                "displayMode": "gradient",
+                "maxVizHeight": 300,
+                "minVizHeight": 16,
+                "minVizWidth": 8,
+                "namePlacement": "left",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showUnfilled": true,
+                "sizing": "auto",
+                "valueMode": "color"
+            },
+            "pluginVersion": "12.4.5",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "topk(10, sum by (database, collection) (rate(mongodb_top_queries_count{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",replication_set=~\"$replication_set\",node_type=~\"$node_type\"}[$interval])))",
+                    "instant": true,
+                    "legendFormat": "{{database}}.{{collection}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Top 10 Hottest Collections by Read",
+            "transparent": true,
+            "type": "bargauge"
+        },
+        {
+            "description": "Write operations per second per collection (insert + update + remove), from the top command. mongod only, not mongos. Needs the service added with --enable-all-collectors, otherwise No data. Shows the rate at the end of the selected time range.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-GrYlRd"
+                    },
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "ops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 12,
+                "x": 12,
+                "y": 120
+            },
+            "id": 16,
+            "options": {
+                "displayMode": "gradient",
+                "maxVizHeight": 300,
+                "minVizHeight": 16,
+                "minVizWidth": 8,
+                "namePlacement": "left",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showUnfilled": true,
+                "sizing": "auto",
+                "valueMode": "color"
+            },
+            "pluginVersion": "12.4.5",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "topk(10, sum by (database, collection) (rate(mongodb_top_insert_count{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",replication_set=~\"$replication_set\",node_type=~\"$node_type\"}[$interval]) + rate(mongodb_top_update_count{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",replication_set=~\"$replication_set\",node_type=~\"$node_type\"}[$interval]) + rate(mongodb_top_remove_count{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",service_name=~\"$service_name\",replication_set=~\"$replication_set\",node_type=~\"$node_type\"}[$interval])))",
+                    "instant": true,
+                    "legendFormat": "{{database}}.{{collection}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Top 10 Hottest Collections by Write",
+            "transparent": true,
+            "type": "bargauge"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 129
+            },
+            "id": 104,
+            "panels": [],
+            "title": "Users",
+            "type": "row"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "description": "MongoDB users who executed the most queries, aggregated per user (not per database). Services shows how many monitored services the user was seen on.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false,
+                        "wrapHeaderText": true
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Username"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 200
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Executed Queries"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge"
+                                }
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Total Time"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "s"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Services"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Databases"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 13,
+                "w": 24,
+                "x": 0,
+                "y": 130
+            },
+            "id": 6,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "12.4.5",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "pluginVersion": "4.4.0",
+                    "queryType": "table",
+                    "rawSql": "SELECT\n    cluster AS \"Cluster\",\n    username AS \"Username\",\n    sum(num_queries) AS \"Executed Queries\",\n    countDistinct(service_name) AS \"Services\",\n    countDistinct(database) AS \"Databases\",\n    sum(m_query_time_sum) AS \"Total Time\"\nFROM pmm.\"metrics\"\nWHERE\n    period_start >= $__fromTime\n    AND period_start <= $__toTime\n    AND service_type = 'mongodb'\n    AND match(environment, '^${environment:regex}$')\n    AND match(cluster, '^${cluster:regex}$')\n    AND match(node_name, '^${node_name:regex}$')\n    AND match(service_name, '^${service_name:regex}$')\n    AND match(replication_set, '^${replication_set:regex}$')\n    AND match(node_type, '^${node_type:regex}$')\n    AND match(toString(agent_type), '^${agent_type:regex}$')\nGROUP BY\n    cluster,\n    username\nORDER BY \"Executed Queries\" DESC\nLIMIT 10;",
+                    "refId": "A"
+                }
+            ],
+            "title": "Top 10 Users Executed the Most Queries",
+            "transparent": true,
+            "type": "table"
+        }
+    ],
+    "preload": false,
+    "refresh": false,
+    "schemaVersion": 42,
+    "tags": [
+        "Percona",
+        "MongoDB",
+        "Services"
+    ],
+    "templating": {
+        "list": [
+            {
+                "auto": true,
+                "auto_count": 200,
+                "auto_min": "1s",
+                "current": {
+                    "text": "$__auto",
+                    "value": "$__auto"
+                },
+                "label": "Interval",
+                "name": "interval",
+                "options": [
+                    {
+                        "selected": false,
+                        "text": "1s",
+                        "value": "1s"
+                    },
+                    {
+                        "selected": false,
+                        "text": "5s",
+                        "value": "5s"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1m",
+                        "value": "1m"
+                    },
+                    {
+                        "selected": false,
+                        "text": "5m",
+                        "value": "5m"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1h",
+                        "value": "1h"
+                    },
+                    {
+                        "selected": false,
+                        "text": "6h",
+                        "value": "6h"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1d",
+                        "value": "1d"
+                    }
+                ],
+                "query": "1s,5s,1m,5m,1h,6h,1d",
+                "refresh": 2,
+                "type": "interval"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "definition": "label_values(mongodb_up, environment)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "Environment",
+                "multi": true,
+                "name": "environment",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(mongodb_up, environment)",
+                    "refId": "PrometheusVariableQueryEditor-environment"
+                },
+                "refresh": 2,
+                "regex": "",
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "definition": "label_values(mongodb_up{environment=~\"$environment\"}, cluster)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "Cluster",
+                "multi": true,
+                "name": "cluster",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(mongodb_up{environment=~\"$environment\"}, cluster)",
+                    "refId": "PrometheusVariableQueryEditor-cluster"
+                },
+                "refresh": 2,
+                "regex": "",
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "definition": "label_values(mongodb_up{environment=~\"$environment\", cluster=~\"$cluster\"}, node_name)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "Node Name",
+                "multi": true,
+                "name": "node_name",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(mongodb_up{environment=~\"$environment\", cluster=~\"$cluster\"}, node_name)",
+                    "refId": "PrometheusVariableQueryEditor-node_name"
+                },
+                "refresh": 2,
+                "regex": "",
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "definition": "label_values(mongodb_up{environment=~\"$environment\", cluster=~\"$cluster\", node_name=~\"$node_name\"}, service_name)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "Service Name",
+                "multi": true,
+                "name": "service_name",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(mongodb_up{environment=~\"$environment\", cluster=~\"$cluster\", node_name=~\"$node_name\"}, service_name)",
+                    "refId": "PrometheusVariableQueryEditor-service_name"
+                },
+                "refresh": 2,
+                "regex": "",
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "definition": "label_values(mongodb_up{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\"}, replication_set)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "Replication Set",
+                "multi": true,
+                "name": "replication_set",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(mongodb_up{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\"}, replication_set)",
+                    "refId": "PrometheusVariableQueryEditor-replication_set"
+                },
+                "refresh": 2,
+                "regex": "",
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "definition": "label_values(mongodb_up, node_type)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "Type",
+                "multi": true,
+                "name": "node_type",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(mongodb_up, node_type)",
+                    "refId": "PrometheusVariableQueryEditor-node_type"
+                },
+                "refresh": 2,
+                "regex": "",
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "includeAll": true,
+                "label": "QAN Agent",
+                "multi": true,
+                "name": "agent_type",
+                "options": [
+                    {
+                        "selected": false,
+                        "text": "qan-mongodb-profiler-agent",
+                        "value": "qan-mongodb-profiler-agent"
+                    },
+                    {
+                        "selected": false,
+                        "text": "qan-mongodb-mongolog-agent",
+                        "value": "qan-mongodb-mongolog-agent"
+                    }
+                ],
+                "query": "qan-mongodb-profiler-agent,qan-mongodb-mongolog-agent",
+                "type": "custom"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-12h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "MongoDB Top Queries",
+    "uid": "mongodb-top-queries",
+    "version": 1,
+    "weekStart": ""
+}
