@@ -1,0 +1,24 @@
+# Sourced by build-server-binaries.
+
+key() {
+    echo ${full_pmm_version}-$(get_shortcommit pmm)
+}
+
+build() {
+    run_in_container $1 pmm <<EOF
+export PMM_RELEASE_VERSION=${full_pmm_version}
+export PMM_RELEASE_FULLCOMMIT=$(get_commit pmm)
+export PMM_RELEASE_BRANCH=""
+
+cd ${build_dir}
+make -C vmproxy release
+
+install -d ${rootfs}/usr/sbin
+install -p -m 0755 bin/vmproxy ${rootfs}/usr/sbin/vmproxy
+
+install -D -p -m 0644 vmproxy/LICENSE ${rootfs}/usr/share/licenses/vmproxy/LICENSE
+install -D -p -m 0644 vmproxy/README.md ${rootfs}/usr/share/doc/vmproxy/README.md
+EOF
+}
+
+# vim: expandtab shiftwidth=4 tabstop=4
