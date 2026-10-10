@@ -28,6 +28,7 @@ import {
   queryUsername,
   UNAVAILABLE_VALUE,
 } from './OverviewTable.utils';
+import { ElapsedTimeFilter } from './elapsed-time-filter';
 
 const QUERY_TEXT_COLUMN: MRT_ColumnDef<QueryData> = {
   size: 500,
@@ -166,10 +167,9 @@ const ELAPSED_TIME_COLUMN: MRT_ColumnDef<QueryData> = {
   grow: false,
   filterVariant: 'range',
   filterFn: 'timeRangeFilterFn',
-  muiFilterTextFieldProps: {
-    type: 'text',
-    inputProps: { inputMode: 'decimal' },
-  },
+  Filter: ({ column, rangeFilterIndex }) => (
+    <ElapsedTimeFilter column={column} rangeFilterIndex={rangeFilterIndex} />
+  ),
   // A statement that has just started reports 0, which is a duration like any
   // other; only a missing value is unavailable.
   Cell: ({ cell }) =>

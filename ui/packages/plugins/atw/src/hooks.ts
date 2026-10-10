@@ -78,6 +78,15 @@ const ACTIVE_SEND_STATUSES: ReadonlySet<AtwSendLog['status']> = new Set([
 /** Rows per page for both incident and execution lists. */
 export const ATW_PAGE_SIZE = 20;
 
+/**
+ * How many incidents the list fetches in one request — the side-car's
+ * pagination ceiling. The list sorts and filters on columns the side-car
+ * neither sorts nor filters by (run totals, last activity), so it works on one
+ * fetched window rather than a server page; the newest incidents are the ones
+ * a returning user is looking for.
+ */
+export const ATW_INCIDENT_LIST_LIMIT = 200;
+
 const incidentsKey = ['atw', 'incidents'] as const;
 
 function incidentExecutionsKey(incidentId: string) {
@@ -426,22 +435,30 @@ export function useAtwIncidentExecutions(
 
 /**
  * Probe whether a diagnostics receiver is configured, so the Send action can
- * carry the reasons it is unavailable. Returns no reasons on any error: a
- * transient config blip should not silently withhold the action, and the POST's
- * own 503 gate remains the real guard.
+ * carry the reasons it is unavailable.
+ *
+ * Cached forever while mounted so a polling Results pane does not re-hit the
+ * endpoint every few seconds. ATW and ServiceNow settings are separate routes,
+ * so this query is unmounted while Settings is open — `refetchOnMount: 'always'`
+ * is what refreshes delivery state when the operator returns after fixing
+ * ServiceNow (PMM-15515).
+ *
+ * Failures reject rather than returning empty reasons: a first load leaves
+ * callers with no cache (so Send stays offered — the POST's 503 is the real
+ * guard), while a remount refetch keeps the last successful cache instead of
+ * wiping disabled reasons and hiding the ServiceNow banner.
  */
+const ATW_CONFIG_QUERY_KEY = ['atw', 'config'] as const;
+
 export function useAtwConfig() {
   return useQuery<AtwConfig>({
-    queryKey: ['atw', 'config'],
+    queryKey: ATW_CONFIG_QUERY_KEY,
     queryFn: async () => {
-      try {
-        const { data } = await apiClient.get<AtwConfig>(`${ATW_BASE}/config/`);
-        return data;
-      } catch {
-        return { send_disabled_reasons: [], case_search_available: false };
-      }
+      const { data } = await apiClient.get<AtwConfig>(`${ATW_BASE}/config/`);
+      return data;
     },
     staleTime: Infinity,
+    refetchOnMount: 'always',
     retry: false,
   });
 }
@@ -449,9 +466,9 @@ export function useAtwConfig() {
 /**
  * Search the configured delivery provider for support cases matching `term`.
  *
- * Degrades the way `useAtwConfig` does: any error resolves to an unavailable
- * search rather than rejecting, so a provider blip leaves the case-reference
- * field a plain text input instead of surfacing an error beside it.
+ * Any error resolves to an unavailable search rather than rejecting, so a
+ * provider blip leaves the case-reference field a plain text input instead of
+ * surfacing an error beside it.
  *
  * `enabled` carries the deployment-level answer from `atw_config`, so a
  * deployment that declares no case-search section issues zero requests rather

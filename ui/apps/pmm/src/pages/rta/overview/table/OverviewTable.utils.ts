@@ -135,6 +135,18 @@ export const filterCommaSeparated = (
   return terms.some((term) => value.includes(term));
 };
 
+// What may sit in the field: a non-negative decimal, or a prefix of one. A
+// lone '.' is on its way to '.5', so it has to be typeable.
+const ELAPSED_TIME_INPUT = /^\d*\.?\d*$/;
+// What the filter can actually use: a number of seconds. '' and '.' are not.
+const ELAPSED_TIME_BOUND = /^(?:\d+(?:\.\d*)?|\.\d+)$/;
+
+export const isElapsedTimeBoundInput = (value: string) =>
+  ELAPSED_TIME_INPUT.test(value);
+
+export const toElapsedTimeBound = (value: string) =>
+  ELAPSED_TIME_BOUND.test(value) ? value : '';
+
 export const filterElapsedTime = (
   row: MRT_Row<QueryData>,
   id: string,

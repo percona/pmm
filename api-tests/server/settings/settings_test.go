@@ -723,7 +723,7 @@ func TestSettings(t *testing.T) {
 							t.Logf("Request:\n%s", b)
 						}
 
-						resp, err := http.DefaultClient.Do(req)
+						resp, err := pmmapitests.HTTPClient.Do(req)
 						require.NoError(t, err)
 						if pmmapitests.Debug {
 							b, err = httputil.DumpResponse(resp, true)
@@ -759,7 +759,7 @@ func TestSettings(t *testing.T) {
 							t.Logf("Request:\n%s", b)
 						}
 
-						resp, err = http.DefaultClient.Do(req)
+						resp, err = pmmapitests.HTTPClient.Do(req)
 						require.NoError(t, err)
 						if pmmapitests.Debug {
 							b, err = httputil.DumpResponse(resp, true)

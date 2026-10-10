@@ -8,12 +8,14 @@ import {
 } from 'types/rta.types';
 import {
   filterCommaSeparated,
+  filterElapsedTime,
   formatElapsedTime,
   formatLockTimeMs,
   lockTimeMs,
   isBlocked,
   isBlockingUnattributed,
   isBlockingUnknown,
+  isElapsedTimeBoundInput,
   isSameStatement,
   isTransactionControl,
   queryDatabaseName,
@@ -23,6 +25,7 @@ import {
   rtaRowId,
   soleBlocker,
   statementRowId,
+  toElapsedTimeBound,
   UNAVAILABLE_VALUE,
 } from './OverviewTable.utils';
 import {
@@ -389,5 +392,66 @@ describe('isSameStatement', () => {
     expect(statementRowId(running)).not.toBe(
       statementRowId({ ...running, queryText: 'COMMIT' })
     );
+  });
+});
+
+const row = (seconds: number | null) =>
+  ({ getValue: () => seconds }) as unknown as MRT_Row<QueryData>;
+
+const ID = 'queryExecutionDurationMs';
+
+describe('isElapsedTimeBoundInput', () => {
+  it.each(['', '.', '0', '1', '30', '1.', '.5', '1.5', '1.50'])(
+    'accepts %s',
+    (value) => {
+      expect(isElapsedTimeBoundInput(value)).toBe(true);
+    }
+  );
+
+  it.each(['abc', '1a', 'a1', '1.5x', ' 1', '1 ', '-1', '+1', '1e3', '1.2.3'])(
+    'rejects %s',
+    (value) => {
+      expect(isElapsedTimeBoundInput(value)).toBe(false);
+    }
+  );
+});
+
+describe('toElapsedTimeBound', () => {
+  it.each(['0', '1', '30', '1.', '.5', '1.5', '1.50'])('keeps %s', (value) => {
+    expect(toElapsedTimeBound(value)).toBe(value);
+  });
+
+  // '' and '.' are legal to be typing but are not a number of seconds, and
+  // parseFloat is too lenient to tell '1.5x' apart from a bound.
+  it.each(['', '.', 'abc', '1.5x', '-1', '1e3', '1.2.3'])(
+    'drops %s',
+    (value) => {
+      expect(toElapsedTimeBound(value)).toBe('');
+    }
+  );
+});
+
+describe('filterElapsedTime', () => {
+  it('keeps every row when neither bound is set', () => {
+    expect(filterElapsedTime(row(1.5), ID, ['', ''])).toBe(true);
+  });
+
+  it('applies the min bound alone', () => {
+    expect(filterElapsedTime(row(1.5), ID, ['1.5', ''])).toBe(true);
+    expect(filterElapsedTime(row(1.4), ID, ['1.5', ''])).toBe(false);
+  });
+
+  it('applies the max bound alone', () => {
+    expect(filterElapsedTime(row(1.5), ID, ['', '1.5'])).toBe(true);
+    expect(filterElapsedTime(row(1.6), ID, ['', '1.5'])).toBe(false);
+  });
+
+  it('applies both bounds inclusively', () => {
+    expect(filterElapsedTime(row(5), ID, ['1', '10'])).toBe(true);
+    expect(filterElapsedTime(row(11), ID, ['1', '10'])).toBe(false);
+  });
+
+  it('drops rows without an elapsed time', () => {
+    expect(filterElapsedTime(row(null), ID, ['', ''])).toBe(false);
   });
 });

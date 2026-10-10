@@ -36,7 +36,6 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import SendIcon from '@mui/icons-material/Send';
-import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '@pmm-extensions/api';
 import {
   ActionErrorAlert,
@@ -60,8 +59,8 @@ import {
   useAtwIncidentExecutions,
   useAtwSendJobs,
 } from './hooks';
-import { useDeliverySettingsPath } from './deliverySettings';
 import { SendDialog } from './SendDialog';
+import { SendUnavailableNotice } from './SendUnavailableNotice';
 import type {
   AtwDispatchHandler,
   AtwIncidentExecution,
@@ -200,51 +199,6 @@ function isSelectable(execution: AtwIncidentExecution): boolean {
 }
 
 /**
- * Why the send controls are inert, stated once above them.
- *
- * The tooltips on each disabled control carry the backend's own reasons, but a
- * tooltip on a disabled button is not something an operator finds by accident —
- * and an administrator looking at a greyed-out Send is the one person who can
- * fix it. So the pane says it in the open and, when the host supplied a route,
- * offers the way there; the specific reason stays in the tooltips rather than
- * being repeated here, which keeps this to one line whatever the backend says.
- *
- * Rendered only for a session that has send controls to explain: a read-only
- * session is never offered one, so the connection state changes nothing it
- * could do and the notice would be noise. That also makes the settings button
- * safe to offer unconditionally — `canMutate` is the administrator flag today,
- * and the settings tab it links to is administrator-only. Should `canMutate`
- * ever widen to a lesser role, gate the button separately or it becomes the
- * same dead end this notice replaced.
- */
-function SendUnavailableNotice() {
-  const settingsPath = useDeliverySettingsPath();
-
-  return (
-    <Alert
-      severity="info"
-      variant="outlined"
-      sx={{ mb: 2, alignItems: 'center' }}
-      data-testid="atw-send-unavailable"
-      action={
-        settingsPath ? (
-          <Button
-            size="small"
-            component={RouterLink}
-            to={settingsPath}
-            data-testid="atw-send-unavailable-settings"
-          >
-            ServiceNow settings
-          </Button>
-        ) : undefined
-      }
-    >
-      Sending requires a valid ServiceNow connection.
-    </Alert>
-  );
-}
-
-/**
  * The Results pane: lists the incident's executions with their status, logs and
  * files, and lets a support engineer send a selection to the support case.
  *
@@ -263,6 +217,8 @@ export function ResultsPane({
   const [page, setPage] = useState({ offset: 0, limit: ATW_PAGE_SIZE });
   const { data, isLoading, error } = useAtwIncidentExecutions(incidentId, page);
   const { data: incident } = useAtwIncident(incidentId);
+  // Unknown until the incident loads; a closed one accepts no runs.
+  const acceptsRuns = incident !== undefined && !incident.closed_at;
   const { data: config } = useAtwConfig();
   const { data: sendJobs, error: sendJobsError } = useAtwSendJobs(incidentId);
 
@@ -471,7 +427,8 @@ export function ResultsPane({
 
       {!isLoading && !error && (!rows || rows.length === 0) && (
         <Alert severity="info">
-          {canMutate
+          {/* A closed incident has no Collect pane to point at. */}
+          {canMutate && acceptsRuns
             ? 'No executions yet. Run snippets from the Collect pane to see results here.'
             : 'No executions yet.'}
         </Alert>
@@ -553,6 +510,7 @@ export function ResultsPane({
           onOpenFiles={() => setFilesForTask(execution.task_history_id)}
           remembered={remembered?.get(execution.task_history_id)}
           rerunPending={rerunMutation.isPending}
+          canRerun={acceptsRuns}
           onRunAgain={() => handleRunAgain(execution)}
           onEditParameters={() => onEditParameters?.(execution)}
         />
@@ -721,6 +679,7 @@ function ExecutionRow({
   onOpenFiles,
   remembered,
   rerunPending,
+  canRerun,
   onRunAgain,
   onEditParameters,
 }: {
@@ -735,6 +694,11 @@ function ExecutionRow({
   remembered: AtwRememberedDispatch | undefined;
   /** Whether the pane's shared rerun mutation is in flight for any row. */
   rerunPending: boolean;
+  /**
+   * False on a closed incident: it accepts no runs, and its Collect pane —
+   * where "Edit parameters" lands — is not on screen.
+   */
+  canRerun: boolean;
   onRunAgain: () => void;
   onEditParameters: () => void;
 }) {
@@ -888,12 +852,12 @@ function ExecutionRow({
               Files
             </Button>
           )}
-          {canMutate && (
+          {canMutate && canRerun && (
             <Button size="small" variant="outlined" onClick={onEditParameters}>
               Edit parameters and run again
             </Button>
           )}
-          {canMutate && remembered && (
+          {canMutate && canRerun && remembered && (
             <Button
               size="small"
               variant="outlined"

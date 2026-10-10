@@ -1200,6 +1200,17 @@ var databaseSchema = [][]string{
 			AND agent_type <> 'mongodb_exporter'`,
 	},
 	120: {
+		// Migration 110 filled instance_id only for Nodes that existed then; the inventory API
+		// kept creating remote RDS Nodes without it. Before 3.4.0 that API took the DB instance
+		// identifier as the address, so a bare address is the identifier. An endpoint address is
+		// left alone: its first label is only right for a standard instance endpoint, not for a
+		// cluster endpoint, a CNAME or an IP, and a wrong identifier is harder to spot than none.
+		// AWS stores DB instance identifiers in lowercase and rds_exporter matches them exactly,
+		// so identifiers stored as typed are lowercased too, as createNodeWithID now does.
+		`UPDATE nodes SET instance_id = lower(instance_id) WHERE node_type = 'remote_rds' AND instance_id <> lower(instance_id)`,
+		`UPDATE nodes SET instance_id = lower(address) WHERE node_type = 'remote_rds' AND instance_id = '' AND address NOT LIKE '%.%'`,
+	},
+	121: {
 		`ALTER TABLE agents ADD COLUMN status_message TEXT`,
 	},
 }
@@ -1239,7 +1250,9 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to create a connection pool to PostgreSQL: %w", err)
 	}
 
-	db.SetConnMaxLifetime(0)
+	// Recycle connections so that, after a PostgreSQL failover in HA, a pool left
+	// on the demoted primary (now a read-only replica) moves to the new primary.
+	db.SetConnMaxLifetime(5 * time.Minute) //nolint:mnd
 	db.SetConnMaxIdleTime(5 * time.Minute) //nolint:mnd
 	// Sized to give DB-bound auth/role/settings paths enough headroom during
 	// a reconnect storm from a fleet of agents, while staying well within
