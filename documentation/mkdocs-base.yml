@@ -336,7 +336,7 @@ nav:
                   - advisors/checks/configuration-check-innodb-data-file-path.md
                   - advisors/checks/mysql_configuration_innodb_file_per_table_not_enabled.md
                   - advisors/checks/postgresql-wal-retention-check.md
-              - Schema & indexes:
+              - Schema and indexes:
                   - advisors/checks/mongodb-inconsistent-indexes-across-shards.md
                   - advisors/checks/mongodb-unused-indexes.md
                   - advisors/checks/datadesign-mysql-indexes-larger-than-data.md

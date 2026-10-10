@@ -2,7 +2,7 @@
 
 Percona advisors provide automated insights and recommendations within Percona Monitoring and Management (PMM). These proactive insights help you uncover problems before they become larger issues: security risks, misconfigurations, poor performance, etc.
 
-Advisor checks are grouped by category: Connections, Durability, Logging, Maintenance, Performance, Replication, Resources, Schema & indexes, Security and Versions. Each category offers a set of automated checks, which investigate a specific range of possible issues. You can browse all checks on the **Advisors > Catalog** page.
+Advisor checks are grouped by category: Connections, Durability, Logging, Maintenance, Performance, Replication, Resources, Schema and indexes, Security and Versions. Each category offers a set of automated checks, which investigate a specific range of possible issues. You can browse all checks on the **Advisors > Catalog** page.
 
 ## Enable/Disable
 Advisors are bundled with every PMM installation and automatically loaded by PMM Server when starting up. PMM runs automatic advisor checks in the background when the **Advisors** option is enabled under **Configuration > Settings > Advisors**. This option is enabled by default, but you can disable it at any time if you do not need to check the health and performance of your connected databases.

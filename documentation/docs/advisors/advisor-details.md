@@ -17,7 +17,7 @@ The following table shows how many checks each category has for each technology:
 | [Performance](#performance) | 6 | 2 | 3 |
 | [Replication](#replication) | 5 | 1 | 5 |
 | [Resources](#resources) | 3 | 1 | 7 |
-| [Schema & indexes](#schema-indexes) | 2 | 3 | 2 |
+| [Schema and indexes](#schema-and-indexes) | 2 | 3 | 2 |
 | [Security](#security) | 18 | 3 | 6 |
 | [Versions](#versions) | 3 | 4 | 4 |
 
@@ -120,7 +120,7 @@ The following table shows how many checks each category has for each technology:
 | `mysql_configuration_innodb_file_per_table_not_enabled` | MySQL | innodb_file_per_table not enabled | Warns when innodb\_file\_per_table is not enabled. |
 | `postgresql_wal_retention_check` | PostgreSQL | Check for WAL file accumulation | Checks if there are too many WAL files retained in the WAL directory. |
 
-## Schema & indexes
+## Schema and indexes
 
 | Check name | Technology | Summary | Description |
 | :--------- | :--------- | :------ | :---------- |
