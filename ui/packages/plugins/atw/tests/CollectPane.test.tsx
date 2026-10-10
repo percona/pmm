@@ -61,7 +61,7 @@ describe('CollectPane', () => {
     mockedApi.get.mockResolvedValue({ data: { shared: [], per_snippet: [] } });
   });
 
-  it('shows a closed message and disables collection controls when the incident is closed', async () => {
+  it('replaces the picker and its instructions with one line when the incident is closed', async () => {
     renderPane(
       <CollectPane incidentId="11111111-1111-4111-8111-111111111111" isClosed />
     );
@@ -72,7 +72,8 @@ describe('CollectPane', () => {
     expect(screen.queryByRole('button', { name: /Execute batch/i })).toBeNull();
     expect(screen.queryByText('Filter by category')).toBeNull();
     expect(
-      screen.getByRole('combobox', { name: 'Search scripts' })
-    ).toBeDisabled();
+      screen.queryByRole('combobox', { name: 'Search scripts' })
+    ).toBeNull();
+    expect(screen.queryByText(/Search by name or description/)).toBeNull();
   });
 });

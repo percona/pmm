@@ -23,11 +23,16 @@ import {
 } from './IncidentsEmptyState.messages';
 
 export interface IncidentsEmptyStateProps {
-  /** Opens the create-incident dialog. Omit for a read-only session. */
+  /** Creates an incident. Omit for a read-only session. */
   onCreate?: () => void;
+  /** True while that create is in flight. */
+  creating?: boolean;
 }
 
-export function IncidentsEmptyState({ onCreate }: IncidentsEmptyStateProps) {
+export function IncidentsEmptyState({
+  onCreate,
+  creating,
+}: IncidentsEmptyStateProps) {
   return (
     <Stack
       alignItems="center"
@@ -51,6 +56,7 @@ export function IncidentsEmptyState({ onCreate }: IncidentsEmptyStateProps) {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={onCreate}
+            loading={creating}
             sx={{ mt: 3 }}
             data-testid="atw-incidents-empty-create"
           >

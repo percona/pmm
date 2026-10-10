@@ -661,17 +661,26 @@ export function CollectPane({
   // seed a form react-hook-form believes is already up to date.
   const formKey = `${selectedNames.join('|')}::${appliedRerunNonce}`;
 
+  // A closed incident accepts no runs, so the picker and its instructions
+  // would only describe something the reader cannot do. One line says why.
+  if (isClosed) {
+    return (
+      <Box>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Collect
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          This incident is closed. Reopen it to run more diagnostic snippets.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box>
       <Typography variant="h6" sx={{ mb: 2 }}>
         Collect
       </Typography>
-
-      {isClosed && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          This incident is closed. Reopen it to run more diagnostic snippets.
-        </Alert>
-      )}
 
       {searchQuery.error && debouncedSearch !== '' && !categoryFilterActive && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -696,7 +705,6 @@ export function CollectPane({
 
       <Autocomplete
         multiple
-        disabled={isClosed}
         options={options}
         value={selected}
         onChange={(_event, value) => {
@@ -756,7 +764,7 @@ export function CollectPane({
                 : undefined
             }
             helperText={
-              selected.length === 0 && !isClosed
+              selected.length === 0
                 ? 'Search by name or description, or filter by category below, then select one or more scripts to build the execution form.'
                 : undefined
             }
@@ -775,11 +783,9 @@ export function CollectPane({
         )}
       />
 
-      {!isClosed && (
-        <Box sx={{ mt: 3 }}>
-          <CategoryFilters onSnippetsChange={handleSnippetsChange} />
-        </Box>
-      )}
+      <Box sx={{ mt: 3 }}>
+        <CategoryFilters onSnippetsChange={handleSnippetsChange} />
+      </Box>
 
       {rerunResolveFailed && (
         <Alert severity="warning" sx={{ mt: 3 }}>
@@ -843,7 +849,6 @@ export function CollectPane({
 
       {selected.length > 0 &&
         schemaQuery.data &&
-        !isClosed &&
         canMutate &&
         dispatchedCount === null && (
           <Box sx={{ mt: 3 }}>
