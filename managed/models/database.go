@@ -18,8 +18,10 @@ package models
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/url"
 	"os"
@@ -1242,10 +1244,11 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	}
 	dsn := uri.String()
 
-	db, err := sql.Open("postgres", dsn)
+	pqConnector, err := pq.NewConnector(dsn)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create a connection pool to PostgreSQL: %w", err)
 	}
+	db := sql.OpenDB(connector{Connector: pqConnector})
 
 	// Recycle connections so that, after a PostgreSQL failover in HA, a pool left
 	// on the demoted primary (now a read-only replica) moves to the new primary.
@@ -1258,6 +1261,37 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	db.SetMaxOpenConns(50) //nolint:mnd
 
 	return db, nil
+}
+
+// connector marks connection failures that are likely transient with ErrDatabaseUnavailable.
+type connector struct {
+	driver.Connector
+}
+
+// Connect implements driver.Connector.
+func (c connector) Connect(ctx context.Context) (driver.Conn, error) {
+	conn, err := c.Connector.Connect(ctx)
+	if err != nil && isConnectUnavailable(err) {
+		return nil, fmt.Errorf("%w: %w", ErrDatabaseUnavailable, err)
+	}
+	return conn, err
+}
+
+func isConnectUnavailable(err error) bool {
+	opErr, ok := errors.AsType[*net.OpError](err)
+	if ok {
+		return opErr.Op != "remote error" // TLS alert from the server, e.g. a rejected client certificate
+	}
+	if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) {
+		return true
+	}
+
+	pqErr, ok := errors.AsType[*pq.Error](err)
+	if !ok {
+		return false
+	}
+	// insufficient resources (e.g. too many connections), operator intervention (e.g. shutting down)
+	return strings.HasPrefix(string(pqErr.Code), "53") || strings.HasPrefix(string(pqErr.Code), "57")
 }
 
 // SetupFixturesMode defines if SetupDB adds initial data to the database or not.

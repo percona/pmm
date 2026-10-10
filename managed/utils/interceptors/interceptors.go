@@ -17,6 +17,7 @@ package interceptors
 
 import (
 	"context"
+	"errors"
 	"regexp"
 	"runtime/debug"
 	"runtime/pprof"
@@ -31,6 +32,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -66,6 +68,9 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 			}
 		case gRPCError:
 			l.Warnf("%s done in %s with gRPC error: %+v", prefix, dur, err)
+		case errors.Is(err, models.ErrDatabaseUnavailable):
+			l.Errorf("%s done in %s with database error: %+v", prefix, dur, err)
+			err = status.Error(codes.Unavailable, "Database is unavailable, please retry.")
 		default:
 			l.Errorf("%s done in %s with unexpected error: %+v", prefix, dur, err)
 			err = status.Error(codes.Internal, "Internal server error.")
