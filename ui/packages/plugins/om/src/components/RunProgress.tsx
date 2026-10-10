@@ -15,10 +15,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useState } from 'react';
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { enqueueSnackbar } from 'notistack';
 import {
-  Alert,
   Box,
   Button,
   Chip,
@@ -27,6 +27,9 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  IconButton,
+  Link,
+  Paper,
   Stack,
   Table,
   TableBody,
@@ -40,6 +43,7 @@ import {
 import { alpha } from '@mui/material/styles';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -47,20 +51,30 @@ import {
   BOOTSTRAP_RUN_COLOR,
   BOOTSTRAP_RUN_LABEL,
   BOOTSTRAP_STEP_LABEL,
+  OM_ROUTE_FLEET,
+  OM_ROUTE_NODES,
+  bootstrapStepLabel,
 } from '../constants';
 import {
   bootstrapRunDisplayStatus,
   canCancelBootstrapRun,
   isHostRollingBack,
 } from '../api';
-import { useCancelBootstrapRun } from '../inventoryHooks';
+import { formatRunElapsed } from '../format';
+import { useCancelBootstrapRun, useOmInventoryHosts } from '../inventoryHooks';
+import { runHasFailure, runSummaryLine } from '../runSummary';
 import type { OmBootstrapStep, OmGetBootstrapRunResponse } from '../types';
+import { useOmBase } from '../useOmBase';
+import { useNow } from '../useNow';
+import { SecurityPosture } from './SecurityPosture';
 import { OmError } from './OmError';
 
 /**
- * Shared by {@link BootstrapPage}'s live "Bootstrap" step and the Automations
- * page's expanded run row - a run's progress reads the same whichever way it is
- * reached, so there is one rendering of it rather than two that can drift.
+ * A run's progress, as the Automations page's expanded run row shows it.
+ *
+ * Leads with one line rather than the matrix: which step of how many, what it is
+ * doing and for how long. The matrix is one click away, and opens by itself the
+ * moment anything fails, because that is when a reader needs the cell.
  *
  * A matrix, not a per-host list: hosts are columns, steps are rows, so a
  * reader compares hosts at a glance instead of scanning separate chip lists.
@@ -71,7 +85,7 @@ import { OmError } from './OmError';
 
 /** One step's icon: grey for not-yet/skipped, spinner while running, green/red on a terminal outcome. */
 const StepStatusIcon = ({ step }: { step: OmBootstrapStep }) => {
-  const label = `${step.name}: ${BOOTSTRAP_STEP_LABEL[step.status] ?? step.status}${
+  const label = `${bootstrapStepLabel(step.name)}: ${BOOTSTRAP_STEP_LABEL[step.status] ?? step.status}${
     step.attempt_count > 1 ? ` (attempt ${step.attempt_count})` : ''
   }${step.detail ? ` — ${step.detail}` : ''}`;
   return (
@@ -102,6 +116,50 @@ const StepStatusIcon = ({ step }: { step: OmBootstrapStep }) => {
   );
 };
 
+/** A run's host key to the name a reader knows the node by. */
+type NodeNameOf = (host: string) => string;
+
+/**
+ * Resolve a run's host keys to node names.
+ *
+ * A run names its hosts by executor hostname (`BootstrapHost.host` - pmm-managed
+ * hands PMM Extensions executor hosts, and joins them back the same way for
+ * confirm_monitoring), which is not what anyone calls a node. The names come from
+ * the same nodes list the Nodes page reads, so this is a cache hit there. Node ids
+ * resolve too, in case the key is ever the id the install was requested with; a key
+ * the list does not know - a node forgotten since the run - shows as itself.
+ */
+function useNodeNames(): NodeNameOf {
+  const { data: hosts } = useOmInventoryHosts();
+  return useMemo(() => {
+    const names = new Map<string, string>();
+    for (const host of hosts ?? []) {
+      names.set(host.node_id, host.name);
+      if (host.executor_host) {
+        names.set(host.executor_host, host.name);
+      }
+    }
+    return (key: string) => names.get(key) || key;
+  }, [hosts]);
+}
+
+/**
+ * One cell of the matrix. A failed one is tinted as well as iconed, so it is the
+ * first thing a reader of a failed run finds when the matrix opens by itself.
+ */
+const StepCell = ({ step }: { step: OmBootstrapStep | undefined }) => (
+  <TableCell
+    align="center"
+    sx={
+      step?.status === 'failed'
+        ? { bgcolor: (theme) => alpha(theme.palette.error.main, 0.12) }
+        : undefined
+    }
+  >
+    {step && <StepStatusIcon step={step} />}
+  </TableCell>
+);
+
 /**
  * The step matrix: hosts as columns, steps as rows, in execution order - an
  * optional leading "Starting…" row (see {@link isStarting}) while nothing has
@@ -120,7 +178,13 @@ const StepStatusIcon = ({ step }: { step: OmBootstrapStep }) => {
  * host in one run shares one strategy (phase-1 scope), so every host's step
  * list is the same names in the same order.
  */
-const StepMatrix = ({ run }: { run: OmGetBootstrapRunResponse }) => {
+const StepMatrix = ({
+  run,
+  nodeName,
+}: {
+  run: OmGetBootstrapRunResponse;
+  nodeName: NodeNameOf;
+}) => {
   const rollingBack = run.hosts.some(isHostRollingBack);
   const seedHost = run.hosts[0];
   if (!seedHost) {
@@ -136,7 +200,7 @@ const StepMatrix = ({ run }: { run: OmGetBootstrapRunResponse }) => {
             <TableCell>Step</TableCell>
             {run.hosts.map((host) => (
               <TableCell key={host.host} align="center">
-                {host.host}
+                {nodeName(host.host)}
               </TableCell>
             ))}
           </TableRow>
@@ -156,22 +220,18 @@ const StepMatrix = ({ run }: { run: OmGetBootstrapRunResponse }) => {
           )}
           {seedHost.steps.map((forwardStep) => (
             <TableRow key={`forward-${forwardStep.name}`}>
-              <TableCell>{forwardStep.name}</TableCell>
+              <TableCell>{bootstrapStepLabel(forwardStep.name)}</TableCell>
               {run.hosts.map((host) => {
                 const step = host.steps.find(
                   (candidate) => candidate.name === forwardStep.name
                 );
-                return (
-                  <TableCell key={host.host} align="center">
-                    {step && <StepStatusIcon step={step} />}
-                  </TableCell>
-                );
+                return <StepCell key={host.host} step={step} />;
               })}
             </TableRow>
           ))}
           {run.run_steps.map((step) => (
             <TableRow key={`run-${step.name}`} sx={{ bgcolor: 'action.hover' }}>
-              <TableCell>{step.name}</TableCell>
+              <TableCell>{bootstrapStepLabel(step.name)}</TableCell>
               {run.hosts.map((host) => (
                 // Not colSpan: a single merged cell centers within the
                 // union of every host column's width, which for an odd
@@ -179,24 +239,18 @@ const StepMatrix = ({ run }: { run: OmGetBootstrapRunResponse }) => {
                 // whichever column is in the middle rather than to all of
                 // them -- repeating the one shared outcome under every
                 // column reads unambiguously instead.
-                <TableCell key={host.host} align="center">
-                  <StepStatusIcon step={step} />
-                </TableCell>
+                <StepCell key={host.host} step={step} />
               ))}
             </TableRow>
           ))}
           {seedHost.finalize_steps.map((finalizeStep) => (
             <TableRow key={`finalize-${finalizeStep.name}`}>
-              <TableCell>{finalizeStep.name}</TableCell>
+              <TableCell>{bootstrapStepLabel(finalizeStep.name)}</TableCell>
               {run.hosts.map((host) => {
                 const step = host.finalize_steps.find(
                   (candidate) => candidate.name === finalizeStep.name
                 );
-                return (
-                  <TableCell key={host.host} align="center">
-                    {step && <StepStatusIcon step={step} />}
-                  </TableCell>
-                );
+                return <StepCell key={host.host} step={step} />;
               })}
             </TableRow>
           ))}
@@ -222,16 +276,12 @@ const StepMatrix = ({ run }: { run: OmGetBootstrapRunResponse }) => {
           {rollingBack &&
             seedHost.rollback_steps.map((rollbackStep) => (
               <TableRow key={`rollback-${rollbackStep.name}`}>
-                <TableCell>{rollbackStep.name}</TableCell>
+                <TableCell>{bootstrapStepLabel(rollbackStep.name)}</TableCell>
                 {run.hosts.map((host) => {
                   const step = host.rollback_steps.find(
                     (candidate) => candidate.name === rollbackStep.name
                   );
-                  return (
-                    <TableCell key={host.host} align="center">
-                      {step && <StepStatusIcon step={step} />}
-                    </TableCell>
-                  );
+                  return <StepCell key={host.host} step={step} />;
                 })}
               </TableRow>
             ))}
@@ -333,46 +383,218 @@ const AbortButton = ({ run }: { run: OmGetBootstrapRunResponse }) => {
   );
 };
 
-/** A run's full progress: its own status, then the step matrix. */
+/** The run id, secondary to the replica set it installs, and copyable for a ticket. */
+const RunId = ({ runId }: { runId: string }) => {
+  const [copied, setCopied] = useState(false);
+  return (
+    <Stack direction="row" spacing={0.5} alignItems="center">
+      <Typography variant="caption" color="text.secondary">
+        Run {runId}
+      </Typography>
+      <Tooltip title={copied ? 'Copied' : 'Copy run ID'}>
+        <IconButton
+          size="small"
+          aria-label="Copy run ID"
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(runId);
+              setCopied(true);
+            } catch {
+              setCopied(false);
+            }
+          }}
+          onMouseLeave={() => setCopied(false)}
+        >
+          <ContentCopyIcon sx={{ fontSize: 14 }} />
+        </IconButton>
+      </Tooltip>
+    </Stack>
+  );
+};
+
+/** One labelled fact on the completion card. */
+const Fact = ({ label, children }: { label: string; children: ReactNode }) => (
+  <Stack direction="row" spacing={1}>
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      sx={{ minWidth: 140, flexShrink: 0 }}
+    >
+      {label}
+    </Typography>
+    <Typography variant="body2" component="div">
+      {children}
+    </Typography>
+  </Stack>
+);
+
+/**
+ * How a successful install ends: what was created, where it is, and the security
+ * settings it was installed with - the wording the install wizard used, so what the
+ * user agreed to is what they are told they got.
+ */
+const CompletionCard = ({
+  run,
+  nodeName,
+}: {
+  run: OmGetBootstrapRunResponse;
+  nodeName: NodeNameOf;
+}) => {
+  const omBase = useOmBase();
+  const took = formatRunElapsed(run.started_at, run.finished_at);
+  return (
+    <Paper variant="outlined" sx={{ p: 2 }} aria-label="Install summary">
+      <Stack spacing={2}>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <CheckCircleIcon color="success" />
+          <Typography variant="subtitle1" component="h3">
+            Replica set {run.replica_set_name} is installed
+          </Typography>
+        </Stack>
+        <Stack spacing={0.5}>
+          <Fact label="MongoDB version">{run.mongodb_version || '—'}</Fact>
+          <Fact label="Members">
+            {run.hosts.map((host, index) => {
+              const name = nodeName(host.host);
+              return (
+                <Fragment key={host.host}>
+                  {index > 0 && ', '}
+                  <Link
+                    component={RouterLink}
+                    to={`${omBase}/${OM_ROUTE_NODES}?node=${encodeURIComponent(name)}`}
+                  >
+                    {name}
+                  </Link>
+                </Fragment>
+              );
+            })}
+          </Fact>
+          {run.environment && (
+            <Fact label="Environment">{run.environment}</Fact>
+          )}
+          {run.cluster && <Fact label="Cluster">{run.cluster}</Fact>}
+          {took && <Fact label="Took">{took}</Fact>}
+        </Stack>
+        <SecurityPosture title="Security settings still in place" />
+        <Stack direction="row" spacing={1}>
+          <Button
+            component={RouterLink}
+            to={`${omBase}/${OM_ROUTE_FLEET}?tab=clusters`}
+            variant="outlined"
+            size="small"
+          >
+            View in Fleet
+          </Button>
+          <Button
+            component={RouterLink}
+            to={`${omBase}/${OM_ROUTE_NODES}`}
+            variant="outlined"
+            size="small"
+          >
+            View nodes
+          </Button>
+        </Stack>
+      </Stack>
+    </Paper>
+  );
+};
+
+/**
+ * A run's full progress: the replica set and its status, one line saying where the
+ * run has got to, the completion card once it succeeds, and the step matrix behind a
+ * toggle.
+ */
 export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => {
   const status = bootstrapRunDisplayStatus(run);
+  const nodeName = useNodeNames();
+  const failed = runHasFailure(run);
+  const [showDetails, setShowDetails] = useState(failed);
+  // Opens on the transition too, not only on mount: a reader watching a run live
+  // should see the failing cell the moment it fails, without looking for a toggle.
+  useEffect(() => {
+    if (failed) {
+      setShowDetails(true);
+    }
+  }, [failed]);
+  const now = useNow(status === 'running');
+  const summary = runSummaryLine(run, nodeName, now);
+  // Only the step text is a live region: the elapsed suffix ticks every second and
+  // would have the whole line re-announced with it.
+  const announced = runSummaryLine(run, nodeName, null) ?? '';
+  const rollingBack = run.hosts.some(isHostRollingBack);
+  // A pre_check failure skips every teardown step: nothing was installed to remove.
+  const nothingRolledBack =
+    rollingBack &&
+    run.hosts.every((host) =>
+      host.rollback_steps.every((step) => step.status === 'skipped')
+    );
+  const labels = [run.environment, run.cluster].filter(Boolean).join(' / ');
+  const detailsId = `run-${run.run_id}-steps`;
+
   return (
     <Stack spacing={2}>
-      <Stack direction="row" spacing={2} alignItems="center">
-        <Alert
-          severity={
-            status === 'succeeded'
-              ? 'success'
-              : status === 'failed' || status === 'rolled_back'
-                ? 'error'
-                : 'info'
-          }
-          sx={{ flexGrow: 1 }}
-        >
-          Run {run.run_id}:{' '}
-          <Chip
-            size="small"
-            label={BOOTSTRAP_RUN_LABEL[status] ?? status}
-            color={BOOTSTRAP_RUN_COLOR[status] ?? 'default'}
-          />{' '}
-          {run.replica_set_name}
-          {(run.environment || run.cluster) &&
-            ` (${[run.environment, run.cluster].filter(Boolean).join(' / ')})`}
-          {run.error ? ` — ${run.error}` : ''}
-        </Alert>
+      <Stack direction="row" spacing={2} alignItems="flex-start">
+        <Box sx={{ flexGrow: 1 }}>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Typography variant="subtitle1" component="h3" fontWeight="bold">
+              {run.replica_set_name}
+            </Typography>
+            <Chip
+              size="small"
+              label={BOOTSTRAP_RUN_LABEL[status] ?? status}
+              color={BOOTSTRAP_RUN_COLOR[status] ?? 'default'}
+            />
+            {labels && (
+              <Typography variant="body2" color="text.secondary">
+                {labels}
+              </Typography>
+            )}
+          </Stack>
+          <RunId runId={run.run_id} />
+        </Box>
         <AbortButton run={run} />
       </Stack>
-      {run.cancel_requested && !run.hosts.some(isHostRollingBack) && (
+      {summary && (
+        <Typography variant="body1" color={failed ? 'error.main' : undefined}>
+          <span role="status">{announced}</span>
+          {summary.slice(announced.length)}
+        </Typography>
+      )}
+      {run.error && <OmError placement="item" messages={run.error} />}
+      {status === 'running' && run.cancel_requested && !rollingBack && (
         <Typography variant="body2" color="warning.main">
           Abort requested - rolling back once the current step stops.
         </Typography>
       )}
-      {run.hosts.some(isHostRollingBack) && (
+      {/* rollback_steps keep their outcomes once the run ends, so rollingBack alone
+          would still say "Rolling back" on a run that finished doing so. */}
+      {rollingBack && (
         <Typography variant="body2" color="warning.main">
-          Rolling back every node.
+          {status === 'running'
+            ? 'Rolling back every node.'
+            : nothingRolledBack
+              ? 'Nothing had been installed, so there was nothing to roll back.'
+              : 'Every node was rolled back.'}
         </Typography>
       )}
-      <StepMatrix run={run} />
+      {status === 'succeeded' && (
+        <CompletionCard run={run} nodeName={nodeName} />
+      )}
+      <Box>
+        <Button
+          size="small"
+          aria-expanded={showDetails}
+          aria-controls={detailsId}
+          onClick={() => setShowDetails((open) => !open)}
+        >
+          {showDetails ? 'Hide step details' : 'Show step details'}
+        </Button>
+        {showDetails && (
+          <Box id={detailsId} sx={{ mt: 1 }}>
+            <StepMatrix run={run} nodeName={nodeName} />
+          </Box>
+        )}
+      </Box>
     </Stack>
   );
 };

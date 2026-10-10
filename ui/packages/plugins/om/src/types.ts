@@ -597,6 +597,11 @@ export interface OmBootstrapStep {
 
 /** One host's progress within a bootstrap run. */
 export interface OmBootstrapHost {
+  /**
+   * The executor hostname PMM Extensions ran this host's steps on - not a node id,
+   * whatever the proto comment says: pmm-managed hands PMM Extensions executor hosts
+   * (TriggerHostBootstrap) and joins them back that way for confirm_monitoring.
+   */
   host: string;
   /** This host's own install steps, in the order they run. */
   steps: OmBootstrapStep[];
