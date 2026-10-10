@@ -433,6 +433,13 @@ func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32
 	res := make([]*agentv1.MetricsBucket, 0, len(current))
 
 	for digest, currentESS := range current {
+		// Real-Time Analytics polls this server every few seconds. That is PMM's own load, not
+		// the workload Query Analytics describes.
+		if agents.IsRTAQuery(*currentESS.DigestText) {
+			l.Tracef("Skipped a Real-Time Analytics query: %s.", currentESS)
+			continue
+		}
+
 		prevESS := prev[digest]
 		if prevESS == nil {
 			prevESS = &eventsStatementsSummaryByDigest{}

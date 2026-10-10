@@ -647,6 +647,8 @@ func (m *StateChangedRequest) validate(all bool) error {
 
 	// no validation rules for Version
 
+	// no validation rules for StatusMessage
+
 	if len(errors) > 0 {
 		return StateChangedRequestMultiError(errors)
 	}

@@ -19,6 +19,7 @@ message ListServicesRequest {
 
 message ListServicesResponse {
   repeated inventory.v1.MongoDBService mongodb = 1;
+  repeated inventory.v1.MySQLService mysql = 2;
 }
 
 // Session related messages
@@ -48,6 +49,12 @@ message Session {
   google.protobuf.Duration collect_interval = 5;
   // Current status of the Real-Time Analytics session.
   SessionStatus status = 6;
+  // Type of the service the session is running for. Lets clients tell MySQL and
+  // MongoDB sessions apart without a second lookup in the inventory.
+  inventory.v1.ServiceType service_type = 7;
+  // Human-readable explanation reported by the agent: why the session failed to start when status
+  // is ERROR, or what it cannot collect when status is RUNNING. Empty when there is nothing to report.
+  string status_message = 8;
 }
 
 // ListSessionsRequest contains optional filters for listing active Real-Time Analytics Sessions for a particular cluster.

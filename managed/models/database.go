@@ -1210,6 +1210,9 @@ var databaseSchema = [][]string{
 		`UPDATE nodes SET instance_id = lower(instance_id) WHERE node_type = 'remote_rds' AND instance_id <> lower(instance_id)`,
 		`UPDATE nodes SET instance_id = lower(address) WHERE node_type = 'remote_rds' AND instance_id = '' AND address NOT LIKE '%.%'`,
 	},
+	121: {
+		`ALTER TABLE agents ADD COLUMN status_message TEXT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

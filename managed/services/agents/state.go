@@ -197,6 +197,21 @@ func (u *StateUpdater) vmAgentDeployment(pmmAgentID string) vmAgentDeployment {
 	}
 }
 
+// rtaAgentRunnable reports whether the pmm-agent can run the given agent row. Only Real-Time
+// Analytics agents are ever refused: their collectors shipped in later pmm-agent releases than the
+// agent types themselves, and an older pmm-agent sent one logs "unhandled agent type" every time it
+// retries starting it, about once a second, for as long as the row exists. The inventory API and
+// StartSession refuse such rows, but one can predate that check or be created before the pmm-agent
+// first reports its version.
+func rtaAgentRunnable(row *models.Agent, service *models.Service, pmmAgentVersion string) bool {
+	switch row.AgentType {
+	case models.RTAMongoDBAgentType, models.RTAMySQLAgentType:
+		return models.IsRTASupported(pmmAgentVersion, service.ServiceType)
+	default:
+		return true
+	}
+}
+
 // sendSetStateRequest sends SetStateRequest to given pmm-agent.
 func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo) error { //nolint:gocognit,cyclop,maintidx
 	l := logger.Get(ctx).WithField("component", loggerComponentNameStateUpdater)
@@ -332,10 +347,14 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			models.ValkeyExporterType, models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType,
 			models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType,
 			models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType,
-			models.RTAMongoDBAgentType:
+			models.RTAMongoDBAgentType, models.RTAMySQLAgentType:
 			service, err := getService(pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
+			}
+			if !rtaAgentRunnable(row, service, *pmmAgent.Version) {
+				l.Debugf("Not sending %s %s: pmm-agent %s has no collector for it.", row.AgentType, row.AgentID, *pmmAgent.Version)
+				continue
 			}
 			node, _ := getNode(pointer.GetString(pmmAgent.RunsOnNodeID))
 			switch row.AgentType { //nolint:exhaustive
@@ -383,6 +402,8 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				builtinAgents[row.AgentID] = qanPostgreSQLPgStatMonitorAgentConfig(service, row, pmmAgentVersion)
 			case models.RTAMongoDBAgentType:
 				builtinAgents[row.AgentID] = rtaMongoDBAgentConfig(service, row, pmmAgentVersion)
+			case models.RTAMySQLAgentType:
+				builtinAgents[row.AgentID] = rtaMySQLAgentConfig(service, row, pmmAgentVersion)
 			}
 
 		default:

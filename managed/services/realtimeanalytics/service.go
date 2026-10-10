@@ -43,7 +43,6 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/utils/logger"
-	"github.com/percona/pmm/version"
 )
 
 // Service provides API for managing Real-Time Analytics.
@@ -91,8 +90,8 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 			return nil, err
 		}
 	} else {
-		// No service type filter specified - return all services that support RTA.
-		// For the time being we only support MongoDB, so we can just filter by service type here.
+		// No service type filter specified - return all services that support RTA
+		// (currently MongoDB and MySQL), filtered by service type.
 		for _, modelServiceType := range services.ServiceTypes {
 			_, err := getRTAAgentTypeForServiceType(modelServiceType)
 			if err != nil {
@@ -137,7 +136,7 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 
 		// PMM Agent that is linked to the requested service may be outdated and doesn't support RTA.
 		// In this case we cannot start RTA session for this service and should return an error.
-		if !isRtaFeatureSupported(*pmmAgents[0].Version) {
+		if !models.IsRTASupported(pointer.GetString(pmmAgents[0].Version), svc.ServiceType) {
 			continue // skip services with unsupported pmm-agent version
 		}
 
@@ -150,6 +149,8 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 		switch apiSvc := apiSvc.(type) {
 		case *inventoryv1.MongoDBService:
 			res.Mongodb = append(res.Mongodb, apiSvc)
+		case *inventoryv1.MySQLService:
+			res.Mysql = append(res.Mysql, apiSvc)
 		// Add other service types once RTA is supported for them
 		default:
 			return nil, fmt.Errorf("unhandled inventory Service type %T", apiSvc)
@@ -157,6 +158,10 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 	}
 
 	slices.SortStableFunc(res.Mongodb, func(a, b *inventoryv1.MongoDBService) int {
+		return strings.Compare(a.ServiceName, b.ServiceName)
+	})
+
+	slices.SortStableFunc(res.Mysql, func(a, b *inventoryv1.MySQLService) int {
 		return strings.Compare(a.ServiceName, b.ServiceName)
 	})
 
@@ -207,7 +212,24 @@ func (s *Service) ListSessions(ctx context.Context, req *rtav1.ListSessionsReque
 				continue
 			}
 
-			response.Sessions = append(response.Sessions, s.convertAgentToSession(agent, service))
+			session := s.convertAgentToSession(agent, service)
+
+			// An RTA agent added through the inventory API before its pmm-agent reported a version can
+			// sit on a pmm-agent without the collector, which never reports a status for it.
+			if agent.PMMAgentID != nil {
+				pmmAgent, err := models.FindAgentByID(dbWithCtx, *agent.PMMAgentID)
+				if err != nil {
+					return nil, err
+				}
+
+				pmmAgentVersion := pointer.GetString(pmmAgent.Version)
+				if pmmAgentVersion != "" && !models.IsRTASupported(pmmAgentVersion, service.ServiceType) {
+					session.Status = rtav1.SessionStatus_SESSION_STATUS_ERROR
+					session.StatusMessage = models.RTANotSupportedMessage(service.ServiceName, service.ServiceID, pmmAgentVersion, service.ServiceType)
+				}
+			}
+
+			response.Sessions = append(response.Sessions, session)
 		}
 	}
 
@@ -261,6 +283,18 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 
 		// RTA Agent exists - update its state if required
 		rtaAgent = existingRTAAgents[0]
+
+		// The agent may have been created through the inventory API against a
+		// pmm-agent that predates RTA support for this service type; don't
+		// enable or report a session that pmm-agent cannot run.
+		pmmAgent, err := models.FindAgentByID(tx.Querier, pointer.GetString(rtaAgent.PMMAgentID))
+		if err != nil {
+			return err
+		}
+		if !models.IsRTASupported(pointer.GetString(pmmAgent.Version), service.ServiceType) {
+			return models.RTANotSupportedError(service.ServiceName, service.ServiceID, pointer.GetString(pmmAgent.Version), service.ServiceType)
+		}
+
 		if !rtaAgent.Disabled {
 			return nil // Already enabled, nothing to do
 		}
@@ -308,6 +342,12 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 			models.QANMongoDBProfilerAgentType,
 			models.QANMongoDBMongologAgentType,
 		}
+	case models.MySQLServiceType:
+		agentTypes = []models.AgentType{
+			models.MySQLdExporterType,
+			models.QANMySQLPerfSchemaAgentType,
+			models.QANMySQLSlowlogAgentType,
+		}
 		// Add other service types once RTA is supported for them
 	default:
 		return nil, status.Errorf(codes.InvalidArgument,
@@ -350,9 +390,8 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 
 	// PMM Agent that is linked to the requested service may be outdated and doesn't support RTA.
 	// In this case we cannot start RTA session for this service and should return an error.
-	if !isRtaFeatureSupported(*pmmAgent.Version) {
-		return nil, status.Errorf(codes.FailedPrecondition,
-			"Service %s has pmm-agent with version not supporting Real-Time Analytics.", service.ServiceID)
+	if !models.IsRTASupported(pointer.GetString(pmmAgent.Version), service.ServiceType) {
+		return nil, models.RTANotSupportedError(service.ServiceName, service.ServiceID, pointer.GetString(pmmAgent.Version), service.ServiceType)
 	}
 
 	err = s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -597,13 +636,41 @@ func (s *Service) convertAgentToSession(agent *models.Agent, service *models.Ser
 		sessionStatus = convertAgentStatusToSessionStatus(inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]))
 	}
 
+	// An interval is only persisted when the request carried one, so an agent
+	// left on the collector's default has none. Report its absence rather than
+	// dereferencing it or inventing a value the agent may not be using.
+	var collectInterval *durationpb.Duration
+	if agent.RTAOptions.CollectInterval != nil {
+		collectInterval = durationpb.New(*agent.RTAOptions.CollectInterval)
+	}
+
+	// The message explains the agent's last reported status, so it is only shown while that status
+	// is what the session reports. A disconnected or stopped agent's last words would be stale.
+	var statusMessage string
+	if sessionStatus == rtav1.SessionStatus_SESSION_STATUS_RUNNING || sessionStatus == rtav1.SessionStatus_SESSION_STATUS_ERROR {
+		statusMessage = pointer.GetString(agent.StatusMessage)
+	}
+
 	return &rtav1.Session{
 		ServiceId:       service.ServiceID,
 		ServiceName:     service.ServiceName,
+		ServiceType:     getProtoServiceType(service.ServiceType),
 		ClusterName:     service.Cluster,
 		StartTime:       timestamppb.New(agent.CreatedAt),
-		CollectInterval: durationpb.New(*agent.RTAOptions.CollectInterval),
+		CollectInterval: collectInterval,
 		Status:          sessionStatus,
+		StatusMessage:   statusMessage,
+	}
+}
+
+func getProtoServiceType(serviceType models.ServiceType) inventoryv1.ServiceType {
+	switch serviceType {
+	case models.MongoDBServiceType:
+		return inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE
+	case models.MySQLServiceType:
+		return inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE
+	default:
+		return inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED
 	}
 }
 
@@ -611,19 +678,11 @@ func getRTAAgentTypeForServiceType(serviceType models.ServiceType) (models.Agent
 	switch serviceType {
 	case models.MongoDBServiceType:
 		return models.RTAMongoDBAgentType, nil
+	case models.MySQLServiceType:
+		return models.RTAMySQLAgentType, nil
 	default:
 		return "", fmt.Errorf("service of type %s does not support Real-Time Analytics", serviceType)
 	}
-}
-
-// isRtaFeatureSupported checks if the passed pmm-agent's version supporting RTA.
-func isRtaFeatureSupported(pmmAgentVersion string) bool {
-	versionParsed, versionParseErr := version.Parse(pmmAgentVersion)
-	if versionParseErr != nil {
-		return false
-	}
-
-	return versionParsed.IsFeatureSupported(version.MongoDBRtaAgentSupportVersion)
 }
 
 // check interfaces.

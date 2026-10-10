@@ -1823,6 +1823,11 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 		params.RTAOptions = *models.RTAOptionsFromRequest(p.RtaOptions)
 	}
 
+	err := as.checkRTASupported(ctx, p.PmmAgentId, p.ServiceId, models.MongoDBServiceType)
+	if err != nil {
+		return nil, err
+	}
+
 	agent, err := as.executeAgentAdd(ctx, models.RTAMongoDBAgentType, params, true)
 	if err != nil {
 		return nil, err
@@ -1841,6 +1846,29 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 	}
 
 	return res, nil
+}
+
+// checkRTASupported refuses an RTA agent on a pmm-agent whose reported version has no collector for
+// the service type: that pmm-agent would log the agent type as unhandled and never run it. A pmm-agent
+// that has not connected yet has no version and is accepted; the sessions list reports the problem
+// if it turns out to be too old.
+func (as *AgentsService) checkRTASupported(ctx context.Context, pmmAgentID, serviceID string, serviceType models.ServiceType) error {
+	pmmAgent, err := models.FindAgentByID(as.db.WithContext(ctx), pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	pmmAgentVersion := pointer.GetString(pmmAgent.Version)
+	if pmmAgentVersion == "" || models.IsRTASupported(pmmAgentVersion, serviceType) {
+		return nil
+	}
+
+	service, err := models.FindServiceByID(as.db.WithContext(ctx), serviceID)
+	if err != nil {
+		return err
+	}
+
+	return models.RTANotSupportedError(service.ServiceName, serviceID, pmmAgentVersion, serviceType)
 }
 
 // ChangeRTAMongoDBAgent updates MongoDB Real-Time Analytics Agent with given parameters.
@@ -1884,6 +1912,101 @@ func (as *AgentsService) ChangeRTAMongoDBAgent(
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_RtaMongodbAgent{
 			RtaMongodbAgent: agent,
+		},
+	}
+
+	return res, nil
+}
+
+// AddRTAMySQLAgent adds MySQL Real-Time Analytics Agent.
+func (as *AgentsService) AddRTAMySQLAgent(ctx context.Context, p *inventoryv1.AddRTAMySQLAgentParams) (*inventoryv1.AddAgentResponse, error) {
+	params := &models.CreateAgentParams{
+		PMMAgentID:    p.PmmAgentId,
+		ServiceID:     p.ServiceId,
+		Username:      p.Username,
+		Password:      p.Password,
+		CustomLabels:  p.CustomLabels,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		MySQLOptions: models.MySQLOptions{
+			TLSCa:   p.GetTlsCa(),
+			TLSCert: p.GetTlsCert(),
+			TLSKey:  p.GetTlsKey(),
+		},
+		LogLevel:            services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		SkipConnectionCheck: p.SkipConnectionCheck,
+	}
+
+	// Set RTA options if provided
+	if p.RtaOptions != nil {
+		params.RTAOptions = *models.RTAOptionsFromRequest(p.RtaOptions)
+	}
+
+	err := as.checkRTASupported(ctx, p.PmmAgentId, p.ServiceId, models.MySQLServiceType)
+	if err != nil {
+		return nil, err
+	}
+
+	agent, err := as.executeAgentAdd(ctx, models.RTAMySQLAgentType, params, true)
+	if err != nil {
+		return nil, err
+	}
+
+	rtaMySQLAgent, ok := agent.(*inventoryv1.RTAMySQLAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
+	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_RtaMysqlAgent{
+			RtaMysqlAgent: rtaMySQLAgent,
+		},
+	}
+
+	return res, nil
+}
+
+// ChangeRTAMySQLAgent updates MySQL Real-Time Analytics Agent with given parameters.
+func (as *AgentsService) ChangeRTAMySQLAgent(
+	ctx context.Context, agentID string,
+	p *inventoryv1.ChangeRTAMySQLAgentParams,
+) (*inventoryv1.ChangeAgentResponse, error) {
+	changeParams := &models.ChangeAgentParams{
+		Enabled:       p.Enable,
+		Username:      p.Username,
+		Password:      p.Password,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		LogLevel:      convertLogLevel(p.LogLevel),
+		CustomLabels:  convertCustomLabels(p.CustomLabels),
+		MySQLOptions: &models.ChangeMySQLOptions{
+			TLSCa:   p.TlsCa,
+			TLSCert: p.TlsCert,
+			TLSKey:  p.TlsKey,
+		},
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
+	}
+
+	// Set RTA options if provided
+	if p.RtaOptions != nil {
+		changeParams.RTAOptions = models.RTAOptionsFromRequest(p.RtaOptions)
+	}
+
+	ag, err := as.executeAgentChange(ctx, agentID, models.RTAMySQLAgentType, changeParams)
+	if err != nil {
+		return nil, err
+	}
+
+	agent, ok := ag.(*inventoryv1.RTAMySQLAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(ag)
+	}
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_RtaMysqlAgent{
+			RtaMysqlAgent: agent,
 		},
 	}
 

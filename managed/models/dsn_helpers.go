@@ -56,6 +56,7 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 			QANMySQLSlowlogAgentType,
 			QANMySQLPerfSchemaAgentType,
 			MySQLdExporterType,
+			RTAMySQLAgentType,
 		)
 	case PostgreSQLServiceType:
 		agentTypes = append(

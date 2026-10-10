@@ -44,6 +44,7 @@ func (v *agentTableType) Columns() []string {
 		"version",
 		"process_exec_path",
 		"is_connected",
+		"status_message",
 		"username",
 		"password",
 		"agent_password",
@@ -99,6 +100,7 @@ var AgentTable = &agentTableType{
 			{Name: "Version", Type: "*string", Column: "version"},
 			{Name: "ProcessExecPath", Type: "*string", Column: "process_exec_path"},
 			{Name: "IsConnected", Type: "bool", Column: "is_connected"},
+			{Name: "StatusMessage", Type: "*string", Column: "status_message"},
 			{Name: "Username", Type: "*string", Column: "username"},
 			{Name: "Password", Type: "*string", Column: "password"},
 			{Name: "AgentPassword", Type: "*string", Column: "agent_password"},
@@ -122,7 +124,7 @@ var AgentTable = &agentTableType{
 
 // String returns a string representation of this struct or record.
 func (s Agent) String() string {
-	res := make([]string, 31)
+	res := make([]string, 32)
 	res[0] = "AgentID: " + reform.Inspect(s.AgentID, true)
 	res[1] = "AgentType: " + reform.Inspect(s.AgentType, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
@@ -139,21 +141,22 @@ func (s Agent) String() string {
 	res[13] = "Version: " + reform.Inspect(s.Version, true)
 	res[14] = "ProcessExecPath: " + reform.Inspect(s.ProcessExecPath, true)
 	res[15] = "IsConnected: " + reform.Inspect(s.IsConnected, true)
-	res[16] = "Username: " + reform.Inspect(s.Username, true)
-	res[17] = "Password: " + reform.Inspect(s.Password, true)
-	res[18] = "AgentPassword: " + reform.Inspect(s.AgentPassword, true)
-	res[19] = "TLS: " + reform.Inspect(s.TLS, true)
-	res[20] = "TLSSkipVerify: " + reform.Inspect(s.TLSSkipVerify, true)
-	res[21] = "LogLevel: " + reform.Inspect(s.LogLevel, true)
-	res[22] = "ExporterOptions: " + reform.Inspect(s.ExporterOptions, true)
-	res[23] = "QANOptions: " + reform.Inspect(s.QANOptions, true)
-	res[24] = "RTAOptions: " + reform.Inspect(s.RTAOptions, true)
-	res[25] = "AWSOptions: " + reform.Inspect(s.AWSOptions, true)
-	res[26] = "AzureOptions: " + reform.Inspect(s.AzureOptions, true)
-	res[27] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
-	res[28] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
-	res[29] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
-	res[30] = "ValkeyOptions: " + reform.Inspect(s.ValkeyOptions, true)
+	res[16] = "StatusMessage: " + reform.Inspect(s.StatusMessage, true)
+	res[17] = "Username: " + reform.Inspect(s.Username, true)
+	res[18] = "Password: " + reform.Inspect(s.Password, true)
+	res[19] = "AgentPassword: " + reform.Inspect(s.AgentPassword, true)
+	res[20] = "TLS: " + reform.Inspect(s.TLS, true)
+	res[21] = "TLSSkipVerify: " + reform.Inspect(s.TLSSkipVerify, true)
+	res[22] = "LogLevel: " + reform.Inspect(s.LogLevel, true)
+	res[23] = "ExporterOptions: " + reform.Inspect(s.ExporterOptions, true)
+	res[24] = "QANOptions: " + reform.Inspect(s.QANOptions, true)
+	res[25] = "RTAOptions: " + reform.Inspect(s.RTAOptions, true)
+	res[26] = "AWSOptions: " + reform.Inspect(s.AWSOptions, true)
+	res[27] = "AzureOptions: " + reform.Inspect(s.AzureOptions, true)
+	res[28] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
+	res[29] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
+	res[30] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
+	res[31] = "ValkeyOptions: " + reform.Inspect(s.ValkeyOptions, true)
 	return strings.Join(res, ", ")
 }
 
@@ -177,6 +180,7 @@ func (s *Agent) Values() []interface{} {
 		s.Version,
 		s.ProcessExecPath,
 		s.IsConnected,
+		s.StatusMessage,
 		s.Username,
 		s.Password,
 		s.AgentPassword,
@@ -215,6 +219,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.Version,
 		&s.ProcessExecPath,
 		&s.IsConnected,
+		&s.StatusMessage,
 		&s.Username,
 		&s.Password,
 		&s.AgentPassword,

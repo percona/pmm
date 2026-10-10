@@ -57,12 +57,15 @@ pmm-admin inventory change agent <AGENT_TYPE> <AGENT_ID> [FLAGS]
 
 ### How `inventory change agent` works
 
-Currently supports MongoDB agent types only:
+Supported agent types include:
 
 - `mongodb-exporter`
 - `qan-mongodb-profiler-agent`
 - `qan-mongodb-mongolog-agent`
 - `rta-mongodb-agent`
+- `rta-mysql-agent`
+
+Run `pmm-admin inventory change agent --help` for the full list your PMM Client version supports.
 
 Only the flags you specify are updated — all other settings remain unchanged. Changes take effect immediately without restarting the agent. The command fails with a clear error if the agent ID doesn't exist or the type doesn't match.
 

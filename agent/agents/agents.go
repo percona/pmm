@@ -17,6 +17,7 @@ package agents
 
 import (
 	"context"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 
@@ -25,11 +26,29 @@ import (
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
+// RTAQueryTag marks the queries the MySQL Real-Time Analytics agent polls with, so the QAN agents
+// can leave them out: RTA runs them every collect interval on the very server QAN is watching.
+// Each query selects NULL AS pmm_agent_rta as its first column, because the statement digest that
+// the perfschema QAN agent reads keeps identifiers but strips comments, and is cut at
+// max_digest_length (1024 bytes by default) -- these queries are longer than that, so the tag has
+// to come first. The /* pmm-agent:rta */ comment next to it is for whoever reads the processlist
+// or the slow log. It lives here because agents must not import each other.
+const RTAQueryTag = "pmm_agent_rta"
+
+// IsRTAQuery reports whether a query text, or its digest text, is one of the MySQL Real-Time
+// Analytics agent's polling queries.
+func IsRTAQuery(query string) bool {
+	return strings.Contains(query, RTAQueryTag)
+}
+
 // Change represents built-in Agent status change and/or QAN collect request.
 type Change struct {
 	Status           inventoryv1.AgentStatus
 	MetricsBucket    []*agentv1.MetricsBucket
 	RTAQueriesBucket []*rtav1.QueryData
+
+	// StatusMessage explains Status to the user, e.g. why initialization failed. Optional.
+	StatusMessage string
 }
 
 // BuiltinAgent is a common interface for all built-in Agents.

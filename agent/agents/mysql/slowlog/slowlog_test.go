@@ -278,3 +278,29 @@ func TestSlowLog(t *testing.T) {
 		}
 	})
 }
+
+func TestSlowLogMakeBucketsSkipsRealTimeAnalyticsQueries(t *testing.T) {
+	t.Parallel()
+
+	// The slow log records the query as the agent sent it, comment and all.
+	const rtaQuery = "SELECT /* pmm-agent:rta */\n    NULL AS pmm_agent_rta,\n    pps.THREAD_ID AS thd_id FROM performance_schema.threads pps"
+
+	parsingResult := event.Result{
+		Class: map[string]*event.Class{
+			"rta": {
+				Metrics:     &event.Metrics{},
+				Fingerprint: rtaQuery,
+				Example:     &event.Example{Query: rtaQuery},
+			},
+			"user": {
+				Metrics:     &event.Metrics{},
+				Fingerprint: "SELECT c FROM sbtest1 WHERE id = 1",
+				Example:     &event.Example{Query: "SELECT c FROM sbtest1 WHERE id = 1"},
+			},
+		},
+	}
+
+	buckets := makeBuckets("agent-id", parsingResult, time.Unix(1557137220, 0), 60, false, false, truncate.GetDefaultMaxQueryLength(), logrus.NewEntry(logrus.New()))
+	require.Len(t, buckets, 1)
+	assert.Equal(t, "select c from sbtest1 where id = ?", buckets[0].Common.Fingerprint)
+}

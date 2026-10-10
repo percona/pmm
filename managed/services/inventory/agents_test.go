@@ -1600,6 +1600,103 @@ func TestChangeRTAMongoDBAgent(t *testing.T) {
 	})
 }
 
+func TestAddRTAAgentPMMAgentVersion(t *testing.T) {
+	// Adds a pmm-agent reporting the given version (none when empty) and a service of the given type,
+	// and returns their IDs.
+	addPMMAgentAndService := func(
+		t *testing.T, ss *ServicesService, as *AgentsService, ctx context.Context, pmmAgentVersion string, serviceType models.ServiceType,
+	) (string, string) {
+		t.Helper()
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", mock.Anything).Return(true)
+		// A refused RTA agent never triggers a state update.
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, mock.Anything).Maybe()
+
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
+		require.NoError(t, err)
+		pmmAgentID := pmmAgent.GetPmmAgent().AgentId
+
+		if pmmAgentVersion != "" {
+			row, err := models.FindAgentByID(as.db.Querier, pmmAgentID)
+			require.NoError(t, err)
+			row.Version = new(pmmAgentVersion)
+			require.NoError(t, as.db.Update(row))
+		}
+
+		params := &models.AddDBMSServiceParams{
+			ServiceName: "test-rta-version",
+			NodeID:      models.PMMServerNodeID,
+			Address:     new("127.0.0.1"),
+		}
+		if serviceType == models.MySQLServiceType {
+			ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
+			params.Port = new(uint16(3306))
+			ms, err := ss.AddMySQL(ctx, params)
+			require.NoError(t, err)
+			return pmmAgentID, ms.ServiceId
+		}
+
+		params.Port = new(uint16(27017))
+		ms, err := ss.AddMongoDB(ctx, params)
+		require.NoError(t, err)
+		return pmmAgentID, ms.ServiceId
+	}
+
+	for _, tc := range []struct {
+		name            string
+		serviceType     models.ServiceType
+		pmmAgentVersion string
+		wantErr         string
+	}{
+		{name: "MySQL on 3.9.1 is refused", serviceType: models.MySQLServiceType, pmmAgentVersion: "3.9.1", wantErr: "3.10.0"},
+		{name: "MySQL on 3.8.0 is refused", serviceType: models.MySQLServiceType, pmmAgentVersion: "3.8.0", wantErr: "3.10.0"},
+		{name: "MySQL on 3.10.0 is accepted", serviceType: models.MySQLServiceType, pmmAgentVersion: "3.10.0"},
+		{name: "MySQL on not yet connected pmm-agent is accepted", serviceType: models.MySQLServiceType},
+		{name: "MongoDB on 3.6.0 is refused", serviceType: models.MongoDBServiceType, pmmAgentVersion: "3.6.0", wantErr: "3.7.0"},
+		{name: "MongoDB on 3.8.0 is accepted", serviceType: models.MongoDBServiceType, pmmAgentVersion: "3.8.0"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			ss, as, _, teardown, ctx, _ := setup(t)
+			t.Cleanup(func() { teardown(t) })
+
+			pmmAgentID, serviceID := addPMMAgentAndService(t, ss, as, ctx, tc.pmmAgentVersion, tc.serviceType)
+
+			var err error
+			if tc.serviceType == models.MySQLServiceType {
+				_, err = as.AddRTAMySQLAgent(ctx, &inventoryv1.AddRTAMySQLAgentParams{
+					PmmAgentId:          pmmAgentID,
+					ServiceId:           serviceID,
+					Username:            "username",
+					SkipConnectionCheck: true,
+				})
+			} else {
+				_, err = as.AddRTAMongoDBAgent(ctx, &inventoryv1.AddRTAMongoDBAgentParams{
+					PmmAgentId:          pmmAgentID,
+					ServiceId:           serviceID,
+					Username:            "username",
+					SkipConnectionCheck: true,
+				})
+			}
+
+			if tc.wantErr == "" {
+				require.NoError(t, err)
+				return
+			}
+
+			tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, fmt.Sprintf(
+				"Service test-rta-version (id %s) has pmm-agent with version %s not supporting Real-Time Analytics; pmm-agent %s or later is required.",
+				serviceID, tc.pmmAgentVersion, tc.wantErr,
+			)), err)
+
+			agents, err := models.FindAgents(as.db.Querier, models.AgentFilters{ServiceID: serviceID})
+			require.NoError(t, err)
+			assert.Empty(t, agents)
+		})
+	}
+}
+
 func TestChangeMongoDBExporterEnvironmentVariableNames(t *testing.T) {
 	// Adds a pmm-agent, a MongoDB service and a mongodb_exporter with the given environment
 	// variable names, and returns the exporter's agent ID.

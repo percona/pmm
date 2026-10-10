@@ -116,3 +116,29 @@ func TestStateUpdaterVMAgentDeployment(t *testing.T) {
 		})
 	}
 }
+
+func TestRTAAgentRunnable(t *testing.T) {
+	mysql := &models.Service{ServiceType: models.MySQLServiceType}
+	mongo := &models.Service{ServiceType: models.MongoDBServiceType}
+	rtaMySQL := &models.Agent{AgentType: models.RTAMySQLAgentType}
+	rtaMongo := &models.Agent{AgentType: models.RTAMongoDBAgentType}
+	exporter := &models.Agent{AgentType: models.MySQLdExporterType}
+
+	for _, tc := range []struct {
+		name    string
+		row     *models.Agent
+		service *models.Service
+		version string
+		want    bool
+	}{
+		{name: "MySQL RTA on 3.9.1 is withheld", row: rtaMySQL, service: mysql, version: "3.9.1"},
+		{name: "MySQL RTA on 3.10.0 is sent", row: rtaMySQL, service: mysql, version: "3.10.0", want: true},
+		{name: "MongoDB RTA on 3.6.0 is withheld", row: rtaMongo, service: mongo, version: "3.6.0"},
+		{name: "MongoDB RTA on 3.9.1 is sent", row: rtaMongo, service: mongo, version: "3.9.1", want: true},
+		{name: "other agents on 3.9.1 are sent", row: exporter, service: mysql, version: "3.9.1", want: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.want, rtaAgentRunnable(tc.row, tc.service, tc.version))
+		})
+	}
+}

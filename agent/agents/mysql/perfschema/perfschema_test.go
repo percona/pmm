@@ -625,3 +625,20 @@ func TestPerfSchema(t *testing.T) {
 		}
 	})
 }
+
+func TestPerfSchemaMakeBucketsSkipsRealTimeAnalyticsQueries(t *testing.T) {
+	t.Parallel()
+
+	// The digest text the server keeps for the RTA statement query: comments are gone, the tag
+	// column is not.
+	const rtaDigest = "SELECT NULL AS `pmm_agent_rta` , `pps` . `THREAD_ID` AS `thd_id` , `pps` . `PROCESSLIST_ID` AS `conn_id`"
+
+	current := map[string]*eventsStatementsSummaryByDigest{
+		"rta":  {Digest: new("rta"), DigestText: new(rtaDigest), CountStar: 30},
+		"user": {Digest: new("user"), DigestText: new("SELECT `c` FROM `sbtest1` WHERE `id` = ?"), CountStar: 7},
+	}
+
+	actual := makeBuckets(current, map[string]*eventsStatementsSummaryByDigest{}, logrus.WithField("test", t.Name()), truncate.GetDefaultMaxQueryLength())
+	require.Len(t, actual, 1)
+	assert.Equal(t, "user", actual[0].Common.Queryid)
+}

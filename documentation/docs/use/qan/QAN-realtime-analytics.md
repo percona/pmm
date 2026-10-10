@@ -1,7 +1,7 @@
 # Real-time Query Analytics for MongoDB
 
-!!! warning "MongoDB only"
-    Real-time Query Analytics (RTA) currently supports **MongoDB only**. Support for **MySQL** and **PostgreSQL** is planned for future releases.
+!!! note alert alert-primary ""
+    This page covers RTA for MongoDB. For MySQL, Percona Server for MySQL and MariaDB, see [Real-time Query Analytics for MySQL](QAN-realtime-analytics-mysql.md). Support for **PostgreSQL** is planned for a future release.
 
 While [Query Analytics (QAN) Stored metrics](../qan/QAN-stored-metrics.md) capture queries after they complete so you can analyze and optimize past performance, Real-time Query Analytics (RTA) displays queries as they execute. This allows you to identify problematic operations immediately and take action before they affect users.
 
@@ -70,7 +70,7 @@ To export data:
 3. Apply any filters or sort order you want reflected in the export.
 4. Click **Export** to download the file.
 
-The export includes all records across all pages, respects active filters and sort order, and is saved as `mongodb_rta_export_{timestamp}.csv`.
+The export includes all records across all pages, respects active filters and sort order, and is saved as `rta_export_{timestamp}.csv`.
 
 #### Exported fields
 

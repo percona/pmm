@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import { download, generateCsv, mkConfig } from 'export-to-csv';
 import { QueryData } from 'types/rta.types';
+import { lockTimeMs, soleBlocker } from '../table/OverviewTable.utils';
 import { isPlainObject } from 'utils/object.utils';
 
 const CSV_FORMULA_PREFIX = /^[=+\-@\t\r]/;
@@ -49,6 +50,20 @@ const CSV_COLUMN_ORDER = [
   'planSummary',
   'clientAppName',
   'operationStartTime',
+  'command',
+  'state',
+  'programName',
+  'rowsExamined',
+  'rowsSent',
+  'fullScan',
+  'lockTimeMs',
+  'blockedStatus',
+  'lockedTable',
+  'lockedIndex',
+  'blockingConnId',
+  'blockingQuery',
+  'blockingQueryTruncated',
+  'queryTextTruncated',
   'queryCollectTime',
   'queryRawJson',
 ].map(toCsvHeader);
@@ -94,8 +109,43 @@ const flattenToCsvRow = (source: Record<string, unknown>): CsvRow => {
   return row;
 };
 
-export const mapQueryToCsvRow = (query: QueryData): CsvRow =>
-  flattenToCsvRow(query as unknown as Record<string, unknown>);
+export const mapQueryToCsvRow = (query: QueryData): CsvRow => {
+  const row = flattenToCsvRow(query as unknown as Record<string, unknown>);
+
+  // The blocker list is an array, which the generic flattening would serialize into one
+  // JSON cell that nobody can filter on. A spreadsheet column can hold one name, so it is
+  // filled only when one transaction is actually the answer; blocked_status stays BLOCKED
+  // either way, so a statement held up by several is still findable.
+  delete row[toCsvHeader('blockedBy')];
+
+  // A spreadsheet can sum milliseconds; it cannot sum "0.000003s".
+  delete row[toCsvHeader('lockTime')];
+  const lockTime = lockTimeMs(query.mySqlPayload?.lockTime);
+  if (lockTime !== undefined) {
+    row[toCsvHeader('lockTimeMs')] = lockTime;
+  }
+
+  // The API omits a false flag, so it is written out for every MySQL row: an empty cell
+  // would not say whether the text is complete.
+  if (query.mySqlPayload) {
+    row[toCsvHeader('queryTextTruncated')] = Boolean(
+      query.mySqlPayload.queryTextTruncated
+    );
+  }
+
+  const blocker = soleBlocker(query);
+  if (blocker) {
+    row[toCsvHeader('blockingConnId')] = toCsvValue(blocker.blockingConnId);
+    row[toCsvHeader('blockingQuery')] = toCsvValue(blocker.blockingQuery);
+    // Written out like query_text_truncated: the API omits a false flag, and an empty cell
+    // would not say whether blocking_query is complete.
+    row[toCsvHeader('blockingQueryTruncated')] = Boolean(
+      blocker.blockingQueryTruncated
+    );
+  }
+
+  return row;
+};
 
 // Columns are collected across every row: export-to-csv derives headers from
 // the first row only, which would drop fields that are unset on it.
@@ -110,7 +160,7 @@ export const collectCsvColumns = (rows: CsvRow[]): string[] => {
 export const buildRtaExportFilename = (date = new Date()): string => {
   const timestamp = format(date, 'yyyyMMdd_HHmmss');
 
-  return `mongodb_rta_export_${timestamp}`;
+  return `rta_export_${timestamp}`;
 };
 
 export const exportRtaQueriesToCsv = (queries: QueryData[]): void => {
