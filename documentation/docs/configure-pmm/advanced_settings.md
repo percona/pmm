@@ -49,11 +49,7 @@ When active, PMM will automatically check for updates and put a notification in 
 
 ## Advisors
 
-Advisors are sets of checks grouped by functionality that run a range of database health checks on a registered PMM instance.
-
-The findings are reported on the **Advisors > Advisor Insights** page, and an overview is displayed on the Home dashboard.
-
-The Advisors toggle is enabled by default. When enabled, you can configure how often checks run using the **Rare**, **Standard**, and **Frequent** interval fields in the same section.
+Advisor settings have their own tab, **Configuration > Settings > Advisors**. On that tab, you can enable or disable Advisors, set the **Check run interval** and **Advisor history retention**, and configure **Advisor notifications**. PMM reports the findings on the **Advisors > Insights** page.
 
 See [Working with Advisor checks](../advisors/advisors.md).
 

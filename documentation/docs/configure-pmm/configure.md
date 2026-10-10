@@ -11,6 +11,6 @@ This section provides the instructions to configure your PMM instance after you 
     * [Telemetry](advanced_settings.md#telemetry)
     * [Check for updates](advanced_settings.md#check-for-updates)
     * [Percona Alerting](../configure-pmm/advanced_settings.md#percona-alerting)    
-    * [Advisors](advanced_settings.md#advisors)
     * [Microsoft Azure Monitoring](../configure-pmm/advanced_settings.md#microsoft-azure-monitoring)
+* [Advisors](../advisors/advisors.md)
 * [SSH key](../install-pmm/install-pmm-server/deployment-options/virtual/ssh.md)

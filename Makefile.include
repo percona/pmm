@@ -59,12 +59,17 @@ check-all: check-license check    ## Run linter and license checks
 check-new:
 	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/main --new
 
-FILES = $(shell find . -type f -name '*.go')
+# Files passed to the Go formatters: the FILES override if given, the whole tree otherwise.
+FILES ?=
+GO_FILES = $(if $(strip $(FILES)),$(FILES),$(shell find . -type f -name '*.go'))
 
-format:               ## Format source code
+# Go files changed on the current branch (committed, staged or unstaged), plus untracked ones.
+CHANGED_GO_FILES = $(sort $(shell git diff --name-only --diff-filter=d $$(git merge-base main HEAD) -- '*.go'; git ls-files --others --exclude-standard -- '*.go'))
+
+format:               ## Format source code; pass FILES="a.go b.go" to format only those files
 	make -C api format
-	go tool gofumpt -l -w $(FILES)
-	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
+	go tool gofumpt -l -w $(GO_FILES)
+	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(GO_FILES)
 
 serve:                ## Serve API documentation with nginx
 	nginx -p . -c api/nginx/nginx.conf

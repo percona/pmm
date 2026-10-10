@@ -18,6 +18,13 @@ import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
+import { PersistedFilters } from 'components/persisted-filters';
+import { AdvisorsList } from 'pages/advisors';
+import { CHECK_FILTER_PARAMS } from 'pages/advisors/AdvisorsList.constants';
+import { AdvisorInsights } from 'pages/advisors/insights';
+import { INSIGHT_FILTER_PARAMS } from 'pages/advisors/insights/AdvisorInsights.filters';
+import { AdvisorRuns } from 'pages/advisors/runs';
+import { RUN_FILTER_PARAMS } from 'pages/advisors/runs/AdvisorRuns.filters';
 import { AlertsPage } from 'pages/alerting/status';
 import { AtwApp } from '@pmm-extensions/plugins-atw';
 import { SchemaDrivenPlugin } from '@pmm-extensions/framework';
@@ -89,6 +96,44 @@ const router = createBrowserRouter(
                 {
                   path: 'overview',
                   element: <RealtimeOverviewPage />,
+                },
+              ],
+            },
+            {
+              path: 'advisors',
+              children: [
+                {
+                  path: '',
+                  element: (
+                    <PersistedFilters
+                      storageKey="pmm-ui.advisors.catalog.filters"
+                      params={CHECK_FILTER_PARAMS}
+                    >
+                      <AdvisorsList />
+                    </PersistedFilters>
+                  ),
+                },
+                {
+                  path: 'insights',
+                  element: (
+                    <PersistedFilters
+                      storageKey="pmm-ui.advisors.insights.filters"
+                      params={INSIGHT_FILTER_PARAMS}
+                    >
+                      <AdvisorInsights />
+                    </PersistedFilters>
+                  ),
+                },
+                {
+                  path: 'runs',
+                  element: (
+                    <PersistedFilters
+                      storageKey="pmm-ui.advisors.runs.filters"
+                      params={RUN_FILTER_PARAMS}
+                    >
+                      <AdvisorRuns />
+                    </PersistedFilters>
+                  ),
                 },
               ],
             },

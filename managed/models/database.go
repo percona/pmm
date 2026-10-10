@@ -1210,6 +1210,121 @@ var databaseSchema = [][]string{
 		`UPDATE nodes SET instance_id = lower(instance_id) WHERE node_type = 'remote_rds' AND instance_id <> lower(instance_id)`,
 		`UPDATE nodes SET instance_id = lower(address) WHERE node_type = 'remote_rds' AND instance_id = '' AND address NOT LIKE '%.%'`,
 	},
+	121: {
+		`CREATE TABLE advisor_insights (
+			id VARCHAR NOT NULL,
+			run_id VARCHAR NOT NULL,
+			check_name VARCHAR NOT NULL CHECK (check_name <> ''),
+			category VARCHAR NOT NULL,
+			interval VARCHAR NOT NULL,
+			service_id VARCHAR NOT NULL,
+			service_name VARCHAR NOT NULL,
+			service_type VARCHAR NOT NULL,
+			node_id VARCHAR NOT NULL,
+			node_name VARCHAR NOT NULL,
+			environment VARCHAR NOT NULL,
+			cluster VARCHAR NOT NULL,
+			replication_set VARCHAR NOT NULL,
+			region VARCHAR NOT NULL,
+			az VARCHAR NOT NULL,
+			status VARCHAR NOT NULL CHECK (status <> ''),
+			summary VARCHAR NOT NULL,
+			description TEXT NOT NULL,
+			outcome TEXT NOT NULL,
+			read_more_url VARCHAR NOT NULL,
+			severity VARCHAR,
+			labels TEXT,
+			checked_at TIMESTAMP,
+			is_read BOOLEAN NOT NULL,
+			triggered_by VARCHAR NOT NULL,
+
+			PRIMARY KEY (id)
+		)`,
+		`CREATE INDEX advisor_insights_run_id_idx ON advisor_insights (run_id)`,
+		`CREATE INDEX advisor_insights_service_id_idx ON advisor_insights (service_id)`,
+		`CREATE INDEX advisor_insights_checked_at_idx ON advisor_insights (checked_at)`,
+	},
+	122: {
+		`CREATE TABLE advisor_checks (
+			name VARCHAR(128) NOT NULL CHECK (name <> ''),
+			source VARCHAR NOT NULL CHECK (source <> ''),
+			version INTEGER NOT NULL,
+			summary VARCHAR NOT NULL,
+			description TEXT NOT NULL,
+			category VARCHAR NOT NULL,
+			technology VARCHAR NOT NULL,
+			interval VARCHAR NOT NULL,
+			interval_override VARCHAR,
+			disabled BOOLEAN NOT NULL,
+			disabled_service_ids JSONB,
+			queries TEXT NOT NULL,
+			script TEXT NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (name)
+		)`,
+
+		// Carry over interval overrides recorded by earlier PMM versions in the
+		// check_settings table. Content columns are placeholders: the startup
+		// reconcile refreshes them from the shipped check files and prunes rows
+		// of checks that no longer exist.
+		`INSERT INTO advisor_checks (
+			name, source, version, summary, description, category,
+			technology, interval, interval_override, disabled, queries, script,
+			created_at, updated_at
+		)
+		SELECT name, 'builtin', 2, '', '', '', '', '', interval, false, '[]', '', now(), now()
+		FROM check_settings
+		WHERE name <> ''`,
+
+		// Carry over globally-disabled check names recorded by earlier PMM
+		// versions in the settings JSON.
+		`INSERT INTO advisor_checks (
+			name, source, version, summary, description, category,
+			technology, interval, interval_override, disabled, queries, script,
+			created_at, updated_at
+		)
+		SELECT DISTINCT x.name, 'builtin', 2, '', '', '', '', '', NULL, true, '[]', '', now(), now()
+		FROM settings, jsonb_array_elements_text(
+			CASE WHEN jsonb_typeof(settings #> '{sass,disabled_advisors}') = 'array'
+				THEN settings #> '{sass,disabled_advisors}'
+				ELSE '[]'::jsonb END
+		) AS x(name)
+		WHERE x.name <> ''
+		ON CONFLICT (name) DO UPDATE SET disabled = true`,
+
+		`UPDATE settings SET settings = settings #- '{sass,disabled_advisors}'`,
+
+		`DROP TABLE IF EXISTS check_settings`,
+	},
+	123: {
+		// One row per Advisor checks execution. Counts are denormalized on
+		// completion, so listing runs does not aggregate their insights.
+		`CREATE TABLE advisor_runs (
+			id VARCHAR NOT NULL,
+			triggered_by VARCHAR NOT NULL,
+			status VARCHAR NOT NULL,
+			check_names VARCHAR[],
+			service_ids VARCHAR[],
+			intervals VARCHAR[],
+			started_at TIMESTAMP NOT NULL,
+			finished_at TIMESTAMP,
+			planned_checks_count INTEGER NOT NULL,
+			planned_services_count INTEGER NOT NULL,
+			checks_count INTEGER NOT NULL,
+			services_count INTEGER NOT NULL,
+			findings_count INTEGER NOT NULL,
+			errors_count INTEGER NOT NULL,
+			severity_counts TEXT,
+
+			PRIMARY KEY (id)
+		)`,
+		`CREATE INDEX advisor_runs_started_at_idx ON advisor_runs (started_at)`,
+		// At most one queued or running run, so claiming the run slot is a single
+		// atomic insert on every HA node.
+		`CREATE UNIQUE INDEX advisor_runs_active_idx ON advisor_runs ((true)) WHERE status IN ('queued', 'running')`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

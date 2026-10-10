@@ -22,6 +22,7 @@ import (
 
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/check"
 )
 
 // healthChecker interface wraps all services that implements the IsReady method to report the
@@ -51,9 +52,9 @@ type prometheusService interface {
 // checksService is a subset of methods of checks.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface {
-	StartChecks(checkNames []string) error
+	StartChecks(ctx context.Context, checkNames, serviceIDs []string, intervals []check.Interval) (string, error)
 	UpdateAdvisorsList(ctx context.Context)
-	CleanupAlerts()
+	CleanupCheckResults()
 	UpdateIntervals(rare, standard, frequent time.Duration)
 }
 

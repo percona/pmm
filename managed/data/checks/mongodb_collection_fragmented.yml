@@ -5,9 +5,9 @@ checks:
     summary: MongoDB Collections Fragmented
     description: This check returns a warning if the Storage size is greater than the Data size of a collection. That condition indicates that the collection is fragmented and needs a Compaction or Initial sync to reclaim disk space.
     interval: rare
-    family: MONGODB
-    advisor: configuration_resources
-    #author: Parag Bhayani
+    technology: MONGODB
+    category: Maintenance
+    # author: Parag Bhayani
     queries:
       - type: MONGODB_GETCMDLINEOPTS
       - type: METRICS_INSTANT
@@ -30,10 +30,16 @@ checks:
           results = []
 
           #Gather DBPATH details.
+          dbpath = ""
           for row in info:
-              dbpath = row["parsed"]["storage"]["dbPath"]
+              parsed = row["parsed"]
+              if "storage" in parsed and "dbPath" in parsed["storage"]:
+                  dbpath = parsed["storage"]["dbPath"]
+          if not dbpath:
+              return results
 
           #Gather DBPATH mount point details and it's disk usage percentage.
+          usage_per = 0
           for type in docs[1]:
               mount = type["metric"]["mountpoint"]
               usage = float(type["value"][1])

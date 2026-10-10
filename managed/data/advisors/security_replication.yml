@@ -1,7 +1,0 @@
----
-advisors:
-  - version: 1
-    name: security_replication
-    summary: Replication Security
-    description: Helps safeguard data replication by assessing security risks and providing recommendations for improving protection.
-    category: security

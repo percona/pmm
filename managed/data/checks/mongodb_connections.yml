@@ -3,13 +3,11 @@ checks:
   - version: 2
     name: mongodb_connections
     summary: MongoDB High connections
-    description: This check returns the current number of connections as an informational notice when connection counts are above 5000.
+    description: This check returns the current number of connections as a warning when connection counts are above 5000.
     interval: standard
-    family: MONGODB
-    advisor: configuration_connection
-    #category: configuration
-    #subcategory: connection
-    #author: Parag Bhayani
+    technology: MONGODB
+    category: Connections
+    # author: Parag Bhayani
     queries:
       - type: MONGODB_GETDIAGNOSTICDATA
     script: |
@@ -17,7 +15,7 @@ checks:
 
       def check_context(docs, context):
           """
-          This check returns a notice if the number of connections is above a default threshold - currently set to 5000. While not necessarily a high number, it can highlight potential configuration issues with connection or driver settings that may lead to increased memory usage if unintended.
+          This check returns a warning if the number of connections is above a default threshold - currently set to 5000. While not necessarily a high number, it can highlight potential configuration issues with connection or driver settings that may lead to increased memory usage if unintended.
           """
 
           format_version_num = context.get("format_version_num", fail)
@@ -35,7 +33,7 @@ checks:
                       "summary": "The current number of connections for this MongoDB node are - {} ".format(connections),
                       "description": "Please confirm your desired driver and connection settings. You can use mongostat and the currentOp command to see what operations the connections are running. For more information please check the Read More documentation.",
                       "read_more_url": read_url.format("mongo-high-connections"),
-                      "severity": "notice",
+                      "severity": "warning",
                   })
 
               return results

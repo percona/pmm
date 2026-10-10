@@ -16,11 +16,14 @@
 package checks
 
 import (
+	"strings"
 	"testing"
 
+	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/check"
 	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
@@ -63,7 +66,7 @@ func TestRegistry(t *testing.T) {
 					Summary:     "check summary 2",
 					Description: "check description 2",
 					ReadMoreURL: "https://www.example2.com",
-					Severity:    common.Notice,
+					Severity:    common.Info,
 					Labels: map[string]string{
 						"qux": "baz",
 					},
@@ -76,7 +79,7 @@ func TestRegistry(t *testing.T) {
 		// Empty interval means standard
 		checkResults[1].Interval = check.Standard
 
-		collectedAlerts := r.getCheckResults("")
+		collectedAlerts := r.getCheckResults()
 		assert.ElementsMatch(t, checkResults, collectedAlerts)
 	})
 
@@ -117,7 +120,7 @@ func TestRegistry(t *testing.T) {
 					Summary:     "check summary 2",
 					Description: "check description 2",
 					ReadMoreURL: "https://www.example2.com",
-					Severity:    common.Notice,
+					Severity:    common.Info,
 					Labels: map[string]string{
 						"qux": "baz",
 					},
@@ -128,7 +131,7 @@ func TestRegistry(t *testing.T) {
 		r.set(checkResults)
 		r.deleteByInterval(check.Standard)
 
-		collectedAlerts := r.getCheckResults("")
+		collectedAlerts := r.getCheckResults()
 		require.Len(t, collectedAlerts, 1)
 		assert.Equal(t, checkResults[1], collectedAlerts[0])
 	})
@@ -170,7 +173,7 @@ func TestRegistry(t *testing.T) {
 					Summary:     "check summary 2",
 					Description: "check description 2",
 					ReadMoreURL: "https://www.example2.com",
-					Severity:    common.Notice,
+					Severity:    common.Info,
 					Labels: map[string]string{
 						"qux": "baz",
 					},
@@ -181,9 +184,42 @@ func TestRegistry(t *testing.T) {
 		r.set(checkResults)
 		r.deleteByName([]string{"name1"})
 
-		collectedAlerts := r.getCheckResults("")
+		collectedAlerts := r.getCheckResults()
 		require.Len(t, collectedAlerts, 1)
 		assert.Equal(t, checkResults[1], collectedAlerts[0])
+	})
+
+	t.Run("delete check result by name and service", func(t *testing.T) {
+		r := newRegistry()
+		checkResults := []services.CheckResult{
+			{
+				CheckName: "name1",
+				Interval:  check.Standard,
+				Target:    services.Target{AgentID: "123", ServiceID: "123"},
+				Result:    check.Result{Summary: "service 123", Severity: common.Warning},
+			},
+			{
+				CheckName: "name1",
+				Interval:  check.Standard,
+				Target:    services.Target{AgentID: "321", ServiceID: "321"},
+				Result:    check.Result{Summary: "service 321", Severity: common.Warning},
+			},
+			{
+				CheckName: "name2",
+				Interval:  check.Standard,
+				Target:    services.Target{AgentID: "123", ServiceID: "123"},
+				Result:    check.Result{Summary: "other check", Severity: common.Info},
+			},
+		}
+
+		r.set(checkResults)
+		r.deleteByNameAndService([]string{"name1"}, []string{"123"})
+
+		collectedAlerts := r.getCheckResults()
+		require.Len(t, collectedAlerts, 2)
+		assert.NotContains(t, collectedAlerts, checkResults[0])
+		assert.Contains(t, collectedAlerts, checkResults[1])
+		assert.Contains(t, collectedAlerts, checkResults[2])
 	})
 
 	t.Run("empty interval recognized as standard", func(t *testing.T) {
@@ -222,7 +258,7 @@ func TestRegistry(t *testing.T) {
 					Summary:     "check summary 2",
 					Description: "check description 2",
 					ReadMoreURL: "https://www.example2.com",
-					Severity:    common.Notice,
+					Severity:    common.Info,
 					Labels: map[string]string{
 						"qux": "baz",
 					},
@@ -233,7 +269,35 @@ func TestRegistry(t *testing.T) {
 		r.set(checkResults)
 		r.deleteByInterval(check.Standard)
 
-		collectedAlerts := r.getCheckResults("")
+		collectedAlerts := r.getCheckResults()
 		assert.Empty(t, collectedAlerts)
 	})
+}
+
+func TestRegistryInsightsMetric(t *testing.T) {
+	r := newRegistry()
+	r.set([]services.CheckResult{
+		{
+			CheckName: "mysql_version",
+			Category:  "adv",
+			Interval:  check.Standard,
+			Target: services.Target{
+				ServiceID:   "svc-id",
+				ServiceName: "mysql-prod",
+				ServiceType: models.MySQLServiceType,
+			},
+			Result: check.Result{
+				Summary:  "outdated",
+				Severity: common.Error,
+			},
+		},
+	})
+
+	const expected = `
+# HELP pmm_managed_advisor_check_insights Number of advisor insights per service type, service name, category, check name and severity
+# TYPE pmm_managed_advisor_check_insights gauge
+pmm_managed_advisor_check_insights{category="adv",check_name="mysql_version",service_name="mysql-prod",service_type="mysql",severity="error"} 1
+`
+	err := testutil.CollectAndCompare(r, strings.NewReader(expected), "pmm_managed_advisor_check_insights")
+	require.NoError(t, err)
 }

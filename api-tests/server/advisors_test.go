@@ -16,6 +16,7 @@
 package server
 
 import (
+	"sync"
 	"testing"
 	"time"
 
@@ -34,10 +35,120 @@ func TestStartChecks(t *testing.T) {
 	t.Run("with advisors enabled", func(t *testing.T) {
 		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { RestoreSettingsDefaults(t) })
+		waitForNoActiveRun(t)
 
 		resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(nil)
 		require.NoError(t, err)
-		assert.NotNil(t, resp)
+		require.NotNil(t, resp)
+		assert.NotEmpty(t, resp.Payload.RunID)
+	})
+
+	t.Run("only one run at a time", func(t *testing.T) {
+		toggleAdvisorChecks(t, true)
+		t.Cleanup(func() { RestoreSettingsDefaults(t) })
+		waitForNoActiveRun(t)
+
+		// Concurrent requests race for the single run slot. A run can finish
+		// before the last request arrives, so more than one may start, but each
+		// request either starts a run or is rejected, and the runs never overlap.
+		const requests = 5
+		runIDs := make([]string, requests)
+		errs := make([]error, requests)
+		var wg sync.WaitGroup
+		for i := range requests {
+			wg.Go(func() {
+				resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(nil)
+				errs[i] = err
+				if err == nil {
+					runIDs[i] = resp.Payload.RunID
+				}
+			})
+		}
+		wg.Wait()
+
+		started := make(map[string]struct{}, requests)
+		for i, err := range errs {
+			if err != nil {
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "Advisor checks are already running")
+				continue
+			}
+			started[runIDs[i]] = struct{}{}
+		}
+		require.NotEmpty(t, started)
+
+		waitForNoActiveRun(t)
+		resp, err := advisorClient.Default.AdvisorService.ListRuns(&advisor.ListRunsParams{
+			PageSize: new(int32(20)),
+			Context:  pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		var runs []*advisor.ListRunsOKBodyResultsItems0
+		for _, run := range resp.Payload.Results {
+			if _, ok := started[run.ID]; ok {
+				runs = append(runs, run)
+			}
+		}
+		require.Len(t, runs, len(started))
+		// newest first, so each run must start after the next one in the list finished
+		for i := 1; i < len(runs); i++ {
+			newer, older := runs[i-1], runs[i]
+			assert.False(t, time.Time(newer.StartedAt).Before(time.Time(older.FinishedAt)),
+				"run %s started before run %s finished", newer.ID, older.ID)
+		}
+	})
+
+	t.Run("a run keeps its scope and leaves nothing pending", func(t *testing.T) {
+		toggleAdvisorChecks(t, true)
+		t.Cleanup(func() { RestoreSettingsDefaults(t) })
+		waitForNoActiveRun(t)
+
+		frequent := "ADVISOR_CHECK_INTERVAL_FREQUENT"
+		resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(&advisor.StartAdvisorChecksParams{
+			Body:    advisor.StartAdvisorChecksBody{Intervals: []string{frequent}},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		runID := resp.Payload.RunID
+
+		waitForNoActiveRun(t)
+		runs, err := advisorClient.Default.AdvisorService.ListRuns(&advisor.ListRunsParams{
+			PageSize: new(int32(20)),
+			Context:  pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		var run *advisor.ListRunsOKBodyResultsItems0
+		for _, r := range runs.Payload.Results {
+			if r.ID == runID {
+				run = r
+			}
+		}
+		require.NotNil(t, run)
+		require.Len(t, run.Intervals, 1)
+		assert.Equal(t, frequent, *run.Intervals[0])
+		assert.LessOrEqual(t, run.ChecksCount, run.PlannedChecksCount)
+		assert.LessOrEqual(t, run.ServicesCount, run.PlannedServicesCount)
+
+		pending := "ADVISOR_CHECK_RESULT_STATUS_PENDING"
+		insights, err := advisorClient.Default.AdvisorService.ListInsights(&advisor.ListInsightsParams{
+			RunID:   &runID,
+			Status:  &pending,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.Empty(t, insights.Payload.Results)
+	})
+
+	t.Run("an unknown interval name is rejected", func(t *testing.T) {
+		toggleAdvisorChecks(t, true)
+		t.Cleanup(func() { RestoreSettingsDefaults(t) })
+
+		resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(&advisor.StartAdvisorChecksParams{
+			Body:    advisor.StartAdvisorChecksBody{Intervals: []string{"ADVISOR_CHECK_INTERVAL_BOGUS"}},
+			Context: pmmapitests.Context,
+		})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "unknown advisor check interval 'ADVISOR_CHECK_INTERVAL_BOGUS'")
+		assert.Nil(t, resp)
 	})
 
 	t.Run("with advisors disabled", func(t *testing.T) {
@@ -47,30 +158,6 @@ func TestStartChecks(t *testing.T) {
 		resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(nil)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `advisor checks are disabled.`)
 		assert.Nil(t, resp)
-	})
-}
-
-func TestGetAdvisorCheckResults(t *testing.T) {
-	t.Run("with disabled Advisors", func(t *testing.T) {
-		toggleAdvisorChecks(t, false)
-		t.Cleanup(func() { RestoreSettingsDefaults(t) })
-
-		results, err := advisorClient.Default.AdvisorService.GetFailedChecks(nil)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `advisor checks are disabled.`)
-		assert.Nil(t, results)
-	})
-
-	t.Run("with enabled Advisors", func(t *testing.T) {
-		toggleAdvisorChecks(t, true)
-		t.Cleanup(func() { RestoreSettingsDefaults(t) })
-
-		resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(nil)
-		require.NoError(t, err)
-		assert.NotNil(t, resp)
-
-		results, err := advisorClient.Default.AdvisorService.GetFailedChecks(nil)
-		require.NoError(t, err)
-		assert.NotNil(t, results)
 	})
 }
 
@@ -98,11 +185,7 @@ func TestListAdvisors(t *testing.T) {
 	assert.NotNil(t, resp)
 	assert.NotEmpty(t, resp.Payload.Advisors)
 	for _, a := range resp.Payload.Advisors {
-		assert.NotEmpty(t, a.Name, "%+v", a)
-		assert.NotEmpty(t, a.Summary, "%+v", a)
-		assert.NotEmpty(t, a.Description, "%+v", a)
 		assert.NotEmpty(t, a.Category, "%+v", a)
-		assert.NotEmpty(t, a.Comment, "%+v", a)
 		assert.NotEmpty(t, a.Checks, "%+v", a)
 
 		for _, c := range a.Checks {
@@ -235,6 +318,33 @@ func TestChangeAdvisorChecks(t *testing.T) {
 			})
 		})
 	})
+}
+
+// waitForNoActiveRun waits until no Advisor run is queued or running, so a new
+// one can start; enabling Advisors starts a run of its own.
+func waitForNoActiveRun(t *testing.T) {
+	t.Helper()
+
+	require.Eventually(t, func() bool {
+		resp, err := advisorClient.Default.AdvisorService.ListRuns(&advisor.ListRunsParams{
+			PageSize: new(int32(10)),
+			Context:  pmmapitests.Context,
+		})
+		if err != nil {
+			return false
+		}
+		for _, run := range resp.Payload.Results {
+			if run.Status == nil {
+				continue
+			}
+			switch *run.Status {
+			case advisor.ListRunsOKBodyResultsItems0StatusADVISORRUNSTATUSQUEUED,
+				advisor.ListRunsOKBodyResultsItems0StatusADVISORRUNSTATUSRUNNING:
+				return false
+			}
+		}
+		return true
+	}, 5*time.Minute, time.Second)
 }
 
 func toggleAdvisorChecks(t *testing.T, enable bool) {

@@ -3,10 +3,10 @@ checks:
   - version: 2
     name: postgresql_unused_index_check
     summary: Check for relations that have unused indexes
-    description: This check will list relations with indexes that have not been used since statistics where last reset
+    description: This check lists relations with indexes that have not been used since statistics were last reset
     interval: standard
-    family: POSTGRESQL
-    advisor: query_index
+    technology: POSTGRESQL
+    category: Schema & indexes
     queries:
       - type: POSTGRESQL_SELECT
         # Using this syntax (CURRENT_TIMESTAMP(0)::TIMESTAMP WITHOUT TIME ZONE)::text since PMM does not respect date formatting. Thus converting to a string
@@ -15,19 +15,34 @@ checks:
           all_dbs: true
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+      def format_list(items, cap=10):
+          if len(items) > cap:
+              return "; ".join(items[:cap]) + "; and {} more".format(len(items) - cap)
+          return "; ".join(items)
+
       def check_context(tuple, context):
           results = []
           for checkedDB, rows in tuple[0].items():
+              datname = ""
+              since = ""
+              relations = []
               for row in rows:
-                stats_reset = row["stats_reset"]
                 datname = row["datname"]
-                relname = row["relname"]
-                rundate = row["rundate"]
-                results.append({
-                    "summary": "Relations with unused indexes",
-                    "description": "The relation {}.{} has unused indexes as of the last statistics reset on {}. This check was last executed on {}".format(datname, relname, stats_reset, rundate),
-                    "read_more_url":read_url.format("postgresql-unused-index-check"),
-                    "severity": "warning",
-                })
+                if row["stats_reset"]:
+                    since = "since the statistics reset on {}".format(row["stats_reset"])
+                else:
+                    since = "since statistics collection began"
+                relations.append(row["relname"])
+
+              if not relations:
+                  continue
+
+              results.append({
+                  "summary": "{} relation(s) with unused indexes in database {}".format(len(relations), datname),
+                  "description": "The database {} has relations with indexes that have not been used {}: {}.".format(datname, since, format_list(relations)),
+                  "read_more_url":read_url.format("postgresql-unused-index-check"),
+                  "severity": "warning",
+                  "labels": {"database": datname, "count": str(len(relations))},
+              })
 
           return results

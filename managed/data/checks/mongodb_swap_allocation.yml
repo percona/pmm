@@ -5,9 +5,9 @@ checks:
     summary: MongoDB - allocate swap memory
     description: This check returns a warning if there is no swap memory allocated to your instance.
     interval: standard
-    family: MONGODB
-    advisor: configuration_resources
-    #author: Parag Bhayani
+    technology: MONGODB
+    category: Resources
+    # author: Parag Bhayani
     queries:
       - type: METRICS_INSTANT
         query: avg by(node_name) (node_memory_MemTotal_bytes{node_name=~"{{.NodeName}}"} / (1024*1024*1024))

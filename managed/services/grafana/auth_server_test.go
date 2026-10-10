@@ -105,6 +105,89 @@ func TestNextPrefix(t *testing.T) {
 	}
 }
 
+func TestHeadersWithRotatedCookies(t *testing.T) {
+	t.Parallel()
+
+	authHeaders := http.Header{}
+	authHeaders.Set("Cookie", "other=abc; pmm_session=old")
+
+	headers := headersWithRotatedCookies(authHeaders, []string{"pmm_session=new; Path=/; HttpOnly; SameSite=Lax"})
+	assert.Equal(t, "other=abc; pmm_session=new", headers.Get("Cookie"))
+	// the original headers stay untouched
+	assert.Equal(t, "other=abc; pmm_session=old", authHeaders.Get("Cookie"))
+
+	// cookie names missing from the original header are appended
+	headers = headersWithRotatedCookies(authHeaders, []string{"brand_new=v1; Path=/"})
+	assert.Equal(t, "other=abc; pmm_session=old; brand_new=v1", headers.Get("Cookie"))
+}
+
+// countingRejectingClient implements clientInterface, rejecting every lookup
+// and rotation with 401 while counting the calls.
+type countingRejectingClient struct {
+	getAuthUserCalls int
+	rotateCalls      int
+}
+
+func (c *countingRejectingClient) getAuthUser(context.Context, http.Header, *logrus.Entry) (authUser, error) {
+	c.getAuthUserCalls++
+	return emptyUser, &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Unauthorized"}
+}
+
+func (c *countingRejectingClient) rotateSessionToken(context.Context, http.Header) ([]string, error) {
+	c.rotateCalls++
+	return nil, &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Unauthorized"}
+}
+
+func TestAuthServerNegativeCache(t *testing.T) {
+	t.Parallel()
+
+	client := &countingRejectingClient{}
+	s := NewAuthServer(client, nil)
+	l := logrus.WithField("test", t.Name())
+
+	newReq := func() *http.Request {
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/advisors", nil)
+		req.Header.Set("Cookie", "pmm_session=dead")
+		return req
+	}
+
+	_, _, authErr := s.authenticate(t.Context(), newReq(), "/v1/advisors", l)
+	require.NotNil(t, authErr)
+	assert.Equal(t, codes.Unauthenticated, authErr.code)
+	// the dead session cost one lookup and one rotation attempt
+	assert.Equal(t, 1, client.getAuthUserCalls)
+	assert.Equal(t, 1, client.rotateCalls)
+
+	// the rejection is served from the cache without further Grafana calls
+	_, _, authErr = s.authenticate(t.Context(), newReq(), "/v1/advisors", l)
+	require.NotNil(t, authErr)
+	assert.Equal(t, codes.Unauthenticated, authErr.code)
+	assert.Equal(t, 1, client.getAuthUserCalls)
+	assert.Equal(t, 1, client.rotateCalls)
+
+	// different credentials bypass the cached rejection
+	req := newReq()
+	req.Header.Set("Cookie", "pmm_session=another")
+	_, _, authErr = s.authenticate(t.Context(), req, "/v1/advisors", l)
+	require.NotNil(t, authErr)
+	assert.Equal(t, 2, client.getAuthUserCalls)
+	assert.Equal(t, 2, client.rotateCalls)
+}
+
+func TestSessionCookieForClient(t *testing.T) {
+	t.Parallel()
+
+	cookies := sessionCookieForClient([]string{
+		"pmm_session=new; Path=/graph; Max-Age=2592000; HttpOnly; SameSite=Lax",
+		"grafana_session_expiry=1784931672; Path=/graph; Max-Age=2592000; SameSite=Lax",
+	})
+	require.Len(t, cookies, 1)
+	assert.Equal(t, "pmm_session=new; Path=/; Max-Age=2592000; HttpOnly; SameSite=Lax", cookies[0])
+
+	assert.Nil(t, sessionCookieForClient([]string{"grafana_session_expiry=1; Path=/graph"}))
+	assert.Nil(t, sessionCookieForClient(nil))
+}
+
 func TestResolveRule(t *testing.T) {
 	t.Parallel()
 
@@ -119,6 +202,14 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPut, "/v1/alerting/templates/foo", editor},    // UpdateTemplate
 		{http.MethodDelete, "/v1/alerting/templates/foo", editor}, // DeleteTemplate
 		{http.MethodPost, "/v1/alerting/rules", editor},           // CreateRule
+		// Advisors: editors run and author checks; the test email goes with the admin-only settings.
+		{http.MethodPost, "/v1/advisors/checks:start", editor},
+		{http.MethodPost, "/v1/advisors/checks", editor},
+		{http.MethodPut, "/v1/advisors/checks/custom_check", editor},
+		{http.MethodDelete, "/v1/advisors/checks/custom_check", editor},
+		{http.MethodPost, "/v1/advisors/notifications:test", admin},
+		{http.MethodPost, "/advisors.v1.AdvisorService/StartAdvisorChecks", editor},
+		{http.MethodPost, "/advisors.v1.AdvisorService/SendTestAdvisorNotification", admin},
 		// No matching rule falls back to grafanaAdmin.
 		{http.MethodGet, "/v1/unknown", grafanaAdmin},
 	} {
@@ -150,7 +241,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "admin")
 
-		_, res := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
+		_, _, res := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
 		assert.Nil(t, res)
 	})
 
@@ -160,7 +251,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 		require.NoError(t, err)
 
-		_, res := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
+		_, _, res := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
 		assert.Equal(t, &authError{code: codes.Unauthenticated, message: "Unauthorized"}, res)
 	})
 
@@ -184,7 +275,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 				require.NoError(t, err)
 				req.SetBasicAuth(login, login)
 
-				_, res := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
+				_, _, res := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
 				if minRole <= role {
 					assert.Nil(t, res)
 				} else {
@@ -209,7 +300,7 @@ func TestServerClientConnection(t *testing.T) {
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "admin")
 
-		_, authError := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
+		_, _, authError := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
 		assert.Nil(t, authError)
 	})
 
@@ -221,7 +312,7 @@ func TestServerClientConnection(t *testing.T) {
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "wrong")
 
-		_, authError := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
+		_, _, authError := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
 		assert.Equal(t, codes.Unauthenticated, authError.code)
 	})
 
@@ -245,7 +336,7 @@ func TestServerClientConnection(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Authorization", "Bearer "+serviceToken)
 
-		_, authError := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
+		_, _, authError := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
 		assert.Nil(t, authError)
 	})
 
@@ -256,7 +347,7 @@ func TestServerClientConnection(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Authorization", "Bearer wrong")
 
-		_, authError := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
+		_, _, authError := s.authenticate(ctx, req, req.URL.Path, logrus.WithField("test", t.Name()))
 		assert.Equal(t, codes.Internal, authError.code)
 	})
 }
@@ -531,6 +622,10 @@ type stubClient struct {
 
 func (s stubClient) getAuthUser(context.Context, http.Header, *logrus.Entry) (authUser, error) {
 	return s.user, nil
+}
+
+func (s stubClient) rotateSessionToken(context.Context, http.Header) ([]string, error) {
+	return nil, nil
 }
 
 // The marker tells vmproxy that pmm-managed authenticated this caller as an admin, which is

@@ -3,17 +3,46 @@ checks:
   - version: 2
     name: mysql_private_networks_only
     summary: MySQL Users With Granted Public Networks Access
-    description: Notifies about MySQL accounts currently allowed to connect from public networks.
-    family: MYSQL
-    advisor: security_connection
+    description: Discovers MySQL accounts currently allowed to connect from public networks.
+    technology: MYSQL
+    category: Security
     interval: standard
     queries:
       - type: MYSQL_SELECT
         query: ' * FROM mysql.user'
     script: |
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+
+      # bits set in each valid netmask octet
+      NETMASK_OCTET_BITS = {"255": 8, "254": 7, "252": 6, "248": 5, "240": 4, "224": 3, "192": 2, "128": 1, "0": 0}
+
+      def to_cidr(host):
+          """
+          Converts an IPv4 host part in netmask notation (10.0.0.0/255.0.0.0) or a pattern (10.0.%) to CIDR notation.
+          Returns other host parts unchanged.
+          """
+          if host.endswith(".%"):
+              octets = host[:-2].split(".")
+              if len(octets) > 3:
+                  return host
+              return "{}/{}".format(".".join(octets + ["0"] * (4 - len(octets))), 8 * len(octets))
+
+          address, sep, mask = host.partition("/")
+          octets = mask.split(".")
+          if not sep or len(octets) != 4:
+              return host
+          length = 0
+          for i, octet in enumerate(octets):
+              bits = NETMASK_OCTET_BITS.get(octet)
+              # a netmask must be contiguous ones followed by zeros
+              if bits == None or (length < 8 * i and bits != 0):
+                  return host
+              length += bits
+          return "{}/{}".format(address, length)
+
       def check_context(docs, context):
         """
-        This check returns a notice if MySQL accounts are allowed to be used from public networks
+        This check returns a warning if MySQL accounts are allowed to be used from public networks
         """
 
         func = context.get("ip_is_private", fail)
@@ -23,7 +52,7 @@ checks:
         for row in rows:
             # casing is different in different versions of MySQL and MariaDB
             host = row.get("host") or row.get("Host")
-            if host == "localhost" or func(host):
+            if host == "localhost" or func(to_cidr(host)):
                 continue
 
             user = row.get("user") or row.get("User")
@@ -33,15 +62,11 @@ checks:
 
         count = len(users)
         if count:
-            desc = "account is"
-            if count > 1:
-                desc = "{} accounts are".format(count)
-
             return [{
-                "summary": "The following {} allowed to be connected from public networks".format(desc),
-                "description": " {}".format(users),
-                "read_more_url": "https://dev.mysql.com/doc/refman/8.0/en/request-access.html",
-                "severity": "notice",
+                "summary": "Some accounts are allowed to be connected from public networks",
+                "description": "These accounts are allowed to connect from public networks: {}".format(", ".join(users)),
+                "read_more_url": read_url.format("mysql-private-networks-only"),
+                "severity": "warning",
                 "labels": {
                     "count": str(count),
                 },

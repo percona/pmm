@@ -4,9 +4,9 @@ checks:
     name: postgresql_table_bloat_bytes
     summary: Check amount of bloat in tables if greater than 250MB
     description: Checks check verifies the size of the table bloat in bytes accross all databases and alert accordingly
-    advisor: performance_vacuum
+    category: Maintenance
     interval: standard
-    family: POSTGRESQL
+    technology: POSTGRESQL
     queries:
       - type: POSTGRESQL_SELECT
         parameters:
@@ -15,18 +15,31 @@ checks:
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
+      def format_list(items, cap=10):
+          if len(items) > cap:
+              return "; ".join(items[:cap]) + "; and {} more".format(len(items) - cap)
+          return "; ".join(items)
+
       def check_context(tuples, context):
           results = []
           for dbName, rows in tuples[0].items():
+              current_database = ""
+              tables = []
               for row in rows:
-                  current_database, schemaname, tblname = row["current_database"], row["schemaname"], row["tblname"]
                   real_size, real_size_pretty = int(row["real_size"]), row["real_size_pretty"]
                   bloat_size_byte, bloat_size_byte_pretty = int(row["bloat_size_byte"]), row["bloat_size_byte_pretty"]
                   if bloat_size_byte >= int(real_size*0.2):
-                      results.append({
-                          "summary": "Table Bloat size in bytes is high",
-                          "description": "Table {}.{} in database {} has a bloat of {} bytes ({}) from total size of {}".format(schemaname, tblname, current_database, bloat_size_byte, bloat_size_byte_pretty, real_size_pretty),
-                          "read_more_url": read_url.format("postgresql-table-bloat-in-bytes"),
-                          "severity": "warning"
-                      })
+                      current_database = row["current_database"]
+                      tables.append("{}.{} ({} of {})".format(row["schemaname"], row["tblname"], bloat_size_byte_pretty, real_size_pretty))
+
+              if not tables:
+                  continue
+
+              results.append({
+                  "summary": "{} table(s) with high bloat in database {}".format(len(tables), current_database),
+                  "description": "The database {} has tables with a bloat of 20% or more of their total size: {}.".format(current_database, format_list(tables)),
+                  "read_more_url": read_url.format("postgresql-table-bloat-in-bytes"),
+                  "severity": "warning",
+                  "labels": {"database": current_database, "count": str(len(tables))},
+              })
           return results

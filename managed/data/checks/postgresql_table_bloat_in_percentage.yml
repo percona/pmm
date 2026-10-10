@@ -4,9 +4,9 @@ checks:
     name: postgresql_table_bloat_in_percentage
     summary: PostgreSQL Table Bloat in percentage of the table size
     description: This check verifies the size of the table bloat in percentage of the total table size and alert accordingly
-    family: POSTGRESQL
-    #author: David Gonzalez
-    advisor: performance_vacuum
+    technology: POSTGRESQL
+    # author: David Gonzales
+    category: Maintenance
     interval: standard
     queries:
       - type: POSTGRESQL_SELECT
@@ -92,6 +92,11 @@ checks:
           "critical": 50
       }
 
+      def format_list(items, cap=10):
+          if len(items) > cap:
+              return "; ".join(items[:cap]) + "; and {} more".format(len(items) - cap)
+          return "; ".join(items)
+
       def check_context(docs, context):
           """
           This check verifies the table bloat in percentage of the total table size, in the database where PMM connects.
@@ -102,26 +107,28 @@ checks:
           """
 
           results = []
-          # extract information from variables
+          current_database = ""
+          # collect offending tables per severity level
+          critical_tables = []
+          warning_tables = []
           for row in docs[0]:
-              current_database, schemaname, tblname = row["current_database"], row["schemaname"], row["tblname"]
-              real_size, real_size_pretty = int(row["real_size"]), row["real_size_pretty"]
-              bloat_size_byte, bloat_size_byte_pretty = int(row["bloat_size_byte"]), row["bloat_size_byte_pretty"]
-              bloat_percentage = int(row["bloat_percentage"])
+              current_database = row["current_database"]
+              table = "{}.{} ({}% of {})".format(row["schemaname"], row["tblname"], int(row["bloat_percentage"]), row["real_size_pretty"])
 
-              if bloat_percentage >= check_threshold["critical"]:
-                  results.append({
-                      "summary": "Table Bloat in percentage of table size is high",
-                      "description": "Table {}.{} in database {} has a bloat of {}% from total table size of {}".format(schemaname, tblname, current_database, bloat_percentage, real_size_pretty),
-                      "read_more_url": read_url.format("postgresql-table-bloat-in-percentage-of-table-size"),
-                      "severity": "error"
-                  })
-              elif bloat_percentage >= check_threshold["warning"]:
-                  results.append({
-                      "summary": "Table Bloat in percentage of table size is high",
-                      "description": "Table {}.{} in database {} has a bloat of {}% from total table size of {}".format(schemaname, tblname, current_database, bloat_percentage, real_size_pretty),
-                      "read_more_url": read_url.format("postgresql-table-bloat-in-percentage-of-table-size"),
-                      "severity": "warning"
-                  })
+              if int(row["bloat_percentage"]) >= check_threshold["critical"]:
+                  critical_tables.append(table)
+              elif int(row["bloat_percentage"]) >= check_threshold["warning"]:
+                  warning_tables.append(table)
+
+          for severity, threshold, tables in [("error", check_threshold["critical"], critical_tables), ("warning", check_threshold["warning"], warning_tables)]:
+              if not tables:
+                  continue
+              results.append({
+                  "summary": "{} table(s) with bloat of {}% or more in database {}".format(len(tables), threshold, current_database),
+                  "description": "The database {} has tables with a bloat of at least {}% of their total size: {}.".format(current_database, threshold, format_list(tables)),
+                  "read_more_url": read_url.format("postgresql-table-bloat-in-percentage-of-table-size"),
+                  "severity": severity,
+                  "labels": {"database": current_database, "count": str(len(tables))},
+              })
 
           return results

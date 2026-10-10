@@ -8,7 +8,6 @@ settings.json
 # Temporary (OS, build, config, etc)
 .DS_Store
 /tmp/
-
 .env
 .netrc
 .modules
@@ -17,7 +16,6 @@ build/.cache/
 packer.log
 ci.yml
 Makefile.local
-
 
 # PMM specific
 bin

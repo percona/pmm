@@ -4,7 +4,6 @@ on:
   pull_request:
     paths:
       - 'managed/data/alerting-templates/**'
-      - 'managed/data/advisors/**'
       - 'managed/data/checks/**'
 
 permissions:

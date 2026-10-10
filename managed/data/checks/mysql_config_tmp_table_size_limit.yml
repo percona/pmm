@@ -5,9 +5,9 @@ checks:
     summary: Temp table size is larger than Heap Table size
     description: Check if the Temporary table size exceeds the heap table size.
     interval: standard
-    advisor: configuration_generic
-    #author: The Grinch
-    family: MYSQL
+    category: Performance
+    # author: The Grinch
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@global.max_heap_table_size as max_heap_table_size, @@global.tmp_table_size as tmp_table_size, @@version version,@@hostname service;"

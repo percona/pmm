@@ -5,10 +5,9 @@ checks:
     summary: Load data in file active
     description: Identify if a load data in file is active.
     interval: standard
-    advisor: security_configuration
-    #subcategory: generic
-    #author: The Grinch
-    family: MYSQL
+    category: Security
+    # author: The Grinch
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service, @@global.local_infile as local_infile;"

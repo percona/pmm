@@ -56,8 +56,7 @@ go test -timeout=30s -p 1 ./...
 | Variable                                 | Description                                                                                                         | Default                                  |
 |------------------------------------------|---------------------------------------------------------------------------------------------------------------------|------------------------------------------|
 | PMM_DEV_ADVISOR_STARLARK_ALLOW_RECURSION | Allows recursive functions in checks scripts                                                                        | false                                    |
-| PMM_DEV_ADVISOR_CHECKS_FILE              | Specifies path to local checks file and disables downloading checks files    | none                                     |
-| PMM_ADVISOR_CHECKS_DISABLE_START_DELAY   | Disables checks service startup delay                                                                               | false                                    |
+| PMM_ADVISORS_CHECKS_DISABLE_START_DELAY  | Disables checks service startup delay                                                                               | false                                    |
 | PMM_DEV_TELEMETRY_INTERVAL               | Sets telemetry reporting interval                                                                                   | 24h                                      |
 | PMM_DEV_TELEMETRY_DISABLE_SEND           | Disables sending of telemetry data to SaaS. This param doesn't affect telemetry data gathering from the datasources | false                                    |
 | PMM_DEV_TELEMETRY_FILE                   | Sets path for telemetry config file                                                                                 |                                          |
@@ -86,37 +85,22 @@ To get started:
 1. Set up the devcontainer using `make env-up`.
 2. Enter the container with `make env`, then run your changes with `make run`.
 3. [Add instances for monitoring](#add-instances-for-monitoring) so Advisors have databases to check. 
-4. Verify results in the PMM dashboard. Any failed Advisor checks will appear there.
+4. Verify results in PMM under **Advisors > Insights**. Any failed Advisor checks will appear there.
 5. [Develop or update Advisors](https://docs.percona.com/percona-monitoring-and-management/3/advisors/develop-advisor-checks.html) as needed.
 
 
 ## Contributing to Advisors
 
-Advisors are located in the `data/advisors` folder. If you want to change Advisor names and descriptions, make changes to the files in this folder and submit a pull request.
-You can read more about the [Advisors file format in our documentation](https://docs.percona.com/percona-monitoring-and-management/3/advisors/develop-advisor-checks.html).
+Built-in Advisor checks are located in the `data/checks` folder, one check per YAML file. The `category` field of a check sets the group it is listed under in **Advisors > Catalog**. To add or change a built-in check:
 
-If need to change the logic of Advisor checks (actual logic executed in advisors), then it's in the `checks` folder in `data/checks`. Please make changes to the files in this folder and submit a pull request.
+1. Add or edit the check's file in `data/checks`. The file must start with `---`, hold exactly one check, and be named after the check (`<name>.yml`). Don't start the name with `custom_`: that prefix is reserved for checks that users create in the PMM UI.
+2. Run `make pi-validate` in the `managed` directory to validate the checks.
+3. Submit a pull request.
 
-Changes to Advisors will be most visible in the list of all advisors by categories, such as https://pmmdemo.percona.com/graph/advisors/configuration.
+You can read more about the [check format and the script API in our documentation](https://docs.percona.com/percona-monitoring-and-management/3/advisors/develop-advisor-checks.html). To try out a check before you add its file, create it as a custom check under **Advisors > Catalog** in the PMM UI and test it on a service there.
 
-![Advisors interface](../dev/docs/assets/advisors/pmm-advisor-interface.png)
+Changes to built-in checks are visible in **Advisors > Catalog** once the PMM Server runs your build.
 
-``advisors.summary`` = https://github.com/percona/pmm/blob/b951d3c14eb1d5e4d716a61811da599af869054b/managed/data/advisors/example.yml.example#L5
-
-``advisors.description`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/advisors/example.yml.example#L6
-
-### Advisor checks
-
-Advisor checks are organized into categories by topic and can be viewed in the [Advisor Insight](https://pmmdemo.percona.com/graph/advisors/configuration). Each check provides detailed information and recommendations. To see these details, expand an Advisor to open its **Insights** section:
-
-
-![Advisors by categories](../dev/docs/assets/advisors/pmm-configuration-advisors.png)
-
-``checks.summary`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/checks/exampleV2.yml.example#L5
-``checks.description`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/checks/exampleV2.yml.example#L6
-
-
-Note that here might be several results in one check file.
 
 
 ## Working with Percona Alerting
@@ -140,7 +124,7 @@ Devcontainer initialization code is located in `.devcontainer/setup.sh`. It prov
 .
 ├── bin - binaries
 ├── cmd - code for any scripts run by managed
-├── data - alerting templates and generated code
+├── data - built-in advisor checks, alerting templates and generated code
 ├── models - database helpers and types, the database schema can be found in models/database.go file
 ├── services - contains all the APIs for interacting with services like checks service, victoriametrics, etc
 ├── testdata - dummy data files used in unit tests
