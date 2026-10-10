@@ -18,6 +18,7 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -78,6 +79,10 @@ type Server struct {
 	retentionM          sync.Mutex
 	retentionFromEnv    time.Duration
 	retentionLoggedDays int
+
+	// configM serializes applyConfigurations; appliedSettings holds the settings it last applied, as JSON.
+	configM         sync.Mutex
+	appliedSettings []byte
 
 	sshKeyM sync.Mutex
 }
@@ -789,9 +794,31 @@ func (s *Server) handleInternalQANToggle(q *reform.Querier, enableInternalPgQan 
 
 // UpdateConfigurations updates supervisor config and requests configuration update for VictoriaMetrics components.
 func (s *Server) UpdateConfigurations(ctx context.Context) error {
+	err := s.applyConfigurations()
+	if err != nil {
+		return err
+	}
+
+	err = s.agentsState.UpdateAgentsState(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to update agents state: %w", err)
+	}
+
+	return nil
+}
+
+// applyConfigurations configures this PMM Server instance's own components from the settings and records them as applied.
+func (s *Server) applyConfigurations() error {
+	s.configM.Lock()
+	defer s.configM.Unlock()
+
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return fmt.Errorf("failed to get settings: %w", err)
+	}
+	applied, err := json.Marshal(settings) //nolint:musttag
+	if err != nil {
+		return fmt.Errorf("failed to marshal settings: %w", err)
 	}
 
 	err = s.nomad.UpdateConfiguration(settings)
@@ -810,11 +837,7 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
 
-	err = s.agentsState.UpdateAgentsState(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to update agents state: %w", err)
-	}
-
+	s.appliedSettings = applied
 	return nil
 }
 
