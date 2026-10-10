@@ -20,7 +20,6 @@ import {
   formatAge,
   formatCompactDuration,
   formatRunDuration,
-  formatTimestamp,
   pluralize,
 } from '../src/format';
 
@@ -65,27 +64,6 @@ describe('formatAge', () => {
   it('renders an em-dash when there is no timestamp', () => {
     expect(formatAge(null, now)).toBe('—');
     expect(formatAge('not-a-date', now)).toBe('—');
-  });
-});
-
-describe('formatTimestamp', () => {
-  it('renders an em-dash for a missing or unparsable value', () => {
-    expect(formatTimestamp(null)).toBe('—');
-    expect(formatTimestamp('nonsense')).toBe('—');
-  });
-
-  // A fixed pattern rather than toLocaleString: run timestamps are compared against
-  // one another down a column, and a format that varies with the reader's locale is
-  // not a column you can scan. The rendering is local time, so the assertion goes
-  // through the same conversion rather than hard-coding a zone.
-  it('renders a parsable timestamp in local time', () => {
-    const iso = '2026-08-07T09:58:48Z';
-    const local = new Date(iso);
-    const pad = (value: number) => String(value).padStart(2, '0');
-    expect(formatTimestamp(iso)).toBe(
-      `${local.getFullYear()}-${pad(local.getMonth() + 1)}-${pad(local.getDate())} ` +
-        `${pad(local.getHours())}:${pad(local.getMinutes())}:${pad(local.getSeconds())}`
-    );
   });
 });
 

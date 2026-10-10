@@ -26,15 +26,15 @@
  * `2d 3h` rather than `2 days 3 hours`; date-fns emits words, and the short form needs
  * a custom `locale.formatDistance` - more code than the arithmetic it would replace. It
  * is named apart from date-fns' export of the same name so a file can import both.
+ *
+ * Absolute timestamps are not formatted here: they go through `@pmm-extensions/framework`'s
+ * `formatTimestamp`, the format every PMM Extensions app shares.
  */
 
-import { differenceInMilliseconds, format, isValid, parseISO } from 'date-fns';
+import { differenceInMilliseconds, isValid, parseISO } from 'date-fns';
 
 /** Placeholder for a value that has no usable timestamp behind it. */
 const NO_VALUE = '—';
-
-/** How a timestamp is shown when it is shown absolutely. */
-const TIMESTAMP_FORMAT = 'yyyy-MM-dd HH:mm:ss';
 
 /**
  * Parse a wire timestamp, or null when there is nothing usable.
@@ -86,12 +86,6 @@ export function formatCompactDuration(
     }
   }
   return parts.join(' ');
-}
-
-/** Absolute local timestamp, or an em-dash placeholder when there is none. */
-export function formatTimestamp(iso: string | null | undefined): string {
-  const date = parse(iso);
-  return date ? format(date, TIMESTAMP_FORMAT) : NO_VALUE;
 }
 
 /**

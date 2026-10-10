@@ -2835,6 +2835,14 @@ func (m *InventoryFreshness) validate(all bool) error {
 		// no validation rules for LastError
 	}
 
+	if m.LastErrorCode != nil {
+		// no validation rules for LastErrorCode
+	}
+
+	if m.LastRunId != nil {
+		// no validation rules for LastRunId
+	}
+
 	if len(errors) > 0 {
 		return InventoryFreshnessMultiError(errors)
 	}
@@ -6671,6 +6679,17 @@ func (m *TriggerHostBootstrapRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if !_TriggerHostBootstrapRequest_ReplicaSetName_Pattern.MatchString(m.GetReplicaSetName()) {
+		err := TriggerHostBootstrapRequestValidationError{
+			field:  "ReplicaSetName",
+			reason: "value does not match regex pattern \"^[A-Za-z0-9_-]+$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if utf8.RuneCountInString(m.GetMongodbVersion()) < 1 {
 		err := TriggerHostBootstrapRequestValidationError{
 			field:  "MongodbVersion",
@@ -6861,6 +6880,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = TriggerHostBootstrapRequestValidationError{}
+
+var _TriggerHostBootstrapRequest_ReplicaSetName_Pattern = regexp.MustCompile("^[A-Za-z0-9_-]+$")
 
 // Validate checks the field values on BootstrapMemberConfig with the rules
 // defined in the proto definition for this message. If any rules are

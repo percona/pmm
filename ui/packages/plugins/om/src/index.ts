@@ -99,7 +99,6 @@ export {
   formatCompactDuration,
   formatRunDuration,
   runDurationSeconds,
-  formatTimestamp,
 } from './format';
 export type {
   OmCluster,

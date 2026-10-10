@@ -265,36 +265,6 @@ describe('BootstrapPage install refusal', () => {
 // Task 4 / P1. Every one of these conditions used to be checked on the wizard's
 // final button, inside TriggerHostBootstrap, after the whole form was filled in.
 describe('BootstrapPage blockers', () => {
-  const blockers = () =>
-    screen.getAllByTestId('om-review-blocker').map((item) => item.textContent);
-
-  it('lists everything keeping Review disabled, beside it', () => {
-    openConfigure();
-    fireEvent.change(screen.getByLabelText(/Replica set name/), {
-      target: { value: '' },
-    });
-    fireEvent.change(screen.getByLabelText(/Data path/), {
-      target: { value: '' },
-    });
-    fireEvent.change(screen.getByLabelText(/^Port/), {
-      target: { value: '70000' },
-    });
-
-    expect(review()).toBeDisabled();
-    expect(blockers()).toEqual([
-      'a replica set name',
-      'a data path',
-      'a port from 1 to 65535',
-    ]);
-  });
-
-  it('says nothing once Review can go ahead', () => {
-    openConfigure();
-
-    expect(review()).toBeEnabled();
-    expect(screen.queryByTestId('om-review-blocker')).toBeNull();
-  });
-
   it('gives every reason Configure is unavailable, not only the first', () => {
     hostsState.data = [{ ...host(1), automation_eligible: false }, host(2)];
     try {
@@ -591,5 +561,131 @@ describe('BootstrapPage security posture', () => {
     expect(request.bindIp).toBe('0.0.0.0');
     // The same fact twice would be a second place for it to drift.
     expect(request.memberConfigs['node-1'].bind_ip).toBeUndefined();
+  });
+});
+
+describe('BootstrapPage configure guidance', () => {
+  const openConfigureStep = () => {
+    render(
+      <MemoryRouter initialEntries={['/operations/nodes/install?nodes=node-1']}>
+        <Routes>
+          <Route path="/operations/nodes/install" element={<BootstrapPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Configure' }));
+  };
+
+  const typeInto = (label: RegExp | string, value: string) =>
+    fireEvent.change(screen.getByLabelText(label), { target: { value } });
+
+  afterEach(() => {
+    triggerCalls.length = 0;
+  });
+
+  it('offers only the supported versions, with 7.0 selected', () => {
+    openConfigureStep();
+
+    const version = screen.getByRole('combobox', { name: /MongoDB version/ });
+    expect(version).toHaveTextContent('7.0');
+    fireEvent.mouseDown(version);
+    expect(
+      screen.getAllByRole('option').map((option) => option.textContent)
+    ).toEqual(['7.0', '8.0']);
+  });
+
+  it('flags an invalid replica set name while typing, and clears it once fixed', () => {
+    openConfigureStep();
+
+    typeInto(/Replica set name/, 'my set:1');
+    expect(screen.getByLabelText(/Replica set name/)).toHaveAttribute(
+      'aria-invalid',
+      'true'
+    );
+    expect(
+      screen.getAllByText(
+        'Replica set name can use only letters, digits, - and _.'
+      )
+    ).not.toHaveLength(0);
+    expect(review()).toBeDisabled();
+    // An invalid name is never offered as the cluster label.
+    expect(
+      screen.getByText('Optional. Defaults to the replica set name.')
+    ).toBeInTheDocument();
+
+    typeInto(/Replica set name/, 'rs0');
+    expect(screen.getByLabelText(/Replica set name/)).toHaveAttribute(
+      'aria-invalid',
+      'false'
+    );
+    expect(review()).toBeEnabled();
+  });
+
+  it('says why Review is disabled on an untouched form, without flagging the name', () => {
+    openConfigureStep();
+
+    expect(review()).toBeDisabled();
+    expect(review()).toHaveAttribute('aria-describedby', 'om-review-blockers');
+    expect(screen.getByTestId('om-review-blockers')).toHaveTextContent(
+      'Enter a replica set name.'
+    );
+    expect(screen.getByLabelText(/Replica set name/)).toHaveAttribute(
+      'aria-invalid',
+      'false'
+    );
+  });
+
+  it('lists every reason Review is disabled, not only the first', () => {
+    openConfigureStep();
+    typeInto(/Replica set name/, 'rs0');
+    typeInto(/Data path/, '');
+    typeInto(/^Port/, '0');
+
+    const items = within(screen.getByTestId('om-review-blockers'))
+      .getAllByRole('listitem')
+      .map((item) => item.textContent);
+    expect(items).toEqual([
+      'Enter a data path.',
+      'Port must be a whole number from 1 to 65535.',
+    ]);
+  });
+
+  it('hides the reasons once the form is valid', () => {
+    openConfigureStep();
+    typeInto(/Replica set name/, 'rs0');
+
+    expect(screen.queryByTestId('om-review-blockers')).toBeNull();
+    expect(review()).not.toHaveAttribute('aria-describedby');
+  });
+
+  it('says a blank cluster defaults to the replica set name, and sends it', async () => {
+    openConfigureStep();
+    typeInto(/Replica set name/, 'rs-orders');
+
+    expect(
+      screen.getByText(
+        'Optional. Defaults to the replica set name (rs-orders).'
+      )
+    ).toBeInTheDocument();
+
+    fireEvent.click(review());
+    const clusterRow = screen.getByRole('rowheader', { name: 'Cluster' })
+      .parentElement as HTMLElement;
+    expect(clusterRow).toHaveTextContent('rs-orders');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Install MongoDB' }));
+    await vi.waitFor(() => expect(triggerCalls).toHaveLength(1));
+    expect(triggerCalls[0].cluster).toBe('rs-orders');
+  });
+
+  it('sends a cluster the user typed as it is', async () => {
+    openConfigureStep();
+    typeInto(/Replica set name/, 'rs-orders');
+    typeInto(/^Cluster/, 'orders');
+    fireEvent.click(review());
+    fireEvent.click(screen.getByRole('button', { name: 'Install MongoDB' }));
+
+    await vi.waitFor(() => expect(triggerCalls).toHaveLength(1));
+    expect(triggerCalls[0].cluster).toBe('orders');
   });
 });

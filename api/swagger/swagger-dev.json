@@ -30392,6 +30392,18 @@
                             "type": "string",
                             "x-nullable": true,
                             "x-order": 5
+                          },
+                          "last_error_code": {
+                            "description": "What kind of failure last_error is, so a reader can be told what to do about it\nwithout parsing the message. Unset while healthy, and for a failure recorded\nbefore the code existed. One of: dispatch_rejected, not_started, timed_out,\nblocked, environment_setup_failed, scan_crashed, scan_lost, no_output,\ndatabase_unreachable, database_auth_failed, database_error, unknown. A string\nrather than an enum so PMM Extensions can add a kind without a proto change;\ntreat an unrecognised value as unknown.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 6
+                          },
+                          "last_run_id": {
+                            "description": "The PMM Extensions scan run that last attempted this entity, so a page stating\nits failure can link to the run that produced it. Unset until a run has.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 7
                           }
                         },
                         "x-order": 9
@@ -30524,6 +30536,18 @@
                                   "type": "string",
                                   "x-nullable": true,
                                   "x-order": 5
+                                },
+                                "last_error_code": {
+                                  "description": "What kind of failure last_error is, so a reader can be told what to do about it\nwithout parsing the message. Unset while healthy, and for a failure recorded\nbefore the code existed. One of: dispatch_rejected, not_started, timed_out,\nblocked, environment_setup_failed, scan_crashed, scan_lost, no_output,\ndatabase_unreachable, database_auth_failed, database_error, unknown. A string\nrather than an enum so PMM Extensions can add a kind without a proto change;\ntreat an unrecognised value as unknown.",
+                                  "type": "string",
+                                  "x-nullable": true,
+                                  "x-order": 6
+                                },
+                                "last_run_id": {
+                                  "description": "The PMM Extensions scan run that last attempted this entity, so a page stating\nits failure can link to the run that produced it. Unset until a run has.",
+                                  "type": "string",
+                                  "x-nullable": true,
+                                  "x-order": 7
                                 }
                               },
                               "x-order": 14
@@ -30778,6 +30802,18 @@
                           "type": "string",
                           "x-nullable": true,
                           "x-order": 5
+                        },
+                        "last_error_code": {
+                          "description": "What kind of failure last_error is, so a reader can be told what to do about it\nwithout parsing the message. Unset while healthy, and for a failure recorded\nbefore the code existed. One of: dispatch_rejected, not_started, timed_out,\nblocked, environment_setup_failed, scan_crashed, scan_lost, no_output,\ndatabase_unreachable, database_auth_failed, database_error, unknown. A string\nrather than an enum so PMM Extensions can add a kind without a proto change;\ntreat an unrecognised value as unknown.",
+                          "type": "string",
+                          "x-nullable": true,
+                          "x-order": 6
+                        },
+                        "last_run_id": {
+                          "description": "The PMM Extensions scan run that last attempted this entity, so a page stating\nits failure can link to the run that produced it. Unset until a run has.",
+                          "type": "string",
+                          "x-nullable": true,
+                          "x-order": 7
                         }
                       },
                       "x-order": 9
@@ -30910,6 +30946,18 @@
                                 "type": "string",
                                 "x-nullable": true,
                                 "x-order": 5
+                              },
+                              "last_error_code": {
+                                "description": "What kind of failure last_error is, so a reader can be told what to do about it\nwithout parsing the message. Unset while healthy, and for a failure recorded\nbefore the code existed. One of: dispatch_rejected, not_started, timed_out,\nblocked, environment_setup_failed, scan_crashed, scan_lost, no_output,\ndatabase_unreachable, database_auth_failed, database_error, unknown. A string\nrather than an enum so PMM Extensions can add a kind without a proto change;\ntreat an unrecognised value as unknown.",
+                                "type": "string",
+                                "x-nullable": true,
+                                "x-order": 6
+                              },
+                              "last_run_id": {
+                                "description": "The PMM Extensions scan run that last attempted this entity, so a page stating\nits failure can link to the run that produced it. Unset until a run has.",
+                                "type": "string",
+                                "x-nullable": true,
+                                "x-order": 7
                               }
                             },
                             "x-order": 14
@@ -31070,7 +31118,7 @@
                   "x-order": 0
                 },
                 "replica_set_name": {
-                  "description": "The replica set's name.",
+                  "description": "The replica set's name: letters, digits, \"-\" and \"_\". PMM Extensions writes it\nunescaped into mongod.conf and the connection URI, and enforces the same rule.",
                   "type": "string",
                   "x-order": 1
                 },
@@ -31965,6 +32013,18 @@
                             "type": "string",
                             "x-nullable": true,
                             "x-order": 5
+                          },
+                          "last_error_code": {
+                            "description": "What kind of failure last_error is, so a reader can be told what to do about it\nwithout parsing the message. Unset while healthy, and for a failure recorded\nbefore the code existed. One of: dispatch_rejected, not_started, timed_out,\nblocked, environment_setup_failed, scan_crashed, scan_lost, no_output,\ndatabase_unreachable, database_auth_failed, database_error, unknown. A string\nrather than an enum so PMM Extensions can add a kind without a proto change;\ntreat an unrecognised value as unknown.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 6
+                          },
+                          "last_run_id": {
+                            "description": "The PMM Extensions scan run that last attempted this entity, so a page stating\nits failure can link to the run that produced it. Unset until a run has.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 7
                           }
                         },
                         "x-order": 14
@@ -32159,6 +32219,18 @@
                           "type": "string",
                           "x-nullable": true,
                           "x-order": 5
+                        },
+                        "last_error_code": {
+                          "description": "What kind of failure last_error is, so a reader can be told what to do about it\nwithout parsing the message. Unset while healthy, and for a failure recorded\nbefore the code existed. One of: dispatch_rejected, not_started, timed_out,\nblocked, environment_setup_failed, scan_crashed, scan_lost, no_output,\ndatabase_unreachable, database_auth_failed, database_error, unknown. A string\nrather than an enum so PMM Extensions can add a kind without a proto change;\ntreat an unrecognised value as unknown.",
+                          "type": "string",
+                          "x-nullable": true,
+                          "x-order": 6
+                        },
+                        "last_run_id": {
+                          "description": "The PMM Extensions scan run that last attempted this entity, so a page stating\nits failure can link to the run that produced it. Unset until a run has.",
+                          "type": "string",
+                          "x-nullable": true,
+                          "x-order": 7
                         }
                       },
                       "x-order": 14

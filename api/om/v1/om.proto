@@ -459,6 +459,17 @@ message InventoryFreshness {
   int32 consecutive_failures = 5;
   // The most recent failure detail.
   optional string last_error = 6;
+  // What kind of failure last_error is, so a reader can be told what to do about it
+  // without parsing the message. Unset while healthy, and for a failure recorded
+  // before the code existed. One of: dispatch_rejected, not_started, timed_out,
+  // blocked, environment_setup_failed, scan_crashed, scan_lost, no_output,
+  // database_unreachable, database_auth_failed, database_error, unknown. A string
+  // rather than an enum so PMM Extensions can add a kind without a proto change;
+  // treat an unrecognised value as unknown.
+  optional string last_error_code = 7;
+  // The PMM Extensions scan run that last attempted this entity, so a page stating
+  // its failure can link to the run that produced it. Unset until a run has.
+  optional string last_run_id = 8;
 }
 
 // InventoryService is one MongoDB service OM has probed, or tried to.
@@ -878,10 +889,12 @@ message TriggerHostBootstrapRequest {
     max_items: 3
     unique: true
   }];
-  // The replica set's name.
+  // The replica set's name: letters, digits, "-" and "_". PMM Extensions writes it
+  // unescaped into mongod.conf and the connection URI, and enforces the same rule.
   string replica_set_name = 2 [(validate.rules).string = {
     min_len: 1
     max_len: 64
+    pattern: "^[A-Za-z0-9_-]+$"
   }];
   // The MongoDB version to install, e.g. "7.0.8". Only the major version
   // selects the install source; PSMDB does not ship parallel repos per minor

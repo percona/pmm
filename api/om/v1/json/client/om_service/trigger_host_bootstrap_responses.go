@@ -195,7 +195,8 @@ type TriggerHostBootstrapBody struct {
 	// counts" rule to state it declaratively.
 	NodeIds []string `json:"node_ids"`
 
-	// The replica set's name.
+	// The replica set's name: letters, digits, "-" and "_". PMM Extensions writes it
+	// unescaped into mongod.conf and the connection URI, and enforces the same rule.
 	ReplicaSetName string `json:"replica_set_name,omitempty"`
 
 	// The MongoDB version to install, e.g. "7.0.8". Only the major version

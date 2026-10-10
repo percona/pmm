@@ -44,6 +44,7 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from 'material-react-table';
+import { formatTimestamp } from '@pmm-extensions/framework';
 import {
   HOST_DATABASE_STATE_COLOR,
   HOST_DATABASE_STATE_LABEL,
@@ -51,13 +52,14 @@ import {
   OM_ROUTE_AUTOMATIONS,
   OM_ROUTE_INSTALL,
 } from './constants';
+import { Age } from './components/Age';
 import { EmptyState } from './components/EmptyState';
 import { RowOverflowMenu } from './components/RowOverflowMenu';
 import { ScanProgress } from './components/ScanProgress';
 import { NotOnboardedDialog } from './components/NotOnboardedDialog';
 import { OmHeader } from './components/OmHeader';
 import { Unavailable } from './components/Unavailable';
-import { formatCompactDuration, formatTimestamp, pluralize } from './format';
+import { formatCompactDuration, pluralize } from './format';
 import {
   ageSeconds,
   describeScanFailure,
@@ -494,7 +496,8 @@ function useColumns(
           ageSeconds(row.freshness.last_success_at) ?? Infinity,
         header: 'Collected',
         Cell: ({ row: { original } }) => {
-          const age = ageSeconds(original.freshness.last_success_at);
+          const collected = original.freshness.last_success_at;
+          const age = ageSeconds(collected);
           // Asked first, and of `failing_since` rather than the success time. Keyed on
           // the success time, a node whose scans had never succeeded fell into the
           // "never collected" branch below and its error was nowhere on the page -
@@ -504,7 +507,7 @@ function useColumns(
             return age == null ? (
               <Unavailable reason="probe_never_succeeded" />
             ) : (
-              <>{formatCompactDuration(age)} ago</>
+              <Age value={collected} />
             );
           }
           return (
@@ -521,9 +524,14 @@ function useColumns(
                 {failureStatement(failure)}
               </Box>
               <Typography variant="caption" color="text.secondary">
-                {age == null
-                  ? 'Never collected. Expand for the full error.'
-                  : `Last collected ${formatCompactDuration(age)} ago. Expand for the full error.`}
+                {age == null ? (
+                  'Never collected. Expand for the full error.'
+                ) : (
+                  <>
+                    Last collected <Age value={collected} />. Expand for the
+                    full error.
+                  </>
+                )}
               </Typography>
             </Stack>
           );
@@ -583,7 +591,7 @@ const ScanFailureDetail = ({
       <Typography variant="body2" sx={{ mb: 1 }}>
         {/* Relative for reading, absolute for matching against a log or a run. */}
         {failure.failingForSeconds != null
-          ? `Failing for ${formatCompactDuration(failure.failingForSeconds) || '0s'} (since ${formatTimestamp(failure.failingSince)})`
+          ? `Failing for ${formatCompactDuration(failure.failingForSeconds) || '0s'} (since ${formatTimestamp(failure.failingSince)?.title})`
           : `Failing since ${failure.failingSince}`}
         {failure.consecutiveFailures > 1
           ? `, ${failure.consecutiveFailures} failed scans in a row.`

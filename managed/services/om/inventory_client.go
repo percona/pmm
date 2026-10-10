@@ -55,6 +55,8 @@ type extensionsFreshness struct {
 	FailingSince        *time.Time `json:"failing_since"`
 	ConsecutiveFailures int        `json:"consecutive_failures"`
 	LastError           *string    `json:"last_error"`
+	LastErrorCode       *string    `json:"last_error_code"`
+	LastRunID           *string    `json:"last_run_id"`
 }
 
 // extensionsService is one row of GET /services, and of the `services` list on a host.

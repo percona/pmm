@@ -2021,7 +2021,18 @@ type InventoryFreshness struct {
 	// Failures since the last success.
 	ConsecutiveFailures int32 `protobuf:"varint,5,opt,name=consecutive_failures,json=consecutiveFailures,proto3" json:"consecutive_failures,omitempty"`
 	// The most recent failure detail.
-	LastError     *string `protobuf:"bytes,6,opt,name=last_error,json=lastError,proto3,oneof" json:"last_error,omitempty"`
+	LastError *string `protobuf:"bytes,6,opt,name=last_error,json=lastError,proto3,oneof" json:"last_error,omitempty"`
+	// What kind of failure last_error is, so a reader can be told what to do about it
+	// without parsing the message. Unset while healthy, and for a failure recorded
+	// before the code existed. One of: dispatch_rejected, not_started, timed_out,
+	// blocked, environment_setup_failed, scan_crashed, scan_lost, no_output,
+	// database_unreachable, database_auth_failed, database_error, unknown. A string
+	// rather than an enum so PMM Extensions can add a kind without a proto change;
+	// treat an unrecognised value as unknown.
+	LastErrorCode *string `protobuf:"bytes,7,opt,name=last_error_code,json=lastErrorCode,proto3,oneof" json:"last_error_code,omitempty"`
+	// The PMM Extensions scan run that last attempted this entity, so a page stating
+	// its failure can link to the run that produced it. Unset until a run has.
+	LastRunId     *string `protobuf:"bytes,8,opt,name=last_run_id,json=lastRunId,proto3,oneof" json:"last_run_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2094,6 +2105,20 @@ func (x *InventoryFreshness) GetConsecutiveFailures() int32 {
 func (x *InventoryFreshness) GetLastError() string {
 	if x != nil && x.LastError != nil {
 		return *x.LastError
+	}
+	return ""
+}
+
+func (x *InventoryFreshness) GetLastErrorCode() string {
+	if x != nil && x.LastErrorCode != nil {
+		return *x.LastErrorCode
+	}
+	return ""
+}
+
+func (x *InventoryFreshness) GetLastRunId() string {
+	if x != nil && x.LastRunId != nil {
+		return *x.LastRunId
 	}
 	return ""
 }
@@ -4031,7 +4056,8 @@ type TriggerHostBootstrapRequest struct {
 	// three, checked server-side since protoc-gen-validate has no "one of these
 	// counts" rule to state it declaratively.
 	NodeIds []string `protobuf:"bytes,1,rep,name=node_ids,json=nodeIds,proto3" json:"node_ids,omitempty"`
-	// The replica set's name.
+	// The replica set's name: letters, digits, "-" and "_". PMM Extensions writes it
+	// unescaped into mongod.conf and the connection URI, and enforces the same rule.
 	ReplicaSetName string `protobuf:"bytes,2,opt,name=replica_set_name,json=replicaSetName,proto3" json:"replica_set_name,omitempty"`
 	// The MongoDB version to install, e.g. "7.0.8". Only the major version
 	// selects the install source; PSMDB does not ship parallel repos per minor
@@ -5310,7 +5336,7 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x05_argvB\n" +
 	"\n" +
 	"\b_programB\x06\n" +
-	"\x04_pid\"\x83\x03\n" +
+	"\x04_pid\"\xf9\x03\n" +
 	"\x12InventoryFreshness\x12>\n" +
 	"\rfirst_seen_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\vfirstSeenAt\x12B\n" +
 	"\x0flast_attempt_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\rlastAttemptAt\x12B\n" +
@@ -5318,8 +5344,12 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\rfailing_since\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\ffailingSince\x121\n" +
 	"\x14consecutive_failures\x18\x05 \x01(\x05R\x13consecutiveFailures\x12\"\n" +
 	"\n" +
-	"last_error\x18\x06 \x01(\tH\x00R\tlastError\x88\x01\x01B\r\n" +
-	"\v_last_error\"\xeb\x05\n" +
+	"last_error\x18\x06 \x01(\tH\x00R\tlastError\x88\x01\x01\x12+\n" +
+	"\x0flast_error_code\x18\a \x01(\tH\x01R\rlastErrorCode\x88\x01\x01\x12#\n" +
+	"\vlast_run_id\x18\b \x01(\tH\x02R\tlastRunId\x88\x01\x01B\r\n" +
+	"\v_last_errorB\x12\n" +
+	"\x10_last_error_codeB\x0e\n" +
+	"\f_last_run_id\"\xeb\x05\n" +
 	"\x10InventoryService\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12\x17\n" +
@@ -5490,10 +5520,10 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x06status\x18\x02 \x01(\x0e2\x10.om.v1.RunStatusR\x06status\x129\n" +
 	"\n" +
 	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x12\x14\n" +
-	"\x05scope\x18\x04 \x03(\tR\x05scope\"\xda\x04\n" +
+	"\x05scope\x18\x04 \x03(\tR\x05scope\"\xec\x04\n" +
 	"\x1bTriggerHostBootstrapRequest\x12'\n" +
-	"\bnode_ids\x18\x01 \x03(\tB\f\xfaB\t\x92\x01\x06\b\x01\x10\x03\x18\x01R\anodeIds\x123\n" +
-	"\x10replica_set_name\x18\x02 \x01(\tB\t\xfaB\x06r\x04\x10\x01\x18@R\x0ereplicaSetName\x120\n" +
+	"\bnode_ids\x18\x01 \x03(\tB\f\xfaB\t\x92\x01\x06\b\x01\x10\x03\x18\x01R\anodeIds\x12E\n" +
+	"\x10replica_set_name\x18\x02 \x01(\tB\x1b\xfaB\x18r\x16\x10\x01\x18@2\x10^[A-Za-z0-9_-]+$R\x0ereplicaSetName\x120\n" +
 	"\x0fmongodb_version\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x0emongodbVersion\x12%\n" +
 	"\venvironment\x18\x04 \x01(\tH\x00R\venvironment\x88\x01\x01\x12\x1d\n" +
 	"\acluster\x18\x05 \x01(\tH\x01R\acluster\x88\x01\x01\x12$\n" +

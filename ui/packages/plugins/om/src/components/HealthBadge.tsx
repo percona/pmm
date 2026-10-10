@@ -22,6 +22,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import { formatTimestamp } from '@pmm-extensions/framework';
 import {
   CLUSTER_HEALTH_COLOR,
   CLUSTER_HEALTH_LABEL,
@@ -32,7 +33,7 @@ import {
   SERVICE_STATUS_LABEL,
 } from '../constants';
 import { isRunActive } from '../api';
-import { formatCompactDuration, formatTimestamp } from '../format';
+import { formatCompactDuration } from '../format';
 import { ageSeconds } from '../inventory';
 import type {
   OmClusterHealth,
@@ -112,7 +113,7 @@ const DownFor = ({ lastUpAt }: { lastUpAt?: string | null }) => {
         ]
       : [
           `for ${formatCompactDuration(age) || '0s'}`,
-          `Last seen up ${formatTimestamp(lastUpAt)}`,
+          `Last seen up ${formatTimestamp(lastUpAt)?.title}`,
         ];
   return (
     <Tooltip title={title} describeChild>

@@ -27,6 +27,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Table, type MRT_ColumnDef } from '@percona/percona-ui';
+import { RunTime } from '@pmm-extensions/framework';
 import { bootstrapRunDisplayStatus } from './api';
 import {
   BOOTSTRAP_RUN_COLOR,
@@ -37,11 +38,7 @@ import { OmHeader } from './components/OmHeader';
 import { EmptyState } from './components/EmptyState';
 import { RunProgress } from './components/RunProgress';
 import { AutomationsScansTab } from './AutomationsScansTab';
-import {
-  formatRunElapsed,
-  formatTimestamp,
-  runDurationSeconds,
-} from './format';
+import { formatRunElapsed, runDurationSeconds } from './format';
 import { useOmBootstrapRuns } from './inventoryHooks';
 import { tabPanelProps, tabProps } from './tabA11y';
 import { useOmBase } from './useOmBase';
@@ -121,7 +118,11 @@ const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
   {
     accessorKey: 'started_at',
     header: 'Started',
-    Cell: ({ row: { original } }) => formatTimestamp(original.started_at),
+    // Room for the widest en-US date and time ("12/28/2025, 10:57:01 PM"): the cell
+    // does not wrap, and the table ellipsizes anything wider.
+    size: 230,
+    muiTableBodyCellProps: { sx: { whiteSpace: 'nowrap' } },
+    Cell: ({ row: { original } }) => <RunTime value={original.started_at} />,
   },
   {
     // Sorts on elapsed seconds, not the formatted string -- see AutomationsScansTab's own
