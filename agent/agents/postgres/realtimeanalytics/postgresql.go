@@ -46,32 +46,34 @@ import (
 //   - The second column says whether a row is a listed session; the others are only blockers, which
 //     blockingChains needs to follow a chain through idle sessions and background workers.
 //   - Blockers are matched to waiters in Go: done here, the match grows with the cube of a lock queue.
+//   - pg_locks is read once, and only while a session waits on a lock: each read copies the whole lock table.
 //   - query_text_truncated allows for a multibyte character cut short (up to 3 bytes) below track_activity_query_size.
 //   - Parallel workers are left out; their leader is listed and carries the query.
 //   - query_id (14+) and pg_locks.waitstart (14+) are read through to_jsonb, so one query serves 12 and 13 too.
 //   - For sessions idle in transaction the duration is the transaction's, not the last query's.
 //   - Without pg_read_all_stats, other users' sessions have a NULL backend_type, so they are left out;
 //     Run reports that in the session status.
-//   - The whole pg_stat_activity row goes to the raw data, pretty-printed as for MySQL and without the blk
-//     helper column; its columns differ between versions.
+//   - The whole pg_stat_activity row goes to the raw data, pretty-printed as for MySQL; its columns differ
+//     between versions. It is converted before blk is added, which can hold every session queued ahead.
 //
 //nolint:unqueryvet
-const activityQuery = `WITH ` + agents.RTAQueryTag + ` AS (SELECT *, CASE WHEN wait_event_type = 'Lock' THEN pg_blocking_pids(pid) END AS blk FROM pg_stat_activity),
+const activityQuery = `WITH ` + agents.RTAQueryTag + ` AS (SELECT *, to_jsonb(a) AS j,
+  CASE WHEN wait_event_type = 'Lock' THEN pg_blocking_pids(pid) END AS blk FROM pg_stat_activity a),
 listed AS (SELECT pid, row_number() OVER (ORDER BY CASE WHEN state LIKE 'idle in transaction%' THEN xact_start ELSE query_start END NULLS LAST, pid) AS n
   FROM ` + agents.RTAQueryTag + ` WHERE backend_type = 'client backend' AND state IS DISTINCT FROM 'idle' AND pid <> pg_backend_pid()
-  ORDER BY n LIMIT 1000)
-SELECT w.pid, l.pid IS NOT NULL, CASE WHEN l.pid IS NOT NULL THEN jsonb_pretty(to_jsonb(w) - 'blk') END,
+  ORDER BY n LIMIT 1000),
+waits AS (SELECT pid, min((to_jsonb(lk)->>'waitstart')::timestamptz) AS since FROM pg_locks lk
+  WHERE NOT granted AND EXISTS (SELECT FROM ` + agents.RTAQueryTag + ` WHERE blk IS NOT NULL) GROUP BY pid)
+SELECT w.pid, l.pid IS NOT NULL, CASE WHEN l.pid IS NOT NULL THEN jsonb_pretty(w.j) END,
   COALESCE(w.datname, ''), COALESCE(w.usename, ''), COALESCE(w.application_name, ''),
   COALESCE(w.state, ''), COALESCE(w.backend_type, ''), COALESCE(w.wait_event_type, ''), COALESCE(w.wait_event, ''),
   COALESCE(host(w.client_addr) || ':' || w.client_port, ''), COALESCE(w.query, ''),
-  COALESCE(to_jsonb(w)->>'query_id', ''), w.xact_start, w.query_start,
+  COALESCE(w.j->>'query_id', ''), w.xact_start, w.query_start,
   EXTRACT(EPOCH FROM clock_timestamp() - CASE WHEN w.state LIKE 'idle in transaction%' THEN w.xact_start ELSE w.query_start END),
   EXTRACT(EPOCH FROM clock_timestamp() - w.xact_start),
   COALESCE(octet_length(w.query) >= s.size - 4, false),
-  w.blk,
-  (SELECT EXTRACT(EPOCH FROM clock_timestamp() - min((to_jsonb(lk)->>'waitstart')::timestamptz))
-     FROM pg_locks lk WHERE l.pid IS NOT NULL AND w.blk IS NOT NULL AND lk.pid = w.pid AND NOT lk.granted)
-FROM ` + agents.RTAQueryTag + ` w LEFT JOIN listed l ON l.pid = w.pid,
+  w.blk, EXTRACT(EPOCH FROM clock_timestamp() - wt.since)
+FROM ` + agents.RTAQueryTag + ` w LEFT JOIN listed l ON l.pid = w.pid LEFT JOIN waits wt ON wt.pid = w.pid,
   (SELECT setting::int AS size FROM pg_settings WHERE name = 'track_activity_query_size') s
 WHERE l.pid IS NOT NULL OR w.pid IN (SELECT unnest(blk) FROM ` + agents.RTAQueryTag + `)
 ORDER BY l.n NULLS LAST`
