@@ -308,6 +308,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 | Directory | Purpose |
 |-----------|---------|
 | `/dev/docs` | Developer docs: process (git workflow, tech stack, best practices) and managed architecture (data model, access control); public API docs live in `documentation/api/` |
+| `/docs/adr` | Architecture decision records, one decision per file; see [`docs/adr/README.md`](docs/adr/README.md) for format and statuses. Supersede an accepted ADR with a new one, never rewrite it |
 | `/documentation` | User-facing documentation (MkDocs project root); pages live in `documentation/docs/` |
 | `/version` | Version info and feature flags |
 | `/dev` | Development utilities (e.g., mongo-rs-backups) |
