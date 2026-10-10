@@ -10,6 +10,7 @@ import NotificationsOffOutlinedIcon from '@mui/icons-material/NotificationsOffOu
 import { useTimezone } from 'hooks/utils/useTimezone';
 import { formatDurationSeconds } from 'utils/duration.utils';
 import AlertSeverityDetail from './severity/AlertSeverityDetail';
+import AlertDescription from './description/AlertDescription';
 import { AlertDetailsPane } from '../AlertDetailsPane.types';
 
 interface Props {
@@ -71,7 +72,7 @@ const AlertDetailsTab: FC<Props> = ({
           {summary.summary}
         </DataPoint>
         <DataPoint size={2} title={Messages.details.description}>
-          {summary.description}
+          <AlertDescription description={summary.description} />
         </DataPoint>
       </Grid>
       <Stack spacing={2}>
