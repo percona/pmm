@@ -29,20 +29,20 @@ import (
 func TestBuildGrafanaRuleDataSingleExpression(t *testing.T) {
 	t.Parallel()
 
-	data, condition, err := buildGrafanaRuleData(&alert.Template{
+	built, err := buildGrafanaRuleData(&alert.Template{
 		Expr: "up == 1",
-	}, "metrics-uid", nil, nil)
+	}, "metrics-uid", "", nil, nil)
 	require.NoError(t, err)
-	assert.Equal(t, "A", condition)
-	require.Len(t, data, 1)
-	assert.Equal(t, "A", data[0].RefID)
-	assert.Equal(t, "metrics-uid", data[0].DatasourceUID)
+	assert.Equal(t, "A", built.condition)
+	require.Len(t, built.data, 1)
+	assert.Equal(t, "A", built.data[0].RefID)
+	assert.Equal(t, "metrics-uid", built.data[0].DatasourceUID)
 }
 
 func TestBuildGrafanaRuleDataMultiExpression(t *testing.T) {
 	t.Parallel()
 
-	data, condition, err := buildGrafanaRuleData(&alert.Template{
+	built, err := buildGrafanaRuleData(&alert.Template{
 		Queries: []alert.TemplateQuery{
 			{RefID: "A", Expr: "cpu > 0"},
 			{RefID: "B", Expr: "vector(80)"},
@@ -53,19 +53,19 @@ func TestBuildGrafanaRuleDataMultiExpression(t *testing.T) {
 			Expression: "$A > $B",
 		}},
 		Condition: "C",
-	}, "metrics-uid", map[string]string{}, nil)
+	}, "metrics-uid", "", map[string]string{}, nil)
 	require.NoError(t, err)
-	assert.Equal(t, "C", condition)
-	require.Len(t, data, 3)
+	assert.Equal(t, "C", built.condition)
+	require.Len(t, built.data, 3)
 
-	assert.Equal(t, "A", data[0].RefID)
-	assert.Equal(t, "metrics-uid", data[0].DatasourceUID)
+	assert.Equal(t, "A", built.data[0].RefID)
+	assert.Equal(t, "metrics-uid", built.data[0].DatasourceUID)
 
-	assert.Equal(t, "C", data[2].RefID)
-	assert.Equal(t, grafanaExprDatasourceUID, data[2].DatasourceUID)
+	assert.Equal(t, "C", built.data[2].RefID)
+	assert.Equal(t, grafanaExprDatasourceUID, built.data[2].DatasourceUID)
 
 	var mathModel mathExpressionModel
-	err = json.Unmarshal(data[2].Model, &mathModel)
+	err = json.Unmarshal(built.data[2].Model, &mathModel)
 	require.NoError(t, err)
 	assert.Equal(t, "math", mathModel.Type)
 	assert.Equal(t, "$A > $B", mathModel.Expression)
@@ -74,7 +74,7 @@ func TestBuildGrafanaRuleDataMultiExpression(t *testing.T) {
 func TestBuildGrafanaRuleDataMultiExpressionWithParamsAndFilters(t *testing.T) {
 	t.Parallel()
 
-	data, condition, err := buildGrafanaRuleData(&alert.Template{
+	built, err := buildGrafanaRuleData(&alert.Template{
 		Queries: []alert.TemplateQuery{
 			{RefID: "A", Expr: `rate(node_cpu_seconds_total{mode="idle"}[[ .window ]])`},
 			{RefID: "B", Expr: "vector([[ .threshold ]])"},
@@ -85,7 +85,7 @@ func TestBuildGrafanaRuleDataMultiExpressionWithParamsAndFilters(t *testing.T) {
 			Expression: "$A < $B",
 		}},
 		Condition: "C",
-	}, "metrics-uid", map[string]string{
+	}, "metrics-uid", "", map[string]string{
 		"window":    "[5m]",
 		"threshold": "80",
 	}, []*alertingv1.Filter{{
@@ -94,16 +94,16 @@ func TestBuildGrafanaRuleDataMultiExpressionWithParamsAndFilters(t *testing.T) {
 		Regexp: "db.*",
 	}})
 	require.NoError(t, err)
-	assert.Equal(t, "C", condition)
-	require.Len(t, data, 3)
+	assert.Equal(t, "C", built.condition)
+	require.Len(t, built.data, 3)
 
 	var queryModelA promQueryModel
-	err = json.Unmarshal(data[0].Model, &queryModelA)
+	err = json.Unmarshal(built.data[0].Model, &queryModelA)
 	require.NoError(t, err)
 	assert.Equal(t, `label_match(rate(node_cpu_seconds_total{mode="idle"}[5m]), "node_name", "(db.*)|")`, queryModelA.Expr)
 
 	var queryModelB promQueryModel
-	err = json.Unmarshal(data[1].Model, &queryModelB)
+	err = json.Unmarshal(built.data[1].Model, &queryModelB)
 	require.NoError(t, err)
 	// Query B is a bare constant (vector(80)) with no node_name label. The trailing empty
 	// alternative "(db.*)|" ensures the filter preserves it instead of emptying it.
@@ -113,32 +113,32 @@ func TestBuildGrafanaRuleDataMultiExpressionWithParamsAndFilters(t *testing.T) {
 func TestBuildGrafanaRuleDataModelContract(t *testing.T) {
 	t.Parallel()
 
-	data, _, err := buildGrafanaRuleData(&alert.Template{
+	built, err := buildGrafanaRuleData(&alert.Template{
 		Queries: []alert.TemplateQuery{
 			{RefID: "A", Expr: "cpu"},
 			{RefID: "B", Expr: "vector(80)"},
 		},
 		Expressions: []alert.TemplateExpression{{RefID: "C", Type: "math", Expression: "$A > $B"}},
 		Condition:   "C",
-	}, "metrics-uid", map[string]string{}, nil)
+	}, "metrics-uid", "", map[string]string{}, nil)
 	require.NoError(t, err)
-	require.Len(t, data, 3)
+	require.Len(t, built.data, 3)
 
 	// Query node (leg A): instant query over the last queryRelativeFromSeconds seconds.
-	assert.Equal(t, queryRelativeFromSeconds, data[0].RelativeTimeRange.From)
-	assert.Equal(t, 0, data[0].RelativeTimeRange.To)
+	assert.Equal(t, queryRelativeFromSeconds, built.data[0].RelativeTimeRange.From)
+	assert.Equal(t, 0, built.data[0].RelativeTimeRange.To)
 	var queryModel promQueryModel
-	require.NoError(t, json.Unmarshal(data[0].Model, &queryModel))
+	require.NoError(t, json.Unmarshal(built.data[0].Model, &queryModel))
 	assert.True(t, queryModel.Instant)
 	assert.False(t, queryModel.Hide)
 	assert.Equal(t, queryIntervalMs, queryModel.IntervalMs)
 	assert.Equal(t, maxDataPoints, queryModel.MaxDataPoints)
 
 	// Math node (leg C): server-side expression, no time range, __expr__ datasource.
-	assert.Equal(t, 0, data[2].RelativeTimeRange.From)
-	assert.Equal(t, 0, data[2].RelativeTimeRange.To)
+	assert.Equal(t, 0, built.data[2].RelativeTimeRange.From)
+	assert.Equal(t, 0, built.data[2].RelativeTimeRange.To)
 	var mathModel mathExpressionModel
-	require.NoError(t, json.Unmarshal(data[2].Model, &mathModel))
+	require.NoError(t, json.Unmarshal(built.data[2].Model, &mathModel))
 	assert.False(t, mathModel.Hide)
 	assert.Equal(t, queryIntervalMs, mathModel.IntervalMs)
 	assert.Equal(t, maxDataPoints, mathModel.MaxDataPoints)
@@ -148,11 +148,11 @@ func TestBuildGrafanaRuleDataModelContract(t *testing.T) {
 func TestBuildGrafanaRuleDataMismatchFilter(t *testing.T) {
 	t.Parallel()
 
-	data, _, err := buildGrafanaRuleData(&alert.Template{
+	built, err := buildGrafanaRuleData(&alert.Template{
 		Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "up"}},
 		Expressions: []alert.TemplateExpression{{RefID: "C", Type: "math", Expression: "$A > 0"}},
 		Condition:   "C",
-	}, "metrics-uid", map[string]string{}, []*alertingv1.Filter{{
+	}, "metrics-uid", "", map[string]string{}, []*alertingv1.Filter{{
 		Type:   alertingv1.FilterType_FILTER_TYPE_MISMATCH,
 		Label:  "node_name",
 		Regexp: "staging.*",
@@ -160,7 +160,7 @@ func TestBuildGrafanaRuleDataMismatchFilter(t *testing.T) {
 	require.NoError(t, err)
 
 	var queryModel promQueryModel
-	require.NoError(t, json.Unmarshal(data[0].Model, &queryModel))
+	require.NoError(t, json.Unmarshal(built.data[0].Model, &queryModel))
 	assert.Equal(t, `label_mismatch(up, "node_name", "staging.*")`, queryModel.Expr)
 }
 
@@ -205,7 +205,7 @@ func TestBuildGrafanaRuleDataMultiExpressionErrors(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, _, err := buildGrafanaRuleData(tc.tmpl, "metrics-uid", map[string]string{}, tc.filters)
+			_, err := buildGrafanaRuleData(tc.tmpl, "metrics-uid", "", map[string]string{}, tc.filters)
 			require.Error(t, err)
 			assert.Contains(t, err.Error(), tc.wantErr)
 		})
