@@ -600,6 +600,9 @@ type SearchQueriesOKBodyQueriesItems0 struct {
 
 	// my sql payload
 	MySQLPayload *SearchQueriesOKBodyQueriesItems0MySQLPayload `json:"my_sql_payload,omitempty"`
+
+	// postgresql payload
+	PostgresqlPayload *SearchQueriesOKBodyQueriesItems0PostgresqlPayload `json:"postgresql_payload,omitempty"`
 }
 
 // Validate validates this search queries OK body queries items0
@@ -615,6 +618,10 @@ func (o *SearchQueriesOKBodyQueriesItems0) Validate(formats strfmt.Registry) err
 	}
 
 	if err := o.validateMySQLPayload(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePostgresqlPayload(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -682,6 +689,29 @@ func (o *SearchQueriesOKBodyQueriesItems0) validateMySQLPayload(formats strfmt.R
 	return nil
 }
 
+func (o *SearchQueriesOKBodyQueriesItems0) validatePostgresqlPayload(formats strfmt.Registry) error {
+	if swag.IsZero(o.PostgresqlPayload) { // not required
+		return nil
+	}
+
+	if o.PostgresqlPayload != nil {
+		if err := o.PostgresqlPayload.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("postgresql_payload")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("postgresql_payload")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this search queries OK body queries items0 based on the context it is used
 func (o *SearchQueriesOKBodyQueriesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -691,6 +721,10 @@ func (o *SearchQueriesOKBodyQueriesItems0) ContextValidate(ctx context.Context, 
 	}
 
 	if err := o.contextValidateMySQLPayload(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePostgresqlPayload(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -739,6 +773,30 @@ func (o *SearchQueriesOKBodyQueriesItems0) contextValidateMySQLPayload(ctx conte
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("my_sql_payload")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0) contextValidatePostgresqlPayload(ctx context.Context, formats strfmt.Registry) error {
+	if o.PostgresqlPayload != nil {
+
+		if swag.IsZero(o.PostgresqlPayload) { // not required
+			return nil
+		}
+
+		if err := o.PostgresqlPayload.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("postgresql_payload")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("postgresql_payload")
 			}
 
 			return err
@@ -1209,6 +1267,329 @@ func (o *SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0) MarshalBin
 // UnmarshalBinary interface implementation
 func (o *SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0) UnmarshalBinary(b []byte) error {
 	var res SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+SearchQueriesOKBodyQueriesItems0PostgresqlPayload QueryPostgreSQLData holds PostgreSQL-specific Real-Time Analytics query information,
+// read from pg_stat_activity, with blockers resolved through pg_blocking_pids().
+swagger:model SearchQueriesOKBodyQueriesItems0PostgresqlPayload
+*/
+type SearchQueriesOKBodyQueriesItems0PostgresqlPayload struct {
+	// Database name the session is connected to.
+	DatabaseName string `json:"database_name,omitempty"`
+
+	// PostgreSQL user name of the session.
+	Username string `json:"username,omitempty"`
+
+	// Client application name (application_name).
+	ApplicationName string `json:"application_name,omitempty"`
+
+	// Session state: "active", "idle in transaction", "idle in transaction (aborted)", "fastpath function call".
+	State string `json:"state,omitempty"`
+
+	// Wait event type, such as "Lock" or "IO". Empty when the session is not waiting.
+	WaitEventType string `json:"wait_event_type,omitempty"`
+
+	// Wait event name, such as "transactionid" or "relation". Empty when the session is not waiting.
+	WaitEvent string `json:"wait_event,omitempty"`
+
+	// Backend process ID; the query_id of QueryData carries the same value.
+	Pid int32 `json:"pid,omitempty"`
+
+	// PostgreSQL query identifier (PostgreSQL 14+ with compute_query_id enabled). Empty otherwise.
+	QueryID string `json:"query_id,omitempty"`
+
+	// Start of the session's current transaction.
+	// Format: date-time
+	TransactionStartTime strfmt.DateTime `json:"transaction_start_time,omitempty"`
+
+	// Start of the session's current (or, when idle in transaction, last) query.
+	// Format: date-time
+	QueryStartTime strfmt.DateTime `json:"query_start_time,omitempty"`
+
+	// True when query_text was cut at track_activity_query_size.
+	QueryTextTruncated bool `json:"query_text_truncated,omitempty"`
+
+	// BlockedStatus says whether a statement is waiting for a lock, keeping "we could not
+	// find out" distinct from "we checked and it is not waiting". Collapsing the two would let a
+	// monitoring gap look like a healthy server during the incident the feature exists for.
+	//
+	//  - BLOCKED_STATUS_UNSPECIFIED: The lock graph could not be read, so nothing is known about this statement's waiting.
+	//  - BLOCKED_STATUS_NOT_BLOCKED: The lock graph was read and this statement is not waiting for a lock.
+	//  - BLOCKED_STATUS_BLOCKED: The statement is waiting for a lock; blocked_by names the transactions holding it and
+	// lock_type says which kind of lock is being waited on.
+	//  - BLOCKED_STATUS_UNATTRIBUTED: The connection was waiting for a lock, but for a later statement than the one reported:
+	// it moved on between the statement read and the lock read, so this refresh cannot say
+	// whether the statement reported was blocked. Unlike UNSPECIFIED, the lock sources answered.
+	// Enum: ["BLOCKED_STATUS_UNSPECIFIED","BLOCKED_STATUS_NOT_BLOCKED","BLOCKED_STATUS_BLOCKED","BLOCKED_STATUS_UNATTRIBUTED"]
+	BlockedStatus *string `json:"blocked_status,omitempty"`
+
+	// Sessions holding up this one, ordered by pid: its pg_blocking_pids() and, transitively, theirs;
+	// past the agent's limit on blocker entries, only the roots of that chain.
+	// blocking_conn_id is the blocker's pid, 0 for a prepared transaction, and blocking_command its
+	// state, or its backend type for a background process.
+	BlockedBy []*SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedByItems0 `json:"blocked_by"`
+
+	// PostgreSQL instance the agent connects to: host:port, or the socket directory.
+	DBInstanceAddress string `json:"db_instance_address,omitempty"`
+}
+
+// Validate validates this search queries OK body queries items0 postgresql payload
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateTransactionStartTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQueryStartTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateBlockedStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateBlockedBy(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) validateTransactionStartTime(formats strfmt.Registry) error {
+	if swag.IsZero(o.TransactionStartTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("postgresql_payload"+"."+"transaction_start_time", "body", "date-time", o.TransactionStartTime.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) validateQueryStartTime(formats strfmt.Registry) error {
+	if swag.IsZero(o.QueryStartTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("postgresql_payload"+"."+"query_start_time", "body", "date-time", o.QueryStartTime.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var searchQueriesOkBodyQueriesItems0PostgresqlPayloadTypeBlockedStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["BLOCKED_STATUS_UNSPECIFIED","BLOCKED_STATUS_NOT_BLOCKED","BLOCKED_STATUS_BLOCKED","BLOCKED_STATUS_UNATTRIBUTED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		searchQueriesOkBodyQueriesItems0PostgresqlPayloadTypeBlockedStatusPropEnum = append(searchQueriesOkBodyQueriesItems0PostgresqlPayloadTypeBlockedStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedStatusBLOCKEDSTATUSUNSPECIFIED captures enum value "BLOCKED_STATUS_UNSPECIFIED"
+	SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedStatusBLOCKEDSTATUSUNSPECIFIED string = "BLOCKED_STATUS_UNSPECIFIED"
+
+	// SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedStatusBLOCKEDSTATUSNOTBLOCKED captures enum value "BLOCKED_STATUS_NOT_BLOCKED"
+	SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedStatusBLOCKEDSTATUSNOTBLOCKED string = "BLOCKED_STATUS_NOT_BLOCKED"
+
+	// SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedStatusBLOCKEDSTATUSBLOCKED captures enum value "BLOCKED_STATUS_BLOCKED"
+	SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedStatusBLOCKEDSTATUSBLOCKED string = "BLOCKED_STATUS_BLOCKED"
+
+	// SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedStatusBLOCKEDSTATUSUNATTRIBUTED captures enum value "BLOCKED_STATUS_UNATTRIBUTED"
+	SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedStatusBLOCKEDSTATUSUNATTRIBUTED string = "BLOCKED_STATUS_UNATTRIBUTED"
+)
+
+// prop value enum
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) validateBlockedStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, searchQueriesOkBodyQueriesItems0PostgresqlPayloadTypeBlockedStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) validateBlockedStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.BlockedStatus) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateBlockedStatusEnum("postgresql_payload"+"."+"blocked_status", "body", *o.BlockedStatus); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) validateBlockedBy(formats strfmt.Registry) error {
+	if swag.IsZero(o.BlockedBy) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.BlockedBy); i++ {
+		if swag.IsZero(o.BlockedBy[i]) { // not required
+			continue
+		}
+
+		if o.BlockedBy[i] != nil {
+			if err := o.BlockedBy[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("postgresql_payload" + "." + "blocked_by" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("postgresql_payload" + "." + "blocked_by" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this search queries OK body queries items0 postgresql payload based on the context it is used
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateBlockedBy(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) contextValidateBlockedBy(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.BlockedBy); i++ {
+		if o.BlockedBy[i] != nil {
+
+			if swag.IsZero(o.BlockedBy[i]) { // not required
+				return nil
+			}
+
+			if err := o.BlockedBy[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("postgresql_payload" + "." + "blocked_by" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("postgresql_payload" + "." + "blocked_by" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) UnmarshalBinary(b []byte) error {
+	var res SearchQueriesOKBodyQueriesItems0PostgresqlPayload
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedByItems0 BlockingTransaction describes a transaction that is preventing a statement from
+// acquiring the lock it needs. It is read from performance_schema.data_lock_waits (row locks)
+// or performance_schema.metadata_locks (metadata locks) in the same collection cycle as the
+// statement itself, so no extra round trip is needed to explain why a statement is stuck.
+swagger:model SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedByItems0
+*/
+type SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedByItems0 struct {
+	// Connection id (processlist id) of the blocking transaction.
+	BlockingConnID string `json:"blocking_conn_id,omitempty"`
+
+	// The blocking connection's statement: its current statement, or the last statement
+	// it ran when it sits idle inside an open transaction.
+	BlockingQuery string `json:"blocking_query,omitempty"`
+
+	// Command the blocking connection is executing ("Query", "Execute", ...).
+	// "Sleep" means it is idle inside an open transaction and is running nothing at all.
+	BlockingCommand string `json:"blocking_command,omitempty"`
+
+	// MySQL user name of the blocking connection.
+	BlockingUsername string `json:"blocking_username,omitempty"`
+
+	// How long the waiting statement has been waiting on this blocker.
+	WaitDuration string `json:"wait_duration,omitempty"`
+
+	// How long the blocking transaction has been open.
+	BlockerTransactionDuration string `json:"blocker_transaction_duration,omitempty"`
+
+	// True when this blocker is not itself waiting for a lock, i.e. it sits at the head of the
+	// blocking chain. More than one blocker of a statement can be marked -- several independent
+	// transactions can hold up the same statement -- so a client must not present one of them
+	// as the sole cause unless it is the only one flagged. None are marked when the lock graph
+	// is a cycle and every participant is waiting.
+	Root bool `json:"root,omitempty"`
+
+	// The lock mode this transaction holds on the contended object: an InnoDB mode such as
+	// "X,REC_NOT_GAP" or "S,GAP" for a row lock, or an MDL mode such as "SHARED_READ" or
+	// "SHARED_UPGRADABLE" for a metadata lock. Empty when the server did not report one.
+	BlockingLockMode string `json:"blocking_lock_mode,omitempty"`
+
+	// True when blocking_query is not the whole statement; see QueryMySQLData.query_text_truncated.
+	BlockingQueryTruncated bool `json:"blocking_query_truncated,omitempty"`
+}
+
+// Validate validates this search queries OK body queries items0 postgresql payload blocked by items0
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedByItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this search queries OK body queries items0 postgresql payload blocked by items0 based on context it is used
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedByItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedByItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedByItems0) UnmarshalBinary(b []byte) error {
+	var res SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedByItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

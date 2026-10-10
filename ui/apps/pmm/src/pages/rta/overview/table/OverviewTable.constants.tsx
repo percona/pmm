@@ -9,6 +9,7 @@ import { Messages } from './OverviewTable.messages';
 import { QueryCell } from './query-cell';
 import UnavailableText from 'components/unavailable-text';
 import Stack from '@mui/material/Stack';
+import { Chip } from '@percona/peak-ui';
 import { darken, type Theme } from '@mui/material/styles';
 import {
   BlockedChip,
@@ -18,10 +19,12 @@ import { TruncatedChip } from 'pages/rta/components/truncated-chip';
 import {
   formatElapsedTime,
   isBlocked,
+  sqlPayload,
   isBlockingUnattributed,
   isLockWaitUnreadable,
   queryDatabaseName,
   queryLanguage,
+  queryTechnology,
   queryUsername,
   UNAVAILABLE_VALUE,
 } from './OverviewTable.utils';
@@ -38,7 +41,7 @@ const QUERY_TEXT_COLUMN: MRT_ColumnDef<QueryData> = {
     // that the query text uses better.
     <Stack direction="row" alignItems="center" gap={1} sx={{ minWidth: 0 }}>
       {isBlocked(row.original) && (
-        <BlockedChip blockers={row.original.mySqlPayload?.blockedBy ?? []} />
+        <BlockedChip blockers={sqlPayload(row.original)?.blockedBy ?? []} />
       )}
       {isBlockingUnattributed(row.original) && (
         <BlockedUnknownChip reason="unattributed" />
@@ -50,9 +53,21 @@ const QUERY_TEXT_COLUMN: MRT_ColumnDef<QueryData> = {
         query={row.original.queryText}
         language={queryLanguage(row.original)}
       />
-      {row.original.mySqlPayload?.queryTextTruncated && (
+      {row.original.postgresqlPayload?.state.startsWith(
+        'idle in transaction'
+      ) && (
+        <Chip
+          size="small"
+          color="warning"
+          label={row.original.postgresqlPayload.state}
+          data-testid={`query-${row.original.queryId}-idle-in-transaction-chip`}
+          sx={{ flexShrink: 0 }}
+        />
+      )}
+      {sqlPayload(row.original)?.queryTextTruncated && (
         <TruncatedChip
           dataTestId={`query-${row.original.queryId}-truncated-chip`}
+          technology={queryTechnology(row.original)}
         />
       )}
     </Stack>
@@ -185,7 +200,7 @@ const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
   ELAPSED_TIME_COLUMN,
 ];
 
-// Database and User are MySQL-only. MongoDB reports values for both, but they
+// Database and User are for MySQL and PostgreSQL. MongoDB reports values for both, but they
 // carry little meaning there (admin/local, __system), so they are not offered
 // when MongoDB services are being watched.
 const OVERVIEW_TABLE_COLUMNS_MYSQL: MRT_ColumnDef<QueryData>[] = [
@@ -200,6 +215,6 @@ const OVERVIEW_TABLE_COLUMNS_MYSQL: MRT_ColumnDef<QueryData>[] = [
 export const getOverviewTableColumns = (
   serviceType?: ServiceType
 ): MRT_ColumnDef<QueryData>[] =>
-  serviceType === ServiceType.mysql
+  serviceType === ServiceType.mysql || serviceType === ServiceType.posgresql
     ? OVERVIEW_TABLE_COLUMNS_MYSQL
     : OVERVIEW_TABLE_COLUMNS;

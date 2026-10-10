@@ -151,6 +151,44 @@ message QueryMySQLData {
   google.protobuf.Duration lock_time = 17;
 }
 
+// QueryPostgreSQLData holds PostgreSQL-specific Real-Time Analytics query information,
+// read from pg_stat_activity, with blockers resolved through pg_blocking_pids().
+message QueryPostgreSQLData {
+  // Database name the session is connected to.
+  string database_name = 1;
+  // PostgreSQL user name of the session.
+  string username = 2 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Client application name (application_name).
+  string application_name = 3;
+  // Session state: "active", "idle in transaction", "idle in transaction (aborted)", "fastpath function call".
+  string state = 4;
+  // Wait event type, such as "Lock" or "IO". Empty when the session is not waiting.
+  string wait_event_type = 5;
+  // Wait event name, such as "transactionid" or "relation". Empty when the session is not waiting.
+  string wait_event = 6;
+  // Backend process ID; the query_id of QueryData carries the same value.
+  int32 pid = 7;
+  // PostgreSQL query identifier (PostgreSQL 14+ with compute_query_id enabled). Empty otherwise.
+  string query_id = 8;
+  // Start of the session's current transaction.
+  google.protobuf.Timestamp transaction_start_time = 9;
+  // Start of the session's current (or, when idle in transaction, last) query.
+  google.protobuf.Timestamp query_start_time = 10;
+  // True when query_text was cut at track_activity_query_size.
+  bool query_text_truncated = 11;
+  // Whether the session is waiting for a heavyweight lock. Only sessions waiting on a lock
+  // (wait_event_type "Lock") are looked up, so NOT_BLOCKED covers every other session.
+  // UNSPECIFIED marks a waiting session left undescribed by the agent's limit on blocker entries.
+  BlockedStatus blocked_status = 12;
+  // Sessions holding up this one, ordered by pid: its pg_blocking_pids() and, transitively, theirs;
+  // past the agent's limit on blocker entries, only the roots of that chain.
+  // blocking_conn_id is the blocker's pid, 0 for a prepared transaction, and blocking_command its
+  // state, or its backend type for a background process.
+  repeated BlockingTransaction blocked_by = 13;
+  // PostgreSQL instance the agent connects to: host:port, or the socket directory.
+  string db_instance_address = 14;
+}
+
 // QueryData represents a single Real-Time Analytics query data point.
 // It includes general query information and a payload for database-specific details.
 message QueryData {
@@ -176,5 +214,7 @@ message QueryData {
     QueryMongoDBData mongo_db_payload = 9;
     // MySQL-specific query data.
     QueryMySQLData my_sql_payload = 10;
+    // PostgreSQL-specific query data.
+    QueryPostgreSQLData postgresql_payload = 11;
   }
 }

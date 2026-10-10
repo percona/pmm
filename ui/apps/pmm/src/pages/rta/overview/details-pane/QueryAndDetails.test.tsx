@@ -5,10 +5,11 @@ import QueryAndDetails from './QueryAndDetails';
 import {
   TEST_MONGO_DB_QUERY_DATA,
   TEST_MYSQL_QUERY_DATA,
+  TEST_POSTGRESQL_QUERY_DATA,
   TEST_USER_ADMIN,
 } from 'utils/testStubs';
 import { wrapWithUserProvider } from 'utils/testUtils';
-import { QueryData } from 'types/rta.types';
+import { QueryData, QueryPostgreSQLData } from 'types/rta.types';
 
 const renderComponent = (
   user = TEST_USER_ADMIN,
@@ -149,5 +150,34 @@ describe('QueryAndDetails', () => {
 
     expect(screen.getByText('Lock time')).toBeInTheDocument();
     expect(screen.getByTestId('lock-time-value')).toHaveTextContent('0.003 ms');
+  });
+
+  it('renders PostgreSQL session details and its blocker', () => {
+    renderComponent(TEST_USER_ADMIN, {
+      ...TEST_POSTGRESQL_QUERY_DATA,
+      postgresqlPayload: {
+        ...(TEST_POSTGRESQL_QUERY_DATA.postgresqlPayload as QueryPostgreSQLData),
+        queryTextTruncated: true,
+      },
+    });
+
+    expect(screen.getByTestId('state-value')).toHaveTextContent('active');
+    expect(screen.getByTestId('wait-event-value')).toHaveTextContent(
+      'Lock: transactionid'
+    );
+    expect(screen.getByTestId('database-name-value')).toHaveTextContent(
+      'postgres-database'
+    );
+    expect(screen.getByTestId('db-instance-address-value')).toHaveTextContent(
+      'pg-1:5432'
+    );
+    expect(screen.getByTestId('query-id-value')).toHaveTextContent(
+      '7063673311987853849'
+    );
+    expect(screen.getByTestId('blocked-by-heading')).toHaveTextContent(
+      'Blocked by 41'
+    );
+    expect(screen.getByTestId('query-text-truncated')).toBeInTheDocument();
+    expect(screen.queryByText('Plan summary')).not.toBeInTheDocument();
   });
 });

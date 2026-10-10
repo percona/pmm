@@ -65,6 +65,7 @@ export interface RawQueryData {
   // Exactly one of the payloads below is set depending on the database type.
   mongoDbPayload?: QueryMongoDBData;
   mySqlPayload?: QueryMySQLData;
+  postgresqlPayload?: QueryPostgreSQLData;
 }
 
 export type QueryData = Omit<RawQueryData, 'queryExecutionDuration'> & {
@@ -113,6 +114,27 @@ export interface QueryMySQLData {
   lockTime?: string | null;
 }
 
+// Read from pg_stat_activity; blockers come from pg_blocking_pids(), with the
+// blocker's pid as blockingConnId and its session state as blockingCommand.
+export interface QueryPostgreSQLData {
+  dbInstanceAddress?: string;
+  databaseName: string;
+  username: string;
+  applicationName: string;
+  state: string;
+  waitEventType: string;
+  waitEvent: string;
+  pid: number;
+  // PostgreSQL 14+ with compute_query_id; empty otherwise.
+  queryId: string;
+  transactionStartTime?: string;
+  queryStartTime?: string;
+  // Cut at track_activity_query_size.
+  queryTextTruncated?: boolean;
+  blockedStatus?: BlockedStatus;
+  blockedBy?: BlockingTransaction[];
+}
+
 export enum BlockedStatus {
   unspecified = 'BLOCKED_STATUS_UNSPECIFIED',
   notBlocked = 'BLOCKED_STATUS_NOT_BLOCKED',
@@ -158,4 +180,5 @@ export interface BlockingTransaction {
 export interface AvailableServicesResponse {
   mongodb?: VersionedService[];
   mysql?: VersionedService[];
+  postgresql?: VersionedService[];
 }

@@ -91,7 +91,7 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 		}
 	} else {
 		// No service type filter specified - return all services that support RTA
-		// (currently MongoDB and MySQL), filtered by service type.
+		// (currently MongoDB, MySQL and PostgreSQL), filtered by service type.
 		for _, modelServiceType := range services.ServiceTypes {
 			_, err := getRTAAgentTypeForServiceType(modelServiceType)
 			if err != nil {
@@ -124,6 +124,11 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 		default:
 		}
 
+		// Not offered for PMM Server's own database, as getRTAAgentTypeForService refuses it.
+		if svc.ServiceName == models.PMMServerPostgreSQLServiceName {
+			continue
+		}
+
 		// Check that service has pmm-agent with version supporting RTA.
 		pmmAgents, err := models.FindPMMAgentsForService(dbWithCtx, svc.ServiceID)
 		if err != nil {
@@ -151,6 +156,8 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 			res.Mongodb = append(res.Mongodb, apiSvc)
 		case *inventoryv1.MySQLService:
 			res.Mysql = append(res.Mysql, apiSvc)
+		case *inventoryv1.PostgreSQLService:
+			res.Postgresql = append(res.Postgresql, apiSvc)
 		// Add other service types once RTA is supported for them
 		default:
 			return nil, fmt.Errorf("unhandled inventory Service type %T", apiSvc)
@@ -162,6 +169,10 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 	})
 
 	slices.SortStableFunc(res.Mysql, func(a, b *inventoryv1.MySQLService) int {
+		return strings.Compare(a.ServiceName, b.ServiceName)
+	})
+
+	slices.SortStableFunc(res.Postgresql, func(a, b *inventoryv1.PostgreSQLService) int {
 		return strings.Compare(a.ServiceName, b.ServiceName)
 	})
 
@@ -258,13 +269,9 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		return nil, err
 	}
 
-	var rtaAgentType models.AgentType
-	// Check that service type supports RTA
-	rtaAgentType, err = getRTAAgentTypeForServiceType(service.ServiceType)
+	rtaAgentType, err := getRTAAgentTypeForService(service)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument,
-			"Service %s of type %s does not support Real-Time Analytics",
-			req.ServiceId, service.ServiceType)
+		return nil, err
 	}
 
 	// Try to find and start an existing RTA agent for this service if exists.
@@ -347,6 +354,12 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 			models.MySQLdExporterType,
 			models.QANMySQLPerfSchemaAgentType,
 			models.QANMySQLSlowlogAgentType,
+		}
+	case models.PostgreSQLServiceType:
+		agentTypes = []models.AgentType{
+			models.PostgresExporterType,
+			models.QANPostgreSQLPgStatementsAgentType,
+			models.QANPostgreSQLPgStatMonitorAgentType,
 		}
 		// Add other service types once RTA is supported for them
 	default:
@@ -669,9 +682,28 @@ func getProtoServiceType(serviceType models.ServiceType) inventoryv1.ServiceType
 		return inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE
 	case models.MySQLServiceType:
 		return inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE
+	case models.PostgreSQLServiceType:
+		return inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE
 	default:
 		return inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED
 	}
+}
+
+// getRTAAgentTypeForService returns the RTA agent type for the service, or InvalidArgument when RTA cannot run for it.
+func getRTAAgentTypeForService(service *models.Service) (models.AgentType, error) {
+	// PMM Server's own database holds PMM's sessions and queries, not the user's.
+	if service.ServiceName == models.PMMServerPostgreSQLServiceName {
+		return "", status.Errorf(codes.InvalidArgument,
+			"Real-Time Analytics is not available for PMM Server's own database (service %s)", service.ServiceID)
+	}
+
+	agentType, err := getRTAAgentTypeForServiceType(service.ServiceType)
+	if err != nil {
+		return "", status.Errorf(codes.InvalidArgument,
+			"Service %s of type %s does not support Real-Time Analytics", service.ServiceID, service.ServiceType)
+	}
+
+	return agentType, nil
 }
 
 func getRTAAgentTypeForServiceType(serviceType models.ServiceType) (models.AgentType, error) {
@@ -680,6 +712,8 @@ func getRTAAgentTypeForServiceType(serviceType models.ServiceType) (models.Agent
 		return models.RTAMongoDBAgentType, nil
 	case models.MySQLServiceType:
 		return models.RTAMySQLAgentType, nil
+	case models.PostgreSQLServiceType:
+		return models.RTAPostgreSQLAgentType, nil
 	default:
 		return "", fmt.Errorf("service of type %s does not support Real-Time Analytics", serviceType)
 	}

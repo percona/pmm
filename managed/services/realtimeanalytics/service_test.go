@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -192,6 +193,46 @@ func TestListServices(t *testing.T) {
 		// Only the first mongodbService should be listed
 		require.Len(t, resp.Mongodb, 1)
 		assert.Equal(t, mongodbService.ServiceID, resp.Mongodb[0].ServiceId)
+	})
+
+	t.Run("skip PMM Server's own PostgreSQL", func(t *testing.T) {
+		node3, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+			NodeName: "test-node-3",
+		})
+		require.NoError(t, err)
+		pmmAgent3, err := models.CreatePMMAgent(db.Querier, node3.NodeID, nil)
+		require.NoError(t, err)
+		pmmAgent3.Version = new("3.10.0")
+		err = db.Update(pmmAgent3)
+		require.NoError(t, err)
+
+		var userPostgreSQL *models.Service
+		for _, name := range []string{"test-postgresql", models.PMMServerPostgreSQLServiceName} {
+			service, err := models.AddNewService(db.Querier, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
+				ServiceName: name,
+				NodeID:      node3.NodeID,
+				Address:     new("127.0.0.3"),
+				Port:        new(uint16(5432)),
+			})
+			require.NoError(t, err)
+			_, err = models.CreateAgent(db.Querier, models.PostgresExporterType, &models.CreateAgentParams{
+				PMMAgentID: pmmAgent3.AgentID,
+				ServiceID:  service.ServiceID,
+				Username:   "pmm",
+				Password:   "pmm-pass",
+			})
+			require.NoError(t, err)
+			if name == "test-postgresql" {
+				userPostgreSQL = service
+			}
+		}
+
+		resp, err := svc.ListServices(t.Context(), &rtav1.ListServicesRequest{
+			ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
+		})
+		require.NoError(t, err)
+		require.Len(t, resp.Postgresql, 1)
+		assert.Equal(t, userPostgreSQL.ServiceID, resp.Postgresql[0].ServiceId)
 	})
 }
 
@@ -473,6 +514,21 @@ func TestStartSession(t *testing.T) {
 		assert.Equal(t, codes.InvalidArgument, status.Convert(err).Code())
 		assert.Equal(t, status.Convert(err).Message(), fmt.Sprintf("Service %s of type %s does not support Real-Time Analytics",
 			service2.ServiceID, service2.ServiceType))
+	})
+
+	t.Run("error on PMM Server's own PostgreSQL", func(t *testing.T) {
+		service, err := models.AddNewService(db.Querier, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: models.PMMServerPostgreSQLServiceName,
+			NodeID:      node.NodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(5432)),
+		})
+		require.NoError(t, err)
+		_, err = svc.StartSession(t.Context(), &rtav1.StartSessionRequest{
+			ServiceId: service.ServiceID,
+		})
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Convert(err).Code())
 	})
 
 	t.Run("no other agents available for RTA service", func(t *testing.T) {
@@ -1011,8 +1067,85 @@ func TestGetProtoServiceType(t *testing.T) {
 
 	assert.Equal(t, inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE, getProtoServiceType(models.MySQLServiceType))
 	assert.Equal(t, inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE, getProtoServiceType(models.MongoDBServiceType))
+	assert.Equal(t, inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE, getProtoServiceType(models.PostgreSQLServiceType))
 
 	// Service types that cannot run RTA carry no technology rather than a wrong one.
-	assert.Equal(t, inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED, getProtoServiceType(models.PostgreSQLServiceType))
 	assert.Equal(t, inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED, getProtoServiceType(models.ExternalServiceType))
+}
+
+func TestPostgreSQLSession(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+		NodeName: "test-node",
+	})
+	require.NoError(t, err)
+
+	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
+	require.NoError(t, err)
+
+	pmmAgent.Version = new("3.9.1")
+	err = db.Update(pmmAgent)
+	require.NoError(t, err)
+
+	service, err := models.AddNewService(db.Querier, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "postgresql-1",
+		NodeID:      node.NodeID,
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(5432)),
+	})
+	require.NoError(t, err)
+
+	_, err = models.CreateAgent(db.Querier, models.PostgresExporterType, &models.CreateAgentParams{
+		PMMAgentID: pmmAgent.AgentID,
+		ServiceID:  service.ServiceID,
+		Username:   "pmm",
+		Password:   "pmm-pass",
+	})
+	require.NoError(t, err)
+
+	registry := newMockAgentsRegistry(t)
+	registry.On("IsConnected", pmmAgent.AgentID).Return(true).Maybe()
+	stateUpdater := newMockAgentsStateUpdater(t)
+	stateUpdater.On("RequestStateUpdate", mock.Anything, pmmAgent.AgentID).Return().Maybe()
+	svc := NewService(db, registry, stateUpdater, NewStore())
+
+	t.Run("pmm-agent too old", func(t *testing.T) {
+		resp, err := svc.ListServices(t.Context(), &rtav1.ListServicesRequest{})
+		require.NoError(t, err)
+		assert.Empty(t, resp.Postgresql)
+
+		_, err = svc.StartSession(t.Context(), &rtav1.StartSessionRequest{ServiceId: service.ServiceID})
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+	})
+
+	pmmAgent.Version = new("3.10.0")
+	err = db.Update(pmmAgent)
+	require.NoError(t, err)
+
+	t.Run("list services", func(t *testing.T) {
+		resp, err := svc.ListServices(t.Context(), &rtav1.ListServicesRequest{
+			ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
+		})
+		require.NoError(t, err)
+		require.Len(t, resp.Postgresql, 1)
+		assert.Equal(t, service.ServiceID, resp.Postgresql[0].ServiceId)
+	})
+
+	t.Run("start session", func(t *testing.T) {
+		resp, err := svc.StartSession(t.Context(), &rtav1.StartSessionRequest{ServiceId: service.ServiceID})
+		require.NoError(t, err)
+		assert.Equal(t, inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE, resp.Session.ServiceType)
+
+		agents, err := models.FindAgents(db.Querier, models.AgentFilters{
+			ServiceID: service.ServiceID,
+			AgentType: new(models.RTAPostgreSQLAgentType),
+		})
+		require.NoError(t, err)
+		require.Len(t, agents, 1)
+		assert.Equal(t, "pmm", pointer.GetString(agents[0].Username))
+		assert.Equal(t, 2*time.Second, *agents[0].RTAOptions.CollectInterval)
+	})
 }

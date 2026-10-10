@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { type MRT_Row } from 'material-react-table';
-import { BlockedStatus, QueryData, RawQueryData } from 'types/rta.types';
+import {
+  BlockedStatus,
+  QueryData,
+  QueryPostgreSQLData,
+  RawQueryData,
+} from 'types/rta.types';
 import {
   filterCommaSeparated,
   filterElapsedTime,
@@ -26,6 +31,7 @@ import {
 import {
   TEST_MONGO_DB_QUERY_DATA,
   TEST_MYSQL_QUERY_DATA,
+  TEST_POSTGRESQL_QUERY_DATA,
 } from 'utils/testStubs';
 
 const withText = (queryText: string): RawQueryData => ({
@@ -303,6 +309,30 @@ describe('formatLockTimeMs', () => {
     expect(formatLockTimeMs(undefined)).toBe('');
     expect(formatLockTimeMs(null)).toBe('');
     expect(lockTimeMs(undefined)).toBeUndefined();
+  });
+});
+
+describe('PostgreSQL queries', () => {
+  it('use SQL highlighting and resolve database and user', () => {
+    expect(queryLanguage(TEST_POSTGRESQL_QUERY_DATA)).toBe('sql');
+    expect(queryDatabaseName(TEST_POSTGRESQL_QUERY_DATA)).toBe(
+      'postgres-database'
+    );
+    expect(queryUsername(TEST_POSTGRESQL_QUERY_DATA)).toBe('postgres-user');
+  });
+
+  it('report lock waits like MySQL', () => {
+    expect(isBlocked(TEST_POSTGRESQL_QUERY_DATA)).toBe(true);
+    expect(soleBlocker(TEST_POSTGRESQL_QUERY_DATA)?.blockingConnId).toBe('41');
+    expect(
+      isBlocked({
+        ...TEST_POSTGRESQL_QUERY_DATA,
+        postgresqlPayload: {
+          ...(TEST_POSTGRESQL_QUERY_DATA.postgresqlPayload as QueryPostgreSQLData),
+          blockedStatus: BlockedStatus.notBlocked,
+        },
+      })
+    ).toBe(false);
   });
 });
 

@@ -1,7 +1,11 @@
 import { format } from 'date-fns';
 import { download, generateCsv, mkConfig } from 'export-to-csv';
 import { QueryData } from 'types/rta.types';
-import { lockTimeMs, soleBlocker } from '../table/OverviewTable.utils';
+import {
+  lockTimeMs,
+  soleBlocker,
+  sqlPayload,
+} from '../table/OverviewTable.utils';
 import { isPlainObject } from 'utils/object.utils';
 
 const CSV_FORMULA_PREFIX = /^[=+\-@\t\r]/;
@@ -127,10 +131,17 @@ export const mapQueryToCsvRow = (query: QueryData): CsvRow => {
 
   // The API omits a false flag, so it is written out for every MySQL row: an empty cell
   // would not say whether the text is complete.
-  if (query.mySqlPayload) {
+  const payload = sqlPayload(query);
+  if (payload) {
     row[toCsvHeader('queryTextTruncated')] = Boolean(
-      query.mySqlPayload.queryTextTruncated
+      payload.queryTextTruncated
     );
+  }
+
+  // Flattening would let PostgreSQL's own query_id overwrite operation_id, the backend pid.
+  if (query.postgresqlPayload) {
+    row[toCsvHeader('queryId')] = toCsvValue(query.queryId);
+    row[toCsvHeader('pgQueryId')] = toCsvValue(query.postgresqlPayload.queryId);
   }
 
   const blocker = soleBlocker(query);

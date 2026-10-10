@@ -64,6 +64,7 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 			QANPostgreSQLPgStatementsAgentType,
 			QANPostgreSQLPgStatMonitorAgentType,
 			PostgresExporterType,
+			RTAPostgreSQLAgentType,
 		)
 		dsnParams.PostgreSQLSupportsSSLSNI, err = IsPostgreSQLSSLSniSupported(q, pmmAgentID)
 		if err != nil {

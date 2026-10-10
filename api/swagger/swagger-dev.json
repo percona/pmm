@@ -5415,7 +5415,8 @@
               "AGENT_TYPE_AZURE_DATABASE_EXPORTER",
               "AGENT_TYPE_NOMAD_AGENT",
               "AGENT_TYPE_RTA_MONGODB_AGENT",
-              "AGENT_TYPE_RTA_MYSQL_AGENT"
+              "AGENT_TYPE_RTA_MYSQL_AGENT",
+              "AGENT_TYPE_RTA_POSTGRESQL_AGENT"
             ],
             "type": "string",
             "default": "AGENT_TYPE_UNSPECIFIED",
@@ -7660,6 +7661,102 @@
                     }
                   },
                   "x-order": 19
+                },
+                "rta_postgresql_agent": {
+                  "type": "array",
+                  "items": {
+                    "description": "RTAPostgreSQLAgent runs within pmm-agent and sends PostgreSQL Real-Time Query Analytics data to the PMM Server.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique agent identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "disabled": {
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
+                        "type": "boolean",
+                        "x-order": 2
+                      },
+                      "service_id": {
+                        "description": "Service identifier.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "username": {
+                        "description": "PostgreSQL username for reading pg_stat_activity.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "tls": {
+                        "description": "Use TLS for database connections.",
+                        "type": "boolean",
+                        "x-order": 5
+                      },
+                      "tls_skip_verify": {
+                        "description": "Skip TLS certificate and hostname validation.",
+                        "type": "boolean",
+                        "x-order": 6
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 7
+                      },
+                      "rta_options": {
+                        "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                        "type": "object",
+                        "properties": {
+                          "collect_interval": {
+                            "description": "Query collect interval (default 2s is set by server).",
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        },
+                        "x-order": 8
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "AGENT_STATUS_UNSPECIFIED",
+                          "AGENT_STATUS_STARTING",
+                          "AGENT_STATUS_INITIALIZATION_ERROR",
+                          "AGENT_STATUS_RUNNING",
+                          "AGENT_STATUS_WAITING",
+                          "AGENT_STATUS_STOPPING",
+                          "AGENT_STATUS_DONE",
+                          "AGENT_STATUS_UNKNOWN"
+                        ],
+                        "x-order": 9
+                      },
+                      "log_level": {
+                        "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "LOG_LEVEL_UNSPECIFIED",
+                        "enum": [
+                          "LOG_LEVEL_UNSPECIFIED",
+                          "LOG_LEVEL_FATAL",
+                          "LOG_LEVEL_ERROR",
+                          "LOG_LEVEL_WARN",
+                          "LOG_LEVEL_INFO",
+                          "LOG_LEVEL_DEBUG"
+                        ],
+                        "x-order": 10
+                      }
+                    }
+                  },
+                  "x-order": 20
                 }
               }
             }
@@ -13677,6 +13774,99 @@
                     }
                   },
                   "x-order": 19
+                },
+                "rta_postgresql_agent": {
+                  "description": "RTAPostgreSQLAgent runs within pmm-agent and sends PostgreSQL Real-Time Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique agent identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for reading pg_stat_activity.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "rta_options": {
+                      "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                      "type": "object",
+                      "properties": {
+                        "collect_interval": {
+                          "description": "Query collect interval (default 2s is set by server).",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 8
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 9
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 20
                 }
               }
             }
@@ -32492,6 +32682,145 @@
                           }
                         },
                         "x-order": 9
+                      },
+                      "postgresql_payload": {
+                        "description": "QueryPostgreSQLData holds PostgreSQL-specific Real-Time Analytics query information,\nread from pg_stat_activity, with blockers resolved through pg_blocking_pids().",
+                        "type": "object",
+                        "properties": {
+                          "database_name": {
+                            "description": "Database name the session is connected to.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "username": {
+                            "description": "PostgreSQL user name of the session.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "application_name": {
+                            "description": "Client application name (application_name).",
+                            "type": "string",
+                            "x-order": 2
+                          },
+                          "state": {
+                            "description": "Session state: \"active\", \"idle in transaction\", \"idle in transaction (aborted)\", \"fastpath function call\".",
+                            "type": "string",
+                            "x-order": 3
+                          },
+                          "wait_event_type": {
+                            "description": "Wait event type, such as \"Lock\" or \"IO\". Empty when the session is not waiting.",
+                            "type": "string",
+                            "x-order": 4
+                          },
+                          "wait_event": {
+                            "description": "Wait event name, such as \"transactionid\" or \"relation\". Empty when the session is not waiting.",
+                            "type": "string",
+                            "x-order": 5
+                          },
+                          "pid": {
+                            "description": "Backend process ID; the query_id of QueryData carries the same value.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 6
+                          },
+                          "query_id": {
+                            "description": "PostgreSQL query identifier (PostgreSQL 14+ with compute_query_id enabled). Empty otherwise.",
+                            "type": "string",
+                            "x-order": 7
+                          },
+                          "transaction_start_time": {
+                            "description": "Start of the session's current transaction.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 8
+                          },
+                          "query_start_time": {
+                            "description": "Start of the session's current (or, when idle in transaction, last) query.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 9
+                          },
+                          "query_text_truncated": {
+                            "description": "True when query_text was cut at track_activity_query_size.",
+                            "type": "boolean",
+                            "x-order": 10
+                          },
+                          "blocked_status": {
+                            "description": "BlockedStatus says whether a statement is waiting for a lock, keeping \"we could not\nfind out\" distinct from \"we checked and it is not waiting\". Collapsing the two would let a\nmonitoring gap look like a healthy server during the incident the feature exists for.\n\n - BLOCKED_STATUS_UNSPECIFIED: The lock graph could not be read, so nothing is known about this statement's waiting.\n - BLOCKED_STATUS_NOT_BLOCKED: The lock graph was read and this statement is not waiting for a lock.\n - BLOCKED_STATUS_BLOCKED: The statement is waiting for a lock; blocked_by names the transactions holding it and\nlock_type says which kind of lock is being waited on.\n - BLOCKED_STATUS_UNATTRIBUTED: The connection was waiting for a lock, but for a later statement than the one reported:\nit moved on between the statement read and the lock read, so this refresh cannot say\nwhether the statement reported was blocked. Unlike UNSPECIFIED, the lock sources answered.",
+                            "type": "string",
+                            "default": "BLOCKED_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "BLOCKED_STATUS_UNSPECIFIED",
+                              "BLOCKED_STATUS_NOT_BLOCKED",
+                              "BLOCKED_STATUS_BLOCKED",
+                              "BLOCKED_STATUS_UNATTRIBUTED"
+                            ],
+                            "x-order": 11
+                          },
+                          "blocked_by": {
+                            "description": "Sessions holding up this one, ordered by pid: its pg_blocking_pids() and, transitively, theirs;\npast the agent's limit on blocker entries, only the roots of that chain.\nblocking_conn_id is the blocker's pid, 0 for a prepared transaction, and blocking_command its\nstate, or its backend type for a background process.",
+                            "type": "array",
+                            "items": {
+                              "description": "BlockingTransaction describes a transaction that is preventing a statement from\nacquiring the lock it needs. It is read from performance_schema.data_lock_waits (row locks)\nor performance_schema.metadata_locks (metadata locks) in the same collection cycle as the\nstatement itself, so no extra round trip is needed to explain why a statement is stuck.",
+                              "type": "object",
+                              "properties": {
+                                "blocking_conn_id": {
+                                  "description": "Connection id (processlist id) of the blocking transaction.",
+                                  "type": "string",
+                                  "format": "int64",
+                                  "x-order": 0
+                                },
+                                "blocking_query": {
+                                  "description": "The blocking connection's statement: its current statement, or the last statement\nit ran when it sits idle inside an open transaction.",
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "blocking_command": {
+                                  "description": "Command the blocking connection is executing (\"Query\", \"Execute\", ...).\n\"Sleep\" means it is idle inside an open transaction and is running nothing at all.",
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "blocking_username": {
+                                  "description": "MySQL user name of the blocking connection.",
+                                  "type": "string",
+                                  "x-order": 3
+                                },
+                                "wait_duration": {
+                                  "description": "How long the waiting statement has been waiting on this blocker.",
+                                  "type": "string",
+                                  "x-order": 4
+                                },
+                                "blocker_transaction_duration": {
+                                  "description": "How long the blocking transaction has been open.",
+                                  "type": "string",
+                                  "x-order": 5
+                                },
+                                "root": {
+                                  "description": "True when this blocker is not itself waiting for a lock, i.e. it sits at the head of the\nblocking chain. More than one blocker of a statement can be marked -- several independent\ntransactions can hold up the same statement -- so a client must not present one of them\nas the sole cause unless it is the only one flagged. None are marked when the lock graph\nis a cycle and every participant is waiting.",
+                                  "type": "boolean",
+                                  "x-order": 6
+                                },
+                                "blocking_lock_mode": {
+                                  "description": "The lock mode this transaction holds on the contended object: an InnoDB mode such as\n\"X,REC_NOT_GAP\" or \"S,GAP\" for a row lock, or an MDL mode such as \"SHARED_READ\" or\n\"SHARED_UPGRADABLE\" for a metadata lock. Empty when the server did not report one.",
+                                  "type": "string",
+                                  "x-order": 7
+                                },
+                                "blocking_query_truncated": {
+                                  "description": "True when blocking_query is not the whole statement; see QueryMySQLData.query_text_truncated.",
+                                  "type": "boolean",
+                                  "x-order": 8
+                                }
+                              }
+                            },
+                            "x-order": 12
+                          },
+                          "db_instance_address": {
+                            "description": "PostgreSQL instance the agent connects to: host:port, or the socket directory.",
+                            "type": "string",
+                            "x-order": 13
+                          }
+                        },
+                        "x-order": 10
                       }
                     }
                   },
@@ -32712,6 +33041,86 @@
                     }
                   },
                   "x-order": 1
+                },
+                "postgresql": {
+                  "type": "array",
+                  "items": {
+                    "description": "PostgreSQLService represents a generic PostgreSQL instance.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "database_name": {
+                        "description": "Database name.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "address": {
+                        "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "port": {
+                        "description": "Access port.\nPort is required when the address present.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 5
+                      },
+                      "socket": {
+                        "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 9
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 10
+                      },
+                      "version": {
+                        "description": "PostgreSQL version.",
+                        "type": "string",
+                        "x-order": 11
+                      },
+                      "auto_discovery_limit": {
+                        "description": "Limit of databases for auto-discovery.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 12
+                      }
+                    }
+                  },
+                  "x-order": 2
                 }
               }
             }

@@ -37,6 +37,7 @@ const AVAILABLE_SERVICE_TYPES: Record<
 > = {
   mongodb: ServiceType.mongodb,
   mysql: ServiceType.mysql,
+  postgresql: ServiceType.posgresql,
 };
 
 // The technologies RTA can monitor, kept in one place so every caller of

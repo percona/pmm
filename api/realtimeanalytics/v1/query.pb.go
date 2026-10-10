@@ -596,6 +596,175 @@ func (x *QueryMySQLData) GetLockTime() *durationpb.Duration {
 	return nil
 }
 
+// QueryPostgreSQLData holds PostgreSQL-specific Real-Time Analytics query information,
+// read from pg_stat_activity, with blockers resolved through pg_blocking_pids().
+type QueryPostgreSQLData struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Database name the session is connected to.
+	DatabaseName string `protobuf:"bytes,1,opt,name=database_name,json=databaseName,proto3" json:"database_name,omitempty"`
+	// PostgreSQL user name of the session.
+	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	// Client application name (application_name).
+	ApplicationName string `protobuf:"bytes,3,opt,name=application_name,json=applicationName,proto3" json:"application_name,omitempty"`
+	// Session state: "active", "idle in transaction", "idle in transaction (aborted)", "fastpath function call".
+	State string `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
+	// Wait event type, such as "Lock" or "IO". Empty when the session is not waiting.
+	WaitEventType string `protobuf:"bytes,5,opt,name=wait_event_type,json=waitEventType,proto3" json:"wait_event_type,omitempty"`
+	// Wait event name, such as "transactionid" or "relation". Empty when the session is not waiting.
+	WaitEvent string `protobuf:"bytes,6,opt,name=wait_event,json=waitEvent,proto3" json:"wait_event,omitempty"`
+	// Backend process ID; the query_id of QueryData carries the same value.
+	Pid int32 `protobuf:"varint,7,opt,name=pid,proto3" json:"pid,omitempty"`
+	// PostgreSQL query identifier (PostgreSQL 14+ with compute_query_id enabled). Empty otherwise.
+	QueryId string `protobuf:"bytes,8,opt,name=query_id,json=queryId,proto3" json:"query_id,omitempty"`
+	// Start of the session's current transaction.
+	TransactionStartTime *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=transaction_start_time,json=transactionStartTime,proto3" json:"transaction_start_time,omitempty"`
+	// Start of the session's current (or, when idle in transaction, last) query.
+	QueryStartTime *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=query_start_time,json=queryStartTime,proto3" json:"query_start_time,omitempty"`
+	// True when query_text was cut at track_activity_query_size.
+	QueryTextTruncated bool `protobuf:"varint,11,opt,name=query_text_truncated,json=queryTextTruncated,proto3" json:"query_text_truncated,omitempty"`
+	// Whether the session is waiting for a heavyweight lock. Only sessions waiting on a lock
+	// (wait_event_type "Lock") are looked up, so NOT_BLOCKED covers every other session.
+	// UNSPECIFIED marks a waiting session left undescribed by the agent's limit on blocker entries.
+	BlockedStatus BlockedStatus `protobuf:"varint,12,opt,name=blocked_status,json=blockedStatus,proto3,enum=realtimeanalytics.v1.BlockedStatus" json:"blocked_status,omitempty"`
+	// Sessions holding up this one, ordered by pid: its pg_blocking_pids() and, transitively, theirs;
+	// past the agent's limit on blocker entries, only the roots of that chain.
+	// blocking_conn_id is the blocker's pid, 0 for a prepared transaction, and blocking_command its
+	// state, or its backend type for a background process.
+	BlockedBy []*BlockingTransaction `protobuf:"bytes,13,rep,name=blocked_by,json=blockedBy,proto3" json:"blocked_by,omitempty"`
+	// PostgreSQL instance the agent connects to: host:port, or the socket directory.
+	DbInstanceAddress string `protobuf:"bytes,14,opt,name=db_instance_address,json=dbInstanceAddress,proto3" json:"db_instance_address,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *QueryPostgreSQLData) Reset() {
+	*x = QueryPostgreSQLData{}
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *QueryPostgreSQLData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryPostgreSQLData) ProtoMessage() {}
+
+func (x *QueryPostgreSQLData) ProtoReflect() protoreflect.Message {
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use QueryPostgreSQLData.ProtoReflect.Descriptor instead.
+func (*QueryPostgreSQLData) Descriptor() ([]byte, []int) {
+	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *QueryPostgreSQLData) GetDatabaseName() string {
+	if x != nil {
+		return x.DatabaseName
+	}
+	return ""
+}
+
+func (x *QueryPostgreSQLData) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *QueryPostgreSQLData) GetApplicationName() string {
+	if x != nil {
+		return x.ApplicationName
+	}
+	return ""
+}
+
+func (x *QueryPostgreSQLData) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *QueryPostgreSQLData) GetWaitEventType() string {
+	if x != nil {
+		return x.WaitEventType
+	}
+	return ""
+}
+
+func (x *QueryPostgreSQLData) GetWaitEvent() string {
+	if x != nil {
+		return x.WaitEvent
+	}
+	return ""
+}
+
+func (x *QueryPostgreSQLData) GetPid() int32 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+func (x *QueryPostgreSQLData) GetQueryId() string {
+	if x != nil {
+		return x.QueryId
+	}
+	return ""
+}
+
+func (x *QueryPostgreSQLData) GetTransactionStartTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.TransactionStartTime
+	}
+	return nil
+}
+
+func (x *QueryPostgreSQLData) GetQueryStartTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.QueryStartTime
+	}
+	return nil
+}
+
+func (x *QueryPostgreSQLData) GetQueryTextTruncated() bool {
+	if x != nil {
+		return x.QueryTextTruncated
+	}
+	return false
+}
+
+func (x *QueryPostgreSQLData) GetBlockedStatus() BlockedStatus {
+	if x != nil {
+		return x.BlockedStatus
+	}
+	return BlockedStatus_BLOCKED_STATUS_UNSPECIFIED
+}
+
+func (x *QueryPostgreSQLData) GetBlockedBy() []*BlockingTransaction {
+	if x != nil {
+		return x.BlockedBy
+	}
+	return nil
+}
+
+func (x *QueryPostgreSQLData) GetDbInstanceAddress() string {
+	if x != nil {
+		return x.DbInstanceAddress
+	}
+	return ""
+}
+
 // QueryData represents a single Real-Time Analytics query data point.
 // It includes general query information and a payload for database-specific details.
 type QueryData struct {
@@ -622,6 +791,7 @@ type QueryData struct {
 	//
 	//	*QueryData_MongoDbPayload
 	//	*QueryData_MySqlPayload
+	//	*QueryData_PostgresqlPayload
 	Payload       isQueryData_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -629,7 +799,7 @@ type QueryData struct {
 
 func (x *QueryData) Reset() {
 	*x = QueryData{}
-	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[3]
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -641,7 +811,7 @@ func (x *QueryData) String() string {
 func (*QueryData) ProtoMessage() {}
 
 func (x *QueryData) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[3]
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -654,7 +824,7 @@ func (x *QueryData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryData.ProtoReflect.Descriptor instead.
 func (*QueryData) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{3}
+	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *QueryData) GetServiceId() string {
@@ -738,6 +908,15 @@ func (x *QueryData) GetMySqlPayload() *QueryMySQLData {
 	return nil
 }
 
+func (x *QueryData) GetPostgresqlPayload() *QueryPostgreSQLData {
+	if x != nil {
+		if x, ok := x.Payload.(*QueryData_PostgresqlPayload); ok {
+			return x.PostgresqlPayload
+		}
+	}
+	return nil
+}
+
 type isQueryData_Payload interface {
 	isQueryData_Payload()
 }
@@ -752,9 +931,16 @@ type QueryData_MySqlPayload struct {
 	MySqlPayload *QueryMySQLData `protobuf:"bytes,10,opt,name=my_sql_payload,json=mySqlPayload,proto3,oneof"`
 }
 
+type QueryData_PostgresqlPayload struct {
+	// PostgreSQL-specific query data.
+	PostgresqlPayload *QueryPostgreSQLData `protobuf:"bytes,11,opt,name=postgresql_payload,json=postgresqlPayload,proto3,oneof"`
+}
+
 func (*QueryData_MongoDbPayload) isQueryData_Payload() {}
 
 func (*QueryData_MySqlPayload) isQueryData_Payload() {}
+
+func (*QueryData_PostgresqlPayload) isQueryData_Payload() {}
 
 var File_realtimeanalytics_v1_query_proto protoreflect.FileDescriptor
 
@@ -806,7 +992,25 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\n" +
 	"_rows_sentB\f\n" +
 	"\n" +
-	"_full_scan\"\xa0\x04\n" +
+	"_full_scan\"\xa1\x05\n" +
+	"\x13QueryPostgreSQLData\x12#\n" +
+	"\rdatabase_name\x18\x01 \x01(\tR\fdatabaseName\x12 \n" +
+	"\busername\x18\x02 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12)\n" +
+	"\x10application_name\x18\x03 \x01(\tR\x0fapplicationName\x12\x14\n" +
+	"\x05state\x18\x04 \x01(\tR\x05state\x12&\n" +
+	"\x0fwait_event_type\x18\x05 \x01(\tR\rwaitEventType\x12\x1d\n" +
+	"\n" +
+	"wait_event\x18\x06 \x01(\tR\twaitEvent\x12\x10\n" +
+	"\x03pid\x18\a \x01(\x05R\x03pid\x12\x19\n" +
+	"\bquery_id\x18\b \x01(\tR\aqueryId\x12P\n" +
+	"\x16transaction_start_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\x14transactionStartTime\x12D\n" +
+	"\x10query_start_time\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\x0equeryStartTime\x120\n" +
+	"\x14query_text_truncated\x18\v \x01(\bR\x12queryTextTruncated\x12J\n" +
+	"\x0eblocked_status\x18\f \x01(\x0e2#.realtimeanalytics.v1.BlockedStatusR\rblockedStatus\x12H\n" +
+	"\n" +
+	"blocked_by\x18\r \x03(\v2).realtimeanalytics.v1.BlockingTransactionR\tblockedBy\x12.\n" +
+	"\x13db_instance_address\x18\x0e \x01(\tR\x11dbInstanceAddress\"\xfc\x04\n" +
 	"\tQueryData\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
@@ -820,7 +1024,8 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\x0eclient_address\x18\b \x01(\tR\rclientAddress\x12R\n" +
 	"\x10mongo_db_payload\x18\t \x01(\v2&.realtimeanalytics.v1.QueryMongoDBDataH\x00R\x0emongoDbPayload\x12L\n" +
 	"\x0emy_sql_payload\x18\n" +
-	" \x01(\v2$.realtimeanalytics.v1.QueryMySQLDataH\x00R\fmySqlPayloadB\t\n" +
+	" \x01(\v2$.realtimeanalytics.v1.QueryMySQLDataH\x00R\fmySqlPayload\x12Z\n" +
+	"\x12postgresql_payload\x18\v \x01(\v2).realtimeanalytics.v1.QueryPostgreSQLDataH\x00R\x11postgresqlPayloadB\t\n" +
 	"\apayload*\x8c\x01\n" +
 	"\rBlockedStatus\x12\x1e\n" +
 	"\x1aBLOCKED_STATUS_UNSPECIFIED\x10\x00\x12\x1e\n" +
@@ -848,36 +1053,42 @@ func file_realtimeanalytics_v1_query_proto_rawDescGZIP() []byte {
 
 var (
 	file_realtimeanalytics_v1_query_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-	file_realtimeanalytics_v1_query_proto_msgTypes  = make([]protoimpl.MessageInfo, 4)
+	file_realtimeanalytics_v1_query_proto_msgTypes  = make([]protoimpl.MessageInfo, 5)
 	file_realtimeanalytics_v1_query_proto_goTypes   = []any{
 		BlockedStatus(0),              // 0: realtimeanalytics.v1.BlockedStatus
 		LockType(0),                   // 1: realtimeanalytics.v1.LockType
 		(*QueryMongoDBData)(nil),      // 2: realtimeanalytics.v1.QueryMongoDBData
 		(*BlockingTransaction)(nil),   // 3: realtimeanalytics.v1.BlockingTransaction
 		(*QueryMySQLData)(nil),        // 4: realtimeanalytics.v1.QueryMySQLData
-		(*QueryData)(nil),             // 5: realtimeanalytics.v1.QueryData
-		(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
-		(*durationpb.Duration)(nil),   // 7: google.protobuf.Duration
+		(*QueryPostgreSQLData)(nil),   // 5: realtimeanalytics.v1.QueryPostgreSQLData
+		(*QueryData)(nil),             // 6: realtimeanalytics.v1.QueryData
+		(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),   // 8: google.protobuf.Duration
 	}
 )
 
 var file_realtimeanalytics_v1_query_proto_depIdxs = []int32{
-	6,  // 0: realtimeanalytics.v1.QueryMongoDBData.operation_start_time:type_name -> google.protobuf.Timestamp
-	7,  // 1: realtimeanalytics.v1.BlockingTransaction.wait_duration:type_name -> google.protobuf.Duration
-	7,  // 2: realtimeanalytics.v1.BlockingTransaction.blocker_transaction_duration:type_name -> google.protobuf.Duration
+	7,  // 0: realtimeanalytics.v1.QueryMongoDBData.operation_start_time:type_name -> google.protobuf.Timestamp
+	8,  // 1: realtimeanalytics.v1.BlockingTransaction.wait_duration:type_name -> google.protobuf.Duration
+	8,  // 2: realtimeanalytics.v1.BlockingTransaction.blocker_transaction_duration:type_name -> google.protobuf.Duration
 	0,  // 3: realtimeanalytics.v1.QueryMySQLData.blocked_status:type_name -> realtimeanalytics.v1.BlockedStatus
 	3,  // 4: realtimeanalytics.v1.QueryMySQLData.blocked_by:type_name -> realtimeanalytics.v1.BlockingTransaction
 	1,  // 5: realtimeanalytics.v1.QueryMySQLData.lock_type:type_name -> realtimeanalytics.v1.LockType
-	7,  // 6: realtimeanalytics.v1.QueryMySQLData.lock_time:type_name -> google.protobuf.Duration
-	7,  // 7: realtimeanalytics.v1.QueryData.query_execution_duration:type_name -> google.protobuf.Duration
-	6,  // 8: realtimeanalytics.v1.QueryData.query_collect_time:type_name -> google.protobuf.Timestamp
-	2,  // 9: realtimeanalytics.v1.QueryData.mongo_db_payload:type_name -> realtimeanalytics.v1.QueryMongoDBData
-	4,  // 10: realtimeanalytics.v1.QueryData.my_sql_payload:type_name -> realtimeanalytics.v1.QueryMySQLData
-	11, // [11:11] is the sub-list for method output_type
-	11, // [11:11] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	8,  // 6: realtimeanalytics.v1.QueryMySQLData.lock_time:type_name -> google.protobuf.Duration
+	7,  // 7: realtimeanalytics.v1.QueryPostgreSQLData.transaction_start_time:type_name -> google.protobuf.Timestamp
+	7,  // 8: realtimeanalytics.v1.QueryPostgreSQLData.query_start_time:type_name -> google.protobuf.Timestamp
+	0,  // 9: realtimeanalytics.v1.QueryPostgreSQLData.blocked_status:type_name -> realtimeanalytics.v1.BlockedStatus
+	3,  // 10: realtimeanalytics.v1.QueryPostgreSQLData.blocked_by:type_name -> realtimeanalytics.v1.BlockingTransaction
+	8,  // 11: realtimeanalytics.v1.QueryData.query_execution_duration:type_name -> google.protobuf.Duration
+	7,  // 12: realtimeanalytics.v1.QueryData.query_collect_time:type_name -> google.protobuf.Timestamp
+	2,  // 13: realtimeanalytics.v1.QueryData.mongo_db_payload:type_name -> realtimeanalytics.v1.QueryMongoDBData
+	4,  // 14: realtimeanalytics.v1.QueryData.my_sql_payload:type_name -> realtimeanalytics.v1.QueryMySQLData
+	5,  // 15: realtimeanalytics.v1.QueryData.postgresql_payload:type_name -> realtimeanalytics.v1.QueryPostgreSQLData
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_realtimeanalytics_v1_query_proto_init() }
@@ -886,9 +1097,10 @@ func file_realtimeanalytics_v1_query_proto_init() {
 		return
 	}
 	file_realtimeanalytics_v1_query_proto_msgTypes[2].OneofWrappers = []any{}
-	file_realtimeanalytics_v1_query_proto_msgTypes[3].OneofWrappers = []any{
+	file_realtimeanalytics_v1_query_proto_msgTypes[4].OneofWrappers = []any{
 		(*QueryData_MongoDbPayload)(nil),
 		(*QueryData_MySqlPayload)(nil),
+		(*QueryData_PostgresqlPayload)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -896,7 +1108,7 @@ func file_realtimeanalytics_v1_query_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_realtimeanalytics_v1_query_proto_rawDesc), len(file_realtimeanalytics_v1_query_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

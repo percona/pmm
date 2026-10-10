@@ -215,6 +215,42 @@ export const TEST_MYSQL_QUERY_DATA: QueryData = {
   },
 };
 
+// A PostgreSQL session waiting on a row held by an idle-in-transaction session (pid 41).
+export const TEST_POSTGRESQL_QUERY_DATA: QueryData = {
+  serviceId: 'service-4',
+  serviceName: 'Service 4',
+  queryId: '42',
+  queryText: "UPDATE rta_demo SET v = 'b1' WHERE id = 1",
+  queryCollectTime: '2021-01-01T00:00:00Z',
+  clientAddress: '127.0.0.1:50000',
+  queryRawJson: '{"pid": 42}',
+  postgresqlPayload: {
+    dbInstanceAddress: 'pg-1:5432',
+    databaseName: 'postgres-database',
+    username: 'postgres-user',
+    applicationName: 'psql',
+    state: 'active',
+    waitEventType: 'Lock',
+    waitEvent: 'transactionid',
+    pid: 42,
+    queryId: '7063673311987853849',
+    queryStartTime: '2021-01-01T00:00:00Z',
+    transactionStartTime: '2021-01-01T00:00:00Z',
+    blockedStatus: BlockedStatus.blocked,
+    blockedBy: [
+      {
+        blockingConnId: '41',
+        blockingQuery: 'UPDATE rta_demo SET v = now()::text WHERE id = 1',
+        blockingCommand: 'idle in transaction',
+        blockingUsername: 'postgres',
+        waitDuration: '8s',
+        blockerTransactionDuration: '20s',
+        root: true,
+      },
+    ],
+  },
+};
+
 export const TEST_USER_ANONYMOUS: User = createAnonymousUser();
 
 // Shape the API returns, before useRealtimeQueries parses the duration.

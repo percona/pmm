@@ -6,12 +6,14 @@ import {
   TEST_MYSQL_QUERY_DATA,
   TEST_RAW_MONGO_DB_QUERY_DATA,
   TEST_RAW_MYSQL_QUERY_DATA,
+  TEST_POSTGRESQL_QUERY_DATA,
   TEST_REAL_TIME_SESSION,
   TEST_REAL_TIME_SESSION_2,
   TEST_REAL_TIME_SESSION_MYSQL,
 } from 'utils/testStubs';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { BlockedStatus, RealtimeSessionStatus } from 'types/rta.types';
+import { ServiceType } from 'types/services.types';
 import { Messages } from './RealtimeOverview.messages';
 
 const { exportRtaQueriesToCsv } = vi.hoisted(() => ({
@@ -197,6 +199,29 @@ describe('RealtimeOverview', () => {
         screen.getByTestId('overview-table-hide-commit-toggle')
       ).toHaveTextContent('Hide BEGIN/COMMIT')
     );
+  });
+
+  it('should offer blocked-only but not transaction control for a PostgreSQL selection', async () => {
+    const session = {
+      ...TEST_REAL_TIME_SESSION_MYSQL,
+      serviceId: TEST_POSTGRESQL_QUERY_DATA.serviceId,
+      serviceType: ServiceType.posgresql,
+    };
+    getRunningSessions.mockResolvedValue([session]);
+    searchQueries.mockResolvedValue({ queries: [TEST_POSTGRESQL_QUERY_DATA] });
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${session.serviceId}`,
+    });
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId('overview-table-blocked-only-toggle')
+      ).toHaveTextContent('Blocked only (1)')
+    );
+    // PostgreSQL lists a session idle in transaction by its last statement, often BEGIN.
+    expect(
+      screen.queryByTestId('overview-table-hide-commit-toggle')
+    ).not.toBeInTheDocument();
   });
 
   it('should hide the blocked-only toggle for a MongoDB selection', async () => {
