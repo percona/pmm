@@ -358,6 +358,8 @@ func TestMapActionError(t *testing.T) {
 		"Error 1305 (42000): FUNCTION shop.f does not exist":            codeNotFound,
 		"table not found: sql: no rows in result set":                   codeNotFound,
 		"query EXPLAIN functionality is supported only for DML queries": codePMMUnavailable,
+		// pmm-agent ends every action at pmm-managed's fixed limit and reports this.
+		"context deadline exceeded": codeTimeout,
 	} {
 		assert.Equal(t, code, mapActionError(msg, false).code, msg)
 	}

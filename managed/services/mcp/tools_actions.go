@@ -560,6 +560,9 @@ func classifyErrorText(text string) errorCode {
 		return codeAgentUnreachable
 	case strings.Contains(e, "not found") || strings.Contains(e, "doesn't exist") || strings.Contains(e, "does not exist"):
 		return codeNotFound
+	// pmm-agent reports this when an action outlives pmm-managed's own per-action limit.
+	case strings.Contains(e, "deadline exceeded"):
+		return codeTimeout
 	default:
 		return codePMMUnavailable
 	}
