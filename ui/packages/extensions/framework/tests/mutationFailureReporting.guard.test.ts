@@ -80,7 +80,11 @@ const REPORTS_ITS_OWN_WAY: Record<string, string> = {
   'plugins/atw/src/SendDialog.tsx':
     'in-dialog alert reading the mutation error',
   'plugins/atw/src/IncidentListPage.tsx':
-    'inline alert reading the incident-action error',
+    'inline alerts reading the create mutation and lifecycle errors',
+  'plugins/atw/src/IncidentActions.tsx':
+    'rename and delete dialogs each render their mutation error in-dialog',
+  'plugins/atw/src/IncidentWorkspacePage.tsx':
+    'inline alert above the header reading the in-place rename / case-reference error',
 };
 
 const MUTATION_CALL = /\.(mutate|mutateAsync)\s*\(/;

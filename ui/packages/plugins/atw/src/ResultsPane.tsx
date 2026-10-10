@@ -217,6 +217,8 @@ export function ResultsPane({
   const [page, setPage] = useState({ offset: 0, limit: ATW_PAGE_SIZE });
   const { data, isLoading, error } = useAtwIncidentExecutions(incidentId, page);
   const { data: incident } = useAtwIncident(incidentId);
+  // Unknown until the incident loads; a closed one accepts no runs.
+  const acceptsRuns = incident !== undefined && !incident.closed_at;
   const { data: config } = useAtwConfig();
   const { data: sendJobs, error: sendJobsError } = useAtwSendJobs(incidentId);
 
@@ -425,7 +427,8 @@ export function ResultsPane({
 
       {!isLoading && !error && (!rows || rows.length === 0) && (
         <Alert severity="info">
-          {canMutate
+          {/* A closed incident has no Collect pane to point at. */}
+          {canMutate && acceptsRuns
             ? 'No executions yet. Run snippets from the Collect pane to see results here.'
             : 'No executions yet.'}
         </Alert>
@@ -507,6 +510,7 @@ export function ResultsPane({
           onOpenFiles={() => setFilesForTask(execution.task_history_id)}
           remembered={remembered?.get(execution.task_history_id)}
           rerunPending={rerunMutation.isPending}
+          canRerun={acceptsRuns}
           onRunAgain={() => handleRunAgain(execution)}
           onEditParameters={() => onEditParameters?.(execution)}
         />
@@ -675,6 +679,7 @@ function ExecutionRow({
   onOpenFiles,
   remembered,
   rerunPending,
+  canRerun,
   onRunAgain,
   onEditParameters,
 }: {
@@ -689,6 +694,11 @@ function ExecutionRow({
   remembered: AtwRememberedDispatch | undefined;
   /** Whether the pane's shared rerun mutation is in flight for any row. */
   rerunPending: boolean;
+  /**
+   * False on a closed incident: it accepts no runs, and its Collect pane —
+   * where "Edit parameters" lands — is not on screen.
+   */
+  canRerun: boolean;
   onRunAgain: () => void;
   onEditParameters: () => void;
 }) {
@@ -842,12 +852,12 @@ function ExecutionRow({
               Files
             </Button>
           )}
-          {canMutate && (
+          {canMutate && canRerun && (
             <Button size="small" variant="outlined" onClick={onEditParameters}>
               Edit parameters and run again
             </Button>
           )}
-          {canMutate && remembered && (
+          {canMutate && canRerun && remembered && (
             <Button
               size="small"
               variant="outlined"
