@@ -1329,8 +1329,10 @@ type SearchQueriesOKBodyQueriesItems0PostgresqlPayload struct {
 	// Enum: ["BLOCKED_STATUS_UNSPECIFIED","BLOCKED_STATUS_NOT_BLOCKED","BLOCKED_STATUS_BLOCKED","BLOCKED_STATUS_UNATTRIBUTED"]
 	BlockedStatus *string `json:"blocked_status,omitempty"`
 
-	// Sessions holding up this one, ordered by pid: its pg_blocking_pids() and, transitively, theirs.
-	// blocking_conn_id is the blocker's pid and blocking_command its state.
+	// Sessions holding up this one, ordered by pid: its pg_blocking_pids() and, transitively, theirs;
+	// past the agent's limit on blocker entries, only the roots of that chain.
+	// blocking_conn_id is the blocker's pid, 0 for a prepared transaction, and blocking_command its
+	// state, or its backend type for a background process.
 	BlockedBy []*SearchQueriesOKBodyQueriesItems0PostgresqlPayloadBlockedByItems0 `json:"blocked_by"`
 
 	// PostgreSQL instance the agent connects to: host:port, or the socket directory.

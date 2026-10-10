@@ -178,9 +178,12 @@ message QueryPostgreSQLData {
   bool query_text_truncated = 11;
   // Whether the session is waiting for a heavyweight lock. Only sessions waiting on a lock
   // (wait_event_type "Lock") are looked up, so NOT_BLOCKED covers every other session.
+  // UNSPECIFIED marks a waiting session left undescribed by the agent's limit on blocker entries.
   BlockedStatus blocked_status = 12;
-  // Sessions holding up this one, ordered by pid: its pg_blocking_pids() and, transitively, theirs.
-  // blocking_conn_id is the blocker's pid and blocking_command its state.
+  // Sessions holding up this one, ordered by pid: its pg_blocking_pids() and, transitively, theirs;
+  // past the agent's limit on blocker entries, only the roots of that chain.
+  // blocking_conn_id is the blocker's pid, 0 for a prepared transaction, and blocking_command its
+  // state, or its backend type for a background process.
   repeated BlockingTransaction blocked_by = 13;
   // PostgreSQL instance the agent connects to: host:port, or the socket directory.
   string db_instance_address = 14;

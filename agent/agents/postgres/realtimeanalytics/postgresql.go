@@ -19,14 +19,13 @@ import (
 	"cmp"
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"slices"
 	"strconv"
 	"time"
 
-	_ "github.com/lib/pq" // register SQL driver
+	"github.com/lib/pq"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
@@ -38,11 +37,15 @@ import (
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
-// activityQuery returns the non-idle client sessions. Its CTE is named agents.RTAQueryTag so the QAN agents skip
-// it; the tag comes first so it survives pg_stat_monitor's pgsm_query_max_len.
+// activityQuery returns the non-idle client sessions, longest-running first, and every session blocking any session.
+// Its CTE is named agents.RTAQueryTag so the QAN agents skip it; the tag comes first so it survives
+// pg_stat_monitor's pgsm_query_max_len.
 //
 //   - pg_blocking_pids() is called only for sessions waiting on a heavyweight lock: it takes the lock
 //     manager's locks, so calling it for every backend every collect interval would be load of its own.
+//   - The second column says whether a row is a listed session; the others are only blockers, which
+//     blockingChains needs to follow a chain through idle sessions and background workers.
+//   - Blockers are matched to waiters in Go: done here, the match grows with the cube of a lock queue.
 //   - query_text_truncated allows for a multibyte character cut short (up to 3 bytes) below track_activity_query_size.
 //   - Parallel workers are left out; their leader is listed and carries the query.
 //   - query_id (14+) and pg_locks.waitstart (14+) are read through to_jsonb, so one query serves 12 and 13 too.
@@ -53,26 +56,36 @@ import (
 //     helper column; its columns differ between versions.
 //
 //nolint:unqueryvet
-const activityQuery = `WITH ` + agents.RTAQueryTag + ` AS (SELECT *, CASE WHEN wait_event_type = 'Lock' THEN pg_blocking_pids(pid) END AS blk FROM pg_stat_activity)
-SELECT w.pid, jsonb_pretty(to_jsonb(w) - 'blk'), COALESCE(w.datname, ''), COALESCE(w.usename, ''), COALESCE(w.application_name, ''),
-  COALESCE(w.state, ''), COALESCE(w.wait_event_type, ''), COALESCE(w.wait_event, ''),
+const activityQuery = `WITH ` + agents.RTAQueryTag + ` AS (SELECT *, CASE WHEN wait_event_type = 'Lock' THEN pg_blocking_pids(pid) END AS blk FROM pg_stat_activity),
+listed AS (SELECT pid, row_number() OVER (ORDER BY CASE WHEN state LIKE 'idle in transaction%' THEN xact_start ELSE query_start END NULLS LAST, pid) AS n
+  FROM ` + agents.RTAQueryTag + ` WHERE backend_type = 'client backend' AND state IS DISTINCT FROM 'idle' AND pid <> pg_backend_pid()
+  ORDER BY n LIMIT 1000)
+SELECT w.pid, l.pid IS NOT NULL, CASE WHEN l.pid IS NOT NULL THEN jsonb_pretty(to_jsonb(w) - 'blk') END,
+  COALESCE(w.datname, ''), COALESCE(w.usename, ''), COALESCE(w.application_name, ''),
+  COALESCE(w.state, ''), COALESCE(w.backend_type, ''), COALESCE(w.wait_event_type, ''), COALESCE(w.wait_event, ''),
   COALESCE(host(w.client_addr) || ':' || w.client_port, ''), COALESCE(w.query, ''),
   COALESCE(to_jsonb(w)->>'query_id', ''), w.xact_start, w.query_start,
   EXTRACT(EPOCH FROM clock_timestamp() - CASE WHEN w.state LIKE 'idle in transaction%' THEN w.xact_start ELSE w.query_start END),
+  EXTRACT(EPOCH FROM clock_timestamp() - w.xact_start),
   COALESCE(octet_length(w.query) >= s.size - 4, false),
-  COALESCE(cardinality(w.blk) > 0, false),
-  (SELECT EXTRACT(EPOCH FROM clock_timestamp() - min((to_jsonb(l)->>'waitstart')::timestamptz))
-     FROM pg_locks l WHERE w.blk IS NOT NULL AND l.pid = w.pid AND NOT l.granted),
-  (SELECT json_agg(json_build_object(
-       'pid', b.pid, 'query', COALESCE(b.query, ''), 'state', COALESCE(b.state, b.backend_type, ''),
-       'user', COALESCE(b.usename, ''), 'xact_secs', EXTRACT(EPOCH FROM clock_timestamp() - b.xact_start),
-       'root', b.blk IS NULL OR cardinality(b.blk) = 0,
-       'truncated', COALESCE(octet_length(b.query) >= s.size - 4, false)) ORDER BY b.pid)
-     FROM ` + agents.RTAQueryTag + ` b WHERE b.pid = ANY(w.blk))
-FROM ` + agents.RTAQueryTag + ` w, (SELECT setting::int AS size FROM pg_settings WHERE name = 'track_activity_query_size') s
-WHERE w.backend_type = 'client backend' AND w.state IS DISTINCT FROM 'idle' AND w.pid <> pg_backend_pid()`
+  w.blk,
+  (SELECT EXTRACT(EPOCH FROM clock_timestamp() - min((to_jsonb(lk)->>'waitstart')::timestamptz))
+     FROM pg_locks lk WHERE l.pid IS NOT NULL AND w.blk IS NOT NULL AND lk.pid = w.pid AND NOT lk.granted)
+FROM ` + agents.RTAQueryTag + ` w LEFT JOIN listed l ON l.pid = w.pid,
+  (SELECT setting::int AS size FROM pg_settings WHERE name = 'track_activity_query_size') s
+WHERE l.pid IS NOT NULL OR w.pid IN (SELECT unnest(blk) FROM ` + agents.RTAQueryTag + `)
+ORDER BY l.n NULLS LAST`
 
-const defaultCollectInterval = 2 * time.Second
+const (
+	defaultCollectInterval = 2 * time.Second
+	// The LIMIT in activityQuery, as processlistRowLimit is for MySQL.
+	sessionLimit = 1000
+	// The blocked_by entries of one collection are bounded, as lockGraphRowLimit bounds MySQL's: a session
+	// queued on a row lists every session queued ahead of it, so the entries grow with the square of the queue.
+	blockerLimit = 5000
+	// The pid pg_blocking_pids() gives a prepared transaction holding the lock.
+	preparedTransaction = 0
+)
 
 // PostgreSQLRTA extracts Real-Time Analytics data (currently running queries) from PostgreSQL.
 type PostgreSQLRTA struct {
@@ -83,6 +96,8 @@ type PostgreSQLRTA struct {
 	collectInterval   time.Duration
 	l                 *logrus.Entry
 	changes           chan agents.Change
+	// sessionsTruncated is set while activityQuery hits sessionLimit, so that is logged once per episode.
+	sessionsTruncated bool
 }
 
 // Params represent Agent parameters.
@@ -188,32 +203,47 @@ func (m *PostgreSQLRTA) collect(ctx context.Context) ([]*rtav1.QueryData, error)
 
 	now := timestamppb.Now()
 	var res []*rtav1.QueryData
+	// blk and blockers hold every row, listed or not, so chains can be followed through all of them.
+	blk := make(map[int64][]int64)
+	blockers := make(map[int64]*rtav1.BlockingTransaction)
+	waited := make(map[int64]*durationpb.Duration)
 
 	for rows.Next() {
 		var (
-			p                 rtav1.QueryPostgreSQLData
-			q                 rtav1.QueryData
-			xactStart, qStart sql.NullTime
-			duration, waited  *float64
-			blocked           bool
-			blockers          []byte
+			p                          rtav1.QueryPostgreSQLData
+			q                          rtav1.QueryData
+			listed                     bool
+			rawJSON                    sql.NullString
+			backendType                string
+			xactStart, qStart          sql.NullTime
+			duration, xactAge, waitAge *float64
+			blockedBy                  pq.Int64Array
 		)
 
-		err = rows.Scan(&p.Pid, &q.QueryRawJson, &p.DatabaseName, &p.Username, &p.ApplicationName,
-			&p.State, &p.WaitEventType, &p.WaitEvent, &q.ClientAddress, &q.QueryText, &p.QueryId,
-			&xactStart, &qStart, &duration, &p.QueryTextTruncated, &blocked, &waited, &blockers)
+		err = rows.Scan(&p.Pid, &listed, &rawJSON, &p.DatabaseName, &p.Username, &p.ApplicationName,
+			&p.State, &backendType, &p.WaitEventType, &p.WaitEvent, &q.ClientAddress, &q.QueryText, &p.QueryId,
+			&xactStart, &qStart, &duration, &xactAge, &p.QueryTextTruncated, &blockedBy, &waitAge)
 		if err != nil {
 			return nil, err
 		}
 
-		p.BlockedStatus = rtav1.BlockedStatus_BLOCKED_STATUS_NOT_BLOCKED
-		if blocked {
-			p.BlockedStatus = rtav1.BlockedStatus_BLOCKED_STATUS_BLOCKED
-			p.BlockedBy, err = toBlockers(blockers, waited)
-			if err != nil {
-				return nil, err
-			}
+		pid := int64(p.Pid)
+		blk[pid] = blockedBy
+		blockers[pid] = &rtav1.BlockingTransaction{
+			BlockingConnId:             pid,
+			BlockingQuery:              q.QueryText,
+			BlockingCommand:            cmp.Or(p.State, backendType),
+			BlockingUsername:           p.Username,
+			BlockerTransactionDuration: seconds(xactAge),
+			Root:                       len(blockedBy) == 0,
+			BlockingQueryTruncated:     p.QueryTextTruncated,
 		}
+		if !listed {
+			continue
+		}
+
+		waited[pid] = seconds(waitAge)
+		p.BlockedStatus = rtav1.BlockedStatus_BLOCKED_STATUS_NOT_BLOCKED
 		if xactStart.Valid {
 			p.TransactionStartTime = timestamppb.New(xactStart.Time)
 		}
@@ -221,6 +251,7 @@ func (m *PostgreSQLRTA) collect(ctx context.Context) ([]*rtav1.QueryData, error)
 			p.QueryStartTime = timestamppb.New(qStart.Time)
 		}
 
+		q.QueryRawJson = rawJSON.String
 		q.QueryExecutionDuration = seconds(duration)
 		q.ServiceId = m.serviceID
 		q.ServiceName = m.serviceName
@@ -236,9 +267,69 @@ func (m *PostgreSQLRTA) collect(ctx context.Context) ([]*rtav1.QueryData, error)
 		return nil, err
 	}
 
-	withBlockingChains(res)
+	switch truncated := len(res) >= sessionLimit; {
+	case truncated && !m.sessionsTruncated:
+		m.sessionsTruncated = true
+		m.l.Warnf("More than %d sessions are active, so only the %d longest-running are collected", sessionLimit, sessionLimit)
+	case !truncated && m.sessionsTruncated:
+		m.sessionsTruncated = false
+		m.l.Infof("Fewer than %d sessions are active again, so all of them are collected", sessionLimit)
+	}
+
+	m.setBlockers(res, blk, blockers, waited)
 
 	return res, nil
+}
+
+// setBlockers sets the blocked status and blockers of the listed sessions in res; the maps cover every row of activityQuery.
+func (m *PostgreSQLRTA) setBlockers(
+	res []*rtav1.QueryData,
+	blk map[int64][]int64,
+	blockers map[int64]*rtav1.BlockingTransaction,
+	waited map[int64]*durationpb.Duration,
+) {
+	var waiters []int64
+	for _, q := range res {
+		pid := int64(q.GetPostgresqlPayload().Pid)
+		if len(blk[pid]) != 0 {
+			waiters = append(waiters, pid)
+		}
+	}
+
+	chains, complete := blockingChains(blk, waiters, blockerLimit)
+	if !complete {
+		m.l.Warnf("The lock waits need more than %d blocker entries, so some blocked sessions are shown "+
+			"with only the sessions at the head of their chain, or without their blockers", blockerLimit)
+	}
+
+	for _, q := range res {
+		p := q.GetPostgresqlPayload()
+		pid := int64(p.Pid)
+		if len(blk[pid]) == 0 {
+			continue
+		}
+
+		// Blocked, but not described within blockerLimit: as for MySQL, unknown rather than a guess.
+		if len(chains[pid]) == 0 {
+			p.BlockedStatus = rtav1.BlockedStatus_BLOCKED_STATUS_UNSPECIFIED
+			continue
+		}
+
+		p.BlockedStatus = rtav1.BlockedStatus_BLOCKED_STATUS_BLOCKED
+		for _, b := range chains[pid] {
+			blocker, ok := blockers[b]
+			if !ok {
+				blocker = &rtav1.BlockingTransaction{BlockingConnId: b, Root: true}
+				if b == preparedTransaction {
+					blocker.BlockingCommand = "prepared transaction"
+				}
+			}
+
+			blocker = proto.CloneOf(blocker)
+			blocker.WaitDuration = waited[pid]
+			p.BlockedBy = append(p.BlockedBy, blocker)
+		}
+	}
 }
 
 // instanceAddress returns the host:port, or the socket directory, that a pmm-managed PostgreSQL DSN connects to.
@@ -253,80 +344,91 @@ func instanceAddress(dsn string) string {
 	return u.Query().Get("host")
 }
 
-// withBlockingChains extends each waiter's direct blockers (pg_blocking_pids) with the blockers of those blockers,
-// so that, as for MySQL, blocked_by lists every transaction ahead in the chain and root marks its head.
-// The chain is read from the same snapshot; each entry keeps the waiter's own wait duration.
-func withBlockingChains(queries []*rtav1.QueryData) {
-	direct := make(map[int64][]*rtav1.BlockingTransaction)
-	for _, q := range queries {
-		p := q.GetPostgresqlPayload()
-		if len(p.GetBlockedBy()) != 0 {
-			direct[int64(p.Pid)] = p.BlockedBy
+// blockingChains returns the sessions each waiter waits for, directly or not, ordered by pid, in at most limit
+// entries in all. Every waiter gets its roots first, the sessions holding up the whole chain; then whole chains
+// are filled in the order of waiters until one no longer fits. The second result reports whether all of them did.
+func blockingChains(blk map[int64][]int64, waiters []int64, limit int) (map[int64][]int64, bool) {
+	waitingFor := make(map[int64][]int64)
+	for pid, blockers := range blk {
+		for _, b := range blockers {
+			waitingFor[b] = append(waitingFor[b], pid)
 		}
 	}
 
-	for _, q := range queries {
-		p := q.GetPostgresqlPayload()
-		if len(p.GetBlockedBy()) == 0 {
+	// Walking back from each root once finds every session's roots without walking every chain.
+	roots := make(map[int64][]int64)
+	for root := range waitingFor {
+		if len(blk[root]) != 0 {
 			continue
 		}
 
-		waited := p.BlockedBy[0].WaitDuration
-		seen := map[int64]bool{int64(p.Pid): true}
-		var chain []*rtav1.BlockingTransaction
-		for queue := p.BlockedBy; len(queue) != 0; queue = queue[1:] {
-			b := queue[0]
-			if seen[b.BlockingConnId] {
-				continue
+		seen := map[int64]bool{root: true}
+		for queue := []int64{root}; len(queue) != 0; queue = queue[1:] {
+			for _, pid := range waitingFor[queue[0]] {
+				if !seen[pid] {
+					seen[pid] = true
+					roots[pid] = append(roots[pid], root)
+					queue = append(queue, pid)
+				}
 			}
-			seen[b.BlockingConnId] = true
+		}
+	}
 
-			b = proto.CloneOf(b)
-			b.WaitDuration = waited
-			chain = append(chain, b)
-			queue = append(queue, direct[b.BlockingConnId]...)
+	chains := make(map[int64][]int64, len(waiters))
+	entries := 0
+	complete := true
+	for _, w := range waiters {
+		if entries+len(roots[w]) > limit {
+			complete = false
+			break
 		}
 
-		slices.SortFunc(chain, func(a, b *rtav1.BlockingTransaction) int { return cmp.Compare(a.BlockingConnId, b.BlockingConnId) })
-		p.BlockedBy = chain
+		slices.Sort(roots[w])
+		chains[w] = roots[w]
+		entries += len(roots[w])
 	}
+
+	for _, w := range waiters {
+		have, ok := chains[w]
+		if !ok {
+			break
+		}
+
+		chain, ok := waitsFor(blk, w, limit-entries+len(have))
+		if !ok {
+			complete = false
+			break
+		}
+
+		chains[w] = chain
+		entries += len(chain) - len(have)
+	}
+
+	return chains, complete
 }
 
-// toBlockers converts the blockers JSON built by activityQuery; waited is how long the waiting session has waited.
-func toBlockers(raw []byte, waited *float64) ([]*rtav1.BlockingTransaction, error) {
-	if len(raw) == 0 {
-		return nil, nil
+// waitsFor returns the sessions pid waits for, directly or not, ordered by pid, or false if there are more than limit.
+func waitsFor(blk map[int64][]int64, pid int64, limit int) ([]int64, bool) {
+	seen := map[int64]bool{pid: true}
+	var res []int64
+	for queue := []int64{pid}; len(queue) != 0; queue = queue[1:] {
+		for _, b := range blk[queue[0]] {
+			if seen[b] {
+				continue
+			}
+			if len(res) == limit {
+				return nil, false
+			}
+
+			seen[b] = true
+			res = append(res, b)
+			queue = append(queue, b)
+		}
 	}
 
-	var blockers []struct {
-		Pid       int64    `json:"pid"`
-		Query     string   `json:"query"`
-		State     string   `json:"state"`
-		User      string   `json:"user"`
-		XactSecs  *float64 `json:"xact_secs"`
-		Root      bool     `json:"root"`
-		Truncated bool     `json:"truncated"`
-	}
-	err := json.Unmarshal(raw, &blockers)
-	if err != nil {
-		return nil, fmt.Errorf("cannot parse blockers: %w", err)
-	}
+	slices.Sort(res)
 
-	res := make([]*rtav1.BlockingTransaction, 0, len(blockers))
-	for _, b := range blockers {
-		res = append(res, &rtav1.BlockingTransaction{
-			BlockingConnId:             b.Pid,
-			BlockingQuery:              b.Query,
-			BlockingCommand:            b.State,
-			BlockingUsername:           b.User,
-			WaitDuration:               seconds(waited),
-			BlockerTransactionDuration: seconds(b.XactSecs),
-			Root:                       b.Root,
-			BlockingQueryTruncated:     b.Truncated,
-		})
-	}
-
-	return res, nil
+	return res, true
 }
 
 func seconds(s *float64) *durationpb.Duration {

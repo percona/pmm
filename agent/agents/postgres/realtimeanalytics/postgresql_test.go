@@ -15,14 +15,15 @@
 package realtimeanalytics
 
 import (
+	"strconv"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/percona/pmm/agent/agents"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
@@ -54,96 +55,160 @@ func TestInstanceAddress(t *testing.T) {
 	assert.Empty(t, instanceAddress("postgres://%zz"))
 }
 
-func TestToBlockers(t *testing.T) {
+func TestActivityQuerySessionLimit(t *testing.T) {
 	t.Parallel()
 
-	t.Run("NoBlockers", func(t *testing.T) {
-		t.Parallel()
+	assert.Contains(t, activityQuery, "LIMIT "+strconv.Itoa(sessionLimit)+")")
+}
 
-		res, err := toBlockers(nil, nil)
-		require.NoError(t, err)
-		assert.Empty(t, res)
-	})
+func TestBlockingChains(t *testing.T) {
+	t.Parallel()
 
 	t.Run("Chain", func(t *testing.T) {
 		t.Parallel()
 
-		waited := 2.5
-		raw := []byte(`[{"pid": 7, "query": "UPDATE t SET v = 1", "state": "idle in transaction", "user": "app",
-			"xact_secs": 10.25, "root": true, "truncated": false},
-			{"pid": 8, "query": "UPDATE t SET v = 2", "state": "active", "user": "app",
-			"xact_secs": null, "root": false, "truncated": true}]`)
-
-		res, err := toBlockers(raw, &waited)
-		require.NoError(t, err)
-		require.Len(t, res, 2)
-
-		assert.Equal(t, int64(7), res[0].BlockingConnId)
-		assert.Equal(t, "UPDATE t SET v = 1", res[0].BlockingQuery)
-		assert.Equal(t, "idle in transaction", res[0].BlockingCommand)
-		assert.Equal(t, "app", res[0].BlockingUsername)
-		assert.Equal(t, 2500*time.Millisecond, res[0].WaitDuration.AsDuration())
-		assert.Equal(t, 10250*time.Millisecond, res[0].BlockerTransactionDuration.AsDuration())
-		assert.True(t, res[0].Root)
-		assert.False(t, res[0].BlockingQueryTruncated)
-
-		assert.Nil(t, res[1].BlockerTransactionDuration)
-		assert.False(t, res[1].Root)
-		assert.True(t, res[1].BlockingQueryTruncated)
+		// 7 is idle in transaction; 8 waits for 7, 9 waits for 8.
+		blk := map[int64][]int64{7: nil, 8: {7}, 9: {8}}
+		chains, complete := blockingChains(blk, []int64{8, 9}, blockerLimit)
+		assert.True(t, complete)
+		assert.Equal(t, map[int64][]int64{8: {7}, 9: {7, 8}}, chains)
 	})
 
-	t.Run("Invalid", func(t *testing.T) {
+	t.Run("Cycle", func(t *testing.T) {
 		t.Parallel()
 
-		_, err := toBlockers([]byte(`{`), nil)
-		require.Error(t, err)
+		// A deadlock not yet broken by deadlock_timeout: neither session lists itself.
+		blk := map[int64][]int64{5: {6}, 6: {5}}
+		chains, complete := blockingChains(blk, []int64{5, 6}, blockerLimit)
+		assert.True(t, complete)
+		assert.Equal(t, map[int64][]int64{5: {6}, 6: {5}}, chains)
+	})
+
+	t.Run("PreparedTransaction", func(t *testing.T) {
+		t.Parallel()
+
+		// pg_blocking_pids() names a prepared transaction 0, a pid no row has.
+		blk := map[int64][]int64{3: {preparedTransaction}, 4: {3}}
+		chains, complete := blockingChains(blk, []int64{3, 4}, blockerLimit)
+		assert.True(t, complete)
+		assert.Equal(t, map[int64][]int64{3: {0}, 4: {0, 3}}, chains)
+	})
+
+	t.Run("BackgroundWorkerInChain", func(t *testing.T) {
+		t.Parallel()
+
+		// 2 waits for autovacuum 50, which waits for 7; 50 is not listed but is still followed.
+		blk := map[int64][]int64{2: {50}, 50: {7}, 7: nil}
+		chains, complete := blockingChains(blk, []int64{2}, blockerLimit)
+		assert.True(t, complete)
+		assert.Equal(t, map[int64][]int64{2: {7, 50}}, chains)
+	})
+
+	t.Run("QueueOnOneRow", func(t *testing.T) {
+		t.Parallel()
+
+		// 100 holds the row; 1 waits for it and the rest queue behind 1, each listing everyone ahead.
+		blk := map[int64][]int64{100: nil, 1: {100}}
+		waiters := []int64{1}
+		for pid := int64(2); pid <= 6; pid++ {
+			for ahead := int64(1); ahead < pid; ahead++ {
+				blk[pid] = append(blk[pid], ahead)
+			}
+			waiters = append(waiters, pid)
+		}
+
+		// Roots take 6 entries, the chains of 1, 2 and 3 another 3; the chain of 4 does not fit.
+		chains, complete := blockingChains(blk, waiters, 10)
+		assert.False(t, complete)
+		assert.Equal(t, map[int64][]int64{
+			1: {100},
+			2: {1, 100},
+			3: {1, 2, 100},
+			4: {100},
+			5: {100},
+			6: {100},
+		}, chains)
+
+		chains, complete = blockingChains(blk, waiters, blockerLimit)
+		assert.True(t, complete)
+		assert.Equal(t, []int64{1, 2, 3, 4, 5, 100}, chains[6])
+	})
+
+	t.Run("RootsDoNotFit", func(t *testing.T) {
+		t.Parallel()
+
+		// 1 and 2 each wait for the same three holders; only 1 fits.
+		blk := map[int64][]int64{1: {10, 11, 12}, 2: {10, 11, 12}, 10: nil, 11: nil, 12: nil}
+		chains, complete := blockingChains(blk, []int64{1, 2}, 4)
+		assert.False(t, complete)
+		assert.Equal(t, map[int64][]int64{1: {10, 11, 12}}, chains)
 	})
 }
 
-func TestWithBlockingChains(t *testing.T) {
+func TestCollect(t *testing.T) {
 	t.Parallel()
 
-	session := func(pid int32, blockers ...*rtav1.BlockingTransaction) *rtav1.QueryData {
-		return &rtav1.QueryData{Payload: &rtav1.QueryData_PostgresqlPayload{
-			PostgresqlPayload: &rtav1.QueryPostgreSQLData{Pid: pid, BlockedBy: blockers},
-		}}
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = db.Close() })
+
+	columns := []string{
+		"pid", "listed", "raw", "datname", "usename", "application_name", "state", "backend_type",
+		"wait_event_type", "wait_event", "client", "query", "query_id", "xact_start", "query_start",
+		"duration", "xact_age", "truncated", "blk", "waited",
 	}
-	blocker := func(pid int64, root bool, waited time.Duration) *rtav1.BlockingTransaction {
-		return &rtav1.BlockingTransaction{BlockingConnId: pid, Root: root, WaitDuration: durationpb.New(waited)}
-	}
+	started := time.Date(2026, 10, 1, 12, 0, 0, 0, time.UTC)
+	rows := sqlmock.NewRows(columns).
+		// idle in transaction, holding the row 8 waits for
+		AddRow(7, true, `{"pid": 7}`, "db", "app", "", "idle in transaction", "client backend",
+			"Client", "ClientRead", "10.0.0.1:5000", "UPDATE t SET v = 1", "", started, started,
+			30.0, 30.0, false, nil, nil).
+		AddRow(8, true, `{"pid": 8}`, "db", "app", "", "active", "client backend",
+			"Lock", "transactionid", "10.0.0.2:5000", "UPDATE t SET v = 2", "", started, started,
+			5.0, 5.0, false, "{7}", 4.0).
+		// waits for a prepared transaction
+		AddRow(9, true, `{"pid": 9}`, "db", "app", "", "active", "client backend",
+			"Lock", "transactionid", "10.0.0.3:5000", "UPDATE t SET v = 3", "", started, started,
+			2.0, 2.0, false, "{0}", 1.5).
+		// waits for autovacuum, which is not listed
+		AddRow(10, true, `{"pid": 10}`, "db", "app", "", "active", "client backend",
+			"Lock", "relation", "10.0.0.4:5000", "ALTER TABLE t ADD c int", "", started, started,
+			1.0, 1.0, false, "{50}", 0.5).
+		AddRow(50, false, nil, "db", "", "", "", "autovacuum worker",
+			"", "", "", "autovacuum: VACUUM public.t", "", started, started,
+			nil, 60.0, false, nil, nil)
+	mock.ExpectQuery(activityQuery).WillReturnRows(rows)
 
-	// 7 is idle in transaction; 8 waits for 7, 9 waits for 8.
-	queries := []*rtav1.QueryData{
-		session(7),
-		session(8, blocker(7, true, 10*time.Second)),
-		session(9, blocker(8, false, 5*time.Second)),
-	}
-	withBlockingChains(queries)
+	m := &PostgreSQLRTA{db: db, l: logrus.NewEntry(logrus.New()), collectInterval: time.Second, serviceID: "svc"}
+	res, err := m.collect(t.Context())
+	require.NoError(t, err)
+	require.NoError(t, mock.ExpectationsWereMet())
+	require.Len(t, res, 4, "the autovacuum worker is only a blocker")
 
-	assert.Empty(t, queries[0].GetPostgresqlPayload().BlockedBy)
-	assert.Len(t, queries[1].GetPostgresqlPayload().BlockedBy, 1)
+	holder := res[0].GetPostgresqlPayload()
+	assert.Equal(t, rtav1.BlockedStatus_BLOCKED_STATUS_NOT_BLOCKED, holder.BlockedStatus)
+	assert.Equal(t, `{"pid": 7}`, res[0].QueryRawJson)
 
-	chain := queries[2].GetPostgresqlPayload().BlockedBy
-	require.Len(t, chain, 2)
-	assert.Equal(t, int64(7), chain[0].BlockingConnId)
-	assert.True(t, chain[0].Root)
-	assert.Equal(t, 5*time.Second, chain[0].WaitDuration.AsDuration(), "the waiter's own wait")
-	assert.Equal(t, int64(8), chain[1].BlockingConnId)
-	assert.False(t, chain[1].Root)
+	waiter := res[1].GetPostgresqlPayload()
+	assert.Equal(t, rtav1.BlockedStatus_BLOCKED_STATUS_BLOCKED, waiter.BlockedStatus)
+	require.Len(t, waiter.BlockedBy, 1)
+	assert.Equal(t, int64(7), waiter.BlockedBy[0].BlockingConnId)
+	assert.Equal(t, "UPDATE t SET v = 1", waiter.BlockedBy[0].BlockingQuery)
+	assert.Equal(t, "idle in transaction", waiter.BlockedBy[0].BlockingCommand)
+	assert.Equal(t, 30*time.Second, waiter.BlockedBy[0].BlockerTransactionDuration.AsDuration())
+	assert.Equal(t, 4*time.Second, waiter.BlockedBy[0].WaitDuration.AsDuration())
+	assert.True(t, waiter.BlockedBy[0].Root)
 
-	// the shared blocker of session 8 is not modified
-	assert.Equal(t, 10*time.Second, queries[1].GetPostgresqlPayload().BlockedBy[0].WaitDuration.AsDuration())
+	prepared := res[2].GetPostgresqlPayload()
+	assert.Equal(t, rtav1.BlockedStatus_BLOCKED_STATUS_BLOCKED, prepared.BlockedStatus)
+	require.Len(t, prepared.BlockedBy, 1)
+	assert.Equal(t, int64(0), prepared.BlockedBy[0].BlockingConnId)
+	assert.Equal(t, "prepared transaction", prepared.BlockedBy[0].BlockingCommand)
+	assert.True(t, prepared.BlockedBy[0].Root)
 
-	// A deadlock not yet broken by deadlock_timeout: neither session lists itself.
-	cycle := []*rtav1.QueryData{
-		session(5, blocker(6, false, time.Second)),
-		session(6, blocker(5, false, time.Second)),
-	}
-	withBlockingChains(cycle)
-
-	for i, pid := range []int64{6, 5} {
-		chain := cycle[i].GetPostgresqlPayload().BlockedBy
-		require.Len(t, chain, 1)
-		assert.Equal(t, pid, chain[0].BlockingConnId)
-	}
+	behindWorker := res[3].GetPostgresqlPayload()
+	require.Len(t, behindWorker.BlockedBy, 1)
+	assert.Equal(t, int64(50), behindWorker.BlockedBy[0].BlockingConnId)
+	assert.Equal(t, "autovacuum worker", behindWorker.BlockedBy[0].BlockingCommand)
+	assert.True(t, behindWorker.BlockedBy[0].Root)
 }

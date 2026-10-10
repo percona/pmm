@@ -624,9 +624,12 @@ type QueryPostgreSQLData struct {
 	QueryTextTruncated bool `protobuf:"varint,11,opt,name=query_text_truncated,json=queryTextTruncated,proto3" json:"query_text_truncated,omitempty"`
 	// Whether the session is waiting for a heavyweight lock. Only sessions waiting on a lock
 	// (wait_event_type "Lock") are looked up, so NOT_BLOCKED covers every other session.
+	// UNSPECIFIED marks a waiting session left undescribed by the agent's limit on blocker entries.
 	BlockedStatus BlockedStatus `protobuf:"varint,12,opt,name=blocked_status,json=blockedStatus,proto3,enum=realtimeanalytics.v1.BlockedStatus" json:"blocked_status,omitempty"`
-	// Sessions holding up this one, ordered by pid: its pg_blocking_pids() and, transitively, theirs.
-	// blocking_conn_id is the blocker's pid and blocking_command its state.
+	// Sessions holding up this one, ordered by pid: its pg_blocking_pids() and, transitively, theirs;
+	// past the agent's limit on blocker entries, only the roots of that chain.
+	// blocking_conn_id is the blocker's pid, 0 for a prepared transaction, and blocking_command its
+	// state, or its backend type for a background process.
 	BlockedBy []*BlockingTransaction `protobuf:"bytes,13,rep,name=blocked_by,json=blockedBy,proto3" json:"blocked_by,omitempty"`
 	// PostgreSQL instance the agent connects to: host:port, or the socket directory.
 	DbInstanceAddress string `protobuf:"bytes,14,opt,name=db_instance_address,json=dbInstanceAddress,proto3" json:"db_instance_address,omitempty"`
