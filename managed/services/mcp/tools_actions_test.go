@@ -16,9 +16,14 @@
 package mcp
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -227,9 +232,9 @@ func TestSchemaTool(t *testing.T) {
 		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
 		session := connect(t, newQANService(t, fake, true))
 
-		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "table": "customers"})
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}})
 		assert.False(t, isError)
-		assert.Equal(t, "```sql\nCREATE TABLE `customers` (\n  `id` bigint NOT NULL AUTO_INCREMENT,\n  `email` varchar(255) NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB\n```", text)
+		assert.Equal(t, "### shop.customers\n```sql\nCREATE TABLE `customers` (\n  `id` bigint NOT NULL AUTO_INCREMENT,\n  `email` varchar(255) NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB\n```", text)
 		fake.assertForwardedAuth(t)
 		body := unmarshalBody[actions_service.StartServiceActionBody](t, fake.requestsTo("/v1/actions:startServiceAction")[0])
 		require.NotNil(t, body.MysqlShowCreateTable)
@@ -240,18 +245,15 @@ func TestSchemaTool(t *testing.T) {
 	t.Run("PostgreSQLWithIndexes", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		fake, stub := newActionStub(t, 0)
 		session := connect(t, newQANService(t, fake, true))
 
-		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-2", "database": "shop", "table_name": "customers", "include_indexes": true})
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-2", "database": "shop", "tables": []string{"customers"}, "info_types": "all"})
 		assert.False(t, isError)
-		assert.Contains(t, text, "\n\nindexes:\n```\n")
-		starts := fake.requestsTo("/v1/actions:startServiceAction")
-		require.Len(t, starts, 2)
-		ddl := unmarshalBody[actions_service.StartServiceActionBody](t, starts[0])
-		require.NotNil(t, ddl.PostgresShowCreateTable)
-		idx := unmarshalBody[actions_service.StartServiceActionBody](t, starts[1])
-		require.NotNil(t, idx.PostgresShowIndex)
+		assert.Equal(t, "### shop.customers\n```sql\nCREATE TABLE `customers` (`id` int)\n```\nindexes:\n```\nindex of customers\n```", text)
+		require.Len(t, stub.starts, 2)
+		assert.True(t, slices.ContainsFunc(stub.starts, func(b actions_service.StartServiceActionBody) bool { return b.PostgresShowCreateTable != nil }))
+		assert.True(t, slices.ContainsFunc(stub.starts, func(b actions_service.StartServiceActionBody) bool { return b.PostgresShowIndex != nil }))
 	})
 
 	// A syntax error from SHOW CREATE TABLE is not EXPLAIN's placeholder
@@ -262,7 +264,7 @@ func TestSchemaTool(t *testing.T) {
 		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_error_1064.json")
 		session := connect(t, newQANService(t, fake, true))
 
-		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "table": "customers"})
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}})
 		assert.True(t, isError)
 		assert.True(t, strings.HasPrefix(text, "error: invalid_input\nError 1064"), text)
 		assert.NotContains(t, text, "placeholders")
@@ -271,12 +273,23 @@ func TestSchemaTool(t *testing.T) {
 	t.Run("Validation", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		fake, stub := newActionStub(t, 0)
 		session := connect(t, newQANService(t, fake, true))
-
-		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop"})
-		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\nservice_id, database and table are required"), text)
+		for _, tc := range []struct {
+			args   map[string]any
+			prefix string
+		}{
+			{map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{}}, "tables takes 1 to 10 names; got 0"},
+			{map[string]any{"service_id": "svc-1", "database": "shop", "tables": strings.Split("a,b,c,d,e,f,g,h,i,j,k", ",")}, "tables takes 1 to 10 names; got 11"},
+			{map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"a", " "}}, "tables must not contain an empty name"},
+			{map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"a"}, "info_types": "ddl"}, "info_types must be"},
+			{map[string]any{"service_id": "svc-1", "database": "", "tables": []string{"a"}}, "service_id and database are required"},
+		} {
+			text, isError := callText(t, session, "pmm_get_schema", tc.args)
+			assert.True(t, isError, "%v", tc.args)
+			assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"+tc.prefix), "%v: %s", tc.args, text)
+		}
+		assert.Empty(t, stub.starts)
 	})
 }
 
@@ -364,4 +377,221 @@ func TestDecodeExplainOutput(t *testing.T) {
 		first(decodeExplainOutput(`{"explain_result":"cGxhbg==","explained_query":"UPDATE t","is_dml":true}`, true)))
 	assert.Equal(t, "not json", first(decodeExplainOutput("not json", true)))
 	assert.Equal(t, `{"other":1}`, first(decodeExplainOutput(`{"other":1}`, true)))
+}
+
+// actionStub fakes the actions API with one action per start, named
+// <kind>-<table> (kind ddl, index or explain). GetAction answers done at once,
+// except for the action ids in slow, which never finish. The first barrier
+// starts wait for each other, for up to 2 s, so a caller that starts actions
+// one at a time fails.
+type actionStub struct {
+	barrier int
+	slow    []string
+	// explain is the output of an explain action.
+	explain string
+	// explainErr is the error of an explain action, instead of its output.
+	explainErr string
+
+	mu          sync.Mutex
+	release     chan struct{}
+	starts      []actions_service.StartServiceActionBody
+	inFlight    int
+	maxInFlight int
+}
+
+func newActionStub(t *testing.T, barrier int, slow ...string) (*fakePMM, *actionStub) {
+	t.Helper()
+
+	stub := &actionStub{barrier: barrier, slow: slow, release: make(chan struct{})}
+	if barrier == 0 {
+		close(stub.release)
+	}
+	fake := newFakePMM(t, qanRoutes())
+	prev := fake.server.Config.Handler
+	fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		switch {
+		case req.URL.Path == "/v1/actions:startServiceAction":
+			body, _ := io.ReadAll(req.Body)
+			stub.start(rw, body)
+		case strings.HasPrefix(req.URL.Path, "/v1/actions/"):
+			stub.get(rw, strings.TrimPrefix(req.URL.Path, "/v1/actions/"))
+		default:
+			prev.ServeHTTP(rw, req)
+		}
+	})
+	return fake, stub
+}
+
+func (a *actionStub) start(rw http.ResponseWriter, body []byte) {
+	var b actions_service.StartServiceActionBody
+	err := json.Unmarshal(body, &b)
+	if err != nil {
+		http.Error(rw, `{"message":"cannot decode the start body"}`, http.StatusBadRequest)
+		return
+	}
+	id := "explain-"
+	switch {
+	case b.MysqlShowCreateTable != nil:
+		id = "ddl-" + b.MysqlShowCreateTable.TableName
+	case b.MysqlShowIndex != nil:
+		id = "index-" + b.MysqlShowIndex.TableName
+	case b.PostgresShowCreateTable != nil:
+		id = "ddl-" + b.PostgresShowCreateTable.TableName
+	case b.PostgresShowIndex != nil:
+		id = "index-" + b.PostgresShowIndex.TableName
+	}
+
+	a.mu.Lock()
+	a.starts = append(a.starts, b)
+	a.inFlight++
+	a.maxInFlight = max(a.maxInFlight, a.inFlight)
+	if len(a.starts) == a.barrier {
+		close(a.release)
+	}
+	a.mu.Unlock()
+
+	select {
+	case <-a.release:
+	case <-time.After(2 * time.Second):
+		http.Error(rw, `{"message":"barrier not reached: the actions did not start concurrently"}`, http.StatusInternalServerError)
+		return
+	}
+	writeJSON(rw, map[string]map[string]string{"mysql_show_create_table": {"action_id": id}})
+}
+
+func (a *actionStub) get(rw http.ResponseWriter, id string) {
+	done := !slices.Contains(a.slow, id)
+	if done {
+		a.mu.Lock()
+		a.inFlight--
+		a.mu.Unlock()
+	}
+	kind, table, _ := strings.Cut(id, "-")
+	output := map[string]string{"ddl": fmt.Sprintf("CREATE TABLE `%s` (`id` int)", table), "index": "index of " + table, "explain": a.explain}[kind]
+	var actionErr string
+	if kind == "explain" {
+		actionErr = a.explainErr
+	}
+	writeJSON(rw, struct {
+		ActionID string `json:"action_id"`
+		Done     bool   `json:"done"`
+		Output   string `json:"output"`
+		Error    string `json:"error"`
+	}{id, done, output, actionErr})
+}
+
+// writeJSON answers with v as JSON.
+func writeJSON(rw http.ResponseWriter, v any) {
+	b, err := json.Marshal(v)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	rw.Header().Set("Content-Type", "application/json")
+	_, _ = rw.Write(b)
+}
+
+// TestActionDeadlineIsPerCall pins that one PMM_MCP_ACTION_TIMEOUT bounds a
+// whole call: the DDL finishes at once and SHOW INDEX never does.
+func TestActionDeadlineIsPerCall(t *testing.T) {
+	t.Parallel()
+
+	fake, _ := newActionStub(t, 0, "index-customers")
+	s := newQANService(t, fake, true)
+	s.actionTimeout = func() time.Duration { return time.Second }
+	session := connect(t, s)
+
+	start := time.Now()
+	text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}, "info_types": "all"})
+	assert.False(t, isError, text)
+	assert.Contains(t, text, "CREATE TABLE `customers`")
+	assert.Contains(t, text, "error: timeout\naction index-customers did not complete within 1s")
+	// A deadline per action would end the call at about 1.4 s: polls at 0, 0.3, 0.75 and 1.4 s.
+	assert.Less(t, time.Since(start), 1250*time.Millisecond)
+}
+
+// TestSchemaManyTables pins the multi-table pmm_get_schema: actions run in
+// parallel, at most 4 at a time, under one deadline, and every table gets a
+// block in input order even when some fail.
+func TestSchemaManyTables(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Concurrent", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 4)
+		session := connect(t, newQANService(t, fake, true))
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"d", "b", "a", "c"}})
+		require.False(t, isError, text)
+		assert.Len(t, stub.starts, 4)
+		assert.Equal(t, []string{"### shop.d", "### shop.b", "### shop.a", "### shop.c"}, headers(text), "input order")
+	})
+
+	t.Run("AtMostFourInFlight", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 4)
+		session := connect(t, newQANService(t, fake, true))
+		tables := strings.Split("a,b,c,d,e,f,g,h,i,j,a", ",")
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": tables, "info_types": "all"})
+		require.False(t, isError, text)
+		assert.Len(t, stub.starts, 20, "10 distinct tables, DDL and indexes")
+		assert.Equal(t, 4, stub.maxInFlight)
+		assert.Equal(t, strings.Split("### shop.a,### shop.b,### shop.c,### shop.d,### shop.e,### shop.f,### shop.g,### shop.h,### shop.i,### shop.j", ","), headers(text))
+	})
+
+	t.Run("InfoTypes", func(t *testing.T) {
+		t.Parallel()
+
+		for infoTypes, want := range map[string]string{
+			"":           "### shop.a\n```sql\nCREATE TABLE `a` (`id` int)\n```",
+			"definition": "### shop.a\n```sql\nCREATE TABLE `a` (`id` int)\n```",
+			"indexes":    "### shop.a\nindexes:\n```\nindex of a\n```",
+		} {
+			fake, _ := newActionStub(t, 0)
+			session := connect(t, newQANService(t, fake, true))
+			text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"a"}, "info_types": infoTypes})
+			require.False(t, isError, text)
+			assert.Equal(t, want, text, infoTypes)
+		}
+	})
+
+	t.Run("SlowTableTimesOutAlone", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := newActionStub(t, 0, "ddl-slow")
+		s := newQANService(t, fake, true)
+		s.actionTimeout = func() time.Duration { return time.Second }
+		session := connect(t, s)
+
+		start := time.Now()
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"a", "slow", "b"}})
+		require.False(t, isError, text)
+		assert.Less(t, time.Since(start), 1250*time.Millisecond)
+		assert.Contains(t, text, "### shop.slow\nerror: timeout\naction ddl-slow did not complete within 1s (PMM_MCP_ACTION_TIMEOUT)\n\n### shop.b\n```sql\nCREATE TABLE `b`")
+		assert.Contains(t, text, "### shop.a\n```sql\nCREATE TABLE `a`")
+	})
+
+	t.Run("EveryActionFails", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := newActionStub(t, 0, "ddl-x", "ddl-y")
+		s := newQANService(t, fake, true)
+		s.actionTimeout = func() time.Duration { return 500 * time.Millisecond }
+		session := connect(t, s)
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"x", "y"}})
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: timeout\naction ddl-x did not complete"), text)
+	})
+}
+
+// headers returns the "### db.table" lines of a pmm_get_schema result.
+func headers(text string) []string {
+	var out []string
+	for l := range strings.SplitSeq(text, "\n") {
+		if strings.HasPrefix(l, "### ") {
+			out = append(out, l)
+		}
+	}
+	return out
 }
