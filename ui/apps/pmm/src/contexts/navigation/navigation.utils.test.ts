@@ -5,11 +5,18 @@ import {
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
 import { createAnonymousUser } from 'contexts/user/user.utils';
-import { addAlerting, addSection, addExtensionsApps } from './navigation.utils';
+import {
+  addAlerting,
+  addDashboardItems,
+  addSection,
+  addExtensionsApps,
+} from './navigation.utils';
 import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
+  PMM_NEW_NAV_GRAFANA_PATH,
 } from 'lib/constants';
+import { ServiceType } from 'types/services.types';
 
 const childIds = (item: ReturnType<typeof addAlerting>) =>
   (item.children || []).map((c) => c.id);
@@ -144,5 +151,34 @@ describe('addSection', () => {
 
   it('contributes nothing rather than an empty expandable shell', () => {
     expect(addSection({ id: 'section' }, [])).toEqual([]);
+  });
+});
+
+describe('addDashboardItems', () => {
+  const mongoChildIds = (types: ServiceType[]) =>
+    addDashboardItems(types, [])
+      .find((item) => item.id === 'mongo')
+      ?.children?.map((c) => c.id);
+
+  it('links the ClusterSync dashboard from the MongoDB section', () => {
+    const mongo = addDashboardItems([ServiceType.mongodb], []).find(
+      (item) => item.id === 'mongo'
+    );
+    const clusterSync = mongo?.children?.find(
+      (c) => c.id === 'mongo-clustersync-details'
+    );
+
+    expect(clusterSync).toEqual({
+      id: 'mongo-clustersync-details',
+      text: 'ClusterSync',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-clustersync-details/mongodb-clustersync-details`,
+    });
+  });
+
+  it('shows the MongoDB section, and so ClusterSync, only with a MongoDB service', () => {
+    expect(mongoChildIds([ServiceType.external])).toBeUndefined();
+    expect(mongoChildIds([ServiceType.mongodb])).toContain(
+      'mongo-clustersync-details'
+    );
   });
 });
