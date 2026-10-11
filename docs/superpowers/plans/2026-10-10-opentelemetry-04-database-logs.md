@@ -22,7 +22,7 @@
 **Spec:**
 - [analysis](../specs/2026-10-10-opentelemetry-analysis.md): §6.3, F5, F6, decisions D2, D9;
 - PMM-15573, PMM-15584, PMM-15585, PMM-15586, PMM-15587;
-- Valkey (Task 6) and parser auto-detection (Task 7) have no Jira ticket yet. PMM-15587 explicitly left Valkey out, so file new tickets before starting those tasks;
+- [PMM-15724](https://perconadev.atlassian.net/browse/PMM-15724) for Valkey (Task 6; PMM-15587 left Valkey out) and [PMM-15723](https://perconadev.atlassian.net/browse/PMM-15723) for the `auto` preset and suggestions (Task 7). Where a ticket's acceptance criteria differ from its task here, the ticket is current;
 - the [roadmap](2026-10-10-opentelemetry-00-roadmap.md) for the shared names.
 
 **Depends on:** plan 02 (the `log_sources` API, the presets harness, `Render` with `DiscoveredPaths`).
@@ -57,14 +57,15 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition,
 - **MongoDB:**
   - `getCmdLineOpts` `systemLog.path`, with an `--logpath` argv fallback;
   - `destination: syslog` gives a message and no source.
-- **Valkey:**
-  - `CONFIG GET logfile`, `dir` and `syslog-enabled`;
-  - a relative `logfile` is resolved against the server process's working directory;
-  - `logfile ""` means stdout, so a journald source or a message;
-  - `syslog-enabled yes` gives a message and no source.
+- **Valkey** (PMM-15724):
+  - `CONFIG GET` of `logfile`, `dir`, `daemonize`, `syslog-enabled`, `log-format` and `log-timestamp-format`; no `INFO server` and no `/proc`;
+  - a relative `logfile` is joined with `dir`, which Valkey reports as its working directory;
+  - `logfile ""` with `daemonize no` means stdout, so a journald source or a message; with `daemonize yes` the log goes to `/dev/null`, so a message and no source;
+  - syslog is written in addition to `logfile`: `syslog-enabled yes` gives a message and no source only when `logfile` is empty;
+  - a `log-format` or `log-timestamp-format` other than `legacy` gets the `auto` preset instead of `valkey`, with a message.
 - The path is read again on every pmm-agent reconnect.
 
-**D2:** `--collect-logs` defaults to `error` for MySQL and to `on` for PostgreSQL, MongoDB and Valkey. `none` (or `off`) opts out.
+**D2:** `--collect-logs` defaults to `error` for MySQL and to `on` for PostgreSQL, MongoDB and Valkey. `--collect-logs=none` (MySQL) or `--no-collect-logs` (the others) opts out.
 
 **D21:** a file source with no `--preset` gets `auto`, not `raw` as PMM-15573 says. `auto` behaves like `raw` when nothing matches, so it never loses data.
 
@@ -77,6 +78,7 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition,
 5. **A PostgreSQL `log_filename` with escapes other than `%Y%m%d%H%M%S`** (for example `%a` or `%j`), or none at all. Expected: every escape becomes `*`, and a name without escapes is used as is. Test in Task 2 (`TestPostgresLogGlob`).
 6. **A Valkey instance whose `CONFIG` command is renamed or not permitted.** Expected: the service is added, and the message says to add the log with `pmm-admin add logs --service-name=… --path=…`. Test in Task 6 (`TestDiscoverValkeyConfigDenied`).
 7. **A format no built-in matches** (a custom application log). Expected: `auto` still extracts an ISO-8601 or syslog timestamp and a level word when present, and keeps the line otherwise. Suggest returns no candidate rather than a wrong one. Test in Task 7 (`TestAutoPresetFallsBackToRaw`, `TestSuggestNoCandidate`).
+8. **A Valkey 8.1 instance with `log-format logfmt` or `log-timestamp-format iso8601`.** Expected: the source gets `auto` instead of `valkey`, the message says why, and no line is lost. Test in Task 6 (`TestDiscoverValkey`, cases `logfmt` and `iso8601 timestamps`).
 
 ---
 
@@ -157,17 +159,18 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition,
     - `message LogDiscoveryRequest { inventory.v1.ServiceType type = 1; string dsn = 2 [(extensions.v1.sensitive) = REDACT_TYPE_DSN]; google.protobuf.Duration timeout = 3; TextFiles text_files = 4; bool tls_skip_verify = 5; bool tls = 6; repeated string kinds = 7; }`
     - `message LogDiscoveryResponse { repeated LogDiscoveryEntry entries = 1; string error = 2; }`
     - `message LogDiscoveryEntry { string kind = 1; OtelLogSourceKind source_kind = 2; string path = 3; repeated string units = 4; string preset = 5; bool collectable = 6; string reason = 7; }`
-    - `kinds` take the values `error`, `slow` and `general` for MySQL, and `log` for PostgreSQL and MongoDB.
+    - `kinds` take the values `error`, `slow` and `general` for MySQL, and `log` for PostgreSQL, MongoDB and Valkey (Task 6).
   - **Pure resolvers:**
     - `func ResolveMySQLLogPath(value, datadir string) (path string, journald bool)`
     - `func PostgresLogGlob(logDirectory, dataDirectory, logFilename string) string`
     - `func PostgresPreset(logDestination string) (preset string, journald bool, reason string)`: `stderr` → `postgres`, `csvlog` → `postgres_csv`, `jsonlog` → `postgres_json`, and `syslog` → no source, reason "PostgreSQL logs to syslog; add the OS log instead". When `log_destination` lists several, prefer `jsonlog`, then `csvlog`, then `stderr`.
     - `func IsLocalAddress(host string, socket string) bool`: true for a socket, a loopback address, or an address of one of the host's interfaces.
+    - `func FirstLoadedUnit(ctx context.Context, candidates []string) string`: the `Id` of the first candidate that `systemctl show -p Id -p LoadState` reports as `LoadState=loaded`, which also resolves aliases; `""` when none is loaded or `systemctl` is missing. `-p Id` alone is not enough: it echoes the name back for a unit that doesn't exist.
   - **Discovery:**
     - `func Discover(ctx context.Context, req *agentv1.LogDiscoveryRequest, readable func(string) error) *agentv1.LogDiscoveryResponse`
     - `type Cache struct{…}` with `Add(entries)`, `Paths() map[string]bool` and `Units() map[string]bool`. Entries are replaced per service on each discovery.
   - The `readable` check uses the collector credential from plan 02, Task 7 (`ReadableAs`), so "can't read" means "the collector can't read it".
-  - **MySQL:** `SELECT @@log_error, @@datadir, @@log_output, @@slow_query_log, @@slow_query_log_file, @@general_log, @@general_log_file`. Presets are `mysql_error`, `mysql_slow` and `mysql_general`. `log_error=stderr` gives a journald source with units `["mysqld.service", "mysql.service"]`; the unit that `systemctl show -p Id` resolves is kept when available.
+  - **MySQL:** `SELECT @@log_error, @@datadir, @@log_output, @@slow_query_log, @@slow_query_log_file, @@general_log, @@general_log_file`. Presets are `mysql_error`, `mysql_slow` and `mysql_general`. `log_error=stderr` gives a journald source with units `["mysqld.service", "mysql.service"]`; when `FirstLoadedUnit` finds one, only that unit is kept.
   - **PostgreSQL:** `SELECT name, setting FROM pg_settings WHERE name IN ('logging_collector','log_destination','log_directory','log_filename','data_directory')`. Call `pg_current_logfile()` only to confirm the glob, and treat a permission error as "not needed".
   - **MongoDB:** the shared `getLogFilePath`.
 
@@ -194,6 +197,7 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition,
 
   func TestPostgresPreset(t *testing.T) { /* stderr, csvlog, jsonlog, "stderr,jsonlog", syslog */ }
   func TestIsLocalAddress(t *testing.T) { /* 127.0.0.1, ::1, localhost, socket → true; 10.255.255.1 → false */ }
+  func TestFirstLoadedUnit(t *testing.T) { /* systemctl output faked: a loaded unit, an alias resolved to its Id, LoadState=not-found for every candidate, systemctl missing */ }
   func TestCacheReplacesPerService(t *testing.T) { /* … */ }
   ```
   Add `TestDiscoverMySQL` with `sqlmock`, for `log_output=TABLE` (slow and general not collectable, with the reason "log_output does not include FILE") and `log_output=FILE,TABLE`. Add `TestDiscoverMongoDBSyslog`, with the shared helper mocked to return destination `syslog`.
@@ -324,44 +328,59 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition,
   - `managed/services/otel/presets/validate_test.go`: add `valkey` to `TestBuiltInsLoad`
 
 **Interfaces:**
-- **Discovery:** `func DiscoverValkey(ctx context.Context, conn redis.Conn, procRoot string, readable func(string) error) []*agentv1.LogDiscoveryEntry`. It uses the redigo client pmm-agent already uses (`agent/serviceinfobroker/service_info_broker.go:288-296`), dialled the same way, TLS included. It runs:
-  - `CONFIG GET logfile`, `CONFIG GET dir` and `CONFIG GET syslog-enabled`. PMM's documented Valkey user has `+config|get` (`documentation/docs/install-pmm/install-pmm-client/connect-database/valkey-redis.md:35`).
-  - `INFO server`, for `process_id`.
-- **Resolution rules:**
-  - An absolute `logfile` is used as is.
-  - A relative `logfile` is joined with the target of `<procRoot>/<process_id>/cwd` when that is readable (pmm-agent runs as root in packages). Otherwise it is joined with `dir`. Either way, the file must exist.
-  - `logfile ""` means stdout. It gives a journald source for the first of `valkey.service`, `valkey-server.service`, `redis.service` and `redis-server.service` that `systemctl show -p Id` resolves, or the message "Valkey logs to stdout; collect the container log instead".
-  - `syslog-enabled yes` gives no source and the message "Valkey logs to syslog; add the OS log instead".
-  - `CONFIG` failing (renamed, or no `+config|get`) gives no source and the message "CONFIG GET is not available to the PMM user; add the log with pmm-admin add logs --service-name=<name> --path=<file>".
-  - A remote address gives no source, as with the other databases (`IsLocalAddress`).
+- **Discovery:** `func DiscoverValkey(ctx context.Context, conn redis.Conn, readable func(string) error, loadedUnit func(context.Context, []string) string) []*agentv1.LogDiscoveryEntry`. It returns one entry of kind `log`. `loadedUnit` is `FirstLoadedUnit` (Task 2) in production and a fake in tests. It uses the redigo client pmm-agent already uses (`agent/serviceinfobroker/service_info_broker.go:288-296`), dialled the same way, TLS included. It runs:
+  - one `CONFIG GET` for each of `logfile`, `dir`, `daemonize`, `syslog-enabled`, `log-format` and `log-timestamp-format`. One call per parameter works on every version; `CONFIG GET` with several parameters needs Redis 7.0 or newer. An empty reply means the parameter doesn't exist on that version.
+  - Nothing else: no `INFO server`, no `/proc`. PMM's documented Valkey user has `+config|get` (`documentation/docs/install-pmm/install-pmm-client/connect-database/valkey-redis.md:35`).
+- **Resolution rules,** checked in this order (PMM-15724, criteria 2–6 and 9):
+  1. A remote address gives no source, as with the other databases: `Discover` checks `IsLocalAddress` before dialling, so `CONFIG` is never called.
+  2. `CONFIG` failing (renamed, or no `+config|get`) gives no source and the message "CONFIG GET is not available to the PMM user; add the log with pmm-admin add logs --service-name=<name> --path=<file>".
+  3. An absolute `logfile` is used as is. A relative `logfile` is joined with `dir`: Valkey returns its working directory for `dir` (`getcwd()` in `src/config.c`) and reopens the log file on every write, so this is the file it writes to. The file must pass `readable`; otherwise `readable`'s error is the reason. `syslog-enabled` doesn't matter here, because syslog is written in addition to the file.
+  4. `logfile ""` with `syslog-enabled yes` gives no source and the message "Valkey logs to syslog; add the OS log instead".
+  5. `logfile ""` with `daemonize yes` gives no source and the message "Valkey writes no log: logfile is empty and daemonize is yes". Valkey sends the log to `/dev/null` in that case (`valkey.conf`).
+  6. `logfile ""` with `daemonize no` means stdout. It gives a journald source for the unit that `loadedUnit` finds among `valkey.service`, `valkey-server.service`, `redis.service` and `redis-server.service`. When none is loaded (for example in a container), it gives no source and the message "Valkey logs to stdout and has no systemd unit; collect the container log instead".
+  7. The preset is `valkey`, unless `log-format` or `log-timestamp-format` is set and is not `legacy` (both exist from Valkey 8.1). Then the preset is `auto`, or `raw` until Task 7 has merged, and the entry stays collectable with the reason "Valkey log-format is '<value>', which the valkey preset does not parse; using the auto preset" (or the same for `log-timestamp-format`).
 - **`valkey` preset:** a `regex_parser` for `^(?P<pid>\d+):(?P<role>[XCSM]) (?P<ts>\d{1,2} \w{3} \d{4} \d{2}:\d{2}:\d{2}\.\d{3}) (?P<level>[.\-*#]) (?P<message>.*)$`.
   - Time layout `%d %b %Y %H:%M:%S.%L`, in the host's local time zone. The collector runs on the same host, and the format has no offset.
   - Severity: `.` is debug, `-` is info (verbose), `*` is info (notice), `#` is warn.
   - `role` moves to `attributes["valkey.role"]`, with M = primary, S = replica, C = child process, X = sentinel.
+- **Existing services:** `pmm-admin add logs --service-name=<name> --discover=log` runs the same discovery for a Valkey service added before this feature (Task 3's `DiscoverLogSources`).
 
 - [ ] **Step 1: Write the failing tests.**
   ```go
   func TestDiscoverValkey(t *testing.T) {
-      for name, tc := range map[string]struct{ logfile, dir, syslog, cwd string; wantPath string; wantJournald bool; wantReason string }{
-          "absolute":         {logfile: "/var/log/valkey/valkey.log", wantPath: "/var/log/valkey/valkey.log"},
-          "relative via cwd": {logfile: "valkey.log", dir: "/var/lib/valkey", cwd: "/var/log/valkey", wantPath: "/var/log/valkey/valkey.log"},
-          "relative via dir": {logfile: "valkey.log", dir: "/var/lib/valkey", wantPath: "/var/lib/valkey/valkey.log"},
-          "stdout":           {logfile: "", wantJournald: true},
-          "syslog":           {logfile: "", syslog: "yes", wantReason: "logs to syslog"},
+      for name, tc := range map[string]struct {
+          config       map[string]string
+          loadedUnit   string
+          wantPath     string
+          wantPreset   string
+          wantJournald bool
+          wantReason   string
+      }{
+          "absolute":               {config: map[string]string{"logfile": "/var/log/valkey/valkey.log"}, wantPath: "/var/log/valkey/valkey.log", wantPreset: "valkey"},
+          "relative":               {config: map[string]string{"logfile": "valkey.log", "dir": "/var/lib/valkey"}, wantPath: "/var/lib/valkey/valkey.log", wantPreset: "valkey"},
+          "file and syslog":        {config: map[string]string{"logfile": "/var/log/valkey/valkey.log", "syslog-enabled": "yes"}, wantPath: "/var/log/valkey/valkey.log", wantPreset: "valkey"},
+          "syslog only":            {config: map[string]string{"logfile": "", "syslog-enabled": "yes"}, wantReason: "logs to syslog"},
+          "daemonized to null":     {config: map[string]string{"logfile": "", "daemonize": "yes", "syslog-enabled": "no"}, wantReason: "logfile is empty and daemonize is yes"},
+          "stdout under systemd":   {config: map[string]string{"logfile": "", "daemonize": "no"}, loadedUnit: "valkey-server.service", wantJournald: true, wantPreset: "valkey"},
+          "stdout without systemd": {config: map[string]string{"logfile": "", "daemonize": "no"}, wantReason: "collect the container log"},
+          "logfmt":                 {config: map[string]string{"logfile": "/var/log/valkey/valkey.log", "log-format": "logfmt"}, wantPath: "/var/log/valkey/valkey.log", wantPreset: "auto", wantReason: "log-format"},
+          "iso8601 timestamps":     {config: map[string]string{"logfile": "/var/log/valkey/valkey.log", "log-timestamp-format": "iso8601"}, wantPath: "/var/log/valkey/valkey.log", wantPreset: "auto", wantReason: "log-timestamp-format"},
+          "explicit legacy":        {config: map[string]string{"logfile": "/var/log/valkey/valkey.log", "log-format": "legacy"}, wantPath: "/var/log/valkey/valkey.log", wantPreset: "valkey"},
       } {
-          t.Run(name, func(t *testing.T) { /* fake redis.Conn answering CONFIG GET and INFO server; temp procRoot with a cwd symlink; assert the entry */ })
+          t.Run(name, func(t *testing.T) { /* fake redis.Conn answering one CONFIG GET per parameter (empty reply when absent), readable returning nil, loadedUnit returning tc.loadedUnit; assert the single entry */ })
       }
   }
-  func TestDiscoverValkeyConfigDenied(t *testing.T) { /* CONFIG GET returns NOPERM: no entry, reason contains "pmm-admin add logs" */ }
+  func TestDiscoverValkeyConfigDenied(t *testing.T) { /* CONFIG GET returns NOPERM, then "unknown command": no entry is collectable, reason contains "pmm-admin add logs" */ }
+  func TestDiscoverValkeyRemote(t *testing.T) { /* Discover with a non-local Valkey DSN: no dial, reason "service is not on this host" */ }
   ```
   Add the testdata for the `valkey` preset, including a `#` warning line and a sentinel (`X`) line, and extend `TestBuiltInsLoad`.
 - [ ] **Step 2: Run them.** `make gen && cd agent && go test ./logdiscovery/ -run Valkey` and `cd build/otelcol/presettest && go test ./... -run valkey`. Expected: FAIL.
 - [ ] **Step 3: Implement** the discovery, the preset, the proto field, the management transaction and the pmm-admin flag.
-- [ ] **Step 4: Run them again.** Same commands, plus `cd managed && go test ./services/management/ -run Valkey`, then `make prepare-pr`. Expected: PASS. Then on a CHAOS VM with Valkey 8, check that `pmm-admin add valkey` (default) puts rows in `otel.logs` within 1 minute, labelled with the service, with `valkey.role` set.
+- [ ] **Step 4: Run them again.** Same commands, plus `cd managed && go test ./services/management/ -run Valkey`, then `make prepare-pr`. Expected: PASS. Then on a CHAOS VM with Valkey 8.0 and 8.1, check that `pmm-admin add valkey` (default) puts rows in `otel.logs` within 1 minute, labelled with the service and `service.name = valkey-server`, with `valkey.role` set; that `--no-collect-logs` creates no source; and that 8.1 with `log-format logfmt` gets the `auto` preset and prints why.
 - [ ] **Step 5: Commit.**
   ```bash
   git add agent api managed admin build/otelcol
-  git commit -s -m "PMM-XXXX Collect Valkey logs by default on add"
+  git commit -s -m "PMM-15724 Collect Valkey logs by default on add"
   ```
 
 ### Task 7: Logs in unknown formats: the `auto` preset and preset suggestions
@@ -429,5 +448,5 @@ PMM never applies a parser it guessed without someone confirming it. A wrong par
 - [ ] **Step 5: Commit.**
   ```bash
   git add managed api admin ui build/otelcol
-  git commit -s -m "PMM-XXXX Add auto preset and parser suggestions"
+  git commit -s -m "PMM-15723 Add auto preset and parser suggestions"
   ```

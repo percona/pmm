@@ -24,7 +24,7 @@ The same API becomes the LBAC-enforced read path in plan 06.
 - [analysis](../specs/2026-10-10-opentelemetry-analysis.md) §7 and decision D20;
 - ADR-07, ADR-18, and ADR-21 (proposed);
 - the [roadmap](2026-10-10-opentelemetry-00-roadmap.md) for the shared names.
-- No Jira ticket exists yet: file one under PMM-15567.
+- [PMM-15722](https://perconadev.atlassian.net/browse/PMM-15722) (Logs explorer, under PMM-15567). Where its acceptance criteria differ from this plan, the ticket is current.
 
 **Depends on:** plan 01, Tasks 2–4 (`otel.logs`, `otel_reader`, settings), and plan 02 (data flowing). It can run in parallel with plan 03.
 
@@ -128,7 +128,7 @@ The roadmap's constraints apply, together with `ui/AGENTS.md` and peak-ui's `AGE
 - [ ] **Step 5: Commit.**
   ```bash
   git add api/logs api/Makefile managed api-tests/logs
-  git commit -s -m "PMM-XXXX Add LogsService search and context API"
+  git commit -s -m "PMM-15722 Add LogsService search and context API"
   ```
 
 ### Task 2: `Histogram` and `Facets`
@@ -160,7 +160,7 @@ The roadmap's constraints apply, together with `ui/AGENTS.md` and peak-ui's `AGE
 - [ ] **Step 5: Commit.**
   ```bash
   git add api/logs managed/services/logs
-  git commit -s -m "PMM-XXXX Add log histogram and facets API"
+  git commit -s -m "PMM-15722 Add log histogram and facets API"
   ```
 
 ### Task 3: Logs page, filters, and URL state
@@ -209,7 +209,7 @@ The roadmap's constraints apply, together with `ui/AGENTS.md` and peak-ui's `AGE
 - [ ] **Step 5: Commit.**
   ```bash
   git add ui/apps/pmm/src
-  git commit -s -m "PMM-XXXX Add the Logs page with filters"
+  git commit -s -m "PMM-15722 Add the Logs page with filters"
   ```
 
 ### Task 4: Histogram, log table, details pane
@@ -254,7 +254,7 @@ The roadmap's constraints apply, together with `ui/AGENTS.md` and peak-ui's `AGE
 - [ ] **Step 5: Commit.**
   ```bash
   git add ui/apps/pmm
-  git commit -s -m "PMM-XXXX Add log histogram, table and details pane"
+  git commit -s -m "PMM-15722 Add log histogram, table and details pane"
   ```
 
 ### Task 5: Live tail and export
@@ -283,7 +283,7 @@ The roadmap's constraints apply, together with `ui/AGENTS.md` and peak-ui's `AGE
 - [ ] **Step 5: Commit.**
   ```bash
   git add ui/apps/pmm/src/pages/logs
-  git commit -s -m "PMM-XXXX Add live tail and export to Logs"
+  git commit -s -m "PMM-15722 Add live tail and export to Logs"
   ```
 
 ### Task 6: Links into the explorer
@@ -299,4 +299,4 @@ The roadmap's constraints apply, together with `ui/AGENTS.md` and peak-ui's `AGE
 - [ ] **Step 1: Write the failing check.** A dashboards test, `test_service_dashboards_link_to_logs_explorer`, finds a link to `/logs?service=` in each service summary dashboard. Run `python3 -m pytest dashboards/misc -k logs_explorer`. Expected: FAIL.
 - [ ] **Step 2: Implement** the links, the Inventory row action (with its Grafana fork test), and run `cleanup-dash.py`.
 - [ ] **Step 3: Run the checks again.** The pytest, `cleanup-dash.py --check-only` on every changed dashboard, and the fork test (`yarn test Services`). Expected: PASS. Then on a Feature Build, check that a link from the MySQL summary opens the explorer filtered to that service and time range.
-- [ ] **Step 4: Commit** in each repo: `git commit -s -m "PMM-XXXX Link dashboards and Inventory to Logs"`.
+- [ ] **Step 4: Commit** in each repo: `git commit -s -m "PMM-15722 Link dashboards and Inventory to Logs"`.

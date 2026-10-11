@@ -1,7 +1,7 @@
 # OpenTelemetry in PMM: analysis and design (PMM-15567)
 
 - **Date:** 2026-10-10
-- **Epic:** [PMM-15567](https://perconadev.atlassian.net/browse/PMM-15567), with 21 child tickets (listed in [§2](#2-sources)).
+- **Epic:** [PMM-15567](https://perconadev.atlassian.net/browse/PMM-15567), with 21 child tickets when it was read, plus the tickets filed from this analysis (both listed in [§2](#2-sources)).
 - **Prototype:** [percona/pmm#5118](https://github.com/percona/pmm/pull/5118), branch `tibi-holmes`. It is a reference only.
 - **Code base:** `main` at `285cefaf8`. Line numbers below refer to that commit; re-check them before you edit, because `main` moves.
 - **Plans that implement this document:** [`docs/superpowers/plans/2026-10-10-opentelemetry-00-roadmap.md`](../plans/2026-10-10-opentelemetry-00-roadmap.md) and plans 01 to 06 next to it.
@@ -48,6 +48,7 @@ Marks used below:
   - Phase 2: PMM-15579 (traces), PMM-15580 (traces dashboard), PMM-15582 (correlation).
   - Separate epic: PMM-15588 (eBPF).
   - Also returned as a child: PMM-4180 (PostgreSQL slowlog agent, On Hold). It is unrelated.
+  - Filed from this analysis on 2026-10-11: [PMM-15722](https://perconadev.atlassian.net/browse/PMM-15722) (Logs explorer, D20), [PMM-15723](https://perconadev.atlassian.net/browse/PMM-15723) (`auto` preset and suggestions, D21) and [PMM-15724](https://perconadev.atlassian.net/browse/PMM-15724) (Valkey, D18) under the epic; [PMM-15725](https://perconadev.atlassian.net/browse/PMM-15725) (AI-drafted parsers, D23) is linked to it as a follow-up.
 - **Prototype:** PR #5118. 491 files, +76k lines, 265 commits, far behind `main`. It mixes OTel with ADRE/Holmes AI work. Nobody has reviewed it: every review thread comes from the lint bot, and the codecov patch coverage is 2.88 %. [V]
 - **Older prior art, also unmerged:** branch `PMM-14689-logs-and-traces-phase1` (last merge 2026-08-27) [V].
   - It ships `otelcol-contrib` 0.120.0 through an Ansible role.
@@ -152,7 +153,7 @@ PMM Server node (its own pmm-agent):                                 otel.otel_t
 | F18 | The shipped release notes say PMM does not accept inbound OpenTelemetry traffic. | `documentation/docs/release-notes/3.8.0.md:162`, `3.8.1.md:139` | The release notes and security docs for the release that ships `/otlp/` must say this has changed. |
 | F19 | No disk, size-cap or watermark logic exists for ClickHouse anywhere. | grep `system.disks`, `bytes_on_disk` | The cap and the watermark are new code. Nothing exists to reuse. |
 | F21 | PMM Server runs PostgreSQL 18 with `logging_collector=off`, and supervisord writes its output to `/srv/logs/postgresql.log`. | `managed/services/supervisord/pmm_config.go:106-128` | PMM-15575's `postgresql14.log` is stale. The server source is `postgresql.log`, and a test ties the source list to the shipped log files. |
-| F22 | PMM-15587 explicitly leaves Valkey out ("Not in this ticket: Valkey and audit logs"). PMM's documented Valkey user has `+config\|get`, and pmm-agent already talks to Valkey with redigo. | PMM-15587; `documentation/docs/install-pmm/install-pmm-client/connect-database/valkey-redis.md:35`; `agent/serviceinfobroker/service_info_broker.go:288-296` | Valkey log discovery needs a new ticket, but no new grants and no new dependency: `CONFIG GET logfile`, `dir` and `syslog-enabled`. |
+| F22 | PMM-15587 explicitly leaves Valkey out ("Not in this ticket: Valkey and audit logs"). PMM's documented Valkey user has `+config\|get`, and pmm-agent already talks to Valkey with redigo. | PMM-15587; `documentation/docs/install-pmm/install-pmm-client/connect-database/valkey-redis.md:35`; `agent/serviceinfobroker/service_info_broker.go:288-296` | Valkey log discovery is filed as PMM-15724. It needs no new grants and no new dependency: `CONFIG GET` of `logfile`, `dir`, `daemonize`, `syslog-enabled`, `log-format` and `log-timestamp-format`. |
 | F23 | 14 log files are written to `/srv/logs`. Besides PMM-15575's 10, there are `victoriametrics.log`, `vmalert.log`, `pmm-init.log` (Ansible output) and `nomad-server.log` (when Nomad is on). In HA, PostgreSQL, ClickHouse and VictoriaMetrics are external, so their files don't exist. | grep of `stdout_logfile = /srv/logs/` across `managed/services/supervisord/` and `build/ansible/roles/supervisord/files/` | The server sources are derived from what actually runs, and a test ties the list to the shipped programs. |
 | F24 | The PMM UI uses peak-ui 1.0.26 and material-react-table, and has no chart library. peak-ui provides `Table`, `Chip`, `CodeBlock`, `AutoCompleteInput`, `DateTimePickerInput`, `useDetailsPaneNavigation`, `usePerconaTableUrlState`, illustrations and a chart colour palette, but no chart components. The RTA overview page (table, details pane, auto-refresh, export) is the closest precedent. | `ui/apps/pmm/package.json:29-41`; peak-ui `llms.txt`; `ui/apps/pmm/src/pages/rta/overview/` | The native explorer is mostly peak-ui. The histogram needs a decision (D22). |
 | F20 | In HA, every pmm-server pod runs the same supervisord programs, and HAProxy sends external traffic to the leader only. Leader-only work is registered with `haService.AddLeaderService`. | `percona-helm-charts/charts/pmm-ha/templates/haproxy-configmap.yaml:55-61`; `managed/cmd/pmm-managed/main.go:1247-1324` | Every pod runs `otel-collector`; only the leader's gets client traffic, and each pod's own pmm-agent ships its own server logs. The cleanup job is a leader service. |
@@ -193,7 +194,7 @@ Other agent types keep their current behaviour. The collector reaches the networ
   - It is called inside the add transaction, after `ServiceInfoBroker`, with a 5 s timeout.
   - It is called again on every pmm-agent reconnect for sources whose `discovery` is set, so a moved file is followed (PMM-15584).
   - Reuse `slowlog.go:226-282` (relative path resolution against `@@datadir`) and `mongolog.go:241-267` (`getCmdLineOpts`).
-- **Default:** the CLI default is `--collect-logs=error` for MySQL. For PostgreSQL, MongoDB and Valkey it is `--collect-logs` on (one log each). Valkey's path comes from `CONFIG GET logfile`; a relative path is resolved against the server's working directory (`/proc/<pid>/cwd`) or, failing that, `dir`. A remote service gets no source, and the command prints why. `none` opts out.
+- **Default:** the CLI default is `--collect-logs=error` for MySQL. For PostgreSQL, MongoDB and Valkey it is `--collect-logs` on (one log each). Valkey's path comes from `CONFIG GET logfile`; a relative path is joined with `CONFIG GET dir`, which Valkey reports as its working directory, so no `/proc` access is needed. An empty `logfile` means stdout (journald) with `daemonize no`, and no log at all with `daemonize yes`. Syslog is written in addition to the file (PMM-15724). A remote service gets no source, and the command prints why. `--collect-logs=none` (MySQL) or `--no-collect-logs` (the others) opts out.
 - **Why not guess default paths:**
   - `@@log_error`, PostgreSQL settings and `getCmdLineOpts` are readable with the privileges PMM already documents.
   - A guessed path is wrong whenever two instances share a host.
@@ -253,7 +254,7 @@ Nothing on `main` propagates a settings change to other replicas. Each replica a
   - The admin applies one with a click.
 - **Why nothing is applied automatically:** a wrong parser corrupts timestamps and severities without anyone noticing.
 
-**AI-drafted parsers (D23, decided: a follow-up):** a language model could draft a custom preset from sample lines. Two problems:
+**AI-drafted parsers (D23, decided: a follow-up, PMM-15725):** a language model could draft a custom preset from sample lines. Two problems:
 - Samples can contain secrets and personal data.
 - Crafted log lines could steer the model, which PMM-15591 lists as a threat.
 
@@ -357,12 +358,12 @@ Plan 06 holds the task list. It is a design-level plan, to be re-planned once Ph
 | D15 | Node collectors when OTEL is turned off | Every collector stops, the server's and every node's (`IgnoreOtelCollector`). File checkpoints are kept, so turning it back on resumes each file where it stopped. | Plan 02 |
 | D16 | When the server side of traces lands | Phase 2, together with the node receiver, as the epic says. | Plan 05 |
 | D17 | Existing access gaps found during research | Fixed in this programme, in plan 07, worded as fixes without exploit detail. | Plan 07 |
-| D18 | Valkey logs | In scope: discovery through `CONFIG GET`, a `valkey` preset, and collection on by default on `pmm-admin add valkey`, like the other databases. Needs a new ticket. | Plan 04 |
+| D18 | Valkey logs | In scope: discovery through `CONFIG GET`, a `valkey` preset, and collection on by default on `pmm-admin add valkey`, like the other databases. Ticket: PMM-15724. | Plan 04 |
 | D19 | Which PMM Server logs are collected | Every file in `/srv/logs`, conditional on the component running, with a completeness test. | Plan 02 |
-| D20 | How users read logs | A native PMM UI Logs explorer built with peak-ui on a new `LogsService` API. It is Admin-only until plan 06; the Grafana datasource and dashboard stay. | Plan 08 |
-| D21 | Logs in unknown formats | The `auto` preset becomes the default for file sources, and an admin confirms preset suggestions computed from stored lines. Parsers are never applied silently. | Plan 04 |
+| D20 | How users read logs | A native PMM UI Logs explorer built with peak-ui on a new `LogsService` API. It is Admin-only until plan 06; the Grafana datasource and dashboard stay. Ticket: PMM-15722. | Plan 08 |
+| D21 | Logs in unknown formats | The `auto` preset becomes the default for file sources, and an admin confirms preset suggestions computed from stored lines. Parsers are never applied silently. Ticket: PMM-15723. | Plan 04 |
 | D22 | Histogram drawing in the explorer | `@mui/x-charts` (MIT, built for MUI v7), themed with peak-ui's chart palette. Plan 06's trace view reuses it. | Plan 08 |
-| D23 | AI-drafted parsers for unknown formats | A follow-up ticket after logs ship. It must be opt-in, run on redacted samples, use a model the admin configures, validate its output with the same checks as custom presets, and never apply anything without an admin's approval. | Follow-up |
+| D23 | AI-drafted parsers for unknown formats | A follow-up after logs ship, filed as PMM-15725. It must be opt-in, run on redacted samples, use a model the admin configures, validate its output with the same checks as custom presets, and never apply anything without an admin's approval. | Follow-up |
 | D24 | Grafana Logs dashboard alongside the native explorer | Build both. Decide which one to keep after Technical Preview feedback; until then the explorer is the one service dashboards link to. | Plans 03, 08 |
 
 **Interview of 2026-10-10:**
@@ -382,7 +383,7 @@ Plan 06 holds the task list. It is a design-level plan, to be re-planned once Ph
 - **Discovery doesn't work in Kubernetes sidecars:** the uid is 1002, there is no `journalctl`, and database log directories are not mounted. The operators must mount them (PMM-15577). Until they do, document that `--collect-logs` reports "file not visible" there.
 - **Non-root reads:** on RHEL, MySQL, PostgreSQL and MongoDB logs are not readable by `adm` [I, distro defaults]. Users must add an ACL or group. The `status_reason` and the docs must say how.
 - **A schema written by qan-api2 and a collector built from a pinned version can drift.** A CI contract test runs the pinned collector against the migrated schema (PMM-15571).
-- **The work is large.** 21 tickets across pmm, grafana, the helm charts and the build. The prototype took 265 commits without review. Follow the roadmap's order, and merge ADRs and the threat model first.
+- **The work is large.** 21 tickets, plus the three filed under the epic on 2026-10-11, across pmm, grafana, the helm charts and the build. The prototype took 265 commits without review. Follow the roadmap's order, and merge ADRs and the threat model first.
 
 ## 10. Security-sensitive findings
 

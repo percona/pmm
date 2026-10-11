@@ -16,14 +16,14 @@
 | [01](2026-10-10-opentelemetry-01-server-receiver.md) | OCB collector build; server receiver; `otel` schema; ClickHouse users; settings and `PMM_ENABLE_OTEL`; `/otlp/`; redaction; retention, size cap and watermark; status and purge; HA server bits | PMM-15571, 15577 (build, server image), 15594 (server side) | pmm, percona-helm-charts | D1, D4, D5, D6, D14 decided |
 | [02](2026-10-10-opentelemetry-02-node-collector.md) | `OTEL_COLLECTOR` agent type; `log_sources`; parser presets (backend, built-ins); config params and agent-side rendering; privilege drop; status per source; PMM Server's own logs (all 14 files in `/srv/logs`); self-metrics scrape; telemetry | PMM-15572, 15574 (backend), 15575, 15577 (client packaging), 15593 (scrape) | pmm, grafana (Inventory types) | 01 tasks 1–4 |
 | [03](2026-10-10-opentelemetry-03-ui-and-grafana.md) | Settings → OTEL tab (settings, presets, log sources); `ClickHouse-OTEL` datasource; Admin-only guard in the Grafana fork; Logs dashboard and links; collector health dashboard and alerts | PMM-15574 (UI), 15576, 15593 (dashboard, alerts) | pmm, grafana | 01, 02 |
-| [04](2026-10-10-opentelemetry-04-database-logs.md) | `pmm-admin add/remove logs`; log discovery on the agent; `--collect-logs` on `add mysql/postgresql/mongodb/valkey`, on by default; database presets including `valkey`; the `auto` preset and preset suggestions for unknown formats | PMM-15573, 15584, 15585, 15586, 15587, plus new tickets for Valkey and for auto-detection | pmm | 02; Task 7 also needs 08, Task 1 |
+| [04](2026-10-10-opentelemetry-04-database-logs.md) | `pmm-admin add/remove logs`; log discovery on the agent; `--collect-logs` on `add mysql/postgresql/mongodb/valkey`, on by default; database presets including `valkey`; the `auto` preset and preset suggestions for unknown formats | PMM-15573, 15584, 15585, 15586, 15587, 15723 (auto-detection), 15724 (Valkey) | pmm | 02; Task 7 also needs 08, Task 1 |
 | [05](2026-10-10-opentelemetry-05-traces.md) | Trace schema; server traces pipeline; node traces receiver and sampling; `pmm-admin add/remove traces`; traces dashboard; correlation | PMM-15579, 15580, 15582 | pmm | 01–03. Re-plan with writing-plans once 02 has merged |
 | [06](2026-10-10-opentelemetry-06-lbac.md) | LBAC for logs and traces: ingest identity, selector evaluator, logs and traces query API that fails closed, log explorer | none yet: propose a follow-up epic | pmm, grafana | 05. Design-level; re-plan before execution |
 | [07](2026-10-10-opentelemetry-07-access-hardening.md) | Access hardening of existing surfaces found during research: LBAC on ClickHouse datasources, on QAN detail endpoints and for service-account tokens; LBAC-relevant labels protected from values parsed out of query comments | file in Jira per `SECURITY.md` | pmm, grafana | none: independent of 01–06; can start now |
-| [08](2026-10-10-opentelemetry-08-log-explorer.md) | Native Logs explorer in the PMM UI with peak-ui: the `LogsService` API (search, context, histogram, facets) and a page with filters, histogram, table, details pane, live tail, export and deep links | new ticket under PMM-15567 | pmm, grafana (Inventory link) | 01 tasks 2–4, 02 |
+| [08](2026-10-10-opentelemetry-08-log-explorer.md) | Native Logs explorer in the PMM UI with peak-ui: the `LogsService` API (search, context, histogram, facets) and a page with filters, histogram, table, details pane, live tail, export and deep links | PMM-15722 | pmm, grafana (Inventory link) | 01 tasks 2–4, 02 |
 
 **Release gating** (from the epic):
-- Phase 0 and plans 01–03 make up 3.11.0 Technical Preview. Plan 08 (the native explorer) is meant to ship with them, but needs a ticket and capacity; without it, 3.11.0 ships with the Grafana dashboard only.
+- Phase 0 and plans 01–03 make up 3.11.0 Technical Preview. Plan 08 (the native explorer, PMM-15722) is meant to ship with them, but needs capacity; without it, 3.11.0 ships with the Grafana dashboard only.
 - Plan 04 is Phase 1b.
 - Plan 05 is Phase 2.
 - Plan 06 needs its own epic.
@@ -43,8 +43,8 @@ The QA automation ticket (PMM-15578) adds its tests in percona/pmm-qa against ea
 - a correction of the 3.8.0/3.8.1 statement that PMM accepts no inbound OTel traffic;
 - downgrade behaviour: the `otel` database and the `log_sources` and `log_parser_presets` tables stay in place, unused; an older server ignores them, and an older client never receives the agent type.
 
-**Follow-ups to file** (not planned here):
-- AI-drafted parsers for unknown formats (D23): opt-in, redacted samples, a model the admin configures, admin approval.
+**Follow-ups** (not planned here):
+- AI-drafted parsers for unknown formats (D23), filed as [PMM-15725](https://perconadev.atlassian.net/browse/PMM-15725): opt-in, redacted samples, a model the admin configures, admin approval. It is blocked by PMM-15723 and PMM-15574. No ticket yet owns the setting for the admin-configured model; file one, or add it to PMM-15725's scope, before that work starts.
 - After Technical Preview feedback, decide whether to keep the Grafana Logs dashboard, the native explorer, or both (D24).
 
 **Outside this repo:**
