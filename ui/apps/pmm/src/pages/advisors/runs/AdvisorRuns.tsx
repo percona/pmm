@@ -4,6 +4,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
 import ReplayOutlinedIcon from '@mui/icons-material/ReplayOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
@@ -161,19 +162,22 @@ const AdvisorRuns: FC = () => {
             select
             size="small"
             label={Messages.filters.triggeredBy}
-            value={triggeredBy}
+            value={triggeredBy || Messages.filters.all}
             onChange={(e) =>
               patchParams((p) => {
-                if (e.target.value) {
-                  p.set('triggeredBy', e.target.value);
-                } else {
+                if (e.target.value === Messages.filters.all) {
                   p.delete('triggeredBy');
+                } else {
+                  p.set('triggeredBy', e.target.value);
                 }
               })
             }
             sx={{ minWidth: 180 }}
             data-testid="triggeredBy-filter"
           >
+            <MenuItem value={Messages.filters.all}>
+              {Messages.filters.all}
+            </MenuItem>
             {TRIGGERED_BY_FILTER_OPTIONS.map((option) => (
               <MenuItem key={option.value} value={option.value}>
                 {option.label}
@@ -181,24 +185,29 @@ const AdvisorRuns: FC = () => {
             ))}
           </TextField>
 
-          <Tooltip title={Messages.filters.refreshTooltip} arrow>
-            <IconButton
-              onClick={() => void refetch()}
-              aria-label={Messages.filters.refresh}
-              data-testid="refresh-runs"
-            >
-              <RefreshOutlinedIcon />
-            </IconButton>
-          </Tooltip>
-
-          <IconButton
-            onClick={handleClearFilters}
-            disabled={!triggeredBy}
-            aria-label={Messages.filters.clear}
-            data-testid="clear-run-filters"
-          >
-            <FilterAltOffOutlinedIcon />
-          </IconButton>
+          <Stack direction="row" gap={0.5} sx={{ alignSelf: 'center' }}>
+            <Tooltip title={Messages.filters.clear} arrow>
+              <Box component="span">
+                <IconButton
+                  onClick={handleClearFilters}
+                  disabled={!triggeredBy}
+                  aria-label={Messages.filters.clear}
+                  data-testid="clear-run-filters"
+                >
+                  <FilterAltOffOutlinedIcon />
+                </IconButton>
+              </Box>
+            </Tooltip>
+            <Tooltip title={Messages.filters.refreshTooltip} arrow>
+              <IconButton
+                onClick={() => void refetch()}
+                aria-label={Messages.filters.refresh}
+                data-testid="refresh-runs"
+              >
+                <RefreshOutlinedIcon />
+              </IconButton>
+            </Tooltip>
+          </Stack>
         </Stack>
 
         <Table

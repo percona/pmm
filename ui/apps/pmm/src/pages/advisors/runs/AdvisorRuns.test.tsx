@@ -200,6 +200,36 @@ describe('AdvisorRuns', () => {
     );
   });
 
+  it('shows All in the trigger filter until one is chosen', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    expect(
+      within(screen.getByTestId('triggeredBy-filter')).getByRole('combobox')
+    ).toHaveTextContent('All');
+  });
+
+  it('drops the trigger filter when All is chosen', async () => {
+    renderComponent(
+      '/advisors/runs?triggeredBy=ADVISOR_CHECK_TRIGGERED_BY_USER'
+    );
+
+    await waitForRows();
+
+    fireEvent.mouseDown(
+      within(screen.getByTestId('triggeredBy-filter')).getByRole('combobox')
+    );
+    const listbox = await screen.findByRole('listbox', { hidden: true });
+    fireEvent.click(within(listbox).getByText('All'));
+
+    await waitFor(() =>
+      expect(advisorsApi.listRuns).toHaveBeenCalledWith(
+        expect.objectContaining({ triggeredBy: undefined })
+      )
+    );
+  });
+
   it('reads the trigger filter from the URL', async () => {
     renderComponent(
       '/advisors/runs?triggeredBy=ADVISOR_CHECK_TRIGGERED_BY_USER'
