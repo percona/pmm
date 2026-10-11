@@ -29,11 +29,11 @@ Option 3:
 - **Page:** a PMM UI page, `/logs`, built with peak-ui and TanStack Query, offers filters with counts, a severity histogram, a table, a details pane with surrounding lines, live tail, export, and shareable URLs.
 - **Links:** service dashboards and Inventory link into it.
 - **Access:** Admins only until ADR-18 is implemented. Then the same API applies LBAC and the page opens to every role.
-- **Grafana:** the datasource and dashboard stay, Admin-only, for ad-hoc queries.
+- **Grafana:** the datasource and dashboard are built too, Admin-only. Which of the two log UIs to keep is decided after Technical Preview feedback; until then, service dashboards link to the explorer.
 
 ## Consequences
 
 - One read path that PMM controls: the place where LBAC (ADR-18) is enforced later, with no SQL from clients.
 - **Two ways to read logs to maintain:** the explorer is the primary one, and the dashboard is secondary.
-- **The histogram needs a chart component:** either `@mui/x-charts` (MIT) or hand-drawn bars. This is decided in the implementing plan.
+- **The histogram uses `@mui/x-charts`** (MIT, built for MUI v7). It is a new UI dependency, and later charts, such as the trace view, reuse it.
 - New UI work in a release that also ships the collector. If it can't ship with 3.11.0, logs are available through Grafana first.

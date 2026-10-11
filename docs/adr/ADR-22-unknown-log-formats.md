@@ -33,7 +33,7 @@ Option 3.
 - An admin applies one explicitly.
 - Sampling uses stored lines only, so pmm-agent gains no new way to read files.
 
-**Option 4 is deferred,** not rejected:
+**Option 4 is deferred to a follow-up ticket,** not rejected:
 - Sample lines can contain secrets and personal data.
 - Crafted lines could steer the model (PMM-15591).
 
