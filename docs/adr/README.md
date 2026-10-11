@@ -44,3 +44,5 @@ ADR-01 to ADR-14 record the OpenTelemetry decisions of the 24 Sep 2026 architect
 | [18](ADR-18-otel-lbac.md) | LBAC for logs and traces | Proposed |
 | [19](ADR-19-default-database-log-collection.md) | Database logs collected by default | Proposed |
 | [20](ADR-20-collector-config-rendered-by-agent.md) | Node collector config rendered by pmm-agent | Proposed |
+| [21](ADR-21-native-log-explorer.md) | Native log explorer in the PMM UI | Proposed |
+| [22](ADR-22-unknown-log-formats.md) | Logs in unknown formats | Proposed |
