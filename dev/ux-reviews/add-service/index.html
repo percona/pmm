@@ -1,0 +1,444 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>PMM Add Service Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Roboto:wght@400;500&family=Roboto+Mono:wght@400&display=swap">
+<style>
+/* Layout: single reading column (findings, matrix) that widens to a two-up grid for screenshot/mockup pairs. PMM's own faces: Poppins display, Roboto body, Roboto Mono data. */
+:root {
+  --bg: #f6f6f9;
+  --surface: #ffffff;
+  --fg: #1d1b26;
+  --muted: #5d5a6e;
+  --line: #dddbe6;
+  --accent: #5b47d6;
+  --accent-soft: #ece9fc;
+  --hi: #b42318; --hi-soft: #fde8e6;
+  --med: #9a5b00; --med-soft: #fdf0d9;
+  --low: #2f6b4f; --low-soft: #e3f3ea;
+  --code-bg: #efeef4;
+  --font-display: "Poppins", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Roboto", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Roboto Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17161d; --surface: #201f28; --fg: #ecebf3; --muted: #a6a3b8; --line: #34323f;
+    --accent: #a99bff; --accent-soft: #2c2748;
+    --hi: #ff8a7a; --hi-soft: #3a1f1d; --med: #f2b856; --med-soft: #382b16; --low: #79d3a5; --low-soft: #1b3127;
+    --code-bg: #2a2934; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17161d; --surface: #201f28; --fg: #ecebf3; --muted: #a6a3b8; --line: #34323f;
+  --accent: #a99bff; --accent-soft: #2c2748;
+  --hi: #ff8a7a; --hi-soft: #3a1f1d; --med: #f2b856; --med-soft: #382b16; --low: #79d3a5; --low-soft: #1b3127;
+  --code-bg: #2a2934; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.6 var(--font-body); padding-inline: 20px; padding-block: 0 64px; }
+.wrap { max-width: 1160px; margin: 0 auto; }
+.prose { max-width: 760px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.25; margin: 0; }
+h1 { font-size: 2.1rem; font-weight: 600; }
+h2 { font-size: 1.45rem; font-weight: 600; }
+h3 { font-size: 1.08rem; font-weight: 600; }
+p { margin: 0; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code { font-family: var(--font-mono); font-size: 0.86em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+.eyebrow { font: 500 0.74rem/1 var(--font-body); letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+header.top { padding-block: 40px 28px; border-bottom: 1px solid var(--line); display: grid; gap: 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 20px; color: var(--muted); font-size: 0.9rem; }
+section { padding-block: 40px 8px; display: grid; gap: 18px; }
+.lede { color: var(--muted); max-width: 760px; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.9rem; padding-block: 16px 0; }
+nav.toc a { text-decoration: none; }
+nav.toc a:hover { text-decoration: underline; }
+
+/* severity */
+.sev { display: inline-block; font: 500 0.72rem/1 var(--font-body); letter-spacing: 0.05em; text-transform: uppercase; padding: 4px 8px; border-radius: 999px; white-space: nowrap; }
+.sev.hi { color: var(--hi); background: var(--hi-soft); }
+.sev.med { color: var(--med); background: var(--med-soft); }
+.sev.low { color: var(--low); background: var(--low-soft); }
+
+/* findings */
+.findings { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.finding { display: grid; grid-template-columns: 58px 88px minmax(0, 1fr); gap: 14px; padding-block: 16px; border-bottom: 1px solid var(--line); align-items: start; }
+.finding .id { font: 500 0.85rem/1.6 var(--font-mono); color: var(--muted); }
+.finding h3 { margin-bottom: 4px; }
+.finding p { color: var(--fg); }
+.finding .where { color: var(--muted); font-size: 0.86rem; margin-top: 6px; }
+@media (max-width: 640px) { .finding { grid-template-columns: 1fr; gap: 6px; } }
+
+.callout { background: var(--accent-soft); border-radius: 10px; padding: 18px 20px; display: grid; gap: 8px; max-width: 760px; }
+
+/* screenshot frames */
+.shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 22px; }
+figure { margin: 0; display: grid; gap: 8px; min-width: 0; }
+.frame { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: auto; max-height: 560px; }
+.frame.tall { max-height: 720px; }
+.frame img { display: block; width: 100%; height: auto; }
+figcaption { font-size: 0.86rem; color: var(--muted); }
+figcaption b { color: var(--fg); font-weight: 500; }
+
+/* per-technology rows */
+.tech { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 24px; padding-block: 22px; border-top: 1px solid var(--line); align-items: start; }
+.tech ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+@media (max-width: 860px) { .tech { grid-template-columns: 1fr; } }
+
+/* matrix */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.86rem; font-variant-numeric: tabular-nums; }
+th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+thead th { font-weight: 500; color: var(--muted); background: var(--bg); position: sticky; top: 0; }
+tbody th { font-weight: 500; }
+td.y { color: var(--fg); }
+td.n { color: var(--muted); opacity: .55; }
+td.odd { color: var(--med); font-weight: 500; }
+tr.group th { background: var(--bg); color: var(--muted); font: 500 0.72rem/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; padding-top: 12px; }
+
+/* mockup blocks */
+.mock { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 24px; padding-block: 22px; border-top: 1px solid var(--line); align-items: start; }
+.mock .fixes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.mock .fixes span { font: 0.78rem/1 var(--font-mono); padding: 4px 7px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
+.mock ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+@media (max-width: 860px) { .mock { grid-template-columns: 1fr; } }
+
+ol.plan { margin: 0; padding-left: 20px; display: grid; gap: 10px; max-width: 760px; }
+ul.q { margin: 0; padding-left: 20px; display: grid; gap: 10px; max-width: 760px; }
+.map { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 12px; }
+.map div { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; font-size: 0.88rem; }
+.map b { display: block; font-weight: 500; margin-bottom: 2px; }
+.map span { color: var(--muted); }
+</style>
+
+<div class="wrap">
+<header class="top">
+  <span class="eyebrow">UX review · Inventory › Add service</span>
+  <h1>Add service flow: current state and redesign</h1>
+  <p class="lede">A review of every service type on the Add service page (MySQL, PostgreSQL, MongoDB, Valkey, ProxySQL, HAProxy, External exporter, Amazon RDS, Azure), with screenshots from a live server, a list of problems ordered by impact, and mockups built with <code>@percona/peak-ui</code> 1.0.26 and MUI 7 for the move to the native PMM UI (<a href="https://perconadev.atlassian.net/browse/PMM-15003">PMM-15003</a>).</p>
+  <div class="meta">
+    <span>Instance: pmm.kubine.cc</span>
+    <span>Captured 2026-10-10 on PMM <code>3.10.0-PMM-14912-dynamic-thresholds-cdec0f7b3</code>, a feature build rather than <code>main</code></span>
+    <span>Revised 2026-10-11 after an adversarial pass</span>
+    <span>Code: <code>percona/grafana</code> <code>public/app/percona/add-instance</code></span>
+  </div>
+  <nav class="toc" aria-label="Sections">
+    <a href="#adversarial">Adversarial pass</a><a href="#summary">Summary</a><a href="#findings">Findings</a><a href="#current">Current state by technology</a><a href="#matrix">Field matrix</a><a href="#mockups">Mockups</a><a href="#build">Building it</a><a href="#questions">Open questions</a>
+  </nav>
+</header>
+
+<section id="adversarial">
+  <span class="eyebrow">Second pass · 2026-10-11</span>
+  <h2>Adversarial pass</h2>
+  <p class="lede">This pass tried to break both the live flow and this review's own proposals. On the live server: keyboard-only use, axe-core 4.10 scans, 400, 768 and 1440 px widths, light theme, Back, Cancel and reload with data entered, malformed input, a duplicate service name, a wrong password against PMM Server's own PostgreSQL, and a capture of the request payload. For the proposals: an independent reviewer checked the report against the API definitions, server handlers and docs, and the same axe scan ran on the mockups. Nothing was added to the inventory.</p>
+
+  <div class="callout">
+    <h3>Verdict</h3>
+    <p><b>The diagnosis holds.</b> F1–F13 reproduce. F1 is broader than first stated: every server-side error is a raw toast, not only connection failures.</p>
+    <p><b>The live UI has more serious problems than the first pass found.</b> Errors below the fold are silent. Back, Cancel and reload throw away what you typed without asking. Region and Availability Zone entered for a self-hosted service never reach the server. The code shows two more silent defaults: a MongoDB TLS key password that is never sent, and MySQL table statistics turned off for good by default.</p>
+    <p><b>The redesign overreached.</b> Test connection, grant verification, extension detection and "first metrics received" have no API behind them. My mockups failed more accessibility checks than the live UI and collapsed at phone width. Both are corrected below, and the mockups now mark what still needs backend work.</p>
+  </div>
+
+  <h3>New problems in the live UI</h3>
+  <div class="findings">
+    <div class="finding"><span class="id">N1</span><span><span class="sev hi">High</span></span><div><h3>Errors below the fold are silent</h3><p>With one invalid custom label, pressing <b>Add service</b> at the top of the page changes nothing on screen. The error renders at y = 1216 px in a 900 px viewport. The page doesn't scroll to it, show a summary, or raise a toast. To the user, the button does nothing.</p></div></div>
+    <div class="finding"><span class="id">N2</span><span><span class="sev hi">High</span></span><div><h3>Back, Cancel and reload discard the form without asking</h3><p>Browser Back followed by Forward returns an empty form. <b>Cancel</b> on step 2 goes back to the type picker rather than out of the flow, with no confirmation. A reload clears everything. Measured on MySQL and PostgreSQL with hostname, user and environment filled in.</p></div></div>
+    <div class="finding"><span class="id">N3</span><span><span class="sev hi">High</span></span><div><h3>Region and Availability Zone are silently discarded for self-hosted services</h3><p>The captured MySQL request sends <code>region</code> and <code>az</code> at the top level, while <code>add_node</code> carries only <code>node_name</code> and <code>node_type</code>. <code>AddMySQLServiceParams</code> has no region or AZ fields (<code>api/management/v1/mysql.proto</code>), and the gateway runs with <code>DiscardUnknown: true</code> (<code>managed/cmd/pmm-managed/main.go:405</code>). The fix is UI-only: <code>AddNodeParams</code> already has <code>region</code> and <code>az</code> (<code>node.proto</code>, fields 8 and 9). Verified from the payload and code, not by creating a service.</p></div></div>
+    <div class="finding"><span class="id">N4</span><span><span class="sev med">Medium</span></span><div><h3>Every server-side error is a raw toast, one per submit</h3><p>A duplicate name shows "Service with name "pmm-server-postgresql" already exists." and leaves Service name unmarked. A wrong password shows <code>pq: password authentication failed for user "pmm-adv-review" (28P01)</code> and leaves the credentials unmarked. The name check runs before the connection check, so a form with both problems needs two failed submits to reveal them.</p></div></div>
+    <div class="finding"><span class="id">N5</span><span><span class="sev med">Medium</span></span><div><h3>Server warnings never reach the user</h3><p>When pg_stat_monitor is missing, the server falls back to pg_stat_statements and returns a warning (<code>managed/services/management/postgresql.go:100-105</code>). The UI discards the response, so the user believes pg_stat_monitor is in use.</p></div></div>
+    <div class="finding"><span class="id">N6</span><span><span class="sev med">Medium</span></span><div><h3>Narrow screens: clipped fields and a hidden primary action</h3><p>At 400 px the form content is 778 px wide inside a 344 px frame, so fields run off the right edge. <b>Cancel</b> and <b>Add service</b> collapse into a ⋮ menu. At 768 px the navigation drawer opens over the form by default.</p></div></div>
+    <div class="finding"><span class="id">N7</span><span><span class="sev med">Medium</span></span><div><h3>Keyboard users reach the end of the form with nothing to press</h3><p>Picker cards and fields are reachable and the focus ring is visible. After the last field, though, Tab leaves the page. <b>Add service</b> sits about 30 stops back, above the form, and 8 of those stops are tooltip icons.</p></div></div>
+    <div class="finding"><span class="id">N8</span><span><span class="sev med">Medium</span></span><div><h3>Validation is thin and its messages expose internals</h3><p>The client accepts <code>http://db prod:3306/</code> as a hostname and a 300-character service name. Entering "abc" as max query length yields "Value should be greater or equal to -1". Entering "5 minutes" as timeout yields "Invalid duration" without the expected format. Error text sits flush against the next field's label.</p></div></div>
+    <div class="finding"><span class="id">N9</span><span><span class="sev low">Low</span></span><div><h3>Unknown types render a working-looking form</h3><p><code>/add-instance/foo</code> shows a generic "Add remote instance" form with placeholder <code>Port (default: undefined )</code> and an active <b>Add service</b> button.</p></div></div>
+    <div class="finding"><span class="id">N10</span><span><span class="sev low">Low</span></span><div><h3>Accessibility scan: two real issues, otherwise clean</h3><p>Error text (<code>#e02f44</code> on <code>#181b1f</code>) is 3.83:1, below the 4.5:1 AA minimum. Headings jump from h1 to h3. Every input has a label, and the picker, MySQL, PostgreSQL and RDS pages showed no other WCAG A/AA violations.</p></div></div>
+    <div class="finding"><span class="id">N11</span><span><span class="sev med">Medium</span></span><div><h3>The MongoDB TLS key password is never sent</h3><p>The form field is <code>tls_certificate_file_password</code> (<code>MongodbTLSCertificate.tsx:17</code>), but the API expects <code>tls_certificate_key_file_password</code> (<code>mongodb.proto:67</code>). <code>toPayload</code> doesn't rename it and the gateway discards unknown fields, so a password-protected key can't work. Found in code by the reviewer and confirmed by reading it. Not reproduced live.</p></div></div>
+    <div class="finding"><span class="id">N12</span><span><span class="sev med">Medium</span></span><div><h3>MySQL table statistics are off by default, unlike everywhere else</h3><p>The form preselects "Disabled", which sends <code>-1</code>, and the server reads <code>-1</code> as "never collect" (<code>agent_model.go:978-979</code>). The server's own default, which <code>pmm-admin</code> also uses, is a limit of 1,000 tables (<code>mysql.go:42-48</code>). A MySQL service added in the UI quietly gets less data than the same server added from the command line.</p></div></div>
+  </div>
+  <p class="lede"><b>What held up:</b> a double-click sends one request, the light theme renders correctly, picker cards are real buttons, and every input is labelled.</p>
+
+  <div class="shots">
+    <figure><a class="frame" href="img/adv-fold-error.png" target="_blank"><img src="img/adv-fold-error.png" alt="MySQL form after pressing Add service with an error below the fold; nothing visible changed" loading="lazy"></a><figcaption><b>N1</b> after pressing Add service: no visible change</figcaption></figure>
+    <figure><a class="frame tall" href="img/adv-invalid.png" target="_blank"><img src="img/adv-invalid.png" alt="MySQL form with malformed inputs and their error messages" loading="lazy"></a><figcaption><b>N8</b> malformed input: the hostname with a space passes</figcaption></figure>
+    <figure><a class="frame" href="img/adv-auth-fail.png" target="_blank"><img src="img/adv-auth-fail.png" alt="Toast with raw PostgreSQL authentication error" loading="lazy"></a><figcaption><b>N4</b> wrong password: raw driver text, no field marked</figcaption></figure>
+    <figure><a class="frame" href="img/adv-duplicate-name.png" target="_blank"><img src="img/adv-duplicate-name.png" alt="Toast saying the service name already exists" loading="lazy"></a><figcaption><b>N4</b> duplicate name: Service name not marked</figcaption></figure>
+    <figure><a class="frame" href="img/adv-w400-navclosed.png" target="_blank"><img src="img/adv-w400-navclosed.png" alt="MySQL form at 400 px with fields clipped on the right and actions in an overflow menu" loading="lazy"></a><figcaption><b>N6</b> 400 px: fields clipped, actions behind ⋮</figcaption></figure>
+    <figure><a class="frame" href="img/adv-rds-bad-toast.png" target="_blank"><img src="img/adv-rds-bad-toast.png" alt="RDS discovery with an AWS error toast above a No data table" loading="lazy"></a><figcaption><b>S11</b> RDS bad keys: an error toast does appear, for about 10 s</figcaption></figure>
+    <figure><a class="frame" href="img/adv-deeplink-foo.png" target="_blank"><img src="img/adv-deeplink-foo.png" alt="Generic Add remote instance form for an unknown type with Port default undefined" loading="lazy"></a><figcaption><b>N9</b> /add-instance/foo</figcaption></figure>
+  </div>
+
+  <h3>Where the first pass was wrong or overreached</h3>
+  <div class="findings">
+    <div class="finding"><span class="id">S1</span><span><span class="sev hi">Blocker</span></span><div><h3>"Test connection" has no API</h3><p>ManagementService has no dry-run RPC (<code>api/management/v1/service.proto</code>). The check runs inside the add transaction, after the service and agent rows are created, and a failure rolls everything back (<code>managed/services/management/mysql.go:40,117</code>). Actions all need an existing <code>service_id</code>. Building it means a new additive RPC and a handler that assembles a DSN from unsaved models. The mockups now mark it, and the plan below splits UI-only work from work that needs the API.</p></div></div>
+    <div class="finding"><span class="id">S2</span><span><span class="sev hi">Major</span></span><div><h3>The mockups showed facts nothing can supply today</h3><p>"User has all required grants": the check returns one error string, so this needs new pmm-agent code and a version gate. "pg_stat_monitor detected" before submit: the server only learns it during the add. "First metrics received": the new UI has no metrics-query module. These were removed or marked. The success page now shows only agent status, which ListAgents already reports.</p></div></div>
+    <div class="finding"><span class="id">S3</span><span><span class="sev hi">Major</span></span><div><h3>The copy-paste grants were wrong for many users</h3><p>The block was MySQL 8.x only and used <code>'pmm'@'%'</code>. The docs list no <code>BACKUP_ADMIN</code> for 5.7 and MariaDB. RDS uses <code>SELECT, PROCESS, REPLICATION CLIENT</code> plus <code>SELECT ON performance_schema.*</code>. The host should be the agent's address. The block now has a version switch and an <code>&lt;agent-host&gt;</code> placeholder.</p></div></div>
+    <div class="finding"><span class="id">S4</span><span><span class="sev hi">Major</span></span><div><h3>The merged "Monitoring agent" select was under-specified</h3><p>Today the Nodes select sets <code>node_id</code> only when the hostname is <code>localhost</code> or <code>127.0.0.1</code>. Otherwise the UI creates a new remote node named after the service. <code>metrics_mode</code> is pull for PMM Server's node and push for any other (<code>AddRemoteInstance.service.tsx:166-213</code>). One select can carry all of this only if its options are agents labelled with their node, including nodes that run several agents. HAProxy and External have no <code>pmm_agent_id</code> and need a node select instead. The mockup's options and helper text now say this.</p></div></div>
+    <div class="finding"><span class="id">S5</span><span><span class="sev hi">Major</span></span><div><h3>"Move Region and AZ to Advanced" was wrong as a blanket rule</h3><p>For RDS, region is required and becomes an attribute of the RDS node, and discovery prefills it. A wrong prefill hidden in Advanced is worse than a visible one. For self-hosted services the values are currently lost (N3). New rule: keep them visible for RDS and Azure. For self-hosted, send them in <code>add_node</code> and keep them in Advanced.</p></div></div>
+    <div class="finding"><span class="id">S6</span><span><span class="sev hi">Major</span></span><div><h3>Test-then-add either doubles the wait or loses data</h3><p>Add re-runs the check, which takes up to about 3 s on a failing self-hosted connection and 6 s on RDS or Azure. Sending the add with <code>skip_connection_check</code> to avoid that loses MySQL <code>table_count</code> and the pg_stat_monitor fallback. A dry-run design has to hand its result to the add, or keep the add-time check.</p></div></div>
+    <div class="finding"><span class="id">S7</span><span><span class="sev hi">Major</span></span><div><h3>My mockups were less accessible than the live UI</h3><p>axe flagged icon buttons without names (back, remove label), key/value fields without labels, a radio button inside a clickable card, and no h1. At 400 px the fixed 340 px help panel squeezed the form to a sliver. In light theme the example placeholders ("orders", "rs0") read as entered values. All are fixed: no critical violations remain, and nothing overflows at 400 px.</p></div></div>
+    <div class="finding"><span class="id">S8</span><span><span class="sev med">Minor</span></span><div><h3>Smaller misses</h3><p>"Recommended" on pg_stat_monitor must not appear for RDS or Azure, which only offer pg_stat_statements. The Valkey card claimed Sentinel support with nothing behind it, so that's removed. Edit-instance reuses <code>Labels</code> (<code>showNodeFields={false}</code>), so refactoring the Grafana FormParts in place would break editing. A native success page must trigger the same inventory refresh that Grafana's <code>SERVICE_ADDED</code> event does today.</p></div></div>
+    <div class="finding"><span class="id">S9</span><span><span class="sev med">Upstream</span></span><div><h3>peak-ui defects the mockups inherit</h3><p><code>CodeCopyBlock</code>'s copy button has no accessible name, and it puts <code>aria-label</code> on a span with no role. In <code>pmmThemeOptions</code>, secondary text is <code>#898888</code> on white (3.53:1) in light mode and <code>#878686</code> on <code>#282727</code> (4.1:1) on dark cards. Error red is <code>#ea5449</code> on <code>#282727</code> (4.15:1). All of these fail AA for body-size text on every PMM UI page that uses them, so the fix belongs in peak-ui.</p></div></div>
+    <div class="finding"><span class="id">S10</span><span><span class="sev low">Fixed</span></span><div><h3>Design mistakes the reviewer caught in the mockups</h3><p>The Environment select had fixed options, so a new environment couldn't be typed. "No limit" was the wrong hint for an empty max query length: the default is 2048 characters (4096 for MongoDB). PEM fields were single-line, so pasted certificates lost their line breaks. The picker's command used the admin password with <code>--server-insecure-tls</code>; the docs say to use a service account token. The redesign also reused the switch-plus-greyed-number pattern that F8 criticises. The agent choice the error message points to was hidden in Advanced. The code block sat blue-on-blue, "Test again" was 3.88:1, and the Azure card looked disabled but was still clickable. All of these are fixed in the revised mockups.</p></div></div>
+    <div class="finding"><span class="id">S11</span><span><span class="sev low">Fixed</span></span><div><h3>Errors in the first pass's description of today's UI</h3><p>F2 said the check returns the version and pg_stat_monitor state. It returns only an error string. F10 said bad RDS keys give no error; they do, as a toast that expires. F1 said the button shows no progress; it is disabled, but there's no spinner. F6 counted six label fields; there are five. F12 said nothing mentions the 2s default; the tooltip does. F9 called the HAProxy and External gaps drift, but they come from the API. The HAProxy port is empty only on the captured feature build, since <code>main</code> prefills 8404. The matrix also missed that MySQL, PostgreSQL and MongoDB credentials are optional when TLS is on. Each of these is corrected in place below.</p></div></div>
+  </div>
+
+  <div class="shots">
+    <figure><a class="frame" href="img/adv-mock-w400-mysql.png" target="_blank"><img src="img/adv-mock-w400-mysql.png" alt="First mockup at 400 px with the form collapsed to a thin line" loading="lazy"></a><figcaption><b>S7 before</b>: first mockup at 400 px</figcaption></figure>
+    <figure><a class="frame" href="img/adv-mock-w400-fixed.png" target="_blank"><img src="img/adv-mock-w400-fixed.png" alt="Revised mockup at 400 px with a single readable column" loading="lazy"></a><figcaption><b>S7 after</b>: revised mockup at 400 px</figcaption></figure>
+  </div>
+
+  <h3>Fields the build plan must carry</h3>
+  <p class="lede">The reviewer listed everything today's UI or API supports so none of it gets lost in the migration. The mockups only show MySQL and PostgreSQL in full.</p>
+  <div class="map">
+    <div><b>MySQL</b><span>extra DSN params, disabled collectors, table statistics limit; API only: max slow-log file size</span></div>
+    <div><b>PostgreSQL</b><span>database, auto-discovery limit, max exporter connections</span></div>
+    <div><b>MongoDB</b><span>profiler, TLS cert/key/CA, disabled collectors; API only: auth database, stats collections, collections limit, all collectors, mongolog, RTA agent</span></div>
+    <div><b>RDS</b><span>instance ID, role ARN, disable basic / enhanced metrics, max PostgreSQL exporter connections</span></div>
+    <div><b>Azure</b><span>Azure metrics exporter</span></div>
+    <div><b>ProxySQL</b><span>disabled collectors</span></div>
+    <div><b>External</b><span>group, metrics path, scheme, URL or manual entry</span></div>
+    <div><b>HAProxy</b><span>scheme, metrics path, listen port</span></div>
+    <div><b>Valkey</b><span>TLS CA/cert/key</span></div>
+    <div><b>Every type</b><span>skip connection check</span></div>
+  </div>
+
+  <p class="lede">The revised build plan is under <a href="#build">Building it</a>.</p>
+</section>
+
+<section id="summary">
+  <h2>Summary</h2>
+  <div class="prose" style="display:grid;gap:12px">
+    <p>The flow does its job for someone who already knows PMM: pick a technology, fill in a long form, press <b>Add service</b>. It is hard for everyone else, for three reasons.</p>
+    <p><b>Failures are hard to recover from.</b> You can't test a connection before submitting. When the server rejects one, the only feedback is a toast with the raw Go error (<code>dial tcp: lookup db.invalid.example on 127.0.0.11:53: no such host</code>), and it disappears after about ten seconds. No field is marked as the cause.</p>
+    <p><b>The form doesn't explain its own model.</b> Every card says "Add a remote instance". Nothing says that installing PMM Client on the host gives more data. The Nodes and Agents dropdowns sit in "Main details" with no hint of what choosing a node changes.</p>
+    <p><b>Option layout follows the API, not the task.</b> Labels take more room than the connection fields. TLS, QAN, privacy and performance options share one flat checkbox list with double negatives. Several controls expose sentinel values, such as a table limit of <code>-1</code>.</p>
+    <p>The redesign below fixes these issues inside the planned migration. The <a href="#adversarial">adversarial pass</a> found that several of its elements need new API work; those are marked. It uses one page per technology with four sections: Connection with an inline <b>Test connection</b>, Name and labels, Query Analytics, and a collapsed Advanced section. It also adds a help panel, a footer that is always reachable, and a success page with next steps.</p>
+  </div>
+</section>
+
+<section id="findings">
+  <h2>Findings</h2>
+  <p class="lede">Ordered by impact on getting a first service monitored. IDs are referenced from the mockups.</p>
+  <div class="findings">
+    <div class="finding"><span class="id">F1</span><span><span class="sev hi">High</span></span><div><h3>Errors are a transient toast with raw backend text</h3><p>A failed connection check shows <code>Connection check failed: dial tcp: lookup … on 127.0.0.11:53: no such host</code> in a toast that clears after about 10 s. The form gives no inline error, doesn't mark the field, says nothing about which agent tried to connect, and suggests no fix. The <b>Add service</b> button is disabled while the check runs, but there is no spinner or status text.</p><p class="where">Seen on MySQL with an unresolvable host; same code path for every type (<code>AddRemoteInstance.tsx</code> only calls <code>logger.error</code>).</p></div></div>
+    <div class="finding"><span class="id">F2</span><span><span class="sev hi">High</span></span><div><h3>No way to test a connection before adding</h3><p>The only check is the one that runs on submit. Bypassing it is a "Skip connection check" checkbox, the first item under "Additional options", far from the credentials it relates to. The server learns the version and, for PostgreSQL, whether pg_stat_monitor exists only during the add, and returns neither to the UI (S1, S2).</p></div></div>
+    <div class="finding"><span class="id">F3</span><span><span class="sev hi">High</span></span><div><h3>Remote vs. agent-based monitoring is never explained</h3><p>All eight cards carry the same subtitle, "Add a remote instance". Nothing says that <code>pmm-admin add</code> on the database host is the preferred path for self-managed servers, because it gives OS metrics and slow-log QAN. The Nodes and Agents selects default to <code>pmm-server</code>. They list bare node names (<code>node-01</code>, <code>node-02</code>) with no network, version or status, and the Agents select is disabled whenever a node has one agent. Agents are listed by raw agent ID. The node choice only matters when the hostname is <code>localhost</code>, and for push or pull metrics mode (S4).</p></div></div>
+    <div class="finding"><span class="id">F4</span><span><span class="sev med">Medium</span></span><div><h3>Hostname shows "Required field" before any interaction</h3><p>On MySQL, PostgreSQL, MongoDB, Valkey and ProxySQL the form opens with Hostname already in an error state. The likely cause is that <code>NodesAgents</code> prefills <code>address</code> through <code>form.change</code>, which marks the field as modified. HAProxy and External have no node selector and open clean.</p></div></div>
+    <div class="finding"><span class="id">F5</span><span><span class="sev med">Medium</span></span><div><h3>The primary action is far from the form</h3><p><b>Add service</b> and <b>Discover</b> exist only in the toolbar at the top right. The form is about 770 px wide and left-aligned, and the MySQL and PostgreSQL forms are about 2,000 px tall, so after the last field there is nothing to press. Navigation labels also disagree: the toolbar says "Inventory / Add service / Step 2 of 2", the breadcrumb says "Services › Configuring MySQL service", and the side nav highlights "Add service".</p></div></div>
+    <div class="finding"><span class="id">F6</span><span><span class="sev med">Medium</span></span><div><h3>Labels take more room than the connection</h3><p>There are five label fields plus a free-text <code>key:value</code> textarea, shown in full before any QAN option. Region and Availability Zone appear for every remote type, and for self-hosted types the values never reach the server (N3). Environment is free text with no suggestions from the services already in the inventory, so <code>prod</code> and <code>production</code> drift apart.</p></div></div>
+    <div class="finding"><span class="id">F7</span><span><span class="sev med">Medium</span></span><div><h3>"Additional options" is a flat list with double negatives</h3><p>Connection, security, QAN, privacy and performance options share one checkbox column. "Disable comments parsing" is checked by default. "Skip TLS certificate and hostname validation" shows even when TLS is off. "Use performance schema" never says it is the QAN source. TLS certificates are three empty 100 px textareas with no file upload, in the order CA, key, certificate.</p></div></div>
+    <div class="finding"><span class="id">F8</span><span><span class="sev med">Medium</span></span><div><h3>Three-way toggles with a disabled number field expose sentinel values</h3><p>Table statistics limit has Disabled / Default / Custom next to a greyed-out <code>-1</code>. PostgreSQL auto-discovery has Enabled / Disabled / Custom next to a greyed-out <code>10</code>. Max connection limit is Disabled next to a greyed-out <code>5</code>. In each case the user has to learn the encoding before they can see the actual choice. MySQL's preselected "Disabled" also turns table statistics off for good, while the server and <code>pmm-admin</code> default to a limit of 1,000 tables (N12).</p></div></div>
+    <div class="finding"><span class="id">F9</span><span><span class="sev med">Medium</span></span><div><h3>Technologies drift apart</h3><p>HAProxy and External have no node or agent select and no connection timeout. That comes from the API, not drift: neither takes a <code>pmm_agent_id</code> or a timeout, and PMM Server scrapes them. On the captured build HAProxy's required port is empty, with placeholder <code>Port (default: 8404 )</code> including the stray space; <code>main</code> prefills 8404. MongoDB's service name has no tooltip. MySQL and MongoDB put "Max query length" in Main details, while PostgreSQL pairs it with Database. External has a "Group" field with no placeholder. See the <a href="#matrix">field matrix</a>.</p></div></div>
+    <div class="finding"><span class="id">F10</span><span><span class="sev med">Medium</span></span><div><h3>RDS discovery has no clear states</h3><p>On load the page runs discovery with the server's own identity and shows an unlabelled spinner. When that finds nothing it shows "No data" with no reason. Bad keys raise a toast such as "The security token included in the request is invalid.", which clears after about 10 s and leaves only "No data". The <b>Discover</b> button is in the top toolbar, away from the credential fields. On <code>main</code> a third field, Role ARN, joins the keys with a "mutually exclusive" rule that the layout doesn't convey.</p></div></div>
+    <div class="finding"><span class="id">F11</span><span><span class="sev low">Low</span></span><div><h3>Card picker gives little to choose by</h3><p>RDS and External use the generic database icon. The subtitles are identical. There is no grouping (databases, proxies, cloud discovery) and no search. The Azure card disappears when the feature is off, with no hint of where to turn it on, yet <code>/add-instance/azure</code> still opens the form.</p></div></div>
+    <div class="finding"><span class="id">F12</span><span><span class="sev low">Low</span></span><div><h3>Field copy repeats labels and hides units</h3><p>Most placeholders repeat the label (Hostname → "Hostname"). Connection timeout expects a Go duration (<code>2s</code>) but only the tooltip mentions the 2s default. The placeholder and the field don't show the format. The Max query length tooltip reads "Full Example (Fingerprint) storage is not allowed by default to have the best performance".</p></div></div>
+    <div class="finding"><span class="id">F13</span><span><span class="sev low">Low</span></span><div><h3>Success is a toast and a redirect</h3><p>After adding, the user lands on the inventory list. There is no link to the new service's dashboard or QAN and no confirmation that data is arriving, which is the moment users most want reassurance.</p></div></div>
+  </div>
+</section>
+
+<section id="current">
+  <h2>Current state by technology</h2>
+  <p class="lede">Full-height captures of each form. Scroll inside a frame to see the rest; open an image to view it at full size.</p>
+
+  <div class="tech">
+    <div><h3>Step 1: choose a type</h3><ul><li>Eight cards, all "Add a remote instance" (F3, F11).</li><li>RDS and External share the generic database icon.</li><li>Azure hidden unless enabled in Settings.</li><li>Only one action, <b>Cancel</b>; the cards act as buttons with no hover affordance beyond the card.</li></ul></div>
+    <figure><a class="frame" href="img/select-viewport.png" target="_blank"><img src="img/select-viewport.png" alt="Current service type picker with eight identical cards" loading="lazy"></a><figcaption><b>/add-instance</b></figcaption></figure>
+  </div>
+
+  <div class="tech">
+    <div><h3>MySQL</h3><ul><li>Opens with Hostname in an error state (F4).</li><li>Labels block sits before QAN options (F6).</li><li>Turning on TLS adds three bare textareas mid-list (F7).</li><li>Table statistics: Disabled / Default / Custom plus <code>-1</code> (F8).</li><li>Submitting against a bad host gives only the toast, gone by 15 s (F1).</li></ul></div>
+    <div class="shots">
+      <figure><a class="frame tall" href="img/mysql-full.png" target="_blank"><img src="img/mysql-full.png" alt="Current MySQL form, full height" loading="lazy"></a><figcaption><b>MySQL form</b> at rest</figcaption></figure>
+      <figure><a class="frame tall" href="img/mysql-tls.png" target="_blank"><img src="img/mysql-tls.png" alt="Current MySQL form with TLS enabled" loading="lazy"></a><figcaption><b>TLS on</b>: three empty textareas</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="tech">
+    <div><h3>Connection error (all types)</h3><ul><li>3 s after submit: a toast with the raw resolver error, partly covering the toolbar.</li><li>15 s after submit: the toast is gone and the form looks untouched.</li></ul></div>
+    <div class="shots">
+      <figure><a class="frame" href="img/mysql-submit-3s.png" target="_blank"><img src="img/mysql-submit-3s.png" alt="Toast with raw DNS error three seconds after submit" loading="lazy"></a><figcaption><b>+3 s</b></figcaption></figure>
+      <figure><a class="frame" href="img/mysql-submit-15s.png" target="_blank"><img src="img/mysql-submit-15s.png" alt="Same form fifteen seconds later with no error visible" loading="lazy"></a><figcaption><b>+15 s</b></figcaption></figure>
+    </div>
+  </div>
+
+  <div class="tech">
+    <div><h3>PostgreSQL</h3><ul><li>The longest form, about 2,050 px.</li><li>"Stat tracking options" is a three-way segmented control. It doesn't say which extension is installed or recommended.</li><li>Auto-discovery and Max connection limit both use the toggle-plus-disabled-input pattern (F8).</li><li>Node list shows bare names (F3).</li></ul></div>
+    <div class="shots">
+      <figure><a class="frame tall" href="img/postgresql-full.png" target="_blank"><img src="img/postgresql-full.png" alt="Current PostgreSQL form, full height" loading="lazy"></a><figcaption><b>PostgreSQL form</b></figcaption></figure>
+      <figure><a class="frame tall" href="img/pg-nodes-open.png" target="_blank"><img src="img/pg-nodes-open.png" alt="Nodes dropdown listing node-01, node-02 and pmm-server" loading="lazy"></a><figcaption><b>Nodes select</b>: names only</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="tech">
+    <div><h3>MongoDB</h3><ul><li>Service name has no tooltip, unlike the others.</li><li>"Use QAN MongoDB Profiler" is off by default and sits with TLS options.</li><li>No connection-string input, although most MongoDB users have a URI at hand.</li></ul></div>
+    <figure><a class="frame tall" href="img/mongodb-full.png" target="_blank"><img src="img/mongodb-full.png" alt="Current MongoDB form" loading="lazy"></a><figcaption><b>MongoDB form</b></figcaption></figure>
+  </div>
+
+  <div class="tech">
+    <div><h3>Valkey</h3><ul><li>Same layout as MySQL without QAN.</li><li>Username and password are optional (as the code says) but nothing marks them so.</li><li>No hint about cluster setups.</li></ul></div>
+    <figure><a class="frame tall" href="img/valkey-full.png" target="_blank"><img src="img/valkey-full.png" alt="Current Valkey form" loading="lazy"></a><figcaption><b>Valkey form</b></figcaption></figure>
+  </div>
+
+  <div class="tech">
+    <div><h3>ProxySQL</h3><ul><li>Uses the generic Main details. Username and password are the ProxySQL admin credentials, but the copy says "Your database user name".</li><li>TLS has no certificate fields, unlike MySQL.</li></ul></div>
+    <figure><a class="frame tall" href="img/proxysql-full.png" target="_blank"><img src="img/proxysql-full.png" alt="Current ProxySQL form" loading="lazy"></a><figcaption><b>ProxySQL form</b></figcaption></figure>
+  </div>
+
+  <div class="tech">
+    <div><h3>HAProxy</h3><ul><li>No node or agent select: PMM Server scrapes HAProxy, and the API has no agent field.</li><li>On the captured build the port is empty with placeholder <code>Port (default: 8404 )</code> (F9); <code>main</code> prefills it.</li><li>No connection timeout, as in the API.</li></ul></div>
+    <figure><a class="frame tall" href="img/haproxy-full.png" target="_blank"><img src="img/haproxy-full.png" alt="Current HAProxy form" loading="lazy"></a><figcaption><b>HAProxy form</b></figcaption></figure>
+  </div>
+
+  <div class="tech">
+    <div><h3>External exporter</h3><ul><li>"Set manually / Parse from URL string" switches the whole block. Pasting a URL is the common case and should be the default.</li><li>"Group" is unexplained beyond "Group to which your service belongs".</li><li>No node select or timeout, as in the API.</li></ul></div>
+    <figure><a class="frame tall" href="img/external-full.png" target="_blank"><img src="img/external-full.png" alt="Current External service form" loading="lazy"></a><figcaption><b>External service form</b></figcaption></figure>
+  </div>
+
+  <div class="tech">
+    <div><h3>Amazon RDS</h3><ul><li>Unlabelled spinner on load while discovery runs with the server identity (F10).</li><li>Bad keys produce a toast that clears after about 10 s, then only "No data".</li><li>Docs links float in a separate grey box under the table.</li><li><code>main</code> adds a Role ARN field that this instance doesn't have yet.</li></ul></div>
+    <div class="shots">
+      <figure><a class="frame" href="img/rds-viewport.png" target="_blank"><img src="img/rds-viewport.png" alt="RDS page with unlabelled spinner" loading="lazy"></a><figcaption><b>On load</b></figcaption></figure>
+      <figure><a class="frame" href="img/rds-discover-error.png" target="_blank"><img src="img/rds-discover-error.png" alt="RDS page showing No data after bad credentials" loading="lazy"></a><figcaption><b>After Discover with bad keys</b></figcaption></figure>
+    </div>
+  </div>
+
+  <div class="tech">
+    <div><h3>Azure</h3><ul><li>Hidden from the picker when off, but the URL still works (F11).</li><li>A large "No data" block shows before any search.</li><li>Four credential fields with no grouping or explanation of where each comes from.</li></ul></div>
+    <figure><a class="frame" href="img/azure-viewport.png" target="_blank"><img src="img/azure-viewport.png" alt="Azure discovery page" loading="lazy"></a><figcaption><b>/add-instance/azure</b></figcaption></figure>
+  </div>
+</section>
+
+<section id="matrix">
+  <h2>Field matrix</h2>
+  <p class="lede">What each form shows today, read from the code and confirmed on the live server. Amber marks an inconsistency worth deciding on during the migration.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Field</th><th>MySQL</th><th>PostgreSQL</th><th>MongoDB</th><th>Valkey</th><th>ProxySQL</th><th>HAProxy</th><th>External</th></tr></thead>
+    <tbody>
+      <tr class="group"><th colspan="8">Connection</th></tr>
+      <tr><th>Service name</th><td class="y">yes</td><td class="y">yes</td><td class="odd">no tooltip</td><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td></tr>
+      <tr><th>Node and agent</th><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td><td class="n">not in API</td><td class="n">not in API</td></tr>
+      <tr><th>Hostname / port</th><td class="y">3306 prefilled</td><td class="y">5432 prefilled</td><td class="y">27017 prefilled</td><td class="y">6379 prefilled</td><td class="y">6032 prefilled</td><td class="odd">empty on captured build; <code>main</code> prefills 8404</td><td class="y">443 prefilled</td></tr>
+      <tr><th>Username / password</th><td class="y">required unless TLS</td><td class="y">required unless TLS</td><td class="y">required unless TLS</td><td class="odd">optional, unmarked</td><td class="y">required</td><td class="y">optional</td><td class="y">optional</td></tr>
+      <tr><th>Database</th><td class="n">–</td><td class="y">yes</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td></tr>
+      <tr><th>Connection timeout</th><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td><td class="n">not in API</td><td class="n">not in API</td></tr>
+      <tr><th>Max query length</th><td class="odd">main details</td><td class="y">with database</td><td class="odd">main details</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td></tr>
+      <tr><th>Scheme, metrics path, URL parse</th><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="y">yes</td></tr>
+      <tr class="group"><th colspan="8">Security</th></tr>
+      <tr><th>TLS</th><td class="y">yes + certs</td><td class="y">yes + certs</td><td class="odd">PEM + password; password dropped (N11)</td><td class="y">yes + certs</td><td class="odd">no cert fields</td><td class="n">–</td><td class="n">–</td></tr>
+      <tr><th>Skip TLS verification</th><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td></tr>
+      <tr class="group"><th colspan="8">Query Analytics</th></tr>
+      <tr><th>QAN source</th><td class="y">perf schema (on)</td><td class="y">pgsm / pgss / off</td><td class="odd">profiler (off)</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td></tr>
+      <tr><th>Query examples / comments</th><td class="y">yes</td><td class="y">yes</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td></tr>
+      <tr class="group"><th colspan="8">Collection tuning</th></tr>
+      <tr><th>Disable collectors</th><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td><td class="n">–</td><td class="y">yes</td><td class="n">–</td><td class="n">–</td></tr>
+      <tr><th>Extra DSN params</th><td class="y">yes</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td></tr>
+      <tr><th>Table stats limit</th><td class="odd">default "Disabled" = never (N12)</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td></tr>
+      <tr><th>Auto-discovery / max conn.</th><td class="n">–</td><td class="y">yes</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td></tr>
+      <tr class="group"><th colspan="8">Labels</th></tr>
+      <tr><th>Env, cluster, repl. set, custom</th><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td><td class="y">yes</td></tr>
+      <tr><th>Region, AZ</th><td class="odd">shown, dropped (N3)</td><td class="odd">shown, dropped (N3)</td><td class="odd">shown, dropped (N3)</td><td class="odd">shown, dropped (N3)</td><td class="odd">shown, dropped (N3)</td><td class="odd">shown, dropped (N3)</td><td class="odd">shown, dropped (N3)</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="mockups">
+  <h2>Mockups</h2>
+  <p class="lede">Rendered from a small React app using <code>ThemeContextProvider</code> with <code>pmmThemeOptions</code>, peak-ui form inputs (<code>TextInput</code>, <code>SwitchInput</code>, <code>SelectInput</code>, <code>CodeCopyBlock</code>, <code>Stepper</code>, the database icons) and plain MUI for layout. They show content only, without the PMM nav shell. Sample data is invented. Revised after the adversarial pass: dashed amber chips mark elements the current API can't back, and the revised set passes axe's WCAG A/AA checks except for the peak-ui issues listed under S9. <a href="mockups/AddServiceMockups.tsx" target="_blank">Mockup source (TSX)</a>.</p>
+
+  <div class="mock">
+    <div><h3>1. Choose what to monitor</h3>
+      <ul><li>A callout up front states when to install PMM Client instead, with token-based commands ready to copy, as the docs recommend.</li><li>Cards are grouped by kind and searchable. Each says which versions it covers and what it collects (Metrics, QAN, Discovery).</li><li>Azure stays visible when turned off. It is truly inactive, with a "Turn on" link to Settings.</li><li>RDS and External get their own icons.</li></ul>
+      <div class="fixes"><span>F3</span><span>F11</span></div></div>
+    <figure><a class="frame tall" href="img/mock-select.png" target="_blank"><img src="img/mock-select.png" alt="Mockup of grouped service type picker" loading="lazy"></a><figcaption><b>Picker</b></figcaption></figure>
+  </div>
+
+  <div class="mock">
+    <div><h3>2. One technology form, four sections</h3>
+      <ul><li><b>Connection</b> first. It includes <b>Connect from</b>, the agent that runs the exporter, listed by node, version and status. A <b>Test connection</b> button is shown, but it needs a new dry-run RPC (S1). Until then, the check runs on Add service.</li><li><b>Name and labels</b>: service name with a real default hint, Environment as free entry with suggestions from existing services, and custom labels as labelled key/value rows. Region and AZ move to Advanced for self-hosted types and are sent in <code>add_node</code> (N3). They stay visible for RDS and Azure.</li><li><b>Query Analytics</b> as a named choice with a recommended default. Privacy switches are worded positively.</li><li><b>Advanced</b> collapsed, with a one-line summary of the current values, so defaults stay visible without the noise.</li><li>The help panel holds the <code>CREATE USER</code> and <code>GRANT</code> to run, switchable between MySQL 8.x, 5.7/MariaDB and RDS, and states what PMM will and won't collect.</li><li>The footer actions follow the end of the form.</li></ul>
+      <div class="fixes"><span>F2</span><span>F5</span><span>F6</span><span>F7</span><span>F12</span></div></div>
+    <figure><a class="frame tall" href="img/mock-mysql.png" target="_blank"><img src="img/mock-mysql.png" alt="Mockup of MySQL form at rest" loading="lazy"></a><figcaption><b>MySQL</b> at rest. Hostname is not in an error state (F4).</figcaption></figure>
+    <figure><a class="frame tall" href="img/mock-mysql-light.png" target="_blank"><img src="img/mock-mysql-light.png" alt="Mockup of MySQL form at rest in light theme" loading="lazy"></a><figcaption><b>MySQL</b> in light theme</figcaption></figure>
+  </div>
+
+  <div class="mock">
+    <div><h3>3. Tested, with TLS and Advanced open</h3>
+      <ul><li>A successful test reports the version and QAN prerequisites. This needs the dry-run RPC, and grant checks would need agent work too (S2).</li><li>TLS reveals multi-line certificate fields that accept pasted PEM or a file upload. Client certificate and key are optional, matching the CA-only support. "Skip verification" lives inside TLS.</li><li>Units sit in adornments, and the max query length hint states its real default, 2048.</li><li>Table statistics is a named choice: automatic (stop above 1,000 tables, the server default), a custom limit, or never.</li><li>Disabled collectors use a real chip input. A persistent "Skip the connection check" switch says what skipping costs.</li></ul>
+      <div class="fixes"><span>F3</span><span>F7</span><span>F8</span><span>F12</span></div></div>
+    <figure><a class="frame tall" href="img/mock-mysql-ok.png" target="_blank"><img src="img/mock-mysql-ok.png" alt="Mockup of MySQL form after a successful test with TLS and Advanced expanded" loading="lazy"></a><figcaption><b>MySQL</b> tested</figcaption></figure>
+  </div>
+
+  <div class="mock">
+    <div><h3>4. Connection failed</h3>
+      <ul><li>This works with today's API: the add call's error is kept on the page instead of in a toast. It names the host, port and agent, explains the cause in plain words, and points to <b>Connect from</b>.</li><li>The field that caused it is marked, and the footer lists fields that need attention. Mapping relies on known driver messages (DNS, refused, timeout, 28P01, 1045) and <code>AlreadyExists</code>. Anything else shows the raw text inline, since structured error codes would need agent work.</li><li>"Add it anyway without checking" appears next to the failure, and the same option stays available under Advanced.</li></ul>
+      <div class="fixes"><span>F1</span><span>F2</span></div></div>
+    <figure><a class="frame tall" href="img/mock-mysql-fail.png" target="_blank"><img src="img/mock-mysql-fail.png" alt="Mockup of MySQL form with inline connection error" loading="lazy"></a><figcaption><b>MySQL</b> failed test</figcaption></figure>
+  </div>
+
+  <div class="mock">
+    <div><h3>5. PostgreSQL-specific choices</h3>
+      <ul><li>The test result shows which QAN extensions are installed, and the radio cards reuse that. This needs the dry-run RPC. Today's API can only report a pg_stat_monitor fallback after the add, as a warning the UI should show (N5).</li><li>Database discovery and the connection cap are switches. The number field appears only when its switch is on.</li><li>"Recommended" on pg_stat_monitor applies to self-hosted servers only. RDS and Azure offer just pg_stat_statements.</li><li>Database moves into Connection next to the user it connects as.</li></ul>
+      <div class="fixes"><span>F8</span><span>F9</span></div></div>
+    <figure><a class="frame tall" href="img/mock-postgresql.png" target="_blank"><img src="img/mock-postgresql.png" alt="Mockup of PostgreSQL form with QAN extension choice" loading="lazy"></a><figcaption><b>PostgreSQL</b></figcaption></figure>
+  </div>
+
+  <div class="mock">
+    <div><h3>6. Amazon RDS and Aurora</h3>
+      <ul><li>Step 1: the three auth methods become explicit choices (server identity, IAM role, access keys), which makes their exclusivity visible. <b>Discover instances</b> sits next to the credential it uses.</li><li>Step 2: the chosen method collapses to a summary with <b>Change</b>. Results show count, regions and which instances are already monitored, with a filter. "Monitored" needs a client-side join with inventory RDS nodes on instance ID and region; there's no flag in the API.</li><li>Each row's <b>Configure</b> opens the same technology form, prefilled with region visible. One instance per add, as the API requires.</li><li>Errors show AWS's message inline. Per-region messages would need an API change, because the server swallows per-region errors.</li></ul>
+      <div class="fixes"><span>F10</span></div></div>
+    <div class="shots">
+      <figure><a class="frame" href="img/mock-rds-auth.png" target="_blank"><img src="img/mock-rds-auth.png" alt="Mockup of RDS step 1 with three sign-in methods" loading="lazy"></a><figcaption><b>RDS</b> step 1: sign in</figcaption></figure>
+      <figure><a class="frame" href="img/mock-rds.png" target="_blank"><img src="img/mock-rds.png" alt="Mockup of RDS step 2 with discovered instances" loading="lazy"></a><figcaption><b>RDS</b> step 2: choose an instance</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="mock">
+    <div><h3>7. Added</h3>
+      <ul><li>Confirms what was created and with which labels, and shows any server warning.</li><li>Shows agent status from ListAgents, which exists today. "First metrics received" was dropped: the new UI has no metrics-query module.</li><li>Links to the next useful place: the technology's dashboard and QAN filtered to the new service.</li><li>Must trigger the same service-types refresh as Grafana's <code>SERVICE_ADDED</code> event.</li></ul>
+      <div class="fixes"><span>F13</span></div></div>
+    <figure><a class="frame" href="img/mock-success.png" target="_blank"><img src="img/mock-success.png" alt="Mockup of success page with next steps" loading="lazy"></a><figcaption><b>Success</b></figcaption></figure>
+  </div>
+</section>
+
+<section id="build">
+  <h2>Building it in the PMM UI</h2>
+  <p class="lede">Revised after the adversarial pass and split by what the current API supports. Phase 0 fixes most high-impact findings without backend changes.</p>
+  <ol class="plan">
+    <li><b>Data layer and route.</b> API modules and TanStack Query hooks for management add, ListNodes, ListAgents, ListServices and RDS/Azure discovery; none exist in <code>ui/apps/pmm/src/api/</code> yet. Add a takeover route for <code>/add-instance/:type</code> that falls back to the Grafana page for types not yet ported.</li>
+    <li><b>Shared form shell.</b> Page header, section cards, footer actions after the form, help panel, all driven by a per-technology config built from the field matrix. Use <code>react-hook-form</code> with a zod schema per technology, as the Settings pages do. Prefill defaults through <code>defaultValues</code>, not programmatic changes, so nothing shows as invalid on load (F4). Keep <code>edit-instance</code> on the Grafana FormParts until it is ported, since it reuses <code>Labels</code>.</li>
+    <li><b>Errors and warnings (F1, N4, N5).</b> Map server errors to fields and keep them on the page: <code>AlreadyExists</code> goes to Service name, auth failures to the credentials, DNS, refused and timeout errors to Hostname and Port, TLS errors to TLS. Otherwise show the raw text inline. Show response warnings.</li>
+    <li><b>Validation and focus (N1, N7, N8).</b> On submit, scroll to and focus the first invalid field and list the errors in the footer. Reject a scheme or spaces in hostnames, and show the duration format.</li>
+    <li><b>Don't lose work (N2).</b> Guard unsaved changes on Back, Cancel and route changes, and make Cancel leave the flow.</li>
+    <li><b>Silent data bugs (N3, N11, N12).</b> Send Region and AZ inside <code>add_node</code>, send the MongoDB key password under its API name, and default MySQL table statistics to the server's automatic limit.</li>
+    <li><b>Port MySQL, PostgreSQL and MongoDB first,</b> then Valkey, ProxySQL, HAProxy and External (node select rather than agent), then RDS and Azure. Carry every field listed under "Fields the build plan must carry".</li>
+    <li><b>Picker and success page.</b> Environment suggestions come from a scan of ListServices, since no endpoint lists them. Agent status comes from ListAgents. RDS "already monitored" comes from joining inventory nodes.</li>
+    <li><b>Phase 1, needs the API.</b> A dry-run check RPC that returns server version and QAN extensions and hands its result to the add, so the check doesn't run twice and nothing is lost by skipping it (S1, S6). Grant verification would follow, behind a pmm-agent version gate.</li>
+  </ol>
+  <div class="map">
+    <div><b>TextInput, SelectInput</b><span>every text and select field</span></div>
+    <div><b>SwitchInput</b><span>TLS, query examples, limits</span></div>
+    <div><b>RadioGroup / ToggleCard</b><span>QAN source, AWS auth method (one control per choice, no buttons inside buttons)</span></div>
+    <div><b>CodeCopyBlock</b><span>grants, pmm-admin command</span></div>
+    <div><b>Stepper</b><span>RDS and Azure discovery</span></div>
+    <div><b>Table</b><span>discovery results (use peak Table, not plain MUI as in the mockup)</span></div>
+    <div><b>FileInput</b><span>TLS certificates, next to a multi-line paste field</span></div>
+    <div><b>MySqlIcon, PostgreSqlIcon, MongoIcon, PerconaVaIcon, ProxyIcon, HaproxyIcon</b><span>picker and headers</span></div>
+  </div>
+</section>
+
+<section id="questions">
+  <h2>Open questions</h2>
+  <ul class="q">
+    <li><b>Dry-run check.</b> Is a new RPC in scope for PMM-15003, or does the first version ship without <b>Test connection</b> and rely on inline errors from the add?</li>
+    <li><b>Silent data bugs.</b> Should N3, N11 and N12 be fixed in the current Grafana page now, as separate tickets, rather than waiting for the migration?</li>
+    <li><b>MySQL table statistics.</b> Is the UI's "never collect" default intentional? If not, the new form should match <code>pmm-admin</code>'s automatic limit.</li>
+    <li><b>Captured build.</b> These screenshots come from a feature build. Should they be retaken on a release build before the review is shared widely?</li>
+    <li><b>Azure discovery.</b> Keep it behind the setting, or show it with a "turn on" link as in the mockup?</li>
+    <li><b>Edit flow.</b> <code>edit-instance</code> reuses parts of this form. Should the same shell cover editing a service's labels and options (PMM-12575)?</li>
+  </ul>
+</section>
+</div>
+
+</body></html>
