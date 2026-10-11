@@ -2,7 +2,7 @@
 
 - Status: Proposed
 - Date: 2026-10-11
-- Tickets: PMM-15567, PMM-15573, PMM-15574 (new ticket to be filed)
+- Tickets: PMM-15567, PMM-15573, PMM-15574, PMM-15723; PMM-15725 for option 4
 
 ## Context
 
@@ -33,7 +33,7 @@ Option 3.
 - An admin applies one explicitly.
 - Sampling uses stored lines only, so pmm-agent gains no new way to read files.
 
-**Option 4 is deferred to a follow-up ticket,** not rejected:
+**Option 4 is deferred to a follow-up, PMM-15725,** not rejected:
 - Sample lines can contain secrets and personal data.
 - Crafted lines could steer the model (PMM-15591).
 

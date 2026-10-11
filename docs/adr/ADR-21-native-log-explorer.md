@@ -2,7 +2,7 @@
 
 - Status: Proposed
 - Date: 2026-10-11
-- Tickets: PMM-15567, PMM-15576 (new ticket to be filed)
+- Tickets: PMM-15567, PMM-15576, PMM-15722
 
 ## Context
 

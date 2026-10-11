@@ -2,7 +2,7 @@
 
 - Status: Proposed. This changes PMM-15584, PMM-15585 and PMM-15586, which make collection opt-in, and adds Valkey, which PMM-15587 left out.
 - Date: 2026-10-11
-- Tickets: PMM-15567, PMM-15573, PMM-15584, PMM-15585, PMM-15586, plus a new ticket for Valkey
+- Tickets: PMM-15567, PMM-15573, PMM-15584, PMM-15585, PMM-15586, PMM-15724 (Valkey)
 
 ## Context
 
@@ -34,12 +34,12 @@ The epic adds `--collect-logs` to `pmm-admin add mysql|postgresql|mongodb` and l
   - MySQL: `@@log_error`, resolved against `@@datadir`;
   - PostgreSQL: `log_directory`, `log_filename`, `data_directory` and `log_destination`;
   - MongoDB: `getCmdLineOpts`;
-  - Valkey: `CONFIG GET logfile`, `dir` and `syslog-enabled`. PMM's documented Valkey user already has `+config|get`. A relative `logfile` is resolved against the server's working directory, or `dir` as a fallback.
+  - Valkey: `CONFIG GET` of `logfile`, `dir`, `daemonize` and `syslog-enabled`. PMM's documented Valkey user already has `+config|get`. A relative `logfile` is joined with `dir`, which Valkey reports as its working directory, so pmm-agent needs no `/proc` access. An empty `logfile` means stdout (a journald source) with `daemonize no`, and no log at all with `daemonize yes`.
 - pmm-agent discovers them, because it connects to the database and can see the files.
 - Discovery runs again on every pmm-agent reconnect.
 
 **When nothing can be collected:**
-- The service is still added, and pmm-admin prints why: remote host, missing file, unreadable file, logs going to syslog, or Valkey's `CONFIG` not permitted.
+- The service is still added, and pmm-admin prints why: remote host, missing file, unreadable file, logs going only to syslog, Valkey writing no log, or Valkey's `CONFIG` not permitted.
 - A new pmm-admin doesn't send the field to a PMM Server older than this feature.
 
 ## Consequences
