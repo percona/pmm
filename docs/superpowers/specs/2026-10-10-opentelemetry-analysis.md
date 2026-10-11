@@ -35,7 +35,7 @@ Marks used below:
 | Our own UI for reading logs, built with `@percona/peak-ui`, not only Grafana | Grafana datasource and Logs dashboard only (PMM-15576). | Build a native Logs explorer in the PMM UI, on a new `LogsService` API in pmm-managed: search, histogram, facets, surrounding lines, live tail, deep links. It is Admin-only now, and plan 06 adds LBAC to the same API. The Grafana dashboard stays for ad-hoc queries ([plan 08](../plans/2026-10-10-opentelemetry-08-log-explorer.md)). **Decided: D20.** |
 | How LBAC works with this | Admins only, until LBAC covers logs. | Phase 1: Admin-only, enforced in the Grafana fork; PMM-15576's approach can't work ([§5](#5-findings-on-main-that-change-the-tickets)). Later: a PMM logs query API that turns the user's LBAC selectors into an allow-list of service and node IDs and fails closed ([§7](#7-lbac)). |
 
-**Decisions:** [§8](#8-decisions). D1–D17 were decided in the interview on 2026-10-10, and D18–D21 in the review on 2026-10-11. D22 and D23 are still open. D2, D11 and D12 change the epic or its tickets, so they go to the epic owner and the architects as Proposed ADRs (ADR-19, ADR-20, and an amendment to PMM-15574/15571) before coding.
+**Decisions:** [§8](#8-decisions). D1–D17 were decided in the interview on 2026-10-10, and D18–D24 in the review on 2026-10-11. D2, D11 and D12 change the epic or its tickets, so they go to the epic owner and the architects as Proposed ADRs (ADR-19, ADR-20, and an amendment to PMM-15574/15571) before coding.
 
 ---
 
@@ -253,7 +253,7 @@ Nothing on `main` propagates a settings change to other replicas. Each replica a
   - The admin applies one with a click.
 - **Why nothing is applied automatically:** a wrong parser corrupts timestamps and severities without anyone noticing.
 
-**AI-drafted parsers (D23, open):** a language model could draft a custom preset from sample lines. Two problems:
+**AI-drafted parsers (D23, decided: a follow-up):** a language model could draft a custom preset from sample lines. Two problems:
 - Samples can contain secrets and personal data.
 - Crafted log lines could steer the model, which PMM-15591 lists as a threat.
 
@@ -361,8 +361,9 @@ Plan 06 holds the task list. It is a design-level plan, to be re-planned once Ph
 | D19 | Which PMM Server logs are collected | Every file in `/srv/logs`, conditional on the component running, with a completeness test. | Plan 02 |
 | D20 | How users read logs | A native PMM UI Logs explorer built with peak-ui on a new `LogsService` API. It is Admin-only until plan 06; the Grafana datasource and dashboard stay. | Plan 08 |
 | D21 | Logs in unknown formats | The `auto` preset becomes the default for file sources, and an admin confirms preset suggestions computed from stored lines. Parsers are never applied silently. | Plan 04 |
-| D22 | Histogram drawing in the explorer | **Open.** Recommendation: `@mui/x-charts` (MIT, built for MUI v7), because plan 06's trace view needs charts too. The alternative is flex-box bars, with no dependency. | Plan 08 |
-| D23 | AI-drafted parsers for unknown formats | **Open.** Recommendation: a follow-up, behind PMM's AI settings. It must be opt-in, run on redacted samples, use a model the admin configures, validate its output with the same checks as custom presets, and never apply anything without an admin's approval. | — |
+| D22 | Histogram drawing in the explorer | `@mui/x-charts` (MIT, built for MUI v7), themed with peak-ui's chart palette. Plan 06's trace view reuses it. | Plan 08 |
+| D23 | AI-drafted parsers for unknown formats | A follow-up ticket after logs ship. It must be opt-in, run on redacted samples, use a model the admin configures, validate its output with the same checks as custom presets, and never apply anything without an admin's approval. | Follow-up |
+| D24 | Grafana Logs dashboard alongside the native explorer | Build both. Decide which one to keep after Technical Preview feedback; until then the explorer is the one service dashboards link to. | Plans 03, 08 |
 
 **Interview of 2026-10-10:**
 - Every recommendation above was accepted: D1–D14, and D15–D17 as written.

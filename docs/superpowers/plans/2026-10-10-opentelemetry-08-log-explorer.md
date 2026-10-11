@@ -18,7 +18,7 @@ The same API becomes the LBAC-enforced read path in plan 06.
 - The page follows the RTA overview page (`ui/apps/pmm/src/pages/rta/overview/`).
 - It is Admin-only in this phase (ADR-07). Plan 06 opens it to restricted users once LBAC applies.
 
-**Tech Stack:** Go (pmm-managed, clickhouse-go), protobuf/grpc-gateway, React, MUI v7, `@percona/peak-ui` 1.0.26+, TanStack Query, Vitest.
+**Tech Stack:** Go (pmm-managed, clickhouse-go), protobuf/grpc-gateway, React, MUI v7, `@percona/peak-ui` 1.0.26+, `@mui/x-charts`, TanStack Query, Vitest.
 
 **Spec:**
 - [analysis](../specs/2026-10-10-opentelemetry-analysis.md) §7 and decision D20;
@@ -220,16 +220,14 @@ The roadmap's constraints apply, together with `ui/AGENTS.md` and peak-ui's `AGE
   - `ui/apps/pmm/src/pages/logs/table/LogsTable.tsx`, `LogsTable.constants.tsx` and their test
   - `ui/apps/pmm/src/pages/logs/details-pane/LogDetailsPane.tsx` and its test
 - Modify:
-  - `ui/apps/pmm/package.json`, only if D22 chooses `@mui/x-charts`. Add it with `pnpm --filter pmm add @mui/x-charts` (MIT licence).
+  - `ui/apps/pmm/package.json`: add `@mui/x-charts` (MIT licence; D22) with `pnpm --filter pmm add @mui/x-charts`, at the major version that matches the app's `@mui/material`. Note the licence in the PR description, because CI runs a licence check.
 
 **Interfaces:**
 - **Histogram:**
   - stacked bars per severity class, coloured from the theme;
   - clicking a bar narrows `from`/`to` to that bucket;
   - a tooltip shows the counts.
-  - D22 decides how it is drawn:
-    - `@mui/x-charts` `BarChart`, recommended;
-    - or flex `Box` bars, with no dependency.
+  - It is drawn with `@mui/x-charts` `BarChart` (stacked series, one per severity class), coloured from `semanticTokensLight.charts` and `semanticTokensDark.charts` through the theme.
 - **Table:**
   - peak-ui `Table`, with `tableName="logs"` and manual pagination;
   - columns: time (local, with milliseconds), severity `Chip`, node, service or app, source, and message (one line, ellipsis);

@@ -4,7 +4,7 @@
 
 **Goal:** Collect database, OS, application and PMM Server logs, and later traces, through OpenTelemetry Collectors, and store them in ClickHouse next to QAN. The work follows epic [PMM-15567](https://perconadev.atlassian.net/browse/PMM-15567).
 
-**Spec:** [`docs/superpowers/specs/2026-10-10-opentelemetry-analysis.md`](../specs/2026-10-10-opentelemetry-analysis.md), together with PMM-15567 and its child tickets. The analysis records decisions D1–D23: D1–D17 were decided in the interview on 2026-10-10, and D18–D21 in the review on 2026-10-11. D22 (histogram library) and D23 (AI-drafted parsers) are open. If the epic owner or the architects overturn one when reviewing ADR-19, ADR-20 or the D12 API path, re-plan the tasks that decision lists under "Blocks".
+**Spec:** [`docs/superpowers/specs/2026-10-10-opentelemetry-analysis.md`](../specs/2026-10-10-opentelemetry-analysis.md), together with PMM-15567 and its child tickets. The analysis records decisions D1–D24: D1–D17 were decided in the interview on 2026-10-10, and D18–D24 in the review on 2026-10-11. If the epic owner or the architects overturn one when reviewing ADR-19, ADR-20 or the D12 API path, re-plan the tasks that decision lists under "Blocks".
 
 ---
 
@@ -42,6 +42,10 @@ The QA automation ticket (PMM-15578) adds its tests in percona/pmm-qa against ea
 - the `docker run` mounts for journald and database logs;
 - a correction of the 3.8.0/3.8.1 statement that PMM accepts no inbound OTel traffic;
 - downgrade behaviour: the `otel` database and the `log_sources` and `log_parser_presets` tables stay in place, unused; an older server ignores them, and an older client never receives the agent type.
+
+**Follow-ups to file** (not planned here):
+- AI-drafted parsers for unknown formats (D23): opt-in, redacted samples, a model the admin configures, admin approval.
+- After Technical Preview feedback, decide whether to keep the Grafana Logs dashboard, the native explorer, or both (D24).
 
 **Outside this repo:**
 - pmm-dump support for `otel.logs` (PMM-15571 asks for it) lives in percona/pmm-dump. File a ticket there once plan 01 has merged.
