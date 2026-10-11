@@ -248,9 +248,18 @@ func TestExplainMySQLRunsLive(t *testing.T) {
 	session := connect(t)
 
 	// MySQL has no stored plans, so the tool runs the live mysql_explain_json
-	// action without looking for one.
-	serviceID, _, queryID := topQueryID(t, session, "mysql")
-	text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": serviceID, "queryid": queryID})
+	// action without looking for one. pmm-agent explains DML only, so take the
+	// busiest DML row: the top row by load can be another statement.
+	serviceID, serviceName, _ := topQueryID(t, session, "mysql")
+	text, isError := callText(t, session, "pmm_top_queries", map[string]any{"service_name": serviceName, "period_from": "now-12h", "limit": 100})
+	require.False(t, isError, text)
+	m := regexp.MustCompile(`(?m)^\d+\. \[([0-9A-Za-z]+)\].*\n {3}(?i:SELECT|INSERT|UPDATE|DELETE|REPLACE)\b`).FindStringSubmatch(text)
+	if m == nil {
+		t.Skipf("no DML query in QAN for %s yet", serviceName)
+	}
+	queryID := m[1]
+
+	text, isError = callText(t, session, "pmm_get_explain", map[string]any{"service_id": serviceID, "queryid": queryID})
 	assert.NotContains(t, text, "Stored plan")
 	if isError {
 		// Without a stored example the fingerprint's placeholders make MySQL
