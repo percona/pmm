@@ -70,7 +70,7 @@ curl --insecure -X GET \
 
 ### Reading the response
 
-`scope` and `target` in each entry describe where the effective value came from. Currently this always matches the target you passed, since node is the only supported scope. 
+`scope` and `target` in each entry describe where the effective value came from. When `is_overridden` is `true`, these currently always match the target you passed, since node is the only supported scope.
 
 Read them from the entry rather than assuming they match your request. Once service and cluster scopes are enabled, a node can inherit an override set at a broader scope and the values will differ. 
 

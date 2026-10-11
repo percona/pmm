@@ -8,9 +8,11 @@ A template can mark a threshold parameter as overridable. On the **Alerts &gt; T
 
 When you create an alert rule from such a template:
 
-- The threshold value you enter becomes the rule's default for every node.
+- The threshold value you enter becomes the rule's default for every node. It doesn't change if you modify the rule later.
 - An override replaces the default for one node, and the other nodes keep the default.
 - Alert descriptions that include the threshold show the value in effect for the node that fired.
+- Copies of a rule share the same overrides. To manage them separately, create a new rule from the template instead.
+- If PMM Server is unavailable for more than 5 minutes, nodes with overrides fall back to the rule's default until overrides are restored.
 
 ![Dynamic badge on the alert templates list](../images/alert-template-dynamic-badge.png)
 
@@ -102,12 +104,10 @@ For the full list of template fields, see [Template format](alert_rules.md#templ
 
 Dynamic thresholds have the following limitations:
 
-- You can override thresholds per node only.
-- Among the built-in templates, only `pmm_node_high_cpu_load` supports overrides.
-- Alert rules created before PMM 3.10.0 don't support overrides. To use overrides, create the rule again from the template.
-- The default is the value entered when the rule was created. If you later change the threshold in the rule's query in Grafana, the **Default** column doesn't reflect the change.
-- A copy of an alert rule shares the same overrides as the original. To manage them independently, create a new rule from the template instead.
-- If PMM Server can't provide the overrides for more than 5 minutes, for example during a restart, nodes with overrides use the default until the overrides are available again.
+- Overrides apply to individual nodes only.
+- Currently, only the built-in `pmm_node_high_cpu_load` template supports overrides.
+- Rules created before PMM 3.10.0 don't support overrides. To enable them, make sure your template is Dynamic, then delete the rule and recreate it. If your template uses `expr`, [make it Dynamic first](#make-a-parameter-overridable-in-a-custom-template).
+
 
 ## Automate threshold changes with the API
 

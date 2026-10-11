@@ -12,15 +12,20 @@ Use these endpoints to override alert thresholds for individual nodes without ch
 
 ### Requirements
 
-To use these endpoints, you need:
+To use the threshold override endpoints, you need:
 
-- The **Admin** role. Viewer and editor tokens return `403`.
-- Percona Alerting enabled in **Configuration > Settings**. If it is off, every request returns an error.
-- A rule created from a **Dynamic** template. Dynamic templates have at least one parameter with `overridable: true`. You can identify them by the **Dynamic** badge in **Alerts > Templates**, or by checking for `overridable: true` in the `GET /v1/alerting/templates` response. The built-in `pmm_node_high_cpu_load` template is Dynamic.
+- An [Admin-role token](ref:authentication). Viewer and editor tokens return `403`.
+- Percona Alerting enabled in **Configuration > Settings**. Requests fail if it is disabled.
+- A rule created from a **Dynamic** template. Dynamic templates have at least one parameter with `overridable: true` and show a **Dynamic** badge in **Alerts > Templates**. You can also check for `overridable: true` in the `GET /v1/alerting/templates` response. The built-in `pmm_node_high_cpu_load` template is Dynamic. When you create the rule, the response includes a `rule_id`. That is the identifier the threshold endpoints use.
 
-When you create a rule from a Dynamic template, the response includes a `rule_id`. That identifier is what the threshold endpoints use to address the rule. Rules created before PMM 3.10.0 were not assigned a `rule_id` because threshold overrides did not exist yet. To enable overrides on such a rule, delete it and create a new one from the same template.
+### Enable overrides for older rules
 
-To get an authentication token, see [Authentication](ref:authentication).
+Rules created before PMM 3.10.0 don't have a `rule_id` and don't support overrides. To get one:
+{.power-number}
+
+1. Check **Alerts > Templates** for a **Dynamic** badge on your template. The built-in `pmm_node_high_cpu_load` template already has one. If yours uses `expr`, it doesn't support overrides. Rewrite it to use `queries`, `expressions`, and `condition` with `overridable: true`.
+2. Delete the rule.
+3. Recreate it from the template.
 
 ### Get started
 
@@ -85,13 +90,13 @@ If PMM Server is unavailable, rules keep using the last known overrides for up t
 
 ### Editing, copying, and modifying rules in Grafana
 
-PMM captures the rule's default and allowed range at creation time and doesn't sync with Grafana after that. Be aware of these behaviors when working with rules directly in Grafana.
+PMM records the rule's default threshold and allowed range when you create it and doesn't update them if you later modify the rule in Grafana.
 
-If you edit the threshold directly inside the rule in Grafana, the `default_value` these endpoints report won't change. It's fixed at the value you set when you created the rule.
+Editing the threshold inside the rule in Grafana has no effect on the `default_value` these endpoints report. It stays fixed at the value you set when you created the rule.
 
-If you copy a rule in Grafana, the copy shares the same overrides as the original because it keeps the `pmm_rule_id` label. To manage overrides independently, create a new rule from the template instead.
+If you copy a rule, the copy inherits the `pmm_rule_id` label and shares the same overrides as the original. To manage overrides independently, create a new rule from the template instead.
 
-If you remove the `pmm_rule_id` label from a rule, the rule is detached from the threshold system and its overrides are deleted. See [Set and clear an alert threshold](ref:setting-alert-thresholds).
+Don't remove the `pmm_rule_id` label. PMM uses it to tell that the rule still exists. Without it, PMM eventually deletes the rule's overrides and the rule falls back to its default threshold.
 
 ### Endpoints
 
