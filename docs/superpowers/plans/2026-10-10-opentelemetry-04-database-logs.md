@@ -4,9 +4,10 @@
 
 **Goal:**
 - `pmm-admin add logs` / `remove logs` manage log sources on a node.
-- `pmm-admin add mysql|postgresql|mongodb` collects the database's own log **by default** when the database runs on the same host.
+- `pmm-admin add mysql|postgresql|mongodb|valkey` collects the database's own log **by default** when the database runs on the same host.
 - pmm-agent asks the database where that log is.
-- Built-in presets parse the MySQL slow and general logs, PostgreSQL csvlog and jsonlog, and MongoDB JSON logs.
+- Built-in presets parse the MySQL slow and general logs, PostgreSQL csvlog and jsonlog, MongoDB JSON logs, and Valkey logs.
+- A log in a format PMM has never seen still gets a timestamp and a severity (the `auto` preset), and PMM suggests a matching preset from the lines it has stored.
 
 **Architecture:**
 - pmm-agent discovers log paths. It is connected to the database and can `stat` the files.
@@ -21,6 +22,7 @@
 **Spec:**
 - [analysis](../specs/2026-10-10-opentelemetry-analysis.md): §6.3, F5, F6, decisions D2, D9;
 - PMM-15573, PMM-15584, PMM-15585, PMM-15586, PMM-15587;
+- Valkey (Task 6) and parser auto-detection (Task 7) have no Jira ticket yet. PMM-15587 explicitly left Valkey out, so file new tickets before starting those tasks;
 - the [roadmap](2026-10-10-opentelemetry-00-roadmap.md) for the shared names.
 
 **Depends on:** plan 02 (the `log_sources` API, the presets harness, `Render` with `DiscoveredPaths`).
@@ -55,9 +57,16 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition,
 - **MongoDB:**
   - `getCmdLineOpts` `systemLog.path`, with an `--logpath` argv fallback;
   - `destination: syslog` gives a message and no source.
+- **Valkey:**
+  - `CONFIG GET logfile`, `dir` and `syslog-enabled`;
+  - a relative `logfile` is resolved against the server process's working directory;
+  - `logfile ""` means stdout, so a journald source or a message;
+  - `syslog-enabled yes` gives a message and no source.
 - The path is read again on every pmm-agent reconnect.
 
-**D2:** `--collect-logs` defaults to `error` for MySQL and to `on` for PostgreSQL and MongoDB. `none` (or `off`) opts out.
+**D2:** `--collect-logs` defaults to `error` for MySQL and to `on` for PostgreSQL, MongoDB and Valkey. `none` (or `off`) opts out.
+
+**D21:** a file source with no `--preset` gets `auto`, not `raw` as PMM-15573 says. `auto` behaves like `raw` when nothing matches, so it never loses data.
 
 ## Review Focus
 
@@ -66,6 +75,8 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition,
 3. **A new pmm-admin talking to an older server** (`DiscardUnknown`, F5). Expected: pmm-admin doesn't send `collect_logs`, and prints "log collection needs PMM Server 3.11 or newer". Test in Task 4 (`TestAddMySQLSkipsCollectLogsOnOldServer`).
 4. **The service is added with `--skip-connection-check`, or the database is down at add time.** Expected: the service is added, the command prints why logs were not set up, and the user can run `pmm-admin add logs --service-name=… --discover` later. Test in Task 3 (`TestAddServiceDiscoveryFailureDoesNotFailAdd`).
 5. **A PostgreSQL `log_filename` with escapes other than `%Y%m%d%H%M%S`** (for example `%a` or `%j`), or none at all. Expected: every escape becomes `*`, and a name without escapes is used as is. Test in Task 2 (`TestPostgresLogGlob`).
+6. **A Valkey instance whose `CONFIG` command is renamed or not permitted.** Expected: the service is added, and the message says to add the log with `pmm-admin add logs --service-name=… --path=…`. Test in Task 6 (`TestDiscoverValkeyConfigDenied`).
+7. **A format no built-in matches** (a custom application log). Expected: `auto` still extracts an ISO-8601 or syslog timestamp and a level word when present, and keeps the line otherwise. Suggest returns no candidate rather than a wrong one. Test in Task 7 (`TestAutoPresetFallsBackToRaw`, `TestSuggestNoCandidate`).
 
 ---
 
@@ -127,6 +138,7 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition,
 **Files:**
 - Create:
   - `api/agent/v1/log_discovery.proto` (package `agent.v1`)
+  - `agent/logdiscovery/discover.go` (the `Discover` dispatch by service type)
   - `agent/logdiscovery/mysql.go`
   - `agent/logdiscovery/postgresql.go`
   - `agent/logdiscovery/mongodb.go`
@@ -294,4 +306,128 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition,
   ```bash
   git add managed/services/otel/presets
   git commit -s -m "PMM-15587 Add database log parser presets"
+  ```
+
+### Task 6: Valkey logs, end to end
+
+**Files:**
+- Create:
+  - `agent/logdiscovery/valkey.go` and `agent/logdiscovery/valkey_test.go`
+  - `managed/services/otel/presets/builtin/valkey.yml`
+  - `managed/services/otel/presets/testdata/valkey/input.log` and `expected.json`, with samples from Valkey 7.2, 8.0 and 8.1 and Redis 7.2
+- Modify:
+  - `agent/logdiscovery/discover.go` (the `Discover` dispatch from Task 2): add `SERVICE_TYPE_VALKEY_SERVICE`
+  - `api/management/v1/valkey.proto`: `bool collect_logs` at the next free number in `AddValkeyServiceParams`, plus `log_sources` and `log_collection_messages` in the result (as in Task 3)
+  - `managed/services/management/valkey.go`: discovery in the add transaction, the same way as Task 3; `Discovery = "valkey"`
+  - `managed/services/agents/otelcollector.go`: `service.name = "valkey-server"` for Valkey services
+  - `admin/commands/management/add_valkey.go`: `CollectLogs bool \`default:"true" negatable:"" help:"Collect the Valkey log from this host"\``, plus the result template
+  - `managed/services/otel/presets/validate_test.go`: add `valkey` to `TestBuiltInsLoad`
+
+**Interfaces:**
+- **Discovery:** `func DiscoverValkey(ctx context.Context, conn redis.Conn, procRoot string, readable func(string) error) []*agentv1.LogDiscoveryEntry`. It uses the redigo client pmm-agent already uses (`agent/serviceinfobroker/service_info_broker.go:288-296`), dialled the same way, TLS included. It runs:
+  - `CONFIG GET logfile`, `CONFIG GET dir` and `CONFIG GET syslog-enabled`. PMM's documented Valkey user has `+config|get` (`documentation/docs/install-pmm/install-pmm-client/connect-database/valkey-redis.md:35`).
+  - `INFO server`, for `process_id`.
+- **Resolution rules:**
+  - An absolute `logfile` is used as is.
+  - A relative `logfile` is joined with the target of `<procRoot>/<process_id>/cwd` when that is readable (pmm-agent runs as root in packages). Otherwise it is joined with `dir`. Either way, the file must exist.
+  - `logfile ""` means stdout. It gives a journald source for the first of `valkey.service`, `valkey-server.service`, `redis.service` and `redis-server.service` that `systemctl show -p Id` resolves, or the message "Valkey logs to stdout; collect the container log instead".
+  - `syslog-enabled yes` gives no source and the message "Valkey logs to syslog; add the OS log instead".
+  - `CONFIG` failing (renamed, or no `+config|get`) gives no source and the message "CONFIG GET is not available to the PMM user; add the log with pmm-admin add logs --service-name=<name> --path=<file>".
+  - A remote address gives no source, as with the other databases (`IsLocalAddress`).
+- **`valkey` preset:** a `regex_parser` for `^(?P<pid>\d+):(?P<role>[XCSM]) (?P<ts>\d{1,2} \w{3} \d{4} \d{2}:\d{2}:\d{2}\.\d{3}) (?P<level>[.\-*#]) (?P<message>.*)$`.
+  - Time layout `%d %b %Y %H:%M:%S.%L`, in the host's local time zone. The collector runs on the same host, and the format has no offset.
+  - Severity: `.` is debug, `-` is info (verbose), `*` is info (notice), `#` is warn.
+  - `role` moves to `attributes["valkey.role"]`, with M = primary, S = replica, C = child process, X = sentinel.
+
+- [ ] **Step 1: Write the failing tests.**
+  ```go
+  func TestDiscoverValkey(t *testing.T) {
+      for name, tc := range map[string]struct{ logfile, dir, syslog, cwd string; wantPath string; wantJournald bool; wantReason string }{
+          "absolute":         {logfile: "/var/log/valkey/valkey.log", wantPath: "/var/log/valkey/valkey.log"},
+          "relative via cwd": {logfile: "valkey.log", dir: "/var/lib/valkey", cwd: "/var/log/valkey", wantPath: "/var/log/valkey/valkey.log"},
+          "relative via dir": {logfile: "valkey.log", dir: "/var/lib/valkey", wantPath: "/var/lib/valkey/valkey.log"},
+          "stdout":           {logfile: "", wantJournald: true},
+          "syslog":           {logfile: "", syslog: "yes", wantReason: "logs to syslog"},
+      } {
+          t.Run(name, func(t *testing.T) { /* fake redis.Conn answering CONFIG GET and INFO server; temp procRoot with a cwd symlink; assert the entry */ })
+      }
+  }
+  func TestDiscoverValkeyConfigDenied(t *testing.T) { /* CONFIG GET returns NOPERM: no entry, reason contains "pmm-admin add logs" */ }
+  ```
+  Add the testdata for the `valkey` preset, including a `#` warning line and a sentinel (`X`) line, and extend `TestBuiltInsLoad`.
+- [ ] **Step 2: Run them.** `make gen && cd agent && go test ./logdiscovery/ -run Valkey` and `cd build/otelcol/presettest && go test ./... -run valkey`. Expected: FAIL.
+- [ ] **Step 3: Implement** the discovery, the preset, the proto field, the management transaction and the pmm-admin flag.
+- [ ] **Step 4: Run them again.** Same commands, plus `cd managed && go test ./services/management/ -run Valkey`, then `make prepare-pr`. Expected: PASS. Then on a CHAOS VM with Valkey 8, check that `pmm-admin add valkey` (default) puts rows in `otel.logs` within 1 minute, labelled with the service, with `valkey.role` set.
+- [ ] **Step 5: Commit.**
+  ```bash
+  git add agent api managed admin build/otelcol
+  git commit -s -m "PMM-XXXX Collect Valkey logs by default on add"
+  ```
+
+### Task 7: Logs in unknown formats: the `auto` preset and preset suggestions
+
+PMM never applies a parser it guessed without someone confirming it. A wrong parser would silently corrupt timestamps and severities, which is worse than unparsed lines. So the automation is two parts:
+- a safe fallback that always applies;
+- a suggestion that an admin confirms.
+
+**Files:**
+- Create:
+  - `managed/services/otel/presets/builtin/auto.yml`
+  - `managed/services/otel/presets/detect.go` and `managed/services/otel/presets/detect_test.go`
+  - `managed/services/otel/suggest_grpc.go` and its test
+- Modify:
+  - every built-in preset file: add a `detect:` block, `{first_line: '<RE2>', continuation: '<RE2, optional>'}`
+  - `build/otelcol/presettest/main_test.go`: `TestDetectMatchesSamples`
+  - `api/otel/v1/otel.proto`: `SuggestLogParserPreset` at `POST /v1/otel/log-sources/{log_source_id}:suggestPreset`
+  - `admin/commands/management/add_logs.go`: change the `--preset` default to `auto`
+  - `ui/apps/pmm/src/pages/settings/components/otel/sources/`: a "Suggest a parser" action and its dialog (plan 03, Task 4)
+
+**Interfaces:**
+- **`auto` preset**, a built-in that may use expressions:
+  1. A `router` sends a line that starts with `{` to a `json_parser`. It reads the timestamp from the first present key of `timestamp`, `time`, `ts` and `@timestamp`, the severity from `level`, `severity` or `lvl`, and the body from `msg`, `message` or `log`.
+  2. Otherwise, a `regex_parser` extracts a leading timestamp in one of these forms, each routed to its own `time_parser`:
+     - RFC 3339 / ISO 8601, with an optional fraction and zone;
+     - `YYYY-MM-DD HH:MM:SS[.,]fff`;
+     - syslog `Mmm dd HH:MM:SS`;
+     - `dd Mmm yyyy HH:MM:SS.fff`.
+  3. A `severity_parser` reads the first level word: `TRACE`, `DEBUG`, `INFO`, `NOTICE`, `WARN`/`WARNING`, `ERROR`/`ERR`, `CRIT`/`CRITICAL`, `FATAL`, `PANIC`, `ALERT` or `EMERG`, any case, alone or in `[]` or `level=`.
+  4. Every operator has `on_error: send`, so an unmatched line is kept whole, as `raw` would keep it.
+  5. There is no multi-line handling: an unknown format has no reliable entry start.
+- **Detection:** `func Detect(lines []string, candidates []Preset) []Candidate`, with `type Candidate struct { Preset string; MatchedPercent float64; SampleMatches []string }`.
+  - An entry starts at a line that matches `first_line`. A following line that matches `continuation` belongs to it.
+  - The score is the percentage of lines that fall into an entry.
+  - It returns the candidates at or above 90 %, best first, at most 3.
+  - `auto` is never returned as a candidate.
+- **Suggest RPC:**
+  - It reads the last 200 `Body` values of that source from `otel.logs`, through the `otel_reader` client from plan 08, Task 1.
+  - It runs `Detect` over every selectable built-in and custom preset that has a `detect` block.
+  - It returns the candidates.
+  - It changes nothing: applying a candidate is a normal `AddLogSource` upsert with the new preset.
+- **Sampling:** the suggestion samples lines PMM has already stored, so pmm-agent gets no new way to read files.
+
+- [ ] **Step 1: Write the failing tests.**
+  ```go
+  func TestDetectPicksMySQLError(t *testing.T) {
+      lines := readLines(t, "testdata/mysql_error/input.log")
+      c := Detect(lines, mustBuiltIns(t))
+      require.NotEmpty(t, c)
+      assert.Equal(t, "mysql_error", c[0].Preset)
+      assert.GreaterOrEqual(t, c[0].MatchedPercent, 90.0)
+  }
+  func TestSuggestNoCandidate(t *testing.T) {
+      assert.Empty(t, Detect([]string{"hello", "world", "!!"}, mustBuiltIns(t)))
+  }
+  func TestDetectNeverReturnsAuto(t *testing.T) { /* … */ }
+  ```
+  Also write:
+  - In the harness: `TestDetectMatchesSamples` checks that each built-in's `detect.first_line` matches the first line of every entry in its testdata, which keeps the detection regexes in step with the parsers. `TestAutoPresetFallsBackToRaw` checks that an unmatched line keeps its body, with no severity. `TestAutoPresetParsesCommonShapes` covers an ISO line with `ERROR`, a syslog line with `warning`, and a JSON line with `level` and `msg`.
+  - `suggest_grpc_test.go` (sqlmock for ClickHouse): the handler queries only `otel.logs` for that source, and returns the candidates without writing anything.
+  - A UI test, `suggest dialog applies chosen preset`, asserts that `addLogSource` is called with the chosen preset name.
+- [ ] **Step 2: Run them.** `cd managed && go test ./services/otel/... -run 'Detect|Suggest'`, `cd build/otelcol/presettest && go test ./...` and `cd ui && pnpm --filter pmm test -- LogSourcesSection`. Expected: FAIL.
+- [ ] **Step 3: Implement** the `auto` preset, the `detect` blocks, `Detect`, the RPC, the pmm-admin default and the UI action.
+- [ ] **Step 4: Run them again.** Same commands, then `make prepare-pr` and `cd ui && make lint format-check`. Expected: PASS.
+- [ ] **Step 5: Commit.**
+  ```bash
+  git add managed api admin ui build/otelcol
+  git commit -s -m "PMM-XXXX Add auto preset and parser suggestions"
   ```

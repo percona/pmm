@@ -4,7 +4,7 @@
 
 **Goal:** Collect database, OS, application and PMM Server logs, and later traces, through OpenTelemetry Collectors, and store them in ClickHouse next to QAN. The work follows epic [PMM-15567](https://perconadev.atlassian.net/browse/PMM-15567).
 
-**Spec:** [`docs/superpowers/specs/2026-10-10-opentelemetry-analysis.md`](../specs/2026-10-10-opentelemetry-analysis.md), together with PMM-15567 and its child tickets. The analysis records decisions D1–D17, all decided in the interview on 2026-10-10. If the epic owner or the architects overturn one when reviewing ADR-19, ADR-20 or the D12 API path, re-plan the tasks that decision lists under "Blocks".
+**Spec:** [`docs/superpowers/specs/2026-10-10-opentelemetry-analysis.md`](../specs/2026-10-10-opentelemetry-analysis.md), together with PMM-15567 and its child tickets. The analysis records decisions D1–D23: D1–D17 were decided in the interview on 2026-10-10, and D18–D21 in the review on 2026-10-11. D22 (histogram library) and D23 (AI-drafted parsers) are open. If the epic owner or the architects overturn one when reviewing ADR-19, ADR-20 or the D12 API path, re-plan the tasks that decision lists under "Blocks".
 
 ---
 
@@ -12,17 +12,18 @@
 
 | Plan | Scope | Tickets | Repos | Depends on |
 |---|---|---|---|---|
-| (Phase 0) | ADRs in `docs/adr/`, threat model, capacity harness. These are not code plans; they run alongside plan 01. The ADRs are drafted on branch `PMM-15590-otel-adrs`: ADR-01..14, plus ADR-17..20. Merge the ADRs and get the threat-model sign-off before plans 01 and 02 merge. | PMM-15590, 15591, 15592 | pmm | — |
+| (Phase 0) | ADRs in `docs/adr/`, threat model, capacity harness. These are not code plans; they run alongside plan 01. The ADRs are drafted on branch `PMM-15590-otel-adrs`: ADR-01..14, plus ADR-17..22. Merge the ADRs and get the threat-model sign-off before plans 01 and 02 merge. | PMM-15590, 15591, 15592 | pmm | — |
 | [01](2026-10-10-opentelemetry-01-server-receiver.md) | OCB collector build; server receiver; `otel` schema; ClickHouse users; settings and `PMM_ENABLE_OTEL`; `/otlp/`; redaction; retention, size cap and watermark; status and purge; HA server bits | PMM-15571, 15577 (build, server image), 15594 (server side) | pmm, percona-helm-charts | D1, D4, D5, D6, D14 decided |
-| [02](2026-10-10-opentelemetry-02-node-collector.md) | `OTEL_COLLECTOR` agent type; `log_sources`; parser presets (backend, built-ins); config params and agent-side rendering; privilege drop; status per source; PMM Server's own logs; self-metrics scrape; telemetry | PMM-15572, 15574 (backend), 15575, 15577 (client packaging), 15593 (scrape) | pmm, grafana (Inventory types) | 01 tasks 1–4 |
+| [02](2026-10-10-opentelemetry-02-node-collector.md) | `OTEL_COLLECTOR` agent type; `log_sources`; parser presets (backend, built-ins); config params and agent-side rendering; privilege drop; status per source; PMM Server's own logs (all 14 files in `/srv/logs`); self-metrics scrape; telemetry | PMM-15572, 15574 (backend), 15575, 15577 (client packaging), 15593 (scrape) | pmm, grafana (Inventory types) | 01 tasks 1–4 |
 | [03](2026-10-10-opentelemetry-03-ui-and-grafana.md) | Settings → OTEL tab (settings, presets, log sources); `ClickHouse-OTEL` datasource; Admin-only guard in the Grafana fork; Logs dashboard and links; collector health dashboard and alerts | PMM-15574 (UI), 15576, 15593 (dashboard, alerts) | pmm, grafana | 01, 02 |
-| [04](2026-10-10-opentelemetry-04-database-logs.md) | `pmm-admin add/remove logs`; log discovery on the agent; `--collect-logs` on `add mysql/postgresql/mongodb` with a default; database presets | PMM-15573, 15584, 15585, 15586, 15587 | pmm | 02 |
+| [04](2026-10-10-opentelemetry-04-database-logs.md) | `pmm-admin add/remove logs`; log discovery on the agent; `--collect-logs` on `add mysql/postgresql/mongodb/valkey`, on by default; database presets including `valkey`; the `auto` preset and preset suggestions for unknown formats | PMM-15573, 15584, 15585, 15586, 15587, plus new tickets for Valkey and for auto-detection | pmm | 02; Task 7 also needs 08, Task 1 |
 | [05](2026-10-10-opentelemetry-05-traces.md) | Trace schema; server traces pipeline; node traces receiver and sampling; `pmm-admin add/remove traces`; traces dashboard; correlation | PMM-15579, 15580, 15582 | pmm | 01–03. Re-plan with writing-plans once 02 has merged |
 | [06](2026-10-10-opentelemetry-06-lbac.md) | LBAC for logs and traces: ingest identity, selector evaluator, logs and traces query API that fails closed, log explorer | none yet: propose a follow-up epic | pmm, grafana | 05. Design-level; re-plan before execution |
 | [07](2026-10-10-opentelemetry-07-access-hardening.md) | Access hardening of existing surfaces found during research: LBAC on ClickHouse datasources, on QAN detail endpoints and for service-account tokens; LBAC-relevant labels protected from values parsed out of query comments | file in Jira per `SECURITY.md` | pmm, grafana | none: independent of 01–06; can start now |
+| [08](2026-10-10-opentelemetry-08-log-explorer.md) | Native Logs explorer in the PMM UI with peak-ui: the `LogsService` API (search, context, histogram, facets) and a page with filters, histogram, table, details pane, live tail, export and deep links | new ticket under PMM-15567 | pmm, grafana (Inventory link) | 01 tasks 2–4, 02 |
 
 **Release gating** (from the epic):
-- Phase 0 and plans 01–03 make up 3.11.0 Technical Preview.
+- Phase 0 and plans 01–03 make up 3.11.0 Technical Preview. Plan 08 (the native explorer) is meant to ship with them, but needs a ticket and capacity; without it, 3.11.0 ships with the Grafana dashboard only.
 - Plan 04 is Phase 1b.
 - Plan 05 is Phase 2.
 - Plan 06 needs its own epic.
@@ -95,7 +96,17 @@ Plan 05 adds `OtelTracesReceiver traces_receiver = 5` to `OtelCollectorParams`. 
 | `AddLogParserPreset` / `ChangeLogParserPreset` / `RemoveLogParserPreset` | `POST …`, `PUT …/{preset_id}`, `DELETE …/{preset_id}` | 02 |
 | `ListLogSources` / `AddLogSource` / `RemoveLogSources` | `GET /v1/otel/log-sources`, `POST /v1/otel/log-sources`, `POST /v1/otel/log-sources:remove` | 02 |
 | `DiscoverLogSources` | `POST /v1/otel/log-sources:discover` | 04 |
+| `SuggestLogParserPreset` | `POST /v1/otel/log-sources/{log_source_id}:suggestPreset` | 04 |
 | `ChangeTracesReceiver` | `POST /v1/otel/traces-receiver` | 05 |
+
+**Logs read API** (`api/logs/v1/logs.proto`, package `logs.v1`, service `LogsService`, in pmm-managed, reading as `otel_reader`). The auth rule is `"/v1/logs": admin` in plan 08; plan 06 changes it to viewer with LBAC.
+
+| RPC | HTTP | Plan |
+|---|---|---|
+| `Search` | `POST /v1/logs:search` | 08 |
+| `Context` | `POST /v1/logs:context` | 08 |
+| `Histogram` | `POST /v1/logs:histogram` | 08 |
+| `Facets` | `POST /v1/logs:facets` | 08 |
 
 **Settings**
 - **Proto:** `server.v1.OtelSettings { bool collector_enabled = 1; uint32 logs_retention_days = 2; uint32 traces_retention_days = 3; uint32 max_disk_gb = 4; uint32 disk_watermark_percent = 5; }` as `Settings.otel = 22`.

@@ -12,7 +12,7 @@
   - The API evaluates them against inventory labels, producing allowed `(service_id, node_id)` pairs and node ids.
   - It binds them as query parameters, and **fails closed**.
 - **Ingest:** identity is checked, so a node can't claim to be another node.
-- **UI:** a log explorer and a trace view in the PMM UI use the API.
+- **UI:** the native Logs explorer from plan 08 already uses this API. This plan opens it to restricted users and adds a trace view.
 
 **Spec:** analysis §7.1–§7.4 and F8, F9; the existing LBAC model (`managed/models/role_*`, `managed/services/grafana/auth_server.go:146-160,446-494`).
 
@@ -71,21 +71,21 @@
   - an auth server unit test for the header;
   - a contract test: a record claiming `pmm.node_id=other`, sent with node A's header, is stored with node A's id.
 
-### Task 3: `LogsService.Search` with an ID allow-list
+### Task 3: Enforce LBAC in the existing `LogsService`
+
+Plan 08 builds `LogsService` (`Search`, `Context`, `Histogram`, `Facets`) for Admins only. This task opens it to restricted users.
 
 - **Files:**
-  - `api/logs/v1/logs.proto`: `Search` at `POST /v1/logs:search`, with `start`, `end`, `node_ids`, `service_ids`, `apps`, `severities`, `text`, `limit` (at most 1000) and `cursor`
-  - `managed/services/logs/search.go` and its tests
-  - `managed/services/grafana/auth_server.go`: rule `"/v1/logs": viewer`, and `/v1/logs` added to `lbacPrefixes`
+  - `managed/services/logs/lbac.go`, plus changes to `query.go` and `service.go` and their tests
+  - `managed/services/grafana/auth_server.go`: change the rule to `"/v1/logs": viewer`, and add `/v1/logs` to `lbacPrefixes`
   - `pmm.conf`: a `/v1/logs` location that sets `X-Proxy-Filter`, like `/v1/qan` (:339-344)
 - **Produces:**
   - `func AllowedIDs(q *reform.Querier, s lbac.Selectors) (pairs []ServiceNode, nodes []string, err error)`, cached on the inventory TTL;
-  - the predicate `(PmmServiceId, PmmNodeId) IN {pairs} OR (PmmServiceId = '' AND PmmNodeId IN {nodes})`, bound through clickhouse-go parameters.
+  - the predicate `(PmmServiceId, PmmNodeId) IN {pairs} OR (PmmServiceId = '' AND PmmNodeId IN {nodes})`, added by `BuildSearchQuery` and by the histogram, facets and context queries, all through bound parameters.
 - **Tests:**
-  - `TestSearchFailsClosedWithoutHeader`;
-  - `TestSearchDeniesBadSelector`;
-  - `TestSearchHidesSpoofedServiceRow`;
-  - `TestSearchNodeLogsNeedNodeLabel`;
+  - `TestSearchFailsClosedWithoutHeader`, `TestSearchDeniesBadSelector`;
+  - `TestSearchHidesSpoofedServiceRow`, `TestSearchNodeLogsNeedNodeLabel`;
+  - `TestFacetsRespectLBAC`: a restricted user doesn't see facet values for hidden services;
   - an api-test with two roles and two users.
 
 ### Task 4: `TracesService.Search` and `GetTrace`
@@ -93,19 +93,14 @@
 - The same predicate, applied to each span. `GetTrace` returns `partial: true` when spans were filtered out.
 - **Tests:** `TestGetTracePartial`, plus the fail-closed tests from Task 3.
 
-### Task 5: Log explorer and trace view in the PMM UI
+### Task 5: Open the Logs explorer to restricted users, and add a trace view
 
 - **Files:**
-  - `ui/apps/pmm/src/pages/logs/*`
-  - `ui/apps/pmm/src/pages/traces/*`
-  - `api/logs.ts`
-  - `hooks/api/useLogs.ts`
-  - the routes in `router.tsx`
-- **Content:**
-  - filters for node, service, app, severity, text and time range;
-  - links to service dashboards and QAN;
-  - a "partial trace" notice.
-- **Tests:** Vitest for the filters and the partial notice. A pmm-qa e2e test with a restricted user.
+  - `ui/apps/pmm/src/pages/logs/LogsExplorer.tsx`: drop the Admin-only `roles`;
+  - `navigation.constants.ts`: `NAV_LOGS` becomes visible to every role when LBAC is enabled, and to Admins only otherwise (ADR-07 still applies without LBAC);
+  - a new `ui/apps/pmm/src/pages/traces/*` view on `TracesService`, built the same way as plan 08's explorer.
+- **Content:** a "partial trace" notice.
+- **Tests:** Vitest for role visibility and the partial notice. A pmm-qa e2e test with a restricted user.
 
 ### Task 6: Security-negative QA and docs
 

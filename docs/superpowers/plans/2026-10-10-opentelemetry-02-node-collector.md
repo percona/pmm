@@ -97,7 +97,7 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition:
 
 **Files:**
 - Create:
-  - `managed/services/otel/presets/builtin/*.yml`: one file each for `mysql_error`, `syslog_mysql_systemd`, `nginx_access`, `nginx_error`, `grafana`, `pmm_managed`, `pmm_agent`, `postgres`, `clickhouse_server`, `otel_collector`, `supervisord`, `syslog`, `json`, `raw`, and the hidden `journald` (`selectable: false`)
+  - `managed/services/otel/presets/builtin/*.yml`: one file each for `mysql_error`, `syslog_mysql_systemd`, `nginx_access`, `nginx_error`, `grafana`, `pmm_managed`, `pmm_agent`, `postgres`, `clickhouse_server`, `otel_collector`, `supervisord`, `syslog`, `json`, `raw`, plus `victoriametrics`, `hclog` and `ansible` for the server's own logs (Task 8), and the hidden `journald` (`selectable: false`)
   - `managed/services/otel/presets/presets.go`
   - `managed/services/otel/presets/validate.go`
   - `managed/services/otel/presets/validate_test.go`
@@ -156,7 +156,8 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition:
       var names []string
       for _, p := range ps { names = append(names, p.Name) }
       assert.ElementsMatch(t, []string{"mysql_error", "syslog_mysql_systemd", "nginx_access", "nginx_error", "grafana",
-          "pmm_managed", "pmm_agent", "postgres", "clickhouse_server", "otel_collector", "supervisord", "syslog", "json", "raw", "journald"}, names)
+          "pmm_managed", "pmm_agent", "postgres", "clickhouse_server", "otel_collector", "supervisord", "syslog", "json", "raw",
+          "victoriametrics", "hclog", "ansible", "journald"}, names)
   }
   ```
   In `build/otelcol/presettest/main_test.go`, `TestPresetsParseSamples`: for each `testdata/<name>/`, build a stanza pipeline from the preset's operators, feed `input.log` line by line, and compare `[]{timestamp(UTC RFC3339Nano), severity_text, body}` with `expected.json`. Write the samples from real logs:
@@ -167,6 +168,7 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition:
   - logrus text for pmm-managed, pmm-agent, qan-api2 and vmproxy;
   - ClickHouse server logs;
   - supervisord logs;
+  - VictoriaMetrics and vmalert logs, a Nomad hclog sample, and `pmm-init.log` Ansible output with a failed task;
   - RFC 3164 and 5424 syslog;
   - JSON with `ts`/`level`/`msg` and `timestamp`/`severity`/`message`.
 
@@ -241,7 +243,7 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition:
 - [ ] **Step 2: Run them.** `cd managed && go test ./models/ ./services/otel/ -run 'LogSource|Preset'`. Expected: FAIL.
 - [ ] **Step 3: Implement** the models, the migration, the helpers, the proto (then `make gen`), the handlers and the startup sync.
 - [ ] **Step 4: Run them again.** Same command, then `make prepare-pr`. Expected: PASS. Then write the api-tests against a Feature Build (connect a pmm-agent from `api-tests` setup, or use the server's own node):
-  - **Presets:** list contains the 14 selectable built-ins; add, change and use a custom preset; removing it while in use gets 400; changing a built-in gets 400; cloning works; invalid YAML gets 400 with a clear message.
+  - **Presets:** list contains every selectable built-in (17 after Task 2); add, change and use a custom preset; removing it while in use gets 400; changing a built-in gets 400; cloning works; invalid YAML gets 400 with a clear message.
   - **Log sources:** add, list and remove; an unknown preset gets 404 naming it; a Viewer gets 403.
 - [ ] **Step 5: Commit.**
   ```bash
@@ -483,29 +485,44 @@ The roadmap's **Shared contract** and **Global constraints** apply. In addition:
 **Interfaces:**
 - Consumes `models.UpsertLogSource` (Task 3) and `SendToLocalReceiver` (Task 4).
 - Produces:
-  - `type ServerSource struct { File, Preset, App, ServiceID string }`
-  - `func DefaultServerSources() []ServerSource`. In `/srv/logs`:
+  - `type ServerSource struct { File, Preset, App, ServiceID string; When func(ServerEnv) bool }`
+  - `type ServerEnv struct { BuiltinPostgres, BuiltinClickHouse, InternalVictoriaMetrics, NomadEnabled bool }`. It is read from `PMM_DISABLE_BUILTIN_POSTGRES` (`managed/cmd/pmm-managed-init/main.go:74`), `PMM_DISABLE_BUILTIN_CLICKHOUSE`, `VMParams.ExternalVM()` and `settings.IsNomadEnabled()`.
+  - `func DefaultServerSources(env ServerEnv) []ServerSource`. It covers **every** log file PMM Server writes to `/srv/logs`. There are 14; PMM-15575 lists 10:
 
-    | File | Preset | `service.name` |
-    |---|---|---|
-    | `nginx.log` | `nginx_error`, which drops access lines (PMM-15575) | `nginx` |
-    | `grafana.log` | `grafana` | `grafana` |
-    | `pmm-managed.log` | `pmm_managed` | `pmm-managed` |
-    | `pmm-agent.log` | `pmm_agent` | `pmm-agent` |
-    | `postgresql.log` | `postgres` | — (bound to the `pmm-server-postgresql` service) |
-    | `clickhouse-server.log` | `clickhouse_server` | `clickhouse` |
-    | `otel-collector.log` | `otel_collector` | `otel-collector` |
-    | `supervisord.log` | `supervisord` | `supervisord` |
-    | `qan-api2.log` | `pmm_agent`, or `pmm_logrus` from Task 2 | `qan-api2` |
-    | `vmproxy.log` | same as `qan-api2.log` | `vmproxy` |
+    | File | Preset | `service.name` | Collected when |
+    |---|---|---|---|
+    | `nginx.log` | `nginx_error`, which drops access lines (PMM-15575) | `nginx` | always |
+    | `grafana.log` | `grafana` | `grafana` | always |
+    | `pmm-managed.log` | `pmm_managed` | `pmm-managed` | always |
+    | `pmm-agent.log` | `pmm_agent` | `pmm-agent` | always |
+    | `pmm-init.log` | `ansible` (new; it holds `ansible-playbook` output, `pmm_config.go:88`) | `pmm-init` | always |
+    | `supervisord.log` | `supervisord` | `supervisord` | always |
+    | `qan-api2.log` | `pmm_agent`, or `pmm_logrus` from Task 2 | `qan-api2` | always |
+    | `vmproxy.log` | same as `qan-api2.log` | `vmproxy` | always |
+    | `vmalert.log` | `victoriametrics` (new) | `vmalert` | always |
+    | `otel-collector.log` | `otel_collector` | `otel-collector` | always |
+    | `postgresql.log` | `postgres` | — (bound to the `pmm-server-postgresql` service) | built-in PostgreSQL |
+    | `clickhouse-server.log` | `clickhouse_server` | `clickhouse` | built-in ClickHouse |
+    | `victoriametrics.log` | `victoriametrics` (new) | `victoriametrics` | internal VictoriaMetrics |
+    | `nomad-server.log` | `hclog` (new) | `nomad` | Nomad enabled |
 
     The real file is `postgresql.log`. PostgreSQL 18 writes to stdout and supervisord stores it there (`pmm_config.go:106-128`), so PMM-15575's `postgresql14.log` is stale.
-  - `func (r *Registry) ensureServerOtelCollector(q *reform.Querier, pmmAgentID string, v *version.Parsed) error`. It is idempotent, upserting each default source.
+  - Each source includes `<file>*`, not just `<file>`. supervisord rotates by renaming `x.log` to `x.log.1`, and the glob lets the collector finish lines written just before a rotation. `file_storage` fingerprints stop it from reading a rotated copy twice.
+  - New built-in presets in Task 2:
+    - `victoriametrics`: tab-separated, `2026-10-11T10:00:00.000Z<TAB>info<TAB>caller<TAB>message`;
+    - `hclog`: `2026-10-11T10:00:00.000Z [INFO]  nomad: message`;
+    - `ansible`: `recombine` on `PLAY [`, `TASK [` and `PLAY RECAP`; severity from `fatal:` / `failed:` (error), `changed:` / `ok:` (info).
+  - `func (r *Registry) ensureServerOtelCollector(q *reform.Querier, pmmAgentID string, v *version.Parsed) error`. It is idempotent: it upserts the sources whose `When` holds, and removes the default sources whose `When` no longer holds, for example after Nomad is turned off.
   - To collect nginx access lines, an admin changes that source's preset to `nginx_access` through the API or the UI.
 
 - [ ] **Step 1: Write the failing tests.**
-  - `TestDefaultServerSourcesMatchShippedLogs`: every `File` appears as a `stdout_logfile` in `managed/services/supervisord/pmm_config.go` or `supervisord.go` templates, or in `build/ansible/roles/supervisord/files/supervisord.ini`. Read those files in the test and match with a regex, so that a renamed log file fails the test.
-  - `TestEnsureServerOtelCollectorIdempotent` (`testdb`): calling it twice gives one collector and 10 sources.
+  - `TestServerSourcesCoverEveryShippedLog`. It collects every `stdout_logfile = /srv/logs/<name>.log` from:
+    - the templates in `managed/services/supervisord/pmm_config.go` and `supervisord.go`;
+    - `build/ansible/roles/supervisord/files/*.ini`;
+
+    and asserts each is in `DefaultServerSources` with every `ServerEnv` flag on, and that every listed file is shipped. A new program that logs to `/srv/logs` without a source then fails CI.
+  - `TestServerSourcesFollowEnv`: with built-in PostgreSQL and ClickHouse off and external VictoriaMetrics (the HA case), the list has no `postgresql.log`, `clickhouse-server.log` or `victoriametrics.log`. Nomad off means no `nomad-server.log`.
+  - `TestEnsureServerOtelCollectorIdempotent` (`testdb`): calling it twice gives one collector and 13 sources (Nomad off).
 - [ ] **Step 2: Run them.** `cd managed && go test ./services/otel/ ./services/agents/ -run 'ServerSources|EnsureServerOtel'`. Expected: FAIL.
 - [ ] **Step 3: Implement** the source list and the ensure hook.
 - [ ] **Step 4: Run them again.** Same command. Expected: PASS. Then on a Feature Build, after 2 minutes:

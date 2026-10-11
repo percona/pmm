@@ -275,6 +275,7 @@ The roadmap's **Shared contract** and **Global constraints** apply, together wit
 - **Links:**
   - each service summary links to `/graph/d/pmm-otel-logs?var-service_id=${service_id}&${__url_time_range}`;
   - Node Summary links with `var-node_name=${node_name}`.
+  - When the native explorer (plan 08) ships, plan 08, Task 6 retargets these links to it. This dashboard stays as the Admin-only Grafana view for ad-hoc queries.
 
 - [ ] **Step 1: Write the failing checks.**
   - `api-tests/otel/datasource_test.go` `TestViewerCannotQueryOtelDatasource`: a Viewer POSTs to `/graph/api/ds/query` with a `pmm-otel` query and gets 403; an Admin gets 200.
