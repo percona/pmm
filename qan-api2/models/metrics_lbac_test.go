@@ -58,6 +58,7 @@ func TestMetricsLBAC(t *testing.T) {
 		_, err := db.ExecContext(ctx, `ALTER TABLE metrics DELETE WHERE queryid = ? SETTINGS mutations_sync = 1`, planQueryID)
 		assert.NoError(t, err, "failed to clean up seeded row")
 	})
+	// The histogram JSON is an argument: clickhouse-go reads {…:…} in query text as server-side parameters.
 	//nolint:unqueryvet // clone every column of a real row so this test survives schema changes
 	_, err = db.ExecContext(t.Context(), `
 		INSERT INTO metrics
@@ -66,11 +67,11 @@ func TestMetricsLBAC(t *testing.T) {
 			toDateTime('2019-01-03 00:30:00', 'UTC') AS period_start,
 			'lbac-test-plan' AS planid,
 			'Seq Scan on lbac_test' AS query_plan,
-			['{"range":"(0 - 3)","frequency":2}'] AS histogram_items
+			? AS histogram_items
 		)
 		FROM metrics
 		WHERE queryid = ? AND has(labels.key, 'label7')
-		LIMIT 1`, planQueryID, queryID)
+		LIMIT 1`, planQueryID, []string{`{"range":"(0 - 3)","frequency":2}`}, queryID)
 	require.NoError(t, err, "failed to seed a row with a plan and histogram")
 
 	// read runs every query-details read path and returns what each one saw.
