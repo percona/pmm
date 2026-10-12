@@ -9,7 +9,7 @@ export type TextArrayProps = {
   label?: string;
   /** Placeholder shown in every empty text field. */
   placeholder?: string;
-  /** react-hook-form control; outside a `FormProvider` the rows still save but validation errors are not shown. */
+  /** react-hook-form control; outside a `FormProvider`, deleting a row does not re-validate the list. */
   control?: Control;
   /** Called when a field loses focus, with its text, its form path, and whether it currently has an error. */
   handleBlur?: (value: string, fieldName: string, hasError: boolean) => void;
