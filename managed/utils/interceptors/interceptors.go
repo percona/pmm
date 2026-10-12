@@ -17,6 +17,7 @@ package interceptors
 
 import (
 	"context"
+	"database/sql/driver"
 	"errors"
 	"regexp"
 	"runtime/debug"
@@ -87,7 +88,7 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 // isUnavailable reports whether err means a backend, such as PostgreSQL during a failover,
 // is briefly unreachable, so the client may retry the request.
 func isUnavailable(err error) bool {
-	if errors.Is(err, syscall.ECONNREFUSED) || errors.Is(err, syscall.ECONNRESET) {
+	if errors.Is(err, driver.ErrBadConn) || errors.Is(err, syscall.ECONNREFUSED) || errors.Is(err, syscall.ECONNRESET) {
 		return true
 	}
 

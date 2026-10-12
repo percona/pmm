@@ -16,6 +16,7 @@
 package interceptors
 
 import (
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"net"
@@ -58,6 +59,10 @@ func TestLogRequestErrorCode(t *testing.T) {
 		},
 		"connection reset": {
 			err:      &net.OpError{Op: "read", Net: "tcp", Err: os.NewSyscallError("read", syscall.ECONNRESET)},
+			expected: codes.Unavailable,
+		},
+		"bad connection": {
+			err:      fmt.Errorf("failed to insert service: %w", driver.ErrBadConn),
 			expected: codes.Unavailable,
 		},
 		"other database error": {
