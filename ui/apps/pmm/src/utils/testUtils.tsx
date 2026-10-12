@@ -180,7 +180,7 @@ export const measureSurface = (renderState: () => { unmount: () => void }) => {
 
 // The colour a bare `Page` paints for each surface, so a test can name the two
 // without hardcoding theme values.
-export const measurePageSurface = (surface: 'default' | 'paper') =>
+export const measurePageSurface = (surface: 'canvas' | 'paper') =>
   measureSurface(() =>
     render(
       <Page maxWidth="full" surface={surface}>

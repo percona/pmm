@@ -93,4 +93,7 @@ export type { UseSnippetPluginExecutionOptions } from './useSnippetPluginExecuti
 export { useTaskStats } from './useTaskStats';
 export type { TaskStatsView } from './useTaskStats';
 
+export { useCopyToClipboard } from './useCopyToClipboard';
+export type { CopyToClipboard } from './useCopyToClipboard';
+
 export { extensionsRetry } from './extensionsRetry';

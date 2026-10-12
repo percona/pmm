@@ -16,12 +16,20 @@
 package agents
 
 import (
+	"context"
+	"database/sql/driver"
+	"errors"
 	"sync"
 	"testing"
+	"time"
 
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
@@ -122,6 +130,147 @@ func TestUnregister(t *testing.T) {
 
 		assert.Nil(t, r.unregister(ctx, testAgentID, "done", &pmmAgentInfo{id: testAgentID}))
 		assert.Empty(t, r.agents)
+	})
+}
+
+type haEnabledStub struct{}
+
+func pmmAgentRow(agentID string, connected bool) []driver.Value {
+	columns := models.AgentTable.Columns()
+	values := make([]driver.Value, len(columns))
+	for i, c := range columns {
+		switch c {
+		case "agent_id":
+			values[i] = agentID
+		case "agent_type":
+			values[i] = string(models.PMMAgentType)
+		case "created_at", "updated_at":
+			values[i] = time.Now()
+		case "disabled", "tls", "tls_skip_verify":
+			values[i] = false
+		case "is_connected":
+			values[i] = connected
+		case "status":
+			values[i] = ""
+		}
+	}
+	return values
+}
+
+func (haEnabledStub) Params() *models.HAParams { return &models.HAParams{Enabled: true} }
+
+// TestUnregisterPersistsDisconnectInHA guards against the connection status staying true after a
+// disconnect: the handler unregisters with the context of the stream that just ended, which is
+// already canceled.
+func TestUnregisterPersistsDisconnectInHA(t *testing.T) {
+	t.Parallel()
+
+	sqlDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		assert.NoError(t, mock.ExpectationsWereMet())
+		_ = mock.ExpectClose()
+		assert.NoError(t, sqlDB.Close())
+	})
+
+	r := newTestRegistry()
+	r.haService = haEnabledStub{}
+	r.db = reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	r.connectionCache = map[string]struct{}{testAgentID: {}}
+	current := newTestConn()
+	r.agents[testAgentID] = current
+
+	mock.ExpectBegin()
+	mock.ExpectQuery(`SELECT .+ FROM "agents"`).
+		WithArgs(testAgentID).
+		WillReturnRows(sqlmock.NewRows(models.AgentTable.Columns()).AddRow(pmmAgentRow(testAgentID, true)...))
+	mock.ExpectExec(`UPDATE "agents" SET "updated_at" = \$1, "is_connected" = \$2 WHERE "agent_id" = \$3`).
+		WithArgs(sqlmock.AnyArg(), false, testAgentID).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectCommit()
+
+	ctx, cancel := context.WithCancel(logger.SetEntry(t.Context(), logrus.WithField("test", t.Name())))
+	cancel()
+
+	assert.Same(t, current, r.unregister(ctx, testAgentID, "done", current))
+	assert.Empty(t, r.connectionCache)
+}
+
+func TestIsConnectedInHA(t *testing.T) {
+	t.Parallel()
+
+	const (
+		disconnectedID = "/agent_id/00000000-0000-4000-8000-000000000002"
+		exporterID     = "/agent_id/00000000-0000-4000-8000-000000000003"
+	)
+
+	newRegistry := func(t *testing.T) (*Registry, sqlmock.Sqlmock) {
+		t.Helper()
+
+		sqlDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			assert.NoError(t, mock.ExpectationsWereMet())
+			_ = mock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		r := newTestRegistry()
+		r.haService = haEnabledStub{}
+		r.db = reform.NewDB(sqlDB, postgresql.Dialect, nil)
+		r.connectionCache = make(map[string]struct{})
+		return r, mock
+	}
+
+	t.Run("fresh cache answers misses without a query", func(t *testing.T) {
+		t.Parallel()
+
+		r, _ := newRegistry(t)
+		r.connectionCache[testAgentID] = struct{}{}
+		r.connectionCacheTTL = time.Now().Add(time.Minute)
+		ttl := r.connectionCacheTTL
+
+		assert.False(t, r.IsConnected(exporterID))
+		assert.True(t, r.IsConnected(testAgentID))
+		// Any rebuild, even a failed one, would advance the TTL.
+		assert.Equal(t, ttl, r.connectionCacheTTL)
+	})
+
+	t.Run("failed rebuild keeps the last snapshot", func(t *testing.T) {
+		t.Parallel()
+
+		r, mock := newRegistry(t)
+		r.connectionCache[testAgentID] = struct{}{}
+		mock.ExpectBegin().WillReturnError(errors.New("database is down"))
+
+		assert.True(t, r.IsConnected(testAgentID))
+		assert.False(t, r.connectionCacheExpired())
+	})
+
+	t.Run("expired cache is rebuilt once for concurrent callers", func(t *testing.T) {
+		t.Parallel()
+
+		r, mock := newRegistry(t)
+		mock.ExpectBegin()
+		mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE agent_type = \$1`).
+			WithArgs(string(models.PMMAgentType)).
+			WillDelayFor(100 * time.Millisecond).
+			WillReturnRows(sqlmock.NewRows(models.AgentTable.Columns()).
+				AddRow(pmmAgentRow(testAgentID, true)...).
+				AddRow(pmmAgentRow(disconnectedID, false)...))
+		mock.ExpectCommit()
+
+		var wg sync.WaitGroup
+		for range 10 {
+			wg.Go(func() {
+				assert.True(t, r.IsConnected(testAgentID))
+			})
+		}
+		wg.Wait()
+
+		assert.False(t, r.IsConnected(disconnectedID))
+		assert.False(t, r.IsConnected(exporterID))
+		assert.True(t, r.IsConnected(testAgentID))
 	})
 }
 

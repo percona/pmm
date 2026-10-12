@@ -66,7 +66,7 @@ export const UpdateClients: FC = () => {
   );
 
   return (
-    <Page title={Messages.pageTitle}>
+    <Page title={Messages.pageTitle} surface="canvas">
       <Card variant="outlined">
         <CardContent>
           <Stack spacing={2}>
