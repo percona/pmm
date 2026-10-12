@@ -240,7 +240,7 @@ Supported agent types:
 
 - `node-exporter`
 
-Only the flags you specify are updated. All other settings remain unchanged. `pmm-agent` keeps running and restarts only the changed agent with the new settings. The command fails with a clear error if the agent ID doesn't exist or the type doesn't match.
+Only the flags you specify are updated. All other settings remain unchanged. Changes take effect immediately without restarting the agent. The command fails with a clear error if the agent ID doesn't exist or the type doesn't match.
 
 ### When to use `change agent` vs `remove/add`
 
@@ -248,7 +248,7 @@ Only the flags you specify are updated. All other settings remain unchanged. `pm
 
 - Update database credentials
 - Add or update custom labels
-- Enable/disable a collector
+- Enable or disable a collector
 - Update collection limits
 - Change TLS settings
 - Enable or disable an agent
@@ -256,7 +256,7 @@ Only the flags you specify are updated. All other settings remain unchanged. `pm
 
 **Use `remove` then `add` for:**
 
-- Change service name
+- Change the service name
 - Switch to a different database instance
 
 ### Finding the agent ID
@@ -333,7 +333,7 @@ You can also use `pmm-admin list` to see agents alongside their services.
 :   Custom user-assigned labels in `key=value,key=value` format
 
 - `--agent-env-vars`
-:   `mongodb-exporter` only, PMM 3.10.0+. Both pmm-admin and PMM Server must be 3.10.0 or later. An older PMM Server ignores the flag and doesn't save the names. Comma-separated list of environment variable names to pass from the `pmm-agent` environment to the exporter, for example `KRB5_KTNAME,KRB5_CONFIG`. The list replaces the stored one, and an empty value removes all names. See [Pass environment variables to the exporter](#pass-environment-variables-to-the-exporter).
+:   Supported for `mongodb-exporter` only, available from PMM 3.10.0. Use this flag to forward environment variables from `pmm-agent` to the exporter, useful for authentication methods like Kerberos that rely on variables PMM doesn't set itself. Pass the variable names as a comma-separated list, for example `KRB5_KTNAME,KRB5_CONFIG`. The names you pass replace any previously stored list, and an empty value removes all stored names. For full setup instructions, see [Pass environment variables to the exporter](#pass-environment-variables-to-the-exporter).
 
 - `--enable`
 :   Re-enable a disabled agent
@@ -469,6 +469,8 @@ To stop custom metrics from the [textfile collector](../../metrics/extend_metric
 
 Some authentication methods, such as Kerberos, require environment variables that PMM does not set itself. Use `--agent-env-vars` to pass those variable names to the MongoDB exporter. PMM stores only the names and keeps the values in the `pmm-agent` environment on your PMM Client host. This flag works only with `mongodb-exporter`, as the QAN and RTA agents already have direct access to the `pmm-agent` environment.
 
+Both pmm-admin and PMM Server must be 3.10.0 or later. An older PMM Server ignores the flag and does not save the variable names.
+
 #### Set the variable in the pmm-agent environment
 
 Before you can pass a variable name to the exporter, the value must already exist in the `pmm-agent` environment on your PMM Client host. How you set it depends on how PMM Client is deployed:
@@ -492,9 +494,9 @@ Before you can pass a variable name to the exporter, the value must already exis
 
 === "Docker"
 
-    Pass the variable to the PMM Client container with `-e`. If the variable points to a file, mount that file with `-v`. Then recreate the container. The container runs as the `pmm-agent` user (UID 1002), so that user must be able to read the mounted files.
+    Pass the variable to the PMM Client container with `-e`, then recreate the container. The container runs as the `pmm-agent` user (UID 1002), so that user must be able to read any files you mount.
 
-    For Kerberos, setting the variables isn't enough: mount the keytab and `krb5.conf` as well, for example:
+    For Kerberos, pass the variables and mount the keytab and configuration files:
 
     ```bash
     -e KRB5_KTNAME=/etc/krb5.keytab \
@@ -514,14 +516,15 @@ Each time you pass `--agent-env-vars`, the new list replaces the stored one:
 
 #### Naming rules
 
-PMM rejects the request if any name breaks these rules:
+Names you pass with `--agent-env-vars` must follow these rules:
 
-- Use only letters, digits, and underscores. Don't start with a digit (`[A-Za-z_][A-Za-z0-9_]*`). Pass the name only, not `NAME=value`.
-- Don't use the `PMM_AGENT_` prefix in any letter case. It is reserved for the configuration and credentials of `pmm-agent`, for example `PMM_AGENT_SERVER_PASSWORD`.
+- Use only letters, digits, and underscores. Names cannot start with a digit. Pass the name only, not the value — use `KRB5_KTNAME`, not `KRB5_KTNAME=/etc/krb5.keytab`.
+- The `PMM_AGENT_` prefix is reserved for `pmm-agent`'s own configuration and credentials, for example `PMM_AGENT_SERVER_PASSWORD`. PMM rejects any name with this prefix regardless of letter case. If you have `PMM_AGENT_` names stored from before PMM Client 3.10.0, they are no longer passed to the exporter. Run the command again with only the names you want to keep, or use `--agent-env-vars=""` to clear the list.
 - Don't use `MONGODB_URI` in any letter case. PMM sets this variable for the exporter itself.
 - Use at most 32 names, each at most 256 characters long.
 
-A list stored before PMM 3.10.0 can contain names that break these rules, because earlier versions checked names less strictly. Starting with PMM Client 3.10.0, `pmm-agent` doesn't pass such a name to the exporter and logs a warning instead. To clean up the list, pass only the names you want to keep, or remove all names with `--agent-env-vars=""`. If you pass a stored name again, PMM accepts it and keeps it in the list. The exception is a `PMM_AGENT_` name, which PMM always rejects.
+!!! note "Upgrading from before PMM Client 3.10.0"
+    Names stored in earlier versions may no longer pass the stricter validation introduced in 3.10.0. PMM Client skips any invalid name, logs a warning, and starts the exporter without it. To clean up, run the command with only the names you want to keep, or use `--agent-env-vars=""` to clear the list.
 
 #### What happens on save
 
@@ -534,7 +537,8 @@ To check which names are currently stored, run `pmm-admin inventory change agent
 The command returns a clear error message in these cases:
 
 - **Non-existent agent ID**: The specified agent ID does not exist in PMM inventory.
-- **Mismatched agent type**: The agent ID exists but belongs to a different agent type (e.g., using a `mysqld-exporter` ID with the `mongodb-exporter` subcommand).
+- **Mismatched agent type**: The agent ID exists but belongs to a different agent type, for example a `qan-postgresql-pgstatmonitor-agent` ID used with the `qan-postgresql-pgstatements-agent` subcommand. The agent is left unchanged, and the error names both types: `Agent with ID <AGENT_ID> has type qan_postgresql_pgstatmonitor_agent, expected qan_postgresql_pgstatements_agent.`
+- **QAN for PMM Server's PostgreSQL set by an environment variable**: PMM Server was started with `PMM_ENABLE_INTERNAL_PG_QAN`, and the command tries to enable or disable the QAN agent of PMM Server's own PostgreSQL against that value, for example: `QAN for PMM's internal PostgreSQL server is set to false via an environment variable.` Other changes to that agent are accepted. To control this QAN agent from PMM, start PMM Server without the variable. See [Monitor PMM Server's internal PostgreSQL](../../qan/QAN-stored-metrics.md#monitor-pmm-servers-internal-postgresql).
 - **Invalid flag value**: A flag receives a value outside its allowed range (e.g., an invalid log level).
 - **Invalid environment variable names**: A name passed with `--agent-env-vars` breaks the [naming rules](#naming-rules). This covers a malformed name (such as `NAME=value`, or an empty element such as `A,,B`), a reserved name (`MONGODB_URI` or a `PMM_AGENT_` name), more than 32 names, and a name longer than 256 characters. No changes are saved. API requests with such names fail with `InvalidArgument`.
 - **Connection check failure**: PMM could not validate the new connection-affecting settings (credentials, TLS) against the database. No changes are saved. If the database is intentionally unreachable (down, in maintenance, or you are setting a password PMM does not yet have), re-run the command with `--skip-connection-check`.
