@@ -333,7 +333,8 @@ const RealtimeOverviewPage: FC = () => {
                         exportRtaQueriesToCsv(
                           table
                             .getPrePaginationRowModel()
-                            .rows.map((row) => row.original)
+                            .rows.map((row) => row.original),
+                          serviceType
                         )
                       }
                       color="inherit"

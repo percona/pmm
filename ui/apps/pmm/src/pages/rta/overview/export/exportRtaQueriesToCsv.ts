@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import { download, generateCsv, mkConfig } from 'export-to-csv';
 import { QueryData } from 'types/rta.types';
+import { ServiceType } from 'types/services.types';
 import { lockTimeMs, soleBlocker } from '../table/OverviewTable.utils';
 import { isPlainObject } from 'utils/object.utils';
 
@@ -157,13 +158,26 @@ export const collectCsvColumns = (rows: CsvRow[]): string[] => {
   return columns.sort((a, b) => columnRank(a) - columnRank(b));
 };
 
-export const buildRtaExportFilename = (date = new Date()): string => {
-  const timestamp = format(date, 'yyyyMMdd_HHmmss');
-
-  return `rta_export_${timestamp}`;
+// MongoDB keeps the mongodb_rta_export_ name it shipped with in 3.9.
+const EXPORT_FILENAME_PREFIX: Partial<Record<ServiceType, string>> = {
+  [ServiceType.mongodb]: 'mongodb_',
+  [ServiceType.mysql]: 'mysql_',
 };
 
-export const exportRtaQueriesToCsv = (queries: QueryData[]): void => {
+export const buildRtaExportFilename = (
+  serviceType?: ServiceType,
+  date = new Date()
+): string => {
+  const timestamp = format(date, 'yyyyMMdd_HHmmss');
+  const prefix = (serviceType && EXPORT_FILENAME_PREFIX[serviceType]) ?? '';
+
+  return `${prefix}rta_export_${timestamp}`;
+};
+
+export const exportRtaQueriesToCsv = (
+  queries: QueryData[],
+  serviceType?: ServiceType
+): void => {
   if (queries.length === 0) {
     return;
   }
@@ -171,7 +185,7 @@ export const exportRtaQueriesToCsv = (queries: QueryData[]): void => {
   const rows = queries.map(mapQueryToCsvRow);
   const csvConfig = mkConfig({
     columnHeaders: collectCsvColumns(rows),
-    filename: buildRtaExportFilename(),
+    filename: buildRtaExportFilename(serviceType),
   });
   const csv = generateCsv(csvConfig)(rows);
   download(csvConfig)(csv);

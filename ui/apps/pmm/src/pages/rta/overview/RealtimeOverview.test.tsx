@@ -12,6 +12,7 @@ import {
 } from 'utils/testStubs';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { BlockedStatus, RealtimeSessionStatus } from 'types/rta.types';
+import { ServiceType } from 'types/services.types';
 import { Messages } from './RealtimeOverview.messages';
 
 const { exportRtaQueriesToCsv } = vi.hoisted(() => ({
@@ -169,11 +170,11 @@ describe('RealtimeOverview', () => {
     await waitFor(() =>
       expect(
         screen.getByTestId('query-query-ms-elapsed-time-cell')
-      ).toHaveTextContent('0.003s')
+      ).toHaveTextContent('0.003 s')
     );
     expect(
       screen.getByTestId('query-query-zero-elapsed-time-cell')
-    ).toHaveTextContent('0.000s');
+    ).toHaveTextContent('0.000 s');
     expect(
       screen.getByTestId('query-query-missing-elapsed-time-cell')
     ).toHaveTextContent('Unavailable');
@@ -929,14 +930,17 @@ describe('RealtimeOverview', () => {
 
     fireEvent.click(screen.getByTestId('overview-table-export-button'));
 
-    expect(exportRtaQueriesToCsv).toHaveBeenCalledWith([
-      expect.objectContaining({
-        queryId: TEST_MONGO_DB_QUERY_DATA.queryId,
-        serviceName: TEST_MONGO_DB_QUERY_DATA.serviceName,
-        queryText: TEST_MONGO_DB_QUERY_DATA.queryText,
-        queryExecutionDurationMs: 10,
-      }),
-    ]);
+    expect(exportRtaQueriesToCsv).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({
+          queryId: TEST_MONGO_DB_QUERY_DATA.queryId,
+          serviceName: TEST_MONGO_DB_QUERY_DATA.serviceName,
+          queryText: TEST_MONGO_DB_QUERY_DATA.queryText,
+          queryExecutionDurationMs: 10,
+        }),
+      ],
+      ServiceType.mongodb
+    );
   });
 
   it('never asks the API for an empty selection after the pane is closed', async () => {

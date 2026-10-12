@@ -4,6 +4,7 @@ import {
   TEST_MYSQL_QUERY_DATA,
 } from 'utils/testStubs';
 import { BlockedStatus, QueryData } from 'types/rta.types';
+import { ServiceType } from 'types/services.types';
 import {
   buildRtaExportFilename,
   collectCsvColumns,
@@ -233,19 +234,22 @@ describe('exportRtaQueriesToCsv', () => {
     );
   });
 
-  it('builds the required filename template', () => {
+  it.each([
+    [ServiceType.mongodb, /^mongodb_rta_export_\d{8}_\d{6}$/],
+    [ServiceType.mysql, /^mysql_rta_export_\d{8}_\d{6}$/],
+    [undefined, /^rta_export_\d{8}_\d{6}$/],
+  ])('prefixes the filename for %s', (serviceType, expected) => {
     expect(
-      buildRtaExportFilename(new Date('2026-06-25T14:30:22.000Z'))
-    ).toMatch(/^rta_export_\d{8}_\d{6}$/);
+      buildRtaExportFilename(serviceType, new Date('2026-06-25T14:30:22.000Z'))
+    ).toMatch(expected);
   });
 
   it('exports filtered query rows to csv', () => {
-    exportRtaQueriesToCsv([TEST_QUERY]);
+    exportRtaQueriesToCsv([TEST_QUERY], ServiceType.mongodb);
 
     expect(mkConfig).toHaveBeenCalledWith({
       columnHeaders: expect.arrayContaining(['operation_id', 'raw_query']),
-      // No technology prefix: RTA now covers MySQL as well as MongoDB.
-      filename: expect.stringMatching(/^rta_export_\d{8}_\d{6}$/),
+      filename: expect.stringMatching(/^mongodb_rta_export_\d{8}_\d{6}$/),
     });
     expect(generateCsv).toHaveBeenCalled();
     expect(download).toHaveBeenCalled();

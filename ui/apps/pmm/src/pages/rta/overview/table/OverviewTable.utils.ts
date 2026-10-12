@@ -50,7 +50,7 @@ export const elapsedTimeValue = (seconds: number): string => {
 // formatElapsedTime renders the value with the SI unit instead of the "seconds"
 // word, for the width-constrained overview column.
 export const formatElapsedTime = (seconds: number): string =>
-  `${elapsedTimeValue(seconds)}s`;
+  `${elapsedTimeValue(seconds)} s`;
 
 // lockTimeMs converts the protobuf duration the API sends into milliseconds,
 // or undefined when the server did not measure it.
