@@ -461,6 +461,21 @@ describe('NodesPage', () => {
     );
   });
 
+  it('says why a node mid-install cannot be selected', async () => {
+    useOmBootstrapRuns.mockReturnValue({
+      data: [{ status: 'running', hosts: [{ host: 'exec-1' }] }],
+    });
+    renderPage([host({ name: 'node00', executor_host: 'exec-1' })]);
+
+    const checkbox = within(rowFor('node00')).getByRole('checkbox');
+    expect(checkbox).toBeDisabled();
+
+    fireEvent.mouseOver(checkbox.closest('span.MuiBox-root') as HTMLElement);
+    expect((await screen.findByRole('tooltip')).textContent).toBe(
+      'Already part of an install in progress.'
+    );
+  });
+
   // The other half of the pair: an idle node's Forget still works, and carries no
   // tooltip at all rather than an empty one.
   it('leaves Remove duplicate entry usable on a node with no install running', () => {
@@ -710,6 +725,56 @@ describe('NodesPage', () => {
       }),
       host({ node_id: 'node-2', name: 'node01', freshness: failing() }),
     ];
+
+    it('says PMM Server on its Automation chip, with the reason on hover', async () => {
+      renderPage([
+        host({
+          name: 'pmm-server',
+          is_pmm_server_node: true,
+          automation_eligible: false,
+          automation_blocked_by_design: true,
+          automation_blocked_reasons: [
+            'this is the node PMM Server itself runs on, which Operations never installs onto',
+          ],
+        }),
+      ]);
+
+      const chip = within(rowFor('pmm-server')).getByText('PMM Server');
+      expect(
+        within(rowFor('pmm-server')).queryByText('Not a target')
+      ).toBeNull();
+
+      fireEvent.mouseOver(chip);
+      expect((await screen.findByRole('tooltip')).textContent).toBe(
+        'this is the node PMM Server itself runs on, which Operations never installs onto'
+      );
+    });
+
+    it('cannot be selected, and says why on hover', async () => {
+      renderPage(nodes());
+
+      const checkbox = within(rowFor('pmm-server')).getByRole('checkbox');
+      expect(checkbox).toBeDisabled();
+
+      fireEvent.mouseOver(checkbox.closest('span.MuiBox-root') as HTMLElement);
+      expect((await screen.findByRole('tooltip')).textContent).toBe(
+        "This is the PMM Server. Operations can't install or change databases here."
+      );
+    });
+
+    it('is skipped by Select all', () => {
+      renderPage(nodes());
+
+      fireEvent.click(
+        screen.getByRole('checkbox', { name: 'Toggle select all' })
+      );
+
+      expect(within(rowFor('node01')).getByRole('checkbox')).toBeChecked();
+      expect(
+        within(rowFor('pmm-server')).getByRole('checkbox')
+      ).not.toBeChecked();
+      expect(screen.getByText('selected')).toHaveTextContent('1 selected');
+    });
 
     it('is left out of the failing count and its filter', () => {
       renderPage(nodes());

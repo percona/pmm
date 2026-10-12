@@ -41,6 +41,7 @@ import {
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import {
   MaterialReactTable,
+  MRT_SelectCheckbox,
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from 'material-react-table';
@@ -253,6 +254,17 @@ const ExecutorCell = ({
  */
 const BUSY_TITLE = 'Already part of an install in progress.';
 
+const PMM_SERVER_TITLE =
+  "This is the PMM Server. Operations can't install or change databases here.";
+
+/** Why a row cannot be selected for a bulk action, or `null` when it can. */
+const selectionBlockedTitle = (row: OmHostRow, busy: boolean): string | null =>
+  row.is_pmm_server_node ? PMM_SERVER_TITLE : busy ? BUSY_TITLE : null;
+
+/** The Automation chip's word for a node Operations leaves alone on purpose. */
+const notATargetLabel = (row: OmHostRow) =>
+  row.is_pmm_server_node ? 'PMM Server' : 'Not a target';
+
 const automationBlockedTitle = (reasons: string[]) =>
   reasons.join('; ') || 'Not eligible for automation.';
 
@@ -347,7 +359,7 @@ const AutomationCell = ({ row, busy }: { row: OmHostRow; busy: boolean }) => {
   if (row.automation_blocked_by_design) {
     return (
       <Tooltip title={automationBlockedTitle(row.automation_blocked_reasons)}>
-        <Chip size="small" variant="outlined" label="Not a target" />
+        <Chip size="small" variant="outlined" label={notATargetLabel(row)} />
       </Tooltip>
     );
   }
@@ -487,7 +499,7 @@ function useColumns(
             : row.automation_eligible
               ? 'Ready'
               : row.automation_blocked_by_design
-                ? 'Not a target'
+                ? notATargetLabel(row)
                 : 'Needs attention',
         header: 'Automation',
         Cell: ({ row: { original } }) => (
@@ -1012,8 +1024,10 @@ export const NodesPage = () => {
     enableExpanding: true,
     enableRowActions: true,
     // A host already part of an in-flight bootstrap run cannot be selected
-    // for another one -- see `busyExecutorHosts`'s own comment.
-    enableRowSelection: (row) => !isHostBusy(row.original),
+    // for another one -- see `busyExecutorHosts`'s own comment. Nor can PMM Server's
+    // own node, so a bulk removal cannot clear the entry its row offers no Forget for.
+    enableRowSelection: (row) =>
+      selectionBlockedTitle(row.original, isHostBusy(row.original)) === null,
     // See FleetClustersTab: without these MRT sizes every column to its header's
     // chrome rather than its content, and the table overflows the ~980px the page
     // gets at 1440 with the nav open. The per-column menu's only verb beyond sorting
@@ -1025,7 +1039,32 @@ export const NodesPage = () => {
     // the right edge, which is the same width problem all over again.
     displayColumnDefOptions: {
       'mrt-row-actions': { size: 290, grow: false },
-      'mrt-row-select': { size: 50, grow: false },
+      'mrt-row-select': {
+        size: 50,
+        grow: false,
+        // MRT's own tooltip sits on the checkbox, which fires no pointer events once
+        // disabled, so a blocked row carries its reason on a span around it instead.
+        Cell: ({ row, staticRowIndex, table: rowTable }) => {
+          const checkbox = (
+            <MRT_SelectCheckbox
+              row={row}
+              staticRowIndex={staticRowIndex}
+              table={rowTable}
+            />
+          );
+          const blocked = selectionBlockedTitle(
+            row.original,
+            isHostBusy(row.original)
+          );
+          return blocked ? (
+            <Tooltip title={blocked}>
+              <Box component="span">{checkbox}</Box>
+            </Tooltip>
+          ) : (
+            checkbox
+          );
+        },
+      },
       'mrt-row-expand': { size: 50, grow: false },
     },
     // Ours already shows the count and carries the actions, so MRT's banner was a
