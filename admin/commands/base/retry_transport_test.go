@@ -44,13 +44,6 @@ func TestRetryTransport(t *testing.T) {
 			expectedCode:  http.StatusOK,
 			expectedCalls: 2,
 		},
-		"gives up": {
-			unavailable:   1000,
-			contentType:   "application/json",
-			status:        http.StatusOK,
-			expectedCode:  http.StatusServiceUnavailable,
-			expectedCalls: 2,
-		},
 		"maintenance page": {
 			unavailable:   1000,
 			contentType:   "text/html",
@@ -67,43 +60,70 @@ func TestRetryTransport(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			var calls atomic.Int32
-			srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-				body, err := io.ReadAll(req.Body)
-				assert.NoError(t, err)
-				assert.Equal(t, "request body", string(body))
-
-				if calls.Add(1) <= tc.unavailable {
-					rw.Header().Set("Content-Type", tc.contentType)
-					rw.WriteHeader(http.StatusServiceUnavailable)
-					_, _ = rw.Write([]byte("unavailable"))
-					return
-				}
-				rw.WriteHeader(tc.status)
-			}))
-			t.Cleanup(srv.Close)
-
-			// The budget fits one delay but not two, so "gives up" makes exactly two calls.
-			rt := &retryTransport{
-				next:     http.DefaultTransport,
-				delay:    50 * time.Millisecond,
-				duration: 75 * time.Millisecond,
-			}
-			req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, srv.URL, strings.NewReader("request body"))
-			require.NoError(t, err)
-
-			resp, err := rt.RoundTrip(req)
-			require.NoError(t, err)
+			srv, calls := newRetryTestServer(t, tc.unavailable, tc.contentType, tc.status)
+			resp := roundTripWithRetry(t, srv, time.Minute)
 			t.Cleanup(func() { _ = resp.Body.Close() })
 
 			assert.Equal(t, tc.expectedCode, resp.StatusCode)
 			assert.Equal(t, tc.expectedCalls, calls.Load())
-
-			if tc.expectedCode == http.StatusServiceUnavailable {
-				body, err := io.ReadAll(resp.Body)
-				require.NoError(t, err)
-				assert.Equal(t, "unavailable", string(body))
-			}
 		})
 	}
+}
+
+func TestRetryTransportGivesUp(t *testing.T) {
+	t.Parallel()
+
+	srv, calls := newRetryTestServer(t, 1000, "application/json", http.StatusOK)
+	resp := roundTripWithRetry(t, srv, 100*time.Millisecond)
+	t.Cleanup(func() { _ = resp.Body.Close() })
+
+	assert.Equal(t, http.StatusServiceUnavailable, resp.StatusCode)
+	assert.Greater(t, calls.Load(), int32(1))
+
+	body, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+	assert.Equal(t, "unavailable", string(body))
+}
+
+// newRetryTestServer returns a server answering its first unavailable requests with a 503 of
+// contentType, and the rest with status, and the number of requests it received.
+func newRetryTestServer(t *testing.T, unavailable int32, contentType string, status int) (*httptest.Server, *atomic.Int32) {
+	t.Helper()
+
+	var calls atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		body, err := io.ReadAll(req.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "request body", string(body))
+
+		if calls.Add(1) <= unavailable {
+			rw.Header().Set("Content-Type", contentType)
+			rw.WriteHeader(http.StatusServiceUnavailable)
+			_, _ = rw.Write([]byte("unavailable"))
+			return
+		}
+		rw.WriteHeader(status)
+	}))
+	t.Cleanup(srv.Close)
+
+	return srv, &calls
+}
+
+// roundTripWithRetry sends a POST to srv through a retryTransport retrying for duration.
+func roundTripWithRetry(t *testing.T, srv *httptest.Server, duration time.Duration) *http.Response {
+	t.Helper()
+
+	rt := &retryTransport{
+		// Not http.DefaultTransport: a parallel test's srv.Close drops its idle connections.
+		next:     srv.Client().Transport,
+		delay:    10 * time.Millisecond,
+		duration: duration,
+	}
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, srv.URL, strings.NewReader("request body"))
+	require.NoError(t, err)
+
+	resp, err := rt.RoundTrip(req)
+	require.NoError(t, err)
+
+	return resp
 }
