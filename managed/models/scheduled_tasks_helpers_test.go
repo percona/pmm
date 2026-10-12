@@ -41,12 +41,10 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		Type:           models.ScheduledMySQLBackupTask,
 		Data: &models.ScheduledTaskData{
 			MySQLBackupTask: &models.MySQLBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:   "",
-					LocationID:  "",
-					Name:        "task1",
-					Description: "",
-				},
+				ServiceID:   "",
+				LocationID:  "",
+				Name:        "task1",
+				Description: "",
 			},
 		},
 		Disabled: false,
@@ -57,12 +55,10 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		Type:           models.ScheduledMySQLBackupTask,
 		Data: &models.ScheduledTaskData{
 			MySQLBackupTask: &models.MySQLBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:   "",
-					LocationID:  "",
-					Name:        "task1",
-					Description: "",
-				},
+				ServiceID:   "",
+				LocationID:  "",
+				Name:        "task1",
+				Description: "",
 			},
 		},
 		Disabled: false,
@@ -73,12 +69,10 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		Type:           models.ScheduledMySQLBackupTask,
 		Data: &models.ScheduledTaskData{
 			MySQLBackupTask: &models.MySQLBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:   "",
-					LocationID:  "",
-					Name:        "task2",
-					Description: "",
-				},
+				ServiceID:   "",
+				LocationID:  "",
+				Name:        "task2",
+				Description: "",
 			},
 		},
 		Disabled: true,
@@ -89,12 +83,10 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		Type:           models.ScheduledMySQLBackupTask,
 		Data: &models.ScheduledTaskData{
 			MySQLBackupTask: &models.MySQLBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:   "svc1",
-					LocationID:  "loc1",
-					Name:        "mysql",
-					Description: "",
-				},
+				ServiceID:   "svc1",
+				LocationID:  "loc1",
+				Name:        "mysql",
+				Description: "",
 			},
 		},
 		Disabled: false,
@@ -105,12 +97,10 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		Type:           models.ScheduledMongoDBBackupTask,
 		Data: &models.ScheduledTaskData{
 			MongoDBBackupTask: &models.MongoBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:   "svc2",
-					ClusterName: "cluster",
-					LocationID:  "loc1",
-					Name:        "mongo",
-				},
+				ServiceID:   "svc2",
+				ClusterName: "cluster",
+				LocationID:  "loc1",
+				Name:        "mongo",
 			},
 		},
 		Disabled: false,
@@ -182,9 +172,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		changeParams2 := models.ChangeScheduledTaskParams{
 			Data: &models.ScheduledTaskData{
 				MySQLBackupTask: &models.MySQLBackupTaskData{
-					CommonBackupTaskData: models.CommonBackupTaskData{
-						Name: task1.Data.MySQLBackupTask.Name,
-					},
+					Name: task1.Data.MySQLBackupTask.Name,
 				},
 			},
 		}

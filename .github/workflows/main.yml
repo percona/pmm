@@ -78,7 +78,7 @@ jobs:
           echo "$out" | go tool reviewdog -f=buf -reporter=github-pr-review -fail-level=error
 
       - name: Run code linters
-        uses: reviewdog/action-golangci-lint@c76cceaaab89abe74e649d2e34c6c9adc26662d2 # v2.10.0
+        uses: reviewdog/action-golangci-lint@284129a3ac23bc5d8ac1522e0b6511df74a8836d # v2.10.2
         if: ${{ github.event_name == 'pull_request' }}
         with:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
@@ -87,7 +87,7 @@ jobs:
           fail_level: error
           cache: false
           golangci_lint_flags: "-c=.golangci.yml"
-          golangci_lint_version: v2.12.2 # Version should match specified in Makefile
+          golangci_lint_version: v2.13.2 # Version should match specified in Makefile
 
       - name: Test common API
         run: make test-common

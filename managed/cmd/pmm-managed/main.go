@@ -58,7 +58,6 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -70,7 +69,7 @@ import (
 	alertingv1 "github.com/percona/pmm/api/alerting/v1"
 	backupv1 "github.com/percona/pmm/api/backup/v1"
 	dumpv1beta1 "github.com/percona/pmm/api/dump/v1beta1"
-	hav1beta1 "github.com/percona/pmm/api/ha/v1beta1"
+	hav1 "github.com/percona/pmm/api/ha/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
@@ -107,6 +106,7 @@ import (
 	"github.com/percona/pmm/managed/services/vmalert"
 	"github.com/percona/pmm/managed/utils/clean"
 	"github.com/percona/pmm/managed/utils/distribution"
+	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
@@ -145,6 +145,14 @@ const (
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
+
+// mEncryptionKeyMismatch makes the condition visible to monitoring, since standalone PMM keeps
+// running with a mismatched key.
+var mEncryptionKeyMismatch = prom.NewGauge(prom.GaugeOpts{
+	Namespace: "pmm_managed",
+	Name:      "encryption_key_mismatch",
+	Help:      "1 if the local encryption key does not match the key the database was encrypted with, 0 otherwise.",
+})
 
 func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	l := logrus.WithField("component", "logs.zip")
@@ -292,7 +300,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	agentv1.RegisterAgentServiceServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
 	agentpb.RegisterAgentServer(gRPCServer, agentgrpc.NewAgentPBServer(deps.handler))
 
-	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
+	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.grafanaClient)
 	agentsSvc := inventory.NewAgentsService(
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
 		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService,
@@ -338,7 +346,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
-	hav1beta1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
+	hav1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
 
 	// Register RTA service with in-memory store
 	rtaStore := realtimeanalytics.NewStore()
@@ -350,7 +358,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	go rtaStore.Run(ctx)
 
 	// run server until it is stopped gracefully or not
-	listener, err := net.Listen("tcp", gRPCAddr)
+	listener, err := (&net.ListenConfig{}).Listen(ctx, "tcp", gRPCAddr)
 	if err != nil {
 		l.Fatal(err)
 	}
@@ -390,15 +398,11 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	l.Infof("Starting server on http://%s/ ...", http1Addr)
 
 	marshaller := &grpc_gateway.JSONPb{
-		MarshalOptions: protojson.MarshalOptions{
-			UseEnumNumbers:  false,
-			EmitUnpopulated: true,
-			UseProtoNames:   true,
-			Indent:          "  ",
-		},
-		UnmarshalOptions: protojson.UnmarshalOptions{
-			DiscardUnknown: true,
-		},
+		UseEnumNumbers:  false,
+		EmitUnpopulated: true,
+		UseProtoNames:   true,
+		Indent:          "  ",
+		DiscardUnknown:  true,
 	}
 
 	proxyMux := grpc_gateway.NewServeMux(
@@ -451,7 +455,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		userv1.RegisterUserServiceHandler,
 
-		hav1beta1.RegisterHAServiceHandler,
+		hav1.RegisterHAServiceHandler,
 	} {
 		err := r(ctx, proxyMux, sharedConn)
 		if err != nil {
@@ -526,7 +530,7 @@ func runDebugServer(ctx context.Context) {
 		l.Fatal(err)
 	}
 	http.HandleFunc("/debug", func(rw http.ResponseWriter, _ *http.Request) {
-		rw.Write(buf.Bytes()) //nolint:errcheck
+		_, _ = rw.Write(buf.Bytes())
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugAddr, strings.Join(handlers, "\n\t"))
 
@@ -558,6 +562,7 @@ type setupDeps struct {
 	vmdb        *victoriametrics.Service
 	vmalert     *vmalert.Service
 	server      *server.Server
+	provisioner *alerting.Provisioner
 	l           *logrus.Entry
 }
 
@@ -580,6 +585,15 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 		}
 		return false
 	}
+
+	// Runs after UpdateSettingsFromEnv above, which has already written grafana.ini and started
+	// Grafana, so the rules are usually applied by restarting it rather than by being in place
+	// first. Moving this earlier would avoid that restart but would read the settings before the
+	// environment has been applied to them, so the Percona Alerting gate could see a stale value.
+	// It only asks the provisioner's own goroutine for the work, because applying can mean waiting
+	// minutes for Grafana, and nothing here may hold up the servers that start after setup.
+	deps.l.Infof("Requesting provisioning of built-in alert rules...")
+	deps.provisioner.ProvisionAtStartup()
 
 	deps.l.Infof("Updating supervisord configuration...")
 	settings, err := models.GetSettings(db.Querier)
@@ -662,10 +676,33 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 			l.Infof("Database migration completed.")
 			return
 		}
+		if errors.Is(err, models.ErrEncryptionKeyMismatch) {
+			// Only returned in HA: a standalone server migrates anyway and reports it later.
+			l.Fatalf("%s. Every PMM Server node in an HA cluster must use the same encryption key: "+
+				"copy %s from a node that works and restart this one.", err, encryption.KeyPath())
+		}
 
 		l.Warnf("Failed to migrate database: %s.", err)
 		time.Sleep(time.Second)
 	}
+}
+
+// checkEncryptionKey reports a standalone server whose encryption key does not match the
+// database. It keeps running, so that an upgrade cannot turn an installation whose key went
+// missing into one that no longer boots; HA nodes are stopped by migrateDB instead.
+func checkEncryptionKey(l *logrus.Entry, db *reform.DB) {
+	err := models.CheckEncryptionKey(db)
+	if err == nil {
+		return
+	}
+	if !errors.Is(err, models.ErrEncryptionKeyMismatch) {
+		l.Panicf("Failed to check encryption key: %+v", err)
+	}
+
+	mEncryptionKeyMismatch.Set(1)
+	l.Errorf("%s. Stored credentials cannot be decrypted, so monitoring will not work until the "+
+		"matching key is restored to %s, or the credentials of every affected Agent are re-entered "+
+		"and PMM Server is restarted.", err, encryption.KeyPath())
 }
 
 // newClickhouseDB return a new Clickhouse db.
@@ -737,6 +774,17 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	haEnabled := kingpin.Flag("ha-enable", "Enable HA").
 		Envar("PMM_HA_ENABLE").
 		Bool()
+	// The built-in alert rules are rendered from the shipped templates while pmm-managed starts, so
+	// they are configured here rather than in the settings table: changing an environment variable
+	// means recreating the container, which is exactly when the rules are written anyway.
+	haAlertsEnabled := kingpin.Flag("enable-ha-alerts", "Provision the built-in High Availability alert rules").
+		Envar("PMM_ENABLE_HA_ALERTS").
+		Default("true").
+		Bool()
+	componentAlertsEnabled := kingpin.Flag("enable-component-alerts", "Provision the built-in alert rules for PMM Server's own components").
+		Envar("PMM_ENABLE_COMPONENT_ALERTS").
+		Default("true").
+		Bool()
 	haNodeID := kingpin.Flag("ha-node-id", "HA Node ID").
 		Envar("PMM_HA_NODE_ID").
 		String()
@@ -758,6 +806,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		Envar("PMM_HA_GRAFANA_GOSSIP_PORT").
 		Default("9762").
 		Int()
+	haNamespace := kingpin.Flag("ha-namespace", "HA Kubernetes namespace").
+		Envar("PMM_HA_NAMESPACE").
+		String()
 
 	internalNodePrefixesF := kingpin.Flag("internal-node-name-prefixes",
 		"Comma-separated list of Node name prefixes reserved for the internal infrastructure of this PMM deployment").
@@ -821,10 +872,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
-	var nodes []string
-	if *haPeers != "" {
-		nodes = strings.Split(*haPeers, ",")
-	}
+	nodes := parseHAPeers(l, *haPeers)
 	haParams := &models.HAParams{
 		Enabled:           *haEnabled,
 		NodeID:            *haNodeID,
@@ -833,6 +881,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		RaftPort:          *haRaftPort,
 		GossipPort:        *haGossipPort,
 		GrafanaGossipPort: *haGrafanaGossipPort,
+		Namespace:         *haNamespace,
 	}
 	haService := ha.New(haParams)
 
@@ -912,6 +961,14 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	if *haEnabled {
 		models.AgentConfigFilePath = "/srv/pmm-agent/config/pmm-agent.yaml"
+		info := agents.HARemoteWriteInfo(vmParams)
+		if info != "" {
+			l.Info(info)
+		}
+		warning := agents.HARemoteWriteWarning(vmParams)
+		if warning != "" {
+			l.Warn(warning)
+		}
 	}
 
 	migrateDB(ctx, sqlDB, setupParams)
@@ -920,6 +977,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	reformL := sqlmetrics.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
 	prom.MustRegister(reformL)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
+
+	prom.MustRegister(mEncryptionKeyMismatch)
+	checkEncryptionKey(l, db)
 
 	// Generate unique PMM Server ID if it's not already.
 	err = models.SetPMMServerID(db)
@@ -1050,6 +1110,19 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 	alertingService.CollectTemplates(ctx)
 
+	alertingProvisioner := alerting.NewProvisioner(alerting.ProvisionerParams{
+		DB:                     db,
+		GrafanaCli:             grafanaClient,
+		Supervisord:            supervisord,
+		Leader:                 haService,
+		GrafanaDBAddr:          *postgresAddrF,
+		GrafanaDBSSLParams:     q.Encode(),
+		HAEnabled:              *haEnabled,
+		HAAlertsEnabled:        *haAlertsEnabled,
+		ComponentAlertsEnabled: *componentAlertsEnabled,
+	})
+	prom.MustRegister(alertingProvisioner.Collector())
+
 	agentService := agents.NewAgentService(agentsRegistry)
 
 	versioner := agents.NewVersionerService(agentsRegistry)
@@ -1122,6 +1195,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		vmdb:        vmdb,
 		vmalert:     vmalert,
 		server:      server,
+		provisioner: alertingProvisioner,
 		l:           logrus.WithField("component", "setup"),
 	}
 	if !setup(ctx, deps) {
@@ -1174,6 +1248,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		checksService.Run(ctx)
 		return nil
 	}))
+
+	wg.Go(func() {
+		alertingProvisioner.Run(ctx)
+	})
 
 	wg.Go(func() {
 		updater.Run(ctx)
@@ -1256,6 +1334,31 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	})
 
 	wg.Wait()
+}
+
+// parseHAPeers splits the PMM_HA_PEERS value into node addresses, trimming surrounding
+// whitespace and dropping empty and duplicate entries. The peer list is expected to name
+// every node in the cluster, including this one, and its length is reported as
+// pmm_ha_expected_nodes. A trailing comma or a padded list would otherwise inflate that
+// count and make the node-unreachable and quorum alerts fire on a healthy cluster.
+func parseHAPeers(l *logrus.Entry, peers string) []string {
+	var nodes []string
+	seen := make(map[string]struct{})
+
+	for node := range strings.SplitSeq(peers, ",") {
+		node = strings.TrimSpace(node)
+		if node == "" {
+			continue
+		}
+		if _, ok := seen[node]; ok {
+			l.WithField("peer", node).Warn("Ignoring duplicate entry in PMM_HA_PEERS.")
+			continue
+		}
+		seen[node] = struct{}{}
+		nodes = append(nodes, node)
+	}
+
+	return nodes
 }
 
 func parseLoggerConfig(level string, debug, trace bool) logrus.Level {
