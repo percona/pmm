@@ -721,7 +721,7 @@
             "type": "state-timeline"
         },
         {
-            "description": "PBM agents that are failing right now, one row per agent. Healthy agents and arbiters, which can't run pbm-agent, are not listed.\n\n**FAIL**: pbm-agent reports an error connecting to PBM, mongod or backup storage, or no pbm-agent has registered on the node. **DOWN**: PBM lost the agent's heartbeat; the agent is stopped or unreachable. Run `pbm status` on the node for the exact reason.\n\n**Failing for**: time since the agent last reported OK, or since PMM first saw it, within the last 24 hours.\n\n**PMM service** opens the node's MongoDB Instance Summary. It's empty when the node's own exporter isn't reporting, for example when the node is down.",
+            "description": "PBM agents that are failing right now, one row per agent. Healthy agents and arbiters, which can't run pbm-agent, are not listed.\n\n**FAIL**: pbm-agent reports an error connecting to PBM, mongod or backup storage, or no pbm-agent has registered on the node. **DOWN**: PBM lost the agent's heartbeat; the agent is stopped or unreachable. Run `pbm status` on the node for the exact reason.\n\n**Failing for**: time since the agent last reported OK, or since PMM first saw it, within the last 24 hours. **N/A** when the node isn't monitored by PMM.\n\n**PMM service** opens the node's MongoDB Instance Summary. It's empty when the node's own exporter isn't reporting, for example when the node is down.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -790,6 +790,20 @@
                             "options": "Failing for"
                         },
                         "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "-1": {
+                                                "index": 0,
+                                                "text": "N/A"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
                             {
                                 "id": "unit",
                                 "value": "dtdurations"
@@ -927,7 +941,7 @@
                 {
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "((time() - max_over_time(timestamp(max by (environment, cluster, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\", self!=\"0\"}) == 0)[24h:1m])) or ((time() - min_over_time(timestamp(max by (environment, cluster, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\", self!=\"0\"}))[24h:1m])) < 86340)) and on (environment, cluster, host) (max by (environment, cluster, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\"}) > 0)",
+                    "expr": "(((time() - max_over_time(timestamp(max by (environment, cluster, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\", self!=\"0\"}) == 0)[24h:1m])) or ((time() - min_over_time(timestamp(max by (environment, cluster, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\", self!=\"0\"}))[24h:1m])) < 86340)) or (((max by (environment, cluster, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\"}) > 0) unless on (environment, cluster, host) max by (environment, cluster, host) (max_over_time(mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\", self!=\"0\"}[7d]))) * 0 - 1)) and on (environment, cluster, host) (max by (environment, cluster, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\"}) > 0)",
                     "format": "table",
                     "instant": true,
                     "range": false,
