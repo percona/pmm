@@ -82,7 +82,7 @@ The **Status** column shows one of two values:
 
 To see the exact reason for a failure, run `pbm status` on the affected node.
 
-**Failing for** shows the time since the agent last reported **OK**, within the last 24 hours. If the agent has never reported **OK** since PMM started monitoring it, the column shows the time since PMM first saw the agent. If the agent has been failing for the whole 24 hours, it shows **> 24h**. It also shows **> 24h** when the node itself isn't monitored by PMM.
+**Failing for** shows the time since the agent last reported **OK**, within the last 24 hours. If the agent has never reported **OK** since PMM started monitoring it, the column shows the time since PMM first saw the agent. If the agent has been failing for the whole 24 hours, it shows **> 24h**. It shows **N/A** when the node itself isn't monitored by PMM.
 
 Select a **PMM service** to open its [MongoDB Instance Summary](dashboard-mongodb-instance-summary.md) dashboard. The column is empty when the node's own exporter isn't reporting, for example when the node is down or isn't monitored by PMM. It's also empty for nodes running PMM Client older than 3.1.
 
