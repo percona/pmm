@@ -27,11 +27,11 @@ export interface TableProps<T extends MRT_RowData> extends MRT_TableOptions<T> {
   noDataMessage?: string;
   /** Message shown in the body when search or filters do not reveal matching rows. Defaults to "No data found". */
   emptyFilterResultsMessage?: string;
-  /** Hides the "expand all" control in the header of expandable tables, so rows expand one by one. */
+  /** Hides the "expand all" control in the header of expandable tables, so rows expand one by one; same as `enableExpandAll={false}`. */
   hideExpandAllIcon?: boolean;
-  /** Unique name of this table; the user's column visibility choices are saved under it, so renaming it forgets them. */
+  /** Unique name of this table; also its test id and the key for the user's saved column choices, so renaming it breaks both. */
   tableName: string;
-  /** Replaces `noDataMessage` when there are no rows at all, for example an illustration with an explanatory text and a call to action. */
+  /** Replaces `noDataMessage` when there are no rows at all, such as an illustration with text and a call to action (see the Empty State Custom story). */
   emptyState?: React.ReactNode;
   /** MUI Alert props for the no-data and no-results messages, for example to change the severity. */
   noDataAlertProps?: AlertProps;

@@ -7,7 +7,7 @@ import TextInput from '../text';
 interface MultipleTextInputProps {
   /** Form field holding the list, as an array of `{ key, value }` rows. */
   fieldName: string;
-  /** react-hook-form control; outside a `FormProvider` the rows still save but validation errors are not shown. */
+  /** react-hook-form control; outside a `FormProvider`, "Add new" stays enabled even while rows are empty. */
   control?: Control;
   /** Called with the row count before removal after the user deletes a row. */
   onRemove?: (nrOfFields: number) => void;
