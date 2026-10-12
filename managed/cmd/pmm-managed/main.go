@@ -562,6 +562,7 @@ type setupDeps struct {
 	vmdb        *victoriametrics.Service
 	vmalert     *vmalert.Service
 	server      *server.Server
+	provisioner *alerting.Provisioner
 	l           *logrus.Entry
 }
 
@@ -584,6 +585,15 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 		}
 		return false
 	}
+
+	// Runs after UpdateSettingsFromEnv above, which has already written grafana.ini and started
+	// Grafana, so the rules are usually applied by restarting it rather than by being in place
+	// first. Moving this earlier would avoid that restart but would read the settings before the
+	// environment has been applied to them, so the Percona Alerting gate could see a stale value.
+	// It only asks the provisioner's own goroutine for the work, because applying can mean waiting
+	// minutes for Grafana, and nothing here may hold up the servers that start after setup.
+	deps.l.Infof("Requesting provisioning of built-in alert rules...")
+	deps.provisioner.ProvisionAtStartup()
 
 	deps.l.Infof("Updating supervisord configuration...")
 	settings, err := models.GetSettings(db.Querier)
@@ -764,6 +774,17 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	haEnabled := kingpin.Flag("ha-enable", "Enable HA").
 		Envar("PMM_HA_ENABLE").
 		Bool()
+	// The built-in alert rules are rendered from the shipped templates while pmm-managed starts, so
+	// they are configured here rather than in the settings table: changing an environment variable
+	// means recreating the container, which is exactly when the rules are written anyway.
+	haAlertsEnabled := kingpin.Flag("enable-ha-alerts", "Provision the built-in High Availability alert rules").
+		Envar("PMM_ENABLE_HA_ALERTS").
+		Default("true").
+		Bool()
+	componentAlertsEnabled := kingpin.Flag("enable-component-alerts", "Provision the built-in alert rules for PMM Server's own components").
+		Envar("PMM_ENABLE_COMPONENT_ALERTS").
+		Default("true").
+		Bool()
 	haNodeID := kingpin.Flag("ha-node-id", "HA Node ID").
 		Envar("PMM_HA_NODE_ID").
 		String()
@@ -851,10 +872,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
-	var nodes []string
-	if *haPeers != "" {
-		nodes = strings.Split(*haPeers, ",")
-	}
+	nodes := parseHAPeers(l, *haPeers)
 	haParams := &models.HAParams{
 		Enabled:           *haEnabled,
 		NodeID:            *haNodeID,
@@ -1092,6 +1110,19 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 	alertingService.CollectTemplates(ctx)
 
+	alertingProvisioner := alerting.NewProvisioner(alerting.ProvisionerParams{
+		DB:                     db,
+		GrafanaCli:             grafanaClient,
+		Supervisord:            supervisord,
+		Leader:                 haService,
+		GrafanaDBAddr:          *postgresAddrF,
+		GrafanaDBSSLParams:     q.Encode(),
+		HAEnabled:              *haEnabled,
+		HAAlertsEnabled:        *haAlertsEnabled,
+		ComponentAlertsEnabled: *componentAlertsEnabled,
+	})
+	prom.MustRegister(alertingProvisioner.Collector())
+
 	agentService := agents.NewAgentService(agentsRegistry)
 
 	versioner := agents.NewVersionerService(agentsRegistry)
@@ -1164,6 +1195,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		vmdb:        vmdb,
 		vmalert:     vmalert,
 		server:      server,
+		provisioner: alertingProvisioner,
 		l:           logrus.WithField("component", "setup"),
 	}
 	if !setup(ctx, deps) {
@@ -1216,6 +1248,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		checksService.Run(ctx)
 		return nil
 	}))
+
+	wg.Go(func() {
+		alertingProvisioner.Run(ctx)
+	})
 
 	wg.Go(func() {
 		updater.Run(ctx)
@@ -1298,6 +1334,31 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	})
 
 	wg.Wait()
+}
+
+// parseHAPeers splits the PMM_HA_PEERS value into node addresses, trimming surrounding
+// whitespace and dropping empty and duplicate entries. The peer list is expected to name
+// every node in the cluster, including this one, and its length is reported as
+// pmm_ha_expected_nodes. A trailing comma or a padded list would otherwise inflate that
+// count and make the node-unreachable and quorum alerts fire on a healthy cluster.
+func parseHAPeers(l *logrus.Entry, peers string) []string {
+	var nodes []string
+	seen := make(map[string]struct{})
+
+	for node := range strings.SplitSeq(peers, ",") {
+		node = strings.TrimSpace(node)
+		if node == "" {
+			continue
+		}
+		if _, ok := seen[node]; ok {
+			l.WithField("peer", node).Warn("Ignoring duplicate entry in PMM_HA_PEERS.")
+			continue
+		}
+		seen[node] = struct{}{}
+		nodes = append(nodes, node)
+	}
+
+	return nodes
 }
 
 func parseLoggerConfig(level string, debug, trace bool) logrus.Level {
