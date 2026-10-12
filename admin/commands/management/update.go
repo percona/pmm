@@ -302,6 +302,26 @@ func (f *UpdateCommonFlags) typedName(name string, common AddCommonFlags) string
 type setting struct {
 	Flag  string `json:"flag"`
 	Value string `json:"value"`
+
+	// isBool marks a setting turned on by its flag and off by the flag with the "no-" prefix.
+	isBool bool
+}
+
+// boolSetting returns a setting turned on by its flag and off by the flag with the "no-" prefix.
+func boolSetting(flag string, value bool) setting {
+	return setting{Flag: flag, Value: strconv.FormatBool(value), isBool: true}
+}
+
+// String returns the flag that sets the setting to its value.
+func (s setting) String() string {
+	switch {
+	case !s.isBool:
+		return s.Flag + "=" + s.Value
+	case s.Value == "true":
+		return s.Flag
+	default:
+		return "--no-" + strings.TrimPrefix(s.Flag, "--")
+	}
 }
 
 // settingChange is a setting changed by the update.
@@ -309,6 +329,24 @@ type settingChange struct {
 	Flag   string `json:"flag"`
 	Before string `json:"before"`
 	After  string `json:"after"`
+
+	isBool bool
+}
+
+// String returns the flag that sets the new value, followed by the old value when the output can show it.
+func (c settingChange) String() string {
+	after := setting{Flag: c.Flag, Value: c.After, isBool: c.isBool}
+	switch {
+	case c.After == updatedValue || c.Before == c.After:
+		// A secret or a file, whose old and new values look the same.
+		return c.Flag + " (new value)"
+	case c.isBool:
+		return after.String() + " (was " + setting{Flag: c.Flag, Value: c.Before, isBool: true}.String() + ")"
+	case c.Before == "":
+		return after.String() + " (was empty)"
+	default:
+		return after.String() + " (was " + c.Before + ")"
+	}
 }
 
 // secretValue stands for a secret that is set.
@@ -328,13 +366,13 @@ Warning: {{ .Warning }}
 
 {{ if .Changes }}{{ if .DryRun }}Settings the update would change:{{ else }}Changed settings:{{ end }}
 {{- range .Changes }}
-  {{ .Flag }}: {{ printf "%q" .Before }} -> {{ printf "%q" .After }}
+  {{ . }}
 {{- end }}
 {{- else }}No settings changed.{{ end }}
 
 Current settings:
 {{- range .Settings }}
-  {{ .Flag }}={{ .Value }}
+  {{ . }}
 {{- end }}
 `)
 
@@ -414,7 +452,7 @@ func (f *UpdateCommonFlags) runUpdate(
 		}
 
 		if old != s.Value || f.typedAny(secretFlags[s.Flag]) {
-			res.Changes = append(res.Changes, settingChange{Flag: s.Flag, Before: old, After: s.Value})
+			res.Changes = append(res.Changes, settingChange{Flag: s.Flag, Before: old, After: s.Value, isBool: s.isBool})
 		}
 	}
 
@@ -472,10 +510,6 @@ func secretSettingValue(isSet bool) string {
 	return ""
 }
 
-func boolSettingValue(value bool) string {
-	return strconv.FormatBool(value)
-}
-
 func logLevelSettingValue(value *string) string {
 	return strings.ToLower(strings.TrimPrefix(pointerValue(value), "LOG_LEVEL_"))
 }
@@ -499,13 +533,13 @@ func pointerValue(value *string) string {
 // commonServiceSettings returns the labels of the Service and the settings shared by all exporters.
 func commonServiceSettings(svc *mservice.UpdateServiceOKBodyAfter, exporter *mservice.UpdateServiceOKBodyAfterAgentsItems0) []setting {
 	return []setting{
-		{"--environment", svc.Environment},
-		{"--cluster", svc.Cluster},
-		{"--replication-set", svc.ReplicationSet},
-		{"--custom-labels", labelsSettingValue(svc.CustomLabels)},
-		{"--username", exporter.Username},
-		{"--password", secretSettingValue(exporter.IsPasswordSet)},
-		{"--metrics-mode", metricsModeSettingValue(exporter.PushMetrics)},
+		{Flag: "--environment", Value: svc.Environment},
+		{Flag: "--cluster", Value: svc.Cluster},
+		{Flag: "--replication-set", Value: svc.ReplicationSet},
+		{Flag: "--custom-labels", Value: labelsSettingValue(svc.CustomLabels)},
+		{Flag: "--username", Value: exporter.Username},
+		{Flag: "--password", Value: secretSettingValue(exporter.IsPasswordSet)},
+		{Flag: "--metrics-mode", Value: metricsModeSettingValue(exporter.PushMetrics)},
 	}
 }
 
@@ -513,15 +547,15 @@ func commonServiceSettings(svc *mservice.UpdateServiceOKBodyAfter, exporter *mse
 func databaseServiceSettings(svc *mservice.UpdateServiceOKBodyAfter, exporter *mservice.UpdateServiceOKBodyAfterAgentsItems0) []setting {
 	return append(
 		commonServiceSettings(svc, exporter),
-		setting{"--host", svc.Address},
-		setting{"--port", portSettingValue(svc.Port)},
-		setting{"--socket", svc.Socket},
-		setting{"--agent-password", secretSettingValue(exporter.IsAgentPasswordSet)},
-		setting{"--tls", boolSettingValue(exporter.TLS)},
-		setting{"--tls-skip-verify", boolSettingValue(exporter.TLSSkipVerify)},
-		setting{"--log-level", logLevelSettingValue(exporter.LogLevel)},
-		setting{"--expose-exporter", boolSettingValue(exporter.ExposeExporter)},
-		setting{"--connection-timeout", exporter.ConnectionTimeout},
+		setting{Flag: "--host", Value: svc.Address},
+		setting{Flag: "--port", Value: portSettingValue(svc.Port)},
+		setting{Flag: "--socket", Value: svc.Socket},
+		setting{Flag: "--agent-password", Value: secretSettingValue(exporter.IsAgentPasswordSet)},
+		boolSetting("--tls", exporter.TLS),
+		boolSetting("--tls-skip-verify", exporter.TLSSkipVerify),
+		setting{Flag: "--log-level", Value: logLevelSettingValue(exporter.LogLevel)},
+		boolSetting("--expose-exporter", exporter.ExposeExporter),
+		setting{Flag: "--connection-timeout", Value: exporter.ConnectionTimeout},
 	)
 }
 

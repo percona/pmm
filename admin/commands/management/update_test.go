@@ -130,7 +130,10 @@ func TestUpdateMongoDB(t *testing.T) {
 
 		out := result.String()
 		assert.Contains(t, out, "MongoDB Service updated.")
-		assert.Contains(t, out, `--max-collections-limit: "-1" -> "0"`)
+		assert.Contains(t, out, "\n  --max-collections-limit=0 (was -1)\n")
+		assert.Contains(t, out, "\n  --disable-collectors=collstats (was empty)\n")
+		assert.Contains(t, out, "\n  --enable-all-collectors\n")
+		assert.Contains(t, out, "\n  --no-tls\n")
 		assert.Contains(t, out, "--password=***")
 		assert.Contains(t, out, "--query-source=profiler")
 	})
@@ -323,4 +326,24 @@ func TestUpdateHAProxy(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "/v1/management/services/haproxy_srv_1", run.path)
 	assert.JSONEq(t, `{"haproxy": {"scheme": "https", "tls_skip_verify": false}}`, run.body)
+}
+
+func TestSettingChangeString(t *testing.T) {
+	for _, tc := range []struct {
+		change settingChange
+		want   string
+	}{
+		{settingChange{Flag: "--max-collections-limit", Before: "-1", After: "0"}, "--max-collections-limit=0 (was -1)"},
+		{settingChange{Flag: "--disable-collectors", Before: "", After: "collstats"}, "--disable-collectors=collstats (was empty)"},
+		{settingChange{Flag: "--disable-collectors", Before: "collstats", After: ""}, "--disable-collectors= (was collstats)"},
+		{
+			settingChange{Flag: "--enable-all-collectors", Before: "true", After: "false", isBool: true},
+			"--no-enable-all-collectors (was --enable-all-collectors)",
+		},
+		{settingChange{Flag: "--tls", Before: "false", After: "true", isBool: true}, "--tls (was --no-tls)"},
+		{settingChange{Flag: "--password", Before: secretValue, After: secretValue}, "--password (new value)"},
+		{settingChange{Flag: "--tls-ca-file", After: updatedValue}, "--tls-ca-file (new value)"},
+	} {
+		assert.Equal(t, tc.want, tc.change.String())
+	}
 }

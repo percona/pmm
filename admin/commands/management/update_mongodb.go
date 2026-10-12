@@ -149,20 +149,20 @@ func mongodbSettings(svc *mservice.UpdateServiceOKBodyAfter) []setting {
 
 	return append(
 		databaseServiceSettings(svc, exporter),
-		setting{"--tls-certificate-key-file", secretSettingValue(options.IsTLSCertificateKeySet)},
-		setting{"--tls-certificate-key-file-password", secretSettingValue(options.IsTLSCertificateKeyFilePasswordSet)},
-		setting{"--authentication-mechanism", options.AuthenticationMechanism},
-		setting{"--authentication-database", options.AuthenticationDatabase},
-		setting{"--query-source", querySource(svc, map[string]string{
+		setting{Flag: "--tls-certificate-key-file", Value: secretSettingValue(options.IsTLSCertificateKeySet)},
+		setting{Flag: "--tls-certificate-key-file-password", Value: secretSettingValue(options.IsTLSCertificateKeyFilePasswordSet)},
+		setting{Flag: "--authentication-mechanism", Value: options.AuthenticationMechanism},
+		setting{Flag: "--authentication-database", Value: options.AuthenticationDatabase},
+		setting{Flag: "--query-source", Value: querySource(svc, map[string]string{
 			MongodbQuerySourceProfiler: "qan-mongodb-profiler-agent",
 			MongodbQuerySourceMongolog: "qan-mongodb-mongolog-agent",
 		})},
-		setting{"--max-query-length", strconv.Itoa(int(qan.MaxQueryLength))},
-		setting{"--enable-all-collectors", boolSettingValue(options.EnableAllCollectors)},
-		setting{"--enable-diagnostic-data-histograms", boolSettingValue(options.EnableDiagnosticDataHistograms)},
-		setting{"--disable-collectors", strings.Join(exporter.DisabledCollectors, ",")},
-		setting{"--stats-collections", strings.Join(options.StatsCollections, ",")},
-		setting{"--max-collections-limit", strconv.Itoa(int(options.CollectionsLimit))},
-		setting{"--agent-env-vars", strings.Join(exporter.EnvironmentVariableNames, ",")},
+		setting{Flag: "--max-query-length", Value: strconv.Itoa(int(qan.MaxQueryLength))},
+		boolSetting("--enable-all-collectors", options.EnableAllCollectors),
+		boolSetting("--enable-diagnostic-data-histograms", options.EnableDiagnosticDataHistograms),
+		setting{Flag: "--disable-collectors", Value: strings.Join(exporter.DisabledCollectors, ",")},
+		setting{Flag: "--stats-collections", Value: strings.Join(options.StatsCollections, ",")},
+		setting{Flag: "--max-collections-limit", Value: strconv.Itoa(int(options.CollectionsLimit))},
+		setting{Flag: "--agent-env-vars", Value: strings.Join(exporter.EnvironmentVariableNames, ",")},
 	)
 }

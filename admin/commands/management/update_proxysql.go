@@ -93,6 +93,6 @@ func proxysqlSettings(svc *mservice.UpdateServiceOKBodyAfter) []setting {
 
 	return append(
 		databaseServiceSettings(svc, exporter),
-		setting{"--disable-collectors", strings.Join(exporter.DisabledCollectors, ",")},
+		setting{Flag: "--disable-collectors", Value: strings.Join(exporter.DisabledCollectors, ",")},
 	)
 }

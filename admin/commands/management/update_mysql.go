@@ -178,19 +178,19 @@ func mysqlSettings(svc *mservice.UpdateServiceOKBodyAfter) []setting {
 
 	return append(
 		databaseServiceSettings(svc, exporter),
-		setting{"--tls-key", secretSettingValue(tlsKeySet)},
-		setting{"--extra-dsn-params", labelsSettingValue(extraDSNParams)},
-		setting{"--query-source", querySource(svc, map[string]string{
+		setting{Flag: "--tls-key", Value: secretSettingValue(tlsKeySet)},
+		setting{Flag: "--extra-dsn-params", Value: labelsSettingValue(extraDSNParams)},
+		setting{Flag: "--query-source", Value: querySource(svc, map[string]string{
 			MysqlQuerySourceSlowLog:    "qan-mysql-slowlog-agent",
 			MysqlQuerySourcePerfSchema: "qan-mysql-perfschema-agent",
 		})},
-		setting{"--max-query-length", strconv.Itoa(int(qan.MaxQueryLength))},
-		setting{"--disable-queryexamples", boolSettingValue(qan.QueryExamplesDisabled)},
-		setting{"--comments-parsing", commentsParsingSettingValue(qan.CommentsParsingDisabled)},
-		setting{"--size-slow-logs", slowlogSizeSettingValue(slowlog.MaxQueryLogSize)},
-		setting{"--disable-tablestats", boolSettingValue(limit < 0)},
-		setting{"--disable-tablestats-limit", disableTablestatsLimit},
-		setting{"--disable-collectors", strings.Join(exporter.DisabledCollectors, ",")},
+		setting{Flag: "--max-query-length", Value: strconv.Itoa(int(qan.MaxQueryLength))},
+		boolSetting("--disable-queryexamples", qan.QueryExamplesDisabled),
+		setting{Flag: "--comments-parsing", Value: commentsParsingSettingValue(qan.CommentsParsingDisabled)},
+		setting{Flag: "--size-slow-logs", Value: slowlogSizeSettingValue(slowlog.MaxQueryLogSize)},
+		boolSetting("--disable-tablestats", limit < 0),
+		setting{Flag: "--disable-tablestats-limit", Value: disableTablestatsLimit},
+		setting{Flag: "--disable-collectors", Value: strings.Join(exporter.DisabledCollectors, ",")},
 	)
 }
 

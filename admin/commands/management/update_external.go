@@ -145,10 +145,10 @@ func externalSettings(svc *mservice.UpdateServiceOKBodyAfter) []setting {
 
 	return append(
 		commonServiceSettings(svc, exporter),
-		setting{"--group", svc.ExternalGroup},
-		setting{"--scheme", exporter.MetricsScheme},
-		setting{"--metrics-path", exporter.MetricsPath},
-		setting{"--listen-port", strconv.FormatInt(exporter.ListenPort, 10)},
-		setting{"--tls-skip-verify", boolSettingValue(exporter.TLSSkipVerify)},
+		setting{Flag: "--group", Value: svc.ExternalGroup},
+		setting{Flag: "--scheme", Value: exporter.MetricsScheme},
+		setting{Flag: "--metrics-path", Value: exporter.MetricsPath},
+		setting{Flag: "--listen-port", Value: strconv.FormatInt(exporter.ListenPort, 10)},
+		boolSetting("--tls-skip-verify", exporter.TLSSkipVerify),
 	)
 }

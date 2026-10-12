@@ -150,17 +150,17 @@ func postgresqlSettings(svc *mservice.UpdateServiceOKBodyAfter) []setting {
 
 	return append(
 		databaseServiceSettings(svc, exporter),
-		setting{"--database", svc.DatabaseName},
-		setting{"--tls-key-file", secretSettingValue(sslKeySet)},
-		setting{"--query-source", querySource(svc, map[string]string{
+		setting{Flag: "--database", Value: svc.DatabaseName},
+		setting{Flag: "--tls-key-file", Value: secretSettingValue(sslKeySet)},
+		setting{Flag: "--query-source", Value: querySource(svc, map[string]string{
 			"pgstatements":  "qan-postgresql-pgstatements-agent",
 			"pgstatmonitor": "qan-postgresql-pgstatmonitor-agent",
 		})},
-		setting{"--max-query-length", strconv.Itoa(int(qan.MaxQueryLength))},
-		setting{"--disable-queryexamples", boolSettingValue(qan.QueryExamplesDisabled)},
-		setting{"--comments-parsing", commentsParsingSettingValue(qan.CommentsParsingDisabled)},
-		setting{"--disable-collectors", strings.Join(exporter.DisabledCollectors, ",")},
-		setting{"--auto-discovery-limit", strconv.Itoa(int(autoDiscoveryLimit))},
-		setting{"--max-exporter-connections", strconv.Itoa(int(maxExporterConnections))},
+		setting{Flag: "--max-query-length", Value: strconv.Itoa(int(qan.MaxQueryLength))},
+		boolSetting("--disable-queryexamples", qan.QueryExamplesDisabled),
+		setting{Flag: "--comments-parsing", Value: commentsParsingSettingValue(qan.CommentsParsingDisabled)},
+		setting{Flag: "--disable-collectors", Value: strings.Join(exporter.DisabledCollectors, ",")},
+		setting{Flag: "--auto-discovery-limit", Value: strconv.Itoa(int(autoDiscoveryLimit))},
+		setting{Flag: "--max-exporter-connections", Value: strconv.Itoa(int(maxExporterConnections))},
 	)
 }
