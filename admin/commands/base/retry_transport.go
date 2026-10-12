@@ -17,6 +17,7 @@ package base
 import (
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -28,7 +29,7 @@ const (
 	retryUnavailableFor = 30 * time.Second
 )
 
-// retryTransport resends a request PMM Server answered with 503 Service Unavailable, which
+// retryTransport resends a request pmm-managed answered with 503 Service Unavailable, which
 // it returns while a backend such as its database is briefly unreachable.
 type retryTransport struct {
 	next     http.RoundTripper
@@ -41,7 +42,9 @@ func (t *retryTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	deadline := time.Now().Add(t.duration)
 	for {
 		resp, err := t.next.RoundTrip(req)
-		if err != nil || resp.StatusCode != http.StatusServiceUnavailable {
+		// Only pmm-managed's 503 is JSON; nginx's maintenance page (init, upgrade) is HTML.
+		if err != nil || resp.StatusCode != http.StatusServiceUnavailable ||
+			!strings.HasPrefix(resp.Header.Get("Content-Type"), "application/json") {
 			return resp, err
 		}
 

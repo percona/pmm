@@ -32,21 +32,31 @@ func TestRetryTransport(t *testing.T) {
 
 	for name, tc := range map[string]struct {
 		unavailable   int32
+		contentType   string
 		status        int
 		expectedCode  int
 		expectedCalls int32
 	}{
 		"recovers": {
 			unavailable:   1,
+			contentType:   "application/json",
 			status:        http.StatusOK,
 			expectedCode:  http.StatusOK,
 			expectedCalls: 2,
 		},
 		"gives up": {
 			unavailable:   1000,
+			contentType:   "application/json",
 			status:        http.StatusOK,
 			expectedCode:  http.StatusServiceUnavailable,
 			expectedCalls: 2,
+		},
+		"maintenance page": {
+			unavailable:   1000,
+			contentType:   "text/html",
+			status:        http.StatusOK,
+			expectedCode:  http.StatusServiceUnavailable,
+			expectedCalls: 1,
 		},
 		"other error": {
 			status:        http.StatusInternalServerError,
@@ -64,6 +74,7 @@ func TestRetryTransport(t *testing.T) {
 				assert.Equal(t, "request body", string(body))
 
 				if calls.Add(1) <= tc.unavailable {
+					rw.Header().Set("Content-Type", tc.contentType)
 					rw.WriteHeader(http.StatusServiceUnavailable)
 					_, _ = rw.Write([]byte("unavailable"))
 					return
