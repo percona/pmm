@@ -129,6 +129,7 @@ func (cmd *UpdateMongoDBCommand) RunCmd() (commands.Result, error) {
 	}
 
 	secretFlags := map[string][]string{
+		"--tls-ca-file":                       {"tls-ca-file"},
 		"--tls-certificate-key-file":          {"tls-certificate-key-file"},
 		"--tls-certificate-key-file-password": {"tls-certificate-key-file-password"},
 	}

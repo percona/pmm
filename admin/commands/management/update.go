@@ -272,6 +272,11 @@ func (f *UpdateCommonFlags) target(name string, serviceType string) (string, err
 	return ids[0], nil
 }
 
+// typedAny reports whether any of the flags is given on the command line.
+func (f *UpdateCommonFlags) typedAny(names []string) bool {
+	return slices.ContainsFunc(names, func(name string) bool { return f.typed[name] })
+}
+
 // typedValue returns the value of the flag if it is given on the command line, and an empty string otherwise.
 func (f *UpdateCommonFlags) typedValue(name, value string) string {
 	if !f.typed[name] {
@@ -308,6 +313,9 @@ type settingChange struct {
 
 // secretValue stands for a secret that is set.
 const secretValue = "***"
+
+// updatedValue stands for the new content of a file that no setting shows, such as a CA certificate.
+const updatedValue = "(updated)"
 
 var updateServiceResultT = commands.ParseTemplate(`
 {{ .Title }}
@@ -360,8 +368,8 @@ func (res *updateServiceResult) String() string {
 // serviceSettings returns the settings of the Service as flags.
 type serviceSettings func(svc *mservice.UpdateServiceOKBodyAfter) []setting
 
-// runUpdate sends the update and describes its result. The secretFlags map lists for each setting showing
-// a secret the flags that change it, since the old and new secret look the same.
+// runUpdate sends the update and describes its result. The secretFlags map lists the settings whose new value
+// the output can't show, secrets and certificate files, each with the flags that change it.
 func (f *UpdateCommonFlags) runUpdate(
 	target string, body mservice.UpdateServiceBody, serviceTypeName string, settings serviceSettings, secretFlags map[string][]string,
 ) (commands.Result, error) {
@@ -405,9 +413,16 @@ func (f *UpdateCommonFlags) runUpdate(
 			}
 		}
 
-		secretChanged := slices.ContainsFunc(secretFlags[s.Flag], func(name string) bool { return f.typed[name] })
-		if old != s.Value || secretChanged {
+		if old != s.Value || f.typedAny(secretFlags[s.Flag]) {
 			res.Changes = append(res.Changes, settingChange{Flag: s.Flag, Before: old, After: s.Value})
+		}
+	}
+
+	// A file that no setting shows, such as a CA certificate, can only be reported as updated.
+	for _, flag := range slices.Sorted(maps.Keys(secretFlags)) {
+		shown := slices.ContainsFunc(res.Settings, func(s setting) bool { return s.Flag == flag })
+		if !shown && f.typedAny(secretFlags[flag]) {
+			res.Changes = append(res.Changes, settingChange{Flag: flag, After: updatedValue})
 		}
 	}
 	res.Changed = len(res.Changes) != 0

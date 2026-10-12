@@ -236,6 +236,26 @@ func TestUpdateMySQL(t *testing.T) {
 			"extra_dsn_params": {"values": {"allowCleartextPasswords": "1"}}
 		}}`, run.body)
 	})
+
+	// No setting shows a CA or a client certificate, but changing them is still a change.
+	t.Run("CertificateChangesAreReported", func(t *testing.T) {
+		ca := filepath.Join(t.TempDir(), "ca.pem")
+		require.NoError(t, os.WriteFile(ca, []byte("CA"), 0o600))
+		cert := filepath.Join(t.TempDir(), "client.pem")
+		require.NoError(t, os.WriteFile(cert, []byte("CERT"), 0o600))
+
+		run, err := runUpdate(t, &UpdateMySQLCommand{}, "mysql_srv_1", "--tls-ca="+ca, "--tls-cert="+cert)
+		require.NoError(t, err)
+
+		assert.JSONEq(t, `{"mysql": {"tls_ca": "CA", "tls_cert": "CERT"}}`, run.body)
+
+		result := run.res.(*updateServiceResult)
+		assert.True(t, result.Changed)
+		assert.Equal(t, []settingChange{
+			{Flag: "--tls-ca", After: updatedValue},
+			{Flag: "--tls-cert", After: updatedValue},
+		}, result.Changes)
+	})
 }
 
 func TestUpdatePostgreSQL(t *testing.T) {
@@ -251,8 +271,32 @@ func TestUpdatePostgreSQL(t *testing.T) {
 	require.EqualError(t, err, "--query-source must be one of: pgstatements, pgstatmonitor, none")
 }
 
+func TestUpdateProxySQL(t *testing.T) {
+	run, err := runUpdate(t, &UpdateProxySQLCommand{},
+		"proxysql_srv_1", "10.0.0.3:6032", "--password=s3cret", "--no-tls", "--disable-collectors=mysql_connection_pool")
+	require.NoError(t, err)
+
+	assert.Equal(t, "/v1/management/services/proxysql_srv_1", run.path)
+	assert.JSONEq(t, `{"proxysql": {
+		"address": "10.0.0.3",
+		"port": 6032,
+		"password": "s3cret",
+		"tls": false,
+		"disable_collectors": {"values": ["mysql_connection_pool"]}
+	}}`, run.body)
+}
+
 func TestUpdateValkey(t *testing.T) {
-	_, err := runUpdate(t, &UpdateValkeyCommand{}, "valkey_srv_1", "--disable-collectors=x")
+	key := filepath.Join(t.TempDir(), "client.key")
+	require.NoError(t, os.WriteFile(key, []byte("KEY"), 0o600))
+
+	run, err := runUpdate(t, &UpdateValkeyCommand{}, "valkey_srv_1", "--tls-key="+key, "--log-level=debug", "--no-tls-skip-verify")
+	require.NoError(t, err)
+
+	assert.JSONEq(t, `{"valkey": {"tls_key": "KEY", "log_level": "LOG_LEVEL_DEBUG", "tls_skip_verify": false}}`, run.body)
+	assert.Contains(t, run.res.(*updateServiceResult).Changes, settingChange{Flag: "--tls-key", After: updatedValue})
+
+	_, err = runUpdate(t, &UpdateValkeyCommand{}, "valkey_srv_1", "--disable-collectors=x")
 	require.EqualError(t, err, "--disable-collectors is not supported for Valkey")
 }
 

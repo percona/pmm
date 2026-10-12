@@ -131,6 +131,7 @@ func (cmd *UpdateMySQLCommand) RunCmd() (commands.Result, error) {
 	}
 
 	secretFlags := map[string][]string{
+		"--tls-ca":   {"tls-ca"},
 		"--tls-cert": {"tls-cert"},
 		"--tls-key":  {"tls-key"},
 	}

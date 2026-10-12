@@ -127,6 +127,7 @@ func (cmd *UpdatePostgreSQLCommand) RunCmd() (commands.Result, error) {
 	}
 
 	secretFlags := map[string][]string{
+		"--tls-ca-file":   {"tls-ca-file"},
 		"--tls-cert-file": {"tls-cert-file"},
 		"--tls-key-file":  {"tls-key-file"},
 	}
