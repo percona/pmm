@@ -421,6 +421,28 @@ func TestUpdateService(t *testing.T) {
 		m.stm.AssertNotCalled(t, "RemoveScheduledTasks", mock.Anything, mock.Anything, mock.Anything)
 	})
 
+	// Settings owns the query source of PMM's internal PostgreSQL, pinned by PMM_ENABLE_INTERNAL_PG_QAN.
+	t.Run("InternalPostgreSQLQuerySourceIsFixed", func(t *testing.T) {
+		ctx, s, _ := setupUpdateService(t)
+
+		_, err := s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+			ServiceId: models.PMMServerPostgreSQLServiceName,
+			Service: &managementv1.UpdateServiceRequest_Postgresql{
+				Postgresql: &managementv1.UpdatePostgreSQLServiceParams{
+					QanPostgresqlPgstatementsAgent:  new(false),
+					QanPostgresqlPgstatmonitorAgent: new(true),
+					SkipConnectionCheck:             true,
+				},
+			},
+		})
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition,
+			"The query source of PMM's internal PostgreSQL server cannot be changed; QAN for it is turned on and off in Settings."), err)
+
+		agent, err := models.FindInternalPgQANAgent(s.db.Querier)
+		require.NoError(t, err)
+		assert.Equal(t, models.QANPostgreSQLPgStatementsAgentType, agent.AgentType)
+	})
+
 	t.Run("WrongServiceType", func(t *testing.T) {
 		ctx, s, m := setupUpdateService(t)
 		serviceID := addTestMongoDB(ctx, t, s, m)

@@ -266,9 +266,8 @@ func (u *serviceUpdate) changeAgents() error {
 	return nil
 }
 
-// changeQANAgents adds and removes QAN Agents as requested, checking the connection to the Service first
-// when the change affects it or adds an Agent, as adding the Service does.
-func (u *serviceUpdate) changeQANAgents(ctx context.Context) error {
+// qanAgentChanges returns the QAN Agent types the request adds to and removes from the Service.
+func (u *serviceUpdate) qanAgentChanges() ([]models.AgentType, []models.AgentType) {
 	var add, remove []models.AgentType
 	for _, agentType := range qanAgentTypes[u.service.ServiceType] {
 		requested, ok := u.c.qanAgents[agentType]
@@ -283,6 +282,20 @@ func (u *serviceUpdate) changeQANAgents(ctx context.Context) error {
 		case !requested && exists:
 			remove = append(remove, agentType)
 		}
+	}
+
+	return add, remove
+}
+
+// changeQANAgents adds and removes QAN Agents as requested, checking the connection to the Service first
+// when the change affects it or adds an Agent, as adding the Service does.
+func (u *serviceUpdate) changeQANAgents(ctx context.Context) error {
+	add, remove := u.qanAgentChanges()
+
+	// Settings toggles the pg_stat_statements Agent of this Service, pinned by PMM_ENABLE_INTERNAL_PG_QAN.
+	if u.service.ServiceName == models.PMMServerPostgreSQLServiceName && (len(add) != 0 || len(remove) != 0) {
+		return status.Error(codes.FailedPrecondition,
+			"The query source of PMM's internal PostgreSQL server cannot be changed; QAN for it is turned on and off in Settings.")
 	}
 
 	if !u.c.skipConnectionCheck && (u.connectionChanged || len(add) != 0) {
