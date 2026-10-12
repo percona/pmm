@@ -734,9 +734,9 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       overline: {
         fontFamily: fontDisplay,
         fontWeight: 700,
-        fontSize: '0.75rem',
-        lineHeight: '1.125',
-        letterSpacing: '0.03rem',
+        fontSize: '0.6875rem',
+        lineHeight: '1.0909',
+        letterSpacing: '0.125em',
         textTransform: 'uppercase',
       },
       sectionHeading: {
