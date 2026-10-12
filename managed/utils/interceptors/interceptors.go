@@ -17,12 +17,16 @@ package interceptors
 
 import (
 	"context"
+	"errors"
 	"regexp"
 	"runtime/debug"
 	"runtime/pprof"
+	"syscall"
 	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/lib/pq"
+	"github.com/lib/pq/pqerror"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -68,12 +72,36 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 			l.Warnf("%s done in %s with gRPC error: %+v", prefix, dur, err)
 		default:
 			l.Errorf("%s done in %s with unexpected error: %+v", prefix, dur, err)
-			err = status.Error(codes.Internal, "Internal server error.")
+			if isUnavailable(err) {
+				err = status.Error(codes.Unavailable, "Service temporarily unavailable.")
+			} else {
+				err = status.Error(codes.Internal, "Internal server error.")
+			}
 		}
 	}()
 
 	err = f()
 	return err
+}
+
+// isUnavailable reports whether err means a backend, such as PostgreSQL during a failover,
+// is briefly unreachable, so the client may retry the request.
+func isUnavailable(err error) bool {
+	if errors.Is(err, syscall.ECONNREFUSED) || errors.Is(err, syscall.ECONNRESET) {
+		return true
+	}
+
+	pqErr, ok := errors.AsType[*pq.Error](err)
+	if !ok {
+		return false
+	}
+
+	switch pqErr.Code {
+	case pqerror.AdminShutdown, pqerror.CrashShutdown, pqerror.CannotConnectNow:
+		return true
+	default:
+		return false
+	}
 }
 
 // UnaryInterceptorType represents the type of a unary gRPC interceptor.
