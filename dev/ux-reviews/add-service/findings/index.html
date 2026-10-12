@@ -1,0 +1,406 @@
+<title>PMM Add Service Findings</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="percona.css">
+<style>
+/* Layout: one reading column (~70ch) that widens to two columns for evidence and mockups. Brand tokens come from percona.css. */
+* { box-sizing: border-box; }
+body { padding-inline: 20px; padding-block: 0 72px; }
+.wrap { max-width: 1160px; margin: 0 auto; }
+.prose { max-width: 70ch; }
+p { margin: 0; }
+h2, h3 { margin: 0; text-wrap: balance; line-height: 1.25; }
+h2 { font-size: 1.6rem; font-weight: 700; }
+h3 { font-size: 1.05rem; font-weight: 600; }
+code { font-size: 0.86em; background: var(--pc-surface); border: 1px solid var(--pc-border); padding: 0 5px; border-radius: 4px; overflow-wrap: anywhere; }
+.muted { color: var(--pc-muted); }
+.label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pc-accent); }
+
+/* header */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 20px; border-bottom: 1px solid var(--pc-border); }
+.theme-btn { font: 600 0.8rem/1 var(--pc-font); text-transform: uppercase; letter-spacing: .06em; padding: 0.55em 1em; border-radius: 999px; border: 2px solid var(--pc-accent); background: transparent; color: var(--pc-accent); cursor: pointer; }
+
+/* hero */
+.hero { --pc-wedge-h: 75%; --pc-wedge-color: var(--pc-tint); padding-block: 48px 40px; display: grid; gap: 18px; }
+.hero > * { position: relative; z-index: 1; }
+.hero .pc-display { font-size: clamp(2.2rem, 6vw, 4.2rem); max-width: 15ch; position: relative; }
+.hero .lede { max-width: 62ch; font-size: 1.05rem; position: relative; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 0.88rem; color: var(--pc-muted); position: relative; }
+.toc { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 0.92rem; position: relative; }
+.toc a { text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.toc a:hover { text-decoration: underline; }
+
+section { padding-block: 44px 4px; display: grid; gap: 18px; }
+.sec-head { display: flex; align-items: baseline; gap: 12px; }
+.sec-head .pc-pointer { font-size: 1.2rem; flex: none; transform: translateY(1px); }
+
+/* stat row */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 14px; }
+.stat { background: var(--pc-surface); border-radius: 10px; padding: 16px 18px; }
+.stat b { display: block; font-size: 2.2rem; font-weight: 700; line-height: 1.1; color: var(--pc-highlight); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 0.9rem; color: var(--pc-muted); }
+
+/* decisions */
+.decisions { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 14px; }
+.decision { background: var(--pc-tint); border-radius: 10px; padding: 18px; display: grid; gap: 6px; align-content: start; }
+.decision .q { font-size: 0.82rem; color: var(--pc-muted); }
+
+/* tickets */
+.tickets { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); gap: 14px; }
+.ticket { border: 1px solid var(--pc-border); border-left: 4px solid var(--pc-error); border-radius: 10px; padding: 18px; display: grid; gap: 8px; align-content: start; background: var(--pc-bg); }
+.ticket.warn { border-left-color: var(--pc-warning); }
+.ticket .where { font-size: 0.84rem; color: var(--pc-muted); }
+
+/* findings */
+.group-title { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.dot.hi { background: var(--pc-error); }
+.dot.med { background: var(--pc-warning); }
+.dot.low { background: var(--pc-success); }
+.findings { border-top: 1px solid var(--pc-border); }
+.finding { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 14px; padding-block: 16px; border-bottom: 1px solid var(--pc-border); }
+.finding .ids { font: 600 0.8rem/1.7 var(--pc-mono); color: var(--pc-muted); }
+.finding h3 { margin-bottom: 4px; }
+.finding .ev { font-size: 0.85rem; color: var(--pc-muted); margin-top: 6px; }
+@media (max-width: 640px) { .finding { grid-template-columns: 1fr; gap: 4px; } }
+
+/* evidence + mockups */
+.shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 20px; }
+figure { margin: 0; display: grid; gap: 8px; min-width: 0; }
+.frame { display: block; border: 1px solid var(--pc-border); border-radius: 8px; overflow: auto; max-height: 520px; background: var(--pc-surface); }
+.frame.tall { max-height: 700px; }
+.frame img { display: block; width: 100%; height: auto; }
+figcaption { font-size: 0.86rem; color: var(--pc-muted); }
+figcaption b { color: var(--pc-text); font-weight: 600; }
+.mock { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 24px; padding-block: 22px; border-top: 1px solid var(--pc-border); align-items: start; }
+@media (max-width: 860px) { .mock { grid-template-columns: 1fr; } }
+ul.pts { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 6px; }
+ul.pts li { display: grid; grid-template-columns: 0.9em minmax(0, 1fr); gap: 8px; }
+ul.pts li::before { content: ""; width: 0.55em; height: 0.64em; margin-top: 0.45em; background: var(--pc-accent);
+  -webkit-mask: var(--pc-pointer-shape) center / contain no-repeat; mask: var(--pc-pointer-shape) center / contain no-repeat;
+  --pc-pointer-shape: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 87 100'%3E%3Cpath d='M0 0L87 50L0 100Z'/%3E%3C/svg%3E"); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.tags span { font: 600 0.75rem/1 var(--pc-mono); padding: 5px 8px; border-radius: 999px; background: var(--pc-tint); color: var(--pc-text); }
+
+/* matrix */
+.table-wrap { overflow-x: auto; border: 1px solid var(--pc-border); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+th, td { padding: 8px 10px; border-bottom: 1px solid var(--pc-border); text-align: left; white-space: nowrap; }
+thead th { font-weight: 600; background: var(--pc-surface); }
+tbody th { font-weight: 600; }
+td.n { color: var(--pc-muted); }
+td.odd { font-weight: 600; box-shadow: inset 3px 0 0 var(--pc-warning); }
+tr.grp th { background: var(--pc-surface); font-size: 0.72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--pc-muted); }
+
+ol.plan { margin: 0; padding-left: 22px; display: grid; gap: 10px; max-width: 75ch; }
+ol.plan li::marker { color: var(--pc-accent); font-weight: 700; }
+.map { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 12px; }
+.map div { background: var(--pc-surface); border-radius: 8px; padding: 12px 14px; font-size: 0.88rem; }
+.map b { display: block; font-weight: 600; margin-bottom: 2px; }
+.map span { color: var(--pc-muted); }
+
+footer { margin-top: 56px; padding-top: 22px; border-top: 1px solid var(--pc-border); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; font-size: 0.88rem; color: var(--pc-muted); }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <span class="pc-logo-pmm" style="height:56px"><svg data-pc-logo="pmm-horizontal" xmlns="http://www.w3.org/2000/svg" viewBox="-1.8 35.5 1423.4 621.0" fill="currentColor" role="img" aria-label="Percona Monitoring and Management">
+  <path d="M707.57,650.68H3.88L355.73,41.27l351.84,609.41ZM23.12,639.58h665.22L355.73,63.48,23.12,639.58Z"/>
+  <polygon points="333.82 414.23 333.82 414.23 499 414.23 416.41 271.18 333.82 414.23"/>
+  <polygon points="270.39 341.62 259.05 321.98 205.79 414.23 228.47 414.23 270.39 341.62"/>
+  <polygon points="373.52 315.62 337.93 253.99 245.41 414.23 316.59 414.23 373.52 315.62"/>
+  <polygon points="333.82 428.51 333.82 428.51 499 428.51 416.41 571.56 333.82 428.51"/>
+  <polygon points="270.39 501.12 259.05 520.76 205.79 428.51 228.47 428.51 270.39 501.12"/>
+  <polygon points="373.52 527.12 337.93 588.75 245.41 428.51 316.59 428.51 373.52 527.12"/>
+  <path d="M830.88,504.89v62.84h-15.31v-37.69l-14.05,37.69h-12.35l-14.14-37.78v37.78h-15.31v-62.84h18.08l17.63,43.51,17.46-43.51h17.99Z"/>
+  <path d="M838.08,529.15c1.94-3.88,4.58-6.86,7.92-8.95,3.34-2.09,7.07-3.13,11.19-3.13,3.52,0,6.61.72,9.26,2.15,2.65,1.43,4.7,3.31,6.13,5.64v-7.07h15.31v49.95h-15.31v-7.07c-1.49,2.33-3.57,4.21-6.22,5.64-2.66,1.43-5.74,2.15-9.26,2.15-4.06,0-7.76-1.06-11.1-3.18s-5.98-5.13-7.92-9.04c-1.94-3.91-2.91-8.43-2.91-13.56s.97-9.64,2.91-13.52ZM869.41,533.71c-2.12-2.21-4.7-3.31-7.74-3.31s-5.63,1.09-7.74,3.27c-2.12,2.18-3.18,5.18-3.18,9s1.06,6.85,3.18,9.09c2.12,2.24,4.7,3.36,7.74,3.36s5.62-1.1,7.74-3.31c2.12-2.21,3.18-5.22,3.18-9.04s-1.06-6.83-3.18-9.04Z"/>
+  <path d="M939.77,522.92c3.49,3.79,5.24,9,5.24,15.62v29.18h-15.22v-27.12c0-3.34-.87-5.94-2.6-7.79-1.73-1.85-4.06-2.78-6.98-2.78s-5.25.93-6.98,2.78c-1.73,1.85-2.6,4.45-2.6,7.79v27.12h-15.31v-49.95h15.31v6.62c1.55-2.21,3.64-3.95,6.27-5.24,2.63-1.28,5.58-1.93,8.86-1.93,5.85,0,10.52,1.9,14.01,5.68Z"/>
+  <path d="M951.86,529.15c1.94-3.88,4.58-6.86,7.92-8.95,3.34-2.09,7.07-3.13,11.19-3.13,3.52,0,6.61.72,9.26,2.15,2.65,1.43,4.7,3.31,6.13,5.64v-7.07h15.31v49.95h-15.31v-7.07c-1.49,2.33-3.57,4.21-6.22,5.64-2.66,1.43-5.74,2.15-9.26,2.15-4.06,0-7.76-1.06-11.1-3.18s-5.98-5.13-7.92-9.04c-1.94-3.91-2.91-8.43-2.91-13.56s.97-9.64,2.91-13.52ZM983.19,533.71c-2.12-2.21-4.7-3.31-7.74-3.31s-5.63,1.09-7.74,3.27c-2.12,2.18-3.18,5.18-3.18,9s1.06,6.85,3.18,9.09c2.12,2.24,4.7,3.36,7.74,3.36s5.62-1.1,7.74-3.31c2.12-2.21,3.18-5.22,3.18-9.04s-1.06-6.83-3.18-9.04Z"/>
+  <path d="M1037.34,519.21c2.65,1.43,4.7,3.31,6.13,5.64v-7.07h15.31v49.86c0,4.6-.91,8.76-2.73,12.49-1.82,3.73-4.6,6.7-8.33,8.91-3.73,2.21-8.37,3.31-13.92,3.31-7.4,0-13.4-1.75-17.99-5.24-4.6-3.49-7.22-8.22-7.88-14.19h15.13c.48,1.91,1.61,3.42,3.4,4.52,1.79,1.1,4,1.66,6.62,1.66,3.16,0,5.68-.91,7.56-2.73,1.88-1.82,2.82-4.73,2.82-8.73v-7.07c-1.49,2.33-3.55,4.22-6.18,5.68-2.63,1.46-5.7,2.19-9.22,2.19-4.12,0-7.85-1.06-11.19-3.18s-5.98-5.13-7.92-9.04c-1.94-3.91-2.91-8.43-2.91-13.56s.97-9.64,2.91-13.52c1.94-3.88,4.58-6.86,7.92-8.95,3.34-2.09,7.07-3.13,11.19-3.13,3.52,0,6.61.72,9.26,2.15ZM1040.3,533.71c-2.12-2.21-4.7-3.31-7.74-3.31s-5.63,1.09-7.74,3.27c-2.12,2.18-3.18,5.18-3.18,9s1.06,6.85,3.18,9.09c2.12,2.24,4.7,3.36,7.74,3.36s5.62-1.1,7.74-3.31c2.12-2.21,3.18-5.22,3.18-9.04s-1.06-6.83-3.18-9.04Z"/>
+  <path d="M1113.03,546.42h-34.64c.24,3.1,1.24,5.47,3,7.12,1.76,1.64,3.92,2.46,6.49,2.46,3.82,0,6.47-1.61,7.97-4.84h16.29c-.84,3.28-2.34,6.24-4.52,8.86-2.18,2.63-4.91,4.69-8.19,6.18-3.28,1.49-6.95,2.24-11.01,2.24-4.89,0-9.25-1.04-13.07-3.13-3.82-2.09-6.8-5.07-8.95-8.95-2.15-3.88-3.22-8.42-3.22-13.61s1.06-9.73,3.18-13.61c2.12-3.88,5.09-6.86,8.91-8.95,3.82-2.09,8.2-3.13,13.16-3.13s9.13,1.02,12.89,3.04c3.76,2.03,6.7,4.92,8.82,8.68,2.12,3.76,3.18,8.14,3.18,13.16,0,1.43-.09,2.92-.27,4.48ZM1097.63,537.92c0-2.62-.89-4.71-2.69-6.27-1.79-1.55-4.03-2.33-6.71-2.33s-4.73.75-6.49,2.24c-1.76,1.49-2.85,3.61-3.27,6.35h19.16Z"/>
+  <path d="M1196.24,522.88c3.67,3.76,5.51,8.98,5.51,15.67v29.18h-15.22v-27.12c0-3.22-.85-5.71-2.55-7.48-1.7-1.76-4.04-2.64-7.03-2.64s-5.33.88-7.03,2.64c-1.7,1.76-2.55,4.25-2.55,7.48v27.12h-15.22v-27.12c0-3.22-.85-5.71-2.55-7.48-1.7-1.76-4.04-2.64-7.03-2.64s-5.33.88-7.03,2.64c-1.7,1.76-2.55,4.25-2.55,7.48v27.12h-15.31v-49.95h15.31v6.27c1.55-2.09,3.58-3.74,6.09-4.97,2.51-1.22,5.34-1.84,8.5-1.84,3.76,0,7.12.81,10.07,2.42,2.95,1.61,5.27,3.91,6.94,6.89,1.73-2.75,4.09-4.98,7.07-6.71,2.98-1.73,6.24-2.6,9.76-2.6,6.21,0,11.14,1.88,14.81,5.64Z"/>
+  <path d="M1255.63,546.42h-34.64c.24,3.1,1.24,5.47,3,7.12,1.76,1.64,3.92,2.46,6.49,2.46,3.82,0,6.47-1.61,7.97-4.84h16.29c-.84,3.28-2.34,6.24-4.52,8.86-2.18,2.63-4.91,4.69-8.19,6.18-3.28,1.49-6.95,2.24-11.01,2.24-4.89,0-9.25-1.04-13.07-3.13-3.82-2.09-6.8-5.07-8.95-8.95-2.15-3.88-3.22-8.42-3.22-13.61s1.06-9.73,3.18-13.61c2.12-3.88,5.09-6.86,8.91-8.95,3.82-2.09,8.2-3.13,13.16-3.13s9.13,1.02,12.89,3.04c3.76,2.03,6.7,4.92,8.82,8.68,2.12,3.76,3.18,8.14,3.18,13.16,0,1.43-.09,2.92-.27,4.48ZM1240.23,537.92c0-2.62-.89-4.71-2.69-6.27-1.79-1.55-4.03-2.33-6.71-2.33s-4.73.75-6.49,2.24c-1.76,1.49-2.85,3.61-3.27,6.35h19.16Z"/>
+  <path d="M1304.73,522.92c3.49,3.79,5.24,9,5.24,15.62v29.18h-15.22v-27.12c0-3.34-.87-5.94-2.6-7.79-1.73-1.85-4.06-2.78-6.98-2.78s-5.25.93-6.98,2.78c-1.73,1.85-2.6,4.45-2.6,7.79v27.12h-15.31v-49.95h15.31v6.62c1.55-2.21,3.64-3.95,6.27-5.24,2.63-1.28,5.58-1.93,8.86-1.93,5.85,0,10.52,1.9,14.01,5.68Z"/>
+  <path d="M1344.79,554.75v12.98h-7.79c-5.55,0-9.88-1.36-12.98-4.07-3.1-2.72-4.65-7.15-4.65-13.29v-19.87h-6.09v-12.71h6.09v-12.17h15.31v12.17h10.03v12.71h-10.03v20.05c0,1.49.36,2.57,1.07,3.22.72.66,1.91.98,3.58.98h5.46Z"/>
+  <path d="M830.88,397.47v62.84h-15.31v-37.69l-14.05,37.69h-12.35l-14.14-37.78v37.78h-15.31v-62.84h18.08l17.63,43.51,17.46-43.51h17.99Z"/>
+  <path d="M847.75,457.89c-3.91-2.09-6.98-5.07-9.22-8.95-2.24-3.88-3.36-8.41-3.36-13.6s1.13-9.65,3.4-13.56c2.27-3.91,5.37-6.91,9.31-9,3.94-2.09,8.35-3.13,13.25-3.13s9.31,1.04,13.25,3.13c3.94,2.09,7.04,5.09,9.31,9,2.27,3.91,3.4,8.43,3.4,13.56s-1.15,9.65-3.45,13.56c-2.3,3.91-5.43,6.91-9.4,9-3.97,2.09-8.4,3.13-13.29,3.13s-9.3-1.04-13.2-3.13ZM868.43,444.55c2.06-2.15,3.09-5.22,3.09-9.22s-1-7.07-3-9.22c-2-2.15-4.46-3.22-7.39-3.22s-5.46,1.06-7.43,3.18c-1.97,2.12-2.95,5.21-2.95,9.26s.97,7.07,2.91,9.22c1.94,2.15,4.37,3.22,7.3,3.22s5.42-1.07,7.47-3.22Z"/>
+  <path d="M936.01,415.5c3.49,3.79,5.24,9,5.24,15.62v29.18h-15.22v-27.12c0-3.34-.87-5.94-2.6-7.79-1.73-1.85-4.06-2.78-6.98-2.78s-5.25.93-6.98,2.78c-1.73,1.85-2.6,4.45-2.6,7.79v27.12h-15.31v-49.95h15.31v6.62c1.55-2.21,3.64-3.95,6.27-5.24,2.63-1.28,5.58-1.93,8.86-1.93,5.85,0,10.52,1.9,14.01,5.68Z"/>
+  <path d="M949.35,402.79c-1.7-1.58-2.55-3.54-2.55-5.86s.85-4.37,2.55-5.95c1.7-1.58,3.89-2.37,6.58-2.37s4.79.79,6.49,2.37c1.7,1.58,2.55,3.57,2.55,5.95s-.85,4.28-2.55,5.86c-1.7,1.58-3.86,2.37-6.49,2.37s-4.88-.79-6.58-2.37ZM963.54,410.36v49.95h-15.31v-49.95h15.31Z"/>
+  <path d="M998.81,447.33v12.98h-7.79c-5.55,0-9.88-1.36-12.98-4.07-3.1-2.71-4.65-7.15-4.65-13.29v-19.87h-6.09v-12.71h6.09v-12.17h15.31v12.17h10.03v12.71h-10.03v20.05c0,1.49.36,2.57,1.07,3.22.72.66,1.91.98,3.58.98h5.46Z"/>
+  <path d="M1013.18,457.89c-3.91-2.09-6.98-5.07-9.22-8.95-2.24-3.88-3.36-8.41-3.36-13.6s1.13-9.65,3.4-13.56c2.27-3.91,5.37-6.91,9.31-9,3.94-2.09,8.35-3.13,13.25-3.13s9.31,1.04,13.25,3.13c3.94,2.09,7.04,5.09,9.31,9,2.27,3.91,3.4,8.43,3.4,13.56s-1.15,9.65-3.45,13.56c-2.3,3.91-5.43,6.91-9.4,9-3.97,2.09-8.4,3.13-13.29,3.13s-9.3-1.04-13.2-3.13ZM1033.85,444.55c2.06-2.15,3.09-5.22,3.09-9.22s-1-7.07-3-9.22c-2-2.15-4.46-3.22-7.39-3.22s-5.46,1.06-7.43,3.18c-1.97,2.12-2.95,5.21-2.95,9.26s.97,7.07,2.91,9.22c1.94,2.15,4.37,3.22,7.3,3.22s5.42-1.07,7.47-3.22Z"/>
+  <path d="M1079.02,412.19c2.69-1.58,5.67-2.37,8.95-2.37v16.2h-4.21c-3.82,0-6.68.82-8.59,2.46-1.91,1.64-2.86,4.52-2.86,8.64v23.19h-15.31v-49.95h15.31v8.33c1.79-2.74,4.03-4.91,6.71-6.49Z"/>
+  <path d="M1092.76,402.79c-1.7-1.58-2.55-3.54-2.55-5.86s.85-4.37,2.55-5.95c1.7-1.58,3.89-2.37,6.58-2.37s4.79.79,6.49,2.37c1.7,1.58,2.55,3.57,2.55,5.95s-.85,4.28-2.55,5.86c-1.7,1.58-3.86,2.37-6.49,2.37s-4.88-.79-6.58-2.37ZM1106.94,410.36v49.95h-15.31v-49.95h15.31Z"/>
+  <path d="M1158.82,415.5c3.49,3.79,5.24,9,5.24,15.62v29.18h-15.22v-27.12c0-3.34-.87-5.94-2.6-7.79-1.73-1.85-4.06-2.78-6.98-2.78s-5.25.93-6.98,2.78c-1.73,1.85-2.6,4.45-2.6,7.79v27.12h-15.31v-49.95h15.31v6.62c1.55-2.21,3.64-3.95,6.27-5.24,2.63-1.28,5.58-1.93,8.86-1.93,5.85,0,10.52,1.9,14.01,5.68Z"/>
+  <path d="M1199.28,411.79c2.65,1.43,4.7,3.31,6.13,5.64v-7.07h15.31v49.86c0,4.6-.91,8.76-2.73,12.49-1.82,3.73-4.6,6.7-8.33,8.91-3.73,2.21-8.37,3.31-13.92,3.31-7.4,0-13.4-1.74-17.99-5.24-4.6-3.49-7.22-8.22-7.88-14.19h15.13c.48,1.91,1.61,3.42,3.4,4.52,1.79,1.1,4,1.66,6.62,1.66,3.16,0,5.68-.91,7.56-2.73,1.88-1.82,2.82-4.73,2.82-8.73v-7.07c-1.49,2.33-3.55,4.22-6.18,5.68-2.63,1.46-5.7,2.19-9.22,2.19-4.12,0-7.85-1.06-11.19-3.18s-5.98-5.13-7.92-9.04c-1.94-3.91-2.91-8.43-2.91-13.56s.97-9.64,2.91-13.52c1.94-3.88,4.58-6.86,7.92-8.95,3.34-2.09,7.07-3.13,11.19-3.13,3.52,0,6.61.72,9.26,2.15ZM1202.23,426.29c-2.12-2.21-4.7-3.31-7.74-3.31s-5.63,1.09-7.74,3.27c-2.12,2.18-3.18,5.18-3.18,9s1.06,6.85,3.18,9.09c2.12,2.24,4.7,3.36,7.74,3.36s5.62-1.1,7.74-3.31c2.12-2.21,3.18-5.22,3.18-9.04s-1.06-6.83-3.18-9.04Z"/>
+  <path d="M1251.06,421.72c1.94-3.88,4.58-6.86,7.92-8.95,3.34-2.09,7.07-3.13,11.19-3.13,3.52,0,6.61.72,9.26,2.15,2.65,1.43,4.7,3.31,6.13,5.64v-7.07h15.31v49.95h-15.31v-7.07c-1.49,2.33-3.57,4.21-6.22,5.64-2.66,1.43-5.74,2.15-9.26,2.15-4.06,0-7.76-1.06-11.1-3.18-3.34-2.12-5.98-5.13-7.92-9.04-1.94-3.91-2.91-8.43-2.91-13.56s.97-9.64,2.91-13.52ZM1282.39,426.29c-2.12-2.21-4.7-3.31-7.74-3.31s-5.63,1.09-7.74,3.27c-2.12,2.18-3.18,5.18-3.18,9s1.06,6.85,3.18,9.09c2.12,2.24,4.7,3.36,7.74,3.36s5.62-1.1,7.74-3.31c2.12-2.21,3.18-5.22,3.18-9.04s-1.06-6.83-3.18-9.04Z"/>
+  <path d="M1352.75,415.5c3.49,3.79,5.24,9,5.24,15.62v29.18h-15.22v-27.12c0-3.34-.87-5.94-2.6-7.79-1.73-1.85-4.06-2.78-6.98-2.78s-5.25.93-6.98,2.78c-1.73,1.85-2.6,4.45-2.6,7.79v27.12h-15.31v-49.95h15.31v6.62c1.55-2.21,3.64-3.95,6.27-5.24,2.63-1.28,5.58-1.93,8.86-1.93,5.85,0,10.52,1.9,14.01,5.68Z"/>
+  <path d="M1365.72,421.72c1.94-3.88,4.58-6.86,7.92-8.95,3.34-2.09,7.07-3.13,11.19-3.13,3.28,0,6.28.69,9,2.06,2.72,1.37,4.85,3.22,6.4,5.55v-23.19h15.31v66.24h-15.31v-7.16c-1.43,2.39-3.48,4.3-6.13,5.73-2.66,1.43-5.74,2.15-9.26,2.15-4.12,0-7.85-1.06-11.19-3.18s-5.98-5.13-7.92-9.04c-1.94-3.91-2.91-8.43-2.91-13.56s.97-9.64,2.91-13.52ZM1397.06,426.29c-2.12-2.21-4.7-3.31-7.74-3.31s-5.63,1.09-7.74,3.27c-2.12,2.18-3.18,5.18-3.18,9s1.06,6.85,3.18,9.09c2.12,2.24,4.7,3.36,7.74,3.36s5.62-1.1,7.74-3.31c2.12-2.21,3.18-5.22,3.18-9.04s-1.06-6.83-3.18-9.04Z"/>
+  <path d="M791.67,331.35c-3.12,3.01-7.88,4.52-14.27,4.52h-10.54v22.88h-7.16v-54.8h17.69c6.18,0,10.89,1.49,14.11,4.48,3.22,2.99,4.84,6.84,4.84,11.56s-1.56,8.35-4.68,11.36ZM786.21,327.38c1.89-1.73,2.83-4.19,2.83-7.39,0-6.76-3.88-10.14-11.64-10.14h-10.54v20.13h10.54c3.98,0,6.92-.86,8.81-2.59Z"/>
+  <path d="M843.22,339.88h-34.44c.26,4.25,1.72,7.56,4.36,9.95,2.65,2.39,5.86,3.58,9.63,3.58,3.09,0,5.67-.72,7.75-2.16,2.07-1.44,3.52-3.37,4.36-5.78h7.71c-1.15,4.14-3.46,7.51-6.92,10.1-3.46,2.6-7.76,3.89-12.89,3.89-4.09,0-7.75-.92-10.97-2.75-3.22-1.83-5.75-4.44-7.59-7.82-1.84-3.38-2.75-7.3-2.75-11.75s.89-8.36,2.67-11.72c1.78-3.36,4.29-5.94,7.51-7.75,3.22-1.81,6.93-2.71,11.13-2.71s7.71.89,10.85,2.67c3.15,1.78,5.57,4.23,7.27,7.35,1.7,3.12,2.56,6.64,2.56,10.58,0,1.36-.08,2.8-.24,4.32ZM834.25,327.03c-1.21-1.97-2.84-3.46-4.91-4.48-2.07-1.02-4.36-1.53-6.88-1.53-3.62,0-6.7,1.15-9.24,3.46-2.54,2.31-4,5.5-4.36,9.59h27.21c0-2.73-.6-5.07-1.81-7.04Z"/>
+  <path d="M865.35,316.92c2.33-1.36,5.18-2.05,8.53-2.05v7.39h-1.89c-8.02,0-12.03,4.35-12.03,13.05v23.43h-7.16v-43.09h7.16v7c1.26-2.46,3.05-4.38,5.39-5.74Z"/>
+  <path d="M880.8,325.46c1.78-3.33,4.26-5.91,7.43-7.75,3.17-1.83,6.8-2.75,10.89-2.75,5.29,0,9.66,1.28,13.09,3.85,3.43,2.57,5.7,6.13,6.8,10.69h-7.71c-.73-2.62-2.16-4.69-4.29-6.21-2.12-1.52-4.76-2.28-7.9-2.28-4.09,0-7.39,1.4-9.91,4.21-2.52,2.81-3.77,6.78-3.77,11.91s1.26,9.2,3.77,12.03c2.52,2.83,5.82,4.25,9.91,4.25,3.15,0,5.77-.73,7.86-2.2,2.1-1.47,3.54-3.56,4.32-6.29h7.71c-1.15,4.4-3.46,7.93-6.92,10.58-3.46,2.65-7.78,3.97-12.97,3.97-4.09,0-7.72-.92-10.89-2.75-3.17-1.83-5.65-4.43-7.43-7.78-1.78-3.35-2.67-7.29-2.67-11.79s.89-8.35,2.67-11.68Z"/>
+  <path d="M935.88,356.71c-3.28-1.83-5.85-4.44-7.71-7.82-1.86-3.38-2.79-7.3-2.79-11.75s.96-8.3,2.87-11.68c1.91-3.38,4.52-5.98,7.82-7.78,3.3-1.81,7-2.71,11.09-2.71s7.78.9,11.09,2.71c3.3,1.81,5.91,4.39,7.82,7.75,1.91,3.35,2.87,7.26,2.87,11.72s-.98,8.37-2.95,11.75c-1.97,3.38-4.63,5.99-7.98,7.82-3.35,1.84-7.08,2.75-11.17,2.75s-7.69-.92-10.97-2.75ZM954.08,351.37c2.25-1.21,4.08-3.01,5.46-5.43,1.39-2.41,2.08-5.35,2.08-8.81s-.68-6.39-2.04-8.81c-1.36-2.41-3.15-4.21-5.35-5.39-2.2-1.18-4.59-1.77-7.16-1.77s-5.02.59-7.19,1.77c-2.18,1.18-3.92,2.98-5.23,5.39-1.31,2.41-1.97,5.35-1.97,8.81s.64,6.47,1.93,8.88c1.28,2.41,3,4.21,5.15,5.39,2.15,1.18,4.51,1.77,7.08,1.77s4.98-.6,7.23-1.81Z"/>
+  <path d="M1011.87,319.64c3.25,3.17,4.88,7.75,4.88,13.72v25.4h-7.08v-24.38c0-4.3-1.07-7.59-3.22-9.87-2.15-2.28-5.09-3.42-8.81-3.42s-6.78,1.18-9,3.54c-2.23,2.36-3.34,5.79-3.34,10.3v23.82h-7.16v-43.09h7.16v6.13c1.41-2.2,3.34-3.9,5.78-5.11,2.44-1.2,5.12-1.81,8.06-1.81,5.24,0,9.49,1.59,12.74,4.76Z"/>
+  <path d="M1028.23,325.46c1.78-3.33,4.23-5.91,7.35-7.75,3.12-1.83,6.59-2.75,10.42-2.75s7.05.81,9.83,2.44c2.78,1.63,4.85,3.67,6.21,6.13v-7.86h7.23v43.09h-7.23v-8.02c-1.42,2.52-3.53,4.6-6.33,6.25-2.81,1.65-6.07,2.48-9.79,2.48s-7.29-.94-10.38-2.83c-3.09-1.89-5.53-4.53-7.31-7.94-1.78-3.41-2.67-7.28-2.67-11.64s.89-8.27,2.67-11.6ZM1060.07,328.64c-1.31-2.41-3.08-4.26-5.31-5.54-2.23-1.28-4.68-1.93-7.35-1.93s-5.11.63-7.31,1.89c-2.2,1.26-3.96,3.09-5.27,5.51-1.31,2.41-1.97,5.24-1.97,8.49s.66,6.17,1.97,8.61c1.31,2.44,3.07,4.3,5.27,5.58,2.2,1.28,4.64,1.93,7.31,1.93s5.12-.64,7.35-1.93c2.23-1.28,4-3.15,5.31-5.58,1.31-2.44,1.97-5.28,1.97-8.53s-.66-6.08-1.97-8.49Z"/>
+</svg></span>
+    <button class="theme-btn" id="theme-btn" type="button" aria-label="Switch colour theme">auto</button>
+  </header>
+
+  <div class="hero pc-wedge-tr">
+    <span class="label">UX review · Inventory › Add service · PMM-15003</span>
+    <h1 class="pc-display">Add service works. <span class="pc-highlight">If you already know PMM.</span></h1>
+    <p class="lede">Findings from two passes over the Add service flow: a review of all nine service types, then an adversarial pass that tried to break both the live flow and the proposed redesign. Every finding below was checked against the code, the API or the live server.</p>
+    <div class="meta">
+      <span>Captured on PMM <code>3.10.0-PMM-14912-dynamic-thresholds</code>, a feature build</span>
+      <span>Code: <code>percona/grafana</code> add-instance, <code>percona/pmm</code> API and managed</span>
+      <span>2026-10-12</span>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#decisions"><span class="pc-pointer" aria-hidden="true"></span>Decisions</a>
+      <a href="#fix-now"><span class="pc-pointer" aria-hidden="true"></span>Fix now</a>
+      <a href="#findings"><span class="pc-pointer" aria-hidden="true"></span>Findings</a>
+      <a href="#matrix"><span class="pc-pointer" aria-hidden="true"></span>Field matrix</a>
+      <a href="#redesign"><span class="pc-pointer" aria-hidden="true"></span>Redesign</a>
+      <a href="#plan"><span class="pc-pointer" aria-hidden="true"></span>Plan</a>
+      <a href="#corrections"><span class="pc-pointer" aria-hidden="true"></span>What we got wrong</a>
+    </nav>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b>9</b><span>service types reviewed on a live server</span></div>
+    <div class="stat"><b>22</b><span>findings, 6 rated high impact</span></div>
+    <div class="stat"><b>3</b><span>silent data bugs to fix in the current page</span></div>
+    <div class="stat"><b>0</b><span>new APIs needed for the redesign</span></div>
+  </div>
+
+  <section id="decisions">
+    <div class="sec-head"><span class="pc-pointer" aria-hidden="true"></span><h2>Decisions made</h2></div>
+    <div class="decisions">
+      <div class="decision"><span class="q">Build a dry-run connection check API for PMM-15003?</span><h3>No.</h3><p>The redesign drops <b>Test connection</b>. PMM keeps checking the connection when you add the service, and failures show inline instead of as a toast.</p></div>
+      <div class="decision"><span class="q">Fix the silent data bugs now or with the migration?</span><h3>Now, in the current page.</h3><p>Region and AZ, the MongoDB key password and the MySQL table statistics default get fixed in the Grafana add-instance code, as separate tickets.</p></div>
+      <div class="decision"><span class="q">Retake screenshots on a release build?</span><h3>No.</h3><p>The feature-build screenshots stand. Where <code>main</code> differs, the finding says so.</p></div>
+    </div>
+  </section>
+
+  <section id="fix-now">
+    <div class="sec-head"><span class="pc-pointer" aria-hidden="true"></span><h2>Fix now in the current page</h2></div>
+    <p class="prose">Three bugs lose data or change monitoring without telling anyone. Each is a small fix in <code>public/app/percona/add-instance</code> and needs no API change.</p>
+    <div class="tickets">
+      <div class="ticket"><span class="label">Region and AZ</span><h3>Region and Availability Zone never reach the server for self-hosted services</h3><p>The form sends <code>region</code> and <code>az</code> at the top level of the request. <code>AddMySQLServiceParams</code> has no such fields, and the gateway discards unknown fields (<code>DiscardUnknown: true</code>). <b>Fix:</b> send them inside <code>add_node</code>, whose <code>AddNodeParams</code> already has <code>region</code> and <code>az</code>.</p><p class="where">Confirmed from the captured request and the code. <code>AddRemoteInstance.service.tsx:170-175</code>.</p></div>
+      <div class="ticket"><span class="label">MongoDB TLS</span><h3>The MongoDB TLS key password is never sent</h3><p>The form field is <code>tls_certificate_file_password</code>, but the API expects <code>tls_certificate_key_file_password</code>. <code>toPayload</code> doesn't rename it, so a password-protected key can't work. <b>Fix:</b> map the field to the API name.</p><p class="where">Found in code: <code>MongodbTLSCertificate.tsx:17</code>, <code>mongodb.proto:67</code>. Not reproduced live.</p></div>
+      <div class="ticket warn"><span class="label">MySQL table statistics</span><h3>Table statistics are off by default, unlike pmm-admin</h3><p>The form preselects "Disabled", which sends <code>-1</code>, and the server reads <code>-1</code> as "never collect". The server and <code>pmm-admin</code> default to a 1,000-table limit. <b>Fix:</b> preselect "Default", or confirm the UI default is intentional.</p><p class="where"><code>AdditionalOptions.tsx:162</code>, <code>agent_model.go:978-979</code>, <code>mysql.go:42-48</code>.</p></div>
+    </div>
+  </section>
+
+  <section id="findings">
+    <div class="sec-head"><span class="pc-pointer" aria-hidden="true"></span><h2>Findings</h2></div>
+    <p class="prose muted">Ordered by impact on getting a first service monitored. The IDs match the full review: F from the first pass, N from the adversarial pass.</p>
+
+    <div class="group-title"><span class="dot hi" aria-hidden="true"></span><h3>High impact</h3></div>
+    <div class="findings">
+      <div class="finding"><span class="ids">F1 · N4</span><div><h3>Every server error is a raw toast that disappears</h3><p>Connection failures, wrong passwords and duplicate names show the backend's text, such as <code>pq: password authentication failed … (28P01)</code>. The toast clears after about 10 seconds. No field is marked, and nothing says which agent tried to connect or what to do next. The form also reports one error per submit: a duplicate name hides a bad host until the next try.</p></div></div>
+      <div class="finding"><span class="ids">N1</span><div><h3>Errors below the fold are silent</h3><p>With one invalid custom label, pressing <b>Add service</b> at the top of the page changes nothing visible. The error renders at y = 1216 px in a 900 px viewport. The page doesn't scroll to it or summarise it.</p></div></div>
+      <div class="finding"><span class="ids">N2</span><div><h3>Back, Cancel and reload throw away the form</h3><p>Browser Back then Forward returns an empty form. <b>Cancel</b> on step 2 goes back to the type picker with no confirmation. A reload clears everything.</p></div></div>
+      <div class="finding"><span class="ids">N3</span><div><h3>Region and AZ are silently dropped</h3><p>See <a href="#fix-now">Fix now</a>.</p></div></div>
+      <div class="finding"><span class="ids">F3</span><div><h3>The flow never explains remote vs. agent-based monitoring</h3><p>All eight cards say "Add a remote instance". Nothing says that <code>pmm-admin add</code> on the database host gives OS metrics and slow-log QAN. The Nodes and Agents selects default to <code>pmm-server</code>, list bare names and raw agent IDs, and don't say what they change: the node only matters for a <code>localhost</code> hostname and for push or pull metrics mode.</p></div></div>
+      <div class="finding"><span class="ids">F2</span><div><h3>No connection test before submitting</h3><p>Accepted: a dry-run API is out of scope. The redesign makes up for it by keeping the add call's errors on the page, next to the field that caused them.</p></div></div>
+    </div>
+
+    <div class="shots">
+      <figure><a class="frame" href="img/mysql-submit-3s.png" target="_blank"><img src="img/mysql-submit-3s.png" alt="Toast with raw DNS error three seconds after submit" loading="lazy"></a><figcaption><b>F1</b> 3 s after submit: raw resolver error</figcaption></figure>
+      <figure><a class="frame" href="img/mysql-submit-15s.png" target="_blank"><img src="img/mysql-submit-15s.png" alt="Same form 15 seconds later with no error visible" loading="lazy"></a><figcaption><b>F1</b> 15 s after submit: the error is gone</figcaption></figure>
+      <figure><a class="frame" href="img/adv-auth-fail.png" target="_blank"><img src="img/adv-auth-fail.png" alt="Toast with raw PostgreSQL authentication error" loading="lazy"></a><figcaption><b>N4</b> wrong password: driver text, no field marked</figcaption></figure>
+      <figure><a class="frame" href="img/adv-fold-error.png" target="_blank"><img src="img/adv-fold-error.png" alt="Form after pressing Add service with an error out of view" loading="lazy"></a><figcaption><b>N1</b> after pressing Add service: nothing visible changes</figcaption></figure>
+    </div>
+
+    <div class="group-title"><span class="dot med" aria-hidden="true"></span><h3>Medium impact</h3></div>
+    <div class="findings">
+      <div class="finding"><span class="ids">F4</span><div><h3>Hostname is in an error state before you touch it</h3><p>MySQL, PostgreSQL, MongoDB, Valkey and ProxySQL open with "Required field" under Hostname. The node selector prefills <code>address</code> through <code>form.change</code>, which marks it modified.</p></div></div>
+      <div class="finding"><span class="ids">F5 · N7</span><div><h3>The primary action is above a 2,000 px form</h3><p><b>Add service</b> lives only in the top toolbar. After the last field, Tab leaves the page; the button is about 30 tab stops back. Toolbar, breadcrumb and side nav each name the page differently.</p></div></div>
+      <div class="finding"><span class="ids">F6</span><div><h3>Labels take more room than the connection</h3><p>Five label fields and a <code>key:value</code> textarea come before any QAN option. Environment is free text with no suggestions, so <code>prod</code> and <code>production</code> drift apart.</p></div></div>
+      <div class="finding"><span class="ids">F7</span><div><h3>"Additional options" is one flat list with double negatives</h3><p>TLS, QAN, privacy and performance share a checkbox column. "Disable comments parsing" is checked by default. "Skip TLS verification" shows with TLS off. TLS certificates are three bare textareas with no upload.</p></div></div>
+      <div class="finding"><span class="ids">F8 · N12</span><div><h3>Three-way toggles expose sentinel values</h3><p>Table statistics shows Disabled / Default / Custom next to a greyed <code>-1</code>, and MySQL's default turns statistics off for good. PostgreSQL auto-discovery and connection limits use the same pattern.</p></div></div>
+      <div class="finding"><span class="ids">N11</span><div><h3>MongoDB TLS key password is dropped</h3><p>See <a href="#fix-now">Fix now</a>.</p></div></div>
+      <div class="finding"><span class="ids">N5</span><div><h3>Server warnings never reach the user</h3><p>When pg_stat_monitor is missing, the server falls back to pg_stat_statements and returns a warning. The UI ignores the response, so the user believes pg_stat_monitor is in use.</p></div></div>
+      <div class="finding"><span class="ids">N6</span><div><h3>Narrow screens clip the form</h3><p>At 400 px the form is 778 px wide in a 344 px frame, and Cancel and Add service move into a ⋮ menu. At 768 px the navigation drawer opens over the form.</p></div></div>
+      <div class="finding"><span class="ids">N8</span><div><h3>Validation is thin and leaks internals</h3><p><code>http://db prod:3306/</code> passes as a hostname. "abc" as max query length yields "Value should be greater or equal to -1". "5 minutes" as a timeout yields "Invalid duration" with no format.</p></div></div>
+      <div class="finding"><span class="ids">F9</span><div><h3>Technologies differ, partly by API design</h3><p>HAProxy and External have no agent or timeout fields because their APIs don't. Other gaps are UI drift: MongoDB's service name has no tooltip, and max query length sits in a different place per type. On the captured build HAProxy's required port is empty; <code>main</code> prefills 8404.</p></div></div>
+      <div class="finding"><span class="ids">F10</span><div><h3>RDS discovery has unclear states</h3><p>On load it runs discovery with the server's identity behind an unlabelled spinner, then shows "No data" with no reason. Bad keys raise a toast that clears after 10 s and leaves only "No data". <b>Discover</b> sits in the toolbar, away from the fields.</p></div></div>
+    </div>
+
+    <div class="shots">
+      <figure><a class="frame tall" href="img/mysql-full.png" target="_blank"><img src="img/mysql-full.png" alt="Current MySQL form, full height" loading="lazy"></a><figcaption><b>F4–F8</b> current MySQL form</figcaption></figure>
+      <figure><a class="frame tall" href="img/adv-invalid.png" target="_blank"><img src="img/adv-invalid.png" alt="MySQL form with malformed input and error messages" loading="lazy"></a><figcaption><b>N8</b> malformed input: the hostname with a space passes</figcaption></figure>
+      <figure><a class="frame" href="img/adv-w400-navclosed.png" target="_blank"><img src="img/adv-w400-navclosed.png" alt="MySQL form at 400 px with clipped fields" loading="lazy"></a><figcaption><b>N6</b> 400 px: fields clipped, actions behind ⋮</figcaption></figure>
+      <figure><a class="frame" href="img/adv-rds-bad-toast.png" target="_blank"><img src="img/adv-rds-bad-toast.png" alt="RDS discovery with an AWS error toast above No data" loading="lazy"></a><figcaption><b>F10</b> RDS bad keys: a short-lived toast, then "No data"</figcaption></figure>
+    </div>
+
+    <div class="group-title"><span class="dot low" aria-hidden="true"></span><h3>Lower impact</h3></div>
+    <div class="findings">
+      <div class="finding"><span class="ids">F11</span><div><h3>The type picker gives little to choose by</h3><p>Identical subtitles, generic icons for RDS and External, no grouping or search. Azure disappears when turned off, yet <code>/add-instance/azure</code> still opens.</p></div></div>
+      <div class="finding"><span class="ids">F12</span><div><h3>Copy repeats labels and hides units</h3><p>Placeholders repeat labels. Only a tooltip mentions the 2s timeout default. The max query length tooltip reads "Full Example (Fingerprint) storage is not allowed by default to have the best performance".</p></div></div>
+      <div class="finding"><span class="ids">F13</span><div><h3>Success is a toast and a redirect</h3><p>No link to the new service's dashboard or QAN, and no sign that data is arriving.</p></div></div>
+      <div class="finding"><span class="ids">N9</span><div><h3>Unknown types render a working-looking form</h3><p><code>/add-instance/foo</code> shows "Add remote instance" with <code>Port (default: undefined )</code> and an active <b>Add service</b>.</p></div></div>
+      <div class="finding"><span class="ids">N10</span><div><h3>Two accessibility misses</h3><p>Error text is 3.83:1, below the 4.5:1 minimum, and headings jump from h1 to h3. Otherwise the axe-core scan was clean: every input is labelled and picker cards are real buttons.</p></div></div>
+    </div>
+  </section>
+
+  <section id="matrix">
+    <div class="sec-head"><span class="pc-pointer" aria-hidden="true"></span><h2>Field matrix</h2></div>
+    <p class="prose muted">What each form shows today. A marked cell is a decision to make during the migration.</p>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Field</th><th>MySQL</th><th>PostgreSQL</th><th>MongoDB</th><th>Valkey</th><th>ProxySQL</th><th>HAProxy</th><th>External</th></tr></thead>
+      <tbody>
+        <tr class="grp"><th colspan="8">Connection</th></tr>
+        <tr><th>Service name</th><td>yes</td><td>yes</td><td class="odd">no tooltip</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
+        <tr><th>Node and agent</th><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td class="n">not in API</td><td class="n">not in API</td></tr>
+        <tr><th>Port</th><td>3306</td><td>5432</td><td>27017</td><td>6379</td><td>6032</td><td class="odd">empty on captured build</td><td>443</td></tr>
+        <tr><th>Username / password</th><td>required unless TLS</td><td>required unless TLS</td><td>required unless TLS</td><td class="odd">optional, unmarked</td><td>required</td><td>optional</td><td>optional</td></tr>
+        <tr><th>Database</th><td class="n">–</td><td>yes</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td></tr>
+        <tr><th>Connection timeout</th><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td class="n">not in API</td><td class="n">not in API</td></tr>
+        <tr><th>Max query length</th><td class="odd">main details</td><td>with database</td><td class="odd">main details</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td></tr>
+        <tr><th>Scheme, metrics path, URL</th><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td>yes</td></tr>
+        <tr class="grp"><th colspan="8">Security</th></tr>
+        <tr><th>TLS</th><td>CA, cert, key</td><td>CA, cert, key</td><td class="odd">PEM + password (dropped)</td><td>CA, cert, key</td><td class="odd">no cert fields</td><td class="n">–</td><td class="n">–</td></tr>
+        <tr><th>Skip TLS verification</th><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
+        <tr class="grp"><th colspan="8">Query Analytics</th></tr>
+        <tr><th>QAN source</th><td>perf schema (on)</td><td>pgsm / pgss / off</td><td class="odd">profiler (off)</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td></tr>
+        <tr><th>Query examples, comments</th><td>yes</td><td>yes</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td></tr>
+        <tr class="grp"><th colspan="8">Collection tuning</th></tr>
+        <tr><th>Disable collectors</th><td>yes</td><td>yes</td><td>yes</td><td class="n">–</td><td>yes</td><td class="n">–</td><td class="n">–</td></tr>
+        <tr><th>Extra DSN params</th><td>yes</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td></tr>
+        <tr><th>Table statistics</th><td class="odd">default = never</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td></tr>
+        <tr><th>Auto-discovery, max conn.</th><td class="n">–</td><td>yes</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td></tr>
+        <tr class="grp"><th colspan="8">Labels</th></tr>
+        <tr><th>Env, cluster, repl. set, custom</th><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
+        <tr><th>Region, AZ</th><td class="odd">dropped</td><td class="odd">dropped</td><td class="odd">dropped</td><td class="odd">dropped</td><td class="odd">dropped</td><td class="odd">dropped</td><td class="odd">dropped</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section id="redesign">
+    <div class="sec-head"><span class="pc-pointer" aria-hidden="true"></span><h2>Redesign</h2></div>
+    <p class="prose">Mockups for the native PMM UI, built with <code>@percona/peak-ui</code> 1.0.26 and MUI 7 in the PMM theme. Everything shown works with today's API; Test connection is gone, per the decision above. They pass axe's WCAG A/AA checks except for two peak-ui issues listed under <a href="#corrections">What we got wrong</a>.</p>
+
+    <div class="mock">
+      <div><h3>Choose what to monitor</h3>
+        <ul class="pts"><li>A callout says when to install PMM Client instead, with token-based commands as the docs recommend.</li><li>Cards are grouped and searchable, and say what each collects.</li><li>Azure stays visible when turned off, with a link to turn it on.</li></ul>
+        <div class="tags"><span>F3</span><span>F11</span></div></div>
+      <figure><a class="frame tall" href="img/mock-select.png" target="_blank"><img src="img/mock-select.png" alt="Mockup of the grouped service type picker" loading="lazy"></a><figcaption><b>Picker</b></figcaption></figure>
+    </div>
+
+    <div class="mock">
+      <div><h3>One form, four sections</h3>
+        <ul class="pts"><li><b>Connection</b> first, including <b>Connect from</b>: the agent that runs the exporter, listed by node, version and status.</li><li><b>Name and labels</b> with Environment suggestions and labelled key/value rows.</li><li><b>Query Analytics</b> as a named choice with positive privacy switches.</li><li><b>Advanced</b> collapsed with a one-line summary. Region and AZ live here and go into <code>add_node</code>.</li><li>A help panel with version-aware grants. Actions follow the form.</li></ul>
+        <div class="tags"><span>F4</span><span>F5</span><span>F6</span><span>F7</span><span>N7</span></div></div>
+      <div class="shots">
+        <figure><a class="frame tall" href="img/mock-mysql.png" target="_blank"><img src="img/mock-mysql.png" alt="Mockup of the MySQL form at rest in dark theme" loading="lazy"></a><figcaption><b>MySQL</b> at rest, dark</figcaption></figure>
+        <figure><a class="frame tall" href="img/mock-mysql-light.png" target="_blank"><img src="img/mock-mysql-light.png" alt="Mockup of the MySQL form at rest in light theme" loading="lazy"></a><figcaption><b>MySQL</b> at rest, light</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div><h3>TLS and Advanced open</h3>
+        <ul class="pts"><li>Multi-line PEM fields with upload. Client certificate and key are optional.</li><li>Units in adornments, and the real 2048 default for max query length.</li><li>Table statistics as a named choice: automatic, custom limit, or never.</li><li>A persistent "Skip the connection check" switch that says what skipping costs.</li></ul>
+        <div class="tags"><span>F7</span><span>F8</span><span>F12</span><span>N12</span></div></div>
+      <figure><a class="frame tall" href="img/mock-mysql-ok.png" target="_blank"><img src="img/mock-mysql-ok.png" alt="Mockup of MySQL form with TLS and Advanced expanded" loading="lazy"></a><figcaption><b>MySQL</b> expanded</figcaption></figure>
+    </div>
+
+    <div class="mock">
+      <div><h3>The add fails, and the page says why</h3>
+        <ul class="pts"><li>The add call's error stays on the page. It names host, port and agent, and points to <b>Connect from</b>.</li><li>The field is marked and the footer lists what needs attention.</li><li>Known driver messages (DNS, refused, timeout, 28P01, 1045) and <code>AlreadyExists</code> get plain wording. Anything else shows the raw text inline.</li></ul>
+        <div class="tags"><span>F1</span><span>N1</span><span>N4</span></div></div>
+      <figure><a class="frame tall" href="img/mock-mysql-fail.png" target="_blank"><img src="img/mock-mysql-fail.png" alt="Mockup of MySQL form with an inline connection error" loading="lazy"></a><figcaption><b>MySQL</b> after a failed add</figcaption></figure>
+    </div>
+
+    <div class="mock">
+      <div><h3>PostgreSQL choices</h3>
+        <ul class="pts"><li>QAN source as radio cards. pg_stat_monitor is recommended for self-hosted servers; RDS and Azure offer pg_stat_statements only.</li><li>If pg_stat_monitor is missing, the server's fallback warning is shown after adding.</li><li>Number fields appear only when their switch is on.</li></ul>
+        <div class="tags"><span>F8</span><span>N5</span></div></div>
+      <figure><a class="frame tall" href="img/mock-postgresql.png" target="_blank"><img src="img/mock-postgresql.png" alt="Mockup of PostgreSQL QAN and database sections" loading="lazy"></a><figcaption><b>PostgreSQL</b></figcaption></figure>
+    </div>
+
+    <div class="mock">
+      <div><h3>Amazon RDS and Aurora</h3>
+        <ul class="pts"><li>Three explicit ways to sign in, with <b>Discover instances</b> next to the credential.</li><li>Results show which instances are already monitored, through a client-side join with inventory RDS nodes.</li><li>Each row opens the same technology form, prefilled. One instance per add, as the API requires.</li></ul>
+        <div class="tags"><span>F10</span></div></div>
+      <div class="shots">
+        <figure><a class="frame" href="img/mock-rds-auth.png" target="_blank"><img src="img/mock-rds-auth.png" alt="Mockup of RDS sign-in step" loading="lazy"></a><figcaption><b>RDS</b> step 1</figcaption></figure>
+        <figure><a class="frame" href="img/mock-rds.png" target="_blank"><img src="img/mock-rds.png" alt="Mockup of RDS instance list" loading="lazy"></a><figcaption><b>RDS</b> step 2</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div><h3>Added</h3>
+        <ul class="pts"><li>Confirms what was created and with which labels, and shows any server warning.</li><li>Agent status comes from ListAgents.</li><li>Links straight to the dashboard and QAN.</li></ul>
+        <div class="tags"><span>F13</span><span>N5</span></div></div>
+      <figure><a class="frame" href="img/mock-success.png" target="_blank"><img src="img/mock-success.png" alt="Mockup of the success page" loading="lazy"></a><figcaption><b>Success</b></figcaption></figure>
+    </div>
+  </section>
+
+  <section id="plan">
+    <div class="sec-head"><span class="pc-pointer" aria-hidden="true"></span><h2>Plan</h2></div>
+    <ol class="plan">
+      <li><b>Now, in the current page:</b> the three silent data bugs under <a href="#fix-now">Fix now</a>, as separate tickets.</li>
+      <li><b>Data layer and route.</b> API modules and TanStack Query hooks for management add, ListNodes, ListAgents, ListServices and RDS/Azure discovery. A takeover route for <code>/add-instance/:type</code> that falls back to Grafana for types not yet ported.</li>
+      <li><b>Form shell.</b> Sections, footer actions after the form, help panel, driven by a per-technology config built from the field matrix. <code>react-hook-form</code> with a zod schema per type; defaults through <code>defaultValues</code> so nothing is invalid on load.</li>
+      <li><b>Errors, warnings, focus.</b> Server errors mapped to fields and kept on the page; response warnings shown; scroll to and focus the first invalid field.</li>
+      <li><b>Don't lose work.</b> Guard unsaved changes on Back, Cancel and route changes; Cancel leaves the flow.</li>
+      <li><b>Port MySQL, PostgreSQL and MongoDB first,</b> then Valkey, ProxySQL, HAProxy and External, then RDS and Azure.</li>
+      <li><b>Picker and success page</b> last. Keep <code>edit-instance</code> on the Grafana FormParts until it is ported, since it reuses <code>Labels</code>.</li>
+    </ol>
+    <div class="map">
+      <div><b>TextInput, SelectInput</b><span>text and select fields</span></div>
+      <div><b>SwitchInput</b><span>TLS, privacy, limits</span></div>
+      <div><b>RadioGroup / ToggleCard</b><span>QAN source, AWS sign-in method</span></div>
+      <div><b>CodeCopyBlock</b><span>grants, pmm-admin commands</span></div>
+      <div><b>Stepper, Table</b><span>RDS and Azure discovery</span></div>
+      <div><b>FileInput</b><span>TLS certificates</span></div>
+    </div>
+  </section>
+
+  <section id="corrections">
+    <div class="sec-head"><span class="pc-pointer" aria-hidden="true"></span><h2>What we got wrong, and fixed</h2></div>
+    <p class="prose">The adversarial pass turned on the review too. These are corrected above.</p>
+    <ul class="pts prose">
+      <li>The first redesign showed facts no API can supply today: a Test connection result, verified grants, detected extensions and "first metrics received". They are removed.</li>
+      <li>The copy-paste grants only fit MySQL 8.x and used <code>'pmm'@'%'</code>. They now switch between 8.x, 5.7/MariaDB and RDS and use the agent's host.</li>
+      <li>One merged agent select ignored what the node choice really does. It now explains the <code>localhost</code> rule, and HAProxy and External keep a node select.</li>
+      <li>"Move Region and AZ to Advanced" was wrong for RDS and Azure, where region is required. They stay visible there.</li>
+      <li>The first mockups failed more accessibility checks than the live UI and collapsed at phone width. Both are fixed.</li>
+      <li>About ten factual slips in the first pass, such as "bad RDS keys show no error". They do, as a toast that expires.</li>
+      <li><b>Upstream in peak-ui:</b> <code>CodeCopyBlock</code>'s copy button has no accessible name. In the PMM theme, secondary text is 3.53:1 on white and error red 4.15:1 on dark cards. Both fail AA wherever PMM UI uses them.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <span>Full two-pass review: <a href="https://claude.ai/artifact/7u7jN7iaEWSjmEvKEA9xKn">PMM Add Service Review</a>. Sources and mockup app: branch <code>PMM-15003-add-service-ux-review</code> in percona/pmm.</span>
+    <span class="pc-logo" style="height:26px"><svg data-pc-logo="percona-horizontal" xmlns="http://www.w3.org/2000/svg" viewBox="-3.1 -4.6 1136.2 244.5" fill="currentColor" role="img" aria-label="Percona">
+  <path d="M356.5,152.6h-18.8v33.6H313v-112h45.9c26.8,0,43,15.8,43,38.7v0.3C401.9,139.1,381.7,152.6,356.5,152.6 L356.5,152.6z M376.9,113.4c0-11-7.7-17-20.1-17h-19.1v34.2h19.6c12.4,0,19.6-7.4,19.6-17V113.4L376.9,113.4z"/>
+  <polygon points="415.7,186.2 415.7,74.2 500.5,74.2 500.5,96.1 440.3,96.1 440.3,118.9 493.3,118.9 493.3,140.8 440.3,140.8 440.3,164.3 501.3,164.3 501.3,186.3 415.7,186.3"/>
+  <path d="M588.9,186.2l-24.1-35.8h-19.4v35.8h-24.7v-112H572c26.5,0,42.4,13.9,42.4,37v0.3c0,18.1-9.8,29.5-24.1,34.7 l27.5,40H588.9L588.9,186.2z M589.4,112.4c0-10.6-7.4-16-19.4-16h-24.6v32.2h25.1c12,0,18.9-6.4,18.9-15.8V112.4L589.4,112.4z"/>
+  <path d="M685.3,189.2c-33.5,0-58.4-25.8-58.4-58.4v-0.3c0-32.3,24.4-58.7,59.4-58.7c21.5,0,34.3,7.1,44.9,17.5 l-15.9,18.3c-8.8-8-17.7-12.8-29.1-12.8c-19.2,0-33,15.9-33,35.4v0.3c0,19.5,13.5,35.7,33,35.7c13,0,21-5.2,29.9-13.3l15.9,16 C720.3,181.4,707.3,189.2,685.3,189.2L685.3,189.2z"/>
+  <path d="M798.2,189.2c-35.2,0-60.4-26.1-60.4-58.4v-0.3c0-32.3,25.5-58.7,60.7-58.7c35.1,0,60.4,26.1,60.4,58.4v0.3 C858.8,162.8,833.3,189.2,798.2,189.2 M832.7,130.5c0-19.5-14.3-35.7-34.5-35.7S764,110.7,764,130.2v0.3 c0,19.5,14.3,35.7,34.5,35.7s34.2-15.9,34.2-35.4V130.5z"/>
+  <polygon points="994.9,186.3 1050.3,71.8 1105.6,186.3 1077.8,186.3 1050.3,129.3 1022.8,186.3"/>
+  <polygon points="984.7,74.2 984.7,189.2 900.4,121.1 900.4,186.1 874.1,186.1 874.1,71.8 958.5,139.6 958.5,74.2"/>
+  <path d="M96.2,107.2l63.5,110.1h-127L96.2,107.2z M166,49.9c10.3-4.9,21.8-6,33-3c12.3,3.3,22.6,11.2,29,22.3 c12.6,21.8,6,49.4-14.4,63.3L166,49.9z M106.6,89.1l30.6-53l0,0l104.5,181.2h-61.2L106.6,89.1z M96.2,71.1L1.5,235.3H273 l-50.3-87.2c29-18.9,38.4-57.6,20.9-88c-8.8-15.2-23-26.1-40-30.7c-15.7-4.2-32.2-2.5-46.6,4.8L137.2,0L96.2,71.1z"/>
+  <path d="M1123,73.3c1.7,1,3.1,2.4,4.1,4.2c1,1.8,1.5,3.8,1.5,6s-0.5,4.2-1.5,6s-2.3,3.2-4.1,4.2 c-1.7,1-3.7,1.5-5.9,1.5c-2.2,0-4.2-0.5-5.9-1.5c-1.7-1-3.1-2.4-4.1-4.2c-1-1.8-1.5-3.8-1.5-6s0.5-4.2,1.5-6s2.3-3.2,4.1-4.2 c1.7-1,3.7-1.5,5.9-1.5S1121.2,72.3,1123,73.3z M1122.2,92.4c1.5-0.9,2.7-2.1,3.5-3.7s1.2-3.3,1.2-5.2s-0.4-3.7-1.2-5.2 c-0.8-1.5-2-2.8-3.5-3.6c-1.5-0.9-3.2-1.3-5.1-1.3c-2.9,0-5.3,1-7.1,2.9c-1.8,1.9-2.7,4.3-2.7,7.3c0,1.9,0.4,3.7,1.2,5.2 c0.8,1.6,2,2.8,3.5,3.7c1.5,0.9,3.2,1.3,5.1,1.3C1119,93.7,1120.7,93.3,1122.2,92.4z M1121.2,83.3c-0.6,0.7-1.5,1.1-2.6,1.2 l3.8,5.3l-2.2,0.1l-3.7-5.4h-1.9v5.4h-1.9V77.1h5.3c1.3,0,2.3,0.3,3,1c0.7,0.6,1.1,1.6,1.1,2.8 C1122.2,81.8,1121.8,82.7,1121.2,83.3z M1114.7,82.9h3.2c1.6,0,2.5-0.7,2.5-2.1c0-0.7-0.2-1.2-0.7-1.5c-0.4-0.3-1-0.5-1.8-0.5 h-3.2V82.9z"/>
+</svg></span>
+  </footer>
+</div>
+
+<script>
+const themeBtn = document.getElementById('theme-btn');
+const modes = ['auto', 'light', 'dark'];
+function setTheme(m) {
+  if (m === 'auto') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', m);
+  themeBtn.textContent = m;
+  try { localStorage.setItem('pc-theme', m); } catch (e) {}
+}
+themeBtn.onclick = () => setTheme(modes[(modes.indexOf(themeBtn.textContent.toLowerCase()) + 1) % 3]);
+let saved = 'auto';
+try { saved = localStorage.getItem('pc-theme') || 'auto'; } catch (e) {}
+setTheme(modes.includes(saved) ? saved : 'auto');
+</script>

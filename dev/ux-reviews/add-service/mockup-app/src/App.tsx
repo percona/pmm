@@ -503,26 +503,11 @@ const ConnectionSection: FC<{ state: 'idle' | 'ok' | 'fail' | 'testing'; tls?: b
         </Stack>
       )}
     </Box>
-    {state === 'idle' && (
-      <Stack direction="row" gap={1.5} alignItems="center" flexWrap="wrap">
-        <Button variant="outlined">Test connection</Button>
-        <ApiNote>Needs a dry-run check RPC. Without it, the check runs when you press Add service.</ApiNote>
-      </Stack>
-    )}
     {state === 'testing' && (
       <Stack direction="row" gap={1} alignItems="center">
         <CircularProgress size={18} />
         <Typography variant="body2">Connecting from pmm-server…</Typography>
       </Stack>
-    )}
-    {state === 'ok' && (
-      <>
-      <Alert severity="success" action={<Button size="small" color="inherit">Test again</Button>}>
-        <AlertTitle>Connected</AlertTitle>
-        Percona Server 8.0.36 · performance_schema on
-      </Alert>
-      <ApiNote>Needs a dry-run check RPC that returns the version and QAN prerequisites. Grant checks would also need new pmm-agent code.</ApiNote>
-      </>
     )}
     {state === 'fail' && (
       <Alert severity="error" action={<Button size="small" color="inherit">Retry</Button>}>
@@ -652,18 +637,13 @@ const MysqlScreen: FC<{ state: 'idle' | 'ok' | 'fail'; tls?: boolean; advanced?:
           <StickyFooter
             primary="Add service"
             note={
-              state === 'ok' ? (
-                <Stack direction="row" gap={0.75} alignItems="center">
-                  <CheckCircleIcon color="success" fontSize="small" />
-                  <Typography variant="body2">Connection verified</Typography>
-                </Stack>
-              ) : state === 'fail' ? (
+              state === 'fail' ? (
                 <Typography variant="body2" color="error.main" role="alert">
                   1 field needs attention: <Link href="#host">Hostname</Link>
                 </Typography>
               ) : (
                 <Typography variant="body2" color="text.secondary">
-                  PMM tests the connection before adding.
+                  PMM checks the connection when you add the service.
                 </Typography>
               )
             }
@@ -717,21 +697,16 @@ const PostgresScreen = () => {
             <TextInput name="database" label="Database" textFieldProps={{ size: 'small', placeholder: 'postgres' }} />
           </Row>
           <SwitchInput name="tls" label="Use TLS" labelCaption="Encrypt the connection between the agent and PostgreSQL." />
-          <Alert severity="success" action={<Button size="small" color="inherit">Test again</Button>}>
-            <AlertTitle>Connected</AlertTitle>
-            PostgreSQL 17.2 · pg_stat_monitor 2.1 installed · pg_stat_statements installed · 14 databases
-          </Alert>
-          <ApiNote>Needs a dry-run check RPC. Today PMM only learns which extensions exist during the add, and reports a fallback as a warning afterwards.</ApiNote>
         </Section>
         <Section title="Query Analytics" description="Choose the extension PMM reads query statistics from.">
           <Stack gap={1.5}>
             <ChoiceCard
               selected
               title="pg_stat_monitor"
-              description="Query examples, plans and time buckets. Detected on this server."
+              description="Query examples, plans and time buckets. Needs the extension installed. If it's missing, PMM uses pg_stat_statements and tells you after adding."
               badge={<Chip size="small" color="primary" label="Recommended" />}
             />
-            <ChoiceCard title="pg_stat_statements" description="Standard extension, available on most managed PostgreSQL." badge={<Chip size="small" variant="outlined" label="Detected" />} />
+            <ChoiceCard title="pg_stat_statements" description="Standard extension, available on most managed PostgreSQL." />
             <ChoiceCard title="Off" description="Metrics only, no query data." />
           </Stack>
           <SwitchInput name="queryExamples" label="Collect query examples" labelCaption="Stores real queries, which can contain personal data." />

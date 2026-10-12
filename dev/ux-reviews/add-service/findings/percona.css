@@ -1,0 +1,173 @@
+/* Percona / PMM brand tokens — digital only. Light and dark, auto + [data-theme] override.
+   Load Poppins in the page: <link rel="stylesheet"
+   href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+   Contrast (WCAG) is pre-checked for the pairs named in comments; check any new pair. */
+
+:root {
+  /* Fixed brand colours — same in both themes */
+  --pc-purple: #653df4;        /* never #653de0 */
+  --pc-yellow: #f6fe54;
+  --pc-black: #282727;
+  --pc-white: #ffffff;
+  /* Technology colours — use only for that technology */
+  --pc-mysql: #e65a15;
+  --pc-postgresql: #005ed6;
+  --pc-postgresql-line: #005ed6; /* chart lines; dark theme lightens it (official blue is 2.5:1 on dark) */
+  --pc-mongodb: #1fa23a;
+  --pc-kubernetes: #2aa6df;
+  --pc-valkey: #a83fef;
+  --pc-redis: #d6362a;
+  --pc-pmm: #653df4;
+  /* Feedback colours — for icons, borders and fills; keep label text in --pc-text */
+  --pc-error: #d6362a;
+  --pc-warning: #ed9118;
+  --pc-success: #1fa23a;
+
+  --pc-font: "Poppins", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --pc-mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+
+  /* Light theme */
+  color-scheme: light;
+  --pc-bg: #ffffff;
+  --pc-surface: #f4f4f4;
+  --pc-border: #d4d4d4;
+  --pc-text: #282727;          /* 14.9:1 on bg */
+  --pc-muted: #5e5d5d;         /* 6.6:1 on bg, 6.0:1 on surface */
+  /* Two accents. --pc-accent is the calm default: links, chart lines, the Pointer, small labels,
+     borders, list markers, focus. --pc-highlight is the loud one, used on purpose: headline
+     highlight words, primary buttons, big stat numbers. Both are purple on light. */
+  --pc-accent: #653df4;        /* 5.95:1 on bg, 5.4:1 on surface, 5.1:1 on tint */
+  --pc-accent-hover: #4a2db3;
+  --pc-on-accent: #ffffff;     /* text on --pc-accent fills — 5.95:1 */
+  --pc-highlight: #653df4;
+  --pc-highlight-hover: #4a2db3;
+  --pc-on-highlight: #ffffff;  /* text on --pc-highlight fills — 5.95:1 */
+  --pc-tint: #f0ecfe;          /* purple 10% — callout and chip backgrounds */
+  --pc-logo: #282727;          /* Percona logo: black on light */
+  --pc-logo-pmm: #653df4;      /* PMM logo: purple on light */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --pc-bg: #282727;
+    --pc-surface: #333232;
+    --pc-border: #484747;
+    --pc-text: #ffffff;        /* 14.9:1 on bg */
+    --pc-muted: #b5b3b3;       /* 7.1:1 on bg, 6.1:1 on surface */
+    --pc-accent: #a38bf8;      /* purple tint: brand purple is 2.5:1 on dark; this is 5.4:1 on bg, 4.6:1 on surface */
+    --pc-accent-hover: #c1b1fb;
+    --pc-on-accent: #282727;   /* 5.4:1 */
+    --pc-highlight: #f6fe54;   /* yellow, for the loud moments only — 13.6:1 */
+    --pc-highlight-hover: #d6db40;
+    --pc-on-highlight: #282727;
+    --pc-postgresql-line: #669ee6; /* 5.4:1 */
+    --pc-tint: #342b50;        /* purple 20% over black */
+    --pc-logo: #ffffff;
+    --pc-logo-pmm: #ffffff;    /* purple logo is 2.5:1 on dark — use white, or white on .pc-tab */
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --pc-bg: #282727;
+  --pc-surface: #333232;
+  --pc-border: #484747;
+  --pc-text: #ffffff;
+  --pc-muted: #b5b3b3;
+  --pc-accent: #a38bf8;
+  --pc-accent-hover: #c1b1fb;
+  --pc-on-accent: #282727;
+  --pc-highlight: #f6fe54;
+  --pc-highlight-hover: #d6db40;
+  --pc-on-highlight: #282727;
+  --pc-postgresql-line: #669ee6;
+  --pc-tint: #342b50;
+  --pc-logo: #ffffff;
+  --pc-logo-pmm: #ffffff;
+}
+
+/* Base */
+body {
+  margin: 0;
+  background: var(--pc-bg);
+  color: var(--pc-text);
+  font: 400 1rem/1.6 var(--pc-font);
+  text-align: left;
+}
+a { color: var(--pc-accent); }
+a:hover { color: var(--pc-accent-hover); }
+:focus-visible { outline: 2px solid var(--pc-accent); outline-offset: 2px; }
+code, pre { font-family: var(--pc-mono); }
+
+/* Headlines: Poppins Bold caps, tight leading (the manual's Ardela fallback) */
+.pc-display {
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.pc-highlight { color: var(--pc-highlight); }
+
+/* Buttons: pill-shaped. Primary is the loud highlight; secondary is an accent outline */
+.pc-button {
+  display: inline-block;
+  padding: 0.55em 1.3em;
+  border-radius: 999px;
+  border: 2px solid var(--pc-highlight);
+  background: var(--pc-highlight);
+  color: var(--pc-on-highlight);
+  font: 600 1rem/1.2 var(--pc-font);
+  text-decoration: none;
+  cursor: pointer;
+}
+.pc-button:hover { background: var(--pc-highlight-hover); border-color: var(--pc-highlight-hover); color: var(--pc-on-highlight); }
+.pc-button--secondary { background: transparent; border-color: var(--pc-accent); color: var(--pc-accent); }
+.pc-button--secondary:hover { background: transparent; border-color: var(--pc-accent-hover); color: var(--pc-accent-hover); }
+
+/* Logos: inline the SVG from assets/logos (fill="currentColor") inside these */
+.pc-logo, .pc-logo-pmm { display: inline-block; line-height: 0; }
+.pc-logo { color: var(--pc-logo); }
+.pc-logo-pmm { color: var(--pc-logo-pmm); }
+.pc-logo svg, .pc-logo-pmm svg { height: 100%; width: auto; fill: currentColor; }
+/* PMM tab: white PMM logo on purple — hero and title placements, both themes (5.95:1) */
+.pc-tab { display: inline-block; background: var(--pc-purple); color: var(--pc-white); padding: 0.5em 0.75em; }
+.pc-tab .pc-logo-pmm { color: var(--pc-white); }
+
+/* The Pointer: Mountain-proportioned triangle in the accent (purple, or the purple tint on dark),
+   pointing right, down, left or up */
+.pc-pointer {
+  display: inline-block;
+  width: 0.62em;
+  height: 0.72em;
+  background: var(--pc-accent);
+  -webkit-mask: var(--pc-pointer-shape) center / contain no-repeat;
+  mask: var(--pc-pointer-shape) center / contain no-repeat;
+  --pc-pointer-shape: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 87 100'%3E%3Cpath d='M0 0L87 50L0 100Z'/%3E%3C/svg%3E");
+}
+.pc-pointer--keyline {
+  --pc-pointer-shape: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 87 100'%3E%3Cpath fill-rule='evenodd' d='M0 0L87 50L0 100ZM14 24.2V75.8L58.9 50Z'/%3E%3C/svg%3E");
+}
+.pc-pointer--down { transform: rotate(90deg); }
+.pc-pointer--left { transform: rotate(180deg); }
+.pc-pointer--up { transform: rotate(270deg); }
+
+/* 30-degree corner wedge: hypotenuse 30 deg off vertical, like the Mountain's right leg.
+   Put on a positioned container; set --pc-wedge-h for size, --pc-wedge-color for colour. */
+:where(.pc-wedge-tr, .pc-wedge-bl) { position: relative; overflow: hidden; } /* zero specificity: yields to your positioning */
+.pc-wedge-tr::after, .pc-wedge-bl::after {
+  content: "";
+  position: absolute;
+  height: var(--pc-wedge-h, 40%);
+  aspect-ratio: 0.577;
+  background: var(--pc-wedge-color, var(--pc-purple));
+  pointer-events: none;
+}
+.pc-wedge-tr::after { top: 0; right: 0; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+.pc-wedge-bl::after { bottom: 0; left: 0; clip-path: polygon(0 0, 100% 100%, 0 100%); }
+
+/* Motion: abrupt, never slow fades or blurs */
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
