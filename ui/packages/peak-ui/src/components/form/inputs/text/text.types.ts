@@ -26,7 +26,7 @@ export type TextInputProps<T extends FieldValues = FieldValues> = {
   label?: string;
   /** MUI TextField props such as placeholder or multiline; an onBlur here must return the text to store, as its result replaces the value. */
   textFieldProps?: TextFieldProps;
-  /** Marks the field required with an asterisk on the label; validation itself goes in `controllerProps.rules`. */
+  /** Adds an asterisk to the label and makes the browser block form submit while the field is empty; rules go in `controllerProps.rules`. */
   isRequired?: boolean;
   /** Styles for the helper or error text under the field; only `sx` is applied. */
   formHelperTextProps?: Partial<FormHelperTextProps>;

@@ -34,7 +34,7 @@ export type AutoCompleteInputProps<TOption, TFieldValues extends FieldValues = F
   textFieldProps?: TextFieldProps;
   /** Shows a spinner inside the field while the choices are being fetched. */
   loading?: boolean;
-  /** Marks the field required with an asterisk on the label; validation itself goes in `controllerProps.rules`. */
+  /** Adds an asterisk to the label and makes the browser block form submit while the text box is empty; rules go in `controllerProps.rules`. */
   isRequired?: boolean;
   /** Prevents the user from opening the dropdown or typing. */
   disabled?: boolean;
