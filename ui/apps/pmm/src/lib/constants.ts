@@ -15,6 +15,12 @@ export const PMM_SUPPORT_URL = 'https://per.co.na/pmm_documentation';
 export const PMM_DOCS_UPDATES_URL = 'https://per.co.na/pmm-upgrade';
 export const PMM_DOCS_UPDATE_CLIENT_URL = 'https://per.co.na/pmm-upgrade-agent';
 export const PMM_NEW_NAV_HOME_URL = `${PMM_NEW_NAV_PATH}/graph/d/pmm-home`;
+export const PMM_INVENTORY_PATH = `${PMM_NEW_NAV_PATH}/inventory`;
+export const PMM_INVENTORY_SERVICES_PATH = `${PMM_INVENTORY_PATH}/services`;
+export const PMM_INVENTORY_NODES_PATH = `${PMM_INVENTORY_PATH}/nodes`;
+export const PMM_ADD_SERVICE_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`;
+export const PMM_EDIT_SERVICE_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/edit-instance`;
+export const PMM_QAN_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics`;
 
 // PMM Extensions apps mounted as native PMM routes. Shared by the router (route paths and
 // each plugin's `routeBase`) and the navigation builder (`url` / `matches`), so

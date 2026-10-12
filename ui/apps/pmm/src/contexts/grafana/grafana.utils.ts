@@ -1,5 +1,5 @@
 import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
-import { Path } from 'react-router-dom';
+import type { Path } from 'react-router-dom';
 
 export const getLocationUrl = (location: Path) => {
   const pathname = location.pathname.startsWith('/pmm-ui')
@@ -9,4 +9,7 @@ export const getLocationUrl = (location: Path) => {
   return pathname + location.search + location.hash;
 };
 
-export const isMigratedPage = (src: string) => src.includes('/graph/settings');
+const MIGRATED_PAGES = ['/graph/settings', '/graph/inventory'];
+
+export const isMigratedPage = (src: string) =>
+  MIGRATED_PAGES.some((page) => src.includes(page));

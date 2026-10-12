@@ -15,7 +15,12 @@ import {
   EXTENSIONS_MYSQL_BACKUPS_PATH,
 } from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
-import { Redirect, SettingsRedirect } from 'components/redirect';
+import {
+  InventoryRedirect,
+  Redirect,
+  SettingsRedirect,
+} from 'components/redirect';
+import { Agents, Inventory, Nodes, Services } from 'pages/inventory';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AlertsPage } from 'pages/alerting/status';
@@ -70,6 +75,36 @@ const router = createBrowserRouter(
             {
               path: 'settings/:tab?',
               element: <Settings />,
+            },
+            {
+              path: 'inventory',
+              children: [
+                {
+                  path: '',
+                  element: <Navigate to="services" replace />,
+                },
+                {
+                  element: <Inventory />,
+                  children: [
+                    {
+                      path: 'services',
+                      element: <Services />,
+                    },
+                    {
+                      path: 'nodes',
+                      element: <Nodes />,
+                    },
+                  ],
+                },
+                {
+                  path: 'services/:serviceId/agents',
+                  element: <Agents />,
+                },
+                {
+                  path: 'nodes/:nodeId/agents',
+                  element: <Agents />,
+                },
+              ],
             },
             {
               path: 'rta',
@@ -137,6 +172,10 @@ const router = createBrowserRouter(
             {
               path: 'graph/alerting/alerts',
               element: <Navigate to="/alerting/status" replace />,
+            },
+            {
+              path: 'graph/inventory/*',
+              element: <InventoryRedirect />,
             },
             // Grafana routes are handled at the Main component level
             {

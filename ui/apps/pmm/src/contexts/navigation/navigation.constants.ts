@@ -3,6 +3,11 @@ import {
   PMM_NEW_NAV_PATH,
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
+  PMM_ADD_SERVICE_URL,
+  PMM_EDIT_SERVICE_URL,
+  PMM_INVENTORY_NODES_PATH,
+  PMM_INVENTORY_PATH,
+  PMM_INVENTORY_SERVICES_PATH,
 } from 'lib/constants';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import AccountCircleOutlined from '@mui/icons-material/AccountCircleOutlined';
@@ -596,24 +601,24 @@ export const NAV_INVENTORY: NavItem = {
   id: 'inventory',
   icon: Graph4Icon,
   text: 'Inventory',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory`,
+  url: PMM_INVENTORY_PATH,
   children: [
     {
       id: 'add-instance',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`,
+      url: PMM_ADD_SERVICE_URL,
       text: 'Add service',
-      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/add-instance/:type`],
+      matches: [`${PMM_ADD_SERVICE_URL}/:type`],
     },
     {
       id: 'inventory-services',
       text: 'Services',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/services`,
-      matches: ['*', `${PMM_NEW_NAV_GRAFANA_PATH}/edit-instance/*`],
+      url: PMM_INVENTORY_SERVICES_PATH,
+      matches: ['*', `${PMM_EDIT_SERVICE_URL}/*`],
     },
     {
       id: 'inventory-nodes',
       text: 'Nodes',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes`,
+      url: PMM_INVENTORY_NODES_PATH,
       matches: ['*'],
     },
   ],
@@ -843,7 +848,7 @@ export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
   id: 'high-availability-nodes',
   icon: NorthEast,
   text: 'Identify Nodes',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes?isPmmServerNode=true`,
+  url: `${PMM_INVENTORY_NODES_PATH}?nodes.f.isPmmServerNode=true`,
 };
 
 //

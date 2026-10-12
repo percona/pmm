@@ -1,3 +1,5 @@
+import type { ManagedAgent } from './agent.types';
+
 export enum ServiceType {
   unspecified = 'SERVICE_TYPE_UNSPECIFIED',
   mysql = 'SERVICE_TYPE_MYSQL_SERVICE',
@@ -73,7 +75,7 @@ export interface ValkeyService extends VersionedService {}
 // Service from /v1/management/services API
 export interface ManagedService {
   serviceId: string;
-  serviceType: string;
+  serviceType: ManagedServiceType;
   serviceName: string;
   databaseName: string;
   nodeId: string;
@@ -87,7 +89,10 @@ export interface ManagedService {
   port: number;
   socket: string;
   version: string;
-  status?: ServiceStatus;
+  status: ServiceStatus;
+  agents: ManagedAgent[];
+  // Custom labels plus the service's other scalar attributes, keyed as the API names them
+  labels: Record<string, string>;
 }
 
 // Response from /v1/management/services API
@@ -110,4 +115,9 @@ export interface ListServicesParams {
   nodeId?: string;
   externalGroup?: string;
   serviceType?: ServiceType;
+}
+
+export interface RemoveServiceParams {
+  serviceId: string;
+  force: boolean;
 }
