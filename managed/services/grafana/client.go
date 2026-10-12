@@ -35,7 +35,6 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/managed/services"
@@ -43,9 +42,6 @@ import (
 	"github.com/percona/pmm/managed/utils/irt"
 	"github.com/percona/pmm/utils/grafana"
 )
-
-// ErrFailedToGetToken means it failed to get the user token. Most likely due to the fact the user is not logged in using Percona Account.
-var ErrFailedToGetToken = errors.New("failed to get the user token")
 
 const (
 	pmmServiceTokenName          = "pmm-agent-st" //nolint:gosec
@@ -108,10 +104,10 @@ func (c *Client) Collect(ch chan<- prom.Metric) {
 
 // clientError contains error response details.
 type clientError struct {
-	Method       string
-	URL          string
-	Code         int
-	Body         string
+	Method       string `json:"-"`
+	URL          string `json:"-"`
+	Code         int    `json:"-"`
+	Body         string `json:"-"`
 	ErrorMessage string `json:"message"` // from response JSON object, if any
 }
 
@@ -160,7 +156,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 		Path:     path,
 		RawQuery: rawQuery,
 	}
-	req, err := http.NewRequest(method, u.String(), bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("failed to create http request: %w", err)
 	}
@@ -171,7 +167,6 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 		req.Header.Set(k, headers.Get(k))
 	}
 
-	req = req.WithContext(ctx)
 	resp, err := c.http.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to execute http request: %w", err)
@@ -276,7 +271,7 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 
 	userID, ok := m["id"].(float64)
 	if !ok {
-		return 0, errors.New("Missing User ID in Grafana response")
+		return 0, errors.New("missing user ID in Grafana response")
 	}
 
 	return int(userID), nil
@@ -1094,41 +1089,6 @@ func (c *Client) IsReady(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-const grpcGatewayCookie = "grpcgateway-cookie"
-
-type currentUser struct {
-	AccessToken string `json:"access_token"`
-}
-
-var errCookieIsNotSet = fmt.Errorf("cookie %q is not set", grpcGatewayCookie)
-
-// GetCurrentUserAccessToken return users access token from Grafana.
-func (c *Client) GetCurrentUserAccessToken(ctx context.Context) (string, error) {
-	// We need to set cookie to the request to make it execute in grafana user context.
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return "", fmt.Errorf("metadata not set in the context: %w", errCookieIsNotSet)
-	}
-	cookies := md.Get(grpcGatewayCookie)
-	if len(cookies) == 0 {
-		return "", errCookieIsNotSet
-	}
-	headers := http.Header{}
-	headers.Set("Cookie", strings.Join(cookies, "; "))
-
-	var user currentUser
-	err := c.do(ctx, http.MethodGet, "/graph/percona-api/user/oauth-token", "", headers, nil, &user)
-	if err != nil {
-		var e *clientError
-		if errors.As(err, &e) && e.ErrorMessage == "Failed to get token" && e.Code == http.StatusInternalServerError {
-			return "", ErrFailedToGetToken
-		}
-		return "", fmt.Errorf("unknown error occurred during getting of user's token: %w", err)
-	}
-
-	return user.AccessToken, nil
 }
 
 // check interfaces.
