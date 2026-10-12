@@ -42,6 +42,12 @@ message DiscoverRDSRequest {
   string aws_access_key = 1 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // AWS Secret key. Optional.
   string aws_secret_key = 2 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // AWS IAM role ARN to assume using the server's ambient credentials. Optional.
+  // Mutually exclusive with aws_access_key and aws_secret_key.
+  string aws_role_arn = 3 [(validate.rules).string = {
+    pattern: "^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
+    ignore_empty: true
+  }];
 }
 
 message DiscoverRDSResponse {
@@ -133,6 +139,12 @@ message AddRDSServiceParams {
   // List of collector names to disable in the PostgreSQL database exporter.
   // Applies only when engine is DISCOVER_RDS_ENGINE_POSTGRESQL, otherwise it is ignored.
   repeated string postgresql_disable_collectors = 37;
+  // AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
+  // Mutually exclusive with aws_access_key and aws_secret_key.
+  string aws_role_arn = 38 [(validate.rules).string = {
+    pattern: "^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
+    ignore_empty: true
+  }];
 }
 
 message RDSServiceResult {
