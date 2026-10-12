@@ -29,8 +29,7 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  // Which option the keyboard is on. MUI tracks this internally for its own selection, but
-  // does not expose it to the option row, and the cluster toggle lives on the row.
+  // MUI does not expose its highlighted option to the row, where the cluster toggle lives.
   const [highlightedOption, setHighlightedOption] =
     useState<ServiceOption | null>(null);
   const services = 'sessions' in props ? props.sessions : props.services;
@@ -39,9 +38,7 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
     () => serviceOptions.filter((option) => serviceIds?.includes(option.id)),
     [serviceOptions, serviceIds]
   );
-  // With singleTechnology the picker feeds one view of live queries, which
-  // cannot mix engines, so the first pick fixes the technology and the others
-  // are disabled until the selection is cleared.
+  // One view of live queries cannot mix engines, so the first pick fixes the technology.
   const selectedTechnology = useMemo(
     () =>
       singleTechnology
@@ -74,12 +71,8 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
     onServiceIdsChange(serviceIds);
   };
 
-  // A cluster row is toggled by ServiceOption's own onClick, which the keyboard never reaches:
-  // MUI keeps focus on the input, so Enter runs the Autocomplete's own selection instead. That
-  // hands the cluster to handleServiceChange, and getServiceIds keeps only options of type
-  // 'service', so the cluster contributes nothing and the selection silently does not change.
-  // Space does not select at all -- it types into the input. Both are handled here so the
-  // keyboard reaches the same toggle the mouse does.
+  // The keyboard never reaches the cluster row's onClick: MUI's Enter selection drops cluster
+  // options (see getServiceIds), and Space types into the input.
   const handleKeyDown = (
     event: React.KeyboardEvent & { defaultMuiPrevented?: boolean }
   ) => {
@@ -114,8 +107,7 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
       onHighlightChange={(_event, option) => setHighlightedOption(option)}
       onKeyDown={handleKeyDown}
       getOptionLabel={(option) => option.label}
-      // The option carries its own group: a cluster spanning technologies is
-      // listed under each of them and has no serviceType to derive one from.
+      // A cluster spanning technologies has no serviceType to derive its group from.
       groupBy={(option) => option.technology}
       getOptionDisabled={isOptionDisabled}
       isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -157,10 +149,8 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
       )}
       disabled={disabled || serviceOptions.length === 0}
       data-testid={testId}
-      // Only the one-line 'label' summary needs this: without it a selection wider than the
-      // field pushes the text input and the clear button onto a second line and the control
-      // grows into the toolbar. The 'tags' presentation renders a chip row that is meant to
-      // wrap, so forcing nowrap on it would squeeze the input instead.
+      // Keeps the one-line 'label' summary from growing into the toolbar; the 'tags' chip row
+      // is meant to wrap.
       sx={
         tagPresentation === 'label'
           ? { '& .MuiAutocomplete-inputRoot': { flexWrap: 'nowrap' } }

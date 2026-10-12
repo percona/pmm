@@ -27,9 +27,8 @@ const fadeSx = {
   },
 };
 
-// The fade is only applied while the text is actually clipped. Applied always, it ate the
-// last characters of a statement that fits ("COMMI"), because a table column sized to its
-// content leaves the text exactly as wide as the block the mask covers.
+// Fades only clipped text: a content-sized column leaves no slack, so an unconditional fade
+// would hide the end of a statement that fits.
 const useIsOverflowing = (content: string) => {
   const ref = useRef<HTMLPreElement>(null);
   const [overflowing, setOverflowing] = useState(false);

@@ -61,36 +61,29 @@ func (res *changeAgentRTAMySQLAgentResult) String() string {
 
 // ChangeAgentRTAMySQLAgentCommand is used by Kong for CLI flags and commands.
 type ChangeAgentRTAMySQLAgentCommand struct {
-	// Embedded flags
 	flags.LogLevelFatalChangeFlags
 
 	AgentID string `arg:"" help:"Real-Time Analytics MySQL Agent ID"`
 
-	// NOTE: Only provided flags will be changed, others will remain unchanged
-
-	// Basic options
+	// Only provided flags are changed; others remain unchanged.
 	Enable   *bool   `help:"Enable or disable the agent"`
 	Username *string `help:"MySQL username for getting queries data"`
 	Password *string `help:"MySQL password for getting queries data"`
 
-	// TLS options
 	TLS           *bool   `help:"Use TLS to connect to the database"`
 	TLSSkipVerify *bool   `help:"Skip TLS certificate verification"`
 	TLSCaFile     *string `help:"Path to certificate authority file"`
 	TLSCertFile   *string `help:"Path to client certificate file"`
 	TLSKeyFile    *string `help:"Path to client key file"`
 
-	// RTA specific options
 	CollectInterval *time.Duration `placeholder:"DURATION" help:"Query collect interval (default: server-defined 2s)"`
 
-	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 
 	SkipConnectionCheck *bool `help:"Skip connection check"`
 }
 
-// readFlagFile reads the file behind an optional CLI flag; a nil path means
-// the flag was not provided.
+// readFlagFile reads the file at an optional flag path, returning nil when the flag is absent.
 func readFlagFile(path *string, what string) (*string, error) {
 	if path == nil {
 		return nil, nil //nolint:nilnil
@@ -106,10 +99,8 @@ func readFlagFile(path *string, what string) (*string, error) {
 
 // RunCmd executes the ChangeAgentRTAMySQLAgentCommand and returns the result.
 func (cmd *ChangeAgentRTAMySQLAgentCommand) RunCmd() (commands.Result, error) {
-	// Parse custom labels if provided
 	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
-	// Read TLS files if provided
 	tlsCa, err := readFlagFile(cmd.TLSCaFile, "TLS CA file")
 	if err != nil {
 		return nil, err

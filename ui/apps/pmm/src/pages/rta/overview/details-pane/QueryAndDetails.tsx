@@ -44,7 +44,6 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
 
   const language = queryLanguage(queryData);
 
-  // Fields common to all database types are resolved from whichever payload is present.
   const dbInstanceAddress =
     mongoDbPayload?.dbInstanceAddress ?? mySqlPayload?.dbInstanceAddress;
   const databaseName =
@@ -54,9 +53,7 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
   const { user } = useUser();
   const timezone = user?.preferences?.timezone || 'UTC';
 
-  // A duration of 0 is a duration like any other - a statement that has just
-  // started - so only a missing value renders blank. The number matches the
-  // overview column for the same query.
+  // A just-started statement reports 0; only a missing value renders blank.
   const formattedQueryExecutionDuration =
     queryExecutionDurationMs == null
       ? ''
@@ -66,17 +63,15 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
     ? formattedQueryExecutionDuration.split(' ')
     : [];
 
-  // Gated on the same predicate the table chip and the blocked-only filter use, so a row
-  // that shows as blocked always opens a pane that explains it -- even when the holder was
-  // not in the same snapshot, which the panel renders as its unknown-holder state.
+  // Same predicate as the table chip and the blocked-only filter, so every row shown as
+  // blocked opens an explanation.
   const blocked = isBlocked(queryData);
   const blockers = mySqlPayload?.blockedBy ?? [];
 
   return (
     <Grid container spacing={3}>
       {blocked && (
-        // Full width and above both columns: when a statement is stuck, why it is stuck
-        // outranks every other detail on the pane.
+        // Full width above both columns: why a statement is stuck outranks every other detail.
         <Grid size={{ xs: 12 }}>
           <BlockedByPanel
             blockers={blockers}
@@ -329,8 +324,7 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
                   tooltip={Messages.tooltips.fullScan}
                 >
                   <BigNumberMetric
-                    // Only report Yes/No for a value the payload actually
-                    // carried; absent is unavailable, not "no full scan".
+                    // Absent is unavailable, not "no full scan".
                     mainText={
                       mySqlPayload.fullScan == null
                         ? ''
@@ -383,8 +377,7 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
             copyable
             wrap
             content={queryText}
-            // The copy button floats over the block's top-right corner; the right padding
-            // keeps the end of the first line clear of it.
+            // Room for the floating copy button, which otherwise covers the first line's end.
             sx={{ maxHeight: '70vh', overflow: 'auto', width: '100%', pr: 5 }}
             data-testid="query-text"
           />

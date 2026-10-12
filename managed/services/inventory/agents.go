@@ -1848,10 +1848,8 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 	return res, nil
 }
 
-// checkRTASupported refuses an RTA agent on a pmm-agent whose reported version has no collector for
-// the service type: that pmm-agent would log the agent type as unhandled and never run it. A pmm-agent
-// that has not connected yet has no version and is accepted; the sessions list reports the problem
-// if it turns out to be too old.
+// checkRTASupported refuses an RTA agent whose pmm-agent version has no collector for the service
+// type; a pmm-agent that has not reported its version yet is accepted.
 func (as *AgentsService) checkRTASupported(ctx context.Context, pmmAgentID, serviceID string, serviceType models.ServiceType) error {
 	pmmAgent, err := models.FindAgentByID(as.db.WithContext(ctx), pmmAgentID)
 	if err != nil {
@@ -1937,7 +1935,6 @@ func (as *AgentsService) AddRTAMySQLAgent(ctx context.Context, p *inventoryv1.Ad
 		SkipConnectionCheck: p.SkipConnectionCheck,
 	}
 
-	// Set RTA options if provided
 	if p.RtaOptions != nil {
 		params.RTAOptions = *models.RTAOptionsFromRequest(p.RtaOptions)
 	}
@@ -1988,7 +1985,6 @@ func (as *AgentsService) ChangeRTAMySQLAgent(
 		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
-	// Set RTA options if provided
 	if p.RtaOptions != nil {
 		changeParams.RTAOptions = models.RTAOptionsFromRequest(p.RtaOptions)
 	}

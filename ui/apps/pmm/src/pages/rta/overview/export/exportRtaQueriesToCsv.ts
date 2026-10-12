@@ -113,10 +113,8 @@ const flattenToCsvRow = (source: Record<string, unknown>): CsvRow => {
 export const mapQueryToCsvRow = (query: QueryData): CsvRow => {
   const row = flattenToCsvRow(query as unknown as Record<string, unknown>);
 
-  // The blocker list is an array, which the generic flattening would serialize into one
-  // JSON cell that nobody can filter on. A spreadsheet column can hold one name, so it is
-  // filled only when one transaction is actually the answer; blocked_status stays BLOCKED
-  // either way, so a statement held up by several is still findable.
+  // Serialized, it would be one unfilterable JSON cell; only a sole blocker is written below,
+  // and blocked_status still finds a statement held up by several.
   delete row[toCsvHeader('blockedBy')];
 
   // A spreadsheet can sum milliseconds; it cannot sum "0.000003s".
@@ -126,8 +124,7 @@ export const mapQueryToCsvRow = (query: QueryData): CsvRow => {
     row[toCsvHeader('lockTimeMs')] = lockTime;
   }
 
-  // The API omits a false flag, so it is written out for every MySQL row: an empty cell
-  // would not say whether the text is complete.
+  // The API omits a false flag, and an empty cell would not say whether the text is complete.
   if (query.mySqlPayload) {
     row[toCsvHeader('queryTextTruncated')] = Boolean(
       query.mySqlPayload.queryTextTruncated
@@ -138,8 +135,7 @@ export const mapQueryToCsvRow = (query: QueryData): CsvRow => {
   if (blocker) {
     row[toCsvHeader('blockingConnId')] = toCsvValue(blocker.blockingConnId);
     row[toCsvHeader('blockingQuery')] = toCsvValue(blocker.blockingQuery);
-    // Written out like query_text_truncated: the API omits a false flag, and an empty cell
-    // would not say whether blocking_query is complete.
+    // Written out like query_text_truncated, for the same reason.
     row[toCsvHeader('blockingQueryTruncated')] = Boolean(
       blocker.blockingQueryTruncated
     );

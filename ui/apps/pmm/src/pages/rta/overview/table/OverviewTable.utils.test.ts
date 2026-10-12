@@ -157,8 +157,7 @@ describe('isTransactionControl', () => {
   });
 });
 
-// The lock graph observed for a three-connection pile-up: 409 is idle inside an open
-// transaction and heads the chain, 412 is queued in the middle of it.
+// 409 is idle in an open transaction and heads the chain; 412 is queued in the middle.
 const blockedQuery: RawQueryData = {
   ...TEST_MYSQL_QUERY_DATA,
   mySqlPayload: {
@@ -220,8 +219,7 @@ describe('soleBlocker', () => {
   });
 
   it('names nobody when the only blocker is itself waiting', () => {
-    // root=false means the agent saw that connection waiting too, so resolving it is not
-    // guaranteed to free this statement. The rule declines rather than guess.
+    // root=false: resolving it is not guaranteed to free this statement.
     const cycle: RawQueryData = {
       ...blockedQuery,
       mySqlPayload: {
@@ -260,8 +258,7 @@ describe('soleBlocker', () => {
 
 describe('rtaRowId', () => {
   it('keeps two instances apart when they hand out the same connection id', () => {
-    // MySQL connection ids start at 1 and restart with the server, so two watched instances
-    // share almost all of theirs. The details pane finds the selected row by matching this id.
+    // MySQL connection ids start at 1 and restart with the server.
     const onA: RawQueryData = {
       ...TEST_MYSQL_QUERY_DATA,
       serviceId: 'service-a',

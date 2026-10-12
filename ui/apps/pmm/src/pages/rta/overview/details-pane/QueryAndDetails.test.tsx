@@ -74,14 +74,12 @@ describe('QueryAndDetails', () => {
   it('renders MySQL-specific metrics for a MySQL query', () => {
     renderComponent(TEST_USER_ADMIN, TEST_MYSQL_QUERY_DATA);
 
-    // MySQL-specific fields are shown.
     expect(screen.getByText('Command')).toBeInTheDocument();
     expect(screen.getByText('State')).toBeInTheDocument();
     expect(screen.getByText('Rows examined')).toBeInTheDocument();
     expect(screen.getByText('Full scan')).toBeInTheDocument();
     expect(screen.getByTestId('command-value')).toHaveTextContent('Query');
 
-    // MongoDB-specific fields are not shown.
     expect(screen.queryByText('Plan summary')).not.toBeInTheDocument();
     expect(screen.queryByText('Collection')).not.toBeInTheDocument();
   });

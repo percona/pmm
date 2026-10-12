@@ -847,9 +847,8 @@ func (o *SearchQueriesOKBodyQueriesItems0MongoDBPayload) UnmarshalBinary(b []byt
 }
 
 /*
-SearchQueriesOKBodyQueriesItems0MySQLPayload QueryMySQLData holds MySQL-specific Real-Time Analytics query information.
-// The data is read from performance_schema: the threads table and the current statement,
-// stage, transaction and wait tables keyed by thread.
+SearchQueriesOKBodyQueriesItems0MySQLPayload QueryMySQLData holds MySQL-specific Real-Time Analytics query information, read from
+// performance_schema.
 swagger:model SearchQueriesOKBodyQueriesItems0MySQLPayload
 */
 type SearchQueriesOKBodyQueriesItems0MySQLPayload struct {
@@ -871,30 +870,23 @@ type SearchQueriesOKBodyQueriesItems0MySQLPayload struct {
 	// MySQL user name associated with the query.
 	Username string `json:"username,omitempty"`
 
-	// Number of rows examined by the statement so far. Unset when the server did not measure it,
-	// which is not the same as zero: these come from events_statements_current, whose consumer is
-	// disabled by default on MariaDB, and a statement that has examined no rows must not be
-	// indistinguishable from one nobody counted.
+	// Number of rows examined by the statement so far. Unset when the server did not measure it.
 	RowsExamined *string `json:"rows_examined,omitempty"`
 
 	// Number of rows sent by the statement so far. Unset when the server did not measure it.
 	RowsSent *string `json:"rows_sent,omitempty"`
 
-	// Indicates whether the statement performed a full table scan. Unset when the server did not
-	// measure it; absent means unknown, not "no full scan".
+	// Whether the statement performed a full table scan. Unset when the server did not measure it.
 	FullScan *bool `json:"full_scan,omitempty"`
 
-	// BlockedStatus says whether a statement is waiting for a lock, keeping "we could not
-	// find out" distinct from "we checked and it is not waiting". Collapsing the two would let a
-	// monitoring gap look like a healthy server during the incident the feature exists for.
+	// BlockedStatus says whether a statement is waiting for a lock.
 	//
 	//  - BLOCKED_STATUS_UNSPECIFIED: The lock graph could not be read, so nothing is known about this statement's waiting.
 	//  - BLOCKED_STATUS_NOT_BLOCKED: The lock graph was read and this statement is not waiting for a lock.
 	//  - BLOCKED_STATUS_BLOCKED: The statement is waiting for a lock; blocked_by names the transactions holding it and
 	// lock_type says which kind of lock is being waited on.
-	//  - BLOCKED_STATUS_UNATTRIBUTED: The connection was waiting for a lock, but for a later statement than the one reported:
-	// it moved on between the statement read and the lock read, so this refresh cannot say
-	// whether the statement reported was blocked. Unlike UNSPECIFIED, the lock sources answered.
+	//  - BLOCKED_STATUS_UNATTRIBUTED: The connection was waiting for a lock on a later statement than the one reported, so
+	// whether the reported statement was blocked is unknown.
 	// Enum: ["BLOCKED_STATUS_UNSPECIFIED","BLOCKED_STATUS_NOT_BLOCKED","BLOCKED_STATUS_BLOCKED","BLOCKED_STATUS_UNATTRIBUTED"]
 	BlockedStatus *string `json:"blocked_status,omitempty"`
 
@@ -902,21 +894,15 @@ type SearchQueriesOKBodyQueriesItems0MySQLPayload struct {
 	// blocked_status is not BLOCKED.
 	BlockedBy []*SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0 `json:"blocked_by"`
 
-	// Schema-qualified table the statement is waiting for a lock on. This describes the lock
-	// the statement itself requested, so it is a property of the waiter rather than of any one
-	// blocking transaction. Empty unless blocked_status is BLOCKED.
+	// Schema-qualified table the statement is waiting to lock. Empty unless blocked_status is BLOCKED.
 	LockedTable string `json:"locked_table,omitempty"`
 
-	// Index the statement is waiting for a lock on. Row locks only -- a metadata lock is taken
-	// on the table as a whole, so this stays empty when lock_type is METADATA. Empty unless
-	// blocked_status is BLOCKED.
+	// Index the statement is waiting to lock, for row locks only. Empty unless blocked_status is
+	// BLOCKED.
 	LockedIndex string `json:"locked_index,omitempty"`
 
-	// LockType says which of MySQL's two independent locking mechanisms a statement is waiting on.
-	// They are collected from different tables and explain different problems, so a client that
-	// showed them identically would tell the reader to look in the wrong place: an InnoDB row lock
-	// is released by ending the holding transaction, while a metadata lock is released by the
-	// holder finishing its statement or transaction on that table.
+	// LockType says which of MySQL's two locking mechanisms a statement is waiting on; they are
+	// released differently, so clients should show them apart.
 	//
 	//  - LOCK_TYPE_UNSPECIFIED: The lock graph could not be read, or the statement is not waiting at all.
 	//  - LOCK_TYPE_ROW: An InnoDB row-level lock, read from performance_schema.data_lock_waits.
@@ -929,11 +915,8 @@ type SearchQueriesOKBodyQueriesItems0MySQLPayload struct {
 	// BlockingTransaction.blocking_lock_mode. Empty unless blocked_status is BLOCKED.
 	RequestedLockMode string `json:"requested_lock_mode,omitempty"`
 
-	// True when query_text is not the whole statement. The processlist keeps 1024 bytes of a
-	// running statement; with the events_statements_current consumer on, the agent reads up to
-	// performance_schema_max_sql_text_length bytes (1024 by default) instead. The agent sends at
-	// most 64 KiB. MySQL does not mark the cut, so a statement exactly as long as the limit is
-	// reported as truncated too.
+	// True when query_text reached MySQL's statement length limit (1024 bytes by default) or the
+	// agent's 64 KiB cap, so it may not be the whole statement.
 	QueryTextTruncated bool `json:"query_text_truncated,omitempty"`
 
 	// Time the statement has spent waiting for table locks, from
@@ -1145,10 +1128,7 @@ func (o *SearchQueriesOKBodyQueriesItems0MySQLPayload) UnmarshalBinary(b []byte)
 }
 
 /*
-SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0 BlockingTransaction describes a transaction that is preventing a statement from
-// acquiring the lock it needs. It is read from performance_schema.data_lock_waits (row locks)
-// or performance_schema.metadata_locks (metadata locks) in the same collection cycle as the
-// statement itself, so no extra round trip is needed to explain why a statement is stuck.
+SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0 BlockingTransaction describes a transaction holding a lock that a statement is waiting for.
 swagger:model SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0
 */
 type SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0 struct {
@@ -1172,16 +1152,12 @@ type SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0 struct {
 	// How long the blocking transaction has been open.
 	BlockerTransactionDuration string `json:"blocker_transaction_duration,omitempty"`
 
-	// True when this blocker is not itself waiting for a lock, i.e. it sits at the head of the
-	// blocking chain. More than one blocker of a statement can be marked -- several independent
-	// transactions can hold up the same statement -- so a client must not present one of them
-	// as the sole cause unless it is the only one flagged. None are marked when the lock graph
-	// is a cycle and every participant is waiting.
+	// True when this blocker is not itself waiting for a lock (head of the blocking chain).
+	// Several blockers of a statement can be marked; none are when the lock graph is a cycle.
 	Root bool `json:"root,omitempty"`
 
-	// The lock mode this transaction holds on the contended object: an InnoDB mode such as
-	// "X,REC_NOT_GAP" or "S,GAP" for a row lock, or an MDL mode such as "SHARED_READ" or
-	// "SHARED_UPGRADABLE" for a metadata lock. Empty when the server did not report one.
+	// Lock mode this transaction holds on the contended object, e.g. "X,REC_NOT_GAP" for a row
+	// lock or "SHARED_READ" for a metadata lock. Empty when the server did not report one.
 	BlockingLockMode string `json:"blocking_lock_mode,omitempty"`
 
 	// True when blocking_query is not the whole statement; see QueryMySQLData.query_text_truncated.

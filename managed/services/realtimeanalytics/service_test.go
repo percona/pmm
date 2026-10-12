@@ -535,9 +535,7 @@ func TestStartSession(t *testing.T) {
 	})
 
 	t.Run("existing RTA agent on pmm-agent that doesn't support RTA", func(t *testing.T) {
-		// An RTA agent created through the inventory API may be linked to a
-		// pmm-agent that predates RTA support for its service type. Starting a
-		// session for it must fail instead of enabling an agent that cannot run.
+		// Starting a session must fail rather than enable an agent its pmm-agent cannot run.
 		nodeOld, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
 			NodeName: "test-node-3",
 		})

@@ -26,9 +26,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// BlockedStatus says whether a statement is waiting for a lock, keeping "we could not
-// find out" distinct from "we checked and it is not waiting". Collapsing the two would let a
-// monitoring gap look like a healthy server during the incident the feature exists for.
+// BlockedStatus says whether a statement is waiting for a lock.
 type BlockedStatus int32
 
 const (
@@ -39,9 +37,8 @@ const (
 	// The statement is waiting for a lock; blocked_by names the transactions holding it and
 	// lock_type says which kind of lock is being waited on.
 	BlockedStatus_BLOCKED_STATUS_BLOCKED BlockedStatus = 2
-	// The connection was waiting for a lock, but for a later statement than the one reported:
-	// it moved on between the statement read and the lock read, so this refresh cannot say
-	// whether the statement reported was blocked. Unlike UNSPECIFIED, the lock sources answered.
+	// The connection was waiting for a lock on a later statement than the one reported, so
+	// whether the reported statement was blocked is unknown.
 	BlockedStatus_BLOCKED_STATUS_UNATTRIBUTED BlockedStatus = 3
 )
 
@@ -88,11 +85,8 @@ func (BlockedStatus) EnumDescriptor() ([]byte, []int) {
 	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{0}
 }
 
-// LockType says which of MySQL's two independent locking mechanisms a statement is waiting on.
-// They are collected from different tables and explain different problems, so a client that
-// showed them identically would tell the reader to look in the wrong place: an InnoDB row lock
-// is released by ending the holding transaction, while a metadata lock is released by the
-// holder finishing its statement or transaction on that table.
+// LockType says which of MySQL's two locking mechanisms a statement is waiting on; they are
+// released differently, so clients should show them apart.
 type LockType int32
 
 const (
@@ -255,10 +249,7 @@ func (x *QueryMongoDBData) GetPlanSummary() string {
 	return ""
 }
 
-// BlockingTransaction describes a transaction that is preventing a statement from
-// acquiring the lock it needs. It is read from performance_schema.data_lock_waits (row locks)
-// or performance_schema.metadata_locks (metadata locks) in the same collection cycle as the
-// statement itself, so no extra round trip is needed to explain why a statement is stuck.
+// BlockingTransaction describes a transaction holding a lock that a statement is waiting for.
 type BlockingTransaction struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Connection id (processlist id) of the blocking transaction.
@@ -275,15 +266,11 @@ type BlockingTransaction struct {
 	WaitDuration *durationpb.Duration `protobuf:"bytes,5,opt,name=wait_duration,json=waitDuration,proto3" json:"wait_duration,omitempty"`
 	// How long the blocking transaction has been open.
 	BlockerTransactionDuration *durationpb.Duration `protobuf:"bytes,6,opt,name=blocker_transaction_duration,json=blockerTransactionDuration,proto3" json:"blocker_transaction_duration,omitempty"`
-	// True when this blocker is not itself waiting for a lock, i.e. it sits at the head of the
-	// blocking chain. More than one blocker of a statement can be marked -- several independent
-	// transactions can hold up the same statement -- so a client must not present one of them
-	// as the sole cause unless it is the only one flagged. None are marked when the lock graph
-	// is a cycle and every participant is waiting.
+	// True when this blocker is not itself waiting for a lock (head of the blocking chain).
+	// Several blockers of a statement can be marked; none are when the lock graph is a cycle.
 	Root bool `protobuf:"varint,7,opt,name=root,proto3" json:"root,omitempty"`
-	// The lock mode this transaction holds on the contended object: an InnoDB mode such as
-	// "X,REC_NOT_GAP" or "S,GAP" for a row lock, or an MDL mode such as "SHARED_READ" or
-	// "SHARED_UPGRADABLE" for a metadata lock. Empty when the server did not report one.
+	// Lock mode this transaction holds on the contended object, e.g. "X,REC_NOT_GAP" for a row
+	// lock or "SHARED_READ" for a metadata lock. Empty when the server did not report one.
 	BlockingLockMode string `protobuf:"bytes,8,opt,name=blocking_lock_mode,json=blockingLockMode,proto3" json:"blocking_lock_mode,omitempty"`
 	// True when blocking_query is not the whole statement; see QueryMySQLData.query_text_truncated.
 	BlockingQueryTruncated bool `protobuf:"varint,9,opt,name=blocking_query_truncated,json=blockingQueryTruncated,proto3" json:"blocking_query_truncated,omitempty"`
@@ -384,9 +371,8 @@ func (x *BlockingTransaction) GetBlockingQueryTruncated() bool {
 	return false
 }
 
-// QueryMySQLData holds MySQL-specific Real-Time Analytics query information.
-// The data is read from performance_schema: the threads table and the current statement,
-// stage, transaction and wait tables keyed by thread.
+// QueryMySQLData holds MySQL-specific Real-Time Analytics query information, read from
+// performance_schema.
 type QueryMySQLData struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// MySQL instance address(host:port) that processing the query.
@@ -401,32 +387,22 @@ type QueryMySQLData struct {
 	State string `protobuf:"bytes,5,opt,name=state,proto3" json:"state,omitempty"`
 	// MySQL user name associated with the query.
 	Username string `protobuf:"bytes,6,opt,name=username,proto3" json:"username,omitempty"`
-	// Number of rows examined by the statement so far. Unset when the server did not measure it,
-	// which is not the same as zero: these come from events_statements_current, whose consumer is
-	// disabled by default on MariaDB, and a statement that has examined no rows must not be
-	// indistinguishable from one nobody counted.
+	// Number of rows examined by the statement so far. Unset when the server did not measure it.
 	RowsExamined *int64 `protobuf:"varint,7,opt,name=rows_examined,json=rowsExamined,proto3,oneof" json:"rows_examined,omitempty"`
 	// Number of rows sent by the statement so far. Unset when the server did not measure it.
 	RowsSent *int64 `protobuf:"varint,8,opt,name=rows_sent,json=rowsSent,proto3,oneof" json:"rows_sent,omitempty"`
-	// Indicates whether the statement performed a full table scan. Unset when the server did not
-	// measure it; absent means unknown, not "no full scan".
+	// Whether the statement performed a full table scan. Unset when the server did not measure it.
 	FullScan *bool `protobuf:"varint,9,opt,name=full_scan,json=fullScan,proto3,oneof" json:"full_scan,omitempty"`
-	// Whether the statement is waiting for a lock; lock_type says which kind. UNSPECIFIED means
-	// the agent could not read the lock graph at all (missing privilege, unsupported server, or a
-	// graph too large to return in full), which is not the same as having checked and found
-	// nothing -- a client must not report "not blocked" for it. UNATTRIBUTED means the lock
-	// sources answered but the wait found belonged to a later statement on the connection.
+	// Whether the statement is waiting for a lock. UNSPECIFIED means the lock graph could not be
+	// read (missing privilege, unsupported server, or too large), not "not blocked".
 	BlockedStatus BlockedStatus `protobuf:"varint,10,opt,name=blocked_status,json=blockedStatus,proto3,enum=realtimeanalytics.v1.BlockedStatus" json:"blocked_status,omitempty"`
 	// Transactions blocking this statement, ordered by connection id. Empty whenever
 	// blocked_status is not BLOCKED.
 	BlockedBy []*BlockingTransaction `protobuf:"bytes,11,rep,name=blocked_by,json=blockedBy,proto3" json:"blocked_by,omitempty"`
-	// Schema-qualified table the statement is waiting for a lock on. This describes the lock
-	// the statement itself requested, so it is a property of the waiter rather than of any one
-	// blocking transaction. Empty unless blocked_status is BLOCKED.
+	// Schema-qualified table the statement is waiting to lock. Empty unless blocked_status is BLOCKED.
 	LockedTable string `protobuf:"bytes,12,opt,name=locked_table,json=lockedTable,proto3" json:"locked_table,omitempty"`
-	// Index the statement is waiting for a lock on. Row locks only -- a metadata lock is taken
-	// on the table as a whole, so this stays empty when lock_type is METADATA. Empty unless
-	// blocked_status is BLOCKED.
+	// Index the statement is waiting to lock, for row locks only. Empty unless blocked_status is
+	// BLOCKED.
 	LockedIndex string `protobuf:"bytes,13,opt,name=locked_index,json=lockedIndex,proto3" json:"locked_index,omitempty"`
 	// Which locking mechanism the statement is waiting on. UNSPECIFIED whenever blocked_status
 	// is not BLOCKED.
@@ -434,11 +410,8 @@ type QueryMySQLData struct {
 	// The lock mode the waiting statement asked for, in the same vocabulary as
 	// BlockingTransaction.blocking_lock_mode. Empty unless blocked_status is BLOCKED.
 	RequestedLockMode string `protobuf:"bytes,15,opt,name=requested_lock_mode,json=requestedLockMode,proto3" json:"requested_lock_mode,omitempty"`
-	// True when query_text is not the whole statement. The processlist keeps 1024 bytes of a
-	// running statement; with the events_statements_current consumer on, the agent reads up to
-	// performance_schema_max_sql_text_length bytes (1024 by default) instead. The agent sends at
-	// most 64 KiB. MySQL does not mark the cut, so a statement exactly as long as the limit is
-	// reported as truncated too.
+	// True when query_text reached MySQL's statement length limit (1024 bytes by default) or the
+	// agent's 64 KiB cap, so it may not be the whole statement.
 	QueryTextTruncated bool `protobuf:"varint,16,opt,name=query_text_truncated,json=queryTextTruncated,proto3" json:"query_text_truncated,omitempty"`
 	// Time the statement has spent waiting for table locks, from
 	// events_statements_current.LOCK_TIME. Unset when the server did not measure it.

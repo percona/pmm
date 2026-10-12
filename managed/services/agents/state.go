@@ -197,12 +197,8 @@ func (u *StateUpdater) vmAgentDeployment(pmmAgentID string) vmAgentDeployment {
 	}
 }
 
-// rtaAgentRunnable reports whether the pmm-agent can run the given agent row. Only Real-Time
-// Analytics agents are ever refused: their collectors shipped in later pmm-agent releases than the
-// agent types themselves, and an older pmm-agent sent one logs "unhandled agent type" every time it
-// retries starting it, about once a second, for as long as the row exists. The inventory API and
-// StartSession refuse such rows, but one can predate that check or be created before the pmm-agent
-// first reports its version.
+// rtaAgentRunnable reports whether the pmm-agent has a collector for this RTA agent row, since rows
+// can predate the inventory API's version check and an older pmm-agent retries them every second.
 func rtaAgentRunnable(row *models.Agent, service *models.Service, pmmAgentVersion string) bool {
 	switch row.AgentType {
 	case models.RTAMongoDBAgentType, models.RTAMySQLAgentType:

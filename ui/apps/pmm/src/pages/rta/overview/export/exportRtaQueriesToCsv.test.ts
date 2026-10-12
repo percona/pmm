@@ -114,8 +114,6 @@ describe('exportRtaQueriesToCsv', () => {
     });
   });
 
-  // The MySQL-specific fields are listed in the documented order, so the raw
-  // JSON blob stays last instead of being pushed ahead of them.
   it('keeps the MySQL columns ahead of the raw query column', () => {
     const columns = collectCsvColumns([mapQueryToCsvRow(TEST_MYSQL_QUERY)]);
 
@@ -219,8 +217,7 @@ describe('exportRtaQueriesToCsv', () => {
     const [withoutCollection, withCollection] = [
       mapQueryToCsvRow({
         ...TEST_QUERY,
-        // The payload is optional now that a query may carry a MySQL one
-        // instead, so the spread needs the assertion to stay fully typed.
+        // The payload is optional, so the assertion keeps the spread fully typed.
         mongoDbPayload: {
           ...TEST_QUERY.mongoDbPayload!,
           collection: undefined,

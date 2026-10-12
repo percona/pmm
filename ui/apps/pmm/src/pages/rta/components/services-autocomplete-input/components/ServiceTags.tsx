@@ -19,16 +19,13 @@ interface Props {
 const ServiceTags: FC<Props> = ({ tagPresentation, value, getTagProps }) => {
   const count = value.length;
 
-  // MUI only calls renderTags with a non-empty value, but the component is rendered directly
-  // by its own tests and by any future caller, and the code this replaced was total.
+  // MUI never calls renderTags empty, but the component is also rendered directly.
   if (count === 0) {
     return null;
   }
 
   if (tagPresentation === 'label') {
-    // Only the first name is spelled out, with a count for the rest. Joining every name
-    // produced a string wider than the field, which pushed the autocomplete's own input onto
-    // a second line and left the clear button floating below the text.
+    // One name plus a count: every name would push the input and clear button to a second line.
     const [first, ...rest] = value;
     const allNames = value.map((option) => option.label).join(', ');
 
@@ -39,8 +36,7 @@ const ServiceTags: FC<Props> = ({ tagPresentation, value, getTagProps }) => {
           alignItems="center"
           gap={0.75}
           pl={1.5}
-          // minWidth 0 lets the name shrink instead of forcing the field wider than its
-          // container; without it a flex child refuses to go below its content width.
+          // minWidth 0 lets the name shrink below its content width rather than widen the field.
           sx={{ minWidth: 0, maxWidth: '100%', overflow: 'hidden' }}
         >
           <Typography
@@ -54,8 +50,7 @@ const ServiceTags: FC<Props> = ({ tagPresentation, value, getTagProps }) => {
           >
             {first.label}
           </Typography>
-          {/* Never allowed to shrink: the count is what tells the reader the label is only
-              part of the selection, so it has to survive when the name is truncated. */}
+          {/* Never shrinks: the count shows the label is only part of the selection. */}
           {rest.length > 0 && (
             <Typography
               variant="inputText"

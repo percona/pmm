@@ -35,13 +35,10 @@ vi.mock('api/rta', () => ({
   getRunningSessions,
 }));
 
-// The overview derives the technology of the selection by matching the URL's
-// serviceIds against the running sessions, so a test that cares about the
-// technology has to line those up.
+// The selection's technology comes from matching the URL's serviceIds to running sessions.
 const renderMySqlSelection = () => {
   getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
-  // A MySQL selection must be fed MySQL queries, or the columns under test are
-  // resolved from the MongoDB payload and prove nothing about mySqlPayload.
+  // MySQL queries, or the columns under test would be read from the MongoDB payload.
   searchQueries.mockResolvedValue({ queries: [TEST_RAW_MYSQL_QUERY_DATA] });
 
   return renderComponent({
@@ -221,8 +218,6 @@ describe('RealtimeOverview', () => {
   });
 
   it('should say blocking is unknown rather than report zero blocked', async () => {
-    // The agent could not read the lock graph. Showing "Blocked only (0)" would present a
-    // monitoring gap as a verified healthy server.
     const unknown = {
       ...TEST_RAW_MYSQL_QUERY_DATA,
       queryId: '500',
@@ -247,9 +242,7 @@ describe('RealtimeOverview', () => {
   });
 
   it('keeps undecided rows when only one lock source answered', async () => {
-    // A stock MariaDB reads row locks but not metadata locks, so one row has a verdict and the
-    // others do not. Filtering to the confirmed row would hide the statements queued behind a
-    // DDL: stuck, and dropped from the one view meant to show them.
+    // As on a stock MariaDB, which reads row locks but not metadata locks.
     const blocked = {
       ...TEST_RAW_MYSQL_QUERY_DATA,
       queryId: '411',
@@ -293,7 +286,6 @@ describe('RealtimeOverview', () => {
 
     fireEvent.click(toggle.querySelector('input[type="checkbox"]')!);
 
-    // The confirmed row stays, and so does the one nobody could judge.
     await waitFor(() =>
       expect(screen.getByTestId('query-411-host-cell')).toBeInTheDocument()
     );
@@ -301,9 +293,7 @@ describe('RealtimeOverview', () => {
   });
 
   it('labels an undecided row only when its state says it is waiting for a lock', async () => {
-    // MySQL 5.7 and a stock MariaDB cannot read metadata locks, so a statement queued behind a
-    // DDL comes back undecided. Its thread state still says it is waiting; the row next to it,
-    // undecided for the same reason, is not waiting at all and must not be labelled.
+    // Both rows are undecided, as on MySQL 5.7 or a stock MariaDB; only one is waiting.
     const waiting = {
       ...TEST_RAW_MYSQL_QUERY_DATA,
       queryId: '421',
@@ -345,8 +335,6 @@ describe('RealtimeOverview', () => {
   });
 
   it('drops decided non-blocked rows while keeping undecided ones', async () => {
-    // The undecided row is kept because it may be waiting; the row known not to be waiting is
-    // not, or the filter would stop filtering.
     const blocked = {
       ...TEST_RAW_MYSQL_QUERY_DATA,
       queryId: '411',
@@ -396,8 +384,7 @@ describe('RealtimeOverview', () => {
   });
 
   it('marks an unattributed row and keeps it under the blocked-only filter', async () => {
-    // The connection moved on between the statement read and the lock read. Every lock source
-    // answered, so this is not the partial-capability case and must not be described as one.
+    // Every lock source answered, so the tooltip must not describe a partial capability.
     const unattributed = {
       ...TEST_RAW_MYSQL_QUERY_DATA,
       queryId: '414',
@@ -480,7 +467,6 @@ describe('RealtimeOverview', () => {
       initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
     });
 
-    // Both rows are listed, and only the waiting one is chipped.
     await waitFor(() =>
       expect(screen.getByTestId('query-411-host-cell')).toBeInTheDocument()
     );
@@ -488,7 +474,6 @@ describe('RealtimeOverview', () => {
     expect(screen.getByTestId('blocked-chip')).toHaveTextContent(
       'Blocked by 409'
     );
-    // The count names exactly the rows switching the toggle on will leave.
     expect(
       screen.getByTestId('overview-table-blocked-only-toggle')
     ).toHaveTextContent('Blocked only (1)');
@@ -562,8 +547,7 @@ describe('RealtimeOverview', () => {
     fireEvent.click(screen.getByLabelText('Show/Hide columns'));
 
     await waitFor(() => expect(screen.getByRole('menu')).toBeInTheDocument());
-    // The icon assertion does not depend on MRT's tooltip labelling, so it still
-    // holds if those labels change.
+    // The icon check still holds if MRT changes its tooltip labels.
     expect(screen.queryByTestId('PushPinIcon')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Pin to left')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Pin to right')).not.toBeInTheDocument();
@@ -817,8 +801,7 @@ describe('RealtimeOverview', () => {
   });
 
   it('keeps the opened statement in the pane once its connection moves on', async () => {
-    // A MySQL row is keyed by connection id. When the statement ends, the connection's next
-    // statement arrives under the same id and must not silently replace the one opened.
+    // The connection's next statement arrives under the same id and must not replace this one.
     const sleeping = {
       ...TEST_RAW_MYSQL_QUERY_DATA,
       queryId: '411',
@@ -848,7 +831,6 @@ describe('RealtimeOverview', () => {
         { ...sleeping, queryText: 'COMMIT', queryExecutionDuration: '0.001s' },
       ],
     });
-    // The pane covers the toolbar, so it is refreshed from the pane itself.
     fireEvent.click(screen.getByTestId('details-pane-refresh-button'));
 
     await waitFor(() =>
@@ -944,10 +926,7 @@ describe('RealtimeOverview', () => {
   });
 
   it('never asks the API for an empty selection after the pane is closed', async () => {
-    // Clearing the selection while the details pane is open leaves the polling toggle off,
-    // and closing the pane restores the state it had before opening -- fetching, with
-    // nothing selected. The request needs at least one service id ("value must contain at
-    // least 1 item(s)"), so the guard belongs on the request, not only on the controls.
+    // Closing the pane restores fetching from before it opened, with nothing selected by then.
     renderMySqlSelection();
 
     await waitFor(() =>
@@ -959,7 +938,6 @@ describe('RealtimeOverview', () => {
     fireEvent.click(screen.getAllByText(TEST_MYSQL_QUERY_DATA.serviceName)[0]);
     expect(screen.getByTestId('query-details-pane')).toBeInTheDocument();
 
-    // Empty the selection while the pane is open, then close it.
     fireEvent.click(screen.getByTitle('Clear'));
     searchQueries.mockClear();
     fireEvent.click(screen.getByTestId('details-pane-close-button'));
@@ -978,8 +956,7 @@ describe('RealtimeOverview', () => {
   });
 
   it('treats a blank serviceIds parameter as no selection', async () => {
-    // "?serviceIds=" parses to one empty string, which counts as a selection by length but
-    // is not one, and the API rejects it.
+    // "?serviceIds=" parses to one empty string, which the API rejects.
     searchQueries.mockClear();
     getRunningSessions.mockResolvedValue([]);
 

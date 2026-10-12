@@ -85,8 +85,7 @@ func TestChangeAgentRTAMySQLAgentCommand(t *testing.T) {
 		}`, capturedRequestBody)
 	})
 
-	// Only the flags the user passed may appear in the request; anything else
-	// would overwrite a field the user did not mean to change.
+	// Any unpassed flag in the request would overwrite a field the user did not mean to change.
 	t.Run("OnlyProvidedFlagsAreSent", func(t *testing.T) {
 		t.Parallel()
 
@@ -114,9 +113,7 @@ func TestChangeAgentRTAMySQLAgentCommand(t *testing.T) {
 		assert.JSONEq(t, `{"rta_mysql_agent": {"username": "only-user"}}`, capturedRequestBody)
 	})
 
-	// The three TLS flags take file paths, and the request must carry what is inside each
-	// file rather than the path. Distinct contents catch a pair being swapped, which matching
-	// paths against paths would not.
+	// Distinct file contents catch a swapped TLS pair, which comparing paths would not.
 	t.Run("TLSFileContentsAreSent", func(t *testing.T) {
 		t.Parallel()
 
@@ -197,8 +194,7 @@ func TestChangeAgentRTAMySQLAgentCommand(t *testing.T) {
 			assert.Contains(t, res.String(), "Collect interval      : 10s")
 		})
 
-		// ToAPIRTAOptions returns nil for empty options, and RenderTemplate
-		// panics on a nil dereference, so the field's absence has to render.
+		// ToAPIRTAOptions returns nil for empty options; the template must not dereference it.
 		t.Run("WithoutRTAOptions", func(t *testing.T) {
 			t.Parallel()
 

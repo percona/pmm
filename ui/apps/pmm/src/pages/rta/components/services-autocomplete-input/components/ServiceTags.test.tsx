@@ -26,8 +26,7 @@ describe('ServiceTags label presentation', () => {
   });
 
   it('names the first service and counts the rest instead of joining every name', () => {
-    // Joining them produced a string wider than the field, which pushed the autocomplete's
-    // input and clear button onto a second line and grew the control into the toolbar.
+    // Every name joined would push the input and clear button onto a second line.
     renderTags(['rta-mysql-blocking', 'rta-mysql57-degrade', 'rta-nolocks']);
 
     expect(screen.getByText('rta-mysql-blocking')).toBeInTheDocument();

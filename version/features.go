@@ -25,11 +25,7 @@ var (
 	MysqlExporterPluginCollector  FeatureVersion = MustParse("2.36.0-0")
 	NomadAgentSupportVersion      FeatureVersion = MustParse("3.2.0-0")
 	MongoDBRtaAgentSupportVersion FeatureVersion = MustParse("3.7.0-0")
-	// MySQLRtaAgentSupportVersion is the first release that ships the MySQL RTA
-	// collector in pmm-agent; 3.9.0 and 3.9.1 were released without it. Gating
-	// MySQL RTA on this (rather than the MongoDB version) prevents enabling it
-	// against agents that would not understand the AGENT_TYPE_RTA_MYSQL_AGENT
-	// builtin and would dead-end in their supervisor.
+	// MySQLRtaAgentSupportVersion is the first pmm-agent release with the MySQL RTA collector.
 	MySQLRtaAgentSupportVersion FeatureVersion = MustParse("3.10.0-0")
 
 	// NodeExporterV1_8 is the first pmm-agent shipping node_exporter 1.8, the oldest build that knows

@@ -6,9 +6,7 @@ interface Props {
   serviceType?: ServiceType;
 }
 
-// Technology names the database technology of a service in words. The pickers
-// carry it in their group headers instead, so this is only used where a row
-// needs to state it on its own.
+// For rows that state their technology alone; the pickers use group headers instead.
 const Technology: FC<Props> = ({ serviceType }) => {
   const label = technologyLabel(serviceType);
 

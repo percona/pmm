@@ -27,10 +27,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// A collect interval is only persisted when the request carried one -
-// RTAOptionsFromRequest leaves it nil otherwise, which is what
-// `pmm-admin inventory add agent rta-mysql-agent` without --collect-interval
-// produces - so the session mapping must not dereference it blindly.
+// A collect interval is nil unless the request carried one, so the mapping must not dereference it.
 func TestConvertAgentToSession(t *testing.T) {
 	t.Parallel()
 

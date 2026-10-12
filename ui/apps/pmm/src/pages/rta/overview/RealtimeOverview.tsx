@@ -45,27 +45,21 @@ import {
 
 const EMPTY_QUERIES: QueryData[] = [];
 
-// The widest the paused MySQL toolbar needs to sit on one row, with the navigation sidebar
-// expanded: the service picker, playback controls with Refresh and Export, both row filters and
-// "All sessions". Measured at 1680px with 16px to spare.
+// Narrowest width that fits the paused MySQL toolbar on one row with the sidebar expanded.
 const TOOLBAR_ONE_ROW = '@media (min-width: 1600px)';
 
 const RealtimeOverviewPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  // Blanks are dropped: "?serviceIds=" yields one empty string, which is not a selection
-  // and which the API rejects outright.
+  // "?serviceIds=" yields an empty string, which the API rejects.
   const requestedServiceIds = useMemo(
     () => searchParams.getAll('serviceIds').filter(Boolean),
     [searchParams]
   );
-  // Polled like the sessions list: a session that fails to start does so after the
-  // view has opened, and its reason is what the empty state shows.
+  // Polled because a session can fail after the view opens, and the empty state shows why.
   const { data: sessions = [], isLoading } = useRealtimeSessions({
     refetchInterval: 5000,
   });
-  // One view of live queries shows one technology. The picker enforces that, but
-  // a URL can still name services of both (starting sessions is not restricted),
-  // so the first service's technology wins and the rest are ignored.
+  // A URL can name services of both technologies; the first service's technology wins.
   const { serviceIds, serviceType } = useMemo(
     () => resolveSelection(requestedServiceIds, sessions),
     [requestedServiceIds, sessions]
@@ -75,34 +69,25 @@ const RealtimeOverviewPage: FC = () => {
   const { data: queries, refetch } = useRealtimeQueries(
     { serviceIds },
     {
-      // Belt and braces. handleCloseDetails is where fetching and the selection can fall out
-      // of step, and it now reconciles them, but the request is rejected outright when it
-      // names no service so the invariant is asserted here too.
+      // The API rejects a request that names no service.
       enabled: fetching && serviceIds.length > 0,
       refetchInterval: refreshInterval,
     }
   );
   const [hideCommit, setHideCommit] = useState(false);
   const [blockedOnly, setBlockedOnly] = useState(false);
-  // Transaction-control statements are a MySQL concern, so the toggle is only
-  // offered while MySQL services are being watched.
   const isMySqlSelection = serviceType === ServiceType.mysql;
   // Synced from the table after filters; details-pane arrows use this list, not the full API result.
   const [navigableQueries, setNavigableQueries] = useState<QueryData[]>([]);
   const [selectedQuery, setSelectedQuery] = useState<QueryData>();
   // We need to store the previous fetching state to restore it when the details pane is closed
   const previousFetchingState = useRef<boolean>(fetching);
-  // Gated on the toggle being on screen: when the selection stops being MySQL
-  // the control unmounts, and a filter nobody can see must not keep hiding rows
-  // (nor silently shrink the CSV export, which exports the filtered rows).
+  // Gated on the toggle being on screen, so a hidden filter cannot hide rows or shrink the CSV.
   const hideTransactionControl = hideCommit && isMySqlSelection;
-  // Gated the same way as the transaction-control toggle: lock waits are reported for
-  // MySQL only, and a filter that has left the screen must not keep hiding rows.
+  // Gated the same way: lock waits are reported for MySQL only.
   const showBlockedOnly = blockedOnly && isMySqlSelection;
-  // Split out so the toggle label counts the rows switching it on would leave, rather than
-  // every blocked row in the response. It is still counted before the table's own column
-  // filters, which live inside MRT and are not visible here, so a Database or User filter can
-  // leave the label higher than the row count.
+  // The blocked count excludes hidden transaction-control rows, but not MRT's column filters,
+  // so a Database or User filter can leave the label higher than the row count.
   const visibleQueries = useMemo(() => {
     const allQueries = queries ?? EMPTY_QUERIES;
 
@@ -110,37 +95,27 @@ const RealtimeOverviewPage: FC = () => {
       ? allQueries.filter((query) => !isTransactionControl(query))
       : allQueries;
   }, [queries, hideTransactionControl]);
-  // The agent could not read the lock graph at all, so nothing is known about waiting.
-  // Reporting "Blocked only (0)" here would present a monitoring gap as a verified healthy
-  // server, which is the one thing this must not do during an incident.
+  // "Blocked only (0)" here would present a monitoring gap as a healthy server.
   const blockingUnknown = useMemo(
     () => visibleQueries.length > 0 && visibleQueries.every(isBlockingUnknown),
     [visibleQueries]
   );
-  // One of the two lock sources answered and the other did not, so some rows have a verdict
-  // and some do not. This is the normal state on a stock MariaDB, where the metadata-lock
-  // instrument ships disabled while row locks are readable. Filtering to the known blocked
-  // rows would then hide the statements queued behind a DDL -- stuck, and silently dropped
-  // from the one view meant to show them.
+  // Only one lock source answered, as on a stock MariaDB without the metadata-lock instrument.
   const blockingPartial = useMemo(
     () => !blockingUnknown && visibleQueries.some(isBlockingUnknown),
     [blockingUnknown, visibleQueries]
   );
-  // Confirmed blocked, which is what the label counts: a row nobody could judge is not
-  // evidence of waiting and must not inflate the number.
+  // Only confirmed waits are counted: an undecided row is not evidence of waiting.
   const blockedQueries = useMemo(
     () => visibleQueries.filter(isBlocked),
     [visibleQueries]
   );
-  // The connection was waiting, but for a later statement than the one sampled. Counted apart
-  // from blockingPartial: every lock source answered, so the reader needs a refresh, not a
-  // configuration change, and the tooltip must not send them to fix one.
+  // Counted apart from blockingPartial so the tooltip asks for a refresh, not a config change.
   const unattributedCount = useMemo(
     () => visibleQueries.filter(isBlockingUnattributed).length,
     [visibleQueries]
   );
-  // What the filter shows. Undecided rows stay visible, so the filter never hides a statement
-  // that may be waiting.
+  // Undecided rows stay visible, so the filter never hides a statement that may be waiting.
   const filteredQueries = useMemo(
     () =>
       visibleQueries.filter(
@@ -159,8 +134,8 @@ const RealtimeOverviewPage: FC = () => {
   const blockedCount = blockedQueries.length;
 
   const handleQuerySelected = (query: QueryData) => {
-    // Only on opening the pane. Previous and next select through here too, while the view is
-    // already paused by the pane, and saving then would make closing it leave the view paused.
+    // Previous and next also select here while the pane has paused the view; saving then would
+    // leave the view paused on close.
     if (!selectedQuery) {
       previousFetchingState.current = fetching;
     }
@@ -170,16 +145,12 @@ const RealtimeOverviewPage: FC = () => {
 
   const handleCloseDetails = () => {
     setSelectedQuery(undefined);
-    // The selection can be emptied while the pane is open, which makes the state captured on
-    // open stale: restoring it unchecked resumes polling with nothing selected, and the API
-    // rejects a request that names no service.
+    // The selection may have been emptied while the pane was open.
     setFetching(previousFetchingState.current && serviceIds.length > 0);
   };
 
-  // The pane keeps showing the statement that was opened. When a later read no longer has it
-  // running, the pane says so rather than swapping in whatever its connection ran next (a
-  // MySQL row is keyed by connection id) -- the same outcome as for a MongoDB operation, whose
-  // row simply disappears when it ends.
+  // The pane reports the opened statement as finished rather than showing what its connection
+  // ran next.
   const selectedFinished = useMemo(
     () =>
       !!selectedQuery &&
@@ -245,9 +216,8 @@ const RealtimeOverviewPage: FC = () => {
             sx={{
               width: '100%',
               minWidth: 0,
-              // One row where everything fits, paused or live. Narrower, the row filters
-              // take a second row of their own (see TOOLBAR_ONE_ROW), so "All sessions"
-              // keeps its place at the right end of the first.
+              // Narrower than TOOLBAR_ONE_ROW, the row filters wrap to a second row so
+              // "All sessions" keeps its place at the right end of the first.
               flexWrap: 'wrap',
               [TOOLBAR_ONE_ROW]: { flexWrap: 'nowrap' },
             }}
@@ -303,9 +273,7 @@ const RealtimeOverviewPage: FC = () => {
               >
                 {fetching ? Messages.pause : Messages.resume}
               </Button>
-              {/* Refresh and Export only appear while paused. As labelled buttons they
-                  pushed the toolbar past one line at common widths, dropping "All
-                  sessions" to a second row, so they are icons with tooltips. */}
+              {/* Icons, not labelled buttons, so the toolbar fits one line at common widths. */}
               {!fetching && serviceIds.length !== 0 && (
                 <Tooltip title={Messages.refresh} arrow>
                   <IconButton
@@ -345,9 +313,7 @@ const RealtimeOverviewPage: FC = () => {
                 </Tooltip>
               )}
             </Stack>
-            {/* These filter the rows, they do not drive live updates: kept out of the
-                auto-refresh / playback group so that group reads as one control, and
-                wrapped as one unit so a narrow toolbar never splits them. */}
+            {/* Row filters, wrapped as one unit so a narrow toolbar never splits them. */}
             {isMySqlSelection && (
               <Stack
                 direction="row"
@@ -396,8 +362,7 @@ const RealtimeOverviewPage: FC = () => {
                         ? Messages.blockedUnknown
                         : Messages.blockedOnly(blockedCount)
                     }
-                    // ml: see the toggle below. On a row of its own the group lines
-                    // up with the service picker above it.
+                    // ml: 0 lines a wrapped row up with the service picker; see below.
                     sx={{ whiteSpace: 'nowrap', ml: 0, mr: 1 }}
                   />
                 </Tooltip>
@@ -414,9 +379,8 @@ const RealtimeOverviewPage: FC = () => {
                       />
                     }
                     label={Messages.hideCommit}
-                    // ml resets the negative margin FormControlLabel applies to align a
-                    // standalone switch; left in place it pulls this control flush against
-                    // the previous label, so the two toggles read as one run of text.
+                    // ml resets FormControlLabel's negative margin, which would pull this
+                    // toggle flush against the previous label.
                     sx={{ whiteSpace: 'nowrap', ml: 0, mr: 0 }}
                   />
                 </Tooltip>
@@ -454,8 +418,7 @@ const RealtimeOverviewPage: FC = () => {
         isLastQuery={isLast}
         onNext={next}
         onPrevious={previous}
-        // The pane covers the toolbar, so it carries its own refresh. The view is paused while
-        // the pane is open; this reads once, as the toolbar's Refresh does.
+        // The pane covers the toolbar, so it carries its own refresh.
         onRefresh={serviceIds.length > 0 ? () => refetch() : undefined}
       />
     </RealtimePage>

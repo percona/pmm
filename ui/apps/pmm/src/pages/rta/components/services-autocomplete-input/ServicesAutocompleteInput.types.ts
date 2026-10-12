@@ -10,8 +10,7 @@ interface BaseProps {
   serviceIds: string[];
   onServiceIdsChange: (serviceIds: string[]) => void;
   inputProps?: Partial<AutocompleteRenderInputParams>;
-  // Restrict the selection to one database technology. Set where the picker
-  // drives a single view of live queries; starting sessions has no such limit.
+  // Set where the picker drives a single view of live queries.
   singleTechnology?: boolean;
   'data-testid'?: string;
 }
@@ -34,14 +33,10 @@ export interface ServiceOption {
   label: string;
   serviceId?: string;
   cluster?: string;
-  // For a cluster option this is the technology shared by its services, and is
-  // left unset if they somehow disagree.
+  // Unset for a cluster whose services disagree on technology.
   serviceType?: ServiceType;
-  // The group this option is listed under. It cannot be derived from
-  // serviceType: a cluster spanning technologies is listed once under each of
-  // them while carrying no serviceType of its own, so deriving the group would
-  // put those headers in a nameless group of their own and split the run of
-  // options the list is sorted into.
+  // Not derived from serviceType: a mixed cluster has none, yet is listed under
+  // each of its technologies.
   technology: string;
 }
 

@@ -100,7 +100,6 @@ func TestRTAMySQLAgent(t *testing.T) {
 			},
 		}, getAgentRes)
 
-		// Test change API: disable, then re-enable with new labels and interval.
 		changeRTAMySQLAgentOK, err := client.Default.AgentsService.ChangeAgent(
 			&agents.ChangeAgentParams{
 				AgentID: agentID,
@@ -240,16 +239,16 @@ func TestRTAMySQLAgent(t *testing.T) {
 		require.NoError(t, err)
 
 		agent := getAgentRes.Payload.RtaMysqlAgent
-		assert.Equal(t, "updated-user", agent.Username) // Changed
-		assert.True(t, agent.TLS)                       // Unchanged
-		assert.False(t, agent.TLSSkipVerify)            // Unchanged
+		assert.Equal(t, "updated-user", agent.Username)
+		assert.True(t, agent.TLS)
+		assert.False(t, agent.TLSSkipVerify)
 		assert.Equal(t, map[string]string{
 			"environment": "test",
 			"team":        "dev",
-		}, agent.CustomLabels) // Unchanged
-		assert.Equal(t, "6s", agent.RtaOptions.CollectInterval) // Unchanged
-		assert.Equal(t, new("LOG_LEVEL_DEBUG"), agent.LogLevel) // Unchanged
-		assert.False(t, agent.Disabled)                         // Unchanged
+		}, agent.CustomLabels)
+		assert.Equal(t, "6s", agent.RtaOptions.CollectInterval)
+		assert.Equal(t, new("LOG_LEVEL_DEBUG"), agent.LogLevel)
+		assert.False(t, agent.Disabled)
 	})
 
 	t.Run("AddServiceIDEmpty", func(t *testing.T) {

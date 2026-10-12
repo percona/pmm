@@ -332,8 +332,7 @@ func TestUpdateAgentStatusMessage(t *testing.T) {
 	assert.Equal(t, inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR.String(), agent.Status)
 	assert.Equal(t, "performance_schema is disabled", pointer.GetString(agent.StatusMessage))
 
-	// A later report without a message - from an agent that has recovered, or one too old to send
-	// messages at all - must not leave the previous explanation attached to the new status.
+	// A later report without a message, e.g. from a recovered agent, must clear the previous one.
 	err = updateAgentStatus(ctx, db.Querier, pmmAgent.AgentID,
 		inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, 0, nil, nil, nil)
 	require.NoError(t, err)

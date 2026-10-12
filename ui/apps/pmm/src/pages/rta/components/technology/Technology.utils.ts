@@ -1,8 +1,7 @@
 import { ServiceType } from 'types/services.types';
 import { Messages } from './Technology.messages';
 
-// Only the technologies Real-Time Analytics supports are named here; anything
-// else renders without a label rather than as an empty or raw enum value.
+// Unsupported technologies get no label rather than a raw enum value.
 const TECHNOLOGY_LABELS: Partial<Record<ServiceType, string>> = {
   [ServiceType.mongodb]: Messages.mongodb,
   [ServiceType.mysql]: Messages.mysql,
@@ -11,9 +10,7 @@ const TECHNOLOGY_LABELS: Partial<Record<ServiceType, string>> = {
 export const technologyLabel = (serviceType?: ServiceType): string =>
   (serviceType && TECHNOLOGY_LABELS[serviceType]) || '';
 
-// sharedTechnology returns the technology common to every service, or undefined
-// when they disagree - used for rows that stand for a whole cluster, and to
-// decide which technology a selection of services belongs to.
+// Undefined when the services disagree on technology.
 export const sharedTechnology = (
   serviceTypes: (ServiceType | undefined)[]
 ): ServiceType | undefined => {

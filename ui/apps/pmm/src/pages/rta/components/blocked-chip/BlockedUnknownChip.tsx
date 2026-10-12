@@ -5,14 +5,11 @@ import { FC } from 'react';
 import { Messages } from './BlockedChip.messages';
 
 export interface Props {
-  // unattributed: the connection was waiting for a lock, but for a later statement than the one
-  // shown. unreadable: the server says this statement is waiting for a lock, but PMM cannot read
-  // that kind of lock on this instance, so the holder is unknown.
+  // unattributed: the wait was in a later statement; unreadable: PMM cannot read this lock type.
   reason: 'unattributed' | 'unreadable';
 }
 
-// Outlined rather than warning-coloured: neither case names a holder, and neither is counted as
-// blocked.
+// Outlined, not warning-coloured: neither case names a holder or counts as blocked.
 const BlockedUnknownChip: FC<Props> = ({ reason }) => (
   <Tooltip
     title={

@@ -629,8 +629,7 @@ func TestPerfSchema(t *testing.T) {
 func TestPerfSchemaMakeBucketsSkipsRealTimeAnalyticsQueries(t *testing.T) {
 	t.Parallel()
 
-	// The digest text the server keeps for the RTA statement query: comments are gone, the tag
-	// column is not.
+	// The digest text keeps the tag column but not the comment.
 	const rtaDigest = "SELECT NULL AS `pmm_agent_rta` , `pps` . `THREAD_ID` AS `thd_id` , `pps` . `PROCESSLIST_ID` AS `conn_id`"
 
 	current := map[string]*eventsStatementsSummaryByDigest{

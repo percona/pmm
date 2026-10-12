@@ -48,7 +48,6 @@ func TestCoerceValue(t *testing.T) {
 	assert.InEpsilon(t, 1.5, coerceValue(sql.RawBytes("1.5")), 0.0001)
 	assert.Equal(t, "COMMIT", coerceValue(sql.RawBytes("COMMIT")))
 	assert.Equal(t, "ACTIVE", coerceValue(sql.RawBytes("ACTIVE")))
-	// non-nil empty value stays an empty string (not nil)
 	emptyValue := coerceValue(sql.RawBytes(""))
 	assert.NotNil(t, emptyValue)
 	assert.Empty(t, emptyValue)
@@ -72,7 +71,7 @@ func TestMapHelpers(t *testing.T) {
 	assert.Empty(t, mapString(row, "null"))
 
 	assert.Equal(t, int64(7), mapInt(row, "i"))
-	assert.Equal(t, int64(2), mapInt(row, "f")) // truncates
+	assert.Equal(t, int64(2), mapInt(row, "f"))
 	assert.Equal(t, int64(9), mapInt(row, "numStr"))
 	assert.Equal(t, int64(0), mapInt(row, "missing"))
 
@@ -97,7 +96,7 @@ func TestBuildQueryData(t *testing.T) {
 		"db":                "sbtest",
 		"command":           "Query",
 		"state":             "executing",
-		"statement_latency": int64(2_000_000_000), // 2ms expressed in picoseconds
+		"statement_latency": int64(2_000_000_000),
 		"current_statement": "SELECT 1",
 		"rows_examined":     int64(200),
 		"rows_sent":         int64(100),
@@ -114,7 +113,7 @@ func TestBuildQueryData(t *testing.T) {
 	assert.Equal(t, "rta-mysql", qd.ServiceName)
 	assert.Equal(t, "42", qd.QueryId)
 	assert.Equal(t, "SELECT 1", qd.QueryText)
-	// 2_000_000_000 ps / 1000 = 2_000_000 ns = 2ms
+	// statement_latency is in picoseconds.
 	assert.Equal(t, 2*time.Millisecond, qd.QueryExecutionDuration.AsDuration())
 
 	p := qd.GetMySqlPayload()
@@ -144,7 +143,6 @@ func TestBuildQueryDataFullScanAndMissing(t *testing.T) {
 
 	m := &MySQLRTA{serviceID: "svc", serviceName: "svc"}
 
-	// full_scan "NO" -> false, and a missing statement_latency -> zero duration.
 	qd := m.buildQueryData(map[string]any{
 		"conn_id":           int64(1),
 		"current_statement": "SELECT 2",
@@ -164,14 +162,12 @@ func TestNewCollectInterval(t *testing.T) {
 
 	assert.Equal(t, 5*time.Second, New(&Params{CollectInterval: 5 * time.Second}, l).collectInterval)
 
-	// A missing or non-positive interval must not reach time.NewTicker, which
-	// panics on it and would take the whole pmm-agent down.
+	// time.NewTicker panics on a non-positive interval, which would take pmm-agent down.
 	assert.Equal(t, defaultCollectInterval, New(&Params{}, l).collectInterval)
 	assert.Equal(t, defaultCollectInterval, New(&Params{CollectInterval: -1}, l).collectInterval)
 }
 
-// The lock graph observed on Percona Server 8.0.46 for a three-connection pile-up: 409 is idle
-// inside an open transaction and blocks both waiters, and 412 blocks 411 while waiting itself.
+// blockingGraphFixture returns a pile-up: idle 409 blocks 411 and 412, and 412 also blocks 411.
 func blockingGraphFixture() (map[string][]*rtav1.BlockingTransaction, map[int64]struct{}) {
 	blockers := map[string][]*rtav1.BlockingTransaction{
 		"411": {
@@ -193,7 +189,6 @@ func TestMarkRootBlockers(t *testing.T) {
 	blockers, waiting := blockingGraphFixture()
 	markRootBlockers(blockers, waiting)
 
-	// 409 waits for nothing, so it is the head of the chain; 412 is queued in the middle of it.
 	require.Len(t, blockers["411"], 2)
 	assert.Equal(t, int64(409), blockers["411"][0].BlockingConnId, "sorted by connection id")
 	assert.True(t, blockers["411"][0].Root, "409 is not itself waiting")
@@ -207,7 +202,7 @@ func TestMarkRootBlockers(t *testing.T) {
 func TestMarkRootBlockersEveryBlockerWaiting(t *testing.T) {
 	t.Parallel()
 
-	// A cycle has no head. Nothing may be reported as root rather than picking one arbitrarily.
+	// A cycle has no head, so no blocker may be reported as root.
 	blockers := map[string][]*rtav1.BlockingTransaction{
 		"1": {{BlockingConnId: 2}},
 		"2": {{BlockingConnId: 1}},
@@ -272,7 +267,6 @@ func TestBuildQueryDataNotBlockedWhenGraphHasOtherConnections(t *testing.T) {
 	blockers, waiting := blockingGraphFixture()
 	markRootBlockers(blockers, waiting)
 
-	// Connection 999 is running while others are blocked; it must not inherit their blockers.
 	qd := m.buildQueryData(map[string]any{
 		"conn_id":           int64(999),
 		"current_statement": "SELECT 1",
@@ -291,9 +285,7 @@ func blockingRows() *sqlmock.Rows {
 	})
 }
 
-// metadataRows builds a result set shaped like metadataLockWaitsSQL returns. Its column order
-// differs from the row-lock query's and it carries no wait duration and no index, which is the
-// point of keeping the two scanners apart.
+// metadataRows builds a result set shaped like metadataLockWaitsSQL returns.
 func metadataRows() *sqlmock.Rows {
 	return sqlmock.NewRows([]string{
 		"pmm_agent_rta", "waiting_conn_id", "blocking_conn_id", "requested_mode", "blocking_mode",
@@ -302,8 +294,7 @@ func metadataRows() *sqlmock.Rows {
 	})
 }
 
-// readRowLocks reads just the row-lock source into a fresh graph, so the tests below can pin
-// how one query is parsed without standing up the other.
+// readRowLocks reads only the data_lock_waits source into a fresh graph.
 func readRowLocks(t *testing.T, m *MySQLRTA) (*blockingGraph, error) {
 	t.Helper()
 
@@ -321,15 +312,12 @@ func readRowLocks(t *testing.T, m *MySQLRTA) (*blockingGraph, error) {
 	return graph, nil
 }
 
-// expectNoMetadataLocks makes the metadata-lock query part of a collection return nothing, for
-// tests whose subject is the row-lock half.
+// expectNoMetadataLocks makes the metadata-lock query of a collection return no rows.
 func expectNoMetadataLocks(mock sqlmock.Sqlmock) {
 	mock.ExpectQuery("metadata_locks").WillReturnRows(metadataRows())
 }
 
-// newMockedRTA builds an agent on a mocked connection, already past the startup probe that
-// picks a row-lock source. It defaults to the performance_schema source so the tests that came
-// before MariaDB support keep describing MySQL 8.0; newMockedRTAWithSource takes the other one.
+// newMockedRTA builds an agent on a mocked connection that reads row locks from data_lock_waits.
 func newMockedRTA(t *testing.T) (*MySQLRTA, sqlmock.Sqlmock) {
 	t.Helper()
 
@@ -350,12 +338,7 @@ func TestCollectBlockingTransactionsDeduplicates(t *testing.T) {
 	t.Parallel()
 
 	m, mock := newMockedRTA(t)
-	// One waiter/blocker pair contending on both a record lock and a gap lock produces two
-	// rows for a single relationship; the blocker must be reported once.
-	//
-	// The rows are fed in the order the production query's ORDER BY yields them --
-	// "GEN_CLUST_INDEX" sorts before "PRIMARY" -- so the assertion below pins the value the
-	// server would really deliver rather than an arbitrary one.
+	// A record lock and a gap lock between one pair yield two rows for a single relationship.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
 		AddRow(nil, 411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "SELECT 1 FOR UPDATE", "db.t", "GEN_CLUST_INDEX", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil).
 		AddRow(nil, 411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "SELECT 1 FOR UPDATE", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil))
@@ -364,7 +347,7 @@ func TestCollectBlockingTransactionsDeduplicates(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, graph.blockers["411"], 1, "the same blocking transaction must not be listed twice")
 	assert.Equal(t, int64(409), graph.blockers["411"][0].BlockingConnId)
-	// First row wins, and the ORDER BY makes which row that is the same on every collection.
+	// First row wins; the rows are fed in the query's ORDER BY order, as the server returns them.
 	assert.Equal(t, "GEN_CLUST_INDEX", graph.waiters["411"].lockedIndex)
 }
 
@@ -387,7 +370,7 @@ func TestCollectBlockingTransactionsNullDurations(t *testing.T) {
 	t.Parallel()
 
 	m, mock := newMockedRTA(t)
-	// The wait ended between the two reads inside the query: no value is not zero seconds.
+	// The durations are NULL when the wait ends between the query's two reads.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
 		AddRow(nil, 411, 409, nil, nil, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil))
 
@@ -402,8 +385,7 @@ func TestCollectBlockingTransactionsKeepsEdgeWithoutProcesslistRow(t *testing.T)
 	t.Parallel()
 
 	m, mock := newMockedRTA(t)
-	// The blocking thread is gone, so the LEFT JOIN yields NULL columns. The relationship
-	// still explains the wait and must survive.
+	// The blocking thread is gone, so the LEFT JOIN yields NULL processlist columns.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
 		AddRow(nil, 411, 409, 1_000_000, 2_000_000, nil, nil, nil, "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil))
 
@@ -419,9 +401,7 @@ func TestCollectBlockingTransactionsOrWarnStopsOnMissingTable(t *testing.T) {
 	t.Parallel()
 
 	m, mock := newMockedRTA(t)
-	// MySQL 5.7 has no performance_schema.data_lock_waits; retrying forever would never
-	// succeed. It does have metadata_locks, so the other source must carry on: the two are
-	// disabled independently or a 5.7 server would lose the half of the graph it can serve.
+	// MySQL 5.7 has metadata_locks but no data_lock_waits: the sources are disabled independently.
 	mock.ExpectQuery("data_lock_waits").WillReturnError(&mysql.MySQLError{
 		Number:  mysqlErrNoSuchTable,
 		Message: "Table 'performance_schema.data_lock_waits' doesn't exist",
@@ -436,8 +416,7 @@ func TestCollectBlockingTransactionsOrWarnStopsOnMissingTable(t *testing.T) {
 	assert.Len(t, graph.blockers["411"], 1)
 	assert.False(t, graph.complete, "with row locks unreadable, silence is not proof of health")
 
-	// Only the metadata-lock query is expected the second time round: sqlmock fails on an
-	// unexpected call, so a retry of the dead source would fail the assertion below.
+	// sqlmock fails on an unexpected query, so a retry of the dead source would fail below.
 	mock.ExpectQuery("metadata_locks").WillReturnRows(metadataRows())
 	assert.NotNil(t, m.collectBlockingTransactionsOrWarn(t.Context()))
 	assert.NoError(t, mock.ExpectationsWereMet())
@@ -469,8 +448,7 @@ func TestBuildQueryDataUnknownWhenGraphUnavailable(t *testing.T) {
 	t.Parallel()
 
 	m := &MySQLRTA{serviceID: "svc", serviceName: "svc"}
-	// A nil graph means the lock tables could not be read. Reporting NOT_BLOCKED here would
-	// let a monitoring gap read as a verified healthy server during a real pile-up.
+	// A nil graph means the lock tables were unreadable, which must not read as NOT_BLOCKED.
 	qd := m.buildQueryData(map[string]any{
 		"conn_id":           int64(411),
 		"current_statement": "UPDATE sbtest1 SET k=k+1 WHERE id=1",
@@ -486,8 +464,7 @@ func TestCollectBlockingTransactionsOrWarnStopsOnAccessDenied(t *testing.T) {
 	t.Parallel()
 
 	m, mock := newMockedRTA(t)
-	// A privilege the monitoring user was never granted stays ungranted until an operator
-	// changes it, so retrying every 2s would be tens of thousands of doomed round trips a day.
+	// A missing grant stays missing until an operator acts, so retrying is pointless.
 	mock.ExpectQuery("data_lock_waits").WillReturnError(&mysql.MySQLError{
 		Number:  mysqlErrTableAccessDenied,
 		Message: "SELECT command denied to user 'pmm'@'%' for table 'data_lock_waits'",
@@ -510,8 +487,7 @@ func TestCollectBlockingTransactionsRecordsWaiterLockOnce(t *testing.T) {
 	t.Parallel()
 
 	m, mock := newMockedRTA(t)
-	// Two blockers of one waiter contend over the same requested lock: it is a property of
-	// the waiting statement, recorded once, not repeated per blocker.
+	// The requested lock belongs to the waiting statement: recorded once, not per blocker.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
 		AddRow(nil, 411, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil).
 		AddRow(nil, 411, 410, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 2", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil))
@@ -521,7 +497,7 @@ func TestCollectBlockingTransactionsRecordsWaiterLockOnce(t *testing.T) {
 	require.Len(t, graph.blockers["411"], 2)
 	assert.Equal(t, "db.t", graph.waiters["411"].lockedTable)
 	assert.Equal(t, "PRIMARY", graph.waiters["411"].lockedIndex)
-	// Both hold the statement up independently, so both are roots and neither is "the" cause.
+	// Each blocker holds the statement up independently, so both are roots.
 	assert.True(t, graph.blockers["411"][0].Root)
 	assert.True(t, graph.blockers["411"][1].Root)
 }
@@ -530,9 +506,7 @@ func TestCollectBlockingTransactionsPrefersARowThatNamesAnIndex(t *testing.T) {
 	t.Parallel()
 
 	m, mock := newMockedRTA(t)
-	// Waiter 411 contends with conn 409 over a table-level lock, which reports no index, and
-	// with conn 410 over a record lock on PRIMARY. The query orders the row that names an
-	// index first precisely so the lower-numbered blocker cannot leave the waiter with none.
+	// 409's table-level lock names no index; the query orders rows that name one first.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
 		AddRow(nil, 411, 410, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil).
 		AddRow(nil, 411, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 2", "db.t", nil, "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil))
@@ -548,8 +522,7 @@ func TestCollectMetadataLockWaits(t *testing.T) {
 
 	m, mock := newMockedRTA(t)
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows())
-	// The ALTER pile-up: 409 holds SHARED_READ inside an open transaction, the ALTER on 411
-	// wants EXCLUSIVE and cannot have it, and 412's plain SELECT is queued behind the ALTER.
+	// 409 holds SHARED_READ in an open transaction, 411's ALTER waits on it, 412 queues behind.
 	mock.ExpectQuery("metadata_locks").WillReturnRows(metadataRows().
 		AddRow(nil, 411, 409, "EXCLUSIVE", "SHARED_READ", "Sleep", "u@h", 154_000_000_000_000, "SELECT COUNT(*) FROM t", "db.t", nil, nil).
 		AddRow(nil, 412, 409, "SHARED_READ", "SHARED_READ", "Sleep", "u@h", 154_000_000_000_000, "SELECT COUNT(*) FROM t", "db.t", nil, nil).
@@ -565,15 +538,13 @@ func TestCollectMetadataLockWaits(t *testing.T) {
 	assert.Equal(t, "db.t", graph.waiters["411"].lockedTable)
 	assert.Empty(t, graph.waiters["411"].lockedIndex, "a metadata lock is taken on the table, not an index")
 
-	// performance_schema.metadata_locks records no timestamp, so no wait can be derived; the
-	// blocker's open transaction is timed in picoseconds and must survive the conversion.
+	// metadata_locks has no timestamps; the blocker's transaction time arrives in picoseconds.
 	require.Len(t, graph.blockers["411"], 1)
 	assert.Nil(t, graph.blockers["411"][0].WaitDuration, "MDL waits have no recorded start time")
 	assert.Equal(t, 154*time.Second, graph.blockers["411"][0].BlockerTransactionDuration.AsDuration())
 	assert.Equal(t, "SHARED_READ", graph.blockers["411"][0].BlockingLockMode)
 
-	// 412 is held up by the transaction at the head of the chain and by the ALTER queued in
-	// front of it. Only the former is a root: ending it is what actually frees the queue.
+	// Only the head of the chain is a root: ending it is what frees the queue.
 	require.Len(t, graph.blockers["412"], 2)
 	assert.Equal(t, int64(409), graph.blockers["412"][0].BlockingConnId)
 	assert.True(t, graph.blockers["412"][0].Root)
@@ -586,10 +557,8 @@ func TestCollectBlockingTransactionsKeepsLockTypesApart(t *testing.T) {
 	t.Parallel()
 
 	m, mock := newMockedRTA(t)
-	// The same connection appears in both sources -- a stale metadata_locks row read moments
-	// after the row-lock graph, say. A connection waits on one thing at a time, so the second
-	// source must not append blockers held under a mechanism the reported lock type does not
-	// describe, which would send the reader after the wrong remedy.
+	// A connection waits on one thing at a time, so a second source must not add blockers
+	// under a lock type other than the one reported.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
 		AddRow(nil, 411, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X,REC_NOT_GAP", "X,REC_NOT_GAP", nil, nil))
 	mock.ExpectQuery("metadata_locks").WillReturnRows(metadataRows().
@@ -608,9 +577,7 @@ func TestBuildQueryDataUnknownWhenGraphIncomplete(t *testing.T) {
 	t.Parallel()
 
 	m := &MySQLRTA{serviceID: "svc", serviceName: "svc"}
-	// One source failed, so this statement's absence from the graph proves nothing: it may be
-	// waiting on whichever source did not answer. Reporting NOT_BLOCKED would be a guess
-	// wearing the same badge as a verified result.
+	// With a source missing, absence from the graph proves nothing, so the status is unknown.
 	qd := m.buildQueryData(map[string]any{
 		"conn_id":           int64(411),
 		"current_statement": "ALTER TABLE t ADD COLUMN c INT",
@@ -624,8 +591,7 @@ func TestBuildCurrentQueriesSQLIncludesOnlyColumnsTheServerHas(t *testing.T) {
 	t.Parallel()
 
 	m, mock := newMockedRTA(t)
-	// EXECUTION_ENGINE arrived in 8.0.24 and CPU_TIME in 8.0.28. Naming a column the server
-	// does not have fails the whole collection, so each is probed and only then selected.
+	// Selecting a missing column fails the query: EXECUTION_ENGINE is 8.0.24+, CPU_TIME 8.0.28+.
 	mock.ExpectQuery("information_schema.COLUMNS").
 		WithArgs("threads", "EXECUTION_ENGINE").
 		WillReturnRows(sqlmock.NewRows([]string{"c"}).AddRow(1))
@@ -638,7 +604,7 @@ func TestBuildCurrentQueriesSQLIncludesOnlyColumnsTheServerHas(t *testing.T) {
 	require.NoError(t, err)
 	assert.Contains(t, query, "execution_engine", "a column the server has must be selected")
 	assert.NotContains(t, query, "cpu_latency", "a column the server lacks must be left out")
-	// The rest of the payload is version-independent and must always be there.
+	// Version-independent columns are always selected.
 	assert.Contains(t, query, "AS conn_id")
 	assert.NotContains(t, query, "memory_summary_by_thread_by_event_name",
 		"the per-row memory lookup was the query's largest cost and is no longer collected")
@@ -650,8 +616,7 @@ func TestBuildCurrentQueriesSQLFailsLoudly(t *testing.T) {
 	t.Parallel()
 
 	m, mock := newMockedRTA(t)
-	// A failed probe must not silently yield a query missing columns: the agent reports the
-	// problem at startup rather than serving a payload that quietly lost fields.
+	// A failed probe must fail startup rather than silently drop columns.
 	mock.ExpectQuery("information_schema.COLUMNS").WillReturnError(errors.New("connection reset"))
 
 	_, err := m.buildCurrentQueriesSQL(t.Context())
@@ -659,8 +624,7 @@ func TestBuildCurrentQueriesSQLFailsLoudly(t *testing.T) {
 	assert.Contains(t, err.Error(), "EXECUTION_ENGINE")
 }
 
-// expectConsumerProbes answers the setup_consumers probes the query builder makes, one per
-// optional source, in the order it asks.
+// expectConsumerProbes answers the setup_consumers probe for each optional source, in order.
 func expectConsumerProbes(mock sqlmock.Sqlmock, enabled bool) {
 	state := "NO"
 	if enabled {
@@ -693,15 +657,13 @@ func TestOptionalSourcesFollowTheirConsumers(t *testing.T) {
 		return query
 	}
 
-	// Off is the default. The tables are then empty, so joining them buys nothing but costs a
-	// lookup per row on every collection.
+	// Off by default, the tables are empty and joining them only costs a lookup per row.
 	off := build(t, false)
 	assert.NotContains(t, off, "events_waits_current")
 	assert.NotContains(t, off, "events_stages_current")
 	assert.NotContains(t, off, "last_wait")
 	assert.NotContains(t, off, "progress")
 
-	// Someone who has deliberately enabled them still gets the columns.
 	on := build(t, true)
 	assert.Contains(t, on, "LEFT JOIN performance_schema.events_waits_current ewc")
 	assert.Contains(t, on, "LEFT JOIN performance_schema.events_stages_current estc")
@@ -723,8 +685,7 @@ func TestStatementColumnsComeFromOneJoin(t *testing.T) {
 	query, err := m.buildCurrentQueriesSQL(t.Context())
 	require.NoError(t, err)
 
-	// events_statements_current has to be joined inside the derived table for the sort key, so
-	// the statement columns are carried out of it rather than joined a second time outside.
+	// events_statements_current is joined once, in the derived table that sorts by it.
 	assert.Equal(t, 1, strings.Count(query, "performance_schema.events_statements_current"),
 		"one join, not two")
 	assert.Contains(t, query, "s.SQL_TEXT", "the derived table carries the statement columns")
@@ -740,9 +701,7 @@ func TestUnreadableConsumerDoesNotStopTheAgent(t *testing.T) {
 		mock.ExpectQuery("information_schema.COLUMNS").WithArgs(column.table, column.column).
 			WillReturnRows(sqlmock.NewRows([]string{"c"}).AddRow(1))
 	}
-	// Reading setup_consumers needs a grant the rest of the query does not. A user without it
-	// must lose the optional columns only -- refusing to start would throw away everything else
-	// the agent can still collect.
+	// setup_consumers needs its own grant; without it only the optional columns are lost.
 	for _, source := range optionalProcesslistSources {
 		mock.ExpectQuery("setup_consumers").WithArgs(source.consumer).
 			WillReturnError(&mysql.MySQLError{
@@ -771,30 +730,21 @@ func TestCurrentQueriesSQLIsBounded(t *testing.T) {
 	query, err := m.buildCurrentQueriesSQL(t.Context())
 	require.NoError(t, err)
 
-	// Bounded at all: otherwise the row count is capped only by max_connections.
+	// Without a limit the row count is capped only by max_connections.
 	assert.Contains(t, query, fmt.Sprintf("LIMIT %d", processlistRowLimit))
-	// Bounded inside the derived table, not as a trailing ORDER BY ... LIMIT on the whole query:
-	// that form runs the current_memory subquery for every candidate before discarding any, and
-	// measured slower than no limit at all. The limit must therefore close before the derived
-	// table does.
+	// A LIMIT on the whole query would run the outer joins for every candidate row, so it must
+	// sit inside the derived table.
 	limitAt := strings.Index(query, fmt.Sprintf("LIMIT %d", processlistRowLimit))
 	selAt := strings.Index(query, ") sel")
 	require.Positive(t, limitAt, "the query must carry a limit")
 	require.Positive(t, selAt, "the bound belongs to a derived table")
 	assert.Less(t, limitAt, selAt, "the limit must sit inside the derived table, not after the whole query")
 	assert.Equal(t, 1, strings.Count(query, "LIMIT "), "exactly one limit, and it is the derived table's")
-	// Ordered by statement latency first -- picosecond-grained, so rows rarely tie and which of
-	// them survived truncation stays stable between collections.
-	//
-	// PROCESSLIST_TIME breaks the tie before the connection id, and that ordering is the whole
-	// point: statement latency is NULL for every row when events_statements_current is off,
-	// which is MariaDB's default. Drop this key and the sort collapses onto the connection id,
-	// so truncation keeps the oldest connections and discards the newest -- exactly the ones a
-	// sudden pile-up creates, which is the incident this feature exists for.
+	// Latency is NULL on stock MariaDB, so PROCESSLIST_TIME must come before the connection id:
+	// sorting by id alone would truncate away the newest connections of a pile-up.
 	assert.Contains(t, query,
 		"ORDER BY COALESCE(s.TIMER_WAIT, 0) DESC, COALESCE(t.PROCESSLIST_TIME, 0) DESC, t.PROCESSLIST_ID")
-	// The outer query repeats the filter, so a statement finishing between the two reads cannot
-	// come back as a row with no query text.
+	// The outer query repeats the filter in case a statement finishes between the two reads.
 	assert.Contains(t, query, "WHERE pps.PROCESSLIST_INFO IS NOT NULL")
 }
 
@@ -812,7 +762,6 @@ func TestProcesslistTruncationIsReportedOncePerEpisode(t *testing.T) {
 
 		return rows
 	}
-	// Two truncated collections then one that is not, so both edges of the episode are covered.
 	for range 2 {
 		mock.ExpectQuery("SELECT 1").WillReturnRows(full())
 		mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows())
@@ -839,8 +788,7 @@ func TestProcesslistTruncationIsReportedOncePerEpisode(t *testing.T) {
 func TestLockSourceRowLimitsMatchTheirQueries(t *testing.T) {
 	t.Parallel()
 
-	// Truncation is detected by counting rows against this number, so a LIMIT edited in the SQL
-	// without the constant would silently stop the detection working.
+	// Truncation is detected by counting rows against rowLimit, so it must match the LIMIT.
 	for _, source := range []lockSource{dataLockWaitsSource, innodbLockWaitsSource, metadataLockSource} {
 		assert.Equal(t, lockGraphRowLimit, source.rowLimit, "%s rowLimit", source.name)
 		assert.Contains(t, source.sql, fmt.Sprintf("LIMIT %d", lockGraphRowLimit), "%s SQL", source.name)
@@ -851,9 +799,6 @@ func TestTruncatedLockGraphIsNotCalledComplete(t *testing.T) {
 	t.Parallel()
 
 	m, mock := newMockedRTA(t)
-	// Contention is quadratic in the waiters on one object, so a busy table behind a DDL can
-	// produce more edges than the query may return. The waiters past the cut are simply absent,
-	// and calling the graph complete would publish every one of them as NOT_BLOCKED.
 	rows := blockingRows()
 	for i := range lockGraphRowLimit {
 		rows.AddRow(nil, 1000+i, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X", "X", nil, nil)
@@ -874,8 +819,7 @@ func TestBlockerWithoutConnectionIdStillReportsTheWait(t *testing.T) {
 	t.Parallel()
 
 	m, mock := newMockedRTA(t)
-	// A metadata lock held by a background thread has no connection id to report. Dropping the
-	// row would leave the waiter looking unblocked, which is the wait dressed up as health.
+	// A metadata lock held by a background thread has no connection id to report.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows())
 	mock.ExpectQuery("metadata_locks").WillReturnRows(metadataRows().
 		AddRow(nil, 411, nil, "EXCLUSIVE", "SHARED_READ", "Daemon", "sql/main", nil, nil, "db.t", nil, nil))
@@ -895,8 +839,7 @@ func TestFailedSourceLeavesNothingBehind(t *testing.T) {
 	t.Parallel()
 
 	m, mock := newMockedRTA(t)
-	// The row-lock source streams one edge and then fails. Those rows must not claim waiter 411
-	// and lock it out of the metadata source, which has the answer that is actually current.
+	// Rows read before a source fails must not claim a waiter from the other source.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
 		AddRow(nil, 411, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X", "X", nil, nil).
 		AddRow(nil, 412, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY", "X", "X", nil, nil).
@@ -917,15 +860,14 @@ func TestMetadataLockInstrumentDisabledDisablesTheSource(t *testing.T) {
 	t.Parallel()
 
 	m, mock := newMockedRTA(t)
-	// With the instrument off, metadata_locks is empty and the query succeeds. Believing it
-	// would publish every statement queued behind a DDL as NOT_BLOCKED.
+	// With the instrument off, metadata_locks is empty but the query still succeeds.
 	mock.ExpectQuery("setup_instruments").WithArgs(metadataLockInstrument).
 		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("NO"))
 
 	m.checkMetadataLockInstrument(t.Context())
 	assert.True(t, m.metadataLocks.unsupported, "the source must be disabled, not trusted")
 
-	// Only the row-lock source runs now, so the graph can no longer call anything healthy.
+	// With only the row-lock source left, the graph cannot be complete.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows())
 	graph := m.collectBlockingTransactionsOrWarn(t.Context())
 	require.NotNil(t, graph)
@@ -937,9 +879,7 @@ func TestMetadataLockInstrumentUnreadableDoesNotStopTheAgent(t *testing.T) {
 	t.Parallel()
 
 	m, mock := newMockedRTA(t)
-	// Reading setup_instruments needs a grant the lock tables themselves do not. A user without
-	// it must lose the metadata source only -- statements and row locks are still collectable,
-	// and failing startup here would throw away everything the agent can still do.
+	// setup_instruments needs its own grant; without it only the metadata source is lost.
 	mock.ExpectQuery("setup_instruments").WithArgs(metadataLockInstrument).
 		WillReturnError(&mysql.MySQLError{
 			Number:  mysqlErrTableAccessDenied,
@@ -991,8 +931,7 @@ func TestPermanentBlockingError(t *testing.T) {
 	}
 }
 
-// readRowLocksFrom reads one named row-lock source into a fresh graph, so the MariaDB source
-// can be put through the same parsing assertions as the performance_schema one.
+// readRowLocksFrom reads one row-lock source into a fresh graph.
 func readRowLocksFrom(t *testing.T, m *MySQLRTA, source lockSource) (*blockingGraph, error) {
 	t.Helper()
 
@@ -1020,10 +959,7 @@ func selectListAliases(query string) []string {
 func TestRowLockSourcesReturnTheSameColumns(t *testing.T) {
 	t.Parallel()
 
-	// Both row-lock queries are read by scanRowLockEdge, which scans by position. A column
-	// added to one and not the other, or the same columns in a different order, would not fail
-	// to compile and would not fail to run -- it would quietly put the wrong value in every
-	// field, so the shapes are pinned to each other here.
+	// scanRowLockEdge reads both queries by position, so a mismatch silently misassigns fields.
 	assert.Equal(t,
 		selectListAliases(blockingTransactionsSQL),
 		selectListAliases(innodbLockWaitsSQL),
@@ -1034,9 +970,7 @@ func TestInnodbLockWaitsSourceParsesTheSameEdges(t *testing.T) {
 	t.Parallel()
 
 	m, mock := newMockedRTAWithSource(t, innodbLockWaitsSource)
-	// MariaDB reports a plain lock mode where performance_schema distinguishes the gap from
-	// the record, and lock_table arrives quoted -- the query strips the backticks, so what
-	// reaches the scanner is the same "db.t" the other source produces.
+	// MariaDB reports plain lock modes, and the query unquotes its backticked lock_table.
 	mock.ExpectQuery("INNODB_LOCK_WAITS").WillReturnRows(blockingRows().
 		AddRow(nil, 411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "UPDATE t SET v=1", "db.t", "PRIMARY", "X", "X", nil, nil))
 
@@ -1047,13 +981,11 @@ func TestInnodbLockWaitsSourceParsesTheSameEdges(t *testing.T) {
 	assert.Equal(t, "UPDATE t SET v=1", graph.blockers["411"][0].BlockingQuery)
 	assert.Equal(t, "db.t", graph.waiters["411"].lockedTable)
 	assert.Equal(t, "PRIMARY", graph.waiters["411"].lockedIndex)
-	// The lock type must still say ROW: the graph is the same graph, read from another table.
 	assert.Equal(t, rtav1.LockType_LOCK_TYPE_ROW, innodbLockWaitsSource.lockType)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
-// expectRowLockProbe queues the two information_schema lookups selectRowLockSource makes, with
-// the given answers, in the order it makes them.
+// expectRowLockProbe queues selectRowLockSource's information_schema.TABLES lookups.
 func expectRowLockProbe(mock sqlmock.Sqlmock, dataLockWaits, innodbLockWaits int) {
 	mock.ExpectQuery("information_schema.TABLES").
 		WithArgs("performance_schema", "data_lock_waits").
@@ -1071,9 +1003,7 @@ func expectRowLockProbe(mock sqlmock.Sqlmock, dataLockWaits, innodbLockWaits int
 func TestSelectRowLockSourcePrefersPerformanceSchema(t *testing.T) {
 	t.Parallel()
 
-	// data_locks carries the gap/record distinction information_schema drops, so a server that
-	// has both must be read through performance_schema -- and the second probe must not even
-	// be made, which sqlmock enforces by failing on an unexpected query.
+	// data_locks keeps the gap/record distinction that information_schema drops.
 	m, mock := newMockedRTAWithSource(t, lockSource{})
 	expectRowLockProbe(mock, 1, 0)
 
@@ -1087,8 +1017,7 @@ func TestSelectRowLockSourcePrefersPerformanceSchema(t *testing.T) {
 func TestSelectRowLockSourceFallsBackToInformationSchema(t *testing.T) {
 	t.Parallel()
 
-	// MariaDB, and any MySQL before 8.0: no data_lock_waits, but the information_schema tables
-	// the performance_schema ones replaced are still there.
+	// MariaDB and MySQL before 8.0 have INNODB_LOCK_WAITS but no data_lock_waits.
 	m, mock := newMockedRTAWithSource(t, lockSource{})
 	expectRowLockProbe(mock, 0, 1)
 
@@ -1102,9 +1031,7 @@ func TestSelectRowLockSourceFallsBackToInformationSchema(t *testing.T) {
 func TestSelectRowLockSourceWithNeitherTableDisablesRowLocks(t *testing.T) {
 	t.Parallel()
 
-	// With no source at all the row-lock half must be marked unsupported rather than left to
-	// run an empty query every interval: an empty result would read as "nothing is blocked",
-	// which is the claim this feature must never make without evidence.
+	// With no source, row locks are unsupported rather than read as "nothing is blocked".
 	m, mock := newMockedRTAWithSource(t, lockSource{})
 	expectRowLockProbe(mock, 0, 0)
 
@@ -1117,8 +1044,7 @@ func TestSelectRowLockSourceWithNeitherTableDisablesRowLocks(t *testing.T) {
 func TestSelectRowLockSourceTreatsAProbeFailureAsAbsent(t *testing.T) {
 	t.Parallel()
 
-	// A monitoring user that cannot read one entry of information_schema.TABLES must still end
-	// up with the source it can read, rather than losing row locks over a failed probe.
+	// A failed probe for one table must not cost the source that can be read.
 	m, mock := newMockedRTAWithSource(t, lockSource{})
 	mock.ExpectQuery("information_schema.TABLES").
 		WithArgs("performance_schema", "data_lock_waits").
@@ -1134,8 +1060,7 @@ func TestSelectRowLockSourceTreatsAProbeFailureAsAbsent(t *testing.T) {
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
-// expectStatementConsumerProbes queues the consumer lookups checkStatementConsumers makes, in
-// order, each answering with the given ENABLED value.
+// expectStatementConsumerProbes answers each checkStatementConsumers lookup with enabled.
 func expectStatementConsumerProbes(mock sqlmock.Sqlmock, enabled string) {
 	for _, consumer := range statementConsumers {
 		mock.ExpectQuery("setup_consumers").
@@ -1147,10 +1072,8 @@ func expectStatementConsumerProbes(mock sqlmock.Sqlmock, enabled string) {
 func TestStatementConsumersDisabledDoNotStopCollection(t *testing.T) {
 	t.Parallel()
 
-	// MariaDB ships both consumers off, so this is the state a stock MariaDB is in. The
-	// statement columns are lost, but query text, user, database, command, state and elapsed
-	// time come from performance_schema.threads and are unaffected -- so the session must warn
-	// and carry on rather than refuse to start and show nothing at all.
+	// Stock MariaDB ships both consumers off; threads still provides the query text, user,
+	// state and elapsed time, so the agent warns and carries on.
 	m, mock := newMockedRTA(t)
 	expectStatementConsumerProbes(mock, "NO")
 
@@ -1162,8 +1085,7 @@ func TestStatementConsumersDisabledDoNotStopCollection(t *testing.T) {
 func TestStatementConsumersSurviveAnUnreadableSetupTable(t *testing.T) {
 	t.Parallel()
 
-	// Reading setup_consumers is a narrower grant than the statement query itself needs, so
-	// failing to read it says nothing about whether collection will work and must not stop it.
+	// setup_consumers needs its own grant, so failing to read it must not stop collection.
 	m, mock := newMockedRTA(t)
 	for _, consumer := range statementConsumers {
 		mock.ExpectQuery("setup_consumers").
@@ -1179,8 +1101,7 @@ func TestStatementConsumersSurviveAnUnreadableSetupTable(t *testing.T) {
 func TestStatementConsumersAreAllProbed(t *testing.T) {
 	t.Parallel()
 
-	// Both consumers feed columns the statement query selects unconditionally, so both have to
-	// be reported. sqlmock fails on an unexpected or unmet expectation, which pins the set.
+	// Both consumers feed columns the statement query always selects, so both are probed.
 	m, mock := newMockedRTA(t)
 	expectStatementConsumerProbes(mock, "YES")
 
@@ -1195,9 +1116,7 @@ func TestElapsedTimeFallsBackToProcesslistTime(t *testing.T) {
 
 	m := &MySQLRTA{serviceID: "svc", serviceName: "svc"}
 
-	// A stock MariaDB: events_statements_current is off, so statement_latency is absent while
-	// PROCESSLIST_TIME still counts. Reporting zero here would say a statement that has been
-	// running for 42 seconds just started.
+	// Stock MariaDB has events_statements_current off, leaving only PROCESSLIST_TIME.
 	qd := m.buildQueryData(map[string]any{
 		"conn_id":           int64(7),
 		"current_statement": "SELECT 1",
@@ -1212,12 +1131,11 @@ func TestStatementLatencyWinsOverProcesslistTime(t *testing.T) {
 
 	m := &MySQLRTA{serviceID: "svc", serviceName: "svc"}
 
-	// With the consumer on, the picosecond value is the accurate one and PROCESSLIST_TIME --
-	// which truncates to whole seconds -- must not displace it.
+	// PROCESSLIST_TIME is whole seconds; the picosecond statement_latency is more accurate.
 	qd := m.buildQueryData(map[string]any{
 		"conn_id":           int64(7),
 		"current_statement": "SELECT 1",
-		"statement_latency": int64(2_500_000_000), // 2.5ms in picoseconds
+		"statement_latency": int64(2_500_000_000),
 		"time":              int64(42),
 	}, &blockingGraph{})
 	require.NotNil(t, qd)
@@ -1229,9 +1147,7 @@ func TestStatementCountsAreUnsetWhenNotMeasured(t *testing.T) {
 
 	m := &MySQLRTA{serviceID: "svc", serviceName: "svc"}
 
-	// A stock MariaDB: events_statements_current is off, so the counts come back NULL and the
-	// full-scan expression -- IF(NULL > 0 OR NULL > 0, 'YES', 'NO') -- yields 'NO'. Publishing
-	// 0/0/false here would describe a statement nobody measured as a cheap, well-indexed one.
+	// Stock MariaDB has events_statements_current off, so the counts come back NULL.
 	qd := m.buildQueryData(map[string]any{
 		"conn_id":           int64(7),
 		"current_statement": "SELECT 1",
@@ -1252,11 +1168,7 @@ func TestStatementCountsAreUnsetWhenNotMeasured(t *testing.T) {
 func TestFullScanSQLYieldsNullWhenNothingWasMeasured(t *testing.T) {
 	t.Parallel()
 
-	// The Go side can only forward what the query hands it, and the query used to collapse two
-	// NULL counters into the literal 'NO'. Leaving that in place would have made the presence
-	// the payload now carries meaningless for this field -- it would always be present, always
-	// false, on exactly the servers that measured nothing. Verified live against a stock
-	// MariaDB before this expression was changed.
+	// Two NULL counters must give a NULL full_scan, not 'NO', so unmeasured reads as unknown.
 	assert.Contains(t, currentQueriesSQLTemplate,
 		"WHEN sel.NO_GOOD_INDEX_USED IS NULL AND sel.NO_INDEX_USED IS NULL THEN NULL",
 		"the query must preserve NULL rather than reporting 'NO' for an unmeasured statement")
@@ -1270,8 +1182,7 @@ func TestFullScanIsUnsetWhenTheServerDidNotSayEither(t *testing.T) {
 
 	m := &MySQLRTA{serviceID: "svc", serviceName: "svc"}
 
-	// A column that is absent or NULL rather than 'YES'/'NO' is not an answer, and "absent" is
-	// what the UI renders as unavailable instead of "No".
+	// Anything but 'YES'/'NO' is unknown, which the UI shows as unavailable rather than "No".
 	for _, value := range []any{nil, ""} {
 		qd := m.buildQueryData(map[string]any{
 			"conn_id":           int64(7),
@@ -1282,7 +1193,6 @@ func TestFullScanIsUnsetWhenTheServerDidNotSayEither(t *testing.T) {
 		assert.Nil(t, qd.GetMySqlPayload().FullScan, "full_scan %v must be reported as unknown", value)
 	}
 
-	// And a real answer still comes through.
 	qd := m.buildQueryData(map[string]any{
 		"conn_id":           int64(7),
 		"current_statement": "SELECT 1",
@@ -1297,9 +1207,7 @@ func TestFullScanIsUnsetWhenTheServerDidNotSayEither(t *testing.T) {
 func TestSelectRowLockSourceDoesNotDisableOnProbeFailure(t *testing.T) {
 	t.Parallel()
 
-	// Every prerequisite check shares one deadline, so a slow server can time out both probes.
-	// That says nothing about which tables exist, and must not cost row-lock detection for the
-	// life of the agent the way a genuine "neither table is here" does.
+	// A timed-out probe says nothing about which tables exist, so it must not disable row locks.
 	m, mock := newMockedRTAWithSource(t, lockSource{})
 	for range rowLockSources {
 		mock.ExpectQuery("information_schema.TABLES").WillReturnError(context.DeadlineExceeded)
@@ -1314,8 +1222,7 @@ func TestSelectRowLockSourceDoesNotDisableOnProbeFailure(t *testing.T) {
 func TestCollectBlockingTransactionsRetriesSourceSelection(t *testing.T) {
 	t.Parallel()
 
-	// Having left the source unchosen, the next collection must ask again rather than run
-	// blind. Here the retry succeeds and the row-lock graph is read on that same cycle.
+	// With no source chosen yet, collection probes again and reads row locks in the same cycle.
 	m, mock := newMockedRTAWithSource(t, lockSource{})
 	expectRowLockProbe(mock, 0, 1)
 	mock.ExpectQuery("INNODB_LOCK_WAITS").WillReturnRows(blockingRows().
@@ -1333,10 +1240,7 @@ func TestCollectBlockingTransactionsRetriesSourceSelection(t *testing.T) {
 func TestCollectBlockingTransactionsDoesNotRetryASettledVerdict(t *testing.T) {
 	t.Parallel()
 
-	// A server that answered "neither table is here" is settled. Probing it again every two
-	// seconds for the life of the agent would be thousands of pointless round trips a day, so
-	// only the unanswered case is retried. sqlmock fails on an unexpected query, which is what
-	// pins that no probe is issued here.
+	// A settled "neither table" answer is not re-probed; sqlmock fails on any unexpected query.
 	m, mock := newMockedRTAWithSource(t, lockSource{})
 	m.rowLocks.unsupported = true
 	expectNoMetadataLocks(mock)
@@ -1349,9 +1253,7 @@ func TestCollectBlockingTransactionsDoesNotRetryASettledVerdict(t *testing.T) {
 func TestStatementConsumerNeedsItsInstrumentToo(t *testing.T) {
 	t.Parallel()
 
-	// events_transactions_current is gated by the transaction instrument as well as by its
-	// consumer, and MariaDB ships both off. Warning about only the consumer sends the operator
-	// to fix half the switch, after which the warning disappears and the columns stay NULL.
+	// events_transactions_current also needs the transaction instrument, off on stock MariaDB.
 	m, mock := newMockedRTA(t)
 	mock.ExpectQuery("setup_consumers").WithArgs("events_statements_current").
 		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("YES"))
@@ -1362,16 +1264,14 @@ func TestStatementConsumerNeedsItsInstrumentToo(t *testing.T) {
 
 	m.checkStatementConsumers(t.Context())
 
-	// The instrument is only consulted for a consumer that declares one, and it must be
-	// consulted: sqlmock fails on an unmet expectation.
+	// sqlmock fails on an unmet expectation, so the instrument must be consulted.
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
 func TestStatementConsumerInstrumentIsOnlyCheckedWhenDeclared(t *testing.T) {
 	t.Parallel()
 
-	// A consumer with no gating instrument must not probe setup_instruments at all, and a
-	// consumer that is already off must not either -- there is nothing further to learn.
+	// A consumer without an instrument, or one already off, must not probe setup_instruments.
 	for _, consumer := range statementConsumers {
 		if consumer.name == "events_statements_current" {
 			assert.Empty(t, consumer.instrument, "the statement instruments are on by default everywhere")
@@ -1494,8 +1394,7 @@ func TestStatementTextTakesTheLongerStatementText(t *testing.T) {
 func TestStatementTextIgnoresAnUnrelatedStatementText(t *testing.T) {
 	t.Parallel()
 
-	// Inside a stored program, SQL_TEXT describes the statement the program runs, not the CALL
-	// the processlist reports.
+	// In a stored program, SQL_TEXT is the inner statement, not the CALL the processlist shows.
 	call := "CALL p('" + strings.Repeat("x", 1100) + "')"
 	inner := "UPDATE t SET a = 1 WHERE b = '" + strings.Repeat("y", 2000) + "'"
 
@@ -1576,8 +1475,7 @@ func TestLockTimeIsConvertedFromPicoseconds(t *testing.T) {
 		picos    any
 		expected time.Duration
 	}{
-		// MySQL computes LOCK_TIME in microseconds and reports it in picoseconds, so real values
-		// are whole microseconds: 3 µs is 0.003 ms.
+		// LOCK_TIME is reported in picoseconds but measured in whole microseconds.
 		{picos: int64(3_000_000), expected: 3 * time.Microsecond},
 		{picos: int64(1_250_000_000), expected: 1250 * time.Microsecond},
 		{picos: int64(2_000_000_000_000), expected: 2 * time.Second},
@@ -1597,8 +1495,7 @@ func TestLockTimeIsUnsetWhenNotMeasured(t *testing.T) {
 	assert.Nil(t, qd.GetMySqlPayload().GetLockTime())
 }
 
-// waitOnConnection411 is the lock graph seen live under sysbench: connection 411 waiting on an
-// X,REC_NOT_GAP row lock that 409 holds, identified by the statement that was waiting.
+// waitOnConnection411 returns a graph where 411 waits on a row lock held by 409.
 func waitOnConnection411(waitingEventID sql.NullInt64, waitingQuery string) *blockingGraph {
 	return &blockingGraph{
 		blockers: map[string][]*rtav1.BlockingTransaction{
@@ -1633,8 +1530,7 @@ func TestWaitIsAttachedOnlyToTheStatementThatWaited(t *testing.T) {
 		expected rtav1.BlockedStatus
 	}{
 		{
-			// The connection ran a plain SELECT when the statements were read and had moved on
-			// to the UPDATE by the time the lock graph was read.
+			// The connection moved on from the SELECT to the UPDATE between the two reads.
 			name:     "LaterStatementByEventID",
 			row:      map[string]any{"conn_id": int64(411), "current_statement": "SELECT c FROM sbtest2 WHERE id=7", "statement_event_id": int64(850)},
 			graph:    waitOnConnection411(sql.NullInt64{Int64: 900, Valid: true}, update),
@@ -1674,8 +1570,7 @@ func TestWaitIsAttachedOnlyToTheStatementThatWaited(t *testing.T) {
 			expected: rtav1.BlockedStatus_BLOCKED_STATUS_BLOCKED,
 		},
 		{
-			// A wait from a later statement is unattributed even when the other lock source is
-			// missing: the source that answered did see this connection waiting.
+			// The source that answered saw this connection wait, even with the other one missing.
 			name:     "LaterStatementIncompleteGraph",
 			row:      map[string]any{"conn_id": int64(411), "current_statement": "SELECT c FROM sbtest2 WHERE id=7", "statement_event_id": int64(850)},
 			graph:    incomplete(waitOnConnection411(sql.NullInt64{Int64: 900, Valid: true}, update)),
@@ -1743,8 +1638,7 @@ func TestEveryLockQueryReturnsTheWaitingStatement(t *testing.T) {
 func TestEveryPollingQueryIsTagged(t *testing.T) {
 	t.Parallel()
 
-	// The digest perfschema QAN reads strips comments and keeps identifiers, so the tag has to
-	// be in an identifier for the QAN agents to recognise these queries.
+	// perfschema digests strip comments, so the tag must survive as an identifier.
 	digestLike := regexp.MustCompile(`/\*.*?\*/`)
 
 	for name, query := range map[string]string{
@@ -1763,8 +1657,7 @@ func TestEveryPollingQueryIsTagged(t *testing.T) {
 func TestQueryTagIsTheFirstColumn(t *testing.T) {
 	t.Parallel()
 
-	// DIGEST_TEXT stops at max_digest_length, 1024 bytes by default, and every one of these
-	// queries is longer than that: a tag further in would be cut off the digest.
+	// DIGEST_TEXT stops at max_digest_length (1024 bytes by default); these queries are longer.
 	for name, query := range map[string]string{
 		"statements": currentQueriesSQLTemplate,
 		"row locks":  blockingTransactionsSQL,

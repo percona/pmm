@@ -17,20 +17,16 @@ import { Messages } from './BlockedByPanel.messages';
 import { TruncatedChip } from 'pages/rta/components/truncated-chip';
 
 export interface Props {
-  // Every transaction the agent reported as holding this statement up. May be empty: the
-  // lock graph and the statement list are read milliseconds apart, so a statement can be
-  // flagged as waiting with no holder in the same snapshot.
+  // May be empty: the lock graph and the statement list are read milliseconds apart.
   blockers: BlockingTransaction[];
-  // The lock the waiting statement asked for. A property of the waiter, identical across its
-  // blockers, so it is passed once rather than read off whichever blocker leads the list.
+  // A property of the waiter, identical across its blockers.
   lockedTable?: string;
   lockedIndex?: string;
   lockType?: LockType;
   requestedLockMode?: string;
 }
 
-// Which mechanism the wait is on, in the reader's words. Unknown lock types render nothing
-// rather than a placeholder: a row that says "Lock type: —" is worse than no row.
+// Unknown lock types render no row rather than "Lock type: —".
 const lockTypeLabel = (lockType?: LockType): string | undefined => {
   switch (lockType) {
     case LockType.row:
@@ -42,8 +38,7 @@ const lockTypeLabel = (lockType?: LockType): string | undefined => {
   }
 };
 
-// MySQL reports an idle connection as "Sleep": it is running nothing, so its statement is the
-// last one it ran rather than a current one. That is often, not always, the one that took the lock.
+// An idle connection's statement is its last one, not necessarily the one that took the lock.
 const IDLE_COMMAND = 'Sleep';
 
 const durationText = (duration?: string | null): string =>
@@ -77,8 +72,7 @@ const PanelFrame: FC<React.PropsWithChildren> = ({ children }) => (
   </Box>
 );
 
-// BlockerList renders one group of blockers with the mode each holds, so a chain of mixed
-// modes reads as the sequence it is rather than as a list of interchangeable ids.
+// Shows each blocker's mode so a chain of mixed modes reads as a sequence.
 const BlockerList: FC<{ title: string; blockers: BlockingTransaction[] }> = ({
   title,
   blockers,
@@ -118,8 +112,7 @@ const BlockerList: FC<{ title: string; blockers: BlockingTransaction[] }> = ({
   </Stack>
 );
 
-// BlockedByPanel explains why a statement is stuck. The data arrives with the statement in
-// the same collection cycle, so nothing here is fetched on open.
+// Nothing is fetched on open: the data arrives with the statement.
 const BlockedByPanel: FC<Props> = ({
   blockers,
   lockedTable,
@@ -127,26 +120,17 @@ const BlockedByPanel: FC<Props> = ({
   lockType,
   requestedLockMode,
 }) => {
-  // Transactions that are not themselves waiting. Resolving those is what frees the
-  // statement — but there can be several, and then no single one is the answer.
-  // Both questions are answered by the shared helpers, so this pane, the table chip and the
-  // CSV cannot end up naming different transactions for the same row.
+  // Shared helpers, so this pane, the table chip and the CSV name the same transaction.
   const roots = blockingRoots(blockers);
   const sole = soleBlockerOf(blockers);
-  // Heading and hint must quote the same number. Only the roots hold the statement up
-  // independently; anything else listed is queued behind them and clears on its own.
+  // Heading and hint must quote the same number; non-roots are queued behind the roots.
   const culpritCount = roots.length > 1 ? roots.length : blockers.length;
-  // With no single culprit, lead with whichever transaction is at the head of the chain so
-  // the pane still shows a concrete statement, while the heading stays honest about the count.
+  // With no single culprit, still lead with a concrete statement from the head of the chain.
   const primary = sole ?? roots[0] ?? blockers[0];
-  // Split rather than lumped together: a second root holds the statement up independently and
-  // must be resolved too, while a non-root is only queued in front and clears on its own.
-  // Calling both "ahead" contradicted the hint below, which counts the roots.
+  // A second root must be resolved too, while a non-root clears on its own.
   const others = blockers.filter((blocker) => blocker !== primary);
   const otherRoots = others.filter((blocker) => blocker.root);
-  // With no root at all, every transaction in the graph is itself waiting: a cycle, or a graph
-  // the agent could only read in part. Nothing here is merely queued in front and nothing
-  // clears on its own, so these are listed as cycle participants rather than as "ahead".
+  // No root means a cycle or a partly read graph, where nothing clears on its own.
   const isCycle = roots.length === 0;
   const queuedAhead = isCycle ? [] : others.filter((blocker) => !blocker.root);
   const cycleParticipants = isCycle ? others : [];
@@ -207,8 +191,6 @@ const BlockedByPanel: FC<Props> = ({
           </Typography>
         </Stack>
         <Stack direction="row" alignItems="center" gap={1.5}>
-          {/* Suppressed rather than rendered as a dangling "waiting " when the agent
-              reported no duration. */}
           {waitText && (
             <Typography
               variant="body2"
@@ -223,10 +205,8 @@ const BlockedByPanel: FC<Props> = ({
       </Stack>
 
       <Stack gap={2} sx={{ p: 2 }}>
-        {/* MySQL keeps no statement text for an idle connection: INNODB_TRX.trx_query and the
-            process list are empty, and the last statement survives only in
-            events_statements_current, whose consumer MariaDB ships disabled. Said so rather than
-            dropping the section, which read as PMM having lost the blocker's statement. */}
+        {/* An idle connection's last statement survives only in events_statements_current,
+            disabled by default on MariaDB; a missing section would read as PMM losing it. */}
         {!primary.blockingQuery && (
           <Stack gap={1}>
             <Typography variant="caption" color="text.secondary">
@@ -288,8 +268,6 @@ const BlockedByPanel: FC<Props> = ({
             value={primary.blockingUsername}
           />
           <Fact title={Messages.titles.lockedTable} value={lockedTable} />
-          {/* Empty for a metadata lock, which is taken on the table as a whole, and Fact
-              renders nothing rather than an empty row. */}
           <Fact title={Messages.titles.lockedIndex} value={lockedIndex} />
           <Fact
             title={Messages.titles.lockType}
@@ -299,9 +277,7 @@ const BlockedByPanel: FC<Props> = ({
             title={Messages.titles.requestedMode}
             value={requestedLockMode}
           />
-          {/* Only when one transaction is named. With several blockers this sat next to the
-              requested mode as though the two were a matched pair, while the other blockers
-              held different modes; each one's mode is listed individually below instead. */}
+          {/* With several blockers, each one's mode is listed below instead. */}
           {sole && (
             <Fact
               title={Messages.titles.blockingMode}

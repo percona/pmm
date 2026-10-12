@@ -205,8 +205,7 @@ describe('RealtimeSelection', () => {
 
       const listbox = await screen.findByRole('listbox');
 
-      // MUI renders one header per run of options, so a single header per
-      // technology also proves the options arrive sorted by group.
+      // One header per technology also proves the options arrive sorted by group.
       expect(within(listbox).getByText('MongoDB')).toBeInTheDocument();
       expect(within(listbox).getByText('MySQL')).toBeInTheDocument();
       expect(
@@ -233,8 +232,7 @@ describe('RealtimeSelection', () => {
         within(listbox).getByText(TEST_VERSIONED_MONGO_SERVICE.serviceName)
       );
 
-      // Starting sessions is not restricted to one technology - only watching
-      // them is - so the MySQL service stays selectable.
+      // Only watching is limited to one technology, not starting sessions.
       expect(
         within(listbox)
           .getByText(TEST_VERSIONED_MYSQL_SERVICE.serviceName)
@@ -309,8 +307,6 @@ describe('RealtimeSelection', () => {
       );
       fireEvent.click(screen.getByTestId('start-realtime-session'));
 
-      // The overview shows one technology at a time, so a mixed start hands over
-      // to the session list rather than dropping half the selection.
       await waitFor(() =>
         expect(mockNavigate).toHaveBeenCalledWith(
           expect.stringContaining('/rta/sessions')

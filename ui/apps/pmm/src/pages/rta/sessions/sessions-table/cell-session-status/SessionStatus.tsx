@@ -17,12 +17,8 @@ interface Props {
   session: SessionRow;
 }
 
-// The agent sends one finding per line. A MariaDB instance can report several long ones, so
-// they are listed apart, and the tooltip scrolls rather than running off a short viewport.
-// The cap is just under half the viewport so the tooltip always fits on the side of its anchor
-// with more room, which is the side the popper flips to: 60vh did not, and at 1280x800 a row
-// in the middle of the list pushed it 20px past the bottom edge. The 64px leave room for the
-// row the anchor sits in, the tooltip's padding and its arrow.
+// One finding per line. Capped under half the viewport so it fits on the side the popper flips
+// to; the 64px cover the anchor's row, the tooltip's padding and its arrow.
 const StatusMessageTitle: FC<{ intro?: string; message: string }> = ({
   intro,
   message,

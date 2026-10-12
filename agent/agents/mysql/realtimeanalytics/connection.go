@@ -26,13 +26,10 @@ import (
 )
 
 const (
-	// Timeout for MySQL queries and connection.
 	mysqlQueryTimeout = 5 * time.Second
 )
 
-// createConnection opens a connection to MySQL and verifies it with a ping.
-// It returns the *sql.DB, the instance address(host:port) parsed from the DSN
-// and an error if connection can't be established.
+// createConnection opens and pings a MySQL connection, returning it with the DSN's host:port.
 func createConnection(ctx context.Context, dsn string, files map[string]string, tlsSkipVerify bool) (*sql.DB, string, error) {
 	if files != nil {
 		err := tlshelpers.RegisterMySQLCerts(files, tlsSkipVerify)
@@ -51,8 +48,7 @@ func createConnection(ctx context.Context, dsn string, files map[string]string, 
 		return nil, "", fmt.Errorf("failed to open MySQL connection: %w", err)
 	}
 
-	// The collector runs one query per interval, so a single long-lived connection
-	// is kept open and reused across collection cycles (no maximum lifetime).
+	// Collections never overlap, so one long-lived connection is reused across cycles.
 	db.SetMaxIdleConns(1)
 	db.SetMaxOpenConns(1)
 	db.SetConnMaxLifetime(0)
