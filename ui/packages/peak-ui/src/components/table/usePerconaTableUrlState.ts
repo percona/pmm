@@ -41,7 +41,9 @@ export interface UsePerconaTableUrlStateOptions extends TableUrlStateOptions {
 }
 
 export type PerconaTableUrlControlledState = TableStateValues & {
+  /** Whether the column filter row is open. */
   showColumnFilters: boolean;
+  /** Whether the search box is open. */
   showGlobalFilter: boolean;
 } & Record<string, unknown>;
 
