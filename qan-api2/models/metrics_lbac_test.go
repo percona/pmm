@@ -45,6 +45,34 @@ func TestMetricsLBAC(t *testing.T) {
 	require.NoError(t, err)
 	const queryID = "B305F6354FA21F2A"
 
+	// The fixture holds no plans or histograms, so clone one of the queryid's rows (service_id1,
+	// with label7) into its own queryid and period, where other tests sharing the database don't read.
+	const planQueryID = "TESTLBACPLANQID"
+	planFrom, err := time.Parse(time.RFC3339, "2019-01-03T00:00:00Z")
+	require.NoError(t, err)
+	planTo := planFrom.Add(time.Hour)
+	t.Cleanup(func() {
+		// t.Context() is already canceled by the time Cleanup runs, so this needs its own.
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		_, err := db.ExecContext(ctx, `ALTER TABLE metrics DELETE WHERE queryid = ? SETTINGS mutations_sync = 1`, planQueryID)
+		assert.NoError(t, err, "failed to clean up seeded row")
+	})
+	//nolint:unqueryvet // clone every column of a real row so this test survives schema changes
+	_, err = db.ExecContext(t.Context(), `
+		INSERT INTO metrics
+		SELECT * REPLACE(
+			? AS queryid,
+			toDateTime('2019-01-03 00:30:00', 'UTC') AS period_start,
+			'lbac-test-plan' AS planid,
+			'Seq Scan on lbac_test' AS query_plan,
+			['{"range":"(0 - 3)","frequency":2}'] AS histogram_items
+		)
+		FROM metrics
+		WHERE queryid = ? AND has(labels.key, 'label7')
+		LIMIT 1`, planQueryID, queryID)
+	require.NoError(t, err, "failed to seed a row with a plan and histogram")
+
 	// read runs every query-details read path and returns what each one saw.
 	read := func(t *testing.T, ctx context.Context) map[string]any {
 		t.Helper()
@@ -71,19 +99,19 @@ func TestMetricsLBAC(t *testing.T) {
 		require.NoError(t, err)
 		got["SelectObjectDetailsLabels"] = len(labels.Labels["service_name"].GetValues()) + len(labels.Labels["label7"].GetValues())
 
-		histogram, err := m.SelectHistogram(ctx, from.Unix(), to.Unix(), nil, nil, queryID)
+		histogram, err := m.SelectHistogram(ctx, planFrom.Unix(), planTo.Unix(), nil, nil, planQueryID)
 		require.NoError(t, err)
 		got["SelectHistogram"] = len(histogram.HistogramItems)
 
-		metadata, err := m.GetSelectedQueryMetadata(ctx, from.Unix(), to.Unix(), queryID, "queryid", nil, nil, false)
+		meta, err := m.GetSelectedQueryMetadata(ctx, from.Unix(), to.Unix(), queryID, "queryid", nil, nil, false)
 		require.NoError(t, err)
-		got["GetSelectedQueryMetadata"] = metadata.ServiceName
+		got["GetSelectedQueryMetadata"] = meta.ServiceName
 
 		fingerprint, err := m.GetFingerprintByQueryID(ctx, queryID)
 		require.NoError(t, err)
 		got["GetFingerprintByQueryID"] = fingerprint
 
-		plan, err := m.SelectQueryPlan(ctx, queryID, "service_id1")
+		plan, err := m.SelectQueryPlan(ctx, planQueryID, "service_id1")
 		require.NoError(t, err)
 		got["SelectQueryPlan"] = plan.Planid + plan.QueryPlan
 
@@ -101,10 +129,7 @@ func TestMetricsLBAC(t *testing.T) {
 
 	unfiltered := read(t, metadata.NewIncomingContext(t.Context(), metadata.MD{}))
 	for path, v := range unfiltered {
-		// The fixture holds no plans or histograms: those paths only prove their SQL runs.
-		if path != "SelectQueryPlan" && path != "SelectHistogram" {
-			require.NotZero(t, v, "the fixture must exercise %s", path)
-		}
+		require.NotZero(t, v, "the fixture must exercise %s", path)
 	}
 
 	// Each filter matches every row of the queryid, some of them, or none.
@@ -142,8 +167,15 @@ func TestMetricsLBAC(t *testing.T) {
 
 	t.Run("PlanIsScopedToTheService", func(t *testing.T) {
 		t.Parallel()
-		plan, err := m.SelectQueryPlan(metadata.NewIncomingContext(t.Context(), metadata.MD{}), queryID, "other")
-		require.NoError(t, err)
-		assert.Empty(t, plan.Planid+plan.QueryPlan)
+		ctx := metadata.NewIncomingContext(t.Context(), metadata.MD{})
+		for serviceID, want := range map[string]string{
+			"service_id1": "Seq Scan on lbac_test",
+			"":            "Seq Scan on lbac_test",
+			"other":       "",
+		} {
+			plan, err := m.SelectQueryPlan(ctx, planQueryID, serviceID)
+			require.NoError(t, err)
+			assert.Equal(t, want, plan.QueryPlan, "service_id '%s'", serviceID)
+		}
 	})
 }

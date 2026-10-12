@@ -784,10 +784,11 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 		"group":             group,
 		"period_start_to":   periodStartTo,
 		"period_start_from": periodStartFrom,
+		"lbac":              escapeColons(lbacFilter),
 	}
 
 	var queryBuffer bytes.Buffer
-	err = tmplObjectDetailsLabels.Execute(&queryBuffer, map[string]any{"filter": filter, "group": group, "lbac": escapeColons(lbacFilter)})
+	err = tmplObjectDetailsLabels.Execute(&queryBuffer, arg)
 	if err != nil {
 		return nil, fmt.Errorf("cannot execute tmplObjectDetailsLabels: %w", err)
 	}
