@@ -54,18 +54,6 @@ func (s *ManagementService) UpdateService(ctx context.Context, req *managementv1
 		return nil, err
 	}
 
-	// Scheduled backups depend on the cluster; this mirrors the inventory ChangeService.
-	clusterChanged := c.service.Cluster != nil && *c.service.Cluster != current.Cluster
-	if clusterChanged && !req.DryRun {
-		err = s.stm.RemoveScheduledTasks(ctx, s.db, &models.ChangeStandardLabelsParams{
-			ServiceID: current.ServiceID,
-			Cluster:   c.service.Cluster,
-		})
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	res := &managementv1.UpdateServiceResponse{}
 	var pmmAgentIDs []string
 	var connectionChanged bool
@@ -83,6 +71,14 @@ func (s *ManagementService) UpdateService(ctx context.Context, req *managementv1
 
 		if req.DryRun {
 			return errDryRun
+		}
+
+		// Scheduled backups depend on the cluster, so they are removed only once every check has passed.
+		if c.service.Cluster != nil && *c.service.Cluster != u.before.Cluster {
+			return s.stm.RemoveScheduledTasks(ctx, s.db, &models.ChangeStandardLabelsParams{
+				ServiceID: current.ServiceID,
+				Cluster:   c.service.Cluster,
+			})
 		}
 
 		return nil

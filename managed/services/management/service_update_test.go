@@ -389,6 +389,36 @@ func TestUpdateService(t *testing.T) {
 			},
 		})
 		require.ErrorIs(t, err, errLocked)
+
+		service, err := models.FindServiceByID(s.db.Querier, serviceID)
+		require.NoError(t, err)
+		assert.Empty(t, service.Cluster)
+	})
+
+	// A rejected update must not remove the scheduled backups of the old and new clusters.
+	t.Run("RejectedClusterChangeKeepsScheduledTasks", func(t *testing.T) {
+		ctx, s, m := setupUpdateService(t)
+		serviceID := addTestMongoDB(ctx, t, s, m)
+
+		_, err := s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+			ServiceId: serviceID,
+			Service: &managementv1.UpdateServiceRequest_Mysql{
+				Mysql: &managementv1.UpdateMySQLServiceParams{Cluster: new("rs-cluster")},
+			},
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Service mongodb-srv-1 is a mongodb Service, not mysql."), err)
+
+		m.cc.On("CheckConnectionToService", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+			Return(status.Error(codes.FailedPrecondition, "Connection check failed.")).Once()
+		_, err = s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+			ServiceId: serviceID,
+			Service: &managementv1.UpdateServiceRequest_Mongodb{
+				Mongodb: &managementv1.UpdateMongoDBServiceParams{Cluster: new("rs-cluster"), Password: new("wrong_pass")},
+			},
+		})
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Connection check failed."), err)
+
+		m.stm.AssertNotCalled(t, "RemoveScheduledTasks", mock.Anything, mock.Anything, mock.Anything)
 	})
 
 	t.Run("WrongServiceType", func(t *testing.T) {
