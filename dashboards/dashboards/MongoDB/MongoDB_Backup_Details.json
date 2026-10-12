@@ -811,10 +811,6 @@
                         },
                         "properties": [
                             {
-                                "id": "noValue",
-                                "value": ""
-                            },
-                            {
                                 "id": "filterable",
                                 "value": false
                             },
@@ -835,10 +831,6 @@
                             "options": "PMM node"
                         },
                         "properties": [
-                            {
-                                "id": "noValue",
-                                "value": ""
-                            },
                             {
                                 "id": "filterable",
                                 "value": false
@@ -879,17 +871,13 @@
                     },
                     {
                         "matcher": {
-                            "id": "byName",
-                            "options": "Role"
+                            "id": "byType",
+                            "options": "string"
                         },
                         "properties": [
                             {
-                                "id": "custom.width",
-                                "value": 70
-                            },
-                            {
-                                "id": "filterable",
-                                "value": false
+                                "id": "noValue",
+                                "value": ""
                             }
                         ]
                     }
@@ -918,6 +906,10 @@
                     {
                         "desc": true,
                         "displayName": "Status"
+                    },
+                    {
+                        "desc": false,
+                        "displayName": "Host"
                     }
                 ]
             },
@@ -926,7 +918,7 @@
                 {
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (environment, cluster, replica_set, host, role) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\"}) > 0",
+                    "expr": "max by (environment, cluster, replica_set, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\"}) > 0",
                     "format": "table",
                     "instant": true,
                     "range": false,
@@ -935,7 +927,7 @@
                 {
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "((time() - max_over_time(timestamp(max by (host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\"}) == 0)[24h:1m])) or ((time() - min_over_time(timestamp(max by (host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\"}))[24h:1m])) < 86340)) and on (host) mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\"} > 0",
+                    "expr": "((time() - max_over_time(timestamp(max by (environment, cluster, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\", self!=\"0\"}) == 0)[24h:1m])) or ((time() - min_over_time(timestamp(max by (environment, cluster, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\", self!=\"0\"}))[24h:1m])) < 86340)) and on (environment, cluster, host) (max by (environment, cluster, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\"}) > 0)",
                     "format": "table",
                     "instant": true,
                     "range": false,
@@ -944,7 +936,7 @@
                 {
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (host, service_name, node_name) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\", self=\"1\"}) and on (host) mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\"} > 0",
+                    "expr": "max by (environment, cluster, host, service_name, node_name) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\", self=\"1\"}) and on (environment, cluster, host) (max by (environment, cluster, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\"}) > 0)",
                     "format": "table",
                     "instant": true,
                     "range": false,
@@ -983,14 +975,13 @@
                         "includeByName": {},
                         "indexByName": {
                             "Value #A": 0,
-                            "Value #B": 6,
-                            "cluster": 4,
-                            "environment": 5,
+                            "Value #B": 5,
+                            "cluster": 3,
+                            "environment": 4,
                             "host": 1,
-                            "node_name": 8,
+                            "node_name": 7,
                             "replica_set": 2,
-                            "role": 3,
-                            "service_name": 7
+                            "service_name": 6
                         },
                         "renameByName": {
                             "Value #A": "Status",
@@ -1000,7 +991,6 @@
                             "host": "Host",
                             "node_name": "PMM node",
                             "replica_set": "Replica set",
-                            "role": "Role",
                             "service_name": "PMM service"
                         }
                     }
