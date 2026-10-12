@@ -1045,23 +1045,39 @@ export const NodesPage = () => {
         // MRT's own tooltip sits on the checkbox, which fires no pointer events once
         // disabled, so a blocked row carries its reason on a span around it instead.
         Cell: ({ row, staticRowIndex, table: rowTable }) => {
-          const checkbox = (
-            <MRT_SelectCheckbox
-              row={row}
-              staticRowIndex={staticRowIndex}
-              table={rowTable}
-            />
-          );
           const blocked = selectionBlockedTitle(
             row.original,
             isHostBusy(row.original)
           );
-          return blocked ? (
+          if (!blocked) {
+            return (
+              <MRT_SelectCheckbox
+                row={row}
+                staticRowIndex={staticRowIndex}
+                table={rowTable}
+              />
+            );
+          }
+          // Tab skips a disabled input, so the reason is also its description for a
+          // screen reader, which never sees the hover tooltip.
+          const reasonId = `select-blocked-${row.id}`;
+          return (
             <Tooltip title={blocked}>
-              <Box component="span">{checkbox}</Box>
+              <Box component="span">
+                <MRT_SelectCheckbox
+                  row={row}
+                  staticRowIndex={staticRowIndex}
+                  table={rowTable}
+                  inputProps={{
+                    'aria-label': rowTable.options.localization.toggleSelectRow,
+                    'aria-describedby': reasonId,
+                  }}
+                />
+                <span id={reasonId} hidden>
+                  {blocked}
+                </span>
+              </Box>
             </Tooltip>
-          ) : (
-            checkbox
           );
         },
       },

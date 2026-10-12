@@ -467,8 +467,13 @@ describe('NodesPage', () => {
     });
     renderPage([host({ name: 'node00', executor_host: 'exec-1' })]);
 
-    const checkbox = within(rowFor('node00')).getByRole('checkbox');
+    const checkbox = within(rowFor('node00')).getByRole('checkbox', {
+      name: 'Toggle select row',
+    });
     expect(checkbox).toBeDisabled();
+    expect(checkbox).toHaveAccessibleDescription(
+      'Already part of an install in progress.'
+    );
 
     fireEvent.mouseOver(checkbox.closest('span.MuiBox-root') as HTMLElement);
     expect((await screen.findByRole('tooltip')).textContent).toBe(
@@ -750,11 +755,16 @@ describe('NodesPage', () => {
       );
     });
 
-    it('cannot be selected, and says why on hover', async () => {
+    it('cannot be selected, and says why on hover and to a screen reader', async () => {
       renderPage(nodes());
 
-      const checkbox = within(rowFor('pmm-server')).getByRole('checkbox');
+      const checkbox = within(rowFor('pmm-server')).getByRole('checkbox', {
+        name: 'Toggle select row',
+      });
       expect(checkbox).toBeDisabled();
+      expect(checkbox).toHaveAccessibleDescription(
+        "This is the PMM Server. Operations can't install or change databases here."
+      );
 
       fireEvent.mouseOver(checkbox.closest('span.MuiBox-root') as HTMLElement);
       expect((await screen.findByRole('tooltip')).textContent).toBe(
