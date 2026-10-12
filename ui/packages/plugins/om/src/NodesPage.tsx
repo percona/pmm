@@ -257,11 +257,9 @@ const BUSY_TITLE = 'Already part of an install in progress.';
 const PMM_SERVER_TITLE =
   "This is the PMM Server. Operations can't install or change databases here.";
 
-/** Why a row cannot be selected for a bulk action, or `null` when it can. */
 const selectionBlockedTitle = (row: OmHostRow, busy: boolean): string | null =>
   row.is_pmm_server_node ? PMM_SERVER_TITLE : busy ? BUSY_TITLE : null;
 
-/** The Automation chip's word for a node Operations leaves alone on purpose. */
 const notATargetLabel = (row: OmHostRow) =>
   row.is_pmm_server_node ? 'PMM Server' : 'Not a target';
 
@@ -1024,8 +1022,7 @@ export const NodesPage = () => {
     enableExpanding: true,
     enableRowActions: true,
     // A host already part of an in-flight bootstrap run cannot be selected
-    // for another one -- see `busyExecutorHosts`'s own comment. Nor can PMM Server's
-    // own node, so a bulk removal cannot clear the entry its row offers no Forget for.
+    // for another one -- see `busyExecutorHosts`'s own comment.
     enableRowSelection: (row) =>
       selectionBlockedTitle(row.original, isHostBusy(row.original)) === null,
     // See FleetClustersTab: without these MRT sizes every column to its header's
@@ -1042,8 +1039,7 @@ export const NodesPage = () => {
       'mrt-row-select': {
         size: 50,
         grow: false,
-        // MRT's own tooltip sits on the checkbox, which fires no pointer events once
-        // disabled, so a blocked row carries its reason on a span around it instead.
+        // A disabled checkbox fires no pointer events, so the tooltip goes on a wrapping span.
         Cell: ({ row, staticRowIndex, table: rowTable }) => {
           const blocked = selectionBlockedTitle(
             row.original,
@@ -1058,8 +1054,6 @@ export const NodesPage = () => {
               />
             );
           }
-          // Tab skips a disabled input, so the reason is also its description for a
-          // screen reader, which never sees the hover tooltip.
           const reasonId = `select-blocked-${row.id}`;
           return (
             <Tooltip title={blocked}>
