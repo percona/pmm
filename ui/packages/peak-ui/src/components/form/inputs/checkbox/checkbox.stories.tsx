@@ -16,6 +16,11 @@ const meta = {
   component: Checkbox,
   tags: ['autodocs', 'needs-review'],
   argTypes: {
+    name: { control: false },
+    control: { control: false },
+    controllerProps: { control: false },
+    checkboxProps: { control: false },
+    labelProps: { control: false },
     label: {
       defaultValue: '',
       type: 'string',
