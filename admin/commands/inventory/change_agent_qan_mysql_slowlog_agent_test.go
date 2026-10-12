@@ -46,13 +46,9 @@ func TestQANMySQLSlowlogAgentChangeAgent(t *testing.T) {
 				MaxSlowlogFileSize:   new("2GiB"),
 				MaxQueryLength:       new(int32(2048)),
 				DisableQueryExamples: new(true),
-				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: new(flags.LogLevel("info")),
-				},
-				CommentsParsingChangeFlags: flags.CommentsParsingChangeFlags{
-					CommentsParsing: new("off"),
-				},
-				CustomLabels: &map[string]string{"service": "mysql", "team": "db"},
+				LogLevel:             new(flags.LogLevel("info")),
+				CommentsParsing:      new("off"),
+				CustomLabels:         &map[string]string{"service": "mysql", "team": "db"},
 			}
 
 			result, err := cmd.RunCmd()
@@ -91,9 +87,7 @@ func TestQANMySQLSlowlogAgentChangeAgent(t *testing.T) {
 				AgentID:              "test-agent-qan-slowlog-disable",
 				Enable:               new(false),
 				DisableQueryExamples: new(true),
-				CommentsParsingChangeFlags: flags.CommentsParsingChangeFlags{
-					CommentsParsing: new("off"),
-				},
+				CommentsParsing:      new("off"),
 			}
 
 			result, err := cmd.RunCmd()

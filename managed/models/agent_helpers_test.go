@@ -74,6 +74,19 @@ func TestAgentHelpers(t *testing.T) {
 				NodeType: models.GenericNodeType,
 				NodeName: "N2 with PushMetrics",
 			},
+			&models.Node{
+				NodeID:     "N3",
+				NodeType:   models.RemoteRDSNodeType,
+				NodeName:   "RDS node with an instance identifier",
+				Address:    "rds1.abcdef.eu-north-1.rds.amazonaws.com",
+				InstanceID: "rds1",
+			},
+			&models.Node{
+				NodeID:   "N4",
+				NodeType: models.RemoteRDSNodeType,
+				NodeName: "RDS node missing its instance identifier",
+				Address:  "rds2.abcdef.eu-north-1.rds.amazonaws.com",
+			},
 
 			&models.Service{
 				ServiceID:   "S1",
@@ -216,7 +229,9 @@ func TestAgentHelpers(t *testing.T) {
 			},
 		} {
 			if v, ok := str.(*models.Agent); ok {
-				str = new(models.EncryptAgent(*v))
+				encrypted, err := models.EncryptAgent(*v)
+				require.NoError(t, err)
+				str = new(encrypted)
 			}
 			require.NoError(t, q.Insert(str))
 		}
@@ -227,6 +242,152 @@ func TestAgentHelpers(t *testing.T) {
 		}
 		return q, teardown
 	}
+
+	t.Run("CreateAgentRDSExporterRequiresNodeInstanceID", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		// N3 carries a DB instance identifier, so the exporter has something to scrape.
+		agent, err := models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "A1",
+			NodeID:     "N3",
+		})
+		require.NoError(t, err)
+		assert.Equal(t, models.RDSExporterType, agent.AgentType)
+
+		// N4 does not. rds_exporter would start, report RUNNING and scrape nothing,
+		// so creation must be refused rather than producing a dead agent.
+		_, err = models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "A1",
+			NodeID:     "N4",
+		})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, `node N4 has no DB instance identifier`, err)
+	})
+
+	t.Run("CreateAgentRDSExporterRoleARNRequiresPMMAgent340", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		require.NoError(t, q.Insert(&models.Node{
+			NodeID: "RN", NodeType: models.RemoteRDSNodeType, NodeName: "rds node for version gate",
+			Address: "rds.example.com", InstanceID: "rds-inst",
+		}))
+		require.NoError(t, q.Insert(&models.Agent{
+			AgentID: "PA-old", AgentType: models.PMMAgentType, RunsOnNodeID: new("RN"), Version: new("3.3.1"),
+		}))
+		require.NoError(t, q.Insert(&models.Agent{
+			AgentID: "PA-new", AgentType: models.PMMAgentType, RunsOnNodeID: new("RN"), Version: new("3.4.0"),
+		}))
+
+		roleARN := "arn:aws:iam::123456789012:role/pmm-monitoring"
+
+		// A pre-3.4.0 pmm-agent bundles an rds_exporter that cannot assume a role from ambient
+		// credentials, so creating a role-based exporter on it must be refused.
+		_, err := models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-old", NodeID: "RN",
+			AWSOptions: models.AWSOptions{AWSRoleARN: roleARN},
+		})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "AWS IAM role assumption", err)
+
+		// A 3.4.0 pmm-agent supports it.
+		agent, err := models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-new", NodeID: "RN",
+			AWSOptions: models.AWSOptions{AWSRoleARN: roleARN},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, roleARN, agent.AWSOptions.AWSRoleARN)
+
+		// A pmm-agent that has not reported a version yet (never connected) may be too old, so it
+		// is refused too rather than stored and then withheld by the state updater.
+		require.NoError(t, q.Insert(&models.Agent{
+			AgentID: "PA-noversion", AgentType: models.PMMAgentType, RunsOnNodeID: new("RN"),
+		}))
+		_, err = models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-noversion", NodeID: "RN",
+			AWSOptions: models.AWSOptions{AWSRoleARN: roleARN},
+		})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "has no version info", err)
+
+		// A pmm-agent whose version is present but unparseable is refused.
+		require.NoError(t, q.Insert(&models.Agent{
+			AgentID: "PA-bad", AgentType: models.PMMAgentType, RunsOnNodeID: new("RN"), Version: new("not-a-version"),
+		}))
+		_, err = models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-bad", NodeID: "RN",
+			AWSOptions: models.AWSOptions{AWSRoleARN: roleARN},
+		})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "failed to parse", err)
+
+		// Static keys are unaffected by the gate; they work on the old agent.
+		_, err = models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-old", NodeID: "RN",
+			AWSOptions: models.AWSOptions{AWSAccessKey: "AKIA", AWSSecretKey: "secret"},
+		})
+		require.NoError(t, err)
+	})
+
+	t.Run("ChangeAgentRDSExporterRoleARNGateOnlyWhenRequestSetsIt", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		require.NoError(t, q.Insert(&models.Node{
+			NodeID: "RN", NodeType: models.RemoteRDSNodeType, NodeName: "rds node for downgrade",
+			Address: "rds.example.com", InstanceID: "rds-inst",
+		}))
+		pmmAgent := &models.Agent{
+			AgentID: "PA", AgentType: models.PMMAgentType, RunsOnNodeID: new("RN"), Version: new("3.4.0"),
+		}
+		require.NoError(t, q.Insert(pmmAgent))
+
+		roleARN := "arn:aws:iam::123456789012:role/pmm-monitoring"
+		exporter, err := models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA", NodeID: "RN",
+			AWSOptions: models.AWSOptions{AWSRoleARN: roleARN},
+		})
+		require.NoError(t, err)
+
+		// The pmm-agent is downgraded after the exporter was saved with a role.
+		pmmAgent.Version = new("3.3.1")
+		require.NoError(t, q.Update(pmmAgent))
+
+		// Changes that do not set a role ARN are not gated: the state updater withholds the exporter
+		// from the old agent, and the user must still be able to disable or relabel it.
+		changed, err := changeAgent(q, exporter.AgentID, &models.ChangeAgentParams{Enabled: new(false)})
+		require.NoError(t, err)
+		assert.True(t, changed.Disabled)
+		assert.Equal(t, roleARN, changed.AWSOptions.AWSRoleARN)
+
+		labels := map[string]string{"env": "test"}
+		_, err = changeAgent(q, exporter.AgentID, &models.ChangeAgentParams{CustomLabels: &labels})
+		require.NoError(t, err)
+
+		// Setting a role ARN, even the same one, is gated.
+		_, err = changeAgent(q, exporter.AgentID, &models.ChangeAgentParams{
+			AWSOptions: &models.ChangeAWSOptions{AWSRoleARN: new(roleARN)},
+		})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "AWS IAM role assumption", err)
+
+		// Clearing it is not, so the exporter can be moved to the host's ambient credentials.
+		changed, err = changeAgent(q, exporter.AgentID, &models.ChangeAgentParams{
+			AWSOptions: &models.ChangeAWSOptions{AWSRoleARN: new("")},
+		})
+		require.NoError(t, err)
+		assert.Empty(t, changed.AWSOptions.AWSRoleARN)
+	})
+
+	t.Run("CreateAgentRDSExporterRequiresRemoteRDSNode", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		// A generic Node accepts any agent type, but an rds_exporter there has no region
+		// and no DB instance identifier to scrape, so it is refused like any other bad
+		// combination.
+		_, err := models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "A1",
+			NodeID:     "N1",
+		})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, `invalid combination of node type generic and agent type rds_exporter`, err)
+	})
 
 	t.Run("AgentsForNode", func(t *testing.T) {
 		q, teardown := setup(t)
@@ -709,7 +870,9 @@ func TestAgentHelpers(t *testing.T) {
 			TLS:           true,
 			ValkeyOptions: options,
 		}
-		require.NoError(t, q.Insert(new(models.EncryptAgent(row))))
+		encrypted, err := models.EncryptAgent(row)
+		require.NoError(t, err)
+		require.NoError(t, q.Insert(&encrypted))
 	}
 
 	t.Run("CreateAgentRejectsIncompleteValkeyKeyPair", func(t *testing.T) {
@@ -1220,7 +1383,9 @@ func TestAgentHelpers(t *testing.T) {
 				CreatedAt: now,
 				UpdatedAt: now,
 			}
-			err := q.Insert(awsAgent)
+			encryptedAgent, err := models.EncryptAgent(*awsAgent)
+			require.NoError(t, err)
+			err = q.Insert(&encryptedAgent)
 			require.NoError(t, err)
 
 			// Test changing AWS options
@@ -1267,7 +1432,9 @@ func TestAgentHelpers(t *testing.T) {
 				CreatedAt: now,
 				UpdatedAt: now,
 			}
-			err := q.Insert(mysqlAgent)
+			encryptedAgent, err := models.EncryptAgent(*mysqlAgent)
+			require.NoError(t, err)
+			err = q.Insert(&encryptedAgent)
 			require.NoError(t, err)
 
 			// Test changing MySQL options
@@ -1423,7 +1590,9 @@ func TestAgentHelpers(t *testing.T) {
 				CreatedAt: now,
 				UpdatedAt: now,
 			}
-			err := q.Insert(azureAgent)
+			encryptedAgent, err := models.EncryptAgent(*azureAgent)
+			require.NoError(t, err)
+			err = q.Insert(&encryptedAgent)
 			require.NoError(t, err)
 
 			// Test changing Azure options

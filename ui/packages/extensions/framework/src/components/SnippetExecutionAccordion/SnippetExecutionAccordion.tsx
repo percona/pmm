@@ -348,7 +348,7 @@ export function SnippetExecutionAccordion({
             <TaskLogViewer
               taskHistoryId={logsEntry.id}
               taskStatus={logsEntry.status}
-              height={520}
+              maxHeight={520}
               itemName={itemName}
             />
           ) : null}
