@@ -137,7 +137,7 @@ The table shows one row per replication channel, with the values that `SHOW REPL
 
 - **Source host** - the source that the channel replicates from
 - **Threads** - the state of the IO and SQL threads: **Running**, or which thread is not running
-- **Lag** - `Seconds_Behind_Source` minus `SQL_Delay`, or **NULL** when MySQL reports no value, for example while a thread is not running
+- **Lag** - `Seconds_Behind_Source` minus `SQL_Delay`, not below 0, or **NULL** when MySQL reports no value, for example while the SQL thread is not running
 - **SQL delay** - the configured `SQL_Delay` of the channel
 - **Last IO errno** and **Last SQL errno** - the last error of each thread, or 0 when there is none
 - **Relay log space** - the total size of the relay log files of the channel
@@ -146,7 +146,7 @@ Channels with a thread that is not running are listed first.
 
 ### Replication lag by channel
 
-This graph shows the lag of the 10 replication channels with the highest lag in the selected time range. A channel whose IO or SQL thread is not running reports no lag, so its line stops.
+This graph shows the lag of the 10 replication channels with the highest lag in the selected time range. A channel reports no lag when its SQL thread is not running, or when its IO thread is not running and its relay log is fully applied, so its line stops.
 
 ### Replication threads by channel
 
@@ -158,7 +158,7 @@ This graph shows the relay log size of the 10 replication channels with the larg
 
 ### Applier lag by channel
 
-This graph shows the time since the transaction that the applier of a channel is applying was committed on the original source, for the 10 channels with the highest applier lag. Unlike **Lag**, it keeps growing while the SQL thread of the channel is stopped by an error. It requires MySQL 8.0 or later with GTID-based replication, and is not available for MariaDB.
+This graph shows the 10 channels with the highest applier lag: the time since the transaction a channel is applying was committed on the original source. Unlike **Lag**, it keeps growing while the SQL thread of the channel is stopped by an error. It requires MySQL 8.0 or later with GTID-based replication and a running IO thread. It is not available for MariaDB.
 
 ## MySQL summary
 

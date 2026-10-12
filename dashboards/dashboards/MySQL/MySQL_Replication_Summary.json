@@ -1548,7 +1548,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "One row per replication channel (MySQL multi-source replication) or per named connection (MariaDB multi-source replication), from **SHOW REPLICA STATUS** / **SHOW ALL SLAVES STATUS**. A replica with a single, unnamed channel shows one row named **(default)**. Each cell shows the current value. Channels with a thread that is not running are listed first. The **Channel** filter at the top limits this row to the selected channels.\n\n* **Threads** – state of the IO and SQL threads. Not running covers a stopped thread and an IO thread that is still connecting.\n* **Lag** – Seconds_Behind_Source minus SQL_Delay. **NULL** when MySQL reports no value, for example while a thread is not running.\n* **Last IO errno** / **Last SQL errno** – the last error each thread hit; 0 means none.\n* **Relay log space** – total size of this channel's relay log files.\n\nSee also:",
+            "description": "One row per replication channel (MySQL multi-source replication) or per named connection (MariaDB multi-source replication), from **SHOW REPLICA STATUS** / **SHOW ALL SLAVES STATUS**. A replica with a single, unnamed channel shows one row named **(default)**. Each cell shows the current value. Channels with a thread that is not running are listed first. The **Channel** filter at the top limits this row to the selected channels.\n\n* **Threads** – state of the IO and SQL threads. Not running covers a stopped thread and an IO thread that is still connecting.\n* **Lag** – Seconds_Behind_Source minus SQL_Delay, not below 0. **NULL** when MySQL reports no value, for example while the SQL thread is not running.\n* **Last IO errno** / **Last SQL errno** – the last error each thread hit; 0 means none.\n* **Relay log space** – total size of this channel's relay log files.\n\nSee also:",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1909,7 +1909,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Lag of the 10 replication channels with the highest lag in the selected time range: Seconds_Behind_Source (Seconds_Behind_Master) minus SQL_Delay. A channel whose IO or SQL thread is not running reports no lag (NULL), so its line stops; check **Replication threads by channel**.\n\nSee also:",
+            "description": "Lag of the 10 replication channels with the highest lag in the selected time range: Seconds_Behind_Source (Seconds_Behind_Master) minus SQL_Delay, not below 0. A channel reports no lag (NULL) when its SQL thread is not running, or when its IO thread is not running and its relay log is fully applied, so its line stops; check **Replication threads by channel**.\n\nSee also:",
             "fieldConfig": {
                 "defaults": {
                     "color": {
