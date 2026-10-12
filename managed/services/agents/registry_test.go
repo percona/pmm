@@ -402,12 +402,12 @@ func TestGetNamesTheReplicaHoldingTheConnection(t *testing.T) {
 		{
 			name: "connected to another replica", haEnabled: true, agentID: "/agent_id/on-pmm-ha-0",
 			expected: "rpc error: code = FailedPrecondition desc = pmm-agent with ID /agent_id/on-pmm-ha-0 is connected to " +
-				"PMM Server replica pmm-ha-0, not to pmm-ha-1; in HA mode, actions run only on pmm-agents connected to the leader",
+				"PMM Server replica pmm-ha-0, not to pmm-ha-1; in HA mode, a PMM Server replica can reach only the pmm-agents connected to it",
 		},
 		{
 			name: "connection ID names no replica", haEnabled: true, agentID: "/agent_id/no-owner",
 			expected: "rpc error: code = FailedPrecondition desc = pmm-agent with ID /agent_id/no-owner is connected to " +
-				"another PMM Server replica, not to pmm-ha-1; in HA mode, actions run only on pmm-agents connected to the leader",
+				"another PMM Server replica, not to pmm-ha-1; in HA mode, a PMM Server replica can reach only the pmm-agents connected to it",
 		},
 		// Persisted as connected to this replica, which no longer holds it: see PMM-15669.
 		{name: "stale connection of this replica", haEnabled: true, agentID: "/agent_id/on-pmm-ha-1"},

@@ -627,7 +627,7 @@ func (r *Registry) get(pmmAgentID string) (*pmmAgentInfo, error) {
 				replica = "PMM Server replica " + owner
 			}
 			return nil, status.Errorf(codes.FailedPrecondition,
-				"pmm-agent with ID %s is connected to %s, not to %s; in HA mode, actions run only on pmm-agents connected to the leader",
+				"pmm-agent with ID %s is connected to %s, not to %s; in HA mode, a PMM Server replica can reach only the pmm-agents connected to it",
 				pmmAgentID, replica, ha.NodeID)
 		}
 	}
