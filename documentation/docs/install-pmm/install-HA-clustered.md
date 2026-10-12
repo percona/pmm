@@ -32,7 +32,7 @@ Installs Kubernetes operators to create and manage database clusters:
 Installs monitoring infrastructure:
 
 - **3 PMM monitoring servers** with automatic leader election using Raft consensus (one active leader, two standbys)
-- **3 HAProxy load balancers** that route traffic to the active leader with automatic failover and pod anti-affinity
+- **3 HAProxy load balancers** that route traffic to the active leader with automatic failover, spread across worker nodes
 - **ClickHouse cluster** with 3 replicas and ClickHouse Keeper for Query Analytics storage (managed by Altinity ClickHouse Operator)
 - **VictoriaMetrics cluster** for distributed metrics storage with multiple replicas (managed by VictoriaMetrics Operator)
 - **PostgreSQL cluster** providing HA storage for Grafana metadata (managed by Percona PostgreSQL Operator)
@@ -864,12 +864,12 @@ Each constraint in the table is described under [Limitations](#limitations).
 
 #### Scale PMM server replicas
 
-When you scale PMM HA up or down, **all PMM pods will be recreated**. This happens because the `PMM_HA_PEERS` environment variable is dynamically generated based on replica count and must be updated on all pods.
+When you scale PMM HA up or down, **every PMM pod that remains is recreated**. The chart builds the `PMM_HA_PEERS` environment variable from the replica count, so a new count changes it on every pod. Scaling down deletes the surplus pods, highest ordinal first, and recreates the rest. Scaling up adds the new pods and recreates the existing ones.
     
 **Impact**:
     
   - Brief service interruption during pod recreation (typically < 1 minute per pod)
-  - HAProxy continues routing to available pods during rollout
+  - HAProxy routes only to the Raft leader, and follows it to another pod when the leader's pod is recreated
   - No data loss (distributed storage)
   - Rolling update strategy minimizes downtime
   - The Nodes of removed replicas get removed from **Inventory > Nodes** once the remaining pods restart, unless one of the conditions in the note below applies
@@ -1176,7 +1176,7 @@ The chart rejects even values with an error rather than deploying them. `clickho
 
 *Intended behaviour.* `replicas` cannot exceed `maxReplicas` (default `10`), because HAProxy renders only `maxReplicas` `server-template` slots and fills them from a headless-service DNS answer in arbitrary order. HAProxy also marks a backend UP only when that pod answers `/v1/server/leaderHealthCheck`. A pod left without a slot is therefore invisible to HAProxy, and if the Raft leader lands on it, **every backend is DOWN and PMM returns 503** — not merely one pod missing traffic. The chart rejects this combination.
 
-`maxReplicas` is rendered into the `pmm-ha-haproxy` ConfigMap, and the chart does not roll the HAProxy pods when that ConfigMap changes. (Changing `replicas` likewise rewrites `pmm-ha-haproxy-init-script`, the startup readiness gate, but routing is DNS-based and needs no restart.) Raise the `config-version` annotation in the same upgrade so HAProxy restarts and picks up the new `server-template`. The annotation only rolls the pods when its value actually changes, so read the current one first — chart 1.8.0 ships `5`, but a cluster that has been through this before is already past it:
+`maxReplicas` is rendered into the `pmm-ha-haproxy` ConfigMap, and the chart does not roll the HAProxy pods when that ConfigMap changes. Routing is DNS-based, so changing `replicas` alone needs no restart. Raise the `config-version` annotation in the same upgrade so HAProxy restarts and picks up the new `server-template`. The annotation rolls the pods only when its value changes, and chart releases raise it too, so read the current value first:
 
 ```sh
 kubectl get deployment pmm-ha-haproxy -n pmm \
@@ -1186,12 +1186,12 @@ kubectl get deployment pmm-ha-haproxy -n pmm \
 Then set a higher value:
 
 ```sh
-# replace 6 with a number above the one printed above
+# replace <N> with a number higher than the value the previous command printed
 helm upgrade pmm-ha percona/pmm-ha --namespace pmm \
   --version <chart-version> \
   --reuse-values \
   --set maxReplicas=20 \
-  --set-string 'haproxy.podAnnotations.pmm\.percona\.com/config-version=6'
+  --set-string 'haproxy.podAnnotations.pmm\.percona\.com/config-version=<N>'
 ```
 
 !!! note "Why not `kubectl rollout restart`?"
