@@ -1085,6 +1085,10 @@ Backups are turned off by default. To back up PMM HA to S3-compatible storage or
 
 #### Scale PMM server replicas
 
+PMM Server nodes in an HA cluster are managed through Helm, not through the PMM UI. This means you cannot delete them from **Inventory** page. 
+
+Deleting a node would drop it from monitoring without stopping the pod. Use `helm upgrade` to add or remove replicas instead.
+
 When you scale PMM HA up or down, **all PMM pods will be recreated**. This happens because the `PMM_HA_PEERS` environment variable is dynamically generated based on replica count and must be updated on all pods.
     
 **Impact**:
