@@ -418,7 +418,13 @@ describe('RunProgress', () => {
         <MemoryRouter>
           <RunProgress
             run={run({
-              hosts: [host({ steps: [step('install_package', 'failed')] })],
+              hosts: [
+                host({
+                  steps: [
+                    { ...step('install_package', 'failed'), attempt_count: 2 },
+                  ],
+                }),
+              ],
             })}
           />
         </MemoryRouter>
@@ -426,6 +432,21 @@ describe('RunProgress', () => {
     );
 
     expect(screen.getByRole('table')).toBeInTheDocument();
+  });
+
+  it('keeps the matrix closed while a failed step is about to be retried', () => {
+    renderWithClient(
+      <RunProgress
+        run={run({
+          hosts: [host({ steps: [step('install_package', 'failed')] })],
+        })}
+      />
+    );
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Step 1 of 2: Installing packages failed on db-1, retrying'
+    );
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
   it('ends a successful run on a card saying what was created, with links to it', () => {

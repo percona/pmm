@@ -31,9 +31,10 @@ const name = (id: string) => `node-${id}`;
 
 function step(
   stepName: string,
-  status: OmBootstrapStep['status']
+  status: OmBootstrapStep['status'],
+  attemptCount = 1
 ): OmBootstrapStep {
-  return { name: stepName, status, attempt_count: 1 };
+  return { name: stepName, status, attempt_count: attemptCount };
 }
 
 function host(
@@ -229,7 +230,7 @@ describe('runSummaryLine', () => {
           host('a', installing('pending'), {
             rollback_steps: [
               step('stop_service', 'succeeded'),
-              step('remove_data', 'failed'),
+              step('remove_data', 'failed', 2),
             ],
           }),
         ],
@@ -263,6 +264,65 @@ describe('runSummaryLine', () => {
 
     expect(line).toBe(
       'Rollback failed at step 1 of 2: Stopping mongod on node-a, after 2m'
+    );
+  });
+
+  // pmm-managed dispatches a failed step once more before giving up on it.
+  it('says a failed step is being retried while it has an attempt left', () => {
+    const line = runSummaryLine(
+      run({
+        hosts: [
+          host('a', installing('running')),
+          host('b', installing('failed')),
+        ],
+      }),
+      name,
+      NOW
+    );
+
+    expect(line).toBe(
+      'Step 2 of 4: Installing packages failed on node-b, retrying, running for 3m 12s'
+    );
+  });
+
+  it('says a step failed once its retry failed too', () => {
+    const line = runSummaryLine(
+      run({
+        hosts: [
+          host('a', [
+            step('pre_check', 'succeeded'),
+            step('install_package', 'failed', 2),
+          ]),
+        ],
+      }),
+      name,
+      NOW
+    );
+
+    expect(line).toBe(
+      'Failed at step 2 of 4: Installing packages on node-a, after 3m 12s'
+    );
+  });
+
+  it('says a failed teardown step is being retried while it has an attempt left', () => {
+    const line = runSummaryLine(
+      run({
+        cancel_requested: true,
+        hosts: [
+          host('a', installing('pending'), {
+            rollback_steps: [
+              step('stop_service', 'succeeded'),
+              step('remove_data', 'failed'),
+            ],
+          }),
+        ],
+      }),
+      name,
+      NOW
+    );
+
+    expect(line).toBe(
+      'Rolling back, step 2 of 2: Removing data directories failed on node-a, retrying, running for 3m 12s'
     );
   });
 
@@ -322,13 +382,58 @@ describe('runSummaryLine', () => {
 });
 
 describe('runHasFailure', () => {
-  it('is true once any step has failed, before the run status catches up', () => {
+  it('is true once a step is out of attempts, before the run status catches up', () => {
+    expect(
+      runHasFailure(
+        run({
+          hosts: [
+            host('a', [
+              step('pre_check', 'succeeded'),
+              step('install_package', 'failed', 2),
+            ]),
+          ],
+        })
+      )
+    ).toBe(true);
+  });
+
+  it('is false for a failed step about to be retried', () => {
     expect(
       runHasFailure(run({ hosts: [host('a', installing('failed'))] }))
+    ).toBe(false);
+  });
+
+  // pre_check is not retried, and its failure starts the rollback instead.
+  it('is true for a failed step once the run is rolling back', () => {
+    expect(
+      runHasFailure(
+        run({
+          hosts: [
+            host('a', [step('pre_check', 'failed')], {
+              rollback_steps: [step('stop_service', 'running')],
+            }),
+          ],
+        })
+      )
     ).toBe(true);
   });
 
   it('is true for a failed teardown step with no forward step failed', () => {
+    expect(
+      runHasFailure(
+        run({
+          cancel_requested: true,
+          hosts: [
+            host('a', installing('pending'), {
+              rollback_steps: [step('stop_service', 'failed', 2)],
+            }),
+          ],
+        })
+      )
+    ).toBe(true);
+  });
+
+  it('is false for a failed teardown step about to be retried', () => {
     expect(
       runHasFailure(
         run({
@@ -340,7 +445,7 @@ describe('runHasFailure', () => {
           ],
         })
       )
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it('is false for a run going normally', () => {

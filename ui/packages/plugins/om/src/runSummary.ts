@@ -99,26 +99,95 @@ function nodeScope(phase: RunPhase): string {
 }
 
 /**
- * Whether anything in this run failed or it ended without succeeding.
+ * How many dispatches pmm-managed gives a step before its failure is permanent:
+ * `bootstrapMaxAttempts` in managed/services/om/bootstrap_decision.go. A failed step
+ * with an attempt left is about to be dispatched again, so it is not a failure yet.
+ */
+const BOOTSTRAP_MAX_ATTEMPTS = 2;
+
+/**
+ * Which failed steps of a run are failures for good, as opposed to about to be
+ * retried, for the forward steps and the rollback steps.
+ *
+ * A step is out of attempts at BOOTSTRAP_MAX_ATTEMPTS, and every step is once the run
+ * has ended. A forward step is also final once the run is rolling back: the stepper
+ * dispatches no forward step from then on. That covers the one step not retried at
+ * all, pre_check, whose `retryable: false` is not on the wire - its failure starts
+ * the rollback on the stepper's next tick.
+ */
+function finalFailures(run: OmGetBootstrapRunResponse) {
+  const ended = bootstrapRunDisplayStatus(run) !== 'running';
+  const isFinal = (over: boolean) => (step: OmBootstrapStep) =>
+    step.status === 'failed' &&
+    (over || step.attempt_count >= BOOTSTRAP_MAX_ATTEMPTS);
+  return {
+    forward: isFinal(ended || run.hosts.some(isHostRollingBack)),
+    rollback: isFinal(ended),
+  };
+}
+
+/** The nodes a phase's steps matching `pick` are on, by name. */
+function failedNodes(
+  phase: RunPhase,
+  pick: (step: OmBootstrapStep) => boolean,
+  nodeName: (nodeId: string) => string
+): string {
+  return phase.steps
+    .filter(({ step }) => pick(step))
+    .map(({ node }) => nodeName(node))
+    .join(', ');
+}
+
+/**
+ * " failed on node-a, retrying", for the first phase with a step about to be
+ * dispatched again, along with that phase's index. Null when there is none.
+ */
+function retrying(
+  phases: RunPhase[],
+  isFinal: (step: OmBootstrapStep) => boolean,
+  nodeName: (nodeId: string) => string
+) {
+  const isRetried = (step: OmBootstrapStep) =>
+    step.status === 'failed' && !isFinal(step);
+  const index = phases.findIndex((phase) =>
+    phase.steps.some(({ step }) => isRetried(step))
+  );
+  if (index === -1) {
+    return null;
+  }
+  const phase = phases[index];
+  const where = phase.perNode
+    ? ` on ${failedNodes(phase, isRetried, nodeName)}`
+    : '';
+  return {
+    index,
+    what: `${bootstrapStepLabel(phase.name)} failed${where}, retrying`,
+  };
+}
+
+/**
+ * Whether anything in this run failed for good or it ended without succeeding.
  *
  * Decides whether the step matrix opens by itself: a reader of a failed run needs the
- * failing cell, and should not have to find a toggle to get to it.
+ * failing cell, and should not have to find a toggle to get to it. A failure about
+ * to be retried does not count, or a transient one would open the matrix and leave
+ * it open after the retry succeeded.
  */
 export function runHasFailure(run: OmGetBootstrapRunResponse): boolean {
   const status = bootstrapRunDisplayStatus(run);
   if (status === 'failed' || status === 'rolled_back') {
     return true;
   }
-  return [
-    ...run.run_steps,
-    ...run.hosts.flatMap((host) => [
-      ...host.steps,
-      ...host.finalize_steps,
-      // A teardown step out of retries can leave the run waiting on an operator
-      // with no forward step failed - an aborted run, for one.
-      ...host.rollback_steps,
-    ]),
-  ].some((step) => step.status === 'failed');
+  const isFinal = finalFailures(run);
+  return (
+    [
+      ...run.run_steps,
+      ...run.hosts.flatMap((host) => [...host.steps, ...host.finalize_steps]),
+    ].some(isFinal.forward) ||
+    // A teardown step out of retries can leave the run waiting on an operator
+    // with no forward step failed - an aborted run, for one.
+    run.hosts.some((host) => host.rollback_steps.some(isFinal.rollback))
+  );
 }
 
 /**
@@ -129,7 +198,7 @@ export function runHasFailure(run: OmGetBootstrapRunResponse): boolean {
  * the elapsed time is the run's own, and there is no estimate of what is left.
  *
  * `nodeName` resolves a node id to the name a reader knows it by, for the one case
- * that names a node: the step that failed. A `now` of null leaves the elapsed time
+ * that names a node: a step that failed or is about to be retried. A `now` of null leaves the elapsed time
  * off, which is always a suffix of the full line. Returns null for a run that
  * succeeded, which ends on its completion card instead.
  */
@@ -152,34 +221,43 @@ export function runSummaryLine(
       ? ''
       : formatRunElapsed(run.started_at, run.finished_at, now);
 
+  const isFinal = finalFailures(run);
   const rollbackPhases = perNodePhases(run, 'rollback_steps');
   // Ahead of every other reading, a forward failure included: a teardown that failed
   // can leave a node half-installed, which outranks why the rollback started (the
   // run's own error still says that). Without it, position() counts the failed step
   // as not done yet and the line reads as a rollback still going.
   const rollbackFailedAt = rollbackPhases.findIndex((phase) =>
-    phase.steps.some(({ step }) => step.status === 'failed')
+    phase.steps.some(({ step }) => isFinal.rollback(step))
   );
   if (rollbackFailedAt !== -1) {
     const phase = rollbackPhases[rollbackFailedAt];
-    const failedNodes = phase.steps
-      .filter(({ step }) => step.status === 'failed')
-      .map(({ node }) => nodeName(node));
     const timing = elapsed
       ? `, ${status === 'running' ? 'running for' : 'after'} ${elapsed}`
       : '';
     return `Rollback failed at step ${rollbackFailedAt + 1} of ${
       rollbackPhases.length
-    }: ${bootstrapStepLabel(phase.name)} on ${failedNodes.join(', ')}${timing}`;
+    }: ${bootstrapStepLabel(phase.name)} on ${failedNodes(
+      phase,
+      isFinal.rollback,
+      nodeName
+    )}${timing}`;
   }
 
   if (status === 'running' && run.hosts.some(isHostRollingBack)) {
     const phases = rollbackPhases;
-    const { index, phase } = position(phases);
-    const label = phase ? bootstrapStepLabel(phase.name) : 'Finishing';
-    return `Rolling back, step ${index + 1} of ${phases.length}: ${label}${
-      phase ? nodeScope(phase) : ''
-    }${elapsed ? `, running for ${elapsed}` : ''}`;
+    const retry = retrying(phases, isFinal.rollback, nodeName);
+    const { index, phase } = retry
+      ? { index: retry.index, phase: undefined }
+      : position(phases);
+    const what =
+      retry?.what ??
+      (phase
+        ? `${bootstrapStepLabel(phase.name)}${nodeScope(phase)}`
+        : 'Finishing');
+    return `Rolling back, step ${index + 1} of ${phases.length}: ${what}${
+      elapsed ? `, running for ${elapsed}` : ''
+    }`;
   }
 
   const phases = forwardPhases(run);
@@ -193,26 +271,29 @@ export function runSummaryLine(
   }
 
   const failedAt = phases.findIndex((phase) =>
-    phase.steps.some(({ step }) => step.status === 'failed')
+    phase.steps.some(({ step }) => isFinal.forward(step))
   );
   if (failedAt !== -1) {
     const phase = phases[failedAt];
-    const failedNodes = phase.steps
-      .filter(({ step }) => step.status === 'failed')
-      .map(({ node }) => node);
     const where = phase.perNode
-      ? ` on ${failedNodes.map(nodeName).join(', ')}`
+      ? ` on ${failedNodes(phase, isFinal.forward, nodeName)}`
       : '';
     return `Failed at step ${failedAt + 1} of ${phases.length}: ${bootstrapStepLabel(
       phase.name
     )}${where}${elapsed ? `, after ${elapsed}` : ''}`;
   }
 
-  const { index, phase } = position(phases);
+  // Only while running: once the run has ended every failure is final, above.
+  const retry = retrying(phases, isFinal.forward, nodeName);
+  const { index, phase } = retry
+    ? { index: retry.index, phase: undefined }
+    : position(phases);
   const step = `step ${index + 1} of ${phases.length}`;
-  const what = phase
-    ? `${bootstrapStepLabel(phase.name)}${nodeScope(phase)}`
-    : 'Finishing';
+  const what =
+    retry?.what ??
+    (phase
+      ? `${bootstrapStepLabel(phase.name)}${nodeScope(phase)}`
+      : 'Finishing');
 
   if (status !== 'running') {
     // Ended without a failed step: an abort, rolled back from wherever it had got to.
