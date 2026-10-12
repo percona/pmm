@@ -53,8 +53,8 @@ export interface SchemaSelectShellProps {
  * `ShrunkLabels` (PMM-15517).
  *
  * `SelectInput` owns the Controller, so callers pass `name`/`rules` rather than
- * wrapping this in one of their own; it wires the error state from form state
- * but not the message, which is why the helper text is resolved here.
+ * wrapping this in one of their own; it flags only the `Select` itself as
+ * invalid, so the message and the `FormControl` error state are resolved here.
  */
 export function SchemaSelectShell({
   name,
@@ -72,7 +72,8 @@ export function SchemaSelectShell({
   // `get`, not `errors[name]`: a one-of branch field's name is a dotted path
   // (`source.mode`) and react-hook-form nests its error to match, so a literal
   // lookup would leave the field outlined red with no message under it.
-  const message = get(errors, name)?.message as string | undefined;
+  const error = get(errors, name);
+  const message = error?.message as string | undefined;
 
   return (
     <SelectInput
@@ -83,7 +84,13 @@ export function SchemaSelectShell({
         (<FieldLabelWithHelp label={label} description={tooltip} />) as never
       }
       helperText={message ?? inline}
-      formControlProps={{ fullWidth: true, size: 'small', required }}
+      // SelectInput flags only the Select, so the label and helper text need it too.
+      formControlProps={{
+        fullWidth: true,
+        size: 'small',
+        required,
+        error: Boolean(error),
+      }}
       selectFieldProps={{ multiple, renderValue }}
     >
       {children}

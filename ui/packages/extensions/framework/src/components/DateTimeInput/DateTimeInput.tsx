@@ -19,7 +19,15 @@ import { useRef, type ReactNode } from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { DateTimePickerInput } from '@percona/peak-ui';
-import type { Control, FieldValues, UseControllerProps } from 'react-hook-form';
+import {
+  get,
+  useFormContext,
+  useFormState,
+  type Control,
+  type FieldValues,
+  type UseControllerProps,
+  type UseFormReturn,
+} from 'react-hook-form';
 import { dateToWallClock, wallClockToDate } from './wallClockValue';
 
 export interface DateTimeInputProps<T extends FieldValues = FieldValues> {
@@ -62,6 +70,12 @@ export function DateTimeInput<T extends FieldValues = FieldValues>({
   // The output transform maps a half-typed date to '', which an optional field
   // would submit as "no value"; the picker's own error keeps it from submitting.
   const pickerInvalid = useRef(false);
+  // Optional chained below: a host can pass `control` without a FormProvider.
+  const form: UseFormReturn<T> | null = useFormContext<T>();
+  const { isSubmitted, errors } = useFormState({
+    control,
+    name: name as never,
+  });
   const rules = controllerProps?.rules;
   const validate =
     typeof rules?.validate === 'function'
@@ -86,6 +100,11 @@ export function DateTimeInput<T extends FieldValues = FieldValues>({
         }}
         onError={(pickerError) => {
           pickerInvalid.current = pickerError !== null;
+          // MUI reports this after onChange already re-ran the rules with the old
+          // validity, so re-run them, or a fixed date keeps its error until submit.
+          if (isSubmitted || get(errors, name)) {
+            void form?.trigger(name as never);
+          }
         }}
         label={label}
         disabled={disabled}

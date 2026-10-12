@@ -16,9 +16,9 @@
  */
 
 import { describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, get, useForm } from 'react-hook-form';
 import { DateTimeInput } from './DateTimeInput';
 
 function Harness({
@@ -31,6 +31,7 @@ function Harness({
   onSubmit?: (values: { at: string }) => void;
 }) {
   const methods = useForm({ defaultValues: { at: defaultValue } });
+  const error = get(methods.formState.errors, 'at');
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)}>
@@ -39,6 +40,8 @@ function Harness({
           control={methods.control}
           label="Start time (UTC)"
           isRequired={isRequired}
+          error={!!error}
+          helperText={error?.message}
           controllerProps={
             isRequired ? { rules: { required: 'Pick a time' } } : undefined
           }
@@ -139,5 +142,27 @@ describe('DateTimeInput', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
     expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('clears the invalid-date error once the date is completed', async () => {
+    const onSubmit = vi.fn();
+    const user = userEvent.setup();
+    render(<Harness onSubmit={onSubmit} />);
+
+    await user.click(input());
+    await user.keyboard('0405');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(
+      await screen.findByText('Enter a valid date and time')
+    ).toBeInTheDocument();
+
+    await user.click(input());
+    await user.keyboard('040520270915A');
+
+    await waitFor(() =>
+      expect(
+        screen.queryByText('Enter a valid date and time')
+      ).not.toBeInTheDocument()
+    );
   });
 });

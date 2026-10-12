@@ -111,7 +111,8 @@ describe('SchemaSelectShell', () => {
     expect(screen.getByTestId('select-input-fruit')).toHaveAttribute(
       'aria-invalid',
       'true'
-    );
+    ); // Peak's SelectInput flags only the Select; the FormControl has to as well.
+    expect(screen.getByText('Fruit is required')).toHaveClass('Mui-error');
   });
 
   it('shows inline help as helper text when there is no error', () => {
