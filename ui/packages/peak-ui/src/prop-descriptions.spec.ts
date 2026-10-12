@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
+import { join, relative } from 'node:path';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 
@@ -66,6 +66,24 @@ const collect = (file: string) => {
   return { checked, undocumented };
 };
 
+// Identifier the story meta passes as `component`, if any.
+const storyComponent = (file: string) => {
+  let found: string | undefined;
+  const visit = (node: ts.Node) => {
+    if (
+      !found &&
+      ts.isPropertyAssignment(node) &&
+      nameOf(node) === 'component' &&
+      ts.isIdentifier(node.initializer)
+    ) {
+      found = node.initializer.text;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(parse(file));
+  return found;
+};
+
 // Names of the argTypes entries that set a `description`, anywhere in the story file.
 const describedArgTypes = (file: string) => {
   const found: string[] = [];
@@ -115,9 +133,9 @@ describe('component props carry a JSDoc description', () => {
 
 describe('stories leave the description to the JSDoc', () => {
   const duplicated = storyFiles.flatMap((story) => {
-    const siblings = checked.filter((m) => dirname(m.file) === dirname(story));
+    const own = checked.filter((m) => m.type === `${storyComponent(story)}Props`);
     return describedArgTypes(story)
-      .map((prop) => siblings.find((m) => m.prop === prop))
+      .map((prop) => own.find((m) => m.prop === prop))
       .filter((m): m is Member => !!m)
       .map(
         (m) =>
@@ -128,6 +146,7 @@ describe('stories leave the description to the JSDoc', () => {
   it('finds the stories to check', () => {
     expect(storyFiles.length).toBeGreaterThan(0);
     expect(storyFiles.some((story) => describedArgTypes(story).length > 0)).toBe(true);
+    expect(storyFiles.map(storyComponent)).toContain('Table');
   });
 
   it('never sets argTypes.<prop>.description for a prop the component declares', () => {
