@@ -64,7 +64,7 @@ pmm-admin update mongodb mongodb-prod --max-collections-limit=0 --dry-run
     pmm-admin update mongodb mongodb-prod --max-collections-limit=0 --disable-collectors=collstats
     ```
 
-    The output lists the changed settings with their previous values, followed by all current settings. Secrets show as `***`:
+    The output lists what changed on the server, each setting as the flag that sets it, followed by all current settings. A value that you pass but that equals the stored one isn't listed. Secrets show as `***`, and a changed secret or certificate file shows as `(new value)`:
 
     ```text
     MongoDB Service updated.
@@ -72,13 +72,17 @@ pmm-admin update mongodb mongodb-prod --max-collections-limit=0 --dry-run
     Service name: mongodb-prod
 
     Changed settings:
-      --disable-collectors: "" -> "collstats"
-      --max-collections-limit: "-1" -> "0"
+      --disable-collectors=collstats (was empty)
+      --max-collections-limit=0 (was -1)
 
     Current settings:
       --environment=prod
       --username=pmm
       --password=***
+      --no-tls
+      --enable-all-collectors
+      --disable-collectors=collstats
+      --max-collections-limit=0
       ...
     ```
 
