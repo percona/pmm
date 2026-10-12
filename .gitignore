@@ -43,6 +43,10 @@ fuzzing/
 *-fuzz.zip
 *.bench
 
+# Python (dashboards/misc scripts and their tests)
+__pycache__/
+*.pyc
+
 # QAN
 /qan-api2/logs/
 

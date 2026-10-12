@@ -18,7 +18,9 @@ package qan
 import (
 	"fmt"
 	"reflect"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -43,7 +45,7 @@ func TestClient(t *testing.T) {
 	ctx := logger.Set(t.Context(), t.Name())
 	defer func() {
 		require.NoError(t, sqlDB.Close())
-		assert.Equal(t, 18, reformL.Requests())
+		assert.Equal(t, 21, reformL.Requests())
 	}()
 
 	for _, str := range []reform.Struct{
@@ -513,4 +515,116 @@ func TestClientPerformance(t *testing.T) {
 		}
 	}
 	c.AssertCalled(t, "Collect", ctx, &qanpb.CollectRequest{MetricsBucket: expectedBuckets})
+}
+
+func TestClientInventoryCache(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	reformL := sqlmetrics.NewReform("test", "test", t.Logf)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
+	ctx := logger.Set(t.Context(), t.Name())
+	defer func() {
+		require.NoError(t, sqlDB.Close())
+	}()
+
+	service := &models.Service{
+		ServiceID:    "0d350868-4d85-4884-b972-dff130129c23",
+		ServiceType:  models.MySQLServiceType,
+		ServiceName:  "test-mysql",
+		NodeID:       "pmm-server",
+		Address:      new("5.6.7.8"),
+		Port:         new(uint16(3306)),
+		CustomLabels: []byte(`{"_service_label": "old"}`),
+	}
+	agent := &models.Agent{
+		AgentID:    "6b74c6bf-642d-43f0-bee1-0faddd1a2e28",
+		AgentType:  models.QANMySQLPerfSchemaAgentType,
+		ServiceID:  new(service.ServiceID),
+		PMMAgentID: new("pmm-server"),
+		ListenPort: new(uint16(12345)),
+	}
+	require.NoError(t, db.Insert(service))
+	require.NoError(t, db.Insert(agent))
+
+	c := &mockQanCollectorClient{}
+	c.Test(t)
+	c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeFor[*qanpb.CollectRequest]().String())).Return(&qanpb.CollectResponse{}, nil)
+	defer c.AssertExpectations(t)
+
+	newClient := func(t *testing.T) *Client {
+		t.Helper()
+		return &Client{c: c, db: db, l: logrus.WithField("test", t.Name())}
+	}
+
+	// collect sends one bucket for agentID and returns the bucket passed to qan-api2.
+	collect := func(t *testing.T, client *Client, agentID string) *qanpb.MetricsBucket {
+		t.Helper()
+		err := client.Collect(ctx, []*agentv1.MetricsBucket{{Common: &agentv1.MetricsBucket_Common{AgentId: agentID}}})
+		require.NoError(t, err)
+		req := c.Calls[len(c.Calls)-1].Arguments.Get(1).(*qanpb.CollectRequest)
+		require.Len(t, req.MetricsBucket, 1)
+		return req.MetricsBucket[0]
+	}
+
+	client := newClient(t)
+
+	t.Run("loads once and reuses the copy", func(t *testing.T) {
+		reformL.Reset()
+		assert.Equal(t, "test-mysql", collect(t, client, agent.AgentID).ServiceName)
+		assert.Equal(t, 3, reformL.Requests())
+
+		assert.Equal(t, "test-mysql", collect(t, client, agent.AgentID).ServiceName)
+		assert.Equal(t, 3, reformL.Requests())
+	})
+
+	t.Run("looks up an agent added since the last reload", func(t *testing.T) {
+		newService := &models.Service{
+			ServiceID:   "4f3dbe3b-f5d6-4b1e-9a9e-4d29b2c7f0a1",
+			ServiceType: models.MySQLServiceType,
+			ServiceName: "test-mysql-new",
+			NodeID:      "pmm-server",
+			Address:     new("5.6.7.9"),
+			Port:        new(uint16(3306)),
+		}
+		newAgent := &models.Agent{
+			AgentID:    "a7c1f0e2-9d3b-4c5e-8f6a-1b2c3d4e5f60",
+			AgentType:  models.QANMySQLSlowlogAgentType,
+			ServiceID:  new(newService.ServiceID),
+			PMMAgentID: new("pmm-server"),
+			ListenPort: new(uint16(12346)),
+		}
+		require.NoError(t, db.Insert(newService))
+		require.NoError(t, db.Insert(newAgent))
+
+		reformL.Reset()
+		assert.Equal(t, "test-mysql-new", collect(t, client, newAgent.AgentID).ServiceName)
+		assert.Equal(t, 3, reformL.Requests())
+	})
+
+	t.Run("reloads after the TTL", func(t *testing.T) {
+		service.CustomLabels = []byte(`{"_service_label": "new"}`)
+		require.NoError(t, db.Update(service))
+
+		reformL.Reset()
+		assert.Equal(t, "old", collect(t, client, agent.AgentID).Labels["_service_label"])
+		assert.Equal(t, 0, reformL.Requests())
+
+		client.inventory.loadedAt = time.Now().Add(-inventoryCacheTTL)
+		assert.Equal(t, "new", collect(t, client, agent.AgentID).Labels["_service_label"])
+		assert.Equal(t, 3, reformL.Requests())
+	})
+
+	t.Run("loads once under concurrent calls", func(t *testing.T) {
+		client := newClient(t)
+		buckets := []*agentv1.MetricsBucket{{Common: &agentv1.MetricsBucket_Common{AgentId: agent.AgentID}}}
+
+		reformL.Reset()
+		var wg sync.WaitGroup
+		for range 20 {
+			wg.Go(func() {
+				assert.NoError(t, client.Collect(ctx, buckets))
+			})
+		}
+		wg.Wait()
+		assert.Equal(t, 3, reformL.Requests())
+	})
 }

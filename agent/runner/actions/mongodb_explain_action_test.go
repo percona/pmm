@@ -302,14 +302,14 @@ func TestMongoDBExplain(t *testing.T) {
 			if mongoDBVersion.Major == 7 {
 				want["optimizationTimeMillis"] = map[string]any{"$numberInt": "0"}
 			}
-		case mongoDBVersion.Major == 8:
+		default:
 			want["maxIndexedAndSolutionsReached"] = false
 			want["maxIndexedOrSolutionsReached"] = false
 			want["maxScansToExplodeReached"] = false
 			want["optimizationTimeMillis"] = map[string]any{"$numberInt": "0"}
 			want["winningPlan"] = map[string]any{"stage": "EOF", "isCached": false}
 			want["prunedSimilarIndexes"] = false
-			if mongoDBVersion.Minor >= 2 {
+			if mongoDBVersion.Major > 8 || mongoDBVersion.Minor >= 2 {
 				want["winningPlan"] = map[string]any{"stage": "EOF", "isCached": false, "type": "nonExistentNamespace"}
 			}
 		}
@@ -317,9 +317,14 @@ func TestMongoDBExplain(t *testing.T) {
 		explainM := make(map[string]any)
 		err = json.Unmarshal(res, &explainM)
 		require.NoError(t, err)
-		queryPlanner, ok := explainM["queryPlanner"]
-		assert.True(t, ok)
+		queryPlanner, ok := explainM["queryPlanner"].(map[string]any)
+		require.True(t, ok)
 		assert.NotEmpty(t, queryPlanner)
+		if mongoDBVersion.Major >= 9 {
+			// MongoDB 9.0 also reports the optimization time in microseconds; it varies between runs.
+			assert.Contains(t, queryPlanner, "optimizationTimeMicros")
+			delete(queryPlanner, "optimizationTimeMicros")
+		}
 		assert.Equal(t, want, queryPlanner)
 	})
 }
