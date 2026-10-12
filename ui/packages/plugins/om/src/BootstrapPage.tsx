@@ -23,7 +23,6 @@ import {
   AccordionDetails,
   AccordionSummary,
   Alert,
-  AlertTitle,
   Autocomplete,
   Box,
   Button,
@@ -61,6 +60,7 @@ import { configureBlockers, replicaSetNameError } from './installForm';
 import { dataDirFreeBytes, toHostRows } from './inventory';
 import { useOmInventoryHosts, useTriggerHostBootstrap } from './inventoryHooks';
 import { NodeNamesLinked } from './components/NodeNamesLinked';
+import { SecurityPosture } from './components/SecurityPosture';
 import { HostReadiness } from './components/HostReadiness';
 import { useOmTopology } from './topologyHooks';
 import { useOmBase } from './useOmBase';
@@ -102,28 +102,6 @@ function isSupportedHostCount(count: number): boolean {
  * (plan.md §6 Phase C), so a control for either would be a choice with no
  * effect.
  */
-/**
- * The security posture of a developer-preview install, stated where it is read.
- *
- * This used to be a "Security" tab holding three permanently disabled text fields -
- * "inputs that are not inputs", which was the complaint. A tab that can never be
- * edited is worse than the same facts stated where the user is already looking, so the
- * tab is gone and this renders on the Configure step and again at Review.
- *
- * It must keep naming the mechanism and what is unavailable: the tab was the only place
- * that said keyFile, LDAP and KMIP/KMS at all, and dropping that would make the
- * rather than better.
- */
-const SecurityPosture = () => (
-  <Alert severity="info">
-    <AlertTitle>Security in this developer preview</AlertTitle>
-    Members authenticate to each other with a shared keyFile, and client
-    connections are <strong>not encrypted</strong> - TLS is off. LDAP, KMIP/KMS
-    and encryption at rest are not available yet, and none of them can be
-    configured here.
-  </Alert>
-);
-
 /**
  * How mongod's bindIp is chosen.
  *
