@@ -74,8 +74,10 @@ jobs:
       - name: Run unit tests
         run: cd dashboards/pmm-app && yarn test:ci
 
+      # Dependabot runs get no Actions secrets, and Codecov rejects tokenless
+      # uploads from same-repo branches.
       - name: Upload unit test coverage
-        if: github.event.pull_request.head.repo.full_name == github.repository
+        if: github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           fail_ci_if_error: true
