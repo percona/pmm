@@ -264,6 +264,14 @@ func TestUpdateExternal(t *testing.T) {
 
 	_, err = runUpdate(t, &UpdateExternalServerlessCommand{}, "--external-name=external_srv_1", "--url=http://10.0.0.1:9100/metrics")
 	require.EqualError(t, err, "--url cannot be changed by update; remove the Service and add it again")
+
+	// The Services of this Node say nothing about a serverless one, so they must not pick it.
+	_, err = runUpdate(t, &UpdateExternalServerlessCommand{}, "--group=exporters")
+	require.EqualError(t, err, "an external-serverless Service runs on a Node of its own; pass --external-name or --service-id")
+
+	run, err = runUpdate(t, &UpdateExternalServerlessCommand{}, "--service-id=1b6b5e9c-1c3a-4e5f-9a3a-1c3a4e5f9a3a", "--group=exporters")
+	require.NoError(t, err)
+	assert.Equal(t, "/v1/management/services/1b6b5e9c-1c3a-4e5f-9a3a-1c3a4e5f9a3a", run.path)
 }
 
 func TestUpdateHAProxy(t *testing.T) {

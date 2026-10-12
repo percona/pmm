@@ -15,6 +15,7 @@
 package management
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 
@@ -74,13 +75,19 @@ func (cmd *UpdateExternalServerlessCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
+	// The Service sits on a remote Node of its own, so target must not fall back to the Services of this Node.
+	name := cmd.typedValue("external-name", cmd.Name)
+	if name == "" && cmd.ServiceID == "" {
+		return nil, errors.New("an external-serverless Service runs on a Node of its own; pass --external-name or --service-id")
+	}
+
 	body, err := externalUpdateBody(&cmd.UpdateCommonFlags, cmd.Username, cmd.Password, cmd.CredentialsSource, cmd.Scheme, cmd.MetricsPath,
 		cmd.ListenPort, cmd.Environment, cmd.Cluster, cmd.ReplicationSet, cmd.CustomLabels, cmd.Group, cmd.TLSSkipVerify, cmd.SkipConnectionCheck)
 	if err != nil {
 		return nil, err
 	}
 
-	target, err := cmd.target(cmd.typedValue("external-name", cmd.Name), allServiceTypes["external"])
+	target, err := cmd.target(name, allServiceTypes["external"])
 	if err != nil {
 		return nil, err
 	}
