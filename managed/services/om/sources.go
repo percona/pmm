@@ -332,7 +332,7 @@ func (r *metricsRun) observedAt(age float64) *time.Time {
 func (s metricsSource) each(ctx context.Context, result *SourceResult, query string, apply func(string, model.Metric, float64)) {
 	value, warnings, err := s.vm.Query(ctx, query, s.now)
 	if err != nil {
-		s.l.Warnf("query %q failed: %s", query, err)
+		s.l.Warnf("query '%s' failed: %s", query, err)
 		result.Errors = append(result.Errors, RunError{
 			Scope: "query", Code: "vm_query_failed",
 			Message: fmt.Sprintf("%s: %s", query, err),
@@ -340,7 +340,7 @@ func (s metricsSource) each(ctx context.Context, result *SourceResult, query str
 		return
 	}
 	for _, w := range warnings {
-		s.l.Warnf("query %q: %s", query, w)
+		s.l.Warnf("query '%s': %s", query, w)
 	}
 
 	vector, ok := value.(model.Vector)

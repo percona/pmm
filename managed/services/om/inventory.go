@@ -840,7 +840,7 @@ func (s *Service) nodeIDForExecutorHost(ctx context.Context, executorHost string
 	host, ok := hosts[executorHost]
 	if !ok {
 		return "", status.Errorf(codes.NotFound,
-			"no host in the inventory has executor %q", executorHost)
+			"no host in the inventory has executor %s", executorHost)
 	}
 	return host.NodeID, nil
 }

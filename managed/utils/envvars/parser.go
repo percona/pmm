@@ -142,7 +142,6 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			// env.ExtensionsEnabled instead of being persisted here.
 			continue
 		case "PMM_EXTENSIONS_URL", "PMM_EXTENSIONS_TOKEN":
-			// Handled by kingpin. The unknown-variable warning prints KEY=VALUE, which would log the token.
 			continue
 		case "PERCONA_TELEMETRY_DISABLE":
 			// skip the Pillars telemetry environment variable
@@ -229,7 +228,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_ENABLE_OM":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
-				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				errs = append(errs, fmt.Errorf("invalid value '%s' for environment variable %s", v, k))
 				continue
 			}
 			envSettings.EnableOM = &b
