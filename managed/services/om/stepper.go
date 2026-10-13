@@ -59,12 +59,17 @@ func (s *Service) RunBootstrapStepper(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			if s.bootstrap == nil {
-				continue
-			}
-			s.stepBootstrapRuns(ctx)
+			s.stepBootstrapTick(ctx)
 		}
 	}
+}
+
+// stepBootstrapTick is one RunBootstrapStepper tick, skipped while OpenManager is off like Run's collection.
+func (s *Service) stepBootstrapTick(ctx context.Context) {
+	if s.bootstrap == nil || !s.Enabled() {
+		return
+	}
+	s.stepBootstrapRuns(ctx)
 }
 
 // Succeeded runs stay SUCCEEDED forever, so skipping the ones PMM already registered keeps the sweep bounded.

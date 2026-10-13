@@ -28,6 +28,32 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
+func TestStepBootstrapTick(t *testing.T) {
+	t.Run("does not poll om_bootstrap while OpenManager is off", func(t *testing.T) {
+		db := storeTestDB(t)
+		stub := newSEPStub(t, http.StatusOK, `{"items": [], "total": 0}`)
+		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
+			WithBootstrapSource(stub.server.URL, "test-token")
+
+		svc.stepBootstrapTick(t.Context())
+
+		assert.Empty(t, stub.calls)
+	})
+
+	t.Run("polls om_bootstrap while OpenManager is on", func(t *testing.T) {
+		db := storeTestDB(t)
+		_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{EnableOM: new(true)})
+		require.NoError(t, err)
+		stub := newSEPStub(t, http.StatusOK, `{"items": [], "total": 0}`)
+		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
+			WithBootstrapSource(stub.server.URL, "test-token")
+
+		svc.stepBootstrapTick(t.Context())
+
+		assert.NotEmpty(t, stub.calls)
+	})
+}
+
 func TestCompleteSucceededRun(t *testing.T) {
 	t.Run("triggers a scoped inventory refresh only for hosts the inventory app has not confirmed yet", func(t *testing.T) {
 		db := storeTestDB(t)
