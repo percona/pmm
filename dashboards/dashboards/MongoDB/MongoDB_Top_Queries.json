@@ -567,7 +567,7 @@
                                     {
                                         "targetBlank": true,
                                         "title": "Open in Query Analytics",
-                                        "url": "/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
+                                        "url": "/graph/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
                                     }
                                 ]
                             },
@@ -774,7 +774,7 @@
                                     {
                                         "targetBlank": true,
                                         "title": "Open in Query Analytics",
-                                        "url": "/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
+                                        "url": "/graph/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
                                     }
                                 ]
                             },
@@ -968,7 +968,7 @@
                                     {
                                         "targetBlank": true,
                                         "title": "Open in Query Analytics",
-                                        "url": "/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
+                                        "url": "/graph/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
                                     }
                                 ]
                             },
@@ -1150,7 +1150,7 @@
                                     {
                                         "targetBlank": true,
                                         "title": "Open in Query Analytics",
-                                        "url": "/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
+                                        "url": "/graph/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
                                     }
                                 ]
                             },
@@ -1332,7 +1332,7 @@
                                     {
                                         "targetBlank": true,
                                         "title": "Open in Query Analytics",
-                                        "url": "/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
+                                        "url": "/graph/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
                                     }
                                 ]
                             },
@@ -1538,7 +1538,7 @@
                                     {
                                         "targetBlank": true,
                                         "title": "Open in Query Analytics",
-                                        "url": "/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
+                                        "url": "/graph/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
                                     }
                                 ]
                             },
@@ -1787,7 +1787,7 @@
                                     {
                                         "targetBlank": true,
                                         "title": "Open in Query Analytics",
-                                        "url": "/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
+                                        "url": "/graph/d/pmm-qan/pmm-query-analytics?orgId=1&group_by=queryid&filter_by=${__data.fields[\"Query ID\"]}&selected_query_database=${__data.fields[\"Database\"]}&var-service_type=mongodb&var-service_name=${__data.fields[\"Service Name\"]}&query_selected=true&details_tab=details&${__url_time_range}"
                                     }
                                 ]
                             },
