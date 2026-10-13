@@ -39,10 +39,7 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-// panicVM fails the test the moment it is queried. GetTopology's whole point after the
-// PMM-15326 read-path fix is that it never reaches VictoriaMetrics -- collection is
-// leader-only and request-triggered nowhere -- so any test that exercises the read path
-// wires this in and lets a query panic rather than silently succeed.
+// panicVM fails the test if queried: GetTopology is a pure read path and must never reach VictoriaMetrics.
 type panicVM struct{ t *testing.T }
 
 func (p panicVM) Query(context.Context, string, time.Time, ...v1.Option) (model.Value, v1.Warnings, error) {
@@ -51,7 +48,6 @@ func (p panicVM) Query(context.Context, string, time.Time, ...v1.Option) (model.
 	return nil, nil, nil
 }
 
-// fakeHA is a haChecker double.
 type fakeHA struct {
 	leader   bool
 	leaderID string
@@ -66,16 +62,11 @@ func serviceTestDB(t *testing.T) *reform.DB {
 	return reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 }
 
-// TestGetTopologyNeverCollects is the regression guard for PMM-15326's read-path fix:
-// GetTopology must serve memory or the stored snapshot and never reach collect(), on a
-// freshly restored service or on any later call. Before the fix, a restored document
-// older than 30s missed the cache immediately and every request rebuilt it -- see
-// service.go's package comment history in the PR for the mechanism.
+// TestGetTopologyNeverCollects checks GetTopology serves memory or the stored snapshot and never collects.
 func TestGetTopologyNeverCollects(t *testing.T) {
 	db := serviceTestDB(t)
 
-	// Written by one Service instance, as if by a leader that has since gone away --
-	// restored by a second, as pmm-managed does across a restart.
+	// Persisted by one instance and restored by another, as across a restart.
 	writer := &Service{db: db, l: logrus.WithField("test", t.Name())}
 	generatedAt := time.Now().Truncate(time.Microsecond)
 	response, run := testTopologyResponse("restored-run", generatedAt, generatedAt.Add(-2*time.Second))
@@ -89,9 +80,7 @@ func TestGetTopologyNeverCollects(t *testing.T) {
 	assert.Equal(t, "restored-run", first.Snapshot.RunId)
 	assert.False(t, first.Snapshot.Stale, "just-restored document should read as fresh")
 
-	// The DB is gone from here on. sync.Once guarantees restoreOnce's own query never
-	// repeats, but this proves the read path holds that guarantee rather than assuming
-	// it -- a second GetTopology call has nothing to fall back on but memory.
+	// With the DB closed, a second call can only be served from memory.
 	require.NoError(t, db.DBInterface().(interface{ Close() error }).Close())
 
 	second, err := reader.GetTopology(t.Context(), &omv1.GetTopologyRequest{})
@@ -99,10 +88,7 @@ func TestGetTopologyNeverCollects(t *testing.T) {
 	assert.Equal(t, first.Snapshot.RunId, second.Snapshot.RunId)
 }
 
-// TestGetTopologyColdStart covers the estate that has never collected anywhere: no
-// memory, nothing stored. GetTopology must answer with an empty, explicitly stale
-// document rather than an error or a wait for a collection that GetTopology itself must
-// never start.
+// TestGetTopologyColdStart checks that with nothing collected, GetTopology returns an empty, stale document.
 func TestGetTopologyColdStart(t *testing.T) {
 	db := serviceTestDB(t)
 	svc := &Service{db: db, vmClient: panicVM{t: t}, l: logrus.WithField("test", t.Name())}
@@ -115,10 +101,7 @@ func TestGetTopologyColdStart(t *testing.T) {
 	assert.Empty(t, response.Environments)
 }
 
-// TestGetTopologyConcurrentReadsDoNotRace exercises the read path from many goroutines
-// at once. Run with -race: the point is that GetTopology touches only s.mu and
-// s.restored, never s.running, so concurrent readers never contend with each other or
-// with a collection.
+// TestGetTopologyConcurrentReadsDoNotRace is meaningful only under -race.
 func TestGetTopologyConcurrentReadsDoNotRace(t *testing.T) {
 	db := serviceTestDB(t)
 	svc := &Service{db: db, vmClient: panicVM{t: t}, l: logrus.WithField("test", t.Name())}
@@ -152,10 +135,6 @@ func TestTriggerTopologyCollectionRefusesOnNonLeaderWithoutKnownLeader(t *testin
 	assert.Equal(t, codes.FailedPrecondition, status.Code(err))
 }
 
-// TestTriggerTopologyCollectionAllowsLeaderOrNoHA covers the common cases: an explicit
-// leader, and no ha wired in at all -- every test in this package but the ones above, and
-// single-node PMM without HA enabled at all (ha.Service.IsLeader() is true when HA is
-// disabled, so the same "every node is the leader" reading applies).
 func TestTriggerTopologyCollectionAllowsLeaderOrNoHA(t *testing.T) {
 	for name, ha := range map[string]haChecker{"leader": fakeHA{leader: true}, "no ha wired in": nil} {
 		t.Run(name, func(t *testing.T) {
@@ -207,9 +186,6 @@ func TestSourcesOrdering(t *testing.T) {
 	})
 }
 
-// TestCollectPersistFailureStillReturnsDocument covers the run whose write fails: the
-// document was already built and is already correct, so losing the run record must not
-// turn into losing the response.
 func TestCollectPersistFailureStillReturnsDocument(t *testing.T) {
 	db := serviceTestDB(t)
 
@@ -225,8 +201,7 @@ func TestCollectPersistFailureStillReturnsDocument(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	// om_topology_runs is gone, so persist()'s INSERT fails -- collect() must log that
-	// and still hand back the response it already built and published.
+	// Renaming the table makes persist()'s INSERT fail.
 	_, err = db.Exec(`ALTER TABLE om_topology_runs RENAME TO om_topology_runs_test_gone`)
 	require.NoError(t, err)
 
@@ -240,18 +215,8 @@ func TestCollectPersistFailureStillReturnsDocument(t *testing.T) {
 	assert.Same(t, response, svc.snapshot(), "the response collect returned is the one it published")
 }
 
-// TestRunSyncsInventoryEnabledOnStartup is the regression guard for a server that starts
-// up already OM-enabled -- via PMM_ENABLE_OM, or a setting persisted across a restart --
-// never telling PMM Extensions' om_inventory app. The applyOMSwitch helper
-// (server.go) only fires on a live ChangeSettings transition, so with no prior "off"
-// value to differ from, PMM Extensions' own ENABLED stayed permanently false with no supported
-// way to correct it afterward: ChangeSettings refuses any value differing from the
-// env-var-locked one, and resubmitting the same value is a no-op transition. Confirmed
-// against a live deployment before this fix. Run's own
-// SyncInventoryEnabled(ctx, s.Enabled()) call happens before the ticker loop, so it
-// fires on every startup regardless of transition history -- run in a goroutine and
-// cancelled shortly after, so the test observes that call without waiting out
-// refreshInterval.
+// TestRunSyncsInventoryEnabledOnStartup covers a server started already OM-enabled: applyOMSwitch fires only
+// on a ChangeSettings transition, so Run must sync PMM Extensions' ENABLED flag itself before the ticker loop.
 func TestRunSyncsInventoryEnabledOnStartup(t *testing.T) {
 	db := serviceTestDB(t)
 	_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{EnableOM: new(true)})
@@ -276,18 +241,8 @@ func TestRunSyncsInventoryEnabledOnStartup(t *testing.T) {
 	assert.JSONEq(t, `{"ENABLED": true}`, stub.calls[0].body)
 }
 
-// TestRunRetriesInventoryEnabledUntilItLands is the regression guard for that startup
-// reconcile being attempted exactly once.
-//
-// Startup is the one moment PMM Extensions is least likely to answer: in the bundled
-// deployment its side-car cannot finish starting until pmm-server's entrypoint has
-// published its credentials and the embedded Postgres is up, and pmm-managed -- with,
-// on a non-HA server, this service -- starts at that same point. A single attempt that
-// lost that race left ENABLED false for the life of the process, because nothing else
-// reconciles it: ChangeSettings cannot, since the env lock rejects any other value and
-// resubmitting the same one is a no-op transition. Reported against a fresh
-// 3-dev-latest with PMM_ENABLE_OM=1 and the side-car brought up alongside it, where the
-// estate stayed empty until pmm-managed was restarted by hand.
+// TestRunRetriesInventoryEnabledUntilItLands covers PMM Extensions not answering yet at startup: nothing else
+// reconciles ENABLED, so a refused startup sync must be retried on later ticks.
 func TestRunRetriesInventoryEnabledUntilItLands(t *testing.T) {
 	db := serviceTestDB(t)
 	_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{EnableOM: new(true)})
@@ -312,7 +267,7 @@ func TestRunRetriesInventoryEnabledUntilItLands(t *testing.T) {
 		mu.Unlock()
 
 		if first {
-			// The side-car is still starting: exactly the race this test is about.
+			// The side-car is still starting.
 			w.WriteHeader(http.StatusServiceUnavailable)
 			return
 		}
@@ -341,7 +296,6 @@ func TestRunRetriesInventoryEnabledUntilItLands(t *testing.T) {
 	require.Eventually(t, func() bool { return seen() >= 2 }, 10*time.Second, 10*time.Millisecond,
 		"the refused ENABLED write must be retried on a later tick, not abandoned")
 
-	// And stops there: reconciling is a one-time obligation, not a per-tick PATCH.
 	settled := seen()
 	time.Sleep(10 * svc.tick)
 	cancel()

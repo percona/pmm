@@ -27,27 +27,11 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// This file is the client half of the inventory proxy: the shapes PMM Extensions' om_inventory
-// app serves, and the estate-specific decoding of its answers. The transport itself --
-// where PMM Extensions is, the bearer token, the request/response mechanics -- is sep_client.go,
-// shared with every other side-car-backed source in this package.
-//
-// It exists because the browser must not hold a PMM Extensions bearer. A page that talks to PMM Extensions
-// directly needs one minted from the PMM session, which means the page is gated on PMM Extensions
-// being up, configured and willing to exchange the token -- and it fails closed, so a
-// sick PMM Extensions blanks the page rather than showing an estate with an error on it. Proxying
-// here costs a second hop and buys "PMM Extensions is unreachable" as an error *inside* a page
-// that still renders.
+// PMM proxies the inventory app so the browser never holds a PMM Extensions bearer, and an unreachable
+// app shows up as an error inside a page that still renders.
 
-// inventoryRequestTimeout bounds a proxied request.
-//
-// Every path here is a database read on the other side; the one that starts work,
-// POST /runs, returns as soon as the run row is written and does not wait for the Nomad
-// jobs. So nothing behind this endpoint should take seconds, and one that does is a
-// sign the app is unwell rather than busy.
 const inventoryRequestTimeout = 15 * time.Second
 
-// extensionsFreshness is the freshness block both estate rows carry.
 type extensionsFreshness struct {
 	FirstSeenAt         *time.Time `json:"first_seen_at"`
 	LastAttemptAt       *time.Time `json:"last_attempt_at"`
@@ -59,7 +43,6 @@ type extensionsFreshness struct {
 	LastRunID           *string    `json:"last_run_id"`
 }
 
-// extensionsService is one row of GET /services, and of the `services` list on a host.
 type extensionsService struct {
 	extensionsFreshness
 
@@ -71,7 +54,6 @@ type extensionsService struct {
 	Observed  map[string]any `json:"observed"`
 }
 
-// extensionsHost is one row of GET /hosts.
 type extensionsHost struct {
 	extensionsFreshness
 
@@ -83,7 +65,6 @@ type extensionsHost struct {
 	Services     []extensionsService `json:"services"`
 }
 
-// extensionsRunCounts is what one refresh saw.
 type extensionsRunCounts struct {
 	ServicesTotal    int32 `json:"services_total"`
 	ServicesResolved int32 `json:"services_resolved"`
@@ -95,28 +76,24 @@ type extensionsRunCounts struct {
 	HostsFinished    int32 `json:"hosts_finished"`
 }
 
-// extensionsRun is one row of GET /runs.
 type extensionsRun struct {
-	RunID      string              `json:"run_id"`
-	Status     string              `json:"status"`
-	StartedAt  *time.Time          `json:"started_at"`
-	FinishedAt *time.Time          `json:"finished_at"`
-	Counts     extensionsRunCounts `json:"counts"`
-	Scope      []string            `json:"scope"`
-	Error      *string             `json:"error"`
-	// FailingNodes comes on the list as well as the detail, unlike Nodes.
+	RunID        string                     `json:"run_id"`
+	Status       string                     `json:"status"`
+	StartedAt    *time.Time                 `json:"started_at"`
+	FinishedAt   *time.Time                 `json:"finished_at"`
+	Counts       extensionsRunCounts        `json:"counts"`
+	Scope        []string                   `json:"scope"`
+	Error        *string                    `json:"error"`
 	FailingNodes []extensionsRunFailingNode `json:"failing_nodes"`
-	// Only the detail endpoint fills this; the list omits it.
+	// Nodes is filled only by the detail endpoint, not by the list.
 	Nodes []extensionsRunNode `json:"nodes"`
 }
 
-// extensionsRunFailingNode is one node a refresh failed to scan.
 type extensionsRunFailingNode struct {
 	NodeID string  `json:"node_id"`
 	Name   *string `json:"name"`
 }
 
-// extensionsRunNode is one host a refresh attempted, from GET /runs/{id}.
 type extensionsRunNode struct {
 	NodeID        string                     `json:"node_id"`
 	HostName      *string                    `json:"host_name"`
@@ -129,7 +106,6 @@ type extensionsRunNode struct {
 	Services      []extensionsRunNodeService `json:"services"`
 }
 
-// extensionsRunNodeService is one service on such a host.
 type extensionsRunNodeService struct {
 	ServiceID   *string `json:"service_id"`
 	ServiceName *string `json:"service_name"`
@@ -137,7 +113,6 @@ type extensionsRunNodeService struct {
 	Error       *string `json:"error"`
 }
 
-// extensionsSetting is one row of GET /config.
 type extensionsSetting struct {
 	Key          string  `json:"key"`
 	Value        any     `json:"value"`
@@ -149,21 +124,11 @@ type extensionsSetting struct {
 	Description  *string `json:"description"`
 }
 
-// extensionsError is FastAPI's error envelope.
-//
-// `detail` is a string for the app's own errors and a list of per-field objects for a
-// validation failure, so it is decoded as `any` and rendered rather than typed.
+// Detail is a string for the app's own errors and a list of per-field objects for a validation failure.
 type extensionsError struct {
 	Detail any `json:"detail"`
 }
 
-// extensionsPage is one page of a paginated PMM Extensions list endpoint -- the wire shape of
-// PMM Extensions' own app.core.pagination.PaginatedResponse envelope
-// (app/core/pagination/models.py). GET /hosts and GET /services both answer
-// this now (PMM-15326: "Bound the estate listings"), rather than a bare
-// array of T: total counts every row matching the request's filters, not
-// just this page, so a caller can tell "this is the whole estate" from
-// "this is the first page of it" without a second request.
 type extensionsPage[T any] struct {
 	Items  []T `json:"items"`
 	Total  int `json:"total"`
@@ -171,17 +136,9 @@ type extensionsPage[T any] struct {
 	Limit  int `json:"limit"`
 }
 
-// extensionsPageSize is the limit requested on each page fetchAllPages walks --
-// PMM Extensions' own MAX_PAGINATION_LIMIT (app/core/pagination/models.py), so a full
-// estate takes as few round-trips as PMM Extensions itself allows in one request.
+// extensionsPageSize is PMM Extensions' MAX_PAGINATION_LIMIT.
 const extensionsPageSize = 200
 
-// fetchAllPages walks a paginated PMM Extensions endpoint via fetchPage, which must
-// return the page at the given offset/limit, until every row extensionsPage.Total
-// reports has been read. Parametrized over how one page is actually
-// fetched, not over extensionsApp.call directly, because callers want different
-// request mechanics and error mappings for the same page shape -- see
-// probeSource.fetch's own comment on why its errors are not gRPC statuses.
 func fetchAllPages[T any](fetchPage func(offset, limit int) (extensionsPage[T], error)) ([]T, error) {
 	all := make([]T, 0)
 	offset := 0
@@ -198,23 +155,15 @@ func fetchAllPages[T any](fetchPage func(offset, limit int) (extensionsPage[T], 
 	}
 }
 
-// inventoryCall describes one proxied request.
 type inventoryCall struct {
 	method string
 	path   string
 	query  url.Values
-	// body is marshalled as JSON when non-nil. A nil body on a POST still sends `{}`
-	// when sendEmptyBody is set, because the app's trigger endpoint takes an optional
-	// object and FastAPI rejects a bodyless POST against a typed body.
+	// With sendEmptyBody, a nil body is sent as `{}`: FastAPI rejects a bodyless POST against a typed body.
 	body          any
 	sendEmptyBody bool
 }
 
-// call performs one proxied request and decodes the answer into out.
-//
-// The out parameter may be nil for a DELETE, whose 204 carries none. Errors come back as gRPC status
-// errors with the code the gateway will turn back into the status PMM Extensions gave, so a 404
-// from the app reaches the browser as a 404 rather than as a 500 about a 404.
 func (a extensionsApp) call(ctx context.Context, c inventoryCall, out any) error {
 	ctx, cancel := context.WithTimeout(ctx, inventoryRequestTimeout)
 	defer cancel()
@@ -243,16 +192,8 @@ func (a extensionsApp) call(ctx context.Context, c inventoryCall, out any) error
 	return nil
 }
 
-// extensionsStatusError turns the app's error response into a gRPC status error.
-//
-// The mapping is chosen so the gateway reproduces the app's own status where it can:
-// 404 stays 404 and 409 stays 409, because "no such host" and "another refresh already
-// holds this host" are both answers a caller acts on differently from a failure.
-//
-// The one exception is 422: gRPC has no code the gateway renders as 422, so a validation
-// failure arrives as InvalidArgument and the browser sees 400. The app's per-field
-// detail is carried through in the message rather than dropped, which is what the UI
-// needs to render inline errors; only the status number is lost.
+// The gateway has no code it renders as 422, so a validation failure reaches the browser as 400;
+// the app's per-field detail is kept in the message.
 func extensionsStatusError(resp *http.Response) error {
 	detail := extensionsErrorDetail(resp)
 	switch resp.StatusCode {
@@ -263,10 +204,8 @@ func extensionsStatusError(resp *http.Response) error {
 	case http.StatusUnprocessableEntity, http.StatusBadRequest:
 		return status.Error(codes.InvalidArgument, detail)
 	case http.StatusUnauthorized, http.StatusForbidden:
-		// Deliberately not passed through as-is: a 401 from PMM's own gateway means the
-		// *caller* is unauthenticated, and reflecting the app's 401 would tell the
-		// browser to re-authenticate against PMM when what actually failed is PMM's
-		// credential for PMM Extensions. That is an operator's problem, so it reads as one.
+		// Not passed through: a 401 would tell the browser to re-authenticate with PMM,
+		// when what failed is PMM's own credential for PMM Extensions.
 		return status.Errorf(codes.Internal,
 			"PMM's credential for the inventory app was rejected (%s): %s", resp.Status, detail)
 	default:
@@ -274,7 +213,6 @@ func extensionsStatusError(resp *http.Response) error {
 	}
 }
 
-// extensionsErrorDetail extracts something readable from the app's error body.
 func extensionsErrorDetail(resp *http.Response) string {
 	var envelope extensionsError
 	err := json.NewDecoder(resp.Body).Decode(&envelope)
@@ -291,10 +229,7 @@ func extensionsErrorDetail(resp *http.Response) string {
 	return string(encoded)
 }
 
-// inventoryPath joins path segments under the app, escaping each one.
-//
-// Escaping matters: an ID reaching here is PMM's, not the app's, and nothing guarantees
-// it is free of characters that would change which path it addresses.
+// IDs reaching here are PMM's and may contain characters that would change the path they address.
 func inventoryPath(segments ...string) string {
 	escaped := make([]string, 0, len(segments))
 	for _, segment := range segments {

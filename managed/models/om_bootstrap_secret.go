@@ -23,23 +23,7 @@ import (
 
 //go:generate go tool reform
 
-// OmBootstrapSecret holds the one MongoDB user PMM-15347's om_bootstrap stepper
-// generates for a run, and the replica set's shared keyFile content, encrypted at
-// rest.
-//
-// One user, not two: it authenticates both the customer's own administration (it is
-// the replica set's very first user, created through MongoDB's localhost exception)
-// and PMM's own mongodb_exporter, rather than a separate narrow monitoring account --
-// phase-1 scope, see PMM-15347/questions.md Q7.
-//
-// Keyed by PMM Extensions' run ID (a UUID string), not one PMM mints itself: this table exists
-// for exactly one reason -- the stepper generates this value once, uses it across
-// several dispatches (every host's distribute_keyfile step, create_pmm_monitoring_user,
-// and finally the AddService call that registers the mongod with PMM's own
-// inventory), and any of those can happen on a *different* pmm-managed leader than
-// generated it, after a failover. PMM Extensions' run ID is already the one identifier both
-// sides agree on for "which bootstrap this is," and om_bootstrap itself never sees
-// the plaintext (PMM-15347/plan.md §4 item 9: PMM Extensions owns run/step state, not secrets).
+// OmBootstrapSecret holds the MongoDB user and keyFile generated for a bootstrap run, encrypted at rest.
 //
 //reform:om_bootstrap_secrets
 type OmBootstrapSecret struct {

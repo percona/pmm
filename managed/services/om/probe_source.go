@@ -30,77 +30,35 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// probeSource reads on-host facts from PMM Extensions' om_inventory app.
-//
-// The facts it contributes are the ones nothing on this side can answer: the command
-// line a mongod was started with, the config file it read, and the *installed* binary
-// version as against the *running* server the metrics report. Their divergence is the
-// upgraded-but-not-restarted case, and no metric anywhere carries it.
-//
-// It pulls; it does not drive. The app sweeps its estate over Nomad on its own
-// schedule and serves whatever the last completed sweep stored, so this is a database
-// read on the other side rather than a fan-out waiting to happen. That is what keeps
-// an OM run in the tenth-of-a-second range with a source attached whose own work
-// takes tens of seconds.
-//
-// This is the only job a probeSource has. Where PMM Extensions is, how PMM authenticates to it and
-// how a request against it is built are extensionsApp's and extensionsClient's, in sep_client.go --
-// shared with inventory.go's proxy handlers rather than duplicated for them, and ready
-// for the next side-car-backed source to reuse the same way.
+// probeSource reads on-host facts, such as the installed binary version, from PMM Extensions' om_inventory app.
+// It reads what the app's last sweep stored and never triggers a probe, so a run stays fast.
 type probeSource struct {
-	// app is the zero value, with a nil client, when the source is not configured -- a
-	// normal state, reported as disabled rather than failed. See Service.WithProbeSource.
 	app extensionsApp
 	l   *logrus.Entry
 }
 
-// probeAppModule is where PMM Extensions mounts the inventory app: the module name under the
-// `/api/apps/<module>` convention every side-car app follows, and what Service.WithProbeSource
-// hands to extensionsClient.app to build this source's handle.
 const probeAppModule = "om_inventory"
 
-// probeServicesPath is the app's estate, flat. /hosts nests the same service rows
-// under their host and carries host-level attributes besides, which this source has
-// nothing to do with: the document it feeds is keyed by service.
 const probeServicesPath = "services"
 
 func (probeSource) key() string { return sourceProbe }
 
-// probeService is one row of the app's GET /services contract.
-//
-// The app used to serve a flat fact list at GET /facts, assembled per sweep. It now
-// keeps an estate -- a row per host and a row per service, upserted -- and the facts
-// this source wants are the `observed` document on the service row. Reading the
-// estate rather than the last sweep's output is what makes a service that has not
-// been probed for a week still carry what it was running a week ago, with a timestamp
-// saying so, instead of vanishing when a sweep misses it.
 type probeService struct {
 	ServiceID string         `json:"service_id"`
 	NodeID    string         `json:"node_id"`
 	Name      string         `json:"name"`
 	Observed  map[string]any `json:"observed"`
 
-	// LastSuccessAt is the age of everything in Observed. Null means this service has
-	// never answered a probe, which is different from having answered nothing.
+	// LastSuccessAt dates everything in Observed; nil means the service has never answered a probe.
 	LastSuccessAt *time.Time `json:"last_success_at"`
-	// FailingSince is the *first* failure after the last success, so it says "failing
-	// for three days" rather than "failed a minute ago".
+	// FailingSince is the first failure after the last success, not the latest one.
 	FailingSince        *time.Time `json:"failing_since"`
 	ConsecutiveFailures int        `json:"consecutive_failures"`
 	LastError           string     `json:"last_error"`
 }
 
-// observedCollectedAt is the key the app stamps on every document it stores. It is
-// metadata about the document rather than a fact about the service, so it is used for
-// the timestamp and never emitted as a field.
 const observedCollectedAt = "collected_at"
 
-// probeRequestTimeout bounds the pull.
-//
-// Generous for a database read on the other side and far short of anything that would
-// make an OM run feel slow. The app never probes on this path, so a request that takes
-// longer than this is a sign the app is unwell rather than busy -- and the run reports
-// the source as failed and carries on with the sources that answered.
 const probeRequestTimeout = 10 * time.Second
 
 func (s probeSource) collect(ctx context.Context, services []*models.Service) SourceResult {
@@ -136,10 +94,7 @@ func (s probeSource) collect(ctx context.Context, services []*models.Service) So
 	now := time.Now()
 
 	for _, service := range answer {
-		// A service the app knows and this PMM does not is not an error: the app reads
-		// its own inventory, which can be a moment ahead or behind. Counting them is
-		// enough -- merging them would put facts in the document for services it has no
-		// row for.
+		// Not an error: the app reads its own inventory, which can be a moment ahead of or behind this one.
 		if !known[service.ServiceID] {
 			unknown++
 			continue
@@ -154,7 +109,6 @@ func (s probeSource) collect(ctx context.Context, services []*models.Service) So
 
 		observedAt := service.observedAt()
 		if observedAt == nil || len(service.Observed) == 0 {
-			// Seen but never successfully probed. Not covered, and not a fact.
 			continue
 		}
 		covered[service.ServiceID] = true
@@ -177,13 +131,9 @@ func (s probeSource) collect(ctx context.Context, services []*models.Service) So
 		}
 	}
 
-	// The estate's own condition is part of the answer, not a detail. Every service
-	// failing its probe means something is wrong on the probe side, and reporting that
-	// as "ok, 0 facts" reads as "there is nothing to probe here" -- the opposite of
-	// what happened.
+	// Every service failing its probe is a source failure: "ok, 0 facts" would read as nothing to probe.
 	switch {
 	case len(services) == 0:
-		// Nothing to cover. Not this source's failure, and not a partial answer.
 		result.Status = SourceOK
 	case len(covered) == 0 && failing > 0:
 		result.Status = SourceFailed
@@ -193,8 +143,7 @@ func (s probeSource) collect(ctx context.Context, services []*models.Service) So
 			Message: "no service answered its probe: " + strings.Join(failures, "; "),
 		})
 	case len(covered) < len(services):
-		// The usual steady state, and not an alarm: a service whose node runs no
-		// healthy executor is a fact about the estate rather than a failure here.
+		// The usual steady state: a service on a node with no healthy executor is not this source's failure.
 		result.Status = SourcePartial
 	default:
 		result.Status = SourceOK
@@ -214,16 +163,9 @@ func (s probeSource) collect(ctx context.Context, services []*models.Service) So
 	return result
 }
 
-// probeFailuresReported bounds how many failures reach the run receipt.
-//
-// A whole estate failing the same way produces one message per service, and the
-// receipt is meant to be read. The count is reported in full either way.
+// probeFailuresReported caps failure messages in the run receipt; the failing count is reported in full.
 const probeFailuresReported = 3
 
-// observedAt is when this service's document was collected.
-//
-// The last_success_at column is authoritative because the app maintains it; the document's own
-// collected_at is the fallback for a row written before that column carried a value.
 func (p probeService) observedAt() *time.Time {
 	if p.LastSuccessAt != nil {
 		return p.LastSuccessAt
@@ -239,8 +181,6 @@ func (p probeService) observedAt() *time.Time {
 	return &parsed
 }
 
-// failureSummary explains one failing service in the run's own receipt, so a reader is
-// told the cause here rather than having to go and ask the other service.
 func (p probeService) failureSummary() string {
 	name := p.Name
 	if name == "" {
@@ -252,9 +192,6 @@ func (p probeService) failureSummary() string {
 	return fmt.Sprintf("%s: %s", name, p.LastError)
 }
 
-// fetch reads the app's service estate, walking every page GET /services
-// answers (PMM-15326: "Bound the estate listings" -- see extensionsPage's own
-// comment) until fetchAllPages has read every row.
 func (s probeSource) fetch(ctx context.Context) ([]probeService, error) {
 	ctx, cancel := context.WithTimeout(ctx, probeRequestTimeout)
 	defer cancel()

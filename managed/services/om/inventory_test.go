@@ -41,15 +41,8 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// hostsBody is one om_inventory GET /hosts answer, wrapped in PMM Extensions' own
-// paginated envelope (PMM-15326: "Bound the estate listings" --
-// app/core/pagination/models.py's PaginatedResponse) rather than a bare array.
-//
-// Two hosts on purpose, because the pair is the whole reason the host table exists.
-// `n1` runs a registered database and reports an unregistered mongod beside it -- the
-// arbiter case, which PMM registers no service for, so nothing else in OM would mention
-// the process. `n2` carries a PMM client and no database at all, which is the case a
-// service-keyed inventory cannot represent.
+// hostsBody is one paginated GET /hosts answer: n1 runs a registered database beside an unregistered mongod,
+// n2 has a PMM client and no database.
 const hostsBody = `{"items": [
   {
     "node_id": "n1", "name": "db00", "address": "10.0.0.1", "executor_host": "db00",
@@ -95,8 +88,6 @@ const hostsBody = `{"items": [
   }
 ], "total": 2, "offset": 0, "limit": 200}`
 
-// configBody is one om_inventory GET /config answer, trimmed to the two rows that make
-// the point: a nested schedule leaf and a field the deployment owns outright.
 const configBody = `[
   {"key": "SCHEDULE__every", "value": 10, "default_value": null, "type": "int",
    "reload": "hot", "has_override": false, "is_advanced": false, "description": null},
@@ -105,7 +96,6 @@ const configBody = `[
    "description": null}
 ]`
 
-// stubCall is one request the stub was asked to serve.
 type stubCall struct {
 	method string
 	path   string
@@ -113,7 +103,6 @@ type stubCall struct {
 	body   string
 }
 
-// extensionsStub stands in for the inventory app, recording what it was asked.
 type extensionsStub struct {
 	server *httptest.Server
 
@@ -122,27 +111,18 @@ type extensionsStub struct {
 	query  string
 	body   string
 
-	// calls records every request in order. The fields above keep only the last, which
-	// is enough for a handler that makes one call and wrong for one that writes and then
-	// reads back.
+	// calls records every request in order; the fields above keep only the last.
 	calls []stubCall
-	// bodies, when set, is served one entry per request so a read-after-write can be
-	// given a different answer from the write itself. The last entry repeats once
-	// exhausted.
+	// bodies is served one entry per request; the last entry repeats once exhausted.
 	bodies []string
 }
 
-// newSEPStub serves one canned answer and records the request that fetched it.
 func newSEPStub(t *testing.T, code int, body string) *extensionsStub {
 	t.Helper()
 
 	return newSEPStubSeq(t, code, body)
 }
 
-// newSEPStubSeq serves one canned answer per request, in order, all with the same
-// status code. See newSEPStubSeqCodes for a stub whose calls answer with different
-// codes too -- a handler that reads then writes, where the write is the one that
-// fails.
 func newSEPStubSeq(t *testing.T, code int, bodies ...string) *extensionsStub {
 	t.Helper()
 
@@ -153,8 +133,6 @@ func newSEPStubSeq(t *testing.T, code int, bodies ...string) *extensionsStub {
 	return newSEPStubSeqCodes(t, codes, bodies)
 }
 
-// newSEPStubSeqCodes serves one canned (code, body) answer per request, in order.
-// The last pair repeats once exhausted, same as newSEPStubSeq's bodies-only form.
 func newSEPStubSeqCodes(t *testing.T, codes []int, bodies []string) *extensionsStub {
 	t.Helper()
 
@@ -185,7 +163,6 @@ func newSEPStubSeqCodes(t *testing.T, codes []int, bodies []string) *extensionsS
 	return stub
 }
 
-// service returns an OM service wired to the stub.
 func (s *extensionsStub) service(t *testing.T) *Service {
 	t.Helper()
 
@@ -196,10 +173,7 @@ func (s *extensionsStub) service(t *testing.T) *Service {
 func TestInventoryNotConfigured(t *testing.T) {
 	t.Parallel()
 
-	// An unconfigured PMM Extensions is a deployment that has not been told where PMM Extensions is, not a
-	// missing feature and not a broken app. FailedPrecondition says so; NotFound would
-	// read as "there is no such endpoint" and send the reader looking for a version
-	// problem.
+	// FailedPrecondition, not NotFound: NotFound would read as a missing endpoint and suggest a version problem.
 	svc := &Service{l: logrus.WithField("test", t.Name())}
 
 	_, err := svc.ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
@@ -241,10 +215,6 @@ func TestListInventoryHosts(t *testing.T) {
 	t.Run("carries the whole document for a detail panel", func(t *testing.T) {
 		t.Parallel()
 
-		// The app stores observations as JSON so a new attribute is a payload change
-		// rather than a schema change. Enumerating every attribute as a proto field
-		// would put that coupling straight back, so anything without a field of its own
-		// still has to arrive.
 		stub := newSEPStub(t, http.StatusOK, hostsBody)
 
 		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
@@ -288,11 +258,7 @@ func TestListInventoryHosts(t *testing.T) {
 	t.Run("without an agent registry, no host is eligible", func(t *testing.T) {
 		t.Parallel()
 
-		// stub.service(t) never calls WithAgentRegistry, matching every other test in
-		// this file -- the fail-closed default from PMM-15347's PoC (see
-		// agentConnectionChecker's doc comment): a host with a fully healthy executor
-		// still reads as ineligible when PMM-managed has no wired signal for
-		// pmm-agent connectivity.
+		// stub.service(t) wires no agent registry, so even a host with a healthy executor is ineligible.
 		stub := newSEPStub(t, http.StatusOK, hostsBody)
 
 		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
@@ -332,8 +298,7 @@ func TestListInventoryHosts(t *testing.T) {
 	t.Run("a host with no probe reports absent, not false", func(t *testing.T) {
 		t.Parallel()
 
-		// Three false flags would claim PMM Extensions looked and the answer was no. A nil block
-		// says this sweep did not say, which is what an empty document means.
+		// A nil block means the sweep did not report; three false flags would claim it looked and saw no.
 		stub := newSEPStub(t, http.StatusOK, hostsBody)
 
 		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
@@ -381,9 +346,6 @@ func TestListInventoryHosts(t *testing.T) {
 
 		stub := newSEPStub(t, http.StatusOK, `{"items": [], "total": 0, "offset": 0, "limit": 200}`)
 
-		// Addressable locals rather than a helper: these are proto3 `optional` bools, so
-		// what the request carries is a plain *bool, and false has to be distinguishable
-		// from unset -- which is the whole point of the three assertions below.
 		hasService, failing, executor := false, true, false
 
 		_, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{
@@ -395,18 +357,14 @@ func TestListInventoryHosts(t *testing.T) {
 		require.NoError(t, err)
 		assert.Contains(t, stub.query, "has_service=false")
 		assert.Contains(t, stub.query, "failing=true")
-		// The app types this one bool as well: it filters on whether an executor is
-		// matched at all, not on which client. A host name here is a 422 from the app,
-		// which is what this assertion used to require.
+		// The app filters on whether an executor is matched at all; a host name here is a 422.
 		assert.Contains(t, stub.query, "executor=false")
 	})
 
 	t.Run("an unset filter is not sent as false", func(t *testing.T) {
 		t.Parallel()
 
-		// has_service=false means "only hosts with no database", which is a very
-		// different listing from the default. Sending it because the caller said nothing
-		// would silently hide every host that has one.
+		// has_service=false means "only hosts with no database"; sending it unasked would hide every other host.
 		stub := newSEPStub(t, http.StatusOK, `{"items": [], "total": 0, "offset": 0, "limit": 200}`)
 
 		_, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
@@ -420,10 +378,7 @@ func TestListInventoryHosts(t *testing.T) {
 	t.Run("walks every page", func(t *testing.T) {
 		t.Parallel()
 
-		// total (3) exceeds the first page's own item count (2), which is what makes
-		// fetchAllPages loop instead of stopping after one request -- every other test
-		// in this file sets total equal to len(items), so a regression that stopped
-		// after the first page or miscomputed the next offset would pass them all.
+		// total exceeds the first page's item count, so fetchAllPages must request a second page.
 		firstPage := `{"items": [
 		  {"node_id": "n1", "name": "db00"},
 		  {"node_id": "n2", "name": "db01"}
@@ -454,10 +409,6 @@ func TestListInventoryServices(t *testing.T) {
 	t.Run("reads the paginated envelope, keeping the caller's filters", func(t *testing.T) {
 		t.Parallel()
 
-		// GET /services answers the same PaginatedResponse envelope GET /hosts does
-		// (PMM-15326: "Bound the estate listings") -- decoding a bare array here is
-		// exactly the bug this PR fixes for /hosts, and this handler had no coverage
-		// at all, which is how it was missed.
 		stub := newSEPStub(t, http.StatusOK, `{"items": [
 		  {"service_id": "s1", "node_id": "n1", "name": "mongo-1", "port": 27017, "role": "PRIMARY"},
 		  {"service_id": "s2", "node_id": "n1", "name": "mongo-2", "port": 27018, "role": null}
@@ -473,7 +424,6 @@ func TestListInventoryServices(t *testing.T) {
 		require.Len(t, response.GetServices(), 2)
 		assert.Equal(t, "s1", response.GetServices()[0].GetServiceId())
 		assert.Equal(t, "/api/apps/om_inventory/services", stub.path)
-		// The caller's filters have to survive being copied onto the per-page query.
 		assert.Contains(t, stub.query, "node_id=n1")
 		assert.Contains(t, stub.query, "failing=true")
 	})
@@ -523,10 +473,7 @@ func TestAutomationEligibility(t *testing.T) {
 	healthyExecutor := &omv1.InventoryExecutor{Registered: true, Reachable: true, DriverHealthy: true}
 	reachableOnlyExecutor := &omv1.InventoryExecutor{Registered: true, Reachable: true, DriverHealthy: false}
 
-	// A host that passes every check this function makes, so each case below isolates
-	// the one condition it names. Built by a helper rather than written as
-	// `extensionsHost{}`: os_id and the address are now checked too, so the zero value
-	// fails three ways at once and every assertion would be about all of them.
+	// installable returns a host that passes every check, so each case isolates the one condition it names.
 	installable := func(mutate ...func(*extensionsHost)) extensionsHost {
 		address := "node-1.example"
 		host := extensionsHost{
@@ -562,9 +509,7 @@ func TestAutomationEligibility(t *testing.T) {
 	t.Run("no executor block at all blocks on reachability, not driver health", func(t *testing.T) {
 		t.Parallel()
 
-		// A nil executor is what om_inventory sends for a host it has never
-		// dispatched to -- see inventory_test.go's "a host with no probe reports
-		// absent, not false". Reporting a driver-health failure on top of that would
+		// A nil executor means the host was never dispatched to; a driver-health reason would
 		// claim a health check ran when none did.
 		eligible, reasons, byDesign := automationEligibility(nil, true, false, installable())
 
@@ -583,9 +528,7 @@ func TestAutomationEligibility(t *testing.T) {
 		assert.Equal(t, []string{"this node's automation agent cannot run jobs"}, reasons)
 	})
 
-	// No user-facing reason names Nomad. These strings are joined straight into the
-	// tooltip on the Nodes page, so they are product copy, and PMM-15623 set out to
-	// keep the scheduler's name out of it.
+	// The reasons are product copy shown on the Nodes page, which must not name the scheduler.
 	t.Run("no reason names the scheduler", func(t *testing.T) {
 		t.Parallel()
 
@@ -611,10 +554,7 @@ func TestAutomationEligibility(t *testing.T) {
 		assert.False(t, byDesign)
 	})
 
-	// Every condition above asks whether OM *can* reach this machine. Those below
-	// ask whether it *should* touch it, which is a different question and the one
-	// PMM-15664 exists to answer: a perfectly reachable node can still be the last
-	// thing anyone wants a database installed onto.
+	// The cases below ask whether OM should touch a node, not whether it can reach it.
 	t.Run("the PMM Server's own node is never eligible, however healthy", func(t *testing.T) {
 		t.Parallel()
 
@@ -627,9 +567,7 @@ func TestAutomationEligibility(t *testing.T) {
 		assert.True(t, byDesign, "the server's own node is a fact about it, not a fault on it")
 	})
 
-	// It is the only reason, not the first of several. PMM Server's own image reports
-	// os_id "ol", so without the short circuit the row also advised that Operations
-	// cannot install onto "ol" -- which reads as though a different OS would help.
+	// PMM Server's image reports os_id "ol"; an OS reason as well would suggest a different OS would help.
 	t.Run("the PMM Server's node reports that reason alone", func(t *testing.T) {
 		t.Parallel()
 
@@ -677,8 +615,7 @@ func TestAutomationEligibility(t *testing.T) {
 		assert.True(t, byDesign)
 	})
 
-	// Installed but stopped: no service, nothing running, so only the scan's reading
-	// of the binary shows it - and an install onto it would leave two mongods.
+	// Installed but stopped: only the scan's reading of the binary shows it, and an install would leave two mongods.
 	t.Run("MongoDB a scan found installed but not running also blocks", func(t *testing.T) {
 		t.Parallel()
 
@@ -694,8 +631,7 @@ func TestAutomationEligibility(t *testing.T) {
 		assert.True(t, byDesign)
 	})
 
-	// A node usually has both: the registered service and the mongod serving it. One
-	// problem, so one reason - otherwise a reader counts two faults where there is one.
+	// The registered service and the mongod serving it are one problem, so they get one reason.
 	t.Run("a registered service suppresses the unregistered-mongod reason", func(t *testing.T) {
 		t.Parallel()
 
@@ -712,8 +648,6 @@ func TestAutomationEligibility(t *testing.T) {
 		assert.True(t, byDesign)
 	})
 
-	// The two preconditions that used to fail on the wizard's last click,
-	// inside TriggerHostBootstrap, after the whole form was filled in.
 	t.Run("a node no scan has reported an OS for is not eligible", func(t *testing.T) {
 		t.Parallel()
 
@@ -740,9 +674,7 @@ func TestAutomationEligibility(t *testing.T) {
 		assert.True(t, byDesign, "nothing is wrong with a Debian node; it is simply not a target")
 	})
 
-	// Named rather than asserted as a substring: the sentence lists the supported
-	// distributions, and a reader acting on it needs them to be the ones the trigger
-	// actually accepts.
+	// The reason lists the supported distributions, so they must be the ones the trigger accepts.
 	t.Run("the supported list matches what the trigger accepts", func(t *testing.T) {
 		t.Parallel()
 
@@ -786,8 +718,7 @@ func TestInventoryServiceProjection(t *testing.T) {
 	require.Len(t, services, 1)
 	service := services[0]
 
-	// installed_version against running version is the whole reason the probe exists:
-	// their divergence is the upgraded-but-not-restarted case, and no metric carries it.
+	// Diverging installed and running versions mean upgraded but not restarted, which no metric carries.
 	assert.Equal(t, "7.0.40-22", service.GetInstalledVersion())
 	assert.Equal(t, "7.0.39-21", service.GetRunningVersion())
 	assert.Equal(t, "PRIMARY", service.GetRole())
@@ -804,9 +735,6 @@ func TestTriggerInventoryRefresh(t *testing.T) {
 	t.Run("passes node ids through untranslated", func(t *testing.T) {
 		t.Parallel()
 
-		// The whole argument for keying the estate on PMM's node ID is that no
-		// translation step exists. If one appeared here, it would be the bug that
-		// argument was meant to prevent.
 		stub := newSEPStub(t, http.StatusAccepted,
 			`{"run_id": "r1", "status": "running", "started_at": "2026-08-18T09:00:00Z", "scope": ["n1"]}`)
 
@@ -837,9 +765,7 @@ func TestTriggerInventoryRefresh(t *testing.T) {
 	t.Run("a held host answers 409, not 500", func(t *testing.T) {
 		t.Parallel()
 
-		// Conflict is an answer a caller acts on -- wait, or refresh something else --
-		// so it has to survive the hop as a conflict. Aborted is the code the gateway
-		// renders as 409.
+		// The gateway renders Aborted as 409.
 		stub := newSEPStub(t, http.StatusConflict,
 			`{"detail": "Probe run abc is already refreshing n1"}`)
 
@@ -881,9 +807,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		require.Len(t, stub.calls, 2)
 		assert.Equal(t, "/api/apps/om_inventory/hosts/n1", stub.calls[0].path)
 		assert.Equal(t, "/api/apps/om_bootstrap/runs", stub.calls[1].path)
-		// The dispatched-to host is n1's *executor*, not its node id -- see
-		// TriggerHostBootstrap's own doc comment on why they can differ, even
-		// though this fixture happens to give them the same value.
+		// hosts carries n1's executor host, not its node ID; this fixture just gives them the same value.
 		assert.JSONEq(t,
 			`{"hosts": ["n1"], "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8",
 			  "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo",
@@ -908,8 +832,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
 		message := status.Convert(err).Message()
 		assert.Contains(t, message, "no scan has reported its operating system")
-		// The complaint was the advice, not only the wording: it told the user to
-		// wait after 160 runs had already failed.
+		// Waiting is the wrong advice when scans may have been failing for many runs.
 		assert.NotContains(t, message, "wait")
 	})
 
@@ -929,19 +852,15 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
 		assert.Contains(t, status.Convert(err).Message(), "does not support")
-		// Just the host lookup -- rejected before ever reaching om_bootstrap,
-		// not a second call that would be the actual trigger request.
+		// Only the host lookup: rejected before reaching om_bootstrap.
 		require.Len(t, stub.calls, 1)
 	})
 
 	t.Run("a host with no usable executor answers FailedPrecondition, not 500", func(t *testing.T) {
 		t.Parallel()
 
-		// No executor_host at all -- an unprobed host, or one om_inventory
-		// never matched to a Nomad client. Caught locally, before ever
-		// reaching om_bootstrap: dispatching to node_id here (this bug's own
-		// root cause -- see TriggerHostBootstrap's doc comment) would instead
-		// reach PMM Extensions and fail there, confusingly, once every host in flight.
+		// No executor_host: falling back to node_id would instead fail inside PMM Extensions,
+		// once every host is in flight.
 		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "observed": {"os_id": "ubuntu"}}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
@@ -962,11 +881,8 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	t.Run("an unreachable executor answers FailedPrecondition before a run exists", func(t *testing.T) {
 		t.Parallel()
 
-		// Raised on the PMM Extensions side of this work: without this check the run is created
-		// first and an unreachable Nomad client only surfaces when pre_check -- itself
-		// dispatched through Nomad -- fails seconds later, with the UI already showing
-		// the run as in progress. Only one call is served here, so nothing reached
-		// om_bootstrap.
+		// Without this check the run is created first and an unreachable client only surfaces
+		// when pre_check fails, with the UI already showing the run as in progress.
 		stub := newSEPStub(t, http.StatusOK,
 			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu",
 			  "executor": {"reachable": false, "driver_healthy": true}}}`)
@@ -1146,24 +1062,14 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Contains(t, status.Convert(err).Message(), "priority 0 and votes off")
 	})
 
-	// MongoDB will not elect a member clients cannot see, so rs.initiate() refuses a
-	// hidden member with priority above 0. PMM-15661 adds this rule in the install
-	// wizard and scopes the backend out; without it here the browser is the only thing
-	// between a direct API call and a run that installs mongod on every host and then
-	// fails inside rs.initiate.
-	// The readiness checks. Three nodes with three different problems used to
-	// produce one message about one of them, so a user fixing them discovered the
-	// second only by fixing the first and running the trigger again.
 	t.Run("names every unready node and every problem, not the first", func(t *testing.T) {
 		t.Parallel()
 
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
-			// No OS reported at all.
 			`{"node_id": "n1", "name": "db-01", "executor_host": "exec-n1", "observed": {}}`,
-			// An OS om_bootstrap cannot install onto.
 			`{"node_id": "n2", "name": "db-02", "executor_host": "exec-n2", "observed": {"os_id": "windows"}}`,
-			// No automation agent, and no OS either -- two problems on one node.
+			// No automation agent and no OS: two problems on one node.
 			`{"node_id": "n3", "name": "db-03", "observed": {}}`,
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
@@ -1181,18 +1087,14 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		for _, name := range []string{"db-01", "db-02", "db-03"} {
 			assert.Contains(t, message, name)
 		}
-		// Both of db-03's problems, not just the one that was found first.
 		assert.Contains(t, message, "no automation agent is registered")
 		assert.Contains(t, message, "windows")
-		// The advice is to fix the nodes, and it points at where the reason came from.
 		assert.Contains(t, message, "Nodes page")
 		assert.NotContains(t, message, "wait")
 		// Nothing was planned.
 		require.Len(t, stub.calls, 3)
 	})
 
-	// A mixed selection is the selection's problem, not any one node's, so it names
-	// the groups rather than blaming whichever node happened to be second.
 	t.Run("names both OS groups when the selection is mixed", func(t *testing.T) {
 		t.Parallel()
 
@@ -1214,15 +1116,12 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		require.Error(t, err)
 		message := status.Convert(err).Message()
 		assert.Contains(t, message, "mixed-OS")
-		// Both groups, with their members, so the reader can see which two to keep.
 		assert.Contains(t, message, "rocky on db-02")
 		assert.Contains(t, message, "ubuntu on db-01, db-03")
 	})
 
-	// The safety gate, and the reason it is not left to the UI. automation_eligible is
-	// advisory: computed for a list request, minutes stale by the time anyone clicks,
-	// and never read at all by a direct API call. These are the two cases that are
-	// most damaging thing Operations can do.
+	// automation_eligible is advisory and may be stale, and a direct API call never reads it,
+	// so the trigger refuses these nodes itself.
 	t.Run("refuses a node that already has a registered MongoDB service", func(t *testing.T) {
 		t.Parallel()
 
@@ -1242,8 +1141,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
 		message := status.Convert(err).Message()
 		assert.Contains(t, message, "already registered")
-		// By name, not by the node id the caller sent: a UUID is not what anyone's
-		// inventory, runbook or ticket calls the machine.
+		// By name, not by node ID: a UUID is not what anyone calls the machine.
 		assert.Contains(t, message, "rs-member-00")
 		assert.NotContains(t, message, "n1:")
 		// Rejected before om_bootstrap is ever asked to plan anything.
@@ -1272,8 +1170,6 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		require.Len(t, stub.calls, 1)
 	})
 
-	// Every blocking node, not the first. A user fixing three nodes should not have to
-	// run the trigger three times to discover there were three.
 	t.Run("names every blocking node, not just the first", func(t *testing.T) {
 		t.Parallel()
 
@@ -1300,15 +1196,11 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		message := status.Convert(err).Message()
 		assert.Contains(t, message, "db-01")
 		assert.Contains(t, message, "db-03")
-		// The healthy one is not blamed.
 		assert.NotContains(t, message, "db-02")
-		// All three were looked up before anything was refused, and om_bootstrap was
-		// never asked to plan: three host calls, no trigger call.
+		// Three host lookups and no trigger call.
 		require.Len(t, stub.calls, 3)
 	})
 
-	// A node PMM has no name for still has to be identifiable, and its id is the only
-	// identifier that exists in that case.
 	t.Run("falls back to the node id when the host has no name", func(t *testing.T) {
 		t.Parallel()
 
@@ -1328,6 +1220,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Contains(t, status.Convert(err).Message(), "n1")
 	})
 
+	// rs.initiate() refuses a hidden member with priority above 0, so a direct API call must be refused too.
 	t.Run("rejects a hidden member that could still be elected", func(t *testing.T) {
 		t.Parallel()
 
@@ -1341,8 +1234,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 				ReplicaSetName: "rs-orders-prod",
 				MongodbVersion: "7.0.8",
 				MemberConfigs: map[string]*omv1.BootstrapMemberConfig{
-					// Priority left unset, which is the same mistake as setting it
-					// wrong: unset means MongoDB's default of 1.
+					// Unset priority means MongoDB's default of 1.
 					"n1": {Hidden: true},
 				},
 			})
@@ -1374,24 +1266,14 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Contains(t, status.Convert(err).Message(), "priority 0")
 	})
 
-	// The other side of it: hidden is perfectly legitimate with priority 0, and a
-	// rule that refused that would block the topology the field exists for. Checked
-	// against validateMemberConfigs directly, because a one-member set with priority
-	// 0 is refused by the no-electable-member rule instead and would prove nothing.
-	// The member rules. Two misconfigured members in one plan used to report
-	// one of them. Checked directly rather than through the trigger, because the point
-	// is the set of violations rather than the RPC around it.
 	t.Run("returns every member violation in one error", func(t *testing.T) {
 		t.Parallel()
 
 		err := validateMemberConfigs(
 			[]string{"n1", "n2", "n3"},
 			map[string]*omv1.BootstrapMemberConfig{
-				// Delayed, but still electable and voting.
 				"n1": {DelaySecs: 300},
-				// Hidden, but still electable.
 				"n2": {Hidden: true},
-				// Not in the selection at all.
 				"n9": {},
 			},
 		)
@@ -1404,8 +1286,6 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Contains(t, message, "not in node_ids")
 	})
 
-	// Map iteration order is random, so an error built by ranging one reshuffles
-	// itself between two identical attempts and cannot be diffed against the last.
 	t.Run("orders the violations the same way every time", func(t *testing.T) {
 		t.Parallel()
 
@@ -1421,6 +1301,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		}
 	})
 
+	// Checked directly: a one-member set with priority 0 is refused by the no-electable-member rule instead.
 	t.Run("accepts a hidden member that cannot be elected", func(t *testing.T) {
 		t.Parallel()
 
@@ -1478,16 +1359,8 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	t.Run("leaves unset priority and votes out, so MongoDB's defaults apply", func(t *testing.T) {
 		t.Parallel()
 
-		// The trap this closes: proto3 zero values are the opposite of MongoDB's
-		// defaults, so a member config that set neither used to send priority 0 and
-		// votes false anyway -- three such hosts is a replica set with no voting
-		// member and nothing electable, which rs.initiate rejects minutes into a run.
-		// Unset now means unsent, and om_bootstrap's own MemberConfig defaults
-		// (priority 1, votes on) apply.
-		//
-		// An empty member config is the vehicle, rather than `{Hidden: true}` as it
-		// once was: a hidden member must set priority 0, so that input is now refused
-		// before it can demonstrate anything about serialization.
+		// proto3 zero values are the opposite of MongoDB's defaults; sending them would leave
+		// no voting or electable member, which rs.initiate rejects minutes into a run.
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
 			`{"node_id": "n1", "executor_host": "exec-n1", "observed": {"os_id": "ubuntu"}}`,
@@ -1519,17 +1392,15 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			stub.calls[1].body)
 	})
 
-	// An om_bootstrap older than the per-member bind_ip accepts the request and
-	// ignores the field -- pydantic drops what it does not know -- and mongod would
-	// then come up on the run-level address, which is the 0.0.0.0 the per-member value
-	// exists to avoid. The echo is what makes that detectable.
+	// An older om_bootstrap silently drops per-member bind_ip, so mongod would come up on the run-level
+	// address; only the echo shows it.
 	t.Run("refuses a side-car that ignored a member's own bind address", func(t *testing.T) {
 		t.Parallel()
 
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
 			`{"node_id": "n1", "name": "db-01", "executor_host": "exec-n1", "observed": {"os_id": "ubuntu"}}`,
-			// Echoed without bind_ip, which is what an older app sends back.
+			// Echoed without bind_ip, as an older app does.
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu",
 			  "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "bind_ip": "0.0.0.0",
 			  "member_configs": {"exec-n1": {"priority": 1, "votes": true, "hidden": false, "delay_secs": 0}},
@@ -1556,12 +1427,11 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		message := status.Convert(err).Message()
 		assert.Contains(t, message, "the per-member replica-set settings")
 		assert.Contains(t, message, "older than this PMM")
-		// And the run it would not configure is cancelled rather than left running.
+		// The run is cancelled rather than left running.
 		require.Len(t, stub.calls, 3)
 	})
 
-	// The other way round: a member that named no address must not read as a mismatch
-	// just because om_bootstrap echoes None for it.
+	// om_bootstrap echoes a null bind_ip for a member that named none, which is not a mismatch.
 	t.Run("accepts a run whose members named no bind address", func(t *testing.T) {
 		t.Parallel()
 
@@ -1582,8 +1452,6 @@ func TestTriggerHostBootstrap(t *testing.T) {
 				MongodbVersion: "7.0.8",
 				BindIp:         "0.0.0.0",
 				MemberConfigs: map[string]*omv1.BootstrapMemberConfig{
-					// Nothing set, so om_bootstrap's own defaults apply and it echoes
-					// bind_ip as null.
 					"n1": {},
 				},
 			})
@@ -1594,13 +1462,8 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	t.Run("refuses a side-car that accepted the run but ignored its settings", func(t *testing.T) {
 		t.Parallel()
 
-		// Raised in review: om_bootstrap's own TriggerRunRequest is a plain
-		// pydantic model, so an app older than percona/PMM Extensions#1534 ignores these
-		// fields rather than rejecting them -- the run would be accepted and come
-		// up on PMM Extensions' defaults, with a member meant to be hidden and non-voting
-		// joining as an ordinary one and nothing saying so. PMM Extensions echoes the
-		// configuration it accepted, so an older one is the run below: no
-		// data_path, no member_configs.
+		// An older om_bootstrap ignores unknown fields rather than rejecting them; its echo of
+		// the accepted configuration lacks them, as below.
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
 			`{"node_id": "n1", "executor_host": "exec-n1", "observed": {"os_id": "ubuntu"}}`,
@@ -1623,14 +1486,11 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
 		message := status.Convert(err).Message()
-		// Every setting it dropped, not the first. This side-car is older than
-		// all four fields, so naming one made the gap look like a single mis-set
-		// value rather than what it is -- a PMM talking to an older PMM Extensions.
 		for _, setting := range []string{"the data path", "the log path", "the port", "the bind address"} {
 			assert.Contains(t, message, setting)
 		}
 		assert.Contains(t, message, "older than this PMM")
-		// And the run it would not configure is not left running.
+		// The run is not left running.
 		require.Len(t, stub.calls, 3)
 		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc:cancel", stub.calls[2].path)
 	})
@@ -1683,9 +1543,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	})
 
 	t.Run("persists environment and cluster, and echoes them back through GetBootstrapRun", func(t *testing.T) {
-		// Not t.Parallel(): storeTestDB drops and recreates one fixed-name
-		// database, which two parallel subtests would race on -- see
-		// TestRegisterBootstrapHost's own subtests, which follow the same rule.
+		// Not parallel: storeTestDB drops and recreates one fixed-name database.
 		db := storeTestDB(t)
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
@@ -1721,7 +1579,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	})
 
 	t.Run("leaves no config row, and echoes no environment or cluster, when neither was given", func(t *testing.T) {
-		// Not t.Parallel() -- see the previous subtest's own comment.
+		// Not parallel, for the same reason as the previous subtest.
 		db := storeTestDB(t)
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
@@ -1851,9 +1709,7 @@ func TestGetBootstrapRun(t *testing.T) {
 		assert.Equal(t, "stop_service", response.GetHosts()[0].GetRollbackSteps()[0].GetName())
 		require.Len(t, response.GetHosts()[0].GetFinalizeSteps(), 2)
 		assert.Equal(t, "enable_auth", response.GetHosts()[0].GetFinalizeSteps()[0].GetName())
-		// confirm_monitoring is PMM's own synthetic step, appended regardless of what
-		// PMM Extensions returned -- "pending" here because the run itself has not succeeded yet,
-		// same as rollback_steps stay "pending" until a run actually rolls back.
+		// confirm_monitoring is appended by PMM itself and stays pending until the run succeeds.
 		assert.Equal(t, "confirm_monitoring", response.GetHosts()[0].GetFinalizeSteps()[1].GetName())
 		assert.Equal(t, "pending", response.GetHosts()[0].GetFinalizeSteps()[1].GetStatus())
 		require.Len(t, response.GetRunSteps(), 1)
@@ -1863,10 +1719,8 @@ func TestGetBootstrapRun(t *testing.T) {
 	t.Run("confirms monitoring against the inventory app once the run has succeeded", func(t *testing.T) {
 		t.Parallel()
 
-		// Two responses in order: the bootstrap run itself, then the inventory app's
-		// own host list that confirmMonitoringLookup fetches once it sees "succeeded".
-		// n1 already has a service the inventory sweep noticed; n2's bootstrap
-		// succeeded too but the sweep has not caught up to it yet.
+		// The run, then the host list confirmMonitoringLookup fetches once it sees "succeeded".
+		// n1 already has a service; the inventory sweep has not caught up with n2 yet.
 		stub := newSEPStubSeq(t, http.StatusOK,
 			`{
 				"id": "run-abc",
@@ -2002,9 +1856,7 @@ func TestListBootstrapRuns(t *testing.T) {
 				"run_steps": []
 			}
 		]`,
-			// The second response: confirmMonitoringLookup's own GET /hosts, fetched
-			// once because run-abc is "succeeded" -- run-def being "running" would
-			// never trigger it on its own. n1 already has a service.
+			// confirmMonitoringLookup's GET /hosts, fetched because run-abc succeeded.
 			`{"items": [{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]}], "total": 1, "offset": 0, "limit": 200}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
@@ -2021,8 +1873,7 @@ func TestListBootstrapRuns(t *testing.T) {
 		assert.Equal(t, "rs-orders-prod", response.GetRuns()[0].GetReplicaSetName())
 		assert.Equal(t, mustParseTime(t, "2026-01-01T00:05:00Z"), response.GetRuns()[0].GetFinishedAt().AsTime())
 		assert.Equal(t, "n1", response.GetRuns()[0].GetHosts()[0].GetHost())
-		// confirm_monitoring is the last finalize step on every host, appended by PMM
-		// itself -- "succeeded" here because n1 already has a service.
+		// confirm_monitoring succeeded because n1 already has a service.
 		n1FinalizeSteps := response.GetRuns()[0].GetHosts()[0].GetFinalizeSteps()
 		assert.Equal(t, "confirm_monitoring", n1FinalizeSteps[len(n1FinalizeSteps)-1].GetName())
 		assert.Equal(t, "succeeded", n1FinalizeSteps[len(n1FinalizeSteps)-1].GetStatus())
@@ -2098,9 +1949,7 @@ func TestInventoryErrorMapping(t *testing.T) {
 			want: codes.InvalidArgument,
 		},
 		{
-			// PMM's credential being rejected is an operator's problem, not the
-			// browser's. Reflecting the app's 401 would tell the browser to
-			// re-authenticate against PMM, which would not fix anything.
+			// Reflecting the app's 401 would tell the browser to re-authenticate against PMM, which fixes nothing.
 			name:  "a rejected credential does not read as the caller's",
 			code:  http.StatusUnauthorized,
 			body:  `{"detail": "Not authenticated"}`,
@@ -2163,8 +2012,7 @@ func TestInventoryConfig(t *testing.T) {
 		assert.Equal(t, omv1.SettingReload_SETTING_RELOAD_HOT, schedule.GetReload())
 		assert.False(t, schedule.GetHasOverride())
 
-		// A field the deployment owns outright is listed rather than hidden, so a UI can
-		// show it greyed out instead of leaving the reader to wonder where it went.
+		// A field the deployment owns is listed rather than hidden, so a UI can show it greyed out.
 		assert.Equal(t, omv1.SettingReload_SETTING_RELOAD_NOT_OVERRIDABLE, response.GetSettings()[1].GetReload())
 	})
 
@@ -2187,11 +2035,8 @@ func TestInventoryConfig(t *testing.T) {
 	t.Run("the answer is the whole configuration, not the submitted keys", func(t *testing.T) {
 		t.Parallel()
 
-		// The app answers a PATCH with one row per key *named in the request*. That is
-		// misleading for a nested write -- overriding a parent moves what its children
-		// resolve to, and no row says so -- so the handler reads the configuration back
-		// and answers with that. The two canned bodies differ precisely so this asserts
-		// which one was returned.
+		// The app answers a PATCH with only the named keys, but overriding a parent also moves its children,
+		// so the handler reads the configuration back.
 		applied := `[{"key": "SCHEDULE__every", "value": 25, "default_value": null,
 		              "type": "int", "reload": "hot", "has_override": true,
 		              "is_advanced": false, "description": null}]`
@@ -2206,7 +2051,7 @@ func TestInventoryConfig(t *testing.T) {
 		require.Len(t, stub.calls, 2)
 		assert.Equal(t, http.MethodGet, stub.calls[1].method)
 		assert.Equal(t, "/api/apps/om_inventory/config", stub.calls[1].path)
-		// Two rows, from the read-back -- not the one row the write echoed.
+		// From the read-back, not the single row the write echoed.
 		require.Len(t, response.GetSettings(), 2)
 		assert.Equal(t, "CREDENTIALS_PATH", response.GetSettings()[1].GetKey())
 	})
@@ -2214,8 +2059,7 @@ func TestInventoryConfig(t *testing.T) {
 	t.Run("a failed read-back does not report the write as failed", func(t *testing.T) {
 		t.Parallel()
 
-		// The write landed. Answering with an error would tell a caller to retry a change
-		// that already applied, so the narrower body is served instead.
+		// The write landed; an error would tell the caller to retry a change that already applied.
 		applied := `[{"key": "SCHEDULE__every", "value": 25, "default_value": null,
 		              "type": "int", "reload": "hot", "has_override": true,
 		              "is_advanced": false, "description": null}]`
@@ -2234,8 +2078,7 @@ func TestInventoryConfig(t *testing.T) {
 	t.Run("an empty batch is refused here", func(t *testing.T) {
 		t.Parallel()
 
-		// Not forwarded: an empty PATCH would succeed on the app's side and change
-		// nothing, so a caller who built the body wrongly would see success.
+		// An empty PATCH would succeed on the app's side and change nothing.
 		stub := newSEPStub(t, http.StatusOK, configBody)
 
 		_, err := stub.service(t).UpdateInventoryConfig(t.Context(),
@@ -2249,8 +2092,7 @@ func TestInventoryConfig(t *testing.T) {
 	t.Run("a batch wider than the settings class is refused here", func(t *testing.T) {
 		t.Parallel()
 
-		// Nothing bounds this on either hop: protojson takes 200k fields inside the 4MB
-		// gRPC default, and the app would then attempt every one of them.
+		// Nothing else bounds this: protojson takes 200k fields inside the 4MB gRPC default.
 		stub := newSEPStub(t, http.StatusOK, configBody)
 		wide := map[string]any{}
 		for i := 0; i <= maxConfigFields; i++ {
@@ -2271,9 +2113,7 @@ func TestInventoryConfig(t *testing.T) {
 	t.Run("a batch nested deeper than the app can parse is refused here", func(t *testing.T) {
 		t.Parallel()
 
-		// The app is Python, where the default recursion limit is 1000, while protojson
-		// accepts nesting just short of 10k. Forwarding that would make PMM the thing
-		// that broke PMM Extensions.
+		// The app's Python recursion limit is 1000, while protojson accepts nesting just short of 10k.
 		stub := newSEPStub(t, http.StatusOK, configBody)
 		nested := map[string]any{"leaf": 1}
 		for range maxConfigDepth + 1 {
@@ -2294,8 +2134,7 @@ func TestInventoryConfig(t *testing.T) {
 	t.Run("the nesting a real batch uses is not refused", func(t *testing.T) {
 		t.Parallel()
 
-		// The bounds must not touch what the settings class actually looks like: a
-		// whole-object write of SCHEDULE, which is the deepest legitimate shape.
+		// A whole-object write of SCHEDULE is the deepest legitimate shape.
 		stub := newSEPStub(t, http.StatusOK, configBody)
 		values, err := structpb.NewStruct(map[string]any{
 			"SCHEDULE": map[string]any{"every": 25, "period": "seconds"},
@@ -2372,10 +2211,7 @@ func TestInventoryRunsRejectsInvertedDateRange(t *testing.T) {
 func TestInventoryRunCarriesHostCounters(t *testing.T) {
 	t.Parallel()
 
-	// A refresh attempts hosts as well as the services on them. Counting only
-	// services made a refresh of a host with no database read as "0 of 0", which is
-	// what a run that did nothing also looks like -- on the one kind of host OM most
-	// exists to describe.
+	// Counting only services would make a refresh of a host with no database read as "0 of 0".
 	stub := newSEPStub(t, http.StatusOK, `[{
 	  "run_id": "r1", "status": "success",
 	  "started_at": "2026-08-18T12:00:00Z", "finished_at": "2026-08-18T12:00:30Z",
@@ -2395,15 +2231,12 @@ func TestInventoryRunCarriesHostCounters(t *testing.T) {
 	assert.Equal(t, int32(2), counts.GetProbeableHosts())
 	assert.Equal(t, int32(1), counts.GetAnsweredHosts())
 	assert.Equal(t, int32(2), counts.GetFinishedHosts())
-	// Zero services is the honest answer for a host-only refresh, and the reason the
-	// host counters had to exist rather than the service ones being reinterpreted.
 	assert.Equal(t, int32(0), counts.GetTotalServices())
 }
 
 func TestInventoryRunNamesItsFailingNodes(t *testing.T) {
 	t.Parallel()
 
-	// What the scan history groups runs by, and links each failure from.
 	stub := newSEPStub(t, http.StatusOK, `[{
 	  "run_id": "r1", "status": "partial",
 	  "started_at": "2026-10-07T12:00:00Z", "finished_at": "2026-10-07T12:00:30Z",
@@ -2430,16 +2263,13 @@ func TestInventoryRunNamesItsFailingNodes(t *testing.T) {
 	assert.Equal(t, "n2", failing[0].GetNodeId())
 	assert.Equal(t, "node02", failing[0].GetName())
 	assert.Empty(t, failing[1].GetName(), "a node the run recorded no name for")
-	// A server that predates the field sends none, which is no failing node.
+	// A server that predates the field sends none.
 	assert.Empty(t, res.GetRuns()[1].GetFailingNodes())
 }
 
 func TestInventoryRunDetailIsHostOriented(t *testing.T) {
 	t.Parallel()
 
-	// A refresh attempts hosts, so the receipt lists hosts. A flat service list -- which
-	// this was -- cannot show a machine carrying a PMM client and no database, however
-	// many times it is probed, and that machine is the case OM most exists to describe.
 	stub := newSEPStub(t, http.StatusOK, `{
 	  "run_id": "r1", "status": "partial",
 	  "started_at": "2026-08-19T12:00:00Z", "finished_at": "2026-08-19T12:00:30Z",
@@ -2472,28 +2302,21 @@ func TestInventoryRunDetailIsHostOriented(t *testing.T) {
 	assert.Equal(t, "db00", withDatabase.GetHostName())
 	assert.True(t, withDatabase.GetAnswered())
 	assert.InDelta(t, 12.5, withDatabase.GetDurationSeconds(), 0.001)
-	// The pointer to this attempt's raw output -- the observations deliberately not
-	// kept on the receipt itself.
+	// Points at this attempt's raw output, which the receipt does not keep.
 	assert.Equal(t, int64(4711), withDatabase.GetTaskHistoryId())
 	require.Len(t, withDatabase.GetServices(), 1)
 	assert.Equal(t, "mongo-1", withDatabase.GetServices()[0].GetServiceName())
 
-	// The row a service-oriented receipt could not produce at all: probed, answered,
-	// and carrying no services because there is no database on it.
 	bare := res.GetEntities()[1]
 	assert.Equal(t, "pmm-client-node00", bare.GetHostName())
 	assert.True(t, bare.GetAnswered())
 	assert.Empty(t, bare.GetServices())
 
-	// An orphan keeps its row rather than being dropped: "2 of 3 answered" cannot say
-	// which one was missed, and the orphan is the one worth acting on.
+	// An orphan keeps its row: "2 of 3 answered" cannot say which one was missed.
 	orphan := res.GetEntities()[2]
 	assert.Equal(t, omv1.ExecutorResolution_EXECUTOR_RESOLUTION_ORPHANED, orphan.GetResolution())
 	assert.False(t, orphan.GetAnswered())
-	// Asserted on the fields rather than the getters: these are proto3 `optional`
-	// scalars, so the getter returns the zero value for an unset field and only the
-	// pointer distinguishes "no executor host" from "an empty one". protojson omits
-	// the key altogether, which is the wire form the UI reads as absent.
+	// Fields, not getters: for proto3 optional scalars only the pointer distinguishes unset from empty.
 	assert.Nil(t, orphan.ExecutorHost)
 	assert.Nil(t, orphan.DurationSeconds)
 	assert.Nil(t, orphan.TaskHistoryId)
@@ -2503,9 +2326,6 @@ func TestInventoryRunDetailIsHostOriented(t *testing.T) {
 func TestInventoryBearerIsSent(t *testing.T) {
 	t.Parallel()
 
-	// The browser holds no PMM Extensions token -- that is the point of proxying -- so this hop is
-	// the only place the app's credential is presented. Without it every request is a
-	// 401 the page cannot explain.
 	var seen string
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		seen = r.Header.Get("Authorization")
@@ -2529,14 +2349,9 @@ func mustParseTime(t *testing.T, stamp string) time.Time {
 	return parsed
 }
 
-// ensure the canned bodies stay valid JSON as they are edited.
 func TestInventoryFixturesAreValid(t *testing.T) {
 	t.Parallel()
 
-	// hosts is checked separately from config: it is wrapped in PMM Extensions' own
-	// paginated envelope (PMM-15326: "Bound the estate listings") and config
-	// deliberately is not -- see extensionsPage's own comment on which endpoints
-	// changed shape and which stayed a bare array.
 	t.Run("hosts", func(t *testing.T) {
 		t.Parallel()
 
@@ -2556,12 +2371,8 @@ func TestInventoryFixturesAreValid(t *testing.T) {
 	})
 }
 
-// TestNudgeDebouncesExpire covers the half of each debounce the end-to-end tests
-// in TestCompleteSucceededRun cannot reach: they prove a second ask inside the
-// window is suppressed, but nothing proved the window ever reopens. Both
-// failures are silent and permanent -- a node or a server that stops asking
-// leaves every later run waiting out bootstrapInventoryRefreshWindow before
-// confirm_monitoring resolves.
+// A debounce window that never reopens silently makes every later run wait out
+// bootstrapInventoryRefreshWindow before confirm_monitoring resolves.
 func TestNudgeDebouncesExpire(t *testing.T) {
 	t.Parallel()
 

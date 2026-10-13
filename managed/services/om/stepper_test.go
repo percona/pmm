@@ -40,8 +40,6 @@ func TestCompleteSucceededRun(t *testing.T) {
 			KeyFile:         "keyfile-content",
 		}))
 
-		// node00's service is already visible to the inventory app; node01's is not
-		// yet -- the sweep that would show it just hasn't happened.
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
 			fmt.Sprintf(
@@ -75,9 +73,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 
 		require.Len(t, stub.calls, 3)
 		assert.Equal(t, "/api/apps/om_inventory/hosts", stub.calls[0].path)
-		// The sync comes between reading the estate and re-probing it: the
-		// service was just created in PMM, and the probe resolves services from
-		// the app's own copy, which only PMMSyncer fills.
+		// The sync must precede the probe: the probe reads the app's own service copy, which only PMMSyncer fills.
 		assert.Equal(t, "/api/apps/inventory/sync/", stub.calls[1].path)
 		assert.JSONEq(t, `{"syncer": "`+pmmSyncerName+`"}`, stub.calls[1].body)
 		assert.Equal(t, "/api/apps/om_inventory/runs", stub.calls[2].path)
@@ -85,17 +81,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 	})
 
 	t.Run("keeps an unconfirmed run in the sweep even when both nudges were accepted", func(t *testing.T) {
-		// The regression this pins, and the reason the hold is on the estate's
-		// answer rather than on whether the requests were taken.
-		//
-		// The sync answers 202 and finishes in the background, so the probe
-		// fired straight after it can easily run before the service it is
-		// looking for arrives. Measured on a real deployment: two runs finished
-		// at 08:40:31 and 08:41:31, each nudged at exactly that second, both
-		// found nothing, and confirm_monitoring read "running" until the app's
-		// own 10-minute sweep at 08:50:58 - nine minutes of a wholly successful
-		// bootstrap looking hung. Treating "both calls accepted" as done is what
-		// let the run leave the sweep before the data it was waiting for existed.
+		// The sync answers 202 and finishes in the background, so the probe after it can miss the new service.
 		db := storeTestDB(t)
 		node00, _ := registerTestNode(t, db, "node00")
 		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
@@ -105,7 +91,6 @@ func TestCompleteSucceededRun(t *testing.T) {
 			KeyFile:         "keyfile-content",
 		}))
 
-		// Every call succeeds; the estate simply has no service yet.
 		stub := newSEPStub(t, http.StatusOK,
 			fmt.Sprintf(`{"items": [{"node_id": %q, "executor_host": "node00", "services": []}], "total": 1, "offset": 0, "limit": 200}`, node00))
 		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
@@ -127,9 +112,6 @@ func TestCompleteSucceededRun(t *testing.T) {
 	})
 
 	t.Run("debounces the sync, so one bootstrap does not cause a pull per tick", func(t *testing.T) {
-		// completeSucceededRun is reached every 15s for as long as
-		// refreshRetryWindowOpen holds a run, and the sync is global rather than
-		// per-run, so one pull serves every run finishing together.
 		db := storeTestDB(t)
 		node00, _ := registerTestNode(t, db, "node00")
 		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
@@ -165,9 +147,6 @@ func TestCompleteSucceededRun(t *testing.T) {
 	})
 
 	t.Run("debounces the scoped refresh per node, so a held run does not re-probe every tick", func(t *testing.T) {
-		// The sync got a debounce for the every-tick hold; the probe it feeds
-		// costs more and must not be left asking faster than the sync can
-		// deliver anything new for it to read.
 		db := storeTestDB(t)
 		node00, _ := registerTestNode(t, db, "node00")
 		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
@@ -201,17 +180,12 @@ func TestCompleteSucceededRun(t *testing.T) {
 		}
 		assert.Equal(t, 1, refreshes, "the second tick is inside inventoryRefreshDebounce for this node")
 
-		// A node first seen on the second tick is not held by the first one's
-		// window: the debounce is per node precisely so a run finishing while
-		// another is held still gets its own first probe straight away.
+		// The debounce is per node, so a node not probed yet is still due.
 		assert.Equal(t, []string{"other-node"}, svc.refreshDue([]string{node00, "other-node"}, time.Now()))
 	})
 
 	t.Run("falls back to syncing every syncer when the app does not know PMMSyncer by name", func(t *testing.T) {
-		// pmmSyncerName is a Python dotted path across a release boundary: PMM
-		// Extensions renamed the package holding it, and an older side-car
-		// answers 400 rather than no-opping. Without the fallback that 400
-		// restores the nine-minute hang the sync exists to remove.
+		// An older PMM Extensions holds PMMSyncer under a different package path and answers 400 to pmmSyncerName.
 		db := storeTestDB(t)
 		node00, _ := registerTestNode(t, db, "node00")
 		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
@@ -246,10 +220,6 @@ func TestCompleteSucceededRun(t *testing.T) {
 	})
 
 	t.Run("retries the sync on the next tick when the request never reached the app", func(t *testing.T) {
-		// The debounce is armed before the request so two runs completing in one
-		// tick cannot both ask. A failure has to hand that window back, or a
-		// single unreachable moment costs 45s of a 5-minute retry budget for a
-		// pull nobody made.
 		db := storeTestDB(t)
 		node00, _ := registerTestNode(t, db, "node00")
 		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
@@ -316,11 +286,6 @@ func TestCompleteSucceededRun(t *testing.T) {
 	})
 
 	t.Run("records the run as registered, so the sweep stops revisiting it", func(t *testing.T) {
-		// The reason this is persisted rather than remembered: a run stays SUCCEEDED
-		// in PMM Extensions for the rest of its life, so without a record of PMM's own last
-		// step every finished run in the history would be re-fetched, re-matched
-		// against the whole estate and re-registered on every 15s tick, forever --
-		// and a new leader after a failover would start over.
 		db := storeTestDB(t)
 		node00, _ := registerTestNode(t, db, "node00")
 		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
@@ -361,8 +326,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 			KeyFile:         "keyfile-content",
 		}))
 
-		// node01 bootstrapped, but the inventory app has no row for it yet, so PMM
-		// cannot register it and the run is not finished from PMM's side.
+		// node01 has no inventory app row yet, so PMM cannot register it.
 		stub := newSEPStubSeq(t, http.StatusOK,
 			fmt.Sprintf(`{"items": [{"node_id": %q, "executor_host": "node00", "services": []}], "total": 1, "offset": 0, "limit": 200}`, node00),
 			`{}`)
@@ -382,11 +346,6 @@ func TestCompleteSucceededRun(t *testing.T) {
 	})
 
 	t.Run("keeps a run whose refresh the inventory app refused, so the next tick asks again", func(t *testing.T) {
-		// The refusal to expect is a 409 from the app's own estate sweep already
-		// holding this host -- which is likeliest exactly when a run finishes. Every
-		// host here registered, so nothing but the nudge is outstanding, and marking
-		// the run registered is what takes it out of the sweep for good: dropping the
-		// nudge here means it is never retried at all.
 		db := storeTestDB(t)
 		node00, _ := registerTestNode(t, db, "node00")
 		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
@@ -428,10 +387,6 @@ func TestCompleteSucceededRun(t *testing.T) {
 	})
 
 	t.Run("gives up on the refresh once the run is too old, rather than sweeping it forever", func(t *testing.T) {
-		// The other half of the branch above: a host the app will never accept a
-		// refresh for must not pin the run in a list re-read every 15 seconds for the
-		// life of the server. confirm_monitoring then waits out the app's own
-		// schedule, which is where it stood before the nudge existed.
 		db := storeTestDB(t)
 		node00, _ := registerTestNode(t, db, "node00")
 		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
@@ -475,11 +430,8 @@ func TestAdvanceRunningRunRollbackReason(t *testing.T) {
 		svc := (&Service{l: logrus.WithField("test", t.Name())}).
 			WithBootstrapSource(stub.server.URL, "test-token")
 
-		// node00 already exhausted its retries -- rollback is underway for that
-		// reason alone -- and an operator also clicked cancel while it was still
-		// in flight. Empty RollbackSteps means hostRollbackDone trivially agrees
-		// every host's rollback already finished, so this run is ready to be
-		// recorded as ROLLED_BACK on this tick.
+		// node00 exhausted its retries and cancel was also requested. With no RollbackSteps, hostRollbackDone
+		// reports every rollback finished, so the run is recorded as rolled back on this tick.
 		run := &extensionsBootstrapRun{
 			ID:              "run-abc",
 			Status:          bootstrapRunRunning,

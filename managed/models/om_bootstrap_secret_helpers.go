@@ -34,12 +34,8 @@ func DecryptOmBootstrapSecret(secret OmBootstrapSecret) (OmBootstrapSecret, erro
 	return omBootstrapSecretEncryption(secret, encryption.Decrypt)
 }
 
-// omBootstrapSecretEncryption stops on the first failure rather than logging and
-// keeping the untransformed field: a MongoDB password or keyFile this returns
-// still needs handler applied to every field, or CreateOmBootstrapSecret's caller
-// would insert a run's plaintext credential next to its correctly-encrypted
-// siblings -- exactly the partial-encryption outcome utils/encryption.EncryptItems
-// (agents.username/password's own bulk path) never allows either.
+// omBootstrapSecretEncryption fails on the first field error rather than keeping that field untransformed,
+// so a plaintext credential is never stored next to encrypted ones.
 func omBootstrapSecretEncryption(secret OmBootstrapSecret, handler func(string) (string, error)) (OmBootstrapSecret, error) {
 	username, err := handler(secret.MongoDBUsername)
 	if err != nil {
@@ -62,13 +58,7 @@ func omBootstrapSecretEncryption(secret OmBootstrapSecret, handler func(string) 
 	return secret, nil
 }
 
-// CreateOmBootstrapSecret stores one bootstrap run's generated MongoDB user and
-// keyFile, encrypted.
-//
-// Callers create this exactly once per run, the first time the stepper needs a
-// value it did not already have on hand (see OmBootstrapSecret's own doc comment) --
-// there is nothing to update afterward, since neither field ever changes for the
-// life of a run.
+// CreateOmBootstrapSecret stores one bootstrap run's generated MongoDB user and keyFile, encrypted.
 func CreateOmBootstrapSecret(q *reform.Querier, secret *OmBootstrapSecret) error {
 	encrypted, err := EncryptOmBootstrapSecret(*secret)
 	if err != nil {
@@ -86,8 +76,7 @@ func CreateOmBootstrapSecret(q *reform.Querier, secret *OmBootstrapSecret) error
 	return nil
 }
 
-// FindOmBootstrapSecretByRunID returns one run's stored secret, decrypted, or
-// ErrNotFound when the stepper has not generated one for this run yet.
+// FindOmBootstrapSecretByRunID returns one run's stored secret, decrypted, or ErrNotFound.
 func FindOmBootstrapSecretByRunID(q *reform.Querier, runID string) (*OmBootstrapSecret, error) {
 	if runID == "" {
 		return nil, NewInvalidArgumentError("run_id shouldn't be empty")

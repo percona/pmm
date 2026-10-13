@@ -27,9 +27,6 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// fakeStateUpdater records every pmmAgentID RequestStateUpdate was called
-// with, in call order -- all this package's tests need from a real
-// *agents.StateUpdater, which pulls in the whole agent registry to construct.
 type fakeStateUpdater struct {
 	requested []string
 }
@@ -38,11 +35,7 @@ func (f *fakeStateUpdater) RequestStateUpdate(_ context.Context, pmmAgentID stri
 	f.requested = append(f.requested, pmmAgentID)
 }
 
-// registerTestNode creates a node with a running pmm-agent, the minimum
-// registerBootstrapHost needs to succeed.
-//
-// :return: The node's id, and its pmm-agent's id -- registerBootstrapHost
-// pushes a state update for the latter, which some tests need to assert on.
+// registerTestNode creates a node with a running pmm-agent and returns the node and pmm-agent IDs.
 func registerTestNode(t *testing.T, db *reform.DB, nodeName string) (string, string) {
 	t.Helper()
 	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
@@ -101,11 +94,7 @@ func TestRegisterBootstrapHost(t *testing.T) {
 	})
 
 	t.Run("registers every member of the same replica set under a distinct service name", func(t *testing.T) {
-		// The bug this guards: naming every member's service after the shared
-		// replicaSetName ("rs-test-mongod" for all three) collided on PMM's
-		// instance-wide service-name uniqueness constraint, so only the first
-		// host of a real 3-member run ever got registered -- the other two
-		// failed "already exists" on every stepper tick, forever.
+		// Naming every member after the shared replica set collides on PMM's service-name uniqueness.
 		db := storeTestDB(t)
 		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
 		node00, _ := registerTestNode(t, db, "node00")
@@ -138,15 +127,6 @@ func TestRegisterBootstrapHost(t *testing.T) {
 	})
 
 	t.Run("gives the exporter push metrics mode", func(t *testing.T) {
-		// The regression this guards. CreateAgentParams' zero value is pull,
-		// which makes the service depend on PMM Server reaching the host's
-		// exporter port inbound -- an ephemeral one, from ports-min 42000 up.
-		//
-		// Caught on a CHAOS deployment whose network allows only the ports its
-		// terraform names: six hosts bootstrapped green, registered correctly,
-		// and stayed Down forever with no mongodb_up series at all, while a
-		// replica set added by pmm-admin on the same network was Up throughout.
-		// The only difference in PMM's own database was this flag.
 		db := storeTestDB(t)
 		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
 		nodeID, _ := registerTestNode(t, db, "node00")
@@ -164,20 +144,13 @@ func TestRegisterBootstrapHost(t *testing.T) {
 	})
 
 	t.Run("keeps pull mode for an exporter on PMM Server's own agent", func(t *testing.T) {
-		// The one exception, and the reason this is not an unconditional true:
-		// supportedMetricsMode refuses push for pmm-agent on PMM Server, so a
-		// bootstrap target that happens to be PMM Server's own node must stay on
-		// pull rather than be registered in a mode it cannot serve.
+		// supportedMetricsMode refuses push for pmm-agent on PMM Server.
 		assert.False(t, pushMetricsFor(models.PMMServerAgentID))
 		assert.True(t, pushMetricsFor("some-other-agent-id"))
 	})
 
 	t.Run("pushes a state update for the host's pmm-agent on a fresh registration", func(t *testing.T) {
-		// The bug this guards: pmm-agent only ever starts an exporter in response
-		// to this push, never merely because its Agent row now exists in
-		// Postgres -- confirmed against a real bootstrapped host, whose exporter
-		// sat at AGENT_STATUS_UNKNOWN (and the service showed Down) forever
-		// without it, even though mongod itself was up, secured, and reachable.
+		// pmm-agent starts an exporter only in response to this push, not because its Agent row exists.
 		db := storeTestDB(t)
 		updater := &fakeStateUpdater{}
 		svc := &Service{db: db, l: logrus.WithField("test", t.Name()), stateUpdater: updater}
@@ -189,10 +162,7 @@ func TestRegisterBootstrapHost(t *testing.T) {
 	})
 
 	t.Run("also pushes a state update when the host was already registered", func(t *testing.T) {
-		// Self-healing for a host registered before this push existed at all
-		// (or by a leader that failed over mid-registration): every tick that
-		// revisits a succeeded run (RunBootstrapStepper's own doc comment) gets
-		// another chance to nudge pmm-agent into actually running the exporter.
+		// Self-healing: each tick revisiting a succeeded run pushes again, e.g. after a failover mid-registration.
 		db := storeTestDB(t)
 		updater := &fakeStateUpdater{}
 		svc := &Service{db: db, l: logrus.WithField("test", t.Name()), stateUpdater: updater}

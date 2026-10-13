@@ -22,14 +22,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-// CreateOmBootstrapRunConfig stores one bootstrap run's environment and cluster,
-// as given at trigger time.
-//
-// Callers create this at most once per run, right after PMM Extensions accepts it -- there is
-// nothing to update afterward, since neither field ever changes for the life of a
-// run. Not encrypted, unlike OmBootstrapSecret: environment and cluster are plain
-// inventory labels, the same as models.Service's own Environment/Cluster fields,
-// not secrets.
+// CreateOmBootstrapRunConfig stores one bootstrap run's environment and cluster, as given at trigger time.
 func CreateOmBootstrapRunConfig(q *reform.Querier, config *OmBootstrapRunConfig) error {
 	err := q.Insert(config)
 	if err != nil {
@@ -38,10 +31,7 @@ func CreateOmBootstrapRunConfig(q *reform.Querier, config *OmBootstrapRunConfig)
 	return nil
 }
 
-// FindOmBootstrapRunConfigByRunID returns one run's stored environment and
-// cluster, or ErrNotFound when the caller left both blank at trigger time, or
-// triggered the run before this table existed -- see OmBootstrapRunConfig's own
-// doc comment on why that is not an error.
+// FindOmBootstrapRunConfigByRunID returns one run's stored config, or ErrNotFound if the run has none.
 func FindOmBootstrapRunConfigByRunID(q *reform.Querier, runID string) (*OmBootstrapRunConfig, error) {
 	if runID == "" {
 		return nil, NewInvalidArgumentError("run_id shouldn't be empty")
@@ -57,13 +47,8 @@ func FindOmBootstrapRunConfigByRunID(q *reform.Querier, runID string) (*OmBootst
 	return config, nil
 }
 
-// MarkOmBootstrapRunRegistered records that PMM has finished registering every host
-// of one bootstrap run with its own inventory, which is what takes the run out of
-// the stepper's succeeded-run sweep -- see OmBootstrapRunConfig's own doc comment.
-//
-// Upserts, because the row only exists from trigger time for a run that came with
-// an environment or cluster worth storing: an unlabelled run reaches this point
-// with no row at all, and its two empty labels are the correct values for it.
+// MarkOmBootstrapRunRegistered records that PMM has registered every host of one bootstrap run.
+// It upserts because a run triggered without environment or cluster has no row yet.
 func MarkOmBootstrapRunRegistered(q *reform.Querier, runID string) error {
 	if runID == "" {
 		return NewInvalidArgumentError("run_id shouldn't be empty")
@@ -86,12 +71,7 @@ func MarkOmBootstrapRunRegistered(q *reform.Querier, runID string) error {
 	return nil
 }
 
-// FindRegisteredOmBootstrapRunIDs returns the id of every run PMM has finished
-// registering.
-//
-// One query for the whole set rather than one per run: the stepper asks this on
-// every tick to decide which succeeded runs still need work, and the answer for a
-// server with a long bootstrap history is "none of them".
+// FindRegisteredOmBootstrapRunIDs returns the ID of every run PMM has finished registering.
 func FindRegisteredOmBootstrapRunIDs(q *reform.Querier) (map[string]struct{}, error) {
 	rows, err := q.SelectAllFrom(OmBootstrapRunConfigTable, "WHERE registered_at IS NOT NULL")
 	if err != nil {

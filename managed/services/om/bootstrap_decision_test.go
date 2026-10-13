@@ -26,7 +26,6 @@ func step(name, status string, attempts int) extensionsBootstrapStep {
 	return extensionsBootstrapStep{Name: name, Status: status, AttemptCount: attempts}
 }
 
-// checkStep is a step om_bootstrap marked not retryable, as it marks pre_check.
 func checkStep(name, status string, attempts int) extensionsBootstrapStep {
 	retryable := false
 	s := step(name, status, attempts)
@@ -252,8 +251,7 @@ func TestRunIsRollingBack(t *testing.T) {
 					Steps:         []extensionsBootstrapStep{step("install_package", bootstrapStepFailed, bootstrapMaxAttempts)},
 					RollbackSteps: []extensionsBootstrapStep{step("stop_service", bootstrapStepRunning, 1)},
 				},
-				// A second, otherwise-healthy host: still counts as rolling back
-				// because rollback means every host, not just the failed one.
+				// A healthy host still rolls back: rollback covers every host.
 				{
 					Steps:         []extensionsBootstrapStep{step("verify", bootstrapStepSucceeded, 1)},
 					RollbackSteps: []extensionsBootstrapStep{step("stop_service", bootstrapStepPending, 0)},

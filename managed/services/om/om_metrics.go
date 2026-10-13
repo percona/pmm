@@ -26,23 +26,7 @@ const (
 	prometheusSubsystem = "om"
 )
 
-// MetricsCollector exposes OM's own collection health to Prometheus -- otherwise a
-// degraded pass is visible only in the run history, which prunes at runHistory, and in a
-// log line at Info.
-//
-// The following metrics are exposed:
-//
-//   - pmm_managed_om_runs_total{status="success|partial|failed"} -- completed collection
-//     runs so far, by outcome. A rising "partial" or "failed" rate says collection itself
-//     is unhealthy, before any caller notices the document is stale.
-//
-//   - pmm_managed_om_document_age_seconds -- how old the newest observation in the
-//     document PMM currently serves is. This is the same age Snapshot.Stale is computed
-//     from, exposed as a number so it can be alerted on rather than only rendered. Unset
-//     until the estate has been observed at least once.
-//
-//   - pmm_managed_om_services{state="total|up|down"} -- how much of the estate the last
-//     collection pass saw, and how much of it answered.
+// MetricsCollector exposes OM's own collection health to Prometheus.
 type MetricsCollector struct {
 	svc *Service
 
@@ -89,8 +73,7 @@ func (c *MetricsCollector) Collect(ch chan<- prom.Metric) {
 
 	snap := c.svc.snapshot()
 	if snap.GetSnapshot().GetObservedAt() == nil {
-		// Nothing has been observed yet -- a fresh estate whose leader has not completed
-		// its first pass. Reporting age 0 would read as "current" rather than "no data".
+		// Nothing observed yet; age 0 would read as current rather than no data.
 		return
 	}
 	age := time.Since(snap.Snapshot.ObservedAt.AsTime()).Seconds()

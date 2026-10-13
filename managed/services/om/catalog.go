@@ -21,41 +21,26 @@ import (
 	omv1 "github.com/percona/pmm/api/om/v1"
 )
 
-// The signal catalog: exactly the queries the topology document needs, and nothing
-// speculative. Every query aggregates or is keyed by service_id, which is the only safe
-// join key -- a service name is reused across re-registrations while the superseded
-// series live on until retention expires, so a name-keyed join silently mixes
-// generations.
+// Every query aggregates or is keyed by service_id: names are reused across re-registrations while
+// superseded series persist, so a name-keyed join would mix generations.
 const (
-	// The exporter's info metric: identity, running version, vendor and edition.
 	metricVersionInfo = "mongodb_version_info"
-	// The replSetGetStatus view as seen from the member itself -- its own member_state.
-	// The sibling mongodb_rs_members_state carries one series per peer; this one is a
-	// single series describing the node being asked.
+	// One series for the asked node's own member_state, unlike the per-peer mongodb_rs_members_state.
 	metricMembersSelf = "mongodb_members_self"
-	// The exporter's own reachability flag. A service that is down produces no series at
-	// all rather than a 0, so absence is what the document reads as DOWN.
+	// A down service produces no series rather than a 0, so absence reads as DOWN.
 	metricUp = "mongodb_up"
-	// Emitted only by a mongos, so its presence is the router test -- more reliable than
-	// the port convention, which only ever guessed.
+	// Emitted only by a mongos, so its presence identifies a router.
 	metricMongosShards = "mongodb_mongos_sharding_shards_total"
-	// Seconds a peer trails the primary's optime. Several series per service, one per
-	// (reporting node, secondary peer), so it needs a reducer. The primary appears in no
-	// series by construction, and a single-member set emits nothing at all -- which is
-	// "not applicable" rather than "not collected".
+	// One series per (reporting node, secondary peer), so it needs a reducer. A primary or a
+	// single-member set has none, which means not applicable rather than not collected.
 	metricReplicationLag = "mongodb_mongod_replset_member_replication_lag"
-	// Oplog bounds as epoch seconds; their difference is the window. One series per
-	// service each. A standalone emits neither -- no replica set, no oplog.
+	// Oplog bounds as epoch seconds; their difference is the window. A standalone emits neither.
 	metricOplogHead = "mongodb_mongod_replset_oplog_head_timestamp"
 	metricOplogTail = "mongodb_mongod_replset_oplog_tail_timestamp"
 )
 
-// Derived percentages. Neither exists as a series, so both are expressions. %[1]s is the
-// series matcher -- the service_id set and highResolutionJob -- and %[2]s the freshness
-// window; both aggregate by (service_id) so the result still joins back to a service.
-//
-// The CPU expression needs no last_over_time: irate over a 30s range already requires
-// two raw samples inside it, so a service that stopped reporting drops out on its own.
+// Derived percentages: %[1]s is the series matcher and %[2]s the window. An irate over 30s needs two
+// raw samples, so a service that stopped reporting drops out without last_over_time.
 const (
 	queryCPUUsage = `100 * (1 - sum by (service_id) (irate(mongodb_sys_cpu_idle_ms{%[1]s}[30s]))` +
 		` / (1000 * max by (service_id) (last_over_time(mongodb_sys_cpu_num_logical_cores{%[1]s}[%[2]s]))))`
@@ -64,56 +49,27 @@ const (
 		` + max by (service_id) (last_over_time(mongodb_connections{%[1]s,state="available"}[%[2]s])))`
 )
 
-// queryLastUp is the newest moment in the window at which mongodb_up read 1, as epoch
-// seconds, for "down since". Read from raw samples rather than a subquery, whose steps
-// see only the last sample before each one and so miss an up spell between them:
-// tmax_over_time is the newest sample holding the window's maximum, and the `and`
-// drops a series whose maximum was 0. MetricsQL; PromQL has no tmax_over_time.
+// queryLastUp is the newest moment in the window at which mongodb_up read 1, as epoch seconds.
+// MetricsQL only: PromQL has no tmax_over_time.
 const queryLastUp = `max by (service_id) (tmax_over_time(` + metricUp + `{%[1]s}[%[2]s])` +
 	` and max_over_time(` + metricUp + `{%[1]s}[%[2]s]) == 1)`
 
-// metricsLookback is the window every query is read over.
-//
-// Deliberately long, and deliberately not the freshness rule. Without an explicit window
-// this would be VictoriaMetrics' instant-query lookbehind of five minutes, so a query
-// returns nothing whenever scraping paused -- indistinguishable from "no such service".
-// Reading over a day instead means a since-unreachable node still contributes what it
-// last reported, carrying the age that says so. Whether that age is too old to act on is
-// a separate decision, made per field by volatileFields and volatileMaxAge.
+// metricsLookback is long so a since-unreachable node still contributes its last report, with its age.
+// Whether that age is too old is decided per field by volatileFields.
 const metricsLookback = "24h"
 
-// highResolutionJob narrows every query to the high-resolution scrape job, which is what
-// makes volatileMaxAge meaningful.
-//
-// Each exporter is scraped once per resolution, so a metric it emits on every scrape
-// regardless of collector flags arrives once per job. That is what mongodb_up is: an hr and
-// an lr series per service. The lr series' age swings up to its own 60s interval, so a
-// volatile fact read from it is stale for most of every minute while the hr sample is
-// seconds old -- and sizing volatileMaxAge off lr instead would blunt every volatile field
-// to minutes to accommodate one metric. The management package selects its own "up" metrics
-// the same way.
-//
-// What this does not make true is "one series per service per metric", which nothing does:
-// an exporter's label set changes over its own lifetime -- cluster_role appears once it can
-// determine the role -- so it abandons a series and begins another under the same
-// service_id. Pairing each sample with its own series' age is what handles that, not this
-// matcher; see seriesSample.supersedes.
+// highResolutionJob narrows every query to the high-resolution job: mongodb_up arrives once per job, and the
+// low-resolution series' age swings up to its 60s interval, which would defeat volatileMaxAge.
 const highResolutionJob = `job=~".*_hr$"`
 
-// How old a volatile observation may be and still count as current.
-//
-// Sized against the scrape interval rather than picked: every query carries
-// highResolutionJob, so the window is volatileMaxAgeFactor of PMM's configured high
-// resolution, floored by minVolatileMaxAge. Four intervals tolerates several missed
-// scrapes while still noticing a stopped database in well under a minute.
+// A volatile observation counts as current for volatileMaxAgeFactor high-resolution scrape intervals,
+// but at least minVolatileMaxAge.
 const (
 	volatileMaxAgeFactor = 4
 	minVolatileMaxAge    = 30 * time.Second
 )
 
-// sourceQueries names what the document was derived from, and is carried in the document
-// so a reader can see that without reading this file. Ordered as the collector issues
-// them.
+// sourceQueries is carried in the document to name what it was derived from, in collector order.
 var sourceQueries = []string{
 	metricVersionInfo,
 	metricMembersSelf,
@@ -126,8 +82,7 @@ var sourceQueries = []string{
 	metricOplogTail,
 }
 
-// The document fields sources set. Names match PMM Extensions' om_inventory app so a fact
-// produced there needs no translation on the way in.
+// Document field names. They match PMM Extensions' om_inventory app, so its facts need no translation.
 const (
 	fieldHost             = "host"
 	fieldServiceType      = "service_type"
@@ -153,14 +108,8 @@ const (
 	fieldLastUp           = "last_up_at"
 )
 
-// volatileFields are the fields that describe now rather than describe the service.
-//
-// Everything is collected over metricsLookback and kept with its age, so the document can
-// still say what a since-unreachable node last reported. But these fields are only
-// meaningful while fresh: a replica-set state or an up flag from an hour ago is not a
-// fact about the present, whereas an edition is. Reading one past volatileMaxAge yields
-// nothing, which is what turns a stopped database into status DOWN instead of a
-// confident, day-old UP.
+// volatileFields describe now rather than the service. Read past volatileMaxAge they yield nothing,
+// so a stopped database reads DOWN instead of a day-old UP.
 var volatileFields = map[string]bool{
 	fieldState:           true,
 	fieldClusterRole:     true,
@@ -173,31 +122,18 @@ var volatileFields = map[string]bool{
 	fieldOplogTail:       true,
 }
 
-// clusterRoles maps the exporter's cl_role label onto the document's process_role.
-//
-// The label is the exporter's vocabulary and the enum is ours, so this is the only place
-// the two meet. A label we do not recognise falls through to PROCESS_ROLE_MONGOD rather
-// than UNSPECIFIED: an unlabelled mongod is the ordinary case, not a gap.
+// clusterRoles maps the exporter's cl_role label onto process_role. An unrecognised label means
+// PROCESS_ROLE_MONGOD rather than UNSPECIFIED: an unlabelled mongod is the ordinary case.
 var clusterRoles = map[string]omv1.ProcessRole{
 	"configsvr": omv1.ProcessRole_PROCESS_ROLE_CONFIGSVR,
 	"shardsvr":  omv1.ProcessRole_PROCESS_ROLE_SHARDSVR,
 }
 
-// unmeasured is the gauge sentinel: -1 rather than null so the field stays a number for
-// every service, and rather than 0 because zero CPU is a legitimate reading.
+// unmeasured is the gauge sentinel: a number for every service, and not 0, which is a legitimate reading.
 const unmeasured = -1
 
-// unspecified is the grouping key for a service whose environment or cluster is unset.
-// Internal only -- the document emits null for it, because inventing the string
-// "UNSPECIFIED" as a name would make it indistinguishable from a real environment
-// called that.
+// unspecified is the internal grouping key for an unset environment or cluster; the document emits null.
 const unspecified = "UNSPECIFIED"
 
-// schemaVersion is the version of the emitted document. Versioned so that a stored
-// snapshot stays readable across changes.
-//
-// Starts at 1: nothing has shipped yet, so there is no prior version's snapshot a reader
-// needs to keep distinguishing from this one. A dev database is one `./om reset data`
-// away, which is what makes 1 the honest number rather than leftover numbering from
-// development.
+// schemaVersion is the version of the emitted document, so a stored snapshot stays readable across changes.
 const schemaVersion = 1

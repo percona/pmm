@@ -29,29 +29,13 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// Four rules the document shape enforces, all of them load-bearing for the UI:
-//
-//   - A service that inventory knows and no source ever saw is still in the document, as
-//     status DOWN. Dropping it would shrink the estate every time something broke.
-//   - Grouping is by environment then cluster, where cluster falls back to the replica
-//     set. Both keys are emitted as null rather than the internal sentinel, so the
-//     document never invents a name.
-//   - Numeric gauges use -1 for "not measured", not 0 and not null.
-//   - Nothing here is a verdict. The document reports what was observed; health rules
-//     read it, they do not live here.
-
-// document is one assembled topology document plus what it took to assemble it.
 type document struct {
-	summary      *omv1.Summary
-	environments []*omv1.Environment
-	// observedAt is the newest observation behind the document, or the zero time when
-	// nothing datable went into it.
-	observedAt time.Time
-	// staleServices is how many services carry a volatile fact too old to read.
+	summary       *omv1.Summary
+	environments  []*omv1.Environment
+	observedAt    time.Time
 	staleServices int
 }
 
-// buildDocument folds inventory and the merged facts into the topology document.
 func buildDocument(services []*models.Service, merged map[string]map[string]MergedField, now time.Time, maxAge time.Duration) document {
 	out := document{}
 	grouped := make(map[string]map[string][]*omv1.TopologyService)
@@ -99,18 +83,11 @@ func buildDocument(services []*models.Service, merged map[string]map[string]Merg
 	return out
 }
 
-// applyHealth evaluates advisories and rollup statuses over the assembled document.
-//
-// A separate pipeline stage so the observational projection above stays pure: buildDocument
-// reports what was observed, and a verdict about what that means belongs downstream of it,
-// not folded into the same pass. No-op today -- there are no health rules yet -- and kept as
-// its own stage rather than an `if` bolted onto serviceDocument so the first rule has a place
-// to land without restructuring the pipeline around it.
+// applyHealth is the stage for health verdicts, kept out of buildDocument, which only reports observations.
 func applyHealth(doc document) document {
 	return doc
 }
 
-// serviceDocument builds one service entry.
 func serviceDocument(service *models.Service, fields fieldSet) *omv1.TopologyService {
 	host := fields.str(fieldHost)
 	if host == "" {
@@ -141,24 +118,16 @@ func serviceDocument(service *models.Service, fields fieldSet) *omv1.TopologySer
 		ReplicationLagSeconds:  optionalDouble(fields.f64(fieldReplicationLag)),
 		OplogWindowSeconds:     optionalDouble(oplogWindow(fields)),
 
-		// Probe-only, and null wherever no probe has run. Not volatile: an installed
-		// binary and a config path are properties of the node, not of this moment, so
-		// they keep reporting what the last sweep found rather than blanking between
-		// sweeps that are minutes apart.
 		InstalledVersion: optional(fields.str(fieldInstalledVersion)),
 		ConfigPath:       optional(fields.str(fieldConfigPath)),
 		Argv:             optional(fields.str(fieldArgv)),
 
-		// This row's own provenance, as against Snapshot.observed_at's estate-wide
-		// newest -- see fieldSet.newestObservedAt.
 		ObservedAt: observedAtTimestamp(fields.newestObservedAt()),
 
 		LastUpAt: lastUpAt(fields, up),
 	}
 }
 
-// lastUpAt is when a down service was last seen up. Nil while it is up, where "down
-// since" means nothing, and for one not up at any point in the lookback.
 func lastUpAt(fields fieldSet, up bool) *timestamppb.Timestamp {
 	seconds := fields.f64(fieldLastUp)
 	if up || seconds == nil {
@@ -167,8 +136,6 @@ func lastUpAt(fields fieldSet, up bool) *timestamppb.Timestamp {
 	return timestamppb.New(time.Unix(0, int64(*seconds*float64(time.Second))))
 }
 
-// observedAtTimestamp adapts fieldSet.newestObservedAt's *time.Time to the wire's
-// *timestamppb.Timestamp, nil to nil.
 func observedAtTimestamp(t *time.Time) *timestamppb.Timestamp {
 	if t == nil {
 		return nil
@@ -176,28 +143,12 @@ func observedAtTimestamp(t *time.Time) *timestamppb.Timestamp {
 	return timestamppb.New(*t)
 }
 
-// clusterID derives a stable, opaque id for one grouped service inventory.
-//
-// (environment, grouping key) is already the unique key buildDocument groups services
-// under -- groupingKeys has already folded replication_set into it as cluster's fallback
-// -- so hashing that pair is enough to give two clusters that happen to share a label
-// (two generations of a sandbox both called "sharded-cluster") two different ids.
-// Deterministic rather than random, so the same estate group derives the same id run
-// over run without needing to be stored anywhere: id is a projection of the grouping,
-// not new state.
+// clusterID is derived rather than random so a cluster keeps the same id across runs without being stored.
 func clusterID(env, groupKey string) string {
 	sum := sha256.Sum256([]byte(env + "\x00" + groupKey))
 	return hex.EncodeToString(sum[:])[:16]
 }
 
-// clusterType infers a grouped service inventory's shape from what is in the group.
-//
-// Inferred, not reconstructed -- this package does not walk a replica set's own config to
-// discover its member list, it looks at what buildDocument already grouped: a mongos
-// present, or more than one replication_set label sharing this cluster label, is SHARDED;
-// exactly one replication_set and no mongos is REPLICA_SET; neither is STANDALONE. A
-// later schema_version can grow an actual shard map without this needing to change --
-// the enum names a shape, it does not commit to having discovered one.
 func clusterType(services []*omv1.TopologyService) omv1.ClusterType {
 	replicationSets := make(map[string]bool)
 	mongos := false
@@ -219,23 +170,14 @@ func clusterType(services []*omv1.TopologyService) omv1.ClusterType {
 	}
 }
 
-// groupingKeys returns the (environment, cluster) keys a service groups under.
-//
-// Cluster falls back to the replica set, because a replica set registered without a
-// --cluster= string is still a cluster and would otherwise land in one anonymous bucket
-// with everything else. The merged fields already carry inventory as the fallback source
-// for both, so this reads them once rather than re-deriving the precedence.
+// groupingKeys falls back to the replica set for the cluster: a replica set registered without --cluster
+// would otherwise share one anonymous bucket with everything else.
 func groupingKeys(_ *models.Service, fields fieldSet) (string, string) {
 	env := firstNonEmpty(fields.str(fieldEnvironment), unspecified)
 	cluster := firstNonEmpty(fields.str(fieldCluster), fields.str(fieldReplicationSet), unspecified)
 	return env, cluster
 }
 
-// processRole returns a service's process role.
-//
-// The mongodb_mongos_sharding_shards_total metric is emitted only by a router, so its
-// presence is the test -- no port-convention guessing. Otherwise the exporter's cl_role
-// names a config or shard server, and anything else is a plain mongod.
 func processRole(fields fieldSet) omv1.ProcessRole {
 	if fields.truthy(fieldIsMongos) {
 		return omv1.ProcessRole_PROCESS_ROLE_MONGOS
@@ -246,11 +188,8 @@ func processRole(fields fieldSet) omv1.ProcessRole {
 	return omv1.ProcessRole_PROCESS_ROLE_MONGOD
 }
 
-// gauge returns a reading, or the unmeasured sentinel when there is none.
-//
-// A DOWN service reports the sentinel even if a reading survives in the query window: a
-// CPU figure for a process that is not running would be read as current, and a number
-// nobody can act on is worse than an explicit "not measured".
+// gauge reports a down service as unmeasured even if a reading survives in the query window,
+// so a figure for a process that is not running is not read as current.
 func gauge(value *float64, up bool) float64 {
 	if !up || value == nil {
 		return unmeasured
@@ -258,11 +197,6 @@ func gauge(value *float64, up bool) float64 {
 	return *value
 }
 
-// oplogWindow returns the oplog window in seconds, or nil when it cannot be computed.
-//
-// Head and tail come from the same scrape, so subtracting two separately queried values
-// is safe in practice. The head >= tail guard still rejects the pathological case --
-// mismatched scrapes, clock skew -- as unknown rather than surfacing a negative duration.
 func oplogWindow(fields fieldSet) *float64 {
 	head, tail := fields.f64(fieldOplogHead), fields.f64(fieldOplogTail)
 	if head == nil || tail == nil || *head < *tail {
@@ -272,13 +206,6 @@ func oplogWindow(fields fieldSet) *float64 {
 	return &window
 }
 
-// buildSummary builds the fleet-level counts the list view shows above the table.
-//
-// The down_services count is the honest headline and is a first-class field rather than
-// something every caller re-derives.
-//
-// The process_role_counts map is keyed by the ProcessRole enum's name rather than its
-// number, so it reads as itself in JSON instead of as {"1": 5}.
 func buildSummary(environments []*omv1.Environment) *omv1.Summary {
 	summary := &omv1.Summary{
 		Environments:      int32(len(environments)), //nolint:gosec
@@ -308,8 +235,6 @@ func serviceStatus(up bool) omv1.ServiceStatus {
 	return omv1.ServiceStatus_SERVICE_STATUS_DOWN
 }
 
-// named returns a grouping key as the document spells it: null for the internal
-// sentinel, the key itself otherwise.
 func named(key string) *string {
 	if key == unspecified {
 		return nil
@@ -317,17 +242,6 @@ func named(key string) *string {
 	return &key
 }
 
-// optional returns nil for an empty string, so the document omits the key rather than
-// carrying "".
-//
-// These fields were `google.protobuf.StringValue` originally, because protojson renders
-// an unset message field as an explicit null while it omits an unset proto3 `optional`
-// scalar entirely, even under EmitUnpopulated. The explicit null read better. It was not
-// worth what it cost: protoc-gen-openapiv2 does not mark a wrapper field `x-nullable`,
-// so the REST schema and the generated Go client both flattened to a value type and lost
-// the distinction altogether -- `{}`, null and 0 arrived as 0. An absent key is a weaker
-// signal than a null one, but it is a signal that survives the whole contract, and it is
-// what every other proto in PMM does.
 func optional(value string) *string {
 	if value == "" {
 		return nil

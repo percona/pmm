@@ -700,13 +700,6 @@ func TestConvertReadOnlySettings(t *testing.T) {
 	})
 }
 
-// TestApplyOMSwitch pins the OpenManager switch's PMM Extensions-facing work off the request path.
-// Enabling used to serialize four PMM Extensions round-trips into the settings save: the
-// availability check, a topology collection, the ENABLED PATCH and an immediate sweep.
-// Only the first decides whether the save is allowed; the other three are best-effort,
-// and they measured 12s of ChangeSettings latency against a side-car answering in 3s per
-// request -- long enough for a client to time out on a change that had already been
-// committed.
 func TestApplyOMSwitch(t *testing.T) {
 	t.Parallel()
 
@@ -720,10 +713,8 @@ func TestApplyOMSwitch(t *testing.T) {
 		t.Parallel()
 
 		om := newMockOmService(t)
-		// The context is read here rather than kept: applyOMSwitch's own goroutine
-		// cancels its timeout on the way out, so what matters is that the context was
-		// live while the effect ran.
 		effects := make(chan error, 2)
+		// Check the context during the call: applyOMSwitch cancels its own timeout once the effects return.
 		record := func(args mock.Arguments) { effects <- args.Get(0).(context.Context).Err() }
 		om.On("TriggerTopologyCollection", mock.Anything, mock.Anything).
 			Return(&omv1.TriggerTopologyCollectionResponse{}, nil).Run(record)
@@ -733,7 +724,6 @@ func TestApplyOMSwitch(t *testing.T) {
 		ctx, cancel := context.WithCancel(t.Context())
 
 		s.applyOMSwitch(ctx, settings(false), settings(true))
-		// The request is over the moment ChangeSettings answers, which is the whole point.
 		cancel()
 
 		for range 2 {
@@ -749,14 +739,8 @@ func TestApplyOMSwitch(t *testing.T) {
 	t.Run("enabling tells PMM Extensions the switch is on before asking it to collect", func(t *testing.T) {
 		t.Parallel()
 
-		// The order is the whole test. om_inventory refuses a sweep while its own
-		// ENABLED is false and records the run SKIPPED with "OM Inventory is
-		// switched off", so collecting before the PATCH lands wastes the one
-		// collection that exists to fill the estate the moment someone turns the
-		// feature on -- and leaves the Hosts page empty until the app's own
-		// schedule comes round. Observed on a live stack: ChangeSettings at
-		// 17:05:58.795, a SKIPPED run stamped the same second, and the first real
-		// sweep only at 17:06:10.
+		// om_inventory skips a sweep while its own ENABLED is false, so collecting before the PATCH lands
+		// leaves the Hosts page empty until the app's own schedule comes round.
 		om := newMockOmService(t)
 		calls := make(chan string, 2)
 		om.On("SyncInventoryEnabled", mock.Anything, true).

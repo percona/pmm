@@ -13,22 +13,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package om implements OM -- the OpenManager topology and health API.
-//
-// It groups the MongoDB estate from the sources PMM already owns: the inventory in
-// PostgreSQL and the exporter metrics in VictoriaMetrics. PMM stores cluster and
-// replication_set as flat string columns on a service and has no topology object; this
-// service groups services that share a label, folds in reachability and load, and serves
-// the result as one document. That is a grouped service inventory, not a reconstructed
-// topology graph: a sharded cluster here is a flat list of mongos, configsvr and shardsvr
-// rows that happen to share a label, not a shard map with a discovered member list. See
-// ClusterType in api/om/v1/om.proto for the one thing inferred about a group's shape.
-//
-// It is the read half of a split: derivation over data PMM owns lives here, while work
-// that has to run on a database host -- collecting argv and installed binary versions,
-// restarts, upgrades, configuration changes -- lives in PMM Extensions apps driving Nomad clients.
-// Those arrive here as another factSource, which is why the merge is by declared
-// precedence rather than by which source ran last.
+// Package om implements the OpenManager topology and health API: it groups PMM's MongoDB services
+// by cluster label and folds in reachability and load from VictoriaMetrics.
 package om
 
 import (
@@ -51,33 +37,14 @@ import (
 )
 
 const (
-	// How often the leader's own ticker rebuilds the document. Collection is
-	// leader-driven, not request-driven -- see Run and GetTopology -- so this paces the
-	// ticker rather than gating a read.
 	refreshInterval = 30 * time.Second
-
-	// How old the newest observation may be before the document declares itself stale. A
-	// stale document is still served -- the UI shows the age and lets the reader judge,
-	// which beats replacing data with an error.
-	staleAfter = 5 * time.Minute
-
-	// How many runs the in-memory history keeps.
-	runHistory = 100
-
-	// What the UI asks for when it passes no limit, and the most a caller may ask for.
-	// The ceiling is runHistory: asking for more than the history keeps cannot return
-	// more rows, so a larger number is only a larger query.
+	staleAfter      = 5 * time.Minute
+	runHistory      = 100
 	defaultRunLimit = 25
 	maxRunLimit     = runHistory
 )
 
-// Run statuses, as the run row stores them. A run whose sources all answered is a success
-// even if some services were never seen: a service that inventory knows and metrics have
-// not is a fact about the estate, not a failure of the run.
-//
-// Kept as strings because they are persisted. The wire carries omv1.RunStatus instead, and
-// runStatusToProto in store.go is the only crossing -- a stored row stays legible in psql
-// and survives a renumbering of the enum.
+// Run statuses as the run row stores them; runStatusToProto maps them to the wire enum.
 const (
 	runStatusSuccess = "success"
 	runStatusPartial = "partial"
@@ -92,64 +59,34 @@ type Service struct {
 	vmClient victoriaMetricsClient
 	l        *logrus.Entry
 
-	// ha reports leadership, so TriggerTopologyCollection can refuse on a follower. Nil
-	// in most tests, which is read as "every node is the leader" -- the single-node
-	// default.
+	// ha is nil in most tests, which means this node is the leader.
 	ha haChecker
 
-	// probe is the on-host fact source, or nil when PMM Extensions' om_inventory app is not
-	// configured. Held rather than constructed per run so the HTTP client is reused.
 	probe *probeSource
 
-	// tick overrides Run's ticker interval; zero means refreshInterval. Only tests set
-	// it, and only before Run starts, so the retry path can be exercised without waiting
-	// out a real interval.
+	// tick overrides refreshInterval; only tests set it.
 	tick time.Duration
 
-	// bootstrap is PMM's handle onto PMM Extensions' om_bootstrap app, or nil when PMM Extensions is not
-	// configured. Used only by the HA-leader-only stepper (RunBootstrapStepper) and
-	// TriggerHostBootstrap -- never by the topology-collection pipeline probe feeds.
-	bootstrap *bootstrapClient
-
-	// agents reports pmm-agent connectivity for ListInventoryHosts' eligibility
-	// computation, or nil when not wired up (every host then reads as
-	// pmm_agent_connected: false -- see agentConnectionChecker's doc comment).
-	agents agentConnectionChecker
-
-	// stateUpdater pushes a pmm-agent's new state after registerBootstrapHost
-	// creates its mongodb_exporter Agent row directly, or nil when not wired up
-	// (the exporter's row then exists but pmm-agent is never told to actually
-	// start it -- see agentStateUpdater's doc comment).
+	bootstrap    *bootstrapClient
+	agents       agentConnectionChecker
 	stateUpdater agentStateUpdater
 
-	// syncRequested debounces triggerInventorySync, which is global rather than
-	// per-run: one pull covers every run finishing in the same window, and
-	// completeSucceededRun would otherwise ask once per 15s tick for as long as
-	// refreshRetryWindowOpen holds a run. Zero means "never asked".
+	// syncRequested debounces triggerInventorySync globally: one pull covers every run finishing in the same window.
 	syncRequested   time.Time
 	syncRequestedMu sync.Mutex
 
-	// refreshRequested debounces triggerScopedInventoryRefresh per node, which
-	// the same every-15s-tick hold would otherwise re-probe twenty times over one
-	// run's retry window. Per node rather than global so a run that finishes
-	// while another is held still gets its own first probe immediately. Pruned on
-	// read -- see refreshDue.
+	// refreshRequested debounces triggerScopedInventoryRefresh per node; refreshDue prunes it.
 	refreshRequested   map[string]time.Time
 	refreshRequestedMu sync.Mutex
 
-	// restored guards the one-time read of the stored document on a cold start.
 	restored sync.Once
 
-	// running serialises collection. One collection at a time is enough, and two
-	// concurrent ones would issue the same queries twice and race to publish.
+	// running serialises collection.
 	running sync.Mutex
 
 	mu     sync.Mutex
 	latest *omv1.GetTopologyResponse
 
-	// Completed-run tally by status, read by MetricsCollector on every Prometheus scrape
-	// and written once per run by recordRunOutcome. Atomic because a scrape can land while
-	// a collection is in flight.
 	runsSuccess atomic.Int64
 	runsPartial atomic.Int64
 	runsFailed  atomic.Int64
@@ -165,14 +102,7 @@ func New(db *reform.DB, vmClient victoriaMetricsClient, ha haChecker, l *logrus.
 	}
 }
 
-// WithProbeSource attaches PMM Extensions' om_inventory app as a fact source.
-//
-// Takes where PMM Extensions is, not where the app is: the app path is this package's business,
-// and the sources that follow -- upgrade, restart -- will hang off the same PMM Extensions.
-//
-// Optional by design: an empty URL leaves the source off, and the document is built
-// from PMM's own inventory and metrics alone. That is the difference between "no probe
-// has run here" and "the probe failed", and the run receipt reports which.
+// WithProbeSource attaches PMM Extensions' om_inventory app as a fact source; an empty URL leaves it off.
 func (s *Service) WithProbeSource(extensionsURL, token string) *Service {
 	if extensionsURL == "" {
 		s.l.Info("PMM Extensions is not configured; on-host facts will be absent")
@@ -191,9 +121,7 @@ func (s *Service) WithProbeSource(extensionsURL, token string) *Service {
 	return s
 }
 
-// Enabled returns true if OpenManager is enabled, so every /v1/om/* RPC and the
-// scheduled collection in Run refuse while it is off, via the same generic
-// gRPC-service-enabled interceptor BackupService and the other preview features use.
+// Enabled returns true if OpenManager is enabled.
 func (s *Service) Enabled() bool {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
@@ -204,12 +132,6 @@ func (s *Service) Enabled() bool {
 }
 
 // IsAvailable reports whether PMM Extensions' om_inventory app is configured and reachable.
-//
-// Used to gate turning OpenManager on: an admin flipping the switch with no inventory
-// app to talk to would enable a UI backed by a source that can never answer, with no
-// way to tell "off" from "broken" apart from reading logs. It does not drive anything
-// on PMM Extensions' side -- this is the same read every scheduled collection already performs
-// via probeSource.collect, just run once up front rather than waited out.
 func (s *Service) IsAvailable(ctx context.Context) bool {
 	if s.probe == nil || s.probe.app.client == nil {
 		return false
@@ -218,38 +140,14 @@ func (s *Service) IsAvailable(ctx context.Context) bool {
 	return err == nil
 }
 
-// SyncInventoryEnabled tells PMM Extensions' om_inventory app whether OpenManager is on, and
-// on enabling, kicks an immediate sweep instead of leaving the estate to wait out
-// SCHEDULE's own interval.
-//
-// PATCHes ENABLED rather than SCHEDULE: the app keeps its own configured cadence
-// (an operator's SCHEDULE override) independent of whether OpenManager is turned
-// on, so toggling this switch off and back on does not reset a customized interval
-// back to the app's default. See OmInventorySettings in PMM Extensions for the other half.
-//
-// The immediate sweep exists because a freshly (re-)enabled periodic task in PMM Extensions'
-// beat store is not due until one full SCHEDULE interval has elapsed -- there is no
-// "run once now, then repeat" concept in an interval schedule, so a 60-minute
-// cadence would otherwise leave the estate empty for up to an hour after being
-// turned on. Mirrors applyOMSwitch, PMM's own equivalent kick for its topology page.
-//
-// Best-effort for a caller that cannot retry: a stale write, or a sweep that does not
-// fire, means PMM Extensions is briefly out of step with PMM's switch, not a broken
-// settings change, so failure is logged rather than returned -- matching applyOMSwitch,
-// the side effect ChangeSettings fires on this same transition. Run reconciles the same
-// state and does retry, so it calls syncInventoryEnabled directly.
+// SyncInventoryEnabled sets om_inventory's ENABLED flag and, on enabling, triggers an immediate sweep so the
+// estate does not wait out a full SCHEDULE interval. Failures are logged, not returned.
 func (s *Service) SyncInventoryEnabled(ctx context.Context, enabled bool) {
 	_ = s.syncInventoryEnabled(ctx, enabled)
 }
 
-// syncInventoryEnabled is SyncInventoryEnabled's error-returning half, for the one caller
-// that can do something about a failure.
-//
-// Only the ENABLED write decides the returned error. That write is the whole of the
-// reconcile: until it lands, PMM Extensions' own ENABLED stays at its default of false
-// and the sweep never runs at all. The immediate sweep after it is a kick at an app
-// already correctly configured, so a failure there is logged and left to SCHEDULE rather
-// than reported as an unreconciled switch.
+// syncInventoryEnabled returns only the ENABLED write's error: a failed sweep trigger is logged and left to the
+// app's own SCHEDULE.
 func (s *Service) syncInventoryEnabled(ctx context.Context, enabled bool) error {
 	if s.probe == nil || s.probe.app.client == nil {
 		return nil
@@ -270,16 +168,7 @@ func (s *Service) syncInventoryEnabled(ctx context.Context, enabled bool) error 
 	return nil
 }
 
-// WithBootstrapSource attaches PMM Extensions' om_bootstrap app as the HA-leader-only
-// stepper's (RunBootstrapStepper) target, and TriggerHostBootstrap's.
-//
-// A second, independent extensionsClient rather than reusing probe's -- see
-// probeSource's own construction in WithProbeSource -- because the two are
-// configured (and, in principle, could fail) independently: an operator with
-// only om_inventory reachable still gets a working Hosts page with no
-// bootstrap capability, and vice versa. Both point at the same PMM Extensions in every
-// current deployment, so the extra HTTP client is one more connection pool
-// to a host already being talked to, not a second thing to reach.
+// WithBootstrapSource attaches PMM Extensions' om_bootstrap app for RunBootstrapStepper and TriggerHostBootstrap.
 func (s *Service) WithBootstrapSource(extensionsURL, token string) *Service {
 	if extensionsURL == "" {
 		s.l.Info("PMM Extensions is not configured; MongoDB bootstrap will be unavailable")
@@ -293,49 +182,27 @@ func (s *Service) WithBootstrapSource(extensionsURL, token string) *Service {
 	return s
 }
 
-// WithAgentRegistry attaches the pmm-agent connectivity checker ListInventoryHosts
-// uses to compute automation eligibility.
-//
-// Optional, matching WithProbeSource's shape: unset in most tests, and in any build
-// that has not wired one up, every host then reads as not connected. See
-// agentConnectionChecker's doc comment for why that is the fail-closed default rather
-// than treating an unknown state as eligible.
+// WithAgentRegistry attaches the pmm-agent connectivity checker ListInventoryHosts uses for automation eligibility.
+// Without it, every host reads as not connected.
 func (s *Service) WithAgentRegistry(r agentConnectionChecker) *Service {
 	s.agents = r
 	return s
 }
 
-// WithStateUpdater attaches the pmm-agent state pusher registerBootstrapHost
-// uses to tell a host's pmm-agent to actually start the mongodb_exporter it
-// just created a row for.
-//
-// Optional, matching WithAgentRegistry's shape: unset in most tests, and in
-// any build that has not wired one up, a bootstrapped host's exporter row
-// exists in Postgres but pmm-agent is never told to start the process -- see
-// agentStateUpdater's doc comment.
+// WithStateUpdater attaches the pmm-agent state pusher registerBootstrapHost uses to start a new mongodb_exporter.
+// Without it, a bootstrapped host's exporter row exists but pmm-agent is never told to start it.
 func (s *Service) WithStateUpdater(u agentStateUpdater) *Service {
 	s.stateUpdater = u
 	return s
 }
 
-// GetTopology returns the whole MongoDB estate as one document.
-//
-// A pure read path: memory, then the stored snapshot, never a collection. Collection is
-// leader-only (Run, TriggerTopologyCollection), and a request-triggered rebuild here
-// would make every follower behind the load balancer a writer and a pruner racing the
-// leader. Staleness is recomputed against the clock on every call rather than trusted
-// from whenever the document was built or restored, so a follower that never collects
-// still reports its document's true age.
+// GetTopology returns the whole MongoDB estate as one document, from memory or the stored snapshot.
+// It never collects: collection is leader-only.
 func (s *Service) GetTopology(ctx context.Context, _ *omv1.GetTopologyRequest) (*omv1.GetTopologyResponse, error) { //nolint:unparam
 	s.restoreOnce(ctx)
 	if cached := s.snapshot(); cached != nil {
 		return withFreshStale(cached), nil
 	}
-	// Genuinely cold: no in-memory document and nothing stored yet, e.g. a fresh estate
-	// whose leader has not completed its first pass. An empty document with stale=true
-	// is the honest answer -- Unavailable would read as an error for a normal startup
-	// state, and blocking for the leader's first run would reintroduce the
-	// request-triggered wait this path exists to remove.
 	return emptyTopologyResponse(), nil
 }
 
@@ -370,14 +237,6 @@ func (s *Service) GetTopologyRun(ctx context.Context, req *omv1.GetTopologyRunRe
 
 // TriggerTopologyCollection rebuilds the topology document now and records the run.
 //
-// Synchronous, unlike PMM Extensions', and it answers with a terminal status: there is no fan-out
-// to remote executors to wait on here, so there is nothing to poll for. It refuses
-// rather than queues while one is in flight -- two collections would issue the same
-// queries twice and race to publish, and the caller wants the answer, not a second run.
-//
-// Refuses on a non-leader for the same reason: a follower that collected would persist a
-// run and prune the shared history right alongside the leader's own pass.
-//
 //nolint:unparam
 func (s *Service) TriggerTopologyCollection(ctx context.Context, _ *omv1.TriggerTopologyCollectionRequest) (*omv1.TriggerTopologyCollectionResponse, error) {
 	if s.ha != nil && !s.ha.IsLeader() {
@@ -390,9 +249,7 @@ func (s *Service) TriggerTopologyCollection(ctx context.Context, _ *omv1.Trigger
 	}
 
 	if !s.running.TryLock() {
-		// Aborted, not FailedPrecondition: the gateway maps it to 409 Conflict, which is
-		// what the UI's Sync button already treats as an expected outcome rather than a
-		// failure.
+		// Aborted maps to 409 Conflict, which the UI's Sync button treats as an expected outcome.
 		return nil, status.Error(codes.Aborted, "A collection run is already in flight.")
 	}
 	defer s.running.Unlock()
@@ -408,32 +265,8 @@ func (s *Service) TriggerTopologyCollection(ctx context.Context, _ *omv1.Trigger
 	}, nil
 }
 
-// Run refreshes the document on a timer until ctx is cancelled.
-//
-// Collection is driven rather than left to whoever happens to read: the run history is
-// only worth having if it exists when nobody is looking, and a document assembled purely
-// on demand can say nothing about the interval since the last one.
-//
-// Also reconciles PMM Extensions' om_inventory ENABLED flag with PMM's own switch, up
-// front and then on every tick until it lands. The applyOMSwitch helper (server.go) only
-// calls SyncInventoryEnabled on a live ChangeSettings transition, so a server that starts up
-// already enabled -- via PMM_ENABLE_OM, or a persisted setting surviving a restart --
-// never fires it: there is no "old" value to differ from a "new" one. Confirmed the hard
-// way: PMM_ENABLE_OM=1 at container start left PMM Extensions' ENABLED permanently false,
-// with no supported way to correct it afterward, since ChangeSettings refuses any value
-// differing from the env-var-locked one, and resubmitting the same value is a no-op
-// transition. This call is what this same ticker's own Enabled() check already gets for
-// free every tick -- the current truth, not just transitions away from it.
-//
-// Retried rather than attempted once, because up front is the one moment PMM Extensions
-// is least likely to answer. In the bundled deployment its side-car cannot finish starting
-// until pmm-server's entrypoint has published its credentials and the embedded Postgres is
-// up, while pmm-managed -- and, on a non-HA server, this service -- start at that same
-// point. A single attempt there loses the race on a cold deployment and leaves ENABLED
-// false for good: nothing else reconciles it, and ChangeSettings cannot, since the env
-// lock rejects other values and resubmitting the same one is a no-op. Retrying stops at
-// the first success; steady-state costs one extra PATCH only on a server that has never
-// reached PMM Extensions at all.
+// Run refreshes the document on a timer until ctx is cancelled. It also syncs the OpenManager switch to om_inventory,
+// retrying until it lands, since a server that starts enabled sees no ChangeSettings transition.
 func (s *Service) Run(ctx context.Context) {
 	reconciled := s.syncInventoryEnabled(ctx, s.Enabled()) == nil
 
@@ -449,8 +282,7 @@ func (s *Service) Run(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			// Before the Enabled() gate, not after: reconciling a switch that is off is
-			// how PMM Extensions is told to stop sweeping.
+			// Before the Enabled() gate: syncing an off switch is how PMM Extensions is told to stop sweeping.
 			if !reconciled {
 				reconciled = s.syncInventoryEnabled(ctx, s.Enabled()) == nil
 			}
@@ -465,9 +297,7 @@ func (s *Service) Run(ctx context.Context) {
 	}
 }
 
-// discover rebuilds unless another caller is already doing it, in which case it waits for
-// that one and serves what it published. Two collections of the same estate at the same
-// moment differ only in cost.
+// discover collects, or if a collection is already in flight, waits for it and serves what it published.
 func (s *Service) discover(ctx context.Context) (*omv1.GetTopologyResponse, error) {
 	if !s.running.TryLock() {
 		s.running.Lock()
@@ -483,8 +313,7 @@ func (s *Service) discover(ctx context.Context) (*omv1.GetTopologyResponse, erro
 	return response, err
 }
 
-// collect reads every source, merges, builds the document and records the run. The caller
-// must hold s.running.
+// collect builds the document from every source and records the run. The caller must hold s.running.
 func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1.TopologyRun, error) {
 	startedAt := time.Now()
 	runID := uuid.New().String()
@@ -524,9 +353,6 @@ func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1
 	s.latest = response
 	s.mu.Unlock()
 
-	// Recorded after publishing, and never fatal: the document is already correct and
-	// already served, so losing the record of a collection is worth less than refusing to
-	// answer with it.
 	err = s.persist(ctx, response, run, originNode)
 	if err != nil {
 		s.l.Warnf("run %s: failed to record: %s", runID, err)
@@ -539,13 +365,6 @@ func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1
 	return response, run, nil
 }
 
-// sources returns the fact sources one collection reads, in the order they run.
-//
-// Extracted so a test can see the set and its order without driving a whole collection:
-// which sources are wired in, and whether probe is included, is exactly what review
-// found untested. Both nodes and startedAt are per-run state the sources close over
-// rather than package globals, so two overlapping calls (the ticker and a manual
-// trigger racing, however briefly) never share one.
 func (s *Service) sources(nodes map[string]*models.Node, startedAt time.Time) []factSource {
 	sources := []factSource{
 		inventorySource{nodes: nodes},
@@ -557,12 +376,6 @@ func (s *Service) sources(nodes map[string]*models.Node, startedAt time.Time) []
 	return sources
 }
 
-// restoreOnce loads the newest stored document into memory the first time it is needed,
-// so a restarted pmm-managed answers from the last known estate rather than nothing.
-//
-// Only "is there a document at all" is decided here. How fresh it is remains a question
-// the read path answers itself, every time it is asked -- see withFreshStale -- rather
-// than baking the answer in as of the moment this ran.
 func (s *Service) restoreOnce(ctx context.Context) {
 	s.restored.Do(func() {
 		response, generatedAt, err := s.restore(ctx)
@@ -583,28 +396,19 @@ func (s *Service) restoreOnce(ctx context.Context) {
 	})
 }
 
-// snapshot returns the published document, however old.
 func (s *Service) snapshot() *omv1.GetTopologyResponse {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return s.latest
 }
 
-// withFreshStale returns response with Snapshot.Stale recomputed against the current
-// time, leaving the rest of the message untouched.
-//
-// A document served from memory can sit there for a long time on a node that never
-// collects -- every follower, once GetTopology stops triggering a collection of its own
-// -- so staleness has to be a property of when it is read, not frozen as of whenever it
-// was built or restored. Response is shared across concurrent readers, so this returns a
-// shallow copy rather than mutating it in place.
+// withFreshStale returns a shallow copy of response with Snapshot.Stale recomputed against the current time.
+// It must not mutate response, which concurrent readers share.
 func withFreshStale(response *omv1.GetTopologyResponse) *omv1.GetTopologyResponse {
 	if response == nil || response.Snapshot == nil {
 		return response
 	}
-	// Built field by field rather than copied (`clone := *response`): a proto message
-	// carries a sync.Mutex in its generated MessageState, and copying that by value is
-	// exactly the bug go vet's copylocks check exists to catch.
+	// Built field by field: copying a proto message by value copies its internal mutex (go vet copylocks).
 	snapshot := &omv1.Snapshot{
 		GeneratedAt:   response.Snapshot.GeneratedAt,
 		ObservedAt:    response.Snapshot.ObservedAt,
@@ -621,11 +425,8 @@ func withFreshStale(response *omv1.GetTopologyResponse) *omv1.GetTopologyRespons
 	}
 }
 
-// emptyTopologyResponse is what GetTopology answers on a genuinely cold estate: nothing
-// in memory, nothing stored yet. That is the normal state for the first moments of a
-// fresh install, not an error -- observed_at stays unset and stale is true so the UI can
-// render "collecting, no data yet" rather than a blank document that looks like an empty
-// estate.
+// emptyTopologyResponse is served before any document exists. Stale is true so the UI shows "no data yet"
+// rather than what looks like an empty estate.
 func emptyTopologyResponse() *omv1.GetTopologyResponse {
 	return &omv1.GetTopologyResponse{
 		Snapshot: &omv1.Snapshot{
@@ -638,8 +439,8 @@ func emptyTopologyResponse() *omv1.GetTopologyResponse {
 	}
 }
 
-// readInventory returns every MongoDB service, its nodes by ID, the PMM Server node name
-// to record as the document's vantage point, and how old a volatile observation may be.
+// readInventory returns every MongoDB service, all nodes by ID, the PMM Server node name, and how old a volatile
+// observation may be.
 func (s *Service) readInventory(ctx context.Context) ([]*models.Service, map[string]*models.Node, string, time.Duration, error) {
 	var (
 		services   []*models.Service
@@ -656,8 +457,6 @@ func (s *Service) readInventory(ctx context.Context) ([]*models.Service, map[str
 			return err
 		}
 
-		// The freshness rule follows whatever PMM is actually scraping at, rather than
-		// hardcoding an interval that a settings change would silently invalidate.
 		settings, err := models.GetSettings(tx)
 		if err != nil {
 			return err
@@ -683,11 +482,6 @@ func (s *Service) readInventory(ctx context.Context) ([]*models.Service, map[str
 	return services, nodesByID, originNode, maxAge, nil
 }
 
-// buildRun records what one pass saw.
-//
-// The resolved_services versus successful_probes pair is the diagnostic split: the first says a
-// source produced facts for the service at all, the second says it was observed as reachable.
-// A run with resolved=9, successful=0 is a healthy join and nine unreachable databases.
 func buildRun(
 	runID string, startedAt, finishedAt time.Time,
 	services []*models.Service, merged map[string]map[string]MergedField,
@@ -744,8 +538,6 @@ func buildRun(
 	return run
 }
 
-// recordRunOutcome tallies one completed run by status, for MetricsCollector's
-// pmm_managed_om_runs_total counter.
 func (s *Service) recordRunOutcome(status omv1.RunStatus) {
 	switch status {
 	case omv1.RunStatus_RUN_STATUS_SUCCESS:
@@ -759,8 +551,6 @@ func (s *Service) recordRunOutcome(status omv1.RunStatus) {
 	}
 }
 
-// detailStrings renders a source's counters for the wire, which carries them as strings
-// so a source can report whatever it has without the contract naming every counter.
 func detailStrings(detail map[string]any) map[string]string {
 	out := make(map[string]string, len(detail))
 	for key, value := range detail {

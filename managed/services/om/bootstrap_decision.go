@@ -21,36 +21,9 @@ import (
 	"strings"
 )
 
-// This file is pure decision logic for the bootstrap stepper (stepper.go): given a
-// run's current state (as om_bootstrap's own API reports it), what should happen
-// next. No network, no database, no clock -- every function here is a plain
-// function of its arguments, unit-testable without a fake PMM Extensions or a database, the
-// same split PMM Extensions' own strategy.py/reconcile.py commit to on the other side of this
-// same feature.
-//
-// Adamo's decided partial-failure policy (PMM-15347/questions.md Q8): retry a
-// failed step once, and if retries are exhausted, roll back -- and "roll back",
-// read plainly, means every host, not just the one that failed: a replica set with
-// two members up and one torn down is not a valid state to leave running. So once
-// any host (or any run-level step) exhausts its retries, every host starts rolling
-// back, including ones that had already fully succeeded.
-//
-// An operator's own abort request (PMM-15347/plan.md §6 Phase B) is the third
-// trigger alongside those two, not a separate code path: runNeedsRollback treats
-// GetBootstrapRun's cancel_requested exactly like a step that exhausted its
-// retries, so every downstream decision (which hosts roll back, when the run is
-// done) falls out of the same logic with no cancellation-specific branch anywhere
-// else in this file.
-
-// bootstrapMaxAttempts caps a step's attempt_count before its failure is treated as
-// permanent: attempt_count counts every dispatch including the first, so 2 means the
-// first attempt failed, and so did the one retry. A step om_bootstrap marked not
-// retryable gets one attempt instead -- see maxAttempts.
+// bootstrapMaxAttempts counts every dispatch including the first, so a failed step is retried once.
 const bootstrapMaxAttempts = 2
 
-// maxAttempts is how many dispatches step gets before its failure is permanent. One
-// for a step om_bootstrap marked not retryable: pre_check, whose failure is a fact
-// about the host that a second look a few seconds later finds again.
 func maxAttempts(step extensionsBootstrapStep) int {
 	if step.Retryable != nil && !*step.Retryable {
 		return 1
@@ -58,20 +31,14 @@ func maxAttempts(step extensionsBootstrapStep) int {
 	return bootstrapMaxAttempts
 }
 
-// exhausted reports whether step failed with no attempts left.
 func exhausted(step extensionsBootstrapStep) bool {
 	return step.Status == bootstrapStepFailed && step.AttemptCount >= maxAttempts(step)
 }
 
-// stepAction names one step the stepper has decided to dispatch next.
 type stepAction struct {
 	name string
 }
 
-// nextHostAction returns the next forward step to dispatch for host, or nil when
-// there is nothing to do: a step is already running, every step has succeeded or
-// been skipped, or a step has failed with retries exhausted (that failure is a
-// run-level rollback decision, not this host's own -- see runNeedsRollback).
 func nextHostAction(host extensionsBootstrapHost) *stepAction {
 	for _, step := range host.Steps {
 		switch step.Status {
@@ -89,13 +56,6 @@ func nextHostAction(host extensionsBootstrapHost) *stepAction {
 	return nil
 }
 
-// nextFinalizeAction returns the next finalize step to dispatch for host, or nil
-// when there is nothing to do: a finalize step is already running, every
-// finalize step has succeeded or been skipped, or one has failed with retries
-// exhausted (that failure is a run-level rollback decision, not this host's
-// own -- see runNeedsRollback). Callers only call this once runStepsSucceeded
-// is true -- see advanceRunningRun -- so a host whose finalize steps are still
-// all pending waiting on that gate is not this function's concern.
 func nextFinalizeAction(host extensionsBootstrapHost) *stepAction {
 	for _, step := range host.FinalizeSteps {
 		switch step.Status {
@@ -113,12 +73,8 @@ func nextFinalizeAction(host extensionsBootstrapHost) *stepAction {
 	return nil
 }
 
-// nextRollbackAction returns the next rollback step to dispatch for host, or nil
-// when there is nothing to do: a rollback step is already running, every rollback
-// step has succeeded or been skipped (rollback is done -- see hostRollbackDone), or
-// a rollback step has itself failed with retries exhausted. The last case is not
-// retried further: an operator has to intervene, so the stepper reports it (see
-// stepper.go) rather than looping on it forever.
+// nextRollbackAction returns nil for a rollback step that exhausted its retries: that needs an operator,
+// so the stepper reports it instead of retrying forever.
 func nextRollbackAction(host extensionsBootstrapHost) *stepAction {
 	for _, step := range host.RollbackSteps {
 		switch step.Status {
@@ -136,11 +92,7 @@ func nextRollbackAction(host extensionsBootstrapHost) *stepAction {
 	return nil
 }
 
-// nextRunStepAction returns the next run-level step to dispatch, or nil when there
-// is nothing to do: not every host has succeeded yet (run-level steps need every
-// member up first -- rs.initiate, most concretely), a run-level step is already
-// running, every run-level step has succeeded or been skipped, or one has failed
-// with retries exhausted (again a run-level rollback decision, not returned here).
+// nextRunStepAction waits for every host to succeed: run-level steps such as rs.initiate need every member up.
 func nextRunStepAction(run extensionsBootstrapRun) *stepAction {
 	for _, host := range run.Hosts {
 		if !hostSucceeded(host) {
@@ -163,10 +115,6 @@ func nextRunStepAction(run extensionsBootstrapRun) *stepAction {
 	return nil
 }
 
-// hostSucceeded reports whether every one of host's forward steps succeeded or was
-// skipped -- the same derivation om_bootstrap's own HostBootstrapState.status
-// property makes on PMM Extensions' side, needed here too since nextRunStepAction gates on it
-// without a round trip back to PMM Extensions.
 func hostSucceeded(host extensionsBootstrapHost) bool {
 	for _, step := range host.Steps {
 		if step.Status != bootstrapStepSucceeded && step.Status != bootstrapStepSkipped {
@@ -176,13 +124,6 @@ func hostSucceeded(host extensionsBootstrapHost) bool {
 	return true
 }
 
-// runStepsSucceeded reports whether every one of run's run-level steps succeeded
-// or was skipped -- the gate advanceRunningRun applies before dispatching any
-// finalize step, mirroring how nextRunStepAction gates run-level steps on
-// hostSucceeded. Finalize steps (enabling MongoDB authorization, concretely)
-// have to run after create_pmm_monitoring_user has actually succeeded, not
-// before -- see om_bootstrap's own InstallStrategy.plan_finalize_steps doc
-// comment for why that ordering exists at all.
 func runStepsSucceeded(run extensionsBootstrapRun) bool {
 	for _, step := range run.RunSteps {
 		if step.Status != bootstrapStepSucceeded && step.Status != bootstrapStepSkipped {
@@ -192,18 +133,12 @@ func runStepsSucceeded(run extensionsBootstrapRun) bool {
 	return true
 }
 
-// hostExhaustedRetries reports whether host has a forward or finalize step that
-// failed with no retries left. Finalize steps count the same as forward ones
-// here: a host that installed cleanly but never got authorization enabled is as
-// unusable -- and as much a rollback trigger -- as one that never finished
-// installing.
+// hostExhaustedRetries counts finalize steps too: a host installed without authorization enabled is as
+// unusable as one that never finished installing.
 func hostExhaustedRetries(host extensionsBootstrapHost) bool {
 	return slices.ContainsFunc(host.Steps, exhausted) || slices.ContainsFunc(host.FinalizeSteps, exhausted)
 }
 
-// rolledBackReason is the error a rolled-back run is finished with. A run that
-// exhausted a step's retries names the step, the host and the detail PMM Extensions
-// recorded for it, so the run says what failed instead of only that something did.
 func rolledBackReason(run extensionsBootstrapRun) string {
 	outcome := "every host was rolled back"
 	if nothingRolledBack(run) {
@@ -218,10 +153,7 @@ func rolledBackReason(run extensionsBootstrapRun) string {
 	return "a step exhausted its retries; " + outcome
 }
 
-// nothingRolledBack reports whether PMM Extensions skipped every rollback step of
-// every host, which it does on a host the run never installed anything on -- a
-// failed pre_check, most often. False for a run with no rollback steps at all, which
-// says nothing either way.
+// nothingRolledBack reports whether every rollback step was skipped, as happens when nothing was installed.
 func nothingRolledBack(run extensionsBootstrapRun) bool {
 	var seen bool
 	for _, host := range run.Hosts {
@@ -235,11 +167,6 @@ func nothingRolledBack(run extensionsBootstrapRun) bool {
 	return seen
 }
 
-// exhaustedStepsSummary names every step that ran out of attempts, with its host and
-// recorded detail, or returns an empty string when none has. It names every one
-// rather than the first: two hosts can each exhaust a different step in the same
-// tick, and a reader fixing one should not have to rerun the install to learn of
-// the other.
 func exhaustedStepsSummary(run extensionsBootstrapRun) string {
 	var parts []string
 	describe := func(host string, step extensionsBootstrapStep) {
@@ -269,17 +196,12 @@ func exhaustedStepsSummary(run extensionsBootstrapRun) string {
 	return strings.Join(parts, "; ")
 }
 
-// runStepsExhaustedRetries reports whether run has a run-level step that failed
-// with no retries left.
 func runStepsExhaustedRetries(run extensionsBootstrapRun) bool {
 	return slices.ContainsFunc(run.RunSteps, exhausted)
 }
 
-// runNeedsRollback reports whether run should start rolling every host back:
-// an operator requested cancellation, or something has just now exhausted
-// retries -- a host's forward step, or a run-level step. Does not itself check
-// whether rollback has already started; see runIsRollingBack, which callers use
-// instead.
+// runNeedsRollback reports whether every host, including ones that succeeded, must roll back: a partly
+// installed replica set is not valid to leave running. A cancel request counts as exhausted retries.
 func runNeedsRollback(run extensionsBootstrapRun) bool {
 	if run.CancelRequested {
 		return true
@@ -290,12 +212,6 @@ func runNeedsRollback(run extensionsBootstrapRun) bool {
 	return runStepsExhaustedRetries(run)
 }
 
-// runExhaustedRetries reports whether a host's or a run-level step exhausted its
-// retries, the same check runNeedsRollback makes for that half of its own
-// condition -- used to give retry exhaustion priority over CancelRequested when a
-// finished rollback's cause is reported, since exhaustion is what actually
-// triggered it even if an operator also clicked cancel while it was already
-// rolling back.
 func runExhaustedRetries(run extensionsBootstrapRun) bool {
 	if slices.ContainsFunc(run.Hosts, hostExhaustedRetries) {
 		return true
@@ -303,9 +219,6 @@ func runExhaustedRetries(run extensionsBootstrapRun) bool {
 	return runStepsExhaustedRetries(run)
 }
 
-// hostRollbackStarted reports whether any of host's rollback steps has ever been
-// dispatched -- the same "not still all pending" test as any other planned-up-front
-// step list.
 func hostRollbackStarted(host extensionsBootstrapHost) bool {
 	for _, step := range host.RollbackSteps {
 		if step.Status != bootstrapStepPending {
@@ -315,8 +228,6 @@ func hostRollbackStarted(host extensionsBootstrapHost) bool {
 	return false
 }
 
-// hostRollbackDone reports whether every one of host's rollback steps succeeded or
-// was skipped.
 func hostRollbackDone(host extensionsBootstrapHost) bool {
 	for _, step := range host.RollbackSteps {
 		if step.Status != bootstrapStepSucceeded && step.Status != bootstrapStepSkipped {
@@ -326,11 +237,6 @@ func hostRollbackDone(host extensionsBootstrapHost) bool {
 	return true
 }
 
-// runIsRollingBack reports whether run has already started rolling back (any host's
-// rollback under way), or should start now (something just exhausted its retries).
-// Once true, the stepper drives every host's rollback and dispatches no forward
-// step anywhere in the run -- see the module doc comment on why "roll back" means
-// every host, not just the one that failed.
 func runIsRollingBack(run extensionsBootstrapRun) bool {
 	if slices.ContainsFunc(run.Hosts, hostRollbackStarted) {
 		return true
@@ -338,8 +244,6 @@ func runIsRollingBack(run extensionsBootstrapRun) bool {
 	return runNeedsRollback(run)
 }
 
-// runRollbackDone reports whether every host's rollback has finished -- the point
-// at which the stepper records the run itself as ROLLED_BACK.
 func runRollbackDone(run extensionsBootstrapRun) bool {
 	for _, host := range run.Hosts {
 		if !hostRollbackDone(host) {

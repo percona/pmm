@@ -28,36 +28,21 @@ type victoriaMetricsClient interface {
 	Query(ctx context.Context, query string, ts time.Time, opts ...v1.Option) (model.Value, v1.Warnings, error)
 }
 
-// haChecker reports HA leadership, so a write-triggering RPC can refuse on a follower
-// rather than race the leader for the same collection.
-//
-// Optional like probe: a Service built without one (every test in this package but the
-// ones that care) treats every node as the leader, which is the single-node default too.
+// haChecker reports HA leadership so a write-triggering RPC can refuse on a follower.
+// A Service built without one treats every node as the leader.
 type haChecker interface {
 	IsLeader() bool
 	LeaderID() string
 }
 
-// agentConnectionChecker reports whether a pmm-agent is currently connected. A subset
-// of *agents.Registry's exported surface -- the "PMM-Client installed and healthy"
-// signal ListInventoryHosts needs, which om_inventory has no way to answer for itself:
-// a node existing in its estate only means PMM registered it once, not that the agent
-// on it is alive now. See inventory.go's automationEligibility.
-//
-// Optional like probe and ha: a Service built without one treats every host as
-// disconnected, which is the fail-closed default for something that gates automation
-// eligibility.
+// agentConnectionChecker reports whether a pmm-agent is currently connected.
+// A Service built without one treats every host as disconnected, failing closed on automation eligibility.
 type agentConnectionChecker interface {
 	IsConnected(pmmAgentID string) bool
 }
 
-// agentStateUpdater tells a pmm-agent to refresh its own state -- a subset of
-// *agents.StateUpdater's exported surface. Every RPC that creates an Agent row
-// directly (addMongoDB and its siblings in services/management) calls this
-// immediately after, since pmm-agent otherwise has no way to learn a new
-// exporter it should be running exists -- it only starts one in response to
-// this exact push. See registerBootstrapHost's own doc comment for why it
-// needs the same call.
+// agentStateUpdater tells a pmm-agent to refresh its state. It must follow any direct Agent row insert,
+// since pmm-agent only starts a new exporter in response to this push.
 type agentStateUpdater interface {
 	RequestStateUpdate(ctx context.Context, pmmAgentID string)
 }

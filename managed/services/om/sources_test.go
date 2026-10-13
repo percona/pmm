@@ -30,8 +30,6 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// stubVM answers the two queries metricsSource issues per signal: lag() for ages and
-// last_over_time() for values. Keyed by metric name so one stub can cover a whole pass.
 type stubVM struct {
 	lag    map[string]model.Vector
 	values map[string]model.Vector
@@ -51,8 +49,6 @@ func (s stubVM) Query(_ context.Context, query string, _ time.Time, _ ...v1.Opti
 	return model.Vector{}, nil, nil
 }
 
-// recordingVM answers nothing and keeps what it was asked, for the tests that are about
-// the queries the catalog issues rather than about the samples they return.
 type recordingVM struct {
 	queries []string
 }
@@ -62,11 +58,8 @@ func (r *recordingVM) Query(_ context.Context, query string, _ time.Time, _ ...v
 	return model.Vector{}, nil, nil
 }
 
-// testServiceID is the one service the sample helpers below build series for.
 const testServiceID = "svc-1"
 
-// seriesLabels builds one series' label set: service_id plus the given name/value pairs,
-// which is what distinguishes two series of the same metric under one service.
 func seriesLabels(labels ...string) model.Metric {
 	m := model.Metric{"service_id": testServiceID}
 	for i := 0; i+1 < len(labels); i += 2 {
@@ -75,20 +68,17 @@ func seriesLabels(labels ...string) model.Metric {
 	return m
 }
 
-// lagSample is a sample as the age query returns it: lag() is a rollup, so it carries no
-// __name__ -- which is why seriesKey pairs the two queries on everything else.
+// lagSample carries no __name__ because lag() is a rollup; seriesKey pairs the two queries on the other labels.
 func lagSample(age float64, labels ...string) *model.Sample {
 	return &model.Sample{Metric: seriesLabels(labels...), Value: model.SampleValue(age)}
 }
 
-// valueSample is a sample as the value query returns it, __name__ included.
 func valueSample(metric string, value float64, labels ...string) *model.Sample {
 	m := seriesLabels(labels...)
 	m[model.MetricNameLabel] = model.LabelValue(metric)
 	return &model.Sample{Metric: m, Value: model.SampleValue(value)}
 }
 
-// factFor returns the last fact collected for a field, or nil.
 func factFor(result SourceResult, field string) *Fact {
 	var found *Fact
 	for i := range result.Facts {
@@ -99,20 +89,11 @@ func factFor(result SourceResult, field string) *Fact {
 	return found
 }
 
-// TestReducedValueCarriesItsOwnSeriesAge pins the pairing between a reduced value and the
-// age it is stamped with.
-//
-// The value query folds every series for a service into one sample -- the largest, for
-// replication lag -- and the fact has to carry the age of the series that sample came
-// from. Dating it from the oldest series of the set instead reports an age no contributing
-// series ever had, in whichever direction the set happens to be arranged.
 func TestReducedValueCarriesItsOwnSeriesAge(t *testing.T) {
 	t.Parallel()
 
 	now := time.Date(2026, 8, 21, 12, 0, 0, 0, time.UTC)
 
-	// Two series for one service -- one per peer, as replication lag is emitted -- scraped
-	// 30s and 4h ago respectively.
 	lag := map[string]model.Vector{
 		metricReplicationLag: {
 			lagSample(30, "member_idx", "peer-a"),
@@ -155,21 +136,14 @@ func TestReducedValueCarriesItsOwnSeriesAge(t *testing.T) {
 		assert.InDelta(t, 900.0, fact.Value, 0.001)
 		require.NotNil(t, fact.ObservedAt)
 
-		// Still reported, and still dated 4 hours old, so fieldSet.live drops it rather
-		// than the projection reading a stale maximum as a statement about now.
+		// Dated 4h old so fieldSet.live drops it instead of reporting a stale maximum as current.
 		assert.Equal(t, now.Add(-4*time.Hour), fact.ObservedAt.UTC(),
 			"the largest lag came from the 4h-old series, so that is its age")
 	})
 }
 
-// TestAbandonedSeriesDoesNotStaleTheLiveOne pins the fix for a live service reporting DOWN.
-//
-// An exporter's label set changes over its own lifetime: mongodb_up is emitted without
-// cluster_role until the exporter can determine the role, at which point the series is
-// abandoned and another begins under the same service_id. Both stay inside metricsLookback,
-// so both come back, and dating exporter_up from the oldest of them made the fact age out of
-// volatileMaxAge while the live sample was seconds old. Measured against a 14-service
-// sandbox: 6 of them DOWN, stably, every one of them up in PMM's own inventory.
+// mongodb_up lacks cluster_role until the exporter learns its role, then continues as a new series.
+// Both stay within metricsLookback, so dating exporter_up by the older one reports a live service DOWN.
 func TestAbandonedSeriesDoesNotStaleTheLiveOne(t *testing.T) {
 	t.Parallel()
 
@@ -200,13 +174,8 @@ func TestAbandonedSeriesDoesNotStaleTheLiveOne(t *testing.T) {
 		"exporter_up must carry the live series' age, not the abandoned one's")
 }
 
-// TestEveryQueryNarrowsToTheHighResolutionJob pins the other half of that pairing: the
-// series a reduction may see.
-//
-// A mongodb_exporter is scraped at two resolutions, so a metric it emits on every scrape
-// -- mongodb_up -- exists as an hr and an lr series per service. Reduced across both,
-// exporter_up is dated by the lr series, whose age exceeds volatileMaxAge for most of every
-// minute, and a healthy service reports DOWN half the time it is asked.
+// mongodb_exporter is scraped at hr and lr resolutions; the lr series' age exceeds volatileMaxAge
+// for most of every minute, so reducing across both reports a healthy service DOWN.
 func TestEveryQueryNarrowsToTheHighResolutionJob(t *testing.T) {
 	t.Parallel()
 
@@ -225,7 +194,6 @@ func TestEveryQueryNarrowsToTheHighResolutionJob(t *testing.T) {
 	}
 }
 
-// lastUpVM answers only the last-up query, with one sample for testServiceID.
 type lastUpVM struct {
 	seconds float64
 }
@@ -237,9 +205,7 @@ func (v lastUpVM) Query(_ context.Context, query string, _ time.Time, _ ...v1.Op
 	return model.Vector{{Metric: seriesLabels(), Value: model.SampleValue(v.seconds)}}, nil, nil
 }
 
-// TestLastUpIsDatedByTheMomentItNames pins the "down since" fact: its value is the epoch
-// second the query answered, and it is dated by that moment rather than by the run, so it
-// does not make a row that has been down for hours look freshly observed.
+// Dating the last-up fact by the run would make a row that has been down for hours look freshly observed.
 func TestLastUpIsDatedByTheMomentItNames(t *testing.T) {
 	t.Parallel()
 

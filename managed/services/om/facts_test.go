@@ -106,10 +106,8 @@ func TestMergeFacts(t *testing.T) {
 	t.Run("the freshest series wins when one service has several", func(t *testing.T) {
 		t.Parallel()
 
-		// A replica-set reconfiguration leaves the superseded mongodb_members_self behind,
-		// and it survives in the lookback window under the same service_id. Measured in
-		// the sandbox: PRIMARY at 0s, SECONDARY at 7500s, PRIMARY at 68477s. Rank cannot
-		// separate them -- they are all the metrics source -- so recency has to.
+		// A replica-set reconfiguration leaves the superseded mongodb_members_self series in the lookback
+		// window under the same service_id. All come from the metrics source, so only recency separates them.
 		fresh := now
 		stale := now.Add(-7500 * time.Second)
 		ancient := now.Add(-68477 * time.Second)
@@ -120,8 +118,7 @@ func TestMergeFacts(t *testing.T) {
 				{Service: "s1", Field: fieldState, Value: "PRIMARY", Source: sourceMetrics, ObservedAt: new(fresh)},
 				{Service: "s1", Field: fieldState, Value: "PRIMARY", Source: sourceMetrics, ObservedAt: new(ancient)},
 			},
-			// The same facts the other way round: the answer must not depend on the order
-			// VictoriaMetrics happened to return them in.
+			// The answer must not depend on the order VictoriaMetrics returns the series in.
 			{
 				{Service: "s1", Field: fieldState, Value: "PRIMARY", Source: sourceMetrics, ObservedAt: new(fresh)},
 				{Service: "s1", Field: fieldState, Value: "SECONDARY", Source: sourceMetrics, ObservedAt: new(stale)},
@@ -136,8 +133,7 @@ func TestMergeFacts(t *testing.T) {
 	t.Run("a higher-precedence source still wins over a fresher low-precedence one", func(t *testing.T) {
 		t.Parallel()
 
-		// Recency only breaks ties. It must not let the probe outrank metrics for version
-		// just by having looked more recently.
+		// Recency only breaks ties.
 		merged := mergeFacts([]SourceResult{
 			{Source: sourceMetrics, Facts: []Fact{
 				{Service: "s1", Field: fieldVersion, Value: "7.0.39", Source: sourceMetrics, ObservedAt: new(now.Add(-time.Hour))},
@@ -204,8 +200,7 @@ func TestFieldSetFreshness(t *testing.T) {
 	t.Run("stale volatile facts are dropped, durable ones are kept", func(t *testing.T) {
 		t.Parallel()
 
-		// This is the case that made a stopped database report UP: the sample survives in
-		// the long lookback window, and only the age says it is not about now.
+		// A stopped database's last sample survives in the lookback window; only its age shows it is stale.
 		fields := newFields(10 * time.Minute)
 		assert.Nil(t, fields.f64(fieldExporterUp))
 		assert.Empty(t, fields.str(fieldState))

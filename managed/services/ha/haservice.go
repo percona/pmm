@@ -600,8 +600,7 @@ func (s *Service) IsLeader() bool {
 	return !s.params.Enabled || (s.raftNode != nil && s.raftNode.State() == raft.Leader)
 }
 
-// LeaderID returns the current Raft leader's node ID, or "" when HA is disabled or no
-// leader is known yet.
+// LeaderID returns the current Raft leader's node ID, or "" when HA is disabled or no leader is known.
 func (s *Service) LeaderID() string {
 	s.rw.RLock()
 	defer s.rw.RUnlock()

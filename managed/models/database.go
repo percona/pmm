@@ -1253,8 +1253,6 @@ var databaseSchema = [][]string{
 			ON alert_rule_threshold_overrides (scope, target)`,
 	},
 	122: {
-		// OM (OpenManager) topology collection: one row per pass, and the
-		// topology document it produced.
 		`CREATE TABLE om_topology_runs (
 			run_id            VARCHAR PRIMARY KEY,
 			started_at        TIMESTAMP NOT NULL,
@@ -1272,9 +1270,6 @@ var databaseSchema = [][]string{
 		)`,
 		`CREATE INDEX om_topology_runs_started_at_idx ON om_topology_runs (started_at DESC)`,
 
-		// The document is JSONB rather than a relational tree because the topology model
-		// is still moving; schema_version is what a reader checks. It is deleted with its
-		// run, which is what bounds retention.
 		`CREATE TABLE om_topology_snapshots (
 			run_id         VARCHAR PRIMARY KEY REFERENCES om_topology_runs (run_id) ON DELETE CASCADE,
 			generated_at   TIMESTAMP NOT NULL,
@@ -1287,10 +1282,6 @@ var databaseSchema = [][]string{
 		`CREATE INDEX om_topology_snapshots_generated_at_idx ON om_topology_snapshots (generated_at DESC)`,
 	},
 	123: {
-		// PMM-15347's om_bootstrap stepper's one generated MongoDB user and shared
-		// keyFile for one PMM Extensions bootstrap run, encrypted at rest -- see
-		// OmBootstrapSecret's own doc comment for why this survives independently
-		// of PMM Extensions' own run state.
 		`CREATE TABLE om_bootstrap_secrets (
 			run_id           VARCHAR PRIMARY KEY,
 			mongodb_username VARCHAR NOT NULL,
@@ -1300,11 +1291,6 @@ var databaseSchema = [][]string{
 		)`,
 	},
 	124: {
-		// PMM's own record of a bootstrap run: the environment and cluster it was
-		// triggered with, and when PMM finished registering its hosts -- see
-		// OmBootstrapRunConfig's own doc comment for why these live in PMM's own
-		// database rather than round-tripping through PMM Extensions, which has no use for
-		// them.
 		`CREATE TABLE om_bootstrap_run_configs (
 			run_id        VARCHAR PRIMARY KEY,
 			environment   VARCHAR NOT NULL,

@@ -31,26 +31,14 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// factSource is one place collection reads the estate from.
-//
-// The interface is the extension point: the PMM Extensions inventory app's on-host facts arrive as
-// another implementation of this and nothing downstream changes, because the merge
-// resolves overlap by the precedence table rather than by which source ran.
 type factSource interface {
-	// key is the source key every fact it produces carries.
 	key() string
-	// collect reads the estate. It reports rather than returns an error: a source that
-	// could not answer is a fact about the run, and losing the sources that did answer
-	// because one did not is the opposite of useful.
+	// collect reports failures in its result rather than as an error, so one failing source
+	// does not discard the facts of the others.
 	collect(ctx context.Context, services []*models.Service) SourceResult
 }
 
-// inventorySource restates PMM's inventory as facts.
-//
-// Not time-bounded -- every fact carries a nil observed_at -- because inventory is
-// current by definition. That is the distinction Fact.ObservedAt exists to keep: a
-// version read from a metric sample can be nine days old, a cluster label read from the
-// services table cannot.
+// inventorySource facts carry no ObservedAt: inventory is current by definition.
 type inventorySource struct {
 	nodes map[string]*models.Node
 }
@@ -85,11 +73,8 @@ func (s inventorySource) collect(_ context.Context, services []*models.Service) 
 	return result
 }
 
-// inventoryEndpoint builds the host:port inventory knows the service by.
-//
-// The node, not the service. A service's address is where its own pmm-agent reaches it,
-// which for an agent on the same host is 127.0.0.1 -- true, and useless as an endpoint
-// for anyone else. The node's address is the one that means something off the box.
+// inventoryEndpoint prefers the node's address: the service's is where its local pmm-agent
+// reaches it, often 127.0.0.1, which is useless to anyone else.
 func inventoryEndpoint(service *models.Service, node *models.Node) string {
 	var host string
 	if node != nil {
@@ -104,7 +89,6 @@ func inventoryEndpoint(service *models.Service, node *models.Node) string {
 	return net.JoinHostPort(host, strconv.Itoa(int(*service.Port)))
 }
 
-// metricsSource reads the signal catalog out of VictoriaMetrics.
 type metricsSource struct {
 	vm  victoriaMetricsClient
 	l   *logrus.Entry
@@ -113,33 +97,20 @@ type metricsSource struct {
 
 func (metricsSource) key() string { return sourceMetrics }
 
-// queryBatch is how many services are pinned per query.
-//
-// Each contributes a 37-byte UUID to a regex matcher, so this bounds the query string
-// rather than the result set. Without it a few hundred services build a matcher tens of
-// kilobytes long on every one of the queries below.
+// queryBatch bounds the length of the service_id regex matcher, not the result set.
 const queryBatch = 50
 
-// labelSignal maps one series label onto one document field.
 type labelSignal struct {
 	field string
 	label string
 }
 
-// metricSignals says, per metric, which labels to read off it and whether its sample
-// value is wanted too.
-//
-// The age query carries the labels, so a label-only metric costs one query. A metric
-// whose value matters costs two, because lag()'s value is the age rather than the
-// metric's own.
 type metricSignal struct {
-	metric     string
-	labels     []labelSignal
-	valueField string
-	// presenceField is set from the series existing at all, whatever its value.
+	metric        string
+	labels        []labelSignal
+	valueField    string
 	presenceField string
-	// reduceMax folds several series for one service into the largest.
-	reduceMax bool
+	reduceMax     bool
 }
 
 var metricSignals = []metricSignal{
@@ -160,23 +131,19 @@ var metricSignals = []metricSignal{
 		metric: metricMembersSelf,
 		labels: []labelSignal{
 			{fieldState, "member_state"},
-			// member_idx is the host:port the replica set itself knows the member by,
-			// which is a truer endpoint than inventory's address.
+			// member_idx is the host:port the replica set knows the member by, truer than inventory's.
 			{fieldEndpoint, "member_idx"},
 			{fieldClusterRole, "cl_role"},
 		},
 	},
 	{metric: metricUp, valueField: fieldExporterUp},
 	{metric: metricMongosShards, presenceField: fieldIsMongos},
-	// Each member reports lag against every secondary, so the worst of them is "the worst
-	// lag this node saw". Double-counting is harmless under max.
+	// Each member reports lag against every secondary; the max is the worst lag this node saw.
 	{metric: metricReplicationLag, valueField: fieldReplicationLag, reduceMax: true},
 	{metric: metricOplogHead, valueField: fieldOplogHead},
 	{metric: metricOplogTail, valueField: fieldOplogTail},
 }
 
-// metricsRun is the mutable state of one pass over the catalog, kept out of collect so
-// each stage stays readable on its own.
 type metricsRun struct {
 	src     metricsSource
 	result  *SourceResult
@@ -224,16 +191,13 @@ func (s metricsSource) collect(ctx context.Context, services []*models.Service) 
 	return result
 }
 
-// signal reads one catalog entry: its age query, and its value query when the metric's
-// own value is wanted.
 func (r *metricsRun) signal(ctx context.Context, matcher string, signal metricSignal) {
 	ages := r.ages(ctx, matcher, signal)
 	if signal.valueField == "" {
 		return
 	}
 
-	// The value query, issued only when the metric's own value is wanted, because lag()'s
-	// value is the age rather than the metric's.
+	// A separate value query, because lag()'s value is the series' age, not the metric's value.
 	query := fmt.Sprintf("last_over_time(%s{%s}[%s])", signal.metric, matcher, metricsLookback)
 	r.queries++
 	values := make(map[string]seriesSample)
@@ -248,9 +212,6 @@ func (r *metricsRun) signal(ctx context.Context, matcher string, signal metricSi
 
 	for serviceID, sample := range values {
 		fact := Fact{Service: serviceID, Field: signal.valueField, Value: sample.value, Source: sourceMetrics}
-		// Dated by its own series' age, so a value read over a day-long window still knows
-		// how old it is -- and the fact that survives the reduction carries the age of the
-		// series it actually came from.
 		if sample.dated {
 			fact.ObservedAt = r.observedAt(sample.age)
 		}
@@ -258,37 +219,14 @@ func (r *metricsRun) signal(ctx context.Context, matcher string, signal metricSi
 	}
 }
 
-// seriesSample is one series' contribution to a valued signal: the sample the value query
-// returned, and the age of that same series' last raw sample.
 type seriesSample struct {
 	value float64
 	age   float64
-	// dated is false when the age query returned no matching series, which leaves the
-	// fact undatable rather than pretending to an age of zero.
 	dated bool
 }
 
-// supersedes reports whether this sample should displace the one already held for the
-// service.
-//
-// Several series of one metric under one service_id is the ordinary case rather than a
-// pathology, and the two kinds need different reducers:
-//
-// Under reduceMax the largest sample wins, which is the point of the reducer --
-// mongodb_mongod_replset_member_replication_lag emits one series per peer and the worst of
-// them is what the node saw. The winner is then dated by its own series, so a stale maximum
-// reads as stale and fieldSet.live drops it, rather than being reported as a statement about
-// now.
-//
-// Otherwise the freshest series wins, because the series are successive generations of one
-// reading rather than peers: an exporter that learns cluster_role only after startup
-// abandons its first mongodb_up series and begins another under the same service_id, and the
-// abandoned one is not evidence about the present. Dating the reduction from the oldest of
-// them -- which is what this used to do -- made every such service report DOWN with its live
-// sample seconds old.
-//
-// An undated sample never displaces a dated one, and never displaces its own kind: with no
-// age to compare, first seen stays.
+// supersedes prefers the largest value under reduceMax, otherwise the freshest series: an exporter
+// can abandon a series and start another under the same service_id, and the stale one is not current.
 func (s seriesSample) supersedes(held seriesSample, reduceMax bool) bool {
 	if reduceMax && s.value != held.value {
 		return s.value > held.value
@@ -302,12 +240,8 @@ func (s seriesSample) supersedes(held seriesSample, reduceMax bool) bool {
 	return s.age < held.age
 }
 
-// seriesKey identifies one series across the two queries a valued signal issues.
-//
-// Every label except __name__, because the age query wraps the metric in lag() and a
-// rollup need not carry the metric name through, while last_over_time() does. Keying on
-// the rest pairs each sample with its own series' age, which is what a service carrying
-// several series of one metric needs and what a per-service key cannot express.
+// seriesKey ignores __name__ so one series matches across lag() and last_over_time(),
+// since lag() need not carry the metric name through.
 func seriesKey(m model.Metric) model.Fingerprint {
 	if _, ok := m[model.MetricNameLabel]; !ok {
 		return m.Fingerprint()
@@ -321,25 +255,8 @@ func seriesKey(m model.Metric) model.Fingerprint {
 	return trimmed.Fingerprint()
 }
 
-// ages runs the age query, harvesting the labels it carries, and returns each series' age
-// so the value query can date its own facts.
-//
-// Keyed per series rather than per service, because a service can carry several series of
-// one metric and they do not share an age. Reducing them here -- to the oldest, which this
-// used to do -- loses the pairing the value query needs: the sample that survives its own
-// reduction then gets stamped with an age no series it came from ever reported. See
-// seriesSample.supersedes for what each reducer does with the pairing.
-//
-// The label and presence facts below were always unaffected: each is dated with its own
-// series' age inside the callback, because each comes from exactly one series.
-//
-// MetricsQL's lag() answers the seconds since the series' last raw sample and preserves
-// every label, so one query yields both the labels the catalog reads and the staleness
-// the run records.
-//
-// Wrapping timestamp() around a last_over_time() looks like it should do the same and
-// does not: it reports the evaluation time rounded to the step, which reads as "fresh"
-// for a series last scraped days ago -- the single most dangerous way to be wrong here.
+// ages uses lag(), the seconds since each series' last raw sample. A timestamp(last_over_time()) query
+// reports the evaluation time instead, so a series scraped days ago would read as fresh.
 func (r *metricsRun) ages(ctx context.Context, matcher string, signal metricSignal) map[model.Fingerprint]float64 {
 	query := fmt.Sprintf("lag(%s{%s}[%s])", signal.metric, matcher, metricsLookback)
 	r.queries++
@@ -371,11 +288,8 @@ func (r *metricsRun) ages(ctx context.Context, matcher string, signal metricSign
 	return ages
 }
 
-// expressions reads the two derived percentages.
-//
-// Neither exists as a series, so lag() has nothing to report on and their facts are dated
-// to the run. That is safe because both are gauges the projection already suppresses for
-// a service that is not up.
+// expressions facts are dated to the run because lag() cannot date a derived expression; the
+// projection already suppresses both for a service that is not up.
 func (r *metricsRun) expressions(ctx context.Context, matcher string) {
 	for _, expr := range []struct {
 		query string
@@ -395,11 +309,7 @@ func (r *metricsRun) expressions(ctx context.Context, matcher string) {
 	}
 }
 
-// lastUp reads when each service was last seen up, for a down one's "down since".
-//
-// Not volatile, unlike the up flag itself: it is a statement about the past, true however
-// long ago it was read. The fact is dated by the moment it names, which is when the
-// sample saying "up" was taken.
+// lastUp facts are dated by the last "up" sample itself; unlike the up flag, they stay true however old.
 func (r *metricsRun) lastUp(ctx context.Context, matcher string) {
 	r.queries++
 	query := fmt.Sprintf(queryLastUp, matcher, metricsLookback)
@@ -412,16 +322,13 @@ func (r *metricsRun) lastUp(ctx context.Context, matcher string) {
 	})
 }
 
-// observedAt turns an age in seconds into the moment the sample was taken.
 func (r *metricsRun) observedAt(age float64) *time.Time {
 	observed := r.src.now.Add(-time.Duration(age * float64(time.Second)))
 	return &observed
 }
 
-// each runs one instant query and applies apply to every sample, keyed by service_id.
-//
-// A sample carrying no service_id label is skipped: it cannot be attributed to a service,
-// and guessing from the instance label is how generations get mixed.
+// each skips samples without a service_id label; guessing from the instance label would mix
+// exporter generations.
 func (s metricsSource) each(ctx context.Context, result *SourceResult, query string, apply func(string, model.Metric, float64)) {
 	value, warnings, err := s.vm.Query(ctx, query, s.now)
 	if err != nil {

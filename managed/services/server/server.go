@@ -50,8 +50,7 @@ import (
 // pmmInitProgram is the supervisord program running PMM Server initialization and upgrade tasks.
 const pmmInitProgram = "pmm-init"
 
-// omSwitchEffectsTimeout bounds the PMM Extensions-facing work an OpenManager switch fires after
-// ChangeSettings has already answered. See applyOMSwitch.
+// omSwitchEffectsTimeout keeps an unresponsive side-car from holding applyOMSwitch's goroutine forever.
 const omSwitchEffectsTimeout = 5 * time.Minute
 
 // Server represents service for checking PMM Server status and changing settings.
@@ -604,8 +603,6 @@ func (s *Server) refuseDataRetentionChangeInHA(requested time.Duration, stored *
 			"Set it with the pmm-ha chart's dataRetentionDays value (rendered as PMM_DATA_RETENTION) and apply it with helm upgrade.")
 }
 
-// validateEnableOm checks an EnableOm request value against the environment override
-// and, when it would turn OpenManager on, against PMM Extensions' own availability.
 func (s *Server) validateEnableOm(ctx context.Context, enableOm *bool) error {
 	if enableOm != nil && s.envSettings.EnableOM != nil && *enableOm != *s.envSettings.EnableOM {
 		return status.Error(codes.FailedPrecondition, "OpenManager is configured via PMM_ENABLE_OM environment variable.")
@@ -776,42 +773,20 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	}, nil
 }
 
-// applyOMSwitch carries an OpenManager on/off transition out to its side effects: PMM Extensions'
-// om_inventory app learns the new state either way, and enabling also kicks a topology
-// collection, so OpenManager's page is not empty on first view instead of waiting out
-// the next scheduled tick.
-//
-// Runs off the request path, in a goroutine holding a context detached from the caller's.
-// All of it is best-effort -- every failure below is logged, never returned, and the
-// setting itself is committed before we get here -- but none of it is cheap:
-// TriggerTopologyCollection collects the whole estate inline, and SyncInventoryEnabled
-// PATCHes PMM Extensions and then kicks a sweep of its own. Measured at 12s of ChangeSettings
-// latency against a side-car answering in 3s per request, which is long enough for a client
-// to time out on a settings change that did in fact happen. The one PMM Extensions call that has to
-// stay on the request path is validateEnableOm's IsAvailable, whose answer decides
-// whether the save is allowed at all.
+// applyOMSwitch runs in the background because its PMM Extensions calls can outlast the client's timeout
+// on a change that is already saved. Failures are only logged.
 func (s *Server) applyOMSwitch(ctx context.Context, oldSettings, newSettings *models.Settings) {
 	enabled := newSettings.IsOMEnabled()
 	if s.omService == nil || oldSettings.IsOMEnabled() == enabled {
 		return
 	}
 
-	// Cancellation only: the values on the request's context (logging, tracing) still
-	// describe what asked for this work. The timeout is what bounds the goroutine, and
-	// is generous because nothing is waiting on it -- it exists so a side-car that never
-	// answers cannot keep one alive indefinitely.
 	ctx = context.WithoutCancel(ctx)
 	go func() {
 		ctx, cancel := context.WithTimeout(ctx, omSwitchEffectsTimeout)
 		defer cancel()
 
-		// PMM Extensions' own switch first, and only then the collection. om_inventory
-		// refuses a sweep while its ENABLED is false, recording the run SKIPPED
-		// with "OM Inventory is switched off" as the reason, so a collection
-		// triggered ahead of the PATCH is the one call that cannot do what it
-		// exists for. That is not a race to lose occasionally: on enable the
-		// trigger always ran first, so the estate always waited out a whole
-		// schedule interval on the very transition meant to fill it immediately.
+		// Sync first: om_inventory skips a sweep while it is disabled, so collecting earlier would do nothing.
 		s.omService.SyncInventoryEnabled(ctx, enabled)
 		if enabled {
 			_, err := s.omService.TriggerTopologyCollection(ctx, &omv1.TriggerTopologyCollectionRequest{})

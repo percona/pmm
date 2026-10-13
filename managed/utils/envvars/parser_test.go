@@ -101,8 +101,7 @@ func TestEnvVarValidator(t *testing.T) {
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
 		assert.Equal(t, expectedEnvVars, gotEnvVars)
 		assert.Nil(t, gotErrs)
-		// Also asserts that neither secret above is echoed anywhere: an
-		// unrecognized variable is warned about as the whole KEY=VALUE.
+		// An unrecognized variable is warned about as KEY=VALUE, which would leak the secrets above.
 		assert.Nil(t, gotWarns)
 	})
 

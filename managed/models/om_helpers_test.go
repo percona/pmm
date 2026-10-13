@@ -36,7 +36,6 @@ func TestOmTopologyRuns(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	base := time.Date(2026, 8, 11, 12, 0, 0, 0, time.UTC)
 
-	// insert records one run and its document, minutes apart so ordering is unambiguous.
 	insert := func(t *testing.T, q *reform.Querier, id string, offset time.Duration, document string) {
 		t.Helper()
 		started := base.Add(offset)
@@ -73,7 +72,6 @@ func TestOmTopologyRuns(t *testing.T) {
 		assert.Equal(t, int32(1), run.ServicesStale)
 		assert.Equal(t, "pmm-server", run.OriginNode)
 
-		// The per-source receipt is the part that makes a thin document legible.
 		require.Len(t, run.Sources, 2)
 		assert.Equal(t, "metrics", run.Sources[1].Source)
 		assert.Equal(t, "13", run.Sources[1].Detail["queries"])
@@ -98,7 +96,6 @@ func TestOmTopologyRuns(t *testing.T) {
 		assert.Equal(t, "run-3", runs[0].RunID)
 		assert.Equal(t, "run-2", runs[1].RunID)
 
-		// And the newest document is the one a cold start restores.
 		snapshot, err := models.FindLatestOmTopologySnapshot(q)
 		require.NoError(t, err)
 		assert.Equal(t, "run-3", snapshot.RunID)
@@ -117,7 +114,7 @@ func TestOmTopologyRuns(t *testing.T) {
 		require.Len(t, runs, 3, "only the newest are kept")
 		assert.Equal(t, "prune-4", runs[0].RunID)
 
-		// The snapshot cascades, so retention needs no second sweep to stay bounded.
+		// Snapshots are deleted with their runs by cascade.
 		_, err = models.FindOmTopologyRunByID(q, "prune-0")
 		require.ErrorIs(t, err, models.ErrNotFound)
 
@@ -149,7 +146,7 @@ func TestOmTopologySnapshotAbsentOnEmptyDatabase(t *testing.T) {
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	// The cold-start path depends on this being a clean miss rather than an error.
+	// The cold-start path relies on a clean ErrNotFound here.
 	_, err := models.FindLatestOmTopologySnapshot(db.Querier)
 	require.ErrorIs(t, err, models.ErrNotFound)
 }

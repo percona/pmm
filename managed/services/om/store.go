@@ -29,23 +29,12 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// documentJSON is how a snapshot is stored and read back.
-//
-// Deliberately protojson rather than encoding/json: the document is a protobuf message,
-// and only protojson agrees with the wire format the API serves -- wrapper types as bare
-// values or null, timestamps as RFC 3339. Round-tripping through encoding/json would
-// store a differently-shaped document than the one the UI receives.
+// documentJSON uses protojson so the stored document matches the wire format the API serves.
 var (
 	documentJSON      = protojson.MarshalOptions{UseProtoNames: true, EmitUnpopulated: true}
 	documentJSONParse = protojson.UnmarshalOptions{DiscardUnknown: true}
 )
 
-// persist writes one run and its document, then prunes the history.
-//
-// Both rows go in one transaction: a run without its document is not a state any reader
-// should have to handle. Failure is reported but not fatal -- the document is already
-// published in memory, and losing the record of a collection is worth less than refusing
-// to serve the collection.
 func (s *Service) persist(ctx context.Context, response *omv1.GetTopologyResponse, run *omv1.TopologyRun, originNode string) error {
 	document, err := documentJSON.Marshal(response)
 	if err != nil {
@@ -93,9 +82,6 @@ func (s *Service) persist(ctx context.Context, response *omv1.GetTopologyRespons
 		snapshot.ObservedAt = &observed
 	}
 
-	// InTransactionContext rather than InTransaction so a shutdown or a cancelled
-	// collection aborts the write instead of finishing it. managed/AGENTS.md prescribes
-	// this form, and it is what most of managed/services uses.
 	return s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		err := models.CreateOmTopologyRun(tx.Querier, row, snapshot)
 		if err != nil {
@@ -105,12 +91,8 @@ func (s *Service) persist(ctx context.Context, response *omv1.GetTopologyRespons
 	})
 }
 
-// restore loads the newest stored document, so a restarted pmm-managed can answer before
-// it has collected anything of its own.
-//
-// A document read back from the database is re-staled against the clock rather than
-// trusted: stale was computed when it was written, and the whole point of restoring one
-// is that time has passed since.
+// restore lets a restarted pmm-managed answer before its first collection. Stale is recomputed
+// because it was computed when the document was written.
 func (s *Service) restore(ctx context.Context) (*omv1.GetTopologyResponse, time.Time, error) {
 	var snapshot *models.OmTopologySnapshot
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -136,7 +118,6 @@ func (s *Service) restore(ctx context.Context) (*omv1.GetTopologyResponse, time.
 	return response, snapshot.GeneratedAt, nil
 }
 
-// listRuns reads the run history back out of the database.
 func (s *Service) listRuns(ctx context.Context, limit int) ([]*omv1.TopologyRun, error) {
 	var rows []*models.OmTopologyRun
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -154,7 +135,6 @@ func (s *Service) listRuns(ctx context.Context, limit int) ([]*omv1.TopologyRun,
 	return runs, nil
 }
 
-// getRun reads one run back out of the database.
 func (s *Service) getRun(ctx context.Context, runID string) (*omv1.TopologyRun, error) {
 	var row *models.OmTopologyRun
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -201,7 +181,6 @@ func runFromModel(row *models.OmTopologyRun) *omv1.TopologyRun {
 	return run
 }
 
-// snapshotStale reports whether an observation is older than the grace period.
 func snapshotStale(observedAt *timestamppb.Timestamp) bool {
 	if observedAt == nil {
 		return false
@@ -209,15 +188,6 @@ func snapshotStale(observedAt *timestamppb.Timestamp) bool {
 	return time.Since(observedAt.AsTime()) > staleAfter
 }
 
-// The enum boundary. Statuses are stored as the collector's own lowercase strings and
-// translated here, in one place, rather than persisted as enum numbers: a run row stays
-// readable in psql, and renumbering the enum cannot silently reinterpret history.
-//
-// An unrecognised stored value maps to UNSPECIFIED rather than being guessed at. That is
-// the honest answer for a row written by a newer version, and it is visible on the wire
-// instead of masquerading as a status the caller knows.
-
-// runStatusToProto maps a stored run status onto the wire enum.
 func runStatusToProto(status models.OmTopologyRunStatus) omv1.RunStatus {
 	switch string(status) {
 	case runStatusSuccess:
@@ -231,7 +201,6 @@ func runStatusToProto(status models.OmTopologyRunStatus) omv1.RunStatus {
 	}
 }
 
-// runStatusFromProto maps the wire enum back onto the stored representation.
 func runStatusFromProto(status omv1.RunStatus) models.OmTopologyRunStatus {
 	switch status {
 	case omv1.RunStatus_RUN_STATUS_SUCCESS:
@@ -245,7 +214,6 @@ func runStatusFromProto(status omv1.RunStatus) models.OmTopologyRunStatus {
 	}
 }
 
-// sourceStatusToProto maps a stored source status onto the wire enum.
 func sourceStatusToProto(status SourceStatus) omv1.SourceStatus {
 	switch status {
 	case SourceOK:
@@ -261,7 +229,6 @@ func sourceStatusToProto(status SourceStatus) omv1.SourceStatus {
 	}
 }
 
-// sourceStatusFromProto maps the wire enum back onto the stored representation.
 func sourceStatusFromProto(status omv1.SourceStatus) SourceStatus {
 	switch status {
 	case omv1.SourceStatus_SOURCE_STATUS_OK:

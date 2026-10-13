@@ -34,17 +34,12 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-// storeTestDB opens a fresh test database and wraps it as a *reform.DB, the shape
-// store.go's methods take.
 func storeTestDB(t *testing.T) *reform.DB {
 	t.Helper()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	return reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 }
 
-// testTopologyResponse builds one document and the run that produced it, shaped like
-// what collect() would have built, so a round trip through persist/restore has
-// something realistic to preserve.
 func testTopologyResponse(runID string, generatedAt, observedAt time.Time) (*omv1.GetTopologyResponse, *omv1.TopologyRun) {
 	response := &omv1.GetTopologyResponse{
 		Snapshot: &omv1.Snapshot{
@@ -107,13 +102,8 @@ func TestStorePersistRestoreRoundTrip(t *testing.T) {
 	db := storeTestDB(t)
 	svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
 
-	// Observed recently enough to restore as fresh: restore() recomputes Stale against
-	// the clock rather than trusting what was written (see
-	// TestStoreRestoreRestalesAgainstNow), so a round trip of the rest of the document
-	// needs the timestamp to still be within staleAfter by the time restore() runs.
-	// Truncated to microseconds because TopologyRun's StartTime/EndTime round-trip
-	// through plain timestamp columns rather than protojson, and Postgres does not
-	// keep more precision than that.
+	// Recent enough that restore() still finds it fresh, and truncated to the microsecond precision
+	// that Postgres timestamp columns keep.
 	generatedAt := time.Now().Truncate(time.Microsecond)
 	observedAt := generatedAt.Add(-4 * time.Second)
 	runID := uuid.New().String()
@@ -127,9 +117,6 @@ func TestStorePersistRestoreRoundTrip(t *testing.T) {
 	require.NotNil(t, restored)
 	assert.WithinDuration(t, generatedAt, restoredGeneratedAt, time.Millisecond)
 
-	// protojson through the store is lossy about nothing: every field persist wrote
-	// comes back unchanged, down to the cluster id and the per-service observed_at
-	// this test exists to guard.
 	diff := cmp.Diff(response, restored, protocmp.Transform())
 	assert.Empty(t, diff, "restored document should equal what was persisted")
 
@@ -142,10 +129,7 @@ func TestStoreRestoreRestalesAgainstNow(t *testing.T) {
 	db := storeTestDB(t)
 	svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
 
-	// Written as fresh (Stale: false), but observed long enough ago that restoring it
-	// now must recompute Stale as true. The written value is deliberately wrong, to
-	// prove restore() does not just trust what was stored -- see snapshotStale's own
-	// comment for why that recomputation exists.
+	// Stored as fresh but an hour old: restore() must recompute Stale rather than trust the stored value.
 	generatedAt := time.Now().Add(-time.Hour)
 	observedAt := generatedAt
 	response, run := testTopologyResponse(uuid.New().String(), generatedAt, observedAt)
@@ -194,8 +178,6 @@ func TestPruneOmTopologyRunsKeepsExactlyKeep(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, runs, keep)
 
-	// Newest first, and the newest `keep` of them: the last `keep` run IDs persisted,
-	// in reverse order.
 	gotIDs := make([]string, 0, len(runs))
 	for _, r := range runs {
 		gotIDs = append(gotIDs, r.RunId)
@@ -203,9 +185,6 @@ func TestPruneOmTopologyRunsKeepsExactlyKeep(t *testing.T) {
 	wantIDs := []string{runIDs[4], runIDs[3], runIDs[2]}
 	assert.Equal(t, wantIDs, gotIDs)
 
-	// The run row is gone, and so is its snapshot -- CreateOmTopologyRun writes both in
-	// one transaction, and a cascade that prunes the run but leaves its snapshot behind
-	// would leak one row per pruned run forever.
 	_, err = models.FindOmTopologyRunByID(db.Querier, runIDs[0])
 	require.ErrorIs(t, err, models.ErrNotFound)
 

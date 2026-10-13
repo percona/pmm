@@ -246,8 +246,6 @@ type gRPCServerDeps struct {
 	vmalert                   *vmalert.Service
 	internalNodePrefixes      []string
 
-	// Built in main so its collection timer can be registered as an HA leader service.
-	// runGRPCServer only exposes it.
 	omService *om.Service
 }
 
@@ -741,11 +739,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	kingpin.Version(version.FullInfo())
 	kingpin.HelpFlag.Short('h')
 
-	// Where PMM Extensions is, not where any one of its apps is: OM's on-host facts come from
-	// the om_inventory app today and the actions apps will come from the same side-car, so
-	// each consumer appends its own /api/apps/<module> path. Optional -- with no URL
-	// the probe source reports itself disabled and the document is built from PMM's own
-	// inventory and metrics alone.
+	// Base URL only: each consumer appends its own /api/apps/<module> path.
+	// Optional; without it OM builds its document from PMM's own inventory and metrics alone.
 	extensionsURLF := kingpin.Flag("extensions-url", "Base URL of the PMM Extensions API, e.g. http://127.0.0.1:8000").
 		Envar("PMM_EXTENSIONS_URL").String()
 	extensionsTokenF := kingpin.Flag("extensions-token", "Bearer token for the PMM Extensions API").
@@ -1162,11 +1157,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		VMURL:         *victoriaMetricsURLF,
 	})
 
-	// Where PMM Extensions is, optional. Empty means OM builds its document from PMM's own inventory
-	// and metrics alone and records the probe source as disabled.
-	//
-	// Constructed here, ahead of serverParams below, so server.Server can hold it for the
-	// OpenManager enable/disable switch (Enabled gate, IsAvailable check).
+	// Constructed ahead of serverParams so server.Server can hold it for the OpenManager enable/disable switch.
 	omService := om.New(db, v1.NewAPI(vmClient), haService, logrus.WithField("component", "om"))
 	omService.WithProbeSource(*extensionsURLF, *extensionsTokenF)
 	omService.WithBootstrapSource(*extensionsURLF, *extensionsTokenF)
@@ -1308,20 +1299,15 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		return nil
 	}))
 
-	// Leader-only, like every other periodic writer here. A collection persists a run and
-	// its snapshot and then prunes the shared history, so running it on every node of an
-	// HA cluster would have each node writing runs and pruning the others' -- and the
-	// pruning is what makes that destructive rather than merely wasteful.
+	// Leader-only: each collection prunes the shared run history, so running it on every HA node
+	// would have nodes pruning each other's runs.
 	haService.AddLeaderService(ha.NewContextService("om", func(ctx context.Context) error {
 		omService.Run(ctx)
 		return nil
 	}))
 
-	// Leader-only, same reasoning as "om" above: two leaders driving the same
-	// bootstrap run would double-dispatch every step. Registered separately from
-	// "om" itself (rather than folded into Service.Run's own ticker) since the two
-	// run on independent cadences and neither's failure should stop the other --
-	// see PMM-15347/plan.md §4 item 9 for the state-machine split this implements.
+	// Leader-only: two nodes driving the same bootstrap run would double-dispatch every step.
+	// Separate from "om" so each runs on its own cadence and one failing does not stop the other.
 	haService.AddLeaderService(ha.NewContextService("om-bootstrap-stepper", func(ctx context.Context) error {
 		omService.RunBootstrapStepper(ctx)
 		return nil

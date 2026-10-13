@@ -27,9 +27,8 @@ import (
 // OmTopologyRunStatus is the terminal state of one OM collection run.
 type OmTopologyRunStatus string
 
-// The states an OM run can end in. A run whose sources all answered is a success even if
-// some services were never seen: a service inventory knows and metrics have not is a fact
-// about the estate, not a failure of the run.
+// The states an OM run can end in. A run whose sources all answered succeeds even if
+// some services were never seen.
 const (
 	// OmTopologyRunSuccess means every source answered.
 	OmTopologyRunSuccess = OmTopologyRunStatus("success")
@@ -48,10 +47,6 @@ type OmTopologySourceReport struct {
 }
 
 // OmTopologySourceReports is the per-source receipt for one run, stored as JSONB.
-//
-// This is what makes a thin snapshot legible rather than merely thin: a run recorded with
-// metrics=ok and probe=failed is still correct about every version and honest about
-// reachability.
 type OmTopologySourceReports []OmTopologySourceReport
 
 // Value implements database/sql/driver.Valuer.
@@ -78,8 +73,6 @@ func (e OmTopologyRunErrors) Value() (driver.Value, error) { return jsonValue(e)
 func (e *OmTopologyRunErrors) Scan(src any) error { return jsonScan(e, src) }
 
 // OmTopologyRun records one execution of OM's topology collection.
-//
-// The run ID is the snapshot key, so a document always names the pass that produced it.
 //
 //reform:om_topology_runs
 type OmTopologyRun struct {
@@ -125,11 +118,6 @@ func (r *OmTopologyRun) AfterFind() error {
 }
 
 // OmTopologySnapshot holds one run's topology document.
-//
-// Stored as one JSONB document rather than a relational tree on purpose: the topology
-// model is still moving -- replica sets, sharded clusters, routers, more metrics -- and a
-// schema that has to be migrated for every shape change is a schema that discourages
-// changing the shape. A reader checks schema_version instead.
 //
 //reform:om_topology_snapshots
 type OmTopologySnapshot struct {

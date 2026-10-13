@@ -53,10 +53,7 @@ func TestCleartextToken(t *testing.T) {
 func TestSEPClientRefusesRedirects(t *testing.T) {
 	t.Parallel()
 
-	// A redirect is where a bearer leaks: net/http keeps the Authorization header when
-	// only the scheme changes, so an https side-car pointing at http would hand PMM_EXTENSIONS_TOKEN
-	// to the wire. Nothing in PMM Extensions' API redirects, so the client refuses to follow one
-	// and the 3xx surfaces as an unexpected status instead.
+	// net/http keeps the Authorization header on a scheme-only redirect, which could leak the bearer token.
 	elsewhere := newSEPStub(t, http.StatusOK, `{}`)
 	redirecting := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, elsewhere.server.URL+r.URL.Path, http.StatusTemporaryRedirect)
@@ -75,8 +72,7 @@ func TestSEPClientRefusesRedirects(t *testing.T) {
 func TestSEPClientTransportErrorIsNotDoublePrefixed(t *testing.T) {
 	t.Parallel()
 
-	// http.Client.Do fails with a *url.Error, whose message already names the verb and
-	// the full URL. Wrapping that in another "POST <url>:" printed both of them twice.
+	// http.Client.Do's *url.Error already names the method and URL, so wrapping must not repeat them.
 	stub := newSEPStub(t, http.StatusOK, `{}`)
 	svc := stub.service(t)
 	stub.server.Close()

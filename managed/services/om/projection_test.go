@@ -45,7 +45,6 @@ func mongoService(id, name, cluster, replicationSet, environment string) *models
 	}
 }
 
-// liveFacts is a healthy replica-set member as the metrics source would report it.
 func liveFacts(state string, extra map[string]MergedField) map[string]MergedField {
 	observed := projectionNow.Add(-5 * time.Second)
 	fields := map[string]MergedField{
@@ -94,8 +93,7 @@ func TestBuildDocument(t *testing.T) {
 	t.Run("a stopped service reads DOWN once its up flag ages out", func(t *testing.T) {
 		t.Parallel()
 
-		// The regression that mattered: the sample survives the long lookback window, so
-		// only the age can tell that it is not a fact about now.
+		// The sample survives the lookback window, so only its age says it is not current.
 		stale := projectionNow.Add(-10 * time.Minute)
 		fields := liveFacts("PRIMARY", nil)
 		for _, key := range []string{fieldExporterUp, fieldState, fieldCPUUsage, fieldConnectionsFree} {
@@ -209,9 +207,7 @@ func TestBuildDocument(t *testing.T) {
 			"s3": inv("cl1", "rs0", "prod"),
 		}, projectionNow, projectionMaxAge)
 
-		// Environments sort by the internal grouping key, so the unnamed bucket --
-		// "UNSPECIFIED" -- sorts ahead of "prod" by codepoint. Matches PMM Extensions, whose
-		// sorted() orders the same way.
+		// Environments sort by grouping key, so "UNSPECIFIED" comes before "prod", as in PMM Extensions.
 		require.Len(t, doc.environments, 2)
 		assert.Nil(t, doc.environments[0].EnvName, "an unset environment is null, never invented")
 		assert.Equal(t, "prod", doc.environments[1].GetEnvName())
@@ -291,8 +287,7 @@ func TestBuildDocument(t *testing.T) {
 	})
 }
 
-// TestLastUpAt pins "down since": set from the last-up fact only while the service is
-// down, and absent when there is nothing true to say.
+// TestLastUpAt checks last_up_at is set only for a down service with a known last-up time.
 func TestLastUpAt(t *testing.T) {
 	t.Parallel()
 
@@ -349,8 +344,7 @@ func TestInventoryEndpoint(t *testing.T) {
 	t.Run("prefers the node over the service address", func(t *testing.T) {
 		t.Parallel()
 
-		// A service address is where its own agent reaches it -- 127.0.0.1 for a local
-		// agent, which is true and useless to anyone else.
+		// A local agent's service address is 127.0.0.1, which is useless to anyone else.
 		node := &models.Node{NodeName: "db-host-1", Address: "10.0.0.11"}
 		assert.Equal(t, "10.0.0.11:27017", inventoryEndpoint(service, node))
 	})

@@ -30,13 +30,8 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// servicesBody is one om_inventory GET /services answer, shaped as the app sends it:
-// a row per service PMM has registered, each carrying the document the last successful
-// probe stored, wrapped in PMM Extensions' own paginated envelope (PMM-15326: "Bound the estate
-// listings" -- app/core/pagination/models.py's PaginatedResponse) rather than a bare
-// array. `gone` is a service the app knows and this PMM does not. `total` matches
-// `items`'s own length so fetchAllPages stops after this one page, matching every
-// test below that asserts on exactly one request.
+// `gone` is a service the app knows and this PMM does not. `total` matches the item count so
+// fetchAllPages stops after one page.
 const servicesBody = `{"items": [
   {
     "service_id": "s1", "node_id": "n1", "name": "mongo-1", "port": 27017, "role": null,
@@ -61,8 +56,6 @@ const servicesBody = `{"items": [
   }
 ], "total": 2, "offset": 0, "limit": 200}`
 
-// unprobedBody is a service the app holds a row for and has never reached: an empty
-// document and null timestamps, which is a normal state rather than an absence.
 const unprobedBody = `{"items": [
   {
     "service_id": "s1", "node_id": "n1", "name": "mongo-1", "port": 27017, "role": null,
@@ -105,8 +98,6 @@ func TestProbeSource(t *testing.T) {
 		result := source.collect(context.Background(), probeTestServices())
 
 		assert.Equal(t, "Bearer test-token", gotAuth)
-		// The caller configures where PMM Extensions is; this side appends the app path. A path of
-		// just "/services" would mean the app name had leaked into configuration.
 		assert.Equal(t, "/api/apps/"+probeAppModule+"/"+probeServicesPath, gotPath)
 		assert.Equal(t, SourcePartial, result.Status, "one of two services was covered")
 
@@ -120,16 +111,13 @@ func TestProbeSource(t *testing.T) {
 		assert.Equal(t, "/etc/mongod-node.conf", byField[fieldConfigPath])
 		assert.InDelta(t, 10295.0, byField["uptime_seconds"], 0.001, "a JSON number decodes to float64")
 		assert.Equal(t, true, byField["server_running"])
-		// collected_at describes the document rather than the service, and the age it
-		// carries is already on every fact.
+		// collected_at dates the document, and its age is already on every fact.
 		assert.NotContains(t, byField, observedCollectedAt)
 	})
 
 	t.Run("facts for services this PMM does not have are counted, not merged", func(t *testing.T) {
 		t.Parallel()
 
-		// The app reads its own inventory, which can be a moment ahead or behind. A row
-		// for a service with none here has nothing to attach to.
 		source := newProbeSource(t, func(w http.ResponseWriter, _ *http.Request) {
 			_, _ = w.Write([]byte(servicesBody))
 		})
@@ -145,9 +133,7 @@ func TestProbeSource(t *testing.T) {
 	t.Run("an unconfigured source is disabled, not failed", func(t *testing.T) {
 		t.Parallel()
 
-		// "No probe has run here" is a normal state of a PMM that has not enabled the
-		// app, and must not read as an error on the run.
-		source := probeSource{l: logrus.WithField("test", t.Name())} // zero-value app, no extensionsURL
+		source := probeSource{l: logrus.WithField("test", t.Name())}
 		result := source.collect(context.Background(), probeTestServices())
 
 		assert.Equal(t, SourceDisabled, result.Status)
@@ -173,7 +159,6 @@ func TestProbeSource(t *testing.T) {
 	t.Run("an estate with no rows is partial and empty", func(t *testing.T) {
 		t.Parallel()
 
-		// The app is installed and has never swept. Not anybody's failure.
 		source := newProbeSource(t, func(w http.ResponseWriter, _ *http.Request) {
 			_, _ = w.Write([]byte(`{"items": [], "total": 0, "offset": 0, "limit": 200}`))
 		})
@@ -188,8 +173,6 @@ func TestProbeSource(t *testing.T) {
 	t.Run("a service seen but never probed contributes no facts", func(t *testing.T) {
 		t.Parallel()
 
-		// An empty document is not a fact set of size zero to merge; it is the absence
-		// of a probe, and the row exists so the estate view can say so.
 		source := newProbeSource(t, func(w http.ResponseWriter, _ *http.Request) {
 			_, _ = w.Write([]byte(unprobedBody))
 		})
@@ -204,9 +187,6 @@ func TestProbeSource(t *testing.T) {
 	t.Run("an estate that is entirely failing fails the source and says why", func(t *testing.T) {
 		t.Parallel()
 
-		// The app is reachable and answering; every service it holds is failing its
-		// probe. Reporting that as "ok, 0 facts" reads as "there is nothing to probe
-		// here", which is the opposite of what happened.
 		source := newProbeSource(t, func(w http.ResponseWriter, _ *http.Request) {
 			_, _ = w.Write([]byte(`{"items": [
 			  {"service_id":"s1","node_id":"n1","name":"mongo-1","observed":{},
@@ -225,8 +205,6 @@ func TestProbeSource(t *testing.T) {
 		assert.Equal(t, SourceFailed, result.Status)
 		require.Len(t, result.Errors, 1)
 		assert.Equal(t, "probe_all_failing", result.Errors[0].Code)
-		// The cause travels with it, so the receipt is readable without going to ask
-		// the other service.
 		assert.Contains(t, result.Errors[0].Message, "Cannot connect to host")
 		assert.Contains(t, result.Errors[0].Message, "mongo-1")
 		assert.Equal(t, "2", detailStrings(result.Detail)["services_failing"])
@@ -253,8 +231,6 @@ func TestProbeSource(t *testing.T) {
 	t.Run("some covered and some failing is partial", func(t *testing.T) {
 		t.Parallel()
 
-		// The steady state of a real estate: one node unreachable, the rest answering.
-		// Not a failure of this source, and not a clean run either.
 		source := newProbeSource(t, func(w http.ResponseWriter, _ *http.Request) {
 			_, _ = w.Write([]byte(`{"items": [
 			  {"service_id":"s1","node_id":"n1","name":"mongo-1",
@@ -292,8 +268,6 @@ func TestProbeSource(t *testing.T) {
 func TestProbeFactsReachTheDocument(t *testing.T) {
 	t.Parallel()
 
-	// End to end through the seam: what the app serves, merged under the precedence
-	// table, projected into the document.
 	source := newProbeSource(t, func(w http.ResponseWriter, _ *http.Request) {
 		_, _ = w.Write([]byte(servicesBody))
 	})
@@ -319,14 +293,13 @@ func TestProbeFactsReachTheDocument(t *testing.T) {
 	}
 	require.NotNil(t, svc)
 
-	// The upgraded-but-not-restarted case, which is the whole reason the probe exists:
-	// the binary on disk is ahead of the server that is running.
+	// Upgraded but not restarted: the binary on disk is ahead of the running server.
 	assert.Equal(t, "7.0.40-22", svc.GetInstalledVersion())
 	assert.Equal(t, "7.0.39-21", svc.GetVersion(), "metrics still own the running version")
 	assert.Equal(t, "/etc/mongod-node.conf", svc.GetConfigPath())
 	assert.Contains(t, svc.GetArgv(), "mongod")
 
-	// And the service the probe never reached carries nulls rather than another's facts.
+	// The service the probe never reached carries nulls, not another service's facts.
 	for _, cluster := range doc.environments[0].Clusters {
 		for _, candidate := range cluster.Services {
 			if candidate.ServiceName == "mongo-2" {

@@ -213,8 +213,6 @@ func TestDefaultConfigReportsKubernetesDeployment(t *testing.T) {
 	})
 }
 
-// Operations for MongoDB is switched in the settings table, from the UI or once at startup from
-// PMM_ENABLE_OM, so the datapoint reads the setting: an ENV_VARS one would miss the UI switch.
 // Not parallel: testdb.Open recreates the database TestRunTelemetryService also uses.
 func TestDefaultConfigReportsMongoOpsEnabled(t *testing.T) {
 	logger, _ := test.NewNullLogger()

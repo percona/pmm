@@ -23,10 +23,6 @@ import (
 )
 
 // CreateOmTopologyRun stores one run and the topology document it produced.
-//
-// Both in one call because they are one fact: a run with no document is not a state any
-// reader should have to handle, and the caller writes them inside a transaction so no
-// reader ever sees one without the other.
 func CreateOmTopologyRun(q *reform.Querier, run *OmTopologyRun, snapshot *OmTopologySnapshot) error {
 	err := q.Insert(run)
 	if err != nil {
@@ -76,9 +72,6 @@ func FindOmTopologyRunByID(q *reform.Querier, runID string) (*OmTopologyRun, err
 
 // FindLatestOmTopologySnapshot returns the newest stored topology document, or ErrNotFound when
 // no collection has ever run.
-//
-// This is what lets a restarted pmm-managed serve the estate before it has collected
-// anything of its own.
 func FindLatestOmTopologySnapshot(q *reform.Querier) (*OmTopologySnapshot, error) {
 	structs, err := q.SelectAllFrom(OmTopologySnapshotTable, "ORDER BY generated_at DESC LIMIT 1")
 	if err != nil {
@@ -91,10 +84,6 @@ func FindLatestOmTopologySnapshot(q *reform.Querier) (*OmTopologySnapshot, error
 }
 
 // PruneOmTopologyRuns deletes all but the newest keep runs, cascading to their snapshots.
-//
-// Retention has to be bounded here rather than by an operator: collection runs on a timer
-// and on every read past the cache, so the table grows on its own. Pruning on write keeps
-// it at a fixed size without a second scheduled job to forget about.
 func PruneOmTopologyRuns(q *reform.Querier, keep int) error {
 	if keep <= 0 {
 		return NewInvalidArgumentError("keep should be positive")
