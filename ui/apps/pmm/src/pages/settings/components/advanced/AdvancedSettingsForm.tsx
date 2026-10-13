@@ -14,10 +14,11 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WarningIcon from '@mui/icons-material/Warning';
 import { TextInput, SwitchInput } from '@percona/peak-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
+import { useHAStatus } from 'hooks/api/useHA';
 import { Messages } from '../../Settings.messages';
 import {
   FEATURE_MANAGEMENT_SETTINGS,
@@ -31,7 +32,7 @@ import { MAX_LABEL_WIDTH } from '../../Settings.constants';
 import { AdvancedSettingsFormProps } from './AdvancedSettingsForm.types';
 import {
   AdvancedSettingsFormValues,
-  advancedSettingsSchema,
+  createAdvancedSettingsSchema,
 } from './AdvancedSettingsForm.schema';
 import { toFormValues, toPayload } from './AdvancedSettingsForm.utils';
 import { SettingsFieldLabel } from '../settings-field-label';
@@ -44,14 +45,27 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   settings,
 }) => {
   const { mutateAsync: updateSettings } = useUpdateSettings();
+  const { data: haStatus } = useHAStatus();
+
+  // In HA retention comes from the pmm-ha chart and the server refuses a change through the
+  // settings API, so the field is disabled rather than failing when the user presses Save.
+  const retentionLockedByHa = haStatus?.status === 'Enabled';
+
+  // Validation and the payload also key off the value loaded from the server, not only the HA
+  // lock, so they hold while the HA status is still loading or has failed to load.
+  const loadedRetention = toFormValues(settings).retention;
+  const resolver = useMemo(
+    () => zodResolver(createAdvancedSettingsSchema(loadedRetention)),
+    [loadedRetention]
+  );
 
   const methods = useForm<AdvancedSettingsFormValues>({
-    resolver: zodResolver(advancedSettingsSchema),
+    resolver,
     defaultValues: toFormValues(settings),
     mode: 'onChange',
   });
 
-  const { handleSubmit, reset, watch, setValue } = methods;
+  const { handleSubmit, reset, resetField, watch, setValue } = methods;
 
   const sttEnabled = watch('stt');
   const [telemetryDialogOpen, setTelemetryDialogOpen] = useState(false);
@@ -60,19 +74,30 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
     reset(toFormValues(settings));
   }, [settings, reset]);
 
+  // The HA status can arrive after the user has typed into the field. Put the loaded value back
+  // so the disabled field shows what is in force rather than a value that is never sent.
+  useEffect(() => {
+    if (retentionLockedByHa) {
+      resetField('retention');
+    }
+  }, [retentionLockedByHa, resetField]);
+
   const onSubmit = async (values: AdvancedSettingsFormValues) => {
-    await updateSettings(toPayload(values), {
-      onSuccess: () => {
-        enqueueSnackbar(Messages.service.success, { variant: 'success' });
-        reset(values);
-      },
-      onError: (error) => {
-        enqueueSnackbar(
-          error instanceof Error ? error.message : Messages.unauthorized,
-          { variant: 'error' }
-        );
-      },
-    });
+    await updateSettings(
+      toPayload(values, loadedRetention, retentionLockedByHa),
+      {
+        onSuccess: () => {
+          enqueueSnackbar(Messages.service.success, { variant: 'success' });
+          reset(values);
+        },
+        onError: (error) => {
+          enqueueSnackbar(
+            error instanceof Error ? error.message : Messages.unauthorized,
+            { variant: 'error' }
+          );
+        },
+      }
+    );
   };
 
   const m = Messages.advanced;
@@ -135,10 +160,16 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
               name="retention"
               textFieldProps={{
                 type: 'number',
+                disabled: retentionLockedByHa,
+                helperText: retentionLockedByHa
+                  ? m.retentionLockedByHa
+                  : undefined,
                 slotProps: {
                   htmlInput: {
                     min: MIN_DAYS,
-                    max: MAX_DAYS,
+                    // The browser's own range check would block submitting a loaded value above
+                    // the maximum, which the schema accepts; typed values are still held to it.
+                    max: Math.max(MAX_DAYS, Number(loadedRetention)),
                     step: 1,
                     'data-testid': 'retention-number-input',
                   },

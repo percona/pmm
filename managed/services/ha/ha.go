@@ -52,8 +52,7 @@ func (s *HAServer) ListNodes(_ context.Context, _ *hav1.ListNodesRequest) (*hav1
 		return &hav1.ListNodesResponse{Nodes: []*hav1.HANode{}}, nil
 	}
 
-	// Default to 1 for single-node deployment where no peers are configured.
-	expectedNodes := max(len(s.service.params.Nodes), 1)
+	expectedNodes := s.service.expectedNodes()
 
 	s.service.rw.RLock()
 	memberlist := s.service.memberlist
