@@ -1,0 +1,158 @@
+---
+name: UI Tests
+
+on:
+  pull_request:
+    paths:
+      - "ui/**"
+      - "build/ansible/roles/nginx/files/conf.d/pmm.conf"
+      - ".github/workflows/ui-tests.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Run UI tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup nodejs
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ui/.nvmrc
+          cache: pnpm
+          cache-dependency-path: ui/pnpm-lock.yaml
+
+      - name: Build UI
+        working-directory: ui
+        run: make build
+
+      - name: Start PMM Server
+        run: |
+          cat <<-EOF > compose.yml
+          services:
+            pmm-server:
+              image: perconalab/pmm-server:3-dev-latest
+              container_name: pmm-server
+              environment:
+                - PMM_DEBUG=1
+                - PMM_DEV_PORTAL_URL=https://portal-dev.percona.com
+                - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check-dev.percona.com:443
+                - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=RWTkF7Snv08FCboTne4djQfN5qbrLfAjb8SY3/wwEP+X5nUrkxCEvUDJ
+              ports:
+                - 80:8080
+                - 443:8443
+              volumes:
+                - ./ui/apps/pmm/dist:/usr/share/pmm-ui:ro
+                - ./ui/apps/pmm-compat/dist:/usr/share/percona-dashboards/panels/pmm-compat-app:ro
+                - ./build/ansible/roles/nginx/files/conf.d/pmm.conf:/etc/nginx/conf.d/pmm.conf:ro
+          EOF
+
+          docker compose -f compose.yml up -d
+
+      - name: Check out pmm-qa in ${{ github.head_ref }} branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        continue-on-error: true
+        id: branch_checkout
+        with:
+          ref: ${{ github.head_ref }}
+          repository: percona/pmm-qa
+          path: ./pmm-qa
+
+      - name: Check out pmm-qa in ${{ github.base_ref }} branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: ${{ steps.branch_checkout.outcome == 'failure' }}
+        continue-on-error: true
+        id: target_branch_checkout
+        with:
+          ref: ${{ github.base_ref }}
+          repository: percona/pmm-qa
+          path: ./pmm-qa
+
+      - name: Check out pmm-qa in main branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: ${{ steps.target_branch_checkout.outcome == 'failure' }}
+        with:
+          ref: main
+          repository: percona/pmm-qa
+          path: ./pmm-qa
+
+      - name: Setup npm cache for pmm-qa
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ui/.nvmrc
+          cache: npm
+          cache-dependency-path: |
+            pmm-qa/codeceptjs-e2e/package-lock.json
+            pmm-qa/e2e_tests/package-lock.json
+
+      - name: Install dependencies for UI tests
+        working-directory: ./pmm-qa/codeceptjs-e2e
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: ./pmm-qa/codeceptjs-e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Wait for PMM Server
+        id: server
+        run: docker compose -f compose.yml up -d --wait --wait-timeout=100
+
+      - name: Run UI tests
+        working-directory: ./pmm-qa/codeceptjs-e2e
+        run: npm run e2e:grafana-pr
+
+      - name: Upload UI tests artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ui-tests-output
+          path: ./pmm-qa/codeceptjs-e2e/tests/output
+
+      - name: Install dependencies for Playwright UI tests
+        if: ${{ !cancelled() && steps.server.outcome == 'success' }}
+        working-directory: ./pmm-qa/e2e_tests
+        run: npm ci
+
+      - name: Install Playwright browsers (e2e_tests)
+        if: ${{ !cancelled() && steps.server.outcome == 'success' }}
+        working-directory: ./pmm-qa/e2e_tests
+        run: npx playwright install chromium
+
+      - name: Run Playwright UI tests
+        if: ${{ !cancelled() && steps.server.outcome == 'success' }}
+        working-directory: ./pmm-qa/e2e_tests
+        run: npx playwright test --grep @grafana-pr --pass-with-no-tests
+
+      - name: Upload Playwright artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-ui-tests-output
+          path: |
+            ./pmm-qa/e2e_tests/playwright-report
+            ./pmm-qa/e2e_tests/output
+            ./pmm-qa/e2e_tests/test-results
+
+      - name: Get PMM logs
+        if: ${{ failure() }}
+        run: curl -k https://admin:admin@127.0.0.1/logs.zip --output logs.zip || true
+
+      - name: Upload the logs on failure
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: logs.zip
+          path: logs.zip
