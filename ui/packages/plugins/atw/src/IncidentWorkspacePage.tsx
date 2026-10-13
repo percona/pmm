@@ -15,33 +15,45 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Box,
-  Button,
-  Chip,
   CircularProgress,
   Link as MuiLink,
   Paper,
   Stack,
   Typography,
 } from '@mui/material';
-import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 import { useAuth } from '@pmm-extensions/api';
 import { ReadOnlyNotice } from '@pmm-extensions/framework';
 import { CollectPane } from './CollectPane';
 import { ResultsPane } from './ResultsPane';
-import { useAtwIncident, useAtwIncidentLifecycle } from './hooks';
+import {
+  useAtwIncident,
+  useAtwIncidentLifecycle,
+  useUpdateAtwIncident,
+} from './hooks';
+import {
+  DeleteIncidentDialog,
+  IncidentActionsMenu,
+  IncidentStatusChip,
+} from './IncidentActions';
+import { InlineEditableText } from './InlineEditableText';
 import type {
   AtwBatchExecuteResponse,
+  AtwIncident,
+  AtwDispatchSource,
   AtwIncidentExecution,
   AtwRememberedDispatch,
   AtwRerunRequest,
   AtwSnippetSummary,
 } from './types';
+
+/** How long a just-started execution stays marked out in the Results list. */
+const NEW_EXECUTION_HIGHLIGHT_MS = 8000;
 
 /**
  * Incident workspace rendered at ``/atw/:incidentId``. Two side-by-side panes —
@@ -51,8 +63,9 @@ import type {
  * A read-only session gets Results alone, full width. Collect exists only to
  * start an execution, and every unsafe ATW route requires an administrator, so
  * leaving the pane mounted with its execute form withheld offered a snippet
- * picker that could never run anything. Withheld rather than disabled because a
- * role, unlike a closed incident, is not something the viewer can undo.
+ * picker that could never run anything. A closed incident gets the same
+ * layout for the same reason — nothing can be collected into it — and says so
+ * in one line under its title; Reopen in the actions menu brings Collect back.
  */
 export function IncidentWorkspacePage() {
   const { incidentId } = useParams<{ incidentId: string }>();
@@ -60,7 +73,12 @@ export function IncidentWorkspacePage() {
   const { canMutate } = useAuth();
   const { data: incident, isLoading, error } = useAtwIncident(incidentId);
   const lifecycle = useAtwIncidentLifecycle();
+  const updateMutation = useUpdateAtwIncident();
   const isClosed = Boolean(incident?.closed_at);
+  // Collect waits for the incident: until it loads, a closed one is unknown.
+  const showCollect = canMutate && incident !== undefined && !isClosed;
+  const [editingName, setEditingName] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<AtwIncident | null>(null);
 
   // What this browser tab has dispatched, so a past execution's "Run again"
   // and "Edit parameters and run again" have something to act on — nothing
@@ -74,27 +92,81 @@ export function IncidentWorkspacePage() {
   );
   const rerunNonceRef = useRef(0);
   const collectSectionRef = useRef<HTMLDivElement>(null);
+  const resultsSectionRef = useRef<HTMLDivElement>(null);
+  const { enqueueSnackbar } = useSnackbar();
+
+  // The executions this tab has just started, marked out in the Results list
+  // so the reader can find them among the incident's older runs. Cleared on a
+  // timer rather than on the next poll: the mark is about what the reader just
+  // did, not about the execution's own state.
+  const [highlightedTaskIds, setHighlightedTaskIds] = useState<Set<number>>(
+    () => new Set()
+  );
+  const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (highlightTimerRef.current !== null) {
+        clearTimeout(highlightTimerRef.current);
+      }
+    },
+    []
+  );
 
   const handleDispatched = useCallback(
     (
       snippets: AtwSnippetSummary[],
       values: Record<string, unknown>,
-      response: AtwBatchExecuteResponse
+      response: AtwBatchExecuteResponse,
+      source: AtwDispatchSource
     ) => {
+      // Derived before the updater, not inside it: React may run an updater
+      // late or more than once — StrictMode always runs it twice — and a list
+      // built in there is read here either empty or doubled.
+      const startedIds = response.items
+        .map((item) => item.task_history_id)
+        .filter((id): id is number => id !== null && id !== undefined);
+
       setRemembered((previous) => {
         const next = new Map(previous);
-        for (const item of response.items) {
-          if (
-            item.task_history_id !== null &&
-            item.task_history_id !== undefined
-          ) {
-            next.set(item.task_history_id, { snippets, values });
-          }
+        for (const id of startedIds) {
+          next.set(id, { snippets, values });
         }
         return next;
       });
+
+      if (startedIds.length === 0) {
+        return;
+      }
+
+      enqueueSnackbar(
+        `Started ${startedIds.length} ${startedIds.length === 1 ? 'script' : 'scripts'}`,
+        { variant: 'success' }
+      );
+
+      setHighlightedTaskIds(new Set(startedIds));
+      if (highlightTimerRef.current !== null) {
+        clearTimeout(highlightTimerRef.current);
+      }
+      highlightTimerRef.current = setTimeout(() => {
+        setHighlightedTaskIds(new Set());
+        highlightTimerRef.current = null;
+      }, NEW_EXECUTION_HIGHLIGHT_MS);
+
+      // Only for a run started from the Collect form. A run started from a
+      // Results row is already where its result will appear, and scrolling
+      // that pane to its own top under the reader moves the row they pressed.
+      if (source !== 'collect') {
+        return;
+      }
+      const target = resultsSectionRef.current;
+      // jsdom (and some embeds) do not implement this API at all — the same
+      // guard the rerun scroll below uses.
+      if (target && typeof target.scrollIntoView === 'function') {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     },
-    []
+    [enqueueSnackbar]
   );
 
   const handleEditParameters = useCallback(
@@ -148,6 +220,16 @@ export function IncidentWorkspacePage() {
         </Alert>
       )}
 
+      {updateMutation.isError && (
+        <Alert
+          severity="error"
+          sx={{ mb: 2 }}
+          onClose={() => updateMutation.reset()}
+        >
+          {updateMutation.error?.message ?? 'Failed to update incident'}
+        </Alert>
+      )}
+
       <Stack
         direction={{ xs: 'column', sm: 'row' }}
         alignItems={{ xs: 'flex-start', sm: 'center' }}
@@ -162,44 +244,79 @@ export function IncidentWorkspacePage() {
           flexWrap="wrap"
           useFlexGap
         >
-          <Typography variant="h4">{incident?.name ?? 'Incident'}</Typography>
-          {isClosed && (
-            <Chip
-              label="Closed"
-              size="small"
-              color="default"
-              variant="outlined"
+          {incident ? (
+            <InlineEditableText
+              value={incident.name}
+              label="Incident name"
+              required
+              variant="h4"
+              component="h1"
+              disabled={!canMutate}
+              saving={updateMutation.isPending}
+              editing={editingName}
+              onEditingChange={setEditingName}
+              onSave={(name) =>
+                updateMutation.mutate({
+                  incidentId: incident.id,
+                  body: { name },
+                })
+              }
+              testId="atw-incident-name"
             />
+          ) : (
+            <Typography variant="h4" component="h1">
+              Incident
+            </Typography>
           )}
+          {incident && <IncidentStatusChip incident={incident} />}
         </Stack>
         {incident && canMutate && (
-          <Stack direction="row" spacing={1}>
-            {isClosed ? (
-              <Button
-                variant="outlined"
-                size="small"
-                startIcon={<LockOpenOutlinedIcon />}
-                disabled={lifecycle.isPending(incident.id)}
-                onClick={() => lifecycle.reopen(incident.id)}
-              >
-                Reopen incident
-              </Button>
-            ) : (
-              <Button
-                variant="outlined"
-                startIcon={<LockOutlinedIcon />}
-                disabled={lifecycle.isPending(incident.id)}
-                onClick={() => lifecycle.close(incident.id)}
-              >
-                Close incident
-              </Button>
-            )}
-          </Stack>
+          <IncidentActionsMenu
+            incident={incident}
+            lifecycle={lifecycle}
+            onRename={() => setEditingName(true)}
+            onDelete={setDeleteTarget}
+          />
         )}
       </Stack>
-      {incident?.case_ref && (
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Case reference: {incident.case_ref}
+      {incident && (
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={0.5}
+          sx={{ mb: 2, color: 'text.secondary' }}
+        >
+          <Typography variant="body2" component="span">
+            Case:
+          </Typography>
+          <InlineEditableText
+            value={incident.case_ref ?? ''}
+            label="Case reference"
+            variant="body2"
+            placeholder={canMutate ? 'Add a case reference' : 'None'}
+            disabled={!canMutate}
+            saving={updateMutation.isPending}
+            onSave={(caseRef) =>
+              updateMutation.mutate({
+                incidentId: incident.id,
+                // Cleared to null, not saved as an empty reference.
+                body: { case_ref: caseRef || null },
+              })
+            }
+            testId="atw-incident-case-ref"
+          />
+        </Stack>
+      )}
+      {isClosed && (
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mb: 2 }}
+          data-testid="atw-incident-closed-notice"
+        >
+          {canMutate
+            ? 'This incident is closed. Its results stay readable; reopen it from Actions to collect more.'
+            : 'This incident is closed. Its results stay readable.'}
         </Typography>
       )}
 
@@ -213,6 +330,15 @@ export function IncidentWorkspacePage() {
         </Box>
       )}
 
+      {/*
+        Two columns above `md` rather than Collect stacked over Results at the
+        standard content width. The complaint stacking answered was that
+        Collect ran past two screen heights, which is fixed at the source —
+        script sections open collapsed and the run button is pinned — and side
+        by side is the only arrangement where a reader watches a run while the
+        form that started it is still there. Stacking would put Results below
+        the fold permanently, for every run.
+      */}
       <Box
         sx={{
           mt: 1,
@@ -220,13 +346,13 @@ export function IncidentWorkspacePage() {
           gap: 2,
           gridTemplateColumns: {
             xs: 'minmax(0, 1fr)',
-            md: canMutate ? 'repeat(2, minmax(0, 1fr))' : 'minmax(0, 1fr)',
+            md: showCollect ? 'repeat(2, minmax(0, 1fr))' : 'minmax(0, 1fr)',
           },
           alignItems: 'start',
         }}
       >
         {/* PMM divergence from upstream PMM Extensions — keep on the next sync. */}
-        {canMutate && (
+        {showCollect && (
           <Paper variant="outlined" sx={{ p: 2 }} ref={collectSectionRef}>
             <CollectPane
               incidentId={incidentId}
@@ -236,15 +362,22 @@ export function IncidentWorkspacePage() {
             />
           </Paper>
         )}
-        <Paper variant="outlined" sx={{ p: 2 }}>
+        <Paper variant="outlined" sx={{ p: 2 }} ref={resultsSectionRef}>
           <ResultsPane
             incidentId={incidentId}
             remembered={remembered}
+            highlightedTaskIds={highlightedTaskIds}
             onDispatched={handleDispatched}
             onEditParameters={handleEditParameters}
           />
         </Paper>
       </Box>
+
+      <DeleteIncidentDialog
+        incident={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onDeleted={() => navigate('..')}
+      />
     </Box>
   );
 }

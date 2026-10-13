@@ -45,13 +45,9 @@ func TestQANPostgreSQLPgStatMonitorAgentChangeAgent(t *testing.T) {
 				TLSSkipVerify:        new(false),
 				MaxQueryLength:       new(int32(4096)),
 				DisableQueryExamples: new(false),
-				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: new(flags.LogLevel("debug")),
-				},
-				CommentsParsingChangeFlags: flags.CommentsParsingChangeFlags{
-					CommentsParsing: new("off"),
-				},
-				CustomLabels: &map[string]string{"environment": "production", "service": "postgresql"},
+				LogLevel:             new(flags.LogLevel("debug")),
+				CommentsParsing:      new("off"),
+				CustomLabels:         &map[string]string{"environment": "production", "service": "postgresql"},
 			}
 
 			result, err := cmd.RunCmd()
@@ -89,9 +85,7 @@ func TestQANPostgreSQLPgStatMonitorAgentChangeAgent(t *testing.T) {
 				AgentID:              "test-agent-qan-pgstatmon-disable",
 				Enable:               new(false),
 				DisableQueryExamples: new(true),
-				CommentsParsingChangeFlags: flags.CommentsParsingChangeFlags{
-					CommentsParsing: new("off"),
-				},
+				CommentsParsing:      new("off"),
 			}
 
 			result, err := cmd.RunCmd()
