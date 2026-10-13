@@ -14,6 +14,11 @@
 | `PMM_HA_GRAFANA_GOSSIP_PORT`      | HA Grafana gossip port.
 | `PMM_HA_PEERS`                    | HA Peers.
 
+!!! caution "All HA nodes must share one encryption key"
+    HA nodes share one PostgreSQL database, but each node reads its encryption key from its own `/srv/pmm-encryption.key`. A node with a different key cannot decrypt the credentials stored by the other nodes, so PMM stops monitoring those services.
+
+    Generate the key once as described in [PMM data encryption](../../../../admin/security/data_encryption.md#ha-clusters-use-the-same-key-on-every-node), place it at `/srv/pmm-encryption.key` on every node before starting them. With `PMM_HA_ENABLE` set, a node without a key file refuses to start rather than generating one of its own.
+
 ## Available preview variables
 
 | Variable                          | Description

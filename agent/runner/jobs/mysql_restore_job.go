@@ -182,7 +182,7 @@ func (j *MySQLRestoreJob) binariesInstalled() error {
 	return nil
 }
 
-func prepareRestoreCommands( //nolint:nonamedreturns
+func prepareRestoreCommands(
 	ctx context.Context,
 	folder string,
 	config *BackupLocationConfig,

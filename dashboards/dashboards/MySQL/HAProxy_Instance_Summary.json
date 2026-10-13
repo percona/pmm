@@ -2096,7 +2096,7 @@
                     ],
                     "thresholds": [],
                     "timeRegions": [],
-                    "title": "Aborted Data Transfers ",
+                    "title": "Aborted Data Transfers",
                     "tooltip": {
                         "msResolution": false,
                         "shared": true,
