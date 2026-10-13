@@ -198,17 +198,7 @@ func runStepsSucceeded(run extensionsBootstrapRun) bool {
 // unusable -- and as much a rollback trigger -- as one that never finished
 // installing.
 func hostExhaustedRetries(host extensionsBootstrapHost) bool {
-	for _, step := range host.Steps {
-		if exhausted(step) {
-			return true
-		}
-	}
-	for _, step := range host.FinalizeSteps {
-		if exhausted(step) {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(host.Steps, exhausted) || slices.ContainsFunc(host.FinalizeSteps, exhausted)
 }
 
 // rolledBackReason is the error a rolled-back run is finished with. A run that
@@ -282,12 +272,7 @@ func exhaustedStepsSummary(run extensionsBootstrapRun) string {
 // runStepsExhaustedRetries reports whether run has a run-level step that failed
 // with no retries left.
 func runStepsExhaustedRetries(run extensionsBootstrapRun) bool {
-	for _, step := range run.RunSteps {
-		if exhausted(step) {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(run.RunSteps, exhausted)
 }
 
 // runNeedsRollback reports whether run should start rolling every host back:
