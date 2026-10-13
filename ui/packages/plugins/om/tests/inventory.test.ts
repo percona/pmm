@@ -505,6 +505,15 @@ describe('groupRuns', () => {
     ).toEqual([['c'], ['b', 'a']]);
   });
 
+  it('keeps one row when a rename reorders the same failing nodes', () => {
+    expect(
+      ids([
+        scan('b', undefined, ['n3', 'n2']),
+        scan('a', undefined, ['n2', 'n3']),
+      ])
+    ).toEqual([['b', 'a']]);
+  });
+
   it('keeps a recovery between two failures as its own row', () => {
     expect(
       ids([scan('c'), scan('b', 'RUN_STATUS_SUCCESS', []), scan('a')])

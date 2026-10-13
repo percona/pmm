@@ -15,8 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { browserTimezone } from '@pmm-extensions/framework';
 import { AutomationsPage } from '../src/AutomationsPage';
@@ -27,6 +27,10 @@ const { useOmBootstrapRuns } = vi.hoisted(() => ({
 }));
 
 vi.mock('../src/inventoryHooks', () => ({ useOmBootstrapRuns }));
+// The header is what these tests read; the Scans tab's content has its own suite.
+vi.mock('../src/AutomationsScansTab', () => ({
+  AutomationsScansTab: () => null,
+}));
 
 const NOW = '2026-10-06T12:00:00Z';
 const RECENT = '2026-10-06T09:45:00Z';
@@ -85,5 +89,52 @@ describe('AutomationsPage installs', () => {
     expect(
       screen.queryByText(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/)
     ).toBeNull();
+  });
+});
+
+describe('AutomationsPage header', () => {
+  const NodesProbe = () => {
+    const { pathname, search } = useLocation();
+    return <output data-testid="location">{`${pathname}${search}`}</output>;
+  };
+
+  beforeEach(() => {
+    useOmBootstrapRuns.mockReturnValue({
+      data: [run('recent', RECENT)],
+      isLoading: false,
+      error: null,
+    });
+  });
+
+  it.each(['installs', 'scans'])(
+    'offers Install MongoDB as the primary action on the %s tab',
+    (tab) => {
+      render(
+        <MemoryRouter initialEntries={[`/operations/automations?tab=${tab}`]}>
+          <AutomationsPage />
+        </MemoryRouter>
+      );
+
+      expect(screen.getByRole('link', { name: 'Install MongoDB' })).toHaveClass(
+        'MuiButton-contained'
+      );
+    }
+  );
+
+  it('opens Nodes filtered to the nodes with nothing monitored on them', () => {
+    render(
+      <MemoryRouter initialEntries={['/operations/automations']}>
+        <Routes>
+          <Route path="/operations/automations" element={<AutomationsPage />} />
+          <Route path="/operations/nodes" element={<NodesProbe />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    fireEvent.click(screen.getByRole('link', { name: 'Install MongoDB' }));
+
+    expect(screen.getByTestId('location')).toHaveTextContent(
+      '/operations/nodes?filter=unmonitored'
+    );
   });
 });

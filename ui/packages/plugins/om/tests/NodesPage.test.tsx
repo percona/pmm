@@ -22,7 +22,7 @@ import {
   waitFor,
   within,
 } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { browserTimezone } from '@pmm-extensions/framework';
@@ -78,6 +78,14 @@ const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
 
 const forgetOne = vi.fn();
 
+/** Where the page has sent the router: its own filter, or the install wizard. */
+const LocationProbe = () => {
+  const { pathname, search } = useLocation();
+  return <output data-testid="location">{`${pathname}${search}`}</output>;
+};
+
+const currentLocation = () => screen.getByTestId('location').textContent;
+
 const renderPage = (hosts: OmInventoryHost[] = [host()], route = '/') => {
   useOmInventoryHosts.mockReturnValue({
     data: hosts,
@@ -88,6 +96,7 @@ const renderPage = (hosts: OmInventoryHost[] = [host()], route = '/') => {
     <SnackbarProvider>
       <MemoryRouter initialEntries={[route]}>
         <NodesPage />
+        <LocationProbe />
       </MemoryRouter>
     </SnackbarProvider>
   );
@@ -112,7 +121,7 @@ const openRemoveDialog = async (name: string) => {
 };
 
 /**
- * The bulk Install button in the selection bar.
+ * The bulk Install button in the page header.
  *
  * Found by *not* being inside a row: it carries the same accessible name as the
  * per-row button, so `getByRole` would be ambiguous. Its tooltip is read off the
@@ -452,6 +461,26 @@ describe('NodesPage', () => {
     );
   });
 
+  it('says why a node mid-install cannot be selected', async () => {
+    useOmBootstrapRuns.mockReturnValue({
+      data: [{ status: 'running', hosts: [{ host: 'exec-1' }] }],
+    });
+    renderPage([host({ name: 'node00', executor_host: 'exec-1' })]);
+
+    const checkbox = within(rowFor('node00')).getByRole('checkbox', {
+      name: 'Toggle select row',
+    });
+    expect(checkbox).toBeDisabled();
+    expect(checkbox).toHaveAccessibleDescription(
+      'Already part of an install in progress.'
+    );
+
+    fireEvent.mouseOver(checkbox.closest('span.MuiBox-root') as HTMLElement);
+    expect((await screen.findByRole('tooltip')).textContent).toBe(
+      'Already part of an install in progress.'
+    );
+  });
+
   // The other half of the pair: an idle node's Forget still works, and carries no
   // tooltip at all rather than an empty one.
   it('leaves Remove duplicate entry usable on a node with no install running', () => {
@@ -702,6 +731,61 @@ describe('NodesPage', () => {
       host({ node_id: 'node-2', name: 'node01', freshness: failing() }),
     ];
 
+    it('says PMM Server on its Automation chip, with the reason on hover', async () => {
+      renderPage([
+        host({
+          name: 'pmm-server',
+          is_pmm_server_node: true,
+          automation_eligible: false,
+          automation_blocked_by_design: true,
+          automation_blocked_reasons: [
+            'this is the node PMM Server itself runs on, which Operations never installs onto',
+          ],
+        }),
+      ]);
+
+      const chip = within(rowFor('pmm-server')).getByText('PMM Server');
+      expect(
+        within(rowFor('pmm-server')).queryByText('Not a target')
+      ).toBeNull();
+
+      fireEvent.mouseOver(chip);
+      expect((await screen.findByRole('tooltip')).textContent).toBe(
+        'this is the node PMM Server itself runs on, which Operations never installs onto'
+      );
+    });
+
+    it('cannot be selected, and says why on hover and to a screen reader', async () => {
+      renderPage(nodes());
+
+      const checkbox = within(rowFor('pmm-server')).getByRole('checkbox', {
+        name: 'Toggle select row',
+      });
+      expect(checkbox).toBeDisabled();
+      expect(checkbox).toHaveAccessibleDescription(
+        "This is the PMM Server. Operations can't install or change databases here."
+      );
+
+      fireEvent.mouseOver(checkbox.closest('span.MuiBox-root') as HTMLElement);
+      expect((await screen.findByRole('tooltip')).textContent).toBe(
+        "This is the PMM Server. Operations can't install or change databases here."
+      );
+    });
+
+    it('is skipped by Select all', () => {
+      renderPage(nodes());
+
+      fireEvent.click(
+        screen.getByRole('checkbox', { name: 'Toggle select all' })
+      );
+
+      expect(within(rowFor('node01')).getByRole('checkbox')).toBeChecked();
+      expect(
+        within(rowFor('pmm-server')).getByRole('checkbox')
+      ).not.toBeChecked();
+      expect(screen.getByText('selected')).toHaveTextContent('1 selected');
+    });
+
     it('is left out of the failing count and its filter', () => {
       renderPage(nodes());
 
@@ -834,6 +918,131 @@ describe('NodesPage', () => {
       expect(screen.getByRole('button', { name: 'Scan all' })).toHaveClass(
         'MuiButton-contained'
       );
+    });
+  });
+
+  describe('the filter in the URL', () => {
+    const fleet = () => [
+      host({ node_id: 'n1', name: 'empty-node' }),
+      host({
+        node_id: 'n2',
+        name: 'monitored-node',
+        services: [{ service_id: 's1' } as OmInventoryHost['services'][number]],
+      }),
+    ];
+
+    it('opens on the filter named in ?filter=', () => {
+      renderPage(fleet(), '/?filter=unmonitored');
+
+      expect(rowFor('empty-node')).toBeTruthy();
+      expect(screen.queryByText('monitored-node')).toBeNull();
+      expect(screen.getByRole('button', { name: 'Not monitored' })).toHaveClass(
+        'MuiChip-filled'
+      );
+    });
+
+    it.each(['/', '/?filter=bogus'])('shows every node at %s', (route) => {
+      renderPage(fleet(), route);
+
+      expect(rowFor('empty-node')).toBeTruthy();
+      expect(rowFor('monitored-node')).toBeTruthy();
+      expect(screen.getByRole('button', { name: 'All' })).toHaveClass(
+        'MuiChip-filled'
+      );
+    });
+
+    it('writes a chip into the URL, keeps ?node=, and drops it again for All', () => {
+      renderPage(fleet(), '/?node=empty-node');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Monitored' }));
+      expect(currentLocation()).toBe('/?node=empty-node&filter=monitored');
+
+      fireEvent.click(screen.getByRole('button', { name: 'All' }));
+      expect(currentLocation()).toBe('/?node=empty-node');
+    });
+  });
+
+  describe('Install MongoDB in the header', () => {
+    const nodes = (count: number) =>
+      Array.from({ length: count }, (_, index) =>
+        host({ node_id: `n${index + 1}`, name: `node0${index}` })
+      );
+    const names = (count: number) => nodes(count).map((node) => node.name);
+
+    const hoverBulkInstall = async () => {
+      fireEvent.mouseOver(bulkInstall().parentElement as HTMLElement);
+      return (await screen.findByRole('tooltip')).textContent;
+    };
+
+    it('is there with nothing selected, as the primary action, and says where to select', async () => {
+      renderPage(nodes(3));
+
+      expect(bulkInstall()).toHaveClass('MuiButton-contained');
+      expect(bulkInstall()).toBeDisabled();
+      expect(await hoverBulkInstall()).toMatch(
+        /Select one node .* or three .* in the table below/
+      );
+    });
+
+    it.each([2, 4])('stays disabled with %i nodes selected', (count) => {
+      renderPage(nodes(count));
+
+      selectRows(...names(count));
+
+      expect(bulkInstall()).toBeDisabled();
+    });
+
+    it.each([
+      [1, '/nodes/install?nodes=n1'],
+      [3, '/nodes/install?nodes=n1,n2,n3'],
+    ])('opens the wizard on %i selected nodes', (count, wizard) => {
+      renderPage(nodes(count));
+
+      selectRows(...names(count));
+      expect(bulkInstall()).toBeEnabled();
+      fireEvent.click(bulkInstall());
+
+      expect(currentLocation()).toBe(wizard);
+    });
+
+    it('says why when a selected node is not eligible', async () => {
+      renderPage([
+        host({ node_id: 'n1', name: 'node00', automation_eligible: false }),
+      ]);
+
+      selectRows('node00');
+
+      expect(bulkInstall()).toBeDisabled();
+      expect(await hoverBulkInstall()).toBe(
+        'Every selected node must be eligible for automation.'
+      );
+    });
+
+    it('is the only bulk Install: the selection bar has none', () => {
+      renderPage(nodes(3));
+
+      selectRows(...names(3));
+
+      expect(
+        screen.getByRole('button', { name: 'Scan selected' })
+      ).toBeInTheDocument();
+      expect(
+        screen
+          .getAllByRole('button', { name: 'Install MongoDB' })
+          .filter((button) => !button.closest('tr'))
+      ).toHaveLength(1);
+    });
+
+    it('makes the row Install heavier than the row Scan', () => {
+      renderPage();
+
+      const row = rowFor('node00');
+      expect(within(row).getByRole('button', { name: 'Scan' })).toHaveClass(
+        'MuiButton-text'
+      );
+      expect(
+        within(row).getByRole('button', { name: 'Install MongoDB' })
+      ).toHaveClass('MuiButton-outlined');
     });
   });
 });
