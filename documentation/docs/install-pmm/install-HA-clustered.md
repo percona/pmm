@@ -991,17 +991,17 @@ If you're used to standalone PMM, note that `PMM_DISABLE_BUILTIN_CLICKHOUSE` and
 
 #### Built-in alert rules
 
-A clustered deployment creates its own alert rules on first start: five covering the cluster itself, in the **PMM High Availability** folder, and four covering PMM's own components, in the **PMM Server** folder. See [Alert templates](../alert/templates_list.md#pmm_ha_alerts) for what each one detects. Configure a [contact point](../alert/contact_points.md) and they will reach you; nothing else is needed.
+When the cluster first starts, PMM adds nine alert rules and turns them on: five that warn you about [problems in the cluster](../alert/templates_list.md#pmm_ha_alerts), such as a missing leader, and four that warn you when one of [PMM's own components](../alert/templates_list.md#pmm_component_alerts) stops responding. To receive notifications, configure a [contact point](../alert/contact_points.md).
 
-To start a cluster without them, add either of these to `pmmEnv`:
+If you don't want some of these rules, set the variable for that group to `"false"` in `pmmEnv` before you install. You can turn off one group or both:
 
 ```yaml
 pmmEnv:
-  PMM_ENABLE_HA_ALERTS: "false"          # do not create the High Availability rules
-  PMM_ENABLE_COMPONENT_ALERTS: "false"   # do not create the PMM component rules
+  PMM_ENABLE_HA_ALERTS: "false"          # skip the High Availability rules
+  PMM_ENABLE_COMPONENT_ALERTS: "false"   # skip the PMM component rules
 ```
 
-During a rolling upgrade the nodes briefly run different PMM versions. If a release changes one of these rules, it can alternate between the old and the new definition until every node has been rolled, which is expected and resolves itself once the rollout finishes.
+To change the rules or turn them off later, see [Manage the built-in alert rules](../alert/built_in_alerts.md).
 
 #### Adjust data retention and other settings
 
@@ -1122,9 +1122,8 @@ After a failover or an upgrade, check the PMM Server nodes in **Inventory** to s
 
 #### Get alerted about cluster problems
 
-The **PMM HA** badge in the side menu and the **PMM HA > Overview** dashboard show the state of the cluster right now, but they don't notify you when that state changes. PMM creates and maintains alert rules for the failure modes of an HA cluster: no active leader, split-brain, a flapping leader, an unreachable node, and a quorum at risk.
-
-There is nothing to create: configure a [contact point](../alert/contact_points.md) so the notifications reach you. To turn the rules off, set `PMM_ENABLE_HA_ALERTS=false` and recreate the server. For the template list and the coverage limitations, see [PMM High Availability templates](../alert/templates_list.md#pmm_ha_alerts).
+The **PMM HA** badge in the side menu and the **PMM HA > Overview** dashboard show the state of the cluster right now, but they don't notify you when that state changes. 
+To get notified when the cluster has no leader, splits, keeps switching leaders, loses a node, or is one node away from stopping, configure a [contact point](../alert/contact_points.md). The [built-in alert rules](#built-in-alert-rules) that check for these problems are already turned on.
 
 ### Back up your deployment
 

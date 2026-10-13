@@ -398,6 +398,7 @@ nav:
           - alert/alert_rules.md
           - alert/contact_points.md
           - alert/templates_list.md
+          - alert/built_in_alerts.md
           - alert/silence_alerts.md
           - alert/disable_alerts.md
       - Back up and restore:

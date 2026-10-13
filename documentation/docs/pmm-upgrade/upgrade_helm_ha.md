@@ -20,7 +20,7 @@ To avoid losing data or a long outage, follow these steps before you upgrade:
     helm version
     ```
 
-2. Check that all three PMM Server pods are running and ready. If one is already down, the cluster cannot elect a leader and PMM becomes unreachable:
+2. Check that all three PMM Server pods are running and ready. The upgrade restarts the pods one at a time, so if one is already down, PMM becomes unreachable while the next one restarts:
 
     ```sh
     kubectl get pods -n <namespace> -l app.kubernetes.io/component=pmm-server
@@ -104,6 +104,10 @@ Once you've completed the steps in [Before you begin](#before-you-begin), run th
     ```sh
     kubectl logs -l app.kubernetes.io/name=pmm -n pmm --tail=100
     ```
+
+### Built-in alert rules during the upgrade
+
+The nodes are upgraded one at a time, so for a short while they run different PMM versions. If the new version changes a [built-in alert rule](../alert/built_in_alerts.md), the rule switches back and forth between its old and new settings until every node runs the new version. You don't need to do anything. The switching stops on its own.
 
 ## Confirm the cluster is healthy
 
