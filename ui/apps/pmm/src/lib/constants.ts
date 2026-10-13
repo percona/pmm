@@ -19,7 +19,6 @@ export const PMM_INVENTORY_PATH = `${PMM_NEW_NAV_PATH}/inventory`;
 export const PMM_INVENTORY_SERVICES_PATH = `${PMM_INVENTORY_PATH}/services`;
 export const PMM_INVENTORY_NODES_PATH = `${PMM_INVENTORY_PATH}/nodes`;
 export const PMM_ADD_SERVICE_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`;
-export const PMM_EDIT_SERVICE_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/edit-instance`;
 export const PMM_QAN_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics`;
 
 // PMM Extensions apps mounted as native PMM routes. Shared by the router (route paths and
@@ -82,6 +81,7 @@ export const UPDATE_SNOOZE_DURATION_OVERRIDE_KEY =
 export const DOCS_URLS = {
   qan: 'https://per.co.na/QAN',
   forums: 'https://per.co.na/PMM3_forums',
+  editingLabels: 'https://per.co.na/editing_labels',
 };
 
 export const TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';

@@ -5,11 +5,19 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { getAgentVersions, listAgents, removeAgent } from 'api/agents';
+import {
+  changeRdsCredentials,
+  getAgentVersions,
+  getRdsExporter,
+  listAgents,
+  removeAgent,
+} from 'api/agents';
 import type {
+  ChangeRdsCredentialsParams,
   GetAgentVersionItem,
   ListAgentsParams,
   ManagedAgent,
+  RdsExporter,
   RemoveAgentParams,
 } from 'types/agent.types';
 import { invalidateInventory, removeEach } from 'utils/inventory.utils';
@@ -42,6 +50,33 @@ export const useRemoveAgents = (
   return useMutation({
     mutationFn: (agents: RemoveAgentParams[]) =>
       removeEach(agents, removeAgent),
+    ...options,
+    onSuccess: async (data, variables, onMutate, context) => {
+      await options?.onSuccess?.(data, variables, onMutate, context);
+      await invalidateInventory(queryClient);
+    },
+  });
+};
+
+export const useRdsExporter = (
+  nodeId?: string,
+  options?: Partial<UseQueryOptions<RdsExporter | null>>
+) =>
+  useQuery({
+    queryKey: ['agents:rdsExporter', nodeId],
+    queryFn: () => getRdsExporter(nodeId as string),
+    enabled: !!nodeId,
+    ...options,
+  });
+
+export const useChangeRdsCredentials = (
+  options?: Partial<UseMutationOptions<void, Error, ChangeRdsCredentialsParams>>
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: ChangeRdsCredentialsParams) =>
+      changeRdsCredentials(params),
     ...options,
     onSuccess: async (data, variables, onMutate, context) => {
       await options?.onSuccess?.(data, variables, onMutate, context);

@@ -6,12 +6,14 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import {
+  changeService,
   getServiceTypes,
   listServices,
   listManagedServices,
   removeService,
 } from 'api/services';
 import type {
+  ChangeServiceParams,
   ListServicesParams,
   ListServicesResponse,
   ListTypesResponse,
@@ -59,6 +61,21 @@ export const useRemoveServices = (
   return useMutation({
     mutationFn: (services: RemoveServiceParams[]) =>
       removeEach(services, removeService),
+    ...options,
+    onSuccess: async (data, variables, onMutate, context) => {
+      await options?.onSuccess?.(data, variables, onMutate, context);
+      await invalidateInventory(queryClient);
+    },
+  });
+};
+
+export const useChangeService = (
+  options?: Partial<UseMutationOptions<void, Error, ChangeServiceParams>>
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: ChangeServiceParams) => changeService(params),
     ...options,
     onSuccess: async (data, variables, onMutate, context) => {
       await options?.onSuccess?.(data, variables, onMutate, context);

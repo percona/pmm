@@ -1,6 +1,5 @@
 import { buildTableUrlParamKeys } from '@percona/peak-ui';
 import {
-  PMM_EDIT_SERVICE_URL,
   PMM_INVENTORY_PATH,
   PMM_INVENTORY_SERVICES_PATH,
   PMM_NEW_NAV_GRAFANA_PATH,
@@ -93,8 +92,8 @@ export const getServiceDashboardUrl = ({
 export const getServiceQanUrl = ({ serviceName }: ManagedService) =>
   `${PMM_QAN_URL}?var-service_name=${encodeURIComponent(serviceName)}`;
 
-export const getEditServiceUrl = ({ serviceId }: ManagedService) =>
-  `${PMM_EDIT_SERVICE_URL}/${serviceId}`;
+export const getEditServiceUrl = (serviceId: string) =>
+  `${PMM_INVENTORY_SERVICES_PATH}/${serviceId}/edit`;
 
 export const toLabelTags = (labels: Record<string, string>) =>
   Object.entries(labels)

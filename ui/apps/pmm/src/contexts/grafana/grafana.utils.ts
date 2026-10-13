@@ -9,7 +9,11 @@ export const getLocationUrl = (location: Path) => {
   return pathname + location.search + location.hash;
 };
 
-const MIGRATED_PAGES = ['/graph/settings', '/graph/inventory'];
+const MIGRATED_PAGES = [
+  '/graph/settings',
+  '/graph/inventory',
+  '/graph/edit-instance',
+];
 
 export const isMigratedPage = (src: string) =>
   MIGRATED_PAGES.some((page) => src.includes(page));

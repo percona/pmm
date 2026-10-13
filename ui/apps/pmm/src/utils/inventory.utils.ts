@@ -8,6 +8,7 @@ const INVENTORY_QUERY_KEYS = [
   ['services:getTypes'],
   ['nodes:list'],
   ['agents:list'],
+  ['agents:rdsExporter'],
 ];
 
 export const invalidateInventory = (queryClient: QueryClient) =>

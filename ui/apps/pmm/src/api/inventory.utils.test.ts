@@ -3,6 +3,7 @@ import { AgentStatus, AgentType } from 'types/agent.types';
 import { NodeType } from 'types/nodes.types';
 import { ManagedServiceType, ServiceStatus } from 'types/services.types';
 import {
+  findRdsExporter,
   toManagedAgent,
   toManagedNode,
   toManagedService,
@@ -195,4 +196,34 @@ describe('toManagedAgent', () => {
       ).toBe(status);
     }
   );
+});
+
+describe('findRdsExporter', () => {
+  it("picks the rds_exporter out of the node's agents", () => {
+    expect(
+      findRdsExporter([
+        { agent_id: 'pmm-agent-1', agent_type: AgentType.pmmAgent },
+        {
+          agent_id: 'rds-1',
+          agent_type: AgentType.rdsExporter,
+          aws_access_key: '',
+          aws_role_arn: 'arn:aws:iam::123456789012:role/Pmm',
+          is_aws_secret_key_set: false,
+        },
+      ])
+    ).toEqual({
+      agentId: 'rds-1',
+      awsAccessKey: '',
+      awsRoleArn: 'arn:aws:iam::123456789012:role/Pmm',
+      isAwsSecretKeySet: false,
+    });
+  });
+
+  it('returns null when the node has no rds_exporter', () => {
+    expect(
+      findRdsExporter([
+        { agent_id: 'pmm-agent-1', agent_type: AgentType.pmmAgent },
+      ])
+    ).toBeNull();
+  });
 });

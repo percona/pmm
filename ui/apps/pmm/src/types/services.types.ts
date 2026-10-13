@@ -121,3 +121,12 @@ export interface RemoveServiceParams {
   serviceId: string;
   force: boolean;
 }
+
+// ChangeService only applies the fields it is sent, and an empty string clears one
+export interface ChangeServiceParams {
+  serviceId: string;
+  environment?: string;
+  cluster?: string;
+  replicationSet?: string;
+  customLabels?: Record<string, string>;
+}

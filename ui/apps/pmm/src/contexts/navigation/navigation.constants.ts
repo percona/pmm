@@ -4,7 +4,6 @@ import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
   PMM_ADD_SERVICE_URL,
-  PMM_EDIT_SERVICE_URL,
   PMM_INVENTORY_NODES_PATH,
   PMM_INVENTORY_PATH,
   PMM_INVENTORY_SERVICES_PATH,
@@ -613,7 +612,7 @@ export const NAV_INVENTORY: NavItem = {
       id: 'inventory-services',
       text: 'Services',
       url: PMM_INVENTORY_SERVICES_PATH,
-      matches: ['*', `${PMM_EDIT_SERVICE_URL}/*`],
+      matches: ['*'],
     },
     {
       id: 'inventory-nodes',

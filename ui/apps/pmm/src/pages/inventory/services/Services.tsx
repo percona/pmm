@@ -154,7 +154,7 @@ export const Services: FC = () => {
                 <MenuItem
                   key="edit"
                   component={RouterLink}
-                  to={getEditServiceUrl(original)}
+                  to={getEditServiceUrl(original.serviceId)}
                 >
                   <ListItemIcon>
                     <EditOutlinedIcon />

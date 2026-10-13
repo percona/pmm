@@ -1,8 +1,9 @@
 import axios, { type AxiosRequestConfig } from 'axios';
 import {
-  type AgentType,
   type ManagedAgent,
+  type RdsExporter,
   AgentStatus,
+  AgentType,
 } from 'types/agent.types';
 import type { ManagedNode, NodeType } from 'types/nodes.types';
 import type {
@@ -17,6 +18,11 @@ export const RAW_RESPONSE: AxiosRequestConfig = {
   transformResponse: axios.defaults.transformResponse,
 };
 
+// Sends user-defined label keys as is, for the same reason
+export const RAW_REQUEST: AxiosRequestConfig = {
+  transformRequest: axios.defaults.transformRequest,
+};
+
 type PayloadValue = string | number | boolean | null | object | undefined;
 
 interface AgentPayload {
@@ -26,6 +32,9 @@ interface AgentPayload {
   is_connected?: boolean;
   disabled?: boolean;
   custom_labels?: Record<string, string>;
+  aws_access_key?: string;
+  aws_role_arn?: string;
+  is_aws_secret_key_set?: boolean;
   [key: string]: PayloadValue;
 }
 
@@ -231,3 +240,18 @@ export const toManagedNode = (payload: NodePayload): ManagedNode => ({
   })),
   properties: getScalarFields(payload, NODE_MAIN_FIELDS),
 });
+
+export const toRdsExporter = (payload: AgentPayload): RdsExporter => ({
+  agentId: payload.agent_id,
+  awsAccessKey: payload.aws_access_key ?? '',
+  awsRoleArn: payload.aws_role_arn ?? '',
+  isAwsSecretKeySet: !!payload.is_aws_secret_key_set,
+});
+
+export const findRdsExporter = (agents: AgentPayload[] = []) => {
+  const agent = agents.find(
+    ({ agent_type }) => agent_type === AgentType.rdsExporter
+  );
+
+  return agent ? toRdsExporter(agent) : null;
+};

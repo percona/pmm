@@ -16,11 +16,18 @@ import {
 } from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import {
+  EditServiceRedirect,
   InventoryRedirect,
   Redirect,
   SettingsRedirect,
 } from 'components/redirect';
-import { Agents, Inventory, Nodes, Services } from 'pages/inventory';
+import {
+  Agents,
+  EditService,
+  Inventory,
+  Nodes,
+  Services,
+} from 'pages/inventory';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AlertsPage } from 'pages/alerting/status';
@@ -101,6 +108,10 @@ const router = createBrowserRouter(
                   element: <Agents />,
                 },
                 {
+                  path: 'services/:serviceId/edit',
+                  element: <EditService />,
+                },
+                {
                   path: 'nodes/:nodeId/agents',
                   element: <Agents />,
                 },
@@ -176,6 +187,14 @@ const router = createBrowserRouter(
             {
               path: 'graph/inventory/*',
               element: <InventoryRedirect />,
+            },
+            {
+              path: 'graph/edit-instance/:serviceId',
+              element: <EditServiceRedirect />,
+            },
+            {
+              path: 'edit-instance/:serviceId',
+              element: <EditServiceRedirect />,
             },
             // Grafana routes are handled at the Main component level
             {

@@ -69,3 +69,23 @@ export interface RemoveAgentParams {
   agentId: string;
   force: boolean;
 }
+
+// The rds_exporter of a remote RDS node; the API only says whether a secret key is set
+export interface RdsExporter {
+  agentId: string;
+  awsAccessKey: string;
+  awsRoleArn: string;
+  isAwsSecretKeySet: boolean;
+}
+
+// ChangeAgent only applies the fields it is sent, and an empty string clears one
+export interface RdsCredentials {
+  awsAccessKey?: string;
+  awsSecretKey?: string;
+  awsRoleArn?: string;
+}
+
+export interface ChangeRdsCredentialsParams {
+  agentId: string;
+  credentials: RdsCredentials;
+}
