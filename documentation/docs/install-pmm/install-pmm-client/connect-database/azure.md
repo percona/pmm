@@ -10,7 +10,7 @@ The Microsoft Azure feature is turned off by default. To turn it on:
 
 1. Go to **Configuration > Settings > Advanced Settings**.
 
-2. Click the <i class="uil uil-toggle-off"></i> toggle in the **Technical preview features** section of the page.
+2. Click the :material-toggle-switch-off-outline: toggle in the **Technical preview features** section of the page.
 
 ## Prerequisites
 
@@ -145,7 +145,7 @@ You can find more details on how to create DB on Azure at:
 
 In the list of databases on the **Discovery** page click **Start Monitoring** to add the selected Azure Database to PMM.
 
-Fill in all required fields. To set how long PMM waits when connecting, enter a value in **Connection timeout**. Leave it empty to use the default of 2s. Click **Add service**.
+Fill in all required fields. To set how long PMM waits when connecting, enter a value in **Connection timeout**. Leave it empty to use the default of 5s. Click **Add service**.
 
 PMM can use 3 exporters to collect metrics:
 
