@@ -738,7 +738,7 @@
             ],
             "thresholds": [],
             "timeRegions": [],
-            "title": "Blocked Processes Waiting for I/O ",
+            "title": "Blocked Processes Waiting for I/O",
             "tooltip": {
                 "msResolution": false,
                 "shared": true,

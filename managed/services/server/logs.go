@@ -29,6 +29,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"sort"
 	"sync"
 	"time"
@@ -43,7 +44,23 @@ import (
 
 const (
 	maxLogReadLines = 50000
+
+	// The entrypoint renders the side-car nginx drop-ins here when
+	// PMM_ENABLE_EXTENSIONS is set. The directory is absent on a default
+	// installation.
+	extensionsNginxConfigDir = "/etc/nginx/extensions.d"
 )
+
+// extensionsConfigFiles returns the side-car nginx drop-ins under dir, and nothing when dir is
+// absent. They are globbed rather than listed because their presence depends on
+// PMM_ENABLE_EXTENSIONS: absent must not mean an error in the archive. Glob's only error
+// is ErrBadPattern, which a caller-supplied directory joined with a literal
+// suffix cannot produce, so it is discarded rather than reported.
+func extensionsConfigFiles(dir string) []string {
+	configs, _ := filepath.Glob(filepath.Join(dir, "*.conf"))
+
+	return configs
+}
 
 // fileContent represents logs.zip item.
 type fileContent struct {
@@ -165,7 +182,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 		})
 	}
 	// add configs
-	for _, f := range []string{
+	configs := slices.Concat([]string{
 		"/etc/nginx/nginx.conf",
 		"/etc/nginx/conf.d/pmm.conf",
 		"/etc/nginx/conf.d/pmm-ssl.conf",
@@ -182,7 +199,9 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 		"/etc/supervisord.d/vmproxy.ini",
 
 		models.AgentConfigFilePath,
-	} {
+	}, extensionsConfigFiles(extensionsNginxConfigDir))
+
+	for _, f := range configs {
 		b, m, err := readFile(f)
 		files = append(files, fileContent{
 			Name:     filepath.Base(f),

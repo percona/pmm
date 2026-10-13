@@ -2155,7 +2155,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "rule_id": {
+                  "description": "Identifier PMM assigns to a rule whose thresholds can be overridden per target.\nEmpty when the rule has no overridable parameters, since nothing can be keyed on it.\nThis is the rule's identity for threshold purposes rather than its Grafana UID:\ncopying or renaming the rule in Grafana preserves it.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
@@ -2353,6 +2360,11 @@
                                 }
                               },
                               "x-order": 6
+                            },
+                            "overridable": {
+                              "description": "Whether this parameter's threshold can be overridden per target without editing the\nrule. Only set for templates that support it; the scopes it may be set at are\nreported per rule by ListThresholds.",
+                              "type": "boolean",
+                              "x-order": 7
                             }
                           }
                         },
@@ -2659,6 +2671,569 @@
             "name": "name",
             "in": "path",
             "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/alerting/thresholds": {
+      "get": {
+        "tags": [
+          "AlertingService"
+        ],
+        "summary": "ListThresholds returns per-target threshold overrides.",
+        "operationId": "ListThresholds",
+        "parameters": [
+          {
+            "enum": [
+              "THRESHOLD_SCOPE_UNSPECIFIED",
+              "THRESHOLD_SCOPE_NODE",
+              "THRESHOLD_SCOPE_SERVICE",
+              "THRESHOLD_SCOPE_CLUSTER"
+            ],
+            "type": "string",
+            "default": "THRESHOLD_SCOPE_UNSPECIFIED",
+            "description": "Scope of the target to report thresholds for.\n\n - THRESHOLD_SCOPE_UNSPECIFIED: Treated as node.\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID. Not implemented yet.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Not implemented yet.",
+            "name": "scope",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Target to report thresholds for. When set, every overridable parameter is returned\nfor that target, overridden or not. When empty, only existing overrides are\nreturned, since there is otherwise no bounded set to enumerate.",
+            "name": "target",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Return only thresholds of this rule.",
+            "name": "rule_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "thresholds": {
+                  "type": "array",
+                  "items": {
+                    "description": "Threshold is one overridable parameter of one rule, as it applies to one target.",
+                    "type": "object",
+                    "properties": {
+                      "rule_id": {
+                        "description": "Identifier PMM assigned to the rule. Unique per parameter in a target-scoped listing,\nbut a listing without a target reports one entry per overridden target, so there the\nsame rule_id and param_name can repeat, differing in scope and target. Key on rule_id,\nparam_name, scope and target together rather than on rule_id alone.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "param_name": {
+                        "description": "Machine-readable name of the overridable parameter.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "summary": {
+                        "description": "Short human-readable parameter summary, as it was when the rule was created.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "unit": {
+                        "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_UNSPECIFIED: Invalid, unknown or absent.\n - PARAM_UNIT_PERCENTAGE: %\n - PARAM_UNIT_SECONDS: s",
+                        "type": "string",
+                        "default": "PARAM_UNIT_UNSPECIFIED",
+                        "enum": [
+                          "PARAM_UNIT_UNSPECIFIED",
+                          "PARAM_UNIT_PERCENTAGE",
+                          "PARAM_UNIT_SECONDS"
+                        ],
+                        "x-order": 3
+                      },
+                      "default_value": {
+                        "description": "Value the rule falls back to when no override applies.",
+                        "type": "number",
+                        "format": "double",
+                        "x-order": 4
+                      },
+                      "effective_value": {
+                        "description": "Value the rule currently evaluates this target against.",
+                        "type": "number",
+                        "format": "double",
+                        "x-order": 5
+                      },
+                      "is_overridden": {
+                        "description": "Whether effective_value comes from an override rather than the default.",
+                        "type": "boolean",
+                        "x-order": 6
+                      },
+                      "scope": {
+                        "description": "ThresholdScope says what a threshold override's target refers to.\n\nOnly THRESHOLD_SCOPE_NODE is implemented. The schema and the resolver carry service and\ncluster already, but every RPC rejects them with Unimplemented for now.\n\n - THRESHOLD_SCOPE_UNSPECIFIED: Treated as node.\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID. Not implemented yet.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Not implemented yet.",
+                        "type": "string",
+                        "default": "THRESHOLD_SCOPE_UNSPECIFIED",
+                        "enum": [
+                          "THRESHOLD_SCOPE_UNSPECIFIED",
+                          "THRESHOLD_SCOPE_NODE",
+                          "THRESHOLD_SCOPE_SERVICE",
+                          "THRESHOLD_SCOPE_CLUSTER"
+                        ],
+                        "x-order": 7
+                      },
+                      "target": {
+                        "description": "Target the effective override was set on. Empty when not overridden.",
+                        "type": "string",
+                        "x-order": 8
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "AlertingService"
+        ],
+        "summary": "SetThreshold overrides one rule parameter for one target.",
+        "operationId": "SetThreshold",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "scope": {
+                  "description": "ThresholdScope says what a threshold override's target refers to.\n\nOnly THRESHOLD_SCOPE_NODE is implemented. The schema and the resolver carry service and\ncluster already, but every RPC rejects them with Unimplemented for now.\n\n - THRESHOLD_SCOPE_UNSPECIFIED: Treated as node.\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID. Not implemented yet.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Not implemented yet.",
+                  "type": "string",
+                  "default": "THRESHOLD_SCOPE_UNSPECIFIED",
+                  "enum": [
+                    "THRESHOLD_SCOPE_UNSPECIFIED",
+                    "THRESHOLD_SCOPE_NODE",
+                    "THRESHOLD_SCOPE_SERVICE",
+                    "THRESHOLD_SCOPE_CLUSTER"
+                  ],
+                  "x-order": 0
+                },
+                "target": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "rule_id": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "param_name": {
+                  "type": "string",
+                  "x-order": 3
+                },
+                "value": {
+                  "description": "Must be finite and within the parameter's declared range.",
+                  "type": "number",
+                  "format": "double",
+                  "x-order": 4
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "threshold": {
+                  "description": "Threshold is one overridable parameter of one rule, as it applies to one target.",
+                  "type": "object",
+                  "properties": {
+                    "rule_id": {
+                      "description": "Identifier PMM assigned to the rule. Unique per parameter in a target-scoped listing,\nbut a listing without a target reports one entry per overridden target, so there the\nsame rule_id and param_name can repeat, differing in scope and target. Key on rule_id,\nparam_name, scope and target together rather than on rule_id alone.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "param_name": {
+                      "description": "Machine-readable name of the overridable parameter.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "summary": {
+                      "description": "Short human-readable parameter summary, as it was when the rule was created.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "unit": {
+                      "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_UNSPECIFIED: Invalid, unknown or absent.\n - PARAM_UNIT_PERCENTAGE: %\n - PARAM_UNIT_SECONDS: s",
+                      "type": "string",
+                      "default": "PARAM_UNIT_UNSPECIFIED",
+                      "enum": [
+                        "PARAM_UNIT_UNSPECIFIED",
+                        "PARAM_UNIT_PERCENTAGE",
+                        "PARAM_UNIT_SECONDS"
+                      ],
+                      "x-order": 3
+                    },
+                    "default_value": {
+                      "description": "Value the rule falls back to when no override applies.",
+                      "type": "number",
+                      "format": "double",
+                      "x-order": 4
+                    },
+                    "effective_value": {
+                      "description": "Value the rule currently evaluates this target against.",
+                      "type": "number",
+                      "format": "double",
+                      "x-order": 5
+                    },
+                    "is_overridden": {
+                      "description": "Whether effective_value comes from an override rather than the default.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "scope": {
+                      "description": "ThresholdScope says what a threshold override's target refers to.\n\nOnly THRESHOLD_SCOPE_NODE is implemented. The schema and the resolver carry service and\ncluster already, but every RPC rejects them with Unimplemented for now.\n\n - THRESHOLD_SCOPE_UNSPECIFIED: Treated as node.\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID. Not implemented yet.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Not implemented yet.",
+                      "type": "string",
+                      "default": "THRESHOLD_SCOPE_UNSPECIFIED",
+                      "enum": [
+                        "THRESHOLD_SCOPE_UNSPECIFIED",
+                        "THRESHOLD_SCOPE_NODE",
+                        "THRESHOLD_SCOPE_SERVICE",
+                        "THRESHOLD_SCOPE_CLUSTER"
+                      ],
+                      "x-order": 7
+                    },
+                    "target": {
+                      "description": "Target the effective override was set on. Empty when not overridden.",
+                      "type": "string",
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/alerting/thresholds:batchUpdate": {
+      "post": {
+        "tags": [
+          "AlertingService"
+        ],
+        "summary": "BatchUpdateThresholds applies several set and clear operations in one transaction.",
+        "operationId": "BatchUpdateThresholds",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "updates": {
+                  "description": "Applied in one transaction: either every update lands or none does. A client\nediting several rows at once cannot otherwise report which ones took effect.",
+                  "type": "array",
+                  "items": {
+                    "description": "ThresholdUpdate sets or clears one override.",
+                    "type": "object",
+                    "properties": {
+                      "scope": {
+                        "description": "ThresholdScope says what a threshold override's target refers to.\n\nOnly THRESHOLD_SCOPE_NODE is implemented. The schema and the resolver carry service and\ncluster already, but every RPC rejects them with Unimplemented for now.\n\n - THRESHOLD_SCOPE_UNSPECIFIED: Treated as node.\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID. Not implemented yet.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Not implemented yet.",
+                        "type": "string",
+                        "default": "THRESHOLD_SCOPE_UNSPECIFIED",
+                        "enum": [
+                          "THRESHOLD_SCOPE_UNSPECIFIED",
+                          "THRESHOLD_SCOPE_NODE",
+                          "THRESHOLD_SCOPE_SERVICE",
+                          "THRESHOLD_SCOPE_CLUSTER"
+                        ],
+                        "x-order": 0
+                      },
+                      "target": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "rule_id": {
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "param_name": {
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "value": {
+                        "description": "Omit to clear the override rather than set it.",
+                        "type": "number",
+                        "format": "double",
+                        "x-nullable": true,
+                        "x-order": 4
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "thresholds": {
+                  "description": "Thresholds that were set, in request order. Cleared ones are omitted.",
+                  "type": "array",
+                  "items": {
+                    "description": "Threshold is one overridable parameter of one rule, as it applies to one target.",
+                    "type": "object",
+                    "properties": {
+                      "rule_id": {
+                        "description": "Identifier PMM assigned to the rule. Unique per parameter in a target-scoped listing,\nbut a listing without a target reports one entry per overridden target, so there the\nsame rule_id and param_name can repeat, differing in scope and target. Key on rule_id,\nparam_name, scope and target together rather than on rule_id alone.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "param_name": {
+                        "description": "Machine-readable name of the overridable parameter.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "summary": {
+                        "description": "Short human-readable parameter summary, as it was when the rule was created.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "unit": {
+                        "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_UNSPECIFIED: Invalid, unknown or absent.\n - PARAM_UNIT_PERCENTAGE: %\n - PARAM_UNIT_SECONDS: s",
+                        "type": "string",
+                        "default": "PARAM_UNIT_UNSPECIFIED",
+                        "enum": [
+                          "PARAM_UNIT_UNSPECIFIED",
+                          "PARAM_UNIT_PERCENTAGE",
+                          "PARAM_UNIT_SECONDS"
+                        ],
+                        "x-order": 3
+                      },
+                      "default_value": {
+                        "description": "Value the rule falls back to when no override applies.",
+                        "type": "number",
+                        "format": "double",
+                        "x-order": 4
+                      },
+                      "effective_value": {
+                        "description": "Value the rule currently evaluates this target against.",
+                        "type": "number",
+                        "format": "double",
+                        "x-order": 5
+                      },
+                      "is_overridden": {
+                        "description": "Whether effective_value comes from an override rather than the default.",
+                        "type": "boolean",
+                        "x-order": 6
+                      },
+                      "scope": {
+                        "description": "ThresholdScope says what a threshold override's target refers to.\n\nOnly THRESHOLD_SCOPE_NODE is implemented. The schema and the resolver carry service and\ncluster already, but every RPC rejects them with Unimplemented for now.\n\n - THRESHOLD_SCOPE_UNSPECIFIED: Treated as node.\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID. Not implemented yet.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Not implemented yet.",
+                        "type": "string",
+                        "default": "THRESHOLD_SCOPE_UNSPECIFIED",
+                        "enum": [
+                          "THRESHOLD_SCOPE_UNSPECIFIED",
+                          "THRESHOLD_SCOPE_NODE",
+                          "THRESHOLD_SCOPE_SERVICE",
+                          "THRESHOLD_SCOPE_CLUSTER"
+                        ],
+                        "x-order": 7
+                      },
+                      "target": {
+                        "description": "Target the effective override was set on. Empty when not overridden.",
+                        "type": "string",
+                        "x-order": 8
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/alerting/thresholds:clear": {
+      "post": {
+        "tags": [
+          "AlertingService"
+        ],
+        "summary": "ClearThreshold removes an override so the target falls back to the rule's default,\nor to a broader override still covering it.",
+        "operationId": "ClearThreshold",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "scope": {
+                  "description": "ThresholdScope says what a threshold override's target refers to.\n\nOnly THRESHOLD_SCOPE_NODE is implemented. The schema and the resolver carry service and\ncluster already, but every RPC rejects them with Unimplemented for now.\n\n - THRESHOLD_SCOPE_UNSPECIFIED: Treated as node.\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID. Not implemented yet.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Not implemented yet.",
+                  "type": "string",
+                  "default": "THRESHOLD_SCOPE_UNSPECIFIED",
+                  "enum": [
+                    "THRESHOLD_SCOPE_UNSPECIFIED",
+                    "THRESHOLD_SCOPE_NODE",
+                    "THRESHOLD_SCOPE_SERVICE",
+                    "THRESHOLD_SCOPE_CLUSTER"
+                  ],
+                  "x-order": 0
+                },
+                "target": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "rule_id": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "param_name": {
+                  "type": "string",
+                  "x-order": 3
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -5323,6 +5898,11 @@
                   "description": "Status of HA mode: \"Enabled\" or \"Disabled\".",
                   "type": "string",
                   "x-order": 0
+                },
+                "namespace": {
+                  "description": "Kubernetes namespace this instance is running in.",
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -7076,6 +7656,11 @@
                         },
                         "x-order": 5
                       },
+                      "aws_role_arn": {
+                        "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
+                        "type": "string",
+                        "x-order": 6
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
@@ -7090,33 +7675,33 @@
                           "AGENT_STATUS_DONE",
                           "AGENT_STATUS_UNKNOWN"
                         ],
-                        "x-order": 6
+                        "x-order": 7
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics (the same for several configurations).",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "basic_metrics_disabled": {
                         "description": "Basic metrics are disabled.",
                         "type": "boolean",
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "enhanced_metrics_disabled": {
                         "description": "Enhanced metrics are disabled.",
                         "type": "boolean",
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "process_exec_path": {
                         "description": "Path to exec process.",
                         "type": "string",
-                        "x-order": 11
+                        "x-order": 12
                       },
                       "log_level": {
                         "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -7131,13 +7716,13 @@
                           "LOG_LEVEL_INFO",
                           "LOG_LEVEL_DEBUG"
                         ],
-                        "x-order": 12
+                        "x-order": 13
                       },
                       "auto_discovery_limit": {
                         "description": "Limit of databases for auto-discovery.",
                         "type": "integer",
                         "format": "int32",
-                        "x-order": 13
+                        "x-order": 14
                       },
                       "metrics_resolutions": {
                         "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -7159,7 +7744,7 @@
                             "x-order": 2
                           }
                         },
-                        "x-order": 14
+                        "x-order": 15
                       }
                     }
                   },
@@ -8282,6 +8867,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 9
+                    },
+                    "aws_role_arn": {
+                      "description": "AWS IAM role ARN to assume using the pmm-agent's ambient credentials.\nMutually exclusive with aws_access_key and aws_secret_key.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 7
@@ -10090,6 +10680,11 @@
                       },
                       "x-order": 5
                     },
+                    "aws_role_arn": {
+                      "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
+                      "type": "string",
+                      "x-order": 6
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
@@ -10104,33 +10699,33 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "basic_metrics_disabled": {
                       "description": "Basic metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "enhanced_metrics_disabled": {
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -10145,13 +10740,13 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "auto_discovery_limit": {
                       "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -10173,7 +10768,7 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 7
@@ -12814,6 +13409,11 @@
                       },
                       "x-order": 5
                     },
+                    "aws_role_arn": {
+                      "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
+                      "type": "string",
+                      "x-order": 6
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
@@ -12828,33 +13428,33 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "basic_metrics_disabled": {
                       "description": "Basic metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "enhanced_metrics_disabled": {
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -12869,13 +13469,13 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "auto_discovery_limit": {
                       "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -12897,7 +13497,7 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 14
@@ -13751,6 +14351,21 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 22
+                    },
+                    "environment_variable_names": {
+                      "description": "A wrapper for a string array. This type allows to distinguish between an empty array and a null value.",
+                      "type": "object",
+                      "properties": {
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 0
+                        }
+                      },
+                      "x-nullable": true,
+                      "x-order": 23
                     }
                   },
                   "x-order": 2
@@ -14216,6 +14831,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 8
+                    },
+                    "aws_role_arn": {
+                      "description": "AWS IAM role ARN to assume using the pmm-agent's ambient credentials.\nMutually exclusive with aws_access_key and aws_secret_key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
                     }
                   },
                   "x-order": 6
@@ -16316,6 +16937,11 @@
                       },
                       "x-order": 5
                     },
+                    "aws_role_arn": {
+                      "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
+                      "type": "string",
+                      "x-order": 6
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
@@ -16330,33 +16956,33 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "basic_metrics_disabled": {
                       "description": "Basic metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "enhanced_metrics_disabled": {
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -16371,13 +16997,13 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "auto_discovery_limit": {
                       "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -16399,7 +17025,7 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 6
@@ -17824,7 +18450,7 @@
                         "x-order": 1
                       },
                       "address": {
-                        "description": "DB instance identifier.",
+                        "description": "Node address: the instance endpoint or, for older Nodes, the DB instance identifier.",
                         "type": "string",
                         "x-order": 2
                       },
@@ -17852,7 +18478,7 @@
                         "x-order": 6
                       },
                       "instance_id": {
-                        "description": "AWS instance ID.",
+                        "description": "AWS DB instance identifier.",
                         "type": "string",
                         "x-order": 7
                       }
@@ -18110,7 +18736,7 @@
                       "x-order": 0
                     },
                     "address": {
-                      "description": "DB instance identifier.",
+                      "description": "Node address: the instance endpoint. Older clients pass the DB instance identifier here\ninstead and omit instance_id.",
                       "type": "string",
                       "x-order": 1
                     },
@@ -18136,6 +18762,11 @@
                         "type": "string"
                       },
                       "x-order": 5
+                    },
+                    "instance_id": {
+                      "description": "AWS DB instance identifier: rds_exporter uses it as the CloudWatch DBInstanceIdentifier\ndimension. Optional when address is the bare identifier, which is then used; required when\naddress is an endpoint. Stored in lowercase, as AWS does.",
+                      "type": "string",
+                      "x-order": 6
                     }
                   },
                   "x-order": 3
@@ -18374,7 +19005,7 @@
                       "x-order": 1
                     },
                     "address": {
-                      "description": "DB instance identifier.",
+                      "description": "Node address: the instance endpoint or, for older Nodes, the DB instance identifier.",
                       "type": "string",
                       "x-order": 2
                     },
@@ -18402,7 +19033,7 @@
                       "x-order": 6
                     },
                     "instance_id": {
-                      "description": "AWS instance ID.",
+                      "description": "AWS DB instance identifier.",
                       "type": "string",
                       "x-order": 7
                     }
@@ -18699,7 +19330,7 @@
                       "x-order": 1
                     },
                     "address": {
-                      "description": "DB instance identifier.",
+                      "description": "Node address: the instance endpoint or, for older Nodes, the DB instance identifier.",
                       "type": "string",
                       "x-order": 2
                     },
@@ -18727,7 +19358,7 @@
                       "x-order": 6
                     },
                     "instance_id": {
-                      "description": "AWS instance ID.",
+                      "description": "AWS DB instance identifier.",
                       "type": "string",
                       "x-order": 7
                     }
@@ -18841,7 +19472,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "warning": {
+                  "description": "Warning message if there are more service tokens attached to service account.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
@@ -21918,6 +22556,11 @@
                         "description": "Connection timeout for exporter (if set).",
                         "type": "string",
                         "x-order": 42
+                      },
+                      "aws_role_arn": {
+                        "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
+                        "type": "string",
+                        "x-order": 43
                       }
                     }
                   },
@@ -23492,6 +24135,11 @@
                               "description": "Connection timeout for exporter (if set).",
                               "type": "string",
                               "x-order": 42
+                            },
+                            "aws_role_arn": {
+                              "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
+                              "type": "string",
+                              "x-order": 43
                             }
                           }
                         },
@@ -25150,6 +25798,11 @@
                         "type": "string"
                       },
                       "x-order": 36
+                    },
+                    "aws_role_arn": {
+                      "description": "AWS IAM role ARN to assume using the pmm-agent's ambient credentials.\nMutually exclusive with aws_access_key and aws_secret_key.",
+                      "type": "string",
+                      "x-order": 37
                     }
                   },
                   "x-order": 6
@@ -27415,7 +28068,7 @@
                           "x-order": 1
                         },
                         "address": {
-                          "description": "DB instance identifier.",
+                          "description": "Node address: the instance endpoint or, for older Nodes, the DB instance identifier.",
                           "type": "string",
                           "x-order": 2
                         },
@@ -27443,7 +28096,7 @@
                           "x-order": 6
                         },
                         "instance_id": {
-                          "description": "AWS instance ID.",
+                          "description": "AWS DB instance identifier.",
                           "type": "string",
                           "x-order": 7
                         }
@@ -27487,6 +28140,11 @@
                           },
                           "x-order": 5
                         },
+                        "aws_role_arn": {
+                          "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
+                          "type": "string",
+                          "x-order": 6
+                        },
                         "status": {
                           "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                           "type": "string",
@@ -27501,33 +28159,33 @@
                             "AGENT_STATUS_DONE",
                             "AGENT_STATUS_UNKNOWN"
                           ],
-                          "x-order": 6
+                          "x-order": 7
                         },
                         "listen_port": {
                           "description": "Listen port for scraping metrics (the same for several configurations).",
                           "type": "integer",
                           "format": "int64",
-                          "x-order": 7
+                          "x-order": 8
                         },
                         "basic_metrics_disabled": {
                           "description": "Basic metrics are disabled.",
                           "type": "boolean",
-                          "x-order": 8
+                          "x-order": 9
                         },
                         "enhanced_metrics_disabled": {
                           "description": "Enhanced metrics are disabled.",
                           "type": "boolean",
-                          "x-order": 9
+                          "x-order": 10
                         },
                         "push_metrics_enabled": {
                           "description": "True if exporter uses push metrics mode.",
                           "type": "boolean",
-                          "x-order": 10
+                          "x-order": 11
                         },
                         "process_exec_path": {
                           "description": "Path to exec process.",
                           "type": "string",
-                          "x-order": 11
+                          "x-order": 12
                         },
                         "log_level": {
                           "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -27542,13 +28200,13 @@
                             "LOG_LEVEL_INFO",
                             "LOG_LEVEL_DEBUG"
                           ],
-                          "x-order": 12
+                          "x-order": 13
                         },
                         "auto_discovery_limit": {
                           "description": "Limit of databases for auto-discovery.",
                           "type": "integer",
                           "format": "int32",
-                          "x-order": 13
+                          "x-order": 14
                         },
                         "metrics_resolutions": {
                           "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -27570,7 +28228,7 @@
                               "x-order": 2
                             }
                           },
-                          "x-order": 14
+                          "x-order": 15
                         }
                       },
                       "x-order": 1
@@ -28967,6 +29625,11 @@
                   "description": "AWS Secret key. Optional.",
                   "type": "string",
                   "x-order": 1
+                },
+                "aws_role_arn": {
+                  "description": "AWS IAM role ARN to assume using the server's ambient credentials. Optional.\nMutually exclusive with aws_access_key and aws_secret_key.",
+                  "type": "string",
+                  "x-order": 2
                 }
               }
             }
@@ -32442,6 +33105,11 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "extensions_enabled": {
+                      "description": "True if PMM Extensions is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -32760,6 +33428,11 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "extensions_enabled": {
+                      "description": "True if PMM Extensions is enabled. Read-only: it reports how this PMM\nServer process was started, and cannot be changed through ChangeSettings.",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -32860,6 +33533,11 @@
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
                       "x-order": 7
+                    },
+                    "extensions_enabled": {
+                      "description": "True if PMM Extensions is enabled.",
+                      "type": "boolean",
+                      "x-order": 8
                     }
                   },
                   "x-order": 0

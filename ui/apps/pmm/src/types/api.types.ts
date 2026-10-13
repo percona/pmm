@@ -10,6 +10,8 @@ export interface ApiErrorResponse {
 declare module 'axios' {
   export interface AxiosRequestConfig {
     disableNotifications?: boolean | ((error: AxiosError) => boolean);
+    /** Set by the auth retry interceptor so a replayed request is never replayed twice. */
+    authRetried?: boolean;
   }
 }
 
