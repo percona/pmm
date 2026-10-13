@@ -1113,6 +1113,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 	alertingService.CollectTemplates(ctx)
 
+	alertThresholdMetricsCollector := alerting.NewAlertThresholdMetricsCollector(db)
+	prom.MustRegister(alertThresholdMetricsCollector)
+
 	alertingProvisioner := alerting.NewProvisioner(alerting.ProvisionerParams{
 		DB:                     db,
 		GrafanaCli:             grafanaClient,

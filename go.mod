@@ -1,6 +1,6 @@
 module github.com/percona/pmm
 
-go 1.27.1
+go 1.27.2
 
 replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.22.9-percona
 
@@ -71,7 +71,7 @@ require (
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	go.yaml.in/yaml/v3 v3.0.5
 	golang.org/x/crypto v0.57.0
-	golang.org/x/sync v0.23.0
+	golang.org/x/sync v0.24.0
 	golang.org/x/sys v0.48.0
 	golang.org/x/text v0.42.0
 	golang.org/x/tools v0.51.0
@@ -332,7 +332,7 @@ require (
 	golang.org/x/arch v0.11.0 // indirect
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
 	golang.org/x/mod v0.41.0 // indirect
-	golang.org/x/net v0.59.0 // indirect
+	golang.org/x/net v0.60.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/perf v0.0.0-20260409210113-8e83ce0f7b1c // indirect
 	golang.org/x/term v0.46.0 // indirect
