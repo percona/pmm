@@ -118,6 +118,32 @@ You can create a custom external exporter or extend your application to expose m
     - automatically generates the service name using the host and group names.
 
 
+## Monitor Percona ClusterSync for MongoDB
+
+Percona ClusterSync for MongoDB (PCSM) exposes Prometheus metrics at `/metrics` on its HTTP port (`2242` by default). Add each PCSM instance as an external service to see its data on the [MongoDB ClusterSync Details](../../../reference/dashboards/dashboard-mongodb-clustersync-details.md) dashboard.
+
+PMM supports PCSM 1.0.0 and later.
+
+!!! warning "Keep the PCSM port private"
+    The PCSM HTTP port has no authentication, and the same port serves the control endpoints (`/start`, `/pause`, `/resume`, `/finalize`) and profiling data. Keep the default `localhost` listen address, and collect metrics with a PMM Client on the same host in push metrics mode. Don't change `--listen-host` only to let PMM Server reach PCSM. If you must bind PCSM to another address, restrict access to the port with a firewall.
+
+To monitor a PCSM instance:
+{.power-number}
+
+1. Install PMM Client on the host that runs PCSM, and register it with PMM Server. For the steps, see [Install PMM Client](../index.md).
+2. Add the PCSM instance as an external service:
+
+    ```sh
+    pmm-admin add external --service-name=pcsm-1 --group=pcsm --cluster=pcsm-sync-1 --listen-port=2242 --metrics-path=/metrics --scheme=http --metrics-mode=push
+    ```
+
+    If PCSM runs with a custom `--port`, use that value for `--listen-port`. The `--metrics-mode=push` flag makes PMM Client collect the metrics locally, so PCSM can keep listening on `localhost`.
+
+3. If you run several PCSM instances in an HA group, repeat steps 1 and 2 on the host of every instance. Use a different `--service-name` and the same `--cluster` value, so that you can select the whole group on the dashboard.
+4. If PMM monitors at least one MongoDB service, open **MongoDB > ClusterSync**. Otherwise, go to **All dashboards > Browse all dashboards** and open **MongoDB ClusterSync Details** in the **MongoDB** folder. The **Exporter Up** panel shows **UP** for each instance.
+
+If you set `--environment`, that value also appears in the environment filters of the **Environments Overview** and **DB Cluster Summary** dashboards.
+
 ## Add an external service via UI
 
 To add an external service via PMM UI:

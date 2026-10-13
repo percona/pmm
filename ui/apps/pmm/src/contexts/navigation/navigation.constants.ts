@@ -221,6 +221,11 @@ export const NAV_MONGO: NavItem = {
       text: 'Oplog',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-oplog-details/mongodb-oplog-details`,
     },
+    {
+      id: 'mongo-clustersync-details',
+      text: 'ClusterSync',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-clustersync-details/mongodb-clustersync-details`,
+    },
   ],
 };
 

@@ -1,0 +1,4422 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "datasource",
+                    "uid": "grafana"
+                },
+                "enable": true,
+                "hide": false,
+                "iconColor": "#e0752d",
+                "limit": 100,
+                "matchAny": true,
+                "name": "PMM Annotations",
+                "showIn": 0,
+                "tags": [
+                    "pmm_annotation",
+                    "$service_name"
+                ],
+                "target": {
+                    "limit": 100,
+                    "matchAny": true,
+                    "tags": [
+                        "pmm_annotation",
+                        "$service_name"
+                    ],
+                    "type": "tags"
+                },
+                "type": "tags"
+            },
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "datasource",
+                    "uid": "grafana"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "#6ed0e0",
+                "limit": 100,
+                "name": "Annotations & Alerts",
+                "showIn": 0,
+                "tags": [],
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
+                "type": "dashboard"
+            }
+        ]
+    },
+    "description": "Percona ClusterSync for MongoDB (PCSM): health of the source cluster, the sync and the target cluster side by side, then replication progress and pipeline, then detailed health of the PCSM instances.",
+    "editable": false,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "id": null,
+    "links": [],
+    "panels": [
+        {
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 59,
+            "panels": [
+                {
+                    "fieldConfig": {
+                        "defaults": {},
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 15,
+                        "w": 24,
+                        "x": 0,
+                        "y": 1
+                    },
+                    "id": 58,
+                    "options": {
+                        "code": {
+                            "language": "plaintext",
+                            "showLineNumbers": false,
+                            "showMiniMap": false
+                        },
+                        "content": "### How to use this dashboard\n\nWork from top to bottom and stop as soon as everything is green. Hover the **ⓘ** icon on any panel: it says what the panel shows, what normal looks like, and what to check if it is not.\n\n| Section | Question it answers |\n|---|---|\n| **1 · Is the migration healthy?** | Source, ClusterSync and target side by side. Red or yellow tiles show where to look. |\n| **2 · Is replication progressing?** | Initial clone progress, then the lag against the source oplog window. |\n| **3 · Why is replication slow or stuck?** *(collapsed)* | Where events pile up in the PCSM pipeline. Open it when lag grows. |\n| **4 · Are the ClusterSync instances healthy?** | Availability, HA roles and process resources of each PCSM instance. |\n\n**Healthy looks like:** Members Down is 0 on both sides · exactly one ACTIVE instance · replication lag under 10 s and flat · Applied keeps pace with Read and the queues in section 3 stay near 0 · the source oplog window stays far above the lag · target disk below 80%.\n\n**Finding the bottleneck (section 3):** dispatcher queue growing → workers cannot take events fast enough · worker or bulk queues growing with rising flush duration → the target is slow to accept writes · one worker far above the others → a hot collection or document.\n\n**Setup checklist** — most empty panels come from one of these:\n1. Pick the **Source Cluster** and **Target Cluster** at the top. Both must be added to PMM with `--cluster`.\n2. For sharded clusters, monitor the shard and config server **mongod** members, not only mongos — oplog and replication panels need them.\n3. The PMM monitoring user needs `read` on the `local` database for the oplog window.\n4. PCSM **1.0.0 or later** for the HA panels, added to PMM as an external service.\n\nDocs: [Percona ClusterSync for MongoDB](https://docs.percona.com/percona-clustersync-for-mongodb/) · [Add MongoDB to PMM](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mongodb.html) · [Add an external service to PMM](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/external.html)\n",
+                        "mode": "markdown"
+                    },
+                    "title": "",
+                    "type": "text"
+                }
+            ],
+            "title": "How to use this dashboard",
+            "type": "row"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 1
+            },
+            "id": 36,
+            "panels": [],
+            "title": "1 · Is the migration healthy?",
+            "type": "row"
+        },
+        {
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 8,
+                "x": 0,
+                "y": 2
+            },
+            "id": 37,
+            "options": {
+                "code": {
+                    "language": "plaintext",
+                    "showLineNumbers": false,
+                    "showMiniMap": false
+                },
+                "content": "<div style='text-align:center'><b>$source_cluster</b><br/><small><a href=\"/graph/d/mongodb-replicaset-summary?var-cluster=${source_cluster}&${__url_time_range}\">ReplSet Summary</a> &middot; <a href=\"/graph/d/mongodb-cluster-summary?var-cluster=${source_cluster}&${__url_time_range}\">Sharded Cluster Summary</a></small></div>",
+                "mode": "html"
+            },
+            "title": "Source Cluster",
+            "transparent": true,
+            "type": "text"
+        },
+        {
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 8,
+                "x": 8,
+                "y": 2
+            },
+            "id": 38,
+            "options": {
+                "code": {
+                    "language": "plaintext",
+                    "showLineNumbers": false,
+                    "showMiniMap": false
+                },
+                "content": "<div style='text-align:center'><b>$cluster</b><br/><small>Replicates source &rarr; target</small></div>",
+                "mode": "html"
+            },
+            "title": "ClusterSync (PCSM)",
+            "transparent": true,
+            "type": "text"
+        },
+        {
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 8,
+                "x": 16,
+                "y": 2
+            },
+            "id": 39,
+            "options": {
+                "code": {
+                    "language": "plaintext",
+                    "showLineNumbers": false,
+                    "showMiniMap": false
+                },
+                "content": "<div style='text-align:center'><b>$target_cluster</b><br/><small><a href=\"/graph/d/mongodb-replicaset-summary?var-cluster=${target_cluster}&${__url_time_range}\">ReplSet Summary</a> &middot; <a href=\"/graph/d/mongodb-cluster-summary?var-cluster=${target_cluster}&${__url_time_range}\">Sharded Cluster Summary</a></small></div>",
+                "mode": "html"
+            },
+            "title": "Target Cluster",
+            "transparent": true,
+            "type": "text"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Source cluster members (mongod and mongos) that PMM reports as down.\n\n**Normal:** 0.\n\n**If not:** Open ReplSet Summary or Sharded Cluster Summary for the source (header links) to see which member is down. A source member outage can stop or slow the sync.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 0,
+                    "links": [],
+                    "mappings": [],
+                    "noValue": "No members",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 0,
+                "y": 5
+            },
+            "id": 40,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "count(mongodb_up{cluster=\"$source_cluster\"} == 0) or count(mongodb_up{cluster=\"$source_cluster\"}) * 0",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "Down",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Members Down",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Highest CPU utilization among the hosts that run source cluster members.\n\n**Normal:** Below 70%, and no jump when the sync starts.\n\n**If not:** PCSM reads put load on the source. If the source is saturated, the initial clone slows down and production traffic may suffer; consider running the clone off-peak.\n\nNeeds node_exporter on the hosts, so it is not available for remotely monitored or DBaaS clusters such as MongoDB Atlas.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 1,
+                    "links": [],
+                    "mappings": [],
+                    "noValue": "No node_exporter",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.7
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.9
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 4,
+                "y": 5
+            },
+            "id": 41,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max((1 - avg by (node_name) (rate(node_cpu_seconds_total{mode=\"idle\"}))) and on (node_name) mongodb_up{cluster=\"$source_cluster\"})",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "CPU",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Max Node CPU",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Smallest oplog window among the source cluster members: how far back the oplog reaches.\n\n**Normal:** Hours or more, well above the PCSM replication lag and above the expected initial clone duration. Red below 1 hour, yellow below 6 hours.\n\n**If not:** PCSM resumes change replication from the source oplog. If lag or clone time reaches the window, the resume point is lost and the sync must restart. Increase the source oplog size, or reduce the lag (see section 3).\n\nNeeds the cluster's mongod members (shard and config server replica set members, not only mongos) monitored with the same cluster label. The PMM monitoring user also needs read on the local database.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "noValue": "Needs mongod members",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red"
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 3600
+                            },
+                            {
+                                "color": "green",
+                                "value": 21600
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 0,
+                "y": 9
+            },
+            "id": 42,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "min(mongodb_mongod_replset_oplog_head_timestamp{cluster=\"$source_cluster\"} - mongodb_mongod_replset_oplog_tail_timestamp{cluster=\"$source_cluster\"})",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "Window",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Oplog Window",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Highest replication lag of a secondary within the source cluster. This is the source's own replication, not the PCSM lag.\n\n**Normal:** A few seconds at most; 0 when the replica sets have no secondaries.\n\n**If not:** The source cluster is under stress. Check Source Operations and CPU, and the ReplSet Summary for the source.\n\nNeeds the cluster's mongod members (shard and config server replica set members, not only mongos) monitored with the same cluster label.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "noValue": "Needs mongod members",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 10
+                            },
+                            {
+                                "color": "red",
+                                "value": 60
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 4,
+                "y": 9
+            },
+            "id": 43,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max(mongodb_mongod_replset_member_replication_lag{cluster=\"$source_cluster\",state!=\"ARBITER\"}) or max(mongodb_mongod_replset_number_of_members{cluster=\"$source_cluster\"}) * 0",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "Lag",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Internal Replication Lag",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Whether PMM can scrape each PCSM instance (UP / DOWN).\n\n**Normal:** All instances UP.\n\n**If not:** Check the PCSM process and its host (the tile links to Node Summary). An instance that has been unreachable for the whole time range is not listed at all; \"unknown\" means the host or its pmm-agent is not reporting.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "targetBlank": false,
+                            "title": "Node Summary for ${__field.labels.node_name}",
+                            "url": "/graph/d/node-instance-summary/node-summary?var-node_name=${__field.labels.node_name}&$__url_time_range"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "red",
+                                    "index": 0,
+                                    "text": "DOWN"
+                                },
+                                "1": {
+                                    "color": "green",
+                                    "index": 1,
+                                    "text": "UP"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "noValue": "unknown",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red"
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 8,
+                "y": 5
+            },
+            "id": 2,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "up{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\",service_name!=\"\"}",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Instances Up",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "The PCSM instance that holds the HA lease (ACTIVE) and runs the sync.\n\n**Normal:** Exactly one instance.\n\n**If not:** \"none\" means no instance is running the sync: check Instance Availability and Instance Roles in section 4.\n\nRequires PCSM 1.0.0 or later.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [],
+                    "mappings": [
+                        {
+                            "options": {
+                                "1": {
+                                    "color": "green",
+                                    "index": 0,
+                                    "text": "ACTIVE"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "noValue": "none",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text"
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 12,
+                "y": 5
+            },
+            "id": 3,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 1)",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Active Instance",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "How far the target is behind the source, in logical seconds, reported by the ACTIVE instance.\n\n**Normal:** Under 10 seconds once change replication runs. It is also 0 before replication has started.\n\n**If not:** Check whether events are read faster than they are applied (Change Events Rate), then look for the bottleneck in section 3.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "noValue": "No PCSM data",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 10
+                            },
+                            {
+                                "color": "red",
+                                "value": 60
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 8,
+                "y": 9
+            },
+            "id": 4,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Replication Lag",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Remaining logical seconds until the initial sync catches up, reported by the ACTIVE instance.\n\n**Normal:** Decreasing during the initial sync. PCSM keeps reporting the last value after the sync completes until the process restarts.\n\n**If not:** If it does not go down, check copy throughput in section 2 and source and target load in this section.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "noValue": "No PCSM data",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 10
+                            },
+                            {
+                                "color": "red",
+                                "value": 60
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 12,
+                "y": 9
+            },
+            "id": 5,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_initial_sync_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Initial Sync Lag",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Target cluster members (mongod and mongos) that PMM reports as down.\n\n**Normal:** 0.\n\n**If not:** Open ReplSet Summary or Sharded Cluster Summary for the target (header links). PCSM cannot apply writes to an unavailable target.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 0,
+                    "links": [],
+                    "mappings": [],
+                    "noValue": "No members",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 16,
+                "y": 5
+            },
+            "id": 44,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "count(mongodb_up{cluster=\"$target_cluster\",cluster!=\"\"} == 0) or count(mongodb_up{cluster=\"$target_cluster\",cluster!=\"\"}) * 0",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "Down",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Members Down",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Highest CPU utilization among the hosts that run target cluster members.\n\n**Normal:** Below 70%. It is expected to rise during the initial clone.\n\n**If not:** A saturated target slows down every write PCSM makes. Check Target Operation Latency and consider scaling the target before the migration.\n\nNeeds node_exporter on the hosts.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 1,
+                    "links": [],
+                    "mappings": [],
+                    "noValue": "No node_exporter",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.7
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.9
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 20,
+                "y": 5
+            },
+            "id": 45,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max((1 - avg by (node_name) (rate(node_cpu_seconds_total{mode=\"idle\"}))) and on (node_name) mongodb_up{cluster=\"$target_cluster\"})",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "CPU",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Max Node CPU",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Fullest real filesystem among the hosts that run target cluster members, from node_exporter. Falls back to the size MongoDB reports for members without node_exporter (needs the service added with --enable-all-collectors).\n\n**Normal:** Below 80%, with room for the whole source dataset plus indexes.\n\n**If not:** The initial clone copies the whole dataset. Free or add disk space before the target fills up, or the sync fails.\n\nIt does not know which mount holds the MongoDB data, so a nearly full disk that MongoDB does not use also shows here.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 1,
+                    "links": [],
+                    "mappings": [],
+                    "noValue": "No host data",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.8
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.9
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 16,
+                "y": 9
+            },
+            "id": 46,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max((1 - node_filesystem_avail_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs|nsfs|devtmpfs|ramfs\"} / node_filesystem_size_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs|nsfs|devtmpfs|ramfs\"}) and on (node_name) mongodb_up{cluster=\"$target_cluster\"}) or max(max by (service_name) (mongodb_dbstats_fsUsedSize{cluster=\"$target_cluster\"}) / max by (service_name) (mongodb_dbstats_fsTotalSize{cluster=\"$target_cluster\"}))",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "Used",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Disk Space Used",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Highest replication lag of a secondary within the target cluster. This is the target's own replication, not the PCSM lag.\n\n**Normal:** A few seconds at most; 0 when the replica sets have no secondaries.\n\n**If not:** Target secondaries cannot keep up with the PCSM write load, which slows down majority writes and therefore the sync. Check target CPU and disk.\n\nNeeds the cluster's mongod members (shard and config server replica set members, not only mongos) monitored with the same cluster label.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "noValue": "Needs mongod members",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 10
+                            },
+                            {
+                                "color": "red",
+                                "value": 60
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 20,
+                "y": 9
+            },
+            "id": 47,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max(mongodb_mongod_replset_member_replication_lag{cluster=\"$target_cluster\",state!=\"ARBITER\"}) or max(mongodb_mongod_replset_number_of_members{cluster=\"$target_cluster\"}) * 0",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "Lag",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Internal Replication Lag",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Operations per second on the source cluster, summed across members.\n\n**Normal:** Production traffic plus PCSM reads (queries, getmores) during the clone. Source writes are the changes PCSM must replicate.\n\n**If not:** A write rate higher than Change Events Rate (Applied) can sustain makes the lag grow.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "ops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 0,
+                "y": 13
+            },
+            "id": 48,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (legacy_op_type) (rate(mongodb_ss_opcounters{cluster=\"$source_cluster\",legacy_op_type!=\"command\"}))",
+                    "interval": "$interval",
+                    "legendFormat": "{{legacy_op_type}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Operations",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Average operation latency of the slowest source member, by operation type.\n\n**Normal:** No lasting rise when the sync starts.\n\n**If not:** A rise that starts with the sync means PCSM is affecting production on the source; consider scheduling the clone off-peak.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "µs"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 0,
+                "y": 21
+            },
+            "id": 49,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (op_type) (rate(mongodb_ss_opLatencies_latency{cluster=\"$source_cluster\"}) / (rate(mongodb_ss_opLatencies_ops{cluster=\"$source_cluster\"}) > 0))",
+                    "interval": "$interval",
+                    "legendFormat": "{{op_type}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Operation Latency",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Replication lag and initial-sync lag of the ACTIVE instance over time.\n\n**Normal:** Initial-sync lag trends to 0 during the clone; replication lag then stays flat and low.\n\n**If not:** A steadily growing line means PCSM cannot keep up: compare Read and Applied in Change Events Rate, then check section 3. Sudden spikes often line up with a failover (section 4).",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 8,
+                "y": 13
+            },
+            "id": 6,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Replication lag - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_initial_sync_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Initial sync lag - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Lag Time",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Change events read from the source and applied to the target per second by the ACTIVE instance.\n\n**Normal:** Applied keeps pace with Read. Both are 0 while the source has no writes or the initial clone is running.\n\n**If not:** A gap alone is not a backlog: PCSM counts every change stream event as read, but skips some without counting them as applied (replayed events, excluded namespaces) and counts bulk writes by operation. If the gap keeps widening while the lag and the queues in section 3 grow, the target cannot keep up: check Target Operation Latency. Read far below the source write rate means reading from the source is slow.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "ops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 8,
+                "y": 21
+            },
+            "id": 7,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (rate(percona_clustersync_mongodb_events_read_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Read - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (rate(percona_clustersync_mongodb_events_applied_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Applied - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Change Events Rate",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Operations per second on the target cluster, summed across members.\n\n**Normal:** During a migration the writes here come mostly from PCSM.\n\n**If not:** If writes stop while the lag grows, PCSM is not applying: check sections 3 and 4.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "ops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 16,
+                "y": 13
+            },
+            "id": 50,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (legacy_op_type) (rate(mongodb_ss_opcounters{cluster=\"$target_cluster\",legacy_op_type!=\"command\"}))",
+                    "interval": "$interval",
+                    "legendFormat": "{{legacy_op_type}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Operations",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Average operation latency of the slowest target member, by operation type.\n\n**Normal:** Stable. Some increase during the initial clone is expected.\n\n**If not:** High write latency is the most common reason the lag grows. Check target CPU, disk and Internal Replication Lag.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "µs"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 16,
+                "y": 21
+            },
+            "id": 51,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (op_type) (rate(mongodb_ss_opLatencies_latency{cluster=\"$target_cluster\"}) / (rate(mongodb_ss_opLatencies_ops{cluster=\"$target_cluster\"}) > 0))",
+                    "interval": "$interval",
+                    "legendFormat": "{{op_type}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Operation Latency",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 29
+            },
+            "id": 52,
+            "panels": [],
+            "title": "2 · Is replication progressing?",
+            "type": "row"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Share of the estimated data size already inserted into the target by the ACTIVE instance.\n\n**Normal:** Grows towards 100% during the initial clone.\n\n**If not:** If it stalls, check Copy Throughput and source and target load.\n\nOnly meaningful during an uninterrupted clone: the counters reset when PCSM restarts or fails over.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 1,
+                    "links": [],
+                    "mappings": [],
+                    "noValue": "No clone data",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue"
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 0,
+                "y": 30
+            },
+            "id": 24,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_copy_insert_size_bytes_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)) / max by (service_name) ((percona_clustersync_mongodb_estimated_total_size_bytes{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)) > 0)",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Copy Progress",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Bytes inserted into the target during the initial clone, against the estimated total size (ACTIVE instance).\n\n**Normal:** Inserted climbs towards the estimated total.\n\n**If not:** A flat Inserted line during the clone means the copy is stuck: check Batch Duration and the target.\n\nThe copy counters belong to each PCSM process, so an instance that became ACTIVE after a restart or failover shows no clone data.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "noValue": "No clone data in this process",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 9,
+                "x": 6,
+                "y": 30
+            },
+            "id": 25,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_copy_insert_size_bytes_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Inserted - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_estimated_total_size_bytes{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Estimated total - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Copied vs Estimated Size",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Bytes per second read from the source and inserted into the target during the initial clone (ACTIVE instance).\n\n**Normal:** Read and Insert stay close together at a steady rate.\n\n**If not:** Low read throughput points to the source or the network; Insert well below Read points to the target.\n\nThe copy counters belong to each PCSM process, so an instance that became ACTIVE after a restart or failover shows no clone data.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "noValue": "No clone data in this process",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "Bps"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 9,
+                "x": 15,
+                "y": 30
+            },
+            "id": 26,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (rate(percona_clustersync_mongodb_copy_read_size_bytes_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Read - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (rate(percona_clustersync_mongodb_copy_insert_size_bytes_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Insert - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Copy Throughput",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Documents per second read from the source and inserted into the target during the initial clone (ACTIVE instance).\n\n**Normal:** Read and Inserted stay close together.\n\n**If not:** See Copy Throughput; many small documents give a high document rate at a low byte rate.\n\nThe copy counters belong to each PCSM process, so an instance that became ACTIVE after a restart or failover shows no clone data.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "noValue": "No clone data in this process",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 38
+            },
+            "id": 27,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (rate(percona_clustersync_mongodb_copy_read_document_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Read - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (rate(percona_clustersync_mongodb_copy_insert_document_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Inserted - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Documents Copied per Second",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Duration of the most recent read and insert batch during the initial clone (ACTIVE instance).\n\n**Normal:** Stable.\n\n**If not:** Growing read batches point to the source, growing insert batches to the target.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 38
+            },
+            "id": 28,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_copy_read_batch_duration_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Read - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_copy_insert_batch_duration_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Insert - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Batch Duration",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "PCSM lag (ACTIVE instance) against the smallest source oplog window. Logarithmic scale.\n\n**Normal:** The oplog window line stays far above both lag lines.\n\n**If not:** If the lag, or the time since the initial clone started, reaches the oplog window, the change stream resume point is lost and the sync must restart. Increase the source oplog size or reduce the lag.\n\nNeeds the cluster's mongod members (shard and config server replica set members, not only mongos) monitored with the same cluster label. The PMM monitoring user also needs read on the local database.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "log": 10,
+                            "type": "log"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 46
+            },
+            "id": 53,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Replication lag - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_initial_sync_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                    "interval": "$interval",
+                    "legendFormat": "Initial sync lag - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "min(mongodb_mongod_replset_oplog_head_timestamp{cluster=\"$source_cluster\"} - mongodb_mongod_replset_oplog_tail_timestamp{cluster=\"$source_cluster\"})",
+                    "interval": "$interval",
+                    "legendFormat": "Source oplog window",
+                    "range": true,
+                    "refId": "C"
+                }
+            ],
+            "title": "Lag vs Source Oplog Window",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 54
+            },
+            "id": 54,
+            "panels": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "description": "Events waiting between the change stream reader and the dispatcher that routes them to workers (ACTIVE instance).\n\n**Normal:** Near 0.\n\n**If not:** A growing queue means the workers cannot take events fast enough: check the worker queues and Flush Duration.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 8,
+                        "x": 0,
+                        "y": 55
+                    },
+                    "id": 13,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "max by (service_name) (percona_clustersync_mongodb_repl_event_queue_size{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))",
+                            "interval": "$interval",
+                            "legendFormat": "{{service_name}}",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Dispatcher Queue",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "description": "Events waiting in the workers' inbound queues (ACTIVE instance): total, and the fullest single worker.\n\n**Normal:** Near 0.\n\n**If not:** If one worker is much fuller than the rest, writes concentrate on few collections or documents (see Per-Worker panels below). If all are full, the target applies too slowly.\n\nShows 0 until PCSM routes its first change event (during the initial clone, while the source has no writes, or right after a restart or failover).",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 8,
+                        "x": 8,
+                        "y": 55
+                    },
+                    "id": 14,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "sum by (service_name) (percona_clustersync_mongodb_repl_worker_event_queue_size{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)) or max by (service_name) (percona_clustersync_mongodb_repl_event_queue_size{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)) * 0",
+                            "interval": "$interval",
+                            "legendFormat": "Total - {{service_name}}",
+                            "range": true,
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": {
+                                "type": "prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "max by (service_name) (percona_clustersync_mongodb_repl_worker_event_queue_size{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)) or max by (service_name) (percona_clustersync_mongodb_repl_event_queue_size{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)) * 0",
+                            "interval": "$interval",
+                            "legendFormat": "Fullest worker - {{service_name}}",
+                            "range": true,
+                            "refId": "B"
+                        }
+                    ],
+                    "title": "Worker Event Queues",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "description": "Sealed bulk writes waiting to be written to the target in the workers' async queues (ACTIVE instance): total, and the fullest single worker.\n\n**Normal:** Near 0.\n\n**If not:** Bulks piling up means target writes are the bottleneck: check Flush Duration and Target Operation Latency.\n\nShows 0 until PCSM routes its first change event.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 8,
+                        "x": 16,
+                        "y": 55
+                    },
+                    "id": 15,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "sum by (service_name) (percona_clustersync_mongodb_repl_worker_bulk_queue_size{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)) or max by (service_name) (percona_clustersync_mongodb_repl_event_queue_size{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)) * 0",
+                            "interval": "$interval",
+                            "legendFormat": "Total - {{service_name}}",
+                            "range": true,
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": {
+                                "type": "prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "max by (service_name) (percona_clustersync_mongodb_repl_worker_bulk_queue_size{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)) or max by (service_name) (percona_clustersync_mongodb_repl_event_queue_size{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)) * 0",
+                            "interval": "$interval",
+                            "legendFormat": "Fullest worker - {{service_name}}",
+                            "range": true,
+                            "refId": "B"
+                        }
+                    ],
+                    "title": "Worker Bulk Queues",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "description": "Events applied per second by all replication workers of the ACTIVE instance.\n\n**Normal:** Follows the source write rate.\n\n**If not:** A drop while queues grow means applying to the target has slowed down.\n\nShows 0 until PCSM routes its first change event.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "ops"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 8,
+                        "x": 0,
+                        "y": 63
+                    },
+                    "id": 16,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "sum by (service_name) (rate(percona_clustersync_mongodb_repl_worker_events_applied_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)) or max by (service_name) (percona_clustersync_mongodb_repl_event_queue_size{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)) * 0",
+                            "interval": "$interval",
+                            "legendFormat": "{{service_name}}",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Worker Events Applied",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "description": "99th percentile duration of bulk writes to the target, across all workers of the ACTIVE instance.\n\n**Normal:** Stable, typically well under a second.\n\n**If not:** Rising flush duration means the target is slow to accept writes: check target CPU, disk and Internal Replication Lag.\n\nEmpty until PCSM flushes its first change-replication bulk write (not during the initial clone, nor while the source has no writes).",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "noValue": "Waiting for first flush",
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "s"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 8,
+                        "x": 8,
+                        "y": 63
+                    },
+                    "id": 17,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "histogram_quantile(0.99, sum by (service_name, le) (rate(percona_clustersync_mongodb_repl_worker_flush_duration_seconds_bucket{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)))",
+                            "interval": "$interval",
+                            "legendFormat": "{{service_name}}",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Flush Duration (p99)",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "description": "99th percentile number of operations per bulk write, across all workers of the ACTIVE instance.\n\n**Normal:** Larger batches under heavy write load, small ones when the load is light.\n\n**If not:** Batches that stay at the maximum while queues grow mean PCSM is applying as fast as it can and the target is the limit.\n\nEmpty until PCSM flushes its first change-replication bulk write.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "noValue": "Waiting for first flush",
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 8,
+                        "x": 16,
+                        "y": 63
+                    },
+                    "id": 18,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "histogram_quantile(0.99, sum by (service_name, le) (rate(percona_clustersync_mongodb_repl_worker_flush_batch_size_bucket{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)))",
+                            "interval": "$interval",
+                            "legendFormat": "{{service_name}}",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Flush Batch Size (p99)",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "description": "Top 10 workers by inbound queue size (ACTIVE instance only).\n\n**Normal:** Workers stay close to each other and near 0.\n\n**If not:** One worker far above the rest points to a hot collection or document.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 0,
+                        "y": 71
+                    },
+                    "id": 19,
+                    "maxPerRow": 2,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "repeat": "service_name",
+                    "repeatDirection": "h",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "topk_max(10, (percona_clustersync_mongodb_repl_worker_event_queue_size{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)))",
+                            "interval": "$interval",
+                            "legendFormat": "w{{worker}}",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Worker Event Queue - $service_name",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "description": "Top 10 workers by events applied per second (ACTIVE instance only).\n\n**Normal:** Load spread across workers.\n\n**If not:** One busy worker with the rest idle points to a hot collection or document.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "ops"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 0,
+                        "y": 79
+                    },
+                    "id": 20,
+                    "maxPerRow": 2,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "repeat": "service_name",
+                    "repeatDirection": "h",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "topk_max(10, (rate(percona_clustersync_mongodb_repl_worker_events_applied_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0)))",
+                            "interval": "$interval",
+                            "legendFormat": "w{{worker}}",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Worker Events Applied - $service_name",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "description": "Top 10 workers by p99 bulk write duration (ACTIVE instance only). Workers that did not flush in the interval are not shown.\n\n**Normal:** Similar across workers.\n\n**If not:** One slow worker points to a slow collection on the target, for example one with many indexes.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "noValue": "Waiting for first flush",
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "s"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 0,
+                        "y": 87
+                    },
+                    "id": 21,
+                    "maxPerRow": 2,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "repeat": "service_name",
+                    "repeatDirection": "h",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "topk_max(10, histogram_quantile(0.99, sum by (worker, le) (rate(percona_clustersync_mongodb_repl_worker_flush_duration_seconds_bucket{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}) unless on(service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} == 0))))",
+                            "interval": "$interval",
+                            "legendFormat": "w{{worker}}",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Worker Flush Duration (p99) - $service_name",
+                    "type": "timeseries"
+                }
+            ],
+            "title": "3 · Why is replication slow or stuck?",
+            "type": "row"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 55
+            },
+            "id": 56,
+            "panels": [],
+            "title": "4 · Are the ClusterSync instances healthy?",
+            "type": "row"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Whether PMM could scrape each PCSM instance over time (UP / DOWN).\n\n**Normal:** UP all the time.\n\n**If not:** Gaps or DOWN periods mean the process, host or pmm-agent was not reporting. Check the host in Node Summary.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "fixed"
+                    },
+                    "custom": {
+                        "fillOpacity": 70,
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineWidth": 0,
+                        "spanNulls": false
+                    },
+                    "links": [],
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "red",
+                                    "index": 0,
+                                    "text": "DOWN"
+                                },
+                                "1": {
+                                    "color": "green",
+                                    "index": 1,
+                                    "text": "UP"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red"
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 56
+            },
+            "id": 57,
+            "options": {
+                "alignValue": "left",
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": false
+                },
+                "mergeValues": true,
+                "rowHeight": 0.9,
+                "showValue": "auto",
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (up{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\",service_name!=\"\"})",
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Instance Availability",
+            "type": "state-timeline"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Role of each PCSM instance over time: ACTIVE holds the lease and runs the sync, STANDBY waits to take over.\n\n**Normal:** One ACTIVE instance, stable over time.\n\n**If not:** Frequent switches mean the ACTIVE instance keeps losing its lease: check Instance Availability, CPU and memory.\n\nRequires PCSM 1.0.0 or later.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "fixed"
+                    },
+                    "custom": {
+                        "fillOpacity": 70,
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineWidth": 0,
+                        "spanNulls": false
+                    },
+                    "links": [],
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "blue",
+                                    "index": 0,
+                                    "text": "STANDBY"
+                                },
+                                "1": {
+                                    "color": "green",
+                                    "index": 1,
+                                    "text": "ACTIVE"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue"
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 56
+            },
+            "id": 9,
+            "options": {
+                "alignValue": "left",
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": false
+                },
+                "mergeValues": true,
+                "rowHeight": 0.9,
+                "showValue": "auto",
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (service_name) (percona_clustersync_mongodb_ha_active{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Instance Roles",
+            "type": "state-timeline"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Current HA lease term per cluster (HA group). It increases every time a different instance takes over.\n\n**Normal:** Unchanged during a healthy sync.\n\n**If not:** An increasing term means failovers: see Instance Roles.\n\nRequires PCSM 1.0.0 or later.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 0,
+                    "links": [],
+                    "mappings": [],
+                    "noValue": "Needs PCSM 1.0+",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 4,
+                "x": 0,
+                "y": 63
+            },
+            "id": 10,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (cluster) (percona_clustersync_mongodb_ha_term{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "{{cluster}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Lease Term",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "HA role changes per instance in the selected time range.\n\n**Normal:** 1 for the instance that became ACTIVE at startup, 0 otherwise.\n\n**If not:** More transitions mean failovers: see Instance Roles and the process panels below.\n\nRequires PCSM 1.0.0 or later.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 0,
+                    "links": [],
+                    "mappings": [],
+                    "noValue": "Needs PCSM 1.0+",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 4,
+                "x": 4,
+                "y": 63
+            },
+            "id": 11,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (service_name) (increase(percona_clustersync_mongodb_ha_role_transitions_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}[$__range]))",
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Role Transitions",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "CPU used by each PCSM process (100% = one full core).\n\n**Normal:** Steady; higher during the initial clone.\n\n**If not:** A process pinned at its CPU limit cannot go faster: give it more CPU.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 8,
+                "y": 63
+            },
+            "id": 29,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "rate(percona_clustersync_mongodb_process_cpu_seconds_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "CPU Usage",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Resident memory (RSS) of each PCSM process.\n\n**Normal:** Stable after the start.\n\n**If not:** Steady growth may lead to an out-of-memory kill and a failover.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 16,
+                "y": 63
+            },
+            "id": 30,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "percona_clustersync_mongodb_process_resident_memory_bytes{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}",
+                    "interval": "$interval",
+                    "legendFormat": "{{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Resident Memory",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Open and maximum file descriptors of each PCSM process.\n\n**Normal:** Open well below Max.\n\n**If not:** Raise the process file descriptor limit before Open reaches Max.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 0,
+                "y": 71
+            },
+            "id": 31,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "percona_clustersync_mongodb_process_open_fds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}",
+                    "interval": "$interval",
+                    "legendFormat": "Open - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "percona_clustersync_mongodb_process_max_fds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}",
+                    "interval": "$interval",
+                    "legendFormat": "Max - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "File Descriptors",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Go runtime goroutines and OS threads of each PCSM process.\n\n**Normal:** Stable.\n\n**If not:** Steady growth points to a leak; report it with the PCSM version.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 6,
+                "y": 71
+            },
+            "id": 32,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "(go_goroutines{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} and on(service_name) percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                    "interval": "$interval",
+                    "legendFormat": "Goroutines - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "(go_threads{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} and on(service_name) percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                    "interval": "$interval",
+                    "legendFormat": "Threads - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Goroutines and Threads",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Go heap memory of each PCSM process.\n\n**Normal:** In use rises and falls with load.\n\n**If not:** Steady growth of In use points to a leak.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 12,
+                "y": 71
+            },
+            "id": 33,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "(go_memstats_heap_inuse_bytes{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} and on(service_name) percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                    "interval": "$interval",
+                    "legendFormat": "In use - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "(go_memstats_heap_idle_bytes{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} and on(service_name) percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                    "interval": "$interval",
+                    "legendFormat": "Idle - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "(go_memstats_sys_bytes{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"} and on(service_name) percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                    "interval": "$interval",
+                    "legendFormat": "Obtained from OS - {{service_name}}",
+                    "range": true,
+                    "refId": "C"
+                }
+            ],
+            "title": "Go Heap",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Median and maximum Go garbage-collection pause of each PCSM process.\n\n**Normal:** Milliseconds.\n\n**If not:** Long pauses stall the sync; usually caused by memory pressure (see Resident Memory).",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 18,
+                "y": 71
+            },
+            "id": 34,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "(go_gc_duration_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\",quantile=\"0.5\"} and on(service_name) percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                    "interval": "$interval",
+                    "legendFormat": "p50 - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "(go_gc_duration_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\",quantile=\"1\"} and on(service_name) percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                    "interval": "$interval",
+                    "legendFormat": "Max - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "GC Pause Duration",
+            "type": "timeseries"
+        }
+    ],
+    "refresh": false,
+    "schemaVersion": 41,
+    "tags": [
+        "MongoDB",
+        "Percona"
+    ],
+    "templating": {
+        "list": [
+            {
+                "auto": true,
+                "auto_count": 200,
+                "auto_min": "1s",
+                "current": {
+                    "text": "$__auto",
+                    "value": "$__auto"
+                },
+                "hide": 0,
+                "label": "Interval",
+                "name": "interval",
+                "options": [
+                    {
+                        "selected": false,
+                        "text": "1s",
+                        "value": "1s"
+                    },
+                    {
+                        "selected": false,
+                        "text": "5s",
+                        "value": "5s"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1m",
+                        "value": "1m"
+                    },
+                    {
+                        "selected": false,
+                        "text": "5m",
+                        "value": "5m"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1h",
+                        "value": "1h"
+                    },
+                    {
+                        "selected": false,
+                        "text": "6h",
+                        "value": "6h"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1d",
+                        "value": "1d"
+                    }
+                ],
+                "query": "1s,5s,1m,5m,1h,6h,1d",
+                "refresh": 2,
+                "skipUrlSync": false,
+                "type": "interval"
+            },
+            {
+                "current": {},
+                "datasource": {
+                    "type": "prometheus"
+                },
+                "definition": "label_values(mongodb_up, cluster)",
+                "description": "MongoDB cluster PCSM replicates from. Set the cluster label when adding its services to PMM (pmm-admin add mongodb --cluster).",
+                "hide": 0,
+                "includeAll": false,
+                "label": "Source Cluster",
+                "multi": false,
+                "name": "source_cluster",
+                "options": [],
+                "query": {
+                    "query": "label_values(mongodb_up, cluster)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "datasource": {
+                    "type": "prometheus"
+                },
+                "definition": "label_values(percona_clustersync_mongodb_lag_time_seconds, environment)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "Environment",
+                "multi": true,
+                "name": "environment",
+                "options": [],
+                "query": {
+                    "query": "label_values(percona_clustersync_mongodb_lag_time_seconds, environment)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "datasource": {
+                    "type": "prometheus"
+                },
+                "definition": "label_values(percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\"}, cluster)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "ClusterSync Cluster",
+                "multi": true,
+                "name": "cluster",
+                "options": [],
+                "query": {
+                    "query": "label_values(percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\"}, cluster)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "datasource": {
+                    "type": "prometheus"
+                },
+                "definition": "label_values(percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\"}, service_name)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "ClusterSync Instance",
+                "multi": true,
+                "name": "service_name",
+                "options": [],
+                "query": {
+                    "query": "label_values(percona_clustersync_mongodb_lag_time_seconds{environment=~\"$environment\",cluster=~\"$cluster\"}, service_name)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "current": {},
+                "datasource": {
+                    "type": "prometheus"
+                },
+                "definition": "label_values(mongodb_up{cluster!=\"$source_cluster\"}, cluster)",
+                "description": "MongoDB cluster PCSM replicates to. Set the cluster label when adding its services to PMM (pmm-admin add mongodb --cluster).",
+                "hide": 0,
+                "includeAll": false,
+                "label": "Target Cluster",
+                "multi": false,
+                "name": "target_cluster",
+                "options": [],
+                "query": {
+                    "query": "label_values(mongodb_up{cluster!=\"$source_cluster\"}, cluster)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-12h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "MongoDB ClusterSync Details",
+    "uid": "mongodb-clustersync-details",
+    "version": 1,
+    "weekStart": ""
+}
