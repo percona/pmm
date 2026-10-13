@@ -44,7 +44,7 @@ Whether a server crashes, you're upgrading software, or scaling your infrastruct
 ### Check prerequisites
 
 - **Kubernetes**: 1.32 or higher
-- **Helm**: 3.2.0 or higher
+- **Helm**: 3.17.0 or higher
 - **kubectl**: configured to access your cluster
 - **Persistent Volume Provisioner**: available in your cluster
 

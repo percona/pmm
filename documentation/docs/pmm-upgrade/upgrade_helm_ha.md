@@ -13,13 +13,20 @@ Traffic flows only to the active leader pod. When that pod restarts, your PMM da
 To avoid losing data or a long outage, follow these steps before you upgrade:
 {.power-number}
 
-1. Check that all three PMM Server pods are running and ready. If one is already down, the cluster cannot elect a leader and PMM becomes unreachable:
+1. Check that your cluster runs Kubernetes 1.32 or later and that you use Helm 3.17.0 or later. The PMM 3.10.0 chart doesn't install on earlier versions:
+
+    ```sh
+    kubectl version
+    helm version
+    ```
+
+2. Check that all three PMM Server pods are running and ready. If one is already down, the cluster cannot elect a leader and PMM becomes unreachable:
 
     ```sh
     kubectl get pods -n <namespace> -l app.kubernetes.io/component=pmm-server
     ```
 
-2. Back up your PMM HA Cluster before upgrading. Downgrades are not supported, so a backup is your only recovery option:
+3. Back up your PMM HA Cluster before upgrading. Downgrades are not supported, so a backup is your only recovery option:
 
     === "Built-in backups"
 
@@ -43,9 +50,9 @@ To avoid losing data or a long outage, follow these steps before you upgrade:
 
         - **ClickHouse and VictoriaMetrics** have no automatic backup. Back them up manually if you need to restore your Query Analytics data and metrics, for example with [clickhouse-backup](https://github.com/Altinity/clickhouse-backup) and VictoriaMetrics' [`vmbackup`](https://docs.victoriametrics.com/vmbackup/).
 
-3. Keep all custom settings in your `values.yaml` file. Settings applied with `kubectl patch` are silently reset on every upgrade.
+4. Keep all custom settings in your `values.yaml` file. Settings applied with `kubectl patch` are silently reset on every upgrade.
 
-4. Pull the new PMM Server image on your cluster nodes in advance to reduce upgrade time:
+5. Pull the new PMM Server image on your cluster nodes in advance to reduce upgrade time:
 
     ```sh
     # Replace <version> with the version you're upgrading to
