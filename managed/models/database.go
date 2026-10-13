@@ -1209,6 +1209,50 @@ var databaseSchema = [][]string{
 			AND agent_type <> 'mongodb_exporter'`,
 	},
 	120: {
+		// Migration 110 filled instance_id only for Nodes that existed then; the inventory API
+		// kept creating remote RDS Nodes without it. Before 3.4.0 that API took the DB instance
+		// identifier as the address, so a bare address is the identifier. An endpoint address is
+		// left alone: its first label is only right for a standard instance endpoint, not for a
+		// cluster endpoint, a CNAME or an IP, and a wrong identifier is harder to spot than none.
+		// AWS stores DB instance identifiers in lowercase and rds_exporter matches them exactly,
+		// so identifiers stored as typed are lowercased too, as createNodeWithID now does.
+		`UPDATE nodes SET instance_id = lower(instance_id) WHERE node_type = 'remote_rds' AND instance_id <> lower(instance_id)`,
+		`UPDATE nodes SET instance_id = lower(address) WHERE node_type = 'remote_rds' AND instance_id = '' AND address NOT LIKE '%.%'`,
+	},
+	121: {
+		`CREATE TABLE alert_rules (
+			rule_id VARCHAR NOT NULL CHECK (rule_id <> ''),
+			params JSONB NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (rule_id)
+		)`,
+
+		// target is polymorphic - a node_id, a service_id, or a cluster label value -
+		// so it carries no foreign key: cluster is a label value with no referent table.
+		// Rows for a deleted node or service are removed by the removal API instead.
+		`CREATE TABLE alert_rule_threshold_overrides (
+			id VARCHAR NOT NULL,
+			rule_id VARCHAR NOT NULL,
+			param_name VARCHAR NOT NULL CHECK (param_name <> ''),
+			scope VARCHAR NOT NULL CHECK (scope <> ''),
+			target VARCHAR NOT NULL CHECK (target <> ''),
+			-- NaN equals itself in PostgreSQL, so <> 'NaN' is the check that rejects it.
+			value DOUBLE PRECISION NOT NULL
+				CHECK (value <> 'NaN'::float8 AND value > '-Infinity'::float8 AND value < 'Infinity'::float8),
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id),
+			UNIQUE (rule_id, param_name, scope, target),
+			FOREIGN KEY (rule_id) REFERENCES alert_rules (rule_id) ON DELETE CASCADE
+		)`,
+
+		`CREATE INDEX alert_rule_threshold_overrides_target_idx
+			ON alert_rule_threshold_overrides (scope, target)`,
+	},
+	122: {
 		// OM (OpenManager) topology collection: one row per pass, and the
 		// topology document it produced.
 		`CREATE TABLE om_topology_runs (
@@ -1242,7 +1286,7 @@ var databaseSchema = [][]string{
 		)`,
 		`CREATE INDEX om_topology_snapshots_generated_at_idx ON om_topology_snapshots (generated_at DESC)`,
 	},
-	121: {
+	123: {
 		// PMM-15347's om_bootstrap stepper's one generated MongoDB user and shared
 		// keyFile for one PMM Extensions bootstrap run, encrypted at rest -- see
 		// OmBootstrapSecret's own doc comment for why this survives independently
@@ -1255,7 +1299,7 @@ var databaseSchema = [][]string{
 			created_at       TIMESTAMP NOT NULL
 		)`,
 	},
-	122: {
+	124: {
 		// PMM's own record of a bootstrap run: the environment and cluster it was
 		// triggered with, and when PMM finished registering its hosts -- see
 		// OmBootstrapRunConfig's own doc comment for why these live in PMM's own
@@ -1306,7 +1350,9 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to create a connection pool to PostgreSQL: %w", err)
 	}
 
-	db.SetConnMaxLifetime(0)
+	// Recycle connections so that, after a PostgreSQL failover in HA, a pool left
+	// on the demoted primary (now a read-only replica) moves to the new primary.
+	db.SetConnMaxLifetime(5 * time.Minute) //nolint:mnd
 	db.SetConnMaxIdleTime(5 * time.Minute) //nolint:mnd
 	// Sized to give DB-bound auth/role/settings paths enough headroom during
 	// a reconnect storm from a fleet of agents, while staying well within
@@ -1396,29 +1442,6 @@ func DecryptDB(tx *reform.TX, database string, itemsToEncrypt []encryption.Table
 	return dbEncryption(tx, database, itemsToEncrypt, encryption.DecryptItems, false)
 }
 
-// recordedEncryptedItems returns what Settings.EncryptedItems has to say after a pass
-// that just encrypted (or decrypted) changed, given what it said before.
-//
-// The recorded set describes every encrypted column in the database, not the ones the
-// last pass happened to touch, and UpdateSettings replaces EncryptedItems rather than
-// merging it. Only the columns whose state differs from the one being applied are ever
-// prepared, so writing that list on its own drops everything an earlier pass
-// encrypted. Until a second table was added, every pass on a fresh database prepared
-// the whole set and the difference never showed; on an upgrade, the agents.* columns
-// were already recorded, so the write left only the new table's columns behind. The
-// next start then found agents.* unrecorded and encrypted the ciphertext again, one
-// layer per restart, until the application read back ciphertext it could not decrypt.
-func recordedEncryptedItems(recorded, changed []string, encrypting bool) []string {
-	items := make([]string, 0, len(recorded)+len(changed))
-	items = append(items, recorded...)
-	if encrypting {
-		return append(items, changed...)
-	}
-	return slices.DeleteFunc(items, func(item string) bool {
-		return slices.Contains(changed, item)
-	})
-}
-
 func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 	encryptionHandler func(tx *reform.TX, tables []encryption.Table) error,
 	expectedState bool,
@@ -1460,13 +1483,39 @@ func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 		return nil
 	}
 
+	fingerprint, err := encryption.Fingerprint()
+	if err != nil {
+		return err
+	}
+	if settings.EncryptionKeyFingerprint != "" && settings.EncryptionKeyFingerprint != fingerprint {
+		return keyMismatchError(fingerprint, settings.EncryptionKeyFingerprint)
+	}
+
 	err = encryptionHandler(tx, tables)
 	if err != nil {
 		return err
 	}
 
+	encryptedItems := []string{}
+	for _, item := range settings.EncryptedItems {
+		if !slices.Contains(prepared, item) {
+			encryptedItems = append(encryptedItems, item)
+		}
+	}
+	if expectedState {
+		encryptedItems = append(encryptedItems, prepared...)
+	}
+
+	// The fingerprint is recorded in the same transaction as the encrypted column list, so a
+	// concurrently starting node cannot observe encrypted data with no fingerprint to check its
+	// own key against.
+	if len(encryptedItems) == 0 {
+		fingerprint = ""
+	}
+
 	_, err = UpdateSettings(tx, &ChangeSettingsParams{
-		EncryptedItems: recordedEncryptedItems(settings.EncryptedItems, prepared, expectedState),
+		EncryptedItems:           encryptedItems,
+		EncryptionKeyFingerprint: &fingerprint,
 	})
 	if err != nil {
 		return err
@@ -1596,7 +1645,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return nil
 		}
 
-		err := EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
+		err := encryptOnMigration(tx, params)
 		if err != nil {
 			return err
 		}
@@ -1622,6 +1671,28 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 
 		return nil
 	})
+}
+
+// encryptOnMigration encrypts the columns that are not encrypted yet. It runs before anything else
+// in migrateDB encrypts or writes Agents, so that a node with a foreign key leaves the shared
+// database untouched.
+func encryptOnMigration(tx *reform.TX, params SetupDBParams) error {
+	err := VerifyEncryptionKey(tx)
+	switch {
+	case err == nil:
+		return EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
+	case errors.Is(err, ErrEncryptionKeyMismatch) && params.HANodeID == "":
+		// A standalone server keeps booting and reports the mismatch once started. Columns not
+		// encrypted yet are left for the first start with a matching or adopted key.
+		adopted, err := adoptEncryptionKey(tx)
+		if err != nil || !adopted {
+			return err
+		}
+
+		return EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
+	default:
+		return err
+	}
 }
 
 // removeStaleHANodes drops the Inventory Nodes of HA replicas that were scaled away. Those rows are

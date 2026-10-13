@@ -12,7 +12,6 @@ gen:            ## Generate PMM API
 		user/v1 \
 		inventory/v1 \
 		management/v1 \
-		management/v1/service \
 		actions/v1 \
 		advisors/v1 \
 		alerting/v1 \
@@ -21,9 +20,8 @@ gen:            ## Generate PMM API
 		accesscontrol/v1beta1 \
 		qan/v1 \
 		realtimeanalytics/v1 \
-		platform/v1 \
 		om/v1 \
-		ha/v1beta1"; \
+		ha/v1"; \
 	for API in $$SPECS; do \
 		set -x ; \
 		go tool swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
@@ -60,7 +58,7 @@ gen:            ## Generate PMM API
 		qan/v1/json/v1.json \
 		realtimeanalytics/v1/json/v1.json \
 		om/v1/json/v1.json \
-		ha/v1beta1/json/v1beta1.json
+		ha/v1/json/v1.json
 	go tool swagger validate swagger/swagger.json
 
 	# generate API spec with all PMM Server APIs (omit agentlocal)
@@ -79,7 +77,7 @@ gen:            ## Generate PMM API
 		qan/v1/json/v1.json \
 		realtimeanalytics/v1/json/v1.json \
 		om/v1/json/v1.json \
-		ha/v1beta1/json/v1beta1.json
+		ha/v1/json/v1.json
 
 	go tool swagger validate swagger/swagger-dev.json
 
@@ -124,7 +122,7 @@ clean: clean-swagger  ## Remove generated files
 		realtimeanalytics/v1 \
 		platform/v1 \
 		om/v1 \
-		ha/v1beta1"; \
+		ha/v1"; \
 	for API in $$SPECS; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done

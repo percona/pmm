@@ -1,190 +1,262 @@
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from '@testing-library/react';
+import { QueryClient } from '@tanstack/react-query';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { TestWrapper } from 'utils/testWrapper';
 import { wrapWithQueryProvider } from 'utils/testUtils';
+import * as haApi from 'api/ha';
+import * as settingsApi from 'api/settings';
 import { SETTINGS_MOCK } from 'api/__mocks__/settings';
-import { Settings } from 'types/settings.types';
-import { Messages } from '../../Settings.messages';
+import type { HAStatus } from 'types/ha.types';
+import type { Settings as SettingsType } from 'types/settings.types';
 import { AdvancedSettingsForm } from './AdvancedSettingsForm';
+import { toFormValues, toPayload } from './AdvancedSettingsForm.utils';
 
-const enqueueSnackbar = vi.fn();
-vi.mock('notistack', () => ({
-  enqueueSnackbar: (...args: unknown[]) => enqueueSnackbar(...args),
+vi.mock('api/settings');
+vi.mock('api/ha', () => ({
+  getHAStatus: vi.fn(),
+  getHANodes: vi.fn(),
 }));
 
-// The real mutation would need a server. Only `onSuccess` matters here: what the
-// form says once a save has landed.
-const mutateAsync = vi.fn(
-  async (
-    _payload: unknown,
-    options?: { onSuccess?: () => void; onError?: (error: Error) => void }
-  ) => {
-    options?.onSuccess?.();
-  }
-);
-vi.mock('hooks/api/useSettings', () => ({
-  useUpdateSettings: () => ({ mutateAsync }),
-}));
+const getHAStatusMock = vi.mocked(haApi.getHAStatus);
+const updateSettingsMock = vi.mocked(settingsApi.updateSettings);
 
-const m = Messages.advanced;
+const settings = { dataRetention: '2592000s' } as SettingsType;
 
-// The control itself, not its label: `SwitchInput` renders the label through
-// `FormControlLabel`, which is not a `for=`/`id=` pair a label-text query can follow.
-// The input carries `role="switch"`, which overrides its implicit checkbox role.
-const operationsSwitch = () =>
-  within(screen.getByTestId('advanced-open-manager')).getByRole('switch');
+const renderForm = (formSettings: SettingsType = settings) => {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
 
-const renderForm = (overrides: Partial<Settings> = {}) =>
   render(
-    wrapWithQueryProvider(
-      <TestWrapper>
-        <AdvancedSettingsForm settings={{ ...SETTINGS_MOCK, ...overrides }} />
-      </TestWrapper>
-    )
+    <TestWrapper>
+      {wrapWithQueryProvider(
+        <AdvancedSettingsForm settings={formSettings} />,
+        queryClient
+      )}
+    </TestWrapper>
   );
 
-describe('AdvancedSettingsForm: Operations for MongoDB', () => {
-  it('offers the switch under its own Developer preview section', () => {
-    renderForm({ extensionsEnabled: true });
+  return queryClient;
+};
 
-    expect(screen.getByText(m.developerPreviewLegend)).toBeInTheDocument();
-    expect(screen.getByTestId('advanced-open-manager')).toBeInTheDocument();
-    expect(screen.getByText(m.openManagerLabel)).toBeInTheDocument();
+// The field is editable until the HA status arrives, so anything asserted while the query is
+// still in flight holds whatever the answer turns out to be. Render, then wait for the status to
+// land in the cache, so every assertion below is made against the settled form.
+const renderWithSettledHA = async (
+  status: HAStatus,
+  formSettings: SettingsType = settings
+) => {
+  getHAStatusMock.mockResolvedValue({ status });
+
+  const queryClient = renderForm(formSettings);
+
+  await waitFor(() =>
+    expect(queryClient.getQueryData(['ha:status'])).toEqual({ status })
+  );
+};
+
+const retentionInput = () => screen.getByTestId('retention-number-input');
+
+// peak-ui's TextInput passes only sx through formHelperTextProps, so a helper-text test ID never
+// reaches the DOM; check the input's own state and the message text instead.
+const expectNoRetentionError = () => {
+  expect(retentionInput()).toHaveAttribute('aria-invalid', 'false');
+  expect(
+    screen.queryByText(/Value should be in the range/)
+  ).not.toBeInTheDocument();
+};
+
+describe('AdvancedSettingsForm data retention in HA', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  // The switch sits in the Developer preview section, so it must not also be a
-  // child of the Technical preview one -- which is where it used to live, beside
-  // Azure monitoring and Access control.
-  it('is not part of the Technical preview section', () => {
-    renderForm({ extensionsEnabled: true });
+  it('is editable when high availability is disabled', async () => {
+    await renderWithSettledHA('Disabled');
 
-    const technicalPreview = screen
-      .getByText(m.technicalPreviewLegend)
-      .closest('div.MuiStack-root')?.parentElement;
+    expect(retentionInput()).toBeEnabled();
+    expect(screen.queryByText(/dataRetentionDays/)).not.toBeInTheDocument();
+  });
 
-    expect(technicalPreview).not.toBeNull();
+  it('is disabled and points at the chart when high availability is enabled', async () => {
+    await renderWithSettledHA('Enabled');
+
+    expect(retentionInput()).toBeDisabled();
+    expect(screen.getByText(/dataRetentionDays/)).toBeInTheDocument();
+  });
+});
+
+describe('AdvancedSettingsForm submit with data retention in HA', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  // Dirties a field other than retention and submits, the way a user saving any other setting
+  // on the page would.
+  const submitAnotherSetting = async () => {
+    fireEvent.change(screen.getByTestId('publicAddress-text-input'), {
+      target: { value: '1.2.3.4' },
+    });
+    const submit = screen.getByTestId('advanced-button');
+    await waitFor(() => expect(submit).toBeEnabled());
+    fireEvent.click(submit);
+  };
+
+  const outOfRangeRetention = {
+    ...SETTINGS_MOCK,
+    dataRetention: `${4000 * 24 * 60 * 60}s`,
+  };
+
+  // An unchanged retention is echoed back only at the risk of being stale, so it is left out
+  // whatever the HA status is; the server treats a missing retention as "no change".
+  it('leaves an unchanged retention out when high availability is disabled', async () => {
+    await renderWithSettledHA('Disabled', SETTINGS_MOCK);
+
+    await submitAnotherSetting();
+
+    await waitFor(() => expect(updateSettingsMock).toHaveBeenCalled());
+    expect(updateSettingsMock.mock.calls[0][0]).not.toHaveProperty(
+      'dataRetention'
+    );
+  });
+
+  it('sends the retention once the user changes it', async () => {
+    await renderWithSettledHA('Disabled', SETTINGS_MOCK);
+
+    fireEvent.change(retentionInput(), { target: { value: '45' } });
+    const submit = screen.getByTestId('advanced-button');
+    await waitFor(() => expect(submit).toBeEnabled());
+    fireEvent.click(submit);
+
+    await waitFor(() => expect(updateSettingsMock).toHaveBeenCalled());
+    expect(updateSettingsMock.mock.calls[0][0]).toHaveProperty(
+      'dataRetention',
+      `${45 * 24 * 60 * 60}s`
+    );
+  });
+
+  it('still rejects a typed retention outside the range', async () => {
+    await renderWithSettledHA('Disabled', SETTINGS_MOCK);
+
+    fireEvent.change(retentionInput(), { target: { value: '4000' } });
+
+    await waitFor(() =>
+      expect(retentionInput()).toHaveAttribute('aria-invalid', 'true')
+    );
     expect(
-      technicalPreview?.contains(screen.getByTestId('advanced-open-manager'))
-    ).toBe(false);
+      screen.getByText(/Value should be in the range/)
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('advanced-button')).toBeDisabled();
   });
 
-  it('explains what it does without needing a hover', () => {
-    renderForm({ extensionsEnabled: true });
+  // The server refuses any retention that differs from the stored one in HA, and the user
+  // cannot correct a disabled field, so a stale form value must never be sent.
+  it('leaves the retention out when high availability is enabled', async () => {
+    await renderWithSettledHA('Enabled', SETTINGS_MOCK);
 
-    expect(screen.getByText(m.openManagerTooltip)).toBeInTheDocument();
+    await submitAnotherSetting();
+
+    await waitFor(() => expect(updateSettingsMock).toHaveBeenCalled());
+    expect(updateSettingsMock.mock.calls[0][0]).not.toHaveProperty(
+      'dataRetention'
+    );
   });
 
-  // Enabling it without PMM Extensions is refused server-side (validateEnableOm),
-  // so the precondition is stated before Apply rather than discovered after it.
-  it('is disabled, with a reason, when PMM Extensions is off', () => {
-    renderForm({ extensionsEnabled: false });
+  // The pmm-ha chart accepts up to 36500 days, beyond the range the form enforces.
+  it('does not let a locked retention outside the form range block saving', async () => {
+    await renderWithSettledHA('Enabled', outOfRangeRetention);
 
-    expect(operationsSwitch()).toBeDisabled();
-    expect(
-      screen.getByTestId('advanced-open-manager-blocked')
-    ).toHaveTextContent(m.openManagerRequiresExtensions);
+    expect(retentionInput()).toHaveValue(4000);
+
+    await submitAnotherSetting();
+
+    await waitFor(() => expect(updateSettingsMock).toHaveBeenCalled());
+    expect(updateSettingsMock.mock.calls[0][0]).not.toHaveProperty(
+      'dataRetention'
+    );
+    // Only now has every field been validated, so this is when a range error would show.
+    expectNoRetentionError();
   });
 
-  // Switching it off needs nothing from Extensions, and validateEnableOm accepts it,
-  // so an admin whose Extensions went away must still be able to turn it off here.
-  it('stays enabled when it is already on, even with PMM Extensions off', () => {
-    renderForm({ extensionsEnabled: false, omEnabled: true });
+  // Until /ha/status answers, or if it fails, the form cannot know the field is locked, so
+  // neither the payload nor validation may depend on that answer.
+  it.each([
+    [
+      'still loading',
+      () => getHAStatusMock.mockReturnValue(new Promise(() => {})),
+    ],
+    [
+      'failed',
+      () => getHAStatusMock.mockRejectedValue(new Error('unavailable')),
+    ],
+  ])(
+    'does not send or block on a loaded retention while the HA status is %s',
+    async (_, mockStatus) => {
+      mockStatus();
+      renderForm(outOfRangeRetention);
 
-    expect(operationsSwitch()).toBeEnabled();
-    expect(screen.queryByTestId('advanced-open-manager-blocked')).toBeNull();
+      await submitAnotherSetting();
 
-    // Flipping it off in the form, before Apply, must not lock it there: the block
-    // follows the saved setting, not the draft, so the flip can still be undone.
-    fireEvent.click(operationsSwitch());
+      await waitFor(() => expect(updateSettingsMock).toHaveBeenCalled());
+      expect(updateSettingsMock.mock.calls[0][0]).not.toHaveProperty(
+        'dataRetention'
+      );
+      expectNoRetentionError();
+    }
+  );
 
-    expect(operationsSwitch()).not.toBeChecked();
-    expect(operationsSwitch()).toBeEnabled();
+  // The field is editable until the HA status answers, so a user can type into it first. Once the
+  // lock arrives the field is disabled and cannot be changed back, so the typed value must go,
+  // and so must any error it raised, which would otherwise keep Save disabled.
+  it.each([
+    ['a valid', '45', false],
+    ['an out-of-range', '5000', true],
+  ])(
+    'drops %s retention typed before the HA lock arrives',
+    async (_, typed, invalid) => {
+      let resolveStatus: (value: { status: HAStatus }) => void = () => {};
+      getHAStatusMock.mockReturnValue(
+        new Promise((resolve) => {
+          resolveStatus = resolve;
+        })
+      );
+      renderForm(SETTINGS_MOCK);
+
+      fireEvent.change(retentionInput(), { target: { value: typed } });
+      expect(retentionInput()).toHaveValue(Number(typed));
+      await waitFor(() =>
+        expect(retentionInput()).toHaveAttribute(
+          'aria-invalid',
+          String(invalid)
+        )
+      );
+
+      resolveStatus({ status: 'Enabled' });
+      await waitFor(() => expect(retentionInput()).toBeDisabled());
+      expect(retentionInput()).toHaveValue(30);
+      expectNoRetentionError();
+
+      await submitAnotherSetting();
+
+      await waitFor(() => expect(updateSettingsMock).toHaveBeenCalled());
+      expect(updateSettingsMock.mock.calls[0][0]).not.toHaveProperty(
+        'dataRetention'
+      );
+    }
+  );
+});
+
+describe('toPayload', () => {
+  const values = { ...toFormValues(SETTINGS_MOCK), retention: '45' };
+
+  it('sends a changed retention', () => {
+    expect(toPayload(values, '30')).toHaveProperty(
+      'dataRetention',
+      `${45 * 24 * 60 * 60}s`
+    );
   });
 
-  it('is enabled, with no blocking notice, when PMM Extensions is on', () => {
-    renderForm({ extensionsEnabled: true });
-
-    expect(operationsSwitch()).toBeEnabled();
-    expect(screen.queryByTestId('advanced-open-manager-blocked')).toBeNull();
-  });
-
-  // "Settings updated" names neither what was switched on nor where it went, which
-  // is the whole of the design review's first-run complaint (P9). Turning it on is
-  // the one moment the reader needs both.
-  describe('feedback once the save lands', () => {
-    beforeEach(() => {
-      enqueueSnackbar.mockClear();
-      mutateAsync.mockClear();
-    });
-
-    // The real button, not a synthetic submit on the form: it is disabled until
-    // the form is dirty, so submitting the element directly would exercise a path
-    // no user can reach. The wait is not incidental either - the form is
-    // `mode: 'onChange'`, so `isDirty` and `isValid` land a tick after the change
-    // event, and a click before that hits a disabled button and does nothing.
-    const apply = async () => {
-      const button = screen.getByRole('button', {
-        name: Messages.applyChanges,
-      });
-      await waitFor(() => expect(button).toBeEnabled());
-      fireEvent.click(button);
-    };
-
-    it('names the feature and links to it when it is switched on', async () => {
-      renderForm({ extensionsEnabled: true, omEnabled: false });
-
-      fireEvent.click(operationsSwitch());
-      await apply();
-
-      await waitFor(() => expect(enqueueSnackbar).toHaveBeenCalled());
-
-      // The message is a node, not a string, so it is rendered to be read -
-      // asserting on the element tree would test JSX shape rather than what a
-      // user sees.
-      const [message] = enqueueSnackbar.mock.calls[0];
-      const { getByRole, getByText } = render(<>{message}</>);
-
-      getByText(m.openManagerEnabled, { exact: false });
-      expect(
-        getByRole('link', { name: m.openManagerEnabledAction })
-      ).toHaveAttribute('href', '/pmm-ui/operations');
-    });
-
-    // Saving an unrelated field while it is already on must not tell someone
-    // again where to find something they have been using. The public address is
-    // dirtied only to make the form submittable.
-    it('stays generic when it was already on', async () => {
-      renderForm({ extensionsEnabled: true, omEnabled: true });
-
-      // By test id: the field's label is a sibling node rather than a `for=`/`id=`
-      // pair, so the input has no accessible name to query it by.
-      fireEvent.change(screen.getByTestId('publicAddress-text-input'), {
-        target: { value: 'pmm.example.com' },
-      });
-      await apply();
-
-      await waitFor(() => expect(enqueueSnackbar).toHaveBeenCalled());
-      expect(enqueueSnackbar).toHaveBeenCalledWith(Messages.service.success, {
-        variant: 'success',
-      });
-    });
-
-    // Turning it off is not an onboarding moment either.
-    it('stays generic when it is switched off', async () => {
-      renderForm({ extensionsEnabled: true, omEnabled: true });
-
-      fireEvent.click(operationsSwitch());
-      await apply();
-
-      await waitFor(() => expect(enqueueSnackbar).toHaveBeenCalled());
-      expect(enqueueSnackbar).toHaveBeenCalledWith(Messages.service.success, {
-        variant: 'success',
-      });
-    });
+  // The form resets a locked field, but the payload must not rely on that having happened.
+  it('leaves a changed retention out when the field is locked', () => {
+    expect(toPayload(values, '30', true)).not.toHaveProperty('dataRetention');
   });
 });

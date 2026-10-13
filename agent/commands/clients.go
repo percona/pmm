@@ -17,9 +17,7 @@ package commands
 
 import (
 	"context"
-	"crypto/tls"
 	"errors"
-	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -41,7 +39,8 @@ import (
 	nservice "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
-	"github.com/percona/pmm/utils/tlsconfig"
+	"github.com/percona/pmm/utils/apitransport"
+	"github.com/percona/pmm/utils/servererror"
 )
 
 var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`)
@@ -56,9 +55,9 @@ func setLocalTransport(host string, port uint16, l *logrus.Entry) {
 	transport.SetLogger(l)
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
 
-	// disable HTTP/2
-	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
-	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
+	// disable HTTP/2 on a transport of our own: go-openapi hands out http.DefaultTransport,
+	// and disabling it there would do so for every other HTTP client in the process
+	apitransport.ConfigureLocal(transport)
 
 	agentlocalClient.Default.SetTransport(transport)
 }
@@ -90,67 +89,47 @@ func localReload() error {
 	return err
 }
 
-type nginxError string
-
-func (e nginxError) Error() string {
-	return "response from nginx: " + string(e)
-}
-
-func (e nginxError) GoString() string {
-	return fmt.Sprintf("nginxError(%q)", string(e))
-}
-
 // setServerTransport configures transport for accessing PMM Server API.
 //
 // This method is not thread-safe.
 func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	// use JSON APIs over HTTP/1.1
 	transport := httptransport.New(u.Host, u.Path, []string{u.Scheme})
-	if u.User != nil {
-		user := u.User.Username()
-		password, _ := u.User.Password()
-		if user == "service_token" || user == "api_key" {
-			transport.DefaultAuthentication = httptransport.BearerToken(password)
-		} else {
-			transport.DefaultAuthentication = httptransport.BasicAuth(user, password)
-		}
-	}
+	apitransport.SetAuth(transport, u.User)
 	transport.SetLogger(l)
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
 
 	// set error handlers for nginx responses if pmm-managed is down
+	nginxConsumer := servererror.NginxConsumer()
 	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data any) error {
-		b, _ := io.ReadAll(reader)
+		err := nginxConsumer(reader, data)
 		// Returning an error here makes go-swagger drop the response it was reading it into, and with it
 		// the HTTP status - the only thing which says a proxy in front of PMM Server demanded credentials
 		// of its own. The registration lookups need that status, so they take the body as the message and
 		// keep the typed answer, whose gRPC code stays zero because nothing PMM Server sent set one.
+		message := err.Error()
+		if body, ok := errors.AsType[servererror.NginxError](err); ok {
+			message = string(body)
+		}
 		switch p := data.(type) {
 		case *aservice.GetAgentDefaultBody:
-			p.Message = string(b)
+			p.Message = message
 			return nil
 		case *nservice.GetNodeDefaultBody:
-			p.Message = string(b)
+			p.Message = message
 			return nil
 		}
 
-		return nginxError(string(b))
+		return err
 	})
-	transport.Consumers = map[string]runtime.Consumer{
-		runtime.JSONMime:    runtime.JSONConsumer(),
+	transport.Consumers = servererror.Consumers(map[string]runtime.Consumer{
 		runtime.HTMLMime:    errorConsumer,
 		runtime.TextMime:    errorConsumer,
 		runtime.DefaultMime: errorConsumer,
-	}
+	})
 
 	// disable HTTP/2, set TLS config
-	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
-	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
-	if u.Scheme == "https" {
-		httpTransport.TLSClientConfig = tlsconfig.Get()
-		httpTransport.TLSClientConfig.ServerName = u.Hostname()
-		httpTransport.TLSClientConfig.InsecureSkipVerify = insecureTLS
-	}
+	apitransport.Configure(transport, u.Scheme, u.Hostname(), insecureTLS)
 
 	managementClient.Default.SetTransport(transport)
 	inventoryClient.Default.SetTransport(transport)
@@ -364,9 +343,3 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 	}
 	return res.Payload.PMMAgent.AgentID, res.Payload.Token, nil
 }
-
-// check interfaces.
-var (
-	_ error          = nginxError("")
-	_ fmt.GoStringer = nginxError("")
-)
