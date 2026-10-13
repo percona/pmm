@@ -10,6 +10,7 @@ import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
 } from 'lib/constants';
+import { PreviewChip } from 'components/preview-chip';
 
 const childIds = (item: ReturnType<typeof addAlerting>) =>
   (item.children || []).map((c) => c.id);
@@ -106,11 +107,18 @@ describe('addAlerting', () => {
 });
 
 describe('addExtensionsApps', () => {
-  it('returns one Management section instead of two flat entries', () => {
+  it('returns one Apps section instead of two flat entries', () => {
     const items = addExtensionsApps();
 
     expect(items).toHaveLength(1);
-    expect(items[0]).toMatchObject({ id: 'management', text: 'Management' });
+    expect(items[0]).toMatchObject({ id: 'management', text: 'Apps' });
+  });
+
+  it('marks the section as a tech preview', () => {
+    expect(addExtensionsApps()[0]).toMatchObject({
+      badgeAlwaysVisible: true,
+      badge: { type: PreviewChip, props: { level: 'tech' } },
+    });
   });
 
   it('gives the section no page of its own', () => {
