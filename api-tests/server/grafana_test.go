@@ -37,7 +37,7 @@ func TestGrafanaCallsHomeDisabled(t *testing.T) {
 	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, u.String(), nil)
 	require.NoError(t, err)
 
-	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
+	resp, b := doRequest(t, pmmapitests.HTTPClient, req) //nolint:bodyclose
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to get Grafana settings, response: %s", b)
 
 	var settings map[string]map[string]string
