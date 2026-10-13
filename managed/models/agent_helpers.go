@@ -951,6 +951,12 @@ type CreateAgentParams struct {
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
+	// rds_exporter scrapes CloudWatch for the Node's region and DB instance identifier,
+	// so it only makes sense on a remote RDS Node, whatever else the Node type allows.
+	if agentType == RDSExporterType {
+		return nodeType == RemoteRDSNodeType
+	}
+
 	const allowAll = "allow_all"
 	allow := map[NodeType]AgentType{
 		GenericNodeType:             allowAll,
@@ -1039,7 +1045,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		return nil, err
 	}
 
-	_, err = FindAgentByID(q, params.PMMAgentID)
+	pmmAgent, err := FindAgentByID(q, params.PMMAgentID)
 	if err != nil {
 		return nil, err
 	}
@@ -1052,6 +1058,14 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 
 		if !compatibleNodeAndAgent(node.NodeType, agentType) {
 			return nil, status.Errorf(codes.FailedPrecondition, "invalid combination of node type %s and agent type %s", node.NodeType, agentType)
+		}
+
+		// An rds_exporter uses the Node's DB instance identifier as the CloudWatch
+		// DBInstanceIdentifier dimension. Without it the exporter starts, reports RUNNING
+		// and silently scrapes nothing, so refuse rather than create a dead agent.
+		if agentType == RDSExporterType && node.InstanceID == "" {
+			return nil, status.Errorf(codes.FailedPrecondition,
+				"node %s has no DB instance identifier; rds_exporter would have nothing to scrape", node.NodeID)
 		}
 	}
 
@@ -1121,6 +1135,22 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		// do nothing
 	}
 
+	err = row.AWSOptions.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	if row.AWSOptions.AWSRoleARN != "" {
+		// Refuse unless the pmm-agent is known to be new enough, including when it has not
+		// reported a version yet. An older agent would accept the config, report RUNNING and
+		// scrape nothing. The state updater withholds a role-based exporter from such an agent,
+		// but refusing here tells the user up front instead of storing an exporter that never starts.
+		err = IsAgentSupported(pmmAgent, "AWS IAM role assumption", PMMAgentMinVersionForAWSRoleARN)
+		if err != nil {
+			return nil, status.Error(codes.FailedPrecondition, err.Error())
+		}
+	}
+
 	return insertAgent(q, trimUnicodeNilsInCertFiles(*row))
 }
 
@@ -1172,6 +1202,7 @@ type ChangeQANOptions struct {
 type ChangeAWSOptions struct {
 	AWSAccessKey               *string
 	AWSSecretKey               *string
+	AWSRoleARN                 *string
 	RDSBasicMetricsDisabled    *bool
 	RDSEnhancedMetricsDisabled *bool
 }
@@ -1466,6 +1497,9 @@ func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) 
 		if params.AWSOptions.AWSSecretKey != nil {
 			row.AWSOptions.AWSSecretKey = *params.AWSOptions.AWSSecretKey
 		}
+		if params.AWSOptions.AWSRoleARN != nil {
+			row.AWSOptions.AWSRoleARN = *params.AWSOptions.AWSRoleARN
+		}
 		if params.AWSOptions.RDSBasicMetricsDisabled != nil {
 			row.AWSOptions.RDSBasicMetricsDisabled = *params.AWSOptions.RDSBasicMetricsDisabled
 		}
@@ -1588,6 +1622,21 @@ func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) 
 
 	// RTA options
 	row.RTAOptions.Merge(params.RTAOptions)
+
+	err = row.AWSOptions.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	// Same gate as in CreateAgent, but only when this request sets a role ARN. An exporter saved
+	// with a role before its pmm-agent was downgraded is withheld from the agent by the state
+	// updater, and unrelated changes (disable, log level, labels) must still work on it.
+	if params.AWSOptions != nil && pointer.GetString(params.AWSOptions.AWSRoleARN) != "" {
+		err = PMMAgentSupported(q, pointer.GetString(row.PMMAgentID), "AWS IAM role assumption", PMMAgentMinVersionForAWSRoleARN)
+		if err != nil {
+			return nil, status.Error(codes.FailedPrecondition, err.Error())
+		}
+	}
 
 	// need to encrypt Agent's sensitive data before update
 	encryptedAgent, err := EncryptAgent(*row)
