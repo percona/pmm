@@ -20,11 +20,24 @@ describe('PreviewChip', () => {
     expect(await screen.findByRole('tooltip')).toHaveTextContent(tooltip);
   });
 
-  it('keeps "Preview" as the accessible name of the chip', () => {
-    render(<PreviewChip level="tech" />);
+  it.each<[PreviewLevel, string]>([
+    ['tech', 'Tech preview'],
+    ['developer', 'Developer preview'],
+  ])(
+    'exposes the %s level as text instead of the visible label',
+    (level, text) => {
+      render(
+        <a href="/apps">
+          Apps
+          <PreviewChip level={level} />
+        </a>
+      );
 
-    expect(screen.getByTestId('preview-chip')).not.toHaveAttribute(
-      'aria-label'
-    );
-  });
+      expect(screen.getByText('Preview')).toHaveAttribute(
+        'aria-hidden',
+        'true'
+      );
+      expect(screen.getByRole('link')).toHaveAccessibleName(`Apps ${text}`);
+    }
+  );
 });
