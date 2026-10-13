@@ -14,199 +14,250 @@ For each component, the dashboard compares the number of alive instances with th
 
 The **PMM HA** badge in the side menu uses the same thresholds.
 
-!!! note "Helm chart requirement"
-    The dashboard needs the `pmm-ha` Helm chart that ships with PMM 3.10.0 or later. With an earlier chart, the **Namespace** filter and the resource and storage usage panels might be empty.
-
 ## Overview
+
+The Overview section shows whether each HA component has enough healthy instances, which nodes hold the leader and primary roles, and how stable your pods are.
 
 ### PMM
 
-In HA Cluster mode, multiple PMM Server replicas (three by default) provide full redundancy through Raft consensus. Raft needs a quorum, which is a majority of replicas (`floor(N/2)+1`), to elect a leader and serve requests. If one replica fails, failover stays transparent to users as long as quorum holds, but you should investigate quickly to restore full redundancy.
+Shows how many PMM Server replicas are alive, how many the cluster expects, and the resulting health percentage.
 
-If the **Leader PMM Instance** panel shows **No active instance**, no replica holds the leader role and cluster-wide tasks, such as advisor checks and scheduled backups, have stopped. Check the [**PMM Pods**](#pmm-pods) table to find the affected replicas.
+Use this to check that PMM has enough healthy replicas to keep running if one fails. PMM needs more than half of its replicas running. With three replicas, PMM keeps working if one goes down, but stops if two go down.
+
+If **Alive** is lower than **Expected**, find the failed replica in the [**PMM Pods**](#pmm-pods) table and bring it back quickly, before another failure takes PMM down.
+
+### Leader PMM Instance
+
+Shows the name of the PMM Server replica that is currently the leader, or **No active instance** when the dashboard can't find a leader.
+
+Use this to confirm which replica serves the PMM UI and API and runs cluster-wide tasks such as advisor checks and scheduled backups. After a failover or an upgrade, the name changes to the new leader.
+
+If the panel shows **No active instance** right after a replica restarts, wait a minute or two for the dashboard to catch up with the new leader. 
+
+If it keeps showing **No active instance** while PMM works normally, check that the [**Namespace**](#filters) filter is set to the namespace where PMM HA runs.
 
 ### PostgreSQL
 
-PostgreSQL stores PMM's critical data including user accounts, dashboard configurations, alerting rules, and inventory information.
+Shows how many PostgreSQL instances are alive, how many are expected, and the resulting health percentage.
 
-If the primary fails, Patroni automatically promotes a replica within seconds, but you'll temporarily lose write capability during failover (typically under 10 seconds).
+Use this to check that PMM's internal database is healthy. PostgreSQL stores PMM's critical data, including user accounts, dashboard settings, alert rules, and inventory.
 
-Check the [**PostgreSQL Pods**](#postgresql-pods) panel in the **PostgreSQL Pod's Status** section to identify whether the primary or a replica is down.
+If the primary fails, a replica is promoted automatically, and PMM can't save changes during the switch, which usually takes less than 10 seconds. 
+
+If **Alive** stays lower than **Expected**, check the [**PostgreSQL Pods**](#postgresql-pods) table to see whether the primary or a replica is down.
+
+### PostgreSQL Primary
+
+Shows the name of the PostgreSQL instance that currently accepts writes.
+
+Use this to confirm that a primary exists and to see whether it changed after a failover. A new name after a pod restart is expected.
+
+If the panel shows no primary, PMM can't save any changes. Check the [**PostgreSQL Pods**](#postgresql-pods) table to find out which instances are down.
 
 ### ClickHouse
 
-ClickHouse stores all Query Analytics (QAN) data. When pods fail, QAN dashboards will show incomplete query performance metrics, you won't be able to analyze slow queries during the outage, and you'll have permanent gaps in your historical query analysis data.
+Shows how many ClickHouse database and Keeper nodes are alive, how many are expected, and the resulting health percentage.
 
-To tell database (`pmmdb`) nodes from Keeper nodes, check the [**ClickHouse Pods**](#clickhouse-pods) table. The dashboard doesn't show ClickHouse shard topology.
+Use this to check that Query Analytics (QAN) data is being stored. ClickHouse stores all QAN data, so while pods are down, QAN shows incomplete data and the gaps can't be filled later.
 
-Loss of keeper nodes (which handle coordination) is more critical than loss of a single database node (which handles storage).
+If **Alive** is lower than **Expected**, check the [**ClickHouse Pods**](#clickhouse-pods) table to see whether a database node or a Keeper node failed. Losing Keeper nodes is more serious, because ClickHouse stops working when half or more of them are down.
 
 ### VictoriaMetrics
 
-VictoriaMetrics uses multiple components working together, and the **VictoriaMetrics Components** panel shows the health of each one:
+Shows how many VictoriaMetrics instances are alive, how many are expected, and the resulting health percentage.
 
-- `vminsert` receives metrics from monitored services
-- `vmselect` processes dashboard queries
-- `vmstorage` stores time series data
-- `vmagent` scrapes metrics from targets
+Use this to check that metrics are being collected, stored, and served to your dashboards.
+
+If **Alive** is lower than **Expected**, check the [**VictoriaMetrics Components**](#victoriametrics-components) panel to see which part is affected.
+
+### VictoriaMetrics Components
+
+Shows a health percentage for each VictoriaMetrics component:
+
+- `vmagent` collects metrics from your monitored services
+- `vminsert` receives the collected metrics
+- `vmstorage` stores the metrics
+- `vmselect` answers dashboard queries
 - `vmauth` handles authentication
 
-To see which components are affected, check the **VictoriaMetrics Pods** panel in the [**VictoriaMetrics Pod's Status**](#victoriametrics-pods) section.
+Use this to see which part of VictoriaMetrics has a problem and how it affects you. If `vminsert` or `vmstorage` fails, you can lose metrics or see gaps in your graphs. If `vmselect` fails, your dashboards might load slowly, but you don't lose any data.
 
-Failures in `vminsert` or `vmstorage` are most critical as they prevent metrics collection or cause data loss.
+If a component is below 100%, check the [**VictoriaMetrics Pods**](#victoriametrics-pods) table to find the failed pods.
 
 ### HAProxy
 
-HAProxy is how you get into your PMM cluster. It routes web traffic to healthy PMM Server replicas and handles automatic failover when the leader changes.
+Shows how many HAProxy instances are alive, how many are expected, and the resulting health percentage.
 
-If HAProxy pods go down, you can't access the PMM web interface, API calls will fail, and automatic failover won't work.
+Use this to check that users can reach PMM. All PMM UI and API traffic goes through HAProxy, which sends it to the current leader.
 
-HAProxy is essential for accessing PMM. If it shows unhealthy, investigate immediately.
-
-To see which HAProxy pods are down and which backend services are unavailable, check the panels in the [**HAProxy Pod's Status**](#haproxy-instances) section.
-
-## System health metrics
+If some HAProxy instances are down, PMM stays reachable through the remaining ones. If all are down, you can't open the PMM UI or use the PMM API. Check the [**HAProxy Instances**](#haproxy-instances) and [**HAProxy Backend Servers**](#haproxy-backend-servers) tables to see what failed.
 
 ### Overall System Health
 
-The **Overall System Health** gauge counts a pod as healthy only if it's ready and hasn't restarted during the selected time range. A pod that crashed and recovered still lowers the score until the restart falls outside the time range.
+Shows the percentage of healthy pods across your whole PMM HA deployment, from 0 to 100%. A pod counts as healthy only if it's ready and hasn't restarted during the selected time range. Red means below 80%, yellow means 80-95%, and green means 95% or more.
 
-A single pod failure in a well-sized cluster usually drops the gauge to 95-98%, which needs no action. Below 90%, you likely have several failures that need urgent attention.
+Use this as the first check when something seems wrong. A pod that crashed and recovered still lowers the score until the restart falls outside the selected time range.
+
+A single pod failure in a well-sized cluster usually drops the score to 95-98%, which needs no immediate action. Below 90%, you likely have several failures. Check the component panels in this section to find which ones.
 
 ### Pod Count
 
-If fewer pods are running than expected, find the missing pods in the pod status tables for each component, starting with [**PMM Pods**](#pmm-pods).
+Shows how many pods are running and how many pods the deployment has in total.
+
+Use this to see at a glance how many pods are down.
+
+If **Running** is lower than **Total**, find the missing pods in the pod status tables for each component, starting with [**PMM Pods**](#pmm-pods). 
+
+If the panel shows **No data**, check that the [**Namespace**](#filters) filter is set to the namespace where PMM HA runs.
 
 ### Pod Restarts
 
-Kubernetes restarts crashed pods automatically, so a cluster can look healthy while pods keep crashing. Five or more restarts in the selected time range (red) point to repeated failures. To find the unstable pods, check the [**Pods with Restarts**](#pods-with-restarts) table.
+Shows the total number of pod restarts across your PMM HA deployment in the selected time range. Green means no restarts, yellow means one to four, and red means five or more.
+
+Use this to spot crashing pods that look healthy. Kubernetes restarts crashed pods automatically, so a pod can show as running while it keeps failing.
+
+If the value is yellow or red, check the [**Pods with Restarts**](#pods-with-restarts) table to find the unstable pods. 
+
+If the panel shows **No data**, check that the [**Namespace**](#filters) filter is set to the namespace where PMM HA runs.
 
 ### Pods with Restarts
 
-A pod turns red after three or more restarts in the selected time range. Focus on the pods that restart most often, and check whether the restarts match any changes you recently made.
+Shows each pod that restarted in the selected time range, with its restart count. A pod turns yellow after one restart and red after three or more.
 
-If a pod keeps restarting across the selected time range, it's likely stuck in a crash loop. The usual causes are a configuration mistake or too little CPU or memory for the pod.
+Use this to find which components are unstable and whether the restarts match a change you made recently, such as an upgrade or a configuration change.
 
-Run `kubectl logs <pod-name>` to see what's causing the crashes.
+If a pod keeps restarting, it's likely stuck in a crash loop. The usual causes are a configuration mistake or too little CPU or memory for the pod. 
+
+Run `kubectl logs <pod-name>` to see what's causing the crashes, and check [**Resource Usage**](#resource-usage) for memory or CPU pressure.
 
 ## Resource Usage
 
+Shows how much CPU and memory each pod uses over time.
+
+If the CPU, memory, and storage panels are empty, check that you upgraded the `pmm-ha` Helm chart and not only the PMM Server image. These panels need the chart that ships with PMM 3.10.0 or later.
+
 ### CPU Usage
 
-Gradual growth is normal as your monitoring workload increases. Sudden spikes may indicate problem queries, batch jobs, or other issues.
+Shows the CPU used by each pod over time, in cores, as a stacked area chart.
 
-Compare CPU usage across similar pods, such as all your `vmselect` pods. If one pod is consistently higher than the others, traffic might not be balanced properly, or that pod has an issue.
+Use this to find pods that use more CPU than expected. Compare similar pods, such as all your `vmselect` pods. If one pod is consistently higher than the others, traffic might not be balanced, or that pod has a problem.
 
-High CPU on database pods like PostgreSQL, ClickHouse, or `vmstorage` during backups or maintenance is normal and expected.
+Gradual growth is normal as you monitor more services. Sudden spikes can point to heavy queries or batch jobs. High CPU on PostgreSQL, ClickHouse, or `vmstorage` pods during backups or maintenance is expected.
 
 ### Memory Usage
 
-Steady or slowly growing memory usage is normal. Sudden jumps usually mean large queries, data imports, or memory leaks.
+Shows the memory used by each pod over time, in bytes, as a stacked area chart.
 
-If memory usage is getting close to the limits you've set, your pods risk being killed by Kubernetes for using too much memory (called OOM kills).
+Use this to find pods that are close to their memory limit. Steady or slowly growing memory is normal. Sudden jumps usually mean large queries, data imports, or a memory leak.
 
-If you see pods restarting and they had high memory usage right before the restart, Kubernetes killed them for exceeding their memory limit.
-
-You'll need to either increase the memory limits or figure out why memory usage is so high. Look at query patterns, cache sizes, or other factors that might be using more memory than expected.
+If a pod restarts right after its memory peaks, Kubernetes stopped it for exceeding its memory limit (an OOM kill). 
+Increase the pod's memory limit in your Helm values, or find out what's using the memory, such as query patterns or cache sizes.
 
 ## Storage Usage
 
+Shows how full the persistent volumes are for each data store.
+
 ### PostgreSQL Storage
 
-Plan to add storage when the gauge turns yellow (70%). Red (85%) is urgent, because PostgreSQL stops accepting writes when the volume is full.
+Shows how full the PostgreSQL persistent volume is, from 0 to 100%. Green means below 70%, yellow means 70-85%, and red means 85% or more.
 
-PostgreSQL stores metadata and configuration data. While it doesn't grow as fast as metrics or QAN data, if you run out of space, all PMM operations will stop.
+Use this to plan storage before PMM stops working. PostgreSQL grows more slowly than metrics or QAN data, but when its volume is full, PostgreSQL stops accepting writes and PMM can't save any changes.
 
-If you're getting close to the limit, either expand the persistent volume or clean up old data like backup history and audit logs.
+When the gauge turns yellow, plan to expand the volume. When it turns red, expand the persistent volume or clean up old data, such as backup history and audit logs.
 
 ### ClickHouse Storage
 
-Plan to expand storage when the gauge turns yellow (70%). Red (85%) requires immediate action.
+Shows how full the ClickHouse persistent volume is, from 0 to 100%. Green means below 70%, yellow means 70-85%, and red means 85% or more.
 
-ClickHouse stores all your Query Analytics data, which grows based on how many queries you're running and your retention settings.
+Use this to make sure that QAN data keeps being stored. ClickHouse usage grows with the number of queries you collect and your retention settings.
 
-If you're running low on space, you can reduce your QAN data retention period, expand the persistent volumes, or check that your slow query log isn't capturing too many queries.
+When the gauge turns yellow, plan to expand storage. When it turns red, act immediately: expand the persistent volume, reduce QAN data retention, or check that your slow query log isn't capturing too many queries. 
 
-If ClickHouse runs out of storage, it stops collecting QAN data, which creates gaps in your query performance analysis that you can't recover.
+If the volume fills up, ClickHouse stops storing QAN data and the gaps can't be recovered.
 
 ### VictoriaMetrics Storage
 
-Plan to expand storage when the gauge turns yellow (70%). Red (85%) is critical, because VictoriaMetrics stops accepting new metrics when the volume is full.
+Shows how full the VictoriaMetrics persistent volume is, from 0 to 100%. Green means below 70%, yellow means 70-85%, and red means 85% or more.
 
-VictoriaMetrics stores all your time series metrics. How fast it grows depends on how many services and instances you're monitoring, your metrics retention period (default is 30 days), and the cardinality of the metrics you're collecting.
+Use this to make sure that metrics keep being stored. Usage grows with the number of services you monitor, your retention period (30 days by default), and the number of distinct metrics you collect.
 
-When storage fills up, VictoriaMetrics can't store new metrics, which creates gaps in all your PMM dashboards. Keep an eye on growth trends and plan for more capacity before you run out of space.
+When the gauge turns yellow, plan to expand storage. When it turns red, act immediately, because VictoriaMetrics stops storing new metrics when the volume is full, which leaves gaps in all your dashboards.
 
 ## Service Availability
 
+Shows how healthy each component was over time.
+
 ### Service Availability by Component
 
-Use this chart to find when a problem started and whether a component has recurring stability issues. Match availability drops to known events, such as deployments or maintenance. A healthy PMM HA deployment stays at 100% except for short drops during planned maintenance or upgrades.
+Shows the percentage of running pods for each component (PMM, PostgreSQL, ClickHouse, VictoriaMetrics, and HAProxy) over the selected time range. Green means 100%, yellow means 75-99%, orange means 50-74%, and red means below 50%.
+
+Use this to find when a problem started and whether a component has recurring stability issues. Match drops to known events, such as upgrades or maintenance.
+
+A healthy deployment stays at 100% except for short drops during planned maintenance or upgrades. 
+
+If a component drops repeatedly without a known cause, check its pod status table and the [**Pods with Restarts**](#pods-with-restarts) table.
 
 ## PostgreSQL Pod's Status
 
 ### PostgreSQL Pods
 
-In a healthy PostgreSQL cluster, one instance is the Primary, the remaining instances are Replicas, and all rows show UP and Healthy.
+Shows each PostgreSQL pod with its **Status**, **Role**, and **Replication** state. **Status** is UP when the pod is ready. **Role** is **Primary** or **Replica**. **Replication** is **Healthy** when the pod is the primary or a replica that receives changes from it, and **Not streaming** when a replica has stopped receiving changes. **No data** means the dashboard has no metrics for that pod.
 
-If the Primary shows DOWN, a failover is either in progress or just completed. Check that a Replica was promoted to become the new Primary.
+Use this to see which PostgreSQL pod failed and whether replication is working. In a healthy cluster, one pod is the Primary, the others are Replicas, and all rows show **UP** and **Healthy**.
 
-If you see multiple Primaries, you have a split-brain condition that needs immediate attention.
+If the Primary shows **DOWN**, PostgreSQL automatically switches to one of the replicas, which usually takes less than 10 seconds. Once the switch is done, check that another pod shows as **Primary**. If no pod shows as **Primary**, PMM can't save any changes.
 
-If there's no Primary at all, your cluster can't accept any writes, which is a critical failure.
+If more than one pod shows as Primary, the cluster is in a split-brain state and needs immediate attention. 
 
-Patroni handles automatic failover for you. When the Primary fails, it automatically promotes a Replica to Primary within seconds.
-
-After a failover, verify that the new Primary is handling writes correctly.
+If a replica shows **Not streaming**, its copy of PMM's data is falling behind and it can't safely take over as primary. Check that replica's pod logs to find out why replication stopped.
 
 ## PMM Pod's Status
 
 ### PMM Pods
 
-In a healthy PMM cluster, one instance is the **Leader**, the remaining instances are **Follower**, and all rows show UP. Pods that are DOWN show **No data** in the role column.
+Shows each PMM Server replica with its **Status** (UP or DOWN) and **Role** (**Leader** or **Follower**). Replicas that are DOWN show **No data** in the **Role** column.
 
-If one pod shows DOWN, identify which replica is affected and investigate the cause. If fewer than a quorum of your configured replicas (`floor(N/2)+1`) remain alive, your deployment is at serious risk. Investigate immediately.
+Use this to find which replica failed and which one is the current leader. In a healthy cluster, one replica is the **Leader**, the others are **Follower**, and all rows show UP.
 
-If all configured replicas show DOWN, your entire PMM system is unavailable.
+If one replica shows **DOWN**, find out why and bring it back quickly. If half or more of your replicas show DOWN, PMM stops working until enough replicas recover. 
 
-During a failover, the previous leader can still show as **Leader** while DOWN for one to two minutes, until its metrics expire. This delay is expected. The current leader is the instance that shows both UP and **Leader**.
-
+During a failover, the previous leader can still show as **Leader** while DOWN for one to two minutes. This delay is expected. The current leader is the replica that shows both UP and **Leader**.
 
 ### ClickHouse Pods
 
-ClickHouse uses two types of pods: Keeper nodes that handle coordination and metadata, and database nodes that handle storage. Only Keeper nodes have a Leader or Follower role.
+Shows each ClickHouse pod with its **Component** (`pmmdb` for database nodes, `keeper` for Keeper nodes), **Status** (UP when the pod is ready), and **Role**. Keeper nodes show **Leader** or **Follower**, and database nodes show **Replica**. The table doesn't show how data is split across shards.
 
-For a healthy keeper ensemble, you should see one Leader with the rest as Followers, all showing UP. If the Leader goes DOWN, a new leader should be elected automatically within seconds.
+Use this to see which ClickHouse node failed. Database nodes store QAN data. Keeper nodes coordinate the cluster, and one of them is the Leader.
 
-For database pods, when all are UP, your QAN queries are working normally with full capacity.
-
-If a database pod is DOWN, you have reduced storage capacity, but QAN still works with lower performance.
-
-The keeper ensemble must maintain quorum to keep the cluster functioning, so losing multiple keeper nodes at once is more serious than losing a database node.
+If a database node is DOWN, QAN keeps working with reduced capacity. If a Keeper node is DOWN, a new Keeper leader is elected within seconds, but ClickHouse stops working when half or more of the Keeper nodes are down. Bring failed Keeper nodes back first.
 
 ### VictoriaMetrics Pods
 
-Check for failures in `vmstorage` pods first. Each `vmstorage` pod stores a subset of your metrics data, so too many failures cause data loss. Next, check `vminsert` pods. These pods receive incoming metrics, so failures create gaps in data collection.
+Shows each VictoriaMetrics pod with its **Component** and **Status**. UP means Kubernetes reports the pod as running.
 
-Failures in `vmselect` pods reduce query capacity but don't cause data loss. Down `vmagent` or `vmauth` pods affect metric scraping and authentication respectively.
+Use this to find which VictoriaMetrics pods failed after the [**VictoriaMetrics Components**](#victoriametrics-components) panel shows a problem.
+
+Check `vmstorage` pods first, because each one stores part of your metrics and too many failures cause data loss. Next, check `vminsert` pods, because failures there leave gaps in data collection. 
+
+Failed `vmselect`, `vmagent`, or `vmauth` pods slow down dashboards or metric collection but don't lose stored data.
 
 ## HAProxy Pod's Status
 
 ### HAProxy Instances
 
-If one pod shows DOWN, your load balancing is still working but with reduced capacity. Remaining pods handle the full traffic load. If all pods show DOWN, you can't access PMM at all.
+Shows each HAProxy pod with its **Status**. UP means Kubernetes reports the pod as running.
 
-Investigate DOWN pods quickly to restore full redundancy and prevent a single point of failure. Check pod logs to identify whether the issue is configuration, resource limits, or connectivity problems.
+Use this to find which HAProxy pods failed.
+
+If one pod is DOWN, PMM stays reachable through the remaining pods. If all pods are DOWN, you can't open the PMM UI or use the PMM API. Check the pod logs to find out whether the cause is configuration, resource limits, or connectivity.
 
 ### HAProxy Backend Servers
 
-HAProxy performs continuous health checks on each backend. When a backend fails its health check, HAProxy automatically stops routing traffic to it and uses the remaining healthy backends.
+Shows each server that HAProxy sends traffic to, grouped by **Backend** and **Service**, with its **Status** (UP or DOWN).
 
-Backends that show DOWN during pod restarts or brief failures are expected. HAProxy's automatic routing prevents any impact on your users.
+Use this to see whether HAProxy can reach the PMM Server replicas and other PMM services. HAProxy stops sending traffic to a server that fails its health checks and uses the healthy ones.
 
-However, if backends stay DOWN for more than a few minutes, the underlying pods aren't recovering properly and you need to investigate.
-
-To identify why backends remain unavailable, check the pod status tables in the previous sections. Common causes include resource exhaustion, configuration errors, or failed deployments.
+Servers that show DOWN briefly during pod restarts are expected. If a server stays DOWN for more than a few minutes, its pod isn't recovering. Check the pod status tables for that component to find out why. Common causes are resource exhaustion, configuration errors, or a failed deployment.
 
 ## Dashboard usage tips
 
