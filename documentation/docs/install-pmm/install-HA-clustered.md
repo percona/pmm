@@ -1041,12 +1041,11 @@ For detailed information about each panel and what to check, see the [PMM HA Hea
 
 #### Identify the health status
 
-PMM displays a visual badge on the side menu.
+To quickly check whether all your PMM Server nodes are responding, look at the badge next to **PMM HA** in the side menu:
 
+![PMM HA Status badge](../images/HA-Status.png)
 
-![PMM HA Status badge](../images/pmm-ha-leader-badge.png)
-
-The badge includes a health status indicator that reflects the overall cluster state based on how many nodes are responding:
+The badge shows the overall health of your cluster, based on how many nodes respond:
 
 - **Healthy** indicates all nodes are in "alive" status and functioning normally
 - **Degraded** means approximately one-third of your nodes are not responding
@@ -1056,24 +1055,21 @@ The badge includes a health status indicator that reflects the overall cluster s
 
 #### Check HA roles in Inventory
 
-View detailed role and health information for all PMM nodes in one place.
+After a failover or an upgrade, check the PMM Server nodes in **Inventory** to see which node is the current leader and make sure every node is running:
 {.power-number}
 
-1. Go to **Inventory > Nodes**.
+1. Go to **PMM HA > Identify Nodes**.
 
-2. Locate nodes with names starting with `pmm-ha` (for example, `pmm-ha-0`, `pmm-ha-1`, `pmm-ha-2`).
+2. In the **Node Name** column, check the badge next to each node name:
 
-3. Click the arrow in the **Options** column to expand the node details.
+    - **Leader**: the node that serves the PMM UI and API, and runs cluster-wide tasks such as advisor checks and scheduled backups
+    - **Follower**: a standby node that can become the leader if the current leader fails
 
-4. Check the **Labels** section to see:
-
-    - **Leader** status: which node is currently active
-    - **Follower** status: which nodes are on standby
-    - **Health** status: whether each node is responding
+3. In the **Status** column, check that every node shows **Up**.
 
 #### Get alerted about cluster problems
 
-Checking the High Availability page tells you the state of the cluster right now, but it does not notify you when that state changes. PMM creates and maintains alert rules for the failure modes of an HA cluster: no active leader, split-brain, a flapping leader, an unreachable node, and a quorum at risk.
+The **PMM HA** badge in the side menu and the **PMM HA > Overview** dashboard show the state of the cluster right now, but they don't notify you when that state changes. PMM creates and maintains alert rules for the failure modes of an HA cluster: no active leader, split-brain, a flapping leader, an unreachable node, and a quorum at risk.
 
 There is nothing to create: configure a [contact point](../alert/contact_points.md) so the notifications reach you. To turn the rules off, set `PMM_ENABLE_HA_ALERTS=false` and recreate the server. For the template list and the coverage limitations, see [PMM High Availability templates](../alert/templates_list.md#pmm_ha_alerts).
 

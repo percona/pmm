@@ -10,7 +10,7 @@ Traffic flows only to the active leader pod. When that pod restarts, your PMM da
 
 ## Before you begin
 
-Complete these steps before upgrading to avoid data loss or extended downtime:
+To avoid losing data or a long outage, follow these steps before you upgrade:
 {.power-number}
 
 1. Check that all three PMM Server pods are running and ready. If one is already down, the cluster cannot elect a leader and PMM becomes unreachable:
@@ -100,11 +100,16 @@ Once you've completed the steps in [Before you begin](#before-you-begin), run th
 
 ## Confirm the cluster is healthy
 
-After the upgrade, verify that a leader is active and the cluster is healthy. Open the **PMM HA** status badge in the side menu to see the current leader and cluster status at a glance:
+After the upgrade, verify that the cluster is healthy and that a leader is active:
+{.power-number}
 
-![PMM HA leader badge showing the current leader and Healthy status](../images/pmm-ha-leader-badge.png)
+1. Check that the **PMM HA** badge in the side menu shows **Healthy**.
 
-You can also check through the Inventory page. See [Identify the leader node](../install-pmm/install-HA-clustered.md#identify-the-leader-node).
+    ![PMM HA badge showing Healthy status](../images/HA-Status.png)
+
+2. Go to **PMM HA > Identify Nodes** and check that one PMM Server node has the **Leader** badge next to its name. For details, see [Check HA roles in Inventory](../install-pmm/install-HA-clustered.md#check-ha-roles-in-inventory).
+
+3. Go to **PMM HA > Overview** and check that all component panels in the **Overview** section are green on the [PMM HA Health Overview](../reference/dashboards/dashboard-ha-health-overview.md) dashboard.
 
 If you cannot log in after upgrading, see [Cannot log in with the admin password](../troubleshoot/ha_issues.md#cannot-log-in-with-the-admin-password).
 
