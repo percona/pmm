@@ -69,6 +69,12 @@ var rules = map[string]role{
 	"/server.v1.":               admin,
 	"/qan.v1.CollectorService.": viewer,
 	"/qan.v1.QANService.":       viewer,
+	"/om.":                      viewer,
+	"/om.v1.OmService/TriggerInventoryRefresh":       editor,
+	"/om.v1.OmService/DeleteInventoryHost":           admin,
+	"/om.v1.OmService/DeleteInventoryService":        admin,
+	"/om.v1.OmService/UpdateInventoryConfig":         admin,
+	"/om.v1.OmService/DeleteInventoryConfigOverride": admin,
 
 	"/v1/alerting":                    viewer,
 	"/v1/alerting/rules":              editor,
@@ -108,6 +114,8 @@ var rules = map[string]role{
 	"/v1/qan":  viewer,
 	"/v1/qan:": viewer,
 
+	"/v1/om": viewer,
+
 	"/prometheus":      admin,
 	"/victoriametrics": admin,
 	"/nomad":           admin,
@@ -142,6 +150,14 @@ var methodRules = map[string]role{
 	http.MethodPost + " /v1/alerting/templates":    editor,
 	http.MethodPut + " /v1/alerting/templates/":    editor,
 	http.MethodDelete + " /v1/alerting/templates/": editor,
+
+	// OM inventory writes.
+	http.MethodPost + " /v1/om/inventory/runs:trigger":        editor,
+	http.MethodDelete + " /v1/om/inventory/hosts/":            admin,
+	http.MethodDelete + " /v1/om/inventory/services/":         admin,
+	http.MethodPut + " /v1/om/inventory/config":               admin,
+	http.MethodDelete + " /v1/om/inventory/config/overrides/": admin,
+	http.MethodDelete + " /v1/om/inventory/config/":           admin,
 }
 
 var lbacPrefixes = []string{
