@@ -214,10 +214,7 @@ pmm-admin inventory remove agent [<agent-id>] [flags]
 
 ## pmm-admin inventory change agent
 
-Modify agent configuration without removing and re-adding the service. Use this to update collector settings, enable or disable features, or change connection parameters.
-
-!!! note "PMM 3.7.0+"
-    This command is available starting with PMM 3.7.0.
+Starting with PMM 3.7.0, you can change how an agent is configured without removing and adding the service again. Use this to rotate credentials, update TLS files and labels, turn collectors on or off, or change collection limits, while the service keeps its ID and history.
 
 ### Syntax
 
@@ -225,41 +222,37 @@ Modify agent configuration without removing and re-adding the service. Use this 
 pmm-admin inventory change agent <AGENT_TYPE> <AGENT_ID> [FLAGS]
 ```
 
-### How `inventory change agent` works
+To change `pmm-agent` itself, for example its PMM Server address, use [`pmm-admin config`](config.md) instead. For every other agent, replace `<AGENT_TYPE>` with one of the following agent types:
 
-Supported agent types:
+- MongoDB: `mongodb-exporter`, `qan-mongodb-profiler-agent`, `qan-mongodb-mongolog-agent`, `rta-mongodb-agent`
+- MySQL: `mysqld-exporter`, `qan-mysql-perfschema-agent`, `qan-mysql-slowlog-agent`
+- PostgreSQL: `postgres-exporter`, `qan-postgresql-pgstatements-agent`, `qan-postgresql-pgstatmonitor-agent`
+- ProxySQL: `proxysql-exporter`
+- Valkey and Redis: `valkey-exporter`
+- Node: `node-exporter`
+- Amazon RDS: `rds-exporter`
+- Microsoft Azure: `azure-database-exporter`
+- External exporters: `external-exporter`
+- Nomad: `nomad-agent`
 
-**MongoDB:**
+### When you change an agent
 
-- `mongodb-exporter`
-- `qan-mongodb-profiler-agent`
-- `qan-mongodb-mongolog-agent`
-- `rta-mongodb-agent`
+Only the flags you pass are changed. Every other setting keeps its current value. If you change connection settings, such as credentials or TLS files, PMM first checks that the agent can connect with them, and saves nothing if it can't. 
 
-**Node:**
+`pmm-agent` then restarts the agent with the new settings, so expect a short gap in the data it collects.
 
-- `node-exporter`
+### Decide whether to change or re-add an agent
 
-Only the flags you specify are updated. All other settings remain unchanged. Changes take effect immediately without restarting the agent. The command fails with a clear error if the agent ID doesn't exist or the type doesn't match.
+Whether you can change an agent in place or have to remove and add its service again depends on what you want to change:
 
-### When to use `change agent` vs `remove/add`
+| If you want to | Use | Result |
+|----------------|-----|--------|
+| Update credentials or TLS settings | `change agent` | The service keeps its ID and history |
+| Change labels, collectors, collection limits or the log level | `change agent` | The service keeps its ID and history |
+| Turn an agent on or off | `change agent` | The service keeps its ID and history |
+| Rename the service or monitor a different database instance | `pmm-admin remove`, then `pmm-admin add` | PMM creates a new service with a new ID |
 
-**Use `change agent` for:**
-
-- Update database credentials
-- Add or update custom labels
-- Enable or disable a collector
-- Update collection limits
-- Change TLS settings
-- Enable or disable an agent
-- Change log level
-
-**Use `remove` then `add` for:**
-
-- Change the service name
-- Switch to a different database instance
-
-### Finding the agent ID
+### Find the agent ID
 
 Get the agent ID from the inventory list:
 
@@ -276,73 +269,170 @@ mongodb_exporter            Running     push             12345-67890            
 
 You can also use `pmm-admin list` to see agents alongside their services.
 
-### Flags for MongoDB agents
+### Turn an agent on or off, relabel it, or set its log level
 
-#### Connection and authentication
+Use the following flags to turn an agent on or off, replace its labels, change its log level, or save changes without a connection check. The **Available for** column shows which agent types accept each flag:
 
-- `--username`
-:   MongoDB username
+| Flag | Available for | Description |
+|------|---------------|-------------|
+| `--enable` | All agent types | Enable the agent, or disable it with `--enable=false`. A disabled agent stops collecting data until you enable it again. |
+| `--custom-labels` | All agent types except `nomad-agent` | Custom labels in `key=value,key=value` format. The labels you pass replace all stored labels. Pass an empty value to remove them. |
+| `--log-level` | All agent types except `external-exporter`, `nomad-agent` | Log level of the agent: `debug`, `info`, `warn` or `error`. All types except `mysqld-exporter`, `node-exporter`, `postgres-exporter`, `valkey-exporter` also accept `fatal`. |
+| `--skip-connection-check` | All agent types except `azure-database-exporter`, `node-exporter`, `nomad-agent`, `rds-exporter` | Save the new settings without checking the connection to the database first. See [Save changes without a connection check](#save-changes-without-a-connection-check). |
 
-- `--password`
-:   MongoDB password
+### Change connection and collection settings
 
-- `--tls`
-:   Enable TLS
+Use the following flags to change how an agent connects to the database and what it collects. These flags differ by technology, so select the tab for yours. In each tab, the **Agent types** column shows which agents accept each flag.
 
-- `--tls-skip-verify`
-:   Skip TLS certificate validation
+=== "MongoDB"
 
-- `--tls-ca-file`
-:   Path to CA certificate
+    | Flag | Agent types | Description |
+    |------|-------------|-------------|
+    | `--username` | All | Username that the agent connects with. |
+    | `--password` | All | Password that the agent connects with. |
+    | `--agent-password` | `mongodb-exporter` | Custom password for the exporter's `/metrics` endpoint. |
+    | `--tls` | All | Use TLS to connect to the database. |
+    | `--tls-skip-verify` | All | Skip TLS certificate and hostname validation. |
+    | `--tls-certificate-key-file` | All | Path to the PEM file that holds the TLS certificate and key. |
+    | `--tls-certificate-key-file-password` | All | Password for the TLS certificate and key file. |
+    | `--tls-ca-file` | All | Path to the TLS CA certificate file. |
+    | `--authentication-mechanism` | All | Authentication mechanism. Use `MONGODB-X509` for certificate authentication. |
+    | `--authentication-database` | `mongodb-exporter`, `qan-mongodb-profiler-agent`, `qan-mongodb-mongolog-agent` | Database to authenticate against. |
+    | `--stats-collections` | `mongodb-exporter` | Comma-separated list of databases and collections to collect statistics for, for example `db1,db2.col1`. |
+    | `--collections-limit` | `mongodb-exporter` | If the instance has more collections than this, the exporter stops collecting `collstats`, `dbstats`, `topmetrics` and `indexstats`. `0` means no limit, and `-1` lets PMM decide. |
+    | `--enable-diagnostic-data-histograms` | `mongodb-exporter` | Collect histogram bucket metrics from `getDiagnosticData`. |
+    | `--disable-collectors` | `mongodb-exporter` | Comma-separated list of collectors to turn off. |
+    | `--expose-exporter` | `mongodb-exporter` | Expose the exporter on all network interfaces of the host, not only on localhost. |
+    | `--push-metrics` | `mongodb-exporter` | Push metrics to PMM Server with vmagent instead of having PMM Server pull them. Don't turn this on for agents that run on PMM Server's own pmm-agent (`pmm-server`), because their metrics stop arriving. |
+    | `--connection-timeout` | `mongodb-exporter` | Timeout for connecting to the database, for example `1s` or `1.5s`. |
+    | `--agent-env-vars` | `mongodb-exporter` | Comma-separated list of environment variable names that `pmm-agent` passes to the exporter, for example `KRB5_KTNAME,KRB5_CONFIG`. The names replace the stored list, and an empty value removes it. See [Pass environment variables to the exporter](#pass-environment-variables-to-the-exporter). |
+    | `--max-query-length` | `qan-mongodb-profiler-agent`, `qan-mongodb-mongolog-agent` | Maximum length of queries in Query Analytics. `-1` means no limit. If you never set it, PMM Server decides. |
+    | `--collect-interval` | `rta-mongodb-agent` | How often Real-Time Analytics collects running operations, for example `2s`. If you never set it, PMM Server uses 2 seconds. |
 
-- `--tls-certificate-key-file`
-:   Path to combined cert/key file
+=== "MySQL"
 
-- `--skip-connection-check`
-:   Save the new settings without verifying the database connection first
+    | Flag | Agent types | Description |
+    |------|-------------|-------------|
+    | `--username` | All | Username that the agent connects with. |
+    | `--password` | All | Password that the agent connects with. |
+    | `--agent-password` | `mysqld-exporter` | Custom password for the exporter's `/metrics` endpoint. |
+    | `--tls` | All | Use TLS to connect to the database. |
+    | `--tls-skip-verify` | All | Skip TLS certificate and hostname validation. |
+    | `--tls-ca-file` | All | Path to the TLS CA certificate file. |
+    | `--tls-cert-file` | All | Path to the TLS certificate file. |
+    | `--tls-key-file` | All | Path to the TLS key file. |
+    | `--tablestats-group-table-limit` | `mysqld-exporter` | If the instance has more tables than this, the exporter stops collecting per-table statistics. |
+    | `--disable-collectors` | `mysqld-exporter` | Comma-separated list of collectors to turn off. |
+    | `--expose-exporter` | `mysqld-exporter` | Expose the exporter on all network interfaces of the host, not only on localhost. |
+    | `--push-metrics` | `mysqld-exporter` | Push metrics to PMM Server with vmagent instead of having PMM Server pull them. Don't turn this on for agents that run on PMM Server's own pmm-agent (`pmm-server`), because their metrics stop arriving. |
+    | `--connection-timeout` | `mysqld-exporter` | Timeout for connecting to the database, for example `1s` or `1.5s`. |
+    | `--comments-parsing` | `qan-mysql-perfschema-agent`, `qan-mysql-slowlog-agent` | Turn parsing of query comments `on` or `off`. |
+    | `--max-query-length` | `qan-mysql-perfschema-agent`, `qan-mysql-slowlog-agent` | Maximum length of queries in Query Analytics. `-1` means no limit. If you never set it, PMM Server decides. |
+    | `--disable-query-examples` | `qan-mysql-perfschema-agent`, `qan-mysql-slowlog-agent` | Stop showing query examples in Query Analytics. Use `--disable-query-examples=false` to show them again. |
+    | `--max-slowlog-file-size` | `qan-mysql-slowlog-agent` | Maximum size of the slow log file. The default is 1 GiB, and `0` means no limit. |
 
-!!! note "When to use `--skip-connection-check`"
-    By default, PMM verifies connection-affecting changes against the database before saving them.
-    Skip this check when the agent cannot reach the database at the moment you make the change, for example:
+=== "PostgreSQL"
 
-    - The database is temporarily **down or in a maintenance window**.
-    - You are rotating a **password that PMM does not yet have** (the current stored credentials
-      are already invalid, so the check would fail).
-    - The target instance is otherwise **temporarily unreachable**.
+    | Flag | Agent types | Description |
+    |------|-------------|-------------|
+    | `--username` | All | Username that the agent connects with. |
+    | `--password` | All | Password that the agent connects with. |
+    | `--agent-password` | `postgres-exporter` | Custom password for the exporter's `/metrics` endpoint. |
+    | `--tls` | All | Use TLS to connect to the database. |
+    | `--tls-skip-verify` | All | Skip TLS certificate and hostname validation. |
+    | `--tls-ca-file` | All | Path to the TLS CA certificate file. |
+    | `--tls-cert-file` | All | Path to the TLS certificate file. |
+    | `--tls-key-file` | All | Path to the TLS key file. |
+    | `--disable-collectors` | `postgres-exporter` | Comma-separated list of collectors to turn off. |
+    | `--expose-exporter` | `postgres-exporter` | Expose the exporter on all network interfaces of the host, not only on localhost. |
+    | `--push-metrics` | `postgres-exporter` | Push metrics to PMM Server with vmagent instead of having PMM Server pull them. Don't turn this on for agents that run on PMM Server's own pmm-agent (`pmm-server`), because their metrics stop arriving. |
+    | `--auto-discovery-limit` | `postgres-exporter` | If the instance has more databases than this, the exporter stops discovering databases automatically. |
+    | `--max-exporter-connections` | `postgres-exporter` | Maximum number of connections that the exporter can open to PostgreSQL. |
+    | `--connection-timeout` | `postgres-exporter` | Timeout for connecting to the database, for example `1s` or `1.5s`. |
+    | `--comments-parsing` | `qan-postgresql-pgstatements-agent`, `qan-postgresql-pgstatmonitor-agent` | Turn parsing of query comments `on` or `off`. |
+    | `--max-query-length` | `qan-postgresql-pgstatements-agent`, `qan-postgresql-pgstatmonitor-agent` | Maximum length of queries in Query Analytics. `-1` means no limit. If you never set it, PMM Server decides. |
+    | `--disable-query-examples` | `qan-postgresql-pgstatmonitor-agent` | Stop showing query examples in Query Analytics. Use `--disable-query-examples=false` to show them again. |
 
-    PMM saves the new settings as-is. If the values are wrong,
-    metric collection stays broken until you correct them.
+=== "ProxySQL"
 
-#### Collectors
+    | Flag | Agent types | Description |
+    |------|-------------|-------------|
+    | `--username` | `proxysql-exporter` | Username that the agent connects with. |
+    | `--password` | `proxysql-exporter` | Password that the agent connects with. |
+    | `--agent-password` | `proxysql-exporter` | Custom password for the exporter's `/metrics` endpoint. |
+    | `--tls` | `proxysql-exporter` | Use TLS to connect to the database. |
+    | `--tls-skip-verify` | `proxysql-exporter` | Skip TLS certificate and hostname validation. |
+    | `--disable-collectors` | `proxysql-exporter` | Comma-separated list of collectors to turn off. |
+    | `--expose-exporter` | `proxysql-exporter` | Expose the exporter on all network interfaces of the host, not only on localhost. |
+    | `--push-metrics` | `proxysql-exporter` | Push metrics to PMM Server with vmagent instead of having PMM Server pull them. Don't turn this on for agents that run on PMM Server's own pmm-agent (`pmm-server`), because their metrics stop arriving. |
+    | `--connection-timeout` | `proxysql-exporter` | Timeout for connecting to the database, for example `1s` or `1.5s`. |
 
-- `--enable-all-collectors`
-:   Enable all collectors
+=== "Valkey and Redis"
 
-- `--disable-collectors`
-:   Comma-separated list of collectors to disable
+    | Flag | Agent types | Description |
+    |------|-------------|-------------|
+    | `--username` | `valkey-exporter` | Username that the agent connects with. |
+    | `--password` | `valkey-exporter` | Password that the agent connects with. |
+    | `--agent-password` | `valkey-exporter` | Custom password for the exporter's `/metrics` endpoint. |
+    | `--tls` | `valkey-exporter` | Use TLS to connect to the database. |
+    | `--tls-skip-verify` | `valkey-exporter` | Skip TLS certificate and hostname validation. |
+    | `--tls-ca-file` | `valkey-exporter` | Path to the TLS CA certificate file. |
+    | `--tls-cert-file` | `valkey-exporter` | Path to the TLS certificate file. |
+    | `--tls-key-file` | `valkey-exporter` | Path to the TLS key file. |
+    | `--disable-collectors` | `valkey-exporter` | Comma-separated list of collectors to turn off. |
+    | `--expose-exporter` | `valkey-exporter` | Expose the exporter on all network interfaces of the host, not only on localhost. |
+    | `--push-metrics` | `valkey-exporter` | Push metrics to PMM Server with vmagent instead of having PMM Server pull them. Don't turn this on for agents that run on PMM Server's own pmm-agent (`pmm-server`), because their metrics stop arriving. |
+    | `--connection-timeout` | `valkey-exporter` | Timeout for connecting to the database, for example `1s` or `1.5s`. |
 
-- `--max-collections-limit`
-:   Max collections to monitor (-1=PMM decides, 0=unlimited)
+=== "Node"
 
-- `--stats-collections`
-:   Limit stats to specific databases/collections
+    | Flag | Agent types | Description |
+    |------|-------------|-------------|
+    | `--push-metrics` | `node-exporter` | Push metrics to PMM Server with vmagent instead of having PMM Server pull them. Don't turn this on for agents that run on PMM Server's own pmm-agent (`pmm-server`), because their metrics stop arriving. |
+    | `--expose-exporter` | `node-exporter` | Expose the exporter on all network interfaces of the host, not only on localhost. |
+    | `--disable-collectors` | `node-exporter` | Comma-separated list of collectors to turn off. See [Disable collectors for node-exporter](#disable-collectors-for-node-exporter). |
 
-#### Agent management
+=== "Amazon RDS"
 
-- `--custom-labels`
-:   Custom user-assigned labels in `key=value,key=value` format
+    | Flag | Agent types | Description |
+    |------|-------------|-------------|
+    | `--aws-access-key` | `rds-exporter` | AWS access key. |
+    | `--aws-secret-key` | `rds-exporter` | AWS secret key. |
+    | `--aws-role-arn` | `rds-exporter` | ARN of the IAM role that the exporter assumes with the AWS credentials of its pmm-agent host. You can't combine it with an access key and secret key. Pass an empty value to remove it. |
+    | `--disable-basic-metrics` | `rds-exporter` | Stop collecting CloudWatch basic metrics. |
+    | `--disable-enhanced-metrics` | `rds-exporter` | Stop collecting Enhanced Monitoring metrics. |
+    | `--push-metrics` | `rds-exporter` | Push metrics to PMM Server with vmagent instead of having PMM Server pull them. Don't turn this on for agents that run on PMM Server's own pmm-agent (`pmm-server`), because their metrics stop arriving. |
 
-- `--agent-env-vars`
-:   Supported for `mongodb-exporter` only, available from PMM 3.10.0. Use this flag to forward environment variables from `pmm-agent` to the exporter, useful for authentication methods like Kerberos that rely on variables PMM doesn't set itself. Pass the variable names as a comma-separated list, for example `KRB5_KTNAME,KRB5_CONFIG`. The names you pass replace any previously stored list, and an empty value removes all stored names. For full setup instructions, see [Pass environment variables to the exporter](#pass-environment-variables-to-the-exporter).
+=== "Microsoft Azure"
 
-- `--enable`
-:   Re-enable a disabled agent
+    | Flag | Agent types | Description |
+    |------|-------------|-------------|
+    | `--azure-client-id` | `azure-database-exporter` | Azure client ID. |
+    | `--azure-client-secret` | `azure-database-exporter` | Azure client secret. |
+    | `--azure-tenant-id` | `azure-database-exporter` | Azure tenant ID. |
+    | `--azure-subscription-id` | `azure-database-exporter` | Azure subscription ID. |
+    | `--azure-resource-group` | `azure-database-exporter` | Azure resource group. |
+    | `--push-metrics` | `azure-database-exporter` | Push metrics to PMM Server with vmagent instead of having PMM Server pull them. Don't turn this on for agents that run on PMM Server's own pmm-agent (`pmm-server`), because their metrics stop arriving. |
 
-- `--disable`
-:   Disable the agent (stops metric collection)
+=== "External exporters"
 
-- `--log-level`
-:   Set agent log level (e.g., `info`, `debug`, `warn`, `error`)
+    | Flag | Agent types | Description |
+    |------|-------------|-------------|
+    | `--username` | `external-exporter` | Username for the metrics endpoint of the external exporter. |
+    | `--listen-port` | `external-exporter` | Port that the external exporter listens on. |
+    | `--metrics-scheme` | `external-exporter` | Scheme of the metrics endpoint: `http` or `https`. |
+    | `--metrics-path` | `external-exporter` | Path of the metrics endpoint, for example `/metrics`. |
+    | `--push-metrics` | `external-exporter` | Push metrics to PMM Server with vmagent instead of having PMM Server pull them. Don't turn this on for agents that run on PMM Server's own pmm-agent (`pmm-server`), because their metrics stop arriving. |
+
+### Save changes without a connection check
+
+By default, PMM checks new connection settings against the database before it saves them. Skip this check with `--skip-connection-check` when the agent can't reach the database at the moment you make the change, for example:
+
+- The database is down or in a maintenance window.
+- You're setting a password that PMM doesn't have yet, so the stored credentials no longer work.
+- The database is temporarily unreachable for another reason.
+
+PMM then saves the new settings as they are. If a value is wrong, the agent stops collecting data until you correct it.
 
 ### Disable collectors for node-exporter
 
@@ -379,91 +469,109 @@ To stop custom metrics from the [textfile collector](../../metrics/extend_metric
 
 ### Examples
 
-- Update the MongoDB password for a running agent:
+#### Update credentials and TLS settings
 
-    ```bash
-    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
-      --password=new_secret_pass
-    ```
+To rotate the password of a MongoDB exporter:
 
-- Update the password while the database is unreachable (skip the connection check):
+```bash
+pmm-admin inventory change agent mongodb-exporter <agent-id> \
+  --password=<new-password>
+```
 
-    ```bash
-    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
-      --password=new_secret_pass \
-      --skip-connection-check
-    ```
+To rotate the password while the database is unreachable, skip the connection check:
 
-- Add custom labels to an agent:
+```bash
+pmm-admin inventory change agent mongodb-exporter <agent-id> \
+  --password=<new-password> \
+  --skip-connection-check
+```
 
-    ```bash
-    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
-      --custom-labels=env=production,team=backend
-    ```
+To rotate a MySQL password, change both the exporter and its QAN agent:
 
-- Update credentials and labels together:
+```bash
+pmm-admin inventory change agent mysqld-exporter <exporter-agent-id> \
+  --password=<new-password>
+pmm-admin inventory change agent qan-mysql-perfschema-agent <qan-agent-id> \
+  --password=<new-password>
+```
 
-    ```bash
-    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
-      --password=new_secret_pass \
-      --custom-labels=env=production
-    ```
+To replace the TLS files of a PostgreSQL exporter:
 
-- Enable all MongoDB collectors:
+```bash
+pmm-admin inventory change agent postgres-exporter <agent-id> \
+  --tls-ca-file=/path/to/ca.pem \
+  --tls-cert-file=/path/to/client-cert.pem \
+  --tls-key-file=/path/to/client-key.pem
+```
 
-    ```bash
-    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
-      --enable-all-collectors
-    ```
+#### Change labels and collection settings
 
-- Disable a specific collector:
+To replace the custom labels of an agent:
 
-    ```bash
-    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
-      --disable-collectors=topmetrics
-    ```
+```bash
+pmm-admin inventory change agent mongodb-exporter <agent-id> \
+  --custom-labels=env=production,team=backend
+```
 
-- Change collection limit:
+To turn off a collector:
 
-    ```bash
-    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
-      --max-collections-limit=500
-    ```
+```bash
+pmm-admin inventory change agent mongodb-exporter <agent-id> \
+  --disable-collectors=topmetrics
+```
 
-- Update stats collections:
+To change the collection limit:
 
-    ```bash
-    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
-      --stats-collections=db1,db2.collection1
-    ```
+```bash
+pmm-admin inventory change agent mongodb-exporter <agent-id> \
+  --collections-limit=500
+```
 
-- Pass Kerberos environment variables to the exporter:
+To collect statistics only for specific databases and collections:
 
-    ```bash
-    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
-      --agent-env-vars=KRB5_KTNAME,KRB5_CONFIG
-    ```
+```bash
+pmm-admin inventory change agent mongodb-exporter <agent-id> \
+  --stats-collections=db1,db2.collection1
+```
 
-- Remove all environment variables from the exporter:
+To allow longer queries in Query Analytics:
 
-    ```bash
-    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
-      --agent-env-vars=""
-    ```
+```bash
+pmm-admin inventory change agent qan-postgresql-pgstatmonitor-agent <agent-id> \
+  --max-query-length=4096
+```
 
-- Disable an agent (stops metric collection without removing it):
+#### Turn an agent on or off
 
-    ```bash
-    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
-      --disable
-    ```
+To stop an agent from collecting data without removing it:
 
-- Re-enable a disabled agent:
+```bash
+pmm-admin inventory change agent mongodb-exporter <agent-id> \
+  --enable=false
+```
 
-    ```bash
-    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
-      --enable
-    ```
+To turn the agent back on:
+
+```bash
+pmm-admin inventory change agent mongodb-exporter <agent-id> \
+  --enable
+```
+
+#### Pass environment variables to the MongoDB exporter
+
+To pass Kerberos environment variables to the exporter:
+
+```bash
+pmm-admin inventory change agent mongodb-exporter <agent-id> \
+  --agent-env-vars=KRB5_KTNAME,KRB5_CONFIG
+```
+
+To remove all environment variables from the exporter:
+
+```bash
+pmm-admin inventory change agent mongodb-exporter <agent-id> \
+  --agent-env-vars=""
+```
 
 ### Pass environment variables to the exporter
 
@@ -532,7 +640,7 @@ PMM restarts the exporter. If a name is not set in the `pmm-agent` environment, 
 
 To check which names are currently stored, run `pmm-admin inventory change agent mongodb-exporter <AGENT_ID>` with no flags. The command changes nothing and prints the agent, including the **Environment variables** line.
 
-### Error handling
+### Troubleshoot errors
 
 The command returns a clear error message in these cases:
 
