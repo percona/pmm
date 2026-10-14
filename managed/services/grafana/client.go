@@ -56,6 +56,9 @@ const (
 	// lookups Grafana can process in parallel, so a larger client-side pool would never drain.
 	defaultMaxIdleConns        = 100
 	defaultMaxIdleConnsPerHost = 100
+
+	// PMM supports a single Grafana organization, hard-coded to ID 1.
+	pmmOrgID = "1"
 )
 
 // Client represents a client for Grafana API.
@@ -761,6 +764,61 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 	}
 
 	return nil
+}
+
+// ListPMMRuleIDs returns the identity label of every Grafana alert rule that carries one,
+// which is how PMM-created rules identify themselves.
+//
+// The label is read rather than the rule's UID because a copied rule gets a new UID while
+// keeping the label, so this reports which rules still exist in terms of the identity PMM
+// keys its threshold overrides on.
+func (c *Client) ListPMMRuleIDs(ctx context.Context) (map[string]struct{}, error) {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// The ruler returns every folder's groups keyed by folder title. Only the rule
+	// labels matter here, so the rest of the payload is left unmodelled.
+	type rulerRule struct {
+		Labels map[string]string `json:"labels"`
+	}
+
+	type rulerGroup struct {
+		Rules []rulerRule `json:"rules"`
+	}
+
+	// Pinned to PMM's org: the ruler otherwise answers for the caller's current org, and
+	// the sweep would reap every row whose rule lives in the org it did not see.
+	headers := authHeaders.Clone()
+	headers.Set("X-Grafana-Org-Id", pmmOrgID)
+
+	var folders map[string][]rulerGroup
+
+	err = c.do(ctx, http.MethodGet, "/api/ruler/grafana/api/v1/rules", "", headers, nil, &folders)
+	if err != nil {
+		return nil, err
+	}
+
+	// do skips decoding an empty body, which must not read as "no rules": the sweep
+	// deletes whatever this omits.
+	if folders == nil {
+		return nil, errors.New("empty ruler response")
+	}
+
+	ids := make(map[string]struct{})
+	for _, groups := range folders {
+		for _, group := range groups {
+			for _, rule := range group.Rules {
+				id := rule.Labels[services.PMMRuleIDLabel]
+				if id != "" {
+					ids[id] = struct{}{}
+				}
+			}
+		}
+	}
+
+	return ids, nil
 }
 
 func validateDurations(intervalD, forD string) error {

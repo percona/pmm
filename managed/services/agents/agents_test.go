@@ -30,7 +30,7 @@ func requireNoDuplicateFlags(t *testing.T, flags []string) {
 	t.Helper()
 	s := make(map[string]struct{})
 	for _, f := range flags {
-		name := strings.Split(f, "=")[0]
+		name, _, _ := strings.Cut(f, "=")
 		if after, ok := strings.CutPrefix(name, "--no-"); ok { // kingpin's --no-<name> disables --<name>
 			name = "--" + after
 		}
