@@ -17,6 +17,7 @@ package om
 
 import (
 	"context"
+	"crypto/rand"
 	"errors"
 	"fmt"
 	"maps"
@@ -29,6 +30,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/xdg-go/stringprep"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -455,13 +457,47 @@ func sameMemberConfig(accepted, planned extensionsMemberConfig) bool {
 	return planned.Hidden == accepted.Hidden && planned.DelaySecs == accepted.DelaySecs
 }
 
-// abandonMisconfiguredRun cancels a run PMM cannot use. Best-effort: the caller already reports the
-// failure, and an app too old for the settings is also too old for :cancel.
-func (s *Service) abandonMisconfiguredRun(ctx context.Context, runID string) {
+// abandonRun cancels a run PMM cannot carry through, best-effort: an app too old for a setting may lack :cancel too.
+func (s *Service) abandonRun(ctx context.Context, runID, reason string) {
+	s.l.Warnf("bootstrap run %s: cancelling it: %s", runID, reason)
 	_, err := s.bootstrap.cancelRun(ctx, runID)
 	if err != nil {
-		s.l.Warnf("bootstrap run %s: failed to cancel a run PMM Extensions would not configure: %s", runID, err)
+		s.l.Warnf("bootstrap run %s: failed to cancel it: %s", runID, err)
 	}
+}
+
+// newAdminSecret returns a run's secret carrying the requested administrator, nil when none is named,
+// and the password PMM generated for it.
+func newAdminSecret(req *omv1.TriggerHostBootstrapRequest) (*models.OmBootstrapSecret, string, error) {
+	username, password := req.GetAdminUsername(), req.GetAdminPassword()
+	if username == "" {
+		if password != "" {
+			return nil, "", status.Error(codes.InvalidArgument, "admin_password needs admin_username")
+		}
+		return nil, "", nil
+	}
+	if username == bootstrapMongoDBUsername {
+		return nil, "", status.Errorf(codes.InvalidArgument,
+			"admin_username %s is reserved for PMM's monitoring user", bootstrapMongoDBUsername)
+	}
+	generated := ""
+	if password == "" {
+		generated = rand.Text()
+		password = generated
+	}
+	// mongod runs a SCRAM-SHA-256 password through SASLprep, so one it rejects would fail every createUser attempt.
+	_, err := stringprep.SASLprep.Prepare(password)
+	if err != nil {
+		return nil, "", status.Errorf(codes.InvalidArgument,
+			"admin_password has characters MongoDB does not accept in a password: %s", err)
+	}
+
+	secret, err := newBootstrapSecret()
+	if err != nil {
+		return nil, "", status.Errorf(codes.Internal, "failed to generate the run's credentials: %s", err)
+	}
+	secret.AdminUsername, secret.AdminPassword = username, password
+	return secret, generated, nil
 }
 
 // executorUnusable says why nothing can be dispatched to this host, or "" if nothing is known to be wrong.
@@ -609,26 +645,9 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		return nil, err
 	}
 
-	adminUsername := req.GetAdminUsername()
-	if adminUsername == "" {
-		adminUsername = defaultAdminUsername
-	}
-	if adminUsername == bootstrapMongoDBUsername {
-		return nil, status.Errorf(codes.InvalidArgument,
-			"admin_username %s is reserved for PMM's monitoring user", bootstrapMongoDBUsername)
-	}
-	secret, err := newBootstrapSecret()
+	secret, generatedPassword, err := newAdminSecret(req)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to generate the run's credentials: %s", err)
-	}
-	secret.AdminUsername, secret.AdminPassword = adminUsername, req.GetAdminPassword()
-	var generatedPassword string
-	if secret.AdminPassword == "" {
-		generatedPassword, err = generateBootstrapSecret(bootstrapPasswordBytes)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "failed to generate the administrator password: %s", err)
-		}
-		secret.AdminPassword = generatedPassword
+		return nil, err
 	}
 
 	hosts := make([]extensionsHost, 0, len(nodeIDs))
@@ -682,7 +701,7 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		Port:            req.GetPort(),
 		BindIP:          req.GetBindIp(),
 		MemberConfigs:   memberConfigs,
-		CreateAdminUser: true,
+		CreateAdminUser: secret != nil,
 	}
 	run, err := s.bootstrap.triggerRun(ctx, planned)
 	if err != nil {
@@ -691,19 +710,21 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 
 	ignored := runIgnoredSettings(planned, run)
 	if ignored != "" {
-		s.abandonMisconfiguredRun(ctx, run.ID)
+		s.abandonRun(ctx, run.ID, "PMM Extensions did not apply "+ignored)
 		return nil, status.Errorf(codes.FailedPrecondition,
 			"PMM Extensions accepted the run but did not apply %s, so it would come up on its own defaults "+
 				"instead of the settings you chose; its om_bootstrap app is older than this PMM. "+
 				"The run has been cancelled", ignored)
 	}
 
-	secret.RunID = run.ID
-	err = models.CreateOmBootstrapSecret(s.db.Querier, secret)
-	if err != nil {
-		s.abandonMisconfiguredRun(ctx, run.ID)
-		return nil, status.Errorf(codes.Internal,
-			"failed to store the run's credentials, so the run has been cancelled: %s", err)
+	if secret != nil {
+		secret.RunID = run.ID
+		err = models.CreateOmBootstrapSecret(s.db.Querier, secret)
+		if err != nil {
+			s.abandonRun(ctx, run.ID, fmt.Sprintf("failed to store its credentials: %s", err))
+			return nil, status.Errorf(codes.Internal,
+				"failed to store the run's credentials, so the run has been cancelled: %s", err)
+		}
 	}
 
 	if environment, cluster := req.GetEnvironment(), req.GetCluster(); environment != "" || cluster != "" {

@@ -571,7 +571,7 @@ export interface OmBootstrapMemberConfig {
 export interface OmHostBootstrapAccepted {
   /** The om_bootstrap run's id - pass to `useBootstrapRun` to watch its progress. */
   run_id: string;
-  /** The administrator password PMM generated, present only when none was typed. PMM keeps no copy. */
+  /** The password PMM generated for a named administrator, present only when none was typed; shown once. */
   generated_admin_password?: string;
 }
 

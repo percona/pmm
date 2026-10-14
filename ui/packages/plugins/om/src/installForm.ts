@@ -91,11 +91,16 @@ export function adminPasswordError(
   value: string,
   confirmation: string
 ): string | null {
-  if (value.length < ADMIN_PASSWORD_MIN_LENGTH) {
+  // Code points, not UTF-16 units, so the limits match the server's.
+  const length = [...value].length;
+  if (length < ADMIN_PASSWORD_MIN_LENGTH) {
     return `Administrator password must be at least ${ADMIN_PASSWORD_MIN_LENGTH} characters.`;
   }
-  if (value.length > ADMIN_PASSWORD_MAX_LENGTH) {
+  if (length > ADMIN_PASSWORD_MAX_LENGTH) {
     return `Administrator password can be at most ${ADMIN_PASSWORD_MAX_LENGTH} characters.`;
+  }
+  if (/\p{Cc}/u.test(value)) {
+    return 'Administrator password cannot contain control characters.';
   }
   if (value !== confirmation) {
     return 'The administrator passwords do not match.';

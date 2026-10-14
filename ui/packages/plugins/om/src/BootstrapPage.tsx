@@ -28,10 +28,6 @@ import {
   Button,
   Checkbox,
   CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   MenuItem,
   Stack,
   Step,
@@ -46,7 +42,6 @@ import {
   Typography,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { useCopyToClipboard } from '@pmm-extensions/framework';
 import {
   ADMIN_PASSWORD_MIN_LENGTH,
   DEFAULT_ADMIN_USERNAME,
@@ -63,6 +58,7 @@ import {
   validateElectionPlan,
 } from './electionPlan';
 import { OmHeader } from './components/OmHeader';
+import { GeneratedPasswordDialog } from './components/GeneratedPasswordDialog';
 import {
   adminPasswordError,
   adminUsernameError,
@@ -369,7 +365,6 @@ export const BootstrapPage = () => {
   const [adminPassword, setAdminPassword] = useState('');
   const [adminPasswordConfirmation, setAdminPasswordConfirmation] =
     useState('');
-  const clipboard = useCopyToClipboard();
 
   // What the run as a whole asks for. In `own` mode every member names its own
   // address, so this is never consulted -- it is set to the first node's address
@@ -520,6 +515,19 @@ export const BootstrapPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hostIdsKey]);
 
+  // Rendered by every return below, so a failed background refetch cannot take the password with it.
+  const passwordDialog = generatedPassword && (
+    <GeneratedPasswordDialog
+      username={adminUsername}
+      password={generatedPassword}
+      onSaved={() =>
+        navigate(
+          `${omBase}/${OM_ROUTE_AUTOMATIONS}?expand=${bootstrap.data?.run_id}`
+        )
+      }
+    />
+  );
+
   if (hostsQuery.isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
@@ -542,6 +550,7 @@ export const BootstrapPage = () => {
             Back to Nodes
           </Button>
         </Box>
+        {passwordDialog}
       </Stack>
     );
   }
@@ -558,6 +567,7 @@ export const BootstrapPage = () => {
             Back to Nodes
           </Button>
         </Box>
+        {passwordDialog}
       </Stack>
     );
   }
@@ -794,7 +804,7 @@ export const BootstrapPage = () => {
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Created with the root role, for you to manage the replica set. PMM
-              does not keep its password.
+              keeps its password only until the user is created.
             </Typography>
             <TextField
               label="Administrator username"
@@ -1108,58 +1118,7 @@ export const BootstrapPage = () => {
           </Box>
         </Box>
       )}
-      {generatedPassword && (
-        <Dialog open maxWidth="sm" fullWidth>
-          <DialogTitle>Save the administrator password</DialogTitle>
-          <DialogContent>
-            <Stack spacing={2}>
-              <Typography variant="body2">
-                PMM does not keep this password, so this is the only time it is
-                shown. Store it somewhere safe before you continue.
-              </Typography>
-              <TextField
-                label="Username"
-                value={adminUsername}
-                fullWidth
-                slotProps={{ htmlInput: { readOnly: true } }}
-              />
-              <TextField
-                label="Password"
-                value={generatedPassword}
-                fullWidth
-                slotProps={{
-                  htmlInput: {
-                    readOnly: true,
-                    sx: { fontFamily: 'monospace' },
-                  },
-                }}
-              />
-            </Stack>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              color={clipboard.failed ? 'error' : undefined}
-              onClick={() => void clipboard.copy(generatedPassword)}
-            >
-              {clipboard.copied
-                ? 'Copied'
-                : clipboard.failed
-                  ? 'Could not copy - select it instead'
-                  : 'Copy password'}
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() =>
-                navigate(
-                  `${omBase}/${OM_ROUTE_AUTOMATIONS}?expand=${bootstrap.data?.run_id}`
-                )
-              }
-            >
-              I have saved it
-            </Button>
-          </DialogActions>
-        </Dialog>
-      )}
+      {passwordDialog}
     </Stack>
   );
 };

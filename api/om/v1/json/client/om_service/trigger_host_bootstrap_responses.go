@@ -234,10 +234,12 @@ type TriggerHostBootstrapBody struct {
 	// BootstrapMemberConfig.priority. A key outside node_ids is rejected.
 	MemberConfigs map[string]TriggerHostBootstrapParamsBodyMemberConfigsAnon `json:"member_configs,omitempty"`
 
-	// The customer's own MongoDB administrator, created with the root role. Defaults to "admin".
+	// The customer's own MongoDB administrator, created with the root role.
+	// Left empty, the install creates no administrator.
 	AdminUsername string `json:"admin_username,omitempty"`
 
-	// The administrator's password. Left empty, PMM generates one and returns it once.
+	// The administrator's password; needs admin_username. Left empty, PMM generates one and returns it once.
+	// It must be valid under SASLprep, which MongoDB applies to SCRAM-SHA-256 passwords.
 	AdminPassword string `json:"admin_password,omitempty"`
 }
 
@@ -563,18 +565,18 @@ TriggerHostBootstrapOKBody TriggerHostBootstrapResponse acknowledges a queued bo
 // PMM-15347 PoC only: one or three hosts, one replica set, keyFile auth, TLS
 // off. Returned as soon as PMM Extensions' om_bootstrap app has planned the run, not
 // once it finishes -- PMM's own HA-leader-only stepper drives it forward from
-// here (PMM-15347/plan.md §4 item 9). Carries no credentials: the run's
-// generated MongoDB user is created only once every host is up, minutes after
-// this response, and lives encrypted in PMM's own Postgres
-// (PMM-15347/questions.md Q7) -- there is nothing to hand back yet.
+// here (PMM-15347/plan.md §4 item 9). The run's MongoDB users are created only
+// once every host is up, minutes after this response; PMM keeps their
+// credentials encrypted in its own Postgres (PMM-15347/questions.md Q7).
 swagger:model TriggerHostBootstrapOKBody
 */
 type TriggerHostBootstrapOKBody struct {
 	// The om_bootstrap run's id. Poll GetBootstrapRun for its progress.
 	RunID string `json:"run_id,omitempty"`
 
-	// The administrator password PMM generated, set only when the request left admin_password empty.
-	// PMM deletes its copy once the user exists, so this response is the only place to read it.
+	// The administrator password PMM generated, set only when the request named admin_username without
+	// admin_password. PMM deletes its copy once the install no longer needs it, so this response is the
+	// only place to read it.
 	GeneratedAdminPassword string `json:"generated_admin_password,omitempty"`
 }
 

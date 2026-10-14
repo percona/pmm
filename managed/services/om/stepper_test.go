@@ -84,7 +84,20 @@ func TestAdminUserCredentials(t *testing.T) {
 		assert.Empty(t, secret.AdminPassword)
 		assert.Equal(t, "monitoring-secret", secret.MongoDBPassword, "the exporter still needs its own password")
 		_, err = svc.paramsForStep(t.Context(), "run-abc", createAdminUserStep)
-		require.ErrorContains(t, err, "no longer stored")
+		require.ErrorIs(t, err, errAdminPasswordGone)
+	})
+
+	t.Run("cancels a run whose administrator password is not stored", func(t *testing.T) {
+		stub := newSEPStub(t, http.StatusOK, `{"id": "run-abc", "status": "running", "cancel_requested": true,
+		  "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-test",
+		  "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`)
+		svc := (&Service{db: storeTestDB(t), l: logrus.WithField("test", t.Name())}).
+			WithBootstrapSource(stub.server.URL, "test-token")
+
+		svc.dispatchRunStep(t.Context(), &extensionsBootstrapRun{ID: "run-abc"}, createAdminUserStep)
+
+		require.Len(t, stub.calls, 1)
+		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc:cancel", stub.calls[0].path)
 	})
 }
 

@@ -54,7 +54,10 @@ const triggerState: { isError: boolean; error?: { message: string } } = {
 };
 
 /** The fleet the wizard sees, mutable for the same reason as triggerState. */
-const hostsState: { data: OmInventoryHost[] } = { data: HOSTS };
+const hostsState: { data: OmInventoryHost[]; isError: boolean } = {
+  data: HOSTS,
+  isError: false,
+};
 
 /** What the wizard actually asked for, so a test can assert the request itself. */
 const triggerCalls: Record<string, unknown>[] = [];
@@ -66,7 +69,8 @@ vi.mock('../src/inventoryHooks', () => ({
   useOmInventoryHosts: () => ({
     data: hostsState.data,
     isLoading: false,
-    isError: false,
+    isError: hostsState.isError,
+    error: hostsState.isError ? new Error('refresh failed') : null,
   }),
   // Keeps the accepted run as `data`, re-rendering like useMutation does.
   useTriggerHostBootstrap: () => {
@@ -744,6 +748,37 @@ describe('BootstrapPage database administrator', () => {
       within(dialog).getByRole('button', { name: 'I have saved it' })
     );
     expect(await screen.findByText('Automations')).toBeInTheDocument();
+  });
+
+  it('keeps the generated password on screen when a background refresh fails', async () => {
+    const { rerender } = renderWizard();
+    configure();
+    fireEvent.click(review());
+    fireEvent.click(screen.getByRole('button', { name: 'Install MongoDB' }));
+    await screen.findByRole('dialog');
+
+    hostsState.isError = true;
+    try {
+      rerender(
+        <MemoryRouter
+          initialEntries={['/operations/nodes/install?nodes=node-1']}
+        >
+          <Routes>
+            <Route
+              path="/operations/nodes/install"
+              element={<BootstrapPage />}
+            />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      expect(screen.getByText('Could not load the nodes')).toBeInTheDocument();
+      expect(
+        within(screen.getByRole('dialog')).getByDisplayValue('generated-secret')
+      ).toBeInTheDocument();
+    } finally {
+      hostsState.isError = false;
+    }
   });
 
   it('sends a typed password once both fields match, and shows no dialog', async () => {

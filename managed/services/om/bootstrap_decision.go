@@ -252,8 +252,7 @@ func runStep(run extensionsBootstrapRun, name string) (extensionsBootstrapStep, 
 	return run.RunSteps[i], true
 }
 
-// adminPasswordSpent reports whether a run that plans create_admin_user can no longer dispatch it,
-// so its password can go. A run without the step never stored one.
+// adminPasswordSpent reports whether a run that planned create_admin_user can no longer dispatch it.
 func adminPasswordSpent(run extensionsBootstrapRun) bool {
 	step, ok := runStep(run, createAdminUserStep)
 	if !ok {

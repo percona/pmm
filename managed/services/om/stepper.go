@@ -42,9 +42,10 @@ func refreshRetryWindowOpen(run *extensionsBootstrapRun, now time.Time) bool {
 
 const (
 	bootstrapMongoDBUsername = "pmm"
-	defaultAdminUsername     = "admin"
 	createAdminUserStep      = "create_admin_user"
 )
+
+var errAdminPasswordGone = errors.New("the administrator password is not stored")
 
 // Base64-encoded, the keyFile stays within MongoDB's 6-1024 character range.
 const (
@@ -190,6 +191,11 @@ func (s *Service) dispatchRollback(ctx context.Context, run *extensionsBootstrap
 
 func (s *Service) dispatchRunStep(ctx context.Context, run *extensionsBootstrapRun, stepName string) {
 	params, err := s.paramsForStep(ctx, run.ID, stepName)
+	if errors.Is(err, errAdminPasswordGone) {
+		// No later tick can recover it, and the run must not stay up with authorization off.
+		s.abandonRun(ctx, run.ID, err.Error())
+		return
+	}
 	if err != nil {
 		s.l.Warnf("bootstrap run %s: failed to prepare run-level step %s: %s", run.ID, stepName, err)
 		return
@@ -279,11 +285,14 @@ func (s *Service) paramsForStep(ctx context.Context, runID, stepName string) (ma
 		return map[string]string{"username": secret.MongoDBUsername, "password": secret.MongoDBPassword}, nil
 	case createAdminUserStep:
 		secret, err := models.FindOmBootstrapSecretByRunID(s.db.Querier, runID)
+		if errors.Is(err, models.ErrNotFound) {
+			return nil, errAdminPasswordGone
+		}
 		if err != nil {
 			return nil, fmt.Errorf("failed to look up the stored secret: %w", err)
 		}
 		if secret.AdminPassword == "" {
-			return nil, errors.New("the administrator password is no longer stored")
+			return nil, errAdminPasswordGone
 		}
 		return map[string]string{"username": secret.AdminUsername, "password": secret.AdminPassword}, nil
 	default:
@@ -291,8 +300,8 @@ func (s *Service) paramsForStep(ctx context.Context, runID, stepName string) (ma
 	}
 }
 
-// ensureBootstrapSecret returns runID's stored secret. TriggerHostBootstrap stores it up front; a run started
-// before it did gets one here on first use, and if two ticks race, the losing insert returns the winner's.
+// ensureBootstrapSecret returns runID's stored secret, generating it on first use.
+// If two ticks race to create it, the losing insert returns the winner's secret.
 func (s *Service) ensureBootstrapSecret(_ context.Context, runID string) (*models.OmBootstrapSecret, error) {
 	secret, err := models.FindOmBootstrapSecretByRunID(s.db.Querier, runID)
 	if err == nil {

@@ -2118,12 +2118,12 @@
                   "x-order": 9
                 },
                 "admin_username": {
-                  "description": "The customer's own MongoDB administrator, created with the root role. Defaults to \"admin\".",
+                  "description": "The customer's own MongoDB administrator, created with the root role.\nLeft empty, the install creates no administrator.",
                   "type": "string",
                   "x-order": 10
                 },
                 "admin_password": {
-                  "description": "The administrator's password. Left empty, PMM generates one and returns it once.",
+                  "description": "The administrator's password; needs admin_username. Left empty, PMM generates one and returns it once.\nIt must be valid under SASLprep, which MongoDB applies to SCRAM-SHA-256 passwords.",
                   "type": "string",
                   "x-order": 11
                 }
@@ -2135,7 +2135,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "TriggerHostBootstrapResponse acknowledges a queued bootstrap run.\n\nPMM-15347 PoC only: one or three hosts, one replica set, keyFile auth, TLS\noff. Returned as soon as PMM Extensions' om_bootstrap app has planned the run, not\nonce it finishes -- PMM's own HA-leader-only stepper drives it forward from\nhere (PMM-15347/plan.md §4 item 9). Carries no credentials: the run's\ngenerated MongoDB user is created only once every host is up, minutes after\nthis response, and lives encrypted in PMM's own Postgres\n(PMM-15347/questions.md Q7) -- there is nothing to hand back yet.",
+              "description": "TriggerHostBootstrapResponse acknowledges a queued bootstrap run.\n\nPMM-15347 PoC only: one or three hosts, one replica set, keyFile auth, TLS\noff. Returned as soon as PMM Extensions' om_bootstrap app has planned the run, not\nonce it finishes -- PMM's own HA-leader-only stepper drives it forward from\nhere (PMM-15347/plan.md §4 item 9). The run's MongoDB users are created only\nonce every host is up, minutes after this response; PMM keeps their\ncredentials encrypted in its own Postgres (PMM-15347/questions.md Q7).",
               "type": "object",
               "properties": {
                 "run_id": {
@@ -2144,7 +2144,7 @@
                   "x-order": 0
                 },
                 "generated_admin_password": {
-                  "description": "The administrator password PMM generated, set only when the request left admin_password empty.\nPMM deletes its copy once the user exists, so this response is the only place to read it.",
+                  "description": "The administrator password PMM generated, set only when the request named admin_username without\nadmin_password. PMM deletes its copy once the install no longer needs it, so this response is the\nonly place to read it.",
                   "type": "string",
                   "x-order": 1
                 }
