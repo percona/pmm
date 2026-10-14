@@ -413,7 +413,7 @@ type UpdateMySQLServiceParams struct {
 	TlsCa *string `protobuf:"bytes,13,opt,name=tls_ca,json=tlsCa,proto3,oneof" json:"tls_ca,omitempty"`
 	// Client certificate.
 	TlsCert *string `protobuf:"bytes,14,opt,name=tls_cert,json=tlsCert,proto3,oneof" json:"tls_cert,omitempty"`
-	// Password for decrypting tls_cert.
+	// Client key.
 	TlsKey *string `protobuf:"bytes,15,opt,name=tls_key,json=tlsKey,proto3,oneof" json:"tls_key,omitempty"`
 	// Replace all extra DSN parameters used for connecting to MySQL.
 	ExtraDsnParams *common.StringMap `protobuf:"bytes,16,opt,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty"`

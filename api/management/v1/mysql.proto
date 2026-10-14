@@ -137,7 +137,7 @@ message UpdateMySQLServiceParams {
   optional string tls_ca = 13;
   // Client certificate.
   optional string tls_cert = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
-  // Password for decrypting tls_cert.
+  // Client key.
   optional string tls_key = 15 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Replace all extra DSN parameters used for connecting to MySQL.
   common.StringMap extra_dsn_params = 16;

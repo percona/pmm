@@ -28537,7 +28537,7 @@
                       "x-order": 13
                     },
                     "tls_key": {
-                      "description": "Password for decrypting tls_cert.",
+                      "description": "Client key.",
                       "type": "string",
                       "x-nullable": true,
                       "x-order": 14

@@ -4222,7 +4222,7 @@ type UpdateServiceParamsBodyMysql struct {
 	// Client certificate.
 	TLSCert *string `json:"tls_cert,omitempty"`
 
-	// Password for decrypting tls_cert.
+	// Client key.
 	TLSKey *string `json:"tls_key,omitempty"`
 
 	// If true, ensures qan-mysql-perfschema-agent exists; if false, removes it.
