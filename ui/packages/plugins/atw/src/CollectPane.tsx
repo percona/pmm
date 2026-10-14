@@ -15,12 +15,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import SearchIcon from '@mui/icons-material/Search';
 import {
   Alert,
   Autocomplete,
   Box,
+  Button,
   CircularProgress,
+  InputAdornment,
   TextField,
   Typography,
 } from '@mui/material';
@@ -35,7 +38,7 @@ import {
   type FormSection,
   type SectionField,
 } from '@pmm-extensions/api';
-import { CategoryBrowser } from './CategoryBrowser';
+import { CategoryFilters } from './CategoryFilters';
 import {
   useAtwBatchExecute,
   useAtwMergedSchema,
@@ -44,6 +47,7 @@ import {
 import type {
   AtwBatchExecuteResponse,
   AtwBatchExecuteWrite,
+  AtwDispatchHandler,
   AtwRerunRequest,
   AtwSnippetSummary,
 } from './types';
@@ -59,11 +63,7 @@ export interface CollectPaneProps {
    */
   rerunRequest?: AtwRerunRequest | null;
   /** Called once a batch dispatches successfully, so a caller can remember it. */
-  onDispatched?: (
-    snippets: AtwSnippetSummary[],
-    values: Record<string, unknown>,
-    response: AtwBatchExecuteResponse
-  ) => void;
+  onDispatched?: AtwDispatchHandler;
 }
 
 /** Pause after the last keystroke before the snippet search fires (ms). */
@@ -175,6 +175,48 @@ export function omitCliUsageTrapFields(fields: SectionField[]): SectionField[] {
   return out;
 }
 
+/**
+ * Whether one field forces its section to open rather than start collapsed.
+ *
+ * A collapsed shell mounts none of its children, while the renderer seeds
+ * every leaf in the schema into the form regardless. So anything whose
+ * correctness depends on a mounted component is wrong inside a closed section:
+ *
+ * - a required field with no default is neither validated nor visible, and the
+ *   batch goes out missing an argument nobody was shown;
+ * - a `one_of` group's inactive branches are unregistered by the group's own
+ *   slot, so a closed section submits every branch's seeded default at once;
+ * - a gated field's `requires` / `forbidden` predicates are evaluated by the
+ *   field's own slot, so a gate that would make it required does nothing.
+ */
+function fieldForcesOpenSection(field: SectionField): boolean {
+  if (field.type === 'one_of') {
+    return true;
+  }
+  if (fieldDeclaresGate(field)) {
+    return true;
+  }
+  return (
+    Boolean(field.required) &&
+    (field.default === undefined ||
+      field.default === null ||
+      field.default === '')
+  );
+}
+
+/** Whether a script's section must open, per {@link fieldForcesOpenSection}. */
+export function sectionMustStayOpen(fields: SectionField[]): boolean {
+  return fields.some(fieldForcesOpenSection);
+}
+
+/** How many of a batch's items the server actually launched. */
+export function startedCount(response: AtwBatchExecuteResponse): number {
+  return response.items.filter(
+    (item) =>
+      item.task_history_id !== null && item.task_history_id !== undefined
+  ).length;
+}
+
 /** Drop reserved UI fields and empty optional values from an args bag. */
 function toArgs(values: Record<string, unknown>): Record<string, unknown> {
   const args: Record<string, unknown> = {};
@@ -231,11 +273,11 @@ function batchItemErrors(response: AtwBatchExecuteResponse): string[] {
 /**
  * Merge the picker's option sources, deduping on filename.
  *
- * Three independent sources feed one Autocomplete: the current selection (so a
- * snippet picked under another category or search term stays a removable chip),
- * the selected leaf category's snippets, and the server-side search results. A
- * snippet reachable through several of them must appear once, and identity is
- * the filename — titles are not unique by contract.
+ * Sources: the current selection (so a snippet picked under another category
+ * or search term stays a removable chip), the optional category-filter union,
+ * and — only while no filter is active — the server-side search page. Mixing
+ * that page into a filter would reintroduce scripts from other roots. Identity
+ * is the filename; titles are not unique by contract.
  */
 export function mergeSnippetOptions(
   ...sources: readonly AtwSnippetSummary[][]
@@ -334,6 +376,13 @@ export function CollectPane({
   const [rerunResolveFailed, setRerunResolveFailed] = useState<string | null>(
     null
   );
+  // How many scripts the last batch started, set only while its confirmation
+  // is standing in for the form. Non-null is what collapses the form.
+  const [dispatchedCount, setDispatchedCount] = useState<number | null>(null);
+  // The selection as it stands now, for an in-flight batch to compare its own
+  // against. Identity is the test: every path that changes the selection
+  // assigns a new array.
+  const selectionRef = useRef<AtwSnippetSummary[]>([]);
 
   const handleSnippetsChange = useCallback((snippets: AtwSnippetSummary[]) => {
     setAvailable(snippets);
@@ -355,7 +404,12 @@ export function CollectPane({
     setSelected([]);
     setAvailable([]);
     setItemErrors([]);
+    setDispatchedCount(null);
   }, [isClosed]);
+
+  useEffect(() => {
+    selectionRef.current = selected;
+  }, [selected]);
 
   const selectedNames = useMemo(
     () => selected.map((snippet) => snippet.name),
@@ -368,13 +422,20 @@ export function CollectPane({
     isClosed || !canMutate ? [] : selectedNames
   );
   const batchMutation = useAtwBatchExecute(incidentId);
-  const searchQuery = useAtwSnippetSearch(debouncedSearch);
+  // A non-empty `available` list means a category chip is selected. Search
+  // then stays local over that union: intersecting a paginated server page
+  // would drop later matches, and merging it would reintroduce other roots.
+  const categoryFilterActive = available.length > 0;
+  const searchQuery = useAtwSnippetSearch(
+    categoryFilterActive ? '' : debouncedSearch
+  );
   const rerunResolveQuery = useAtwSnippetSearch(rerunResolveTerm ?? '');
 
   // A disabled query keeps its previous data, so an emptied box must not leave
-  // the last term's hits in the list: read results only while a term is active.
+  // the last term's hits in the list: read results only while a term is active
+  // and no category filter is narrowing the picker.
   const searchResults =
-    debouncedSearch === ''
+    categoryFilterActive || debouncedSearch === ''
       ? NO_SNIPPETS
       : (searchQuery.data?.items ?? NO_SNIPPETS);
 
@@ -393,6 +454,7 @@ export function CollectPane({
     setItemErrors([]);
     setAppliedRerunNonce(rerunRequest.nonce);
     setRerunResolveFailed(null);
+    setDispatchedCount(null);
     if (rerunRequest.remembered) {
       setSelected(rerunRequest.remembered.snippets);
       setFormDefaults(rerunRequest.remembered.values);
@@ -478,10 +540,14 @@ export function CollectPane({
   // The endpoint pages, so a broad term can match more than one page holds.
   // Report the overflow instead of silently showing the first page. Suppressed
   // while a stand-in page is showing: its total belongs to the previous term,
-  // and the notice names the term it counts.
+  // and the notice names the term it counts. Also suppressed while a category
+  // filter is active: that path never uses the server page.
   const searchPagination = searchQuery.data?.pagination ?? null;
   const hiddenMatchCount =
-    debouncedSearch !== '' && searchPagination && searchPageIsCurrent
+    !categoryFilterActive &&
+    debouncedSearch !== '' &&
+    searchPagination &&
+    searchPageIsCurrent
       ? Math.max(searchPagination.total - searchResults.length, 0)
       : 0;
 
@@ -507,6 +573,11 @@ export function CollectPane({
         title: snippet.title,
         description: snippet.description || undefined,
         collapsible: true,
+        // Closed unless the reader has to type something: a batch of two
+        // scripts used to open two screens' worth of expanded parameters,
+        // pushing the run button off the bottom of the page. The header names
+        // the values it holds, so a closed section still reads.
+        collapsed_by_default: !sectionMustStayOpen(fields),
         fields: fields.map((field) =>
           namespaceField(field, snippetPrefix(index))
         ),
@@ -554,8 +625,27 @@ export function CollectPane({
     const snippetsAtSubmit = selected;
     batchMutation.mutate(buildBatchPayload(values, snippetsAtSubmit), {
       onSuccess: (response) => {
-        setItemErrors(batchItemErrors(response));
-        onDispatched?.(snippetsAtSubmit, values, response);
+        // The picker stays live while a batch is in flight, and a rerun
+        // request or a close can replace the selection too. Anything that
+        // describes the submitted batch — its errors, its confirmation, its
+        // values — belongs to the selection it was submitted against, and
+        // would otherwise be pinned onto whatever is selected now.
+        const stillCurrent = selectionRef.current === snippetsAtSubmit;
+        const started = startedCount(response);
+        if (stillCurrent) {
+          setItemErrors(batchItemErrors(response));
+          if (started > 0) {
+            // Seeded so reopening the confirmation's form comes back filled:
+            // the collapse unmounts the form, and `defaultValues` is the only
+            // way its values survive that. Same shape the Results pane's rerun
+            // already round-trips.
+            setFormDefaults(values);
+            setDispatchedCount(started);
+          }
+        }
+        // Reported whatever is selected now: the tasks did start, and the
+        // workspace has to remember, announce and mark them out regardless.
+        onDispatched?.(snippetsAtSubmit, values, response, 'collect');
       },
     });
   };
@@ -571,22 +661,29 @@ export function CollectPane({
   // seed a form react-hook-form believes is already up to date.
   const formKey = `${selectedNames.join('|')}::${appliedRerunNonce}`;
 
+  // A closed incident accepts no runs, so the picker and its instructions
+  // would only describe something the reader cannot do. One line says why.
+  if (isClosed) {
+    return (
+      <Box>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Collect
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          This incident is closed. Reopen it to run more diagnostic snippets.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box>
       <Typography variant="h6" sx={{ mb: 2 }}>
         Collect
       </Typography>
 
-      {isClosed && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          This incident is closed. Reopen it to run more diagnostic snippets.
-        </Alert>
-      )}
-
-      {!isClosed && <CategoryBrowser onSnippetsChange={handleSnippetsChange} />}
-
-      {searchQuery.error && debouncedSearch !== '' && (
-        <Alert severity="error" sx={{ mt: 3 }}>
+      {searchQuery.error && debouncedSearch !== '' && !categoryFilterActive && (
+        <Alert severity="error" sx={{ mb: 2 }}>
           Snippet search failed: {searchQuery.error.message}
         </Alert>
       )}
@@ -599,7 +696,7 @@ export function CollectPane({
       {hiddenMatchCount > 0 && (
         // Polite, not the Alert default's assertive: this mounts and unmounts as
         // the user keeps typing, and must not interrupt a screen reader mid-word.
-        <Alert severity="info" role="status" sx={{ mt: 3 }}>
+        <Alert severity="info" role="status" sx={{ mb: 2 }}>
           Showing the first {searchResults.length} of {searchPagination?.total}{' '}
           snippets matching &ldquo;{debouncedSearch}&rdquo;. Type more of the
           name or description to narrow the results.
@@ -608,8 +705,6 @@ export function CollectPane({
 
       <Autocomplete
         multiple
-        disabled={isClosed}
-        sx={{ mt: 3 }}
         options={options}
         value={selected}
         onChange={(_event, value) => {
@@ -620,15 +715,20 @@ export function CollectPane({
           setItemErrors([]);
           setFormDefaults(undefined);
           setRerunResolveFailed(null);
+          setDispatchedCount(null);
         }}
         inputValue={searchInput}
         onInputChange={(_event, value) => setSearchInput(value)}
         filterOptions={filterOptions}
-        loading={debouncedSearch !== '' && searchQuery.isFetching}
+        loading={
+          debouncedSearch !== '' &&
+          !categoryFilterActive &&
+          searchQuery.isFetching
+        }
         loadingText="Searching snippets…"
         noOptionsText={
           searchInput.trim() === ''
-            ? 'Type to search every snippet, or pick a category above.'
+            ? 'Type to search every snippet, or filter by category below.'
             : 'No approved snippet matches this search.'
         }
         getOptionLabel={(option) => option.title}
@@ -657,28 +757,41 @@ export function CollectPane({
         renderInput={(params) => (
           <TextField
             {...params}
-            label="Snippets"
+            label="Search scripts"
             placeholder={
               selected.length === 0
-                ? 'Search or select snippets to run'
+                ? 'Search by name or description'
                 : undefined
             }
+            helperText={
+              selected.length === 0
+                ? 'Search by name or description, or filter by category below, then select one or more scripts to build the execution form.'
+                : undefined
+            }
+            InputProps={{
+              ...params.InputProps,
+              startAdornment: (
+                <>
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" aria-hidden />
+                  </InputAdornment>
+                  {params.InputProps.startAdornment}
+                </>
+              ),
+            }}
           />
         )}
       />
+
+      <Box sx={{ mt: 3 }}>
+        <CategoryFilters onSnippetsChange={handleSnippetsChange} />
+      </Box>
 
       {rerunResolveFailed && (
         <Alert severity="warning" sx={{ mt: 3 }}>
           Could not find “{rerunResolveFailed}” to reopen it — it may have been
           renamed, removed, or is no longer approved. Search for it above, or
           pick a replacement.
-        </Alert>
-      )}
-
-      {selected.length === 0 && (
-        <Alert severity="info" sx={{ mt: 3 }}>
-          Search for a snippet by name or description, or browse a category,
-          then select one or more snippets to build the execution form.
         </Alert>
       )}
 
@@ -713,20 +826,53 @@ export function CollectPane({
         </Alert>
       )}
 
-      {selected.length > 0 && schemaQuery.data && !isClosed && canMutate && (
-        <Box sx={{ mt: 3 }}>
-          <SchemaFormRenderer
-            key={formKey}
-            sections={sections}
-            defaultValues={formDefaults}
-            onSubmit={handleSubmit}
-            renderField={renderField}
-            submitLabel="Execute batch"
-            loading={batchMutation.isPending}
-            submitError={submitError}
-          />
-        </Box>
+      {dispatchedCount !== null && (
+        <Alert
+          severity="success"
+          sx={{ mt: 3 }}
+          data-testid="atw-collect-dispatched"
+        >
+          Started {dispatchedCount}{' '}
+          {dispatchedCount === 1 ? 'script' : 'scripts'}. Their progress is in
+          Results.
+          <Box sx={{ mt: 1 }}>
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => setDispatchedCount(null)}
+            >
+              Change parameters and run again
+            </Button>
+          </Box>
+        </Alert>
       )}
+
+      {selected.length > 0 &&
+        schemaQuery.data &&
+        canMutate &&
+        dispatchedCount === null && (
+          <Box sx={{ mt: 3 }}>
+            <SchemaFormRenderer
+              key={formKey}
+              sections={sections}
+              defaultValues={formDefaults}
+              onSubmit={handleSubmit}
+              renderField={renderField}
+              submitLabel={
+                batchMutation.isPending ? 'Starting…' : 'Execute batch'
+              }
+              loading={batchMutation.isPending}
+              submitError={submitError}
+              submitPlacement="sticky-top"
+              // The height of PMM's own app bar, which is sticky at the top of
+              // the viewport: MUI's default Toolbar, 56px below the `sm`
+              // breakpoint and 64px from it up. Without the offset the run
+              // button pins underneath the bar instead of below it.
+              stickySubmitOffset={{ xs: 56, sm: 64 }}
+              sectionValueSummary
+            />
+          </Box>
+        )}
     </Box>
   );
 }
