@@ -28,7 +28,6 @@ const SUMMARY_SEPARATOR = ' · ';
 /** What a section reads as when nothing in it carries a value. */
 export const EMPTY_SECTION_SUMMARY = 'Using default values';
 
-/** What a credential reads as: set, with neither its value nor its length. */
 export const SENSITIVE_VALUE_SUMMARY = '••••••';
 
 /** A script preview is read-only output, not a value the reader chose. */
