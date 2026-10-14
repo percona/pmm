@@ -2,6 +2,13 @@
 
 State as of 9 Oct 2026. Start a new session by pointing it at this file.
 
+**Update 14 Oct 2026:** the design is now in [`DESIGN.md`](DESIGN.md) (draft, awaiting the
+user's review), with probe evidence in [`probe/RESULTS.md`](probe/RESULTS.md). It supersedes
+"E design as tested" and "Next steps" below: Grafana stays the record, pmm-managed writes the
+series with the node's or service's full labels (nodes carry no `environment`), a leader-only
+sync job backfills, and each dashboard keeps today's scope mapping. Next step after review:
+the `superpowers:writing-plans` skill, then the `node_name_list` benchmark and implementation.
+
 ## Goal
 
 Node and service scoped annotations disappear when a fleet variable is set to All,
