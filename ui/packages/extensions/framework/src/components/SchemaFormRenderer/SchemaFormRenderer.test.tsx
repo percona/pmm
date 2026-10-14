@@ -426,6 +426,44 @@ describe('SchemaFormRenderer — field rendering', () => {
     ).toBeNull();
   });
 
+  it('hides what is typed into a sensitive string field, and only there', () => {
+    const credentialSections: FormSection[] = [
+      {
+        title: 'Parameters',
+        fields: [
+          {
+            type: 'string',
+            name: 'password',
+            label: 'Password',
+            sensitive: true,
+          },
+          {
+            type: 'string',
+            name: 'dest',
+            label: 'Destination',
+            sensitive: false,
+          },
+          { type: 'string', name: 'legacy', label: 'Legacy' },
+        ],
+      },
+    ];
+    renderWithProviders(
+      <SchemaFormRenderer sections={credentialSections} onSubmit={() => {}} />
+    );
+
+    const password = screen.getByLabelText(/Password/);
+    expect(password).toHaveAttribute('type', 'password');
+    expect(password).toHaveAttribute('autocomplete', 'new-password');
+    expect(screen.getByLabelText(/Destination/)).toHaveAttribute(
+      'type',
+      'text'
+    );
+    expect(screen.getByLabelText(/Destination/)).not.toHaveAttribute(
+      'autocomplete'
+    );
+    expect(screen.getByLabelText(/Legacy/)).toHaveAttribute('type', 'text');
+  });
+
   it('ghosts placeholders and seeds required numbers without inventing text values', () => {
     const sections: FormSection[] = [
       {
