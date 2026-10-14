@@ -1,4 +1,8 @@
-import type { ManagedNode, RemoveNodeParams } from 'types/nodes.types';
+import type {
+  ManagedNode,
+  RemoveNodeParams,
+  RemoveNodeResponse,
+} from 'types/nodes.types';
 import { api } from './api';
 import {
   type ListNodesPayload,
@@ -15,5 +19,9 @@ export const listNodes = async (): Promise<ManagedNode[]> => {
 };
 
 export const removeNode = async ({ nodeId, force }: RemoveNodeParams) => {
-  await api.delete(`/inventory/nodes/${nodeId}`, { params: { force } });
+  const res = await api.delete<RemoveNodeResponse>(
+    `/inventory/nodes/${nodeId}`,
+    { params: { force } }
+  );
+  return res.data.warning;
 };

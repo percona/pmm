@@ -133,52 +133,59 @@ export const Services: FC = () => {
           isClusterRow(original) ? null : <ServiceDetails service={original} />
         }
         enableRowActions
-        renderRowActionMenuItems={({ row: { original }, closeMenu }) =>
-          isClusterRow(original)
-            ? []
-            : [
-                <MenuItem
-                  key="delete"
-                  onClick={() => {
-                    setServicesToDelete([original]);
-                    closeMenu();
-                  }}
-                >
-                  <ListItemIcon>
-                    <DeleteOutlineIcon />
-                  </ListItemIcon>
-                  <ListItemText>
-                    {InventoryMessages.actions.delete}
-                  </ListItemText>
-                </MenuItem>,
-                <MenuItem
-                  key="edit"
-                  component={RouterLink}
-                  to={getEditServiceUrl(original.serviceId)}
-                >
-                  <ListItemIcon>
-                    <EditOutlinedIcon />
-                  </ListItemIcon>
-                  <ListItemText>{Messages.actions.edit}</ListItemText>
-                </MenuItem>,
-                <MenuItem
-                  key="dashboard"
-                  component={RouterLink}
-                  to={getServiceDashboardUrl(original)}
-                >
-                  <ListItemText inset>
-                    {Messages.actions.dashboard}
-                  </ListItemText>
-                </MenuItem>,
-                <MenuItem
-                  key="qan"
-                  component={RouterLink}
-                  to={getServiceQanUrl(original)}
-                >
-                  <ListItemText inset>{Messages.actions.qan}</ListItemText>
-                </MenuItem>,
-              ]
-        }
+        renderRowActionMenuItems={({ row: { original }, closeMenu }) => {
+          if (isClusterRow(original)) {
+            return [];
+          }
+
+          const dashboardUrl = getServiceDashboardUrl(original);
+          const qanUrl = getServiceQanUrl(original);
+
+          return [
+            <MenuItem
+              key="delete"
+              onClick={() => {
+                setServicesToDelete([original]);
+                closeMenu();
+              }}
+            >
+              <ListItemIcon>
+                <DeleteOutlineIcon />
+              </ListItemIcon>
+              <ListItemText>{InventoryMessages.actions.delete}</ListItemText>
+            </MenuItem>,
+            <MenuItem
+              key="edit"
+              component={RouterLink}
+              to={getEditServiceUrl(original.serviceId)}
+            >
+              <ListItemIcon>
+                <EditOutlinedIcon />
+              </ListItemIcon>
+              <ListItemText>{Messages.actions.edit}</ListItemText>
+            </MenuItem>,
+            ...(dashboardUrl
+              ? [
+                  <MenuItem
+                    key="dashboard"
+                    component={RouterLink}
+                    to={dashboardUrl}
+                  >
+                    <ListItemText inset>
+                      {Messages.actions.dashboard}
+                    </ListItemText>
+                  </MenuItem>,
+                ]
+              : []),
+            ...(qanUrl
+              ? [
+                  <MenuItem key="qan" component={RouterLink} to={qanUrl}>
+                    <ListItemText inset>{Messages.actions.qan}</ListItemText>
+                  </MenuItem>,
+                ]
+              : []),
+          ];
+        }}
         renderTopToolbarCustomActions={() => (
           <Stack
             direction="row"

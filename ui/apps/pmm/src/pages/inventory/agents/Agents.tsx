@@ -79,7 +79,6 @@ export const Agents: FC = () => {
     <Page
       title={InventoryMessages.title}
       maxWidth="full"
-      surface="paper"
       roles={[OrgRole.Admin]}
     >
       <Stack gap={2} sx={{ flex: 1 }}>

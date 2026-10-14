@@ -223,6 +223,25 @@ describe('EditService', () => {
     );
   });
 
+  it('saves an unrelated change next to a label value with spaces', async () => {
+    vi.mocked(listManagedServices).mockResolvedValue({
+      services: [{ ...SERVICE, customLabels: { owner: 'DB Team' } }],
+    });
+    renderEditService();
+
+    await screen.findByTestId('edit-service-form');
+    expect(field('Custom labels').value).toBe('owner:DB Team');
+    changeField('Environment', 'staging');
+    await saveAndConfirm();
+
+    await waitFor(() =>
+      expect(changeService).toHaveBeenCalledWith({
+        serviceId: 'service-1',
+        environment: 'staging',
+      })
+    );
+  });
+
   it('does not report a failed request as a missing service', async () => {
     vi.mocked(listManagedServices).mockRejectedValue(new Error('timeout'));
     renderEditService();

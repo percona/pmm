@@ -104,7 +104,7 @@ describe('Nodes', () => {
     vi.clearAllMocks();
     localStorage.clear();
     vi.mocked(listNodes).mockResolvedValue(NODES);
-    vi.mocked(removeNode).mockResolvedValue();
+    vi.mocked(removeNode).mockResolvedValue(undefined);
   });
 
   it('lists the nodes with their HA role and services', async () => {
@@ -246,5 +246,30 @@ describe('Nodes', () => {
         force: false,
       })
     );
+  });
+
+  it("shows what a node's removal left behind", async () => {
+    vi.mocked(removeNode).mockResolvedValue(
+      'Service account of node node-1 still has 2 tokens'
+    );
+    renderNodes();
+
+    await screen.findByText('node-1');
+    fireEvent.click(screen.getAllByRole('button', { name: 'Row Actions' })[0]);
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Delete' }));
+    fireEvent.click(
+      within(await screen.findByTestId('inventory-delete-modal')).getByTestId(
+        'inventory-delete-modal-confirm'
+      )
+    );
+
+    expect(
+      await screen.findByText(
+        'Service account of node node-1 still has 2 tokens'
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('1 of 1 nodes successfully deleted')
+    ).toBeInTheDocument();
   });
 });

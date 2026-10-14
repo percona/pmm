@@ -248,10 +248,12 @@ export const toRdsExporter = (payload: AgentPayload): RdsExporter => ({
   isAwsSecretKeySet: !!payload.is_aws_secret_key_set,
 });
 
+// The exporter is looked up by node, so credentials are only editable when
+// there is no doubt which one they belong to
 export const findRdsExporter = (agents: AgentPayload[] = []) => {
-  const agent = agents.find(
+  const exporters = agents.filter(
     ({ agent_type }) => agent_type === AgentType.rdsExporter
   );
 
-  return agent ? toRdsExporter(agent) : null;
+  return exporters.length === 1 ? toRdsExporter(exporters[0]) : null;
 };

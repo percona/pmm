@@ -208,6 +208,22 @@ describe('Services', () => {
     ).toMatchObject({ serviceId: true });
   });
 
+  it('keeps the service ID column hidden after a change made while filtered', async () => {
+    renderServices('/inventory/services?services.f.serviceId=service-2');
+
+    await screen.findByText('mysql-2');
+    fireEvent.click(screen.getByRole('button', { name: 'Show/Hide columns' }));
+    const menu = await screen.findByRole('menu');
+    fireEvent.click(within(menu).getByText('Port'));
+    fireEvent.keyDown(menu, { key: 'Escape' });
+
+    await waitFor(() =>
+      expect(
+        JSON.parse(localStorage.getItem('inventory-services.columns') ?? '{}')
+      ).toMatchObject({ port: false, serviceId: false })
+    );
+  });
+
   it('expands the clusters holding the filtered services', async () => {
     localStorage.setItem(CLUSTERS_SWITCH_KEY, 'true');
     renderServices('/inventory/services?services.f.serviceId=service-2');

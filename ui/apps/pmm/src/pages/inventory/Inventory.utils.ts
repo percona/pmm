@@ -14,6 +14,8 @@ import {
   LEGACY_FILTER_VALUES,
   LEGACY_SEARCH_COLUMN_PARAM,
   LEGACY_SEARCH_TEXT_PARAM,
+  QAN_SERVICE_TYPES,
+  SERVICE_DASHBOARDS,
 } from './Inventory.constants';
 import { Messages } from './Inventory.messages';
 import {
@@ -86,11 +88,22 @@ export const getFilteredTabUrl = (
 export const getServiceDashboardUrl = ({
   serviceType,
   serviceName,
-}: ManagedService) =>
-  `${PMM_NEW_NAV_GRAFANA_PATH}/d/${serviceType}-instance-summary/${serviceType}-instance-summary?var-service_name=${encodeURIComponent(serviceName)}`;
+}: ManagedService) => {
+  const dashboard = SERVICE_DASHBOARDS[serviceType];
 
-export const getServiceQanUrl = ({ serviceName }: ManagedService) =>
-  `${PMM_QAN_URL}?var-service_name=${encodeURIComponent(serviceName)}`;
+  return (
+    dashboard &&
+    `${PMM_NEW_NAV_GRAFANA_PATH}/d/${dashboard}?var-service_name=${encodeURIComponent(serviceName)}`
+  );
+};
+
+export const getServiceQanUrl = ({
+  serviceType,
+  serviceName,
+}: ManagedService) =>
+  QAN_SERVICE_TYPES.includes(serviceType)
+    ? `${PMM_QAN_URL}?var-service_name=${encodeURIComponent(serviceName)}`
+    : undefined;
 
 export const getEditServiceUrl = (serviceId: string) =>
   `${PMM_INVENTORY_SERVICES_PATH}/${serviceId}/edit`;

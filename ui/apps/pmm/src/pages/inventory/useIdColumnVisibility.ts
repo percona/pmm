@@ -40,7 +40,12 @@ export const useIdColumnVisibility = (
       );
     }
 
-    setVisibility(next);
+    // While filtered, a visible ID column is only forced and not the user's choice
+    setVisibility(
+      isFiltered && next[idColumn]
+        ? { ...next, [idColumn]: visibility[idColumn] ?? false }
+        : next
+    );
   };
 
   return { columnVisibility, onColumnVisibilityChange };

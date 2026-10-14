@@ -17,8 +17,16 @@ export const splitCustomLabel = (entry: string): [string, string] => {
     : [entry.slice(0, separator), entry.slice(separator + 1)];
 };
 
+// Labels are separated by new lines or spaces, but a space only starts a new
+// label before another "name:", so values can hold spaces
+export const splitCustomLabelEntries = (text: string) =>
+  text
+    .split(/\n|\s+(?=[^\s:]+:)/)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
 export const parseCustomLabels = (text: string): Record<string, string> =>
-  Object.fromEntries(text.split(/\s/).filter(Boolean).map(splitCustomLabel));
+  Object.fromEntries(splitCustomLabelEntries(text).map(splitCustomLabel));
 
 export const getRdsAuthMode = (exporter: RdsExporter | null) => {
   if (exporter?.awsRoleArn) {

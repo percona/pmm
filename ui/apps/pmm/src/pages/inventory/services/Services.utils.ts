@@ -28,10 +28,13 @@ export const toClusterRows = (services: ServiceRow[]): ClusterRow[] => {
   const clusters = new Map<string, ServiceRow[]>();
 
   for (const service of services) {
-    clusters.set(service.cluster, [
-      ...(clusters.get(service.cluster) ?? []),
-      service,
-    ]);
+    const cluster = clusters.get(service.cluster);
+
+    if (cluster) {
+      cluster.push(service);
+    } else {
+      clusters.set(service.cluster, [service]);
+    }
   }
 
   return [...clusters.entries()]

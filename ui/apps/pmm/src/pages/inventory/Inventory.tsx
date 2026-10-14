@@ -16,12 +16,7 @@ export const Inventory: FC = () => {
     : 'services';
 
   return (
-    <Page
-      title={Messages.title}
-      maxWidth="full"
-      surface="paper"
-      roles={[OrgRole.Admin]}
-    >
+    <Page title={Messages.title} maxWidth="full" roles={[OrgRole.Admin]}>
       <Stack gap={3} sx={{ flex: 1 }}>
         <Tabs
           data-testid="inventory-tabs"

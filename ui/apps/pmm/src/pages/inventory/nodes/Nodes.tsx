@@ -70,7 +70,7 @@ export const Nodes: FC = () => {
     ]);
 
   const handleDelete = async (force: boolean) => {
-    const deleted = await removeNodes(
+    const { deleted, warnings } = await removeNodes(
       nodesToDelete.map(({ nodeId }) => ({ nodeId, force }))
     );
 
@@ -79,6 +79,10 @@ export const Nodes: FC = () => {
         variant: 'success',
       });
     }
+
+    warnings.forEach((warning) =>
+      enqueueSnackbar(warning, { variant: 'warning' })
+    );
 
     setRowSelection({});
     setNodesToDelete([]);

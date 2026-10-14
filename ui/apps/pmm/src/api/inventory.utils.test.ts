@@ -226,4 +226,13 @@ describe('findRdsExporter', () => {
       ])
     ).toBeNull();
   });
+
+  it('returns null when the node has more than one rds_exporter', () => {
+    expect(
+      findRdsExporter([
+        { agent_id: 'rds-1', agent_type: AgentType.rdsExporter },
+        { agent_id: 'rds-2', agent_type: AgentType.rdsExporter },
+      ])
+    ).toBeNull();
+  });
 });

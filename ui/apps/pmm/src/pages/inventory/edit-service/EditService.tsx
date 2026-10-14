@@ -28,7 +28,6 @@ export const EditService: FC = () => {
       title={
         service ? Messages.title(service.serviceName) : Messages.loadingTitle
       }
-      surface="paper"
       roles={[OrgRole.Admin]}
     >
       {!isLoaded && (

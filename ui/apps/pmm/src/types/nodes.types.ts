@@ -35,3 +35,13 @@ export interface RemoveNodeParams {
   nodeId: string;
   force: boolean;
 }
+
+export interface RemoveNodeResponse {
+  // Names what the removal left behind, e.g. the node's service account
+  warning?: string;
+}
+
+export interface RemoveNodesResult {
+  deleted: number;
+  warnings: string[];
+}

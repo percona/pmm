@@ -57,6 +57,17 @@ describe('custom labels', () => {
     expect(parseCustomLabels(toCustomLabelsText(labels))).toEqual(labels);
   });
 
+  it('keeps spaces in label values', () => {
+    const labels = { owner: 'DB Team', team: 'db' };
+
+    expect(parseCustomLabels(toCustomLabelsText(labels))).toEqual(labels);
+    expect(parseCustomLabels('owner:DB Team env:prod team:db')).toEqual({
+      owner: 'DB Team',
+      env: 'prod',
+      team: 'db',
+    });
+  });
+
   it.each([
     ['', true],
     ['team:db\nregion_name:eu', true],
@@ -64,6 +75,8 @@ describe('custom labels', () => {
     ['team', false],
     ['team:', false],
     ['endpoint:db:3306', true],
+    ['owner:DB Team', true],
+    ['team:db 1team:db', false],
     ['1team:db', false],
     ['__reserved:db', false],
   ])('validates %j as %s', (text, valid) => {

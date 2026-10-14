@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AgentStatus, AgentType, type ManagedAgent } from 'types/agent.types';
+import { ManagedServiceType } from 'types/services.types';
 import { TEST_MANAGED_SERVICE } from 'utils/testStubs';
 import { MonitoringStatus } from './Inventory.types';
 import {
@@ -148,5 +149,28 @@ describe('links', () => {
     expect(getServiceQanUrl(service)).toBe(
       '/graph/d/pmm-qan/pmm-query-analytics?var-service_name=my%20service'
     );
+  });
+
+  it('opens the Valkey overview, which has no QAN', () => {
+    const service = {
+      ...TEST_MANAGED_SERVICE,
+      serviceType: ManagedServiceType.valkey,
+      serviceName: 'valkey-1',
+    };
+
+    expect(getServiceDashboardUrl(service)).toBe(
+      '/graph/d/valkey-overview/valkey-redis-overview?var-service_name=valkey-1'
+    );
+    expect(getServiceQanUrl(service)).toBeUndefined();
+  });
+
+  it('links nowhere for an external service', () => {
+    const service = {
+      ...TEST_MANAGED_SERVICE,
+      serviceType: ManagedServiceType.external,
+    };
+
+    expect(getServiceDashboardUrl(service)).toBeUndefined();
+    expect(getServiceQanUrl(service)).toBeUndefined();
   });
 });

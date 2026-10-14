@@ -55,6 +55,26 @@ export const SERVICE_TYPE_ICONS: Partial<
   [ManagedServiceType.haproxy]: HaproxyIcon,
 };
 
+// External services have no dashboard of their own
+export const SERVICE_DASHBOARDS: Partial<Record<ManagedServiceType, string>> = {
+  [ManagedServiceType.mysql]: 'mysql-instance-summary/mysql-instance-summary',
+  [ManagedServiceType.mongodb]:
+    'mongodb-instance-summary/mongodb-instance-summary',
+  [ManagedServiceType.postgresql]:
+    'postgresql-instance-summary/postgresql-instance-summary',
+  [ManagedServiceType.proxysql]:
+    'proxysql-instance-summary/proxysql-instance-summary',
+  [ManagedServiceType.haproxy]:
+    'haproxy-instance-summary/haproxy-instance-summary',
+  [ManagedServiceType.valkey]: 'valkey-overview/valkey-redis-overview',
+};
+
+export const QAN_SERVICE_TYPES = [
+  ManagedServiceType.mysql,
+  ManagedServiceType.mongodb,
+  ManagedServiceType.postgresql,
+];
+
 export const SERVICE_STATUSES = [
   ServiceStatus.up,
   ServiceStatus.down,
