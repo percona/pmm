@@ -6,6 +6,7 @@ import { User } from 'types/user.types';
 import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
+  OM_PATH,
 } from 'lib/constants';
 import { findActiveNavItem } from 'utils/navigation.utils';
 import {
@@ -42,7 +43,11 @@ vi.mock('hooks/theme', () => ({
 const renderNavTree = (
   user: User = TEST_USER_ADMIN,
   routerProps?: MemoryRouterProps,
-  settings?: { extensionsEnabled?: boolean; backupManagementEnabled?: boolean }
+  settings?: {
+    extensionsEnabled?: boolean;
+    backupManagementEnabled?: boolean;
+    omEnabled?: boolean;
+  }
 ) => {
   const { result } = renderHook(() => useNavigation(), {
     wrapper: ({ children }) => (
@@ -58,6 +63,7 @@ const renderNavTree = (
             settings: {
               backupManagementEnabled: true,
               extensionsEnabled: true,
+              omEnabled: true,
               ...settings,
             },
           }
@@ -160,6 +166,51 @@ describe('NavigationProvider', () => {
       expect(ids.indexOf('management')).toBe(
         ids.indexOf('inventory-divider') + 1
       );
+    });
+  });
+
+  describe('Operations (OpenManager)', () => {
+    const mongoChildIds = (navTree: NavItem[]) =>
+      findById(navTree, 'mongo')?.children?.map((child) => child.id);
+
+    it('is nested in the MongoDB menu, not a top-level entry', () => {
+      const navTree = renderNavTree();
+
+      expect(navTree.map((item) => item.id)).not.toContain('om');
+      // No MongoDB service is monitored here, so the menu exists for OM alone.
+      expect(mongoChildIds(navTree)).toEqual(['om']);
+    });
+
+    it('is withheld when the switch is off', () => {
+      // Gated on its own settings flag rather than on the PMM Extensions group:
+      // it is served by pmm-managed (PMM-15360).
+      const navTree = renderNavTree(TEST_USER_ADMIN, undefined, {
+        omEnabled: false,
+      });
+
+      expect(findById(navTree, 'mongo')).toBeUndefined();
+    });
+
+    it('is withheld from a non-admin', () => {
+      expect(
+        findById(renderNavTree(TEST_USER_EDITOR), 'mongo')
+      ).toBeUndefined();
+    });
+
+    it.each([
+      ['om-fleet', OM_PATH],
+      ['om-nodes', `${OM_PATH}/nodes`],
+      ['om-automations', `${OM_PATH}/automations`],
+      ['om-settings', `${OM_PATH}/settings`],
+    ])('marks %s active inside the MongoDB menu', (childId, path) => {
+      const navTree = renderNavTree(TEST_USER_ADMIN, {
+        initialEntries: [path],
+      });
+      const om = findById(findById(navTree, 'mongo')?.children ?? [], 'om');
+      const active = findActiveNavItem(navTree, path);
+
+      expect(active?.id).toBe(childId);
+      expect(om?.children).toContain(active);
     });
   });
 
