@@ -105,7 +105,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
         items.push(NAV_INVENTORY);
       }
 
-      // PMM Extensions apps mounted as native routes, grouped under "Management" and
+      // PMM Extensions apps mounted as native routes, grouped under "Apps" and
       // placed right below Inventory so no pre-existing entry moves. Offered to
       // every signed-in user, not only admins: the side-car's API serves its reads to
       // any authenticated session and holds every unsafe method to
