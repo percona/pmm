@@ -12,7 +12,7 @@ category:
 
 `POST /v1/realtimeanalytics/sessions:start`
 
-Starts a Real-time Analytics (RTA) session for a specified MongoDB or MySQL service. Once started, the session will continuously collect data about currently executing queries.
+Starts a Real-time Analytics (RTA) session for a specified MongoDB, MySQL or PostgreSQL service. Once started, the session will continuously collect data about currently executing queries.
 
 ### Request body
 ```json
@@ -42,7 +42,7 @@ Starts a Real-time Analytics (RTA) session for a specified MongoDB or MySQL serv
 }
 ```
 
-Starting a session for a MySQL service returns the same shape with `service_type` set to `SERVICE_TYPE_MYSQL_SERVICE`:
+Starting a session for a MySQL or PostgreSQL service returns the same shape with `service_type` set to `SERVICE_TYPE_MYSQL_SERVICE` or `SERVICE_TYPE_POSTGRESQL_SERVICE`:
 
 ```json
 {
@@ -69,8 +69,8 @@ Starting a session for a MySQL service returns the same shape with `service_type
 | `session.start_time` | string (date-time) | When the session started |
 | `session.collect_interval` | string | Query collection interval |
 | `session.status` | string | Session status (see status values below) |
-| `session.service_type` | string | `SERVICE_TYPE_MONGODB_SERVICE` or `SERVICE_TYPE_MYSQL_SERVICE` |
-| `session.status_message` | string | Why the session failed to start when `status` is `SESSION_STATUS_ERROR`, or what it cannot collect when `status` is `SESSION_STATUS_RUNNING`. Reported for MySQL services by PMM Client 3.10.0 and later; omitted when there is nothing to report |
+| `session.service_type` | string | `SERVICE_TYPE_MONGODB_SERVICE`, `SERVICE_TYPE_MYSQL_SERVICE` or `SERVICE_TYPE_POSTGRESQL_SERVICE` |
+| `session.status_message` | string | Why the session failed to start when `status` is `SESSION_STATUS_ERROR`, or what it cannot collect when `status` is `SESSION_STATUS_RUNNING`. Reported for MySQL and PostgreSQL services by PMM Client 3.10.0 and later; omitted when there is nothing to report |
 
 ### Example
 ```bash
@@ -171,7 +171,7 @@ Returns the list of all currently running Real-time Analytics sessions with thei
 | `sessions[].start_time` | string (date-time) | When the session started |
 | `sessions[].collect_interval` | string | Query collection interval |
 | `sessions[].status` | string | Session status |
-| `sessions[].service_type` | string | `SERVICE_TYPE_MONGODB_SERVICE` or `SERVICE_TYPE_MYSQL_SERVICE` |
+| `sessions[].service_type` | string | `SERVICE_TYPE_MONGODB_SERVICE`, `SERVICE_TYPE_MYSQL_SERVICE` or `SERVICE_TYPE_POSTGRESQL_SERVICE` |
 | `sessions[].status_message` | string | The agent's explanation of `status`; see `session.status_message` in [Start session](#start-session) |
 
 ### Examples
@@ -202,7 +202,7 @@ curl -X GET "https://your-pmm-server/v1/realtimeanalytics/sessions?cluster_name=
 | Status Code | Error | Description |
 |-------------|-------|-------------|
 | `200` | Success | Operation completed successfully |
-| `400` | Bad Request | Invalid request (missing service_id, etc.) |
+| `400` | Bad Request | Invalid request (missing service_id, a service type without RTA, or PMM Server's own PostgreSQL database) |
 | `401` | Unauthorized | Missing or invalid authentication token |
 | `403` | Forbidden | Insufficient permissions |
 | `404` | Not Found | Service not found |
@@ -221,11 +221,13 @@ curl -X GET "https://your-pmm-server/v1/realtimeanalytics/sessions?cluster_name=
 
 ### Session won't start
 
-You're unable to start an RTA session. This typically happens when the service doesn't exist in PMM inventory, the PMM Client version is too old (**< 3.7.0** for MongoDB, **< 3.10.0** for MySQL), or the exporter is not configured.
+You're unable to start an RTA session. This typically happens when the service doesn't exist in PMM inventory, the PMM Client version is too old (**< 3.7.0** for MongoDB, **< 3.10.0** for MySQL), or the exporter is not configured. PMM Server's own PostgreSQL database (`pmm-server-postgresql`) is refused with `INVALID_ARGUMENT`.
 
 When the PMM Client is too old, the request fails with `FAILED_PRECONDITION` and a message naming the required version, for example `Service ... has pmm-agent with version 3.9.1 not supporting Real-Time Analytics; pmm-agent 3.10.0 or later is required.` Adding an RTA agent through the inventory API (`POST /v1/inventory/agents` with `rta_mysql_agent` or `rta_mongodb_agent`) is refused with the same error when the target PMM Agent has reported an older version.
 
 For MySQL services, a session also fails to start when `performance_schema` is disabled on the monitored server, or when the PMM monitoring user lacks the `SELECT` and `PROCESS` privileges. The session error message names the check that failed.
+
+For PostgreSQL services, a session fails to start when PMM cannot connect, or when the server cannot run the RTA query on `pg_stat_activity`. A monitoring user outside `pg_read_all_stats` still starts a session, but only sees its own sessions; `status_message` says so while the session is `SESSION_STATUS_RUNNING`. Grant it `pg_monitor` or `pg_read_all_stats`.
 
 **Solutions:**
 
@@ -253,5 +255,6 @@ A session whose RTA agent sits on a PMM Agent too old to run it, for example one
 3. Verify network connectivity between PMM agent and MongoDB
 4. Confirm MongoDB user has the required permissions for `$currentOp`. See [MongoDB currentOp Access Control](https://www.mongodb.com/docs/manual/reference/operator/aggregation/currentOp/#access-control) for details.
 5. For MySQL services, confirm the monitoring user has `SELECT` and `PROCESS`, and that `performance_schema` is enabled. See [Real-time Analytics for MySQL](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/QAN-realtime-analytics-mysql.html).
+6. For PostgreSQL services, confirm the monitoring user is a member of `pg_monitor` or `pg_read_all_stats`.
 
 To get the authentication token, check [Authentication](ref:authentication).

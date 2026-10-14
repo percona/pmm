@@ -201,7 +201,7 @@ func (u *StateUpdater) vmAgentDeployment(pmmAgentID string) vmAgentDeployment {
 // can predate the inventory API's version check and an older pmm-agent retries them every second.
 func rtaAgentRunnable(row *models.Agent, service *models.Service, pmmAgentVersion string) bool {
 	switch row.AgentType {
-	case models.RTAMongoDBAgentType, models.RTAMySQLAgentType:
+	case models.RTAMongoDBAgentType, models.RTAMySQLAgentType, models.RTAPostgreSQLAgentType:
 		return models.IsRTASupported(pmmAgentVersion, service.ServiceType)
 	default:
 		return true
@@ -343,7 +343,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			models.ValkeyExporterType, models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType,
 			models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType,
 			models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType,
-			models.RTAMongoDBAgentType, models.RTAMySQLAgentType:
+			models.RTAMongoDBAgentType, models.RTAMySQLAgentType, models.RTAPostgreSQLAgentType:
 			service, err := getService(pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
@@ -400,6 +400,8 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				builtinAgents[row.AgentID] = rtaMongoDBAgentConfig(service, row, pmmAgentVersion)
 			case models.RTAMySQLAgentType:
 				builtinAgents[row.AgentID] = rtaMySQLAgentConfig(service, row, pmmAgentVersion)
+			case models.RTAPostgreSQLAgentType:
+				builtinAgents[row.AgentID] = rtaPostgreSQLAgentConfig(service, row, pmmAgentVersion)
 			}
 
 		default:

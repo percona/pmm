@@ -76,7 +76,11 @@ const RealtimeOverviewPage: FC = () => {
   );
   const [hideCommit, setHideCommit] = useState(false);
   const [blockedOnly, setBlockedOnly] = useState(false);
+  // Hiding transaction control is MySQL-only: PostgreSQL lists a session idle in transaction
+  // by its last statement, often BEGIN, so hiding it would hide the session holding the lock.
   const isMySqlSelection = serviceType === ServiceType.mysql;
+  const isSqlSelection =
+    isMySqlSelection || serviceType === ServiceType.posgresql;
   // Synced from the table after filters; details-pane arrows use this list, not the full API result.
   const [navigableQueries, setNavigableQueries] = useState<QueryData[]>([]);
   const [selectedQuery, setSelectedQuery] = useState<QueryData>();
@@ -84,8 +88,8 @@ const RealtimeOverviewPage: FC = () => {
   const previousFetchingState = useRef<boolean>(fetching);
   // Gated on the toggle being on screen, so a hidden filter cannot hide rows or shrink the CSV.
   const hideTransactionControl = hideCommit && isMySqlSelection;
-  // Gated the same way: lock waits are reported for MySQL only.
-  const showBlockedOnly = blockedOnly && isMySqlSelection;
+  // Gated the same way: lock waits are reported for MySQL and PostgreSQL only.
+  const showBlockedOnly = blockedOnly && isSqlSelection;
   // The blocked count excludes hidden transaction-control rows, but not MRT's column filters,
   // so a Database or User filter can leave the label higher than the row count.
   const visibleQueries = useMemo(() => {
@@ -314,7 +318,7 @@ const RealtimeOverviewPage: FC = () => {
               )}
             </Stack>
             {/* Row filters, wrapped as one unit so a narrow toolbar never splits them. */}
-            {isMySqlSelection && (
+            {isSqlSelection && (
               <Stack
                 direction="row"
                 alignItems="center"
@@ -366,24 +370,26 @@ const RealtimeOverviewPage: FC = () => {
                     sx={{ whiteSpace: 'nowrap', ml: 0, mr: 1 }}
                   />
                 </Tooltip>
-                <Tooltip title={Messages.hideCommitTooltip} arrow>
-                  <FormControlLabel
-                    data-testid="overview-table-hide-commit-toggle"
-                    control={
-                      <Switch
-                        size="small"
-                        checked={hideCommit}
-                        onChange={(event) =>
-                          setHideCommit(event.target.checked)
-                        }
-                      />
-                    }
-                    label={Messages.hideCommit}
-                    // ml resets FormControlLabel's negative margin, which would pull this
-                    // toggle flush against the previous label.
-                    sx={{ whiteSpace: 'nowrap', ml: 0, mr: 0 }}
-                  />
-                </Tooltip>
+                {isMySqlSelection && (
+                  <Tooltip title={Messages.hideCommitTooltip} arrow>
+                    <FormControlLabel
+                      data-testid="overview-table-hide-commit-toggle"
+                      control={
+                        <Switch
+                          size="small"
+                          checked={hideCommit}
+                          onChange={(event) =>
+                            setHideCommit(event.target.checked)
+                          }
+                        />
+                      }
+                      label={Messages.hideCommit}
+                      // ml resets FormControlLabel's negative margin, which would pull this
+                      // toggle flush against the previous label.
+                      sx={{ whiteSpace: 'nowrap', ml: 0, mr: 0 }}
+                    />
+                  </Tooltip>
+                )}
               </Stack>
             )}
             <Box

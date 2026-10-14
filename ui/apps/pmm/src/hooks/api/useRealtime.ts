@@ -36,6 +36,7 @@ const AVAILABLE_SERVICE_TYPES: Record<
 > = {
   mongodb: ServiceType.mongodb,
   mysql: ServiceType.mysql,
+  postgresql: ServiceType.posgresql,
 };
 
 // Shared so every useAvailableServices caller asks for the same set in one fetch.

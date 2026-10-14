@@ -8,15 +8,15 @@ privacy:
   view: public
 ---
 
-Real-time Analytics (RTA) provides live visibility into currently executing queries on your MongoDB and MySQL databases. Unlike stored metrics Query Analytics (QAN), which analyzes historical query performance data, RTA shows you what's happening right now on your database.
+Real-time Analytics (RTA) provides live visibility into currently executing queries on your MongoDB, MySQL and PostgreSQL databases. Unlike stored metrics Query Analytics (QAN), which analyzes historical query performance data, RTA shows you what's happening right now on your database.
 
-For MySQL services, RTA also reports lock contention: which statements are waiting on a lock and which transaction is holding it.
+For MySQL and PostgreSQL services, RTA also reports lock contention: which statements are waiting on a lock and which transaction is holding it.
 
 Use the RTA API to:
 
-- start and stop real-time monitoring sessions for MongoDB and MySQL services
+- start and stop real-time monitoring sessions for MongoDB, MySQL and PostgreSQL services
 - search currently executing queries in active sessions
-- identify blocked statements and the transactions blocking them (MySQL)
+- identify blocked statements and the transactions blocking them (MySQL and PostgreSQL)
 - list all active monitoring sessions
 - integrate live query monitoring into custom dashboards
 - automate session management
@@ -31,7 +31,7 @@ Use the RTA API to:
 |----------|--------------------|-------|
 | MongoDB | 3.7.0 | |
 | MySQL | 3.10.0 | Includes Percona Server for MySQL and MariaDB |
-| PostgreSQL | — | Planned for a future release |
+| PostgreSQL | 3.10.0 | Not available for PMM Server's own PostgreSQL database (`pmm-server-postgresql`) |
 
 MySQL, Percona Server for MySQL and MariaDB are all registered in PMM as MySQL services and use `SERVICE_TYPE_MYSQL_SERVICE`. There is no separate service type for MariaDB.
 
@@ -39,9 +39,9 @@ Requesting a service type that does not support RTA returns an error:
 
 ```json
 {
-  "error": "Service type postgresql does not support Real-Time Analytics",
+  "error": "Service type valkey does not support Real-Time Analytics",
   "code": 3,
-  "message": "Service type postgresql does not support Real-Time Analytics",
+  "message": "Service type valkey does not support Real-Time Analytics",
   "details": []
 }
 ```
@@ -53,7 +53,7 @@ Requesting a service type that does not support RTA returns an error:
 | **Data type** | Currently executing queries | Historical query performance |
 | **Time range** | Live data (updates every 1-5 seconds) | Historical data (configurable retention) |
 | **Use case** | Identify active issues now | Analyze trends and patterns |
-| **Database support** | MongoDB, MySQL (see [supported databases](#supported-databases)) | MySQL, PostgreSQL, MongoDB |
+| **Database support** | MongoDB, MySQL, PostgreSQL (see [supported databases](#supported-databases)) | MySQL, PostgreSQL, MongoDB |
 | **Data retention** | Ephemeral (not stored) | Persistent (stored for analysis) |
 
 ## Available endpoints
@@ -97,6 +97,10 @@ When a MySQL table appears frozen, use RTA to find the transaction at the head o
 2. Search active queries with `POST /v1/realtimeanalytics/queries:search`
 3. Filter for `my_sql_payload.blocked_status` of `BLOCKED_STATUS_BLOCKED`
 4. In `my_sql_payload.blocked_by`, find the entry with `"root": true` — that transaction is not itself waiting, and ending it releases the queue
+
+### Diagnose lock contention (PostgreSQL)
+
+The same steps work for a PostgreSQL service, using `postgresql_payload` instead of `my_sql_payload`. The `blocking_conn_id` of the root entry is the process ID to pass to `pg_terminate_backend()`, or `0` for a prepared transaction, which you end with `COMMIT PREPARED` or `ROLLBACK PREPARED`.
 
 ## Authentication
 
