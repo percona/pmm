@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Enable corepack
         run: corepack enable
@@ -70,6 +72,7 @@ jobs:
           ref: ${{ github.head_ref }}
           repository: percona/pmm-qa
           path: ./pmm-qa
+          persist-credentials: false
 
       - name: Check out pmm-qa in ${{ github.base_ref }} branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -80,6 +83,7 @@ jobs:
           ref: ${{ github.base_ref }}
           repository: percona/pmm-qa
           path: ./pmm-qa
+          persist-credentials: false
 
       - name: Check out pmm-qa in main branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -88,6 +92,7 @@ jobs:
           ref: main
           repository: percona/pmm-qa
           path: ./pmm-qa
+          persist-credentials: false
 
       - name: Setup npm cache for pmm-qa
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
