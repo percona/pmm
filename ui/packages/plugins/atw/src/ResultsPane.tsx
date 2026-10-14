@@ -287,6 +287,7 @@ export function ResultsPane({
         id: execution.id,
         task_history_id: execution.task_history_id,
         snippet_filename: execution.snippet_filename,
+        snippet_title: execution.snippet_title,
       });
     }
     return map;
@@ -312,6 +313,7 @@ export function ResultsPane({
         id: execution.id,
         task_history_id: execution.task_history_id,
         snippet_filename: execution.snippet_filename,
+        snippet_title: execution.snippet_title,
       });
       return next;
     });
@@ -551,7 +553,12 @@ export function ResultsPane({
         key={sendSessionKey}
         open={sendOpen}
         incidentId={incidentId}
-        executions={resend?.executions ?? selectedExecutions}
+        executions={
+          resend?.executions.map((execution) => ({
+            ...execution,
+            snippet_title: knownExecutions.get(execution.id)?.snippet_title,
+          })) ?? selectedExecutions
+        }
         defaultCaseRef={resend?.caseRef ?? incident?.case_ref}
         onClose={closeSend}
       />

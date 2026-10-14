@@ -196,7 +196,8 @@ describe('CollectPane snippet search', () => {
       { name: /PT Summary/ },
       { timeout: 3000 }
     );
-    expect(option).toHaveTextContent('ops/pt-summary.sh');
+    expect(option).toHaveTextContent(SEARCH_ROW.description);
+    expect(option).not.toHaveTextContent(SEARCH_ROW.name);
     await userEvent.click(option);
 
     // Clearing the search must not take the selection with it.
@@ -260,8 +261,8 @@ describe('CollectPane snippet search', () => {
       { timeout: 3000 }
     );
     expect(options.map((option) => option.textContent)).toEqual([
-      expect.stringContaining('ops/pt-summary.sh'),
-      expect.stringContaining('diag/summary.sh'),
+      expect.stringContaining('Toolkit summary.'),
+      expect.stringContaining('Diagnostic summary.'),
     ]);
     expect(consoleError.mock.calls.flat().join(' ')).not.toContain('same key');
     consoleError.mockRestore();

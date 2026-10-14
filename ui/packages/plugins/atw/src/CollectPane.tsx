@@ -259,14 +259,22 @@ export function buildBatchPayload(
   };
 }
 
-/** Summarise the batch response's per-item errors for a banner. */
-function batchItemErrors(response: AtwBatchExecuteResponse): string[] {
+/** Summarise the batch response's per-item errors for a banner, by script title. */
+export function batchItemErrors(
+  response: AtwBatchExecuteResponse,
+  snippets: AtwSnippetSummary[]
+): string[] {
+  const titles = new Map(
+    snippets.map((snippet) => [snippet.name, snippet.title])
+  );
   return response.items
     .filter((item) => item.error !== null && item.error !== undefined)
     .map((item) => {
       const detail =
         typeof item.error === 'string' ? item.error : 'validation failed';
-      return `${item.snippet_filename}: ${detail}`;
+      const name =
+        titles.get(item.snippet_filename)?.trim() || item.snippet_filename;
+      return `${name}: ${detail}`;
     });
 }
 
@@ -370,7 +378,7 @@ export function CollectPane({
   // off the prop would remount the form with the *previous* defaults and
   // never re-render again once the right ones arrived.
   const [appliedRerunNonce, setAppliedRerunNonce] = useState(0);
-  // The filename a rerun request could not resolve — renamed, removed, or no
+  // The script a rerun request could not resolve — renamed, removed, or no
   // longer approved since the tab that dispatched it closed. Cleared by the
   // next rerun request, or by a match finally resolving.
   const [rerunResolveFailed, setRerunResolveFailed] = useState<string | null>(
@@ -481,10 +489,12 @@ export function CollectPane({
     ) {
       return;
     }
+    const failedName =
+      rerunRequest.snippetTitle || rerunRequest.snippetFilename;
     if (rerunResolveQuery.isError) {
       setResolvingRerunNonce(null);
       setRerunResolveTerm(null);
-      setRerunResolveFailed(rerunRequest.snippetFilename);
+      setRerunResolveFailed(failedName);
       return;
     }
     if (!rerunResolveQuery.isSuccess) {
@@ -499,7 +509,7 @@ export function CollectPane({
       setSelected([match]);
       setRerunResolveFailed(null);
     } else {
-      setRerunResolveFailed(rerunRequest.snippetFilename);
+      setRerunResolveFailed(failedName);
     }
   }, [
     rerunResolveQuery.data,
@@ -633,7 +643,7 @@ export function CollectPane({
         const stillCurrent = selectionRef.current === snippetsAtSubmit;
         const started = startedCount(response);
         if (stillCurrent) {
-          setItemErrors(batchItemErrors(response));
+          setItemErrors(batchItemErrors(response, snippetsAtSubmit));
           if (started > 0) {
             // Seeded so reopening the confirmation's form comes back filled:
             // the collapse unmounts the form, and `defaultValues` is the only
@@ -739,18 +749,17 @@ export function CollectPane({
         renderOption={(props, option) => {
           const { key, ...liProps } = props as typeof props & { key: string };
           return (
-            // The server matches filename and description too, so a hit can look
+            // The server matches the description too, so a hit can look
             // unrelated to the typed term.
-            <Box
-              component="li"
-              key={key}
-              {...liProps}
-              sx={{ display: 'flex', gap: 0.5 }}
-            >
-              <Typography variant="body2">{option.title}</Typography>
-              <Typography variant="caption" color="text.secondary">
-                {option.name}
-              </Typography>
+            <Box component="li" key={key} {...liProps}>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography variant="body2">{option.title}</Typography>
+                {option.description && (
+                  <Typography variant="caption" color="text.secondary">
+                    {option.description}
+                  </Typography>
+                )}
+              </Box>
             </Box>
           );
         }}

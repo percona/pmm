@@ -122,6 +122,8 @@ export interface AtwRerunRequest {
   nonce: number;
   /** The snippet to reselect when nothing was remembered for this execution. */
   snippetFilename: string;
+  /** Its display title, when the execution still resolves to one. */
+  snippetTitle?: string;
   /** The exact batch this execution belonged to, when this tab dispatched it. */
   remembered?: AtwRememberedDispatch;
 }
@@ -178,6 +180,8 @@ export interface AtwSendLogExecution {
   id: string;
   task_history_id: number;
   snippet_filename: string;
+  /** Display title; a recorded send log carries only the filename. */
+  snippet_title?: string | null;
 }
 
 /**

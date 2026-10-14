@@ -18,6 +18,7 @@
 import { describe, expect, it } from 'vitest';
 import type { SectionField } from '@pmm-extensions/api';
 import {
+  batchItemErrors,
   buildBatchPayload,
   fieldDeclaresGate,
   filterSnippetOptions,
@@ -27,12 +28,29 @@ import {
   omitCliUsageTrapFields,
   snippetMatchesTerm,
 } from '../src/CollectPane';
-import type { AtwSnippetSummary } from '../src/types';
+import type { AtwBatchExecuteResponse, AtwSnippetSummary } from '../src/types';
 
 const snippets: AtwSnippetSummary[] = [
   { name: 'a.sh', title: 'A', description: '' },
   { name: 'b.sh', title: 'B', description: '' },
 ];
+
+describe('batchItemErrors', () => {
+  it('names each failed item by its title, falling back to the filename', () => {
+    const response = {
+      items: [
+        { snippet_filename: 'a.sh', task_history_id: 1, error: null },
+        { snippet_filename: 'b.sh', task_history_id: null, error: 'no host' },
+        { snippet_filename: 'gone.sh', task_history_id: null, error: {} },
+      ],
+    } as unknown as AtwBatchExecuteResponse;
+
+    expect(batchItemErrors(response, snippets)).toEqual([
+      'B: no host',
+      'gone.sh: validation failed',
+    ]);
+  });
+});
 
 describe('buildBatchPayload', () => {
   it('hoists executor_host and sudo and keeps other top-level values as shared args', () => {
