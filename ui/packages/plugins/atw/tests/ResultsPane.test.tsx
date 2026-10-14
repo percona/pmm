@@ -22,12 +22,18 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { DeliverySettingsProvider } from '../src/deliverySettings';
 import { ResultsPane } from '../src/ResultsPane';
+
+/** Skip Collapse/Accordion transition work that dominates wall time under CI. */
+const testTheme = createTheme({
+  transitions: { create: () => 'none' },
+});
 
 /** Flipped per test to cover the read-only (non-admin) rendering. */
 let mockCanMutate = true;
@@ -63,7 +69,9 @@ function renderPane(ui: ReactNode) {
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
   });
   return render(
-    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+    <ThemeProvider theme={testTheme}>
+      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+    </ThemeProvider>
   );
 }
 
@@ -1747,34 +1755,37 @@ describe('ResultsPane execution rows', () => {
 
   it('counts up while a run is still going', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    vi.setSystemTime(new Date('2026-07-22T10:00:05Z'));
-    routeGet({
-      executions: {
-        items: [
-          {
-            ...NAMED_EXECUTION,
-            id: 'exec-live',
-            task_status: 'running',
-            finished_at: null,
-          },
-        ],
-        total: 1,
-        offset: 0,
-        limit: 20,
-      },
-    });
+    try {
+      vi.setSystemTime(new Date('2026-07-22T10:00:05Z'));
+      routeGet({
+        executions: {
+          items: [
+            {
+              ...NAMED_EXECUTION,
+              id: 'exec-live',
+              task_status: 'running',
+              finished_at: null,
+            },
+          ],
+          total: 1,
+          offset: 0,
+          limit: 20,
+        },
+      });
 
-    renderPane(<ResultsPane incidentId="inc-1" />);
+      renderPane(<ResultsPane incidentId="inc-1" />);
 
-    await waitFor(() => {
-      expect(screen.getByText('5.0s')).toBeTruthy();
-    });
+      await waitFor(() => {
+        expect(screen.getByText('5.0s')).toBeTruthy();
+      });
 
-    await act(async () => {
-      vi.advanceTimersByTime(3000);
-    });
-    expect(screen.getByText('8.0s')).toBeTruthy();
-    vi.useRealTimers();
+      await act(async () => {
+        vi.advanceTimersByTime(3000);
+      });
+      expect(screen.getByText('8.0s')).toBeTruthy();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('says a run is only queued rather than inventing a start time', async () => {
@@ -1859,13 +1870,15 @@ describe('ResultsPane — executions that just started', () => {
   }
 
   beforeEach(() => {
+    // Earlier cases in this file use fake timers; never let that leak here.
+    vi.useRealTimers();
     vi.clearAllMocks();
     mockedApi.get.mockImplementation(
-      async (url: string, config?: { params?: { offset: number } }) => {
+      (url: string, config?: { params?: { offset: number } }) => {
         if (url.includes('/executions/')) {
-          return pageAt(config?.params?.offset ?? 0, 20);
+          return Promise.resolve(pageAt(config?.params?.offset ?? 0, 20));
         }
-        return paginated([]);
+        return Promise.resolve(paginated([]));
       }
     );
   });
@@ -1881,6 +1894,8 @@ describe('ResultsPane — executions that just started', () => {
     expect(screen.getAllByTestId('atw-execution-row-new')).toHaveLength(1);
   });
 
+  // Five page flips of twenty MUI accordions each — under a loaded CI
+  // worker the default 5s budget is not enough even when the reset is correct.
   it('returns a reader on a later page to the top for every new batch', async () => {
     // One client across every rerender: a fresh one would refetch from scratch
     // and hide whether the pane's own page state actually moved.
@@ -1888,12 +1903,14 @@ describe('ResultsPane — executions that just started', () => {
       defaultOptions: { queries: { retry: false, staleTime: Infinity } },
     });
     const withHighlight = (highlightedTaskIds: Set<number>) => (
-      <QueryClientProvider client={queryClient}>
-        <ResultsPane
-          incidentId="inc-1"
-          highlightedTaskIds={highlightedTaskIds}
-        />
-      </QueryClientProvider>
+      <ThemeProvider theme={testTheme}>
+        <QueryClientProvider client={queryClient}>
+          <ResultsPane
+            incidentId="inc-1"
+            highlightedTaskIds={highlightedTaskIds}
+          />
+        </QueryClientProvider>
+      </ThemeProvider>
     );
     const { rerender } = render(withHighlight(new Set()));
 
@@ -1912,5 +1929,6 @@ describe('ResultsPane — executions that just started', () => {
 
     rerender(withHighlight(new Set([2])));
     expect(await screen.findByText('diag/script-0.sh')).toBeVisible();
-  });
+    expect(screen.queryByText('diag/script-20.sh')).not.toBeInTheDocument();
+  }, 20_000);
 });
