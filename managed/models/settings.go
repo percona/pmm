@@ -33,6 +33,7 @@ const (
 	AzureDiscoverEnabledDefault        = false
 	AccessControlEnabledDefault        = false
 	InternalPgQANEnabledDefault        = false
+	OMEnabledDefault                   = false
 	awsPartitionID                     = "aws"
 )
 
@@ -119,6 +120,12 @@ type Settings struct {
 	// EncryptionKeyCheck is a known value encrypted with the key the database
 	// was set up with; see keyCheckPlaintext.
 	EncryptionKeyCheck string `json:"encryption_key_check,omitempty"`
+
+	// OM holds OpenManager's settings.
+	OM struct {
+		// Enabled is true if OpenManager is enabled.
+		Enabled *bool `json:"enabled"`
+	} `json:"om"`
 }
 
 // IsAlertingEnabled returns true if alerting is enabled.
@@ -181,6 +188,14 @@ func (s *Settings) IsAccessControlEnabled() bool {
 		return *s.AccessControl.Enabled
 	}
 	return AccessControlEnabledDefault
+}
+
+// IsOMEnabled returns true if OpenManager is enabled.
+func (s *Settings) IsOMEnabled() bool {
+	if s.OM.Enabled != nil {
+		return *s.OM.Enabled
+	}
+	return OMEnabledDefault
 }
 
 // IsVictoriaMetricsCacheEnabled returns true if VictoriaMetrics cache is enabled.

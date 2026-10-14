@@ -176,11 +176,15 @@ func waitForReencryption(q *reform.Querier, cipher *encryption.Cipher) error {
 		if err != nil {
 			return err
 		}
+		omSecretIDs, err := models.OmBootstrapSecretsNeedingReencryption(q, cipher)
+		if err != nil {
+			return err
+		}
 		checkStale, err := models.KeyCheckNeedsReencryption(q, cipher)
 		if err != nil {
 			return err
 		}
-		lastCount = len(agentIDs) + len(locationIDs)
+		lastCount = len(agentIDs) + len(locationIDs) + len(omSecretIDs)
 		if checkStale {
 			lastCount++
 		}

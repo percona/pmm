@@ -420,7 +420,16 @@ var (
 		mayHoldPlaintext: "TRUE",
 		columns:          []secretColumn{{"s3_config", options[S3LocationConfig]()}},
 	}
-	secretTables = []secretTable{agentsSecretTable, locationsSecretTable}
+	omBootstrapSecretsSecretTable = secretTable{
+		name:      "om_bootstrap_secrets",
+		idColumn:  "run_id",
+		label:     "OM bootstrap secret",
+		newRecord: func() reform.Record { return &OmBootstrapSecret{} },
+		// encrypted on every write since the table was added
+		mayHoldPlaintext: "FALSE",
+		columns:          []secretColumn{{"mongodb_username", nil}, {"mongodb_password", nil}, {"key_file", nil}},
+	}
+	secretTables = []secretTable{agentsSecretTable, locationsSecretTable, omBootstrapSecretsSecretTable}
 )
 
 // AgentsNeedingReencryption returns IDs of agents with at least one stored
@@ -436,6 +445,12 @@ func AgentsNeedingReencryption(q *reform.Querier, cipher *encryption.Cipher) ([]
 // locations' S3 credentials.
 func LocationsNeedingReencryption(q *reform.Querier, cipher *encryption.Cipher) ([]string, error) {
 	return needingReencryption(q, cipher, locationsSecretTable)
+}
+
+// OmBootstrapSecretsNeedingReencryption is AgentsNeedingReencryption for the
+// run IDs of OM bootstrap secrets.
+func OmBootstrapSecretsNeedingReencryption(q *reform.Querier, cipher *encryption.Cipher) ([]string, error) {
+	return needingReencryption(q, cipher, omBootstrapSecretsSecretTable)
 }
 
 func needingReencryption(q *reform.Querier, cipher *encryption.Cipher, t secretTable) ([]string, error) {
