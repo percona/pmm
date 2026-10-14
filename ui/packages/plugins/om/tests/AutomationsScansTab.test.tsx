@@ -180,10 +180,13 @@ describe('AutomationsScansTab', () => {
   });
 
   describe('grouped history', () => {
+    // One clock for every fixture: each `at()` calling Date.now() on its own
+    // drifts by a few ms, and formatCompactDuration floors that to 19m 59s.
+    const now = Date.now();
     const at = (minutesAgo: number, run_id: string): OmInventoryRun => ({
       ...run(run_id),
       status: 'RUN_STATUS_PARTIAL',
-      start_time: new Date(Date.now() - minutesAgo * 60_000).toISOString(),
+      start_time: new Date(now - minutesAgo * 60_000).toISOString(),
       failing_nodes: [{ node_id: 'n2', name: 'node02' }],
     });
 
@@ -200,7 +203,7 @@ describe('AutomationsScansTab', () => {
 
       expect(screen.getAllByTestId('om-run-group-span')).toHaveLength(1);
       expect(screen.getByTestId('om-run-group-span')).toHaveTextContent(
-        /^3 scans over 20m( \d+s)?$/
+        '3 scans over 20m'
       );
     });
 
