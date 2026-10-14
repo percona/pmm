@@ -1,13 +1,11 @@
 # Manage the built-in alert rules
 
-PMM creates alert rules that warn you when PMM itself has a problem, so you don't have to set them up yourself. Which rules you get depends on your deployment:
+PMM creates alert rules that warn you when PMM itself has a problem, so you don't have to set them up yourself. Which rules you get depends on your deployment. To see them, go to **Alerts > Alert rules** and open the folder listed for your rule set:
 
 | Rule set | Created on | Folder |
 |----------|------------|--------|
 | [PMM internal components](templates_list.md#pmm_component_alerts) | Every PMM Server, including when you upgrade to PMM 3.10.0 | **PMM Server** |
 | [PMM High Availability](templates_list.md#pmm_ha_alerts) | PMM HA Cluster only | **PMM High Availability** |
-7890-[]
-To see them, go to **Alerts > Alert rules** and open the folder for your rule set. The built-in rules are in the **PMM Managed** group.
 
 ## Get notified
 
