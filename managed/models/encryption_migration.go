@@ -378,7 +378,11 @@ type secretTable struct {
 	// may have stored its secrets as plaintext even in columns it recorded as
 	// encrypted (see legacyEncryptedColumns)
 	mayHoldPlaintext string
-	columns          []secretColumn
+	// alwaysEncrypted is set when PMM encrypted every value it stored in the
+	// table: all its columns are strict (see inspector), whatever
+	// settings.encrypted_items records
+	alwaysEncrypted bool
+	columns         []secretColumn
 }
 
 func (t secretTable) columnNames() []string {
@@ -427,6 +431,7 @@ var (
 		newRecord: func() reform.Record { return &OmBootstrapSecret{} },
 		// encrypted on every write since the table was added
 		mayHoldPlaintext: "FALSE",
+		alwaysEncrypted:  true,
 		columns:          []secretColumn{{"mongodb_username", nil}, {"mongodb_password", nil}, {"key_file", nil}},
 	}
 	secretTables = []secretTable{agentsSecretTable, locationsSecretTable, omBootstrapSecretsSecretTable}
@@ -571,6 +576,12 @@ func scanSecrets(q *reform.Querier, cipher *encryption.Cipher, t secretTable) (*
 	strict, err := storedLegacyEncryptedColumns(q)
 	if err != nil {
 		return nil, err
+	}
+	if t.alwaysEncrypted {
+		strict = make(map[string]bool, len(t.columns))
+		for _, c := range t.columns {
+			strict[c.name] = true
+		}
 	}
 
 	rows, err := q.Query("SELECT " + t.idColumn + ", " + t.mayHoldPlaintext + ", " + strings.Join(t.columnNames(), ", ") +

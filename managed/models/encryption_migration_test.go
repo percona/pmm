@@ -715,3 +715,42 @@ func TestMigrateEncryptionOmBootstrapSecrets(t *testing.T) {
 	require.NoError(t, err)
 	assert.Empty(t, ids)
 }
+
+// TestMigrateEncryptionOmBootstrapSecretsWrongKey covers an OM bootstrap secret
+// of a key the keyset does not hold. PMM always stored these encrypted, so the
+// migration must refuse instead of storing the ciphertext as if it were the
+// secret, although settings.encrypted_items does not record the table.
+func TestMigrateEncryptionOmBootstrapSecretsWrongKey(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+
+	cipher, err := encryption.DefaultCipher()
+	require.NoError(t, err)
+
+	// legacy ciphertext produced by an unrelated keyset
+	other, err := encryption.CreateCipher(encryption.NewFileKeyProvider(t.TempDir() + "/other.key"))
+	require.NoError(t, err)
+	stored, err := other.Encrypt("password-under-another-key")
+	require.NoError(t, err)
+	foreign := strings.TrimPrefix(stored, encryption.EnvelopePrefix)
+
+	_, err = sqlDB.ExecContext(t.Context(),
+		`INSERT INTO om_bootstrap_secrets (run_id, mongodb_username, mongodb_password, key_file, created_at) VALUES ('R1', '', $1, '', $2)`,
+		foreign, time.Now())
+	require.NoError(t, err)
+
+	_, err = models.OmBootstrapSecretsNeedingReencryption(q, cipher)
+	require.ErrorIs(t, err, encryption.ErrLegacyUnknownKey)
+	assert.Contains(t, err.Error(), "OM bootstrap secret R1 mongodb_password")
+
+	err = models.MigrateEncryption(q)
+	require.ErrorIs(t, err, encryption.ErrLegacyUnknownKey)
+	require.ErrorIs(t, err, models.ErrEncryptionKeyMismatch)
+
+	var password string
+	require.NoError(t, sqlDB.QueryRowContext(t.Context(), `SELECT mongodb_password FROM om_bootstrap_secrets WHERE run_id = 'R1'`).Scan(&password))
+	assert.Equal(t, foreign, password)
+}
