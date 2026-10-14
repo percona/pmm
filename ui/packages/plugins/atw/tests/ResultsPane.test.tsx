@@ -1747,34 +1747,37 @@ describe('ResultsPane execution rows', () => {
 
   it('counts up while a run is still going', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    vi.setSystemTime(new Date('2026-07-22T10:00:05Z'));
-    routeGet({
-      executions: {
-        items: [
-          {
-            ...NAMED_EXECUTION,
-            id: 'exec-live',
-            task_status: 'running',
-            finished_at: null,
-          },
-        ],
-        total: 1,
-        offset: 0,
-        limit: 20,
-      },
-    });
+    try {
+      vi.setSystemTime(new Date('2026-07-22T10:00:05Z'));
+      routeGet({
+        executions: {
+          items: [
+            {
+              ...NAMED_EXECUTION,
+              id: 'exec-live',
+              task_status: 'running',
+              finished_at: null,
+            },
+          ],
+          total: 1,
+          offset: 0,
+          limit: 20,
+        },
+      });
 
-    renderPane(<ResultsPane incidentId="inc-1" />);
+      renderPane(<ResultsPane incidentId="inc-1" />);
 
-    await waitFor(() => {
-      expect(screen.getByText('5.0s')).toBeTruthy();
-    });
+      await waitFor(() => {
+        expect(screen.getByText('5.0s')).toBeTruthy();
+      });
 
-    await act(async () => {
-      vi.advanceTimersByTime(3000);
-    });
-    expect(screen.getByText('8.0s')).toBeTruthy();
-    vi.useRealTimers();
+      await act(async () => {
+        vi.advanceTimersByTime(3000);
+      });
+      expect(screen.getByText('8.0s')).toBeTruthy();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('says a run is only queued rather than inventing a start time', async () => {
