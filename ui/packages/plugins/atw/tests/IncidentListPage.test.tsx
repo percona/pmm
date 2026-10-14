@@ -15,14 +15,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { DeliverySettingsProvider } from '../src/deliverySettings';
 import { IncidentListPage } from '../src/IncidentListPage';
+import { ATW_INCIDENT_LIST_LIMIT } from '../src/hooks';
 import {
   Messages,
   SUPPORT_DIAGNOSTICS_DOCS_URL,
@@ -60,12 +61,23 @@ const incident: AtwIncident = {
   created_at: '2026-07-22T10:00:00Z',
   updated_at: null,
   closed_at: null,
-  run_count: 0,
-  failed_run_count: 0,
+  run_count: 3,
+  failed_run_count: 2,
+  last_activity_at: '2026-07-23T09:00:00Z',
 };
 
-function paginated<T>(items: T[], total = items.length, limit = 50) {
-  return { data: { items, total, offset: 0, limit } };
+const other: AtwIncident = {
+  ...incident,
+  id: '22222222-2222-4222-8222-222222222222',
+  name: 'Lock waits',
+  case_ref: null,
+  run_count: 0,
+  failed_run_count: 0,
+  last_activity_at: '2026-07-24T09:00:00Z',
+};
+
+function paginated<T>(items: T[]) {
+  return { data: { items, total: items.length, offset: 0, limit: 50 } };
 }
 
 /**
@@ -74,13 +86,7 @@ function paginated<T>(items: T[], total = items.length, limit = 50) {
  */
 function routeGet(
   options: {
-    incidents?: AtwIncident[] | 'reject' | 'hang';
-    incidentsPage?: {
-      items: AtwIncident[];
-      total: number;
-      offset: number;
-      limit: number;
-    };
+    incidents?: AtwIncident[] | 'reject';
     config?: { send_disabled_reasons?: string[] };
   } = {}
 ) {
@@ -93,14 +99,8 @@ function routeGet(
         },
       });
     }
-    if (options.incidents === 'hang') {
-      return new Promise(() => {});
-    }
     if (options.incidents === 'reject') {
       return Promise.reject(new Error('Internal Server Error'));
-    }
-    if (options.incidentsPage) {
-      return Promise.resolve({ data: options.incidentsPage });
     }
     return Promise.resolve(paginated(options.incidents ?? []));
   });
@@ -112,13 +112,37 @@ function renderPage(ui: ReactNode, deliverySettingsPath?: string) {
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter>
+      <MemoryRouter initialEntries={['/']}>
         <DeliverySettingsProvider path={deliverySettingsPath}>
-          {ui}
+          <Routes>
+            <Route path="/" element={ui} />
+            <Route
+              path="/:incidentId"
+              element={<div data-testid="workspace-route" />}
+            />
+          </Routes>
         </DeliverySettingsProvider>
       </MemoryRouter>
     </QueryClientProvider>
   );
+}
+
+async function chooseAction(
+  user: ReturnType<typeof userEvent.setup>,
+  incidentName: string,
+  action: RegExp
+) {
+  await user.click(
+    screen.getByRole('button', { name: `Actions for ${incidentName}` })
+  );
+  await user.click(await screen.findByRole('menuitem', { name: action }));
+}
+
+function rowNames() {
+  return screen
+    .getAllByRole('row')
+    .slice(1)
+    .map((row) => within(row).getByRole('link').textContent);
 }
 
 describe('IncidentListPage', () => {
@@ -126,15 +150,76 @@ describe('IncidentListPage', () => {
     vi.clearAllMocks();
   });
 
-  it('renders the incident list', async () => {
-    routeGet({ incidents: [incident] });
+  it('renders each incident as a table row with its status, counts and case', async () => {
+    mockedApi.get.mockResolvedValue(paginated([incident]));
 
     renderPage(<IncidentListPage />);
 
-    await waitFor(() => {
-      expect(screen.getByText('DB slowness')).toBeTruthy();
+    const row = (await screen.findByText('DB slowness')).closest('tr');
+    expect(row).not.toBeNull();
+    const cells = within(row as HTMLElement);
+    expect(cells.getByText('CS-42')).toBeInTheDocument();
+    expect(cells.getByText('Open')).toBeInTheDocument();
+    expect(cells.getByText('3')).toBeInTheDocument();
+    expect(cells.getByText('2')).toBeInTheDocument();
+    expect(cells.getByText('engineer')).toBeInTheDocument();
+    expect(
+      screen.getByRole('columnheader', { name: /Not collected/ })
+    ).toBeInTheDocument();
+  });
+
+  it('shows a status chip for a closed incident too', async () => {
+    mockedApi.get.mockResolvedValue(
+      paginated([{ ...incident, closed_at: '2026-07-30T12:00:00Z' }])
+    );
+
+    renderPage(<IncidentListPage />);
+
+    expect(await screen.findByText('Closed')).toBeInTheDocument();
+  });
+
+  it('fetches one window of incidents at the side-car ceiling', async () => {
+    mockedApi.get.mockResolvedValue(paginated([incident]));
+
+    renderPage(<IncidentListPage />);
+
+    await screen.findByText('DB slowness');
+    expect(mockedApi.get).toHaveBeenCalledWith('/apps/atw/incidents/', {
+      params: { offset: 0, limit: ATW_INCIDENT_LIST_LIMIT },
     });
-    expect(screen.getByText(/Case CS-42/)).toBeTruthy();
+  });
+
+  it('says so when there are more incidents than the window holds', async () => {
+    mockedApi.get.mockResolvedValue({
+      data: { items: [incident], total: 240, offset: 0, limit: 200 },
+    });
+
+    renderPage(<IncidentListPage />);
+
+    expect(
+      await screen.findByText(/Showing the 1 most recently created of 240/)
+    ).toBeInTheDocument();
+  });
+
+  it('puts the most recently active incident first', async () => {
+    mockedApi.get.mockResolvedValue(paginated([incident, other]));
+
+    renderPage(<IncidentListPage />);
+
+    await screen.findByText('DB slowness');
+    expect(rowNames()).toEqual(['Lock waits', 'DB slowness']);
+  });
+
+  it('filters the rows by the search box', async () => {
+    mockedApi.get.mockResolvedValue(paginated([incident, other]));
+    const user = userEvent.setup();
+
+    renderPage(<IncidentListPage />);
+
+    await screen.findByText('DB slowness');
+    await user.type(screen.getByPlaceholderText(/Search/i), 'CS-42');
+
+    await waitFor(() => expect(rowNames()).toEqual(['DB slowness']));
   });
 
   it('shows an explanatory empty state when there are no incidents', async () => {
@@ -171,23 +256,8 @@ describe('IncidentListPage', () => {
     ).toHaveLength(1);
   });
 
-  it('does not flash the empty state when the current page has no rows but total is not zero', async () => {
-    routeGet({
-      incidentsPage: { items: [], total: 21, offset: 20, limit: 20 },
-    });
-
-    renderPage(<IncidentListPage />);
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: /New incident/i })
-      ).toBeEnabled();
-    });
-    expect(screen.queryByTestId('atw-incidents-empty')).not.toBeInTheDocument();
-  });
-
   it('withholds the create button when the list request failed', async () => {
-    routeGet({ incidents: 'reject' });
+    mockedApi.get.mockRejectedValue(new Error('Internal Server Error'));
 
     renderPage(<IncidentListPage />);
 
@@ -222,7 +292,7 @@ describe('IncidentListPage', () => {
   });
 
   it('disables the create button until the list has loaded', async () => {
-    routeGet({ incidents: 'hang' });
+    mockedApi.get.mockReturnValue(new Promise(() => {}));
 
     renderPage(<IncidentListPage />);
 
@@ -233,80 +303,45 @@ describe('IncidentListPage', () => {
     });
   });
 
-  it('creates an incident from the dialog, sending the trimmed name', async () => {
-    routeGet({ incidents: [] });
+  it('creates an incident in one click and opens it', async () => {
+    mockedApi.get.mockResolvedValue(paginated([]));
     mockedApi.post.mockResolvedValue({ data: incident });
     const user = userEvent.setup();
 
     renderPage(<IncidentListPage />);
 
-    await waitFor(() =>
-      expect(screen.getByTestId('atw-incidents-empty-create')).toBeTruthy()
-    );
+    await user.click(await screen.findByTestId('atw-incidents-empty-create'));
 
-    await user.click(screen.getByRole('button', { name: /New incident/i }));
-    await user.type(
-      screen.getByLabelText(/Name \(optional\)/i),
-      '  Prod outage  '
-    );
-    await user.click(screen.getByRole('button', { name: /^Create$/ }));
-
-    await waitFor(() => {
-      expect(mockedApi.post).toHaveBeenCalledWith('/apps/atw/incidents/', {
-        name: 'Prod outage',
-      });
-    });
+    expect(mockedApi.post).toHaveBeenCalledWith('/apps/atw/incidents/', {});
+    expect(await screen.findByTestId('workspace-route')).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('omits the name when the create field is left blank', async () => {
-    routeGet({ incidents: [] });
-    mockedApi.post.mockResolvedValue({ data: incident });
+  it('reports a failed create on the list', async () => {
+    mockedApi.get.mockResolvedValue(paginated([]));
+    mockedApi.post.mockRejectedValue(new Error('Side-car unavailable'));
     const user = userEvent.setup();
 
     renderPage(<IncidentListPage />);
 
-    await waitFor(() =>
-      expect(screen.getByTestId('atw-incidents-empty-create')).toBeTruthy()
-    );
+    await user.click(await screen.findByTestId('atw-incidents-empty-create'));
 
-    await user.click(screen.getByRole('button', { name: /New incident/i }));
-    await user.click(screen.getByRole('button', { name: /^Create$/ }));
-
-    await waitFor(() => {
-      expect(mockedApi.post).toHaveBeenCalledWith('/apps/atw/incidents/', {});
-    });
+    expect(await screen.findByText('Side-car unavailable')).toBeInTheDocument();
   });
 
-  it('renders pagination controls once the list exceeds one page', async () => {
-    routeGet({
-      incidentsPage: { items: [incident], total: 40, offset: 0, limit: 20 },
-    });
+  it('opens an incident when its row is clicked', async () => {
+    mockedApi.get.mockResolvedValue(paginated([incident]));
+    const user = userEvent.setup();
 
     renderPage(<IncidentListPage />);
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: /Go to next page/i })
-      ).toBeTruthy();
-    });
-    expect(screen.getByText(/of 40/)).toBeTruthy();
+    await user.click(await screen.findByText('engineer'));
+
+    expect(await screen.findByTestId('workspace-route')).toBeInTheDocument();
   });
 
-  it('omits pagination controls when a single page holds everything', async () => {
-    routeGet({ incidents: [incident] });
-
-    renderPage(<IncidentListPage />);
-
-    await waitFor(() => {
-      expect(screen.getByText('DB slowness')).toBeTruthy();
-    });
-    expect(
-      screen.queryByRole('button', { name: /Go to next page/i })
-    ).toBeNull();
-  });
-
-  it('closes an open incident from the row action', async () => {
-    routeGet({ incidents: [incident] });
+  it('closes an open incident from the actions menu', async () => {
+    mockedApi.get.mockResolvedValue(paginated([incident]));
     mockedApi.post.mockResolvedValue({
       data: { ...incident, closed_at: '2026-07-30T12:00:00Z' },
     });
@@ -314,30 +349,28 @@ describe('IncidentListPage', () => {
 
     renderPage(<IncidentListPage />);
 
-    await waitFor(() => expect(screen.getByText('DB slowness')).toBeTruthy());
-    await user.click(
-      screen.getByRole('button', { name: /Close DB slowness/i })
-    );
+    await screen.findByText('DB slowness');
+    await chooseAction(user, 'DB slowness', /^Close$/);
 
     await waitFor(() => {
       expect(mockedApi.post).toHaveBeenCalledWith(
         `/apps/atw/incidents/${incident.id}/close/`
       );
     });
+    // Choosing an action is not a way into the incident.
+    expect(screen.queryByTestId('workspace-route')).not.toBeInTheDocument();
   });
 
-  it('reopens a closed incident from the row action', async () => {
+  it('reopens a closed incident from the actions menu', async () => {
     const closedIncident = { ...incident, closed_at: '2026-07-30T12:00:00Z' };
-    routeGet({ incidents: [closedIncident] });
+    mockedApi.get.mockResolvedValue(paginated([closedIncident]));
     mockedApi.post.mockResolvedValue({ data: incident });
     const user = userEvent.setup();
 
     renderPage(<IncidentListPage />);
 
-    await waitFor(() => expect(screen.getByText('Closed')).toBeTruthy());
-    await user.click(
-      screen.getByRole('button', { name: /Reopen DB slowness/i })
-    );
+    await screen.findByText('Closed');
+    await chooseAction(user, 'DB slowness', /^Reopen$/);
 
     await waitFor(() => {
       expect(mockedApi.post).toHaveBeenCalledWith(
@@ -347,85 +380,92 @@ describe('IncidentListPage', () => {
   });
 
   it('shows an error when closing an incident fails', async () => {
-    routeGet({ incidents: [incident] });
+    mockedApi.get.mockResolvedValue(paginated([incident]));
     mockedApi.post.mockRejectedValue(new Error('Incident is already closed.'));
     const user = userEvent.setup();
 
     renderPage(<IncidentListPage />);
 
-    await waitFor(() => expect(screen.getByText('DB slowness')).toBeTruthy());
-    await user.click(
-      screen.getByRole('button', { name: /Close DB slowness/i })
+    await screen.findByText('DB slowness');
+    await chooseAction(user, 'DB slowness', /^Close$/);
+
+    expect(
+      await screen.findByText('Incident is already closed.')
+    ).toBeInTheDocument();
+  });
+
+  it('disables Close for an incident whose close is still in flight', async () => {
+    mockedApi.get.mockResolvedValue(paginated([incident]));
+    let resolveClose!: (value: { data: AtwIncident }) => void;
+    mockedApi.post.mockReturnValue(
+      new Promise((resolve) => {
+        resolveClose = resolve;
+      })
     );
+    const user = userEvent.setup();
+
+    renderPage(<IncidentListPage />);
+
+    await screen.findByText('DB slowness');
+    await chooseAction(user, 'DB slowness', /^Close$/);
+    await user.click(
+      screen.getByRole('button', { name: 'Actions for DB slowness' })
+    );
+    expect(
+      await screen.findByRole('menuitem', { name: /^Close$/ })
+    ).toHaveAttribute('aria-disabled', 'true');
+
+    resolveClose({ data: { ...incident, closed_at: '2026-07-30T12:00:00Z' } });
+    await waitFor(() =>
+      expect(
+        screen.getByRole('menuitem', { name: /^Close$/ })
+      ).not.toHaveAttribute('aria-disabled')
+    );
+  });
+
+  it('renames an incident from the actions menu', async () => {
+    mockedApi.get.mockResolvedValue(paginated([incident]));
+    mockedApi.patch.mockResolvedValue({
+      data: { ...incident, name: 'Replica lag' },
+    });
+    const user = userEvent.setup();
+
+    renderPage(<IncidentListPage />);
+
+    await screen.findByText('DB slowness');
+    await chooseAction(user, 'DB slowness', /^Rename$/);
+    const field = await screen.findByLabelText('Name');
+    await user.clear(field);
+    await user.type(field, '  Replica lag  ');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Incident is already closed.')).toBeTruthy();
+      expect(mockedApi.patch).toHaveBeenCalledWith(
+        `/apps/atw/incidents/${incident.id}`,
+        { name: 'Replica lag' }
+      );
     });
   });
 
-  it('re-enables the first row close button after overlapping closes settle', async () => {
-    const other = {
-      ...incident,
-      id: '22222222-2222-4222-8222-222222222222',
-      name: 'Lock waits',
-    };
-    routeGet({ incidents: [incident, other] });
-
-    let resolveFirst!: (value: { data: typeof incident }) => void;
-    let resolveSecond!: (value: { data: typeof other }) => void;
-    const firstClose = new Promise<{ data: typeof incident }>((resolve) => {
-      resolveFirst = resolve;
-    });
-    const secondClose = new Promise<{ data: typeof other }>((resolve) => {
-      resolveSecond = resolve;
-    });
-    mockedApi.post.mockImplementation((url: string) => {
-      if (url.endsWith(`/${incident.id}/close/`)) {
-        return firstClose;
-      }
-      if (url.endsWith(`/${other.id}/close/`)) {
-        return secondClose;
-      }
-      return Promise.reject(new Error(`Unexpected POST ${url}`));
-    });
-
+  it('deletes an incident from the actions menu after confirming', async () => {
+    mockedApi.get.mockResolvedValue(paginated([incident]));
+    mockedApi.delete.mockResolvedValue({});
     const user = userEvent.setup();
+
     renderPage(<IncidentListPage />);
 
-    await waitFor(() => expect(screen.getByText('DB slowness')).toBeTruthy());
-    const firstCloseButton = screen.getByRole('button', {
-      name: /Close DB slowness/i,
-    });
-    const secondCloseButton = screen.getByRole('button', {
-      name: /Close Lock waits/i,
-    });
-
-    await user.click(firstCloseButton);
-    await waitFor(() => expect(firstCloseButton).toBeDisabled());
-
-    await user.click(secondCloseButton);
-    await waitFor(() => {
-      expect(firstCloseButton).toBeDisabled();
-      expect(secondCloseButton).toBeDisabled();
-    });
-
-    resolveSecond({ data: { ...other, closed_at: '2026-07-30T12:00:00Z' } });
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: /Close Lock waits/i })
-      ).not.toBeDisabled();
-    });
+    await screen.findByText('DB slowness');
+    await chooseAction(user, 'DB slowness', /^Delete$/);
+    const dialog = await screen.findByRole('dialog');
     expect(
-      screen.getByRole('button', { name: /Close DB slowness/i })
-    ).toBeDisabled();
-
-    resolveFirst({ data: { ...incident, closed_at: '2026-07-30T12:00:00Z' } });
+      within(dialog).getByText(/This cannot be undone/)
+    ).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: /Close DB slowness/i })
-      ).not.toBeDisabled();
+      expect(mockedApi.delete).toHaveBeenCalledWith(
+        `/apps/atw/incidents/${incident.id}`
+      );
     });
   });
 });
@@ -435,29 +475,28 @@ describe('IncidentListPage — write access', () => {
     vi.clearAllMocks();
   });
 
-  it('renders create, close, rename and delete for a session that may mutate', async () => {
-    routeGet({ incidents: [incident] });
+  it('offers create and one labelled actions menu with rename, close and delete', async () => {
+    mockedApi.get.mockResolvedValue(paginated([incident]));
+    const user = userEvent.setup();
 
     renderPage(<IncidentListPage />);
 
-    await waitFor(() => expect(screen.getByText('DB slowness')).toBeTruthy());
+    await screen.findByText('DB slowness');
     expect(
       screen.getByRole('button', { name: /New incident/i })
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /Close DB slowness/i })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /Rename DB slowness/i })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /Delete DB slowness/i })
-    ).toBeInTheDocument();
+    await user.click(
+      screen.getByRole('button', { name: 'Actions for DB slowness' })
+    );
+    const items = (await screen.findAllByRole('menuitem')).map(
+      (item) => item.textContent
+    );
+    expect(items).toEqual(['Rename', 'Close', 'Delete']);
   });
 
   it('omits New incident from the empty state for a non-admin', async () => {
     mockCanMutate = false;
-    routeGet({ incidents: [] });
+    mockedApi.get.mockResolvedValue(paginated([]));
 
     renderPage(<IncidentListPage />);
 
@@ -475,7 +514,7 @@ describe('IncidentListPage — write access', () => {
   });
 
   it('keeps New incident in the empty state for a session that may mutate', async () => {
-    routeGet({ incidents: [] });
+    mockedApi.get.mockResolvedValue(paginated([]));
 
     renderPage(<IncidentListPage />);
 
@@ -484,24 +523,18 @@ describe('IncidentListPage — write access', () => {
     });
   });
 
-  it('renders no create, close, rename or delete for a non-admin', async () => {
+  it('renders no create or actions menu for a non-admin', async () => {
     mockCanMutate = false;
-    routeGet({ incidents: [incident] });
+    mockedApi.get.mockResolvedValue(paginated([incident]));
 
     renderPage(<IncidentListPage />);
 
-    await waitFor(() => expect(screen.getByText('DB slowness')).toBeTruthy());
+    await screen.findByText('DB slowness');
     expect(
       screen.queryByRole('button', { name: /New incident/i })
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: /Close DB slowness/i })
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: /Rename DB slowness/i })
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: /Delete DB slowness/i })
+      screen.queryByRole('button', { name: /Actions for/i })
     ).not.toBeInTheDocument();
   });
 });

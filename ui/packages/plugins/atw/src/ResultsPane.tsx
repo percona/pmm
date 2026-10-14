@@ -215,27 +215,30 @@ export function ResultsPane({
 }: ResultsPaneProps) {
   const { canMutate } = useAuth();
   const [page, setPage] = useState({ offset: 0, limit: ATW_PAGE_SIZE });
-  const { data, isLoading, error } = useAtwIncidentExecutions(incidentId, page);
-  const { data: incident } = useAtwIncident(incidentId);
-  const { data: config } = useAtwConfig();
-  const { data: sendJobs, error: sendJobsError } = useAtwSendJobs(incidentId);
-
-  // A batch started from the Collect pane lands at the top of the list, which
-  // a reader parked on a later page would never see — the run would look as
-  // though it had produced nothing. Keyed on the set itself, not on whether it
-  // is empty: a second batch inside the first one's highlight window replaces
-  // the set without ever emptying it.
-  useEffect(() => {
-    if (highlightedTaskIds?.size) {
-      setPage((previous) => ({ ...previous, offset: 0 }));
-    }
-  }, [highlightedTaskIds]);
-
+  // A batch from Collect lands at the top of the list — jump there so a
+  // reader on a later page can see it. Keyed on the set itself (not emptiness)
+  // so a second batch inside the first highlight window still resets. Done
+  // during render so keepPreviousData never paints the old page first.
+  const [highlightGate, setHighlightGate] = useState(highlightedTaskIds);
   const [filesForTask, setFilesForTask] = useState<number | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [sendOpen, setSendOpen] = useState(false);
   const [sendSessionKey, setSendSessionKey] = useState(0);
   const [resend, setResend] = useState<ResendContext | null>(null);
+  if (highlightedTaskIds !== highlightGate) {
+    setHighlightGate(highlightedTaskIds);
+    if (highlightedTaskIds?.size) {
+      setPage((previous) =>
+        previous.offset === 0 ? previous : { ...previous, offset: 0 }
+      );
+    }
+  }
+  const { data, isLoading, error } = useAtwIncidentExecutions(incidentId, page);
+  const { data: incident } = useAtwIncident(incidentId);
+  // Unknown until the incident loads; a closed one accepts no runs.
+  const acceptsRuns = incident !== undefined && !incident.closed_at;
+  const { data: config } = useAtwConfig();
+  const { data: sendJobs, error: sendJobsError } = useAtwSendJobs(incidentId);
 
   // Shared by every row's "Run again": the action replays a remembered batch
   // unchanged, so one mutation and one reported failure covers all of them —
@@ -425,7 +428,8 @@ export function ResultsPane({
 
       {!isLoading && !error && (!rows || rows.length === 0) && (
         <Alert severity="info">
-          {canMutate
+          {/* A closed incident has no Collect pane to point at. */}
+          {canMutate && acceptsRuns
             ? 'No executions yet. Run snippets from the Collect pane to see results here.'
             : 'No executions yet.'}
         </Alert>
@@ -507,6 +511,7 @@ export function ResultsPane({
           onOpenFiles={() => setFilesForTask(execution.task_history_id)}
           remembered={remembered?.get(execution.task_history_id)}
           rerunPending={rerunMutation.isPending}
+          canRerun={acceptsRuns}
           onRunAgain={() => handleRunAgain(execution)}
           onEditParameters={() => onEditParameters?.(execution)}
         />
@@ -675,6 +680,7 @@ function ExecutionRow({
   onOpenFiles,
   remembered,
   rerunPending,
+  canRerun,
   onRunAgain,
   onEditParameters,
 }: {
@@ -689,6 +695,11 @@ function ExecutionRow({
   remembered: AtwRememberedDispatch | undefined;
   /** Whether the pane's shared rerun mutation is in flight for any row. */
   rerunPending: boolean;
+  /**
+   * False on a closed incident: it accepts no runs, and its Collect pane —
+   * where "Edit parameters" lands — is not on screen.
+   */
+  canRerun: boolean;
   onRunAgain: () => void;
   onEditParameters: () => void;
 }) {
@@ -842,12 +853,12 @@ function ExecutionRow({
               Files
             </Button>
           )}
-          {canMutate && (
+          {canMutate && canRerun && (
             <Button size="small" variant="outlined" onClick={onEditParameters}>
               Edit parameters and run again
             </Button>
           )}
-          {canMutate && remembered && (
+          {canMutate && canRerun && remembered && (
             <Button
               size="small"
               variant="outlined"
