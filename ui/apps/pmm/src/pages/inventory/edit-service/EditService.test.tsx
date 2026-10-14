@@ -225,12 +225,12 @@ describe('EditService', () => {
 
   it('saves an unrelated change next to a label value with spaces', async () => {
     vi.mocked(listManagedServices).mockResolvedValue({
-      services: [{ ...SERVICE, customLabels: { owner: 'DB Team' } }],
+      services: [{ ...SERVICE, customLabels: { owner: 'DB Team:Lead' } }],
     });
     renderEditService();
 
     await screen.findByTestId('edit-service-form');
-    expect(field('Custom labels').value).toBe('owner:DB Team');
+    expect(field('Custom labels').value).toBe('owner:DB Team:Lead');
     changeField('Environment', 'staging');
     await saveAndConfirm();
 

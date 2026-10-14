@@ -218,6 +218,17 @@ describe('toServiceChanges', () => {
     expect(toServiceChanges(SERVICE, values())).toBeUndefined();
   });
 
+  it('leaves stored labels alone when only another field changed', () => {
+    const service = { ...SERVICE, customLabels: { owner: 'DB Team:Lead' } };
+
+    expect(
+      toServiceChanges(service, {
+        ...getInitialValues(service, null),
+        environment: 'staging',
+      })
+    ).toEqual({ serviceId: SERVICE.serviceId, environment: 'staging' });
+  });
+
   it('sends only the changed labels, clearing emptied ones', () => {
     expect(
       toServiceChanges(
@@ -243,7 +254,10 @@ describe('getEditServiceSchema', () => {
     formValues: EditServiceFormValues,
     rdsExporter: RdsExporter
   ) => {
-    const result = getEditServiceSchema(rdsExporter).safeParse(formValues);
+    const result = getEditServiceSchema(
+      rdsExporter,
+      toCustomLabelsText(SERVICE.customLabels)
+    ).safeParse(formValues);
 
     return result.success
       ? {}
@@ -251,6 +265,17 @@ describe('getEditServiceSchema', () => {
           result.error.issues.map(({ path, message }) => [path[0], message])
         );
   };
+
+  it('checks the custom labels only once they are edited', () => {
+    const schema = getEditServiceSchema(null, 'note:see y:');
+
+    expect(
+      schema.safeParse(values({ customLabels: 'note:see y:' })).success
+    ).toBe(true);
+    expect(
+      schema.safeParse(values({ customLabels: 'note:see y: team:db' })).success
+    ).toBe(false);
+  });
 
   it('requires a valid role ARN in IAM role mode', () => {
     expect(

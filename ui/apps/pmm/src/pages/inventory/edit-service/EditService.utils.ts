@@ -112,7 +112,12 @@ export const toServiceChanges = (
   service: ManagedService,
   values: EditServiceFormValues
 ): ChangeServiceParams | undefined => {
-  const customLabels = parseCustomLabels(values.customLabels);
+  // Labels left as they were are not parsed again, as a value can read like
+  // another label (owner:DB Team:Lead)
+  const customLabels =
+    values.customLabels === toCustomLabelsText(service.customLabels)
+      ? service.customLabels
+      : parseCustomLabels(values.customLabels);
   const changes: Omit<ChangeServiceParams, 'serviceId'> = {
     ...(values.environment !== service.environment && {
       environment: values.environment,

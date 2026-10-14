@@ -21,6 +21,7 @@ import {
 import { RdsAuthMode } from '../EditService.types';
 import {
   getInitialValues,
+  toCustomLabelsText,
   toRdsCredentials,
   toServiceChanges,
 } from '../EditService.utils';
@@ -39,8 +40,11 @@ export const EditServiceForm: FC<Props> = ({ service, exporter }) => {
   const { mutateAsync: changeService } = useChangeService();
   const { mutateAsync: changeRdsCredentials } = useChangeRdsCredentials();
   const resolver = useMemo(
-    () => zodResolver(getEditServiceSchema(exporter)),
-    [exporter]
+    () =>
+      zodResolver(
+        getEditServiceSchema(exporter, toCustomLabelsText(service.customLabels))
+      ),
+    [exporter, service.customLabels]
   );
   const methods = useForm<EditServiceFormValues>({
     resolver,

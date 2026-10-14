@@ -20,9 +20,7 @@ const editServiceFields = z.object({
   environment: z.string(),
   cluster: z.string(),
   replicationSet: z.string(),
-  customLabels: z.string().refine(areCustomLabelsValid, {
-    message: Messages.labels.customLabelsInvalid,
-  }),
+  customLabels: z.string(),
   rdsAuthMode: z.enum(RdsAuthMode),
   awsAccessKey: z.string(),
   awsSecretKey: z.string(),
@@ -67,8 +65,23 @@ const getRdsCredentialsErrors = (
   return errors;
 };
 
-export const getEditServiceSchema = (exporter: RdsExporter | null) =>
+// Stored labels are only checked once edited, see toServiceChanges
+export const getEditServiceSchema = (
+  exporter: RdsExporter | null,
+  storedCustomLabels: string
+) =>
   editServiceFields.superRefine((values, ctx) => {
+    if (
+      values.customLabels !== storedCustomLabels &&
+      !areCustomLabelsValid(values.customLabels)
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['customLabels'],
+        message: Messages.labels.customLabelsInvalid,
+      });
+    }
+
     if (!exporter) {
       return;
     }
