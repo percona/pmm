@@ -19,6 +19,8 @@ import (
 	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	_ "google.golang.org/protobuf/types/known/wrapperspb"
+
+	_ "github.com/percona/pmm/api/extensions/v1"
 )
 
 const (
@@ -4086,6 +4088,10 @@ type TriggerHostBootstrapRequest struct {
 	// named gets the same default, rather than its proto3 zero value; see
 	// BootstrapMemberConfig.priority. A key outside node_ids is rejected.
 	MemberConfigs map[string]*BootstrapMemberConfig `protobuf:"bytes,10,rep,name=member_configs,json=memberConfigs,proto3" json:"member_configs,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// The customer's own MongoDB administrator, created with the root role. Defaults to "admin".
+	AdminUsername string `protobuf:"bytes,11,opt,name=admin_username,json=adminUsername,proto3" json:"admin_username,omitempty"`
+	// The administrator's password. Left empty, PMM generates one and returns it once.
+	AdminPassword string `protobuf:"bytes,12,opt,name=admin_password,json=adminPassword,proto3" json:"admin_password,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4188,6 +4194,20 @@ func (x *TriggerHostBootstrapRequest) GetMemberConfigs() map[string]*BootstrapMe
 		return x.MemberConfigs
 	}
 	return nil
+}
+
+func (x *TriggerHostBootstrapRequest) GetAdminUsername() string {
+	if x != nil {
+		return x.AdminUsername
+	}
+	return ""
+}
+
+func (x *TriggerHostBootstrapRequest) GetAdminPassword() string {
+	if x != nil {
+		return x.AdminPassword
+	}
+	return ""
 }
 
 // BootstrapMemberConfig is one host's replica-set election settings, for
@@ -4305,9 +4325,12 @@ func (x *BootstrapMemberConfig) GetBindIp() string {
 type TriggerHostBootstrapResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The om_bootstrap run's id. Poll GetBootstrapRun for its progress.
-	RunId         string `protobuf:"bytes,1,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	RunId string `protobuf:"bytes,1,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	// The administrator password PMM generated, set only when the request left admin_password empty.
+	// PMM deletes its copy once the user exists, so this response is the only place to read it.
+	GeneratedAdminPassword string `protobuf:"bytes,2,opt,name=generated_admin_password,json=generatedAdminPassword,proto3" json:"generated_admin_password,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *TriggerHostBootstrapResponse) Reset() {
@@ -4343,6 +4366,13 @@ func (*TriggerHostBootstrapResponse) Descriptor() ([]byte, []int) {
 func (x *TriggerHostBootstrapResponse) GetRunId() string {
 	if x != nil {
 		return x.RunId
+	}
+	return ""
+}
+
+func (x *TriggerHostBootstrapResponse) GetGeneratedAdminPassword() string {
+	if x != nil {
+		return x.GeneratedAdminPassword
 	}
 	return ""
 }
@@ -5188,7 +5218,7 @@ var File_om_v1_om_proto protoreflect.FileDescriptor
 
 const file_om_v1_om_proto_rawDesc = "" +
 	"\n" +
-	"\x0eom/v1/om.proto\x12\x05om.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\x89\t\n" +
+	"\x0eom/v1/om.proto\x12\x05om.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\x89\t\n" +
 	"\x0fTopologyService\x12!\n" +
 	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12\x17\n" +
 	"\x04host\x18\x02 \x01(\tH\x00R\x04host\x88\x01\x01\x12\x1f\n" +
@@ -5520,7 +5550,7 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x06status\x18\x02 \x01(\x0e2\x10.om.v1.RunStatusR\x06status\x129\n" +
 	"\n" +
 	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x12\x14\n" +
-	"\x05scope\x18\x04 \x03(\tR\x05scope\"\xec\x04\n" +
+	"\x05scope\x18\x04 \x03(\tR\x05scope\"\xea\x05\n" +
 	"\x1bTriggerHostBootstrapRequest\x12'\n" +
 	"\bnode_ids\x18\x01 \x03(\tB\f\xfaB\t\x92\x01\x06\b\x01\x10\x03\x18\x01R\anodeIds\x12E\n" +
 	"\x10replica_set_name\x18\x02 \x01(\tB\x1b\xfaB\x18r\x16\x10\x01\x18@2\x10^[A-Za-z0-9_-]+$R\x0ereplicaSetName\x120\n" +
@@ -5532,7 +5562,10 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x04port\x18\b \x01(\rB\v\xfaB\b*\x06\x18\xff\xff\x03(\x01R\x04port\x12 \n" +
 	"\abind_ip\x18\t \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06bindIp\x12\\\n" +
 	"\x0emember_configs\x18\n" +
-	" \x03(\v25.om.v1.TriggerHostBootstrapRequest.MemberConfigsEntryR\rmemberConfigs\x1a^\n" +
+	" \x03(\v25.om.v1.TriggerHostBootstrapRequest.MemberConfigsEntryR\rmemberConfigs\x12B\n" +
+	"\x0eadmin_username\x18\v \x01(\tB\x1b\xfaB\x18r\x16\x18@2\x12^[A-Za-z0-9._@-]*$R\radminUsername\x128\n" +
+	"\x0eadmin_password\x18\f \x01(\tB\x11\xfaB\n" +
+	"r\b\x10\b\x18\x80\x01\xd0\x01\x01\x88\xb5\x18\x01R\radminPassword\x1a^\n" +
 	"\x12MemberConfigsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x122\n" +
 	"\x05value\x18\x02 \x01(\v2\x1c.om.v1.BootstrapMemberConfigR\x05value:\x028\x01B\x0e\n" +
@@ -5549,9 +5582,10 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\t_priorityB\b\n" +
 	"\x06_votesB\n" +
 	"\n" +
-	"\b_bind_ip\"5\n" +
+	"\b_bind_ip\"u\n" +
 	"\x1cTriggerHostBootstrapResponse\x12\x15\n" +
-	"\x06run_id\x18\x01 \x01(\tR\x05runId\"\x88\x01\n" +
+	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12>\n" +
+	"\x18generated_admin_password\x18\x02 \x01(\tB\x04\x88\xb5\x18\x01R\x16generatedAdminPassword\"\x88\x01\n" +
 	"\rBootstrapStep\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12\x1b\n" +

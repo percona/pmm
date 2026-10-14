@@ -23,7 +23,8 @@ import (
 
 //go:generate go tool reform
 
-// OmBootstrapSecret holds the MongoDB user and keyFile generated for a bootstrap run, encrypted at rest.
+// OmBootstrapSecret holds a bootstrap run's MongoDB users and keyFile, encrypted at rest.
+// AdminPassword is blanked once the run no longer needs it.
 //
 //reform:om_bootstrap_secrets
 type OmBootstrapSecret struct {
@@ -31,6 +32,8 @@ type OmBootstrapSecret struct {
 	MongoDBUsername string    `reform:"mongodb_username"`
 	MongoDBPassword string    `reform:"mongodb_password"`
 	KeyFile         string    `reform:"key_file"`
+	AdminUsername   string    `reform:"admin_username"`
+	AdminPassword   string    `reform:"admin_password"`
 	CreatedAt       time.Time `reform:"created_at"`
 }
 

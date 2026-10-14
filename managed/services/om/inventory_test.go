@@ -170,6 +170,18 @@ func (s *extensionsStub) service(t *testing.T) *Service {
 	return svc.WithProbeSource(s.server.URL, "test-token")
 }
 
+// plannedRunJSON is om_bootstrap's answer to a run planned with the wizard's defaults.
+const plannedRunJSON = `{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": [{"name": "create_admin_user", "status": "pending"}]}`
+
+// bootstrapService serves both apps from the stub, backed by a test database for the secrets a trigger
+// stores. Not parallel-safe: storeTestDB recreates one fixed-name database.
+func (s *extensionsStub) bootstrapService(t *testing.T) *Service {
+	t.Helper()
+
+	svc := &Service{db: storeTestDB(t), l: logrus.WithField("test", t.Name())}
+	return svc.WithProbeSource(s.server.URL, "test-token").WithBootstrapSource(s.server.URL, "test-token")
+}
+
 func TestInventoryNotConfigured(t *testing.T) {
 	t.Parallel()
 
@@ -782,14 +794,12 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	t.Parallel()
 
 	t.Run("reads the host's OS from inventory, then plans a run with om_bootstrap", func(t *testing.T) {
-		t.Parallel()
-
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
 			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
-			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			plannedRunJSON,
 		)
-		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+		svc := stub.bootstrapService(t)
 
 		response, err := svc.TriggerHostBootstrap(t.Context(),
 			&omv1.TriggerHostBootstrapRequest{
@@ -809,7 +819,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Equal(t, "/api/apps/om_bootstrap/runs", stub.calls[1].path)
 		// hosts carries n1's executor host, not its node ID; this fixture just gives them the same value.
 		assert.JSONEq(t,
-			`{"hosts": ["n1"], "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8",
+			`{"create_admin_user": true, "hosts": ["n1"], "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8",
 			  "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo",
 			  "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0"}`,
 			stub.calls[1].body)
@@ -925,15 +935,13 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	})
 
 	t.Run("a healthy executor plans the run", func(t *testing.T) {
-		t.Parallel()
-
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
 			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu",
 			  "executor": {"reachable": true, "driver_healthy": true}}}`,
-			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			plannedRunJSON,
 		)
-		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+		svc := stub.bootstrapService(t)
 
 		response, err := svc.TriggerHostBootstrap(t.Context(),
 			&omv1.TriggerHostBootstrapRequest{
@@ -947,16 +955,14 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	})
 
 	t.Run("plans a three-host run when every host runs the same OS", func(t *testing.T) {
-		t.Parallel()
-
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
 			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
 			`{"node_id": "n2", "executor_host": "n2", "observed": {"os_id": "ubuntu"}}`,
 			`{"node_id": "n3", "executor_host": "n3", "observed": {"os_id": "ubuntu"}}`,
-			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			plannedRunJSON,
 		)
-		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+		svc := stub.bootstrapService(t)
 
 		response, err := svc.TriggerHostBootstrap(t.Context(),
 			&omv1.TriggerHostBootstrapRequest{
@@ -973,7 +979,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Equal(t, "run-abc", response.GetRunId())
 		require.Len(t, stub.calls, 4)
 		assert.JSONEq(t,
-			`{"hosts": ["n1", "n2", "n3"], "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8",
+			`{"create_admin_user": true, "hosts": ["n1", "n2", "n3"], "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8",
 			  "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo",
 			  "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0"}`,
 			stub.calls[3].body)
@@ -1316,16 +1322,14 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	})
 
 	t.Run("translates member_configs from node id to executor host", func(t *testing.T) {
-		t.Parallel()
-
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
 			`{"node_id": "n1", "executor_host": "exec-n1", "observed": {"os_id": "ubuntu"}}`,
 			`{"node_id": "n2", "executor_host": "exec-n2", "observed": {"os_id": "ubuntu"}}`,
 			`{"node_id": "n3", "executor_host": "exec-n3", "observed": {"os_id": "ubuntu"}}`,
-			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "member_configs": {"exec-n2": {"priority": 0, "votes": false, "hidden": true, "delay_secs": 300}}, "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "member_configs": {"exec-n2": {"priority": 0, "votes": false, "hidden": true, "delay_secs": 300}}, "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": [{"name": "create_admin_user", "status": "pending"}]}`,
 		)
-		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+		svc := stub.bootstrapService(t)
 
 		_, err := svc.TriggerHostBootstrap(t.Context(),
 			&omv1.TriggerHostBootstrapRequest{
@@ -1349,7 +1353,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, stub.calls, 4)
 		assert.JSONEq(t,
-			`{"hosts": ["exec-n1", "exec-n2", "exec-n3"], "install_method": "packages", "os": "ubuntu",
+			`{"create_admin_user": true, "hosts": ["exec-n1", "exec-n2", "exec-n3"], "install_method": "packages", "os": "ubuntu",
 			  "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo",
 			  "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0",
 			  "member_configs": {"exec-n2": {"priority": 0, "votes": false, "hidden": true, "delay_secs": 300}}}`,
@@ -1357,16 +1361,14 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	})
 
 	t.Run("leaves unset priority and votes out, so MongoDB's defaults apply", func(t *testing.T) {
-		t.Parallel()
-
 		// proto3 zero values are the opposite of MongoDB's defaults; sending them would leave
 		// no voting or electable member, which rs.initiate rejects minutes into a run.
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
 			`{"node_id": "n1", "executor_host": "exec-n1", "observed": {"os_id": "ubuntu"}}`,
-			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "member_configs": {"exec-n1": {"priority": 1, "votes": true, "hidden": false, "delay_secs": 0}}, "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "member_configs": {"exec-n1": {"priority": 1, "votes": true, "hidden": false, "delay_secs": 0}}, "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": [{"name": "create_admin_user", "status": "pending"}]}`,
 		)
-		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+		svc := stub.bootstrapService(t)
 
 		_, err := svc.TriggerHostBootstrap(t.Context(),
 			&omv1.TriggerHostBootstrapRequest{
@@ -1385,7 +1387,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, stub.calls, 2)
 		assert.JSONEq(t,
-			`{"hosts": ["exec-n1"], "install_method": "packages", "os": "ubuntu",
+			`{"create_admin_user": true, "hosts": ["exec-n1"], "install_method": "packages", "os": "ubuntu",
 			  "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo",
 			  "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0",
 			  "member_configs": {"exec-n1": {"hidden": false, "delay_secs": 0}}}`,
@@ -1433,17 +1435,15 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 	// om_bootstrap echoes a null bind_ip for a member that named none, which is not a mismatch.
 	t.Run("accepts a run whose members named no bind address", func(t *testing.T) {
-		t.Parallel()
-
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
 			`{"node_id": "n1", "name": "db-01", "executor_host": "exec-n1", "observed": {"os_id": "ubuntu"}}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu",
 			  "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "bind_ip": "0.0.0.0",
 			  "member_configs": {"exec-n1": {"priority": 1, "votes": true, "hidden": false, "delay_secs": 0, "bind_ip": null}},
-			  "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			  "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": [{"name": "create_admin_user", "status": "pending"}]}`,
 		)
-		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+		svc := stub.bootstrapService(t)
 
 		_, err := svc.TriggerHostBootstrap(t.Context(),
 			&omv1.TriggerHostBootstrapRequest{
@@ -1542,14 +1542,101 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Contains(t, status.Convert(err).Message(), "can become primary")
 	})
 
+	t.Run("generates the administrator password when none is given, and returns it once", func(t *testing.T) {
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": [{"name": "create_admin_user", "status": "pending"}]}`,
+		)
+		svc := stub.bootstrapService(t)
+
+		response, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{NodeIds: []string{"n1"}, ReplicaSetName: "rs-orders-prod", MongodbVersion: "7.0.8"})
+
+		require.NoError(t, err)
+		require.NotEmpty(t, response.GetGeneratedAdminPassword())
+		secret, err := models.FindOmBootstrapSecretByRunID(svc.db.Querier, "run-abc")
+		require.NoError(t, err)
+		assert.Equal(t, defaultAdminUsername, secret.AdminUsername)
+		assert.Equal(t, response.GetGeneratedAdminPassword(), secret.AdminPassword)
+		assert.Equal(t, bootstrapMongoDBUsername, secret.MongoDBUsername)
+		assert.NotEqual(t, secret.AdminPassword, secret.MongoDBPassword)
+	})
+
+	t.Run("stores a chosen administrator password without echoing it", func(t *testing.T) {
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": [{"name": "create_admin_user", "status": "pending"}]}`,
+		)
+		svc := stub.bootstrapService(t)
+
+		response, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+				AdminUsername:  "dba",
+				AdminPassword:  "chosen-secret",
+			})
+
+		require.NoError(t, err)
+		assert.Empty(t, response.GetGeneratedAdminPassword())
+		secret, err := models.FindOmBootstrapSecretByRunID(svc.db.Querier, "run-abc")
+		require.NoError(t, err)
+		assert.Equal(t, "dba", secret.AdminUsername)
+		assert.Equal(t, "chosen-secret", secret.AdminPassword)
+	})
+
+	t.Run("refuses the monitoring user's name for the administrator", func(t *testing.T) {
+		t.Parallel()
+
+		svc := (&Service{l: logrus.WithField("test", t.Name())}).
+			WithProbeSource("http://unused.invalid", "").
+			WithBootstrapSource("http://unused.invalid", "")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+				AdminUsername:  bootstrapMongoDBUsername,
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "reserved for PMM's monitoring user")
+	})
+
+	t.Run("refuses a side-car that would not create the administrator", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": [{"name": "create_pmm_monitoring_user", "status": "pending"}]}`,
+			`{"id": "run-abc", "status": "running", "cancel_requested": true, "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{NodeIds: []string{"n1"}, ReplicaSetName: "rs-orders-prod", MongodbVersion: "7.0.8"})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "the administrator user")
+		require.Len(t, stub.calls, 3)
+		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc:cancel", stub.calls[2].path)
+	})
+
 	t.Run("persists environment and cluster, and echoes them back through GetBootstrapRun", func(t *testing.T) {
 		// Not parallel: storeTestDB drops and recreates one fixed-name database.
 		db := storeTestDB(t)
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
 			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
-			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
-			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			plannedRunJSON,
+			plannedRunJSON,
 		)
 		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
 			WithProbeSource(stub.server.URL, "test-token").
@@ -1584,8 +1671,8 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
 			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
-			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
-			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			plannedRunJSON,
+			plannedRunJSON,
 		)
 		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
 			WithProbeSource(stub.server.URL, "test-token").
@@ -1610,13 +1697,36 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	})
 }
 
-// Proto validation runs in the gRPC interceptor, not in the service, so the
-// request goes through the same interceptor pmm-managed installs.
+// validateTrigger runs a valid request, changed by edit, through the gRPC validation interceptor
+// pmm-managed installs, since proto validation does not run in the service.
+func validateTrigger(t *testing.T, edit func(*omv1.TriggerHostBootstrapRequest)) error {
+	t.Helper()
+
+	req := &omv1.TriggerHostBootstrapRequest{
+		NodeIds:        []string{"n1"},
+		ReplicaSetName: "rs0",
+		MongodbVersion: "7.0",
+		DataPath:       "/var/lib/mongo",
+		LogPath:        "/var/log/mongodb/mongod.log",
+		Port:           27017,
+		BindIp:         "0.0.0.0",
+	}
+	edit(req)
+	reached := false
+	handler := func(context.Context, any) (any, error) {
+		reached = true
+		return &omv1.TriggerHostBootstrapResponse{}, nil
+	}
+	info := &grpc.UnaryServerInfo{FullMethod: omv1.OmService_TriggerHostBootstrap_FullMethodName}
+
+	_, err := grpc_validator.UnaryServerInterceptor()(t.Context(), req, info, handler)
+
+	assert.Equal(t, err == nil, reached, "the handler runs exactly when validation passes")
+	return err
+}
+
 func TestTriggerHostBootstrapReplicaSetName(t *testing.T) {
 	t.Parallel()
-
-	validate := grpc_validator.UnaryServerInterceptor()
-	info := &grpc.UnaryServerInfo{FullMethod: omv1.OmService_TriggerHostBootstrap_FullMethodName}
 
 	for _, tc := range []struct {
 		name  string
@@ -1636,31 +1746,44 @@ func TestTriggerHostBootstrapReplicaSetName(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			req := &omv1.TriggerHostBootstrapRequest{
-				NodeIds:        []string{"n1"},
-				ReplicaSetName: tc.name,
-				MongodbVersion: "7.0",
-				DataPath:       "/var/lib/mongo",
-				LogPath:        "/var/log/mongodb/mongod.log",
-				Port:           27017,
-				BindIp:         "0.0.0.0",
-			}
-			reached := false
-			handler := func(context.Context, any) (any, error) {
-				reached = true
-				return &omv1.TriggerHostBootstrapResponse{}, nil
-			}
-
-			_, err := validate(t.Context(), req, info, handler)
+			err := validateTrigger(t, func(req *omv1.TriggerHostBootstrapRequest) { req.ReplicaSetName = tc.name })
 
 			if tc.valid {
 				require.NoError(t, err)
-				assert.True(t, reached)
 				return
 			}
-			require.Error(t, err)
 			assert.Equal(t, codes.InvalidArgument, status.Code(err))
-			assert.False(t, reached)
+		})
+	}
+}
+
+func TestTriggerHostBootstrapAdminCredentials(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name     string
+		username string
+		password string
+		valid    bool
+	}{
+		{"both empty: defaults apply", "", "", true},
+		{"chosen user and password", "dba.admin@corp", "12345678", true},
+		{"password shorter than 8", "", "1234567", false},
+		{"username with a space", "db admin", "", false},
+		{"username with a quote", `db"admin`, "", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := validateTrigger(t, func(req *omv1.TriggerHostBootstrapRequest) {
+				req.AdminUsername, req.AdminPassword = tc.username, tc.password
+			})
+
+			if tc.valid {
+				require.NoError(t, err)
+				return
+			}
+			assert.Equal(t, codes.InvalidArgument, status.Code(err))
 		})
 	}
 }

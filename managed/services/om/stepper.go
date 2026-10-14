@@ -40,7 +40,11 @@ func refreshRetryWindowOpen(run *extensionsBootstrapRun, now time.Time) bool {
 	return now.Sub(*run.FinishedAt) < bootstrapInventoryRefreshWindow
 }
 
-const bootstrapMongoDBUsername = "admin"
+const (
+	bootstrapMongoDBUsername = "pmm"
+	defaultAdminUsername     = "admin"
+	createAdminUserStep      = "create_admin_user"
+)
 
 // Base64-encoded, the keyFile stays within MongoDB's 6-1024 character range.
 const (
@@ -100,6 +104,13 @@ func (s *Service) stepBootstrapRun(ctx context.Context, runID string) {
 	if err != nil {
 		s.l.Warnf("bootstrap run %s: failed to fetch: %s", runID, err)
 		return
+	}
+
+	if adminPasswordSpent(*run) {
+		err = models.ClearOmBootstrapAdminPassword(s.db.Querier, run.ID)
+		if err != nil {
+			s.l.Warnf("bootstrap run %s: failed to clear the administrator password: %s", run.ID, err)
+		}
 	}
 
 	switch run.Status {
@@ -266,13 +277,22 @@ func (s *Service) paramsForStep(ctx context.Context, runID, stepName string) (ma
 			return nil, err
 		}
 		return map[string]string{"username": secret.MongoDBUsername, "password": secret.MongoDBPassword}, nil
+	case createAdminUserStep:
+		secret, err := models.FindOmBootstrapSecretByRunID(s.db.Querier, runID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to look up the stored secret: %w", err)
+		}
+		if secret.AdminPassword == "" {
+			return nil, errors.New("the administrator password is no longer stored")
+		}
+		return map[string]string{"username": secret.AdminUsername, "password": secret.AdminPassword}, nil
 	default:
 		return nil, nil //nolint:nilnil // "no params needed" is not an error
 	}
 }
 
-// ensureBootstrapSecret returns runID's stored secret, generating it on first use.
-// If two ticks race to create it, the losing insert returns the winner's secret.
+// ensureBootstrapSecret returns runID's stored secret. TriggerHostBootstrap stores it up front; a run started
+// before it did gets one here on first use, and if two ticks race, the losing insert returns the winner's.
 func (s *Service) ensureBootstrapSecret(_ context.Context, runID string) (*models.OmBootstrapSecret, error) {
 	secret, err := models.FindOmBootstrapSecretByRunID(s.db.Querier, runID)
 	if err == nil {
@@ -282,21 +302,11 @@ func (s *Service) ensureBootstrapSecret(_ context.Context, runID string) (*model
 		return nil, fmt.Errorf("failed to look up the stored secret: %w", err)
 	}
 
-	password, err := generateBootstrapSecret(bootstrapPasswordBytes)
+	created, err := newBootstrapSecret()
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate a password: %w", err)
+		return nil, err
 	}
-	keyFile, err := generateBootstrapSecret(bootstrapKeyFileBytes)
-	if err != nil {
-		return nil, fmt.Errorf("failed to generate a keyFile: %w", err)
-	}
-
-	created := &models.OmBootstrapSecret{
-		RunID:           runID,
-		MongoDBUsername: bootstrapMongoDBUsername,
-		MongoDBPassword: password,
-		KeyFile:         keyFile,
-	}
+	created.RunID = runID
 	err = models.CreateOmBootstrapSecret(s.db.Querier, created)
 	if err != nil {
 		existing, findErr := models.FindOmBootstrapSecretByRunID(s.db.Querier, runID)
@@ -306,6 +316,23 @@ func (s *Service) ensureBootstrapSecret(_ context.Context, runID string) (*model
 		return nil, fmt.Errorf("failed to store the generated secret: %w", err)
 	}
 	return created, nil
+}
+
+// newBootstrapSecret generates the monitoring user's password and the keyFile, for the caller to assign a run.
+func newBootstrapSecret() (*models.OmBootstrapSecret, error) {
+	password, err := generateBootstrapSecret(bootstrapPasswordBytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate a password: %w", err)
+	}
+	keyFile, err := generateBootstrapSecret(bootstrapKeyFileBytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate a keyFile: %w", err)
+	}
+	return &models.OmBootstrapSecret{
+		MongoDBUsername: bootstrapMongoDBUsername,
+		MongoDBPassword: password,
+		KeyFile:         keyFile,
+	}, nil
 }
 
 func generateBootstrapSecret(n int) (string, error) {

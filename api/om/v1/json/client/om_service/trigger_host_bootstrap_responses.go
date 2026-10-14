@@ -233,6 +233,12 @@ type TriggerHostBootstrapBody struct {
 	// named gets the same default, rather than its proto3 zero value; see
 	// BootstrapMemberConfig.priority. A key outside node_ids is rejected.
 	MemberConfigs map[string]TriggerHostBootstrapParamsBodyMemberConfigsAnon `json:"member_configs,omitempty"`
+
+	// The customer's own MongoDB administrator, created with the root role. Defaults to "admin".
+	AdminUsername string `json:"admin_username,omitempty"`
+
+	// The administrator's password. Left empty, PMM generates one and returns it once.
+	AdminPassword string `json:"admin_password,omitempty"`
 }
 
 // Validate validates this trigger host bootstrap body
@@ -566,6 +572,10 @@ swagger:model TriggerHostBootstrapOKBody
 type TriggerHostBootstrapOKBody struct {
 	// The om_bootstrap run's id. Poll GetBootstrapRun for its progress.
 	RunID string `json:"run_id,omitempty"`
+
+	// The administrator password PMM generated, set only when the request left admin_password empty.
+	// PMM deletes its copy once the user exists, so this response is the only place to read it.
+	GeneratedAdminPassword string `json:"generated_admin_password,omitempty"`
 }
 
 // Validate validates this trigger host bootstrap OK body

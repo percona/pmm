@@ -31,6 +31,8 @@ const validForm = (): ConfigureFormState => ({
   customBindIp: null,
   members: [{ name: 'db01', config: defaultMemberConfig() }],
   electionErrorCount: 0,
+  adminUsername: 'admin',
+  adminPassword: null,
 });
 
 describe('replicaSetNameError', () => {
@@ -103,5 +105,37 @@ describe('configureBlockers', () => {
     expect(
       configureBlockers({ ...validForm(), electionErrorCount: 1 })
     ).toEqual(['Fix the election settings problem shown above.']);
+  });
+});
+
+describe('configureBlockers administrator', () => {
+  it('refuses the monitoring user and characters outside the API pattern', () => {
+    expect(configureBlockers({ ...validForm(), adminUsername: 'pmm' })).toEqual(
+      ["pmm is PMM's monitoring user. Choose another administrator username."]
+    );
+    expect(
+      configureBlockers({ ...validForm(), adminUsername: 'db admin' })
+    ).toEqual([
+      'Administrator username can use only letters, digits, ., _, @ and -, up to 64 characters.',
+    ]);
+    expect(configureBlockers({ ...validForm(), adminUsername: '' })).toEqual([
+      'Enter an administrator username.',
+    ]);
+  });
+
+  it('checks a typed password for length, then for a matching confirmation', () => {
+    const typed = (value: string, confirmation: string) =>
+      configureBlockers({
+        ...validForm(),
+        adminPassword: { value, confirmation },
+      });
+
+    expect(typed('short', 'short')).toEqual([
+      'Administrator password must be at least 8 characters.',
+    ]);
+    expect(typed('long-enough', 'long-enoug')).toEqual([
+      'The administrator passwords do not match.',
+    ]);
+    expect(typed('long-enough', 'long-enough')).toEqual([]);
   });
 });

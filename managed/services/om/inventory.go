@@ -434,6 +434,9 @@ func runIgnoredSettings(planned extensionsTriggerBootstrapRunRequest, accepted *
 			break
 		}
 	}
+	if _, ok := runStep(*accepted, createAdminUserStep); planned.CreateAdminUser && !ok {
+		ignored = append(ignored, "the administrator user")
+	}
 	return strings.Join(ignored, ", ")
 }
 
@@ -606,6 +609,28 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		return nil, err
 	}
 
+	adminUsername := req.GetAdminUsername()
+	if adminUsername == "" {
+		adminUsername = defaultAdminUsername
+	}
+	if adminUsername == bootstrapMongoDBUsername {
+		return nil, status.Errorf(codes.InvalidArgument,
+			"admin_username %s is reserved for PMM's monitoring user", bootstrapMongoDBUsername)
+	}
+	secret, err := newBootstrapSecret()
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to generate the run's credentials: %s", err)
+	}
+	secret.AdminUsername, secret.AdminPassword = adminUsername, req.GetAdminPassword()
+	var generatedPassword string
+	if secret.AdminPassword == "" {
+		generatedPassword, err = generateBootstrapSecret(bootstrapPasswordBytes)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to generate the administrator password: %s", err)
+		}
+		secret.AdminPassword = generatedPassword
+	}
+
 	hosts := make([]extensionsHost, 0, len(nodeIDs))
 	for _, nodeID := range nodeIDs {
 		host := extensionsHost{}
@@ -647,16 +672,17 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 	}
 
 	planned := extensionsTriggerBootstrapRunRequest{
-		Hosts:          executorHosts,
-		InstallMethod:  "packages",
-		OS:             osID,
-		MongoDBVersion: req.GetMongodbVersion(),
-		ReplicaSetName: req.GetReplicaSetName(),
-		DataPath:       req.GetDataPath(),
-		LogPath:        req.GetLogPath(),
-		Port:           req.GetPort(),
-		BindIP:         req.GetBindIp(),
-		MemberConfigs:  memberConfigs,
+		Hosts:           executorHosts,
+		InstallMethod:   "packages",
+		OS:              osID,
+		MongoDBVersion:  req.GetMongodbVersion(),
+		ReplicaSetName:  req.GetReplicaSetName(),
+		DataPath:        req.GetDataPath(),
+		LogPath:         req.GetLogPath(),
+		Port:            req.GetPort(),
+		BindIP:          req.GetBindIp(),
+		MemberConfigs:   memberConfigs,
+		CreateAdminUser: true,
 	}
 	run, err := s.bootstrap.triggerRun(ctx, planned)
 	if err != nil {
@@ -672,6 +698,14 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 				"The run has been cancelled", ignored)
 	}
 
+	secret.RunID = run.ID
+	err = models.CreateOmBootstrapSecret(s.db.Querier, secret)
+	if err != nil {
+		s.abandonMisconfiguredRun(ctx, run.ID)
+		return nil, status.Errorf(codes.Internal,
+			"failed to store the run's credentials, so the run has been cancelled: %s", err)
+	}
+
 	if environment, cluster := req.GetEnvironment(), req.GetCluster(); environment != "" || cluster != "" {
 		config := &models.OmBootstrapRunConfig{RunID: run.ID, Environment: environment, Cluster: cluster}
 		err = models.CreateOmBootstrapRunConfig(s.db.Querier, config)
@@ -681,7 +715,7 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		}
 	}
 
-	return &omv1.TriggerHostBootstrapResponse{RunId: run.ID}, nil
+	return &omv1.TriggerHostBootstrapResponse{RunId: run.ID, GeneratedAdminPassword: generatedPassword}, nil
 }
 
 // inventoryHostsByExecutor returns every inventory host that has an executor, keyed by executor host name.

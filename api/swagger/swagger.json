@@ -30863,6 +30863,16 @@
                     }
                   },
                   "x-order": 9
+                },
+                "admin_username": {
+                  "description": "The customer's own MongoDB administrator, created with the root role. Defaults to \"admin\".",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "admin_password": {
+                  "description": "The administrator's password. Left empty, PMM generates one and returns it once.",
+                  "type": "string",
+                  "x-order": 11
                 }
               }
             }
@@ -30879,6 +30889,11 @@
                   "description": "The om_bootstrap run's id. Poll GetBootstrapRun for its progress.",
                   "type": "string",
                   "x-order": 0
+                },
+                "generated_admin_password": {
+                  "description": "The administrator password PMM generated, set only when the request left admin_password empty.\nPMM deletes its copy once the user exists, so this response is the only place to read it.",
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }

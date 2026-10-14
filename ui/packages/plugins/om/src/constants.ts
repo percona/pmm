@@ -349,6 +349,7 @@ export const BOOTSTRAP_STEP_NAME_LABEL: Record<string, string> = {
   start_service: 'Starting mongod',
   verify: 'Verifying mongod',
   rs_initiate: 'Initiating the replica set',
+  create_admin_user: 'Creating the administrator user',
   create_pmm_monitoring_user: 'Creating the PMM monitoring user',
   enable_auth: 'Enabling authentication',
   confirm_monitoring: 'Confirming PMM monitoring',
@@ -461,3 +462,16 @@ export const DEFAULT_MONGODB_VERSION: (typeof SUPPORTED_MONGODB_VERSIONS)[number
  * into mongod.conf and the connection URI.
  */
 export const REPLICA_SET_NAME_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
+
+/** The administrator an install creates unless the user names another. */
+export const DEFAULT_ADMIN_USERNAME = 'admin';
+
+/** Taken by the monitoring user PMM creates on every install. */
+export const MONITORING_USERNAME = 'pmm';
+
+/** Must match `admin_username` in `api/om/v1/om.proto`. */
+export const ADMIN_USERNAME_PATTERN = /^[A-Za-z0-9._@-]{1,64}$/;
+
+/** `admin_password`'s length bounds in `api/om/v1/om.proto`. */
+export const ADMIN_PASSWORD_MIN_LENGTH = 8;
+export const ADMIN_PASSWORD_MAX_LENGTH = 128;

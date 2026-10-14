@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package om.v1;
 
+import "extensions/v1/redact.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
@@ -926,6 +927,20 @@ message TriggerHostBootstrapRequest {
   // named gets the same default, rather than its proto3 zero value; see
   // BootstrapMemberConfig.priority. A key outside node_ids is rejected.
   map<string, BootstrapMemberConfig> member_configs = 10;
+  // The customer's own MongoDB administrator, created with the root role. Defaults to "admin".
+  string admin_username = 11 [(validate.rules).string = {
+    max_len: 64
+    pattern: "^[A-Za-z0-9._@-]*$"
+  }];
+  // The administrator's password. Left empty, PMM generates one and returns it once.
+  string admin_password = 12 [
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL,
+    (validate.rules).string = {
+      min_len: 8
+      max_len: 128
+      ignore_empty: true
+    }
+  ];
 }
 
 // BootstrapMemberConfig is one host's replica-set election settings, for
@@ -975,6 +990,9 @@ message BootstrapMemberConfig {
 message TriggerHostBootstrapResponse {
   // The om_bootstrap run's id. Poll GetBootstrapRun for its progress.
   string run_id = 1;
+  // The administrator password PMM generated, set only when the request left admin_password empty.
+  // PMM deletes its copy once the user exists, so this response is the only place to read it.
+  string generated_admin_password = 2 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
 }
 
 // BootstrapStep is one step's progress -- a host's own, one of its rollback

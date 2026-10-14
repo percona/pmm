@@ -22,7 +22,13 @@
  * the two cannot drift apart.
  */
 
-import { REPLICA_SET_NAME_PATTERN } from './constants';
+import {
+  ADMIN_PASSWORD_MAX_LENGTH,
+  ADMIN_PASSWORD_MIN_LENGTH,
+  ADMIN_USERNAME_PATTERN,
+  MONITORING_USERNAME,
+  REPLICA_SET_NAME_PATTERN,
+} from './constants';
 import type { OmBootstrapMemberConfig } from './types';
 
 const REPLICA_SET_NAME_MAX_LENGTH = 64;
@@ -41,6 +47,9 @@ export interface ConfigureFormState {
   customBindIp: string | null;
   members: { name: string; config: OmBootstrapMemberConfig }[];
   electionErrorCount: number;
+  adminUsername: string;
+  /** The typed password and its confirmation, or null when PMM generates one. */
+  adminPassword: { value: string; confirmation: string } | null;
 }
 
 /**
@@ -59,6 +68,37 @@ export function replicaSetNameError(name: string): string | null {
   }
   if (!REPLICA_SET_NAME_PATTERN.test(name)) {
     return 'Replica set name can use only letters, digits, - and _.';
+  }
+  return null;
+}
+
+/** Why an administrator username would be refused, or null when it is fine. */
+export function adminUsernameError(name: string): string | null {
+  if (name === '') {
+    return 'Enter an administrator username.';
+  }
+  if (!ADMIN_USERNAME_PATTERN.test(name)) {
+    return 'Administrator username can use only letters, digits, ., _, @ and -, up to 64 characters.';
+  }
+  if (name === MONITORING_USERNAME) {
+    return `${MONITORING_USERNAME} is PMM's monitoring user. Choose another administrator username.`;
+  }
+  return null;
+}
+
+/** Why a typed administrator password would be refused, or null when it is fine. */
+export function adminPasswordError(
+  value: string,
+  confirmation: string
+): string | null {
+  if (value.length < ADMIN_PASSWORD_MIN_LENGTH) {
+    return `Administrator password must be at least ${ADMIN_PASSWORD_MIN_LENGTH} characters.`;
+  }
+  if (value.length > ADMIN_PASSWORD_MAX_LENGTH) {
+    return `Administrator password can be at most ${ADMIN_PASSWORD_MAX_LENGTH} characters.`;
+  }
+  if (value !== confirmation) {
+    return 'The administrator passwords do not match.';
   }
   return null;
 }
@@ -117,6 +157,19 @@ export function configureBlockers(form: ConfigureFormState): string[] {
     ) {
       blockers.push(`Delay for ${name} must be a whole number of seconds.`);
     }
+  }
+  const usernameError = adminUsernameError(form.adminUsername);
+  if (usernameError) {
+    blockers.push(usernameError);
+  }
+  const passwordError =
+    form.adminPassword &&
+    adminPasswordError(
+      form.adminPassword.value,
+      form.adminPassword.confirmation
+    );
+  if (passwordError) {
+    blockers.push(passwordError);
   }
   if (form.electionErrorCount === 1) {
     blockers.push('Fix the election settings problem shown above.');
