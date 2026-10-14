@@ -2,22 +2,21 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Table } from '@percona/peak-ui';
-import type { OpenAlertThresholdsModalMessage } from '@pmm/shared';
 import { Modal } from 'components/modal';
 import {
   useBatchUpdateNodeThresholds,
   useNodeThresholds,
 } from 'hooks/api/useNodeThresholds';
 import { usePrometheusAlertRules } from 'hooks/api/usePrometheusAlertRules';
-import messenger from 'lib/messenger';
 import { enqueueSnackbar } from 'notistack';
-import { useEffect, useMemo, useState } from 'react';
+import { type FC, useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { ALERT_THRESHOLDS_COLUMNS } from './AlertThresholds.constants';
 import { Messages } from './AlertThresholds.messages';
 import type {
   AlertThresholdRow,
   AlertThresholdsFormValues,
+  AlertThresholdsNode,
 } from './AlertThresholds.types';
 import type {
   ListThresholdsResponse,
@@ -30,13 +29,16 @@ import {
   getRuleTitles,
 } from './AlertThresholds.utils';
 
-const AlertThresholds = () => {
-  const [nodeId, setNodeId] = useState<string>();
-  const [nodeName, setNodeName] = useState<string>();
-  const [open, setIsOpen] = useState(false);
+interface Props {
+  node: AlertThresholdsNode | null;
+  onClose: () => void;
+}
+
+const AlertThresholds: FC<Props> = ({ node, onClose }) => {
+  const nodeId = node?.nodeId;
 
   const { data, isLoading, isError } = useNodeThresholds(nodeId ?? '', {
-    enabled: open && !!nodeId,
+    enabled: !!nodeId,
   });
 
   const {
@@ -44,7 +46,7 @@ const AlertThresholds = () => {
     isLoading: rulesLoading,
     isError: rulesError,
   } = usePrometheusAlertRules({
-    enabled: open && !!nodeId,
+    enabled: !!nodeId,
   });
 
   // Rule titles live in Grafana, not in the thresholds response, so they are joined
@@ -84,38 +86,9 @@ const AlertThresholds = () => {
     methods.reset(initialValues, { keepDirtyValues: true });
   }, [nodeId, initialValues, methods]);
 
-  // Deliberately has no dependency array, so it re-subscribes after every render.
-  //
-  // GrafanaProvider's cleanup calls messenger.unregister(), which empties the shared
-  // listener array rather than removing only its own listeners, and its effect depends
-  // on `navigate` - so an ordinary navigation discards this subscription along with
-  // everyone else's. Re-registering on each render is what puts it back; with `[]` the
-  // modal would work until the first navigation and then silently stop opening.
-  //
-  // The costs are a subscribe/unsubscribe cycle per render, and a narrow window between
-  // cleanup and re-subscribe in which an OPEN_ALERT_THRESHOLDS_MODAL message would be
-  // dropped. Both go away once unregister() is made the true inverse of register() -
-  // detaching the window listener and leaving the array to each component's own cleanup.
-  // Tracked as a follow-up; fixing it here would mean changing shared messenger
-  // behaviour that every other consumer relies on.
-  useEffect(() => {
-    const handler = messenger.addListener({
-      type: 'OPEN_ALERT_THRESHOLDS_MODAL',
-      onMessage: (msg: OpenAlertThresholdsModalMessage) => {
-        setNodeId(msg.payload?.nodeId);
-        setNodeName(msg.payload?.nodeName);
-        setIsOpen(true);
-      },
-    });
-
-    return () => messenger.removeListener(handler);
-  });
-
   const handleClose = () => {
     methods.reset({});
-    setNodeId(undefined);
-    setNodeName(undefined);
-    setIsOpen(false);
+    onClose();
   };
 
   const handleSubmit = async (values: AlertThresholdsFormValues) => {
@@ -141,16 +114,12 @@ const AlertThresholds = () => {
     handleClose();
   };
 
-  if (!open || !nodeId) {
+  if (!node) {
     return null;
   }
 
   return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      title={Messages.title(nodeName ?? '')}
-    >
+    <Modal open onClose={handleClose} title={Messages.title(node.nodeName)}>
       <FormProvider {...methods}>
         <Stack component="form" onSubmit={methods.handleSubmit(handleSubmit)}>
           {isError || rulesError ? (

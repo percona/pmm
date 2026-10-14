@@ -20,6 +20,18 @@ import { Nodes } from './Nodes';
 vi.mock('api/nodes');
 vi.mock('api/ha');
 
+const mocks = vi.hoisted(() => ({
+  useNodeThresholds: vi.fn(() => ({ data: undefined, isLoading: false })),
+}));
+
+vi.mock('hooks/api/useNodeThresholds', () => ({
+  useNodeThresholds: mocks.useNodeThresholds,
+  useBatchUpdateNodeThresholds: () => ({ mutateAsync: vi.fn() }),
+}));
+vi.mock('hooks/api/usePrometheusAlertRules', () => ({
+  usePrometheusAlertRules: () => ({ data: undefined, isLoading: true }),
+}));
+
 const node = (
   nodeId: string,
   nodeName: string,
@@ -122,8 +134,36 @@ describe('Nodes', () => {
         name: 'Toggle select row',
       })
     ).toBeDisabled();
-    expect(screen.getAllByRole('button', { name: 'Row Actions' })).toHaveLength(
-      2
+
+    fireEvent.click(
+      within(serverRow as HTMLElement).getByRole('button', {
+        name: 'Row Actions',
+      })
+    );
+
+    expect(
+      await screen.findByRole('menuitem', { name: 'Override alert thresholds' })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('menuitem', { name: 'Delete' })
+    ).not.toBeInTheDocument();
+  });
+
+  it("opens a node's alert thresholds", async () => {
+    renderNodes();
+
+    await screen.findByText('node-1');
+    fireEvent.click(screen.getAllByRole('button', { name: 'Row Actions' })[0]);
+    fireEvent.click(
+      await screen.findByRole('menuitem', { name: 'Override alert thresholds' })
+    );
+
+    expect(
+      await screen.findByText('Alert thresholds: node-1')
+    ).toBeInTheDocument();
+    expect(mocks.useNodeThresholds).toHaveBeenLastCalledWith(
+      'node-1',
+      expect.objectContaining({ enabled: true })
     );
   });
 

@@ -21,6 +21,9 @@ export const Messages = {
     [NodeRole.follower]: 'Follower',
     [NodeRole.unspecified]: 'Unspecified',
   },
+  actions: {
+    overrideThresholds: 'Override alert thresholds',
+  },
   empty: 'No nodes available',
   delete: {
     title: 'Confirm action',

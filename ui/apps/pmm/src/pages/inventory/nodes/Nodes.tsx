@@ -8,6 +8,8 @@ import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
 import { Table, type MRT_RowSelectionState } from '@percona/peak-ui';
+import AlertThresholds from 'components/alert-thresholds';
+import type { AlertThresholdsNode } from 'components/alert-thresholds/AlertThresholds.types';
 import { useHaInfo } from 'hooks/api/useHA';
 import { useNodes, useRemoveNodes } from 'hooks/api/useNodes';
 import { useTableUrlState } from 'hooks/utils/useTableUrlState';
@@ -39,6 +41,8 @@ export const Nodes: FC = () => {
   const { mutateAsync: removeNodes } = useRemoveNodes();
   const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
   const [nodesToDelete, setNodesToDelete] = useState<NodeRow[]>([]);
+  const [thresholdsNode, setThresholdsNode] =
+    useState<AlertThresholdsNode | null>(null);
   const nodes = useMemo(
     () => toNodeRows(data ?? [], ha.nodes),
     [data, ha.nodes]
@@ -102,8 +106,20 @@ export const Nodes: FC = () => {
           <NodeDetails node={original} />
         )}
         enableRowActions
-        renderRowActionMenuItems={({ row: { original }, closeMenu }) =>
-          canRemoveNode(original)
+        renderRowActionMenuItems={({ row: { original }, closeMenu }) => [
+          <MenuItem
+            key="override-thresholds"
+            onClick={() => {
+              setThresholdsNode({
+                nodeId: original.nodeId,
+                nodeName: original.nodeName,
+              });
+              closeMenu();
+            }}
+          >
+            <ListItemText>{Messages.actions.overrideThresholds}</ListItemText>
+          </MenuItem>,
+          ...(canRemoveNode(original)
             ? [
                 <MenuItem
                   key="delete"
@@ -120,8 +136,8 @@ export const Nodes: FC = () => {
                   </ListItemText>
                 </MenuItem>,
               ]
-            : []
-        }
+            : []),
+        ]}
         renderTopToolbarCustomActions={() => (
           <Stack
             direction="row"
@@ -159,6 +175,10 @@ export const Nodes: FC = () => {
             )}
           </Stack>
         )}
+      />
+      <AlertThresholds
+        node={thresholdsNode}
+        onClose={() => setThresholdsNode(null)}
       />
       <DeleteModal
         open={!!nodesToDelete.length}
