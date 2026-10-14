@@ -932,6 +932,7 @@ function ExecutionRow({
             taskHistoryId={task_history_id}
             taskStatus={task_status ?? undefined}
             maxHeight={360}
+            itemName="script"
           />
         )}
       </AccordionDetails>

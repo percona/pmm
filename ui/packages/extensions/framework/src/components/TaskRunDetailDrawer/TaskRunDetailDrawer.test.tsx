@@ -34,11 +34,11 @@ vi.mock('../TaskLogViewer', () => ({
   // of what this suite covers about the viewer, so the real one is reused.
   NON_FAILURE_TERMINAL_NOTES: {
     stopped: 'This run was stopped before it finished.',
-    lost: 'The executor stopped reporting on this run, so its outcome is unknown.',
+    lost: 'The host stopped reporting on this run, so its outcome is unknown.',
     stale:
-      'This run was skipped because the executor could not place it before the staleness threshold.',
+      'This run was skipped because no host could pick it up before the staleness threshold.',
     unlaunchable:
-      'The executor node could not launch this run, so the payload never executed. This is not a script failure.',
+      'The host could not launch this run, so the script never executed. This is not a script failure.',
   },
 }));
 
