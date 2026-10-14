@@ -5,7 +5,15 @@ import {
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
 import { createAnonymousUser } from 'contexts/user/user.utils';
-import { addAlerting, addSection, addExtensionsApps } from './navigation.utils';
+import {
+  addAlerting,
+  addSection,
+  addExtensionsApps,
+  addDashboardItems,
+  addOm,
+} from './navigation.utils';
+import { NAV_MONGO } from './navigation.constants';
+import { ServiceType } from 'types/services.types';
 import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
@@ -144,5 +152,49 @@ describe('addSection', () => {
 
   it('contributes nothing rather than an empty expandable shell', () => {
     expect(addSection({ id: 'section' }, [])).toEqual([]);
+  });
+});
+
+describe('addOm', () => {
+  it('is the Operations item, marked as a Preview', () => {
+    const om = addOm();
+
+    expect(om.text).toBe('Operations');
+    expect(om.badge).toMatchObject({ label: 'Preview' });
+    expect(om.badgeAlwaysVisible).toBe(true);
+  });
+});
+
+describe('addDashboardItems', () => {
+  const mongoMenu = (items: ReturnType<typeof addDashboardItems>) =>
+    items.find((item) => item.id === NAV_MONGO.id);
+
+  it('nests the extras at the end of the MongoDB menu', () => {
+    const menu = mongoMenu(
+      addDashboardItems([ServiceType.mongodb], [], undefined, [addOm()])
+    );
+
+    expect(menu?.children?.at(-1)?.id).toBe('om');
+    expect(menu?.children?.length).toBe((NAV_MONGO.children?.length ?? 0) + 1);
+  });
+
+  it('leaves the shared MongoDB constant untouched', () => {
+    const before = NAV_MONGO.children?.length;
+
+    addDashboardItems([ServiceType.mongodb], [], undefined, [addOm()]);
+    addDashboardItems([ServiceType.mongodb], [], undefined, [addOm()]);
+
+    expect(NAV_MONGO.children?.length).toBe(before);
+  });
+
+  it('keeps the MongoDB menu for the extras when no MongoDB is monitored', () => {
+    const menu = mongoMenu(addDashboardItems([], [], undefined, [addOm()]));
+
+    expect(menu?.children?.map((c) => c.id)).toEqual(['om']);
+    expect(menu?.url).toBe(addOm().url);
+  });
+
+  it('has no MongoDB menu with neither MongoDB nor extras', () => {
+    expect(mongoMenu(addDashboardItems([], []))).toBeUndefined();
   });
 });
