@@ -17,6 +17,7 @@ package management
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -40,6 +41,13 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 	"github.com/percona/pmm/utils/logger"
 )
+
+// boundedCtx matches the context of a Grafana call made for a Node, which has to carry a deadline of
+// its own rather than the cancellation of the request.
+var boundedCtx = mock.MatchedBy(func(ctx context.Context) bool {
+	_, ok := ctx.Deadline()
+	return ok
+})
 
 func TestNodeService(t *testing.T) {
 	t.Run("NodeRegistration", func(t *testing.T) {
@@ -70,7 +78,7 @@ func TestNodeService(t *testing.T) {
 
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+			authProvider.On("CreateServiceAccount", boundedCtx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
 
 			vmClient := &mockVictoriaMetricsClient{}
 			vmClient.Test(t)
@@ -88,7 +96,7 @@ func TestNodeService(t *testing.T) {
 				vmClient.AssertExpectations(t)
 			}
 
-			s := NewManagementService(db, r, state, nil, nil, vmdb, nil, authProvider, vmClient)
+			s := NewManagementService(db, r, state, nil, nil, vmdb, nil, authProvider, vmClient, nil, false)
 
 			return ctx, s, teardown
 		}
@@ -139,7 +147,7 @@ func TestNodeService(t *testing.T) {
 
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+			authProvider.On("CreateServiceAccount", boundedCtx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
 			s.grafanaClient = authProvider
 
 			_, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
@@ -160,7 +168,7 @@ func TestNodeService(t *testing.T) {
 
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+			authProvider.On("CreateServiceAccount", boundedCtx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
 			s.grafanaClient = authProvider
 
 			res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
@@ -192,12 +200,15 @@ func TestNodeService(t *testing.T) {
 			serviceAccountID := int(0)
 			nodeName := getTestNodeName()
 			reregister := true
-			force := true
+			// The request below is forced, but --force says to unregister the Node with everything on it,
+			// not to delete service tokens pmm-agent never created, so it must not reach Grafana as its own
+			// force.
+			const deleteForeignTokens = false
 
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
-			authProvider.On("DeleteServiceAccount", ctx, nodeName, force).Return("", nil)
+			authProvider.On("CreateServiceAccount", boundedCtx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+			authProvider.On("DeleteServiceAccount", boundedCtx, nodeName, deleteForeignTokens).Return("", nil)
 			s.grafanaClient = authProvider
 
 			state := &mockAgentsStateUpdater{}
@@ -228,6 +239,30 @@ func TestNodeService(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.Empty(t, res.Warning)
+		})
+
+		t.Run("Grafana-failure", func(t *testing.T) {
+			// A Node which keeps the name while its service account was never created is one nothing can
+			// take back: pmm-agent stores no ID until the registration succeeds, so it registers again on
+			// every start, and every attempt meets the name the failed one left behind.
+			nodeName := "test-node-grafana-down"
+			errGrafana := errors.New("connection refused")
+
+			authProvider := &mockGrafanaClient{}
+			authProvider.Test(t)
+			authProvider.On("CreateServiceAccount", boundedCtx, nodeName, false).Return(0, "", errGrafana)
+			s.grafanaClient = authProvider
+			defer authProvider.AssertExpectations(t)
+
+			_, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeName: nodeName,
+				Address:  "grafana.down.org",
+			})
+			require.ErrorIs(t, err, errGrafana)
+
+			_, err = models.FindNodeByName(s.db.Querier, nodeName)
+			tests.AssertGRPCError(t, status.Newf(codes.NotFound, "Node with name %q not found.", nodeName), err)
 		})
 	})
 
@@ -272,7 +307,7 @@ func TestNodeService(t *testing.T) {
 			grafanaClient := &mockGrafanaClient{}
 			grafanaClient.Test(t)
 
-			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, false)
 
 			teardown := func(t *testing.T) {
 				t.Helper()
@@ -323,7 +358,7 @@ func TestNodeService(t *testing.T) {
 				Nodes: []*managementv1.UniversalNode{
 					{
 						NodeId:          "pmm-server",
-						NodeType:        "generic",
+						NodeType:        "container",
 						NodeName:        "pmm-server",
 						MachineId:       "",
 						Distro:          "",
@@ -401,7 +436,7 @@ func TestNodeService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 
 			res, err := s.ListNodes(ctx, &managementv1.ListNodesRequest{
-				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeType: inventoryv1.NodeType_NODE_TYPE_CONTAINER_NODE,
 			})
 			require.NoError(t, err)
 
@@ -409,7 +444,7 @@ func TestNodeService(t *testing.T) {
 				Nodes: []*managementv1.UniversalNode{
 					{
 						NodeId:          "pmm-server",
-						NodeType:        "generic",
+						NodeType:        "container",
 						NodeName:        "pmm-server",
 						MachineId:       "",
 						Distro:          "",
@@ -549,7 +584,7 @@ func TestNodeService(t *testing.T) {
 			vmClient := &mockVictoriaMetricsClient{}
 			vmClient.Test(t)
 
-			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, false)
 
 			teardown := func(t *testing.T) {
 				t.Helper()
@@ -590,7 +625,7 @@ func TestNodeService(t *testing.T) {
 			expected := &managementv1.GetNodeResponse{
 				Node: &managementv1.UniversalNode{
 					NodeId:          "pmm-server",
-					NodeType:        "generic",
+					NodeType:        "container",
 					NodeName:        "pmm-server",
 					MachineId:       "",
 					Distro:          "",
