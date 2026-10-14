@@ -42,11 +42,15 @@ pmm-admin config [<node-address> [<node-type> [<node-name>]]] [FLAGS]
 
 - `--az=availability-zone`:   Node availability zone
 
+- `--environment=environment`:   Node environment
+
 - `--metrics-mode=mode`:   Metrics flow mode for node-exporter: `auto` (default), `push`, `pull`
 
 - `--paths-base=dir`:   Base path for PMM client binaries, tools, and collectors
 
 - `--agent-password=password`:   Custom agent password
+
+The node flags take effect when the node is registered. To change the labels of a node that is already registered, use [`pmm-admin update node`](update.md#update-a-node).
 
 ### Examples
 
@@ -92,6 +96,8 @@ pmm-admin register [<node-address> [<node-type> [<node-name>]]] [FLAGS]
 
 - `--az=AZ`:   Node availability zone
 
+- `--environment=ENVIRONMENT`:   Node environment. Services on the node that don't set their own environment take it.
+
 - `--custom-labels=LABELS`:   Custom user-assigned labels in `key=value,key=value` format
 
 - `--agent-password=password`:   Custom agent password
@@ -121,12 +127,13 @@ pmm-admin register [<node-address> [<node-type> [<node-name>]]] [FLAGS]
       --container-name=mysql-prod
     ```
 
-- Register with environment labels:
+- Register with an environment and custom labels:
 
     ```bash
     pmm-admin register \
       --server-url=https://admin:admin@192.168.1.100:443 \
-      --custom-labels="env=production,team=backend"
+      --environment=production \
+      --custom-labels="team=backend"
     ```
 
 ## pmm-admin remove
