@@ -430,7 +430,7 @@ export function ResultsPane({
         <Alert severity="info">
           {/* A closed incident has no Collect pane to point at. */}
           {canMutate && acceptsRuns
-            ? 'No executions yet. Run snippets from the Collect pane to see results here.'
+            ? 'No executions yet. Run diagnostic scripts from Collect to see results here.'
             : 'No executions yet.'}
         </Alert>
       )}
@@ -876,7 +876,7 @@ function ExecutionRow({
             color="text.secondary"
             sx={{ display: 'block' }}
           >
-            Snippet
+            Script file
           </Typography>
           <Typography
             variant="body2"

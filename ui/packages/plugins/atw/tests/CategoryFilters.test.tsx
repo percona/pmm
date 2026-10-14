@@ -339,7 +339,7 @@ describe('CategoryFilters', () => {
     renderFilters(<CategoryFilters onSnippetsChange={vi.fn()} />);
 
     await waitFor(() => {
-      expect(screen.getByText(/Failed to load ATW categories/i)).toBeTruthy();
+      expect(screen.getByText(/Couldn't load script categories/i)).toBeTruthy();
     });
   });
 
@@ -365,7 +365,7 @@ describe('CategoryFilters', () => {
     });
     expect(screen.getByRole('button', { name: 'MySQL (1)' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Clear filters' })).toBeTruthy();
-    expect(screen.queryByText(/Failed to load ATW categories/i)).toBeNull();
+    expect(screen.queryByText(/Couldn't load script categories/i)).toBeNull();
     expect(onSnippetsChange).toHaveBeenLastCalledWith(mysqlLeaf.snippets);
   });
 });

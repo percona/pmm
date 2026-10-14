@@ -123,7 +123,7 @@ describe('ResultsPane', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/Run snippets from the Collect pane/i)
+        screen.getByText(/Run diagnostic scripts from Collect/i)
       ).toBeTruthy();
     });
   });
@@ -1070,7 +1070,7 @@ describe('ResultsPane send-unavailable notice', () => {
       expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
     });
     expect(
-      screen.getByText(/Sending requires a valid ServiceNow connection/i)
+      screen.getByText(/Sending to a support case needs a connection/i)
     ).toBeTruthy();
     expect(
       screen.getByTestId('atw-send-unavailable-settings').getAttribute('href')

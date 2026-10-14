@@ -157,7 +157,9 @@ describe('CollectPane executor elevation warning', () => {
     expect(warning).toHaveTextContent('pmm-server');
     expect(warning).toHaveTextContent('pt-stalk');
     // A warning, not a gate: the batch can still be submitted.
-    expect(screen.getByRole('button', { name: 'Execute batch' })).toBeEnabled();
+    expect(
+      screen.getByRole('button', { name: 'Run diagnostics' })
+    ).toBeEnabled();
   });
 
   it('stays silent on a host that can elevate', async () => {

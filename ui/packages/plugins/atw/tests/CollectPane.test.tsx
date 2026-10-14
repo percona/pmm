@@ -69,7 +69,9 @@ describe('CollectPane', () => {
     await waitFor(() => {
       expect(screen.getByText(/This incident is closed/i)).toBeTruthy();
     });
-    expect(screen.queryByRole('button', { name: /Execute batch/i })).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: /Run diagnostics/i })
+    ).toBeNull();
     expect(screen.queryByText('Filter by category')).toBeNull();
     expect(
       screen.queryByRole('combobox', { name: 'Search scripts' })

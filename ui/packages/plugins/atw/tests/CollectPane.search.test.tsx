@@ -320,7 +320,7 @@ describe('CollectPane snippet search', () => {
     await typeSearch('log');
 
     const notice = await screen.findByText(
-      /Showing the first 1 of 137 snippets/,
+      /Showing the first 1 of 137 scripts/,
       undefined,
       {
         timeout: 3000,
@@ -419,7 +419,7 @@ describe('CollectPane snippet search', () => {
 
     await typeSearch('summary');
 
-    const alert = await screen.findByText(/Snippet search failed/, undefined, {
+    const alert = await screen.findByText(/Script search failed/, undefined, {
       timeout: 3000,
     });
     expect(alert).toHaveTextContent('search backend down');
@@ -449,7 +449,7 @@ describe('CollectPane — write access', () => {
     expect(
       await screen.findByRole(
         'button',
-        { name: /Execute batch/i },
+        { name: /Run diagnostics/i },
         { timeout: 3000 }
       )
     ).toBeInTheDocument();
@@ -462,7 +462,7 @@ describe('CollectPane — write access', () => {
     // The picker still works — only the execute form is withheld.
     await waitFor(() => {
       expect(
-        screen.queryByRole('button', { name: /Execute batch/i })
+        screen.queryByRole('button', { name: /Run diagnostics/i })
       ).not.toBeInTheDocument();
     });
   });

@@ -651,7 +651,7 @@ export function CollectPane({
   };
 
   const submitError = batchMutation.isError
-    ? (batchMutation.error?.message ?? 'Batch execution failed')
+    ? (batchMutation.error?.message ?? "Couldn't start the diagnostics")
     : null;
 
   // Remount the form when the selection changes so react-hook-form rebuilds its
@@ -670,7 +670,7 @@ export function CollectPane({
           Collect
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          This incident is closed. Reopen it to run more diagnostic snippets.
+          This incident is closed. Reopen it to run more diagnostic scripts.
         </Typography>
       </Box>
     );
@@ -684,7 +684,7 @@ export function CollectPane({
 
       {searchQuery.error && debouncedSearch !== '' && !categoryFilterActive && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          Snippet search failed: {searchQuery.error.message}
+          Script search failed: {searchQuery.error.message}
         </Alert>
       )}
 
@@ -698,7 +698,7 @@ export function CollectPane({
         // the user keeps typing, and must not interrupt a screen reader mid-word.
         <Alert severity="info" role="status" sx={{ mb: 2 }}>
           Showing the first {searchResults.length} of {searchPagination?.total}{' '}
-          snippets matching &ldquo;{debouncedSearch}&rdquo;. Type more of the
+          scripts matching &ldquo;{debouncedSearch}&rdquo;. Type more of the
           name or description to narrow the results.
         </Alert>
       )}
@@ -725,11 +725,11 @@ export function CollectPane({
           !categoryFilterActive &&
           searchQuery.isFetching
         }
-        loadingText="Searching snippets…"
+        loadingText="Searching scripts…"
         noOptionsText={
           searchInput.trim() === ''
-            ? 'Type to search every snippet, or filter by category below.'
-            : 'No approved snippet matches this search.'
+            ? 'Type to search every diagnostic script, or filter by category below.'
+            : 'No approved script matches this search.'
         }
         getOptionLabel={(option) => option.title}
         // Without this MUI keys each row on the label, and titles are not unique
@@ -809,15 +809,15 @@ export function CollectPane({
 
       {gatedSnippetTitles.length > 0 && (
         <Alert severity="warning" sx={{ mt: 3 }}>
-          These snippets use conditional (required/forbidden) fields, which
-          batch collection does not evaluate — review their inputs before
-          executing: {gatedSnippetTitles.join(', ')}.
+          These scripts use conditional (required/forbidden) fields, which are
+          not evaluated when several scripts run together — review their inputs
+          before running: {gatedSnippetTitles.join(', ')}.
         </Alert>
       )}
 
       {itemErrors.length > 0 && (
         <Alert severity="warning" sx={{ mt: 3 }}>
-          Some snippets did not dispatch:
+          Some scripts did not start:
           <Box component="ul" sx={{ m: 0, pl: 2 }}>
             {itemErrors.map((message) => (
               <li key={message}>{message}</li>
@@ -859,7 +859,7 @@ export function CollectPane({
               onSubmit={handleSubmit}
               renderField={renderField}
               submitLabel={
-                batchMutation.isPending ? 'Starting…' : 'Execute batch'
+                batchMutation.isPending ? 'Starting…' : 'Run diagnostics'
               }
               loading={batchMutation.isPending}
               submitError={submitError}
