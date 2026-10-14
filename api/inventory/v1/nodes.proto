@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package inventory.v1;
 
+import "common/common.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
@@ -38,6 +39,8 @@ message GenericNode {
   map<string, string> custom_labels = 9;
   // True if this node is a PMM Server node (HA mode).
   bool is_pmm_server_node = 10;
+  // Environment name.
+  string environment = 11;
 }
 
 // ContainerNode represents a Docker container.
@@ -64,6 +67,8 @@ message ContainerNode {
   map<string, string> custom_labels = 10;
   // True if this node is a PMM Server node (HA mode).
   bool is_pmm_server_node = 11;
+  // Environment name.
+  string environment = 12;
 }
 
 // RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
@@ -82,6 +87,8 @@ message RemoteNode {
   string az = 6;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;
+  // Environment name.
+  string environment = 8;
 }
 
 // RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
@@ -102,6 +109,8 @@ message RemoteRDSNode {
   map<string, string> custom_labels = 7;
   // AWS DB instance identifier.
   string instance_id = 8;
+  // Environment name.
+  string environment = 9;
 }
 
 // RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
@@ -120,6 +129,8 @@ message RemoteAzureDatabaseNode {
   string az = 6;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;
+  // Environment name.
+  string environment = 8;
 }
 
 // List
@@ -290,6 +301,35 @@ message RemoveNodeResponse {
   string warning = 1;
 }
 
+// Change
+
+message ChangeNodeRequest {
+  // Unique randomly generated instance identifier.
+  string node_id = 1 [(validate.rules).string.min_len = 1];
+  // Environment name.
+  optional string environment = 2;
+  // Node model.
+  optional string node_model = 3;
+  // Node region. It can't be changed for a Remote RDS Node, as rds_exporter finds the DB instance by it.
+  optional string region = 4;
+  // Node availability zone.
+  optional string az = 5;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 6;
+  // Validate the change and return the Node as it would be, without applying it.
+  bool dry_run = 7;
+}
+
+message ChangeNodeResponse {
+  oneof node {
+    GenericNode generic = 1;
+    ContainerNode container = 2;
+    RemoteNode remote = 3;
+    RemoteRDSNode remote_rds = 4;
+    RemoteAzureDatabaseNode remote_azure_database = 5;
+  }
+}
+
 // Nodes service provides public methods for managing Nodes.
 service NodesService {
   // ListNodes returns a list of all Nodes.
@@ -325,6 +365,17 @@ service NodesService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Remove a Node"
       description: "Removes a Node."
+    };
+  }
+  // ChangeNode changes the labels of a Node.
+  rpc ChangeNode(ChangeNodeRequest) returns (ChangeNodeResponse) {
+    option (google.api.http) = {
+      put: "/v1/inventory/nodes/{node_id}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change a Node"
+      description: "Changes the environment, node model, region, availability zone and custom labels of a Node. Only the fields set in the request are changed."
     };
   }
 }

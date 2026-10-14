@@ -77,6 +77,8 @@ func (m *GenericNode) validate(all bool) error {
 
 	// no validation rules for IsPmmServerNode
 
+	// no validation rules for Environment
+
 	if len(errors) > 0 {
 		return GenericNodeMultiError(errors)
 	}
@@ -199,6 +201,8 @@ func (m *ContainerNode) validate(all bool) error {
 
 	// no validation rules for IsPmmServerNode
 
+	// no validation rules for Environment
+
 	if len(errors) > 0 {
 		return ContainerNodeMultiError(errors)
 	}
@@ -313,6 +317,8 @@ func (m *RemoteNode) validate(all bool) error {
 	// no validation rules for Az
 
 	// no validation rules for CustomLabels
+
+	// no validation rules for Environment
 
 	if len(errors) > 0 {
 		return RemoteNodeMultiError(errors)
@@ -430,6 +436,8 @@ func (m *RemoteRDSNode) validate(all bool) error {
 
 	// no validation rules for InstanceId
 
+	// no validation rules for Environment
+
 	if len(errors) > 0 {
 		return RemoteRDSNodeMultiError(errors)
 	}
@@ -544,6 +552,8 @@ func (m *RemoteAzureDatabaseNode) validate(all bool) error {
 	// no validation rules for Az
 
 	// no validation rules for CustomLabels
+
+	// no validation rules for Environment
 
 	if len(errors) > 0 {
 		return RemoteAzureDatabaseNodeMultiError(errors)
@@ -2962,3 +2972,479 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = RemoveNodeResponseValidationError{}
+
+// Validate checks the field values on ChangeNodeRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *ChangeNodeRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeNodeRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeNodeRequestMultiError, or nil if none found.
+func (m *ChangeNodeRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeNodeRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
+		err := ChangeNodeRequestValidationError{
+			field:  "NodeId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for DryRun
+
+	if m.Environment != nil {
+		// no validation rules for Environment
+	}
+
+	if m.NodeModel != nil {
+		// no validation rules for NodeModel
+	}
+
+	if m.Region != nil {
+		// no validation rules for Region
+	}
+
+	if m.Az != nil {
+		// no validation rules for Az
+	}
+
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeNodeRequestValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeNodeRequestValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeNodeRequestValidationError{
+					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return ChangeNodeRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeNodeRequestMultiError is an error wrapping multiple validation errors
+// returned by ChangeNodeRequest.ValidateAll() if the designated constraints
+// aren't met.
+type ChangeNodeRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeNodeRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeNodeRequestMultiError) AllErrors() []error { return m }
+
+// ChangeNodeRequestValidationError is the validation error returned by
+// ChangeNodeRequest.Validate if the designated constraints aren't met.
+type ChangeNodeRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeNodeRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeNodeRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeNodeRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeNodeRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeNodeRequestValidationError) ErrorName() string {
+	return "ChangeNodeRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeNodeRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeNodeRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ChangeNodeRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeNodeRequestValidationError{}
+
+// Validate checks the field values on ChangeNodeResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeNodeResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeNodeResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeNodeResponseMultiError, or nil if none found.
+func (m *ChangeNodeResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeNodeResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	switch v := m.Node.(type) {
+	case *ChangeNodeResponse_Generic:
+		if v == nil {
+			err := ChangeNodeResponseValidationError{
+				field:  "Node",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetGeneric()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeNodeResponseValidationError{
+						field:  "Generic",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeNodeResponseValidationError{
+						field:  "Generic",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetGeneric()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeNodeResponseValidationError{
+					field:  "Generic",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeNodeResponse_Container:
+		if v == nil {
+			err := ChangeNodeResponseValidationError{
+				field:  "Node",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetContainer()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeNodeResponseValidationError{
+						field:  "Container",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeNodeResponseValidationError{
+						field:  "Container",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetContainer()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeNodeResponseValidationError{
+					field:  "Container",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeNodeResponse_Remote:
+		if v == nil {
+			err := ChangeNodeResponseValidationError{
+				field:  "Node",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRemote()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeNodeResponseValidationError{
+						field:  "Remote",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeNodeResponseValidationError{
+						field:  "Remote",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRemote()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeNodeResponseValidationError{
+					field:  "Remote",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeNodeResponse_RemoteRds:
+		if v == nil {
+			err := ChangeNodeResponseValidationError{
+				field:  "Node",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRemoteRds()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeNodeResponseValidationError{
+						field:  "RemoteRds",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeNodeResponseValidationError{
+						field:  "RemoteRds",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRemoteRds()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeNodeResponseValidationError{
+					field:  "RemoteRds",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeNodeResponse_RemoteAzureDatabase:
+		if v == nil {
+			err := ChangeNodeResponseValidationError{
+				field:  "Node",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRemoteAzureDatabase()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeNodeResponseValidationError{
+						field:  "RemoteAzureDatabase",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeNodeResponseValidationError{
+						field:  "RemoteAzureDatabase",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRemoteAzureDatabase()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeNodeResponseValidationError{
+					field:  "RemoteAzureDatabase",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return ChangeNodeResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeNodeResponseMultiError is an error wrapping multiple validation errors
+// returned by ChangeNodeResponse.ValidateAll() if the designated constraints
+// aren't met.
+type ChangeNodeResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeNodeResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeNodeResponseMultiError) AllErrors() []error { return m }
+
+// ChangeNodeResponseValidationError is the validation error returned by
+// ChangeNodeResponse.Validate if the designated constraints aren't met.
+type ChangeNodeResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeNodeResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeNodeResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeNodeResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeNodeResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeNodeResponseValidationError) ErrorName() string {
+	return "ChangeNodeResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeNodeResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeNodeResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ChangeNodeResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeNodeResponseValidationError{}

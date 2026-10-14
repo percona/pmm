@@ -24,6 +24,7 @@ const (
 	NodesService_GetNode_FullMethodName    = "/inventory.v1.NodesService/GetNode"
 	NodesService_AddNode_FullMethodName    = "/inventory.v1.NodesService/AddNode"
 	NodesService_RemoveNode_FullMethodName = "/inventory.v1.NodesService/RemoveNode"
+	NodesService_ChangeNode_FullMethodName = "/inventory.v1.NodesService/ChangeNode"
 )
 
 // NodesServiceClient is the client API for NodesService service.
@@ -40,6 +41,8 @@ type NodesServiceClient interface {
 	AddNode(ctx context.Context, in *AddNodeRequest, opts ...grpc.CallOption) (*AddNodeResponse, error)
 	// RemoveNode removes a Node.
 	RemoveNode(ctx context.Context, in *RemoveNodeRequest, opts ...grpc.CallOption) (*RemoveNodeResponse, error)
+	// ChangeNode changes the labels of a Node.
+	ChangeNode(ctx context.Context, in *ChangeNodeRequest, opts ...grpc.CallOption) (*ChangeNodeResponse, error)
 }
 
 type nodesServiceClient struct {
@@ -90,6 +93,16 @@ func (c *nodesServiceClient) RemoveNode(ctx context.Context, in *RemoveNodeReque
 	return out, nil
 }
 
+func (c *nodesServiceClient) ChangeNode(ctx context.Context, in *ChangeNodeRequest, opts ...grpc.CallOption) (*ChangeNodeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChangeNodeResponse)
+	err := c.cc.Invoke(ctx, NodesService_ChangeNode_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NodesServiceServer is the server API for NodesService service.
 // All implementations must embed UnimplementedNodesServiceServer
 // for forward compatibility.
@@ -104,6 +117,8 @@ type NodesServiceServer interface {
 	AddNode(context.Context, *AddNodeRequest) (*AddNodeResponse, error)
 	// RemoveNode removes a Node.
 	RemoveNode(context.Context, *RemoveNodeRequest) (*RemoveNodeResponse, error)
+	// ChangeNode changes the labels of a Node.
+	ChangeNode(context.Context, *ChangeNodeRequest) (*ChangeNodeResponse, error)
 	mustEmbedUnimplementedNodesServiceServer()
 }
 
@@ -128,6 +143,10 @@ func (UnimplementedNodesServiceServer) AddNode(context.Context, *AddNodeRequest)
 
 func (UnimplementedNodesServiceServer) RemoveNode(context.Context, *RemoveNodeRequest) (*RemoveNodeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RemoveNode not implemented")
+}
+
+func (UnimplementedNodesServiceServer) ChangeNode(context.Context, *ChangeNodeRequest) (*ChangeNodeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ChangeNode not implemented")
 }
 func (UnimplementedNodesServiceServer) mustEmbedUnimplementedNodesServiceServer() {}
 func (UnimplementedNodesServiceServer) testEmbeddedByValue()                      {}
@@ -222,6 +241,24 @@ func _NodesService_RemoveNode_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NodesService_ChangeNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodesServiceServer).ChangeNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodesService_ChangeNode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodesServiceServer).ChangeNode(ctx, req.(*ChangeNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NodesService_ServiceDesc is the grpc.ServiceDesc for NodesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -244,6 +281,10 @@ var NodesService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveNode",
 			Handler:    _NodesService_RemoveNode_Handler,
+		},
+		{
+			MethodName: "ChangeNode",
+			Handler:    _NodesService_ChangeNode_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
