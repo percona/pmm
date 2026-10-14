@@ -85,6 +85,7 @@ packages:
       templatesService:
       vmAlertExternalRules:
       nomadService:
+      omService:
   github.com/percona/pmm/managed/services/versioncache:
     interfaces:
       Versioner:
