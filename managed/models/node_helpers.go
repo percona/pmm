@@ -223,6 +223,7 @@ type CreateNodeParams struct {
 	Region          *string
 	Password        *string
 	IsPMMServerNode bool
+	Environment     string
 }
 
 // createNodeWithID creates a Node with given ID.
@@ -291,6 +292,7 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 		Address:         params.Address,
 		Region:          params.Region,
 		IsPMMServerNode: params.IsPMMServerNode,
+		Environment:     params.Environment,
 	}
 	err = node.SetCustomLabels(params.CustomLabels)
 	if err != nil {
@@ -308,6 +310,78 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 func CreateNode(q *reform.Querier, nodeType NodeType, params *CreateNodeParams) (*Node, error) {
 	id := uuid.New().String()
 	return createNodeWithID(q, id, nodeType, params)
+}
+
+// ChangeNodeParams contains the Node labels to change. A nil field keeps its value. A non-nil
+// CustomLabels replaces all custom labels, and an empty one removes them.
+type ChangeNodeParams struct {
+	Environment  *string
+	NodeModel    *string
+	Region       *string
+	AZ           *string
+	CustomLabels map[string]string
+}
+
+// ChangeNode changes the labels of the Node with the given ID.
+func ChangeNode(q *reform.Querier, nodeID string, params *ChangeNodeParams) (*Node, error) {
+	node, err := FindNodeByID(q, nodeID)
+	if err != nil {
+		return nil, err
+	}
+
+	var columns []string
+
+	if params.Environment != nil {
+		node.Environment = *params.Environment
+		columns = append(columns, "environment")
+	}
+
+	if params.NodeModel != nil {
+		node.NodeModel = *params.NodeModel
+		columns = append(columns, "node_model")
+	}
+
+	if params.AZ != nil {
+		node.AZ = *params.AZ
+		columns = append(columns, "az")
+	}
+
+	if params.Region != nil {
+		region := pointer.ToStringOrNil(*params.Region)
+		if pointer.GetString(region) != pointer.GetString(node.Region) {
+			// rds_exporter asks AWS for the DB instance in the Node's region.
+			if node.NodeType == RemoteRDSNodeType {
+				return nil, status.Error(codes.InvalidArgument, "The region of a Remote RDS Node can't be changed.")
+			}
+
+			_, err = CheckUniqueNodeAddressRegion(q, node.Address, region)
+			if err != nil {
+				return nil, err
+			}
+		}
+		node.Region = region
+		columns = append(columns, "region")
+	}
+
+	if params.CustomLabels != nil {
+		err = node.SetCustomLabels(params.CustomLabels)
+		if err != nil {
+			return nil, err
+		}
+		columns = append(columns, "custom_labels")
+	}
+
+	// to avoid "reform: nothing to update" error
+	if len(columns) == 0 {
+		return node, nil
+	}
+
+	err = q.UpdateColumns(node, append(columns, "updated_at")...)
+	if err != nil {
+		return nil, err
+	}
+
+	return node, nil
 }
 
 // RemoveNode removes single Node.

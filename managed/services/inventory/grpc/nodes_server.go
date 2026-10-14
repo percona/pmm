@@ -118,3 +118,28 @@ func (s *nodesServer) RemoveNode(ctx context.Context, req *inventoryv1.RemoveNod
 
 	return &inventoryv1.RemoveNodeResponse{Warning: warning}, nil
 }
+
+// ChangeNode changes the labels of a Node.
+func (s *nodesServer) ChangeNode(ctx context.Context, req *inventoryv1.ChangeNodeRequest) (*inventoryv1.ChangeNodeResponse, error) {
+	node, err := s.svc.ChangeNode(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventoryv1.ChangeNodeResponse{}
+	switch node := node.(type) {
+	case *inventoryv1.GenericNode:
+		res.Node = &inventoryv1.ChangeNodeResponse_Generic{Generic: node}
+	case *inventoryv1.ContainerNode:
+		res.Node = &inventoryv1.ChangeNodeResponse_Container{Container: node}
+	case *inventoryv1.RemoteNode:
+		res.Node = &inventoryv1.ChangeNodeResponse_Remote{Remote: node}
+	case *inventoryv1.RemoteRDSNode:
+		res.Node = &inventoryv1.ChangeNodeResponse_RemoteRds{RemoteRds: node}
+	case *inventoryv1.RemoteAzureDatabaseNode:
+		res.Node = &inventoryv1.ChangeNodeResponse_RemoteAzureDatabase{RemoteAzureDatabase: node}
+	default:
+		panic(fmt.Errorf("unhandled inventory Node type %T", node))
+	}
+	return res, nil
+}
