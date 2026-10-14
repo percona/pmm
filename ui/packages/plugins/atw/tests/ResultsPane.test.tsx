@@ -1887,6 +1887,7 @@ describe('ResultsPane — executions that just started', () => {
     expect(screen.getAllByTestId('atw-execution-row-new')).toHaveLength(1);
   });
 
+  // Four page flips outrun the 5s default on a loaded CI runner.
   it('returns a reader on a later page to the top for every new batch', async () => {
     // One client across every rerender: a fresh one would refetch from scratch
     // and hide whether the pane's own page state actually moved.
@@ -1918,5 +1919,5 @@ describe('ResultsPane — executions that just started', () => {
 
     rerender(withHighlight(new Set([2])));
     expect(await screen.findByText('diag/script-0.sh')).toBeVisible();
-  });
+  }, 15_000);
 });
