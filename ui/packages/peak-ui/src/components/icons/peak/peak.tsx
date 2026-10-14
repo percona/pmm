@@ -128,7 +128,7 @@ export const ClusterTransitioningIcon = (props: SvgIconProps) => (
 
 export const HomeIcon = (props: SvgIconProps) => (
   <SvgIcon viewBox="0 0 24 24" {...props}>
-    <path d="M6 19H9V13H15V19H18V10L12 5.5L6 10V19ZM4 21V9L12 3L20 9V21H13V15H11V21H4Z" />
+    <path d="M4 21V9L12 3L20 9V21H14V14H10V21H4ZM6 19H8V12H16V19H18V10L12 5.5L6 10V19Z" />
   </SvgIcon>
 );
 
