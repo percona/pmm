@@ -19,5 +19,6 @@ export { TaskRunDetailDrawer } from './TaskRunDetailDrawer';
 export type { TaskRunDetailDrawerProps } from './TaskRunDetailDrawer';
 export { LastRunCard } from './LastRunCard';
 export type { LastRunCardProps } from './LastRunCard';
+export { RunTime } from './RunTime';
 export { runFailureReason, firstLine } from './runFailureReason';
 export { resolveOpenedRun } from './resolveOpenedRun';
