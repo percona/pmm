@@ -142,6 +142,64 @@ func TestEncryptionRotation(t *testing.T) {
 	assert.Empty(t, ids)
 }
 
+// TestEncryptionRotationOmBootstrapSecrets checks that rotation re-encrypts
+// OM bootstrap secrets before the retired key is pruned.
+func TestEncryptionRotationOmBootstrapSecrets(t *testing.T) {
+	keyPath := filepath.Join(t.TempDir(), "encryption.key")
+	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, keyPath)
+	require.NoError(t, os.WriteFile(keyPath, []byte(originalEncryptionKey), 0o600))
+
+	db := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		assert.NoError(t, db.Close())
+	})
+	q := reform.NewDB(db, postgresql.Dialect, nil).Querier
+
+	provider := encryption.NewFileKeyProvider(keyPath)
+	oldCipher, err := encryption.LoadCipher(provider)
+	require.NoError(t, err)
+	encryption.SetDefaultCipher(oldCipher)
+
+	require.NoError(t, models.CreateOmBootstrapSecret(q, &models.OmBootstrapSecret{
+		RunID:           "R1",
+		MongoDBUsername: "admin",
+		MongoDBPassword: "om-password",
+		KeyFile:         "om-key-file",
+	}))
+
+	newKeyID, err := encryption.AddNewPrimaryKey(provider)
+	require.NoError(t, err)
+	newCipher, err := encryption.LoadCipher(provider)
+	require.NoError(t, err)
+	encryption.SetDefaultCipher(newCipher)
+
+	ids, err := models.OmBootstrapSecretsNeedingReencryption(q, newCipher)
+	require.NoError(t, err)
+	require.Equal(t, []string{"R1"}, ids)
+
+	require.NoError(t, models.MigrateEncryption(q))
+	require.NoError(t, waitForReencryption(q, newCipher))
+
+	var storedPassword string
+	err = db.QueryRowContext(t.Context(), `SELECT mongodb_password FROM om_bootstrap_secrets WHERE run_id = $1`, "R1").Scan(&storedPassword)
+	require.NoError(t, err)
+	keyID, ok := encryption.StoredKeyID(storedPassword)
+	require.True(t, ok)
+	assert.Equal(t, newKeyID, keyID)
+
+	_, err = encryption.PruneRetiredKeys(provider)
+	require.NoError(t, err)
+	prunedCipher, err := encryption.LoadCipher(provider)
+	require.NoError(t, err)
+	encryption.SetDefaultCipher(prunedCipher)
+
+	secret, err := models.FindOmBootstrapSecretByRunID(q, "R1")
+	require.NoError(t, err)
+	assert.Equal(t, "admin", secret.MongoDBUsername.Reveal())
+	assert.Equal(t, "om-password", secret.MongoDBPassword.Reveal())
+	assert.Equal(t, "om-key-file", secret.KeyFile.Reveal())
+}
+
 // generateTLSKeyPair returns a self-signed certificate and its private key, both PEM encoded.
 func generateTLSKeyPair(t *testing.T) (string, string) {
 	t.Helper()

@@ -655,3 +655,63 @@ func TestMigrateEncryptionValkeyTLS(t *testing.T) {
 	require.NoError(t, err)
 	assert.Empty(t, ids)
 }
+
+// TestMigrateEncryptionOmBootstrapSecrets covers OM bootstrap secrets stored
+// before the envelope format: PMM encrypted them in the legacy format. The
+// migration rewrites them as envelopes of the primary key.
+func TestMigrateEncryptionOmBootstrapSecrets(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+
+	cipher, err := encryption.DefaultCipher()
+	require.NoError(t, err)
+	toLegacy := func(plaintext string) string {
+		stored, err := cipher.Encrypt(plaintext)
+		require.NoError(t, err)
+		return strings.TrimPrefix(stored, encryption.EnvelopePrefix)
+	}
+
+	_, err = sqlDB.ExecContext(t.Context(),
+		`INSERT INTO om_bootstrap_secrets (run_id, mongodb_username, mongodb_password, key_file, created_at) VALUES ('R1', $1, $2, $3, $4)`,
+		toLegacy("admin"), toLegacy("legacy-password"), toLegacy("legacy-key-file"), time.Now())
+	require.NoError(t, err)
+	// a secret stored through the model is an envelope already
+	require.NoError(t, models.CreateOmBootstrapSecret(q, &models.OmBootstrapSecret{
+		RunID:           "R2",
+		MongoDBUsername: "admin",
+		MongoDBPassword: "new-password",
+		KeyFile:         "new-key-file",
+	}))
+
+	ids, err := models.OmBootstrapSecretsNeedingReencryption(q, cipher)
+	require.NoError(t, err)
+	require.Equal(t, []string{"R1"}, ids)
+
+	require.NoError(t, models.MigrateEncryption(q))
+
+	for _, runID := range []string{"R1", "R2"} {
+		var username, password, keyFile string
+		err = sqlDB.QueryRowContext(t.Context(),
+			`SELECT mongodb_username, mongodb_password, key_file FROM om_bootstrap_secrets WHERE run_id = $1`, runID).
+			Scan(&username, &password, &keyFile)
+		require.NoError(t, err)
+		for _, stored := range []string{username, password, keyFile} {
+			keyID, ok := encryption.StoredKeyID(stored)
+			require.True(t, ok, "value %q is not an envelope", stored)
+			assert.Equal(t, cipher.PrimaryKeyID(), keyID)
+		}
+	}
+
+	secret, err := models.FindOmBootstrapSecretByRunID(q, "R1")
+	require.NoError(t, err)
+	assert.Equal(t, "admin", secret.MongoDBUsername.Reveal())
+	assert.Equal(t, "legacy-password", secret.MongoDBPassword.Reveal())
+	assert.Equal(t, "legacy-key-file", secret.KeyFile.Reveal())
+
+	ids, err = models.OmBootstrapSecretsNeedingReencryption(q, cipher)
+	require.NoError(t, err)
+	assert.Empty(t, ids)
+}
