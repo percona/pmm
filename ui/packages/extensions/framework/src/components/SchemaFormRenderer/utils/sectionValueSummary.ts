@@ -28,6 +28,9 @@ const SUMMARY_SEPARATOR = ' · ';
 /** What a section reads as when nothing in it carries a value. */
 export const EMPTY_SECTION_SUMMARY = 'Using default values';
 
+/** What a credential reads as: set, with neither its value nor its length. */
+export const SENSITIVE_VALUE_SUMMARY = '••••••';
+
 /** A script preview is read-only output, not a value the reader chose. */
 const UNSUMMARISABLE_TYPES: ReadonlySet<PluginField['type']> = new Set([
   'script_preview',
@@ -61,6 +64,9 @@ export function summariseFieldValue(
   }
   if (value === undefined || value === null || value === '') {
     return null;
+  }
+  if (field.type === 'string' && field.sensitive) {
+    return `${field.label}: ${SENSITIVE_VALUE_SUMMARY}`;
   }
   // The file input itself shows the chosen name, so the summary names it too.
   if (value instanceof File) {
