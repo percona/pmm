@@ -120,7 +120,7 @@ function buildFormDefaults(
       ? getAtPath(defaultValues, field.name)
       : undefined;
     const raw = seed ?? fieldDefault(field);
-    // Edit / parent seeds may still be UTC ISO; the picker needs local wall-clock.
+    // Edit / parent seeds may still be UTC ISO; the picker needs a wall-clock.
     setAtPath(
       defaults,
       field.name,

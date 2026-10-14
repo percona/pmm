@@ -21,11 +21,11 @@
  * before these fields moved onto Peak UI.
  *
  * Keeping the shape is not inertia. Both callers hold a *wall clock with no
- * zone* in form state and pick the zone only at submit: `coerceFormValues`
- * reads a schema `datetime` field as browser-local and sends UTC ISO (see
- * PMM-15707), and a schedule's start time is UTC wall clock that
+ * zone* in form state and never attach the reader's: `coerceFormValues`
+ * submits a schema `datetime` field's wall clock unchanged for the executor
+ * host to read (PMM-15707), and a schedule's start time is UTC wall clock that
  * `ScheduledTasksPanel/timezones.ts` reads back as UTC (PMM-15454). Handing
- * either an adapter `Date` would attach the reader's zone too early.
+ * either an adapter `Date` would attach the reader's zone.
  */
 const WALL_CLOCK =
   /^(\d{4})-(\d{2})-(\d{2})T([01]\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?$/;
