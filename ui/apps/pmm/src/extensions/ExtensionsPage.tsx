@@ -7,6 +7,7 @@ import { Page } from 'components/page';
 import { useSettings } from 'contexts/settings';
 import { ExtensionsAuthGate } from './ExtensionsAuthGate';
 import { ExtensionsAuthProvider } from './ExtensionsAuthProvider';
+import { ExtensionsVersionMismatchAlert } from './ExtensionsVersionMismatchAlert';
 
 /**
  * Shared container for PMM Extensions apps mounted as native PMM routes.
@@ -64,14 +65,17 @@ export const ExtensionsPage: FC<PropsWithChildren> = ({ children }) => {
       <Stack gap={3} sx={{ flex: 1 }}>
         <ExtensionsAuthProvider>
           <ExtensionsAuthGate>
-            {/*
-              A flex column that grows, not a plain block: it carries the height
-              handed down from Page so a plugin can centre itself in the page
-              rather than in its own content box.
-            */}
-            <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-              {children}
-            </Box>
+            <Stack gap={3} sx={{ flex: 1 }}>
+              <ExtensionsVersionMismatchAlert />
+              {/*
+                A flex column that grows, not a plain block: it carries the height
+                handed down from Page so a plugin can centre itself in the page
+                rather than in its own content box.
+              */}
+              <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                {children}
+              </Box>
+            </Stack>
           </ExtensionsAuthGate>
         </ExtensionsAuthProvider>
       </Stack>
