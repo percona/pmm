@@ -114,11 +114,41 @@ func TestResolveRule(t *testing.T) {
 		wantRole role
 	}{
 		// Alerting: only listing templates is viewable; writes need editor.
-		{http.MethodGet, "/v1/alerting/templates", viewer},        // ListTemplates
-		{http.MethodPost, "/v1/alerting/templates", editor},       // CreateTemplate
-		{http.MethodPut, "/v1/alerting/templates/foo", editor},    // UpdateTemplate
-		{http.MethodDelete, "/v1/alerting/templates/foo", editor}, // DeleteTemplate
-		{http.MethodPost, "/v1/alerting/rules", editor},           // CreateRule
+		{http.MethodGet, "/v1/alerting/templates", viewer},              // ListTemplates
+		{http.MethodPost, "/v1/alerting/templates", editor},             // CreateTemplate
+		{http.MethodPut, "/v1/alerting/templates/foo", editor},          // UpdateTemplate
+		{http.MethodDelete, "/v1/alerting/templates/foo", editor},       // DeleteTemplate
+		{http.MethodPost, "/v1/alerting/rules", editor},                 // CreateRule
+		{http.MethodGet, "/v1/alerting/thresholds", admin},              // ListThresholds
+		{http.MethodPost, "/v1/alerting/thresholds", admin},             // SetThreshold
+		{http.MethodPost, "/v1/alerting/thresholds:clear", admin},       // ClearThreshold
+		{http.MethodPost, "/v1/alerting/thresholds:batchUpdate", admin}, // BatchUpdateThresholds
+
+		// OM: reads are viewer; writes need editor or admin.
+		{http.MethodGet, "/v1/om/topology", viewer},
+		{http.MethodGet, "/v1/om/inventory/hosts", viewer},
+		{http.MethodGet, "/v1/om/inventory/hosts/node-1", viewer},
+		{http.MethodGet, "/v1/om/inventory/services", viewer},
+		{http.MethodGet, "/v1/om/inventory/config", viewer},
+		{http.MethodPost, "/v1/om/inventory/runs:trigger", editor},
+		{http.MethodDelete, "/v1/om/inventory/hosts/node-1", admin},
+		{http.MethodDelete, "/v1/om/inventory/services/svc-1", admin},
+		{http.MethodPut, "/v1/om/inventory/config", admin},
+		{http.MethodDelete, "/v1/om/inventory/config/overrides/SCHEDULE__every", admin},
+		// An unrouted DELETE must not fall back to the viewer rule at "/v1/om".
+		{http.MethodDelete, "/v1/om/inventory/config/anything-else", admin},
+		// Collection only recomputes from data PMM already holds, so it stays viewer.
+		{http.MethodPost, "/v1/om/topology/runs:collect", viewer},
+
+		// OM over gRPC: method names carry no HTTP verb, so each needs an exact rule.
+		{http.MethodPost, "/om.v1.OmService/GetTopology", viewer},
+		{http.MethodPost, "/om.v1.OmService/ListInventoryHosts", viewer},
+		{http.MethodPost, "/om.v1.OmService/TriggerInventoryRefresh", editor},
+		{http.MethodPost, "/om.v1.OmService/DeleteInventoryHost", admin},
+		{http.MethodPost, "/om.v1.OmService/DeleteInventoryService", admin},
+		{http.MethodPost, "/om.v1.OmService/UpdateInventoryConfig", admin},
+		{http.MethodPost, "/om.v1.OmService/DeleteInventoryConfigOverride", admin},
+
 		// No matching rule falls back to grafanaAdmin.
 		{http.MethodGet, "/v1/unknown", grafanaAdmin},
 	} {
