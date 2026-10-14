@@ -1,20 +1,19 @@
 # Connect Amazon RDS instance
 
-## Required settings
+You can monitor [Amazon RDS](https://aws.amazon.com/rds/) instances with PMM without installing PMM Client on the database host. Give PMM an IAM user access key or an IAM role, and PMM finds the RDS instances you can monitor so you can add them from the PMM web interface.
 
-It is possible to use PMM for monitoring [Amazon RDS](https://aws.amazon.com/rds/). In this case, the PMM Client is not installed on the host where the database server is deployed. By using the PMM web interface, you connect to the Amazon RDS DB instance. You only need to provide the IAM user access key (or assign an IAM role) and PMM discovers the Amazon RDS DB instances available for monitoring.
+## Prepare PMM Server and your RDS instances
 
-First of all, ensure that there is the minimal latency between PMM Server and the Amazon RDS instance.
+Before you add RDS instances to PMM:
+{.power-number}
 
-Network connectivity can become an issue for VictoriaMetrics to scrape metrics with 1 second resolution.  We strongly suggest that you run PMM Server on AWS (Amazon Web Services) in the same availability zone as Amazon RDS instances.
+1. Run PMM Server on AWS, in the same availability zone as your RDS instances. PMM collects metrics every second, so high network latency between PMM Server and RDS can cause it to miss metrics.
 
-It is crucial that **enhanced monitoring** be enabled for the Amazon RDS DB instances you intend to monitor.
-
-Set the **Enable Enhanced Monitoring** option in the settings of your Amazon RDS DB instance.
+2. Turn on **Enable Enhanced Monitoring** in the settings of each RDS instance you want to monitor. PMM needs Enhanced Monitoring to show operating system metrics for the instance.
 
 ![!image](../../../images/amazon-rds.modify-db-instance.2.png)
 
-## Creating an IAM user with permission to access Amazon RDS DB instances
+## Create an IAM user with permission to access Amazon RDS DB instances
 
 It is recommended that you use an IAM user account to access Amazon RDS DB instances instead of using your AWS account. This measure improves security as the permissions of an IAM user account can be limited so that this account only grants access to your Amazon RDS DB instances. On the other hand, you use your AWS account to access all AWS services.
 
@@ -22,7 +21,7 @@ The procedure for creating IAM user accounts is well described in the Amazon RDS
 
 The first step is to define a policy which will hold all the necessary permissions. Then, you need to associate this policy with the IAM user or group. In this section, we will create a new user for this purpose.
 
-## Creating a policy
+## Create a policy
 
 A policy defines how AWS services can be accessed. Once defined it can be associated with an existing user or group.
 {.power-number}
@@ -57,7 +56,7 @@ A policy defines how AWS services can be accessed. Once defined it can be associ
 
     ![!image](../../../images/aws.iam.create-policy.png)
 
-## Creating an IAM user
+## Create an IAM user
 
 Policies are attached to existing IAM users or groups. To create a new IAM user, select *Users* on the Identity and Access Management page at AWS. Then click *Add user* and complete the following steps:
 {.power-number}
@@ -70,7 +69,7 @@ Policies are attached to existing IAM users or groups. To create a new IAM user,
 
 3. On the **Add user** page, click **Create user**.
 
-## Creating an access key for an IAM user
+## Create an access key for an IAM user
 
 To discover an Amazon RDS DB instance in PMM, you either need to use the access key and secret access key of an existing IAM user or an IAM role. To create an access key for use with PMM, open the IAM console and click **Users** on the navigation pane. Then, select your IAM user.
 
@@ -78,7 +77,7 @@ To create the access key, open the **Security credentials** tab and click the **
 
 In case, the PMM Server and Amazon RDS DB instance were created by using the same AWS account, you do not need create the access key ID and secret access key manually. PMM retrieves this information automatically and attempts to discover your Amazon RDS DB instances.
 
-## Attaching a policy to an IAM user
+## Attach a policy to an IAM user
 
 The last step before you are ready to create an Amazon RDS DB instance is to attach the policy with the required permissions to the IAM user.
 
@@ -99,9 +98,9 @@ The `AmazonRDSforPMMPolicy` is now added to your IAM user.
 
 ![!image](../../../images/aws.iam.add-permissions.png)
 
-## Creating an IAM role
+## Create an IAM role
 
-Instead of creating an IAM user you can create an IAM role for a service, to discover Amazon RDS DB instances automatically without the need for access and secret keys. (But this only works if you are running PMM through AWS.) If PMM is not running on AWS, or the role you need to assume lives in a different AWS account, see [Assuming an IAM role](#assuming-an-iam-role) below.
+If PMM Server runs on Amazon EC2 in the same AWS account as your RDS instances, you can give it an IAM role instead of creating an IAM user. PMM then discovers your RDS instances with the role's permissions, so you don't need to create or store an access key and secret key. If PMM runs outside AWS, or your RDS instances are in a different AWS account, [assume an IAM role](#assume-an-iam-role) instead.
 
 To create an IAM role open the IAM console and click **Roles** on the navigation pane.
 {.power-number}
@@ -112,7 +111,7 @@ To create an IAM role open the IAM console and click **Roles** on the navigation
 
 3. Click the **Next: Permissions** button.
 
-4. Find the policy created previously and select it.
+4. Find the [policy you created](#create-a-policy) and select it.
 
 5. Click the **Next: Tags** button.
 
@@ -124,33 +123,33 @@ To create an IAM role open the IAM console and click **Roles** on the navigation
 
 9. Click the **Create role** button.
 
-After the role is created EC2 instances running PMM will have permissions to discover RDS DB instances.
+10. [Attach the role to the EC2 instance](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/attach-iam-role.html) that runs PMM Server, so PMM can discover your RDS instances.
 
-!!! note alert alert-primary ""
-    It’s also possible to create an IAM role to delegate permissions to an IAM user or to add permissions to a user belonging to another AWS account. See the [official AWS documentation on creating IAM roles](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create.html).
+You can also [use IAM roles in other ways](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create.html), for example to give an IAM user extra permissions.
 
-## Assuming an IAM role
+## Assume an IAM role
 
-If the identity that runs a PMM component can already assume an IAM role (including a role in a different AWS account), you can give PMM that role's ARN instead of an access key and secret key. PMM uses its own ambient AWS credentials to assume the role and refreshes the assumed credentials automatically, so no long-lived access key is stored or used as the source identity.
+If you monitor Amazon RDS instances in a different AWS account, or your security policy doesn't allow long-lived access keys, PMM can assume an IAM role instead. 
 
-Which identity assumes the role depends on the operation:
+You give PMM the role's ARN, and PMM assumes the role with the AWS identity of the machine it runs on, such as its EC2 instance profile. PMM refreshes the temporary credentials automatically and never stores an access key.
 
-- **Discovering** RDS instances (through the PMM API or the **Add Instance** page; `pmm-admin` has no discovery command) runs on **PMM Server**, so PMM Server's ambient identity assumes the role.
-- **Scraping metrics** runs in `rds_exporter`, which is managed by **pmm-agent** on the host you registered, so that host's ambient identity assumes the role.
+Two parts of PMM assume the role, each with the identity of the machine it runs on:
 
-When PMM Server and pmm-agent share a host, or run under the same ambient identity, this distinction does not matter. When they run on separate hosts, make sure both identities are trusted to assume the role.
+| Operation | Runs on | Identity that assumes the role |
+|-----------|---------|--------------------------------|
+| Discovering RDS instances (from the **Add Instance** page or the PMM API) | PMM Server | The identity of the PMM Server machine |
+| Collecting metrics (`rds_exporter`) | The PMM Client host where you registered the instance | The identity of that host |
 
-This suits two cases that access keys do not cover: monitoring Amazon RDS instances in a different AWS account, and avoiding long-lived IAM user keys entirely.
+If PMM Server and PMM Client run on the same machine, or under the same AWS identity, you only need to trust one identity. Otherwise, trust both.
 
-!!! note alert alert-primary ""
-    Assuming an IAM role requires pmm-agent 3.4.0 or later. Earlier agents cannot assume a role, so a role ARN is rejected on them.
+Assuming a role requires pmm-agent 3.4.0 or later. PMM rejects a role ARN for an older agent.
 
 To assume a role:
 {.power-number}
 
-1. Attach the `AmazonRDSforPMMPolicy` policy [described above](#creating-a-policy) to the **role you want PMM to assume**, in the account that owns the Amazon RDS instances.
+1. In the AWS account that owns the RDS instances, attach the [`AmazonRDSforPMMPolicy` policy](#create-a-policy) to the role you want PMM to assume.
 
-2. Add a trust policy to that role allowing PMM's ambient identity (or identities, if PMM Server and pmm-agent run on different hosts) to assume it:
+2. Add a trust policy to that role that allows the identities from the previous table to assume it:
 
     ```json
     {
@@ -168,7 +167,7 @@ To assume a role:
     }
     ```
 
-3. Allow PMM's ambient identity to call `sts:AssumeRole` on that role:
+3. Allow the same identities to call `sts:AssumeRole` on that role:
 
     ```json
     {
@@ -181,77 +180,81 @@ To assume a role:
     }
     ```
 
-4. Supply the role ARN when you add the instance.
+4. Add the instance with the role ARN. Use the role ARN instead of an access key and secret key, because PMM rejects both together:
 
-    In the PMM web interface, enter it in the **AWS IAM role ARN** field of the Amazon RDS discovery form on the **Add Instance** page. Discovery fills in the rest, so there is nothing else to do.
+    === "PMM web UI"
 
-    From the command line there are two steps, because the exporter attaches to a node rather than to a service. First register the RDS instance as a node, passing the DB instance identifier exactly as it appears in the AWS console:
+        On the **Add Instance** page, enter the role ARN in the **AWS IAM role ARN** field of the Amazon RDS discovery form. Discovery fills in the other details.
 
-    ```sh
-    pmm-admin inventory add node remote-rds <node-name> \
-        --instance-id=<db-instance-identifier> \
-        --address=<endpoint-hostname> \
-        --region=<aws-region> \
-        --az=<availability-zone>
-    ```
+    === "Command line"
 
-    Then attach the exporter to the node it returned, passing the role ARN:
+        1. Register the RDS instance as a node. For `--instance-id`, use the DB instance identifier exactly as it appears in the AWS console, for example `my-database`, not the endpoint hostname:
 
-    ```sh
-    pmm-admin inventory add agent rds-exporter \
-        --aws-role-arn=arn:aws:iam::<rds-account-id>:role/<role-to-assume> \
-        <pmm-agent-id> <node-id>
-    ```
+            ```sh
+            pmm-admin inventory add node remote-rds <node-name> \
+                --instance-id=<db-instance-identifier> \
+                --address=<endpoint-hostname> \
+                --region=<aws-region> \
+                --az=<availability-zone>
+            ```
 
-    `--instance-id` is the DB instance identifier, not the endpoint hostname: `my-database`, not `my-database.abc123.eu-north-1.rds.amazonaws.com`. PMM passes it to CloudWatch as the `DBInstanceIdentifier` dimension, and an exporter without one starts, reports RUNNING and collects nothing. See [pmm-admin inventory add node remote-rds](../../../use/commands/pmm-admin/inventory.md#pmm-admin-inventory-add-node-remote-rds).
+            Without the right identifier, the exporter starts and reports `RUNNING` but collects no metrics. For all options, see [pmm-admin inventory add node remote-rds](../../../use/commands/pmm-admin/inventory.md#pmm-admin-inventory-add-node-remote-rds).
 
-!!! note alert alert-primary "STS region"
-    PMM Server assumes the role through a single AWS STS endpoint. By default that is the home region of the role's partition (`us-east-1` for standard AWS), so PMM Server needs outbound HTTPS to it even when your RDS instances are elsewhere.
+        2. Add the exporter to the node that the previous command returned, with the role ARN:
 
-    If PMM Server's outbound access is limited to one region, set `AWS_REGION` (or `AWS_DEFAULT_REGION`) on the PMM Server container to that region, for example `-e AWS_REGION=eu-west-1` on `docker run`, or in `pmmEnv` for every replica when using the Helm chart. PMM Server then assumes the role through that region's STS endpoint. The region must belong to the role's partition, and its STS endpoint must be active for your account (all regions are active by default; check **Account settings** in the IAM console if discovery reports `RegionDisabledException`). A region outside the role's partition is refused up front with a message that names the variable.
+            ```sh
+            pmm-admin inventory add agent rds-exporter \
+                --aws-role-arn=arn:aws:iam::<rds-account-id>:role/<role-to-assume> \
+                <pmm-agent-id> <node-id>
+            ```
 
-    `rds_exporter` is not affected by this setting: it always assumes the role through the region of the instance it monitors.
+If PMM already monitors the instance with an access key, [migrate it to the role](#migrate-an-existing-instance-to-an-iam-role) instead of adding it again.
 
-!!! caution alert alert-warning "Mutually exclusive"
-    A role ARN cannot be combined with an access key and secret key; supplying both is rejected. To move an instance PMM already monitors onto a role, see [Migrating an existing instance to an IAM role](#migrating-an-existing-instance-to-an-iam-role).
+### Set the STS region for discovery
 
-## Migrating an existing instance to an IAM role
+To discover RDS instances, PMM Server assumes the role through one AWS Security Token Service (STS) endpoint. By default, this is the endpoint in the home region of the role's partition, `us-east-1` for standard AWS. PMM Server needs outbound HTTPS access to it, even if your RDS instances are in other regions.
 
-An Amazon RDS instance that PMM already monitors with an access key can be moved onto an IAM role in place, without removing and re-adding the service. The service keeps its ID, its labels and its metrics history.
+If PMM Server can only reach one region, set `AWS_REGION` (or `AWS_DEFAULT_REGION`) to that region on PMM Server. For example, add `-e AWS_REGION=eu-west-1` to `docker run`, or add the variable to `pmmEnv` for every replica in the Helm chart. PMM Server then uses the STS endpoint in that region.
 
-Because a role ARN and an access key are mutually exclusive, the switch has to happen in a single change: setting the role while the keys are still stored is rejected with
+The region must belong to the role's partition, and its STS endpoint must be active for your account. All regions are active by default. If discovery reports `RegionDisabledException`, check **Account settings** in the IAM console. If you set a region from a different partition, PMM rejects it with a message that names the variable.
+
+This setting doesn't affect metrics collection: `rds_exporter` always assumes the role through the region of the instance it monitors.
+
+## Migrate an existing instance to an IAM role
+
+If PMM already monitors an Amazon RDS instance with an access key, you can switch it to an IAM role without removing and adding the service again. The service keeps its ID, labels and metrics history.
+
+Before you start, [prepare the role](#assume-an-iam-role): attach the RDS policy, add a trust policy for PMM's identities, and allow them to call `sts:AssumeRole`.
+
+PMM doesn't accept a role ARN and an access key at the same time, so you must set the role and remove the key in one change. Otherwise, PMM rejects the change with this message:
 
 ```
 Both AWS role ARN and AWS access key/secret key are set; they are mutually exclusive.
 ```
-
-Before you start, make sure the role is prepared as described in [Assuming an IAM role](#assuming-an-iam-role): the RDS policy attached to it, a trust policy naming PMM's ambient identity, and `sts:AssumeRole` permission for that identity.
 
 === "PMM web interface"
 
     To switch an instance to a role from the web interface:
     {.power-number}
 
-    1. Go to **Inventory > Services** and select **Edit** from the row menu of the service you want to migrate.
+    1. Go to **Inventory > Services** and select **Edit** from the row menu of the service.
 
-    2. Find the **Amazon RDS credentials** section. It appears only for services monitored by an `rds_exporter`, and **Authenticate with** shows how the exporter authenticates today.
+    2. In the **Amazon RDS credentials** section, select **IAM role** under **Authenticate with**, and enter the role ARN. The section appears only for services monitored by an `rds_exporter`.
 
-    3. Select **IAM role** and enter the role ARN. The access key and secret key fields disappear, and PMM clears the stored keys for you when you save.
-
-    4. Select **Save Changes**, then **Confirm and save changes**.
+    3. Select **Save Changes**, then **Confirm and save changes**. PMM removes the stored access key and secret key.
 
 === "Command line"
 
     To switch an instance to a role with `pmm-admin`:
     {.power-number}
 
-    1. Find the `rds_exporter` agent monitoring the instance:
+    1. Find the `rds_exporter` agent that monitors the instance:
 
         ```sh
         pmm-admin inventory list agents --agent-type=rds-exporter
         ```
 
-    2. Set the role ARN and clear both keys in the same call. The empty `--aws-access-key` and `--aws-secret-key` values are what removes the stored key pair:
+    2. Set the role ARN and remove the stored key pair in the same command. The empty `--aws-access-key` and `--aws-secret-key` values remove the keys:
 
         ```sh
         pmm-admin inventory change agent rds-exporter <agent-id> \
@@ -260,7 +263,7 @@ Before you start, make sure the role is prepared as described in [Assuming an IA
             --aws-secret-key=
         ```
 
-        The command confirms what changed:
+        The output lists what changed:
 
         ```
         Configuration changes applied:
@@ -269,23 +272,23 @@ Before you start, make sure the role is prepared as described in [Assuming an IA
           - updated AWS role ARN
         ```
 
-Saving restarts the RDS exporter so it picks up the new credentials, so expect a short gap in CloudWatch metrics for that service. Metrics resume on their own; no further action is needed.
+PMM restarts the RDS exporter to use the new credentials, so expect a short gap in the CloudWatch metrics for that service. Metrics resume automatically.
 
-### Verifying the migration
+### Verify the migration
 
-Go to **Inventory > Nodes**, select the node of the migrated instance, open its **Agents** tab and expand the `rds_exporter` row. **Properties** now lists `aws_role_arn` with the role you supplied, and no longer lists `aws_access_key`.
+To check that the exporter uses the role, go to **Inventory > Nodes**, select the node of the instance, open the **Agents** tab, and expand the `rds_exporter` row. **Properties** lists `aws_role_arn` with your role, and no `aws_access_key`.
 
-To check the same thing from the command line:
+To check from the command line, run:
 
 ```sh
 curl -u <user>:<password> https://<pmm-server>/v1/inventory/agents/<agent-id>
 ```
 
-The `rds_exporter` object should show your role in `aws_role_arn` and an empty `aws_access_key`.
+In the `rds_exporter` object, `aws_role_arn` shows your role and `aws_access_key` is empty.
 
-### Moving back, or off stored credentials entirely
+### Switch back to an access key or host credentials
 
-To return to an access key, supply the key and clear the role in one call:
+To go back to an access key, set the key pair and remove the role in one command:
 
 ```sh
 pmm-admin inventory change agent rds-exporter <agent-id> \
@@ -294,11 +297,11 @@ pmm-admin inventory change agent rds-exporter <agent-id> \
     --aws-role-arn=
 ```
 
-In the web interface, select **Access key** under **Authenticate with** and enter the key pair. Leave the secret key field blank to keep the secret PMM already stores; you must supply it whenever you change the access key itself.
+In the web interface, select **Access key** under **Authenticate with** and enter the key pair. To keep the secret key that PMM already stores, leave the secret key field empty. If you change the access key, you must also enter its secret key.
 
-Selecting **Host credentials** (or clearing all three values from the command line) makes PMM store no AWS credentials for the service at all. The exporter then falls back to whatever the pmm-agent host provides, such as an EC2 instance profile, environment variables or a credentials file. If that host provides none, monitoring for the service stops.
+To stop PMM from storing any AWS credentials for the service, select **Host credentials**, or set all three values to empty from the command line. The exporter then uses the credentials that the PMM Client host provides, such as an EC2 instance profile, environment variables or a credentials file. If the host provides none, monitoring for the service stops.
 
-## Setting up the Amazon RDS DB instance
+## Set up the Amazon RDS DB instance
 
 Query Analytics requires Configuring Performance Schema as the query source, because the slow query log is stored on the AWS (Amazon Web Services) side, and QAN agent is not able to read it.  Enable the `performance_schema` option under `Parameter Groups` in Amazon RDS.
 
@@ -315,7 +318,7 @@ GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%';
 ALTER USER 'pmm'@'%' WITH MAX_USER_CONNECTIONS 10;
 GRANT SELECT ON performance_schema.* TO 'pmm'@'%';
 ```
-### TLS/SSL configuration for RDS
+### Connect to Amazon RDS for MySQL over TLS
 
 Amazon RDS MySQL instances support TLS connections using the RDS CA certificate bundle.
 
@@ -331,7 +334,7 @@ To configure TLS for your RDS instance:
 
 3. When adding the RDS instance to PMM, enable TLS and provide the CA certificate.
 
-## Adding an Amazon RDS, Aurora or remote instance
+## Add an Amazon RDS, Aurora or remote instance
 
 !!! caution alert alert-warning "Important"
     It may take longer for PMM to discover Amazon RDS instances in the `creating` state. You must wait a bit longer until PMM discovers these instances.
@@ -387,7 +390,7 @@ instances.
 
 6. Finally press the **Add service** button to start monitoring your instance.
 
-### Adding an RDS instance via command line
+### Add an RDS instance via command line
 
 You can also add Amazon RDS MySQL instances using the `pmm-admin` command line tool.
 
@@ -438,15 +441,15 @@ You can also add Amazon RDS MySQL instances using the `pmm-admin` command line t
       --query-source=perfschema
     ```
 
-#### Certificate file location
-When using TLS certificates with Amazon RDS MySQL, make sure to:
+#### Provide the RDS CA certificate to pmm-admin
 
-- download the RDS CA certificate bundle from [AWS RDS SSL/TLS documentation](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html)
-- store the certificate file on the server where PMM Client is installed
-- provide the full path to the certificate in the `--tls-ca` parameter
-- use `--tls-skip-verify` only in development/testing environments
+To connect to Amazon RDS for MySQL over TLS from the command line:
 
-## Adding an Amazon RDS PostgreSQL instance
+- Download the [RDS CA certificate bundle](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html) to the server where PMM Client is installed.
+- Pass the full path to the certificate in `--tls-ca`.
+- Use `--tls-skip-verify` only in development or test environments.
+
+## Add an Amazon RDS PostgreSQL instance
 
 For PostgreSQL, use the same method described above.
 {.power-number}
