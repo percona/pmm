@@ -440,7 +440,16 @@ func (m *UpdatePostgreSQLServiceParams) validate(all bool) error {
 	}
 
 	if m.Username != nil {
-		// no validation rules for Username
+		if utf8.RuneCountInString(m.GetUsername()) < 1 {
+			err := UpdatePostgreSQLServiceParamsValidationError{
+				field:  "Username",
+				reason: "value length must be at least 1 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 	}
 
 	if m.Password != nil {

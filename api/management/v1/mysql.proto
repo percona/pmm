@@ -121,7 +121,10 @@ message UpdateMySQLServiceParams {
   // Replace all custom user-assigned labels for Service.
   common.StringMap custom_labels = 7;
   // MySQL username for scraping metrics.
-  optional string username = 8 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  optional string username = 8 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // MySQL password for scraping metrics.
   optional string password = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom password for exporter endpoint /metrics.

@@ -199,6 +199,24 @@ func TestUpdateService(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, http.StatusBadRequest, codes.InvalidArgument, "is a mongodb Service, not mysql.")
 	})
 
+	t.Run("EmptyUsername", func(t *testing.T) {
+		t.Parallel()
+
+		for message, body := range map[string]mservice.UpdateServiceBody{
+			"UpdateMySQLServiceParams":      {Mysql: &mservice.UpdateServiceParamsBodyMysql{Username: new("")}},
+			"UpdatePostgreSQLServiceParams": {Postgresql: &mservice.UpdateServiceParamsBodyPostgresql{Username: new("")}},
+			"UpdateProxySQLServiceParams":   {Proxysql: &mservice.UpdateServiceParamsBodyProxysql{Username: new("")}},
+		} {
+			_, err := client.Default.ManagementService.UpdateService(&mservice.UpdateServiceParams{
+				Context:   pmmapitests.Context,
+				ServiceID: pmmapitests.TestString(t, "service-id"),
+				Body:      body,
+			})
+			pmmapitests.AssertAPIErrorf(t, err, http.StatusBadRequest, codes.InvalidArgument,
+				"invalid %s.Username: value length must be at least 1 runes", message)
+		}
+	})
+
 	t.Run("NotFound", func(t *testing.T) {
 		t.Parallel()
 

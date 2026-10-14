@@ -119,7 +119,10 @@ message UpdatePostgreSQLServiceParams {
   // Replace all custom user-assigned labels for Service.
   common.StringMap custom_labels = 8;
   // PostgreSQL username for scraping metrics.
-  optional string username = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  optional string username = 9 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // PostgreSQL password for scraping metrics.
   optional string password = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom password for exporter endpoint /metrics.
