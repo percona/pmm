@@ -6,8 +6,7 @@ import { ServiceType } from 'types/services.types';
 import BlockedByPanel from './BlockedByPanel';
 import { Messages } from './BlockedByPanel.messages';
 
-// Modelled on a real pile-up: 409 sits idle inside an open transaction and heads the
-// chain, 412 is queued in the middle of it and is waiting itself.
+// 409 sits idle in an open transaction and heads the chain; 412 is queued and waiting itself.
 const IDLE_ROOT: BlockingTransaction = {
   blockingConnId: '409',
   blockingQuery: 'SELECT id,k FROM sbtest1 WHERE id=1 FOR UPDATE',
@@ -67,8 +66,7 @@ const PG_IDLE_ROOT: BlockingTransaction = {
   root: true,
 };
 
-// A metadata-lock pile-up: the transaction holding SHARED_READ heads the chain and the
-// DDL that wants EXCLUSIVE is queued behind it, itself blocking everything after.
+// SHARED_READ heads the chain; the DDL wanting EXCLUSIVE is queued behind it, blocking the rest.
 const MDL_ROOT: BlockingTransaction = {
   blockingConnId: '409',
   blockingQuery: 'SELECT COUNT(*) FROM sbtest2 WHERE id<10',
@@ -143,7 +141,6 @@ describe('BlockedByPanel', () => {
   });
 
   it('names nobody in a lock cycle with several blockers', () => {
-    // Every participant is waiting, so no single transaction can be pointed at.
     renderPanel([
       { ...MIDDLE_OF_CHAIN, root: false },
       { ...IDLE_ROOT, root: false },
@@ -155,10 +152,7 @@ describe('BlockedByPanel', () => {
   });
 
   it('does not call cycle participants queued transactions', () => {
-    // In a cycle nothing is merely queued in front and nothing clears on its own -- InnoDB
-    // breaks it by rolling one participant back. Labelling them "ahead" told the reader they
-    // would resolve themselves, contradicting the hint directly below, which says none of
-    // them can be singled out.
+    // Nothing in a cycle clears on its own; InnoDB rolls one participant back.
     renderPanel([
       { ...MIDDLE_OF_CHAIN, root: false },
       { ...IDLE_ROOT, root: false },
@@ -170,17 +164,13 @@ describe('BlockedByPanel', () => {
   });
 
   it('still calls a non-root blocker queued when a root exists', () => {
-    // With a head to the chain the label is correct and must stay: that transaction really is
-    // only queued in front, and really does clear once the root is resolved.
     renderPanel([IDLE_ROOT, MIDDLE_OF_CHAIN]);
 
     expect(screen.queryByText(/in the cycle/)).not.toBeInTheDocument();
   });
 
   it('declines to name a lone blocker that is itself waiting', () => {
-    // root=false means the agent saw that connection waiting too, so resolving it is not
-    // guaranteed to free this statement. The pane must agree with the chip and the CSV,
-    // which both decline here.
+    // A waiting blocker may not free this statement; the chip and the CSV decline too.
     renderPanel([{ ...IDLE_ROOT, root: false }]);
 
     expect(screen.getByTestId('blocked-by-heading')).toHaveTextContent(
@@ -276,8 +266,6 @@ describe('BlockedByPanel', () => {
   });
 
   it('shows what each queued transaction holds, not just its id', () => {
-    // 409 heads the chain and the DDL is queued in front of the waiter: the modes are what
-    // make that order legible instead of two interchangeable connection ids.
     renderPanel(
       [MDL_ROOT, MDL_DDL],
       'sbtest.sbtest2',
@@ -291,8 +279,7 @@ describe('BlockedByPanel', () => {
   });
 
   it('renders no lock type row when the agent could not classify the wait', () => {
-    // Rendered without the helper on purpose: its defaults would supply the very values
-    // this case is about not having.
+    // Not via renderPanel: its defaults would supply the values this case lacks.
     render(
       <ThemeProvider theme={createTheme({ palette: { mode: 'light' } })}>
         <BlockedByPanel blockers={[IDLE_ROOT]} lockedTable="sbtest.sbtest1" />
@@ -305,8 +292,6 @@ describe('BlockedByPanel', () => {
   });
 
   it('does not pair the requested mode with one blocker when several are named', () => {
-    // Two independent roots holding different modes: showing one beside "Mode requested"
-    // reads as a matched pair and hides that the other holds something else.
     renderPanel(
       [MDL_ROOT, { ...MDL_DDL, root: true, blockingLockMode: 'SHARED_WRITE' }],
       'sbtest.sbtest2',
@@ -334,8 +319,6 @@ describe('BlockedByPanel', () => {
   });
 
   it('does not call an independent holder a transaction queued ahead', () => {
-    // "N more transaction ahead" contradicted the hint below, which counts the same blocker
-    // among the transactions the statement stays blocked on until every one is resolved.
     renderPanel(
       [MDL_ROOT, { ...MDL_DDL, root: true, blockingLockMode: 'SHARED_WRITE' }],
       'sbtest.sbtest2',
@@ -368,8 +351,7 @@ describe('BlockedByPanel', () => {
   });
 
   it('does not claim an open transaction when the holder has none', () => {
-    // LOCK TABLES holds a metadata lock outside any transaction, so the agent reports no
-    // transaction duration; saying "holding a transaction open" would be a fact it does not have.
+    // LOCK TABLES holds a metadata lock outside any transaction, so no duration is reported.
     renderPanel(
       [
         {

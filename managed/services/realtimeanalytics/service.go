@@ -90,8 +90,7 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 			return nil, err
 		}
 	} else {
-		// No service type filter specified - return all services that support RTA
-		// (currently MongoDB, MySQL and PostgreSQL), filtered by service type.
+		// No service type filter specified - return all services that support RTA.
 		for _, modelServiceType := range services.ServiceTypes {
 			_, err := getRTAAgentTypeForServiceType(modelServiceType)
 			if err != nil {
@@ -291,9 +290,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		// RTA Agent exists - update its state if required
 		rtaAgent = existingRTAAgents[0]
 
-		// The agent may have been created through the inventory API against a
-		// pmm-agent that predates RTA support for this service type; don't
-		// enable or report a session that pmm-agent cannot run.
+		// An inventory-created agent may sit on a pmm-agent too old for RTA on this service type.
 		pmmAgent, err := models.FindAgentByID(tx.Querier, pointer.GetString(rtaAgent.PMMAgentID))
 		if err != nil {
 			return err
@@ -649,16 +646,13 @@ func (s *Service) convertAgentToSession(agent *models.Agent, service *models.Ser
 		sessionStatus = convertAgentStatusToSessionStatus(inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]))
 	}
 
-	// An interval is only persisted when the request carried one, so an agent
-	// left on the collector's default has none. Report its absence rather than
-	// dereferencing it or inventing a value the agent may not be using.
+	// The interval is only persisted when a request carried one; nil means the collector's default.
 	var collectInterval *durationpb.Duration
 	if agent.RTAOptions.CollectInterval != nil {
 		collectInterval = durationpb.New(*agent.RTAOptions.CollectInterval)
 	}
 
-	// The message explains the agent's last reported status, so it is only shown while that status
-	// is what the session reports. A disconnected or stopped agent's last words would be stale.
+	// A disconnected or stopped agent's last status message would be stale.
 	var statusMessage string
 	if sessionStatus == rtav1.SessionStatus_SESSION_STATUS_RUNNING || sessionStatus == rtav1.SessionStatus_SESSION_STATUS_ERROR {
 		statusMessage = pointer.GetString(agent.StatusMessage)

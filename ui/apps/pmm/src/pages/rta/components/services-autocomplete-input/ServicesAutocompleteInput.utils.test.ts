@@ -59,8 +59,7 @@ describe('isServiceOptionDisabled', () => {
     expect(isServiceOptionDisabled(mysqlCluster, undefined, true)).toBe(false);
   });
 
-  // One click on a mixed cluster would otherwise add both technologies at once,
-  // and resolveSelection would later drop half of the user's picks.
+  // One click would otherwise add both technologies at once.
   it('disables a mixed cluster even before the technology is fixed', () => {
     expect(isServiceOptionDisabled(mixedCluster, undefined, true)).toBe(true);
   });
@@ -98,9 +97,7 @@ describe('mixed-technology clusters', () => {
   ] as unknown as AvailableService[];
 
   it('leaves the cluster header unselectable in every technology group', () => {
-    // The list is grouped by technology, so a cluster spanning two appears under both. Each
-    // group looks uniform on its own; the technology has to be judged across the whole
-    // cluster or the header becomes selectable and seeds a mixed set in one click.
+    // Each technology group looks uniform on its own; only the whole cluster is mixed.
     const headers = getServiceOptions(mixed).filter(
       (option) => option.type === 'cluster'
     );
@@ -120,10 +117,7 @@ describe('mixed-technology clusters', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  // The list is fed to MUI already sorted by group, and MUI opens a new group
-  // every time the group of an option differs from the one before it. A header
-  // carrying no group of its own would break the run it sits in: a nameless
-  // group around the header, then the technology heading a second time.
+  // MUI opens a new group whenever an option's group differs from the previous one.
   it('lists a mixed cluster header in the group it is rendered under', () => {
     const groups = getServiceOptions(mixed).map((option) => option.technology);
 
@@ -134,9 +128,8 @@ describe('mixed-technology clusters', () => {
     );
   });
 
-  // Both headers are named after the same cluster. Acting by name alone makes
-  // either of them stand for the whole cluster, which selects both
-  // technologies in one click and reports one state on both rows.
+  // Both headers share the cluster name; acting by name alone would select both
+  // technologies at once.
   it('toggles only the services of the header own technology group', () => {
     const options = getServiceOptions(mixed);
     const mysqlHeader = options.find(
@@ -160,8 +153,7 @@ describe('mixed-technology clusters', () => {
     expect(getClusterSelectionState(mysqlHeader, options, mysqlSelected)).toBe(
       'all'
     );
-    // Not 'partial': the MongoDB half has nothing selected, and judging it by
-    // cluster name alone would leave both rows indeterminate.
+    // Not 'partial', as judging by cluster name alone would make it.
     expect(getClusterSelectionState(mongoHeader, options, mysqlSelected)).toBe(
       'none'
     );
@@ -192,7 +184,6 @@ describe('mixed-technology clusters', () => {
       'my-2',
     ]);
     expect(getClusterSelectionState(header, options, selected)).toBe('all');
-    // A second click clears it again.
     expect(toggleClusterServices(header, options, selected)).toEqual([]);
   });
 

@@ -83,16 +83,16 @@ describe('queryUsername', () => {
 
 describe('formatElapsedTime', () => {
   it.each([
-    [0, '0.000s'],
-    [0.0004, '0.000s'],
-    [0.003, '0.003s'],
-    [0.0512, '0.051s'],
-    [1.5234, '1.523s'],
-    [9.9994, '9.999s'],
-    [9.9996, '10s'],
-    [10.44, '10s'],
-    [42.5, '43s'],
-    [3601.7, '3602s'],
+    [0, '0.000 s'],
+    [0.0004, '0.000 s'],
+    [0.003, '0.003 s'],
+    [0.0512, '0.051 s'],
+    [1.5234, '1.523 s'],
+    [9.9994, '9.999 s'],
+    [9.9996, '10 s'],
+    [10.44, '10 s'],
+    [42.5, '43 s'],
+    [3601.7, '3602 s'],
   ])('formats %j seconds as %j', (seconds, expected) => {
     expect(formatElapsedTime(seconds)).toBe(expected);
   });
@@ -163,8 +163,7 @@ describe('isTransactionControl', () => {
   });
 });
 
-// The lock graph observed for a three-connection pile-up: 409 is idle inside an open
-// transaction and heads the chain, 412 is queued in the middle of it.
+// 409 is idle in an open transaction and heads the chain; 412 is queued in the middle.
 const blockedQuery: RawQueryData = {
   ...TEST_MYSQL_QUERY_DATA,
   mySqlPayload: {
@@ -226,8 +225,7 @@ describe('soleBlocker', () => {
   });
 
   it('names nobody when the only blocker is itself waiting', () => {
-    // root=false means the agent saw that connection waiting too, so resolving it is not
-    // guaranteed to free this statement. The rule declines rather than guess.
+    // root=false: resolving it is not guaranteed to free this statement.
     const cycle: RawQueryData = {
       ...blockedQuery,
       mySqlPayload: {
@@ -266,8 +264,7 @@ describe('soleBlocker', () => {
 
 describe('rtaRowId', () => {
   it('keeps two instances apart when they hand out the same connection id', () => {
-    // MySQL connection ids start at 1 and restart with the server, so two watched instances
-    // share almost all of theirs. The details pane finds the selected row by matching this id.
+    // MySQL connection ids start at 1 and restart with the server.
     const onA: RawQueryData = {
       ...TEST_MYSQL_QUERY_DATA,
       serviceId: 'service-a',

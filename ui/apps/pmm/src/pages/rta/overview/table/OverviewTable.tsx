@@ -22,30 +22,21 @@ const OVERVIEW_TABLE_URL_STATE_OPTIONS = {
   },
 };
 
-// Database and User are opt-in columns: showing them by default pushes the
-// query text and Elapsed time out of view, so they start hidden and users
-// reveal the ones they need from the Show/Hide columns menu.
-// The visibility state is held here rather than in initialState because the
-// peak-ui Table controls columnVisibility from its own localStorage state,
-// which cannot express a column that is hidden by default.
+// Hidden by default to keep the query text in view; held as state because
+// peak-ui's stored columnVisibility cannot express hidden-by-default.
 const DEFAULT_COLUMN_VISIBILITY: MRT_VisibilityState = {
   databaseName: false,
   username: false,
 };
 
-// Pinning stays enabled for the sticky rendering of Elapsed time - MRT only
-// draws a pinned column's background while the feature is on - but no column may
-// be pinned by hand, which takes the pin buttons out of the column and
-// Show/Hide menus. Hoisted so the reference is stable: MRT memoizes the merged
-// default column on it, and this table re-renders on every poll.
+// MRT draws a pinned column's background only with pinning on, so it stays on
+// but nothing is pinnable by hand. Hoisted: MRT memoizes the default column on it.
 const DEFAULT_COLUMN: Partial<MRT_ColumnDef<QueryData>> = {
   enablePinning: false,
 };
 
-// Elapsed time is the key live metric; keep it visible even when the other
-// columns overflow into a horizontal scroll. Held as controlled state rather
-// than initialState so the Show/Hide menu's "Unpin all" - which MRT renders
-// unconditionally while pinning is enabled - cannot take it away.
+// Controlled rather than initialState so the Show/Hide menu's "Unpin all"
+// cannot unpin Elapsed time.
 const COLUMN_PINNING = { right: ['queryExecutionDurationMs'] };
 
 interface Props {
@@ -104,8 +95,7 @@ const OverviewTable: FC<Props> = ({
         }}
         {...navigableTableProps}
         {...urlStateTableProps}
-        // Both spreads above carry a `state`, so the merge has to be explicit:
-        // the URL-driven pagination/sorting/filters would otherwise be dropped.
+        // Both spreads carry a `state`; merged explicitly so neither is dropped.
         state={{
           ...navigableTableProps.state,
           ...urlStateTableProps.state,
@@ -125,7 +115,6 @@ const OverviewTable: FC<Props> = ({
         }}
         renderTopToolbarCustomActions={actions}
         filterFns={{
-          // comma-separated list of lazy (substring) matches for Database/User
           commaSeparatedFilterFn: (row, id, filterValue) =>
             filterCommaSeparated(row as MRT_Row<QueryData>, id, filterValue),
           // default 'betweenInclusive' filter fails on values like '1.50', discarding the row that has 1.5 seconds

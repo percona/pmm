@@ -5,6 +5,7 @@ import {
   TEST_POSTGRESQL_QUERY_DATA,
 } from 'utils/testStubs';
 import { BlockedStatus, QueryData } from 'types/rta.types';
+import { ServiceType } from 'types/services.types';
 import {
   buildRtaExportFilename,
   collectCsvColumns,
@@ -121,8 +122,6 @@ describe('exportRtaQueriesToCsv', () => {
     });
   });
 
-  // The MySQL-specific fields are listed in the documented order, so the raw
-  // JSON blob stays last instead of being pushed ahead of them.
   it('keeps the MySQL columns ahead of the raw query column', () => {
     const columns = collectCsvColumns([mapQueryToCsvRow(TEST_MYSQL_QUERY)]);
 
@@ -226,8 +225,7 @@ describe('exportRtaQueriesToCsv', () => {
     const [withoutCollection, withCollection] = [
       mapQueryToCsvRow({
         ...TEST_QUERY,
-        // The payload is optional now that a query may carry a MySQL one
-        // instead, so the spread needs the assertion to stay fully typed.
+        // The payload is optional, so the assertion keeps the spread fully typed.
         mongoDbPayload: {
           ...TEST_QUERY.mongoDbPayload!,
           collection: undefined,
@@ -241,19 +239,23 @@ describe('exportRtaQueriesToCsv', () => {
     );
   });
 
-  it('builds the required filename template', () => {
+  it.each([
+    [ServiceType.mongodb, /^mongodb_rta_export_\d{8}_\d{6}$/],
+    [ServiceType.mysql, /^mysql_rta_export_\d{8}_\d{6}$/],
+    [ServiceType.posgresql, /^postgresql_rta_export_\d{8}_\d{6}$/],
+    [undefined, /^rta_export_\d{8}_\d{6}$/],
+  ])('prefixes the filename for %s', (serviceType, expected) => {
     expect(
-      buildRtaExportFilename(new Date('2026-06-25T14:30:22.000Z'))
-    ).toMatch(/^rta_export_\d{8}_\d{6}$/);
+      buildRtaExportFilename(serviceType, new Date('2026-06-25T14:30:22.000Z'))
+    ).toMatch(expected);
   });
 
   it('exports filtered query rows to csv', () => {
-    exportRtaQueriesToCsv([TEST_QUERY]);
+    exportRtaQueriesToCsv([TEST_QUERY], ServiceType.mongodb);
 
     expect(mkConfig).toHaveBeenCalledWith({
       columnHeaders: expect.arrayContaining(['operation_id', 'raw_query']),
-      // No technology prefix: RTA now covers MySQL as well as MongoDB.
-      filename: expect.stringMatching(/^rta_export_\d{8}_\d{6}$/),
+      filename: expect.stringMatching(/^mongodb_rta_export_\d{8}_\d{6}$/),
     });
     expect(generateCsv).toHaveBeenCalled();
     expect(download).toHaveBeenCalled();

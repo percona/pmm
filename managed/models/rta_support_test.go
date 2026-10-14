@@ -28,14 +28,11 @@ import (
 func TestIsRTASupported(t *testing.T) {
 	t.Parallel()
 
-	// MongoDB RTA shipped in 3.7.0.
 	assert.True(t, models.IsRTASupported("3.7.0", models.MongoDBServiceType))
 	assert.True(t, models.IsRTASupported("3.8.0", models.MongoDBServiceType))
 	assert.False(t, models.IsRTASupported("3.6.0", models.MongoDBServiceType))
 
-	// MySQL RTA ships in 3.10.0 — an agent in [3.7.0, 3.10.0) supports MongoDB RTA but
-	// would not understand the MySQL builtin, so it must be reported as unsupported.
-	// 3.9.0 and 3.9.1 were released without the MySQL collector.
+	// Agents from 3.7.0 to 3.9.x run MongoDB RTA but have no MySQL collector.
 	assert.False(t, models.IsRTASupported("3.7.0", models.MySQLServiceType))
 	assert.False(t, models.IsRTASupported("3.8.0", models.MySQLServiceType))
 	assert.False(t, models.IsRTASupported("3.9.0", models.MySQLServiceType))
@@ -43,15 +40,11 @@ func TestIsRTASupported(t *testing.T) {
 	assert.True(t, models.IsRTASupported("3.10.0", models.MySQLServiceType))
 	assert.True(t, models.IsRTASupported("3.10.1", models.MySQLServiceType))
 
-	// PostgreSQL RTA ships in 3.10.0 as well.
 	assert.False(t, models.IsRTASupported("3.9.1", models.PostgreSQLServiceType))
 	assert.True(t, models.IsRTASupported("3.10.0", models.PostgreSQLServiceType))
 
-	// Service types that do not support RTA are never reported as supported,
-	// regardless of agent version.
 	assert.False(t, models.IsRTASupported("3.9.0", models.ValkeyServiceType))
 
-	// Unparsable version is never supported.
 	assert.False(t, models.IsRTASupported("not-a-version", models.MySQLServiceType))
 }
 

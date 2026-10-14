@@ -29,8 +29,7 @@ import { EmptyResponse } from 'types/util.types';
 import { parseDuration } from 'utils/duration.utils';
 import { useUser } from 'contexts/user';
 
-// Maps the technology-keyed groups of the ListServices response to the service
-// type each group holds. Add a key here when RTA gains another engine.
+// Add a key here when RTA gains another engine.
 const AVAILABLE_SERVICE_TYPES: Record<
   keyof AvailableServicesResponse,
   ServiceType
@@ -40,8 +39,7 @@ const AVAILABLE_SERVICE_TYPES: Record<
   postgresql: ServiceType.posgresql,
 };
 
-// The technologies RTA can monitor, kept in one place so every caller of
-// useAvailableServices asks for the same set and shares a single fetch.
+// Shared so every useAvailableServices caller asks for the same set in one fetch.
 const RTA_SERVICE_TYPES = Object.values(AVAILABLE_SERVICE_TYPES);
 
 const KEYS = {
@@ -146,8 +144,7 @@ export const useAvailableServices = (
     data: services = { mongodb: [], mysql: [] },
     isLoading: isLoadingServices,
   } = useQuery({
-    // The filter is part of the key: a caller asking for a narrower set of
-    // technologies must not be served another caller's wider response.
+    // A narrower request must not be served another caller's wider response.
     queryKey: [KEYS.AVAILABLE_SERVICES, serviceTypes],
     queryFn: () => getAvailableServices(serviceTypes),
     enabled: !!user,
@@ -158,9 +155,8 @@ export const useAvailableServices = (
       (session) => session.serviceId
     );
 
-    // Filter out services that already have running RTA agents. The response
-    // groups services by technology, so the key is what tells us the type -
-    // it is carried over onto each service rather than flattened away.
+    // Filter out services that already have running RTA agents. The group key
+    // is the only source of each service's technology.
     return (
       Object.keys(
         AVAILABLE_SERVICE_TYPES

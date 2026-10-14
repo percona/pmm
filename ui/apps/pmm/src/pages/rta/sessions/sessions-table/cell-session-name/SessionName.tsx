@@ -14,11 +14,8 @@ interface Props {
 
 export const SessionName: FC<Props> = ({ session }) => {
   const serviceIds = getServiceIds(session);
-  // A cluster row carries the technology its services share, so an undefined one spans more
-  // than one. Linking it would hand the overview a mixed set, which shows a single technology
-  // and silently drops the rest -- the outcome the selection screen deliberately avoids by
-  // sending mixed selections here in the first place. Its services are still linked
-  // individually, so the reader picks the one they want to watch.
+  // The overview would silently drop part of a mixed set; its services are still linked
+  // individually.
   const isMixedCluster =
     session.type === 'cluster' && session.serviceType === undefined;
 
@@ -29,9 +26,7 @@ export const SessionName: FC<Props> = ({ session }) => {
           variant="body2"
           color="text.secondary"
           component="span"
-          // The tooltip carries the only explanation of why this row is not a link, and MUI
-          // opens it when its child takes focus. A span is not focusable on its own, so
-          // without this the reason is available to a mouse and to nobody else.
+          // Focusable so keyboard users can open the tooltip explaining why this is not a link.
           tabIndex={0}
           data-testid={`session-${session.sessionId}-mixed-cluster`}
         >

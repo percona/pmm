@@ -50,8 +50,7 @@ message Session {
   google.protobuf.Duration collect_interval = 5;
   // Current status of the Real-Time Analytics session.
   SessionStatus status = 6;
-  // Type of the service the session is running for. Lets clients tell MySQL and
-  // MongoDB sessions apart without a second lookup in the inventory.
+  // Type of the service the session is running for.
   inventory.v1.ServiceType service_type = 7;
   // Human-readable explanation reported by the agent: why the session failed to start when status
   // is ERROR, or what it cannot collect when status is RUNNING. Empty when there is nothing to report.

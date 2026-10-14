@@ -5,9 +5,8 @@ import { SessionRow } from './SessionsTable.types';
 import { SessionName } from './cell-session-name';
 import { Technology, technologyLabel } from 'pages/rta/components/technology';
 
-// The accessor returns the displayed name so sorting and filtering work on that
-// rather than on the SERVICE_TYPE_* enum value; the id is set explicitly because
-// an accessorFn column has no accessorKey to derive it from.
+// Sorts and filters on the displayed name rather than the SERVICE_TYPE_* value;
+// an accessorFn column needs an explicit id.
 const TECHNOLOGY_COLUMN: MRT_ColumnDef<SessionRow> = {
   id: 'serviceType',
   header: Messages.table.columns.technology,
@@ -35,15 +34,13 @@ const STATUS_COLUMN: MRT_ColumnDef<SessionRow> = {
   },
 };
 
-// A module constant so the reference is stable; the sessions table renders on a
-// 5s poll.
+// Module constant for a stable reference across the 5s poll.
 export const SESSIONS_TABLE_COLUMNS: MRT_ColumnDef<SessionRow>[] = [
   SESSION_NAME_COLUMN,
   TECHNOLOGY_COLUMN,
   STATUS_COLUMN,
 ];
 
-// columnId is what MRT orders columns by: the explicit id when a column has one,
-// the accessor key otherwise.
+// MRT orders columns by the explicit id, falling back to the accessor key.
 export const columnId = (column: MRT_ColumnDef<SessionRow>): string =>
   column.id ?? column.accessorKey ?? '';

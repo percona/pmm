@@ -1601,8 +1601,7 @@ func TestChangeRTAMongoDBAgent(t *testing.T) {
 }
 
 func TestAddRTAAgentPMMAgentVersion(t *testing.T) {
-	// Adds a pmm-agent reporting the given version (none when empty) and a service of the given type,
-	// and returns their IDs.
+	// An empty pmmAgentVersion leaves the pmm-agent without a reported version.
 	addPMMAgentAndService := func(
 		t *testing.T, ss *ServicesService, as *AgentsService, ctx context.Context, pmmAgentVersion string, serviceType models.ServiceType,
 	) (string, string) {

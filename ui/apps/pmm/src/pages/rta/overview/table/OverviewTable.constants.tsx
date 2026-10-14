@@ -36,9 +36,7 @@ const QUERY_TEXT_COLUMN: MRT_ColumnDef<QueryData> = {
   accessorKey: 'queryText',
   filterFn: 'contains',
   Cell: ({ row }) => (
-    // The chip sits with the statement rather than in a column of its own: most rows are
-    // never blocked, so a dedicated column would be mostly empty and cost horizontal space
-    // that the query text uses better.
+    // Inline rather than a column of its own: most rows are never blocked.
     <Stack direction="row" alignItems="center" gap={1} sx={{ minWidth: 0 }}>
       {isBlocked(row.original) && (
         <BlockedChip blockers={sqlPayload(row.original)?.blockedBy ?? []} />
@@ -135,12 +133,8 @@ const OPERATION_ID_COLUMN: MRT_ColumnDef<QueryData> = {
   }),
 };
 
-// MRT draws a pinned cell at 0.97 opacity over a 0.97-alpha background, so the
-// columns scrolling underneath it -- User, Database -- show through faintly.
-// This is MRT's own shade without the alpha. "&&" outranks MRT's row-level
-// "tr td[data-pinned]::before" rule, which sets the same background. The
-// column's own props replace the table-wide cell sx, hence the padding is
-// repeated where this is used.
+// MRT's pinned shade without its alpha, so scrolled columns do not show
+// through; "&&" outranks MRT's "tr td[data-pinned]::before" rule.
 const opaquePinnedCellSx =
   (table: MRT_TableInstance<QueryData>) => (theme: Theme) => ({
     opacity: 1,
@@ -155,13 +149,8 @@ const opaquePinnedCellSx =
 const ELAPSED_TIME_COLUMN: MRT_ColumnDef<QueryData> = {
   header: Messages.columns.elapsedTime,
   accessorKey: 'queryExecutionDurationMs',
-  // Pinned to the right edge, so every pixel here is taken from the query text.
-  // The width is set by the header, not the compact value: the cell padding and
-  // the sort and column-menu icons take about 80px, leaving the ~95px "Elapsed
-  // time" needs only from 180 up (170 cut it to "Elapsed ti…"). minSize is what
-  // MRT holds as the floor (min-width is max(size, minSize)), so it stays
-  // readable when the Database and User columns compete for the row; grow is
-  // off so it takes no more.
+  // Fits the "Elapsed time" header beside the sort and menu icons (170 cuts it);
+  // minSize holds that when the Database and User columns compete for the row.
   size: 190,
   minSize: 190,
   grow: false,
@@ -170,14 +159,14 @@ const ELAPSED_TIME_COLUMN: MRT_ColumnDef<QueryData> = {
   Filter: ({ column, rangeFilterIndex }) => (
     <ElapsedTimeFilter column={column} rangeFilterIndex={rangeFilterIndex} />
   ),
-  // A statement that has just started reports 0, which is a duration like any
-  // other; only a missing value is unavailable.
+  // A just-started statement reports 0; only a missing value is unavailable.
   Cell: ({ cell }) =>
     cell.getValue<number | null>() == null ? (
       <UnavailableText />
     ) : (
       formatElapsedTime(cell.getValue<number>())
     ),
+  // Column sx replaces the table-wide cell sx, hence the repeated padding.
   muiTableHeadCellProps: ({ table }) => ({
     sx: (theme: Theme) => ({ px: 1, ...opaquePinnedCellSx(table)(theme) }),
   }),
@@ -191,8 +180,7 @@ const ELAPSED_TIME_COLUMN: MRT_ColumnDef<QueryData> = {
   }),
 };
 
-// Both sets are module constants so the reference stays stable across the
-// polling re-renders of the overview.
+// Module constants keep the reference stable across polling re-renders.
 const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
   QUERY_TEXT_COLUMN,
   HOST_COLUMN,
@@ -200,9 +188,7 @@ const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
   ELAPSED_TIME_COLUMN,
 ];
 
-// Database and User are for MySQL and PostgreSQL. MongoDB reports values for both, but they
-// carry little meaning there (admin/local, __system), so they are not offered
-// when MongoDB services are being watched.
+// MySQL and PostgreSQL only: MongoDB's database and user values (admin, __system) mean little.
 const OVERVIEW_TABLE_COLUMNS_MYSQL: MRT_ColumnDef<QueryData>[] = [
   QUERY_TEXT_COLUMN,
   HOST_COLUMN,

@@ -26,9 +26,7 @@ message QueryMongoDBData {
   string plan_summary = 8;
 }
 
-// BlockedStatus says whether a statement is waiting for a lock, keeping "we could not
-// find out" distinct from "we checked and it is not waiting". Collapsing the two would let a
-// monitoring gap look like a healthy server during the incident the feature exists for.
+// BlockedStatus says whether a statement is waiting for a lock.
 enum BlockedStatus {
   // The lock graph could not be read, so nothing is known about this statement's waiting.
   BLOCKED_STATUS_UNSPECIFIED = 0;
@@ -37,17 +35,13 @@ enum BlockedStatus {
   // The statement is waiting for a lock; blocked_by names the transactions holding it and
   // lock_type says which kind of lock is being waited on.
   BLOCKED_STATUS_BLOCKED = 2;
-  // The connection was waiting for a lock, but for a later statement than the one reported:
-  // it moved on between the statement read and the lock read, so this refresh cannot say
-  // whether the statement reported was blocked. Unlike UNSPECIFIED, the lock sources answered.
+  // The connection was waiting for a lock on a later statement than the one reported, so
+  // whether the reported statement was blocked is unknown.
   BLOCKED_STATUS_UNATTRIBUTED = 3;
 }
 
-// LockType says which of MySQL's two independent locking mechanisms a statement is waiting on.
-// They are collected from different tables and explain different problems, so a client that
-// showed them identically would tell the reader to look in the wrong place: an InnoDB row lock
-// is released by ending the holding transaction, while a metadata lock is released by the
-// holder finishing its statement or transaction on that table.
+// LockType says which of MySQL's two locking mechanisms a statement is waiting on; they are
+// released differently, so clients should show them apart.
 enum LockType {
   // The lock graph could not be read, or the statement is not waiting at all.
   LOCK_TYPE_UNSPECIFIED = 0;
@@ -58,10 +52,7 @@ enum LockType {
   LOCK_TYPE_METADATA = 2;
 }
 
-// BlockingTransaction describes a transaction that is preventing a statement from
-// acquiring the lock it needs. It is read from performance_schema.data_lock_waits (row locks)
-// or performance_schema.metadata_locks (metadata locks) in the same collection cycle as the
-// statement itself, so no extra round trip is needed to explain why a statement is stuck.
+// BlockingTransaction describes a transaction holding a lock that a statement is waiting for.
 message BlockingTransaction {
   // Connection id (processlist id) of the blocking transaction.
   int64 blocking_conn_id = 1;
@@ -77,23 +68,18 @@ message BlockingTransaction {
   google.protobuf.Duration wait_duration = 5;
   // How long the blocking transaction has been open.
   google.protobuf.Duration blocker_transaction_duration = 6;
-  // True when this blocker is not itself waiting for a lock, i.e. it sits at the head of the
-  // blocking chain. More than one blocker of a statement can be marked -- several independent
-  // transactions can hold up the same statement -- so a client must not present one of them
-  // as the sole cause unless it is the only one flagged. None are marked when the lock graph
-  // is a cycle and every participant is waiting.
+  // True when this blocker is not itself waiting for a lock (head of the blocking chain).
+  // Several blockers of a statement can be marked; none are when the lock graph is a cycle.
   bool root = 7;
-  // The lock mode this transaction holds on the contended object: an InnoDB mode such as
-  // "X,REC_NOT_GAP" or "S,GAP" for a row lock, or an MDL mode such as "SHARED_READ" or
-  // "SHARED_UPGRADABLE" for a metadata lock. Empty when the server did not report one.
+  // Lock mode this transaction holds on the contended object, e.g. "X,REC_NOT_GAP" for a row
+  // lock or "SHARED_READ" for a metadata lock. Empty when the server did not report one.
   string blocking_lock_mode = 8;
   // True when blocking_query is not the whole statement; see QueryMySQLData.query_text_truncated.
   bool blocking_query_truncated = 9;
 }
 
-// QueryMySQLData holds MySQL-specific Real-Time Analytics query information.
-// The data is read from performance_schema: the threads table and the current statement,
-// stage, transaction and wait tables keyed by thread.
+// QueryMySQLData holds MySQL-specific Real-Time Analytics query information, read from
+// performance_schema.
 message QueryMySQLData {
   // MySQL instance address(host:port) that processing the query.
   string db_instance_address = 1;
@@ -107,32 +93,22 @@ message QueryMySQLData {
   string state = 5;
   // MySQL user name associated with the query.
   string username = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
-  // Number of rows examined by the statement so far. Unset when the server did not measure it,
-  // which is not the same as zero: these come from events_statements_current, whose consumer is
-  // disabled by default on MariaDB, and a statement that has examined no rows must not be
-  // indistinguishable from one nobody counted.
+  // Number of rows examined by the statement so far. Unset when the server did not measure it.
   optional int64 rows_examined = 7;
   // Number of rows sent by the statement so far. Unset when the server did not measure it.
   optional int64 rows_sent = 8;
-  // Indicates whether the statement performed a full table scan. Unset when the server did not
-  // measure it; absent means unknown, not "no full scan".
+  // Whether the statement performed a full table scan. Unset when the server did not measure it.
   optional bool full_scan = 9;
-  // Whether the statement is waiting for a lock; lock_type says which kind. UNSPECIFIED means
-  // the agent could not read the lock graph at all (missing privilege, unsupported server, or a
-  // graph too large to return in full), which is not the same as having checked and found
-  // nothing -- a client must not report "not blocked" for it. UNATTRIBUTED means the lock
-  // sources answered but the wait found belonged to a later statement on the connection.
+  // Whether the statement is waiting for a lock. UNSPECIFIED means the lock graph could not be
+  // read (missing privilege, unsupported server, or too large), not "not blocked".
   BlockedStatus blocked_status = 10;
   // Transactions blocking this statement, ordered by connection id. Empty whenever
   // blocked_status is not BLOCKED.
   repeated BlockingTransaction blocked_by = 11;
-  // Schema-qualified table the statement is waiting for a lock on. This describes the lock
-  // the statement itself requested, so it is a property of the waiter rather than of any one
-  // blocking transaction. Empty unless blocked_status is BLOCKED.
+  // Schema-qualified table the statement is waiting to lock. Empty unless blocked_status is BLOCKED.
   string locked_table = 12;
-  // Index the statement is waiting for a lock on. Row locks only -- a metadata lock is taken
-  // on the table as a whole, so this stays empty when lock_type is METADATA. Empty unless
-  // blocked_status is BLOCKED.
+  // Index the statement is waiting to lock, for row locks only. Empty unless blocked_status is
+  // BLOCKED.
   string locked_index = 13;
   // Which locking mechanism the statement is waiting on. UNSPECIFIED whenever blocked_status
   // is not BLOCKED.
@@ -140,11 +116,8 @@ message QueryMySQLData {
   // The lock mode the waiting statement asked for, in the same vocabulary as
   // BlockingTransaction.blocking_lock_mode. Empty unless blocked_status is BLOCKED.
   string requested_lock_mode = 15;
-  // True when query_text is not the whole statement. The processlist keeps 1024 bytes of a
-  // running statement; with the events_statements_current consumer on, the agent reads up to
-  // performance_schema_max_sql_text_length bytes (1024 by default) instead. The agent sends at
-  // most 64 KiB. MySQL does not mark the cut, so a statement exactly as long as the limit is
-  // reported as truncated too.
+  // True when query_text reached MySQL's statement length limit (1024 bytes by default) or the
+  // agent's 64 KiB cap, so it may not be the whole statement.
   bool query_text_truncated = 16;
   // Time the statement has spent waiting for table locks, from
   // events_statements_current.LOCK_TIME. Unset when the server did not measure it.

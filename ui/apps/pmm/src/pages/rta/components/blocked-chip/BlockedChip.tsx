@@ -7,16 +7,13 @@ import { soleBlockerOf } from 'pages/rta/overview/table/OverviewTable.utils';
 import { Messages } from './BlockedChip.messages';
 
 export interface Props {
-  // Every transaction holding this statement up. The chip names one only when one is
-  // actually the answer; otherwise it reports the count, because claiming a single culprit
-  // that is not the whole story sends the reader after the wrong connection.
+  // One is named only when it is the whole answer; otherwise the chip shows the count.
   blockers: BlockingTransaction[];
 }
 
 const BlockedChip: FC<Props> = ({ blockers }) => {
   const sole = soleBlockerOf(blockers);
-  // A blocked statement whose holder was not in the same snapshot: the lock graph and the
-  // statement list are read milliseconds apart. Saying "Blocked by 0" would be nonsense.
+  // The lock graph and the statement list are read milliseconds apart.
   const holderUnknown = blockers.length === 0;
 
   const label = holderUnknown
@@ -36,8 +33,7 @@ const BlockedChip: FC<Props> = ({ blockers }) => {
       <Chip
         color="warning"
         data-testid="blocked-chip"
-        // Never shrink: this sits beside a width:100% query cell, and letting the browser
-        // squeeze it clips the connection id the chip exists to carry.
+        // Beside a width:100% query cell, shrinking would clip the connection id.
         sx={{ flexShrink: 0 }}
         label={
           <Stack direction="row" alignItems="center" gap={0.5}>

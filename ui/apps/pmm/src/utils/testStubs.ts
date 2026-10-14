@@ -190,9 +190,7 @@ export const TEST_MONGO_DB_QUERY_DATA: QueryData = {
   },
 };
 
-// Carries the identity of TEST_REAL_TIME_SESSION_MYSQL on purpose. The overview tests select
-// that session and mock the search to return this query, so a different service id here would
-// let them pass while rendering a query for a service nobody selected.
+// Same service as TEST_REAL_TIME_SESSION_MYSQL, which the overview tests select.
 export const TEST_MYSQL_QUERY_DATA: QueryData = {
   serviceId: 'service-3',
   serviceName: 'Service 3',
@@ -259,8 +257,7 @@ export const TEST_RAW_MONGO_DB_QUERY_DATA: RawQueryData = {
   queryExecutionDuration: '10s',
 };
 
-// Values here deliberately differ from the MongoDB stub's, so a test asserting
-// on them cannot be satisfied by the wrong payload.
+// Differs from the MongoDB stub so the wrong payload cannot satisfy a test.
 export const TEST_RAW_MYSQL_QUERY_DATA: RawQueryData = {
   ...TEST_MYSQL_QUERY_DATA,
   queryExecutionDuration: '10s',

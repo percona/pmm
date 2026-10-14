@@ -24,9 +24,8 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-// RTAMinAgentVersion returns the first pmm-agent release that ships the Real-Time Analytics
-// collector for the given service type, and whether RTA is supported for that type at all.
-// Collectors for different databases landed in different releases, so the gate is per service type.
+// RTAMinAgentVersion returns the first pmm-agent release with the Real-Time Analytics collector for
+// the given service type, and false if that type has no RTA.
 func RTAMinAgentVersion(serviceType ServiceType) (version.FeatureVersion, bool) {
 	switch serviceType {
 	case MongoDBServiceType:
@@ -40,8 +39,7 @@ func RTAMinAgentVersion(serviceType ServiceType) (version.FeatureVersion, bool) 
 	}
 }
 
-// IsRTASupported reports whether a pmm-agent of the given version can run Real-Time Analytics
-// for the given service type. Unparsable versions and service types without RTA are unsupported.
+// IsRTASupported reports whether a pmm-agent of the given version can run RTA for the service type.
 func IsRTASupported(pmmAgentVersion string, serviceType ServiceType) bool {
 	minVersion, ok := RTAMinAgentVersion(serviceType)
 	if !ok {
@@ -56,9 +54,7 @@ func IsRTASupported(pmmAgentVersion string, serviceType ServiceType) bool {
 	return parsed.IsFeatureSupported(minVersion)
 }
 
-// RTANotSupportedMessage explains why a service's pmm-agent cannot run Real-Time Analytics,
-// naming the pmm-agent version required for the service type. The service is named as well as
-// identified: the ID alone leaves the reader to look up which service was refused.
+// RTANotSupportedMessage explains why a service's pmm-agent cannot run Real-Time Analytics.
 func RTANotSupportedMessage(serviceName, serviceID, pmmAgentVersion string, serviceType ServiceType) string {
 	if pmmAgentVersion == "" {
 		pmmAgentVersion = "unknown"

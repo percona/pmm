@@ -205,8 +205,7 @@ type Session struct {
 	CollectInterval *durationpb.Duration `protobuf:"bytes,5,opt,name=collect_interval,json=collectInterval,proto3" json:"collect_interval,omitempty"`
 	// Current status of the Real-Time Analytics session.
 	Status SessionStatus `protobuf:"varint,6,opt,name=status,proto3,enum=realtimeanalytics.v1.SessionStatus" json:"status,omitempty"`
-	// Type of the service the session is running for. Lets clients tell MySQL and
-	// MongoDB sessions apart without a second lookup in the inventory.
+	// Type of the service the session is running for.
 	ServiceType v1.ServiceType `protobuf:"varint,7,opt,name=service_type,json=serviceType,proto3,enum=inventory.v1.ServiceType" json:"service_type,omitempty"`
 	// Human-readable explanation reported by the agent: why the session failed to start when status
 	// is ERROR, or what it cannot collect when status is RUNNING. Empty when there is nothing to report.

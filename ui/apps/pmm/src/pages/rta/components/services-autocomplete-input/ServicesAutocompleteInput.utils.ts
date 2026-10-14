@@ -9,11 +9,8 @@ import {
   technologyLabel,
 } from 'pages/rta/components/technology';
 
-// servicesOfCluster returns the services a cluster row stands for: the ones in
-// its cluster *and* in its own technology group. A cluster spanning
-// technologies is listed once under each of them, and each row has to act on
-// its own half alone -- otherwise one click seeds a mixed selection and both
-// rows report the state of the whole cluster.
+// A cluster spanning technologies is listed under each, and each row acts on its
+// own technology's services alone.
 const servicesOfCluster = (
   clusterOption: ServiceOption,
   serviceOptions: ServiceOption[]
@@ -64,10 +61,8 @@ export const getServiceOptions = (
     return [];
   }
 
-  // The picker groups options by technology and MUI expects the list to arrive
-  // already sorted by group, otherwise a header repeats for every run of
-  // options. Services we cannot name sort last, so they end up in one trailing
-  // group rather than scattered.
+  // MUI needs options sorted by group or a header repeats for every run;
+  // services of unknown technology sort into one trailing group.
   const byTechnology = new Map<
     string,
     (AvailableService | RealtimeSession)[]
@@ -84,11 +79,8 @@ export const getServiceOptions = (
     }
   });
 
-  // Worked out across the whole list, before the split below. A cluster spanning technologies
-  // has services in more than one group, and each group on its own looks uniform -- so asking
-  // the group would report a single technology for a cluster that has none, and the header
-  // would become selectable. Selecting it seeds a mixed set in one click, which is exactly
-  // what isServiceOptionDisabled exists to prevent.
+  // Across the whole list: within one group a mixed cluster looks uniform, and its header
+  // would become selectable.
   const clusterTechnologies = getClusterTechnologies(services);
 
   return Array.from(byTechnology.keys())
@@ -108,8 +100,7 @@ export const getServiceOptions = (
     );
 };
 
-// getClusterTechnologies maps each cluster name to the technology all of its services share,
-// or undefined when they disagree.
+// Undefined for a cluster whose services disagree on technology.
 const getClusterTechnologies = (
   services: (AvailableService | RealtimeSession)[]
 ): Map<string, ServiceType | undefined> => {
@@ -139,12 +130,9 @@ const getClusterTechnologies = (
   );
 };
 
-// clusterNameOf reads the cluster from either shape the picker is fed.
 const clusterNameOf = (service: AvailableService | RealtimeSession): string =>
   'cluster' in service ? service.cluster : service.clusterName;
 
-// getClusterOptions lays out one technology's services: standalone ones first,
-// then each cluster header followed by its services.
 const getClusterOptions = (
   services: (AvailableService | RealtimeSession)[],
   clusterTechnologies: Map<string, ServiceType | undefined>,
@@ -198,8 +186,7 @@ const getClusterOptions = (
       // Add cluster header as a selectable option
       options.push({
         type: 'cluster',
-        // A cluster spanning technologies appears once under each of them, so the technology
-        // is part of the identity: two options sharing an id would collide as React keys.
+        // A cluster spanning technologies appears under each, so the id includes it.
         id: `cluster-${technologyLabel}-${clusterName}`,
         label: clusterName,
         cluster: clusterName,
@@ -267,10 +254,8 @@ export const getServiceIds = (serviceOptions: ServiceOption[]): string[] =>
     .map((option) => option.serviceId!);
 
 /**
- * Whether an option may not be picked while one view of live queries is being
- * assembled. The first pick fixes the technology; a cluster whose services
- * disagree carries none of its own, and selecting it would seed a mixed set in
- * one click, so it stays disabled even before a technology has been fixed.
+ * Whether an option is off-limits in a single-technology view: a mixed-technology
+ * cluster always is, anything else once another technology has been picked.
  */
 export const isServiceOptionDisabled = (
   option: ServiceOption,

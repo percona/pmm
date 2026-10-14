@@ -436,8 +436,7 @@ func makeBuckets(
 			continue
 		}
 
-		// Real-Time Analytics polls this server every few seconds. That is PMM's own load, not
-		// the workload Query Analytics describes. The fingerprint is still the whole query here.
+		// Real-Time Analytics polling is PMM's own load, not the monitored workload.
 		if agents.IsRTAQuery(v.Fingerprint) {
 			continue
 		}

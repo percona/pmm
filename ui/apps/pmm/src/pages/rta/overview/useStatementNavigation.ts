@@ -16,10 +16,8 @@ interface Result {
   previous: () => void;
 }
 
-// useStatementNavigation drives the details pane's previous and next. While the open statement is
-// in the list it is the plain peak-ui navigation. Once it has finished it is no longer in the list,
-// and the arrows move from the position it was last seen at: the row now occupying that slot is
-// "next" and the one above it "previous", as though the finished row were still between them.
+// Once the open statement has finished and left the list, the arrows move from the slot it was
+// last seen at, as though it were still there.
 export const useStatementNavigation = ({
   rows,
   selected,
@@ -33,8 +31,7 @@ export const useStatementNavigation = ({
   });
   const [lastIndex, setLastIndex] = useState(-1);
 
-  // Recorded during render rather than in an effect, so the fallback below never reads a
-  // position one refresh out of date.
+  // Set during render, not in an effect, so the fallback never reads a stale position.
   if (navigation.index >= 0 && navigation.index !== lastIndex) {
     setLastIndex(navigation.index);
   }

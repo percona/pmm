@@ -32,9 +32,7 @@ import (
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
-// setupAddAgentTestServer stands in for the inventory API on the add-agent
-// path, capturing the request body so a test can assert what the command built.
-// The returned cleanup restores the original client and must be called.
+// setupAddAgentTestServer fakes the add-agent API and captures the request body.
 func setupAddAgentTestServer(t *testing.T, responseJSON string, capturedRequestBody *string) func() {
 	t.Helper()
 
@@ -143,8 +141,7 @@ func TestAddAgentRTAMySQLAgentCommand(t *testing.T) {
 		}`, capturedRequestBody)
 	})
 
-	// Without --collect-interval no RTA options are sent at all, which is what
-	// leaves the agent on the collector's default.
+	// An absent rta_options is what leaves the agent on the collector's default.
 	t.Run("OmittedCollectIntervalSendsNoRTAOptions", func(t *testing.T) {
 		t.Parallel()
 
@@ -209,9 +206,7 @@ func TestAddAgentRTAMySQLAgentCommand(t *testing.T) {
 			assert.Contains(t, res.String(), "Collect interval      : 5s")
 		})
 
-		// ToAPIRTAOptions returns nil for empty options, and RenderTemplate
-		// panics on a nil dereference, so the field's absence has to render -
-		// this is the shape produced by an add without --collect-interval.
+		// Without --collect-interval RtaOptions is nil; the template must not dereference it.
 		t.Run("WithoutRTAOptions", func(t *testing.T) {
 			t.Parallel()
 

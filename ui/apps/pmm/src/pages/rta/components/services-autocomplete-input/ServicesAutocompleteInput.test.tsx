@@ -48,8 +48,7 @@ const clusteredServices = [
   },
 ] as never;
 
-// One cluster whose services disagree on technology: disabled while a single-technology view
-// is being assembled, because picking it would seed a mixed set in one keystroke.
+// A cluster whose services disagree on technology, disabled in a single-technology view.
 const mixedClusterServices = [
   {
     serviceId: 'm1',
@@ -80,9 +79,7 @@ const renderPicker = (serviceIds: string[] = []) => {
   return { input, onServiceIdsChange };
 };
 
-// Puts the keyboard highlight on a named row. MUI highlights the option under the pointer,
-// which is stable, unlike counting ArrowDown presses: the index the list starts on depends on
-// whether anything is already selected.
+// Hovers rather than counting ArrowDown presses, whose start index depends on the selection.
 const highlight = (label: string) => {
   const option = screen
     .getAllByRole('option')
@@ -99,14 +96,11 @@ describe('ServicesAutocompleteInput', () => {
   });
 
   it('leaves the chip presentation free to wrap', () => {
-    // The chip row is meant to wrap; forcing nowrap here squeezed the text input on the
-    // selection screen instead.
+    // Forcing nowrap on the chip row would squeeze the text input.
     expect(wrapOf('tags')).not.toBe('nowrap');
   });
 
-  // The cluster toggle lives on the option row's onClick, which the keyboard never reaches:
-  // MUI keeps focus on the input and routes Enter through its own selection, where
-  // getServiceIds drops cluster options and the selection silently does not change.
+  // The keyboard never reaches the row's onClick, and MUI's own Enter drops cluster options.
   it('toggles a cluster with Enter', () => {
     const { input, onServiceIdsChange } = renderPicker();
 
@@ -117,8 +111,6 @@ describe('ServicesAutocompleteInput', () => {
   });
 
   it('toggles a cluster with Space', () => {
-    // Space does not select in MUI at all - it types into the input - so without this the
-    // cluster row has no Space behaviour to correct, only one to add.
     const { input, onServiceIdsChange } = renderPicker();
 
     highlight('cluster-1');
@@ -137,11 +129,8 @@ describe('ServicesAutocompleteInput', () => {
   });
 
   it('does not hijack Enter on a plain service row', () => {
-    // The interception is scoped to cluster rows. With a service highlighted the handler must
-    // stand aside and leave the key to MUI, which here selects nothing because its Enter uses
-    // the index its own keyboard navigation set, not the one a hover produced. What matters is
-    // that the cluster toggle did not fire: that would select the whole cluster from a row the
-    // user was not on.
+    // MUI's own Enter ignores a hover-set highlight, so nothing is selected unless the cluster
+    // toggle wrongly fires.
     const { input, onServiceIdsChange } = renderPicker();
 
     highlight('alpha');
@@ -151,8 +140,6 @@ describe('ServicesAutocompleteInput', () => {
   });
 
   it('does not toggle a disabled cluster', () => {
-    // A cluster spanning technologies is disabled while one view is being assembled, and the
-    // keyboard must respect that the same way the mouse path does.
     const onServiceIdsChange = vi.fn();
     render(
       <ServicesAutocompleteInput

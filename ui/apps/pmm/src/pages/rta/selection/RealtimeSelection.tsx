@@ -25,8 +25,7 @@ import { RealtimeSelectionForm } from '../components/selection-form';
 export const RealtimeSelection: FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
-  // The set of RTA technologies is the hook's default, so this shares the one
-  // fetch with the selection form below rather than issuing a second one.
+  // The default technologies, so this shares the selection form's fetch.
   const { isLoading } = useAvailableServices();
   const { data: sessions, isLoading: isLoadingSessions } =
     useRealtimeSessions();
@@ -34,10 +33,7 @@ export const RealtimeSelection: FC = () => {
   const handleSuccess = (sessions: RealtimeSession[]) => {
     const serviceIds = sessions.map((s) => s.serviceId);
 
-    // Services of different technologies can be started together, but one view
-    // of live queries shows one technology. Rather than silently dropping half
-    // the selection, hand over to the session list and let the user pick which
-    // one to watch.
+    // One view shows one technology, so a mixed start goes to the session list.
     if (!sharedTechnology(sessions.map((s) => s.serviceType))) {
       navigate(createRealtimeSessionsUrl(serviceIds));
 

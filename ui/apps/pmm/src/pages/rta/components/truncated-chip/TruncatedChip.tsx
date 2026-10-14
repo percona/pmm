@@ -13,8 +13,7 @@ const TOOLTIPS: Partial<Record<ServiceType, string>> = {
   [ServiceType.posgresql]: Messages.tooltipPostgreSql,
 };
 
-// Marks statement text that MySQL or PostgreSQL cut short. Neither leaves a marker of its own, so
-// without this a cut statement reads as a complete one.
+// MySQL and PostgreSQL leave no marker of their own on statement text they cut short.
 const TruncatedChip: FC<Props> = ({
   dataTestId = 'truncated-chip',
   technology,
