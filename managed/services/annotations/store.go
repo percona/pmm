@@ -100,7 +100,7 @@ func (s *Store) Delete(ctx context.Context, ids []int64) error {
 	for i, id := range ids {
 		values[i] = strconv.FormatInt(id, 10)
 	}
-	form := url.Values{"match[]": {fmt.Sprintf(`%s{annotation_id=~"%s"}`, MetricName, strings.Join(values, "|"))}}
+	form := url.Values{"match[]": {fmt.Sprintf(`%s{%s=~"%s"}`, MetricName, idLabel, strings.Join(values, "|"))}}
 
 	req, err := s.newRequest(ctx, http.MethodPost, "api/v1/admin/tsdb/delete_series", strings.NewReader(form.Encode()))
 	if err != nil {
@@ -115,7 +115,7 @@ func (s *Store) Delete(ctx context.Context, ids []int64) error {
 
 // Keys lists the annotation series that have a sample within the window.
 func (s *Store) Keys(ctx context.Context, window time.Duration) ([]Key, error) {
-	query := fmt.Sprintf("count by (annotation_id, node_name, service_name) (last_over_time(%s[%ds]))", MetricName, int64(window.Seconds()))
+	query := fmt.Sprintf("count by (%s, node_name, service_name) (last_over_time(%s[%ds]))", idLabel, MetricName, int64(window.Seconds()))
 
 	req, err := s.newRequest(ctx, http.MethodGet, "api/v1/query", nil)
 	if err != nil {
@@ -147,9 +147,9 @@ func (s *Store) Keys(ctx context.Context, window time.Duration) ([]Key, error) {
 
 	keys := make([]Key, 0, len(res.Data.Result))
 	for _, r := range res.Data.Result {
-		id, err := strconv.ParseInt(r.Metric["annotation_id"], 10, 64)
+		id, err := strconv.ParseInt(r.Metric[idLabel], 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("invalid annotation_id '%s' in query response: %w", r.Metric["annotation_id"], err)
+			return nil, fmt.Errorf("invalid %s '%s' in query response: %w", idLabel, r.Metric[idLabel], err)
 		}
 
 		keys = append(keys, Key{

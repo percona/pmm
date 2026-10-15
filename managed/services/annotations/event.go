@@ -35,6 +35,11 @@ const (
 	MaxTextBytes = 4096
 	// MaxLabels is the most labels with non-empty values VictoriaMetrics accepts on a series.
 	MaxLabels = 40
+
+	// Reserved labels of the series; prefixed so that object labels such as a custom "tags" cannot collide.
+	idLabel   = "pmm_annotation_id"
+	textLabel = "pmm_annotation_text"
+	tagsLabel = "pmm_annotation_tags"
 )
 
 // ErrTooManyLabels is returned for an event whose series has more than MaxLabels labels.
@@ -66,9 +71,9 @@ func (e Event) SeriesLabels() map[string]string {
 	maps.Copy(res, e.Labels)
 
 	res["__name__"] = MetricName
-	res["annotation_id"] = strconv.FormatInt(e.AnnotationID, 10)
-	res["text"] = truncateText(e.Text)
-	res["tags"] = strings.Join(e.Tags, ",")
+	res[idLabel] = strconv.FormatInt(e.AnnotationID, 10)
+	res[textLabel] = truncateText(e.Text)
+	res[tagsLabel] = strings.Join(e.Tags, ",")
 
 	maps.DeleteFunc(res, func(_, value string) bool { return value == "" })
 

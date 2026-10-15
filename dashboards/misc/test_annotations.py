@@ -46,7 +46,8 @@ GLOBAL_ONLY = {
 VAR_REF = r'\$(?:\{{{name}(?::\w+)?\}}|{name}(?![A-Za-z0-9_]))'
 SCOPED_TAG = re.compile('|'.join(VAR_REF.format(name=n) for n in FLEET_VARIABLES))
 
-TERM = (r'max by \(annotation_id, text, tags\) \(last_over_time\(pmm_annotation_event\{(.*)\}'
+TERM = (r'max by \(pmm_annotation_id, pmm_annotation_text, pmm_annotation_tags\) '
+        r'\(last_over_time\(pmm_annotation_event\{(.*)\}'
         r'\[\$__interval\] offset -\$__interval\)\)')
 MATCHER = re.compile(r'(\w+)(=~|!=|=)"([^"]*)"')
 
@@ -183,8 +184,8 @@ class TestScopedAnnotations(unittest.TestCase):
             entry = scoped[0]
             if not is_prometheus(entry.get('datasource')):
                 bad.append(f'{rel}: datasource {entry.get("datasource")!r} is not a Prometheus datasource')
-            want = {'useValueForTime': True, 'titleFormat': 'Annotation {{annotation_id}}', 'textFormat': '{{text}}',
-                    'tagKeys': 'tags'}
+            want = {'useValueForTime': True, 'titleFormat': 'Annotation {{pmm_annotation_id}}',
+                    'textFormat': '{{pmm_annotation_text}}', 'tagKeys': 'pmm_annotation_tags'}
             for key, value in want.items():
                 if entry.get(key) != value:
                     bad.append(f'{rel}: {key}={entry.get(key)!r}, want {value!r}')

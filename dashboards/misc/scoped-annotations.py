@@ -46,8 +46,8 @@ TYPE_PREFIXES = (
     ('haproxy_', 'haproxy'),
 )
 
-TERM = ('max by (annotation_id, text, tags) (last_over_time(pmm_annotation_event{{{matchers}}}'
-        '[$__interval] offset -$__interval))')
+TERM = ('max by (pmm_annotation_id, pmm_annotation_text, pmm_annotation_tags) '
+        '(last_over_time(pmm_annotation_event{{{matchers}}}[$__interval] offset -$__interval))')
 
 # A $var reference, plain or ${var:format}.
 VAR_REF = r'\$(?:\{{{name}(?::\w+)?\}}|{name}(?![A-Za-z0-9_]))'
@@ -276,10 +276,10 @@ def rewrite(dashboard):
         'hide': entry.get('hide', False),
         'iconColor': entry.get('iconColor', '#e0752d'),
         'name': SCOPED_ENTRY,
-        'tagKeys': 'tags',
+        'tagKeys': 'pmm_annotation_tags',
         'target': {'expr': expr, 'interval': '', 'refId': 'Anno'},
-        'textFormat': '{{text}}',
-        'titleFormat': 'Annotation {{annotation_id}}',
+        'textFormat': '{{pmm_annotation_text}}',
+        'titleFormat': 'Annotation {{pmm_annotation_id}}',
         'useValueForTime': True,
     }
     if scoped:

@@ -98,20 +98,20 @@ func TestStoreWrite(t *testing.T) {
 			{
 				Labels: []prompb.Label{
 					{Name: "__name__", Value: "pmm_annotation_event"},
-					{Name: "annotation_id", Value: "7"},
 					{Name: "node_name", Value: "n1"},
+					{Name: "pmm_annotation_id", Value: "7"},
+					{Name: "pmm_annotation_tags", Value: "a,b"},
+					{Name: "pmm_annotation_text", Value: "deploy"},
 					{Name: "service_name", Value: "svc"},
-					{Name: "tags", Value: "a,b"},
-					{Name: "text", Value: "deploy"},
 				},
 				Samples: []prompb.Sample{{Value: 1700000000123, Timestamp: 1700000000123}},
 			},
 			{
 				Labels: []prompb.Label{
 					{Name: "__name__", Value: "pmm_annotation_event"},
-					{Name: "annotation_id", Value: "9"},
 					{Name: "node_name", Value: "n2"},
-					{Name: "text", Value: "reboot"},
+					{Name: "pmm_annotation_id", Value: "9"},
+					{Name: "pmm_annotation_text", Value: "reboot"},
 				},
 				Samples: []prompb.Sample{{Value: 1700000100456, Timestamp: 1700000100456}},
 			},
@@ -170,7 +170,7 @@ func TestStoreDelete(t *testing.T) {
 		assert.True(t, ok)
 		assert.Equal(t, "u", user)
 		assert.Equal(t, "p", password)
-		assert.Equal(t, []string{`pmm_annotation_event{annotation_id=~"7|9"}`}, form["match[]"])
+		assert.Equal(t, []string{`pmm_annotation_event{pmm_annotation_id=~"7|9"}`}, form["match[]"])
 	})
 
 	t.Run("NoIDs", func(t *testing.T) {
@@ -209,8 +209,8 @@ func TestStoreKeys(t *testing.T) {
 			r = req
 			w.Header().Set("Content-Type", "application/json")
 			_, _ = io.WriteString(w, `{"status":"success","data":{"resultType":"vector","result":[`+
-				`{"metric":{"annotation_id":"7","node_name":"n1"},"value":[1700000000,"1"]},`+
-				`{"metric":{"annotation_id":"9","node_name":"n2","service_name":"svc"},"value":[1700000000,"1"]}]}}`)
+				`{"metric":{"pmm_annotation_id":"7","node_name":"n1"},"value":[1700000000,"1"]},`+
+				`{"metric":{"pmm_annotation_id":"9","node_name":"n2","service_name":"svc"},"value":[1700000000,"1"]}]}}`)
 		})
 
 		keys, err := s.Keys(t.Context(), 30*24*time.Hour)
@@ -220,7 +220,7 @@ func TestStoreKeys(t *testing.T) {
 		assert.Equal(t, http.MethodGet, r.Method)
 		assert.Equal(t, "/prometheus/api/v1/query", r.URL.Path)
 		assert.Equal(t,
-			"count by (annotation_id, node_name, service_name) (last_over_time(pmm_annotation_event[2592000s]))",
+			"count by (pmm_annotation_id, node_name, service_name) (last_over_time(pmm_annotation_event[2592000s]))",
 			r.URL.Query().Get("query"))
 		user, password, ok := r.BasicAuth()
 		assert.True(t, ok)
@@ -277,7 +277,7 @@ func TestStoreKeys(t *testing.T) {
 
 		s := newTestStore(t, func(w http.ResponseWriter, _ *http.Request) {
 			_, _ = io.WriteString(w, `{"status":"success","data":{"resultType":"vector","result":[`+
-				`{"metric":{"annotation_id":"abc","node_name":"n1"},"value":[1700000000,"1"]}]}}`)
+				`{"metric":{"pmm_annotation_id":"abc","node_name":"n1"},"value":[1700000000,"1"]}]}}`)
 		})
 
 		keys, err := s.Keys(t.Context(), time.Hour)

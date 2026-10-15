@@ -312,7 +312,7 @@ func annotationSeries(t *testing.T, annotationID string) []map[string]string {
 
 	u := *pmmapitests.BaseURL
 	u.Path = "/prometheus/api/v1/query"
-	u.RawQuery = url.Values{"query": {fmt.Sprintf(`pmm_annotation_event{annotation_id="%s"}`, annotationID)}}.Encode()
+	u.RawQuery = url.Values{"query": {fmt.Sprintf(`pmm_annotation_event{pmm_annotation_id="%s"}`, annotationID)}}.Encode()
 
 	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, u.String(), nil)
 	require.NoError(t, err)

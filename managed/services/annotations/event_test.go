@@ -97,11 +97,11 @@ func TestSeriesLabels(t *testing.T) {
 				Labels:       map[string]string{"node_name": "db-host"},
 			},
 			expected: map[string]string{
-				"__name__":      MetricName,
-				"annotation_id": "42",
-				"text":          "deployed v2",
-				"tags":          "deploy,db",
-				"node_name":     "db-host",
+				"__name__":            MetricName,
+				"pmm_annotation_id":   "42",
+				"pmm_annotation_text": "deployed v2",
+				"pmm_annotation_tags": "deploy,db",
+				"node_name":           "db-host",
 			},
 		},
 		"reserved labels win over object labels": {
@@ -110,37 +110,58 @@ func TestSeriesLabels(t *testing.T) {
 				Text:         "event text",
 				Tags:         []string{"a"},
 				Labels: map[string]string{
-					"text":          "custom",
-					"tags":          "custom",
-					"annotation_id": "custom",
-					"__name__":      "custom",
+					"pmm_annotation_text": "custom",
+					"pmm_annotation_tags": "custom",
+					"pmm_annotation_id":   "custom",
+					"__name__":            "custom",
 				},
 			},
 			expected: map[string]string{
-				"__name__":      MetricName,
-				"annotation_id": "7",
-				"text":          "event text",
-				"tags":          "a",
+				"__name__":            MetricName,
+				"pmm_annotation_id":   "7",
+				"pmm_annotation_text": "event text",
+				"pmm_annotation_tags": "a",
+			},
+		},
+		"custom labels named text, tags and annotation_id are kept": {
+			event: Event{
+				AnnotationID: 7,
+				Text:         "event text",
+				Tags:         []string{"a"},
+				Labels: map[string]string{
+					"text":          "custom text",
+					"tags":          "custom tags",
+					"annotation_id": "custom id",
+				},
+			},
+			expected: map[string]string{
+				"__name__":            MetricName,
+				"pmm_annotation_id":   "7",
+				"pmm_annotation_text": "event text",
+				"pmm_annotation_tags": "a",
+				"text":                "custom text",
+				"tags":                "custom tags",
+				"annotation_id":       "custom id",
 			},
 		},
 		"empty tags and empty values are omitted": {
 			event: Event{
 				AnnotationID: 1,
 				Text:         "t",
-				Labels:       map[string]string{"cluster": "", "tags": "custom"},
+				Labels:       map[string]string{"cluster": "", "pmm_annotation_tags": "custom"},
 			},
 			expected: map[string]string{
-				"__name__":      MetricName,
-				"annotation_id": "1",
-				"text":          "t",
+				"__name__":            MetricName,
+				"pmm_annotation_id":   "1",
+				"pmm_annotation_text": "t",
 			},
 		},
 		"empty text is omitted": {
 			event: Event{AnnotationID: 1, Tags: []string{"x"}},
 			expected: map[string]string{
-				"__name__":      MetricName,
-				"annotation_id": "1",
-				"tags":          "x",
+				"__name__":            MetricName,
+				"pmm_annotation_id":   "1",
+				"pmm_annotation_tags": "x",
 			},
 		},
 	} {
@@ -165,7 +186,7 @@ func TestSeriesLabels(t *testing.T) {
 
 		event := Event{Text: strings.Repeat("x", MaxTextBytes+1)}
 
-		assert.Len(t, event.SeriesLabels()["text"], MaxTextBytes)
+		assert.Len(t, event.SeriesLabels()["pmm_annotation_text"], MaxTextBytes)
 	})
 }
 
@@ -213,7 +234,7 @@ func TestTruncateText(t *testing.T) {
 func TestValidate(t *testing.T) {
 	t.Parallel()
 
-	// __name__, annotation_id and text come on top of the object labels.
+	// __name__, pmm_annotation_id and pmm_annotation_text come on top of the object labels.
 	const reserved = 3
 
 	objectLabels := func(n int) map[string]string {
