@@ -2264,7 +2264,7 @@
                         "x-order": 1
                       },
                       "expr": {
-                        "description": "PromQL query expression with templating parameters.",
+                        "description": "Query expression with templating parameters; for multi-query templates, a copy of queries[0].expr.",
                         "type": "string",
                         "x-order": 2
                       },
@@ -2433,10 +2433,10 @@
                         "x-order": 10
                       },
                       "queries": {
-                        "description": "PromQL query steps for multi-query templates. Empty for single-expression templates.",
+                        "description": "Query steps for multi-query templates. Empty for single-expression templates.",
                         "type": "array",
                         "items": {
-                          "description": "TemplateQuery represents a PromQL query step in a multi-query alert template.",
+                          "description": "TemplateQuery represents a query step in a multi-query alert template.",
                           "type": "object",
                           "properties": {
                             "ref_id": {
@@ -2445,9 +2445,20 @@
                               "x-order": 0
                             },
                             "expr": {
-                              "description": "PromQL query expression with templating parameters (placeholders kept intact).",
+                              "description": "Query expression with templating parameters (placeholders kept intact).",
                               "type": "string",
                               "x-order": 1
+                            },
+                            "datasource": {
+                              "description": "DatasourceType is the built-in Grafana datasource a template query runs against.\n\n - DATASOURCE_TYPE_METRICS: VictoriaMetrics, queried with MetricsQL.\n - DATASOURCE_TYPE_CLICKHOUSE: ClickHouse (QAN data), queried with SQL as a time series.",
+                              "type": "string",
+                              "default": "DATASOURCE_TYPE_UNSPECIFIED",
+                              "enum": [
+                                "DATASOURCE_TYPE_UNSPECIFIED",
+                                "DATASOURCE_TYPE_METRICS",
+                                "DATASOURCE_TYPE_CLICKHOUSE"
+                              ],
+                              "x-order": 2
                             }
                           }
                         },
@@ -2466,14 +2477,19 @@
                               "x-order": 0
                             },
                             "type": {
-                              "description": "Expression type. Currently only \"math\" is supported.",
+                              "description": "Expression type: \"math\" or \"reduce\".",
                               "type": "string",
                               "x-order": 1
                             },
                             "expression": {
-                              "description": "Expression body referencing other steps by ref ID (e.g. \"$A \u003e $B\").",
+                              "description": "Expression body referencing other steps by ref ID (e.g. \"$A \u003e $B\", or \"$A\" for reduce).",
                               "type": "string",
                               "x-order": 2
+                            },
+                            "reducer": {
+                              "description": "Reducer of a \"reduce\" expression (e.g. \"max\").",
+                              "type": "string",
+                              "x-order": 3
                             }
                           }
                         },
