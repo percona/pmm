@@ -360,6 +360,43 @@ func TestDatabaseHasEncryptedDataWithoutSchema(t *testing.T) {
 	assert.False(t, hasEncrypted)
 }
 
+// TestDatabaseHasEncryptedDataInEveryTable covers the probe on a schema from
+// before om_bootstrap_secrets existed, and on one where that table holds the
+// only envelopes.
+func TestDatabaseHasEncryptedDataInEveryTable(t *testing.T) {
+	cipher, err := encryption.DefaultCipher()
+	require.NoError(t, err)
+	password, err := cipher.Encrypt("password")
+	require.NoError(t, err)
+
+	t.Run("a schema without om_bootstrap_secrets", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, new(122))
+		insertExporter(t, sqlDB, "E1", password, "")
+
+		hasEncrypted, err := models.DatabaseHasEncryptedData(t.Context(), sqlDB)
+		require.NoError(t, err)
+		assert.True(t, hasEncrypted)
+	})
+
+	t.Run("envelopes only in om_bootstrap_secrets", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+		hasEncrypted, err := models.DatabaseHasEncryptedData(t.Context(), sqlDB)
+		require.NoError(t, err)
+		require.False(t, hasEncrypted)
+
+		require.NoError(t, models.CreateOmBootstrapSecret(q, &models.OmBootstrapSecret{
+			RunID:           "R1",
+			MongoDBUsername: "admin",
+			MongoDBPassword: "password",
+			KeyFile:         "key-file",
+		}))
+		hasEncrypted, err = models.DatabaseHasEncryptedData(t.Context(), sqlDB)
+		require.NoError(t, err)
+		assert.True(t, hasEncrypted)
+	})
+}
+
 func TestMigrateEncryptionWithoutSettingsRow(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier

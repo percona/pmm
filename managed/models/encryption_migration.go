@@ -206,24 +206,32 @@ func DatabaseHasEncryptedData(ctx context.Context, db *sql.DB) (bool, error) {
 		}
 	}
 
-	var exists bool
-	err = db.QueryRowContext(ctx, encryptedDataProbe).Scan(&exists)
-	if isUndefinedTable(err) {
-		return false, nil
-	}
-	if err != nil {
-		return false, fmt.Errorf("failed to probe for encrypted data: %w", err)
+	for _, t := range secretTables {
+		// a table the schema lacks yet, e.g. om_bootstrap_secrets, holds none;
+		// a statement naming it would fail as a whole
+		var tableExists, exists bool
+		err = db.QueryRowContext(ctx, "SELECT to_regclass($1) IS NOT NULL", t.name).Scan(&tableExists)
+		if err == nil && tableExists {
+			err = db.QueryRowContext(ctx, encryptedDataProbe(t.name)).Scan(&exists)
+		}
+		if err != nil {
+			return false, fmt.Errorf("failed to probe %s for encrypted data: %w", t.name, err)
+		}
+		if exists {
+			return true, nil
+		}
 	}
 
-	return exists, nil
+	return false, nil
 }
 
-// encryptedDataProbe finds any envelope value in the tables holding secrets.
-// It runs before schema migrations, so it must not name columns that older
+// encryptedDataProbe finds any envelope value in a table holding secrets. It
+// runs before schema migrations, so it must not name columns that older
 // schemas lack: every column of the row, including JSON blobs, is rendered as
 // JSON, where an envelope value appears as a string starting with the prefix.
-var encryptedDataProbe = "SELECT EXISTS (SELECT 1 FROM agents t WHERE to_jsonb(t)::text LIKE '%\"" + encryption.EnvelopePrefix + "%')" +
-	" OR EXISTS (SELECT 1 FROM backup_locations t WHERE to_jsonb(t)::text LIKE '%\"" + encryption.EnvelopePrefix + "%')"
+func encryptedDataProbe(table string) string {
+	return "SELECT EXISTS (SELECT 1 FROM " + table + " t WHERE to_jsonb(t)::text LIKE '%\"" + encryption.EnvelopePrefix + "%')"
+}
 
 // legacyEncryptedColumns returns the agents columns that PMM 3.x recorded as
 // encrypted in settings.encrypted_items (entries are "database.table.column").
