@@ -554,6 +554,42 @@ func TestUpdateService(t *testing.T) {
 		assert.False(t, agent.QANOptions.CommentsParsingDisabled)
 	})
 
+	// A Service on a remote RDS or Azure Node gets only the QAN Agents that adding it creates.
+	t.Run("CloudServiceQANAgents", func(t *testing.T) {
+		ctx, s, m := setupUpdateService(t)
+		serviceID := addTestMySQL(ctx, t, s, m, &managementv1.AddMySQLServiceParams{Address: "127.0.0.1", Port: 3306})
+
+		rds, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
+			NodeName:   "rds-node",
+			Address:    "rds.abc.us-east-1.rds.amazonaws.com",
+			InstanceID: "rds",
+			Region:     new("us-east-1"),
+		})
+		require.NoError(t, err)
+		_, err = s.db.Exec("UPDATE services SET node_id = $1 WHERE service_id = $2", rds.NodeID, serviceID)
+		require.NoError(t, err)
+
+		_, err = s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+			ServiceId: serviceID,
+			Service: &managementv1.UpdateServiceRequest_Mysql{
+				Mysql: &managementv1.UpdateMySQLServiceParams{QanMysqlSlowlog: new(true)},
+			},
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument,
+			"qan-mysql-slowlog-agent is not supported for a Service on a remote_rds Node."), err)
+
+		m.expectConnectionCheck()
+		m.expectApplied()
+		_, err = s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+			ServiceId: serviceID,
+			Service: &managementv1.UpdateServiceRequest_Mysql{
+				Mysql: &managementv1.UpdateMySQLServiceParams{QanMysqlPerfschema: new(true)},
+			},
+		})
+		require.NoError(t, err)
+		assert.Contains(t, serviceAgents(t, s.db.Querier, serviceID), models.QANMySQLPerfSchemaAgentType)
+	})
+
 	t.Run("MySQLLimitsAreStoredAsAddStoresThem", func(t *testing.T) {
 		ctx, s, m := setupUpdateService(t)
 		serviceID := addTestMySQL(ctx, t, s, m, &managementv1.AddMySQLServiceParams{

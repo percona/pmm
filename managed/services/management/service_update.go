@@ -309,8 +309,13 @@ func (u *serviceUpdate) changeQANAgents(ctx context.Context) error {
 			"The query source of PMM's internal PostgreSQL server cannot be changed; QAN for it is turned on and off in Settings.")
 	}
 
+	err := u.checkQANAgentsSupported(add)
+	if err != nil {
+		return err
+	}
+
 	if !u.c.skipConnectionCheck && (u.connectionChanged || len(add) != 0) {
-		err := u.s.cc.CheckConnectionToService(ctx, u.q, u.service, u.exporter)
+		err = u.s.cc.CheckConnectionToService(ctx, u.q, u.service, u.exporter)
 		if err != nil {
 			return err
 		}
@@ -354,6 +359,35 @@ func (u *serviceUpdate) changeQANAgents(ctx context.Context) error {
 		_, err := models.CreateAgent(u.q, agentType, u.qanAgentParams(agentType, template))
 		if err != nil {
 			return err
+		}
+	}
+
+	return nil
+}
+
+// cloudQANAgentTypes are the only QAN Agent types that adding a Service on a remote RDS or Azure Node creates. They
+// read query statistics over the connection; pmm-server's pmm-agent, which runs them, can't read a cloud instance's
+// slow log, and pg_stat_monitor is not used there.
+var cloudQANAgentTypes = []models.AgentType{models.QANMySQLPerfSchemaAgentType, models.QANPostgreSQLPgStatementsAgentType}
+
+// checkQANAgentsSupported refuses QAN Agent types that adding the Service does not create for the type of its Node.
+func (u *serviceUpdate) checkQANAgentsSupported(add []models.AgentType) error {
+	if len(add) == 0 {
+		return nil
+	}
+
+	node, err := models.FindNodeByID(u.q, u.service.NodeID)
+	if err != nil {
+		return err
+	}
+
+	if node.NodeType != models.RemoteRDSNodeType && node.NodeType != models.RemoteAzureDatabaseNodeType {
+		return nil
+	}
+
+	for _, agentType := range add {
+		if !slices.Contains(cloudQANAgentTypes, agentType) {
+			return status.Errorf(codes.InvalidArgument, "%s is not supported for a Service on a %s Node.", agentType, node.NodeType)
 		}
 	}
 
