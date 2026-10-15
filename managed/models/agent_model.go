@@ -39,6 +39,7 @@ import (
 
 	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
 	"github.com/percona/pmm/utils/envvars"
+	"github.com/percona/pmm/utils/vault"
 	"github.com/percona/pmm/version"
 )
 
@@ -414,6 +415,8 @@ type Agent struct {
 	AgentPassword *string `reform:"agent_password"`
 	TLS           bool    `reform:"tls"`
 	TLSSkipVerify bool    `reform:"tls_skip_verify"`
+	// VaultPath is the Vault secret holding the database credentials, which then never reach PMM Server.
+	VaultPath *string `reform:"vault_path"`
 
 	LogLevel *string `reform:"log_level"`
 
@@ -589,6 +592,26 @@ func (a *Agent) UnifiedLabels() (map[string]string, error) {
 	return res, nil
 }
 
+// Keys of the Vault secret at VaultPath.
+const (
+	VaultUsernameKey = "username"
+	VaultPasswordKey = "password"
+)
+
+// DBCredentials returns the username and password the Agent connects to its database with.
+// For credentials stored in Vault, they are tokens that pmm-agent replaces with the values of the secret,
+// escaped as enc. The username of the secret wins over the Agent's own, which stands in when the secret
+// has none: the secret is what Vault rotates or issues anew, as it does with dynamic database credentials.
+func (a *Agent) DBCredentials(enc vault.Encoding) (string, string) {
+	username := pointer.GetString(a.Username)
+	path := pointer.GetString(a.VaultPath)
+	if path == "" {
+		return username, pointer.GetString(a.Password)
+	}
+
+	return vault.TokenWithFallback(path, VaultUsernameKey, enc, username), vault.Token(path, VaultPasswordKey, enc)
+}
+
 // DBConfig contains values required to connect to DB.
 type DBConfig struct {
 	User     string
@@ -605,9 +628,10 @@ func (c *DBConfig) Valid() bool {
 
 // DBConfig returns DBConfig for given Service with this agent.
 func (a *Agent) DBConfig(service *Service) *DBConfig {
+	username, password := a.DBCredentials(vault.EncodingRaw)
 	return &DBConfig{
-		User:     pointer.GetString(a.Username),
-		Password: pointer.GetString(a.Password),
+		User:     username,
+		Password: password,
 		Address:  pointer.GetString(service.Address),
 		Port:     int(pointer.GetUint16(service.Port)),
 		Socket:   pointer.GetString(service.Socket),
@@ -627,8 +651,7 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
 	socket := pointer.GetString(service.Socket)
-	username := pointer.GetString(a.Username)
-	password := pointer.GetString(a.Password)
+	username, password := a.DBCredentials(vault.EncodingRaw)
 
 	if tdp == nil {
 		tdp = a.TemplateDelimiters(service)
@@ -799,6 +822,7 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 			Path:     path,
 			RawQuery: q.Encode(),
 		}
+		username, password = a.DBCredentials(vault.EncodingUserinfo)
 		switch {
 		case password != "":
 			u.User = url.UserPassword(username, password)
@@ -860,6 +884,7 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 			Path:     database,
 			RawQuery: q.Encode(),
 		}
+		username, password = a.DBCredentials(vault.EncodingUserinfo)
 		switch {
 		case password != "":
 			u.User = url.UserPassword(username, password)
@@ -890,6 +915,7 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 			Scheme: urlScheme,
 			Host:   address,
 		}
+		username, password = a.DBCredentials(vault.EncodingUserinfo)
 		switch {
 		case password != "":
 			u.User = url.UserPassword(username, password)

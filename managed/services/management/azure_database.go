@@ -190,6 +190,11 @@ func (s *ManagementService) DiscoverAzureDatabase(
 //
 //nolint:gocognit
 func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managementv1.AddAzureDatabaseRequest) (*managementv1.AddAzureDatabaseResponse, error) {
+	err := services.RequireUsername("AddAzureDatabaseRequest", req.Username, req.VaultPath)
+	if err != nil {
+		return nil, err
+	}
+
 	if !s.isAzureEnabled() {
 		return nil, services.ErrAzureDisabled
 	}
@@ -200,7 +205,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 	if req.GetPmmAgentId() != "" {
 		pmmAgentID = req.GetPmmAgentId()
 	}
-	err := s.checkNodeIsEligible(ctx, pmmAgentID, req.Address)
+	err = s.checkNodeIsEligible(ctx, pmmAgentID, req.Address)
 	if err != nil {
 		return nil, err
 	}
@@ -293,6 +298,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 			ServiceID:     service.ServiceID,
 			Username:      req.Username,
 			Password:      req.Password,
+			VaultPath:     req.VaultPath,
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
 			ExporterOptions: models.ExporterOptions{
@@ -325,6 +331,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 				ServiceID:     service.ServiceID,
 				Username:      req.Username,
 				Password:      req.Password,
+				VaultPath:     req.VaultPath,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				QANOptions: models.QANOptions{

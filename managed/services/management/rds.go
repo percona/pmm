@@ -288,6 +288,11 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 //
 //nolint:gocognit,cyclop,maintidx
 func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDSServiceParams) (*managementv1.AddServiceResponse, error) {
+	err := services.RequireUsername("AddRDSServiceParams", req.Username, req.VaultPath)
+	if err != nil {
+		return nil, err
+	}
+
 	rds := &managementv1.RDSServiceResult{}
 
 	pmmAgentID := models.PMMServerAgentID
@@ -395,6 +400,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				ServiceID:     service.ServiceID,
 				Username:      req.Username,
 				Password:      req.Password,
+				VaultPath:     req.VaultPath,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				ExporterOptions: models.ExporterOptions{
@@ -433,6 +439,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 					ServiceID:     service.ServiceID,
 					Username:      req.Username,
 					Password:      req.Password,
+					VaultPath:     req.VaultPath,
 					TLS:           req.Tls,
 					TLSSkipVerify: req.TlsSkipVerify,
 					QANOptions: models.QANOptions{
@@ -484,6 +491,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				ServiceID:     service.ServiceID,
 				Username:      req.Username,
 				Password:      req.Password,
+				VaultPath:     req.VaultPath,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				ExporterOptions: models.ExporterOptions{
@@ -526,6 +534,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 					ServiceID:     service.ServiceID,
 					Username:      req.Username,
 					Password:      req.Password,
+					VaultPath:     req.VaultPath,
 					TLS:           req.Tls,
 					TLSSkipVerify: req.TlsSkipVerify,
 					QANOptions: models.QANOptions{

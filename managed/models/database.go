@@ -1299,6 +1299,9 @@ var databaseSchema = [][]string{
 			registered_at TIMESTAMP
 		)`,
 	},
+	125: {
+		`ALTER TABLE agents ADD COLUMN vault_path VARCHAR`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

@@ -165,6 +165,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 		TlsSkipVerify:      agent.TLSSkipVerify,
 		Username:           pointer.GetString(agent.Username),
 		UpdatedAt:          timestamppb.New(agent.UpdatedAt),
+		VaultPath:          pointer.GetString(agent.VaultPath),
 		Version:            pointer.GetString(agent.Version),
 	}
 

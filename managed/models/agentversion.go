@@ -31,6 +31,9 @@ var PMMAgentMinVersionForPostgreSQLSSLSni = version.Must(version.NewVersion("2.4
 // instead and never sign sts:AssumeRole. The -0 suffix admits prereleases of 3.4.0.
 var PMMAgentMinVersionForAWSRoleARN = version.Must(version.NewVersion("3.4.0-0"))
 
+// PMMAgentMinVersionForVault is the minimum pmm-agent version that reads database credentials stored in Vault.
+var PMMAgentMinVersionForVault = version.Must(version.NewVersion("3.10.0-0"))
+
 // AgentNotSupportedError is used when the target PMM agent doesn't support the requested functionality.
 type AgentNotSupportedError struct {
 	Functionality   string

@@ -16,12 +16,15 @@
 package models_test
 
 import (
+	"errors"
 	"fmt"
+	"net/url"
 	"strconv"
 	"testing"
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -31,6 +34,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/utils/vault"
 )
 
 func TestAgent(t *testing.T) {
@@ -977,4 +981,83 @@ func TestAWSOptionsValidate(t *testing.T) {
 			assert.Equal(t, codes.InvalidArgument, status.Code(err))
 		})
 	}
+}
+
+func TestDBCredentialsFromVault(t *testing.T) {
+	t.Parallel()
+
+	const password = "p@ss/w:rd {{ }}"
+	get := func(secret map[string]string) vault.Getter {
+		return func(path, key string) (string, error) {
+			if path != "secret/data/pmm" {
+				return "", errors.New("unexpected path " + path)
+			}
+			v, ok := secret[key]
+			if !ok {
+				return "", &vault.KeyNotFoundError{Path: path, Key: key}
+			}
+			return v, nil
+		}
+	}
+	withUsername := get(map[string]string{"username": "v-pmm", "password": password})
+	withoutUsername := get(map[string]string{"password": password})
+
+	service := &models.Service{Address: new("1.2.3.4"), Port: new(uint16(12345))}
+
+	for _, agentType := range []models.AgentType{
+		models.MySQLdExporterType,
+		models.QANMySQLPerfSchemaAgentType,
+		models.ProxySQLExporterType,
+		models.PostgresExporterType,
+		models.QANPostgreSQLPgStatementsAgentType,
+		models.MongoDBExporterType,
+		models.QANMongoDBProfilerAgentType,
+		models.ValkeyExporterType,
+	} {
+		t.Run(string(agentType), func(t *testing.T) {
+			t.Parallel()
+
+			agent := &models.Agent{AgentType: agentType, Username: new("given"), VaultPath: new("secret/data/pmm")}
+			dsn := agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "db"}, nil, nil)
+			assert.NotContains(t, dsn, "given", "the username must travel inside its token")
+
+			for _, tc := range []struct {
+				name     string
+				get      vault.Getter
+				username string
+			}{
+				{"SecretUsernameWins", withUsername, "v-pmm"},
+				{"GivenUsernameStandsIn", withoutUsername, "given"},
+			} {
+				resolved, values, err := vault.ReplaceTokens(dsn, tc.get)
+				require.NoError(t, err, tc.name)
+				assert.Contains(t, values, password, tc.name)
+
+				var gotUsername, gotPassword string
+				switch agentType {
+				case models.MySQLdExporterType, models.QANMySQLPerfSchemaAgentType, models.ProxySQLExporterType:
+					cfg, err := mysql.ParseDSN(resolved)
+					require.NoError(t, err, tc.name)
+					gotUsername, gotPassword = cfg.User, cfg.Passwd
+				default:
+					u, err := url.Parse(resolved)
+					require.NoError(t, err, tc.name)
+					gotUsername = u.User.Username()
+					gotPassword, _ = u.User.Password()
+				}
+				assert.Equal(t, tc.username, gotUsername, tc.name)
+				assert.Equal(t, password, gotPassword, tc.name)
+			}
+		})
+	}
+
+	t.Run("NoVault", func(t *testing.T) {
+		t.Parallel()
+
+		agent := &models.Agent{AgentType: models.MySQLdExporterType, Username: new("u"), Password: new("p")}
+		username, password := agent.DBCredentials(vault.EncodingRaw)
+		assert.Equal(t, "u", username)
+		assert.Equal(t, "p", password)
+		assert.Equal(t, &models.DBConfig{User: "u", Password: "p", Address: "1.2.3.4", Port: 12345}, agent.DBConfig(service))
+	})
 }

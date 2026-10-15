@@ -69,6 +69,7 @@ func (s *ManagementService) addValkey(ctx context.Context, req *managementv1.Add
 			ServiceID:     service.ServiceID,
 			Username:      req.Username,
 			Password:      req.Password,
+			VaultPath:     req.VaultPath,
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
 			ExporterOptions: models.ExporterOptions{
