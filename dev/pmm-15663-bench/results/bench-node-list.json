@@ -1,0 +1,75 @@
+{
+ "run": "PMM-15663-bench2",
+ "now_ms": 1792065852970,
+ "from_ms": 1789473852970,
+ "total_series": 3070727,
+ "fleet_nodes": 1000,
+ "other_node_name_values": [
+  "pmm-server"
+ ],
+ "expected_node_annotations_total": 1504,
+ "expected_node_annotations_in_range": 1504,
+ "list_equals_dotplus": true,
+ "list_subset_of_expected": true,
+ "list_missing_vs_in_range": 0,
+ "results": [
+  {
+   "form": "list",
+   "rng": "30d",
+   "wall_ms": 168.6,
+   "wall_ms_all": [
+    253.8,
+    171.5,
+    168.6,
+    156.3,
+    164.8
+   ],
+   "engine_ms": 30,
+   "engine_ms_all": [
+    31,
+    30,
+    30,
+    30,
+    30
+   ],
+   "vm_status": [
+    "success"
+   ],
+   "series": 1504,
+   "step": "30m0s",
+   "error": null,
+   "expr_bytes": 10136,
+   "req_bytes": 10376,
+   "names_in_matcher": 1000
+  },
+  {
+   "form": "dotplus",
+   "rng": "30d",
+   "wall_ms": 158.5,
+   "wall_ms_all": [
+    202.3,
+    145.1,
+    187.0,
+    158.5,
+    153.3
+   ],
+   "engine_ms": 29,
+   "engine_ms_all": [
+    61,
+    39,
+    28,
+    29,
+    27
+   ],
+   "vm_status": [
+    "success"
+   ],
+   "series": 1504,
+   "step": "30m0s",
+   "error": null,
+   "expr_bytes": 139,
+   "req_bytes": 379,
+   "names_in_matcher": null
+  }
+ ]
+}

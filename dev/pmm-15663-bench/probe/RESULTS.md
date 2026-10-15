@@ -108,3 +108,33 @@ with every label of the alert instance at each evaluation, as one continuous ser
 Grafana's code (`packages/grafana-prometheus/src/annotations.ts:98-127`), Prometheus annotations draw such a series as
 a region; the probe did not render it on a dashboard. It needs a Prometheus datasource that points straight at
 VictoriaMetrics: the provisioned "Metrics" datasource goes through vmproxy, which only allows reads.
+
+## P5: node_name_list matcher (`results/bench-node-list.json`)
+
+Run on 15 Oct 2026 on the throwaway CHAOS VM `PMM-15663-bench2` (16 vCPU / 32 GB, torn down after the run):
+`perconalab/pmm-server:3-dev-latest` (started without `PMM_DEBUG`), `percona-grafana-12.4.5-117.2610140456.3650a2f`,
+`percona-victoriametrics-1.152.0` with `-search.disableCache=true`, `-retentionPeriod=30d`, `-search.maxQueryLen=1MB`.
+
+Setup: stress fleet (`bash load.sh`, then `FILLER_ONLY=1 bash load.sh --stress`; all 16 shard imports returned 204) and
+5,000 annotations loaded as `pmm_annotation_event` series only (`python3 ann_load.py 0 5000 E`). `/api/v1/status/tsdb`
+reported `totalSeries` 3,070,727 when the benchmark ran; 5,981 of them are annotation series, 1,504 of them with no
+`service_name` (node annotations). The 1,000 node names are the `node-NNNN` values of `label/node_name/values` for `up`
+(that call also returns `pmm-server`, which is not part of the synthetic fleet and was left out).
+
+Query: 30 days, Metrics datasource through Grafana `/api/ds/query`, median of 5 per form, no warm-up. Engine time is the
+same expression sent straight to VictoriaMetrics `query_range` with the 30m0s step Grafana used (`executionTimeMsec`, median of 5).
+
+```
+max by (annotation_id, text, tags) (last_over_time(pmm_annotation_event{service_name="",node_name=~"<matcher>"}[$__interval] offset -$__interval))
+```
+
+| `node_name` matcher | Grafana median | VictoriaMetrics median | series returned | query size |
+|---|---|---|---|---|
+| `=~"node-0000\|node-0001\|...\|node-0999"` (1,000 names) | 168.6 ms (253.8, 171.5, 168.6, 156.3, 164.8) | 30 ms (31, 30, 30, 30, 30) | 1,504 | 10,136 bytes |
+| `=~".+"` | 158.5 ms (202.3, 145.1, 187.0, 158.5, 153.3) | 29 ms (61, 39, 28, 29, 27) | 1,504 | 139 bytes |
+
+Both forms returned the same 1,504 annotation ids, which are all the node annotations in the loaded set (none missing,
+none extra), with no Grafana or VictoriaMetrics error.
+
+Result: GO. The list form takes 168.6 ms through Grafana against the 1 s threshold, and costs about 10 ms more through
+Grafana than `.+`. Not measured: other ranges, concurrent dashboard load, a browser load of a real dashboard, HA.
