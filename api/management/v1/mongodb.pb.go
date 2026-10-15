@@ -468,7 +468,7 @@ type UpdateMongoDBServiceParams struct {
 	// Replace the environment variable names to pass to the exporter.
 	// Values will be resolved from pmm-agent's environment when starting the exporter.
 	EnvironmentVariableNames *common.StringArray `protobuf:"bytes,27,opt,name=environment_variable_names,json=environmentVariableNames,proto3" json:"environment_variable_names,omitempty"`
-	// Log level for all Agents of the Service.
+	// Log level for all Agents of the Service. LOG_LEVEL_UNSPECIFIED resets it to Auto.
 	LogLevel *v1.LogLevel `protobuf:"varint,28,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Expose the exporter process on all public interfaces.
 	ExposeExporter *bool `protobuf:"varint,29,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
@@ -850,7 +850,7 @@ const file_management_v1_mongodb_proto_rawDesc = "" +
 	"!enable_diagnostic_data_histograms\x18' \x01(\bR\x1eenableDiagnosticDataHistograms\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\xe6\x10\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\xf0\x10\n" +
 	"\x1aUpdateMongoDBServiceParams\x12\x1d\n" +
 	"\aaddress\x18\x01 \x01(\tH\x00R\aaddress\x88\x01\x01\x12\"\n" +
 	"\x04port\x18\x02 \x01(\rB\t\xfaB\x06*\x04\x10\x80\x80\x04H\x01R\x04port\x88\x01\x01\x12\x1b\n" +
@@ -880,8 +880,8 @@ const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\x11collections_limit\x18\x18 \x01(\x05H\x14R\x10collectionsLimit\x88\x01\x01\x127\n" +
 	"\x15enable_all_collectors\x18\x19 \x01(\bH\x15R\x13enableAllCollectors\x88\x01\x01\x12N\n" +
 	"!enable_diagnostic_data_histograms\x18\x1a \x01(\bH\x16R\x1eenableDiagnosticDataHistograms\x88\x01\x01\x12Q\n" +
-	"\x1aenvironment_variable_names\x18\x1b \x01(\v2\x13.common.StringArrayR\x18environmentVariableNames\x128\n" +
-	"\tlog_level\x18\x1c \x01(\x0e2\x16.inventory.v1.LogLevelH\x17R\blogLevel\x88\x01\x01\x12,\n" +
+	"\x1aenvironment_variable_names\x18\x1b \x01(\v2\x13.common.StringArrayR\x18environmentVariableNames\x12B\n" +
+	"\tlog_level\x18\x1c \x01(\x0e2\x16.inventory.v1.LogLevelB\b\xfaB\x05\x82\x01\x02\x10\x01H\x17R\blogLevel\x88\x01\x01\x12,\n" +
 	"\x0fexpose_exporter\x18\x1d \x01(\bH\x18R\x0eexposeExporter\x88\x01\x01\x12R\n" +
 	"\x12connection_timeout\x18\x1e \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x122\n" +
 	"\x15skip_connection_check\x18\x1f \x01(\bR\x13skipConnectionCheckB\n" +

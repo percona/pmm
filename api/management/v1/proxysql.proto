@@ -111,8 +111,8 @@ message UpdateProxySQLServiceParams {
   optional MetricsMode metrics_mode = 13;
   // Replace the list of collector names to disable in this exporter.
   common.StringArray disable_collectors = 14;
-  // Exporter log level.
-  optional inventory.v1.LogLevel log_level = 15;
+  // Exporter log level. LOG_LEVEL_UNSPECIFIED resets it to Auto.
+  optional inventory.v1.LogLevel log_level = 15 [(validate.rules).enum.defined_only = true];
   // Expose the exporter process on all public interfaces.
   optional bool expose_exporter = 16;
   // Connection timeout for exporter; zero restores the default.

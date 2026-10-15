@@ -538,7 +538,16 @@ func (m *UpdateMySQLServiceParams) validate(all bool) error {
 	}
 
 	if m.LogLevel != nil {
-		// no validation rules for LogLevel
+		if _, ok := inventoryv1.LogLevel_name[int32(m.GetLogLevel())]; !ok {
+			err := UpdateMySQLServiceParamsValidationError{
+				field:  "LogLevel",
+				reason: "value must be one of the defined enum values",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 	}
 
 	if m.ExposeExporter != nil {

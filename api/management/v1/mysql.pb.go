@@ -439,7 +439,7 @@ type UpdateMySQLServiceParams struct {
 	MetricsMode *MetricsMode `protobuf:"varint,24,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.v1.MetricsMode,oneof" json:"metrics_mode,omitempty"`
 	// Replace the list of collector names to disable in this exporter.
 	DisableCollectors *common.StringArray `protobuf:"bytes,25,opt,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
-	// Log level for all Agents of the Service.
+	// Log level for all Agents of the Service. LOG_LEVEL_UNSPECIFIED resets it to Auto.
 	LogLevel *v1.LogLevel `protobuf:"varint,26,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Expose the exporter process on all public interfaces.
 	ExposeExporter *bool `protobuf:"varint,27,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
@@ -808,7 +808,7 @@ const file_management_v1_mysql_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc2\x0e\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcc\x0e\n" +
 	"\x18UpdateMySQLServiceParams\x12\x1d\n" +
 	"\aaddress\x18\x01 \x01(\tH\x00R\aaddress\x88\x01\x01\x12\"\n" +
 	"\x04port\x18\x02 \x01(\rB\t\xfaB\x06*\x04\x10\x80\x80\x04H\x01R\x04port\x88\x01\x01\x12\x1b\n" +
@@ -836,8 +836,8 @@ const file_management_v1_mysql_proto_rawDesc = "" +
 	"\x15max_slowlog_file_size\x18\x16 \x01(\x03H\x13R\x12maxSlowlogFileSize\x88\x01\x01\x12D\n" +
 	"\x1ctablestats_group_table_limit\x18\x17 \x01(\x05H\x14R\x19tablestatsGroupTableLimit\x88\x01\x01\x12B\n" +
 	"\fmetrics_mode\x18\x18 \x01(\x0e2\x1a.management.v1.MetricsModeH\x15R\vmetricsMode\x88\x01\x01\x12B\n" +
-	"\x12disable_collectors\x18\x19 \x01(\v2\x13.common.StringArrayR\x11disableCollectors\x128\n" +
-	"\tlog_level\x18\x1a \x01(\x0e2\x16.inventory.v1.LogLevelH\x16R\blogLevel\x88\x01\x01\x12,\n" +
+	"\x12disable_collectors\x18\x19 \x01(\v2\x13.common.StringArrayR\x11disableCollectors\x12B\n" +
+	"\tlog_level\x18\x1a \x01(\x0e2\x16.inventory.v1.LogLevelB\b\xfaB\x05\x82\x01\x02\x10\x01H\x16R\blogLevel\x88\x01\x01\x12,\n" +
 	"\x0fexpose_exporter\x18\x1b \x01(\bH\x17R\x0eexposeExporter\x88\x01\x01\x12R\n" +
 	"\x12connection_timeout\x18\x1c \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x122\n" +
 	"\x15skip_connection_check\x18\x1d \x01(\bR\x13skipConnectionCheckB\n" +

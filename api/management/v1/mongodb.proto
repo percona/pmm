@@ -168,8 +168,8 @@ message UpdateMongoDBServiceParams {
   // Replace the environment variable names to pass to the exporter.
   // Values will be resolved from pmm-agent's environment when starting the exporter.
   common.StringArray environment_variable_names = 27;
-  // Log level for all Agents of the Service.
-  optional inventory.v1.LogLevel log_level = 28;
+  // Log level for all Agents of the Service. LOG_LEVEL_UNSPECIFIED resets it to Auto.
+  optional inventory.v1.LogLevel log_level = 28 [(validate.rules).enum.defined_only = true];
   // Expose the exporter process on all public interfaces.
   optional bool expose_exporter = 29;
   // Connection timeout for exporter; zero restores the default.

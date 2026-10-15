@@ -155,8 +155,8 @@ message UpdatePostgreSQLServiceParams {
   optional int32 auto_discovery_limit = 24;
   // Maximum number of connections that exporter can open to the database instance.
   optional int32 max_exporter_connections = 25;
-  // Log level for all Agents of the Service.
-  optional inventory.v1.LogLevel log_level = 26;
+  // Log level for all Agents of the Service. LOG_LEVEL_UNSPECIFIED resets it to Auto.
+  optional inventory.v1.LogLevel log_level = 26 [(validate.rules).enum.defined_only = true];
   // Expose the exporter process on all public interfaces.
   optional bool expose_exporter = 27;
   // Connection timeout for exporter; zero restores the default.

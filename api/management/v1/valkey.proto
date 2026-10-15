@@ -115,8 +115,8 @@ message UpdateValkeyServiceParams {
   optional string tls_key = 15 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Defines metrics flow model for the Valkey exporter.
   optional MetricsMode metrics_mode = 16;
-  // Exporter log level.
-  optional inventory.v1.LogLevel log_level = 17;
+  // Exporter log level. LOG_LEVEL_UNSPECIFIED resets it to Auto.
+  optional inventory.v1.LogLevel log_level = 17 [(validate.rules).enum.defined_only = true];
   // Expose the exporter process on all public interfaces.
   optional bool expose_exporter = 18;
   // Connection timeout for exporter; zero restores the default.

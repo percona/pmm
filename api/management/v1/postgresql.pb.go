@@ -431,7 +431,7 @@ type UpdatePostgreSQLServiceParams struct {
 	AutoDiscoveryLimit *int32 `protobuf:"varint,24,opt,name=auto_discovery_limit,json=autoDiscoveryLimit,proto3,oneof" json:"auto_discovery_limit,omitempty"`
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections *int32 `protobuf:"varint,25,opt,name=max_exporter_connections,json=maxExporterConnections,proto3,oneof" json:"max_exporter_connections,omitempty"`
-	// Log level for all Agents of the Service.
+	// Log level for all Agents of the Service. LOG_LEVEL_UNSPECIFIED resets it to Auto.
 	LogLevel *v1.LogLevel `protobuf:"varint,26,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Expose the exporter process on all public interfaces.
 	ExposeExporter *bool `protobuf:"varint,27,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
@@ -797,7 +797,7 @@ const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\" \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x83\x0f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8d\x0f\n" +
 	"\x1dUpdatePostgreSQLServiceParams\x12\x1d\n" +
 	"\aaddress\x18\x01 \x01(\tH\x00R\aaddress\x88\x01\x01\x12\"\n" +
 	"\x04port\x18\x02 \x01(\rB\t\xfaB\x06*\x04\x10\x80\x80\x04H\x01R\x04port\x88\x01\x01\x12\x1b\n" +
@@ -825,8 +825,8 @@ const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\fmetrics_mode\x18\x16 \x01(\x0e2\x1a.management.v1.MetricsModeH\x14R\vmetricsMode\x88\x01\x01\x12B\n" +
 	"\x12disable_collectors\x18\x17 \x01(\v2\x13.common.StringArrayR\x11disableCollectors\x125\n" +
 	"\x14auto_discovery_limit\x18\x18 \x01(\x05H\x15R\x12autoDiscoveryLimit\x88\x01\x01\x12=\n" +
-	"\x18max_exporter_connections\x18\x19 \x01(\x05H\x16R\x16maxExporterConnections\x88\x01\x01\x128\n" +
-	"\tlog_level\x18\x1a \x01(\x0e2\x16.inventory.v1.LogLevelH\x17R\blogLevel\x88\x01\x01\x12,\n" +
+	"\x18max_exporter_connections\x18\x19 \x01(\x05H\x16R\x16maxExporterConnections\x88\x01\x01\x12B\n" +
+	"\tlog_level\x18\x1a \x01(\x0e2\x16.inventory.v1.LogLevelB\b\xfaB\x05\x82\x01\x02\x10\x01H\x17R\blogLevel\x88\x01\x01\x12,\n" +
 	"\x0fexpose_exporter\x18\x1b \x01(\bH\x18R\x0eexposeExporter\x88\x01\x01\x12R\n" +
 	"\x12connection_timeout\x18\x1c \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x122\n" +
 	"\x15skip_connection_check\x18\x1d \x01(\bR\x13skipConnectionCheckB\n" +

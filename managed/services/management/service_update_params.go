@@ -84,10 +84,6 @@ func newServiceChange(req *managementv1.UpdateServiceRequest) (*serviceChange, e
 		return nil, status.Error(codes.InvalidArgument, "Service parameters are expected.")
 	}
 
-	if c.logLevel != nil && *c.logLevel == inventoryv1.LogLevel_LOG_LEVEL_UNSPECIFIED {
-		return nil, status.Error(codes.InvalidArgument, "Log level must be one of the levels.")
-	}
-
 	return c, nil
 }
 

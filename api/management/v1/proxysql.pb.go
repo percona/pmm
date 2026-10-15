@@ -310,7 +310,7 @@ type UpdateProxySQLServiceParams struct {
 	MetricsMode *MetricsMode `protobuf:"varint,13,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.v1.MetricsMode,oneof" json:"metrics_mode,omitempty"`
 	// Replace the list of collector names to disable in this exporter.
 	DisableCollectors *common.StringArray `protobuf:"bytes,14,opt,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
-	// Exporter log level.
+	// Exporter log level. LOG_LEVEL_UNSPECIFIED resets it to Auto.
 	LogLevel *v1.LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Expose the exporter process on all public interfaces.
 	ExposeExporter *bool `protobuf:"varint,16,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
@@ -563,7 +563,7 @@ const file_management_v1_proxysql_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\x18 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb8\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc2\b\n" +
 	"\x1bUpdateProxySQLServiceParams\x12\x1d\n" +
 	"\aaddress\x18\x01 \x01(\tH\x00R\aaddress\x88\x01\x01\x12\"\n" +
 	"\x04port\x18\x02 \x01(\rB\t\xfaB\x06*\x04\x10\x80\x80\x04H\x01R\x04port\x88\x01\x01\x12\x1b\n" +
@@ -580,8 +580,8 @@ const file_management_v1_proxysql_proto_rawDesc = "" +
 	"\x0ftls_skip_verify\x18\f \x01(\bH\n" +
 	"R\rtlsSkipVerify\x88\x01\x01\x12B\n" +
 	"\fmetrics_mode\x18\r \x01(\x0e2\x1a.management.v1.MetricsModeH\vR\vmetricsMode\x88\x01\x01\x12B\n" +
-	"\x12disable_collectors\x18\x0e \x01(\v2\x13.common.StringArrayR\x11disableCollectors\x128\n" +
-	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\fR\blogLevel\x88\x01\x01\x12,\n" +
+	"\x12disable_collectors\x18\x0e \x01(\v2\x13.common.StringArrayR\x11disableCollectors\x12B\n" +
+	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelB\b\xfaB\x05\x82\x01\x02\x10\x01H\fR\blogLevel\x88\x01\x01\x12,\n" +
 	"\x0fexpose_exporter\x18\x10 \x01(\bH\rR\x0eexposeExporter\x88\x01\x01\x12R\n" +
 	"\x12connection_timeout\x18\x11 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x122\n" +
 	"\x15skip_connection_check\x18\x12 \x01(\bR\x13skipConnectionCheckB\n" +

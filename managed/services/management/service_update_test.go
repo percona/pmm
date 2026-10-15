@@ -253,6 +253,20 @@ func TestUpdateService(t *testing.T) {
 			assert.Equal(t, "admin", agent.MongoDBOptions.AuthenticationDatabase, agentType)
 			assert.Equal(t, "debug", pointer.GetString(agent.LogLevel), agentType)
 		}
+
+		// LOG_LEVEL_UNSPECIFIED is Auto, as when the Service is added: no level is passed to the Agents.
+		m.expectApplied()
+		_, err = s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+			ServiceId: serviceID,
+			Service: &managementv1.UpdateServiceRequest_Mongodb{
+				Mongodb: &managementv1.UpdateMongoDBServiceParams{LogLevel: new(inventoryv1.LogLevel_LOG_LEVEL_UNSPECIFIED)},
+			},
+		})
+		require.NoError(t, err)
+
+		for agentType, agent := range serviceAgents(t, s.db.Querier, serviceID) {
+			assert.Empty(t, pointer.GetString(agent.LogLevel), agentType)
+		}
 	})
 
 	t.Run("FailedConnectionCheckChangesNothing", func(t *testing.T) {
@@ -701,4 +715,22 @@ func TestUpdateService(t *testing.T) {
 		assert.Equal(t, "http", exporter.ExporterOptions.MetricsScheme)
 		assert.Equal(t, "/metrics", exporter.ExporterOptions.MetricsPath)
 	})
+}
+
+// A log level outside the enum would reach the exporters as "--log.level=99"; the request validation refuses it.
+func TestUpdateServiceRequestLogLevelValidation(t *testing.T) {
+	t.Parallel()
+
+	request := func(level inventoryv1.LogLevel) *managementv1.UpdateServiceRequest {
+		return &managementv1.UpdateServiceRequest{
+			ServiceId: "service-id",
+			Service: &managementv1.UpdateServiceRequest_Mysql{
+				Mysql: &managementv1.UpdateMySQLServiceParams{LogLevel: &level},
+			},
+		}
+	}
+
+	require.NoError(t, request(inventoryv1.LogLevel_LOG_LEVEL_UNSPECIFIED).Validate())
+	require.NoError(t, request(inventoryv1.LogLevel_LOG_LEVEL_DEBUG).Validate())
+	require.ErrorContains(t, request(99).Validate(), "value must be one of the defined enum values")
 }
