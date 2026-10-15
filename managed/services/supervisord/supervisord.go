@@ -155,8 +155,12 @@ func (s *Service) retireRemovedPrograms(dir string) {
 	for _, name := range removedPrograms {
 		path := filepath.Join(s.configDir, name+".ini")
 		err := os.Remove(path)
-		switch {
-		case err == nil:
+		if err != nil && !errors.Is(err, fs.ErrNotExist) {
+			s.l.Warnf("Failed to remove obsolete config %s: %s.", path, err)
+		}
+
+		// Asking supervisord when the file is already gone retries a previous update that failed.
+		if err == nil || s.ProgramRunning(context.Background(), name) {
 			s.l.Infof("Removing obsolete program %s.", name)
 			// reload() skips the update once the config file is gone, so it cannot do this.
 			_, err = s.supervisorctl(context.Background(), "reread")
@@ -167,8 +171,6 @@ func (s *Service) retireRemovedPrograms(dir string) {
 			if err != nil {
 				s.l.Warn(err)
 			}
-		case !errors.Is(err, fs.ErrNotExist):
-			s.l.Warnf("Failed to remove obsolete config %s: %s.", path, err)
 		}
 
 		logs, _ := filepath.Glob(filepath.Join(dir, name+".log*"))
