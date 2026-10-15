@@ -97,9 +97,11 @@ describe('HostElevationWarning', () => {
   it('reads a host held as a bare executor id, as a free-solo field stores it', async () => {
     renderWarning('nomad-1', [ALWAYS]);
 
-    expect(
-      await screen.findByText(/db-01 cannot run commands with sudo/)
-    ).toHaveTextContent('always.sh');
+    const warning = await screen.findByText(
+      /db-01 cannot run commands with sudo/
+    );
+    expect(warning).toHaveTextContent('always.sh');
+    expect(warning).toHaveTextContent('these scripts will fail to launch');
   });
 
   it('stays silent when the server does not say whether a snippet elevates', async () => {
