@@ -422,3 +422,29 @@ func TestRewriteOverridableAnnotations(t *testing.T) {
 		assert.Equal(t, "plain [[ .threshold ]]", annotations["description"])
 	})
 }
+
+func TestBuildRuleDataInjectsThresholdForClickHouse(t *testing.T) {
+	t.Parallel()
+
+	template := overridableRuleTemplate()
+	template.Queries = []alert.TemplateQuery{{
+		RefID:      "A",
+		Expr:       "SELECT $__toTime AS time, node_name, max(v) AS v FROM pmm.metrics GROUP BY node_name",
+		Datasource: alert.ClickHouse,
+	}}
+	template.Expressions = []alert.TemplateExpression{
+		{RefID: "B", Type: "reduce", Reducer: "max", Expression: "$A"},
+		{RefID: "C", Type: "math", Expression: "$B > [[ .threshold ]]"},
+	}
+
+	built, err := buildGrafanaRuleData(template, testDatasourceUIDs, "rule-1", map[string]string{"threshold": "80"}, nil)
+	require.NoError(t, err)
+	byRef := dataByRefID(t, built.data)
+
+	// The threshold step stays MetricsQL, and its default fans out over every scraped node
+	// instead of the SQL VictoriaMetrics cannot run.
+	assert.Equal(t, "metrics-uid", byRef["T_threshold"].DatasourceUID)
+	assert.True(t, strings.HasSuffix(exprOf(t, byRef["T_threshold"]), ` or (group by (node_name) (up{node_name!=""}) * 80)`),
+		exprOf(t, byRef["T_threshold"]))
+	assert.Equal(t, "$B > $T_threshold", expressionOf(t, byRef["C"]))
+}

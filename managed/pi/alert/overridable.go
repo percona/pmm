@@ -114,18 +114,30 @@ func (r *Template) nearestStepRef(text string) (string, bool) {
 	return "", false
 }
 
-// observedQuery returns the query a parameter's comparand ref resolves to, which must be a
-// query because its threshold fans out over it; validation keeps ClickHouse queries out of math.
+// observedQuery resolves a parameter's comparand ref to the query its threshold fans out over.
 func (r *Template) observedQuery(paramName, expressionRefID, ref string) (TemplateQuery, error) {
-	idx := slices.IndexFunc(r.Queries, func(q TemplateQuery) bool { return q.RefID == ref })
-	if idx < 0 {
+	// Validation already keeps a raw ClickHouse query out of math.
+	queryIdx := slices.IndexFunc(r.Queries, func(q TemplateQuery) bool { return q.RefID == ref })
+	if queryIdx >= 0 {
+		return r.Queries[queryIdx], nil
+	}
+
+	var input string
+	expressionIdx := slices.IndexFunc(r.Expressions, func(e TemplateExpression) bool { return e.RefID == ref })
+	if expressionIdx >= 0 {
+		input = r.Expressions[expressionIdx].ReduceInput()
+	}
+
+	queryIdx = slices.IndexFunc(r.Queries, func(q TemplateQuery) bool { return q.RefID == input && q.Datasource == ClickHouse })
+	if queryIdx < 0 {
 		return TemplateQuery{}, fmt.Errorf(
-			"overridable parameter '%s' in expression %s is compared against expression $%s, but can only be compared against a MetricsQL query",
+			"overridable parameter '%s' in expression %s is compared against expression $%s, "+
+				"but can only be compared against a MetricsQL query or a reduce of a ClickHouse query",
 			paramName, expressionRefID, ref,
 		)
 	}
 
-	return r.Queries[idx], nil
+	return r.Queries[queryIdx], nil
 }
 
 // validateOverridableParams checks the constraints that depend on the template's shape,

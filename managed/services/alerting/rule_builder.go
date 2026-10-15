@@ -481,10 +481,7 @@ func planThresholdInjections(template *alert.Template, ruleID string, params map
 			return nil, err
 		}
 
-		// The fan-out reuses the observed query with its parameters filled but its
-		// filters left off: a filtered threshold would leave the targets the filter
-		// excludes with no threshold at all.
-		observedExpr, err := fillExprWithParams(observed.Expr, params)
+		fanOutExpr, err := thresholdFanOutExpr(observed, joinLabel, params)
 		if err != nil {
 			return nil, fmt.Errorf("failed to fill query %s for parameter '%s': %w", observed.RefID, param.Name, err)
 		}
@@ -498,17 +495,36 @@ func planThresholdInjections(template *alert.Template, ruleID string, params map
 		injections = append(injections, thresholdInjection{
 			paramName: param.Name,
 			refID:     refID,
-			expr:      thresholdQueryExpr(ruleID, param.Name, joinLabel, observedExpr, defaultValue),
+			expr:      thresholdQueryExpr(ruleID, param.Name, joinLabel, fanOutExpr, defaultValue),
 		})
 	}
 
 	return injections, nil
 }
 
+// thresholdFanOutExpr returns the series the default threshold fans out over, one per target.
+func thresholdFanOutExpr(observed alert.TemplateQuery, joinLabel string, params map[string]string) (string, error) {
+	switch observed.Datasource {
+	case "", alert.Metrics:
+		// The observed query with its parameters filled but its filters left off: a filtered
+		// threshold would leave the targets the filter excludes with no threshold at all.
+		return fillExprWithParams(observed.Expr, params)
+
+	case alert.ClickHouse:
+		// VictoriaMetrics cannot run the SQL, so the default goes to every target with an `up`
+		// series; one QAN reports for but nothing scrapes gets no threshold and never fires.
+		return fmt.Sprintf(`up{%s!=""}`, joinLabel), nil
+	}
+
+	// do not add `default:` to make exhaustive linter do its job
+
+	return "", fmt.Errorf("unhandled datasource '%s'", observed.Datasource)
+}
+
 // thresholdQueryExpr renders the injected threshold step: the override, else the last
-// override seen while they are not being published, else the default fanned out over the
-// observed query. Every clause is reduced to the join label so `or` prefers the left.
-func thresholdQueryExpr(ruleID, paramName, joinLabel, observedExpr, defaultValue string) string {
+// override seen while they are not being published, else the default fanned out over
+// fanOutExpr. Every clause is reduced to the join label so `or` prefers the left.
+func thresholdQueryExpr(ruleID, paramName, joinLabel, fanOutExpr, defaultValue string) string {
 	override := fmt.Sprintf(`%s{%s=%q, %s=%q}`,
 		thresholdMetricName, thresholdRuleIDLabel, ruleID, thresholdParamLabel, paramName)
 
@@ -522,7 +538,7 @@ func thresholdQueryExpr(ruleID, paramName, joinLabel, observedExpr, defaultValue
 		byJoinLabel(override),
 		byJoinLabel(fmt.Sprintf("last_over_time(%s[%s])", override, thresholdOutageBridge)),
 		thresholdCollectSuccessMetricName,
-		joinLabel, observedExpr, defaultValue,
+		joinLabel, fanOutExpr, defaultValue,
 	)
 }
 

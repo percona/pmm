@@ -134,10 +134,7 @@ func TestValidateOverridableRejectsUnreferencedParam(t *testing.T) {
 	assert.Contains(t, err.Error(), "not referenced by any expression")
 }
 
-// A parameter compared against another expression rather than against a query is referenced
-// by an expression, so a reference check alone accepts it - but the builder fans the default
-// out over the observed query, and there is none to find. Every CreateRule from such a
-// template would fail, so reject it when the template is uploaded instead.
+// A math expression has no query for the default threshold to fan out over.
 func TestValidateOverridableRejectsParamComparedAgainstAnExpression(t *testing.T) {
 	t.Parallel()
 
@@ -292,4 +289,33 @@ func TestValidateOverridableAcceptsServiceAndCluster(t *testing.T) {
 	template.Params[0].OverrideScopes = []string{OverrideScopeService, OverrideScopeCluster}
 
 	require.NoError(t, template.Validate())
+}
+
+func TestObservedQueryResolvesReduceOfClickHouse(t *testing.T) {
+	t.Parallel()
+
+	template := with(clickHouseTemplate(), func(t *Template) {
+		t.Params[0].Overridable = true
+		t.Queries = append(t.Queries, TemplateQuery{RefID: "M", Expr: "up"})
+		t.Expressions[1].Expression = "$M > 0 && $B > [[ .threshold ]]"
+	})
+	require.NoError(t, template.Validate())
+
+	observed, err := template.ObservedQueryForParam("threshold")
+	require.NoError(t, err)
+	assert.Equal(t, "A", observed.RefID, "the param is compared against $B, which reduces A")
+	assert.Equal(t, ClickHouse, observed.Datasource)
+}
+
+func TestValidateOverridableRejectsReduceOfMetricsQL(t *testing.T) {
+	t.Parallel()
+
+	template := with(clickHouseTemplate(), func(t *Template) {
+		t.Params[0].Overridable = true
+		t.Queries[0].Datasource = Metrics
+	})
+
+	err := template.Validate()
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "compared against expression $B")
 }
