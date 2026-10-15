@@ -233,6 +233,13 @@ type TriggerHostBootstrapBody struct {
 	// named gets the same default, rather than its proto3 zero value; see
 	// BootstrapMemberConfig.priority. A key outside node_ids is rejected.
 	MemberConfigs map[string]TriggerHostBootstrapParamsBodyMemberConfigsAnon `json:"member_configs,omitempty"`
+
+	// MongoDB administrator to create with the root role; empty creates none.
+	AdminUsername string `json:"admin_username,omitempty"`
+
+	// Administrator's password, valid under SASLprep; requires admin_username.
+	// Empty means PMM generates one and returns it in generated_admin_password.
+	AdminPassword string `json:"admin_password,omitempty"`
 }
 
 // Validate validates this trigger host bootstrap body
@@ -552,20 +559,16 @@ func (o *TriggerHostBootstrapDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 }
 
 /*
-TriggerHostBootstrapOKBody TriggerHostBootstrapResponse acknowledges a queued bootstrap run.
-//
-// PMM-15347 PoC only: one or three hosts, one replica set, keyFile auth, TLS
-// off. Returned as soon as PMM Extensions' om_bootstrap app has planned the run, not
-// once it finishes -- PMM's own HA-leader-only stepper drives it forward from
-// here (PMM-15347/plan.md §4 item 9). Carries no credentials: the run's
-// generated MongoDB user is created only once every host is up, minutes after
-// this response, and lives encrypted in PMM's own Postgres
-// (PMM-15347/questions.md Q7) -- there is nothing to hand back yet.
+TriggerHostBootstrapOKBody TriggerHostBootstrapResponse acknowledges a planned bootstrap run, before any host is touched.
 swagger:model TriggerHostBootstrapOKBody
 */
 type TriggerHostBootstrapOKBody struct {
 	// The om_bootstrap run's id. Poll GetBootstrapRun for its progress.
 	RunID string `json:"run_id,omitempty"`
+
+	// Password PMM generated when admin_username came without admin_password.
+	// Only returned here: PMM deletes its copy once the install no longer needs it.
+	GeneratedAdminPassword string `json:"generated_admin_password,omitempty"`
 }
 
 // Validate validates this trigger host bootstrap OK body

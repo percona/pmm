@@ -244,6 +244,26 @@ func runIsRollingBack(run extensionsBootstrapRun) bool {
 	return runNeedsRollback(run)
 }
 
+func runStep(run extensionsBootstrapRun, name string) (extensionsBootstrapStep, bool) {
+	i := slices.IndexFunc(run.RunSteps, func(step extensionsBootstrapStep) bool { return step.Name == name })
+	if i < 0 {
+		return extensionsBootstrapStep{}, false
+	}
+	return run.RunSteps[i], true
+}
+
+// adminPasswordSpent reports whether a run that planned create_admin_user can no longer dispatch it.
+func adminPasswordSpent(run extensionsBootstrapRun) bool {
+	step, ok := runStep(run, createAdminUserStep)
+	if !ok {
+		return false
+	}
+	if run.Status != bootstrapRunRunning || runIsRollingBack(run) {
+		return true
+	}
+	return step.Status == bootstrapStepSucceeded || step.Status == bootstrapStepSkipped
+}
+
 func runRollbackDone(run extensionsBootstrapRun) bool {
 	for _, host := range run.Hosts {
 		if !hostRollbackDone(host) {
