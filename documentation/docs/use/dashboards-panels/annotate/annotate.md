@@ -25,7 +25,7 @@ Scoped annotations show when the **PMM Annotations: nodes and services** switch 
 - A service dashboard shows service annotations.
 - A dashboard with both node and service variables shows both.
 
-The other variables on the dashboard, such as environment or region, filter the annotations in the same way that they filter the graphs. If you select one node or one service, the dashboard shows only the annotations of that node or service.
+The other variables on the dashboard, such as environment or region, filter the annotations in the same way that they filter the graphs. If you select one node on a node dashboard, or one service on a service dashboard, the dashboard shows only the annotations of that node or service. On a dashboard with both variables, selecting a service narrows the service annotations but not the node annotations.
 
 ## Access control
 
@@ -77,7 +77,7 @@ Scoped annotations have the following limitations:
 - You can't edit or delete a scoped annotation from its marker on a dashboard.
 - Users with the Editor role can't delete scoped annotations.
 
-To delete a scoped annotation, see [Delete a scoped annotation](#delete-a-scoped-annotation). Editing scoped annotations is planned for a future release.
+To delete a scoped annotation, see [Delete a scoped annotation](#delete-a-scoped-annotation).
 
 ## Label limit
 
@@ -89,4 +89,4 @@ If a node or service carries so many labels that the annotation would exceed thi
 Cannot annotate service 'mysql-prod': too many labels: 45 labels, at most 40 are allowed.
 ```
 
-To fix this error, reduce the number of labels on the node or service, then create the annotation again.
+To fix this error, remove custom labels from the node or service, then create the annotation again.
