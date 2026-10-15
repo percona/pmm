@@ -17,7 +17,7 @@ package management
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -36,6 +36,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
+	mgmtcommon "github.com/percona/pmm/managed/services/management/common"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 	"github.com/percona/pmm/utils/logger"
@@ -380,19 +381,33 @@ func TestUpdateService(t *testing.T) {
 		ctx, s, m := setupUpdateService(t)
 		serviceID := addTestMongoDB(ctx, t, s, m)
 
-		errLocked := errors.New("there is an unfinished backup job")
-		m.stm.On("RemoveScheduledTasks", ctx, s.db, mock.Anything).Return(errLocked).Once()
-		_, err := s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+		errLocked := fmt.Errorf("there is an unfinished backup job: %w", mgmtcommon.ErrClusterLocked)
+		update := &managementv1.UpdateServiceRequest{
 			ServiceId: serviceID,
 			Service: &managementv1.UpdateServiceRequest_Mongodb{
 				Mongodb: &managementv1.UpdateMongoDBServiceParams{Cluster: new("rs-cluster")},
 			},
-		})
-		require.ErrorIs(t, err, errLocked)
+		}
+
+		m.stm.On("RemoveScheduledTasks", ctx, s.db, mock.Anything).Return(errLocked).Once()
+		_, err := s.UpdateService(ctx, update)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, errLocked.Error()), err)
 
 		service, err := models.FindServiceByID(s.db.Querier, serviceID)
 		require.NoError(t, err)
 		assert.Empty(t, service.Cluster)
+
+		// A dry run checks the lock too, and removes nothing either way.
+		update.DryRun = true
+		m.stm.On("CheckClusterUnlocked", ctx, s.db, mock.Anything).Return(errLocked).Once()
+		_, err = s.UpdateService(ctx, update)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, errLocked.Error()), err)
+
+		m.stm.On("CheckClusterUnlocked", ctx, s.db, mock.Anything).Return(nil).Once()
+		res, err := s.UpdateService(ctx, update)
+		require.NoError(t, err)
+		assert.Equal(t, "rs-cluster", res.After.Cluster)
+		m.stm.AssertNumberOfCalls(t, "RemoveScheduledTasks", 1)
 	})
 
 	// A rejected update must not remove the scheduled backups of the old and new clusters.

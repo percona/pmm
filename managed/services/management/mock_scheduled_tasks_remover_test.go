@@ -16,6 +16,24 @@ type mockScheduledTasksRemover struct {
 	mock.Mock
 }
 
+// CheckClusterUnlocked provides a mock function with given fields: ctx, db, params
+func (_m *mockScheduledTasksRemover) CheckClusterUnlocked(ctx context.Context, db *reform.DB, params *models.ChangeStandardLabelsParams) error {
+	ret := _m.Called(ctx, db, params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckClusterUnlocked")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *reform.DB, *models.ChangeStandardLabelsParams) error); ok {
+		r0 = rf(ctx, db, params)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // RemoveScheduledTasks provides a mock function with given fields: ctx, db, params
 func (_m *mockScheduledTasksRemover) RemoveScheduledTasks(ctx context.Context, db *reform.DB, params *models.ChangeStandardLabelsParams) error {
 	ret := _m.Called(ctx, db, params)

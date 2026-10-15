@@ -106,4 +106,5 @@ type victoriaMetricsClient interface {
 // We use it instead of real type for testing.
 type scheduledTasksRemover interface {
 	RemoveScheduledTasks(ctx context.Context, db *reform.DB, params *models.ChangeStandardLabelsParams) error
+	CheckClusterUnlocked(ctx context.Context, db *reform.DB, params *models.ChangeStandardLabelsParams) error
 }

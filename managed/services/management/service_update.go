@@ -69,20 +69,31 @@ func (s *ManagementService) UpdateService(ctx context.Context, req *managementv1
 		res.Before, res.After, res.Warning = u.before, u.after, u.warning
 		pmmAgentIDs, connectionChanged = u.pmmAgentIDs, u.connectionChanged
 
+		// Scheduled backups depend on the cluster. A cluster change is refused while a backup or restore runs in
+		// the old or the new cluster, and removes the schedules only once every check has passed.
+		clusterChange := c.service.Cluster != nil && *c.service.Cluster != u.before.Cluster
+		labels := &models.ChangeStandardLabelsParams{ServiceID: current.ServiceID, Cluster: c.service.Cluster}
+
 		if req.DryRun {
+			if clusterChange {
+				err = s.stm.CheckClusterUnlocked(ctx, s.db, labels)
+				if err != nil {
+					return err
+				}
+			}
+
 			return errDryRun
 		}
 
-		// Scheduled backups depend on the cluster, so they are removed only once every check has passed.
-		if c.service.Cluster != nil && *c.service.Cluster != u.before.Cluster {
-			return s.stm.RemoveScheduledTasks(ctx, s.db, &models.ChangeStandardLabelsParams{
-				ServiceID: current.ServiceID,
-				Cluster:   c.service.Cluster,
-			})
+		if clusterChange {
+			return s.stm.RemoveScheduledTasks(ctx, s.db, labels)
 		}
 
 		return nil
 	})
+	if errors.Is(err, common.ErrClusterLocked) {
+		return nil, status.Error(codes.FailedPrecondition, err.Error())
+	}
 	if err != nil && !errors.Is(err, errDryRun) {
 		return nil, err
 	}
