@@ -138,6 +138,9 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodDelete, "/v1/om/inventory/config/overrides/SCHEDULE__every", admin},
 		// An unrouted DELETE must not fall back to the viewer rule at "/v1/om".
 		{http.MethodDelete, "/v1/om/inventory/config/anything-else", admin},
+		{http.MethodPost, "/v1/om/inventory/hosts:bootstrap", admin},
+		{http.MethodPost, "/v1/om/inventory/bootstrap-runs/run-1:cancel", admin},
+		{http.MethodGet, "/v1/om/inventory/bootstrap-runs/run-1", viewer},
 		// Collection only recomputes from data PMM already holds, so it stays viewer.
 		{http.MethodPost, "/v1/om/topology/runs:collect", viewer},
 
@@ -149,6 +152,9 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPost, "/om.v1.OmService/DeleteInventoryService", admin},
 		{http.MethodPost, "/om.v1.OmService/UpdateInventoryConfig", admin},
 		{http.MethodPost, "/om.v1.OmService/DeleteInventoryConfigOverride", admin},
+		{http.MethodPost, "/om.v1.OmService/TriggerHostBootstrap", admin},
+		{http.MethodPost, "/om.v1.OmService/CancelBootstrapRun", admin},
+		{http.MethodPost, "/om.v1.OmService/GetBootstrapRun", viewer},
 
 		// No matching rule falls back to grafanaAdmin.
 		{http.MethodGet, "/v1/unknown", grafanaAdmin},
