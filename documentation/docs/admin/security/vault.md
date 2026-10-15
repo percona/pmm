@@ -1,14 +1,15 @@
 # Read credentials from HashiCorp Vault
 
-PMM can read the secrets it needs from [HashiCorp Vault](https://developer.hashicorp.com/vault/docs) instead of storing them. This covers the credentials of the databases you monitor, the token that PMM Client uses to connect to PMM Server, and the passwords that PMM Server itself starts with.
+PMM can read the secrets it needs from [HashiCorp Vault](https://developer.hashicorp.com/vault/docs) instead of storing them. This covers the credentials of the databases you monitor, the token that PMM Client uses to connect to PMM Server, the passwords that PMM Server itself starts with, and the other secrets that PMM Server stores, such as cloud and backup storage keys.
 
 ## How it works
 
-PMM reads three kinds of secrets from Vault:
+PMM reads four kinds of secrets from Vault:
 
 - **Database credentials**: When you add a service with a Vault path, PMM Server stores only that path. PMM Client reads the username, the password and the TLS files from Vault whenever it starts an exporter or a Query Analytics (QAN) agent, runs an action, checks a connection, or takes a backup. If you also give a password or TLS files, PMM Client stores them in Vault for you, and PMM Server does not keep them.
 - **PMM Server token**: PMM Client reads the token it connects to PMM Server with from a Vault reference in its configuration, each time it connects. When PMM Client registers, it can store the token it receives in Vault.
 - **PMM Server secrets**: PMM Server reads the environment variables you set to a Vault reference when its container starts, before any of its components use them.
+- **Other secrets PMM Server stores**: The settings that hold a secret PMM Server uses itself, such as the keys of a backup storage location or of an AWS or Azure account, can hold a Vault reference instead. PMM Server reads the secret whenever it uses it.
 
 PMM Client caches each secret. Secrets with a lease, such as dynamic database credentials, are reused until two thirds of the lease have passed. Every other secret is reused for the cache time to live (TTL), one minute by default. At the same interval, PMM Client checks whether the secrets changed, and restarts the exporters and agents whose credentials did. Rotated passwords and renewed dynamic credentials therefore reach them without any action on your part. Credentials that you change through PMM reach them at once.
 
@@ -195,9 +196,11 @@ docker run -d --name pmm-server \
   percona/pmm-server:3
 ```
 
-Every variable whose name starts with `PMM_`, `GF_`, `VM_`, or `VMAGENT_` can be a reference. The `PMM_VAULT_*` variables are named after the PMM Client flags: `PMM_VAULT_ADDRESS`, `PMM_VAULT_NAMESPACE`, `PMM_VAULT_CA_CERT`, `PMM_VAULT_TLS_SKIP_VERIFY`, `PMM_VAULT_AUTH_METHOD`, `PMM_VAULT_AUTH_MOUNT`, `PMM_VAULT_TOKEN`, `PMM_VAULT_TOKEN_FILE`, `PMM_VAULT_ROLE_ID`, `PMM_VAULT_SECRET_ID`, `PMM_VAULT_SECRET_ID_FILE`, `PMM_VAULT_ROLE`, `PMM_VAULT_JWT_FILE`, `PMM_VAULT_AWS_REGION`, and `PMM_VAULT_AWS_SERVER_ID`.
+Every variable whose name starts with `PMM_`, `GF_`, `VM_`, or `VMAGENT_` can be a reference. The `PMM_VAULT_*` variables are named after the PMM Client flags: `PMM_VAULT_ADDRESS`, `PMM_VAULT_NAMESPACE`, `PMM_VAULT_CA_CERT`, `PMM_VAULT_TLS_SKIP_VERIFY`, `PMM_VAULT_AUTH_METHOD`, `PMM_VAULT_AUTH_MOUNT`, `PMM_VAULT_TOKEN`, `PMM_VAULT_TOKEN_FILE`, `PMM_VAULT_ROLE_ID`, `PMM_VAULT_SECRET_ID`, `PMM_VAULT_SECRET_ID_FILE`, `PMM_VAULT_ROLE`, `PMM_VAULT_JWT_FILE`, `PMM_VAULT_AWS_REGION`, `PMM_VAULT_AWS_SERVER_ID`, and `PMM_VAULT_CACHE_TTL`.
 
-If PMM Server cannot read a secret, it does not start, and its log names the variable. After the secrets are read, `PMM_VAULT_TOKEN` and `PMM_VAULT_SECRET_ID` are removed from the environment of PMM Server's components. The passwords that you set in the environment are not written to the configuration files of PMM Server's components.
+The `PMM_AGENT_*` variables of PMM Server's own PMM Client are not read at startup: PMM Client reads the references it is given itself, such as `PMM_AGENT_SERVER_PASSWORD`, so that their values are not saved to its configuration file.
+
+If PMM Server cannot read a secret, it does not start, and its log names the variable. PMM Server keeps reading the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) from Vault while it runs, so `PMM_VAULT_TOKEN` and `PMM_VAULT_SECRET_ID` are handed over to it in files and removed from the environment of its components. The passwords that you set in the environment are not written to the configuration files of PMM Server's components.
 
 PMM Server reads these secrets only when it starts. To apply a changed secret, restart the container.
 
@@ -210,12 +213,39 @@ docker exec -t pmm-server change-admin-password <new_password>
 !!! note
     The `PMM_AGENT_VAULT_*` variables of PMM Server's own PMM Client reach all PMM Server components, as every variable of the container does. To keep the secret ID out of their environment, use `PMM_AGENT_VAULT_SECRET_ID_FILE` with a mounted file instead of `PMM_AGENT_VAULT_SECRET_ID`.
 
+## Read the other secrets PMM Server stores from Vault
+
+Some secrets are used by PMM Server itself rather than by PMM Client: it scrapes exporters with their passwords, collects AWS and Azure metrics with the account keys, and manages backups with the keys of their storage location. Instead of the secret, set the setting to a reference of the form `vault:<path>#<key>`:
+
+| Secret | Setting |
+|--------|---------|
+| Password of the `/metrics` endpoint of an exporter | `--agent-password` of `pmm-admin add` and `pmm-admin inventory`, or `agent_password` in the API |
+| Credentials of external and HAProxy exporters | `--password` of `pmm-admin add external` and `pmm-admin add haproxy`, or `password` in the API |
+| Amazon RDS keys | `aws_access_key` and `aws_secret_key` in the API |
+| Azure credentials | `azure_client_secret`, `azure_client_id`, `azure_tenant_id`, and `azure_subscription_id` in the API |
+| Keys of an S3 backup storage location | `access_key` and `secret_key` in the API |
+
+In the PMM web interface, enter the reference in the field of the secret.
+
+For example:
+
+```sh
+pmm-admin add external --service-name=app --listen-port=9100 \
+  --username=pmm --password='vault:secret/data/pmm/exporters#app'
+```
+
+PMM Server reads these secrets with the Vault access of the `PMM_VAULT_*` variables, see [Read PMM Server secrets from Vault](#read-pmm-server-secrets-from-vault), so its Vault policy needs `read` on their paths. A reference that PMM Server cannot read is refused when you add or change the setting.
+
+PMM Server checks these secrets at the interval of the `PMM_VAULT_CACHE_TTL` variable, one minute by default. When one of them changes in Vault, PMM Server sends the new one to the exporters and agents that use it, and scrapes them with it. While an exporter switches to a rotated password, a scrape or two can fail. It reads the keys of a backup location each time it uses them. If PMM Server cannot read a secret, the exporter or agent that uses it is left out of the configuration, and the PMM Server log says why.
+
+The password of a monitored database can be a reference too, as an alternative to the Vault path: `--password='vault:secret/data/pmm/mysql-prod#password'`. Unlike the settings above, it is read by PMM Client, as for a Vault path.
+
 ## Limitations
 
 Vault support has the following limitations:
 
 - PMM Server does not read its [encryption key](data_encryption.md) from Vault. To keep it in Vault, have a Vault Agent write it to the key file.
-- The credentials of backup storage locations, the AWS and Azure keys of remote databases, the passwords of exporter `/metrics` endpoints, and the credentials of external and HAProxy services are stored by PMM Server as before.
+- PMM Server reads the [other secrets it stores](#read-the-other-secrets-pmm-server-stores-from-vault) itself, so they reach PMM Server, unlike database credentials.
 - A secret changed in Vault takes up to twice the cache TTL to reach the exporters and agents that use it.
 - A password given with a Vault path passes through PMM Server on its way to PMM Client, although PMM Server does not store it. To keep it away from PMM Server entirely, store it in Vault yourself.
 - An admin password changed in the PMM web interface is not stored in Vault. Use `change-admin-password` instead.
