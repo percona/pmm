@@ -61,6 +61,7 @@ import { OmHeader } from './components/OmHeader';
 import { GeneratedPasswordDialog } from './components/GeneratedPasswordDialog';
 import {
   adminPasswordError,
+  adminPasswordMismatchError,
   adminUsernameError,
   configureBlockers,
   replicaSetNameError,
@@ -457,10 +458,14 @@ export const BootstrapPage = () => {
   });
   const nameError = replicaSetNameError(replicaSetName);
   const usernameError = adminUsernameError(adminUsername);
-  // Judged once a confirmation is typed, so an untouched field does not start out red.
+  // Each field is judged once something is typed in it, so an untouched field does not start out red.
   const passwordError =
+    passwordMode === 'enter' && adminPassword !== ''
+      ? adminPasswordError(adminPassword)
+      : null;
+  const confirmationError =
     passwordMode === 'enter' && adminPasswordConfirmation !== ''
-      ? adminPasswordError(adminPassword, adminPasswordConfirmation)
+      ? adminPasswordMismatchError(adminPassword, adminPasswordConfirmation)
       : null;
   const generatedPassword = bootstrap.data?.generated_admin_password;
   // Sent as the cluster label, so the Fleet page shows a value the user saw here
@@ -839,7 +844,11 @@ export const BootstrapPage = () => {
                   onChange={(event) => setAdminPassword(event.target.value)}
                   required
                   fullWidth
-                  helperText={`At least ${ADMIN_PASSWORD_MIN_LENGTH} characters.`}
+                  error={passwordError !== null}
+                  helperText={
+                    passwordError ??
+                    `At least ${ADMIN_PASSWORD_MIN_LENGTH} characters.`
+                  }
                 />
                 <TextField
                   label="Confirm password"
@@ -851,8 +860,8 @@ export const BootstrapPage = () => {
                   }
                   required
                   fullWidth
-                  error={passwordError !== null}
-                  helperText={passwordError ?? ' '}
+                  error={confirmationError !== null}
+                  helperText={confirmationError ?? ' '}
                 />
               </>
             )}

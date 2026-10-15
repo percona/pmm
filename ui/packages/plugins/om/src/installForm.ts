@@ -87,10 +87,7 @@ export function adminUsernameError(name: string): string | null {
 }
 
 /** Why a typed administrator password would be refused, or null when it is fine. */
-export function adminPasswordError(
-  value: string,
-  confirmation: string
-): string | null {
+export function adminPasswordError(value: string): string | null {
   // Code points, not UTF-16 units, so the limits match the server's.
   const length = [...value].length;
   if (length < ADMIN_PASSWORD_MIN_LENGTH) {
@@ -102,10 +99,17 @@ export function adminPasswordError(
   if (/\p{Cc}/u.test(value)) {
     return 'Administrator password cannot contain control characters.';
   }
-  if (value !== confirmation) {
-    return 'The administrator passwords do not match.';
-  }
   return null;
+}
+
+/** Why a typed password's confirmation would be refused, or null when the two match. */
+export function adminPasswordMismatchError(
+  value: string,
+  confirmation: string
+): string | null {
+  return value === confirmation
+    ? null
+    : 'The administrator passwords do not match.';
 }
 
 /**
@@ -169,10 +173,11 @@ export function configureBlockers(form: ConfigureFormState): string[] {
   }
   const passwordError =
     form.adminPassword &&
-    adminPasswordError(
-      form.adminPassword.value,
-      form.adminPassword.confirmation
-    );
+    (adminPasswordError(form.adminPassword.value) ??
+      adminPasswordMismatchError(
+        form.adminPassword.value,
+        form.adminPassword.confirmation
+      ));
   if (passwordError) {
     blockers.push(passwordError);
   }

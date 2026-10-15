@@ -19,6 +19,7 @@ import { describe, expect, it } from 'vitest';
 import { defaultMemberConfig } from '../src/electionPlan';
 import {
   adminPasswordError,
+  adminPasswordMismatchError,
   type ConfigureFormState,
   configureBlockers,
   replicaSetNameError,
@@ -141,12 +142,19 @@ describe('configureBlockers administrator', () => {
   });
 
   it('counts a password the way the server does, and refuses control characters', () => {
-    expect(adminPasswordError('😀😀😀😀', '😀😀😀😀')).toBe(
+    expect(adminPasswordError('😀😀😀😀')).toBe(
       'Administrator password must be at least 8 characters.'
     );
-    expect(adminPasswordError('😀'.repeat(100), '😀'.repeat(100))).toBeNull();
-    expect(adminPasswordError('long\u0007enough', 'long\u0007enough')).toBe(
+    expect(adminPasswordError('😀'.repeat(100))).toBeNull();
+    expect(adminPasswordError('long\u0007enough')).toBe(
       'Administrator password cannot contain control characters.'
+    );
+  });
+
+  it('judges the confirmation only on whether it matches', () => {
+    expect(adminPasswordMismatchError('short', 'short')).toBeNull();
+    expect(adminPasswordMismatchError('long-enough', 'long-enoug')).toBe(
+      'The administrator passwords do not match.'
     );
   });
 });

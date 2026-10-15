@@ -781,6 +781,28 @@ describe('BootstrapPage database administrator', () => {
     }
   });
 
+  it("shows a typed password's own problems on the password field", () => {
+    renderWizard();
+    configure();
+    fireEvent.mouseDown(
+      screen.getByRole('combobox', { name: /Administrator password/ })
+    );
+    fireEvent.click(screen.getByRole('option', { name: 'Enter one' }));
+
+    fireEvent.change(screen.getByLabelText(/^Password/), {
+      target: { value: 'short' },
+    });
+
+    expect(screen.getByLabelText(/^Password/)).toHaveAccessibleDescription(
+      'Administrator password must be at least 8 characters.'
+    );
+    expect(
+      screen.getByLabelText(/^Confirm password/)
+    ).not.toHaveAccessibleDescription(
+      'Administrator password must be at least 8 characters.'
+    );
+  });
+
   it('sends a typed password once both fields match, and shows no dialog', async () => {
     renderWizard();
     configure();
