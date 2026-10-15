@@ -27,7 +27,6 @@ PMM Server runs the following services:
 - **QAN API** stores and serves Query Analytics data.
 - **[VictoriaMetrics](third-party/victoria.md)** stores metrics. It receives the metrics that PMM Clients push, and scrapes exporters that run in pull mode.
 - **vmproxy** applies [label-based access control (LBAC)](../admin/roles/access-control/intro.md) filters to metrics queries before they reach VictoriaMetrics.
-- **vmalert** evaluates alerting and recording rules against VictoriaMetrics.
 - **[Grafana](https://grafana.com/docs/grafana/latest/)** renders dashboards, runs Alerting, and authenticates users.
 
 PMM Server also runs these supporting processes:

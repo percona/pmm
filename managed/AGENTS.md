@@ -3,7 +3,7 @@
 > **Parent guide**: [AGENTS.md](../AGENTS.md) — product overview, architecture, domain model, global conventions
 > **Related**: [api/AGENTS.md](../api/AGENTS.md) (API definitions) · [agent/AGENTS.md](../agent/AGENTS.md) (client agent) · [qan-api2/AGENTS.md](../qan-api2/AGENTS.md) (QAN backend)
 
-**pmm-managed** is the core backend service of PMM Server. It manages configuration of server-side components (VictoriaMetrics, Grafana, QAN, VMAlert, Alertmanager), maintains the inventory of monitored nodes/services/agents, orchestrates backups, runs advisor checks, handles HA consensus, and exposes gRPC/REST APIs consumed by pmm-admin, pmm-agent, and the UI.
+**pmm-managed** is the core backend service of PMM Server. It manages configuration of server-side components (VictoriaMetrics, Grafana, QAN), maintains the inventory of monitored nodes/services/agents, orchestrates backups, runs advisor checks, handles HA consensus, and exposes gRPC/REST APIs consumed by pmm-admin, pmm-agent, and the UI.
 
 ## Architecture
 
@@ -15,7 +15,6 @@ PMM UI ───────────→ gRPC-Gateway ──→              
 pmm-agent ────────→ bidirectional gRPC stream ──→    ──→ Grafana API (dashboards, users)
                                                      ──→ Supervisord (process management)
                                                      ──→ qan-api2 (QAN forwarding)
-                                                     ──→ VMAlert (alerting rules)
 ```
 
 ### Service Architecture Pattern
@@ -113,7 +112,6 @@ type Node struct {
 | `services/checks` | Advisor check execution via Starlark |
 | `services/alerting` | Alert template management |
 | `services/victoriametrics` | VictoriaMetrics scrape config generation from agent/service inventory |
-| `services/vmalert` | VMAlert alerting rules generation |
 | `services/grafana` | Grafana API client (users, dashboards, annotations) |
 | `services/supervisord` | Supervisord config file generation and process control |
 | `services/ha` | Raft consensus, gossip protocol, leader election |
