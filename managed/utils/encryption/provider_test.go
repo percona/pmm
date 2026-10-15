@@ -24,6 +24,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/tink-crypto/tink-go/v2/aead"
 	"github.com/tink-crypto/tink-go/v2/keyset"
 	"github.com/tink-crypto/tink-go/v2/mac"
 )
@@ -127,6 +128,21 @@ func TestNonAEADKeyset(t *testing.T) {
 func TestSyncDir(t *testing.T) {
 	require.NoError(t, SyncDir(t.TempDir()))
 	require.ErrorIs(t, SyncDir(filepath.Join(t.TempDir(), "missing")), os.ErrNotExist, "a failure is reported")
+}
+
+// TestKeysetWithoutTinkPrefix covers a custom keyset whose key does not use
+// the TINK output prefix, which envelope and legacy values carry the key ID
+// in: it must be rejected, not used.
+func TestKeysetWithoutTinkPrefix(t *testing.T) {
+	handle, err := keyset.NewHandle(aead.AES256GCMNoPrefixKeyTemplate())
+	require.NoError(t, err)
+
+	_, err = LoadCipher(handleProvider{handle})
+	require.ErrorContains(t, err, "output prefix instead of TINK")
+
+	c := newTestCipher(t)
+	_, err = c.WithLegacyKeys(handleProvider{handle})
+	require.ErrorContains(t, err, "output prefix instead of TINK")
 }
 
 // TestStoreKeepsOwner covers rotation run as root: the replaced key file

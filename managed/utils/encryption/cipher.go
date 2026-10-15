@@ -26,6 +26,7 @@ import (
 
 	"github.com/tink-crypto/tink-go/v2/aead"
 	"github.com/tink-crypto/tink-go/v2/keyset"
+	tinkpb "github.com/tink-crypto/tink-go/v2/proto/tink_go_proto"
 	"github.com/tink-crypto/tink-go/v2/tink"
 )
 
@@ -237,7 +238,16 @@ func LegacyBackupKeyPath(keyPath string) string {
 	return strings.TrimSuffix(keyPath, ".key") + "_old.key"
 }
 
+// handleKeyIDs returns the IDs of the keys in the keyset. Every key must use
+// the TINK output prefix: envelope and legacy values carry the key ID in it,
+// and without it legacy ciphertext would be taken for plaintext.
 func handleKeyIDs(handle *keyset.Handle) (map[uint32]bool, error) {
+	for _, info := range handle.KeysetInfo().GetKeyInfo() {
+		if info.GetOutputPrefixType() != tinkpb.OutputPrefixType_TINK {
+			return nil, fmt.Errorf("encryption key %d uses the %s output prefix instead of TINK", info.GetKeyId(), info.GetOutputPrefixType())
+		}
+	}
+
 	ids := make(map[uint32]bool, handle.Len())
 	for i := range handle.Len() {
 		entry, err := handle.Entry(i)
