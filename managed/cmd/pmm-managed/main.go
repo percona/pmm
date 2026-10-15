@@ -1275,6 +1275,24 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		return nil
 	}))
 
+	annotationStore := annotations.NewStore(vmParams.ParsedURL())
+	grafanaDSN, err := grafana.DatabaseDSN(*postgresAddrF, q.Encode())
+	if err != nil {
+		l.Errorf("Cannot locate Grafana's database, so annotation series will not be synced: %s.", err)
+	} else {
+		grafanaDB, openErr := sql.Open("postgres", grafanaDSN)
+		if openErr != nil {
+			l.Panicf("Failed to open Grafana's database: %+v", openErr)
+		}
+		defer grafanaDB.Close() //nolint:errcheck
+
+		annotationsSyncer := annotations.NewSyncer(db, grafanaDB, annotationStore)
+		haService.AddLeaderService(ha.NewContextService("annotationsSync", func(ctx context.Context) error {
+			annotationsSyncer.Run(ctx)
+			return nil
+		}))
+	}
+
 	wg.Go(func() {
 		runGRPCServer(ctx,
 			&gRPCServerDeps{
@@ -1282,7 +1300,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				agentService:              agentService,
 				agentsRegistry:            agentsRegistry,
 				agentsStateUpdater:        agentsStateUpdater,
-				annotationStore:           annotations.NewStore(vmParams.ParsedURL()),
+				annotationStore:           annotationStore,
 				externalExporterStatusSvc: externalExporterStatusSvc,
 				backupRemovalService:      backupRemovalService,
 				backupService:             backupService,
