@@ -40,3 +40,8 @@ when a dashboard is added.
 
 ## Progress
 Task 1: dispatched (agent a1dc53a, VM PMM-15663-bench2), runs parallel to T2-T8
+Task 2: dispatched (agent affd861, BASE be751c4b6)
+Ruling: lint as `GOTOOLCHAIN=go1.27.1 bin/golangci-lint run ...` — the container's go1.27.2 emits export data golangci-lint v2.13.2 cannot read; go1.27.1 is go.mod's version, which CI's go_version_file selects — cost if wrong: none, CI stays the final gate.
+Ruling: accept the Co-authored-by trailer the runner's global hooks put on every commit — host policy, also on earlier bench commits — cost if wrong: one trailer line per commit.
+Ruling: the controller transcribed Task 2's report into task-2-report.md (the implementer declined to write .md files); impl-context now states the report file is required — cost if wrong: none.
+Task 2: implementer DONE_WITH_CONCERNS, commit 9702d85c3; controller ran lint with go1.27.1: 0 issues
