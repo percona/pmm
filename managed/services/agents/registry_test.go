@@ -185,7 +185,7 @@ func TestUnregisterPersistsDisconnectInHA(t *testing.T) {
 	r := newTestRegistry()
 	r.haService = haServiceStub{params: &models.HAParams{Enabled: true}}
 	r.db = reform.NewDB(sqlDB, postgresql.Dialect, nil)
-	r.connectionCache = map[string]string{testAgentID: "pmm-ha-0"}
+	r.connectionCache = map[string]connectionCacheEntry{testAgentID: {owner: "pmm-ha-0", connectionID: "pmm-ha-0/1"}}
 	current := newTestConn()
 	current.connectionID = "pmm-ha-0/1"
 	r.agents[testAgentID] = current
@@ -200,6 +200,38 @@ func TestUnregisterPersistsDisconnectInHA(t *testing.T) {
 
 	assert.Same(t, current, r.unregister(ctx, testAgentID, "done", current))
 	assert.Empty(t, r.connectionCache)
+}
+
+// TestUnregisterKeepsTheCachedNewerConnection covers a newer connection registering on this replica
+// while the disconnect of the previous one is written: a fresh cache answers misses without the
+// database, so dropping its entry would report the agent as disconnected until the cache expires.
+func TestUnregisterKeepsTheCachedNewerConnection(t *testing.T) {
+	t.Parallel()
+
+	sqlDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		assert.NoError(t, mock.ExpectationsWereMet())
+		_ = mock.ExpectClose()
+		assert.NoError(t, sqlDB.Close())
+	})
+
+	r := newTestRegistry()
+	r.haService = haServiceStub{params: &models.HAParams{Enabled: true}}
+	r.db = reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	r.connectionCache = map[string]connectionCacheEntry{testAgentID: {owner: "pmm-ha-0", connectionID: "pmm-ha-0/2"}}
+	r.connectionCacheTTL = time.Now().Add(time.Hour)
+	stale := newTestConn()
+	stale.connectionID = "pmm-ha-0/1"
+	r.agents[testAgentID] = stale
+
+	mock.ExpectExec(`UPDATE agents SET is_connected = false, updated_at = \$1 WHERE agent_id = \$2 AND connection_id = \$3`).
+		WithArgs(sqlmock.AnyArg(), testAgentID, "pmm-ha-0/1").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+
+	ctx := logger.SetEntry(t.Context(), logrus.WithField("test", t.Name()))
+	assert.Same(t, stale, r.unregister(ctx, testAgentID, "done", stale))
+	assert.True(t, r.IsConnected(testAgentID))
 }
 
 func TestIsConnectedInHA(t *testing.T) {
@@ -224,7 +256,7 @@ func TestIsConnectedInHA(t *testing.T) {
 		r := newTestRegistry()
 		r.haService = haServiceStub{params: &models.HAParams{Enabled: true}}
 		r.db = reform.NewDB(sqlDB, postgresql.Dialect, nil)
-		r.connectionCache = make(map[string]string)
+		r.connectionCache = make(map[string]connectionCacheEntry)
 		return r, mock
 	}
 
@@ -232,7 +264,7 @@ func TestIsConnectedInHA(t *testing.T) {
 		t.Parallel()
 
 		r, _ := newRegistry(t)
-		r.connectionCache[testAgentID] = ""
+		r.connectionCache[testAgentID] = connectionCacheEntry{}
 		r.connectionCacheTTL = time.Now().Add(time.Minute)
 		ttl := r.connectionCacheTTL
 
@@ -246,7 +278,7 @@ func TestIsConnectedInHA(t *testing.T) {
 		t.Parallel()
 
 		r, mock := newRegistry(t)
-		r.connectionCache[testAgentID] = ""
+		r.connectionCache[testAgentID] = connectionCacheEntry{}
 		mock.ExpectBegin().WillReturnError(errors.New("database is down"))
 
 		assert.True(t, r.IsConnected(testAgentID))
@@ -366,7 +398,7 @@ func newHATestRegistry(t *testing.T) (*Registry, *reform.DB, *pmmAgentInfo) {
 	r := newTestRegistry()
 	r.db = db
 	r.haService = haServiceStub{params: &models.HAParams{Enabled: true}}
-	r.connectionCache = map[string]string{models.PMMServerAgentID: ""}
+	r.connectionCache = map[string]connectionCacheEntry{models.PMMServerAgentID: {connectionID: connectionID}}
 	conn := &pmmAgentInfo{id: models.PMMServerAgentID, connectionID: connectionID}
 	r.agents[models.PMMServerAgentID] = conn
 
@@ -518,10 +550,10 @@ func TestGetNamesTheReplicaHoldingTheConnection(t *testing.T) {
 			r := newTestRegistry()
 			r.haService = haServiceStub{params: &models.HAParams{Enabled: tc.haEnabled, NodeID: "pmm-ha-1"}}
 			// A fresh cache, and no database: a miss must not query it.
-			r.connectionCache = map[string]string{
-				"/agent_id/on-pmm-ha-0": "pmm-ha-0",
-				"/agent_id/no-owner":    "",
-				"/agent_id/on-pmm-ha-1": "pmm-ha-1",
+			r.connectionCache = map[string]connectionCacheEntry{
+				"/agent_id/on-pmm-ha-0": {owner: "pmm-ha-0"},
+				"/agent_id/no-owner":    {},
+				"/agent_id/on-pmm-ha-1": {owner: "pmm-ha-1"},
 			}
 			r.connectionCacheTTL = time.Now().Add(time.Hour)
 
