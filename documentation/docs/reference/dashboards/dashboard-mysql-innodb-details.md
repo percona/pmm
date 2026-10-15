@@ -363,11 +363,9 @@ Neighbor Flushing is Optimized for Rotational Media  and unless you're Running s
 
 ### InnoDB Checkpoint Age
 
-**InnoDB Checkpoint Age**
+Shows how much redo log data InnoDB has written since the last checkpoint, plotted over time against a limit line. On MySQL 8.0.30 and newer, the limit comes from `innodb_redo_log_capacity`. On older servers, it falls back to `Innodb_checkpoint_max_age`, a lower sync-flush threshold.
 
-The maximum checkpoint age is determined by the total length of all transaction log files (`innodb_log_file_size`).
-
-When the checkpoint age reaches the maximum checkpoint age, blocks are flushed synchronously. The rules of the thumb is to keep one hour of traffic in those logs and let the check-pointing perform its work as smooth as possible. If you don't do this, InnoDB will do synchronous flushing at the worst possible time, i.e., when you are busiest.
+Watch how close the checkpoint age stays to the limit. A checkpoint age that consistently approaches the limit means the redo log is undersized for the write workload.
 
 ### Pages Flushed (Adaptive)
 
@@ -476,9 +474,17 @@ InnoDB IO Capacity to use when falling behind and need to catch up with Flushing
 
 ## InnoDB Logging
 
+### Total Redo Log Space
+
+Shows the total InnoDB redo log capacity as a single value. On MySQL 8.0.30 and newer, reads `Innodb_redo_log_capacity_resized`, which reports the capacity actually in use whether you set `innodb_redo_log_capacity` or the older `innodb_log_file_size` and `innodb_log_files_in_group`. On older servers, uses `innodb_log_file_size × innodb_log_files_in_group`, or `innodb_log_file_size` alone on MariaDB 10.5 and newer, which removed the file count variable.
+
+Compare this value against the **InnoDB Log File Usage Hourly** panel to verify the redo log can hold one hour of writes.
+
 ### Total Log Space
 
-Number of InnoDB Log Files Multiplied by Their Size.
+Shows the total InnoDB redo log capacity. On MySQL 8.0.30 and newer, reads `Innodb_redo_log_capacity_resized`, which reports the capacity actually in use whether you set `innodb_redo_log_capacity` or the older `innodb_log_file_size` and `innodb_log_files_in_group`. On older servers, uses `innodb_log_file_size × innodb_log_files_in_group`, or `innodb_log_file_size` alone on MariaDB 10.5 and newer, which removed the file count variable.
+
+Compare this value against the **InnoDB Log File Usage Hourly** panel to verify the redo log can hold one hour of writes.
 
 ### Log Buffer Size
 
@@ -506,19 +512,21 @@ How much Writes to Log Are Amplified compared to how much Redo is Generated.
 
 
 
+### InnoDB Logging Performance
+
+Shows estimated time to fill the redo log and the log buffer at the current write rate, as two time-series lines.
+
+Use this alongside the **InnoDB Log File Usage Hourly** panel when sizing the redo log. The redo log line is the one to watch. If it drops to around one hour or below, InnoDB is cycling through the log too fast and checkpointing more frequently.
+
 ### Redo Generated per Trx
 
 Amount of Redo Generated Per Write Transaction.  This is a good indicator of transaction size.
 
 ### InnoDB Log File Usage Hourly
 
-**InnoDB Log File Usage Hourly**
+Shows the amount of redo InnoDB writes each hour, alongside the total redo log capacity as a reference line.
 
-Along with the buffer pool size, `innodb_log_file_size` is the most important setting when we are working with InnoDB. This graph shows how much data was written to InnoDB's redo logs over each hour. When the InnoDB log files are full, InnoDB needs to flush the modified pages from memory to disk.
-
-The rules of the thumb is to keep one hour of traffic in those logs and let the checkpointing perform its work as smooth as possible. If you don't do this, InnoDB will do synchronous flushing at the worst possible time, i.e., when you are busiest.
-
-This graph can help guide you in setting the correct `innodb_log_file_size`.
+Use this to size the redo log. If the hourly bars approach or exceed the capacity line, the log is too small for the current workload. Ideally, the capacity line should sit well above the tallest bar.
 
 ### Log Padding Written
 
@@ -526,11 +534,15 @@ Amount of Log Padding Written.
 
 ### InnoDB Log File Size
 
+Shows the size of each InnoDB redo log file as a single value. On MySQL 8.0.30 and later, this is `innodb_redo_log_capacity ÷ 32` because InnoDB always uses exactly 32 files. On older servers, it shows the value of `innodb_log_file_size`.
 
+Use the **Total Log Space** panel to check the combined capacity across all files.
 
 ### InnoDB Log Files
 
-Number of InnoDB Redo Log Files.
+Shows the number of InnoDB redo log files as a single value. On MySQL 8.0.30 and later, the count is always 32 regardless of `innodb_log_files_in_group`. On older servers, it shows the value of `innodb_log_files_in_group`.
+
+Use this alongside the **InnoDB Log File Size** panel to understand the full redo log layout.
 
 ### Log Bandwidth
 

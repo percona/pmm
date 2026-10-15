@@ -64,6 +64,14 @@ telemetry:
       - metric_name: "pmm_server_azure_enabled"
         column: "azure_enabled"
 
+  - id: PMMServerMongoOpsEnabled
+    source: PMMDB_SELECT
+    query: (CASE WHEN om->'enabled' = 'true' THEN '1' ELSE '0' END) AS mongo_ops_enabled FROM settings s, jsonb_extract_path(s.settings, 'om') AS om
+    summary: "PMM Server Operations for MongoDB feature enabled"
+    data:
+      - metric_name: "pmm_server_mongo_ops_enabled"
+        column: "mongo_ops_enabled"
+
   - id: PMMServerFirstServiceAdded
     source: PMMDB_SELECT
     query:  EXTRACT(EPOCH FROM y.created_at::timestamp) - EXTRACT(EPOCH FROM x.created_at::timestamp)  AS value_difference_sec FROM services x JOIN services y ON y.service_name != 'pmm-server-postgresql' WHERE x.service_name = 'pmm-server-postgresql' AND y.created_at = (SELECT MIN(created_at) FROM services WHERE service_name != 'pmm-server-postgresql');
@@ -633,7 +641,7 @@ telemetry:
 
   - id: PMMNodeMemoryUsage
     source: VM
-    query: clamp_min(avg by (node_name) (((avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m])) - ((avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]))))),0)
+    query: clamp_min(avg by (node_name) (((avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m])) - ((avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]))+((avg_over_time(node_memory_SReclaimable_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_SReclaimable_bytes{node_name=~"pmm-server"}[5m]))-(avg_over_time(node_memory_Shmem_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Shmem_bytes{node_name=~"pmm-server"}[5m])) or (avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]))*0)))),0)
     summary: "PMM node memory usage"
     data:
       - metric_name: "pmm_server_node_memory_usage"
@@ -966,12 +974,33 @@ telemetry:
       - metric_name: "pmm_server_ha_enable"
         column: "PMM_HA_ENABLE"
 
+  - id: PMMServerHAAlertsEnabled
+    source: ENV_VARS
+    summary: "PMM Server built-in High Availability alert rules enabled/disabled"
+    data:
+      - metric_name: "pmm_server_ha_alerts_enabled"
+        column: "PMM_ENABLE_HA_ALERTS"
+
+  - id: PMMServerComponentAlertsEnabled
+    source: ENV_VARS
+    summary: "PMM Server built-in component alert rules enabled/disabled"
+    data:
+      - metric_name: "pmm_server_component_alerts_enabled"
+        column: "PMM_ENABLE_COMPONENT_ALERTS"
+
   - id: PMMServerBuiltinDatabaseDisabled
     source: ENV_VARS
     summary: "Use of external PMM database"
     data:
       - metric_name: "pmm_server_builtin_postgres_disable"
         column: "PMM_DISABLE_BUILTIN_POSTGRES"
+
+  - id: PMMServerExtensionsEnabled
+    source: ENV_VARS
+    summary: "Use of PMM Extensions"
+    data:
+      - metric_name: "pmm_server_extensions_enabled"
+        column: "PMM_ENABLE_EXTENSIONS"
 
   - id: PMMServerHAUseOfDBs
     source: ENV_VARS
