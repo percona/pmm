@@ -123,7 +123,8 @@ func HasTokens(s string) bool {
 type Getter func(path, key string) (string, error)
 
 // ReplaceTokens replaces the tokens in s with the values get returns. Alongside the result it returns
-// every value it inserted, both as read and as escaped, for redacting them from logs.
+// the secrets it inserted, both as read and as escaped, for redacting them from logs. A value with a
+// fallback, such as a username, is not one: its fallback is in the token in plain text.
 func ReplaceTokens(s string, get Getter) (string, []string, error) {
 	if !HasTokens(s) {
 		return s, nil, nil
@@ -136,15 +137,17 @@ func ReplaceTokens(s string, get Getter) (string, []string, error) {
 			return token
 		}
 
-		v, escaped, err := resolveToken(token, get)
+		v, escaped, secret, err := resolveToken(token, get)
 		if err != nil {
 			firstErr = err
 			return token
 		}
 
-		values = append(values, v)
-		if escaped != v {
-			values = append(values, escaped)
+		if secret {
+			values = append(values, v)
+			if escaped != v {
+				values = append(values, escaped)
+			}
 		}
 		return escaped
 	})
@@ -155,16 +158,17 @@ func ReplaceTokens(s string, get Getter) (string, []string, error) {
 	return res, values, nil
 }
 
-func resolveToken(token string, get Getter) (string, string, error) {
+// resolveToken returns the value a token stands for, that value escaped, and whether it is a secret.
+func resolveToken(token string, get Getter) (string, string, bool, error) {
 	b, err := base64.RawURLEncoding.DecodeString(strings.TrimSuffix(strings.TrimPrefix(token, tokenStart), "~"))
 	if err != nil {
-		return "", "", fmt.Errorf("invalid vault token: %w", err)
+		return "", "", false, fmt.Errorf("invalid vault token: %w", err)
 	}
 
 	var p tokenPayload
 	err = json.Unmarshal(b, &p)
 	if err != nil {
-		return "", "", fmt.Errorf("invalid vault token: %w", err)
+		return "", "", false, fmt.Errorf("invalid vault token: %w", err)
 	}
 
 	v, err := get(p.Path, p.Key)
@@ -173,15 +177,16 @@ func resolveToken(token string, get Getter) (string, string, error) {
 		v, err = *p.Fallback, nil
 	}
 	if err != nil {
-		return "", "", err
+		return "", "", false, err
 	}
 
+	secret := p.Fallback == nil
 	switch p.Encoding {
 	case EncodingRaw:
-		return v, v, nil
+		return v, v, secret, nil
 	case EncodingUserinfo:
-		return v, url.User(v).String(), nil
+		return v, url.User(v).String(), secret, nil
 	default:
-		return "", "", fmt.Errorf("unsupported vault token encoding '%s'", p.Encoding)
+		return "", "", false, fmt.Errorf("unsupported vault token encoding '%s'", p.Encoding)
 	}
 }

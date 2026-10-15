@@ -128,9 +128,10 @@ func TestTokenWithFallback(t *testing.T) {
 		}
 	}
 
-	s, _, err := ReplaceTokens(TokenWithFallback("kv/db", "username", EncodingUserinfo, "pmm user")+":"+Token("kv/db", "password", EncodingRaw), get)
+	s, values, err := ReplaceTokens(TokenWithFallback("kv/db", "username", EncodingUserinfo, "pmm user")+":"+Token("kv/db", "password", EncodingRaw), get)
 	require.NoError(t, err)
 	assert.Equal(t, "pmm%20user:s3cr3t", s)
+	assert.Equal(t, []string{"s3cr3t"}, values, "a value with a fallback is not a secret to redact")
 
 	// Only a missing key falls back, not a failed read.
 	_, _, err = ReplaceTokens(TokenWithFallback("kv/db", "other", EncodingRaw, "x"), get)
