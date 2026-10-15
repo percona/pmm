@@ -303,8 +303,8 @@ func TestValidateLabelValueLength(t *testing.T) {
 
 			err := tc.event.Validate()
 			require.ErrorIs(t, err, ErrLabelValueTooLong)
-			assert.ErrorContains(t, err, tc.label)
-			assert.ErrorContains(t, err, strconv.Itoa(tc.bytes))
+			require.ErrorContains(t, err, tc.label)
+			require.ErrorContains(t, err, strconv.Itoa(tc.bytes))
 		})
 	}
 
