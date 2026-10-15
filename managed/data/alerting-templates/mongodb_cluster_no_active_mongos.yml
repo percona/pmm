@@ -1,0 +1,50 @@
+---
+templates:
+  - name: pmm_mongodb_cluster_no_active_mongos
+    version: 1
+    summary: MongoDB sharded cluster has no active mongos
+    # A down mongos loses its role: mongodb_exporter re-detects it on every scrape, so a failed
+    # connection is reported as mongodb_up{cluster_role=""} 0, and a lost host reports nothing.
+    # The cluster's mongos are therefore taken from the last 7d of history, limited to services
+    # still enabled in the inventory, so a removed mongos stops counting at once. A total outage
+    # longer than 7d drops out of that history and resolves.
+    #
+    # A mongos counts as active only with a sample in the last 2m: Grafana's instant query
+    # otherwise keeps the last sample of a lost host for the 5m staleness window.
+    #
+    # Services without a cluster label are skipped, since their mongos can't be grouped. The
+    # '0 *' branch keeps one Normal instance per cluster and 'vector(0)' one when no sharded
+    # cluster is monitored, instead of No Data rows.
+    expr: |-
+      (
+        count by (cluster) (
+          max by (cluster, service_id) (last_over_time(mongodb_up{cluster_role="mongos", cluster!=""}[7d]))
+          and on (service_id) max by (service_id) (pmm_managed_inventory_agents{agent_type="mongodb_exporter", disabled="0"})
+        )
+        unless on (cluster) (
+          max by (cluster) (
+            mongodb_up{cluster_role="mongos", cluster!=""}
+            and last_over_time(mongodb_up{cluster_role="mongos", cluster!=""}[2m])
+          ) == 1
+        )
+      )
+      or on (cluster) 0 * count by (cluster) (
+        max by (cluster, service_id) (last_over_time(mongodb_up{cluster_role="mongos", cluster!=""}[7d]))
+        and on (service_id) max by (service_id) (pmm_managed_inventory_agents{agent_type="mongodb_exporter", disabled="0"})
+      )
+      or on () vector(0)
+    for: 1m
+    severity: critical
+    annotations:
+      summary: MongoDB sharded cluster '{{ $labels.cluster }}' has no active mongos
+      description: |-
+        None of the {{ $values.A.Value }} mongos routers monitored in cluster '{{ $labels.cluster }}' is responding.
+        Applications can't read from or write to the sharded cluster until at least one mongos is back.
+
+        Remediation steps:
+          1. Check that the mongos processes are running on their hosts and restart them.
+          2. Check that the mongos hosts and their PMM Clients are reachable.
+          3. Check that the mongos can reach the config server replica set; mongos exits or stops serving without it.
+          4. Review the mongos logs for startup or connection errors.
+
+        If this cluster was decommissioned, remove its mongos services from PMM and the alert resolves.
