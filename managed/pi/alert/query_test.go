@@ -165,7 +165,22 @@ func TestValidateMultiExpressionStepsErrors(t *testing.T) {
 		{
 			name:    "unknown query datasource",
 			tmpl:    base([]TemplateQuery{{RefID: "A", Expr: "up", Datasource: "loki"}}, nil, "A"),
-			wantErr: "template query A: unhandled query datasource 'loki'",
+			wantErr: "template query A: unhandled query datasource 'loki', want 'metrics' or 'clickhouse'",
+		},
+		{
+			name:    "query ref_id with punctuation",
+			tmpl:    base([]TemplateQuery{{RefID: "cpu-load", Expr: "up"}}, nil, "cpu-load"),
+			wantErr: "template query ref_id 'cpu-load' must start with a letter",
+		},
+		{
+			name:    "query ref_id starting with a digit",
+			tmpl:    base([]TemplateQuery{{RefID: "1", Expr: "up"}}, nil, "1"),
+			wantErr: "template query ref_id '1' must start with a letter",
+		},
+		{
+			name:    "expression ref_id with punctuation",
+			tmpl:    base([]TemplateQuery{{RefID: "A", Expr: "up"}}, []TemplateExpression{{RefID: "C.1", Type: "math", Expression: "$A > 1"}}, "A"),
+			wantErr: "template expression ref_id 'C.1' must start with a letter",
 		},
 		{
 			name:    "reduce with unknown reducer",

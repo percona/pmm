@@ -40,5 +40,5 @@ func (d Datasource) Validate() error {
 
 	// do not add `default:` to make exhaustive linter do its job
 
-	return fmt.Errorf("unhandled query datasource '%s'", d)
+	return fmt.Errorf("unhandled query datasource '%s', want '%s' or '%s'", d, Metrics, ClickHouse)
 }

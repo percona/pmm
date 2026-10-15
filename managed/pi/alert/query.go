@@ -32,13 +32,17 @@ const (
 // reducers are the Grafana reduce functions a reduce expression may use.
 var reducers = []string{"sum", "mean", "min", "max", "count", "last", "median"}
 
+// A step ref ID, restricted so it can be referenced as `$A` in expressions and `$values.A` in templates.
+const refIDPattern = `[A-Za-z_]\w*`
+
 var (
+	refIDRegexp = regexp.MustCompile(`^` + refIDPattern + `$`)
 	// A step reference in an expression, e.g. `$A` or `${A}`.
-	stepRefRegexp = regexp.MustCompile(`\$\{?(\w+)\}?`)
+	stepRefRegexp = regexp.MustCompile(`\$\{?(` + refIDPattern + `)\}?`)
 	// A reduce input, which must be exactly one step reference.
 	singleStepRefRegexp = regexp.MustCompile(`^\s*` + stepRefRegexp.String() + `\s*$`)
 	// A `$values.<ref>` lookup in an annotation or label template.
-	valuesRefRegexp = regexp.MustCompile(`\$values\.(\w+)`)
+	valuesRefRegexp = regexp.MustCompile(`\$values\.(` + refIDPattern + `)`)
 )
 
 // TemplateQuery represents a query step in an alert template.
@@ -176,15 +180,28 @@ func (e TemplateExpression) reduceInput() string {
 	return match[1]
 }
 
+func validateRefID(kind, refID string) error {
+	if refID == "" {
+		return fmt.Errorf("template %s ref_id is empty", kind)
+	}
+
+	if !refIDRegexp.MatchString(refID) {
+		return fmt.Errorf("template %s ref_id '%s' must start with a letter or underscore and contain only letters, digits and underscores", kind, refID)
+	}
+
+	return nil
+}
+
 func validateQueries(queries []TemplateQuery, refs map[string]Datasource) error {
 	for _, query := range queries {
-		if query.RefID == "" {
-			return errors.New("template query ref_id is empty")
+		err := validateRefID("query", query.RefID)
+		if err != nil {
+			return err
 		}
 		if strings.TrimSpace(query.Expr) == "" {
 			return fmt.Errorf("template query %s expression is empty", query.RefID)
 		}
-		err := query.Datasource.Validate()
+		err = query.Datasource.Validate()
 		if err != nil {
 			return fmt.Errorf("template query %s: %w", query.RefID, err)
 		}
@@ -200,8 +217,9 @@ func validateQueries(queries []TemplateQuery, refs map[string]Datasource) error 
 // validateExpressions expects refs to hold every query already.
 func validateExpressions(expressions []TemplateExpression, refs map[string]Datasource) error {
 	for _, expression := range expressions {
-		if expression.RefID == "" {
-			return errors.New("template expression ref_id is empty")
+		err := validateRefID("expression", expression.RefID)
+		if err != nil {
+			return err
 		}
 		if strings.TrimSpace(expression.Expression) == "" {
 			return fmt.Errorf("template expression %s is empty", expression.RefID)
