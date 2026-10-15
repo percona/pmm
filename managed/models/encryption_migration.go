@@ -481,7 +481,13 @@ var (
 		// encrypted on every write since the table was added
 		mayHoldPlaintext: "FALSE",
 		alwaysEncrypted:  true,
-		columns:          []secretColumn{{"mongodb_username", nil}, {"mongodb_password", nil}, {"key_file", nil}},
+		columns: []secretColumn{
+			{"mongodb_username", nil},
+			{"mongodb_password", nil},
+			{"key_file", nil},
+			{"admin_username", nil},
+			{"admin_password", nil},
+		},
 	}
 	secretTables = []secretTable{agentsSecretTable, locationsSecretTable, omBootstrapSecretsSecretTable}
 )

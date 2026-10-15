@@ -31,6 +31,15 @@ func CreateOmBootstrapSecret(q *reform.Querier, secret *OmBootstrapSecret) error
 	return nil
 }
 
+// ClearOmBootstrapAdminPassword blanks a run's stored administrator password.
+func ClearOmBootstrapAdminPassword(q *reform.Querier, runID string) error {
+	_, err := q.Exec("UPDATE om_bootstrap_secrets SET admin_password = '' WHERE run_id = $1 AND admin_password <> ''", runID)
+	if err != nil {
+		return fmt.Errorf("failed to clear OM bootstrap admin password: %w", err)
+	}
+	return nil
+}
+
 // FindOmBootstrapSecretByRunID returns one run's stored secret, decrypted, or ErrNotFound.
 func FindOmBootstrapSecretByRunID(q *reform.Querier, runID string) (*OmBootstrapSecret, error) {
 	if runID == "" {

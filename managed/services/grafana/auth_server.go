@@ -75,6 +75,8 @@ var rules = map[string]role{
 	"/om.v1.OmService/DeleteInventoryService":        admin,
 	"/om.v1.OmService/UpdateInventoryConfig":         admin,
 	"/om.v1.OmService/DeleteInventoryConfigOverride": admin,
+	"/om.v1.OmService/TriggerHostBootstrap":          admin,
+	"/om.v1.OmService/CancelBootstrapRun":            admin,
 
 	"/v1/alerting":                    viewer,
 	"/v1/alerting/rules":              editor,
@@ -158,6 +160,9 @@ var methodRules = map[string]role{
 	http.MethodPut + " /v1/om/inventory/config":               admin,
 	http.MethodDelete + " /v1/om/inventory/config/overrides/": admin,
 	http.MethodDelete + " /v1/om/inventory/config/":           admin,
+	// An install runs root commands on hosts and creates a root database user.
+	http.MethodPost + " /v1/om/inventory/hosts:bootstrap": admin,
+	http.MethodPost + " /v1/om/inventory/bootstrap-runs/": admin,
 }
 
 var lbacPrefixes = []string{
