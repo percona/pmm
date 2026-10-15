@@ -25,8 +25,10 @@ import (
 
 // UpdateExternalCommand is used by Kong for CLI flags and commands.
 type UpdateExternalCommand struct {
-	AddExternalCommand
+	ExternalFlags
 	UpdateCommonFlags
+
+	ListenPort uint16 `placeholder:"port" help:"Listen port of external exporter for scraping metrics"`
 }
 
 // Help returns the detailed help of the command.

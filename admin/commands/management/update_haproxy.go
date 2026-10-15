@@ -23,8 +23,10 @@ import (
 
 // UpdateHAProxyCommand is used by Kong for CLI flags and commands.
 type UpdateHAProxyCommand struct {
-	AddHAProxyCommand
+	HAProxyFlags
 	UpdateCommonFlags
+
+	ListenPort uint16 `placeholder:"port" help:"Listen port of haproxy exposing the metrics for scraping metrics"`
 }
 
 // Help returns the detailed help of the command.

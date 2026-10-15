@@ -53,6 +53,36 @@ const updateTestResponse = `{
 	}
 }`
 
+// updateTestVars are the variables pmm-admin gives Kong, as far as the add and update commands use them.
+var updateTestVars = kong.Vars{
+	"hostname":                     "host",
+	"metricsModesEnum":             "auto, push, pull",
+	"mongoDbQuerySourcesEnum":      "profiler, mongolog, none",
+	"mongoDbQuerySourceDefault":    "profiler",
+	"mysqlQuerySourcesEnum":        "slowlog, perfschema, none",
+	"mysqlQuerySourceDefault":      "slowlog",
+	"externalDefaultServiceName":   "-external",
+	"externalDefaultGroupExporter": "external",
+}
+
+// TestListenPortIsRequiredByAddOnly checks that Kong requires --listen-port for add, before any client is set up,
+// while update, which shares the other flags with add, can leave it out.
+func TestListenPortIsRequiredByAddOnly(t *testing.T) {
+	for _, cmd := range []any{&AddHAProxyCommand{}, &AddExternalCommand{}} {
+		parser, err := kong.New(cmd, updateTestVars)
+		require.NoError(t, err)
+		_, err = parser.Parse(nil)
+		require.EqualError(t, err, "missing flags: --listen-port=port", "%T", cmd)
+	}
+
+	for _, cmd := range []any{&UpdateHAProxyCommand{}, &UpdateExternalCommand{}} {
+		parser, err := kong.New(cmd, updateTestVars)
+		require.NoError(t, err)
+		_, err = parser.Parse(nil)
+		require.NoError(t, err, "%T", cmd)
+	}
+}
+
 // updateRun is the request an update command sent and the result it returned.
 type updateRun struct {
 	path string
@@ -92,16 +122,7 @@ func runUpdateWithResponse(t *testing.T, response string, cmd any, args ...strin
 	client.Default = client.New(httptransport.New(serverURL.Host, serverURL.Path, []string{serverURL.Scheme}), nil)
 	t.Cleanup(func() { client.Default = originalClient })
 
-	parser, err := kong.New(cmd, kong.Vars{
-		"hostname":                     "host",
-		"metricsModesEnum":             "auto, push, pull",
-		"mongoDbQuerySourcesEnum":      "profiler, mongolog, none",
-		"mongoDbQuerySourceDefault":    "profiler",
-		"mysqlQuerySourcesEnum":        "slowlog, perfschema, none",
-		"mysqlQuerySourceDefault":      "slowlog",
-		"externalDefaultServiceName":   "-external",
-		"externalDefaultGroupExporter": "external",
-	})
+	parser, err := kong.New(cmd, updateTestVars)
 	require.NoError(t, err)
 
 	ctx, err := parser.Parse(args)
