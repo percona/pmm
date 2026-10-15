@@ -61,7 +61,7 @@ func TestAddAzureDatabaseRunsOnRequestedAgent(t *testing.T) {
 		state.AssertExpectations(t)
 	})
 
-	s := NewManagementService(db, nil, state, nil, nil, nil, nil, nil, nil, nil, false)
+	s := NewManagementService(db, nil, state, nil, nil, nil, nil, nil, nil, nil, nil, false)
 
 	res, err := s.AddAzureDatabase(ctx, &managementv1.AddAzureDatabaseRequest{
 		PmmAgentId:            agent.AgentID,
@@ -118,7 +118,7 @@ func TestAddAzureDatabaseOnPMMServerPullsMetrics(t *testing.T) {
 		state.AssertExpectations(t)
 	})
 
-	s := NewManagementService(db, nil, state, nil, nil, nil, nil, nil, nil, nil, false)
+	s := NewManagementService(db, nil, state, nil, nil, nil, nil, nil, nil, nil, nil, false)
 
 	_, err = s.AddAzureDatabase(ctx, &managementv1.AddAzureDatabaseRequest{
 		Region:                "westeurope",

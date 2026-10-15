@@ -48,7 +48,7 @@ const (
 	// done probing and can never take over. See PMM-15310.
 	staleConnectionProbeTimeout = 2 * time.Second
 
-	// Bounds persisting the connection status in HA, which is done while holding the registry lock.
+	// Bounds persisting that a pmm-agent disconnected in HA mode.
 	connectionStatusTimeout = 5 * time.Second
 )
 
@@ -84,11 +84,22 @@ type pmmAgentInfo struct {
 	id              string
 	stateChangeChan chan struct{}
 	kickChan        chan struct{}
+	// connectionID is persisted with the connection status in HA mode, see models.Agent.ConnectionID.
+	connectionID string
 }
 
 // haService is a subset of methods from ha.Service used by Registry.
 type haService interface {
 	Params() *models.HAParams
+	IsMember(nodeID string) bool
+}
+
+// connectionCacheEntry is a pmm-agent connection as cached in HA mode.
+type connectionCacheEntry struct {
+	// owner is the PMM_HA_NODE_ID of the replica holding the connection, "" when the connection ID
+	// names none.
+	owner        string
+	connectionID string
 }
 
 // Registry keeps track of all connected pmm-agents.
@@ -102,8 +113,8 @@ type Registry struct {
 
 	haService haService
 
-	// Cache for connection status in HA mode
-	connectionCache    map[string]struct{}
+	// Cache for connection status in HA mode, by pmm-agent ID.
+	connectionCache    map[string]connectionCacheEntry
 	connectionCacheTTL time.Time
 	cacheMu            sync.RWMutex
 	rebuildMu          sync.Mutex
@@ -129,7 +140,7 @@ func NewRegistry(db *reform.DB, vmParams victoriaMetricsParams, ha haService) *R
 
 		haService: ha,
 
-		connectionCache: make(map[string]struct{}),
+		connectionCache: make(map[string]connectionCacheEntry),
 
 		mConnects: prom.NewCounter(prom.CounterOpts{
 			Namespace: prometheusNamespace,
@@ -189,21 +200,8 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 		return err == nil
 	}
 
-	// HA mode: a fresh cache answers misses too, otherwise every exporter ID costs a query.
-	if r.connectionCacheExpired() {
-		r.rebuildMu.Lock()
-		// Concurrent callers share a single rebuild.
-		if r.connectionCacheExpired() {
-			r.rebuildConnectionCache()
-		}
-		r.rebuildMu.Unlock()
-	}
-
-	r.cacheMu.RLock()
-	_, exists := r.connectionCache[pmmAgentID]
-	r.cacheMu.RUnlock()
-
-	return exists
+	_, connected := r.connectionOwner(pmmAgentID)
+	return connected
 }
 
 func (r *Registry) connectionCacheExpired() bool {
@@ -215,10 +213,24 @@ func (r *Registry) connectionCacheExpired() bool {
 
 // rebuildConnectionCache fetches all agent connection statuses from the database
 // and caches them for 10 seconds.
+//
+// A connection counts only while the replica holding it is a member of the cluster: one that is lost
+// with its Kubernetes node, or scaled away after crashing, never persists the disconnects of its
+// agents. A connection ID naming no owner predates this and is counted.
 func (r *Registry) rebuildConnectionCache() {
-	newCache := make(map[string]struct{})
+	newCache := make(map[string]connectionCacheEntry)
 
-	// Fetch pmm-agents from the database.
+	// Asked once per replica: it copies the member list under the HA service lock.
+	members := make(map[string]bool)
+	isMember := func(owner string) bool {
+		member, ok := members[owner]
+		if !ok {
+			member = r.haService.IsMember(owner)
+			members[owner] = member
+		}
+		return member
+	}
+
 	err := r.db.InTransaction(func(tx *reform.TX) error {
 		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: new(models.PMMAgentType)})
 		if err != nil {
@@ -226,9 +238,20 @@ func (r *Registry) rebuildConnectionCache() {
 		}
 
 		for _, agent := range agents {
-			if agent.IsConnected {
-				newCache[agent.AgentID] = struct{}{}
+			if !agent.IsConnected {
+				continue
 			}
+			var entry connectionCacheEntry
+			if agent.ConnectionID != nil {
+				entry.connectionID = *agent.ConnectionID
+				if o, ok := models.ConnectionIDOwner(*agent.ConnectionID); ok {
+					if !isMember(o) {
+						continue
+					}
+					entry.owner = o
+				}
+			}
+			newCache[agent.AgentID] = entry
 		}
 
 		return nil
@@ -320,6 +343,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 		id:              agentMD.ID,
 		stateChangeChan: make(chan struct{}, 1),
 		kickChan:        make(chan struct{}),
+		connectionID:    models.NewConnectionID(r.haService.Params().NodeID),
 	}
 	r.agents[agentMD.ID] = agent
 
@@ -331,7 +355,8 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 				return fmt.Errorf("failed to find agent: %w", err)
 			}
 			a.IsConnected = true
-			err = tx.UpdateColumns(a, "is_connected", "updated_at")
+			a.ConnectionID = &agent.connectionID
+			err = tx.UpdateColumns(a, "is_connected", "connection_id", "updated_at")
 			if err != nil {
 				return fmt.Errorf("failed to update agent: %w", err)
 			}
@@ -343,7 +368,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 		}
 
 		r.cacheMu.Lock()
-		r.connectionCache[agentMD.ID] = struct{}{}
+		r.connectionCache[agentMD.ID] = connectionCacheEntry{owner: r.haService.Params().NodeID, connectionID: agent.connectionID}
 		r.cacheMu.Unlock()
 	}
 
@@ -409,6 +434,16 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 // A connection that took a long time to die must not evict the one that already replaced it,
 // or the agent stays connected while pmm-managed reports it as disconnected forever (PMM-15310).
 func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason string, conn *pmmAgentInfo) *pmmAgentInfo {
+	agent := r.removeConn(ctx, pmmAgentID, disconnectReason, conn)
+	if agent != nil && r.haService.Params().Enabled {
+		r.persistDisconnect(ctx, agent)
+	}
+
+	return agent
+}
+
+// removeConn removes the connection of pmm-agent with given ID from the registry, see unregister.
+func (r *Registry) removeConn(ctx context.Context, pmmAgentID, disconnectReason string, conn *pmmAgentInfo) *pmmAgentInfo {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
@@ -431,42 +466,36 @@ func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason 
 	delete(r.agents, pmmAgentID)
 	r.roster.clear(pmmAgentID)
 
-	// Only persist connection status when HA is enabled
-	if r.haService.Params().Enabled {
-		l := logger.Get(ctx)
+	return agent
+}
 
-		// The caller's context is usually the one of the stream that just ended, so it is already
-		// canceled; the status must be persisted anyway, or other nodes see the agent as connected.
-		dbCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), connectionStatusTimeout)
-		defer cancel()
+// persistDisconnect records in HA mode that the given connection of a pmm-agent is gone.
+//
+// The write happens outside the registry lock, so a slow database does not hold up every other
+// agent. It only applies to the connection it is made for: by the time it lands, the agent may
+// have connected again, to this PMM Server or another one, and that newer status must stay.
+func (r *Registry) persistDisconnect(ctx context.Context, conn *pmmAgentInfo) {
+	// By now the stream the pmm-agent was connected over is usually done, and so is its context.
+	// The disconnect is persisted regardless: IsConnected reads it back from the database in HA
+	// mode, so a failed update keeps reporting the agent as connected until it connects again.
+	dbCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), connectionStatusTimeout)
+	defer cancel()
 
-		err := r.db.InTransactionContext(dbCtx, nil, func(tx *reform.TX) error {
-			a, err := models.FindAgentByID(tx.Querier, pmmAgentID)
-			if err != nil {
-				// Agent might have been deleted, which is fine
-				if status.Code(err) == codes.NotFound {
-					return nil
-				}
-				return fmt.Errorf("failed to find agent: %w", err)
-			}
-			a.IsConnected = false
-			err = tx.UpdateColumns(a, "is_connected", "updated_at")
-			if err != nil {
-				return fmt.Errorf("failed to update agent: %w", err)
-			}
-			return nil
-		})
-		if err != nil {
-			// Log but don't fail - agent is already disconnected from the registry
-			l.Errorf("Failed to update the connection status for agent %s: %v", pmmAgentID, err)
-		}
-
-		r.cacheMu.Lock()
-		delete(r.connectionCache, pmmAgentID)
-		r.cacheMu.Unlock()
+	_, err := r.db.WithContext(dbCtx).Exec(
+		"UPDATE agents SET is_connected = false, updated_at = $1 WHERE agent_id = $2 AND connection_id = $3",
+		models.Now(), conn.id, conn.connectionID,
+	)
+	if err != nil {
+		// Log but don't fail - agent is already disconnected from the registry
+		logger.Get(ctx).Errorf("Failed to update the connection status for agent %s: %v", conn.id, err)
 	}
 
-	return agent
+	// A newer connection may have registered on this replica during the write, and must stay cached.
+	r.cacheMu.Lock()
+	if r.connectionCache[conn.id].connectionID == conn.connectionID {
+		delete(r.connectionCache, conn.id)
+	}
+	r.cacheMu.Unlock()
 }
 
 // ping sends Ping message to given Agent, waits for Pong and observes round-trip time and clock drift.
@@ -578,10 +607,42 @@ func (r *Registry) get(pmmAgentID string) (*pmmAgentInfo, error) {
 	r.rw.RLock()
 	pmmAgent := r.agents[pmmAgentID]
 	r.rw.RUnlock()
-	if pmmAgent == nil {
-		return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s is not currently connected", pmmAgentID)
+	if pmmAgent != nil {
+		return pmmAgent, nil
 	}
-	return pmmAgent, nil
+
+	// In HA mode a replica reaches only the pmm-agents connected to it, and the leader serves the API (PMM-15684).
+	if ha := r.haService.Params(); ha.Enabled {
+		if owner, ok := r.connectionOwner(pmmAgentID); ok && owner != ha.NodeID {
+			replica := "another PMM Server replica"
+			if owner != "" {
+				replica = "PMM Server replica " + owner
+			}
+			return nil, status.Errorf(codes.FailedPrecondition,
+				"pmm-agent with ID %s is connected to %s, not to %s; in HA mode, a PMM Server replica can reach only the pmm-agents connected to it",
+				pmmAgentID, replica, ha.NodeID)
+		}
+	}
+
+	return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s is not currently connected", pmmAgentID)
+}
+
+// connectionOwner returns the replica holding the pmm-agent's connection as cached in HA mode. A fresh
+// cache answers misses too, otherwise every exporter ID costs a query.
+func (r *Registry) connectionOwner(pmmAgentID string) (string, bool) {
+	if r.connectionCacheExpired() {
+		r.rebuildMu.Lock()
+		// Concurrent callers share a single rebuild.
+		if r.connectionCacheExpired() {
+			r.rebuildConnectionCache()
+		}
+		r.rebuildMu.Unlock()
+	}
+
+	r.cacheMu.RLock()
+	defer r.cacheMu.RUnlock()
+	entry, ok := r.connectionCache[pmmAgentID]
+	return entry.owner, ok
 }
 
 // Describe implements prometheus.Collector.

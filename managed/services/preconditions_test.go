@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -256,4 +257,120 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 
 	err = CheckArtifactOverlapping(db.Querier, mongoSvc1.ServiceID, location.ID, folder2)
 	require.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
+}
+
+// connectedFunc adapts a function to AgentConnectionChecker.
+type connectedFunc func(pmmAgentID string) bool
+
+func (f connectedFunc) IsConnected(pmmAgentID string) bool {
+	return f(pmmAgentID)
+}
+
+func TestCheckNodeRemovable(t *testing.T) {
+	// clientNodePrefix mimics the Nodes the PMM HA Helm chart registers for its PMM Client pods:
+	// they are named "<namespace>-<pod name>".
+	const clientNodePrefix = "pmm-pmm-ha-client-"
+
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	newNode := func(t *testing.T, name string) (*models.Node, *models.Agent) {
+		t.Helper()
+
+		node, err := models.CreateNode(db.Querier, models.ContainerNodeType, &models.CreateNodeParams{NodeName: name, Address: name})
+		require.NoError(t, err)
+		pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
+		require.NoError(t, err)
+
+		return node, pmmAgent
+	}
+
+	clientNode, clientAgent := newNode(t, clientNodePrefix+"0")
+	otherNode, _ := newNode(t, "pmm-client-0")
+	prefixes := []string{"pmm-pmm-ha-pg-db-", clientNodePrefix}
+
+	connected := connectedFunc(func(string) bool { return true })
+	disconnected := connectedFunc(func(string) bool { return false })
+
+	t.Run("a protected Node with a connected pmm-agent is rejected", func(t *testing.T) {
+		expected := status.New(codes.FailedPrecondition, "Node '"+clientNode.NodeName+"' is managed by this PMM deployment "+
+			"and cannot be removed while its pmm-agent is connected. Scale the deployment down to remove it.")
+		asked := connectedFunc(func(pmmAgentID string) bool {
+			assert.Equal(t, clientAgent.AgentID, pmmAgentID)
+			return true
+		})
+		tests.AssertGRPCError(t, expected, CheckNodeRemovable(db.Querier, asked, clientNode, prefixes))
+	})
+
+	// What a scale-down leaves behind: nothing runs the pod any more, so nothing keeps the Node.
+	t.Run("a protected Node with a disconnected pmm-agent is removable", func(t *testing.T) {
+		assert.NoError(t, CheckNodeRemovable(db.Querier, disconnected, clientNode, prefixes))
+	})
+
+	t.Run("a protected Node without pmm-agent is removable", func(t *testing.T) {
+		node, err := models.CreateNode(db.Querier, models.ContainerNodeType, &models.CreateNodeParams{
+			NodeName: clientNodePrefix + "1",
+			Address:  clientNodePrefix + "1",
+		})
+		require.NoError(t, err)
+		assert.NoError(t, CheckNodeRemovable(db.Querier, connected, node, prefixes))
+	})
+
+	t.Run("a Node the prefixes do not name is removable", func(t *testing.T) {
+		asked := connectedFunc(func(pmmAgentID string) bool {
+			assert.Fail(t, "a Node which is not protected needs no connection check", pmmAgentID)
+			return true
+		})
+		assert.NoError(t, CheckNodeRemovable(db.Querier, asked, otherNode, prefixes))
+	})
+
+	t.Run("no prefixes configured", func(t *testing.T) {
+		assert.NoError(t, CheckNodeRemovable(db.Querier, connected, clientNode, nil))
+	})
+}
+
+func TestCheckPMMAgentRemovable(t *testing.T) {
+	const clientNodePrefix = "pmm-pmm-ha-client-"
+
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	node, err := models.CreateNode(db.Querier, models.ContainerNodeType, &models.CreateNodeParams{
+		NodeName: clientNodePrefix + "0",
+		Address:  clientNodePrefix + "0",
+	})
+	require.NoError(t, err)
+	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
+	require.NoError(t, err)
+	nodeExporter, err := models.CreateNodeExporter(db.Querier, pmmAgent.AgentID, nil, true, false, nil, nil, "")
+	require.NoError(t, err)
+
+	prefixes := []string{clientNodePrefix}
+	connected := connectedFunc(func(string) bool { return true })
+	disconnected := connectedFunc(func(string) bool { return false })
+
+	t.Run("the pmm-agent of a protected Node is rejected while connected", func(t *testing.T) {
+		expected := status.New(codes.FailedPrecondition, "pmm-agent runs on Node '"+node.NodeName+"', which is managed by "+
+			"this PMM deployment, and cannot be removed while it is connected. Scale the deployment down to remove it.")
+		tests.AssertGRPCError(t, expected, CheckPMMAgentRemovable(db.Querier, connected, pmmAgent, prefixes))
+	})
+
+	t.Run("the pmm-agent of a protected Node is removable once disconnected", func(t *testing.T) {
+		assert.NoError(t, CheckPMMAgentRemovable(db.Querier, disconnected, pmmAgent, prefixes))
+	})
+
+	// The exporters run by that pmm-agent can go: the pod keeps its identity without them.
+	t.Run("other Agents of a protected Node are removable", func(t *testing.T) {
+		assert.NoError(t, CheckPMMAgentRemovable(db.Querier, connected, nodeExporter, prefixes))
+	})
+
+	t.Run("no prefixes configured", func(t *testing.T) {
+		assert.NoError(t, CheckPMMAgentRemovable(db.Querier, connected, pmmAgent, nil))
+	})
 }
