@@ -30,7 +30,7 @@ Support Diagnostics uploads results to your support case through Percona's Servi
 Generate both credentials on the **Percona Token Management** page of the Percona Support portal:
 {.power-number}
 
-1. Sign in to the Percona Support portal and open [**Percona Token Management**](<PORTAL_URL>).
+1. Sign in to the Percona Support portal and open [**Percona Token Management**](https://percona.service-now.com/percona?id=percona_token_page).
 2. In **Token type**, select **Percona Connector**.
 3. Click **Generate client token**. The **Your client token** dialog shows the **Client token** and the **REST API key**.
 4. Copy both values and store them securely. The dialog shows them only once.
