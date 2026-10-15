@@ -78,14 +78,15 @@ Labels:
 |---|---|
 | Service | `Node.UnifiedLabels()` merged with `Service.UnifiedLabels()` the way `models.MergeLabels` merges them, without agent labels: `node_name`, `node_id`, `node_type`, `region`, `az`, …, `service_name`, `service_id`, `service_type`, `environment`, `cluster`, `replication_set`, `external_group`, custom labels |
 | Node | `Node.UnifiedLabels()` only, the same set `node_exporter` series carry |
-| Both | plus `annotation_id` (Grafana's annotation id), `text`, `tags` (user tags joined with `,`) |
+| Both | plus `pmm_annotation_id` (Grafana's annotation id), `pmm_annotation_text`, `pmm_annotation_tags` (user tags joined with `,`); prefixed so a custom label named `tags`, `text` or `annotation_id` cannot collide and break LBAC |
 
 Rule: an annotation is visible to exactly the users who can see the metrics it annotates. LBAC needs nothing extra.
 A node annotation is therefore hidden from a role filtered on `environment`, as node metrics are today.
 
 Limits, enforced by pmm-managed because VictoriaMetrics drops silently:
 
-- `text` is cut to 4,096 bytes on a UTF-8 rune boundary. Grafana keeps the full text.
+- `pmm_annotation_text` is cut to 4,096 bytes on a UTF-8 rune boundary. Grafana keeps the full text.
+- Any other label value over 4,096 bytes (joined tags, a custom label) rejects the request with `InvalidArgument`.
 - A series over 40 labels (`__name__` included) rejects the request with `InvalidArgument` before anything is written.
   40 is the single-node limit; HA allows 50.
 
@@ -122,7 +123,7 @@ delete a scoped annotation from its marker.
 
 1. Delete the Grafana annotation with the caller's `Authorization` header, as `AddAnnotation` creates it; a new
    `grafana.Client.DeleteAnnotation`. Grafana's 404 becomes `NotFound`.
-2. `POST <PMM_VM_URL>/api/v1/admin/tsdb/delete_series` with `match[]=pmm_annotation_event{annotation_id="<id>"}`. Probe
+2. `POST <PMM_VM_URL>/api/v1/admin/tsdb/delete_series` with `match[]=pmm_annotation_event{pmm_annotation_id="<id>"}`. Probe
    P2 showed it hides the series at once on single node. A global annotation has no series; the call is a no-op.
 3. If step 2 fails, return `Unavailable` saying the annotation was deleted but may still show; the sync job removes the
    series (section 5.4).
@@ -138,12 +139,12 @@ One leader-only service (`haService.AddLeaderService`), at startup and every 5 m
    `alerting/provisioning_datasource.go` does: time within the data retention period, `alert_id = 0`, no
    `pmm_annotation` tag, and at least one tag naming an existing node or service. When a name is both a node and a
    service, the `Node Name:` / `Service Name:` suffix pmm-managed appends to the text decides.
-2. Read the existing `(annotation_id, node_name, service_name)` triples from VictoriaMetrics with one range query over
+2. Read the existing `(pmm_annotation_id, node_name, service_name)` triples from VictoriaMetrics with one range query over
    the retention period.
 3. Write the missing series with the original time and current inventory labels.
-4. For `annotation_id`s found in VictoriaMetrics, look up which still exist in Grafana's `annotation` table
+4. For `pmm_annotation_id`s found in VictoriaMetrics, look up which still exist in Grafana's `annotation` table
    (`WHERE id = ANY($1)`). Delete the series of ids that are positively absent, in one `delete_series` call with an
-   `annotation_id=~"…"` matcher. If the Grafana query fails, skip this step; a failed read must never delete.
+   `pmm_annotation_id=~"…"` matcher. If the Grafana query fails, skip this step; a failed read must never delete.
 
 Steps 1–3 cover the upgrade backfill (requirement 3), failed writes in step 5.2.4, and annotations scripts create
 through Grafana's API with node or service names as tags. Annotations older than retention, or of deleted nodes and
@@ -158,12 +159,12 @@ Each of the 69 dashboards with "PMM Annotations" gets two entries:
 - A new Prometheus entry, "PMM Annotations: nodes and services", toggled separately:
 
   ```
-  max by (annotation_id, text, tags) (
+  max by (pmm_annotation_id, pmm_annotation_text, pmm_annotation_tags) (
     last_over_time(pmm_annotation_event{<matchers>}[$__interval] offset -$__interval))
   ```
 
-  with `useValueForTime: true`, `titleFormat: "Annotation {{annotation_id}}"`, `textFormat: "{{text}}"`,
-  `tagKeys: "tags"`. `offset -$__interval` compensates for
+  with `useValueForTime: true`, `titleFormat: "Annotation {{pmm_annotation_id}}"`, `textFormat: "{{pmm_annotation_text}}"`,
+  `tagKeys: "pmm_annotation_tags"`. `offset -$__interval` compensates for
   Grafana rounding the range down to the step (`pkg/promlib/models/query.go`); `max by` merges a multi-service
   annotation into one marker. The `by` clause and `tagKeys` differ from the benchmark (`node_name`) and need a check.
 
@@ -221,7 +222,7 @@ matchers for its variables and that no Grafana tag query uses `$node_name` or `$
 - Scoped annotations show for the metric retention period.
 - Admins delete a scoped annotation with `DELETE /v1/management/annotations/{id}`; the id is on the marker and in
   `pmm-admin annotate` output. Deleting it through Grafana's API also removes it from dashboards within 5 minutes.
-- Markers can no longer be edited or deleted from a dashboard, and Editors can no longer delete scoped annotations;
+- Markers can no longer be edited or deleted from a dashboard; deleting through the PMM API is admin-only, while Grafana's own annotations API (which Editors can use) still deletes them and the sync job removes the marker;
   PMM-15073 tracks editing.
 - A request whose series would exceed 40 labels is rejected.
 
