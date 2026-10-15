@@ -122,7 +122,9 @@ delete a scoped annotation from its marker.
 `ManagementService.RemoveAnnotation`:
 
 1. Delete the Grafana annotation with the caller's `Authorization` header, as `AddAnnotation` creates it; a new
-   `grafana.Client.DeleteAnnotation`. Grafana's 404 becomes `NotFound`.
+   `grafana.Client.DeleteAnnotation`. Grafana's 404, and the 403 Grafana 12 returns for an id it cannot resolve
+   (verified live), become `NotFound`; the series delete of step 2 still runs for that id, and its failure is only
+   logged.
 2. `POST <PMM_VM_URL>/api/v1/admin/tsdb/delete_series` with `match[]=pmm_annotation_event{pmm_annotation_id="<id>"}`. Probe
    P2 showed it hides the series at once on single node. A global annotation has no series; the call is a no-op.
 3. If step 2 fails, return `Unavailable` saying the annotation was deleted but may still show; the sync job removes the
@@ -135,12 +137,13 @@ command is not part of this design.
 
 One leader-only service (`haService.AddLeaderService`), at startup and every 5 minutes:
 
-1. Read annotations from Grafana's PostgreSQL (`annotation`, `annotation_tag`, `tag`), connecting the same way
+1. Read the existing `(pmm_annotation_id, node_name, service_name)` triples from VictoriaMetrics with one range query over
+   the retention period. Reading them before Grafana means a `RemoveAnnotation` between the two reads cannot make the
+   sync write a just-deleted series back.
+2. Read annotations from Grafana's PostgreSQL (`annotation`, `annotation_tag`, `tag`), connecting the same way
    `alerting/provisioning_datasource.go` does: time within the data retention period, `alert_id = 0`, no
    `pmm_annotation` tag, and at least one tag naming an existing node or service. When a name is both a node and a
    service, the `Node Name:` / `Service Name:` suffix pmm-managed appends to the text decides.
-2. Read the existing `(pmm_annotation_id, node_name, service_name)` triples from VictoriaMetrics with one range query over
-   the retention period.
 3. Write the missing series with the original time and current inventory labels.
 4. For `pmm_annotation_id`s found in VictoriaMetrics, look up which still exist in Grafana's `annotation` table
    (`WHERE id = ANY($1)`). Delete the series of ids that are positively absent, in one `delete_series` call with an
