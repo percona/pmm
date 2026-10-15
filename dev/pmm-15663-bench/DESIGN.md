@@ -10,7 +10,8 @@ literal `.+` and node- and service-scoped annotations disappear.
 
 This design fixes PMM-15663 only. It must not block two linked tickets, which stay out of scope:
 
-- PMM-15073: edit or delete a scoped annotation from one place, a scope selector in the UI.
+- PMM-15073: edit a scoped annotation from one place, a scope selector in the UI. This design adds a delete API, a
+  first part of it (section 5.3).
 - PMM-15144: automatic alert annotations scoped to a service or node, firing to resolve as a region.
 
 ## 2. Requirements
@@ -29,8 +30,9 @@ Agreed in the earlier sessions and this one:
   8,000 services.
 - Scoped annotations follow metric retention (30 days by default).
 - Global annotations (`pmm_annotation` tag) stay in Grafana.
-- Each dashboard keeps today's scope mapping (section 5.4).
-- Losing marker edit/delete for scoped annotations is accepted and documented; PMM-15073 restores it.
+- Each dashboard keeps today's scope mapping (section 5.5).
+- Scoped annotations can be deleted through a pmm-managed API, and a deletion made in Grafana reaches the dashboards
+  too (sections 5.3 and 5.4). Editing, and edit or delete from the dashboard marker, are not available; PMM-15073 covers editing.
 
 ## 3. Decision
 
@@ -98,11 +100,37 @@ Limits, enforced by pmm-managed because VictoriaMetrics drops silently:
    `github.com/prometheus/prometheus` module already in `go.mod`). The writer lives in `managed/services/victoriametrics`,
    behind a small interface in `management/deps.go`.
 4. If step 3 fails, return `Unavailable` saying the annotation was created but is not shown yet; the sync job adds it.
+5. Return the id: `AddAnnotationResponse` gets `int64 annotation_id = 1` (additive), and `pmm-admin annotate` prints it.
 
 A request with a node and several services writes one series per service and one for the node, as the Grafana tags do
 today.
 
-### 5.3 Sync job
+### 5.3 Delete
+
+New RPC in `api/management/v1/service.proto`, following `RemoveService`:
+
+```
+rpc RemoveAnnotation(RemoveAnnotationRequest) returns (RemoveAnnotationResponse) {
+  option (google.api.http) = {delete: "/v1/management/annotations/{annotation_id}"};
+}
+```
+
+`/v1/management` is admin-only (`managed/services/grafana/auth_server.go`), so only admins delete. Today an Editor can
+delete a scoped annotation from its marker.
+
+`ManagementService.RemoveAnnotation`:
+
+1. Delete the Grafana annotation with the caller's `Authorization` header, as `AddAnnotation` creates it; a new
+   `grafana.Client.DeleteAnnotation`. Grafana's 404 becomes `NotFound`.
+2. `POST <PMM_VM_URL>/api/v1/admin/tsdb/delete_series` with `match[]=pmm_annotation_event{annotation_id="<id>"}`. Probe
+   P2 showed it hides the series at once on single node. A global annotation has no series; the call is a no-op.
+3. If step 2 fails, return `Unavailable` saying the annotation was deleted but may still show; the sync job removes the
+   series (section 5.4).
+
+The id appears on the marker (`titleFormat`, section 5.5) and in `pmm-admin annotate` output. A `pmm-admin` delete
+command is not part of this design.
+
+### 5.4 Sync job
 
 One leader-only service (`haService.AddLeaderService`), at startup and every 5 minutes:
 
@@ -113,12 +141,15 @@ One leader-only service (`haService.AddLeaderService`), at startup and every 5 m
 2. Read the existing `(annotation_id, node_name, service_name)` triples from VictoriaMetrics with one range query over
    the retention period.
 3. Write the missing series with the original time and current inventory labels.
+4. For `annotation_id`s found in VictoriaMetrics, look up which still exist in Grafana's `annotation` table
+   (`WHERE id = ANY($1)`). Delete the series of ids that are positively absent, in one `delete_series` call with an
+   `annotation_id=~"…"` matcher. If the Grafana query fails, skip this step; a failed read must never delete.
 
-This covers the upgrade backfill (requirement 3), failed writes in step 5.2.4, and annotations scripts create through
-Grafana's API with node or service names as tags. Annotations older than retention, or of deleted nodes and services,
-are skipped. It never deletes.
+Steps 1–3 cover the upgrade backfill (requirement 3), failed writes in step 5.2.4, and annotations scripts create
+through Grafana's API with node or service names as tags. Annotations older than retention, or of deleted nodes and
+services, are skipped. Step 4 covers failed deletes in step 5.3.3 and annotations deleted through Grafana's API.
 
-### 5.4 Dashboards
+### 5.5 Dashboards
 
 Each of the 69 dashboards with "PMM Annotations" gets two entries:
 
@@ -131,7 +162,8 @@ Each of the 69 dashboards with "PMM Annotations" gets two entries:
     last_over_time(pmm_annotation_event{<matchers>}[$__interval] offset -$__interval))
   ```
 
-  with `useValueForTime: true`, `textFormat: "{{text}}"`, `tagKeys: "tags"`. `offset -$__interval` compensates for
+  with `useValueForTime: true`, `titleFormat: "Annotation {{annotation_id}}"`, `textFormat: "{{text}}"`,
+  `tagKeys: "tags"`. `offset -$__interval` compensates for
   Grafana rounding the range down to the step (`pkg/promlib/models/query.go`); `max by` merges a multi-service
   annotation into one marker. The `by` clause and `tagKeys` differ from the benchmark (`node_name`) and need a check.
 
@@ -157,21 +189,27 @@ Node overviews without a hidden `node_name_list` get one. A script rewrites the 
 `dashboards/misc/test_annotations.py` checks that every dashboard with "PMM Annotations" has the scoped entry with
 matchers for its variables and that no Grafana tag query uses `$node_name` or `$service_name`.
 
-### 5.5 HA
+### 5.6 HA
 
-- Writes go through vmauth's `/api/v1/write` route; no chart change for this ticket.
+- Writes go through vmauth's `/api/v1/write` route.
+- Deletes need a new vmauth route in `percona-helm-charts` (`pmm-ha/templates/vmauth.yaml`):
+  `src_paths: ["/api/v1/admin/tsdb/delete_series"]` to
+  `url_prefix: http://vmselect-…:8481/delete/0/prometheus/`. Without it, `RemoveAnnotation` deletes the Grafana record
+  and returns `Unavailable`, and the series stays until retention.
+- HA runs VictoriaMetrics v1.128, where each delete resets the series-ID cache, slowing all ingestion briefly (from
+  code, not measured). The sync job batches deletes into one call per run.
 - The sync job runs on the leader only and resumes on a new leader.
 - vmselect has its response cache on, so a backfilled annotation may stay hidden on cached ranges (inferred). If the
   HA run confirms it, set `-search.disableCache=true` on vmselect in `percona-helm-charts`, as single node does by
   default.
 - HA keeps metrics 90 days and single node 30; the sync job uses PMM's data retention setting.
 
-### 5.6 What the linked tickets would add
+### 5.7 What the linked tickets would add
 
-- PMM-15073, edit and delete: a pmm-managed API updates Grafana, deletes the series by `annotation_id`
-  (`delete_series`, probe P2) and writes the new ones. HA needs a vmauth route to vmselect's delete path. On v1.128 each
-  delete resets the series-ID cache, a short ingest slowdown (from code). On v1.152 re-writing an identical label set
-  into a different month may bring the deleted sample back (from code, untested), so an edit must change the label set.
+- PMM-15073, edit: a pmm-managed API updates the Grafana record, deletes the series as `RemoveAnnotation` does, and
+  writes new ones. On v1.152 re-writing an identical label set into a different month may bring the deleted sample back
+  (from code, untested), so an edit must change the label set. The UI scope selector and edit or delete from the marker
+  are also PMM-15073.
 - PMM-15144, alerts: Grafana with `backend = multiple`, `primary = annotations`, `secondaries = prometheus` and a
   datasource that writes straight to VictoriaMetrics (vmproxy refuses writes), then a dashboard entry on
   `GRAFANA_ALERTS` with the same matchers. A continuous firing series renders as a region (from Grafana's code).
@@ -181,26 +219,36 @@ matchers for its variables and that no Grafana tag query uses `$node_name` or `$
 - Node- and service-scoped annotations show when variables are on All, filtered by the other variables.
 - LBAC applies to scoped annotations; today any user can read them through the Grafana API.
 - Scoped annotations show for the metric retention period.
-- Their markers can no longer be edited or deleted from a dashboard; PMM-15073 tracks a replacement.
+- Admins delete a scoped annotation with `DELETE /v1/management/annotations/{id}`; the id is on the marker and in
+  `pmm-admin annotate` output. Deleting it through Grafana's API also removes it from dashboards within 5 minutes.
+- Markers can no longer be edited or deleted from a dashboard, and Editors can no longer delete scoped annotations;
+  PMM-15073 tracks editing.
 - A request whose series would exceed 40 labels is rejected.
 
 ## 7. Testing and verification
 
 - Unit (pmm-managed): label sets, limits, rune-safe truncation, the remote-write payload against a mocked endpoint,
-  `AddAnnotation` ordering and its error on a failed write, the sync job against `go-sqlmock` (skip rules, existing
-  triples skipped), leader-only registration.
+  `AddAnnotation` ordering and its error on a failed write, `RemoveAnnotation` ordering, `NotFound` and its error on a
+  failed delete, the sync job against `go-sqlmock` (skip rules, existing triples skipped, only positively absent ids
+  deleted, nothing deleted when the Grafana query fails), leader-only registration.
 - Dashboards: `test_annotations.py`, `cleanup-dash.py`, `test_all_value.py`.
-- API tests: series written with the expected labels for a service and a node; `InvalidArgument` over 40 labels.
+- API tests: series written with the expected labels for a service and a node; `InvalidArgument` over 40 labels;
+  `AddAnnotation` returns the id; `RemoveAnnotation` removes the series, and returns `NotFound` for an unknown id.
 - Live, single node, Feature Build:
   - the three requirements on Home, Nodes Overview, Node Summary, MySQL Instances Overview, MySQL Instance Summary;
   - LBAC with an `environment` role and a custom-label role;
   - upgrade from the current release with existing scoped annotations;
   - the benchmark at 3M series and 5,000 annotations, including the `node_name_list` matcher at 1,000 nodes;
-  - VictoriaMetrics stopped during `AddAnnotation`: an error, then the series within 5 minutes.
-- HA on CHAOS k3s: writes through vmauth, LBAC, failover of the sync job, the vmselect cache with backfilled data.
+  - VictoriaMetrics stopped during `AddAnnotation`: an error, then the series within 5 minutes;
+  - `RemoveAnnotation`: the marker is gone after a dashboard refresh; an annotation deleted through Grafana's API is
+    gone within 5 minutes;
+  - the marker tooltip for an Admin: whether Grafana shows an Edit or Delete button that cannot work (section 8).
+- HA on CHAOS k3s: writes and deletes through vmauth with the new route, LBAC, failover of the sync job, the vmselect
+  cache with backfilled data, and ingestion while a delete runs.
 
-Expected pull requests: `percona/pmm` (pmm-managed, dashboards, api-tests, documentation), `percona-helm-charts` only if
-the HA run needs the cache flag, and a Feature Build in `Percona-Lab/pmm-submodules`.
+Expected pull requests: `percona/pmm` (api, pmm-managed, pmm-admin output, dashboards, api-tests, documentation and API
+docs), `percona-helm-charts` (vmauth delete route, plus the vmselect cache flag if the HA run needs it), and a Feature
+Build in `Percona-Lab/pmm-submodules`.
 
 ## 8. Risks and open checks
 
@@ -208,7 +256,8 @@ the HA run needs the cache flag, and a Feature Build in `Percona-Lab/pmm-submodu
 |---|---|
 | Cost of `node_name=~"$node_name_list"` at 1,000 nodes | Not measured; benchmark it first |
 | vmselect response cache hiding backfills in HA | HA run; chart flag if confirmed |
-| Grafana-side deletes leave the series behind | Accepted until PMM-15073 |
+| An Admin may see an Edit or Delete button on a scoped marker that cannot work: the Prometheus event has no id, and `AnnotationTooltip2.tsx` only checks `annoId !== 0` | From code; check live |
+| Ingest slowdown per delete on HA's v1.128 | HA run; deletes are rare and the sync job batches them |
 | Inventory label changes are not reflected in already-written series | Accepted |
 | Whether today's tag query matches dashboard-level annotations as well as org-level ones | Check before writing the sync query |
 | The global Grafana query keeps `limit: 100` | Unchanged from `main`; global annotations only |
@@ -216,5 +265,6 @@ the HA run needs the cache flag, and a Feature Build in `Percona-Lab/pmm-submodu
 
 ## 9. Out of scope
 
-Edit or delete API, the UI scope selector, alert annotations, global annotation storage, and the ClickHouse
-datasource ignoring LBAC (separate, security-sensitive ticket per `SECURITY.md`).
+Edit API, a `pmm-admin` delete command, edit or delete from the dashboard marker, the UI scope selector, alert
+annotations, global annotation storage, and the ClickHouse datasource ignoring LBAC (separate, security-sensitive
+ticket per `SECURITY.md`).
