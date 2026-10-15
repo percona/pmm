@@ -17,6 +17,7 @@ package management
 import (
 	"errors"
 	"maps"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -176,21 +177,31 @@ func mysqlSettings(svc *mservice.UpdateServiceOKBodyAfter) []setting {
 		disableTablestatsLimit = strconv.Itoa(int(limit))
 	}
 
-	return append(
+	return slices.Concat(
 		databaseServiceSettings(svc, exporter),
-		setting{Flag: "--tls-key", Value: secretSettingValue(tlsKeySet)},
-		setting{Flag: "--extra-dsn-params", Value: labelsSettingValue(extraDSNParams)},
-		setting{Flag: "--query-source", Value: querySource(svc, map[string]string{
-			MysqlQuerySourceSlowLog:    "qan-mysql-slowlog-agent",
-			MysqlQuerySourcePerfSchema: "qan-mysql-perfschema-agent",
-		})},
-		setting{Flag: "--max-query-length", Value: strconv.Itoa(int(qan.MaxQueryLength))},
-		boolSetting("--disable-queryexamples", qan.QueryExamplesDisabled),
-		setting{Flag: "--comments-parsing", Value: commentsParsingSettingValue(qan.CommentsParsingDisabled)},
-		setting{Flag: "--size-slow-logs", Value: slowlogSizeSettingValue(slowlog.MaxQueryLogSize)},
-		boolSetting("--disable-tablestats", limit < 0),
-		setting{Flag: "--disable-tablestats-limit", Value: disableTablestatsLimit},
-		setting{Flag: "--disable-collectors", Value: strings.Join(exporter.DisabledCollectors, ",")},
+		[]setting{
+			{Flag: "--tls-key", Value: secretSettingValue(tlsKeySet)},
+			{Flag: "--extra-dsn-params", Value: labelsSettingValue(extraDSNParams)},
+			{Flag: "--query-source", Value: querySource(svc, map[string]string{
+				MysqlQuerySourceSlowLog:    "qan-mysql-slowlog-agent",
+				MysqlQuerySourcePerfSchema: "qan-mysql-perfschema-agent",
+			})},
+		},
+		agentSettings(
+			qan,
+			setting{Flag: "--max-query-length", Value: strconv.Itoa(int(qan.MaxQueryLength))},
+			boolSetting("--disable-queryexamples", qan.QueryExamplesDisabled),
+			setting{Flag: "--comments-parsing", Value: commentsParsingSettingValue(qan.CommentsParsingDisabled)},
+		),
+		agentSettings(
+			slowlog,
+			setting{Flag: "--size-slow-logs", Value: slowlogSizeSettingValue(slowlog.MaxQueryLogSize)},
+		),
+		[]setting{
+			boolSetting("--disable-tablestats", limit < 0),
+			{Flag: "--disable-tablestats-limit", Value: disableTablestatsLimit},
+			{Flag: "--disable-collectors", Value: strings.Join(exporter.DisabledCollectors, ",")},
+		},
 	)
 }
 

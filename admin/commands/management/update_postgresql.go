@@ -17,6 +17,7 @@ package management
 import (
 	"errors"
 	"maps"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -148,19 +149,26 @@ func postgresqlSettings(svc *mservice.UpdateServiceOKBodyAfter) []setting {
 		maxExporterConnections = exporter.PostgresqlOptions.MaxExporterConnections
 	}
 
-	return append(
+	return slices.Concat(
 		databaseServiceSettings(svc, exporter),
-		setting{Flag: "--database", Value: svc.DatabaseName},
-		setting{Flag: "--tls-key-file", Value: secretSettingValue(sslKeySet)},
-		setting{Flag: "--query-source", Value: querySource(svc, map[string]string{
-			"pgstatements":  "qan-postgresql-pgstatements-agent",
-			"pgstatmonitor": "qan-postgresql-pgstatmonitor-agent",
-		})},
-		setting{Flag: "--max-query-length", Value: strconv.Itoa(int(qan.MaxQueryLength))},
-		boolSetting("--disable-queryexamples", qan.QueryExamplesDisabled),
-		setting{Flag: "--comments-parsing", Value: commentsParsingSettingValue(qan.CommentsParsingDisabled)},
-		setting{Flag: "--disable-collectors", Value: strings.Join(exporter.DisabledCollectors, ",")},
-		setting{Flag: "--auto-discovery-limit", Value: strconv.Itoa(int(autoDiscoveryLimit))},
-		setting{Flag: "--max-exporter-connections", Value: strconv.Itoa(int(maxExporterConnections))},
+		[]setting{
+			{Flag: "--database", Value: svc.DatabaseName},
+			{Flag: "--tls-key-file", Value: secretSettingValue(sslKeySet)},
+			{Flag: "--query-source", Value: querySource(svc, map[string]string{
+				"pgstatements":  "qan-postgresql-pgstatements-agent",
+				"pgstatmonitor": "qan-postgresql-pgstatmonitor-agent",
+			})},
+		},
+		agentSettings(
+			qan,
+			setting{Flag: "--max-query-length", Value: strconv.Itoa(int(qan.MaxQueryLength))},
+			boolSetting("--disable-queryexamples", qan.QueryExamplesDisabled),
+			setting{Flag: "--comments-parsing", Value: commentsParsingSettingValue(qan.CommentsParsingDisabled)},
+		),
+		[]setting{
+			{Flag: "--disable-collectors", Value: strings.Join(exporter.DisabledCollectors, ",")},
+			{Flag: "--auto-discovery-limit", Value: strconv.Itoa(int(autoDiscoveryLimit))},
+			{Flag: "--max-exporter-connections", Value: strconv.Itoa(int(maxExporterConnections))},
+		},
 	)
 }

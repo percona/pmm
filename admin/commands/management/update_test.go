@@ -64,6 +64,13 @@ type updateRun struct {
 func runUpdate(t *testing.T, cmd any, args ...string) (*updateRun, error) {
 	t.Helper()
 
+	return runUpdateWithResponse(t, updateTestResponse, cmd, args...)
+}
+
+// runUpdateWithResponse is runUpdate with a fake server that answers with the given response.
+func runUpdateWithResponse(t *testing.T, response string, cmd any, args ...string) (*updateRun, error) {
+	t.Helper()
+
 	var path, body string
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, http.MethodPut, r.Method)
@@ -74,7 +81,7 @@ func runUpdate(t *testing.T, cmd any, args ...string) (*updateRun, error) {
 		body = string(b)
 
 		w.Header().Set("Content-Type", "application/json")
-		_, err = w.Write([]byte(updateTestResponse))
+		_, err = w.Write([]byte(response))
 		assert.NoError(t, err)
 	}))
 	t.Cleanup(server.Close)
@@ -237,6 +244,33 @@ func TestUpdateMongoDB(t *testing.T) {
 }
 
 func TestUpdateMySQL(t *testing.T) {
+	// Without a QAN Agent there are no QAN settings to list, and their disappearance is not a change of them.
+	t.Run("QuerySourceNone", func(t *testing.T) {
+		const response = `{
+			"before": {
+				"service_id": "1b6b5e9c-1c3a-4e5f-9a3a-1c3a4e5f9a3a", "service_name": "mysql_srv_1",
+				"agents": [
+					{"agent_type": "mysqld_exporter", "username": "pmm"},
+					{"agent_type": "qan-mysql-slowlog-agent", "max_query_length": 2048, "comments_parsing_disabled": true,
+					 "max_query_log_size": "1073741824"}
+				]
+			},
+			"after": {
+				"service_id": "1b6b5e9c-1c3a-4e5f-9a3a-1c3a4e5f9a3a", "service_name": "mysql_srv_1",
+				"agents": [{"agent_type": "mysqld_exporter", "username": "pmm"}]
+			}
+		}`
+
+		run, err := runUpdateWithResponse(t, response, &UpdateMySQLCommand{}, "mysql_srv_1", "--query-source=none")
+		require.NoError(t, err)
+
+		result := run.res.(*updateServiceResult)
+		assert.Equal(t, []settingChange{{Flag: "--query-source", Before: "slowlog", After: "none"}}, result.Changes)
+		for _, s := range result.Settings {
+			assert.NotContains(t, []string{"--max-query-length", "--disable-queryexamples", "--comments-parsing", "--size-slow-logs"}, s.Flag)
+		}
+	})
+
 	t.Run("Tablestats", func(t *testing.T) {
 		for _, tc := range []struct {
 			args []string

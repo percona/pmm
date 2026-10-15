@@ -16,6 +16,7 @@ package management
 
 import (
 	"maps"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -147,22 +148,29 @@ func mongodbSettings(svc *mservice.UpdateServiceOKBodyAfter) []setting {
 		options = &mservice.UpdateServiceOKBodyAfterAgentsItems0MongoDBOptions{}
 	}
 
-	return append(
+	return slices.Concat(
 		databaseServiceSettings(svc, exporter),
-		setting{Flag: "--tls-certificate-key-file", Value: secretSettingValue(options.IsTLSCertificateKeySet)},
-		setting{Flag: "--tls-certificate-key-file-password", Value: secretSettingValue(options.IsTLSCertificateKeyFilePasswordSet)},
-		setting{Flag: "--authentication-mechanism", Value: options.AuthenticationMechanism},
-		setting{Flag: "--authentication-database", Value: options.AuthenticationDatabase},
-		setting{Flag: "--query-source", Value: querySource(svc, map[string]string{
-			MongodbQuerySourceProfiler: "qan-mongodb-profiler-agent",
-			MongodbQuerySourceMongolog: "qan-mongodb-mongolog-agent",
-		})},
-		setting{Flag: "--max-query-length", Value: strconv.Itoa(int(qan.MaxQueryLength))},
-		boolSetting("--enable-all-collectors", options.EnableAllCollectors),
-		boolSetting("--enable-diagnostic-data-histograms", options.EnableDiagnosticDataHistograms),
-		setting{Flag: "--disable-collectors", Value: strings.Join(exporter.DisabledCollectors, ",")},
-		setting{Flag: "--stats-collections", Value: strings.Join(options.StatsCollections, ",")},
-		setting{Flag: "--max-collections-limit", Value: strconv.Itoa(int(options.CollectionsLimit))},
-		setting{Flag: "--agent-env-vars", Value: strings.Join(exporter.EnvironmentVariableNames, ",")},
+		[]setting{
+			{Flag: "--tls-certificate-key-file", Value: secretSettingValue(options.IsTLSCertificateKeySet)},
+			{Flag: "--tls-certificate-key-file-password", Value: secretSettingValue(options.IsTLSCertificateKeyFilePasswordSet)},
+			{Flag: "--authentication-mechanism", Value: options.AuthenticationMechanism},
+			{Flag: "--authentication-database", Value: options.AuthenticationDatabase},
+			{Flag: "--query-source", Value: querySource(svc, map[string]string{
+				MongodbQuerySourceProfiler: "qan-mongodb-profiler-agent",
+				MongodbQuerySourceMongolog: "qan-mongodb-mongolog-agent",
+			})},
+		},
+		agentSettings(
+			qan,
+			setting{Flag: "--max-query-length", Value: strconv.Itoa(int(qan.MaxQueryLength))},
+		),
+		[]setting{
+			boolSetting("--enable-all-collectors", options.EnableAllCollectors),
+			boolSetting("--enable-diagnostic-data-histograms", options.EnableDiagnosticDataHistograms),
+			{Flag: "--disable-collectors", Value: strings.Join(exporter.DisabledCollectors, ",")},
+			{Flag: "--stats-collections", Value: strings.Join(options.StatsCollections, ",")},
+			{Flag: "--max-collections-limit", Value: strconv.Itoa(int(options.CollectionsLimit))},
+			{Flag: "--agent-env-vars", Value: strings.Join(exporter.EnvironmentVariableNames, ",")},
+		},
 	)
 }

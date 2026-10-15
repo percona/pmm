@@ -464,14 +464,14 @@ func (f *UpdateCommonFlags) runUpdate(
 
 	beforeSettings := settings(&before)
 	for _, s := range res.Settings {
-		var old string
-		for _, bs := range beforeSettings {
-			if bs.Flag == s.Flag {
-				old = bs.Value
-			}
+		// A setting that comes or goes with an Agent, such as the QAN settings when the query source is turned on
+		// or off, is not a change of that setting: the --query-source line reports it.
+		i := slices.IndexFunc(beforeSettings, func(bs setting) bool { return bs.Flag == s.Flag })
+		if i < 0 {
+			continue
 		}
 
-		if old != s.Value || f.sentAny(secretFlags[s.Flag]) {
+		if old := beforeSettings[i].Value; old != s.Value || f.sentAny(secretFlags[s.Flag]) {
 			res.Changes = append(res.Changes, settingChange{Flag: s.Flag, Before: old, After: s.Value, isBool: s.isBool})
 		}
 	}
@@ -497,6 +497,16 @@ func agentOfType(svc *mservice.UpdateServiceOKBodyAfter, agentTypes ...string) *
 	}
 
 	return &mservice.UpdateServiceOKBodyAfterAgentsItems0{}
+}
+
+// agentSettings returns the settings of an Agent, or none if the Service has no such Agent, so that the zero values
+// of a missing Agent are not listed as its settings.
+func agentSettings(agent *mservice.UpdateServiceOKBodyAfterAgentsItems0, settings ...setting) []setting {
+	if agent.AgentType == "" {
+		return nil
+	}
+
+	return settings
 }
 
 // querySource returns the query source of the Service from its QAN Agent types, keyed by query source names.
