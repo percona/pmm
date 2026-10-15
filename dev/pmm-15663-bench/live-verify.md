@@ -53,3 +53,9 @@ Before = be751c4b6 (main + PMM-15609 `allValue: ".+"`, the broken state). After 
   generic "You'll need additional permissions … annotations:delete" 403. Reproduced as admin: id `undefined` and id
   `999999` both give that 403. No permission makes a marker without an id deletable. Test annotations 11 (global) and
   12 (service) added for manual checks.
+- V9 workaround tested (2026-10-15 21:38 UTC), on the VM only, not on any code branch: an exact-match nginx location
+  `= /graph/api/annotations/undefined` in `build/ansible/roles/nginx/files/conf.d/pmm.conf` returns 400 with
+  `{"message":"Node and service annotations cannot be edited or deleted from the dashboard. Delete one with its ID from
+  the marker title (Annotation <ID>): DELETE /v1/management/annotations/<ID>."}`. DELETE and PUT on `undefined` get it;
+  `GET /graph/api/annotations` and `DELETE …/999999` still reach Grafana. The dashboard's error pop-up shows that text
+  (`live/V9-nginx-message-toast.png`). The VM's checkout holds the edit until the next `devvm.sh sync`.
