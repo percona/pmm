@@ -377,7 +377,10 @@ type AddRDSServiceParams struct {
 	PostgresqlDisableCollectors []string `protobuf:"bytes,37,rep,name=postgresql_disable_collectors,json=postgresqlDisableCollectors,proto3" json:"postgresql_disable_collectors,omitempty"`
 	// AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
 	// Mutually exclusive with aws_access_key and aws_secret_key.
-	AwsRoleArn    string `protobuf:"bytes,38,opt,name=aws_role_arn,json=awsRoleArn,proto3" json:"aws_role_arn,omitempty"`
+	AwsRoleArn string `protobuf:"bytes,38,opt,name=aws_role_arn,json=awsRoleArn,proto3" json:"aws_role_arn,omitempty"`
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath     string `protobuf:"bytes,39,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -678,6 +681,13 @@ func (x *AddRDSServiceParams) GetAwsRoleArn() string {
 	return ""
 }
 
+func (x *AddRDSServiceParams) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 type RDSServiceResult struct {
 	state                     protoimpl.MessageState             `protogen:"open.v1"`
 	Node                      *v1.RemoteRDSNode                  `protobuf:"bytes,1,opt,name=node,proto3" json:"node,omitempty"`
@@ -800,7 +810,7 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\faws_role_arn\x18\x03 \x01(\tB7\xfaB4r22-^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$\xd0\x01\x01R\n" +
 	"awsRoleArn\"^\n" +
 	"\x13DiscoverRDSResponse\x12G\n" +
-	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\xe7\x0e\n" +
+	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\xff\x0e\n" +
 	"\x13AddRDSServiceParams\x12\x1f\n" +
 	"\x06region\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
 	"\x02az\x18\x02 \x01(\tR\x02az\x12(\n" +
@@ -818,8 +828,8 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\venvironment\x18\n" +
 	" \x01(\tR\venvironment\x12\x18\n" +
 	"\acluster\x18\v \x01(\tR\acluster\x12'\n" +
-	"\x0freplication_set\x18\f \x01(\tR\x0ereplicationSet\x12'\n" +
-	"\busername\x18\r \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\busername\x12 \n" +
+	"\x0freplication_set\x18\f \x01(\tR\x0ereplicationSet\x12 \n" +
+	"\busername\x18\r \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
 	"\bpassword\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12*\n" +
 	"\x0eaws_access_key\x18\x0f \x01(\tB\x04\x88\xb5\x18\x01R\fawsAccessKey\x12*\n" +
 	"\x0eaws_secret_key\x18\x10 \x01(\tB\x04\x88\xb5\x18\x01R\fawsSecretKey\x12!\n" +
@@ -844,7 +854,9 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\x18mysql_disable_collectors\x18$ \x03(\tR\x16mysqlDisableCollectors\x12B\n" +
 	"\x1dpostgresql_disable_collectors\x18% \x03(\tR\x1bpostgresqlDisableCollectors\x12Y\n" +
 	"\faws_role_arn\x18& \x01(\tB7\xfaB4r22-^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$\xd0\x01\x01R\n" +
-	"awsRoleArn\x1a?\n" +
+	"awsRoleArn\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18' \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd3\x04\n" +

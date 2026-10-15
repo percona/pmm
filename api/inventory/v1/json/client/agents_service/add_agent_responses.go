@@ -3126,6 +3126,9 @@ type AddAgentOKBodyMongodbExporter struct {
 	// Enable collecting histogram bucket metrics from getDiagnosticData.
 	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddAgentOKBodyMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -3475,6 +3478,9 @@ type AddAgentOKBodyMysqldExporter struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddAgentOKBodyMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -4170,6 +4176,9 @@ type AddAgentOKBodyPostgresExporter struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddAgentOKBodyPostgresExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -4497,6 +4506,9 @@ type AddAgentOKBodyProxysqlExporter struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddAgentOKBodyProxysqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -4811,6 +4823,9 @@ type AddAgentOKBodyQANMongodbMongologAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add agent OK body QAN mongodb mongolog agent
@@ -5020,6 +5035,9 @@ type AddAgentOKBodyQANMongodbProfilerAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add agent OK body QAN mongodb profiler agent
@@ -5247,6 +5265,9 @@ type AddAgentOKBodyQANMysqlPerfschemaAgent struct {
 
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add agent OK body QAN mysql perfschema agent
@@ -5477,6 +5498,9 @@ type AddAgentOKBodyQANMysqlSlowlogAgent struct {
 
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add agent OK body QAN mysql slowlog agent
@@ -5689,6 +5713,9 @@ type AddAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add agent OK body QAN postgresql pgstatements agent
@@ -5904,6 +5931,9 @@ type AddAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add agent OK body QAN postgresql pgstatmonitor agent
@@ -6432,6 +6462,9 @@ type AddAgentOKBodyRtaMongodbAgent struct {
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// rta options
 	RtaOptions *AddAgentOKBodyRtaMongodbAgentRtaOptions `json:"rta_options,omitempty"`
 }
@@ -6746,6 +6779,9 @@ type AddAgentOKBodyValkeyExporter struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddAgentOKBodyValkeyExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -7234,6 +7270,10 @@ type AddAgentParamsBodyMongodbExporter struct {
 
 	// Enable collecting histogram bucket metrics from getDiagnosticData.
 	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add agent params body mongodb exporter
@@ -7393,6 +7433,10 @@ type AddAgentParamsBodyMysqldExporter struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add agent params body mysqld exporter
@@ -7708,6 +7752,10 @@ type AddAgentParamsBodyPostgresExporter struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add agent params body postgres exporter
@@ -7850,6 +7898,10 @@ type AddAgentParamsBodyProxysqlExporter struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add agent params body proxysql exporter
@@ -7997,6 +8049,10 @@ type AddAgentParamsBodyQANMongodbMongologAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add agent params body QAN mongodb mongolog agent
@@ -8144,6 +8200,10 @@ type AddAgentParamsBodyQANMongodbProfilerAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add agent params body QAN mongodb profiler agent
@@ -8292,6 +8352,10 @@ type AddAgentParamsBodyQANMysqlPerfschemaAgent struct {
 
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add agent params body QAN mysql perfschema agent
@@ -8444,6 +8508,10 @@ type AddAgentParamsBodyQANMysqlSlowlogAgent struct {
 
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add agent params body QAN mysql slowlog agent
@@ -8586,6 +8654,10 @@ type AddAgentParamsBodyQANPostgresqlPgstatementsAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add agent params body QAN postgresql pgstatements agent
@@ -8731,6 +8803,10 @@ type AddAgentParamsBodyQANPostgresqlPgstatmonitorAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add agent params body QAN postgresql pgstatmonitor agent
@@ -9008,6 +9084,10 @@ type AddAgentParamsBodyRtaMongodbAgent struct {
 	// for details.
 	AuthenticationMechanism string `json:"authentication_mechanism,omitempty"`
 
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// rta options
 	RtaOptions *AddAgentParamsBodyRtaMongodbAgentRtaOptions `json:"rta_options,omitempty"`
 }
@@ -9258,6 +9338,10 @@ type AddAgentParamsBodyValkeyExporter struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add agent params body valkey exporter

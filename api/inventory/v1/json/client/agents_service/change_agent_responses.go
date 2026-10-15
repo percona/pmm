@@ -3126,6 +3126,9 @@ type ChangeAgentOKBodyMongodbExporter struct {
 	// Enable collecting histogram bucket metrics from getDiagnosticData.
 	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -3475,6 +3478,9 @@ type ChangeAgentOKBodyMysqldExporter struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -4251,6 +4257,9 @@ type ChangeAgentOKBodyPostgresExporter struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyPostgresExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -4578,6 +4587,9 @@ type ChangeAgentOKBodyProxysqlExporter struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyProxysqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -4892,6 +4904,9 @@ type ChangeAgentOKBodyQANMongodbMongologAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this change agent OK body QAN mongodb mongolog agent
@@ -5101,6 +5116,9 @@ type ChangeAgentOKBodyQANMongodbProfilerAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this change agent OK body QAN mongodb profiler agent
@@ -5328,6 +5346,9 @@ type ChangeAgentOKBodyQANMysqlPerfschemaAgent struct {
 
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this change agent OK body QAN mysql perfschema agent
@@ -5558,6 +5579,9 @@ type ChangeAgentOKBodyQANMysqlSlowlogAgent struct {
 
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this change agent OK body QAN mysql slowlog agent
@@ -5770,6 +5794,9 @@ type ChangeAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this change agent OK body QAN postgresql pgstatements agent
@@ -5985,6 +6012,9 @@ type ChangeAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this change agent OK body QAN postgresql pgstatmonitor agent
@@ -6513,6 +6543,9 @@ type ChangeAgentOKBodyRtaMongodbAgent struct {
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
+
 	// rta options
 	RtaOptions *ChangeAgentOKBodyRtaMongodbAgentRtaOptions `json:"rta_options,omitempty"`
 }
@@ -6827,6 +6860,9 @@ type ChangeAgentOKBodyValkeyExporter struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath string `json:"vault_path,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyValkeyExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -7689,6 +7725,10 @@ type ChangeAgentParamsBodyMongodbExporter struct {
 	// Enable collecting histogram bucket metrics from getDiagnosticData.
 	EnableDiagnosticDataHistograms *bool `json:"enable_diagnostic_data_histograms,omitempty"`
 
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath *string `json:"vault_path,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyMongodbExporterCustomLabels `json:"custom_labels,omitempty"`
 
@@ -8132,6 +8172,10 @@ type ChangeAgentParamsBodyMysqldExporter struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyMysqldExporterCustomLabels `json:"custom_labels,omitempty"`
@@ -8838,6 +8882,10 @@ type ChangeAgentParamsBodyPostgresExporter struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath *string `json:"vault_path,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyPostgresExporterCustomLabels `json:"custom_labels,omitempty"`
 
@@ -9174,6 +9222,10 @@ type ChangeAgentParamsBodyProxysqlExporter struct {
 
 	// Skip connection check.
 	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyProxysqlExporterCustomLabels `json:"custom_labels,omitempty"`
@@ -9518,6 +9570,10 @@ type ChangeAgentParamsBodyQANMongodbMongologAgent struct {
 	// Skip connection check.
 	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath *string `json:"vault_path,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANMongodbMongologAgentCustomLabels `json:"custom_labels,omitempty"`
 
@@ -9861,6 +9917,10 @@ type ChangeAgentParamsBodyQANMongodbProfilerAgent struct {
 	// Skip connection check.
 	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath *string `json:"vault_path,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANMongodbProfilerAgentCustomLabels `json:"custom_labels,omitempty"`
 
@@ -10203,6 +10263,10 @@ type ChangeAgentParamsBodyQANMysqlPerfschemaAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANMysqlPerfschemaAgentCustomLabels `json:"custom_labels,omitempty"`
@@ -10550,6 +10614,10 @@ type ChangeAgentParamsBodyQANMysqlSlowlogAgent struct {
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath *string `json:"vault_path,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANMysqlSlowlogAgentCustomLabels `json:"custom_labels,omitempty"`
 
@@ -10889,6 +10957,10 @@ type ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent struct {
 
 	// Skip connection check.
 	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCustomLabels `json:"custom_labels,omitempty"`
@@ -11232,6 +11304,10 @@ type ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent struct {
 
 	// Skip connection check.
 	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCustomLabels `json:"custom_labels,omitempty"`
@@ -11893,6 +11969,10 @@ type ChangeAgentParamsBodyRtaMongodbAgent struct {
 	// Skip connection check.
 	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath *string `json:"vault_path,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyRtaMongodbAgentCustomLabels `json:"custom_labels,omitempty"`
 
@@ -12232,6 +12312,10 @@ type ChangeAgentParamsBodyValkeyExporter struct {
 
 	// Skip connection check.
 	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath *string `json:"vault_path,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyValkeyExporterCustomLabels `json:"custom_labels,omitempty"`

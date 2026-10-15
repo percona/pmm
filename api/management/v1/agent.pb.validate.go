@@ -390,6 +390,8 @@ func (m *UniversalAgent) validate(all bool) error {
 
 	// no validation rules for AwsRoleArn
 
+	// no validation rules for VaultPath
+
 	if len(errors) > 0 {
 		return UniversalAgentMultiError(errors)
 	}

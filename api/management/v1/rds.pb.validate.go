@@ -497,16 +497,7 @@ func (m *AddRDSServiceParams) validate(all bool) error {
 
 	// no validation rules for ReplicationSet
 
-	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddRDSServiceParamsValidationError{
-			field:  "Username",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Username
 
 	// no validation rules for Password
 
@@ -590,6 +581,8 @@ func (m *AddRDSServiceParams) validate(all bool) error {
 			errors = append(errors, err)
 		}
 	}
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return AddRDSServiceParamsMultiError(errors)

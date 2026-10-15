@@ -189,6 +189,8 @@ message MySQLdExporter {
   map<string, string> extra_dsn_params = 27;
   // Connection timeout for exporter (if set).
   google.protobuf.Duration connection_timeout = 28;
+  // Path of the Vault secret holding the database credentials, if they are stored in Vault.
+  string vault_path = 29;
 }
 
 // MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
@@ -243,6 +245,8 @@ message MongoDBExporter {
   google.protobuf.Duration connection_timeout = 30;
   // Enable collecting histogram bucket metrics from getDiagnosticData.
   bool enable_diagnostic_data_histograms = 31;
+  // Path of the Vault secret holding the database credentials, if they are stored in Vault.
+  string vault_path = 32;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -290,6 +294,8 @@ message PostgresExporter {
   common.MetricsResolutions metrics_resolutions = 27;
   // Connection timeout for exporter (if set).
   google.protobuf.Duration connection_timeout = 28;
+  // Path of the Vault secret holding the database credentials, if they are stored in Vault.
+  string vault_path = 29;
 }
 
 // ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
@@ -333,6 +339,8 @@ message ProxySQLExporter {
   common.MetricsResolutions metrics_resolutions = 25;
   // Connection timeout for exporter (if set).
   google.protobuf.Duration connection_timeout = 26;
+  // Path of the Vault secret holding the database credentials, if they are stored in Vault.
+  string vault_path = 27;
 }
 
 // ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.
@@ -374,6 +382,8 @@ message ValkeyExporter {
   common.MetricsResolutions metrics_resolutions = 24;
   // Connection timeout for exporter (if set).
   google.protobuf.Duration connection_timeout = 25;
+  // Path of the Vault secret holding the database credentials, if they are stored in Vault.
+  string vault_path = 26;
 }
 
 // QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -420,6 +430,8 @@ message QANMySQLPerfSchemaAgent {
 
   // Extra DSN parameters for MySQL connection.
   map<string, string> extra_dsn_params = 23;
+  // Path of the Vault secret holding the database credentials, if they are stored in Vault.
+  string vault_path = 24;
 }
 
 // QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -468,6 +480,8 @@ message QANMySQLSlowlogAgent {
 
   // Extra DSN parameters for MySQL connection.
   map<string, string> extra_dsn_params = 23;
+  // Path of the Vault secret holding the database credentials, if they are stored in Vault.
+  string vault_path = 24;
 }
 
 // QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
@@ -504,6 +518,8 @@ message QANMongoDBProfilerAgent {
   string process_exec_path = 21;
   // Log level for exporter.
   LogLevel log_level = 22;
+  // Path of the Vault secret holding the database credentials, if they are stored in Vault.
+  string vault_path = 23;
 }
 
 // QANMongoDBMongologAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
@@ -540,6 +556,8 @@ message QANMongoDBMongologAgent {
   string process_exec_path = 21;
   // Log level for exporter.
   LogLevel log_level = 22;
+  // Path of the Vault secret holding the database credentials, if they are stored in Vault.
+  string vault_path = 23;
 }
 
 // RTAOptions holds Real-Time Query Analytics agent options.
@@ -574,6 +592,8 @@ message RTAMongoDBAgent {
   AgentStatus status = 10;
   // Log level for exporter.
   LogLevel log_level = 11;
+  // Path of the Vault secret holding the database credentials, if they are stored in Vault.
+  string vault_path = 12;
 }
 
 // QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
@@ -609,6 +629,8 @@ message QANPostgreSQLPgStatementsAgent {
   string process_exec_path = 21;
   // Log level for exporter.
   LogLevel log_level = 22;
+  // Path of the Vault secret holding the database credentials, if they are stored in Vault.
+  string vault_path = 23;
 }
 
 // QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
@@ -646,6 +668,8 @@ message QANPostgreSQLPgStatMonitorAgent {
   string process_exec_path = 21;
   // Log level for exporter.
   LogLevel log_level = 22;
+  // Path of the Vault secret holding the database credentials, if they are stored in Vault.
+  string vault_path = 23;
 }
 
 // RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
@@ -1005,10 +1029,7 @@ message AddMySQLdExporterParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // MySQL username for scraping metrics.
-  string username = 3 [
-    (validate.rules).string.min_len = 1,
-    (extensions.v1.sensitive) = REDACT_TYPE_FULL
-  ];
+  string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // MySQL password for scraping metrics.
   string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
@@ -1045,6 +1066,9 @@ message AddMySQLdExporterParams {
   google.protobuf.Duration connection_timeout = 19 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  string vault_path = 20;
 }
 
 message ChangeMySQLdExporterParams {
@@ -1086,6 +1110,9 @@ message ChangeMySQLdExporterParams {
   google.protobuf.Duration connection_timeout = 18 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+  // An empty value stops reading the credentials from Vault.
+  optional string vault_path = 19;
 }
 
 // Add/Change MongoDBExporter
@@ -1145,6 +1172,9 @@ message AddMongoDBExporterParams {
   }];
   // Enable collecting histogram bucket metrics from getDiagnosticData.
   bool enable_diagnostic_data_histograms = 24;
+  // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  string vault_path = 25;
 }
 
 message ChangeMongoDBExporterParams {
@@ -1200,6 +1230,9 @@ message ChangeMongoDBExporterParams {
   // Values will be resolved from pmm-agent's environment when starting the exporter.
   // An empty list removes all previously set environment variable names.
   optional common.StringArray environment_variable_names = 24;
+  // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+  // An empty value stops reading the credentials from Vault.
+  optional string vault_path = 25;
 }
 
 // Add/Change PostgresExporter
@@ -1210,10 +1243,7 @@ message AddPostgresExporterParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // PostgreSQL username for scraping metrics.
-  string username = 3 [
-    (validate.rules).string.min_len = 1,
-    (extensions.v1.sensitive) = REDACT_TYPE_FULL
-  ];
+  string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // PostgreSQL password for scraping metrics.
   string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
@@ -1248,6 +1278,9 @@ message AddPostgresExporterParams {
   google.protobuf.Duration connection_timeout = 19 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  string vault_path = 20;
 }
 
 message ChangePostgresExporterParams {
@@ -1291,6 +1324,9 @@ message ChangePostgresExporterParams {
   google.protobuf.Duration connection_timeout = 19 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+  // An empty value stops reading the credentials from Vault.
+  optional string vault_path = 20;
 }
 
 // Add/Change ProxySQLExporter
@@ -1301,10 +1337,7 @@ message AddProxySQLExporterParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // ProxySQL username for scraping metrics.
-  string username = 3 [
-    (validate.rules).string.min_len = 1,
-    (extensions.v1.sensitive) = REDACT_TYPE_FULL
-  ];
+  string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // ProxySQL password for scraping metrics.
   string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
@@ -1329,6 +1362,9 @@ message AddProxySQLExporterParams {
   google.protobuf.Duration connection_timeout = 14 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  string vault_path = 15;
 }
 
 message ChangeProxySQLExporterParams {
@@ -1362,6 +1398,9 @@ message ChangeProxySQLExporterParams {
   }];
   // Skip connection check.
   optional bool skip_connection_check = 14;
+  // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+  // An empty value stops reading the credentials from Vault.
+  optional string vault_path = 15;
 }
 
 // Add/Change QANMySQLPerfSchemaAgent
@@ -1372,10 +1411,7 @@ message AddQANMySQLPerfSchemaAgentParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // MySQL username for getting performance data.
-  string username = 3 [
-    (validate.rules).string.min_len = 1,
-    (extensions.v1.sensitive) = REDACT_TYPE_FULL
-  ];
+  string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // MySQL password for getting performance data.
   string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
@@ -1402,6 +1438,9 @@ message AddQANMySQLPerfSchemaAgentParams {
   LogLevel log_level = 15;
   // Extra DSN parameters for MySQL connection.
   map<string, string> extra_dsn_params = 16;
+  // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  string vault_path = 17;
 }
 
 message ChangeQANMySQLPerfSchemaAgentParams {
@@ -1437,6 +1476,9 @@ message ChangeQANMySQLPerfSchemaAgentParams {
   optional bool disable_comments_parsing = 15;
   // Log level for exporter.
   optional LogLevel log_level = 16;
+  // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+  // An empty value stops reading the credentials from Vault.
+  optional string vault_path = 17;
 }
 
 // Add/Change QANMySQLSlowlogAgent
@@ -1447,10 +1489,7 @@ message AddQANMySQLSlowlogAgentParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // MySQL username for getting slowlog data.
-  string username = 3 [
-    (validate.rules).string.min_len = 1,
-    (extensions.v1.sensitive) = REDACT_TYPE_FULL
-  ];
+  string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // MySQL password for getting slowlog data.
   string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
@@ -1480,6 +1519,9 @@ message AddQANMySQLSlowlogAgentParams {
   LogLevel log_level = 16;
   // Extra DSN parameters for MySQL connection.
   map<string, string> extra_dsn_params = 17;
+  // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  string vault_path = 18;
 }
 
 message ChangeQANMySQLSlowlogAgentParams {
@@ -1517,6 +1559,9 @@ message ChangeQANMySQLSlowlogAgentParams {
   optional bool disable_comments_parsing = 16;
   // Log level for exporter.
   optional LogLevel log_level = 17;
+  // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+  // An empty value stops reading the credentials from Vault.
+  optional string vault_path = 18;
 }
 
 // Add/Change QANMongoDBProfilerAgent
@@ -1554,6 +1599,9 @@ message AddQANMongoDBProfilerAgentParams {
   string authentication_database = 14;
   // Log level for agent.
   LogLevel log_level = 15;
+  // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  string vault_path = 16;
 }
 
 message ChangeQANMongoDBProfilerAgentParams {
@@ -1589,6 +1637,9 @@ message ChangeQANMongoDBProfilerAgentParams {
   optional LogLevel log_level = 15;
   // Skip connection check.
   optional bool skip_connection_check = 16;
+  // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+  // An empty value stops reading the credentials from Vault.
+  optional string vault_path = 17;
 }
 
 // Add/Change QANMongoDBMongologAgent
@@ -1626,6 +1677,9 @@ message AddQANMongoDBMongologAgentParams {
   string authentication_database = 14;
   // Log level for agent.
   LogLevel log_level = 15;
+  // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  string vault_path = 16;
 }
 
 message ChangeQANMongoDBMongologAgentParams {
@@ -1661,6 +1715,9 @@ message ChangeQANMongoDBMongologAgentParams {
   optional LogLevel log_level = 15;
   // Skip connection check.
   optional bool skip_connection_check = 16;
+  // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+  // An empty value stops reading the credentials from Vault.
+  optional string vault_path = 17;
 }
 
 // Add/Change QANPostgreSQLPgStatementsAgent
@@ -1671,10 +1728,7 @@ message AddQANPostgreSQLPgStatementsAgentParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // PostgreSQL username for getting pg stat statements data.
-  string username = 3 [
-    (validate.rules).string.min_len = 1,
-    (extensions.v1.sensitive) = REDACT_TYPE_FULL
-  ];
+  string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // PostgreSQL password for getting pg stat statements data.
   string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
@@ -1697,6 +1751,9 @@ message AddQANPostgreSQLPgStatementsAgentParams {
   string tls_key = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Log level for exporter.
   LogLevel log_level = 14;
+  // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  string vault_path = 15;
 }
 
 message ChangeQANPostgreSQLPgStatementsAgentParams {
@@ -1730,6 +1787,9 @@ message ChangeQANPostgreSQLPgStatementsAgentParams {
   optional LogLevel log_level = 14;
   // Skip connection check.
   optional bool skip_connection_check = 15;
+  // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+  // An empty value stops reading the credentials from Vault.
+  optional string vault_path = 16;
 }
 
 // Add/Change QANPostgreSQLPgStatMonitorAgent
@@ -1740,10 +1800,7 @@ message AddQANPostgreSQLPgStatMonitorAgentParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // PostgreSQL username for getting pg stat monitor data.
-  string username = 3 [
-    (validate.rules).string.min_len = 1,
-    (extensions.v1.sensitive) = REDACT_TYPE_FULL
-  ];
+  string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // PostgreSQL password for getting pg stat monitor data.
   string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
@@ -1768,6 +1825,9 @@ message AddQANPostgreSQLPgStatMonitorAgentParams {
   string tls_key = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Log level for exporter.
   LogLevel log_level = 15;
+  // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  string vault_path = 16;
 }
 
 message ChangeQANPostgreSQLPgStatMonitorAgentParams {
@@ -1803,6 +1863,9 @@ message ChangeQANPostgreSQLPgStatMonitorAgentParams {
   optional LogLevel log_level = 15;
   // Skip connection check.
   optional bool skip_connection_check = 16;
+  // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+  // An empty value stops reading the credentials from Vault.
+  optional string vault_path = 17;
 }
 
 // Add/Change RDSExporter
@@ -1977,10 +2040,7 @@ message AddValkeyExporterParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.uuid = true];
   // Valkey username for scraping metrics.
-  string username = 3 [
-    (validate.rules).string.min_len = 1,
-    (extensions.v1.sensitive) = REDACT_TYPE_FULL
-  ];
+  string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Valkey password for scraping metrics.
   string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
@@ -2011,6 +2071,9 @@ message AddValkeyExporterParams {
   google.protobuf.Duration connection_timeout = 17 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  string vault_path = 18;
 }
 
 message ChangeValkeyExporterParams {
@@ -2053,6 +2116,9 @@ message ChangeValkeyExporterParams {
   }];
   // Skip connection check.
   optional bool skip_connection_check = 17;
+  // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+  // An empty value stops reading the credentials from Vault.
+  optional string vault_path = 18;
 }
 
 // Add/Change RTAMongoDBAgent
@@ -2090,6 +2156,9 @@ message AddRTAMongoDBAgentParams {
   string authentication_mechanism = 13;
   // Real-Time Analytics options.
   RTAOptions rta_options = 14;
+  // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  string vault_path = 15;
 }
 
 message ChangeRTAMongoDBAgentParams {
@@ -2119,6 +2188,9 @@ message ChangeRTAMongoDBAgentParams {
   optional RTAOptions rta_options = 12;
   // Skip connection check.
   optional bool skip_connection_check = 13;
+  // Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+  // An empty value stops reading the credentials from Vault.
+  optional string vault_path = 14;
 }
 
 // Remove

@@ -43,10 +43,7 @@ message AddMySQLServiceParams {
   // Replication set name.
   string replication_set = 11;
   // MySQL username for scraping metrics.
-  string username = 12 [
-    (validate.rules).string.min_len = 1,
-    (extensions.v1.sensitive) = REDACT_TYPE_FULL
-  ];
+  string username = 12 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // MySQL password for scraping metrics.
   string password = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // If true, adds qan-mysql-perfschema-agent for provided service.
@@ -99,6 +96,9 @@ message AddMySQLServiceParams {
   google.protobuf.Duration connection_timeout = 34 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  string vault_path = 35;
 }
 
 message MySQLServiceResult {

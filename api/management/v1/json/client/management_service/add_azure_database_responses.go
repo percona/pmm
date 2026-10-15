@@ -275,6 +275,10 @@ type AddAzureDatabaseBody struct {
 
 	// The pmm-agent identifier which should run agents. Defaults to the PMM Server's own pmm-agent.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath string `json:"vault_path,omitempty"`
 }
 
 // Validate validates this add azure database body

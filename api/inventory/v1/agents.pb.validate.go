@@ -640,6 +640,8 @@ func (m *MySQLdExporter) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for VaultPath
+
 	if len(errors) > 0 {
 		return MySQLdExporterMultiError(errors)
 	}
@@ -833,6 +835,8 @@ func (m *MongoDBExporter) validate(all bool) error {
 
 	// no validation rules for EnableDiagnosticDataHistograms
 
+	// no validation rules for VaultPath
+
 	if len(errors) > 0 {
 		return MongoDBExporterMultiError(errors)
 	}
@@ -1024,6 +1028,8 @@ func (m *PostgresExporter) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for VaultPath
+
 	if len(errors) > 0 {
 		return PostgresExporterMultiError(errors)
 	}
@@ -1211,6 +1217,8 @@ func (m *ProxySQLExporter) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for VaultPath
+
 	if len(errors) > 0 {
 		return ProxySQLExporterMultiError(errors)
 	}
@@ -1396,6 +1404,8 @@ func (m *ValkeyExporter) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for VaultPath
+
 	if len(errors) > 0 {
 		return ValkeyExporterMultiError(errors)
 	}
@@ -1532,6 +1542,8 @@ func (m *QANMySQLPerfSchemaAgent) validate(all bool) error {
 	// no validation rules for LogLevel
 
 	// no validation rules for ExtraDsnParams
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return QANMySQLPerfSchemaAgentMultiError(errors)
@@ -1674,6 +1686,8 @@ func (m *QANMySQLSlowlogAgent) validate(all bool) error {
 
 	// no validation rules for ExtraDsnParams
 
+	// no validation rules for VaultPath
+
 	if len(errors) > 0 {
 		return QANMySQLSlowlogAgentMultiError(errors)
 	}
@@ -1801,6 +1815,8 @@ func (m *QANMongoDBProfilerAgent) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for VaultPath
+
 	if len(errors) > 0 {
 		return QANMongoDBProfilerAgentMultiError(errors)
 	}
@@ -1927,6 +1943,8 @@ func (m *QANMongoDBMongologAgent) validate(all bool) error {
 	// no validation rules for ProcessExecPath
 
 	// no validation rules for LogLevel
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return QANMongoDBMongologAgentMultiError(errors)
@@ -2210,6 +2228,8 @@ func (m *RTAMongoDBAgent) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for VaultPath
+
 	if len(errors) > 0 {
 		return RTAMongoDBAgentMultiError(errors)
 	}
@@ -2336,6 +2356,8 @@ func (m *QANPostgreSQLPgStatementsAgent) validate(all bool) error {
 	// no validation rules for ProcessExecPath
 
 	// no validation rules for LogLevel
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return QANPostgreSQLPgStatementsAgentMultiError(errors)
@@ -2468,6 +2490,8 @@ func (m *QANPostgreSQLPgStatMonitorAgent) validate(all bool) error {
 	// no validation rules for ProcessExecPath
 
 	// no validation rules for LogLevel
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return QANPostgreSQLPgStatMonitorAgentMultiError(errors)
@@ -8959,16 +8983,7 @@ func (m *AddMySQLdExporterParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddMySQLdExporterParamsValidationError{
-			field:  "Username",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Username
 
 	// no validation rules for Password
 
@@ -9027,6 +9042,8 @@ func (m *AddMySQLdExporterParams) validate(all bool) error {
 
 		}
 	}
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return AddMySQLdExporterParamsMultiError(errors)
@@ -9277,6 +9294,10 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 		// no validation rules for ExposeExporter
 	}
 
+	if m.VaultPath != nil {
+		// no validation rules for VaultPath
+	}
+
 	if len(errors) > 0 {
 		return ChangeMySQLdExporterParamsMultiError(errors)
 	}
@@ -9467,6 +9488,8 @@ func (m *AddMongoDBExporterParams) validate(all bool) error {
 	}
 
 	// no validation rules for EnableDiagnosticDataHistograms
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return AddMongoDBExporterParamsMultiError(errors)
@@ -9764,6 +9787,10 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 		}
 	}
 
+	if m.VaultPath != nil {
+		// no validation rules for VaultPath
+	}
+
 	if len(errors) > 0 {
 		return ChangeMongoDBExporterParamsMultiError(errors)
 	}
@@ -9890,16 +9917,7 @@ func (m *AddPostgresExporterParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddPostgresExporterParamsValidationError{
-			field:  "Username",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Username
 
 	// no validation rules for Password
 
@@ -9958,6 +9976,8 @@ func (m *AddPostgresExporterParams) validate(all bool) error {
 
 		}
 	}
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return AddPostgresExporterParamsMultiError(errors)
@@ -10212,6 +10232,10 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 		// no validation rules for MaxExporterConnections
 	}
 
+	if m.VaultPath != nil {
+		// no validation rules for VaultPath
+	}
+
 	if len(errors) > 0 {
 		return ChangePostgresExporterParamsMultiError(errors)
 	}
@@ -10338,16 +10362,7 @@ func (m *AddProxySQLExporterParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddProxySQLExporterParamsValidationError{
-			field:  "Username",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Username
 
 	// no validation rules for Password
 
@@ -10396,6 +10411,8 @@ func (m *AddProxySQLExporterParams) validate(all bool) error {
 
 		}
 	}
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return AddProxySQLExporterParamsMultiError(errors)
@@ -10630,6 +10647,10 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 		// no validation rules for SkipConnectionCheck
 	}
 
+	if m.VaultPath != nil {
+		// no validation rules for VaultPath
+	}
+
 	if len(errors) > 0 {
 		return ChangeProxySQLExporterParamsMultiError(errors)
 	}
@@ -10757,16 +10778,7 @@ func (m *AddQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddQANMySQLPerfSchemaAgentParamsValidationError{
-			field:  "Username",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Username
 
 	// no validation rules for Password
 
@@ -10793,6 +10805,8 @@ func (m *AddQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 	// no validation rules for LogLevel
 
 	// no validation rules for ExtraDsnParams
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return AddQANMySQLPerfSchemaAgentParamsMultiError(errors)
@@ -11016,6 +11030,10 @@ func (m *ChangeQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 		// no validation rules for LogLevel
 	}
 
+	if m.VaultPath != nil {
+		// no validation rules for VaultPath
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANMySQLPerfSchemaAgentParamsMultiError(errors)
 	}
@@ -11143,16 +11161,7 @@ func (m *AddQANMySQLSlowlogAgentParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddQANMySQLSlowlogAgentParamsValidationError{
-			field:  "Username",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Username
 
 	// no validation rules for Password
 
@@ -11181,6 +11190,8 @@ func (m *AddQANMySQLSlowlogAgentParams) validate(all bool) error {
 	// no validation rules for LogLevel
 
 	// no validation rules for ExtraDsnParams
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return AddQANMySQLSlowlogAgentParamsMultiError(errors)
@@ -11407,6 +11418,10 @@ func (m *ChangeQANMySQLSlowlogAgentParams) validate(all bool) error {
 		// no validation rules for LogLevel
 	}
 
+	if m.VaultPath != nil {
+		// no validation rules for VaultPath
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANMySQLSlowlogAgentParamsMultiError(errors)
 	}
@@ -11560,6 +11575,8 @@ func (m *AddQANMongoDBProfilerAgentParams) validate(all bool) error {
 	// no validation rules for AuthenticationDatabase
 
 	// no validation rules for LogLevel
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return AddQANMongoDBProfilerAgentParamsMultiError(errors)
@@ -11783,6 +11800,10 @@ func (m *ChangeQANMongoDBProfilerAgentParams) validate(all bool) error {
 		// no validation rules for SkipConnectionCheck
 	}
 
+	if m.VaultPath != nil {
+		// no validation rules for VaultPath
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANMongoDBProfilerAgentParamsMultiError(errors)
 	}
@@ -11936,6 +11957,8 @@ func (m *AddQANMongoDBMongologAgentParams) validate(all bool) error {
 	// no validation rules for AuthenticationDatabase
 
 	// no validation rules for LogLevel
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return AddQANMongoDBMongologAgentParamsMultiError(errors)
@@ -12159,6 +12182,10 @@ func (m *ChangeQANMongoDBMongologAgentParams) validate(all bool) error {
 		// no validation rules for SkipConnectionCheck
 	}
 
+	if m.VaultPath != nil {
+		// no validation rules for VaultPath
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANMongoDBMongologAgentParamsMultiError(errors)
 	}
@@ -12288,16 +12315,7 @@ func (m *AddQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddQANPostgreSQLPgStatementsAgentParamsValidationError{
-			field:  "Username",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Username
 
 	// no validation rules for Password
 
@@ -12320,6 +12338,8 @@ func (m *AddQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 	// no validation rules for TlsKey
 
 	// no validation rules for LogLevel
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return AddQANPostgreSQLPgStatementsAgentParamsMultiError(errors)
@@ -12540,6 +12560,10 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 		// no validation rules for SkipConnectionCheck
 	}
 
+	if m.VaultPath != nil {
+		// no validation rules for VaultPath
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANPostgreSQLPgStatementsAgentParamsMultiError(errors)
 	}
@@ -12669,16 +12693,7 @@ func (m *AddQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddQANPostgreSQLPgStatMonitorAgentParamsValidationError{
-			field:  "Username",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Username
 
 	// no validation rules for Password
 
@@ -12703,6 +12718,8 @@ func (m *AddQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 	// no validation rules for TlsKey
 
 	// no validation rules for LogLevel
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return AddQANPostgreSQLPgStatMonitorAgentParamsMultiError(errors)
@@ -12925,6 +12942,10 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 
 	if m.SkipConnectionCheck != nil {
 		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.VaultPath != nil {
+		// no validation rules for VaultPath
 	}
 
 	if len(errors) > 0 {
@@ -14212,16 +14233,7 @@ func (m *AddValkeyExporterParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddValkeyExporterParamsValidationError{
-			field:  "Username",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Username
 
 	// no validation rules for Password
 
@@ -14276,6 +14288,8 @@ func (m *AddValkeyExporterParams) validate(all bool) error {
 
 		}
 	}
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return AddValkeyExporterParamsMultiError(errors)
@@ -14539,6 +14553,10 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 		// no validation rules for SkipConnectionCheck
 	}
 
+	if m.VaultPath != nil {
+		// no validation rules for VaultPath
+	}
+
 	if len(errors) > 0 {
 		return ChangeValkeyExporterParamsMultiError(errors)
 	}
@@ -14714,6 +14732,8 @@ func (m *AddRTAMongoDBAgentParams) validate(all bool) error {
 			}
 		}
 	}
+
+	// no validation rules for VaultPath
 
 	if len(errors) > 0 {
 		return AddRTAMongoDBAgentParamsMultiError(errors)
@@ -14922,6 +14942,10 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 
 	if m.SkipConnectionCheck != nil {
 		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.VaultPath != nil {
+		// no validation rules for VaultPath
 	}
 
 	if len(errors) > 0 {

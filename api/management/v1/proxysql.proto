@@ -43,10 +43,7 @@ message AddProxySQLServiceParams {
   // Replication set name.
   string replication_set = 11;
   // ProxySQL username for scraping metrics.
-  string username = 12 [
-    (validate.rules).string.min_len = 1,
-    (extensions.v1.sensitive) = REDACT_TYPE_FULL
-  ];
+  string username = 12 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // ProxySQL password for scraping metrics.
   string password = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom user-assigned labels for Service.
@@ -73,6 +70,9 @@ message AddProxySQLServiceParams {
   google.protobuf.Duration connection_timeout = 24 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  string vault_path = 25;
 }
 
 message ProxySQLServiceResult {

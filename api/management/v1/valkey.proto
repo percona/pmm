@@ -78,6 +78,9 @@ message AddValkeyServiceParams {
   google.protobuf.Duration connection_timeout = 25 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+  // Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+  string vault_path = 26;
 }
 
 message ValkeyServiceResult {

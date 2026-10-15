@@ -83,8 +83,11 @@ type AddProxySQLServiceParams struct {
 	ExposeExporter bool `protobuf:"varint,23,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,24,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath     string `protobuf:"bytes,25,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddProxySQLServiceParams) Reset() {
@@ -278,6 +281,13 @@ func (x *AddProxySQLServiceParams) GetConnectionTimeout() *durationpb.Duration {
 	return nil
 }
 
+func (x *AddProxySQLServiceParams) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 type ProxySQLServiceResult struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	Service          *v1.ProxySQLService    `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
@@ -334,7 +344,7 @@ var File_management_v1_proxysql_proto protoreflect.FileDescriptor
 
 const file_management_v1_proxysql_proto_rawDesc = "" +
 	"\n" +
-	"\x1cmanagement/v1/proxysql.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xb2\b\n" +
+	"\x1cmanagement/v1/proxysql.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xca\b\n" +
 	"\x18AddProxySQLServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -348,8 +358,8 @@ const file_management_v1_proxysql_proto_rawDesc = "" +
 	"\venvironment\x18\t \x01(\tR\venvironment\x12\x18\n" +
 	"\acluster\x18\n" +
 	" \x01(\tR\acluster\x12'\n" +
-	"\x0freplication_set\x18\v \x01(\tR\x0ereplicationSet\x12'\n" +
-	"\busername\x18\f \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\busername\x12 \n" +
+	"\x0freplication_set\x18\v \x01(\tR\x0ereplicationSet\x12 \n" +
+	"\busername\x18\f \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
 	"\bpassword\x18\r \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12^\n" +
 	"\rcustom_labels\x18\x0e \x03(\v29.management.v1.AddProxySQLServiceParams.CustomLabelsEntryR\fcustomLabels\x122\n" +
 	"\x15skip_connection_check\x18\x0f \x01(\bR\x13skipConnectionCheck\x12\x10\n" +
@@ -360,7 +370,9 @@ const file_management_v1_proxysql_proto_rawDesc = "" +
 	"\x0eagent_password\x18\x15 \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x123\n" +
 	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
 	"\x0fexpose_exporter\x18\x17 \x01(\bR\x0eexposeExporter\x12R\n" +
-	"\x12connection_timeout\x18\x18 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18\x18 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x19 \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9d\x01\n" +

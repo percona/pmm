@@ -584,8 +584,10 @@ type MySQLdExporter struct {
 	ExtraDsnParams map[string]string `protobuf:"bytes,27,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,28,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath     string `protobuf:"bytes,29,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MySQLdExporter) Reset() {
@@ -786,6 +788,13 @@ func (x *MySQLdExporter) GetConnectionTimeout() *durationpb.Duration {
 	return nil
 }
 
+func (x *MySQLdExporter) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 // MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
 type MongoDBExporter struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -834,8 +843,10 @@ type MongoDBExporter struct {
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,30,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
 	// Enable collecting histogram bucket metrics from getDiagnosticData.
 	EnableDiagnosticDataHistograms bool `protobuf:"varint,31,opt,name=enable_diagnostic_data_histograms,json=enableDiagnosticDataHistograms,proto3" json:"enable_diagnostic_data_histograms,omitempty"`
-	unknownFields                  protoimpl.UnknownFields
-	sizeCache                      protoimpl.SizeCache
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath     string `protobuf:"bytes,32,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MongoDBExporter) Reset() {
@@ -1022,6 +1033,13 @@ func (x *MongoDBExporter) GetEnableDiagnosticDataHistograms() bool {
 	return false
 }
 
+func (x *MongoDBExporter) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
 type PostgresExporter struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1063,8 +1081,10 @@ type PostgresExporter struct {
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,27,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,28,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath     string `protobuf:"bytes,29,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *PostgresExporter) Reset() {
@@ -1230,6 +1250,13 @@ func (x *PostgresExporter) GetConnectionTimeout() *durationpb.Duration {
 	return nil
 }
 
+func (x *PostgresExporter) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 // ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
 type ProxySQLExporter struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1267,8 +1294,10 @@ type ProxySQLExporter struct {
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,25,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,26,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath     string `protobuf:"bytes,27,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ProxySQLExporter) Reset() {
@@ -1420,6 +1449,13 @@ func (x *ProxySQLExporter) GetConnectionTimeout() *durationpb.Duration {
 	return nil
 }
 
+func (x *ProxySQLExporter) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 // ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.
 type ValkeyExporter struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1455,8 +1491,10 @@ type ValkeyExporter struct {
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,24,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,25,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath     string `protobuf:"bytes,26,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ValkeyExporter) Reset() {
@@ -1601,6 +1639,13 @@ func (x *ValkeyExporter) GetConnectionTimeout() *durationpb.Duration {
 	return nil
 }
 
+func (x *ValkeyExporter) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 // QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 type QANMySQLPerfSchemaAgent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1640,8 +1685,10 @@ type QANMySQLPerfSchemaAgent struct {
 	LogLevel LogLevel `protobuf:"varint,22,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `protobuf:"bytes,23,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath     string `protobuf:"bytes,24,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *QANMySQLPerfSchemaAgent) Reset() {
@@ -1800,6 +1847,13 @@ func (x *QANMySQLPerfSchemaAgent) GetExtraDsnParams() map[string]string {
 	return nil
 }
 
+func (x *QANMySQLPerfSchemaAgent) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 // QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 type QANMySQLSlowlogAgent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1841,8 +1895,10 @@ type QANMySQLSlowlogAgent struct {
 	LogLevel LogLevel `protobuf:"varint,22,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `protobuf:"bytes,23,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath     string `protobuf:"bytes,24,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *QANMySQLSlowlogAgent) Reset() {
@@ -2008,6 +2064,13 @@ func (x *QANMySQLSlowlogAgent) GetExtraDsnParams() map[string]string {
 	return nil
 }
 
+func (x *QANMySQLSlowlogAgent) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 // QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
 type QANMongoDBProfilerAgent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -2034,7 +2097,9 @@ type QANMongoDBProfilerAgent struct {
 	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,21,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 	// Log level for exporter.
-	LogLevel      LogLevel `protobuf:"varint,22,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	LogLevel LogLevel `protobuf:"varint,22,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath     string `protobuf:"bytes,23,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2153,6 +2218,13 @@ func (x *QANMongoDBProfilerAgent) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
+func (x *QANMongoDBProfilerAgent) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 // QANMongoDBMongologAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
 type QANMongoDBMongologAgent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -2179,7 +2251,9 @@ type QANMongoDBMongologAgent struct {
 	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,21,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 	// Log level for exporter.
-	LogLevel      LogLevel `protobuf:"varint,22,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	LogLevel LogLevel `protobuf:"varint,22,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath     string `protobuf:"bytes,23,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2298,6 +2372,13 @@ func (x *QANMongoDBMongologAgent) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
+func (x *QANMongoDBMongologAgent) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 // RTAOptions holds Real-Time Query Analytics agent options.
 type RTAOptions struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -2368,7 +2449,9 @@ type RTAMongoDBAgent struct {
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,10,opt,name=status,proto3,enum=inventory.v1.AgentStatus" json:"status,omitempty"`
 	// Log level for exporter.
-	LogLevel      LogLevel `protobuf:"varint,11,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	LogLevel LogLevel `protobuf:"varint,11,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath     string `protobuf:"bytes,12,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2480,6 +2563,13 @@ func (x *RTAMongoDBAgent) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
+func (x *RTAMongoDBAgent) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 // QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 type QANPostgreSQLPgStatementsAgent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -2508,7 +2598,9 @@ type QANPostgreSQLPgStatementsAgent struct {
 	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,21,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 	// Log level for exporter.
-	LogLevel      LogLevel `protobuf:"varint,22,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	LogLevel LogLevel `protobuf:"varint,22,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath     string `protobuf:"bytes,23,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2634,6 +2726,13 @@ func (x *QANPostgreSQLPgStatementsAgent) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
+func (x *QANPostgreSQLPgStatementsAgent) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 // QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 type QANPostgreSQLPgStatMonitorAgent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -2664,7 +2763,9 @@ type QANPostgreSQLPgStatMonitorAgent struct {
 	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,21,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 	// Log level for exporter.
-	LogLevel      LogLevel `protobuf:"varint,22,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	LogLevel LogLevel `protobuf:"varint,22,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// Path of the Vault secret holding the database credentials, if they are stored in Vault.
+	VaultPath     string `protobuf:"bytes,23,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2795,6 +2896,13 @@ func (x *QANPostgreSQLPgStatMonitorAgent) GetLogLevel() LogLevel {
 		return x.LogLevel
 	}
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
+}
+
+func (x *QANPostgreSQLPgStatMonitorAgent) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
 }
 
 // RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
@@ -5717,8 +5825,11 @@ type AddMySQLdExporterParams struct {
 	ExtraDsnParams map[string]string `protobuf:"bytes,18,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,19,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath     string `protobuf:"bytes,20,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddMySQLdExporterParams) Reset() {
@@ -5884,6 +5995,13 @@ func (x *AddMySQLdExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	return nil
 }
 
+func (x *AddMySQLdExporterParams) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 type ChangeMySQLdExporterParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -5922,8 +6040,11 @@ type ChangeMySQLdExporterParams struct {
 	ExposeExporter *bool `protobuf:"varint,17,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,18,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath     *string `protobuf:"bytes,19,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeMySQLdExporterParams) Reset() {
@@ -6082,6 +6203,13 @@ func (x *ChangeMySQLdExporterParams) GetConnectionTimeout() *durationpb.Duration
 	return nil
 }
 
+func (x *ChangeMySQLdExporterParams) GetVaultPath() string {
+	if x != nil && x.VaultPath != nil {
+		return *x.VaultPath
+	}
+	return ""
+}
+
 type AddMongoDBExporterParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The pmm-agent identifier which runs this instance.
@@ -6136,8 +6264,11 @@ type AddMongoDBExporterParams struct {
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,23,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
 	// Enable collecting histogram bucket metrics from getDiagnosticData.
 	EnableDiagnosticDataHistograms bool `protobuf:"varint,24,opt,name=enable_diagnostic_data_histograms,json=enableDiagnosticDataHistograms,proto3" json:"enable_diagnostic_data_histograms,omitempty"`
-	unknownFields                  protoimpl.UnknownFields
-	sizeCache                      protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath     string `protobuf:"bytes,25,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddMongoDBExporterParams) Reset() {
@@ -6338,6 +6469,13 @@ func (x *AddMongoDBExporterParams) GetEnableDiagnosticDataHistograms() bool {
 	return false
 }
 
+func (x *AddMongoDBExporterParams) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 type ChangeMongoDBExporterParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -6390,8 +6528,11 @@ type ChangeMongoDBExporterParams struct {
 	// Values will be resolved from pmm-agent's environment when starting the exporter.
 	// An empty list removes all previously set environment variable names.
 	EnvironmentVariableNames *common.StringArray `protobuf:"bytes,24,opt,name=environment_variable_names,json=environmentVariableNames,proto3,oneof" json:"environment_variable_names,omitempty"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath     *string `protobuf:"bytes,25,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeMongoDBExporterParams) Reset() {
@@ -6592,6 +6733,13 @@ func (x *ChangeMongoDBExporterParams) GetEnvironmentVariableNames() *common.Stri
 	return nil
 }
 
+func (x *ChangeMongoDBExporterParams) GetVaultPath() string {
+	if x != nil && x.VaultPath != nil {
+		return *x.VaultPath
+	}
+	return ""
+}
+
 type AddPostgresExporterParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The pmm-agent identifier which runs this instance.
@@ -6632,8 +6780,11 @@ type AddPostgresExporterParams struct {
 	MaxExporterConnections int32 `protobuf:"varint,18,opt,name=max_exporter_connections,json=maxExporterConnections,proto3" json:"max_exporter_connections,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,19,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath     string `protobuf:"bytes,20,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddPostgresExporterParams) Reset() {
@@ -6799,6 +6950,13 @@ func (x *AddPostgresExporterParams) GetConnectionTimeout() *durationpb.Duration 
 	return nil
 }
 
+func (x *AddPostgresExporterParams) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 type ChangePostgresExporterParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -6839,8 +6997,11 @@ type ChangePostgresExporterParams struct {
 	MaxExporterConnections *int32 `protobuf:"varint,18,opt,name=max_exporter_connections,json=maxExporterConnections,proto3,oneof" json:"max_exporter_connections,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,19,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath     *string `protobuf:"bytes,20,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangePostgresExporterParams) Reset() {
@@ -7006,6 +7167,13 @@ func (x *ChangePostgresExporterParams) GetConnectionTimeout() *durationpb.Durati
 	return nil
 }
 
+func (x *ChangePostgresExporterParams) GetVaultPath() string {
+	if x != nil && x.VaultPath != nil {
+		return *x.VaultPath
+	}
+	return ""
+}
+
 type AddProxySQLExporterParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The pmm-agent identifier which runs this instance.
@@ -7036,8 +7204,11 @@ type AddProxySQLExporterParams struct {
 	ExposeExporter bool `protobuf:"varint,13,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,14,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath     string `protobuf:"bytes,15,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddProxySQLExporterParams) Reset() {
@@ -7168,6 +7339,13 @@ func (x *AddProxySQLExporterParams) GetConnectionTimeout() *durationpb.Duration 
 	return nil
 }
 
+func (x *AddProxySQLExporterParams) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 type ChangeProxySQLExporterParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -7198,8 +7376,11 @@ type ChangeProxySQLExporterParams struct {
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,13,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
 	// Skip connection check.
 	SkipConnectionCheck *bool `protobuf:"varint,14,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath     *string `protobuf:"bytes,15,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeProxySQLExporterParams) Reset() {
@@ -7330,6 +7511,13 @@ func (x *ChangeProxySQLExporterParams) GetSkipConnectionCheck() bool {
 	return false
 }
 
+func (x *ChangeProxySQLExporterParams) GetVaultPath() string {
+	if x != nil && x.VaultPath != nil {
+		return *x.VaultPath
+	}
+	return ""
+}
+
 type AddQANMySQLPerfSchemaAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The pmm-agent identifier which runs this instance.
@@ -7364,8 +7552,11 @@ type AddQANMySQLPerfSchemaAgentParams struct {
 	LogLevel LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `protobuf:"bytes,16,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath     string `protobuf:"bytes,17,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddQANMySQLPerfSchemaAgentParams) Reset() {
@@ -7510,6 +7701,13 @@ func (x *AddQANMySQLPerfSchemaAgentParams) GetExtraDsnParams() map[string]string
 	return nil
 }
 
+func (x *AddQANMySQLPerfSchemaAgentParams) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 type ChangeQANMySQLPerfSchemaAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -7543,7 +7741,10 @@ type ChangeQANMySQLPerfSchemaAgentParams struct {
 	// Disable parsing comments from queries and showing them in QAN.
 	DisableCommentsParsing *bool `protobuf:"varint,15,opt,name=disable_comments_parsing,json=disableCommentsParsing,proto3,oneof" json:"disable_comments_parsing,omitempty"`
 	// Log level for exporter.
-	LogLevel      *LogLevel `protobuf:"varint,16,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
+	LogLevel *LogLevel `protobuf:"varint,16,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath     *string `protobuf:"bytes,17,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -7690,6 +7891,13 @@ func (x *ChangeQANMySQLPerfSchemaAgentParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
+func (x *ChangeQANMySQLPerfSchemaAgentParams) GetVaultPath() string {
+	if x != nil && x.VaultPath != nil {
+		return *x.VaultPath
+	}
+	return ""
+}
+
 type AddQANMySQLSlowlogAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The pmm-agent identifier which runs this instance.
@@ -7727,8 +7935,11 @@ type AddQANMySQLSlowlogAgentParams struct {
 	LogLevel LogLevel `protobuf:"varint,16,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `protobuf:"bytes,17,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath     string `protobuf:"bytes,18,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddQANMySQLSlowlogAgentParams) Reset() {
@@ -7880,6 +8091,13 @@ func (x *AddQANMySQLSlowlogAgentParams) GetExtraDsnParams() map[string]string {
 	return nil
 }
 
+func (x *AddQANMySQLSlowlogAgentParams) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 type ChangeQANMySQLSlowlogAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -7915,7 +8133,10 @@ type ChangeQANMySQLSlowlogAgentParams struct {
 	// Disable parsing comments from queries and showing them in QAN.
 	DisableCommentsParsing *bool `protobuf:"varint,16,opt,name=disable_comments_parsing,json=disableCommentsParsing,proto3,oneof" json:"disable_comments_parsing,omitempty"`
 	// Log level for exporter.
-	LogLevel      *LogLevel `protobuf:"varint,17,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
+	LogLevel *LogLevel `protobuf:"varint,17,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath     *string `protobuf:"bytes,18,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -8069,6 +8290,13 @@ func (x *ChangeQANMySQLSlowlogAgentParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
+func (x *ChangeQANMySQLSlowlogAgentParams) GetVaultPath() string {
+	if x != nil && x.VaultPath != nil {
+		return *x.VaultPath
+	}
+	return ""
+}
+
 type AddQANMongoDBProfilerAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The pmm-agent identifier which runs this instance.
@@ -8102,7 +8330,10 @@ type AddQANMongoDBProfilerAgentParams struct {
 	// Authentication database.
 	AuthenticationDatabase string `protobuf:"bytes,14,opt,name=authentication_database,json=authenticationDatabase,proto3" json:"authentication_database,omitempty"`
 	// Log level for agent.
-	LogLevel      LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	LogLevel LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath     string `protobuf:"bytes,16,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -8242,6 +8473,13 @@ func (x *AddQANMongoDBProfilerAgentParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
+func (x *AddQANMongoDBProfilerAgentParams) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 type ChangeQANMongoDBProfilerAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -8276,8 +8514,11 @@ type ChangeQANMongoDBProfilerAgentParams struct {
 	LogLevel *LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Skip connection check.
 	SkipConnectionCheck *bool `protobuf:"varint,16,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath     *string `protobuf:"bytes,17,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeQANMongoDBProfilerAgentParams) Reset() {
@@ -8422,6 +8663,13 @@ func (x *ChangeQANMongoDBProfilerAgentParams) GetSkipConnectionCheck() bool {
 	return false
 }
 
+func (x *ChangeQANMongoDBProfilerAgentParams) GetVaultPath() string {
+	if x != nil && x.VaultPath != nil {
+		return *x.VaultPath
+	}
+	return ""
+}
+
 type AddQANMongoDBMongologAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The pmm-agent identifier which runs this instance.
@@ -8455,7 +8703,10 @@ type AddQANMongoDBMongologAgentParams struct {
 	// Authentication database.
 	AuthenticationDatabase string `protobuf:"bytes,14,opt,name=authentication_database,json=authenticationDatabase,proto3" json:"authentication_database,omitempty"`
 	// Log level for agent.
-	LogLevel      LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	LogLevel LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath     string `protobuf:"bytes,16,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -8595,6 +8846,13 @@ func (x *AddQANMongoDBMongologAgentParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
+func (x *AddQANMongoDBMongologAgentParams) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 type ChangeQANMongoDBMongologAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -8629,8 +8887,11 @@ type ChangeQANMongoDBMongologAgentParams struct {
 	LogLevel *LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Skip connection check.
 	SkipConnectionCheck *bool `protobuf:"varint,16,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath     *string `protobuf:"bytes,17,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeQANMongoDBMongologAgentParams) Reset() {
@@ -8775,6 +9036,13 @@ func (x *ChangeQANMongoDBMongologAgentParams) GetSkipConnectionCheck() bool {
 	return false
 }
 
+func (x *ChangeQANMongoDBMongologAgentParams) GetVaultPath() string {
+	if x != nil && x.VaultPath != nil {
+		return *x.VaultPath
+	}
+	return ""
+}
+
 type AddQANPostgreSQLPgStatementsAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The pmm-agent identifier which runs this instance.
@@ -8804,7 +9072,10 @@ type AddQANPostgreSQLPgStatementsAgentParams struct {
 	// TLS Certificate Key.
 	TlsKey string `protobuf:"bytes,13,opt,name=tls_key,json=tlsKey,proto3" json:"tls_key,omitempty"`
 	// Log level for exporter.
-	LogLevel      LogLevel `protobuf:"varint,14,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	LogLevel LogLevel `protobuf:"varint,14,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath     string `protobuf:"bytes,15,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -8937,6 +9208,13 @@ func (x *AddQANPostgreSQLPgStatementsAgentParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
+func (x *AddQANPostgreSQLPgStatementsAgentParams) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 type ChangeQANPostgreSQLPgStatementsAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -8969,8 +9247,11 @@ type ChangeQANPostgreSQLPgStatementsAgentParams struct {
 	LogLevel *LogLevel `protobuf:"varint,14,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Skip connection check.
 	SkipConnectionCheck *bool `protobuf:"varint,15,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath     *string `protobuf:"bytes,16,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeQANPostgreSQLPgStatementsAgentParams) Reset() {
@@ -9108,6 +9389,13 @@ func (x *ChangeQANPostgreSQLPgStatementsAgentParams) GetSkipConnectionCheck() bo
 	return false
 }
 
+func (x *ChangeQANPostgreSQLPgStatementsAgentParams) GetVaultPath() string {
+	if x != nil && x.VaultPath != nil {
+		return *x.VaultPath
+	}
+	return ""
+}
+
 type AddQANPostgreSQLPgStatMonitorAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The pmm-agent identifier which runs this instance.
@@ -9139,7 +9427,10 @@ type AddQANPostgreSQLPgStatMonitorAgentParams struct {
 	// TLS Certificate Key.
 	TlsKey string `protobuf:"bytes,14,opt,name=tls_key,json=tlsKey,proto3" json:"tls_key,omitempty"`
 	// Log level for exporter.
-	LogLevel      LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	LogLevel LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath     string `protobuf:"bytes,16,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -9279,6 +9570,13 @@ func (x *AddQANPostgreSQLPgStatMonitorAgentParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
+func (x *AddQANPostgreSQLPgStatMonitorAgentParams) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 type ChangeQANPostgreSQLPgStatMonitorAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -9313,8 +9611,11 @@ type ChangeQANPostgreSQLPgStatMonitorAgentParams struct {
 	LogLevel *LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Skip connection check.
 	SkipConnectionCheck *bool `protobuf:"varint,16,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath     *string `protobuf:"bytes,17,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeQANPostgreSQLPgStatMonitorAgentParams) Reset() {
@@ -9457,6 +9758,13 @@ func (x *ChangeQANPostgreSQLPgStatMonitorAgentParams) GetSkipConnectionCheck() b
 		return *x.SkipConnectionCheck
 	}
 	return false
+}
+
+func (x *ChangeQANPostgreSQLPgStatMonitorAgentParams) GetVaultPath() string {
+	if x != nil && x.VaultPath != nil {
+		return *x.VaultPath
+	}
+	return ""
 }
 
 type AddRDSExporterParams struct {
@@ -10316,8 +10624,11 @@ type AddValkeyExporterParams struct {
 	LogLevel LogLevel `protobuf:"varint,16,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,17,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath     string `protobuf:"bytes,18,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddValkeyExporterParams) Reset() {
@@ -10469,6 +10780,13 @@ func (x *AddValkeyExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	return nil
 }
 
+func (x *AddValkeyExporterParams) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 type ChangeValkeyExporterParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -10505,8 +10823,11 @@ type ChangeValkeyExporterParams struct {
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,16,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
 	// Skip connection check.
 	SkipConnectionCheck *bool `protobuf:"varint,17,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath     *string `protobuf:"bytes,18,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeValkeyExporterParams) Reset() {
@@ -10658,6 +10979,13 @@ func (x *ChangeValkeyExporterParams) GetSkipConnectionCheck() bool {
 	return false
 }
 
+func (x *ChangeValkeyExporterParams) GetVaultPath() string {
+	if x != nil && x.VaultPath != nil {
+		return *x.VaultPath
+	}
+	return ""
+}
+
 type AddRTAMongoDBAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The pmm-agent identifier which runs this instance.
@@ -10690,7 +11018,10 @@ type AddRTAMongoDBAgentParams struct {
 	// for details.
 	AuthenticationMechanism string `protobuf:"bytes,13,opt,name=authentication_mechanism,json=authenticationMechanism,proto3" json:"authentication_mechanism,omitempty"`
 	// Real-Time Analytics options.
-	RtaOptions    *RTAOptions `protobuf:"bytes,14,opt,name=rta_options,json=rtaOptions,proto3" json:"rta_options,omitempty"`
+	RtaOptions *RTAOptions `protobuf:"bytes,14,opt,name=rta_options,json=rtaOptions,proto3" json:"rta_options,omitempty"`
+	// Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+	// Exclusive with the password: pmm-agent reads the credentials from Vault, and they never reach PMM Server.
+	VaultPath     string `protobuf:"bytes,15,opt,name=vault_path,json=vaultPath,proto3" json:"vault_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -10823,6 +11154,13 @@ func (x *AddRTAMongoDBAgentParams) GetRtaOptions() *RTAOptions {
 	return nil
 }
 
+func (x *AddRTAMongoDBAgentParams) GetVaultPath() string {
+	if x != nil {
+		return x.VaultPath
+	}
+	return ""
+}
+
 type ChangeRTAMongoDBAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -10851,8 +11189,11 @@ type ChangeRTAMongoDBAgentParams struct {
 	RtaOptions *RTAOptions `protobuf:"bytes,12,opt,name=rta_options,json=rtaOptions,proto3,oneof" json:"rta_options,omitempty"`
 	// Skip connection check.
 	SkipConnectionCheck *bool `protobuf:"varint,13,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.
+	// An empty value stops reading the credentials from Vault.
+	VaultPath     *string `protobuf:"bytes,14,opt,name=vault_path,json=vaultPath,proto3,oneof" json:"vault_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeRTAMongoDBAgentParams) Reset() {
@@ -10974,6 +11315,13 @@ func (x *ChangeRTAMongoDBAgentParams) GetSkipConnectionCheck() bool {
 		return *x.SkipConnectionCheck
 	}
 	return false
+}
+
+func (x *ChangeRTAMongoDBAgentParams) GetVaultPath() string {
+	if x != nil && x.VaultPath != nil {
+		return *x.VaultPath
+	}
+	return ""
 }
 
 type RemoveAgentRequest struct {
@@ -11118,7 +11466,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x13metrics_resolutions\x18\x0f \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe6\t\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x85\n" +
+	"\n" +
 	"\x0eMySQLdExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11148,13 +11497,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0fexpose_exporter\x18\x19 \x01(\bR\x0eexposeExporter\x12K\n" +
 	"\x13metrics_resolutions\x18\x1a \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12Z\n" +
 	"\x10extra_dsn_params\x18\x1b \x03(\v20.inventory.v1.MySQLdExporter.ExtraDsnParamsEntryR\x0eextraDsnParams\x12H\n" +
-	"\x12connection_timeout\x18\x1c \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18\x1c \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x1d \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xeb\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8a\t\n" +
 	"\x0fMongoDBExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11181,10 +11532,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x13metrics_resolutions\x18\x1c \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12<\n" +
 	"\x1aenvironment_variable_names\x18\x1d \x03(\tR\x18environmentVariableNames\x12H\n" +
 	"\x12connection_timeout\x18\x1e \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x12I\n" +
-	"!enable_diagnostic_data_histograms\x18\x1f \x01(\bR\x1eenableDiagnosticDataHistograms\x1a?\n" +
+	"!enable_diagnostic_data_histograms\x18\x1f \x01(\bR\x1eenableDiagnosticDataHistograms\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18  \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc2\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe1\a\n" +
 	"\x10PostgresExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11208,10 +11561,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0fexpose_exporter\x18\x19 \x01(\bR\x0eexposeExporter\x128\n" +
 	"\x18max_exporter_connections\x18\x1a \x01(\x05R\x16maxExporterConnections\x12K\n" +
 	"\x13metrics_resolutions\x18\x1b \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12H\n" +
-	"\x12connection_timeout\x18\x1c \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18\x1c \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x1d \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd6\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf5\x06\n" +
 	"\x10ProxySQLExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11233,10 +11588,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x17 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
 	"\x0fexpose_exporter\x18\x18 \x01(\bR\x0eexposeExporter\x12K\n" +
 	"\x13metrics_resolutions\x18\x19 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12H\n" +
-	"\x12connection_timeout\x18\x1a \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18\x1a \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x1b \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9d\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbc\x06\n" +
 	"\x0eValkeyExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11257,10 +11614,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x11process_exec_path\x18\x16 \x01(\tR\x0fprocessExecPath\x12'\n" +
 	"\x0fexpose_exporter\x18\x17 \x01(\bR\x0eexposeExporter\x12K\n" +
 	"\x13metrics_resolutions\x18\x18 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12H\n" +
-	"\x12connection_timeout\x18\x19 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18\x19 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x1a \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbb\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xda\a\n" +
 	"\x17QANMySQLPerfSchemaAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11282,13 +11641,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x06status\x18\x14 \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\x12*\n" +
 	"\x11process_exec_path\x18\x15 \x01(\tR\x0fprocessExecPath\x123\n" +
 	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12c\n" +
-	"\x10extra_dsn_params\x18\x17 \x03(\v29.inventory.v1.QANMySQLPerfSchemaAgent.ExtraDsnParamsEntryR\x0eextraDsnParams\x1a?\n" +
+	"\x10extra_dsn_params\x18\x17 \x03(\v29.inventory.v1.QANMySQLPerfSchemaAgent.ExtraDsnParamsEntryR\x0eextraDsnParams\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x18 \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe5\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x84\b\n" +
 	"\x14QANMySQLSlowlogAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11311,13 +11672,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x06status\x18\x14 \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\x12*\n" +
 	"\x11process_exec_path\x18\x15 \x01(\tR\x0fprocessExecPath\x123\n" +
 	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12`\n" +
-	"\x10extra_dsn_params\x18\x17 \x03(\v26.inventory.v1.QANMySQLSlowlogAgent.ExtraDsnParamsEntryR\x0eextraDsnParams\x1a?\n" +
+	"\x10extra_dsn_params\x18\x17 \x03(\v26.inventory.v1.QANMySQLSlowlogAgent.ExtraDsnParamsEntryR\x0eextraDsnParams\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x18 \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe9\x04\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x88\x05\n" +
 	"\x17QANMongoDBProfilerAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11333,10 +11696,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	" \x03(\v27.inventory.v1.QANMongoDBProfilerAgent.CustomLabelsEntryR\fcustomLabels\x121\n" +
 	"\x06status\x18\x14 \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\x12*\n" +
 	"\x11process_exec_path\x18\x15 \x01(\tR\x0fprocessExecPath\x123\n" +
-	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
+	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x17 \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\xe9\x04\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\x88\x05\n" +
 	"\x17QANMongoDBMongologAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11352,14 +11717,16 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	" \x03(\v27.inventory.v1.QANMongoDBMongologAgent.CustomLabelsEntryR\fcustomLabels\x121\n" +
 	"\x06status\x18\x14 \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\x12*\n" +
 	"\x11process_exec_path\x18\x15 \x01(\tR\x0fprocessExecPath\x123\n" +
-	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
+	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x17 \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"^\n" +
 	"\n" +
 	"RTAOptions\x12P\n" +
 	"\x10collect_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationB\n" +
-	"\xfaB\a\xaa\x01\x042\x02\b\x01R\x0fcollectInterval\"\x9f\x04\n" +
+	"\xfaB\a\xaa\x01\x042\x02\b\x01R\x0fcollectInterval\"\xbe\x04\n" +
 	"\x0fRTAMongoDBAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11375,10 +11742,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"rtaOptions\x121\n" +
 	"\x06status\x18\n" +
 	" \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\x123\n" +
-	"\tlog_level\x18\v \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
+	"\tlog_level\x18\v \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\f \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x92\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb1\x05\n" +
 	"\x1eQANPostgreSQLPgStatementsAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11395,10 +11764,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	" \x03(\v2>.inventory.v1.QANPostgreSQLPgStatementsAgent.CustomLabelsEntryR\fcustomLabels\x121\n" +
 	"\x06status\x18\x14 \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\x12*\n" +
 	"\x11process_exec_path\x18\x15 \x01(\tR\x0fprocessExecPath\x123\n" +
-	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
+	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x17 \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcc\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xeb\x05\n" +
 	"\x1fQANPostgreSQLPgStatMonitorAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11416,7 +11787,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\rcustom_labels\x18\v \x03(\v2?.inventory.v1.QANPostgreSQLPgStatMonitorAgent.CustomLabelsEntryR\fcustomLabels\x121\n" +
 	"\x06status\x18\x14 \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\x12*\n" +
 	"\x11process_exec_path\x18\x15 \x01(\tR\x0fprocessExecPath\x123\n" +
-	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
+	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x17 \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb8\x06\n" +
@@ -11667,13 +12040,13 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x14_enable_push_metricsB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\xb5\b\n" +
+	"\x10_expose_exporter\"\xcd\b\n" +
 	"\x17AddMySQLdExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
 	"\n" +
-	"service_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\x12'\n" +
-	"\busername\x18\x03 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\busername\x12 \n" +
+	"service_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\x12 \n" +
+	"\busername\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
 	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x10\n" +
 	"\x03tls\x18\x05 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x12\x15\n" +
@@ -11690,13 +12063,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x10 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
 	"\x0fexpose_exporter\x18\x11 \x01(\bR\x0eexposeExporter\x12c\n" +
 	"\x10extra_dsn_params\x18\x12 \x03(\v29.inventory.v1.AddMySQLdExporterParams.ExtraDsnParamsEntryR\x0eextraDsnParams\x12R\n" +
-	"\x12connection_timeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x14 \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8b\t\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbe\t\n" +
 	"\x1aChangeMySQLdExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11717,7 +12092,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0eagent_password\x18\x0f \x01(\tB\x04\x88\xb5\x18\x01H\fR\ragentPassword\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x10 \x01(\x0e2\x16.inventory.v1.LogLevelH\rR\blogLevel\x88\x01\x01\x12,\n" +
 	"\x0fexpose_exporter\x18\x11 \x01(\bH\x0eR\x0eexposeExporter\x88\x01\x01\x12R\n" +
-	"\x12connection_timeout\x18\x12 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeoutB\t\n" +
+	"\x12connection_timeout\x18\x12 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12\"\n" +
+	"\n" +
+	"vault_path\x18\x13 \x01(\tH\x0fR\tvaultPath\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -11734,7 +12111,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0f_agent_passwordB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\x98\n" +
+	"\x10_expose_exporterB\r\n" +
+	"\v_vault_path\"\xb7\n" +
 	"\n" +
 	"\x18AddMongoDBExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
@@ -11763,10 +12141,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x1aenvironment_variable_names\x18\x15 \x03(\tR\x18environmentVariableNames\x122\n" +
 	"\x15enable_all_collectors\x18\x16 \x01(\bR\x13enableAllCollectors\x12R\n" +
 	"\x12connection_timeout\x18\x17 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12I\n" +
-	"!enable_diagnostic_data_histograms\x18\x18 \x01(\bR\x1eenableDiagnosticDataHistograms\x1a?\n" +
+	"!enable_diagnostic_data_histograms\x18\x18 \x01(\bR\x1eenableDiagnosticDataHistograms\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x19 \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xfc\r\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xaf\x0e\n" +
 	"\x1bChangeMongoDBExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11793,7 +12173,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0fexpose_exporter\x18\x15 \x01(\bH\x11R\x0eexposeExporter\x88\x01\x01\x12R\n" +
 	"\x12connection_timeout\x18\x16 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12N\n" +
 	"!enable_diagnostic_data_histograms\x18\x17 \x01(\bH\x12R\x1eenableDiagnosticDataHistograms\x88\x01\x01\x12V\n" +
-	"\x1aenvironment_variable_names\x18\x18 \x01(\v2\x13.common.StringArrayH\x13R\x18environmentVariableNames\x88\x01\x01B\t\n" +
+	"\x1aenvironment_variable_names\x18\x18 \x01(\v2\x13.common.StringArrayH\x13R\x18environmentVariableNames\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"vault_path\x18\x19 \x01(\tH\x14R\tvaultPath\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -11814,13 +12196,14 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"_log_levelB\x12\n" +
 	"\x10_expose_exporterB$\n" +
 	"\"_enable_diagnostic_data_histogramsB\x1d\n" +
-	"\x1b_environment_variable_names\"\xbc\a\n" +
+	"\x1b_environment_variable_namesB\r\n" +
+	"\v_vault_path\"\xd4\a\n" +
 	"\x19AddPostgresExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
 	"\n" +
-	"service_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\x12'\n" +
-	"\busername\x18\x03 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\busername\x12 \n" +
+	"service_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\x12 \n" +
+	"\busername\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
 	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x10\n" +
 	"\x03tls\x18\x05 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x12^\n" +
@@ -11837,10 +12220,13 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x14auto_discovery_limit\x18\x10 \x01(\x05R\x12autoDiscoveryLimit\x12'\n" +
 	"\x0fexpose_exporter\x18\x11 \x01(\bR\x0eexposeExporter\x128\n" +
 	"\x18max_exporter_connections\x18\x12 \x01(\x05R\x16maxExporterConnections\x12R\n" +
-	"\x12connection_timeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x14 \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd2\t\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x85\n" +
+	"\n" +
 	"\x1cChangePostgresExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11862,7 +12248,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x14auto_discovery_limit\x18\x10 \x01(\x05H\rR\x12autoDiscoveryLimit\x88\x01\x01\x12,\n" +
 	"\x0fexpose_exporter\x18\x11 \x01(\bH\x0eR\x0eexposeExporter\x88\x01\x01\x12=\n" +
 	"\x18max_exporter_connections\x18\x12 \x01(\x05H\x0fR\x16maxExporterConnections\x88\x01\x01\x12R\n" +
-	"\x12connection_timeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeoutB\t\n" +
+	"\x12connection_timeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12\"\n" +
+	"\n" +
+	"vault_path\x18\x14 \x01(\tH\x10R\tvaultPath\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -11880,13 +12268,14 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"_log_levelB\x17\n" +
 	"\x15_auto_discovery_limitB\x12\n" +
 	"\x10_expose_exporterB\x1b\n" +
-	"\x19_max_exporter_connections\"\xf9\x05\n" +
+	"\x19_max_exporter_connectionsB\r\n" +
+	"\v_vault_path\"\x91\x06\n" +
 	"\x19AddProxySQLExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
 	"\n" +
-	"service_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\x12'\n" +
-	"\busername\x18\x03 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\busername\x12 \n" +
+	"service_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\x12 \n" +
+	"\busername\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
 	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x10\n" +
 	"\x03tls\x18\x05 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x12^\n" +
@@ -11898,10 +12287,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0eagent_password\x18\v \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x123\n" +
 	"\tlog_level\x18\f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
 	"\x0fexpose_exporter\x18\r \x01(\bR\x0eexposeExporter\x12R\n" +
-	"\x12connection_timeout\x18\x0e \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18\x0e \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x0f \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9c\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcf\a\n" +
 	"\x1cChangeProxySQLExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11918,7 +12309,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0fexpose_exporter\x18\f \x01(\bH\tR\x0eexposeExporter\x88\x01\x01\x12R\n" +
 	"\x12connection_timeout\x18\r \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x127\n" +
 	"\x15skip_connection_check\x18\x0e \x01(\bH\n" +
-	"R\x13skipConnectionCheck\x88\x01\x01B\t\n" +
+	"R\x13skipConnectionCheck\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"vault_path\x18\x0f \x01(\tH\vR\tvaultPath\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -11930,13 +12323,14 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\n" +
 	"_log_levelB\x12\n" +
 	"\x10_expose_exporterB\x18\n" +
-	"\x16_skip_connection_check\"\xad\a\n" +
+	"\x16_skip_connection_checkB\r\n" +
+	"\v_vault_path\"\xc5\a\n" +
 	" AddQANMySQLPerfSchemaAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
 	"\n" +
-	"service_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\x12'\n" +
-	"\busername\x18\x03 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\busername\x12 \n" +
+	"service_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\x12 \n" +
+	"\busername\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
 	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x10\n" +
 	"\x03tls\x18\x05 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x12\x15\n" +
@@ -11950,13 +12344,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x15skip_connection_check\x18\r \x01(\bR\x13skipConnectionCheck\x128\n" +
 	"\x18disable_comments_parsing\x18\x0e \x01(\bR\x16disableCommentsParsing\x123\n" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12l\n" +
-	"\x10extra_dsn_params\x18\x10 \x03(\v2B.inventory.v1.AddQANMySQLPerfSchemaAgentParams.ExtraDsnParamsEntryR\x0eextraDsnParams\x1a?\n" +
+	"\x10extra_dsn_params\x18\x10 \x03(\v2B.inventory.v1.AddQANMySQLPerfSchemaAgentParams.ExtraDsnParamsEntryR\x0eextraDsnParams\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x11 \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x99\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcc\b\n" +
 	"#ChangeQANMySQLPerfSchemaAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11975,7 +12371,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x16disable_query_examples\x18\r \x01(\bH\vR\x14disableQueryExamples\x88\x01\x01\x127\n" +
 	"\x15skip_connection_check\x18\x0e \x01(\bH\fR\x13skipConnectionCheck\x88\x01\x01\x12=\n" +
 	"\x18disable_comments_parsing\x18\x0f \x01(\bH\rR\x16disableCommentsParsing\x88\x01\x01\x128\n" +
-	"\tlog_level\x18\x10 \x01(\x0e2\x16.inventory.v1.LogLevelH\x0eR\blogLevel\x88\x01\x01B\t\n" +
+	"\tlog_level\x18\x10 \x01(\x0e2\x16.inventory.v1.LogLevelH\x0eR\blogLevel\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"vault_path\x18\x11 \x01(\tH\x0fR\tvaultPath\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -11992,13 +12390,14 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x16_skip_connection_checkB\x1b\n" +
 	"\x19_disable_comments_parsingB\f\n" +
 	"\n" +
-	"_log_level\"\xd7\a\n" +
+	"_log_levelB\r\n" +
+	"\v_vault_path\"\xef\a\n" +
 	"\x1dAddQANMySQLSlowlogAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
 	"\n" +
-	"service_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\x12'\n" +
-	"\busername\x18\x03 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\busername\x12 \n" +
+	"service_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\x12 \n" +
+	"\busername\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
 	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x10\n" +
 	"\x03tls\x18\x05 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x12\x15\n" +
@@ -12013,13 +12412,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x15skip_connection_check\x18\x0e \x01(\bR\x13skipConnectionCheck\x128\n" +
 	"\x18disable_comments_parsing\x18\x0f \x01(\bR\x16disableCommentsParsing\x123\n" +
 	"\tlog_level\x18\x10 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12i\n" +
-	"\x10extra_dsn_params\x18\x11 \x03(\v2?.inventory.v1.AddQANMySQLSlowlogAgentParams.ExtraDsnParamsEntryR\x0eextraDsnParams\x1a?\n" +
+	"\x10extra_dsn_params\x18\x11 \x03(\v2?.inventory.v1.AddQANMySQLSlowlogAgentParams.ExtraDsnParamsEntryR\x0eextraDsnParams\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x12 \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe8\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9b\t\n" +
 	" ChangeQANMySQLSlowlogAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12039,7 +12440,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x15max_slowlog_file_size\x18\x0e \x01(\x03H\fR\x12maxSlowlogFileSize\x88\x01\x01\x127\n" +
 	"\x15skip_connection_check\x18\x0f \x01(\bH\rR\x13skipConnectionCheck\x88\x01\x01\x12=\n" +
 	"\x18disable_comments_parsing\x18\x10 \x01(\bH\x0eR\x16disableCommentsParsing\x88\x01\x01\x128\n" +
-	"\tlog_level\x18\x11 \x01(\x0e2\x16.inventory.v1.LogLevelH\x0fR\blogLevel\x88\x01\x01B\t\n" +
+	"\tlog_level\x18\x11 \x01(\x0e2\x16.inventory.v1.LogLevelH\x0fR\blogLevel\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"vault_path\x18\x12 \x01(\tH\x10R\tvaultPath\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -12057,7 +12460,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x16_skip_connection_checkB\x1b\n" +
 	"\x19_disable_comments_parsingB\f\n" +
 	"\n" +
-	"_log_level\"\xbf\x06\n" +
+	"_log_levelB\r\n" +
+	"\v_vault_path\"\xde\x06\n" +
 	" AddQANMongoDBProfilerAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -12076,10 +12480,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x15skip_connection_check\x18\f \x01(\bR\x13skipConnectionCheck\x129\n" +
 	"\x18authentication_mechanism\x18\r \x01(\tR\x17authenticationMechanism\x127\n" +
 	"\x17authentication_database\x18\x0e \x01(\tR\x16authenticationDatabase\x123\n" +
-	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
+	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x10 \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x89\t\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbc\t\n" +
 	"#ChangeQANMongoDBProfilerAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12098,7 +12504,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x18authentication_mechanism\x18\r \x01(\tH\vR\x17authenticationMechanism\x88\x01\x01\x12<\n" +
 	"\x17authentication_database\x18\x0e \x01(\tH\fR\x16authenticationDatabase\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\rR\blogLevel\x88\x01\x01\x127\n" +
-	"\x15skip_connection_check\x18\x10 \x01(\bH\x0eR\x13skipConnectionCheck\x88\x01\x01B\t\n" +
+	"\x15skip_connection_check\x18\x10 \x01(\bH\x0eR\x13skipConnectionCheck\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"vault_path\x18\x11 \x01(\tH\x0fR\tvaultPath\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -12114,7 +12522,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x18_authentication_databaseB\f\n" +
 	"\n" +
 	"_log_levelB\x18\n" +
-	"\x16_skip_connection_check\"\xbf\x06\n" +
+	"\x16_skip_connection_checkB\r\n" +
+	"\v_vault_path\"\xde\x06\n" +
 	" AddQANMongoDBMongologAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -12133,10 +12542,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x15skip_connection_check\x18\f \x01(\bR\x13skipConnectionCheck\x129\n" +
 	"\x18authentication_mechanism\x18\r \x01(\tR\x17authenticationMechanism\x127\n" +
 	"\x17authentication_database\x18\x0e \x01(\tR\x16authenticationDatabase\x123\n" +
-	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
+	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x10 \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x89\t\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbc\t\n" +
 	"#ChangeQANMongoDBMongologAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12155,7 +12566,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x18authentication_mechanism\x18\r \x01(\tH\vR\x17authenticationMechanism\x88\x01\x01\x12<\n" +
 	"\x17authentication_database\x18\x0e \x01(\tH\fR\x16authenticationDatabase\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\rR\blogLevel\x88\x01\x01\x127\n" +
-	"\x15skip_connection_check\x18\x10 \x01(\bH\x0eR\x13skipConnectionCheck\x88\x01\x01B\t\n" +
+	"\x15skip_connection_check\x18\x10 \x01(\bH\x0eR\x13skipConnectionCheck\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"vault_path\x18\x11 \x01(\tH\x0fR\tvaultPath\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -12171,13 +12584,14 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x18_authentication_databaseB\f\n" +
 	"\n" +
 	"_log_levelB\x18\n" +
-	"\x16_skip_connection_check\"\xd4\x05\n" +
+	"\x16_skip_connection_checkB\r\n" +
+	"\v_vault_path\"\xec\x05\n" +
 	"'AddQANPostgreSQLPgStatementsAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
 	"\n" +
-	"service_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\x12'\n" +
-	"\busername\x18\x03 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\busername\x12 \n" +
+	"service_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\x12 \n" +
+	"\busername\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
 	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x10\n" +
 	"\x03tls\x18\x05 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x12l\n" +
@@ -12189,10 +12603,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x06tls_ca\x18\v \x01(\tR\x05tlsCa\x12\x1f\n" +
 	"\btls_cert\x18\f \x01(\tB\x04\x88\xb5\x18\x01R\atlsCert\x12\x1d\n" +
 	"\atls_key\x18\r \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x123\n" +
-	"\tlog_level\x18\x0e \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
+	"\tlog_level\x18\x0e \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x0f \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xca\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xfd\a\n" +
 	"*ChangeQANPostgreSQLPgStatementsAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12210,7 +12626,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"R\atlsCert\x88\x01\x01\x12\"\n" +
 	"\atls_key\x18\r \x01(\tB\x04\x88\xb5\x18\x01H\vR\x06tlsKey\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x0e \x01(\x0e2\x16.inventory.v1.LogLevelH\fR\blogLevel\x88\x01\x01\x127\n" +
-	"\x15skip_connection_check\x18\x0f \x01(\bH\rR\x13skipConnectionCheck\x88\x01\x01B\t\n" +
+	"\x15skip_connection_check\x18\x0f \x01(\bH\rR\x13skipConnectionCheck\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"vault_path\x18\x10 \x01(\tH\x0eR\tvaultPath\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -12226,13 +12644,14 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\b_tls_keyB\f\n" +
 	"\n" +
 	"_log_levelB\x18\n" +
-	"\x16_skip_connection_check\"\x8c\x06\n" +
+	"\x16_skip_connection_checkB\r\n" +
+	"\v_vault_path\"\xa4\x06\n" +
 	"(AddQANPostgreSQLPgStatMonitorAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
 	"\n" +
-	"service_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\x12'\n" +
-	"\busername\x18\x03 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\busername\x12 \n" +
+	"service_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\x12 \n" +
+	"\busername\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
 	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x10\n" +
 	"\x03tls\x18\x05 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x12(\n" +
@@ -12245,10 +12664,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x06tls_ca\x18\f \x01(\tR\x05tlsCa\x12\x1f\n" +
 	"\btls_cert\x18\r \x01(\tB\x04\x88\xb5\x18\x01R\atlsCert\x12\x1d\n" +
 	"\atls_key\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x123\n" +
-	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
+	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x10 \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa1\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd4\b\n" +
 	"+ChangeQANPostgreSQLPgStatMonitorAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12267,7 +12688,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\btls_cert\x18\r \x01(\tB\x04\x88\xb5\x18\x01H\vR\atlsCert\x88\x01\x01\x12\"\n" +
 	"\atls_key\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01H\fR\x06tlsKey\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\rR\blogLevel\x88\x01\x01\x127\n" +
-	"\x15skip_connection_check\x18\x10 \x01(\bH\x0eR\x13skipConnectionCheck\x88\x01\x01B\t\n" +
+	"\x15skip_connection_check\x18\x10 \x01(\bH\x0eR\x13skipConnectionCheck\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"vault_path\x18\x11 \x01(\tH\x0fR\tvaultPath\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -12284,7 +12707,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\b_tls_keyB\f\n" +
 	"\n" +
 	"_log_levelB\x18\n" +
-	"\x16_skip_connection_check\"\xac\x05\n" +
+	"\x16_skip_connection_checkB\r\n" +
+	"\v_vault_path\"\xac\x05\n" +
 	"\x14AddRDSExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12 \n" +
@@ -12403,13 +12827,13 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"_log_level\"@\n" +
 	"\x16ChangeNomadAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01B\t\n" +
-	"\a_enable\"\xcd\x06\n" +
+	"\a_enable\"\xe5\x06\n" +
 	"\x17AddValkeyExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12'\n" +
 	"\n" +
-	"service_id\x18\x02 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\tserviceId\x12'\n" +
-	"\busername\x18\x03 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\busername\x12 \n" +
+	"service_id\x18\x02 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\tserviceId\x12 \n" +
+	"\busername\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
 	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x10\n" +
 	"\x03tls\x18\x05 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x12\\\n" +
@@ -12424,10 +12848,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0eagent_password\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x12'\n" +
 	"\x0fexpose_exporter\x18\x0f \x01(\bR\x0eexposeExporter\x123\n" +
 	"\tlog_level\x18\x10 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12R\n" +
-	"\x12connection_timeout\x18\x11 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18\x11 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x12 \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xab\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xde\b\n" +
 	"\x1aChangeValkeyExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12447,7 +12873,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0fexpose_exporter\x18\x0e \x01(\bH\vR\x0eexposeExporter\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\fR\blogLevel\x88\x01\x01\x12R\n" +
 	"\x12connection_timeout\x18\x10 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x127\n" +
-	"\x15skip_connection_check\x18\x11 \x01(\bH\rR\x13skipConnectionCheck\x88\x01\x01B\t\n" +
+	"\x15skip_connection_check\x18\x11 \x01(\bH\rR\x13skipConnectionCheck\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"vault_path\x18\x12 \x01(\tH\x0eR\tvaultPath\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -12463,7 +12891,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x10_expose_exporterB\f\n" +
 	"\n" +
 	"_log_levelB\x18\n" +
-	"\x16_skip_connection_check\"\x87\x06\n" +
+	"\x16_skip_connection_checkB\r\n" +
+	"\v_vault_path\"\xa6\x06\n" +
 	"\x18AddRTAMongoDBAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -12482,10 +12911,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x15skip_connection_check\x18\f \x01(\bR\x13skipConnectionCheck\x129\n" +
 	"\x18authentication_mechanism\x18\r \x01(\tR\x17authenticationMechanism\x129\n" +
 	"\vrta_options\x18\x0e \x01(\v2\x18.inventory.v1.RTAOptionsR\n" +
-	"rtaOptions\x1a?\n" +
+	"rtaOptions\x12\x1d\n" +
+	"\n" +
+	"vault_path\x18\x0f \x01(\tR\tvaultPath\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x99\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcc\a\n" +
 	"\x1bChangeRTAMongoDBAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x128\n" +
@@ -12502,7 +12933,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"R\x17authenticationMechanism\x88\x01\x01\x12>\n" +
 	"\vrta_options\x18\f \x01(\v2\x18.inventory.v1.RTAOptionsH\vR\n" +
 	"rtaOptions\x88\x01\x01\x127\n" +
-	"\x15skip_connection_check\x18\r \x01(\bH\fR\x13skipConnectionCheck\x88\x01\x01B\t\n" +
+	"\x15skip_connection_check\x18\r \x01(\bH\fR\x13skipConnectionCheck\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"vault_path\x18\x0e \x01(\tH\rR\tvaultPath\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\f\n" +
 	"\n" +
@@ -12516,7 +12949,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\a_tls_caB\x1b\n" +
 	"\x19_authentication_mechanismB\x0e\n" +
 	"\f_rta_optionsB\x18\n" +
-	"\x16_skip_connection_check\"N\n" +
+	"\x16_skip_connection_checkB\r\n" +
+	"\v_vault_path\"N\n" +
 	"\x12RemoveAgentRequest\x12\"\n" +
 	"\bagent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aagentId\x12\x14\n" +
 	"\x05force\x18\x02 \x01(\bR\x05force\"\x15\n" +
