@@ -438,6 +438,29 @@ func TestAnnotations(t *testing.T) {
 		store.AssertNotCalled(t, "Write", mock.Anything, mock.Anything)
 	})
 
+	t.Run("Label value too long", func(t *testing.T) {
+		ctx, s, db, grafanaClient, store, teardown := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		addServiceOnNode(t, db, "n1", "s1", nil)
+
+		// 41 tags of 100 bytes join to 4,140 bytes.
+		tags := make([]string, 41)
+		for i := range tags {
+			tags[i] = fmt.Sprintf("%0100d", i)
+		}
+
+		_, err := s.AddAnnotation(ctx, &managementv1.AddAnnotationRequest{
+			Text:         "Some text",
+			Tags:         tags,
+			ServiceNames: []string{"s1"},
+		})
+		tests.AssertGRPCErrorRE(t, codes.InvalidArgument, `^Cannot annotate service 's1': label value too long: pmm_annotation_tags is 4140 bytes`, err)
+
+		grafanaClient.AssertNotCalled(t, "CreateAnnotation", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+		store.AssertNotCalled(t, "Write", mock.Anything, mock.Anything)
+	})
+
 	t.Run("Remove", func(t *testing.T) {
 		ctx, s, _, grafanaClient, store, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })

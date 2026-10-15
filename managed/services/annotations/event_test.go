@@ -268,3 +268,72 @@ func TestValidate(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateLabelValueLength(t *testing.T) {
+	t.Parallel()
+
+	// tagsOf returns n tags of ten bytes each, which join to n*11-1 bytes.
+	tagsOf := func(n int) []string {
+		tags := make([]string, n)
+		for i := range tags {
+			tags[i] = fmt.Sprintf("tag-%06d", i)
+		}
+		return tags
+	}
+
+	for name, tc := range map[string]struct {
+		event Event
+		label string
+		bytes int
+	}{
+		"joined tags over the limit": {
+			// 373 tags join to 4,102 bytes.
+			event: Event{AnnotationID: 1, Text: "t", Tags: tagsOf(373)},
+			label: "pmm_annotation_tags",
+			bytes: 4102,
+		},
+		"custom label value over the limit": {
+			event: Event{AnnotationID: 1, Text: "t", Labels: map[string]string{"team": strings.Repeat("x", MaxTextBytes+1)}},
+			label: "team",
+			bytes: MaxTextBytes + 1,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			err := tc.event.Validate()
+			require.ErrorIs(t, err, ErrLabelValueTooLong)
+			assert.ErrorContains(t, err, tc.label)
+			assert.ErrorContains(t, err, strconv.Itoa(tc.bytes))
+		})
+	}
+
+	for name, event := range map[string]Event{
+		"joined tags at the limit": {
+			AnnotationID: 1,
+			Text:         "t",
+			Tags:         append(tagsOf(372), strings.Repeat("y", MaxTextBytes-372*11)),
+		},
+		"custom label value at the limit": {
+			AnnotationID: 1,
+			Text:         "t",
+			Labels:       map[string]string{"team": strings.Repeat("x", MaxTextBytes)},
+		},
+		"text over the limit is truncated, not rejected": {
+			AnnotationID: 1,
+			Text:         strings.Repeat("x", MaxTextBytes+1),
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			longest := 0
+			for _, value := range event.SeriesLabels() {
+				longest = max(longest, len(value))
+			}
+			assert.Equal(t, MaxTextBytes, longest)
+
+			require.NoError(t, event.Validate())
+		})
+	}
+}

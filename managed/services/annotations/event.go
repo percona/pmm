@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -42,8 +43,12 @@ const (
 	tagsLabel = "pmm_annotation_tags"
 )
 
-// ErrTooManyLabels is returned for an event whose series has more than MaxLabels labels.
-var ErrTooManyLabels = errors.New("too many labels")
+var (
+	// ErrTooManyLabels is returned for an event whose series has more than MaxLabels labels.
+	ErrTooManyLabels = errors.New("too many labels")
+	// ErrLabelValueTooLong is returned for an event whose series has a label value longer than MaxTextBytes.
+	ErrLabelValueTooLong = errors.New("label value too long")
+)
 
 // Event is a Grafana annotation scoped to a node or a service.
 type Event struct {
@@ -80,11 +85,18 @@ func (e Event) SeriesLabels() map[string]string {
 	return res
 }
 
-// Validate returns ErrTooManyLabels if VictoriaMetrics would drop the event's series.
+// Validate returns ErrTooManyLabels or ErrLabelValueTooLong if VictoriaMetrics would drop the event's series.
 func (e Event) Validate() error {
-	n := len(e.SeriesLabels())
+	labels := e.SeriesLabels()
+	n := len(labels)
 	if n > MaxLabels {
 		return fmt.Errorf("%w: %d labels, at most %d are allowed", ErrTooManyLabels, n, MaxLabels)
+	}
+
+	for _, name := range slices.Sorted(maps.Keys(labels)) {
+		if len(labels[name]) > MaxTextBytes {
+			return fmt.Errorf("%w: %s is %d bytes, at most %d are allowed", ErrLabelValueTooLong, name, len(labels[name]), MaxTextBytes)
+		}
 	}
 
 	return nil
