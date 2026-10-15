@@ -227,6 +227,17 @@ If a node or service name is specified, it takes precedence over the auto-detect
 
 `--node-name=NAME --service-name=NAME`: Named node and named service
 
+### Output
+
+The command prints the ID of the new annotation:
+
+```text
+Annotation added.
+Annotation ID: 17
+```
+
+The ID is the `annotation_id` that the `POST /v1/management/annotations` API endpoint returns. It is also the number in the title of the annotation marker on a dashboard, `Annotation 17`. To delete a scoped annotation by its ID, see [Delete a scoped annotation](../../../use/dashboards-panels/annotate/annotate.md#delete-a-scoped-annotation).
+
 ### Examples
 
 - Add a deployment annotation:

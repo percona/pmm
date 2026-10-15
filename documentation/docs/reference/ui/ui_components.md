@@ -65,7 +65,8 @@ Filter your monitoring data using these contextual options:
 - **Interval**: Control the data granularity (Auto, 1m, 5m, etc.)
 - **Environment**: Focus on specific deployment environments
 - **Node Names**: Filter metrics to specific servers
-- **PMM Annotations**: Toggle visibility of important events on your timelines
+- **PMM Annotations**: Toggle visibility of global events on your timelines
+- **PMM Annotations: nodes and services**: Toggle visibility of events for nodes and services on your timelines. See [Annotation in dashboards](../../use/dashboards-panels/annotate/annotate.md)
 
 These selectors change based on the dashboard you're viewing, showing only relevant options.
 
