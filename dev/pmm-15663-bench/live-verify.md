@@ -46,3 +46,10 @@ Before = be751c4b6 (main + PMM-15609 `allValue: ".+"`, the broken state). After 
 - HA (vmauth delete route, sync failover, vmselect cache).
 - Scale (3M series, 5,000 annotations, 1,000 nodes): Task 1 benchmark only.
 - PostgreSQL and other database dashboards; only MySQL and OS dashboards were opened.
+- V9 cause (2026-10-15 20:44 UTC): not a missing permission. Admin holds `annotations:delete` on
+  `annotations:type:organization` and `folders:*`. Grafana resolves `DELETE /api/annotations/:id` by parsing the id and
+  loading the annotation (`pkg/api/annotations.go:551-567` in percona/grafana); `undefined` fails to parse
+  (`invalid scope`), a missing id fails to load, and `accesscontrol/middleware.go:122-136` answers both with the
+  generic "You'll need additional permissions … annotations:delete" 403. Reproduced as admin: id `undefined` and id
+  `999999` both give that 403. No permission makes a marker without an id deletable. Test annotations 11 (global) and
+  12 (service) added for manual checks.
