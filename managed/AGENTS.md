@@ -11,8 +11,8 @@
 
 ```
 pmm-admin (CLI) ──→ gRPC/REST API ──→ pmm-managed ──→ PostgreSQL (inventory, settings)
-PMM UI ───────────→ gRPC-Gateway ──→                ──→ VictoriaMetrics (scrape config)
-pmm-agent ────────→ bidirectional gRPC stream ──→    ──→ Grafana API (dashboards, users)
+PMM UI ───────────→ gRPC-Gateway ──→                ──→ VictoriaMetrics (scrape config, scoped-annotation series)
+pmm-agent ────────→ bidirectional gRPC stream ──→    ──→ Grafana API (dashboards, users, annotations)
                                                      ──→ Supervisord (process management)
                                                      ──→ qan-api2 (QAN forwarding)
                                                      ──→ VMAlert (alerting rules)
@@ -115,6 +115,7 @@ type Node struct {
 | `services/victoriametrics` | VictoriaMetrics scrape config generation from agent/service inventory |
 | `services/vmalert` | VMAlert alerting rules generation |
 | `services/grafana` | Grafana API client (users, dashboards, annotations) |
+| `services/annotations` | Node- and service-scoped annotations as `pmm_annotation_event` series in VictoriaMetrics: labels, store (write, delete, list), leader-only sync with Grafana's annotations |
 | `services/supervisord` | Supervisord config file generation and process control |
 | `services/ha` | Raft consensus, gossip protocol, leader election |
 | `services/telemetry` | Telemetry data collection and reporting to Percona |
