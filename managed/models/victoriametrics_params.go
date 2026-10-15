@@ -19,11 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
-	"os"
 	"strings"
-
-	config "github.com/percona/promconfig"
-	"gopkg.in/yaml.v3"
 )
 
 const (
@@ -36,8 +32,6 @@ const (
 
 // VictoriaMetricsParams - defines flags and settings for victoriametrics.
 type VictoriaMetricsParams struct {
-	// VMAlertFlags additional flags for VMAlert.
-	VMAlertFlags []string
 	// BaseConfigPath defines path for basic prometheus config.
 	BaseConfigPath string
 	// url defines url of Victoria Metrics
@@ -161,55 +155,10 @@ func NewVictoriaMetricsParams(basePath, vmURL string) (*VictoriaMetricsParams, e
 	if err != nil {
 		return nil, err
 	}
-	vmp := &VictoriaMetricsParams{
+	return &VictoriaMetricsParams{
 		BaseConfigPath: basePath,
 		url:            URL,
-	}
-	err = vmp.UpdateParams()
-	if err != nil {
-		return vmp, err
-	}
-
-	return vmp, nil
-}
-
-// UpdateParams - reads configuration file and updates corresponding flags.
-func (vmp *VictoriaMetricsParams) UpdateParams() error {
-	err := vmp.loadVMAlertParams()
-	if err != nil {
-		return fmt.Errorf("cannot update VMAlertFlags config param: %w", err)
-	}
-
-	return nil
-}
-
-// loadVMAlertParams - load params and converts it to vmalert flags.
-func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
-	buf, err := os.ReadFile(vmp.BaseConfigPath)
-	if err != nil {
-		if !os.IsNotExist(err) {
-			return fmt.Errorf("cannot read baseConfigPath for VMAlertParams: %w", err)
-		}
-		// fast return if users configuration doesn't exist with path
-		// /srv/prometheus/prometheus.base.yml,
-		// its maybe mounted into container by user.
-		return nil
-	}
-	var cfg config.Config
-	err = yaml.Unmarshal(buf, &cfg)
-	if err != nil {
-		return fmt.Errorf("cannot unmarshal baseConfigPath for VMAlertFlags: %w", err)
-	}
-	vmalertFlags := make([]string, 0, len(vmp.VMAlertFlags))
-	for _, r := range cfg.RuleFiles {
-		vmalertFlags = append(vmalertFlags, "--rule="+r)
-	}
-	if cfg.GlobalConfig.EvaluationInterval != 0 {
-		vmalertFlags = append(vmalertFlags, "--evaluationInterval="+cfg.GlobalConfig.EvaluationInterval.String())
-	}
-	vmp.VMAlertFlags = vmalertFlags
-
-	return nil
+	}, nil
 }
 
 // ExternalVM returns true if VictoriaMetrics is configured to run externally.

@@ -105,7 +105,6 @@ import (
 	"github.com/percona/pmm/managed/services/user"
 	"github.com/percona/pmm/managed/services/versioncache"
 	"github.com/percona/pmm/managed/services/victoriametrics"
-	"github.com/percona/pmm/managed/services/vmalert"
 	"github.com/percona/pmm/managed/utils/clean"
 	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/managed/utils/encryption"
@@ -243,7 +242,6 @@ type gRPCServerDeps struct {
 	server                    *server.Server
 	versionCache              *versioncache.Service
 	vmdb                      *victoriametrics.Service
-	vmalert                   *vmalert.Service
 	internalNodePrefixes      []string
 
 	omService *om.Service
@@ -568,7 +566,6 @@ type setupDeps struct {
 	ha          *ha.Service
 	supervisord *supervisord.Service
 	vmdb        *victoriametrics.Service
-	vmalert     *vmalert.Service
 	server      *server.Server
 	provisioner *alerting.Provisioner
 	l           *logrus.Entry
@@ -622,14 +619,6 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 		return false
 	}
 	deps.vmdb.RequestConfigurationUpdate()
-
-	deps.l.Infof("Checking VMAlert...")
-	err = deps.vmalert.IsReady(ctx)
-	if err != nil {
-		deps.l.Warnf("VMAlert problem: %+v.", err)
-		return false
-	}
-	deps.vmalert.RequestConfigurationUpdate()
 
 	deps.l.Info("Setup completed.")
 	return true
@@ -748,8 +737,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	victoriaMetricsURLF := kingpin.Flag("victoriametrics-url", "VictoriaMetrics base URL").Envar("PMM_VM_URL").
 		Default(models.VMBaseURL).String()
-	victoriaMetricsVMAlertURLF := kingpin.Flag("victoriametrics-vmalert-url", "VictoriaMetrics VMAlert base URL").Envar("PMM_VM_ALERT_URL").
-		Default("http://127.0.0.1:8880/").String()
 	victoriaMetricsConfigF := kingpin.Flag("victoriametrics-config", "VictoriaMetrics scrape configuration file path").
 		Default("/etc/victoriametrics-promscrape.yml").String()
 
@@ -1003,17 +990,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 
 	cleaner := clean.New(db)
-	externalRules := vmalert.NewExternalRules()
 	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, chParams, haService)
 	if err != nil {
 		l.Panicf("VictoriaMetrics service problem: %+v", err)
 	}
-
-	vmalert, err := vmalert.NewVMAlert(externalRules, *victoriaMetricsVMAlertURLF)
-	if err != nil {
-		l.Panicf("VictoriaMetrics VMAlert service problem: %+v", err)
-	}
-	prom.MustRegister(vmalert)
 
 	minioClient := minio.New()
 
@@ -1166,22 +1146,20 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	prom.MustRegister(om.NewMetricsCollector(omService))
 
 	serverParams := &server.Params{
-		DB:                   db,
-		VMDB:                 vmdb,
-		VMAlert:              vmalert,
-		AgentsStateUpdater:   agentsStateUpdater,
-		ChecksService:        checksService,
-		TemplatesService:     alertingService,
-		Supervisord:          supervisord,
-		TelemetryService:     telemetry,
-		GrafanaClient:        grafanaClient,
-		VMAlertExternalRules: externalRules,
-		Updater:              updater,
-		Dus:                  dus,
-		HAService:            haService,
-		Nomad:                nomad,
-		QANClient:            qanClient,
-		OmService:            omService,
+		DB:                 db,
+		VMDB:               vmdb,
+		AgentsStateUpdater: agentsStateUpdater,
+		ChecksService:      checksService,
+		TemplatesService:   alertingService,
+		Supervisord:        supervisord,
+		TelemetryService:   telemetry,
+		GrafanaClient:      grafanaClient,
+		Updater:            updater,
+		Dus:                dus,
+		HAService:          haService,
+		Nomad:              nomad,
+		QANClient:          qanClient,
+		OmService:          omService,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -1220,7 +1198,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		ha:          haService,
 		supervisord: supervisord,
 		vmdb:        vmdb,
-		vmalert:     vmalert,
 		server:      server,
 		provisioner: alertingProvisioner,
 		l:           logrus.WithField("component", "setup"),
@@ -1257,10 +1234,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	wg.Go(func() {
 		authServer.Run(ctx)
-	})
-
-	wg.Go(func() {
-		vmalert.Run(ctx)
 	})
 
 	wg.Go(func() {
@@ -1344,7 +1317,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				supervisord:               supervisord,
 				templatesService:          alertingService,
 				versionCache:              versionCache,
-				vmalert:                   vmalert,
 				omService:                 omService,
 				vmClient:                  &vmClient,
 				vmdb:                      vmdb,

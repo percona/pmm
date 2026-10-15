@@ -104,11 +104,6 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 
 	var err error
 
-	err = s.vmParams.UpdateParams()
-	if err != nil {
-		return err
-	}
-
 	for _, tmpl := range templates.Templates() {
 		if tmpl.Name() == "" {
 			continue
@@ -244,32 +239,6 @@ startsecs = 1
 stopsignal = INT
 stopwaitsecs = 30
 stdout_logfile = /srv/logs/victoriametrics.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
-
-{{define "vmalert"}}
-[program:vmalert]
-priority = 7
-command =
-	/usr/sbin/vmalert
-		--external.url={{ .VMURL }}
-		--datasource.url={{ .VMURL }}
-		--remoteRead.url={{ .VMURL }}
-		--remoteWrite.url={{ .VMURL }}
-		--rule=/srv/prometheus/rules/*.yml
-		--httpListenAddr={{ .InterfaceToBind }}:8880
-{{- range $index, $param := .VMAlertFlags }}
-		{{ $param }}
-{{- end }}
-autorestart = true
-autostart = true
-startretries = 10
-startsecs = 1
-stopsignal = INT
-stopwaitsecs = 10
-stdout_logfile = /srv/logs/vmalert.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true
@@ -435,7 +404,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 
 	templateParams := map[string]any{
 		"DataRetentionDays":            settings.DataRetentionDays(),
-		"VMAlertFlags":                 s.vmParams.VMAlertFlags,
 		"VMSearchDisableCache":         vmSearchDisableCache,
 		"VMSearchMaxQueryLen":          vmSearchMaxQueryLen,
 		"VMSearchLatencyOffset":        vmSearchLatencyOffset,
