@@ -32,4 +32,7 @@ var (
 
 	// ErrPMMUpdatesDisabled means PMM server updates are disabled and calls to query/start updates are not allowed.
 	ErrPMMUpdatesDisabled = errors.New("PMM updates are disabled")
+
+	// ErrAnnotationNotFound is returned when Grafana has no annotation with the requested ID.
+	ErrAnnotationNotFound = errors.New("annotation not found")
 )

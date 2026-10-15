@@ -34,8 +34,8 @@ import (
 
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/services/annotations"
-	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 	"github.com/percona/pmm/utils/logger"
@@ -454,7 +454,7 @@ func TestAnnotations(t *testing.T) {
 		ctx, s, _, grafanaClient, store, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
-		grafanaClient.On("DeleteAnnotation", ctx, int64(17), authorization).Return(grafana.ErrAnnotationNotFound).Once()
+		grafanaClient.On("DeleteAnnotation", ctx, int64(17), authorization).Return(services.ErrAnnotationNotFound).Once()
 
 		_, err := s.RemoveAnnotation(ctx, &managementv1.RemoveAnnotationRequest{AnnotationId: 17})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, "Annotation with ID 17 not found."), err)

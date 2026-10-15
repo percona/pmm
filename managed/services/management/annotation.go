@@ -27,8 +27,8 @@ import (
 
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/services/annotations"
-	"github.com/percona/pmm/managed/services/grafana"
 )
 
 // AddAnnotation creates an annotation in grafana, and writes the series of a node or service annotation to VictoriaMetrics.
@@ -109,7 +109,7 @@ func (s *ManagementService) RemoveAnnotation(ctx context.Context, req *managemen
 	}
 
 	err = s.grafanaClient.DeleteAnnotation(ctx, req.AnnotationId, authorization)
-	if errors.Is(err, grafana.ErrAnnotationNotFound) {
+	if errors.Is(err, services.ErrAnnotationNotFound) {
 		return nil, status.Errorf(codes.NotFound, "Annotation with ID %d not found.", req.AnnotationId)
 	}
 	if err != nil {

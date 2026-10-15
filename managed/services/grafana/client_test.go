@@ -662,7 +662,7 @@ func TestDeleteAnnotation(t *testing.T) {
 		c := newClient(t, http.StatusNotFound, `{"message":"Annotation not found"}`)
 
 		err := c.DeleteAnnotation(t.Context(), 17, authorization)
-		assert.ErrorIs(t, err, ErrAnnotationNotFound)
+		assert.ErrorIs(t, err, services.ErrAnnotationNotFound)
 	})
 
 	t.Run("Other error", func(t *testing.T) {
@@ -672,7 +672,7 @@ func TestDeleteAnnotation(t *testing.T) {
 
 		err := c.DeleteAnnotation(t.Context(), 17, authorization)
 		require.Error(t, err)
-		require.NotErrorIs(t, err, ErrAnnotationNotFound)
+		require.NotErrorIs(t, err, services.ErrAnnotationNotFound)
 		assert.ErrorContains(t, err, "403")
 	})
 }
