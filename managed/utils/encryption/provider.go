@@ -135,6 +135,9 @@ func (p *FileKeyProvider) Store(handle *keyset.Handle) error {
 	defer os.Remove(tmp.Name()) //nolint:errcheck
 
 	err = tmp.Chmod(keysetFileMode)
+	if err == nil {
+		err = keepOwner(tmp, p.path)
+	}
 	if err != nil {
 		tmp.Close() //nolint:errcheck,gosec
 		return fmt.Errorf("failed to store encryption keyset: %w", err)
@@ -160,6 +163,36 @@ func (p *FileKeyProvider) Store(handle *keyset.Handle) error {
 	err = syncDir(filepath.Dir(p.path))
 	if err != nil {
 		return fmt.Errorf("failed to store encryption keyset: %w", err)
+	}
+
+	return nil
+}
+
+// keepOwner gives tmp the owner and group of the file at path, which it is
+// about to replace: run as root (e.g. docker exec -u root), rotation would
+// otherwise leave a key file only root can read, and pmm-managed would not
+// start. It fails rather than replace the file when it cannot.
+func keepOwner(tmp *os.File, path string) error {
+	existing, err := os.Stat(path)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	created, err := tmp.Stat()
+	if err != nil {
+		return err
+	}
+	want, ok := existing.Sys().(*syscall.Stat_t)
+	got, ok2 := created.Sys().(*syscall.Stat_t)
+	if !ok || !ok2 || (want.Uid == got.Uid && want.Gid == got.Gid) {
+		return nil
+	}
+
+	err = tmp.Chown(int(want.Uid), int(want.Gid))
+	if err != nil {
+		return fmt.Errorf("cannot keep the owner of %s: %w", path, err)
 	}
 
 	return nil

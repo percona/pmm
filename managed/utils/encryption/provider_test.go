@@ -19,6 +19,7 @@ import (
 	"encoding/base64"
 	"os"
 	"path/filepath"
+	"syscall"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -126,4 +127,43 @@ func TestNonAEADKeyset(t *testing.T) {
 func TestSyncDir(t *testing.T) {
 	require.NoError(t, syncDir(t.TempDir()))
 	require.ErrorIs(t, syncDir(filepath.Join(t.TempDir(), "missing")), os.ErrNotExist, "a failure is reported")
+}
+
+// TestStoreKeepsOwner covers rotation run as root: the replaced key file
+// keeps the owner and group of the old one, so pmm-managed can still read it.
+func TestStoreKeepsOwner(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "encryption.key")
+	provider := NewFileKeyProvider(path)
+	_, err := CreateCipher(provider)
+	require.NoError(t, err)
+
+	uid, gid := os.Getuid(), -1
+	switch {
+	case os.Geteuid() == 0:
+		uid, gid = 1000, 1000 // pmm-managed's user in PMM Server
+	default:
+		groups, err := os.Getgroups()
+		require.NoError(t, err)
+		for _, g := range groups {
+			if g != os.Getgid() {
+				gid = g
+				break
+			}
+		}
+		if gid == -1 {
+			t.Skip("needs root or a secondary group")
+		}
+	}
+	require.NoError(t, os.Chown(path, uid, gid))
+
+	_, err = AddNewPrimaryKey(provider)
+	require.NoError(t, err)
+
+	info, err := os.Stat(path)
+	require.NoError(t, err)
+	st, ok := info.Sys().(*syscall.Stat_t)
+	require.True(t, ok)
+	assert.Equal(t, uid, int(st.Uid))
+	assert.Equal(t, gid, int(st.Gid))
+	assert.Equal(t, os.FileMode(0o600), info.Mode().Perm())
 }
