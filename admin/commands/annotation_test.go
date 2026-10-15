@@ -15,9 +15,11 @@
 package commands
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAnnotationResult(t *testing.T) {
@@ -25,4 +27,8 @@ func TestAnnotationResult(t *testing.T) {
 
 	res := &annotationResult{AnnotationID: "17"}
 	assert.Equal(t, "Annotation added.\nAnnotation ID: 17\n", res.String())
+
+	data, err := json.Marshal(res)
+	require.NoError(t, err)
+	assert.JSONEq(t, `{"annotation_id":"17"}`, string(data))
 }

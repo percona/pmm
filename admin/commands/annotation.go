@@ -34,7 +34,7 @@ Annotation ID: {{ .AnnotationID }}
 
 // annotationResult is a result of annotation command.
 type annotationResult struct {
-	AnnotationID string
+	AnnotationID string `json:"annotation_id"`
 }
 
 // Result is a command run result.
