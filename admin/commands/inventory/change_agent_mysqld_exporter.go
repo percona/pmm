@@ -73,6 +73,7 @@ type ChangeAgentMysqldExporterCommand struct {
 	Enable        *bool   `help:"Enable or disable the agent"`
 	Username      *string `help:"Username for MySQL connection"`
 	Password      *string `help:"Password for MySQL connection"`
+	VaultPath     *string `help:"Vault secret path with the password and optionally the username, read by pmm-agent instead of --password"`
 	AgentPassword *string `help:"Custom password for agent /metrics endpoint"`
 
 	// TLS options
@@ -137,6 +138,7 @@ func (cmd *ChangeAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 		Enable:                    cmd.Enable,
 		Username:                  cmd.Username,
 		Password:                  cmd.Password,
+		VaultPath:                 cmd.VaultPath,
 		TLS:                       cmd.TLS,
 		TLSSkipVerify:             cmd.TLSSkipVerify,
 		TLSCa:                     tlsCa,
@@ -184,6 +186,9 @@ func (cmd *ChangeAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 	}
 	if cmd.Password != nil {
 		changes = append(changes, "updated password")
+	}
+	if cmd.VaultPath != nil {
+		changes = append(changes, "updated vault path")
 	}
 	if cmd.AgentPassword != nil {
 		changes = append(changes, "updated agent password")

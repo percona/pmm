@@ -57,6 +57,7 @@ type AddValkeyCommand struct {
 	PMMAgentID          string            `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
 	Username            string            `help:"Valkey username"`
 	Password            string            `help:"Valkey password"`
+	VaultPath           string            `help:"Vault secret path with the password and optionally the username, read by pmm-agent instead of --password"`
 	AgentPassword       string            `help:"Custom password for /metrics endpoint"`
 	Environment         string            `help:"Environment name"`
 	Cluster             string            `help:"Cluster name"`
@@ -157,6 +158,7 @@ func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
 				ReplicationSet: cmd.ReplicationSet,
 				Username:       cmd.Username,
 				Password:       cmd.Password,
+				VaultPath:      cmd.VaultPath,
 				AgentPassword:  cmd.AgentPassword,
 				CustomLabels:   pointer.Get(customLabels),
 

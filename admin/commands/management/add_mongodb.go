@@ -65,6 +65,7 @@ type AddMongoDBCommand struct {
 	PMMAgentID        string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
 	Username          string `help:"MongoDB username"`
 	Password          string `help:"MongoDB password"`
+	VaultPath         string `help:"Vault secret path with the password and optionally the username, read by pmm-agent instead of --password"`
 	AgentPassword     string `help:"Custom password for /metrics endpoint"`
 	CredentialsSource string `type:"existingfile" help:"Credentials provider"`
 	// TODO add "auto"
@@ -183,6 +184,7 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 				ReplicationSet: cmd.ReplicationSet,
 				Username:       cmd.Username,
 				Password:       cmd.Password,
+				VaultPath:      cmd.VaultPath,
 				AgentPassword:  cmd.AgentPassword,
 
 				QANMongodbProfiler: cmd.QuerySource == MongodbQuerySourceProfiler,

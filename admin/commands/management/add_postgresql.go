@@ -59,6 +59,7 @@ type AddPostgreSQLCommand struct {
 	Socket            string `help:"Path to socket"`
 	Username          string `default:"postgres" help:"PostgreSQL username"`
 	Password          string `help:"PostgreSQL password"`
+	VaultPath         string `help:"Vault secret path with the password and optionally the username, read by pmm-agent instead of --password"`
 	Database          string `help:"PostgreSQL database"`
 	AgentPassword     string `help:"Custom password for /metrics endpoint"`
 	CredentialsSource string `type:"existingfile" help:"Credentials provider"`
@@ -189,6 +190,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 				ExposeExporter:         cmd.ExposeExporter,
 				Username:               cmd.Username,
 				Password:               cmd.Password,
+				VaultPath:              cmd.VaultPath,
 				Database:               cmd.Database,
 				AgentPassword:          cmd.AgentPassword,
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,

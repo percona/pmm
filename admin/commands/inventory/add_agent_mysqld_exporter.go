@@ -93,6 +93,7 @@ type AddAgentMysqldExporterCommand struct {
 	ServiceID                 string            `arg:"" help:"Service identifier"`
 	Username                  string            `arg:"" optional:"" help:"MySQL username for scraping metrics"`
 	Password                  string            `help:"MySQL password for scraping metrics"`
+	VaultPath                 string            `help:"Vault secret path with the password and optionally the username, read by pmm-agent instead of --password"`
 	AgentPassword             string            `help:"Custom password for /metrics endpoint"`
 	CustomLabels              map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	ExtraDSNParams            map[string]string `mapsep:"," help:"Extra parameters to be passed to the MySQL DSN, e.g. 'param1=value1,param2=value2'"`
@@ -141,6 +142,7 @@ func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 				ServiceID:                 cmd.ServiceID,
 				Username:                  cmd.Username,
 				Password:                  cmd.Password,
+				VaultPath:                 cmd.VaultPath,
 				AgentPassword:             cmd.AgentPassword,
 				CustomLabels:              pointer.Get(customLabels),
 				ExtraDsnParams:            pointer.Get(extraDSNParams),
