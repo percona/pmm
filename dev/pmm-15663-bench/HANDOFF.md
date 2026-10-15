@@ -8,8 +8,9 @@ user's review), with probe evidence in [`probe/RESULTS.md`](probe/RESULTS.md). I
 series with the node's or service's full labels (nodes carry no `environment`), a leader-only
 sync job backfills and mirrors deletes, admins delete through a new `RemoveAnnotation` API
 (HA needs a vmauth delete route in percona-helm-charts), and each dashboard keeps today's scope
-mapping. Next step after review:
-the `superpowers:writing-plans` skill, then the `node_name_list` benchmark and implementation.
+mapping. The spec is approved; the implementation plan is [`PLAN.md`](PLAN.md) (12 tasks,
+starting with the `node_name_list` benchmark as a go/no-go), waiting for the user's review and
+choice of execution method.
 
 ## Goal
 

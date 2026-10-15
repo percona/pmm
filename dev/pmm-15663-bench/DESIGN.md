@@ -97,8 +97,8 @@ Limits, enforced by pmm-managed because VictoriaMetrics drops silently:
 2. Create the Grafana annotation as today. `grafana.Client.CreateAnnotation` returns Grafana's response message today;
    it returns the annotation id instead.
 3. Remote-write the series to `<PMM_VM_URL>/api/v1/write` (snappy-compressed protobuf, `prompb` from the
-   `github.com/prometheus/prometheus` module already in `go.mod`). The writer lives in `managed/services/victoriametrics`,
-   behind a small interface in `management/deps.go`.
+   `github.com/prometheus/prometheus` module already in `go.mod`). The writer lives in a new package
+   `managed/services/annotations`, with the sync job, behind a small interface in `management/deps.go`.
 4. If step 3 fails, return `Unavailable` saying the annotation was created but is not shown yet; the sync job adds it.
 5. Return the id: `AddAnnotationResponse` gets `int64 annotation_id = 1` (additive), and `pmm-admin annotate` prints it.
 
@@ -259,7 +259,7 @@ Build in `Percona-Lab/pmm-submodules`.
 | An Admin may see an Edit or Delete button on a scoped marker that cannot work: the Prometheus event has no id, and `AnnotationTooltip2.tsx` only checks `annoId !== 0` | From code; check live |
 | Ingest slowdown per delete on HA's v1.128 | HA run; deletes are rare and the sync job batches them |
 | Inventory label changes are not reflected in already-written series | Accepted |
-| Whether today's tag query matches dashboard-level annotations as well as org-level ones | Check before writing the sync query |
+| Whether today's tag query matches dashboard-level annotations as well as org-level ones | Resolved: it does not filter on `dashboard_id` (`xorm_store.go`), so the sync job reads both |
 | The global Grafana query keeps `limit: 100` | Unchanged from `main`; global annotations only |
 | Marker text: HTML is sanitized and newlines collapse | Same as native annotations |
 
