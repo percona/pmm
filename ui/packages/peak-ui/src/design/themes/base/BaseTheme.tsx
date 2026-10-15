@@ -735,7 +735,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         fontFamily: fontDisplay,
         fontWeight: 700,
         fontSize: '0.6875rem',
-        lineHeight: '1.0909',
+        lineHeight: '1.091',
         letterSpacing: '0.125em',
         textTransform: 'uppercase',
       },
