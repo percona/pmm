@@ -108,19 +108,20 @@ const HIDDEN_BY_DEFAULT = {
   config_path: false,
   argv: false,
   node_id: false,
+  cluster_id: false,
 };
 
 /** Flat by default, as the tab has always opened; the grouping keys lead the columns. */
 const GROUP_BY_OPTIONS: GroupByOption[] = [
   { value: 'env_name', label: 'Environment' },
-  { value: 'cluster_name', label: 'Cluster' },
+  { value: 'cluster_id', label: 'Cluster' },
   { value: NO_GROUPING, label: 'None' },
 ];
 
 /** What a group header calls a group whose services carry no name for it. */
 const UNNAMED_GROUP: Record<string, string> = {
   env_name: 'Unassigned environment',
-  cluster_name: 'No cluster',
+  cluster_id: 'No cluster',
 };
 
 /**
@@ -128,8 +129,10 @@ const UNNAMED_GROUP: Record<string, string> = {
  * name arrives as "null" or "undefined".
  */
 const groupLabel = (row: MRT_Row<OmServiceInventoryRow>) => {
-  const column = row.groupingColumnId as 'env_name' | 'cluster_name';
-  return row.original[column] || UNNAMED_GROUP[column];
+  const column = row.groupingColumnId as 'env_name' | 'cluster_id';
+  const name =
+    column === 'env_name' ? row.original.env_name : row.original.cluster_name;
+  return name || UNNAMED_GROUP[column];
 };
 
 /** Columns for the flat service table. Grouping keys lead, then identity, then load. */
@@ -152,6 +155,13 @@ function useColumns(
         header: 'Cluster',
         Cell: ({ row: { original } }) =>
           original.cluster_name ?? <Unavailable reason="not_applicable" />,
+      },
+      {
+        // Grouping only, never shown: the Cluster select option groups on the id so
+        // two clusters sharing a name, or both unnamed, stay apart.
+        accessorKey: 'cluster_id',
+        header: 'Cluster ID',
+        visibleInShowHideMenu: false,
       },
       {
         accessorKey: 'service_name',

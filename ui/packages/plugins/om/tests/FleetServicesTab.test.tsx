@@ -292,6 +292,44 @@ describe('FleetServicesTab', () => {
       expect(screen.queryByText(/^(null|undefined)$/)).toBeNull();
     });
 
+    it('keeps two clusters sharing a name, or both unnamed, in separate groups', () => {
+      serve(
+        topology([
+          {
+            env_name: 'production',
+            clusters: [
+              cluster({
+                name: 'orders',
+                services: [service({ service_name: 'orders-a' })],
+              }),
+              cluster({
+                name: 'orders',
+                services: [service({ service_name: 'orders-b' })],
+              }),
+              cluster({
+                name: null,
+                services: [service({ service_name: 'solo-a' })],
+              }),
+              cluster({
+                name: null,
+                services: [service({ service_name: 'solo-b' })],
+              }),
+            ],
+          },
+        ])
+      );
+      renderTab();
+
+      groupBy('Cluster');
+
+      expect(
+        screen.getAllByRole('button', { name: 'Collapse orders' })
+      ).toHaveLength(2);
+      expect(
+        screen.getAllByRole('button', { name: 'Collapse No cluster' })
+      ).toHaveLength(2);
+    });
+
     it('groups by cluster from the select, with every group open', () => {
       renderTab();
 
