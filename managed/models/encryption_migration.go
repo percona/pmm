@@ -320,7 +320,8 @@ func migrateEncryption(q *reform.Querier, params migrationParams) error {
 			backup[t.name] = scans[i].backup
 		}
 	}
-	u, l := resolveUnknownKeys(unknownKey, keyReadsData || cipher.AcceptsKeyLoss())
+	// in HA, the other nodes may still hold the keys, see acceptKeyLoss
+	u, l := resolveUnknownKeys(unknownKey, (keyReadsData && !params.ha) || cipher.AcceptsKeyLoss())
 	undecryptable = append(undecryptable, u...)
 	lost = append(lost, l...)
 	if len(undecryptable) != 0 {
@@ -328,7 +329,9 @@ func migrateEncryption(q *reform.Querier, params migrationParams) error {
 		if lossAcceptable(undecryptable) {
 			accept = params.acceptValue(cipher)
 		}
-		return errUndecryptable(undecryptable, accept)
+		err := errUndecryptable(undecryptable, accept)
+		err.otherNodeKey = params.ha && len(u) != 0
+		return err
 	}
 	if len(lost) != 0 {
 		logrus.Warnf("%d stored credential(s) cannot be recovered: they are encrypted with a key that is not available, "+
@@ -543,13 +546,16 @@ func (e *keyError) Is(target error) bool {
 // Its causes can be matched with errors.Is, e.g. encryption.ErrLegacyUnknownKey.
 // A non-empty acceptValue is the value of encryption.AcceptKeyLossEnvVar that
 // accepts the loss of the key the data was encrypted with.
-func errUndecryptable(problems []error, acceptValue string) error {
+func errUndecryptable(problems []error, acceptValue string) *undecryptableError {
 	return &undecryptableError{problems: problems, acceptValue: acceptValue}
 }
 
 type undecryptableError struct {
 	problems    []error
 	acceptValue string
+	// otherNodeKey is set in HA for legacy ciphertext of keys the keyset does
+	// not hold: HA nodes of older PMM versions could each use their own key
+	otherNodeKey bool
 }
 
 func (e *undecryptableError) Error() string {
@@ -571,6 +577,11 @@ func (e *undecryptableError) Error() string {
 		msg += fmt.Sprintf(". If the key is lost for good, set %s=%s and restart: the values it cannot decrypt are kept "+
 			"in a backup file and rewritten as lost; placing the lost key at %s later makes them readable again",
 			encryption.AcceptKeyLossEnvVar, e.acceptValue, encryption.LegacyBackupKeyPath(encryption.DefaultKeyPath()))
+	}
+	if e.otherNodeKey {
+		msg += fmt.Sprintf(". HA nodes of older PMM versions could each use their own encryption key: "+
+			"place the key file of the node that wrote these values at %s and restart",
+			encryption.LegacyBackupKeyPath(encryption.DefaultKeyPath()))
 	}
 
 	return msg

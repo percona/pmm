@@ -333,3 +333,44 @@ func TestAcceptKeyLossIgnoredInHA(t *testing.T) {
 	require.ErrorIs(t, setupHADB(t, sqlDB), models.ErrEncryptionKeyMismatch)
 	assert.Equal(t, check, storedKeyCheck(t, sqlDB), "nothing is changed")
 }
+
+// TestHALegacyValuesOfAnotherNodeKey covers an HA database holding legacy
+// ciphertext of two keys, as HA nodes of older PMM versions could each use
+// their own key. Unlike a standalone server after a key loss, the node must
+// not rewrite the other node's values as lost, since that node still holds
+// the key; placing it as the previous key makes them readable.
+func TestHALegacyValuesOfAnotherNodeKey(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	keepDefaultCipher(t)
+	current, err := encryption.DefaultCipher()
+	require.NoError(t, err)
+
+	// a key file of this test's own, so that the other key can be placed next to it
+	data, err := os.ReadFile(os.Getenv(encryption.CustomEncryptionKeyPathEnvVar))
+	require.NoError(t, err)
+	keyPath := filepath.Join(t.TempDir(), "pmm-encryption.key")
+	require.NoError(t, os.WriteFile(keyPath, data, 0o600))
+	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, keyPath)
+	otherPath, other := newKeyFile(t)
+
+	_, err = sqlDB.ExecContext(t.Context(),
+		`UPDATE settings SET settings = settings || '{"encrypted_items": ["pmm-managed.agents.password"]}'::jsonb`)
+	require.NoError(t, err)
+	insertExporter(t, sqlDB, "own", legacyCiphertext(t, current, "own-password"), "")
+	stale := legacyCiphertext(t, other, "other-node-password")
+	insertExporter(t, sqlDB, "other", stale, "")
+
+	err = setupHADB(t, sqlDB)
+	require.ErrorIs(t, err, encryption.ErrLegacyUnknownKey)
+	require.ErrorIs(t, err, models.ErrEncryptionKeyMismatch)
+	require.ErrorContains(t, err, encryption.LegacyBackupKeyPath(keyPath))
+	assert.Equal(t, stale, storedPassword(t, sqlDB, "other"), "nothing is rewritten")
+
+	otherKey, err := os.ReadFile(otherPath)
+	require.NoError(t, err)
+	require.NoError(t, os.WriteFile(encryption.LegacyBackupKeyPath(keyPath), otherKey, 0o600))
+	require.NoError(t, setupHADB(t, sqlDB))
+	agent, err := models.FindAgentByID(reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier, "other")
+	require.NoError(t, err)
+	assert.Equal(t, "other-node-password", agent.Password.Reveal())
+}
