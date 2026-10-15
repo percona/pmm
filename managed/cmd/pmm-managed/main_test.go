@@ -97,6 +97,7 @@ func TestImports(t *testing.T) {
 	// services should be independent
 	for _, service := range []string{
 		"github.com/percona/pmm/managed/services/agents",
+		"github.com/percona/pmm/managed/services/annotations",
 		"github.com/percona/pmm/managed/services/checks",
 		"github.com/percona/pmm/managed/services/qan",
 		"github.com/percona/pmm/managed/services/server",
@@ -116,7 +117,6 @@ func TestImports(t *testing.T) {
 		// those services should be independent too, but has some common code
 		// as converters, errors, ...
 		"github.com/percona/pmm/managed/services/grafana",
-		"github.com/percona/pmm/managed/services/management",
 		"github.com/percona/pmm/managed/services/server",
 		"github.com/percona/pmm/managed/services/checks",
 	} {
@@ -125,6 +125,16 @@ func TestImports(t *testing.T) {
 				"github.com/percona/pmm/managed/services/",
 			},
 		}
+	}
+
+	// management writes and deletes annotation series through the annotations store.
+	constraints["github.com/percona/pmm/managed/services/management"] = constraint{
+		blacklistPrefixes: []string{
+			"github.com/percona/pmm/managed/services/",
+		},
+		whitelistPrefixes: []string{
+			"github.com/percona/pmm/managed/services/annotations",
+		},
 	}
 
 	for _, service := range []string{

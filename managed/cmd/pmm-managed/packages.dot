@@ -18,6 +18,8 @@ digraph packages {
 	"/services/agents" -> "/services/agents/channel";
 	"/services/agents.test" -> "/services/agents";
 	"/services/agents/grpc" -> "/services/agents";
+	"/services/annotations" -> "/models";
+	"/services/annotations.test" -> "/services/annotations";
 	"/services/checks" -> "/models";
 	"/services/checks" -> "/pi/check";
 	"/services/checks" -> "/pi/common";
@@ -38,6 +40,7 @@ digraph packages {
 	"/services/management" -> "/pi/check";
 	"/services/management" -> "/pi/common";
 	"/services/management" -> "/services";
+	"/services/management" -> "/services/annotations";
 	"/services/management" -> "/services/management/common";
 	"/services/management.test" -> "/services/management";
 	"/services/management/grpc" -> "/models";
